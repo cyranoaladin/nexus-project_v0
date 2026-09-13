@@ -1,0 +1,55 @@
+{
+  "candidate_ref": "CL-2026-0001",
+  "mode_rendu": "maquette",
+  "fictif": true,
+  "session_date": "2026-09-15",
+  "reponses": {
+    "profil": "P3",
+    "session_visee": "2027",
+    "session_baccalaureat_finale": 2027,
+    "annee_scolaire_passation_ea": "2026-2027",
+    "mode_passation_ea": "meme_session",
+    "age_au_31_decembre_annee_examen": 21,
+    "note_eligibilite": "Fait de l'article 3 requis par Q-26 pour présenter toutes les épreuves à la même session. La variable n'est pas encore au questionnaire : le jeu la porte pour exercer la règle avant son branchement.",
+    "note_contexte_temporel": "P3 mineur : même contexte que CL-2026-0000.",
+    "statut_minorite": "mineur",
+    "systeme_scolaire": "tunisien",
+    "derniere_classe_complete": "seconde",
+    "annees_interruption": 2,
+    "eaf_deja_passe": "non",
+    "specialites": [
+      "MATH",
+      "SES",
+      "PC"
+    ],
+    "statut_par_specialite": {
+      "MATH": "jamais_abordee",
+      "PC": "deja_suivie_en_classe",
+      "SES": "etudiee_seul"
+    },
+    "specialite_abandonnee": "SES",
+    "langue_scolarisation": "arabe",
+    "langue_maison": "arabe",
+    "auto_francais": {
+      "comprendre": 4,
+      "ecrire": 2,
+      "parler": 2,
+      "lire_textes_litteraires": 2
+    },
+    "auto_par_matiere": {
+      "MATH": 4,
+      "SES": 3,
+      "PC": 3
+    },
+    "heures_disponibles": 18,
+    "activite_parallele": "temps_partiel",
+    "acces_materiel": [
+      "ordinateur",
+      "calculatrice"
+    ],
+    "orientation_visee": "études d'économie",
+    "parcoursup_concerne": "oui",
+    "epreuves_francais_a_presenter": "les_deux"
+  },
+  "note": "Jeu fictif dérivé de instruments/_MAQUETTE/specification.json. Aucune passation réelle, aucun élément nominatif. Les valeurs qui déclenchent une règle sont commandées par la spécification, non choisies ici : l'auto-positionnement de 4 en mathématiques et de 4 en compréhension écrite y sert l'indice de calibration du § 5.4. Cette variante ne diffère que par le statut de minorité ; elle sert à éprouver la version parent du bilan."
+}

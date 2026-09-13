@@ -1,0 +1,2178 @@
+{
+  "schema": "nexus.referentiel.codes_erreur",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Cahier § 4.1 (le correcteur choisit un code, il ne rédige pas de commentaire) et § 8.3 (vocabulaire du bilan)",
+  "conventions": {
+    "format": "MATIERE-ERR-LIBELLE",
+    "usage": "Un item de type B référence uniquement des codes de ce catalogue. Un item peut ajouter un code au catalogue ; il n'en invente jamais un localement.",
+    "libelle": "Six mots au plus, descriptif d'un observable, sans jugement de valeur. Ce libellé est recopié tel quel dans la section « points de vigilance » du bilan : il passe le contrôle des termes bloquants.",
+    "description_observable": "Ce que le correcteur voit sur la copie, en une phrase. Ce n'est pas une cause supposée ni un conseil.",
+    "competences_concernees": "Codes du référentiel au format PERIMETRE/COMPETENCE, vérifiés par validate_referentiel.py."
+  },
+  "matieres": {
+    "FR": {
+      "libelle": "Français",
+      "perimetres": [
+        "FR-EAF",
+        "FR-MAI"
+      ]
+    },
+    "PHI": {
+      "libelle": "Philosophie",
+      "perimetres": [
+        "PHI"
+      ]
+    },
+    "TC": {
+      "libelle": "Enseignement scientifique",
+      "perimetres": [
+        "TC-ES"
+      ]
+    },
+    "MATH": {
+      "libelle": "Mathématiques",
+      "perimetres": [
+        "EDS-MATH",
+        "MATH-EA"
+      ]
+    },
+    "PC": {
+      "libelle": "Physique-chimie",
+      "perimetres": [
+        "EDS-PC"
+      ]
+    },
+    "NSI": {
+      "libelle": "Numérique et sciences informatiques",
+      "perimetres": [
+        "EDS-NSI"
+      ]
+    },
+    "SVT": {
+      "libelle": "Sciences de la vie et de la Terre",
+      "perimetres": [
+        "EDS-SVT"
+      ]
+    },
+    "SES": {
+      "libelle": "Sciences économiques et sociales",
+      "perimetres": [
+        "EDS-SES"
+      ]
+    },
+    "HGGSP": {
+      "libelle": "Histoire-géographie, géopolitique et sciences politiques",
+      "perimetres": [
+        "EDS-HGGSP"
+      ]
+    },
+    "HLP": {
+      "libelle": "Humanités, littérature et philosophie",
+      "perimetres": [
+        "EDS-HLP"
+      ]
+    },
+    "HG": {
+      "libelle": "Histoire-géographie",
+      "perimetres": [
+        "TC-HG"
+      ]
+    },
+    "EMC": {
+      "libelle": "Enseignement moral et civique",
+      "perimetres": [
+        "TC-EMC"
+      ]
+    },
+    "FRP": {
+      "libelle": "Français — positionnement linguistique",
+      "perimetres": [
+        "FR-POS"
+      ]
+    }
+  },
+  "codes": [
+    {
+      "code": "FR-ERR-ACCORD",
+      "matiere": "FR",
+      "libelle": "Accord non réalisé",
+      "description_observable": "Le verbe, l'adjectif ou le participe passé ne s'accorde pas avec le mot dont il dépend.",
+      "competences_concernees": [
+        "FR-EAF/LANG",
+        "FR-MAI/LANG"
+      ],
+      "exemple": "« les personnages qui apparaît » ; « une scène frappant »."
+    },
+    {
+      "code": "FR-ERR-TEMPS",
+      "matiere": "FR",
+      "libelle": "Temps verbal inadapté",
+      "description_observable": "Le temps employé ne correspond pas à celui qu'appelle le contexte de la phrase ou du commentaire.",
+      "competences_concernees": [
+        "FR-EAF/LANG",
+        "FR-EAF/GRAM",
+        "FR-MAI/LANG"
+      ],
+      "exemple": "Récit du texte au passé simple là où le commentaire demande le présent."
+    },
+    {
+      "code": "FR-ERR-SYNTAXE",
+      "matiere": "FR",
+      "libelle": "Construction de phrase incomplète",
+      "description_observable": "La phrase est privée d'un constituant obligatoire, ou deux constructions sont enchâssées sans lien.",
+      "competences_concernees": [
+        "FR-EAF/LANG",
+        "FR-MAI/LANG",
+        "FR-EAF/GRAM"
+      ],
+      "exemple": "Subordonnée relative sans proposition principale."
+    },
+    {
+      "code": "FR-ERR-PONCT",
+      "matiere": "FR",
+      "libelle": "Ponctuation absente ou fautive",
+      "description_observable": "La ponctuation manque là où elle est obligatoire, ou sépare le verbe de son sujet.",
+      "competences_concernees": [
+        "FR-EAF/LANG",
+        "FR-MAI/LANG"
+      ],
+      "exemple": "Absence de virgule encadrant une apposition."
+    },
+    {
+      "code": "FR-ERR-REGISTRE",
+      "matiere": "FR",
+      "libelle": "Registre oral en contexte écrit",
+      "description_observable": "Un mot ou un tour relevant de l'oral figure dans une production écrite.",
+      "competences_concernees": [
+        "FR-EAF/LANG",
+        "FR-MAI/LANG"
+      ],
+      "exemple": "« du coup », « il y a plein de »."
+    },
+    {
+      "code": "FR-ERR-PARAPHRASE",
+      "matiere": "FR",
+      "libelle": "Texte reformulé sans analyse",
+      "description_observable": "La réponse redit le contenu du texte sans énoncer de procédé ni d'effet.",
+      "competences_concernees": [
+        "FR-EAF/COMP",
+        "FR-EAF/ANAL",
+        "FR-EAF/REDA",
+        "FR-EAF/ARGU",
+        "FR-MAI/COMPA"
+      ],
+      "exemple": "« Le poète dit qu'il est triste » sans mention du lexique ou de l'image employés."
+    },
+    {
+      "code": "FR-ERR-CITATION",
+      "matiere": "FR",
+      "libelle": "Citation absente ou non intégrée",
+      "description_observable": "Le paragraphe n'appuie aucune affirmation sur le texte, ou la citation est juxtaposée sans construction syntaxique.",
+      "competences_concernees": [
+        "FR-EAF/REDA",
+        "FR-EAF/ARGU",
+        "FR-EAF/COMP",
+        "FR-MAI/ARGU"
+      ],
+      "exemple": "Citation posée entre guillemets à la fin de la phrase, sans verbe introducteur."
+    },
+    {
+      "code": "FR-ERR-PROCEDE-EFFET",
+      "matiere": "FR",
+      "libelle": "Procédé nommé sans effet",
+      "description_observable": "Une figure ou un procédé est identifié mais son effet sur le sens n'est pas énoncé.",
+      "competences_concernees": [
+        "FR-EAF/ANAL",
+        "FR-EAF/REDA"
+      ],
+      "exemple": "« Il y a une métaphore » sans suite."
+    },
+    {
+      "code": "FR-ERR-PROCEDE-IDENT",
+      "matiere": "FR",
+      "libelle": "Procédé identifié pour un autre",
+      "description_observable": "Le nom de figure donné ne correspond pas au procédé présent dans le passage.",
+      "competences_concernees": [
+        "FR-EAF/ANAL"
+      ],
+      "exemple": "Comparaison désignée comme métaphore."
+    },
+    {
+      "code": "FR-ERR-THESE",
+      "matiere": "FR",
+      "libelle": "Thèse du texte non identifiée",
+      "description_observable": "La réponse porte sur un élément secondaire et laisse de côté la position défendue par l'auteur.",
+      "competences_concernees": [
+        "FR-EAF/COMP",
+        "FR-MAI/COMPA"
+      ],
+      "exemple": "Résumé de l'exemple introductif présenté comme thèse."
+    },
+    {
+      "code": "FR-ERR-CONNECT",
+      "matiere": "FR",
+      "libelle": "Connecteur absent ou inadapté",
+      "description_observable": "Les étapes du raisonnement se succèdent sans lien explicite, ou le connecteur annonce un rapport logique différent de celui qui suit.",
+      "competences_concernees": [
+        "FR-EAF/ARGU",
+        "FR-EAF/REDA",
+        "FR-MAI/ARGU",
+        "FR-EAF/COMP",
+        "FR-MAI/COMPA"
+      ],
+      "exemple": "« En effet » introduisant une opposition."
+    },
+    {
+      "code": "FR-ERR-AXE",
+      "matiere": "FR",
+      "libelle": "Réponse hors de l'axe donné",
+      "description_observable": "Le paragraphe traite du texte sans répondre à l'axe formulé par la consigne.",
+      "competences_concernees": [
+        "FR-EAF/REDA"
+      ],
+      "exemple": "Axe portant sur la satire, paragraphe portant sur la versification seule."
+    },
+    {
+      "code": "FR-ERR-LEXIQUE",
+      "matiere": "FR",
+      "libelle": "Terme abstrait employé approximativement",
+      "description_observable": "Un mot du lexique académique est employé dans une acception qui n'est pas la sienne.",
+      "competences_concernees": [
+        "FR-MAI/LEXA",
+        "FR-EAF/ANAL"
+      ],
+      "exemple": "« paradoxe » employé pour « contradiction »."
+    },
+    {
+      "code": "FR-ERR-LONGUEUR",
+      "matiere": "FR",
+      "libelle": "Contrainte de longueur non respectée",
+      "description_observable": "La production s'écarte de la longueur imposée par la consigne au-delà de la tolérance annoncée.",
+      "competences_concernees": [
+        "FR-MAI/SYNT"
+      ],
+      "exemple": "Synthèse de 140 mots là où 80 sont demandés."
+    },
+    {
+      "code": "FR-ERR-DEFORM",
+      "matiere": "FR",
+      "libelle": "Sens du texte déformé",
+      "description_observable": "La reformulation attribue au texte une affirmation qu'il ne contient pas, ou en inverse la portée.",
+      "competences_concernees": [
+        "FR-MAI/SYNT",
+        "FR-MAI/COMPA",
+        "FR-MAI/LEXA",
+        "FR-EAF/COMP"
+      ],
+      "exemple": "Concession de l'auteur rapportée comme sa position."
+    },
+    {
+      "code": "FR-ERR-GRAM-NATURE",
+      "matiere": "FR",
+      "libelle": "Nature de la proposition inexacte",
+      "description_observable": "La proposition subordonnée est rattachée à une autre catégorie que la sienne.",
+      "competences_concernees": [
+        "FR-EAF/GRAM"
+      ],
+      "exemple": "Complétive analysée comme relative."
+    },
+    {
+      "code": "FR-ERR-VERSIF",
+      "matiere": "FR",
+      "libelle": "Décompte syllabique inexact",
+      "description_observable": "Le nombre de syllabes annoncé ne correspond pas au vers, le plus souvent par traitement du e muet ou de la diérèse.",
+      "competences_concernees": [
+        "FR-EAF/ANAL"
+      ],
+      "exemple": "Alexandrin compté en onze syllabes."
+    },
+    {
+      "code": "PHI-ERR-DEF",
+      "matiere": "PHI",
+      "libelle": "Notion définie par un exemple",
+      "description_observable": "La définition demandée est remplacée par un cas particulier.",
+      "competences_concernees": [
+        "PHI/NOT",
+        "PHI/PROB"
+      ],
+      "exemple": "« La justice, c'est quand un voleur est condamné »."
+    },
+    {
+      "code": "PHI-ERR-OPINION",
+      "matiere": "PHI",
+      "libelle": "Position avancée sans argument",
+      "description_observable": "Une thèse est affirmée sans raison énoncée à son appui.",
+      "competences_concernees": [
+        "PHI/ARGU",
+        "PHI/DISS",
+        "PHI/NOT",
+        "PHI/PROB"
+      ],
+      "exemple": "« La liberté est un droit absolu. » suivi d'un changement de sujet."
+    },
+    {
+      "code": "PHI-ERR-REPERE",
+      "matiere": "PHI",
+      "libelle": "Repère conceptuel non distingué",
+      "description_observable": "Les deux termes d'un repère du programme sont employés l'un pour l'autre.",
+      "competences_concernees": [
+        "PHI/REP",
+        "PHI/NOT"
+      ],
+      "exemple": "« légal » employé au sens de « légitime »."
+    },
+    {
+      "code": "PHI-ERR-PROBLEME",
+      "matiere": "PHI",
+      "libelle": "Question reprise sans problématisation",
+      "description_observable": "L'énoncé du sujet est recopié en guise de problème, sans tension dégagée.",
+      "competences_concernees": [
+        "PHI/PROB",
+        "PHI/DISS",
+        "PHI/ARGU"
+      ],
+      "exemple": "« Le problème est de savoir si l'art est utile. »"
+    },
+    {
+      "code": "PHI-ERR-PRESUP",
+      "matiere": "PHI",
+      "libelle": "Présupposé du sujet non repéré",
+      "description_observable": "Le sujet est traité sans que soit interrogé ce qu'il tient pour acquis.",
+      "competences_concernees": [
+        "PHI/PROB"
+      ],
+      "exemple": "« Faut-il libérer le désir ? » traité sans interroger l'idée que le désir serait entravé."
+    },
+    {
+      "code": "PHI-ERR-THESE-TXT",
+      "matiere": "PHI",
+      "libelle": "Thèse du texte non dégagée",
+      "description_observable": "L'explication porte sur des éléments du texte sans énoncer la position que l'auteur y soutient.",
+      "competences_concernees": [
+        "PHI/TEXT"
+      ],
+      "exemple": "Reprise des exemples de l'extrait sans formulation de la thèse."
+    },
+    {
+      "code": "PHI-ERR-PARAPHRASE",
+      "matiere": "PHI",
+      "libelle": "Texte repris sans explication",
+      "description_observable": "L'extrait est redit dans d'autres mots sans que les termes soient définis ni les étapes reliées.",
+      "competences_concernees": [
+        "PHI/TEXT"
+      ],
+      "exemple": "Substitution de synonymes phrase à phrase."
+    },
+    {
+      "code": "PHI-ERR-ATTRIB",
+      "matiere": "PHI",
+      "libelle": "Thèse attribuée à un autre auteur",
+      "description_observable": "La position citée est rattachée à un auteur qui ne la soutient pas.",
+      "competences_concernees": [
+        "PHI/REP"
+      ],
+      "exemple": "Le contrat social attribué à Descartes."
+    },
+    {
+      "code": "PHI-ERR-INTRO",
+      "matiere": "PHI",
+      "libelle": "Étape de l'introduction absente",
+      "description_observable": "L'introduction ne comporte pas l'une des quatre étapes attendues : accroche, définition des termes, problème, annonce.",
+      "competences_concernees": [
+        "PHI/DISS",
+        "PHI/PROB"
+      ],
+      "exemple": "Passage direct de l'accroche à l'annonce du plan."
+    },
+    {
+      "code": "PHI-ERR-ARG-INVAL",
+      "matiere": "PHI",
+      "libelle": "Conclusion non tirée des prémisses",
+      "description_observable": "La conclusion énoncée ne découle pas des propositions qui la précèdent.",
+      "competences_concernees": [
+        "PHI/ARGU"
+      ],
+      "exemple": "Deux prémisses sur la loi, conclusion sur la morale."
+    },
+    {
+      "code": "TC-ERR-UNITE",
+      "matiere": "TC",
+      "libelle": "Unité absente ou inadaptée",
+      "description_observable": "Le résultat est donné sans unité, ou avec une unité qui ne correspond pas à la grandeur.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/SON",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/MAT",
+        "TC-ES/ASTR",
+        "TC-ES/INFO"
+      ],
+      "exemple": "Une puissance exprimée en joules."
+    },
+    {
+      "code": "TC-ERR-GRAPH",
+      "matiere": "TC",
+      "libelle": "Lecture de graphique inexacte",
+      "description_observable": "La valeur relevée ne correspond pas au point de la courbe, ou l'axe lu n'est pas celui demandé.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/INFO"
+      ],
+      "exemple": "Lecture sur l'axe des abscisses d'une valeur portée en ordonnée."
+    },
+    {
+      "code": "TC-ERR-ORDRE-GRAND",
+      "matiere": "TC",
+      "libelle": "Ordre de grandeur non plausible",
+      "description_observable": "Le résultat s'écarte de plusieurs puissances de dix de la valeur attendue sans que l'écart soit relevé.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/ASTR",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/INFO"
+      ],
+      "exemple": "Âge de la Terre annoncé en millions d'années."
+    },
+    {
+      "code": "TC-ERR-VARIABLE",
+      "matiere": "TC",
+      "libelle": "Variable testée non identifiée",
+      "description_observable": "Le protocole est décrit sans que soit désigné ce qui varie d'une condition à l'autre.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/INFO"
+      ],
+      "exemple": "Deux montages comparés sans mention du paramètre modifié."
+    },
+    {
+      "code": "TC-ERR-TEMOIN",
+      "matiere": "TC",
+      "libelle": "Rôle du témoin non énoncé",
+      "description_observable": "L'expérience témoin est citée sans que sa fonction de référence soit expliquée.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/INFO"
+      ],
+      "exemple": "« On fait aussi un témoin » sans suite."
+    },
+    {
+      "code": "TC-ERR-CAUSE",
+      "matiere": "TC",
+      "libelle": "Corrélation présentée comme causalité",
+      "description_observable": "Deux grandeurs qui varient ensemble sont reliées par un lien de cause à effet non établi par les données.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/CLIM",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/ENER",
+        "TC-ES/INFO"
+      ],
+      "exemple": "« La température augmente donc le CO₂ augmente » à partir d'une courbe seule."
+    },
+    {
+      "code": "TC-ERR-ECHELLE-TEMPS",
+      "matiere": "TC",
+      "libelle": "Échelle de temps confondue",
+      "description_observable": "Un phénomène est situé sur une durée sans rapport avec celle qui le caractérise.",
+      "competences_concernees": [
+        "TC-ES/ASTR",
+        "TC-ES/INFO",
+        "TC-ES/CLIM",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ENER",
+        "TC-ES/DEM"
+      ],
+      "exemple": "Spéciation décrite à l'échelle d'une génération."
+    },
+    {
+      "code": "TC-ERR-CONVERSION",
+      "matiere": "TC",
+      "libelle": "Conversion d'unité inexacte",
+      "description_observable": "Le facteur de conversion appliqué n'est pas celui qui relie les deux unités.",
+      "competences_concernees": [
+        "TC-ES/DEM",
+        "TC-ES/ENER",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/CLIM",
+        "TC-ES/INFO"
+      ],
+      "exemple": "kWh converti en joules par multiplication par 1000."
+    },
+    {
+      "code": "TC-ERR-MODELE",
+      "matiere": "TC",
+      "libelle": "Limites du modèle non énoncées",
+      "description_observable": "Une projection est présentée comme un résultat certain, sans mention des hypothèses.",
+      "competences_concernees": [
+        "TC-ES/CLIM",
+        "TC-ES/INFO",
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/ASTR",
+        "TC-ES/ENER",
+        "TC-ES/DEM"
+      ],
+      "exemple": "Scénario climatique cité sans son hypothèse d'émissions."
+    },
+    {
+      "code": "TC-ERR-VOCAB-SCI",
+      "matiere": "TC",
+      "libelle": "Terme scientifique employé approximativement",
+      "description_observable": "Un terme du programme est employé dans une acception courante et non dans son sens scientifique.",
+      "competences_concernees": [
+        "TC-ES/MAT",
+        "TC-ES/SON",
+        "TC-ES/INFO",
+        "TC-ES/ASTR",
+        "TC-ES/CLIM",
+        "TC-ES/ENER",
+        "TC-ES/DEM"
+      ],
+      "exemple": "« énergie » employé pour « puissance »."
+    },
+    {
+      "code": "MATH-ERR-SIGNE",
+      "matiere": "MATH",
+      "libelle": "Erreur de signe",
+      "description_observable": "Un signe est modifié au cours du calcul, le plus souvent lors du développement ou du passage d'un membre à l'autre.",
+      "competences_concernees": [
+        "EDS-MATH/CALC",
+        "EDS-MATH/FONC",
+        "EDS-MATH/GEO",
+        "EDS-MATH/SUIT",
+        "EDS-MATH/ANA",
+        "EDS-MATH/RAIS"
+      ],
+      "exemple": "−(x − 3) développé en −x − 3."
+    },
+    {
+      "code": "MATH-ERR-DOMAINE",
+      "matiere": "MATH",
+      "libelle": "Domaine de définition ignoré",
+      "description_observable": "Une valeur interdite figure dans l'ensemble des solutions, ou une propriété est appliquée hors de son domaine.",
+      "competences_concernees": [
+        "EDS-MATH/CALC",
+        "EDS-MATH/FONC",
+        "EDS-MATH/ANA",
+        "EDS-MATH/TRIG"
+      ],
+      "exemple": "Solution x = 2 conservée pour une expression de dénominateur x − 2."
+    },
+    {
+      "code": "MATH-ERR-INDICE",
+      "matiere": "MATH",
+      "libelle": "Indice de suite décalé",
+      "description_observable": "Le rang employé n'est pas celui de la question, ou le premier terme est pris pour u₁ au lieu de u₀.",
+      "competences_concernees": [
+        "EDS-MATH/SUIT",
+        "EDS-MATH/ALGO"
+      ],
+      "exemple": "u₁₀ calculé comme dixième terme d'une suite commençant à u₀."
+    },
+    {
+      "code": "MATH-ERR-DISTRIB",
+      "matiere": "MATH",
+      "libelle": "Distributivité incomplète",
+      "description_observable": "Un facteur n'est distribué qu'à une partie des termes de la parenthèse.",
+      "competences_concernees": [
+        "EDS-MATH/CALC"
+      ],
+      "exemple": "3(x + 2y) développé en 3x + 2y."
+    },
+    {
+      "code": "MATH-ERR-DERIV",
+      "matiere": "MATH",
+      "libelle": "Formule de dérivation inexacte",
+      "description_observable": "La dérivée obtenue ne correspond pas à la formule du produit, du quotient ou de la composée.",
+      "competences_concernees": [
+        "EDS-MATH/FONC",
+        "EDS-MATH/ANA",
+        "EDS-MATH/RAIS"
+      ],
+      "exemple": "(uv)′ écrit u′v′."
+    },
+    {
+      "code": "MATH-ERR-RAISON",
+      "matiere": "MATH",
+      "libelle": "Raisons arithmétique et géométrique confondues",
+      "description_observable": "La suite est traitée avec l'opération de l'autre type : addition au lieu de multiplication, ou l'inverse.",
+      "competences_concernees": [
+        "EDS-MATH/SUIT"
+      ],
+      "exemple": "Suite géométrique de raison 2 traitée par ajout de 2."
+    },
+    {
+      "code": "MATH-ERR-PROBA-COND",
+      "matiere": "MATH",
+      "libelle": "Probabilité conditionnelle et intersection confondues",
+      "description_observable": "P(A ∩ B) est employé là où P(B | A) est attendu, ou l'inverse.",
+      "competences_concernees": [
+        "EDS-MATH/PROB"
+      ],
+      "exemple": "Branche d'arbre lue comme probabilité d'intersection."
+    },
+    {
+      "code": "MATH-ERR-ANGLE",
+      "matiere": "MATH",
+      "libelle": "Degrés et radians confondus",
+      "description_observable": "Une mesure est employée dans une unité d'angle qui n'est pas celle du calcul en cours.",
+      "competences_concernees": [
+        "EDS-MATH/TRIG"
+      ],
+      "exemple": "cos(60) calculé en radians pour un angle donné en degrés."
+    },
+    {
+      "code": "MATH-ERR-JUSTIF",
+      "matiere": "MATH",
+      "libelle": "Résultat donné sans justification",
+      "description_observable": "La réponse est exacte mais aucune étape, propriété ou calcul n'est écrit.",
+      "competences_concernees": [
+        "EDS-MATH/RAIS",
+        "EDS-MATH/FONC",
+        "EDS-MATH/SUIT",
+        "EDS-MATH/GEO",
+        "EDS-MATH/PROB",
+        "EDS-MATH/ANA"
+      ],
+      "exemple": "« La fonction est croissante » sans étude du signe de la dérivée."
+    },
+    {
+      "code": "MATH-ERR-RECURRENCE",
+      "matiere": "MATH",
+      "libelle": "Étape d'hérédité non conduite",
+      "description_observable": "La récurrence est annoncée mais l'implication d'un rang au suivant n'est pas établie.",
+      "competences_concernees": [
+        "EDS-MATH/SUIT",
+        "EDS-MATH/RAIS"
+      ],
+      "exemple": "Vérification au rang 0 puis conclusion directe."
+    },
+    {
+      "code": "MATH-ERR-PYTHON",
+      "matiere": "MATH",
+      "libelle": "Sortie de programme inexacte",
+      "description_observable": "La valeur annoncée en sortie ne correspond pas à l'exécution du code, souvent par erreur sur le nombre d'itérations.",
+      "competences_concernees": [
+        "EDS-MATH/ALGO"
+      ],
+      "exemple": "Boucle range(1, 5) parcourue cinq fois."
+    },
+    {
+      "code": "MATH-ERR-CALC-NUM",
+      "matiere": "MATH",
+      "libelle": "Calcul numérique inexact",
+      "description_observable": "La démarche est correcte mais une opération arithmétique ne donne pas le résultat attendu.",
+      "competences_concernees": [
+        "EDS-MATH/CALC",
+        "EDS-MATH/RAIS",
+        "EDS-MATH/PROB",
+        "EDS-MATH/GEO",
+        "EDS-MATH/SUIT",
+        "EDS-MATH/FONC",
+        "EDS-MATH/ANA",
+        "EDS-MATH/TRIG",
+        "EDS-MATH/ALGO",
+        "MATH-EA/AUTO"
+      ],
+      "exemple": "Discriminant de x² − 5x + 6 annoncé à 5."
+    },
+    {
+      "code": "MATH-ERR-VECTEUR",
+      "matiere": "MATH",
+      "libelle": "Coordonnées de vecteur inexactes",
+      "description_observable": "Les coordonnées du vecteur sont obtenues en soustrayant les points dans le mauvais ordre, ou en additionnant au lieu de soustraire.",
+      "competences_concernees": [
+        "EDS-MATH/GEO"
+      ],
+      "exemple": "AB obtenu par xA − xB au lieu de xB − xA."
+    },
+    {
+      "code": "MATH-ERR-SCALAIRE",
+      "matiere": "MATH",
+      "libelle": "Expression du produit scalaire inexacte",
+      "description_observable": "La formule employée n'est pas celle qui convient aux données, ou le produit scalaire est traité comme un vecteur.",
+      "competences_concernees": [
+        "EDS-MATH/GEO"
+      ],
+      "exemple": "Résultat d'un produit scalaire donné sous forme de couple de coordonnées."
+    },
+    {
+      "code": "MATH-ERR-ESPERANCE",
+      "matiere": "MATH",
+      "libelle": "Espérance et probabilité confondues",
+      "description_observable": "Une probabilité est employée là où l'espérance est attendue, ou la somme des produits valeur × probabilité n'est pas faite.",
+      "competences_concernees": [
+        "EDS-MATH/PROB"
+      ],
+      "exemple": "E(X) annoncé égal à 0,5 pour une variable prenant les valeurs 0 et 10."
+    },
+    {
+      "code": "MATH-ERR-LIMITE",
+      "matiere": "MATH",
+      "libelle": "Forme indéterminée non levée",
+      "description_observable": "La limite est annoncée directement à partir d'une forme indéterminée, sans transformation de l'expression.",
+      "competences_concernees": [
+        "EDS-MATH/ANA",
+        "EDS-MATH/SUIT"
+      ],
+      "exemple": "Limite d'un quotient de polynômes annoncée sans mise en facteur du terme dominant."
+    },
+    {
+      "code": "MATH-ERR-LOG",
+      "matiere": "MATH",
+      "libelle": "Propriété du logarithme inexacte",
+      "description_observable": "Une propriété algébrique du logarithme est appliquée sous une forme qui n'est pas la sienne.",
+      "competences_concernees": [
+        "EDS-MATH/ANA"
+      ],
+      "exemple": "ln(a + b) transformé en ln a + ln b."
+    },
+    {
+      "code": "MATH-ERR-CERCLE",
+      "matiere": "MATH",
+      "libelle": "Position sur le cercle trigonométrique inexacte",
+      "description_observable": "Le point associé à la mesure n'est pas placé au bon endroit du cercle, ou le signe de la ligne trigonométrique en découle faussé.",
+      "competences_concernees": [
+        "EDS-MATH/TRIG"
+      ],
+      "exemple": "cos(2π/3) annoncé positif."
+    },
+    {
+      "code": "PC-ERR-UNITE",
+      "matiere": "PC",
+      "libelle": "Unité absente ou inadaptée",
+      "description_observable": "Le résultat est donné sans unité, ou avec une unité qui ne correspond pas à la grandeur calculée.",
+      "competences_concernees": [
+        "EDS-PC/QUANT",
+        "EDS-PC/RES",
+        "EDS-PC/ENER",
+        "EDS-PC/MAT",
+        "EDS-PC/MOUV",
+        "EDS-PC/OND",
+        "EDS-PC/EXP"
+      ],
+      "exemple": "Une énergie exprimée en watts."
+    },
+    {
+      "code": "PC-ERR-CHIFFRES",
+      "matiere": "PC",
+      "libelle": "Chiffres significatifs non respectés",
+      "description_observable": "Le nombre de chiffres du résultat ne correspond pas à celui des données de l'énoncé.",
+      "competences_concernees": [
+        "EDS-PC/QUANT",
+        "EDS-PC/RES",
+        "EDS-PC/MAT",
+        "EDS-PC/MOUV",
+        "EDS-PC/ENER",
+        "EDS-PC/OND",
+        "EDS-PC/EXP"
+      ],
+      "exemple": "Résultat à huit décimales pour des données à deux chiffres."
+    },
+    {
+      "code": "PC-ERR-CONVERSION",
+      "matiere": "PC",
+      "libelle": "Conversion d'unité inexacte",
+      "description_observable": "Le facteur appliqué n'est pas celui qui relie les deux unités, souvent sur les volumes ou les préfixes.",
+      "competences_concernees": [
+        "EDS-PC/QUANT",
+        "EDS-PC/MAT",
+        "EDS-PC/MOUV",
+        "EDS-PC/ENER",
+        "EDS-PC/OND",
+        "EDS-PC/EXP",
+        "EDS-PC/RES"
+      ],
+      "exemple": "mL converti en L par multiplication par 1000."
+    },
+    {
+      "code": "PC-ERR-LIMITANT",
+      "matiere": "PC",
+      "libelle": "Réactif limitant non identifié",
+      "description_observable": "L'avancement maximal est calculé à partir d'un réactif en excès.",
+      "competences_concernees": [
+        "EDS-PC/MAT"
+      ],
+      "exemple": "Tableau d'avancement conduit sur le réactif présent en plus grande quantité."
+    },
+    {
+      "code": "PC-ERR-FORCE",
+      "matiere": "PC",
+      "libelle": "Force ajoutée ou omise",
+      "description_observable": "Le bilan des forces comporte une force qui ne s'exerce pas sur le système, ou en oublie une.",
+      "competences_concernees": [
+        "EDS-PC/MOUV",
+        "EDS-PC/RES"
+      ],
+      "exemple": "Force motrice ajoutée à un solide en chute libre."
+    },
+    {
+      "code": "PC-ERR-VECTEUR",
+      "matiere": "PC",
+      "libelle": "Grandeur vectorielle traitée comme scalaire",
+      "description_observable": "Une somme de vecteurs est conduite sur les valeurs sans tenir compte des directions.",
+      "competences_concernees": [
+        "EDS-PC/MOUV",
+        "EDS-PC/RES"
+      ],
+      "exemple": "Deux forces perpendiculaires additionnées en valeur."
+    },
+    {
+      "code": "PC-ERR-CONDITION",
+      "matiere": "PC",
+      "libelle": "Relation appliquée hors condition",
+      "description_observable": "Une formule est employée dans une situation où ses hypothèses ne sont pas vérifiées.",
+      "competences_concernees": [
+        "EDS-PC/ENER",
+        "EDS-PC/MOUV",
+        "EDS-PC/OND",
+        "EDS-PC/QUANT",
+        "EDS-PC/MAT",
+        "EDS-PC/EXP",
+        "EDS-PC/RES"
+      ],
+      "exemple": "Conservation de l'énergie mécanique appliquée en présence de frottements."
+    },
+    {
+      "code": "PC-ERR-GRAPH",
+      "matiere": "PC",
+      "libelle": "Exploitation de graphique inexacte",
+      "description_observable": "Le coefficient directeur ou la valeur lue ne correspond pas au tracé, ou l'échelle n'est pas prise en compte.",
+      "competences_concernees": [
+        "EDS-PC/QUANT",
+        "EDS-PC/EXP",
+        "EDS-PC/MAT",
+        "EDS-PC/MOUV",
+        "EDS-PC/ENER",
+        "EDS-PC/OND",
+        "EDS-PC/RES"
+      ],
+      "exemple": "Pente calculée sans conversion de l'échelle des ordonnées."
+    },
+    {
+      "code": "PC-ERR-INCERT",
+      "matiere": "PC",
+      "libelle": "Incertitude non prise en compte",
+      "description_observable": "Deux valeurs sont déclarées différentes ou égales sans comparaison à l'incertitude annoncée.",
+      "competences_concernees": [
+        "EDS-PC/EXP",
+        "EDS-PC/RES"
+      ],
+      "exemple": "Écart de 0,1 sur une mesure d'incertitude 0,5 présenté comme significatif."
+    },
+    {
+      "code": "PC-ERR-CONCL",
+      "matiere": "PC",
+      "libelle": "Conclusion sans retour à la question",
+      "description_observable": "Le calcul est mené à son terme mais la réponse à la question posée n'est pas formulée.",
+      "competences_concernees": [
+        "EDS-PC/RES",
+        "EDS-PC/QUANT",
+        "EDS-PC/MAT",
+        "EDS-PC/MOUV",
+        "EDS-PC/ENER",
+        "EDS-PC/OND",
+        "EDS-PC/EXP"
+      ],
+      "exemple": "Valeur numérique encadrée, sans phrase de conclusion."
+    },
+    {
+      "code": "NSI-ERR-INDICE",
+      "matiere": "NSI",
+      "libelle": "Indice hors bornes",
+      "description_observable": "L'indice employé sort de l'intervalle valide, souvent par confusion entre longueur et dernier indice.",
+      "competences_concernees": [
+        "EDS-NSI/TYPE",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/PROG",
+        "EDS-NSI/REPR",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO"
+      ],
+      "exemple": "Parcours de 0 à len(t) inclus."
+    },
+    {
+      "code": "NSI-ERR-ITERATIONS",
+      "matiere": "NSI",
+      "libelle": "Nombre d'itérations inexact",
+      "description_observable": "Le nombre de tours de boucle annoncé diffère de celui qu'exécute le code.",
+      "competences_concernees": [
+        "EDS-NSI/PYTH",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/REPR",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "range(1, 5) décrit comme cinq itérations."
+    },
+    {
+      "code": "NSI-ERR-EFFET-BORD",
+      "matiere": "NSI",
+      "libelle": "Effet de bord sur une liste",
+      "description_observable": "Une liste passée en argument est modifiée alors que la spécification ne le prévoit pas.",
+      "competences_concernees": [
+        "EDS-NSI/TYPE",
+        "EDS-NSI/PROG",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO"
+      ],
+      "exemple": "Tri en place d'un paramètre censé rester intact."
+    },
+    {
+      "code": "NSI-ERR-RETOUR",
+      "matiere": "NSI",
+      "libelle": "Valeur de retour absente",
+      "description_observable": "La fonction calcule le résultat attendu mais ne le renvoie pas, ou l'affiche au lieu de le renvoyer.",
+      "competences_concernees": [
+        "EDS-NSI/PYTH",
+        "EDS-NSI/PROG",
+        "EDS-NSI/REPR",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO"
+      ],
+      "exemple": "print(s) en fin de fonction, sans return."
+    },
+    {
+      "code": "NSI-ERR-TYPE",
+      "matiere": "NSI",
+      "libelle": "Type de donnée confondu",
+      "description_observable": "Une opération est appliquée à un type qui ne l'accepte pas, ou une chaîne est traitée comme un nombre.",
+      "competences_concernees": [
+        "EDS-NSI/REPR",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "\"12\" + 3 attendu à 15."
+    },
+    {
+      "code": "NSI-ERR-BASE",
+      "matiere": "NSI",
+      "libelle": "Conversion de base inexacte",
+      "description_observable": "L'écriture obtenue ne correspond pas à la valeur, souvent par inversion de l'ordre des chiffres ou oubli d'une puissance.",
+      "competences_concernees": [
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "1011₂ converti en 13."
+    },
+    {
+      "code": "NSI-ERR-COMPLEX",
+      "matiere": "NSI",
+      "libelle": "Complexité inexacte",
+      "description_observable": "L'ordre de grandeur annoncé ne correspond pas au nombre d'opérations de l'algorithme.",
+      "competences_concernees": [
+        "EDS-NSI/ALGO",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "Recherche dichotomique annoncée linéaire."
+    },
+    {
+      "code": "NSI-ERR-CAS-BASE",
+      "matiere": "NSI",
+      "libelle": "Cas de base absent",
+      "description_observable": "La fonction récursive ne comporte pas de condition d'arrêt, ou celle-ci n'est jamais atteinte.",
+      "competences_concernees": [
+        "EDS-NSI/ALGO",
+        "EDS-NSI/PROG",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO"
+      ],
+      "exemple": "Appel récursif systématique sans test sur n."
+    },
+    {
+      "code": "NSI-ERR-SQL",
+      "matiere": "NSI",
+      "libelle": "Clause SQL absente ou inadaptée",
+      "description_observable": "La requête omet une clause nécessaire, ou la condition de jointure porte sur des colonnes non correspondantes.",
+      "competences_concernees": [
+        "EDS-NSI/WEB",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "Jointure sans clause ON."
+    },
+    {
+      "code": "NSI-ERR-SPEC",
+      "matiere": "NSI",
+      "libelle": "Spécification partiellement traitée",
+      "description_observable": "La fonction traite le cas général mais laisse de côté un cas annoncé par la spécification.",
+      "competences_concernees": [
+        "EDS-NSI/PROG",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO"
+      ],
+      "exemple": "Liste vide non gérée alors que la docstring la prévoit."
+    },
+    {
+      "code": "NSI-ERR-DICT",
+      "matiere": "NSI",
+      "libelle": "Clé et valeur confondues",
+      "description_observable": "Le parcours du dictionnaire renvoie les clés là où les valeurs sont attendues, ou l'inverse.",
+      "competences_concernees": [
+        "EDS-NSI/TYPE",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "for x in d employé pour sommer les valeurs."
+    },
+    {
+      "code": "NSI-ERR-ROUTAGE",
+      "matiere": "NSI",
+      "libelle": "Chemin de routage inexact",
+      "description_observable": "Le chemin décrit ne respecte pas la table de routage ou la métrique du protocole donné.",
+      "competences_concernees": [
+        "EDS-NSI/ARCH",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/WEB",
+        "EDS-NSI/POO",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "Route de coût 4 retenue là où une route de coût 2 existe."
+    },
+    {
+      "code": "NSI-ERR-INSTANCE",
+      "matiere": "NSI",
+      "libelle": "Classe et instance confondues",
+      "description_observable": "Un attribut ou une méthode est appelé sur la classe là où une instance est attendue, ou l'inverse.",
+      "competences_concernees": [
+        "EDS-NSI/POO",
+        "EDS-NSI/REPR",
+        "EDS-NSI/PYTH",
+        "EDS-NSI/TYPE",
+        "EDS-NSI/ALGO",
+        "EDS-NSI/ARCH",
+        "EDS-NSI/WEB",
+        "EDS-NSI/PROG"
+      ],
+      "exemple": "Attribut modifié sur la classe et attendu propre à un objet."
+    },
+    {
+      "code": "SVT-ERR-DOC-MOBIL",
+      "matiere": "SVT",
+      "libelle": "Document non mobilisé dans la réponse",
+      "description_observable": "La réponse repose sur les connaissances seules alors que la consigne demande l'exploitation des documents.",
+      "competences_concernees": [
+        "EDS-SVT/DOC",
+        "EDS-SVT/REDA",
+        "EDS-SVT/GEN",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/CORP",
+        "EDS-SVT/SCI"
+      ],
+      "exemple": "Aucune donnée chiffrée du document 1 citée."
+    },
+    {
+      "code": "SVT-ERR-RELATION",
+      "matiere": "SVT",
+      "libelle": "Documents non mis en relation",
+      "description_observable": "Chaque document est décrit séparément sans que le lien entre eux soit établi.",
+      "competences_concernees": [
+        "EDS-SVT/DOC",
+        "EDS-SVT/REDA",
+        "EDS-SVT/GEN",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/CORP",
+        "EDS-SVT/SCI"
+      ],
+      "exemple": "Deux paragraphes juxtaposés, aucun connecteur entre eux."
+    },
+    {
+      "code": "SVT-ERR-CONCL",
+      "matiere": "SVT",
+      "libelle": "Conclusion sans appui sur les données",
+      "description_observable": "La conclusion énoncée ne découle pas des informations extraites des documents.",
+      "competences_concernees": [
+        "EDS-SVT/REDA",
+        "EDS-SVT/DOC",
+        "EDS-SVT/GEN",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/CORP",
+        "EDS-SVT/SCI"
+      ],
+      "exemple": "Conclusion reprenant le cours sans mention des résultats."
+    },
+    {
+      "code": "SVT-ERR-ECHELLE-BIO",
+      "matiere": "SVT",
+      "libelle": "Échelle biologique confondue",
+      "description_observable": "Un mécanisme est décrit à un niveau d'organisation qui n'est pas le sien.",
+      "competences_concernees": [
+        "EDS-SVT/GEN",
+        "EDS-SVT/CORP",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/DOC",
+        "EDS-SVT/SCI",
+        "EDS-SVT/REDA"
+      ],
+      "exemple": "Mutation décrite comme un changement de l'organisme entier."
+    },
+    {
+      "code": "SVT-ERR-VOCAB",
+      "matiere": "SVT",
+      "libelle": "Terme scientifique employé approximativement",
+      "description_observable": "Un terme du programme est employé dans une acception courante ou pour un autre concept.",
+      "competences_concernees": [
+        "EDS-SVT/GEN",
+        "EDS-SVT/CORP",
+        "EDS-SVT/REDA",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/DOC",
+        "EDS-SVT/SCI"
+      ],
+      "exemple": "« gène » employé pour « allèle »."
+    },
+    {
+      "code": "SVT-ERR-TEMOIN",
+      "matiere": "SVT",
+      "libelle": "Rôle du témoin non énoncé",
+      "description_observable": "L'expérience témoin est mentionnée sans que sa fonction de comparaison soit expliquée.",
+      "competences_concernees": [
+        "EDS-SVT/SCI",
+        "EDS-SVT/GEN",
+        "EDS-SVT/TERR",
+        "EDS-SVT/ECO",
+        "EDS-SVT/CORP",
+        "EDS-SVT/DOC",
+        "EDS-SVT/REDA"
+      ],
+      "exemple": "« Le lot témoin ne reçoit rien » sans interprétation."
+    },
+    {
+      "code": "SVT-ERR-CAUSE",
+      "matiere": "SVT",
+      "libelle": "Corrélation présentée comme causalité",
+      "description_observable": "Deux variations simultanées sont reliées par un lien de cause à effet que les données n'établissent pas.",
+      "competences_concernees": [
+        "EDS-SVT/SCI",
+        "EDS-SVT/ECO",
+        "EDS-SVT/GEN",
+        "EDS-SVT/TERR",
+        "EDS-SVT/CORP",
+        "EDS-SVT/DOC",
+        "EDS-SVT/REDA"
+      ],
+      "exemple": "Deux courbes parallèles présentées comme preuve d'un mécanisme."
+    },
+    {
+      "code": "SVT-ERR-DIVISION",
+      "matiere": "SVT",
+      "libelle": "Étapes de division cellulaire confondues",
+      "description_observable": "Les phases de la mitose et de la méiose, ou leurs conséquences génétiques, sont interverties.",
+      "competences_concernees": [
+        "EDS-SVT/GEN"
+      ],
+      "exemple": "Brassage interchromosomique attribué à la mitose."
+    },
+    {
+      "code": "SVT-ERR-CHRONO",
+      "matiere": "SVT",
+      "libelle": "Chronologie géologique inversée",
+      "description_observable": "L'ordre des événements proposé ne respecte pas les principes de datation relative.",
+      "competences_concernees": [
+        "EDS-SVT/TERR"
+      ],
+      "exemple": "Faille datée avant la couche qu'elle recoupe."
+    },
+    {
+      "code": "SVT-ERR-FINALISME",
+      "matiere": "SVT",
+      "libelle": "Explication finaliste de l'évolution",
+      "description_observable": "L'évolution est présentée comme orientée vers un but ou répondant à un besoin.",
+      "competences_concernees": [
+        "EDS-SVT/GEN",
+        "EDS-SVT/ECO",
+        "EDS-SVT/TERR",
+        "EDS-SVT/CORP",
+        "EDS-SVT/DOC",
+        "EDS-SVT/SCI",
+        "EDS-SVT/REDA"
+      ],
+      "exemple": "« L'espèce a développé ce caractère pour survivre »."
+    },
+    {
+      "code": "SES-ERR-TAUX",
+      "matiere": "SES",
+      "libelle": "Taux de variation et écart confondus",
+      "description_observable": "La différence entre deux valeurs est présentée comme un taux de variation.",
+      "competences_concernees": [
+        "EDS-SES/STAT",
+        "EDS-SES/DOCU",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/MOB",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Passage de 40 à 50 annoncé comme une hausse de 10 %."
+    },
+    {
+      "code": "SES-ERR-INDICE",
+      "matiere": "SES",
+      "libelle": "Lecture d'indice base 100 inexacte",
+      "description_observable": "La valeur de l'indice est lue comme une grandeur absolue, ou l'année de base n'est pas identifiée.",
+      "competences_concernees": [
+        "EDS-SES/STAT",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/MOB",
+        "EDS-SES/DOCU",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Indice 120 lu comme « 120 euros »."
+    },
+    {
+      "code": "SES-ERR-COEF",
+      "matiere": "SES",
+      "libelle": "Coefficient multiplicateur inexact",
+      "description_observable": "Le coefficient annoncé ne correspond pas au rapport des deux valeurs.",
+      "competences_concernees": [
+        "EDS-SES/STAT",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/MOB",
+        "EDS-SES/DOCU",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Hausse de 20 % traduite par un coefficient de 20."
+    },
+    {
+      "code": "SES-ERR-LECTURE",
+      "matiere": "SES",
+      "libelle": "Phrase de lecture de donnée inexacte",
+      "description_observable": "La phrase ne restitue pas correctement l'unité, le champ, la date ou la source de la donnée citée.",
+      "competences_concernees": [
+        "EDS-SES/STAT",
+        "EDS-SES/DOCU",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/MOB",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Un pourcentage de répartition présenté comme un effectif."
+    },
+    {
+      "code": "SES-ERR-POINT-PCT",
+      "matiere": "SES",
+      "libelle": "Point de pourcentage et pourcentage confondus",
+      "description_observable": "Une variation exprimée en points est rapportée comme une variation en pourcentage, ou l'inverse.",
+      "competences_concernees": [
+        "EDS-SES/STAT",
+        "EDS-SES/DOCU",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/MOB",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Passage de 8 % à 10 % annoncé comme « + 2 % »."
+    },
+    {
+      "code": "SES-ERR-DEF",
+      "matiere": "SES",
+      "libelle": "Notion définie par un exemple",
+      "description_observable": "La définition attendue est remplacée par une illustration.",
+      "competences_concernees": [
+        "EDS-SES/MOB",
+        "EDS-SES/POL",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/STAT",
+        "EDS-SES/DOCU",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "« La socialisation, c'est quand les parents éduquent »."
+    },
+    {
+      "code": "SES-ERR-MECANISME",
+      "matiere": "SES",
+      "libelle": "Mécanisme énoncé sans étapes",
+      "description_observable": "La cause et la conséquence sont reliées sans que les maillons intermédiaires soient explicités.",
+      "competences_concernees": [
+        "EDS-SES/MOB",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/STAT",
+        "EDS-SES/DOCU",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "« La hausse des taux réduit la croissance » sans étape intermédiaire."
+    },
+    {
+      "code": "SES-ERR-DOC-PRES",
+      "matiere": "SES",
+      "libelle": "Nature ou source du document absente",
+      "description_observable": "La présentation du document ne mentionne pas sa nature, sa source, son champ ou sa date.",
+      "competences_concernees": [
+        "EDS-SES/DOCU",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/STAT",
+        "EDS-SES/MOB",
+        "EDS-SES/RAIS"
+      ],
+      "exemple": "Étude engagée directement par un commentaire du chiffre."
+    },
+    {
+      "code": "SES-ERR-DONNEE",
+      "matiere": "SES",
+      "libelle": "Donnée citée sans unité ni date",
+      "description_observable": "Un chiffre est repris du document sans les éléments qui lui donnent son sens.",
+      "competences_concernees": [
+        "EDS-SES/DOCU",
+        "EDS-SES/RAIS",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/STAT",
+        "EDS-SES/MOB"
+      ],
+      "exemple": "« Le taux est de 7,4 » sans année ni champ."
+    },
+    {
+      "code": "SES-ERR-THEORIE",
+      "matiere": "SES",
+      "libelle": "Théorie non articulée aux données",
+      "description_observable": "Les connaissances et le dossier documentaire sont présentés séparément, sans mise en relation.",
+      "competences_concernees": [
+        "EDS-SES/RAIS",
+        "EDS-SES/ECO",
+        "EDS-SES/SOC",
+        "EDS-SES/POL",
+        "EDS-SES/STAT",
+        "EDS-SES/MOB",
+        "EDS-SES/DOCU"
+      ],
+      "exemple": "Paragraphe de cours suivi d'un paragraphe de chiffres."
+    },
+    {
+      "code": "HGGSP-ERR-NATURE",
+      "matiere": "HGGSP",
+      "libelle": "Nature du document non identifiée",
+      "description_observable": "Le type de document et son auteur ne sont pas énoncés avant l'analyse.",
+      "competences_concernees": [
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "Discours politique traité comme un texte d'historien."
+    },
+    {
+      "code": "HGGSP-ERR-CONTEXTE",
+      "matiere": "HGGSP",
+      "libelle": "Contexte de production absent",
+      "description_observable": "Le document est analysé sans référence à la situation dans laquelle il a été produit.",
+      "competences_concernees": [
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "Affiche de 1947 commentée sans mention de la guerre froide."
+    },
+    {
+      "code": "HGGSP-ERR-POINT-VUE",
+      "matiere": "HGGSP",
+      "libelle": "Point de vue non discuté",
+      "description_observable": "Le contenu du document est repris comme un fait établi, sans distance critique.",
+      "competences_concernees": [
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/INFO",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DISS"
+      ],
+      "exemple": "Chiffres d'un rapport officiel repris sans mention de son commanditaire."
+    },
+    {
+      "code": "HGGSP-ERR-PARAPHRASE",
+      "matiere": "HGGSP",
+      "libelle": "Document repris sans analyse",
+      "description_observable": "La réponse suit le document ligne à ligne sans apport de connaissances ni explicitation.",
+      "competences_concernees": [
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "Reprise des trois paragraphes du texte dans l'ordre."
+    },
+    {
+      "code": "HGGSP-ERR-REPERE",
+      "matiere": "HGGSP",
+      "libelle": "Repère chronologique inexact",
+      "description_observable": "La date ou la période attribuée à l'événement ne correspond pas.",
+      "competences_concernees": [
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "Traité de Westphalie situé au XIXe siècle."
+    },
+    {
+      "code": "HGGSP-ERR-PLAN",
+      "matiere": "HGGSP",
+      "libelle": "Plan sans progression argumentative",
+      "description_observable": "Les parties du plan juxtaposent des thèmes sans que l'une prépare la suivante.",
+      "competences_concernees": [
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "Trois parties intitulées par des zones géographiques."
+    },
+    {
+      "code": "HGGSP-ERR-PROBLEM",
+      "matiere": "HGGSP",
+      "libelle": "Sujet repris sans problématique",
+      "description_observable": "L'intitulé du sujet est recopié en guise de problématique, sans tension formulée.",
+      "competences_concernees": [
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "« Nous verrons comment les frontières évoluent. »"
+    },
+    {
+      "code": "HGGSP-ERR-EXEMPLE",
+      "matiere": "HGGSP",
+      "libelle": "Exemple annoncé sans développement",
+      "description_observable": "Un cas est cité par son nom sans qu'aucun élément ne l'explicite.",
+      "competences_concernees": [
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "« Comme au Sahel » sans précision."
+    },
+    {
+      "code": "HGGSP-ERR-NOTION",
+      "matiere": "HGGSP",
+      "libelle": "Notion politique employée approximativement",
+      "description_observable": "Un terme du vocabulaire des sciences politiques est employé dans un sens qui n'est pas le sien.",
+      "competences_concernees": [
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/DISS",
+        "EDS-HGGSP/INFO"
+      ],
+      "exemple": "« souveraineté » employé pour « indépendance »."
+    },
+    {
+      "code": "HGGSP-ERR-FAIT-OPINION",
+      "matiere": "HGGSP",
+      "libelle": "Fait et opinion non distingués",
+      "description_observable": "Une prise de position de l'auteur est présentée au même titre qu'une donnée vérifiable.",
+      "competences_concernees": [
+        "EDS-HGGSP/INFO",
+        "EDS-HGGSP/CONN",
+        "EDS-HGGSP/REP",
+        "EDS-HGGSP/DOC",
+        "EDS-HGGSP/DISS"
+      ],
+      "exemple": "Éditorial cité comme source factuelle."
+    },
+    {
+      "code": "HLP-ERR-QUESTION",
+      "matiere": "HLP",
+      "libelle": "Réponse décalée de la question",
+      "description_observable": "La production porte sur le texte mais ne traite pas la question posée.",
+      "competences_concernees": [
+        "EDS-HLP/INTER",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Question sur la parole, réponse sur le portrait du personnage."
+    },
+    {
+      "code": "HLP-ERR-APPUI",
+      "matiere": "HLP",
+      "libelle": "Texte non cité à l'appui",
+      "description_observable": "L'interprétation est avancée sans qu'aucun élément du texte ne soit relevé.",
+      "competences_concernees": [
+        "EDS-HLP/INTER",
+        "EDS-HLP/LECT",
+        "EDS-HLP/THEM",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Trois affirmations sur le sens du texte, aucune citation."
+    },
+    {
+      "code": "HLP-ERR-PARAPHRASE",
+      "matiere": "HLP",
+      "libelle": "Texte repris sans interprétation",
+      "description_observable": "Le texte est redit dans d'autres mots sans que soit énoncé ce qu'il donne à penser.",
+      "competences_concernees": [
+        "EDS-HLP/INTER",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Résumé du passage tenant lieu de réponse."
+    },
+    {
+      "code": "HLP-ERR-REFERENCE",
+      "matiere": "HLP",
+      "libelle": "Référence citée sans mise en relation",
+      "description_observable": "Un auteur ou une œuvre est nommé sans que son lien avec le propos soit explicité.",
+      "competences_concernees": [
+        "EDS-HLP/CULT",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/INTER",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "« Comme le disait Platon » sans suite."
+    },
+    {
+      "code": "HLP-ERR-POSITION",
+      "matiere": "HLP",
+      "libelle": "Position non prise dans l'essai",
+      "description_observable": "L'essai expose des points de vue sans que le candidat énonce le sien.",
+      "competences_concernees": [
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/INTER",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "« Certains pensent que… d'autres que… » puis fin du texte."
+    },
+    {
+      "code": "HLP-ERR-THEME",
+      "matiere": "HLP",
+      "libelle": "Texte rattaché à un autre thème",
+      "description_observable": "Le texte est rapporté à un thème du programme qui n'est pas le sien.",
+      "competences_concernees": [
+        "EDS-HLP/THEM",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LECT",
+        "EDS-HLP/INTER",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Extrait sur l'éloquence rattaché aux représentations du monde."
+    },
+    {
+      "code": "HLP-ERR-MOUVEMENT",
+      "matiere": "HLP",
+      "libelle": "Mouvement du texte non repéré",
+      "description_observable": "Les étapes du texte ne sont pas distinguées, ou l'ordre annoncé ne correspond pas au texte.",
+      "competences_concernees": [
+        "EDS-HLP/LECT",
+        "EDS-HLP/THEM",
+        "EDS-HLP/INTER",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Texte présenté comme continu alors qu'il comporte un retournement."
+    },
+    {
+      "code": "HLP-ERR-EXPRESSION",
+      "matiere": "HLP",
+      "libelle": "Formulation imprécise",
+      "description_observable": "La phrase ne permet pas d'identifier ce que le candidat affirme, par imprécision lexicale ou syntaxique.",
+      "competences_concernees": [
+        "EDS-HLP/LANG",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/INTER",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/CULT"
+      ],
+      "exemple": "« Ce texte parle de choses importantes sur l'homme. »"
+    },
+    {
+      "code": "HLP-ERR-LONGUEUR",
+      "matiere": "HLP",
+      "libelle": "Contrainte de longueur non respectée",
+      "description_observable": "La production s'écarte des dix à douze lignes demandées au-delà de la tolérance annoncée.",
+      "competences_concernees": [
+        "EDS-HLP/INTER",
+        "EDS-HLP/ESSAI",
+        "EDS-HLP/THEM",
+        "EDS-HLP/LECT",
+        "EDS-HLP/CULT",
+        "EDS-HLP/LANG"
+      ],
+      "exemple": "Interprétation de trois lignes."
+    },
+    {
+      "code": "MATH-ERR-TAUX-SENS",
+      "matiere": "MATH",
+      "libelle": "Taux d'évolution appliqué à l'envers",
+      "description_observable": "Le candidat multiplie par (1 + t) là où il fallait diviser, ou l'inverse, en passant de la valeur initiale à la valeur finale.",
+      "competences_concernees": [
+        "MATH-EA/AUTO",
+        "MATH-EA/RAIS"
+      ],
+      "exemple": "Une hausse de 20 % suivie du calcul de la valeur initiale par « × 0,8 » au lieu de « ÷ 1,2 »."
+    },
+    {
+      "code": "MATH-ERR-TAUX-SOMME",
+      "matiere": "MATH",
+      "libelle": "Taux successifs additionnés",
+      "description_observable": "Le candidat additionne deux taux d'évolution successifs au lieu de multiplier les coefficients multiplicateurs.",
+      "competences_concernees": [
+        "MATH-EA/AUTO",
+        "MATH-EA/EVOL",
+        "MATH-EA/EXACT"
+      ],
+      "exemple": "« + 10 % puis + 10 % donne + 20 % » au lieu de + 21 %."
+    },
+    {
+      "code": "MATH-ERR-SIGNE-PRODUIT",
+      "matiere": "MATH",
+      "libelle": "Signe d'un produit mal conduit",
+      "description_observable": "Le tableau de signes d'une expression factorisée ne combine pas correctement les signes des facteurs.",
+      "competences_concernees": [
+        "MATH-EA/AUTO",
+        "MATH-EA/ALGAN",
+        "MATH-EA/RAIS"
+      ],
+      "exemple": "Le produit de deux facteurs négatifs est déclaré négatif."
+    },
+    {
+      "code": "MATH-ERR-LECTURE-GRAPHE",
+      "matiere": "MATH",
+      "libelle": "Lecture graphique sans respect des unités",
+      "description_observable": "Le candidat lit une valeur sans tenir compte de l'échelle ou de l'origine du repère.",
+      "competences_concernees": [
+        "MATH-EA/AUTOG"
+      ],
+      "exemple": "Une graduation de 5 en 5 lue comme une graduation de 1 en 1."
+    },
+    {
+      "code": "MATH-ERR-COEF-DIRECTEUR",
+      "matiere": "MATH",
+      "libelle": "Coefficient directeur calculé à l'envers",
+      "description_observable": "Le rapport des accroissements est inversé, ou les coordonnées sont mélangées entre les deux points.",
+      "competences_concernees": [
+        "MATH-EA/AUTOG"
+      ],
+      "exemple": "(x2 − x1)/(y2 − y1) au lieu de (y2 − y1)/(x2 − x1)."
+    },
+    {
+      "code": "MATH-ERR-CONDITIONNELLE",
+      "matiere": "MATH",
+      "libelle": "Probabilité conditionnelle confondue avec l'intersection",
+      "description_observable": "Le candidat rend P(A inter B) là où P_A(B) est demandé, ou intervertit les deux conditionnements.",
+      "competences_concernees": [
+        "MATH-EA/PROBA",
+        "MATH-EA/INFO"
+      ],
+      "exemple": "Sur un tableau croisé, division par l'effectif total au lieu de l'effectif de la ligne."
+    },
+    {
+      "code": "MATH-ERR-ARBRE",
+      "matiere": "MATH",
+      "libelle": "Arbre pondéré mal renseigné",
+      "description_observable": "Les probabilités portées sur les branches ne somment pas à 1 à chaque nœud, ou les branches conditionnelles sont interverties.",
+      "competences_concernees": [
+        "MATH-EA/PROBA"
+      ],
+      "exemple": "Deux branches issues d'un même nœud portant 0,3 et 0,5."
+    },
+    {
+      "code": "MATH-ERR-AJUSTEMENT",
+      "matiere": "MATH",
+      "libelle": "Ajustement extrapolé sans réserve",
+      "description_observable": "Le candidat extrapole loin du nuage sans le signaler, ou lit l'ajustement comme une valeur certaine.",
+      "competences_concernees": [
+        "MATH-EA/INFO"
+      ],
+      "exemple": "Prolonger une droite d'ajustement de dix ans au-delà des données sans réserve."
+    },
+    {
+      "code": "MATH-ERR-POINT-MOYEN",
+      "matiere": "MATH",
+      "libelle": "Point moyen calculé partiellement",
+      "description_observable": "Le candidat moyenne les abscisses sans moyenner les ordonnées, ou l'inverse.",
+      "competences_concernees": [
+        "MATH-EA/INFO"
+      ],
+      "exemple": "Point moyen donné comme (moyenne des x ; première ordonnée)."
+    },
+    {
+      "code": "MATH-ERR-SEUIL",
+      "matiere": "MATH",
+      "libelle": "Seuil cherché sans conclusion",
+      "description_observable": "Le candidat essaie des valeurs sans conclure sur le premier rang qui dépasse le seuil.",
+      "competences_concernees": [
+        "MATH-EA/EVOL"
+      ],
+      "exemple": "« Vers la dixième année » sans encadrement ni justification."
+    },
+    {
+      "code": "MATH-ERR-MODELE",
+      "matiere": "MATH",
+      "libelle": "Modèle d'évolution mal identifié",
+      "description_observable": "Une croissance à taux constant est traitée comme linéaire, ou une croissance à pas constant comme exponentielle ; ou bien la situation n'est pas traduite en suite alors que la question le demande.",
+      "competences_concernees": [
+        "MATH-EA/EVOL",
+        "MATH-EA/ALGAN"
+      ],
+      "exemple": "Une augmentation de 3 % par an modélisée par une suite arithmétique."
+    },
+    {
+      "code": "MATH-ERR-ORDRE-GRANDEUR",
+      "matiere": "MATH",
+      "libelle": "Ordre de grandeur non contrôlé",
+      "description_observable": "Le résultat annoncé est hors de proportion avec les données et n'est pas mis en doute.",
+      "competences_concernees": [
+        "MATH-EA/EXACT",
+        "MATH-EA/EVOL"
+      ],
+      "exemple": "Une population de 8 000 habitants annoncée à 80 millions après trois années de hausse."
+    },
+    {
+      "code": "MATH-ERR-CALCUL-EXACT",
+      "matiere": "MATH",
+      "libelle": "Valeur exacte remplacée par approchée",
+      "description_observable": "Le candidat arrondit en cours de calcul, ou rend une décimale là où une fraction exacte est attendue.",
+      "competences_concernees": [
+        "MATH-EA/EXACT",
+        "MATH-EA/ALGAN",
+        "MATH-EA/EVOL",
+        "MATH-EA/GEOM",
+        "MATH-EA/PROBA"
+      ],
+      "exemple": "0,33 rendu au lieu de 1/3, puis réutilisé dans la suite du calcul."
+    },
+    {
+      "code": "MATH-ERR-JUSTIF-ABSENTE",
+      "matiere": "MATH",
+      "libelle": "Résultat donné sans justification",
+      "description_observable": "La réponse est correcte mais aucune étape ni argument n'est écrit.",
+      "competences_concernees": [
+        "MATH-EA/RAIS",
+        "MATH-EA/ALGAN",
+        "MATH-EA/EXACT",
+        "MATH-EA/GEOM",
+        "MATH-EA/PROBA"
+      ],
+      "exemple": "« On trouve 12 » sans calcul ni phrase de conclusion."
+    },
+    {
+      "code": "HG-ERR-CHRONO",
+      "matiere": "HG",
+      "libelle": "Repère chronologique inexact",
+      "description_observable": "L'événement, la période ou la césure temporelle citée ne correspond pas à la date historique.",
+      "competences_concernees": [
+        "TC-HG/HIST"
+      ],
+      "exemple": "Placement de la Révolution française en 1848 ou confusion entre Premier et Second Empire."
+    },
+    {
+      "code": "HG-ERR-ANACHRONISME",
+      "matiere": "HG",
+      "libelle": "Anachronisme conceptuel ou institutionnel",
+      "description_observable": "Une notion ou une institution est attribuée à une époque où elle n'existait pas encore.",
+      "competences_concernees": [
+        "TC-HG/HIST"
+      ],
+      "exemple": "Évoquer la Ve République lors de l'étude du Front populaire."
+    },
+    {
+      "code": "HG-ERR-LOCALISATION",
+      "matiere": "HG",
+      "libelle": "Repère spatial ou toponyme erroné",
+      "description_observable": "La localisation, la façade maritime ou l'entité spatiale mentionnée est inexacte.",
+      "competences_concernees": [
+        "TC-HG/GEO",
+        "TC-HG/CART",
+        "TC-HG/DOC"
+      ],
+      "exemple": "Inversion de l'axe mégalopolitain ou confusion entre deux façades maritimes."
+    },
+    {
+      "code": "HG-ERR-ECHELLE",
+      "matiere": "HG",
+      "libelle": "Confusion d'échelles d'analyse spatiale",
+      "description_observable": "Le raisonnement mélange l'échelle locale, régionale ou mondiale sans distinguer les dynamiques.",
+      "competences_concernees": [
+        "TC-HG/GEO",
+        "TC-HG/CART",
+        "TC-HG/DOC",
+        "TC-HG/PROB"
+      ],
+      "exemple": "Assimiler la dynamique d'une métropole régionale à celle d'une métropole mondiale."
+    },
+    {
+      "code": "HG-ERR-PARAPHRASE",
+      "matiere": "HG",
+      "libelle": "Paraphrase sans explication critique",
+      "description_observable": "Le propos recopie les documents d'appui sans confronter les informations ni éclairer le contexte.",
+      "competences_concernees": [
+        "TC-HG/DOC",
+        "TC-HG/HIST",
+        "TC-HG/PROB"
+      ],
+      "exemple": "Recopie intégrale d'un extrait de discours sans identification du point de vue de l'auteur."
+    },
+    {
+      "code": "HG-ERR-SOURCE",
+      "matiere": "HG",
+      "libelle": "Omission de la nature du document",
+      "description_observable": "L'analyse exploite le document comme une vérité absolue sans identifier sa nature ni sa source.",
+      "competences_concernees": [
+        "TC-HG/DOC",
+        "TC-HG/HIST"
+      ],
+      "exemple": "Utiliser une affiche de propagande sans mentionner son émetteur ni sa visée persuasive."
+    },
+    {
+      "code": "HG-ERR-FIGURE",
+      "matiere": "HG",
+      "libelle": "Figuré cartographique inapproprié",
+      "description_observable": "Le symbole ponctuel, linéaire ou de surface ne respecte pas les conventions sémiologiques.",
+      "competences_concernees": [
+        "TC-HG/CART",
+        "TC-HG/DOC"
+      ],
+      "exemple": "Emploi d'un aplat de couleur vive pour un flux ou absence de hiérarchie visuelle."
+    },
+    {
+      "code": "HG-ERR-LEGENDE",
+      "matiere": "HG",
+      "libelle": "Légende cartographique non hiérarchisée",
+      "description_observable": "La légende juxtapose des éléments sans regrouper les figurés selon des axes directeurs.",
+      "competences_concernees": [
+        "TC-HG/CART",
+        "TC-HG/DOC"
+      ],
+      "exemple": "Liste continue de figurés sans parties thématiques distinctes."
+    },
+    {
+      "code": "HG-ERR-STRUCTURE",
+      "matiere": "HG",
+      "libelle": "Réponse dépourvue de plan ordonné",
+      "description_observable": "Le développement ne comporte pas d'axes distincts répondant à la question posée.",
+      "competences_concernees": [
+        "TC-HG/PROB",
+        "TC-HG/DOC"
+      ],
+      "exemple": "Suite de paragraphes juxtaposés sans fil conducteur ni transitions thématiques."
+    },
+    {
+      "code": "EMC-ERR-CONF-DROIT",
+      "matiere": "EMC",
+      "libelle": "Confusion règle juridique et morale",
+      "description_observable": "L'argument assimile une obligation légale à une simple préférence morale personnelle.",
+      "competences_concernees": [
+        "TC-EMC/CIVIQ"
+      ],
+      "exemple": "Confondre une disposition du Code civil avec un usage de politesse."
+    },
+    {
+      "code": "EMC-ERR-INSTITUTION",
+      "matiere": "EMC",
+      "libelle": "Désignation erronée des institutions républicaines",
+      "description_observable": "Les compétences ou le rôle constitutionnel d'un pouvoir public sont inexactement attribués.",
+      "competences_concernees": [
+        "TC-EMC/CIVIQ"
+      ],
+      "exemple": "Attribuer le vote de la loi au Conseil constitutionnel plutôt qu'au Parlement."
+    },
+    {
+      "code": "EMC-ERR-LAICITE",
+      "matiere": "EMC",
+      "libelle": "Interprétation inexacte de la laïcité",
+      "description_observable": "La laïcité est présentée comme une interdiction de croyance plutôt que comme la garantie de liberté.",
+      "competences_concernees": [
+        "TC-EMC/VAL"
+      ],
+      "exemple": "Présenter la laïcité républicaine comme une obligation d'athéisme dans l'espace privé."
+    },
+    {
+      "code": "EMC-ERR-EGALITE",
+      "matiere": "EMC",
+      "libelle": "Assimilation entre égalité et uniformité",
+      "description_observable": "La notion d'égalité républicaine est confondue avec l'absence de droits spécifiques garantis.",
+      "competences_concernees": [
+        "TC-EMC/VAL"
+      ],
+      "exemple": "Nier le principe d'aménagements pour personnes en situation de handicap au nom de l'égalité formelle."
+    },
+    {
+      "code": "EMC-ERR-FAIT-OPINION",
+      "matiere": "EMC",
+      "libelle": "Confusion entre fait et opinion",
+      "description_observable": "Une affirmation subjective ou une croyance est avancée comme une donnée scientifique ou légale établie.",
+      "competences_concernees": [
+        "TC-EMC/ARGU"
+      ],
+      "exemple": "Présenter une théorie du complot non vérifiée comme une preuve établie."
+    },
+    {
+      "code": "EMC-ERR-SOURCE-FIAB",
+      "matiere": "EMC",
+      "libelle": "Recours à des sources non vérifiées",
+      "description_observable": "L'argumentation s'appuie sur une source non identifiable ou dépourvue de rigueur méthodologique.",
+      "competences_concernees": [
+        "TC-EMC/ARGU"
+      ],
+      "exemple": "Citer une publication anonyme sur un réseau social pour appuyer un chiffre démographique."
+    },
+    {
+      "code": "EMC-ERR-ARG-NON-FONDE",
+      "matiere": "EMC",
+      "libelle": "Affirmation sans justification rationnelle",
+      "description_observable": "Une prise de position est énoncée de manière péremptoire sans démonstration ni référence aux textes.",
+      "competences_concernees": [
+        "TC-EMC/ARGU"
+      ],
+      "exemple": "Déclarer une mesure injuste sans expliciter le principe constitutionnel ou légal visé."
+    },
+    {
+      "code": "EMC-ERR-ECOUTE-ORALE",
+      "matiere": "EMC",
+      "libelle": "Omission de la question posée",
+      "description_observable": "Le candidat déroule un discours préétabli sans répondre à la relance de l'examinateur.",
+      "competences_concernees": [
+        "TC-EMC/ORAL"
+      ],
+      "exemple": "Poursuivre un exposé mémorisé en ignorant l'interrogation précise du coach."
+    },
+    {
+      "code": "EMC-ERR-NUANCE-ABS",
+      "matiere": "EMC",
+      "libelle": "Absence de nuance dans l'interaction",
+      "description_observable": "L'argumentation refuse toute prise en compte des objections légitimes formulées lors du dialogue.",
+      "competences_concernees": [
+        "TC-EMC/ORAL"
+      ],
+      "exemple": "Répéter la même affirmation sans intégrer le contre-argument soulevé par l'interlocuteur."
+    },
+    {
+      "code": "FRP-ERR-SENS-GLOBAL",
+      "matiere": "FRP",
+      "libelle": "Contresens sur l'idée principale",
+      "description_observable": "La réponse attribue au document une thèse opposée à celle que défend l'auteur.",
+      "competences_concernees": [
+        "FR-POS/COMP"
+      ],
+      "exemple": "Affirmer que le texte préconise la suppression totale des outils numériques."
+    },
+    {
+      "code": "FRP-ERR-INFO-DETAIL",
+      "matiere": "FRP",
+      "libelle": "Relevé partiel ou inexact d'information",
+      "description_observable": "L'élément textuel sélectionné ne correspond pas à la question de repérage posée.",
+      "competences_concernees": [
+        "FR-POS/COMP"
+      ],
+      "exemple": "Citer un avantage des réseaux au lieu d'un risque mentionné au paragraphe 3."
+    },
+    {
+      "code": "FRP-ERR-LEXIQUE-CTX",
+      "matiere": "FRP",
+      "libelle": "Sens lexical inadapté au contexte",
+      "description_observable": "Le mot ou l'expression est interprété dans un sens courant étranger au contexte de la phrase.",
+      "competences_concernees": [
+        "FR-POS/COMP"
+      ],
+      "exemple": "Définir « modérer » uniquement comme « ralentir » dans un contexte de gestion de contenus."
+    },
+    {
+      "code": "FRP-ERR-ACCORD-VERBE",
+      "matiere": "FRP",
+      "libelle": "Accord sujet-verbe non réalisé",
+      "description_observable": "La désinence verbale ne s'accorde pas avec la personne ou le nombre du sujet.",
+      "competences_concernees": [
+        "FR-POS/LANG"
+      ],
+      "exemple": "Écrire « les adolescents utilise » au lieu de « utilisent »."
+    },
+    {
+      "code": "FRP-ERR-TEMPS-VERBAL",
+      "matiere": "FRP",
+      "libelle": "Morphologie erronée du temps demandé",
+      "description_observable": "La conjugaison produite ne correspond pas au mode ou au temps verbal prescrit par la consigne.",
+      "competences_concernees": [
+        "FR-POS/LANG"
+      ],
+      "exemple": "Employer un futur simple au lieu d'un imparfait lors de la transposition."
+    },
+    {
+      "code": "FRP-ERR-PASSIVATION",
+      "matiere": "FRP",
+      "libelle": "Transformation passive incomplète ou erronée",
+      "description_observable": "La passivation omet l'auxiliaire être ou altère les fonctions sujet et complément d'agent.",
+      "competences_concernees": [
+        "FR-POS/LANG"
+      ],
+      "exemple": "Oublier l'accord du participe passé ou inverser l'agent et le patient."
+    },
+    {
+      "code": "FRP-ERR-CONNECTEUR",
+      "matiere": "FRP",
+      "libelle": "Connecteur logique impropre au lien",
+      "description_observable": "Le mot de liaison employé contredit la relation logique de cause, de conséquence ou d'opposition.",
+      "competences_concernees": [
+        "FR-POS/LANG",
+        "FR-POS/PROD"
+      ],
+      "exemple": "Employer « donc » au lieu de « pourtant » pour introduire une restriction."
+    },
+    {
+      "code": "FRP-ERR-ARG-NON-ETAYE",
+      "matiere": "FRP",
+      "libelle": "Argument non illustré par l'exemple",
+      "description_observable": "L'idée avancée dans la production écrite ne reçoit aucun exemple concret à l'appui.",
+      "competences_concernees": [
+        "FR-POS/PROD"
+      ],
+      "exemple": "Énoncer un danger sans décrire de situation illustrative concrète."
+    },
+    {
+      "code": "FRP-ERR-ORAL-DEBIT",
+      "matiere": "FRP",
+      "libelle": "Hésitations répétées altérant la fluidité",
+      "description_observable": "Le débit de parole saccadé ou les pauses prolongées perturbent la transmission du message.",
+      "competences_concernees": [
+        "FR-POS/ORAL"
+      ],
+      "exemple": "Arrêts fréquents au milieu des phrases empêchant la compréhension de l'énoncé oral."
+    },
+    {
+      "code": "FRP-ERR-THESE-IMPREC",
+      "matiere": "FRP",
+      "libelle": "Thèse ou point de vue imprécis",
+      "description_observable": "Le texte n'exprime pas clairement la position du scripteur sur le sujet proposé.",
+      "competences_concernees": [
+        "FR-POS/PROD"
+      ],
+      "exemple": "Répondre par une phrase vague sans prise de position nette."
+    },
+    {
+      "code": "FRP-ERR-SOLUTION-ABS",
+      "matiere": "FRP",
+      "libelle": "Absence de solution concrète proposée",
+      "description_observable": "La production omet de formuler des pistes de solution ou de modération.",
+      "competences_concernees": [
+        "FR-POS/PROD"
+      ],
+      "exemple": "Lister des inconvénients sans suggérer de démarche équilibrée."
+    },
+    {
+      "code": "FRP-ERR-SYNTAXE-PHRASE",
+      "matiere": "FRP",
+      "libelle": "Structure de phrase incorrecte ou inachevée",
+      "description_observable": "La phrase présente une rupture de construction ou un ordre des mots non conforme en français.",
+      "competences_concernees": [
+        "FR-POS/LANG",
+        "FR-POS/PROD"
+      ],
+      "exemple": "Omettre le verbe conjugué ou inverser le sujet et le complément de manière agrammaticale."
+    }
+  ]
+}

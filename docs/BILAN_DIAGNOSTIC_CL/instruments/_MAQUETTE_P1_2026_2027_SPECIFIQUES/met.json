@@ -1,0 +1,9 @@
+{
+  "candidate_ref": "CL-2026-0004",
+  "fictif": true,
+  "reponses": {
+    "MET-01": "b", "MET-02": "b", "MET-03": "a", "MET-04": "b",
+    "MET-05": "b", "MET-06": "a", "MET-07": "c", "MET-08": "b",
+    "MET-09": "b", "MET-10": "a", "MET-11": "c", "MET-12": "b"
+  }
+}

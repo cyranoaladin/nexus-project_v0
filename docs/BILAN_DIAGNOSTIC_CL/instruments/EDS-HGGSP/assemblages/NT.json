@@ -1,0 +1,90 @@
+{
+  "instrument": "EDS-HGGSP",
+  "version": "NT",
+  "titre": "Diagnostic de spécialité histoire-géographie, géopolitique et sciences politiques — version Terminale",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Le plan détaillé du bloc C est rédigé sur le cahier de composition. Le développement n'est pas demandé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "REP",
+        "intitule": "Repères chronologiques et spatiaux ; vocabulaire des sciences politiques"
+      },
+      {
+        "competence": "CONN",
+        "intitule": "Connaissances par thème : démocratie, puissances, frontières, information, religions en Première ; mémoire, patrimoine, environnement, guerre et paix, connaissance en Terminale"
+      },
+      {
+        "competence": "INFO",
+        "intitule": "Recherche et traitement de l'information : distinguer fait, analyse et opinion ; fiabilité d'une source"
+      },
+      {
+        "competence": "DOC",
+        "intitule": "Étude critique de documents : nature, contexte, point de vue, confrontation"
+      },
+      {
+        "competence": "DISS",
+        "intitule": "Dissertation : analyser un sujet, problématiser, plan, paragraphe argumenté"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "HGGSP-2-REP-01",
+        "HGGSP-2-REP-02",
+        "HGGSP-2-REP-03",
+        "HGGSP-2-REP-04",
+        "HGGSP-2-REP-05",
+        "HGGSP-2-REP-06",
+        "HGGSP-1-CONN-01",
+        "HGGSP-1-CONN-03",
+        "HGGSP-1-CONN-02",
+        "HGGSP-1-CONN-04",
+        "HGGSP-2-REP-07",
+        "HGGSP-1-CONN-09",
+        "HGGSP-1-CONN-12"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "HGGSP-T-CONN-05",
+        "HGGSP-T-CONN-07",
+        "HGGSP-T-CONN-06",
+        "HGGSP-T-CONN-08",
+        "HGGSP-1-INFO-01",
+        "HGGSP-1-INFO-02",
+        "HGGSP-1-INFO-03",
+        "HGGSP-1-DOC-01",
+        "HGGSP-1-DOC-02",
+        "HGGSP-T-DOC-03",
+        "HGGSP-T-CONN-10",
+        "HGGSP-T-CONN-11",
+        "HGGSP-1-INFO-04",
+        "HGGSP-T-DOC-06",
+        "HGGSP-1-DOC-05",
+        "HGGSP-1-INFO-05"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "HGGSP-T-DISS-02"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "HGGSP-T-DISS-04"
+      ]
+    }
+  ]
+}

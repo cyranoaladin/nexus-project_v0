@@ -1,0 +1,34 @@
+{
+  "schema": "nexus.referentiel.dates_anterieures_depart",
+  "commit_de_depart": "dbee5b0",
+  "commit_de_depart_complet": "dbee5b065a799b2a0f928d757ae49d6a3f4cd762",
+  "depot_d_origine": "ancien dépôt local BILAN_DIAGNOSTIC_CL (branche diagnostic/instruments)",
+  "regle": "Pour chaque fichier, l'empreinte SHA256 de chaque ligne qui portait déjà la date future au commit de départ. Le texte des lignes n'est pas recopié : le dater ici créerait de nouvelles occurrences.",
+  "fichiers": {
+    "README_ETAT.md": [
+      "ac31a584b5018f761899ce9603c8cc1fdafdd3451be48dd373f45790ef7bf061",
+      "e375b5d09ba72b30c0d766190f7d6dbc1fd63993ab56ee59a65254bb31cd0f07"
+    ],
+    "instruments/MATH-EA/banque.json": [
+      "046240e8d1d2523ed272df9d0857de838aaaa07fdedd1bb2a1b06e06e5e1ff38",
+      "599b60a6a50ceb4a1c6b3d0d609ba88f164de4b1ac5d375e939abaf6946565ee",
+      "a7201d1ed470636445823a005dd014ab829b53860bf55fb891c101e0ea66f7d5"
+    ],
+    "referentiels/capacites_mathematiques.json": [
+      "48af4476de0d79295d9e8c3a35e954c562ef9b653e18336a562bbb05f8056c79",
+      "9e2c60b4cd9066e6a48bff5f6d09d213840233702b1d5c52b700a91d6887795e"
+    ],
+    "referentiels/programmes_examen.json": [
+      "323971a95c8a0f8fe15245e966a8cbe82035aaeeda0d47976796729118b5d7bf",
+      "6d609921cf8b01ae1005db15e70393b415d48fb055e8564efbfd8c2c70a6774a"
+    ],
+    "scripts/validate_instrument.py": [
+      "414f851f5d39d852aa3ce87f8cae45967848cb7aedd01adffa55894a982e47f7"
+    ],
+    "tests/test_math_ea_expertise.py": [
+      "1b5d07495b97054d68e1624320e53252f560065feccccaf753b7428a3caa81f8",
+      "4a92b9ac9023667491ee24ad6dd0c0d5b4df9679b669ee8a9c64c801d4ad08fe",
+      "5eb6a8f3452e38b400bcc0d76507b440f51f37eaa4ce27b179760f5ae5204a8a"
+    ]
+  }
+}

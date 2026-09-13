@@ -1,0 +1,556 @@
+{
+  "objet": "Registre des textes sources insérés dans les instruments. Un support littéraire ou philosophique n'entre au dépôt qu'à partir d'une édition publique vérifiable, et ce fichier dit laquelle, où elle se consulte, entre quelles bornes le passage a été relevé, et quelle empreinte il porte. Il ne contient pas les textes : ceux-ci vivent dans les assemblages, et l'empreinte les y rattache.",
+  "regle": "Trois interdits tiennent ce registre. On ne reconstitue pas un passage de mémoire. On ne mêle pas deux éditions dans un même support. On ne modernise pas soi-même une graphie : si la graphie modernisée est voulue, on prend une édition publique qui la donne déjà. Toute transcription est confrontée au fac-similé de son édition, ou à une seconde représentation fiable de la même édition, avant validation.",
+  "dependance_reseau": "Nulle. Les textes nécessaires à la passation sont dans le dépôt ; les URL consignées ici servent à refaire la vérification, jamais à construire un sujet.",
+  "normalisation": {
+    "portee": "extraction, jamais texte",
+    "regles": [
+      "les blancs multiples, les retours de ligne et les coupures de page deviennent une espace simple ;",
+      "l'espace parasite devant le point et la virgule, produite par les balises d'italique de la source, est supprimée ;",
+      "l'espace fine insécable française devant ; : ! ? » est conservée ;",
+      "la division en paragraphes de l'édition est conservée : deux retours de ligne la marquent.",
+      "les accents des capitales sont rétablis, conformément à l'usage des transcriptions de référence : l'édition les omet par contrainte de fonte, non par graphie. Deux occurrences : « A gauche » (Zola) et « A peine » (Molière)."
+    ],
+    "empreinte": "sha256 du texte normalisé, passé en minuscules, encodé en UTF-8."
+  },
+  "niveaux_de_relecture_wikisource": {
+    "4": "page validée : transcription confrontée au scan par un contributeur, puis revalidée par un second",
+    "3": "page corrigée : transcription confrontée au scan par un contributeur",
+    "1": "page non corrigée : océrisation brute, aucune confrontation au scan — une telle page ne vaut pas vérification et impose une confrontation directe au fac-similé"
+  },
+  "textes": {
+    "laboetie": {
+      "auteur": "Étienne de La Boétie",
+      "oeuvre": "Discours de la servitude volontaire",
+      "edition": "texte établi par Paul Bonnefon, Bossard, 1922",
+      "editeur": "Bossard",
+      "annee": 1922,
+      "chapitre_ou_partie": "Discours — texte continu, sans division en chapitres ; le passage ouvre l'apostrophe aux peuples",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Discours de la servitude volontaire/Édition 1922/Discours",
+        "url": "https://fr.wikisource.org/wiki/Discours_de_la_servitude_volontaire/%C3%89dition_1922/Discours"
+      },
+      "facsimile": {
+        "scan": "La Boétie - Discours de la servitude volontaire.djvu",
+        "pages_du_scan": [
+          64,
+          65,
+          66
+        ],
+        "niveau_de_relecture": {
+          "64": 4,
+          "65": 4,
+          "66": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 et comparées mot à mot : aucun écart.",
+        "url": "https://commons.wikimedia.org/wiki/File:La_Bo%C3%A9tie_-_Discours_de_la_servitude_volontaire.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "B",
+          "assemblages": [
+            "standard",
+            "ecrit",
+            "oral",
+            "standard_2028",
+            "ecrit_2028",
+            "oral_2028"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Commun aux deux sessions parce que l'œuvre l'est : « Discours de la servitude volontaire » figure au programme 2027 et au programme 2028, objet d'étude « la littérature d'idées du XVIᵉ au XVIIIᵉ siècle ». Le bloc B n'est pas sessionné ; les blocs C le sont.",
+      "ancre_debut": "Pauvres et misérables peuples insensés, nations opiniâtres en votre…",
+      "ancre_fin": "…résolus de ne servir plus, et vous voilà libres.",
+      "nombre_paragraphes": 1,
+      "nombre_mots": 441,
+      "nombre_lignes_dans_le_pdf_final": 25,
+      "page_du_pdf_final": 3,
+      "sha256_texte_normalise": "f9ed7f46d0b803681ab2bcd58a17383c97b09b9f6eafa83513045a21d859fab6",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 49-102",
+      "pages_du_passage_dans_l_edition": "p. 58-60",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 25,
+      "fenetre_lignes": [
+        20,
+        25
+      ]
+    },
+    "balzac": {
+      "auteur": "Honoré de Balzac",
+      "oeuvre": "La Peau de chagrin",
+      "edition": "Charpentier, libraire-éditeur, 1839",
+      "editeur": "Charpentier",
+      "annee": 1839,
+      "chapitre_ou_partie": "Le Talisman",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "La Peau de chagrin/Le Talisman",
+        "url": "https://fr.wikisource.org/wiki/La_Peau_de_chagrin/Le_Talisman"
+      },
+      "facsimile": {
+        "scan": "La peau de chagrin, Honoré de Balzac.pdf",
+        "pages_du_scan": [
+          49,
+          50
+        ],
+        "niveau_de_relecture": {
+          "49": 3,
+          "50": 3
+        },
+        "confrontation": "pages corrigées contre le scan (niveau 3). Les deux images ont été lues le 2026-09-11 et comparées mot à mot : deux écarts relevés et rétablis (voir confrontation_au_facsimile).",
+        "url": "https://commons.wikimedia.org/wiki/File:La_peau_de_chagrin,_Honor%C3%A9_de_Balzac.pdf"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "C",
+          "assemblages": [
+            "standard",
+            "ecrit"
+          ],
+          "sessions": [
+            2027
+          ]
+        }
+      ],
+      "note": "Session 2027 seulement. Le passage s'arrête avant toute mention du texte gravé sur la peau : le candidat décrit ce que le regard voit, il n'a pas à connaître le roman.",
+      "ancre_debut": "— Retournez-vous, dit le marchand en saisissant tout à…",
+      "ancre_fin": "…pressé de connaître les secrets de son jouet nouveau.",
+      "nombre_paragraphes": 2,
+      "nombre_mots": 265,
+      "nombre_lignes_dans_le_pdf_final": 17,
+      "page_du_pdf_final": 7,
+      "sha256_texte_normalise": "6612ede1f783dd4896c97446a69f9e1c0a5dd15e43c58269a2b914dcf893d177",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 1-92",
+      "pages_du_passage_dans_l_edition": "p. 57-58",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 16,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "zola": {
+      "auteur": "Émile Zola",
+      "oeuvre": "Pot-Bouille",
+      "edition": "G. Charpentier, 1883",
+      "editeur": "G. Charpentier",
+      "annee": 1883,
+      "chapitre_ou_partie": "chapitre I",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Pot-Bouille/1",
+        "url": "https://fr.wikisource.org/wiki/Pot-Bouille/1"
+      },
+      "facsimile": {
+        "scan": "Emile Zola - Pot-Bouille.djvu",
+        "pages_du_scan": [
+          8,
+          9
+        ],
+        "niveau_de_relecture": {
+          "8": 4,
+          "9": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les deux images ont été lues le 2026-09-11 : aucun écart, hormis l'accent de capitale rétabli (« A gauche »).",
+        "url": "https://commons.wikimedia.org/wiki/File:Emile_Zola_-_Pot-Bouille.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "C",
+          "assemblages": [
+            "standard_2028",
+            "ecrit_2028"
+          ],
+          "sessions": [
+            2028
+          ]
+        }
+      ],
+      "note": "Session 2028 seulement. Six paragraphes, dont les répliques de l'architecte : la division en paragraphes appartient à l'édition et porte l'analyse.",
+      "ancre_debut": "Au plafond, deux grandes fentes coupaient les caissons, et,…",
+      "ancre_fin": "…se refermèrent, tout retomba à un silence de mort.",
+      "nombre_paragraphes": 6,
+      "nombre_mots": 326,
+      "nombre_lignes_dans_le_pdf_final": 23,
+      "page_du_pdf_final": 7,
+      "sha256_texte_normalise": "2a754febca37a8f7a849eefee386ff20b64b45d3086d0879640608886c321a6b",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 1-24",
+      "pages_du_passage_dans_l_edition": "p. 8-9",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 18,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "montaigne": {
+      "auteur": "Michel de Montaigne",
+      "oeuvre": "Essais",
+      "edition": "texte établi par l'abbé Musart, Périsse Frères, 1847",
+      "editeur": "Périsse Frères",
+      "annee": 1847,
+      "chapitre_ou_partie": "De la vanité des paroles",
+      "identification_dans_l_edition": {
+        "chapitre_imprime": "CHAPITRE XX",
+        "titre_canonique": "De la vanité des paroles",
+        "avertissement": "L'édition Musart ne numérote pas le chapitre comme les éditions de référence modernes, qui le placent au livre I, chapitre LI. Le fac-similé porte « CHAPITRE XX » en tête de la page 175 : c'est l'identification de cette édition, vérifiée sur l'image, et non une numérotation canonique. Le titre du chapitre, lui, est bien celui que le programme nomme.",
+        "verifie_le": "2026-09-11"
+      },
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Essais/édition Musart, 1847/20",
+        "url": "https://fr.wikisource.org/wiki/Essais/%C3%A9dition_Musart,_1847/20"
+      },
+      "facsimile": {
+        "scan": "Montaigne - Essais, Musart, 1847.djvu",
+        "pages_du_scan": [
+          180,
+          181
+        ],
+        "niveau_de_relecture": {
+          "180": 1,
+          "181": 1
+        },
+        "confrontation": "pages NON corrigées sur Wikisource (niveau 1) : la transcription en ligne ne valait donc pas vérification. Les deux images du fac-similé ont été téléchargées et lues le 2026-09-11, et la transcription comparée mot à mot au scan. Aucun écart. L'appel de note « 1 » après « pellegrin » est un apparat de l'éditeur (« Étranger. ») et n'entre pas dans le support.",
+        "url": "https://commons.wikimedia.org/wiki/File:Montaigne_-_Essais,_Musart,_1847.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "EDS-HLP",
+          "bloc": "C",
+          "assemblages": [
+            "N1",
+            "NT"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Graphie modernisée par l'édition Musart elle-même ; rien n'a été modernisé ici. Le passage contient l'impératif « Oyez dire métonymie, métaphore, allégorie » et l'adresse au lecteur « votre chambrière », que les items du bloc C exploitent.",
+      "ancre_debut": "Après cela, il est entré sur l’ordre du service,…",
+      "ancre_fin": "…ait honoré un ou deux personnages en plusieurs siècles.",
+      "nombre_paragraphes": 4,
+      "nombre_mots": 248,
+      "nombre_lignes_dans_le_pdf_final": 18,
+      "page_du_pdf_final": 4,
+      "sha256_texte_normalise": "6370a293520f1cf524c964e7e30497f55e85f6aa41c8bcab6f81f02b3d0cdf41",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 174-175",
+      "pages_du_passage_dans_l_edition": "p. 174-175",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 15,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "condorcet": {
+      "auteur": "Condorcet",
+      "oeuvre": "Sur l'instruction publique",
+      "edition": "Œuvres de Condorcet, Firmin Didot frères, 1847, tome 7",
+      "editeur": "Firmin Didot frères",
+      "annee": 1847,
+      "chapitre_ou_partie": "Premier mémoire, « Nature et objet de l'instruction publique », section « La société doit au peuple une instruction publique »",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Sur l’instruction publique/Nature et objet de l’instruction publique",
+        "url": "https://fr.wikisource.org/wiki/Sur_l%E2%80%99instruction_publique/Nature_et_objet_de_l%E2%80%99instruction_publique"
+      },
+      "facsimile": {
+        "scan": "Condorcet - Œuvres, Didot, 1847, volume 7.djvu",
+        "pages_du_scan": [
+          179,
+          180,
+          181
+        ],
+        "niveau_de_relecture": {
+          "179": 4,
+          "180": 4,
+          "181": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 : trois écarts relevés et rétablis, dont un titre de section pris pour du texte courant (voir confrontation_au_facsimile).",
+        "url": "https://commons.wikimedia.org/wiki/File:Condorcet_-_%C5%92uvres,_Didot,_1847,_volume_7.djvu"
+      },
+      "reparations_d_extraction": [
+        {
+          "observe": "ta-lent",
+          "retabli": "talent",
+          "nature": "coupure de mot en fin de ligne du scan, recollée par la transcription ; réparation d'extraction, non correction du texte"
+        }
+      ],
+      "usages": [
+        {
+          "instrument": "FR-MAI",
+          "bloc": "B",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Sept paragraphes continus, depuis la thèse « L'instruction publique est un devoir de la société à l'égard des citoyens. » Aucun paragraphe distant n'a été rapproché d'un autre.",
+      "ancre_debut": "L’instruction publique est un devoir de la société à…",
+      "ancre_fin": "…pouvoir le gêner dans la jouissance de ses droits.",
+      "nombre_paragraphes": 8,
+      "nombre_mots": 395,
+      "nombre_lignes_dans_le_pdf_final": 28,
+      "page_du_pdf_final": 3,
+      "sha256_texte_normalise": "70f8a889ae61b432268f574d8ecf708d9949a7e4da8bc9519398e806cea14ba4",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 169-228",
+      "pages_du_passage_dans_l_edition": "p. 169-171",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 21,
+      "fenetre_lignes": null,
+      "fenetre_mots": [
+        380,
+        420
+      ]
+    },
+    "descartes": {
+      "auteur": "René Descartes",
+      "oeuvre": "Discours de la méthode",
+      "edition": "Œuvres de Descartes, publiées par Victor Cousin, Levrault, 1824, tome I",
+      "editeur": "Levrault",
+      "annee": 1824,
+      "chapitre_ou_partie": "Première partie",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Discours de la méthode (éd. Cousin)/Première partie",
+        "url": "https://fr.wikisource.org/wiki/Discours_de_la_m%C3%A9thode_(%C3%A9d._Cousin)/Premi%C3%A8re_partie"
+      },
+      "facsimile": {
+        "scan": "Œuvres de Descartes, éd. Cousin, tome I.djvu",
+        "pages_du_scan": [
+          127,
+          128,
+          129
+        ],
+        "niveau_de_relecture": {
+          "127": 4,
+          "128": 4,
+          "129": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 : aucun écart de graphie. Les italiques de l'édition sur « accidents », « formes », « individus » et « espèce » ont été rétablies : elles signalent les termes de l'École que l'explication doit définir.",
+        "url": "https://commons.wikimedia.org/wiki/File:%C5%92uvres_de_Descartes,_%C3%A9d._Cousin,_tome_I.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "PHI",
+          "bloc": "C",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Le passage va de « Le bon sens est la chose du monde la mieux partagée » jusqu'à la fin du développement sur la diversité des voies de la pensée ; il déborde d'une phrase sur le paragraphe suivant, qui achève l'articulation.",
+      "ancre_debut": "Le bon sens est la chose du monde la…",
+      "ancre_fin": "…les formes ou natures des individus d’une même espèce.",
+      "nombre_paragraphes": 2,
+      "nombre_mots": 322,
+      "nombre_lignes_dans_le_pdf_final": 20,
+      "page_du_pdf_final": 4,
+      "sha256_texte_normalise": "830f04d104b5e4ac74a225001cfd08b162a6b5a22cc8ff6bd4c39615be7c003e",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 121-132",
+      "pages_du_passage_dans_l_edition": "p. 121-123",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 19,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "moliere": {
+      "auteur": "Molière",
+      "oeuvre": "Le Misanthrope",
+      "edition": "Œuvres complètes, texte établi par Charles Louandre, Charpentier, 1910, tome II",
+      "editeur": "Charpentier",
+      "annee": 1910,
+      "chapitre_ou_partie": "acte I, scène 1",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Le Misanthrope/Édition Louandre, 1910/Acte I",
+        "url": "https://fr.wikisource.org/wiki/Le_Misanthrope/%C3%89dition_Louandre,_1910/Acte_I"
+      },
+      "facsimile": {
+        "scan": "Molière - Édition Louandre, 1910, tome 2.djvu",
+        "pages_du_scan": [
+          181
+        ],
+        "niveau_de_relecture": {
+          "181": 4
+        },
+        "confrontation": "page validée contre le scan (niveau 4). L'image a été lue le 2026-09-11 : un écart relevé et rétabli (« sauroit »). Le rendu HTML de Wikisource répète les hémistiches des vers partagés pour figurer leur décalage typographique ; la transcription a donc été reprise sur le wikitexte de la page du scan, où chaque vers ne figure qu'une fois, et l'apparat {{NumVers}} écarté.",
+        "url": "https://commons.wikimedia.org/wiki/File:Moli%C3%A8re_-_%C3%89dition_Louandre,_1910,_tome_2.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF-ORAL",
+          "bloc": "support d'entretien",
+          "assemblages": [
+            "definition"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ],
+          "note": "FR-EAF-ORAL n'a pas d'assemblage : son support est porté par la définition de l'instrument, et le coach le remet au candidat depuis la grille."
+        }
+      ],
+      "note": "Dix vers et deux noms de locuteur. Le support est stocké en répliques, non en prose : le champ « texte » qui porte l'empreinte reprend les noms de locuteur et les vers dans leur ordre, ce qui suffit à identifier le passage et à interdire son emploi ailleurs. La question de grammaire porte sur une phrase réellement présente dans ces dix vers — « Et quand je vous demande après quel est cet homme, à peine pouvez-vous dire comme il se nomme. »",
+      "ancre_debut": "Philinte Je suis donc bien coupable, Alceste, à votre…",
+      "ancre_fin": "…À peine pouvez-vous dire comme il se nomme ;",
+      "nombre_paragraphes": 1,
+      "nombre_mots": 82,
+      "nombre_lignes_dans_le_pdf_final": 12,
+      "page_du_pdf_final": 1,
+      "sha256_texte_normalise": "3f29ae278b4b5452922319b32920964c156617ae02f00cd5d865b6ee6a8d01d8",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 170-188",
+      "pages_du_passage_dans_l_edition": "p. 171",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 12,
+      "fenetre_lignes": [
+        10,
+        12
+      ]
+    },
+    "fr_pos_adolescents": {
+      "auteur": "Enseignante de français Nexus Réussite",
+      "auteur_conception": "enseignante de français Nexus Réussite",
+      "oeuvre": "Test de positionnement — Français scolaire",
+      "edition": "Test_positionnement_source_enseignante.pdf, document de conception interne Nexus",
+      "editeur": "Nexus Réussite",
+      "annee": 2026,
+      "source_type": "interne_nexus",
+      "sha256_binaire": "f1b56017e48b9a4793bcd800d4fdf1ce4ff171747960853f23448cebc4173687",
+      "pages": 7,
+      "taille": 345948,
+      "chemin_source": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+      "chapitre_ou_partie": "Partie 1 — Compréhension écrite",
+      "source": {
+        "depot": "interne",
+        "page": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+        "url": "https://nexus-reussite.fr/pedagogie/positionnement/francais-scolaire"
+      },
+      "facsimile": {
+        "scan": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+        "pages_du_scan": [
+          2
+        ],
+        "niveau_de_relecture": {
+          "2": 4
+        },
+        "confrontation": "Texte extrait mot à mot du document de positionnement de l'enseignante de français.",
+        "url": "https://nexus-reussite.fr/pedagogie/positionnement/facsimile-test-candidat.pdf"
+      },
+      "usages": [
+        {
+          "instrument": "FR-POS",
+          "bloc": "B",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Support de compréhension écrite de l'instrument de positionnement linguistique.",
+      "ancre_debut": "Aujourd’hui, les réseaux sociaux occupent une place importante…",
+      "ancre_fin": "…Tout dépend de la manière dont on les utilise.",
+      "nombre_paragraphes": 6,
+      "nombre_mots": 266,
+      "nombre_lignes_dans_le_pdf_final": 20,
+      "page_du_pdf_final": 2,
+      "sha256_texte_normalise": "72624d2dcdc2842d10467d866e7c3fa6e41738ccdf24b83580b56b5960414cc2",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 2",
+      "pages_du_passage_dans_l_edition": "p. 2",
+      "pages_du_passage_verifiees_sur": "page 2 du document PDF de l'enseignante",
+      "lignes_pleines_equivalentes": 15,
+      "fenetre_lignes": [
+        10,
+        25
+      ]
+    }
+  },
+  "confrontation_au_facsimile": {
+    "regle": "Chaque transcription a été comparée à l'image de son édition, page à page. Le niveau de relecture affiché par la source ne dispense pas de cette comparaison : un écart a été trouvé sur une page de niveau 3 et deux sur des pages de niveau 4.",
+    "date": "2026-09-11",
+    "ecarts_releves": [
+      {
+        "texte": "balzac",
+        "transcription_en_ligne": "siège",
+        "facsimile": "siége",
+        "retabli": "siége",
+        "commentaire": "graphie de 1839, antérieure à la réforme de 1878 ; la transcription en ligne l'avait modernisée en silence"
+      },
+      {
+        "texte": "balzac",
+        "transcription_en_ligne": "chagrin",
+        "facsimile": "chagrin en italique",
+        "retabli": "*chagrin*",
+        "commentaire": "l'italique désigne l'objet et non l'affect ; il porte la description que l'item de rédaction demande"
+      },
+      {
+        "texte": "condorcet",
+        "transcription_en_ligne": "très réelle",
+        "facsimile": "très-réelle",
+        "retabli": "très-réelle",
+        "commentaire": "trait d'union de l'édition Didot"
+      },
+      {
+        "texte": "condorcet",
+        "transcription_en_ligne": "par lui-même et sans",
+        "facsimile": "par lui-même, et sans",
+        "retabli": "par lui-même, et sans",
+        "commentaire": "virgule présente sur l'image"
+      },
+      {
+        "texte": "condorcet",
+        "transcription_en_ligne": "« Cette obligation consiste à ne laisser subsister aucune inégalité qui entraîne de dépendance. » fondue dans le texte courant",
+        "facsimile": "titre de section, centré et en italique",
+        "retabli": "paragraphe propre, en italique",
+        "commentaire": "le texte courant ne dit pas « cette obligation » sans antécédent : la phrase est un intertitre de l'édition, et le candidat doit la lire comme tel"
+      },
+      {
+        "texte": "moliere",
+        "transcription_en_ligne": "saurait",
+        "facsimile": "sauroit",
+        "retabli": "sauroit",
+        "commentaire": "l'édition Louandre conserve les finales en -oit, comme « paroître » au vers voisin"
+      }
+    ],
+    "sans_ecart": [
+      "laboetie",
+      "zola",
+      "montaigne",
+      "descartes",
+      "fr_pos_adolescents"
+    ]
+  },
+  "mesure_de_longueur": {
+    "statut": "convention interne de conception — aucune exigence réglementaire ne fixe la longueur de l'extrait remis au candidat. Ni l'arrêté du 16 juillet 2018 ni la note de service sur l'épreuve anticipée de français ne prescrivent un nombre de lignes ; la fenêtre est une décision de la direction pédagogique, destinée à borner la charge de lecture dans le temps imparti.",
+    "grandeur": "lignes_pleines_equivalentes",
+    "definition": "lignes occupées dans le PDF candidat, diminuées du nombre de coupures de paragraphe de l'édition. Chaque coupure coûte au plus une ligne partielle : la dernière ligne d'un paragraphe n'est pas pleine. Ces lignes-là n'ajoutent rien à lire, et la fenêtre borne ce qu'il y a à lire.",
+    "formule": "lignes_pleines_equivalentes = nombre_lignes_dans_le_pdf_final - (nombre_paragraphes - 1)",
+    "pourquoi": "La fenêtre avait été mesurée sur des rendus où le passage ne formait qu'un paragraphe. En rétablissant la division en paragraphes de chaque édition — ce que la règle absolue des sources impose —, le nombre de lignes a augmenté sans qu'un seul mot soit ajouté. Mesurer les lignes brutes revenait à pénaliser la fidélité à l'édition. La correction est exacte, non approximative : elle retire exactement les coupures introduites.",
+    "reflow_essaye_le_2026_09_11": "Avant d'amender la règle, un reflow typographique a été mesuré sur le gabarit réel : déclaration de la langue au moteur (aucun gain), marges portées de 2 cm à 1,8 cm (23 lignes, aucun gain) puis à 1,6 cm (22 lignes). Aucun réglage n'atteint 20 lignes brutes, et 1,6 cm de marge n'est pas une marge d'impression acceptable pour un sujet agrafé. Le reflow ne peut pas résoudre l'écart : c'est la grandeur mesurée qui était mal choisie.",
+    "vers": "Un support en vers n'est pas concerné : chaque vers occupe sa ligne par construction, et aucune coupure de paragraphe n'y ajoute de ligne partielle."
+  }
+}

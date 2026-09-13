@@ -1,0 +1,101 @@
+{
+  "instrument": "FR-POS-ORAL",
+  "version": "standard",
+  "schema": "nexus.instrument.grille_coach",
+  "titre": "Positionnement en français scolaire — entretien oral coach",
+  "source_cahier": "Intégration B11 du test de positionnement linguistique — document coach",
+  "avertissement": "Cet entretien court de 10 minutes permet d’évaluer la maîtrise du français oral en contexte scolaire (lecture expressive, compréhension orale, fluidité, correction syntaxique et aisance interactive). Le résultat situe le profil oral du candidat en appui du test écrit.",
+  "deroule": [
+    {
+      "phase": "Accueil et consignes",
+      "duree_min": 2,
+      "consigne_prononcee": "Bonjour. Cet entretien se compose d’une courte lecture suivie d’un échange sur le texte et sur vos habitudes de travail."
+    },
+    {
+      "phase": "Lecture à voix haute",
+      "duree_min": 2,
+      "consigne_prononcee": "Veuillez lire à voix haute le court paragraphe présenté sous vos yeux en articulant nettement."
+    },
+    {
+      "phase": "Compréhension et reformulation",
+      "duree_min": 3,
+      "consigne_prononcee": "Expliquez maintenant avec vos propres mots l’idée principale de ce que vous venez de lire."
+    },
+    {
+      "phase": "Échange et interaction",
+      "duree_min": 3,
+      "consigne_prononcee": "Répondez aux questions suivantes pour donner votre point de vue et préciser votre réflexion."
+    }
+  ],
+  "consignes_correcteur": [
+    "La grille est renseignée immédiatement après l’entretien, jamais de mémoire en fin de journée.",
+    "Chaque critère est noté de 0 à 3 d’après ce qui a été observé pendant l’entretien, non d’après une impression d’ensemble.",
+    "Le total n’est jamais saisi : il est calculé depuis les critères.",
+    "Aucun commentaire libre n’est porté sur la grille ; les observations utiles passent par les codes d’erreur."
+  ],
+  "criteres": [
+    {
+      "code": "LECT",
+      "intitule": "Lecture à voix haute et prononciation",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "La lecture est bloquée ou les erreurs de prononciation rendent le texte inintelligible.",
+        "1": "La lecture est hachée, la ponctuation est ignorée et des erreurs phonétiques subsistent.",
+        "2": "La lecture est fluide, les liaisons et la ponctuation sont globalement respectées.",
+        "3": "La lecture est expressive, le rythme est naturel et l’intonation met en valeur le sens."
+      }
+    },
+    {
+      "code": "COMPR",
+      "intitule": "Compréhension des consignes et des énoncés oraux",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Les questions orales ne sont pas comprises, même après reformulation.",
+        "1": "Le sens global des questions est perçu mais des contresens apparaissent sur les détails.",
+        "2": "Les questions et consignes orales sont correctement comprises sans nécessiter d’aide.",
+        "3": "Toutes les consignes et questions sont comprises immédiatement et avec précision."
+      }
+    },
+    {
+      "code": "FLUID",
+      "intitule": "Fluidité de l’expression et aisance communicative",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "L’élocution est entravée par de longues interruptions empêchant la communication.",
+        "1": "Le propos est discontinu, marqué par des hésitations fréquentes et des phrases inachevées.",
+        "2": "L’expression est suivie, le candidat s’exprime avec régularité malgré de rares pauses.",
+        "3": "L’expression est continue, aisée et dynamique, assurant une communication spontanée."
+      }
+    },
+    {
+      "code": "LEXIQ",
+      "intitule": "Vocabulaire et correction syntaxique à l’oral",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le lexique est trop restreint et les erreurs syntaxiques empêchent de saisir l’idée.",
+        "1": "Le vocabulaire reste très élémentaire et les structures de phrase sont simplifiées.",
+        "2": "Le vocabulaire scolaire est approprié et les phrases sont correctement construites.",
+        "3": "Le lexique est riche, précis, et les structures syntaxiques sont variées et maîtrisées."
+      }
+    },
+    {
+      "code": "INTER",
+      "intitule": "Écoute active et interaction lors de l’échange",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le candidat ne réagit pas aux relances ou reste passif lors de l’entretien.",
+        "1": "Les réponses sont brèves et nécessitent des sollicitations répétées pour être développées.",
+        "2": "Le candidat répond aux questions, apporte des précisions et maintient le contact.",
+        "3": "L’échange est riche, le candidat prend des initiatives verbales et nuance ses propos."
+      }
+    }
+  ],
+  "perimetres_alimentes": [
+    {
+      "perimetre": "FR-POS",
+      "competence": "ORAL",
+      "note": "Évaluation de la compétence de communication orale et d’interaction en français scolaire."
+    }
+  ],
+  "audit_2026_09_12": "Création B11 du module oral de positionnement linguistique (FR-POS-ORAL, 10 min, 5 critères)."
+}

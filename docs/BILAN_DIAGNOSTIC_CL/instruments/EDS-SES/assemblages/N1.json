@@ -1,0 +1,84 @@
+{
+  "instrument": "EDS-SES",
+  "version": "N1",
+  "titre": "Diagnostic de spécialité sciences économiques et sociales — version Première",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "La production du bloc C est rédigée sur le cahier de composition.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "STAT",
+        "intitule": "Lecture de données : pourcentage, taux de variation, indice, coefficient multiplicateur, lecture de tableau et de graphique"
+      },
+      {
+        "competence": "ECO",
+        "intitule": "Marché, monnaie et financement, défaillances ; croissance, commerce international et emploi en Terminale"
+      },
+      {
+        "competence": "SOC",
+        "intitule": "Socialisation, liens sociaux, déviance ; mobilité sociale et structure sociale en Terminale"
+      },
+      {
+        "competence": "MOB",
+        "intitule": "Mobilisation des connaissances : définir, expliquer un mécanisme"
+      },
+      {
+        "competence": "DOCU",
+        "intitule": "Étude d'un document : présenter, analyser, calculer"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "SES-2-STAT-01",
+        "SES-2-STAT-02",
+        "SES-2-STAT-03",
+        "SES-2-STAT-04",
+        "SES-2-STAT-05",
+        "SES-2-STAT-06"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "SES-1-ECO-01",
+        "SES-1-ECO-03",
+        "SES-1-ECO-02",
+        "SES-1-ECO-05",
+        "SES-1-SOC-01",
+        "SES-1-SOC-03",
+        "SES-1-SOC-02",
+        "SES-1-SOC-05",
+        "SES-1-POL-01",
+        "SES-1-POL-05",
+        "SES-1-POL-06",
+        "SES-1-POL-02",
+        "SES-1-MOB-01",
+        "SES-1-MOB-05",
+        "SES-1-MOB-06",
+        "SES-1-MOB-02"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "SES-1-DOCU-05"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "SES-1-RAIS-02",
+        "SES-1-DOCU-03"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1114 @@
+{
+  "instrument": "FR-MAI",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "FR-MAI-LANG-01",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase est correcte ?",
+      "supports": [],
+      "propositions": {
+        "A": "Les analyses qu'il a menée sont convaincantes.",
+        "B": "Les analyses qu'il a menées sont convaincantes.",
+        "C": "Les analyses qu'il a mené sont convaincantes.",
+        "D": "Les analyses qu'il a menés sont convaincantes."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "accord partiel avec le complément antéposé",
+          "C": "accord non réalisé",
+          "D": "accord en genre erroné"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Accord du participe passé avec le COD antéposé, faute la plus fréquente dans une copie de philosophie ou de SES."
+    },
+    {
+      "item_id": "FR-MAI-LANG-02",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase ne comporte pas d'erreur ?",
+      "supports": [],
+      "propositions": {
+        "A": "Ce phénomène s'explique par plusieurs facteurs qu'il convient d'analyser.",
+        "B": "Ce phénomène s'expliquent par plusieurs facteurs.",
+        "C": "Ce phénomène s'explique par plusieurs facteur.",
+        "D": "Ces phénomène s'explique par plusieurs facteurs."
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "verbe accordé avec le complément et non avec le sujet",
+          "C": "accord du nom au pluriel omis",
+          "D": "accord du démonstratif et du nom discordants"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Accord sujet-verbe à distance : le complément intercalé attire l'accord."
+    },
+    {
+      "item_id": "FR-MAI-LANG-03",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle formulation relève d'une rédaction académique ?",
+      "supports": [],
+      "propositions": {
+        "A": "On voit bien que c'est pas vrai.",
+        "B": "Il apparaît que cette affirmation ne se vérifie pas.",
+        "C": "Franchement, ça marche pas.",
+        "D": "Du coup, c'est faux."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "négation incomplète et tour oral",
+          "C": "interjection et négation incomplète",
+          "D": "connecteur oral employé pour une conséquence"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Registre académique. Les trois distracteurs isolent trois marques d'oral distinctes."
+    },
+    {
+      "item_id": "FR-MAI-LANG-04",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Où placer la virgule dans : « Selon cet auteur la croissance ralentit » ?",
+      "supports": [],
+      "propositions": {
+        "A": "après « Selon »",
+        "B": "après « auteur »",
+        "C": "après « croissance »",
+        "D": "aucune virgule n'est nécessaire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "virgule coupant la préposition de son complément",
+          "C": "virgule séparant le sujet du verbe",
+          "D": "complément circonstanciel antéposé non détaché"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Détachement d'un complément antéposé, ponctuation la plus utile à la lisibilité d'une copie. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LANG-05",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase évite l'ambiguïté ?",
+      "supports": [],
+      "propositions": {
+        "A": "L'auteur critique le sociologue car il se trompe.",
+        "B": "L'auteur critique le sociologue, estimant que ce dernier se trompe.",
+        "C": "L'auteur critique le sociologue et il se trompe.",
+        "D": "Le sociologue critiqué, il se trompe."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "pronom à deux antécédents possibles",
+          "C": "même ambiguïté, coordonnée",
+          "D": "construction disloquée, référent indéterminé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Ambiguïté de la reprise pronominale, source majeure d'illisibilité. Item de transfert : les quatre phrases sont grammaticales, seule l'une est claire."
+    },
+    {
+      "item_id": "FR-MAI-LANG-06",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase emploie correctement le subjonctif ?",
+      "supports": [],
+      "propositions": {
+        "A": "Bien que ce résultat est surprenant, il est confirmé.",
+        "B": "Bien que ce résultat soit surprenant, il est confirmé.",
+        "C": "Bien que ce résultat serait surprenant, il est confirmé.",
+        "D": "Bien que ce résultat sera surprenant, il est confirmé."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "indicatif après une conjonction appelant le subjonctif",
+          "C": "conditionnel employé pour le subjonctif",
+          "D": "futur employé pour le subjonctif"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Mode après « bien que », conjonction très employée dans les copies de sciences humaines."
+    },
+    {
+      "item_id": "FR-MAI-LANG-07",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle réécriture supprime la répétition sans changer le sens ?",
+      "supports": [],
+      "propositions": {
+        "A": "Cette politique a des effets ; ces effets sont contestés.",
+        "B": "Cette politique a des effets, lesquels sont contestés.",
+        "C": "Cette politique a des effets et des effets contestés.",
+        "D": "Cette politique, ses effets sont contestés."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "répétition conservée sous forme de reprise nominale",
+          "C": "répétition aggravée",
+          "D": "construction disloquée, relevant de l'oral"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Reprise par un relatif. Le distracteur A n'est pas fautif mais ne supprime pas la répétition : l'item mesure la précision de la consigne. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LANG-08",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase respecte la concordance des temps ?",
+      "supports": [],
+      "propositions": {
+        "A": "Il soutenait que la mesure était efficace.",
+        "B": "Il soutenait que la mesure est efficace.",
+        "C": "Il soutenait que la mesure sera efficace.",
+        "D": "Il soutenait que la mesure a été efficace."
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "présent maintenu après un verbe au passé",
+          "C": "futur employé au lieu du conditionnel",
+          "D": "passé composé employé au lieu de l'imparfait"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Concordance au discours indirect, nécessaire dès qu'une copie rapporte la thèse d'un auteur."
+    },
+    {
+      "item_id": "FR-MAI-LANG-09",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase est correctement construite ?",
+      "supports": [],
+      "propositions": {
+        "A": "C'est de cela dont il s'agit.",
+        "B": "C'est de cela qu'il s'agit.",
+        "C": "C'est de cela que il s'agit.",
+        "D": "C'est cela dont il s'agit."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "double marque du complément indirect",
+          "C": "élision non faite",
+          "D": "préposition omise avant le pronom"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Pléonasme « de cela dont », faute invisible à l'oreille et fréquente à l'écrit. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LANG-10",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel connecteur introduit une conséquence ?",
+      "supports": [],
+      "propositions": {
+        "A": "en effet",
+        "B": "par conséquent",
+        "C": "en revanche",
+        "D": "certes"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "connecteur d'explication",
+          "C": "connecteur d'opposition",
+          "D": "connecteur de concession"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Valeur logique des connecteurs. Les distracteurs couvrent explication, opposition et concession, les trois rapports les plus confondus. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LANG-11",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase évite la nominalisation excessive ?",
+      "supports": [],
+      "propositions": {
+        "A": "La réalisation de l'analyse de la situation a été effectuée.",
+        "B": "La situation a été analysée.",
+        "C": "Il a été procédé à la réalisation d'une analyse.",
+        "D": "L'effectuation de l'analyse a eu lieu."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "trois noms enchaînés pour une seule action",
+          "C": "tour impersonnel alourdi",
+          "D": "nom inexistant construit sur le verbe"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Lisibilité d'une phrase académique. Le distracteur D repère un candidat qui forge un nom plutôt que d'employer un verbe. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LANG-12",
+      "competence": "LANG",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase emploie correctement « leur » ?",
+      "supports": [],
+      "propositions": {
+        "A": "Il leurs a répondu.",
+        "B": "Il leur a répondu.",
+        "C": "Il leur ont répondu.",
+        "D": "Il leurs ont répondu."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "pronom accordé comme un déterminant",
+          "C": "verbe accordé avec le pronom complément",
+          "D": "les deux erreurs cumulées"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Le pronom « leur » est invariable. Le distracteur C isole l'accord du verbe avec le complément, erreur distincte. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LEXA-01",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que signifie « corroborer » ?",
+      "supports": [],
+      "propositions": {
+        "A": "contredire",
+        "B": "confirmer par un élément supplémentaire",
+        "C": "supposer",
+        "D": "résumer"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "sens inversé",
+          "C": "confusion avec « conjecturer »",
+          "D": "confusion avec « synthétiser »"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Verbe courant des copies de sciences humaines."
+    },
+    {
+      "item_id": "FR-MAI-LEXA-02",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un « paradoxe » désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "une contradiction dans les termes",
+        "B": "une proposition contraire à l'opinion commune, mais défendable",
+        "C": "une erreur de raisonnement",
+        "D": "une opinion majoritaire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "paradoxe confondu avec contradiction",
+          "C": "paradoxe confondu avec sophisme",
+          "D": "sens inversé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Le distracteur A est l'emploi fautif le plus répandu et fausse l'analyse d'un texte argumentatif. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LEXA-03",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "« Postuler » signifie :",
+      "supports": [],
+      "propositions": {
+        "A": "démontrer",
+        "B": "poser comme point de départ sans le démontrer",
+        "C": "réfuter",
+        "D": "illustrer"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "sens inversé",
+          "C": "confusion avec « objecter »",
+          "D": "confusion avec « exemplifier »"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Terme décisif pour repérer un présupposé, compétence partagée avec PHI/PROB. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LEXA-04",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « cette mesure est prescriptive », l'adjectif signifie :",
+      "supports": [],
+      "propositions": {
+        "A": "qui décrit ce qui est",
+        "B": "qui énonce ce qui doit être",
+        "C": "qui est obligatoire par la loi",
+        "D": "qui est ancien"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "prescriptif confondu avec descriptif",
+          "C": "prescriptif confondu avec contraignant",
+          "D": "confusion avec « prescrit »"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Distinction descriptif/prescriptif, transversale à la philosophie, aux SES et à HGGSP."
+    },
+    {
+      "item_id": "FR-MAI-LEXA-05",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel mot exprime la nuance la plus faible ?",
+      "supports": [],
+      "propositions": {
+        "A": "démontrer",
+        "B": "suggérer",
+        "C": "établir",
+        "D": "prouver"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "verbe de preuve forte",
+          "C": "verbe de preuve forte",
+          "D": "verbe de preuve forte"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Hiérarchie des verbes de preuve. Item de transfert : il faut classer des termes proches, non en définir un. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LEXA-06",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "« Ceteris paribus » signifie, dans un raisonnement :",
+      "supports": [],
+      "propositions": {
+        "A": "en toutes circonstances",
+        "B": "toutes choses égales par ailleurs",
+        "C": "par conséquent",
+        "D": "en moyenne"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "sens généralisant erroné",
+          "C": "locution prise pour un connecteur",
+          "D": "confusion avec une notion statistique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Locution du raisonnement économique, au programme de SES. Sa méconnaissance empêche de lire une comparaison. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-LEXA-07",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Reformulez en une phrase, sans employer les mots du texte : « la hausse des prix érode le pouvoir d'achat des ménages ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase énonçant que l'augmentation des prix réduit ce que les ménages peuvent acheter avec le même revenu.",
+        "reponses_1pt": [
+          "Une phrase exacte mais qui reprend deux termes de la phrase d'origine."
+        ],
+        "codes_erreur": [
+          "FR-ERR-LEXIQUE",
+          "FR-ERR-DEFORM"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Reformulation sans paraphrase, opération quotidienne d'une copie. La cotation isole le candidat qui comprend mais ne dispose pas d'un lexique de rechange."
+    },
+    {
+      "item_id": "FR-MAI-LEXA-08",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Distinguez en une phrase « cause » et « condition ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La cause produit l'effet ; la condition rend l'effet possible sans le produire à elle seule.",
+        "reponses_1pt": [
+          "Une seule des deux notions est correctement caractérisée.",
+          "La distinction est faite par des exemples et non par les notions."
+        ],
+        "codes_erreur": [
+          "FR-ERR-LEXIQUE",
+          "FR-ERR-DEFORM"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Distinction conceptuelle réinvestie en philosophie, SVT et SES. Item de transfert entre le lexique et le raisonnement."
+    },
+    {
+      "item_id": "FR-MAI-LEXA-09",
+      "competence": "LEXA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Remplacez le verbe vague par un verbe précis : « ce document parle des inégalités scolaires ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Un verbe précis est employé : « analyse », « décrit », « dénonce », « mesure » ou équivalent, en accord avec ce qu'un document peut faire.",
+        "reponses_1pt": [
+          "Un verbe est proposé mais il reste aussi vague que « parler de » (par exemple « évoquer »)."
+        ],
+        "codes_erreur": [
+          "FR-ERR-LEXIQUE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Précision du verbe d'analyse. « Parler de » est le verbe passe-partout des copies ; le remplacer suppose de savoir ce que le document fait. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-COMPA-01",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle formulation énonce la thèse du texte du bloc B ?",
+      "supports": [],
+      "propositions": {
+        "A": "L'instruction publique est un devoir de la société envers les citoyens.",
+        "B": "L'instruction publique doit rendre tous les hommes égaux en talents.",
+        "C": "L'instruction publique est utile à ceux qui en ont les moyens.",
+        "D": "L'inégalité naturelle des esprits interdit toute égalité des droits."
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "but du texte durci : il demande que l'inégalité n'entraîne pas de dépendance, non qu'elle disparaisse",
+          "C": "condition restrictive absente du texte, qui parle d'un devoir envers tous",
+          "D": "prémisse que le texte combat, prise pour sa conclusion"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. La thèse est la première phrase du passage, mais les trois distracteurs obligent à la lire jusqu'au bout : le texte ne promet pas l'égalité des talents, il exige que la supériorité n'entraîne pas de dépendance, et c'est cette nuance que le distracteur B supprime."
+    },
+    {
+      "item_id": "FR-MAI-COMPA-02",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le premier paragraphe du texte a pour fonction de :",
+      "supports": [],
+      "propositions": {
+        "A": "énoncer la thèse que la suite du texte doit établir",
+        "B": "poser une question à laquelle le texte va répondre",
+        "C": "rappeler un fait que personne ne conteste, avant d'en tirer une objection",
+        "D": "annoncer les étapes du développement"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "thèse confondue avec problématique : le paragraphe affirme, il n'interroge pas",
+          "C": "affirmation initiale prise pour un préalable consensuel",
+          "D": "fonction d'annonce supposée là où aucun plan n'est annoncé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. La clé disait « poser le problème traité » : le premier paragraphe du passage retenu n'énonce aucun problème, il affirme un devoir — « L'instruction publique est un devoir de la société à l'égard des citoyens. » L'item était faux sur son propre support. Le distracteur B garde la confusion que l'item visait, entre la thèse et la question qui l'appelle. Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-COMPA-03",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le connecteur qui ouvre le dernier paragraphe exprime :",
+      "supports": [],
+      "propositions": {
+        "A": "une addition",
+        "B": "une opposition",
+        "C": "une conséquence",
+        "D": "une reformulation"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "rapport d'addition supposé",
+          "C": "rapport de conséquence supposé — c'est « ainsi » qui l'exprimerait, et il ouvre l'avant-dernier paragraphe",
+          "D": "connecteur pris pour une glose"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. La clé donnait « une conséquence » : le dernier paragraphe du passage retenu s'ouvre par « Mais », qui marque une restriction de ce qui précède — le savoir élémentaire suffit, la supériorité du savant n'asservit pas. L'item était faux sur son propre support. Le distracteur C est désormais nommé : « ainsi », qui ouvre le paragraphe précédent, est le connecteur que la réponse fausse aurait visé. Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-COMPA-04",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle affirmation le texte tient-il pour acquise sans jamais la justifier ?",
+      "supports": [],
+      "propositions": {
+        "A": "que l'égalité des droits est un bien qu'il faut rendre réel",
+        "B": "que les hommes naissent égaux en facultés",
+        "C": "que l'enseignement des sciences doit précéder celui des lois",
+        "D": "que la société est plus ancienne que les droits qu'elle reconnaît"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "le texte affirme l'inverse : il parle de « l'inégalité naturelle » et de « la différence des esprits »",
+          "C": "ordre d'enseignement absent du passage",
+          "D": "thèse historique étrangère au raisonnement"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. Le présupposé est la valeur que le texte ne discute jamais : il démontre que l'instruction rend l'égalité des droits réelle, il ne démontre pas qu'elle doive l'être. Le distracteur B est le contresens que la lecture rapide produit, puisque le mot « égalité » revient partout."
+    },
+    {
+      "item_id": "FR-MAI-COMPA-05",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur quel point l'auteur concède-t-il quelque chose à la position adverse ?",
+      "supports": [],
+      "propositions": {
+        "A": "il ne concède rien : il affirme d'un bout à l'autre",
+        "B": "il admet qu'une instruction même égale accroîtra la supériorité des mieux doués, avant de montrer que cela ne menace pas l'égalité des droits",
+        "C": "il admet que l'instruction publique n'est pas réellement un devoir de la société",
+        "D": "il admet que ses exemples sont mal choisis"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "concession non repérée : le paragraphe « Il est impossible qu'une instruction même égale… » est lu comme une affirmation de plus",
+          "C": "concession prise pour un renoncement à la thèse",
+          "D": "concession cherchée du côté de la forme"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. Les propositions décrivaient une catégorie — « sur un point limité » — au lieu d'exiger une lecture : elles fonctionnaient avec n'importe quel texte concessif. Elles nomment désormais la concession réellement présente et le mouvement qui la retourne, « Mais il suffit au maintien de l'égalité des droits… ». Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-COMPA-06",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "À qui le texte s'adresse-t-il principalement ?",
+      "supports": [],
+      "propositions": {
+        "A": "à un lecteur déjà convaincu, qu'il s'agit seulement d'informer",
+        "B": "à ceux qui font la loi, et que le texte veut obliger",
+        "C": "aux savants, seuls capables de suivre le raisonnement",
+        "D": "à personne en particulier : le texte n'a pas de destinataire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "visée argumentative non perçue",
+          "C": "destinataire déduit du seul vocabulaire, alors que le texte parle des savants à la troisième personne",
+          "D": "situation d'énonciation ignorée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. Le texte ne s'adresse pas à un lecteur quelconque : il énonce ce que « la société doit » et ce que « les lois » auraient en vain respecté. Le destinataire est celui qui déclare les droits et fait la loi. Le distracteur C reste vraisemblable parce que le passage parle du savant et du jurisconsulte — mais il en parle, il ne leur parle pas. Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-COMPA-07",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Énoncez en une phrase la thèse du texte du bloc B, sans reprendre ses mots.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase énonçant que la collectivité a l'obligation d'instruire tous ses membres, parce qu'une liberté reconnue en droit reste sans effet pour qui n'a pas les moyens intellectuels d'en user — formulée dans un lexique différent de celui du texte et sans exemple.",
+        "reponses_1pt": [
+          "La thèse est juste mais reprend les termes du texte (« instruction publique », « devoir », « égalité des droits »).",
+          "La thèse est juste mais formulée comme une question.",
+          "La réponse énonce seulement l'obligation, sans dire ce qui la fonde."
+        ],
+        "codes_erreur": [
+          "FR-ERR-THESE",
+          "FR-ERR-PARAPHRASE",
+          "FR-ERR-DEFORM"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Production de la thèse. C'est l'item qui sépare le candidat qui a compris de celui qui sait recopier. Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. La troisième réponse à un point isole la moitié de thèse : énoncer le devoir sans la raison, c'est restituer la première phrase, non la thèse du passage."
+    },
+    {
+      "item_id": "FR-MAI-COMPA-08",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Relevez le connecteur qui introduit la série d'exemples, dans la seconde moitié du texte, et nommez le rapport logique qu'il exprime.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le connecteur relevé est « Ainsi, par exemple » et le rapport nommé est l'illustration — l'exemple vient montrer ce que l'argument vient d'établir. Est également acceptée la mention de « Ainsi » seul, avec la même valeur.",
+        "reponses_1pt": [
+          "Le connecteur est relevé mais le rapport est nommé conséquence, ce que « ainsi » exprime ailleurs mais non ici, où « par exemple » en fixe la valeur.",
+          "Le rapport d'illustration est nommé sans qu'aucun connecteur soit cité."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CONNECT",
+          "FR-ERR-THESE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Deux opérations en une. La cotation à un point sépare le repérage de l'analyse, deux remédiations distinctes. Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. L'item portait sur « les deux derniers paragraphes », que le passage retenu ne distingue pas. Il porte désormais sur un connecteur unique et repérable, dont la difficulté est réelle : « ainsi » y vaut illustration et non conséquence, et c'est exactement ce que la première réponse à un point sanctionne."
+    },
+    {
+      "item_id": "FR-MAI-COMPA-09",
+      "competence": "COMPA",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le texte admet un fait qui semble contredire sa thèse, puis montre qu'il ne la contredit pas. Indiquez ce fait, et citez la phrase qui le retourne.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le fait admis est qu'une instruction même égale accroîtra la supériorité de ceux que la nature a mieux dotés. La phrase qui le retourne est « Mais il suffit au maintien de l'égalité des droits que cette supériorité n'entraîne pas de dépendance réelle, et que chacun soit assez instruit pour exercer par lui-même […] ceux dont la loi lui a garanti la jouissance. »",
+        "reponses_1pt": [
+          "Le fait admis est formulé exactement, la phrase qui le retourne n'est pas citée.",
+          "La phrase est citée exactement, le fait admis n'est pas formulé.",
+          "Le fait admis est formulé et la phrase citée, mais la citation commence après « Mais » : le mot qui opère le retournement manque."
+        ],
+        "codes_erreur": [
+          "FR-ERR-THESE",
+          "FR-ERR-CITATION",
+          "FR-ERR-DEFORM"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. L'énoncé disait : « Le texte oppose deux positions. Indiquez laquelle l'auteur retient. » Le passage retenu n'oppose pas deux positions — aucune position adverse n'y est exposée. La tâche était impossible sur son propre support. Elle porte désormais sur le mouvement que le texte accomplit réellement : une concession, puis sa restriction. Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-MAI-SYNT-01",
+      "competence": "SYNT",
+      "niveau": "MAI",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 15,
+      "enonce": "Résumez le texte du bloc B en 80 mots, sans en déformer le sens et sans employer la première personne. Indiquez le nombre de mots à la fin de votre résumé.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "FIDEL",
+          "intitule": "Fidélité au texte",
+          "competence": "SYNT",
+          "descripteurs": {
+            "0": "Le résumé attribue au texte des affirmations qu'il ne contient pas.",
+            "1": "Le sens général est conservé mais une nuance importante est supprimée ou inversée.",
+            "2": "Le sens et les nuances sont conservés ; un élément secondaire prend une place excessive.",
+            "3": "Le sens, les nuances et la hiérarchie des idées sont conservés."
+          }
+        },
+        {
+          "code": "HIERAR",
+          "intitule": "Hiérarchisation",
+          "competence": "SYNT",
+          "descripteurs": {
+            "0": "Le résumé suit le texte phrase à phrase, sans sélection.",
+            "1": "Une sélection est faite mais elle retient des exemples au détriment des idées.",
+            "2": "Les idées principales sont retenues ; une articulation entre elles manque.",
+            "3": "Les idées principales sont retenues et articulées entre elles."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou des accords non réalisés.",
+            "2": "La construction et les accords sont corrects ; le lexique reste approximatif.",
+            "3": "La construction, les accords et le lexique sont corrects tout au long."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Contraction à 80 mots, avec contrainte de longueur explicite et vérifiable. Trois critères, dont deux appartiennent à SYNT : la règle de production est satisfaite sans que le critère de langue soit imputé à la synthèse. La contrainte de longueur est mesurable sans jugement, ce qui rend le critère de fidélité indépendant de la maîtrise de la concision. Éléments attendus ajoutés le 2026-09-11, à l'insertion du texte. Le passage compte 396 mots : un résumé en 80 mots impose de retenir l'obligation, sa raison, sa limite et un exemple, et d'écarter le reste. Le dernier élément dit ce qui ne doit pas y être, parce que c'est là que les copies échouent.",
+      "elements_attendus": [
+        "l'obligation : instruire est un devoir de la société envers les citoyens",
+        "la raison : sans instruction, l'égalité des droits déclarée par la loi reste sans effet pour le plus grand nombre",
+        "la limite que le texte s'impose : il ne s'agit pas de supprimer l'inégalité des esprits, mais d'empêcher qu'elle entraîne une dépendance",
+        "la conséquence favorable : la supériorité de quelques-uns devient alors un bien commun",
+        "au moins l'un des exemples, ramené à sa fonction : celui qui ignore l'écriture ou le calcul dépend de qui les possède",
+        "ce qui ne doit pas figurer : la première personne, les exemples développés un à un, et toute promesse d'égalité des talents"
+      ]
+    },
+    {
+      "item_id": "FR-MAI-SYNT-02",
+      "competence": "SYNT",
+      "niveau": "MAI",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici le résumé d'un autre candidat.\n\n> « La société doit instruire tous les citoyens afin de supprimer l'inégalité des esprits et de rendre les hommes égaux en talents. Sans cette égalité, les droits déclarés par la loi resteraient sans effet. Celui qui ne sait ni écrire ni compter dépend de qui le sait. (48 mots) »\n\nIl déforme le texte sur un point. Indiquez lequel et corrigez-le en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La déformation porte sur le but assigné à l'instruction : le texte ne demande pas de supprimer l'inégalité des esprits ni de rendre les hommes égaux en talents — il dit au contraire qu'une instruction même égale augmente la supériorité des mieux doués. La correction rétablit l'objectif réel : empêcher que cette inégalité entraîne une dépendance.",
+        "reponses_1pt": [
+          "Le point déformé est désigné sans que la correction soit formulée.",
+          "Une correction juste est proposée sans que le point déformé soit clairement désigné.",
+          "La réponse signale le compte de mots ou un défaut de langue, qui ne sont pas des déformations du sens."
+        ],
+        "codes_erreur": [
+          "FR-ERR-DEFORM",
+          "FR-ERR-LONGUEUR"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Item de bloc D de SYNT, palier D2 : repérer une déformation dans une production fournie. Mesure la vigilance de relecture, préalable à l'autocorrection. Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. L'énoncé annonçait « voici le résumé » sans en donner aucun : la question était sans réponse possible. Le résumé fourni est exact sur trois points et faux sur un seul, celui que le texte prend soin d'écarter — c'est la déformation la plus probable d'une lecture rapide, et c'est celle que l'item mesure."
+    },
+    {
+      "item_id": "FR-MAI-ARGU-01",
+      "competence": "ARGU",
+      "niveau": "MAI",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 15,
+      "enonce": "Rédigez un paragraphe d'une quinzaine de lignes répondant à la question : « faut-il limiter l'usage des écrans chez les adolescents ? ». Votre paragraphe prendra position, avancera deux arguments, illustrera l'un d'eux par un exemple et énoncera une nuance.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "POSITION",
+          "intitule": "Prise de position",
+          "competence": "ARGU",
+          "descripteurs": {
+            "0": "Aucune position n'est prise : le paragraphe expose des avis.",
+            "1": "Une position est prise mais elle change en cours de paragraphe.",
+            "2": "Une position est prise et tenue, sans être annoncée d'emblée.",
+            "3": "Une position est annoncée d'emblée et tenue jusqu'à la fin."
+          }
+        },
+        {
+          "code": "ARGUM",
+          "intitule": "Arguments",
+          "competence": "ARGU",
+          "descripteurs": {
+            "0": "Aucun argument : la position est répétée sous d'autres formes.",
+            "1": "Un seul argument est avancé, ou deux qui reviennent au même.",
+            "2": "Deux arguments distincts sont avancés ; l'un n'est pas développé.",
+            "3": "Deux arguments distincts sont avancés et développés."
+          }
+        },
+        {
+          "code": "NUANCE",
+          "intitule": "Exemple et nuance",
+          "competence": "ARGU",
+          "descripteurs": {
+            "0": "Ni exemple ni nuance.",
+            "1": "Un exemple est donné sans être relié à l'argument, ou une nuance est annoncée sans contenu.",
+            "2": "L'exemple est relié à un argument ; la nuance reste allusive.",
+            "3": "L'exemple est relié à un argument et la nuance restreint la portée de la position sans l'annuler."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou des accords non réalisés.",
+            "2": "La construction et les accords sont corrects ; le lexique reste approximatif.",
+            "3": "La construction, les accords et le lexique sont corrects tout au long."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Paragraphe argumenté sur une question générale, sans dossier documentaire : ce qui est mesuré est la capacité à construire, non les connaissances. Le sujet est délibérément à la portée de tout candidat, pour que l'échec éventuel désigne la structure et non le contenu. Trois critères sur quatre appartiennent à ARGU ; le critère de langue alimente LANG avec celui de SYNT."
+    },
+    {
+      "item_id": "FR-MAI-ARGU-02",
+      "competence": "ARGU",
+      "niveau": "MAI",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'un paragraphe argumenté, en les numérotant de 1 à 4 : exemple — position — nuance — argument.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : position (1), argument (2), exemple (3), nuance (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CONNECT",
+          "FR-ERR-CITATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Item de bloc D d'ARGU, palier D1 : le modèle est restitué sans être mis en œuvre. Comparé au palier D3 de la tâche, il dit si la difficulté vient du modèle ou de son application."
+    }
+  ]
+}

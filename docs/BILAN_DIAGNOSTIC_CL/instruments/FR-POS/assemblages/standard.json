@@ -1,0 +1,78 @@
+{
+  "instrument": "FR-POS",
+  "version": "standard",
+  "titre": "Positionnement en français scolaire — épreuve écrite",
+  "consignes_passation": [
+    "La durée de l’épreuve est indiquée en tête de ce document. La durée portée en tête de chaque partie est une indication de répartition.",
+    "Répondez sur votre copie en respectant la numérotation des questions.",
+    "Aucun document ni matériel électronique n’est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d’aujourd’hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l’épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "COMP",
+        "intitule": "Compréhension écrite en contexte scolaire : globale, détaillée et vocabulaire en contexte"
+      },
+      {
+        "competence": "LANG",
+        "intitule": "Maîtrise des structures linguistiques : vocabulaire, conjugaison, relations logiques, passivation et syntaxe"
+      },
+      {
+        "competence": "PROD",
+        "intitule": "Mini production écrite argumentée : prise de position, argumentation, structure et correction"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "FRP-2-LANG-01",
+        "FRP-2-LANG-02",
+        "FRP-2-LANG-03",
+        "FRP-2-LANG-04",
+        "FRP-2-LANG-05",
+        "FRP-2-LANG-06",
+        "FRP-2-LANG-07",
+        "FRP-2-LANG-08",
+        "FRP-2-LANG-09"
+      ]
+    },
+    {
+      "bloc": "B",
+      "supports": [
+        {
+          "titre": "Les adolescents et les réseaux sociaux",
+          "texte": "Aujourd’hui, les réseaux sociaux occupent une place importante dans la vie des adolescents. Instagram, TikTok, Snapchat ou d’autres applications permettent de communiquer facilement avec ses amis, de partager des photos, de suivre l’actualité ou de découvrir de nouvelles personnes.\n\nPour beaucoup de jeunes, ces outils présentent de nombreux avantages. Ils permettent notamment de rester en contact avec des amis qui habitent loin. Ils peuvent aussi être utiles pour travailler : les élèves peuvent créer des groupes de discussion, s’envoyer des documents ou s’entraider avant un contrôle.\n\nCependant, les réseaux sociaux peuvent également avoir des effets négatifs. Certains adolescents passent plusieurs heures par jour devant leur téléphone et ont parfois du mal à se concentrer sur leurs devoirs. Ils peuvent aussi se comparer aux autres et avoir l’impression que leur vie est moins intéressante que celle qu’ils voient sur Internet.\n\nUn autre problème concerne les relations entre les jeunes. Les réseaux sociaux donnent la possibilité de communiquer rapidement, mais ils ne remplacent pas toujours une véritable conversation. Un message écrit peut être mal compris et provoquer un conflit. De plus, certains adolescents sont victimes de commentaires méchants ou de cyberharcèlement.\n\nPour utiliser les réseaux sociaux de manière plus équilibrée, il est donc important de fixer certaines limites. On peut, par exemple, éviter d’utiliser son téléphone pendant les repas ou avant de dormir, désactiver les notifications pendant les devoirs et consacrer davantage de temps aux activités sportives, culturelles ou aux rencontres avec les amis et la famille.\n\nLes réseaux sociaux ne sont donc ni totalement positifs ni totalement négatifs. Tout dépend de la manière dont on les utilise.",
+          "reference": "Enseignante de français Nexus, « Test de positionnement — Français scolaire », document interne, 2026.",
+          "source_texte": "fr_pos_adolescents",
+          "edition": "Test de positionnement _ Candidat.pdf, document de conception interne Nexus, 2026"
+        }
+      ],
+      "items": [
+        "FRP-2-COMP-01",
+        "FRP-2-COMP-02",
+        "FRP-2-COMP-03",
+        "FRP-2-COMP-04",
+        "FRP-2-COMP-05",
+        "FRP-2-COMP-06",
+        "FRP-2-COMP-07",
+        "FRP-2-COMP-08",
+        "FRP-2-COMP-09"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "FRP-1-PROD-01",
+        "FRP-1-PROD-02",
+        "FRP-1-PROD-03",
+        "FRP-1-PROD-04",
+        "FRP-1-PROD-05"
+      ]
+    }
+  ]
+}

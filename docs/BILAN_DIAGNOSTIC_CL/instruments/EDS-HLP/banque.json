@@ -1,0 +1,907 @@
+{
+  "instrument": "EDS-HLP",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "HLP-2-LECT-01",
+      "competence": "LECT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un texte argumentatif, la thèse de l'auteur est :",
+      "supports": [],
+      "propositions": {
+        "A": "la première phrase du texte",
+        "B": "la position qu'il soutient et cherche à faire admettre",
+        "C": "l'exemple le plus long",
+        "D": "la position qu'il réfute"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "position dans le texte prise pour fonction",
+          "C": "illustration prise pour l'idée",
+          "D": "thèse adverse prise pour celle de l'auteur"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de français, classe de seconde générale et technologique. Repérage de la thèse, prérequis de toute lecture. Le distracteur D produit le contresens le plus lourd."
+    },
+    {
+      "item_id": "HLP-2-LECT-02",
+      "competence": "LECT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le mouvement d'un texte désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "son rythme sonore",
+        "B": "la progression de son propos d'une étape à l'autre",
+        "C": "le déplacement des personnages",
+        "D": "sa longueur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "mouvement confondu avec rythme",
+          "C": "mouvement confondu avec action narrative",
+          "D": "mouvement confondu avec ampleur"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de français, classe de seconde générale et technologique. Notion de mouvement du texte, centrale en HLP et en philosophie. Le distracteur C est le plus fréquent chez un candidat habitué au récit."
+    },
+    {
+      "item_id": "HLP-2-LECT-03",
+      "competence": "LECT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un connecteur d'opposition signale que l'auteur :",
+      "supports": [],
+      "propositions": {
+        "A": "répète son idée",
+        "B": "introduit une idée qui contrarie ce qui précède",
+        "C": "donne un exemple",
+        "D": "conclut"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "reformulation supposée",
+          "C": "illustration supposée",
+          "D": "clôture supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de français, classe de seconde générale et technologique. Valeur logique d'un connecteur. Item de transfert direct avec FR-EAF-ARGU-03 et PHI : la lecture croisée dit si la difficulté est de langue ou de raisonnement."
+    },
+    {
+      "item_id": "HLP-1-LECT-04",
+      "competence": "LECT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un texte, un implicite est :",
+      "supports": [],
+      "propositions": {
+        "A": "une idée fausse",
+        "B": "une idée que le texte suppose sans l'énoncer",
+        "C": "une idée mal écrite",
+        "D": "une citation d'un autre auteur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "implicite confondu avec erreur",
+          "C": "implicite confondu avec maladresse",
+          "D": "implicite confondu avec référence"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Notion d'implicite. Transfert direct de FR-EAF-COMP-06 et PHI-T-PROB-02, qui en demandent le repérage sur un texte."
+    },
+    {
+      "item_id": "HLP-1-LECT-05",
+      "competence": "LECT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans l'extrait du bloc C, relevez la phrase qui énonce le plus nettement la position de l'auteur.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La phrase relevée est « Mais je ne parle point ici des effets, je parle des mots. » : elle sépare ce dont l'auteur traite de ce dont il ne traite pas, et commande tout ce qui suit.",
+        "reponses_1pt": [
+          "La phrase relevée est « ce sont titres qui touchent le babil de votre chambrière » : elle porte le jugement de l'auteur mais sur un seul exemple, non sur son propos d'ensemble.",
+          "La phrase relevée contient la position mais y ajoute l'anecdote du maître d'hôtel, qui n'en fait pas partie."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-APPUI",
+          "HLP-ERR-MOUVEMENT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Clé récrite le 2026-09-11, à l'insertion du texte réel : elle décrivait jusque-là un attendu abstrait, applicable à n'importe quel texte et opposable à aucun. Le passage offre une phrase unique qui énonce la position, et elle est brève : c'est ce qui rend le relevé évaluable. Les deux réponses à un point isolent les deux erreurs que le texte rend probables — prendre un jugement local pour la position, ou noyer la position dans l'exemple qui la précède."
+    },
+    {
+      "item_id": "HLP-1-LECT-06",
+      "competence": "LECT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans l'extrait du bloc C, indiquez où le propos change d'étape et par quel mot ce changement est signalé.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le changement d'étape est situé à « Mais je ne parle point ici des effets » et le mot cité est la conjonction « Mais » : l'auteur quitte l'anecdote du maître d'hôtel pour énoncer son propos. Est également acceptée la seconde rupture, signalée par l'impératif « Oyez », qui fait passer des architectes aux mots de la grammaire.",
+        "reponses_1pt": [
+          "L'endroit du changement est situé sans que le mot soit cité.",
+          "Le mot cité est « et » ou « par effet », qui enchaînent à l'intérieur d'une même étape sans en ouvrir une nouvelle."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-MOUVEMENT",
+          "HLP-ERR-APPUI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Clé récrite le 2026-09-11, à l'insertion du texte réel : elle décrivait jusque-là un attendu abstrait, applicable à n'importe quel texte et opposable à aucun. Le passage comporte deux ruptures nettes et plusieurs liaisons internes : la clé nomme les deux ruptures acceptables et la réponse à un point nomme les liaisons que l'on prend souvent pour des ruptures."
+    },
+    {
+      "item_id": "HLP-1-THEM-01",
+      "competence": "THEM",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le thème « Les pouvoirs de la parole » interroge notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "la grammaire de la phrase",
+        "B": "la capacité de la parole à convaincre, à séduire et à faire autorité",
+        "C": "l'histoire de l'écriture",
+        "D": "les techniques de mémorisation"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "objet linguistique substitué à l'objet du thème",
+          "C": "objet historique substitué",
+          "D": "objet technique substitué"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Thème du premier semestre de Première. Le distracteur A confond l'étude de la langue et celle de ses effets."
+    },
+    {
+      "item_id": "HLP-1-THEM-02",
+      "competence": "THEM",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le thème « Les représentations du monde » porte notamment sur :",
+      "supports": [],
+      "propositions": {
+        "A": "la découverte de l'autre et la pluralité des cultures",
+        "B": "la géographie physique",
+        "C": "les techniques de la peinture",
+        "D": "l'histoire des sciences seule"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "objet substitué à l'objet du thème",
+          "C": "objet technique substitué",
+          "D": "objet réduit à une discipline"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Thème du second semestre de Première. Le distracteur C est instructif : les œuvres picturales sont mobilisées, mais ce n'est pas la technique qui est étudiée."
+    },
+    {
+      "item_id": "HLP-1-THEM-03",
+      "competence": "THEM",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux formes que peut prendre le pouvoir de la parole dans un texte.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux formes distinctes parmi : convaincre par des arguments, persuader par les affects, séduire, faire autorité, commander, consoler.",
+        "reponses_1pt": [
+          "Une seule forme est citée, ou deux formulations désignent la même forme."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-REFERENCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Restitution sur le thème. La distinction convaincre / persuader est celle du repère philosophique correspondant."
+    },
+    {
+      "item_id": "HLP-T-THEM-04",
+      "competence": "THEM",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le thème « La recherche de soi » interroge notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "l'éducation, la sensibilité et les métamorphoses du moi",
+        "B": "la biologie du cerveau",
+        "C": "la généalogie familiale",
+        "D": "les tests de personnalité"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "objet scientifique substitué",
+          "C": "objet documentaire substitué",
+          "D": "objet psychologique appliqué substitué"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Thème du premier semestre de Terminale. Les trois distracteurs désignent des approches réelles du moi, mais étrangères au thème."
+    },
+    {
+      "item_id": "HLP-T-THEM-05",
+      "competence": "THEM",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase pourquoi le thème « L'Humanité en question » peut être abordé aussi bien par la littérature que par la philosophie.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la question de ce qui fait l'humain se pose à la fois comme une expérience que la littérature donne à éprouver et comme un concept que la philosophie interroge : les deux approches portent sur le même objet par des voies différentes.",
+        "reponses_1pt": [
+          "La complémentarité est affirmée sans que la différence des approches soit énoncée.",
+          "Une seule des deux approches est caractérisée."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-REFERENCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Item de transfert au cœur de la spécialité : c'est la double approche qui fait l'unité de l'enseignement, et non l'addition de deux disciplines."
+    },
+    {
+      "item_id": "HLP-1-CULT-01",
+      "competence": "CULT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'art oratoire antique, qui codifie les moyens de persuader un auditoire, se nomme :",
+      "supports": [],
+      "propositions": {
+        "A": "la rhétorique",
+        "B": "la poétique",
+        "C": "la dialectique",
+        "D": "la grammaire"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "art de la composition des œuvres",
+          "C": "art de la discussion réglée",
+          "D": "étude des règles de la langue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Reconnaissance d'une référence culturelle. Conformément à la règle de rédaction de CULT, l'item porte sur une notion à reconnaître et non sur un auteur à citer de mémoire."
+    },
+    {
+      "item_id": "HLP-1-CULT-02",
+      "competence": "CULT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un texte qui décrit un peuple lointain pour critiquer les mœurs de son propre pays relève :",
+      "supports": [],
+      "propositions": {
+        "A": "du récit de voyage informatif",
+        "B": "du regard éloigné, procédé de la littérature d'idées",
+        "C": "de l'autobiographie",
+        "D": "de la poésie lyrique"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "visée argumentative non perçue",
+          "C": "genre substitué",
+          "D": "genre substitué"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Mise en relation d'un procédé et d'un thème. Le distracteur A est le plus discriminant : c'est la visée, non le sujet, qui classe le texte."
+    },
+    {
+      "item_id": "HLP-1-CULT-03",
+      "competence": "CULT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le thème « Les pouvoirs de la parole » et le thème « Les représentations du monde » sont tous deux au programme de Première. Indiquer ce qu'ils ont en commun.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Tous deux portent sur la manière dont le langage et les œuvres construisent un rapport au monde et à autrui, plutôt que sur le monde lui-même.",
+        "reponses_1pt": [
+          "Un point commun est énoncé mais il reste extérieur aux thèmes.",
+          "Les deux thèmes sont décrits séparément sans que le lien soit établi."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-REFERENCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Mise en relation de deux thèmes, conforme à la règle de rédaction de CULT : ce qui est mesuré est la capacité à rapprocher, non la mémoire d'une liste d'auteurs."
+    },
+    {
+      "item_id": "HLP-1-INTER-01",
+      "competence": "INTER",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 15,
+      "enonce": "**Question d'interprétation.** En dix à douze lignes, répondez à la question suivante à partir de l'extrait du bloc C : en quoi la manière dont l'auteur s'adresse à son lecteur sert-elle son propos ?\n\nVous appuierez votre réponse sur des éléments précis du texte.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "COMPR",
+          "intitule": "Compréhension et réponse à la question",
+          "competence": "INTER",
+          "descripteurs": {
+            "0": "La réponse ne porte pas sur la question posée.",
+            "1": "La réponse porte sur le texte mais reformule son contenu sans traiter la question.",
+            "2": "La question est traitée ; un aspect du texte qui l'éclairait est laissé de côté.",
+            "3": "La question est traitée en mobilisant les aspects du texte qui l'éclairent."
+          }
+        },
+        {
+          "code": "APPUI",
+          "intitule": "Appui sur le texte",
+          "competence": "INTER",
+          "descripteurs": {
+            "0": "Aucun élément du texte n'est relevé.",
+            "1": "Un élément est relevé sans être exploité.",
+            "2": "Plusieurs éléments sont relevés ; un seul est exploité au service de la réponse.",
+            "3": "Chaque élément relevé est exploité au service de la réponse."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Qualité de l'expression écrite",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou un lexique impropre.",
+            "2": "La construction est correcte ; le vocabulaire d'analyse reste employé de façon approximative.",
+            "3": "La construction est correcte et le vocabulaire d'analyse employé dans son sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Première des deux productions courtes du § 7.12, sur le même texte que l'essai. Dix à douze lignes : c'est la structure exacte de l'épreuve, réduite. Deux critères appartiennent à INTER, le critère de langue alimente l'indicateur transversal HLP/LANG avec celui de l'essai, soit deux sources. La question porte sur l'adresse au lecteur, dimension repérable dans tout texte argumentatif, ce qui rend l'item indépendant du passage retenu. Éléments attendus ajoutés le 2026-09-11, à l'insertion du texte : la question porte sur la manière dont l'auteur s'adresse à son lecteur, et le passage a été retenu précisément parce qu'il contient une adresse réelle — un impératif, une interrogation, un possessif. Sans ces éléments au corrigé, la grille était applicable mais non opposable au texte.",
+      "elements_attendus": [
+        "l'impératif « Oyez », qui prend le lecteur à témoin et le met en position d'entendre lui-même le mot enflé",
+        "la question directe « semble-t-il pas qu'on signifie quelque forme de langage rare et pellegrin ? », qui fait formuler au lecteur la fausse impression que l'auteur veut détruire",
+        "le possessif de deuxième personne dans « votre chambrière », qui ramène le mot savant à un usage domestique et familier au lecteur",
+        "l'aveu préalable « Je ne sais s'il en advient aux autres comme à moi », qui offre au lecteur de se reconnaître avant de le convaincre",
+        "le rapport entre ces marques et le propos : l'auteur ne démontre pas que les mots sont enflés, il fait entendre au lecteur qu'ils le sont"
+      ]
+    },
+    {
+      "item_id": "HLP-1-ESSAI-01",
+      "competence": "ESSAI",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 15,
+      "enonce": "**Essai.** En dix à douze lignes, répondez à la question suivante : la parole qui cherche à plaire peut-elle encore dire le vrai ?\n\nVous prendrez position, vous appuierez votre propos sur au moins un argument développé et vous mobiliserez une référence de votre choix, tirée du texte du bloc C ou de vos lectures.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "POSITION",
+          "intitule": "Prise de position et problématisation",
+          "competence": "ESSAI",
+          "descripteurs": {
+            "0": "Aucune position n'est prise : le propos expose des avis.",
+            "1": "Une position est prise mais elle change en cours de texte.",
+            "2": "Une position est prise et tenue ; la difficulté de la question n'est pas énoncée.",
+            "3": "Une position est prise et tenue, et la difficulté de la question est énoncée."
+          }
+        },
+        {
+          "code": "ARGUM",
+          "intitule": "Qualité de l'argumentation",
+          "competence": "ESSAI",
+          "descripteurs": {
+            "0": "Aucun argument : la position est répétée sous d'autres formes.",
+            "1": "Un argument est avancé sans être développé.",
+            "2": "Un argument est développé ; aucune objection n'est envisagée.",
+            "3": "Un argument est développé et une objection est envisagée puis traitée."
+          }
+        },
+        {
+          "code": "REFER",
+          "intitule": "Mobilisation des références",
+          "competence": "ESSAI",
+          "descripteurs": {
+            "0": "Aucune référence n'est mobilisée.",
+            "1": "Une référence est nommée sans être reliée au propos.",
+            "2": "Une référence est reliée au propos ; son apport n'est pas explicité.",
+            "3": "Une référence est reliée au propos et son apport est explicité."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Qualité de l'expression écrite",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou un lexique impropre.",
+            "2": "La construction est correcte ; le vocabulaire d'analyse reste employé de façon approximative.",
+            "3": "La construction est correcte et le vocabulaire d'analyse employé dans son sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Seconde production courte, sur le même texte (§ 7.12). La question relève du thème « Les pouvoirs de la parole » et met en tension deux fonctions de la parole — plaire et dire le vrai — ce qui donne prise à la problématisation sans exiger de connaissances particulières. Trois critères appartiennent à ESSAI ; le critère de langue alimente HLP/LANG. La référence peut être tirée du texte, de sorte qu'un candidat sans lectures personnelles ne soit pas empêché de renseigner le critère. Éléments attendus ajoutés le 2026-09-11. L'essai ne dépend pas du support — le sujet autorise une référence personnelle — mais le correcteur doit savoir ce que l'extrait offre à qui choisit de s'y appuyer.",
+      "elements_attendus": [
+        "la référence au texte est facultative — le sujet admet une référence tirée des lectures du candidat —, mais si elle est prise dans l'extrait, elle porte sur le soupçon que l'auteur fait peser sur le mot qui plaît : « piperie », « enflé de riches et magnifiques paroles »",
+        "une position tenue : le plaisir du mot peut servir le vrai, le masquer, ou n'avoir aucun rapport avec lui",
+        "un argument développé, et non la seule reprise de la position sous d'autres formes",
+        "une objection envisagée : l'orateur qui plaît peut faire admettre une vérité qu'un discours sec ferait rejeter"
+      ]
+    },
+    {
+      "item_id": "HLP-1-INTER-02",
+      "competence": "INTER",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici la réponse d'un autre candidat à une question d'interprétation. Elle résume le texte au lieu de l'interpréter. Indiquez à quel endroit une interprétation devrait intervenir et ce qu'elle devrait apporter.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'endroit est désigné et la réponse indique qu'il faudrait énoncer ce que le passage donne à penser, au-delà de ce qu'il dit.",
+        "reponses_1pt": [
+          "Le défaut de paraphrase est repéré sans que l'endroit soit désigné.",
+          "Un endroit est désigné sans indication de ce que l'interprétation devrait apporter."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-PARAPHRASE",
+          "HLP-ERR-QUESTION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Item de bloc D d'INTER, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu de l'exercice."
+    },
+    {
+      "item_id": "HLP-1-ESSAI-02",
+      "competence": "ESSAI",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'un essai court, en les numérotant de 1 à 4 : mobiliser une référence — prendre position — envisager une objection — développer un argument.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : prendre position (1), développer un argument (2), mobiliser une référence (3), envisager une objection (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-POSITION",
+          "HLP-ERR-REFERENCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Item de bloc D d'ESSAI, palier D1 : le modèle est restitué sans être mis en œuvre. Comparé au palier D3 de la tâche, il situe où la difficulté commence."
+    },
+    {
+      "item_id": "HLP-1-THEM-06",
+      "competence": "THEM",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une parole peut être efficace sans être vraie.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que l'efficacité tient à l'effet produit sur l'auditoire — adhésion, émotion, action — tandis que la vérité tient au rapport de l'énoncé à ce qui est : les deux se mesurent à des choses différentes.",
+        "reponses_1pt": [
+          "La distinction est affirmée sans que les deux critères soient nommés.",
+          "Un seul des deux critères est caractérisé."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-QUESTION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Tension au cœur du thème « Les pouvoirs de la parole », et question de l'essai du bloc C : l'item la mesure en amont, ce qui permet de distinguer un candidat qui ne voit pas la tension d'un candidat qui la voit sans savoir la traiter."
+    },
+    {
+      "item_id": "HLP-1-CULT-04",
+      "competence": "CULT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Associer chacun de ces deux termes à ce qu'il désigne : « rhétorique » et « éloquence ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La rhétorique désigne l'art codifié des moyens de persuader ; l'éloquence désigne la qualité effective d'une parole qui touche et convainc.",
+        "reponses_1pt": [
+          "Un seul des deux termes est correctement associé.",
+          "Les deux termes sont associés mais leurs définitions sont interverties."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-REFERENCE",
+          "HLP-ERR-THEME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Appariement de deux termes voisins, conforme à la règle de rédaction de CULT : reconnaissance et mise en relation, jamais rappel d'une liste d'auteurs."
+    },
+    {
+      "item_id": "HLP-1-CULT-05",
+      "competence": "CULT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un texte qui met en scène un dialogue pour faire progresser une idée relève d'une forme :",
+      "supports": [],
+      "propositions": {
+        "A": "narrative",
+        "B": "dialogique, employée par la littérature d'idées",
+        "C": "lyrique",
+        "D": "descriptive"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "forme confondue avec le récit",
+          "C": "forme confondue avec l'expression des sentiments",
+          "D": "forme confondue avec la description"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Reconnaissance d'une forme d'écriture des idées, du dialogue socratique aux « Entretiens » de Fontenelle."
+    },
+    {
+      "item_id": "HLP-1-LECT-07",
+      "competence": "LECT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans l'extrait du bloc C, indiquez à qui l'auteur s'adresse et citez la marque qui le montre.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'auteur s'adresse à son lecteur, et la marque citée est l'une des suivantes : l'impératif « Oyez », la question directe « semble-t-il pas… ? », ou le possessif de deuxième personne dans « votre chambrière ».",
+        "reponses_1pt": [
+          "Le destinataire est identifié sans qu'aucune marque soit citée.",
+          "La marque citée est le « je » de l'auteur, qui manifeste son point de vue mais ne s'adresse à personne."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-APPUI",
+          "HLP-ERR-QUESTION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Clé récrite le 2026-09-11, à l'insertion du texte réel : elle décrivait jusque-là un attendu abstrait, applicable à n'importe quel texte et opposable à aucun. Trois marques d'adresse coexistent dans le passage, de natures différentes — un impératif, une interrogation, un possessif —, ce qui permet d'accepter des relevés distincts sans élargir la clé. C'est aussi ce qui rend la question d'interprétation du bloc C possible."
+    },
+    {
+      "item_id": "HLP-T-THEM-07",
+      "competence": "THEM",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le thème « L'Humanité en question » interroge notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "les limites de l'humain et les ruptures de l'histoire",
+        "B": "la démographie mondiale",
+        "C": "le droit international",
+        "D": "l'histoire des religions seule"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "objet statistique substitué",
+          "C": "objet juridique substitué",
+          "D": "objet réduit à un domaine"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Thème du second semestre de Terminale. Les distracteurs désignent des approches réelles de l'humanité, étrangères au thème."
+    },
+    {
+      "item_id": "HLP-T-CULT-06",
+      "competence": "CULT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le thème « La recherche de soi » et le thème « L'Humanité en question » sont tous deux au programme de Terminale. Indiquer ce qui les relie.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Tous deux interrogent ce qui définit l'humain, le premier du point de vue de l'individu qui se construit, le second du point de vue de l'espèce et de ses limites.",
+        "reponses_1pt": [
+          "Un lien est énoncé mais il reste extérieur aux thèmes.",
+          "Les deux thèmes sont décrits séparément sans que le lien soit établi."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-REFERENCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Mise en relation de deux thèmes, sur le modèle de HLP-1-CULT-03 pour la Première."
+    },
+    {
+      "item_id": "HLP-1-LECT-08",
+      "competence": "LECT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans l'extrait du bloc C, relevez un mot ou un groupe de mots par lequel l'auteur marque son propre point de vue.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Un élément est relevé qui manifeste la présence de l'auteur : « je ne parle point », « Je ne sais s'il en advient aux autres comme à moi », « je ne me puis garder », « je trouve », « à mon avis », ou l'adjectif de jugement « chétives ».",
+        "reponses_1pt": [
+          "Un élément est relevé mais il relève du contenu — « métonymie », « pilastres » — et non de la manifestation du point de vue."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-APPUI",
+          "HLP-ERR-MOUVEMENT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Clé récrite le 2026-09-11, à l'insertion du texte réel : elle décrivait jusque-là un attendu abstrait, applicable à n'importe quel texte et opposable à aucun. Le passage est dense en marques de première personne et en jugements : le relevé est aisé, ce qui convient à un item de palier D1 ; la réponse à un point isole le candidat qui confond le sujet traité et la trace de celui qui le traite."
+    },
+    {
+      "item_id": "HLP-T-LECT-09",
+      "competence": "LECT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans l'extrait du bloc C, indiquez une idée que le texte suppose sans l'énoncer.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Un présupposé est énoncé, par exemple : que la valeur d'un mot se mesure à la chose qu'il désigne ; ou que le lecteur partage l'expérience que l'auteur rapporte, ce que suppose « Je ne sais s'il en advient aux autres comme à moi » ; ou que nommer richement une chose pauvre est une tromperie, ce que le mot « piperie » tient pour acquis sans le démontrer.",
+        "reponses_1pt": [
+          "Une idée est énoncée mais elle figure explicitement dans le texte — par exemple que l'auteur parle des mots et non des effets.",
+          "La réponse formule une objection au texte au lieu d'un présupposé."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-APPUI",
+          "HLP-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Clé récrite le 2026-09-11, à l'insertion du texte réel : elle décrivait jusque-là un attendu abstrait, applicable à n'importe quel texte et opposable à aucun. Trois présupposés distincts sont mobilisables, dont deux sont portés par un mot précis — « Je ne sais s'il en advient aux autres comme à moi », « piperie » —, ce qui permet au correcteur de trancher au lieu d'apprécier."
+    },
+    {
+      "item_id": "HLP-T-CULT-07",
+      "competence": "CULT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un texte qui interroge ce qui distingue l'humain de la machine relève du thème :",
+      "supports": [],
+      "propositions": {
+        "A": "« La recherche de soi »",
+        "B": "« L'Humanité en question »",
+        "C": "« Les pouvoirs de la parole »",
+        "D": "« Les représentations du monde »"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "thème voisin de Terminale",
+          "C": "thème de Première",
+          "D": "thème de Première"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Rattachement d'un texte à un thème, conforme à la règle de rédaction de CULT. Les quatre propositions sont les quatre thèmes réels du programme, ce qui mesure leur distinction."
+    },
+    {
+      "item_id": "HLP-T-THEM-08",
+      "competence": "THEM",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la question « qu'est-ce qu'être soi ? » ne reçoit pas la même réponse selon qu'on l'aborde par le récit d'une vie ou par le concept.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que le récit saisit le soi dans sa durée et ses changements, tandis que le concept cherche ce qui reste identique : les deux voies ne visent pas le même aspect de la question.",
+        "reponses_1pt": [
+          "La différence des deux approches est affirmée sans être caractérisée.",
+          "Une seule des deux approches est décrite."
+        ],
+        "codes_erreur": [
+          "HLP-ERR-THEME",
+          "HLP-ERR-QUESTION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe terminale générale. Thème « La recherche de soi ». Item de transfert : la double approche littéraire et philosophique, propre à la spécialité, est ici mise à l'épreuve sur une question précise. Cet item a été ajouté à l'assemblage NT lors des reprises de la Porte 6, à l'occasion d'un besoin de marge de durée. Il ne renforce aucun palier fragile — aucun palier de la version NT n'est au minimum de trois points — mais il couvre le thème « La recherche de soi » au palier de transfert, alors que ce thème n'était représenté que par un item de restitution. C'est cette couverture qui le justifie, non la durée."
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "instrument": "PHI",
+  "version": "standard",
+  "titre": "Diagnostic philosophie",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Les deux productions du bloc C sont rédigées sur le cahier de composition.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "NOT",
+        "intitule": "Notions du programme : définir, distinguer"
+      },
+      {
+        "competence": "PROB",
+        "intitule": "Problématiser : transformer une question de sujet en problème, repérer un présupposé"
+      },
+      {
+        "competence": "ARGU",
+        "intitule": "Reconstituer et évaluer un argument : prémisses, conclusion, objection"
+      },
+      {
+        "competence": "TEXT",
+        "intitule": "Explication de texte : dégager la thèse et les étapes d'un extrait d'une vingtaine de lignes"
+      },
+      {
+        "competence": "DISS",
+        "intitule": "Rédiger une introduction de dissertation : accroche, définitions, problème, annonce"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "PHI-T-REP-01",
+        "PHI-T-REP-02",
+        "PHI-T-REP-03",
+        "PHI-T-REP-04",
+        "PHI-T-REP-05",
+        "PHI-T-REP-06",
+        "PHI-T-NOT-01",
+        "PHI-T-NOT-05"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "PHI-T-NOT-09",
+        "PHI-T-NOT-10",
+        "PHI-T-ARGU-01",
+        "PHI-T-ARGU-05",
+        "PHI-T-ARGU-03",
+        "PHI-T-ARGU-06",
+        "PHI-T-PROB-05",
+        "PHI-T-PROB-06",
+        "PHI-T-PROB-07",
+        "PHI-T-PROB-01",
+        "PHI-T-PROB-03"
+      ]
+    },
+    {
+      "bloc": "C",
+      "supports": [
+        {
+          "titre": "Texte du bloc C",
+          "texte": "Le bon sens est la chose du monde la mieux partagée ; car chacun pense en être si bien pourvu, que ceux même qui sont les plus difficiles à contenter en toute autre chose n’ont point coutume d’en désirer plus qu’ils en ont. En quoi il n’est pas vraisemblable que tous se trompent : mais plutôt cela témoigne que la puissance de bien juger et distinguer le vrai d’avec le faux, qui est proprement ce qu’on nomme le bon sens ou la raison, est naturellement égale en tous les hommes ; et ainsi que la diversité de nos opinions ne vient pas de ce que les uns sont plus raisonnables que les autres, mais seulement de ce que nous conduisons nos pensées par diverses voies, et ne considérons pas les mêmes choses. Car ce n’est pas assez d’avoir l’esprit bon, mais le principal est de l’appliquer bien. Les plus grandes âmes sont capables des plus grands vices aussi bien que des plus grandes vertus ; et ceux qui ne marchent que fort lentement peuvent avancer beaucoup davantage, s’ils suivent toujours le droit chemin, que ne font ceux qui courent et qui s’en éloignent.\n\nPour moi, je n’ai jamais présumé que mon esprit fût en rien plus parfait que ceux du commun ; même j’ai souvent souhaité d’avoir la pensée aussi prompte, ou l’imagination aussi nette et distincte, ou la mémoire aussi ample ou aussi présente, que quelques autres. Et je ne sache point de qualités que celles-ci qui servent à la perfection de l’esprit ; car pour la raison, ou le sens, d’autant qu’elle est la seule chose qui nous rend hommes et nous distingue des bêtes, je veux croire qu’elle est tout entière en un chacun ; et suivre en ceci l’opinion commune des philosophes, qui disent qu’il n’y a du plus et du moins qu’entre les *accidents*, et non point entre les *formes* ou natures des *individus* d’une même *espèce*.",
+          "reference": "René Descartes, « Discours de la méthode », première partie, texte établi par Victor Cousin, Levrault, 1824 — domaine public.",
+          "edition": "Œuvres de Descartes, Levrault, 1824, tome I, p. 121-132",
+          "source_texte": "descartes"
+        }
+      ],
+      "items": [
+        "PHI-T-TEXT-01",
+        "PHI-T-DISS-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "PHI-T-TEXT-02",
+        "PHI-T-DISS-02"
+      ]
+    }
+  ]
+}

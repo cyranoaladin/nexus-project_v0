@@ -1,0 +1,53 @@
+{
+  "candidate_ref": "CL-2026-0004",
+  "mode_rendu": "maquette",
+  "fictif": true,
+  "session_date": "2026-09-15",
+  "note": "Jeu fictif du P1 opérationnel : cohorte entrée en première en septembre 2026, épreuves anticipées en juin 2027 par anticipation, session finale 2028. Aucun élément nominatif, aucune passation réelle. Il éprouve de bout en bout la combinaison que le dépôt n'avait jamais exercée : un candidat sans spécialité mathématiques, dont l'épreuve anticipée de mathématiques relève du sujet « mathématiques spécifiques de l'enseignement scientifique », et dont le français est évalué sur le programme d'œuvres de la session 2028.",
+  "reponses": {
+    "profil": "P1",
+    "session_baccalaureat_finale": 2028,
+    "annee_scolaire_passation_ea": "2026-2027",
+    "mode_passation_ea": "anticipation",
+    "note_contexte_temporel": "Entrée en première en septembre 2026 : les épreuves anticipées se passent en juin 2027, au titre de la session 2028. Le programme d'œuvres est celui de l'année scolaire 2026-2027 ; le programme de mathématiques évalué est celui de la même année scolaire.",
+    "statut_minorite": "mineur",
+    "systeme_scolaire": "etranger",
+    "derniere_classe_complete": "seconde",
+    "annees_interruption": 0,
+    "epreuves_francais_a_presenter": "les_deux",
+    "eaf_deja_passe": "non",
+    "specialites": [
+      "PC",
+      "SVT",
+      "SES"
+    ],
+    "statut_par_specialite": {
+      "PC": "deja_suivie_en_classe",
+      "SVT": "etudiee_seul",
+      "SES": "jamais_abordee"
+    },
+    "specialite_abandonnee": "aucune",
+    "note_specialites": "Aucune spécialité mathématiques : le parcours mathématique dérivé est « specifiques », et l'épreuve anticipée de mathématiques est celle de l'enseignement scientifique. Le groupe de planification MATHEMATIQUES n'est donc ouvert que par MATH-EA.",
+    "langue_scolarisation": "arabe",
+    "langue_maison": "arabe",
+    "auto_francais": {
+      "comprendre": 3,
+      "ecrire": 3,
+      "parler": 2,
+      "lire_textes_litteraires": 2
+    },
+    "auto_par_matiere": {
+      "PC": 3,
+      "SVT": 3,
+      "SES": 2
+    },
+    "heures_disponibles": 16,
+    "activite_parallele": "aucune",
+    "acces_materiel": [
+      "ordinateur",
+      "connexion_stable"
+    ],
+    "orientation_visee": "licence de sciences de la vie",
+    "parcoursup_concerne": "non"
+  }
+}

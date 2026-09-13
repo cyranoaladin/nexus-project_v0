@@ -1,0 +1,87 @@
+{
+  "instrument": "FR-MAI",
+  "version": "standard",
+  "titre": "Diagnostic de maîtrise du français — outil de travail",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Les deux productions du bloc C sont rédigées sur le cahier de composition.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "LANG",
+        "intitule": "Correction de la langue en contexte de rédaction académique"
+      },
+      {
+        "competence": "LEXA",
+        "intitule": "Lexique abstrait et académique : nuances, définitions, reformulation"
+      },
+      {
+        "competence": "COMPA",
+        "intitule": "Compréhension d'un texte argumentatif non littéraire : thèse, structure, implicite"
+      },
+      {
+        "competence": "SYNT",
+        "intitule": "Synthèse : résumer un texte de 400 mots en 80 mots sans déformation"
+      },
+      {
+        "competence": "ARGU",
+        "intitule": "Rédiger un paragraphe argumenté sur une question donnée : position, deux arguments, exemple, nuance"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "FR-MAI-LANG-01",
+        "FR-MAI-LANG-02",
+        "FR-MAI-LANG-03",
+        "FR-MAI-LANG-05",
+        "FR-MAI-LANG-06",
+        "FR-MAI-LANG-08",
+        "FR-MAI-LEXA-01"
+      ]
+    },
+    {
+      "bloc": "B",
+      "supports": [
+        {
+          "titre": "Texte du bloc B",
+          "texte": "L’instruction publique est un devoir de la société à l’égard des citoyens.\n\nVainement aurait-on déclaré que les hommes ont tous les mêmes droits ; vainement les lois auraient-elles respecté ce premier principe de l’éternelle justice, si l’inégalité dans les facultés morales empêchait le plus grand nombre de jouir de ces droits dans toute leur étendue.\n\nL’état social diminue nécessairement l’inégalité naturelle, en faisant concourir les forces communes au bien-être des individus. Mais ce bien-être devient en même temps plus dépendant des rapports de chaque homme avec ses semblables, et les effets de l’inégalité s’accroîtraient à proportion, si l’on ne rendait plus faible et presque nulle, relativement au bonheur et à l’exercice des droits communs, celle qui naît de la différence des esprits.\n\n*Cette obligation consiste à ne laisser subsister aucune inégalité qui entraîne de dépendance.*\n\nIl est impossible qu’une instruction même égale n’augmente pas la supériorité de ceux que la nature a favorisés d’une organisation plus heureuse.\n\nMais il suffit au maintien de l’égalité des droits que cette supériorité n’entraîne pas de dépendance réelle, et que chacun soit assez instruit pour exercer par lui-même, et sans se soumettre aveuglément à la raison d’autrui, ceux dont la loi lui a garanti la jouissance. Alors, bien loin que la supériorité de quelques hommes soit un mal pour ceux qui n’ont pas reçu les mêmes avantages, elle contribuera au bien de tous, et les talents comme les lumières deviendront le patrimoine commun de la société.\n\nAinsi, par exemple, celui qui ne sait pas écrire, et qui ignore l’arithmétique, dépend réellement de l’homme plus instruit, auquel il est sans cesse obligé de recourir. Il n’est pas l’égal de ceux à qui l’éducation a donné ces connaissances ; il ne peut pas exercer les mêmes droits avec la même étendue et la même indépendance. Celui qui n’est pas instruit des premières lois qui règlent le droit de propriété ne jouit pas de ce droit de la même manière que celui qui les connaît ; dans les discussions qui s’élèvent entre eux, ils ne combattent point à armes égales.\n\nMais l’homme qui sait les règles de l’arithmétique nécessaires dans l’usage de la vie, n’est pas dans la dépendance du savant qui possède au plus haut degré le génie des sciences mathématiques, et dont le talent lui sera d’une utilité très-réelle, sans jamais pouvoir le gêner dans la jouissance de ses droits.",
+          "reference": "Condorcet, « Sur l'instruction publique », premier mémoire, Didot, 1847 — domaine public.",
+          "edition": "Œuvres de Condorcet, Didot, 1847, tome 7, p. 169-228",
+          "source_texte": "condorcet"
+        }
+      ],
+      "items": [
+        "FR-MAI-LEXA-07",
+        "FR-MAI-LEXA-04",
+        "FR-MAI-LEXA-08",
+        "FR-MAI-COMPA-01",
+        "FR-MAI-COMPA-07",
+        "FR-MAI-COMPA-04",
+        "FR-MAI-COMPA-08"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "FR-MAI-SYNT-01",
+        "FR-MAI-ARGU-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "FR-MAI-SYNT-02",
+        "FR-MAI-ARGU-02"
+      ]
+    }
+  ]
+}

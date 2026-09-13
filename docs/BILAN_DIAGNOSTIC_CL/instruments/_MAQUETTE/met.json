@@ -1,0 +1,20 @@
+{
+  "candidate_ref": "CL-2026-0000",
+  "fictif": true,
+  "session_date": "2026-09-15",
+  "reponses": {
+    "MET-01": "b",
+    "MET-02": "a",
+    "MET-03": "a",
+    "MET-04": "b",
+    "MET-05": "c",
+    "MET-06": "b",
+    "MET-07": "b",
+    "MET-08": "b",
+    "MET-09": "a",
+    "MET-10": "b",
+    "MET-11": "c",
+    "MET-12": "b"
+  },
+  "note": "Jeu fictif dérivé de specification.json : planification au premier niveau, stratégies d'apprentissage au deuxième, pour que les deux niveaux et leurs outillages se distinguent dans le rendu."
+}

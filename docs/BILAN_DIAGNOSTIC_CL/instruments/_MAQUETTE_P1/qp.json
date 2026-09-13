@@ -1,0 +1,54 @@
+{
+  "candidate_ref": "CL-2026-0003",
+  "mode_rendu": "maquette",
+  "fictif": true,
+  "session_date": "2025-09-15",
+  "reponses": {
+    "profil": "P1",
+    "session_visee": "2027",
+    "session_baccalaureat_finale": 2027,
+    "annee_scolaire_passation_ea": "2025-2026",
+    "mode_passation_ea": "anticipation",
+    "note_contexte_temporel": "P1 de la cohorte 2025-2026 : épreuves anticipées en juin 2026, terminales en 2027. Cohorte historique : la cohorte opérationnelle est celle entrée en première en septembre 2026.",
+    "statut_minorite": "majeur",
+    "systeme_scolaire": "etranger",
+    "derniere_classe_complete": "seconde",
+    "annees_interruption": 1,
+    "epreuves_francais_a_presenter": "les_deux",
+    "eaf_deja_passe": "non",
+    "specialites": [
+      "MATH",
+      "PC",
+      "SVT"
+    ],
+    "statut_par_specialite": {
+      "MATH": "etudiee_seul",
+      "PC": "deja_suivie_en_classe",
+      "SVT": "jamais_abordee"
+    },
+    "specialite_abandonnee": "aucune",
+    "langue_scolarisation": "arabe",
+    "langue_maison": "arabe",
+    "auto_francais": {
+      "comprendre": 3,
+      "ecrire": 2,
+      "parler": 2,
+      "lire_textes_litteraires": 2
+    },
+    "auto_par_matiere": {
+      "MATH": 4,
+      "PC": 3,
+      "SVT": 3
+    },
+    "heures_disponibles": 14,
+    "activite_parallele": "aucune",
+    "acces_materiel": [
+      "ordinateur",
+      "calculatrice",
+      "connexion_stable"
+    ],
+    "orientation_visee": "licence de sciences",
+    "parcoursup_concerne": "non"
+  },
+  "note": "Jeu fictif **historique**, conservé pour la non-régression réglementaire. Candidat de première de la cohorte 2025-2026, préparant les deux épreuves anticipées de juin 2026, qui comptent pour la session finale 2027 : profil P1, configuration « les_deux », mode « anticipation ». Il exerce la règle de priorité propre à P1 — français d'abord sous le seuil — que ni le jeu P3 ni le jeu P2 n'atteignaient, et il est le seul jeu du dépôt dont l'année de passation est 2025-2026, donc le seul à opposer le programme de mathématiques antérieur. Il n'est plus le P1 opérationnel : depuis le 2026-09-11, celui-ci est `_MAQUETTE_P1_2026_2027_SPECIFIQUES` — cohorte entrée en première en septembre 2026, épreuves anticipées en juin 2027, session finale 2028."
+}

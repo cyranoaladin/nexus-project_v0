@@ -1,0 +1,62 @@
+{
+  "schema": "nexus.referentiel.dimensions_met",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Cahier § 7.5 — quatre dimensions, un profil en trois niveaux par dimension, une recommandation d'outillage associée",
+  "conventions": {
+    "principe": "Questionnaire fermé, corrigé automatiquement, sans bonne ni mauvaise réponse. Chaque question porte une dimension et un poids ; le niveau se calcule par seuils sur la somme pondérée.",
+    "calcul": "Pour chaque dimension, on somme les poids des réponses cochées, puis on compare la somme aux seuils. Les seuils sont exprimés en part du total possible de la dimension.",
+    "sans_jugement": "Les libellés de niveau décrivent une pratique, jamais une valeur. Aucun terme de la liste bloquante n'y figure : ils sont recopiés dans la section 6 du bilan.",
+    "recommandation": "Chaque niveau renvoie à une recommandation d'outillage rédigée ici, jamais dans le formulaire."
+  },
+  "dimensions": [
+    {
+      "code": "PLAN", "libelle": "Planification du travail",
+      "objet": "La manière dont le candidat organise une semaine de travail",
+      "niveaux": [
+        {"code": "PLAN-1", "seuil_min": 0.00, "libelle": "Travaille au jour le jour, sans répartition prévue à l'avance",
+         "outillage": "Planning hebdomadaire imposé, rempli avec le coach en fin de séance et vérifié à la séance suivante. Deux plages de travail fixes par matière, aux mêmes créneaux chaque semaine."},
+        {"code": "PLAN-2", "seuil_min": 0.40, "libelle": "Prévoit ses séances mais sans répartition entre les matières",
+         "outillage": "Planning hebdomadaire proposé, rempli par le candidat et relu par le coach une semaine sur deux. Répartition des heures par matière fixée avec lui à partir des priorités du bilan."},
+        {"code": "PLAN-3", "seuil_min": 0.70, "libelle": "Prévoit ses séances et les répartit entre les matières",
+         "outillage": "Planning tenu par le candidat, revu au bilan intermédiaire de quatre semaines. Le coach n'intervient que si l'écart entre le prévu et le réalisé dépasse un tiers."}
+      ]
+    },
+    {
+      "code": "APPR", "libelle": "Stratégies d'apprentissage",
+      "objet": "Relecture passive contre auto-test, fiches, exercices",
+      "niveaux": [
+        {"code": "APPR-1", "seuil_min": 0.00, "libelle": "Apprend surtout en relisant ses cours",
+         "outillage": "Auto-évaluations courtes en fin de chaque séance, sur le contenu de la séance elle-même. Introduction du principe de la question posée avant la relecture."},
+        {"code": "APPR-2", "seuil_min": 0.40, "libelle": "Relit et refait des exercices déjà traités",
+         "outillage": "Exercices non vus introduits à chaque séance, et une auto-évaluation par semaine sur le chapitre précédent plutôt que sur le chapitre du jour."},
+        {"code": "APPR-3", "seuil_min": 0.70, "libelle": "Se teste sur des exercices nouveaux avant de relire",
+         "outillage": "Auto-évaluations espacées, toutes les deux semaines, portant sur les chapitres les plus anciens. Le candidat choisit lui-même les chapitres à reprendre."}
+      ]
+    },
+    {
+      "code": "EPRE", "libelle": "Gestion de l'épreuve",
+      "objet": "Temps, brouillon, relecture",
+      "niveaux": [
+        {"code": "EPRE-1", "seuil_min": 0.00, "libelle": "Compose sans répartir le temps ni relire",
+         "outillage": "Chaque séance se termine par un exercice chronométré court. Une grille de relecture en trois points est fournie et remplie après chaque production."},
+        {"code": "EPRE-2", "seuil_min": 0.40, "libelle": "Répartit le temps mais relit rarement",
+         "outillage": "Une production complète chronométrée toutes les deux semaines, suivie d'une relecture guidée par la grille de correction de l'épreuve."},
+        {"code": "EPRE-3", "seuil_min": 0.70, "libelle": "Répartit le temps, utilise un brouillon et relit",
+         "outillage": "Épreuves blanches en conditions réelles à chaque bilan intermédiaire. Le temps de relecture est décompté et discuté après coup."}
+      ]
+    },
+    {
+      "code": "ENVI", "libelle": "Ressources et environnement de travail",
+      "objet": "Lieu, matériel, disponibilité, recours possibles",
+      "niveaux": [
+        {"code": "ENVI-1", "seuil_min": 0.00, "libelle": "Travaille dans un lieu variable, avec des interruptions fréquentes",
+         "outillage": "Créneaux au centre proposés en priorité. Liste des ressources hors connexion fournie, pour que l'accès au réseau ne conditionne pas le travail."},
+        {"code": "ENVI-2", "seuil_min": 0.40, "libelle": "Dispose d'un lieu de travail, avec un matériel partiel",
+         "outillage": "Prêt du matériel manquant lorsque le centre en dispose. Séances de spécialité sur machine programmées au centre lorsque l'ordinateur manque à domicile."},
+        {"code": "ENVI-3", "seuil_min": 0.70, "libelle": "Dispose d'un lieu de travail et du matériel nécessaire",
+         "outillage": "Suivi à distance possible entre les séances. Le format de suivi est choisi avec le candidat."}
+      ]
+    }
+  ]
+}

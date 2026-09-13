@@ -1,0 +1,1660 @@
+{
+  "instrument": "FR-EAF",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "FR-EAF-LANG-01",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans quelle phrase l'accord du participe passé est-il correct ?",
+      "supports": [],
+      "propositions": {
+        "A": "Les lettres qu'il a écrit sont perdues.",
+        "B": "Les lettres qu'il a écrites sont perdues.",
+        "C": "Les lettres qu'il a écrit sont perdue.",
+        "D": "Les lettres qu'il a écrit son perdues."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "accord avec le COD antéposé non réalisé",
+          "C": "accord manqué sur le participe et sur l'attribut",
+          "D": "confusion entre « son » et « sont »"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Accord du participe passé avec avoir et COD antéposé : erreur la plus fréquente dans les copies de commentaire. Le distracteur D isole une confusion homophonique distincte, ce qui permet de savoir si l'erreur porte sur l'accord ou sur l'orthographe."
+    },
+    {
+      "item_id": "FR-EAF-LANG-02",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase est correctement ponctuée ?",
+      "supports": [],
+      "propositions": {
+        "A": "Le poète, qui observe la nature y trouve un refuge.",
+        "B": "Le poète qui observe la nature, y trouve un refuge.",
+        "C": "Le poète, qui observe la nature, y trouve un refuge.",
+        "D": "Le poète qui, observe la nature y trouve un refuge."
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "relative explicative ouverte mais non fermée",
+          "B": "virgule fermante sans virgule ouvrante",
+          "D": "virgule insérée entre le sujet et son verbe"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Encadrement de la relative explicative. Le distracteur D isole la faute la plus lourde à l'écrit, la séparation du sujet et du verbe."
+    },
+    {
+      "item_id": "FR-EAF-LANG-03",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle forme complète correctement la phrase : « Ce sont les images … le poète emploie » ?",
+      "supports": [],
+      "propositions": {
+        "A": "qu'",
+        "B": "que",
+        "C": "qui",
+        "D": "dont"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "élision non faite devant voyelle",
+          "C": "pronom sujet employé pour un complément d'objet",
+          "D": "pronom introduisant un complément indirect, non attendu ici"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Choix du relatif selon la fonction. Le distracteur C mesure la confusion qui/que, le D une construction indirecte fautive."
+    },
+    {
+      "item_id": "FR-EAF-LANG-04",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase ne comporte pas d'erreur d'orthographe grammaticale ?",
+      "supports": [],
+      "propositions": {
+        "A": "Ses vers là sont célèbres.",
+        "B": "Ces vers-là sont célèbres.",
+        "C": "C'est vers-là sont célèbres.",
+        "D": "Ses vers-la sont célèbres."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "possessif employé pour un démonstratif, trait d'union omis",
+          "C": "confusion entre « c'est » et « ces »",
+          "D": "possessif employé pour un démonstratif, accent omis"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Homophones ces/ses/c'est et trait d'union du démonstratif. Trois erreurs distinctes et nommées, dont la fréquence est élevée en début d'accompagnement. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-LANG-05",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le registre de langue de la phrase : « Ce passage, il est vachement bien fait » ?",
+      "supports": [],
+      "propositions": {
+        "A": "soutenu",
+        "B": "courant",
+        "C": "familier",
+        "D": "littéraire"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "registre confondu avec la présence d'un vocabulaire abstrait",
+          "B": "dislocation et adverbe familier non repérés",
+          "D": "registre confondu avec l'objet du propos"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Identification du registre familier, prérequis pour proscrire l'oral dans une copie. Le distracteur B est le plus discriminant : il piège le candidat qui juge la phrase acceptable parce qu'il la comprend. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-LANG-06",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle réécriture corrige la phrase : « Le poète décrit la nature, il y trouve une consolation, cette consolation est fragile » ?",
+      "supports": [],
+      "propositions": {
+        "A": "Le poète décrit la nature, il y trouve une consolation fragile.",
+        "B": "Le poète décrit la nature où il trouve une consolation, mais celle-ci reste fragile.",
+        "C": "Le poète décrit la nature et il y trouve une consolation et cette consolation est fragile.",
+        "D": "Le poète décrit la nature ; il y trouve une consolation ; cette consolation est fragile."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "nuance de la troisième proposition supprimée au lieu d'être subordonnée",
+          "C": "juxtaposition remplacée par une coordination répétée, sans hiérarchie",
+          "D": "ponctuation modifiée sans que le lien logique soit explicité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Passage de la juxtaposition à la subordination avec maintien de la nuance. Item de transfert : la bonne réponse suppose de reconnaître que la troisième proposition apporte une restriction, et non une information de même rang."
+    },
+    {
+      "item_id": "FR-EAF-LANG-07",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans la phrase « Ce poème, dont l'auteur y exprime sa révolte, est célèbre », quelle est l'erreur ?",
+      "supports": [],
+      "propositions": {
+        "A": "un pronom est répété alors que « dont » suffit",
+        "B": "le verbe n'est pas accordé avec son sujet",
+        "C": "la relative devrait être introduite par « que »",
+        "D": "il manque une virgule après « Ce poème »"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "erreur cherchée du côté de l'accord alors que la construction est en cause",
+          "C": "choix du relatif mis en cause à tort, « dont » est ici correct",
+          "D": "erreur cherchée du côté de la ponctuation, qui est correcte"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Pléonasme de reprise avec « dont », faute courante et invisible à l'oreille. Les trois distracteurs correspondent aux trois autres endroits où un candidat cherche spontanément l'erreur."
+    },
+    {
+      "item_id": "FR-EAF-LANG-08",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase emploie correctement le subjonctif ?",
+      "supports": [],
+      "propositions": {
+        "A": "Bien que le poème est court, il est dense.",
+        "B": "Bien que le poème soit court, il est dense.",
+        "C": "Bien que le poème serait court, il est dense.",
+        "D": "Bien que le poème sera court, il est dense."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "indicatif employé après une conjonction qui appelle le subjonctif",
+          "C": "conditionnel employé pour le subjonctif",
+          "D": "futur employé pour le subjonctif"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Mode après « bien que ». Chaque distracteur nomme un mode différent, ce qui distingue une méconnaissance de la règle d'une hésitation sur la forme."
+    },
+    {
+      "item_id": "FR-EAF-LANG-09",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase respecte la concordance des temps ?",
+      "supports": [],
+      "propositions": {
+        "A": "Il affirmait que la nature le consolait.",
+        "B": "Il affirmait que la nature le console.",
+        "C": "Il affirmait que la nature le consolera.",
+        "D": "Il affirmait que la nature l'a consolé."
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "présent maintenu dans une subordonnée dépendant d'un verbe au passé",
+          "C": "futur employé au lieu du conditionnel",
+          "D": "passé composé employé au lieu de l'imparfait ou du plus-que-parfait"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Concordance des temps au discours indirect, prérequis du commentaire rédigé au passé. Les distracteurs couvrent les trois substitutions observées en copie. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-LANG-10",
+      "competence": "LANG",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase est correcte du point de vue de la reprise pronominale ?",
+      "supports": [],
+      "propositions": {
+        "A": "Le poète évoque la ville et la campagne ; il la préfère.",
+        "B": "Le poète évoque la ville et la campagne ; il préfère cette dernière.",
+        "C": "Le poète évoque la ville et la campagne ; il les préfère.",
+        "D": "Le poète évoque la ville et la campagne ; il leur préfère."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "pronom ambigu : deux antécédents féminins possibles",
+          "C": "pluriel employé alors qu'un seul des deux termes est visé",
+          "D": "construction indirecte sans complément second"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Ambiguïté de la reprise pronominale, source majeure d'illisibilité dans les copies. Item de transfert : il faut percevoir que la phrase A est grammaticale mais obscure. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-CULT-01",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "À quel objet d'étude du programme de première le recueil « Cahier de Douai » de Rimbaud est-il rattaché ?",
+      "supports": [],
+      "propositions": {
+        "A": "La poésie du XIXe au XXIe siècle",
+        "B": "La littérature d'idées du XVIe au XVIIIe siècle",
+        "C": "Le roman et le récit du Moyen Âge au XXIe siècle",
+        "D": "Le théâtre du XVIIe au XXIe siècle"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "objet d'étude confondu avec celui des textes argumentatifs",
+          "C": "objet d'étude confondu avec celui des récits",
+          "D": "objet d'étude confondu avec celui du texte de spectacle"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Rattachement d'une œuvre à son objet d'étude, fait de programme vérifiable dans la note de service. Les trois distracteurs sont les trois autres objets d'étude, ce qui mesure si le candidat connaît l'architecture du programme et non seulement un titre. La mention « pour la session 2027 » a été retirée le 2026-09-11 (Q-27, création de la session 2028) : le rattachement de ce recueil à la poésie ne dépend pas de la session, et l'item appartient au noyau commun. La clé et les distracteurs sont inchangés."
+    },
+    {
+      "item_id": "FR-EAF-CULT-02",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel parcours associé accompagne « Le Menteur » de Corneille ?",
+      "supports": [],
+      "propositions": {
+        "A": "Les jeux du cœur et de la parole",
+        "B": "Mensonge et comédie",
+        "C": "Théâtre et dispute",
+        "D": "Émancipations créatrices"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "parcours de l'autre pièce du même objet d'étude, Musset",
+          "C": "parcours de la troisième pièce du même objet d'étude, Sarraute",
+          "D": "parcours rattaché à un objet d'étude différent, la poésie"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Association œuvre / parcours. Les distracteurs A et C sont les parcours des deux autres œuvres théâtrales : un candidat qui connaît l'objet d'étude sans avoir travaillé les œuvres se trompera, ce qui est précisément l'information cherchée. La mention de session et la restriction sessions_applicables ont été retirées le 2026-09-11 : « Le Menteur » et son parcours sont maintenus aux sessions 2027 et 2028, l'item appartient donc au noyau commun. La clé et les distracteurs sont inchangés."
+    },
+    {
+      "item_id": "FR-EAF-CULT-03",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "À quel siècle appartient « Discours de la servitude volontaire » de La Boétie ?",
+      "supports": [],
+      "propositions": {
+        "A": "XVe siècle",
+        "B": "XVIe siècle",
+        "C": "XVIIe siècle",
+        "D": "XVIIIe siècle"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "siècle antérieur, avant l'humanisme",
+          "C": "confusion avec le classicisme",
+          "D": "confusion avec les Lumières, période du même objet d'étude"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Repère de périodisation. Le distracteur D est le plus probable : il piège le candidat qui associe toute littérature d'idées aux Lumières."
+    },
+    {
+      "item_id": "FR-EAF-CULT-04",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "sessions_applicables": [
+        2027
+      ],
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Parmi ces quatre œuvres au programme de la session 2027, laquelle relève de l'objet d'étude « Le roman et le récit du Moyen Âge au XXIe siècle » ?",
+      "supports": [],
+      "propositions": {
+        "A": "« Entretiens sur la pluralité des mondes » de Fontenelle",
+        "B": "« Manon Lescaut » de l'abbé Prévost",
+        "C": "« On ne badine pas avec l'amour » de Musset",
+        "D": "« Mes forêts » d'Hélène Dorion"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "dialogue de vulgarisation classé en littérature d'idées",
+          "C": "pièce de théâtre classée dans l'objet d'étude du théâtre",
+          "D": "recueil poétique classé dans l'objet d'étude de la poésie"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Item de transfert : le candidat doit trier quatre œuvres relevant de quatre objets d'étude différents. Chaque distracteur est une œuvre réellement au programme de la session 2027, ce qui interdit l'élimination par méconnaissance du titre. La bonne réponse était « Pot-Bouille » jusqu'au 2026-09-10 : cette œuvre relève du programme de première 2026-2027, donc de la session 2028, et l'item était faux pour la session visée. Manon Lescaut est préférée à « La Peau de chagrin », désignée au bloc C, pour ne pas amorcer la tâche de rédaction."
+    },
+    {
+      "item_id": "FR-EAF-CULT-05",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel mouvement littéraire est associé à l'œuvre romanesque d'Émile Zola ?",
+      "supports": [],
+      "propositions": {
+        "A": "le romantisme",
+        "B": "le réalisme",
+        "C": "le naturalisme",
+        "D": "le symbolisme"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "mouvement de la première moitié du XIXe siècle",
+          "B": "mouvement dont le naturalisme procède, mais qui lui est antérieur",
+          "D": "mouvement poétique contemporain, sans rapport avec le projet romanesque"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Le distracteur B est volontairement proche : réalisme et naturalisme sont régulièrement confondus. Distinguer les deux suppose de connaître le projet expérimental de Zola, pas seulement une étiquette.\nSessionné à 2027 le 2026-09-11. L'item nomme le mouvement de Zola ; depuis que « Pot-Bouille » est le support du bloc C de la session 2028, le lire avant la tâche de rédaction fournissait au candidat de 2028 le cadre interprétatif que cette tâche mesure — le parcours de l'œuvre est « dévoiler les rouages de la société ». FR-EAF-CULT-09 pose le même fait de repères pour 2028, sur le romancier qui n'est pas celui de son bloc C.",
+      "sessions_applicables": [
+        2027
+      ]
+    },
+    {
+      "item_id": "FR-EAF-CULT-09",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel mouvement littéraire est associé à l'œuvre romanesque d'Honoré de Balzac ?",
+      "supports": [],
+      "propositions": {
+        "A": "le romantisme",
+        "B": "le réalisme",
+        "C": "le naturalisme",
+        "D": "le symbolisme"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "mouvement contemporain de Balzac, dont son œuvre emprunte des motifs sans s'y ranger",
+          "C": "mouvement postérieur, qui procède du réalisme et s'en réclame comme d'une méthode expérimentale",
+          "D": "mouvement poétique de la fin du siècle, sans rapport avec le projet romanesque"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Homologue de FR-EAF-CULT-05 pour la session 2028, créé le 2026-09-11. Le fait de repères est le même — rattacher un romancier du XIXᵉ siècle à son mouvement — et le distracteur proche est le même couple réalisme / naturalisme, pris dans l'autre sens. Balzac n'est pas au programme de la session 2028 : c'est précisément ce qui permet de poser la question sans amorcer la tâche du bloc C, comme FR-EAF-CULT-05 le fait pour 2027 en interrogeant sur Zola.",
+      "sessions_applicables": [
+        2028
+      ]
+    },
+    {
+      "item_id": "FR-EAF-CULT-06",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "sessions_applicables": [
+        2027
+      ],
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Pour la session 2027, quelle œuvre est associée au parcours « Le goût de la science » ?",
+      "supports": [],
+      "propositions": {
+        "A": "« Lettres d'une Péruvienne » de Graffigny",
+        "B": "« Entretiens sur la pluralité des mondes » de Fontenelle",
+        "C": "« Discours de la servitude volontaire » de La Boétie",
+        "D": "« Sido suivi de Les Vrilles de la vigne » de Colette"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "autre œuvre du même objet d'étude, parcours différent",
+          "C": "autre œuvre du même objet d'étude, parcours sur la liberté",
+          "D": "œuvre relevant de l'objet d'étude du roman et du récit"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Association parcours / œuvre à l'intérieur d'un même objet d'étude : les distracteurs A et C sont les deux autres œuvres de la littérature d'idées, ce qui exige de connaître les trois parcours et non un seul. Le distracteur D était « Le Chevalier de la charrette » jusqu'au 2026-09-10 : cette œuvre relève du programme 2026-2027, donc de la session 2028, et n'avait rien à faire dans une question portant sur la session 2027."
+    },
+    {
+      "item_id": "FR-EAF-CULT-07",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "sessions_applicables": [
+        2028
+      ],
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Parmi ces quatre œuvres au programme de la session 2028, laquelle relève de l'objet d'étude « Le roman et le récit du Moyen Âge au XXIe siècle » ?",
+      "supports": [],
+      "propositions": {
+        "A": "« Entretiens sur la pluralité des mondes » de Fontenelle",
+        "B": "« Pluie et vent sur Télumée Miracle » de Simone Schwarz-Bart",
+        "C": "« Pour un oui ou pour un non » de Nathalie Sarraute",
+        "D": "« La rage de l'expression » de Francis Ponge"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "dialogue de vulgarisation classé en littérature d'idées",
+          "C": "pièce de théâtre classée dans l'objet d'étude du théâtre",
+          "D": "recueil poétique classé dans l'objet d'étude de la poésie"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Homologue de FR-EAF-CULT-04 pour la session 2028. L'objet d'étude du roman est le seul renouvelé au programme 2026-2027 : c'est donc le seul item de repères qui doive être dédoublé par session. Les trois distracteurs sont des œuvres réellement au programme de la session 2028, relevant chacune d'un objet d'étude différent, ce qui interdit l'élimination par méconnaissance du titre.\nCorrigé le 2026-09-11, à l'insertion du texte du bloc C. La bonne réponse était « Pot-Bouille » : l'œuvre est devenue le support du bloc C du même sujet, dont la ligne de référence porte l'auteur et le titre. L'item ne mesurait plus des repères littéraires, il mesurait la capacité à tourner la page. « Pluie et vent sur Télumée Miracle » est un roman du même programme, écarté du bloc C par la direction : la réponse reste dans la liste de la session sans rien devoir au sujet. C'est la règle que FR-EAF-CULT-04 appliquait déjà pour 2027 en écartant « La Peau de chagrin »."
+    },
+    {
+      "item_id": "FR-EAF-CULT-08",
+      "competence": "CULT",
+      "niveau": "EAF",
+      "palier": "D2",
+      "sessions_applicables": [
+        2028
+      ],
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Pour la session 2028, quelle œuvre est associée au parcours « Le goût de la science » ?",
+      "supports": [],
+      "propositions": {
+        "A": "« Lettres d'une Péruvienne » de Graffigny",
+        "B": "« Entretiens sur la pluralité des mondes » de Fontenelle",
+        "C": "« Discours de la servitude volontaire » de La Boétie",
+        "D": "« Le Chevalier de la charrette » de Chrétien de Troyes"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "autre œuvre du même objet d'étude, parcours différent",
+          "C": "autre œuvre du même objet d'étude, parcours sur la liberté",
+          "D": "œuvre relevant de l'objet d'étude du roman et du récit"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Homologue de FR-EAF-CULT-06 pour la session 2028. La littérature d'idées est maintenue d'une session à l'autre : seul le distracteur emprunté au roman change, « Sido suivi de Les Vrilles de la vigne » relevant du programme 2027 et « Le Chevalier de la charrette » de celui de 2028. La clé est identique à celle de CULT-06 : c'est le même fait, opposable aux deux sessions, dans un habillage propre à chacune."
+    },
+    {
+      "item_id": "FR-EAF-COMP-01",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle formulation énonce la thèse défendue dans ce passage ?",
+      "supports": [],
+      "propositions": {
+        "A": "Le tyran doit sa puissance à une force qui lui est propre.",
+        "B": "Le tyran ne tient son pouvoir que de ceux qui le lui abandonnent.",
+        "C": "Les peuples sont faits pour obéir à un maître.",
+        "D": "La guerre est la principale cause de la ruine des peuples."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "contresens : le texte dit au contraire que le tyran « n'a autre chose que ce qu'a le moindre homme »",
+          "C": "thèse inverse de celle du passage, que l'apostrophe initiale pourrait faire croire",
+          "D": "détail du texte — la guerre — pris pour la position défendue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. La thèse est énoncée par le cœur du passage : le maître n'a que ce que ses sujets lui donnent. Le distracteur A est le contresens exact, formulé dans les termes que le texte réfute ; le distracteur C exploite la violence de l'apostrophe initiale, qui peut faire croire à un mépris des peuples."
+    },
+    {
+      "item_id": "FR-EAF-COMP-02",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « Les pieds dont il foule vos cités, d'où les a-t-il, s'ils ne sont des vôtres ? », à quoi renvoie le pronom « ils » ?",
+      "supports": [],
+      "propositions": {
+        "A": "aux cités que le maître foule",
+        "B": "aux pieds dont il foule les cités",
+        "C": "à ceux à qui l'auteur s'adresse",
+        "D": "aux ennemis évoqués plus haut"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "reprise cherchée par proximité : « cités » est le nom le plus proche",
+          "C": "pronom de reprise confondu avec le « vous » d'adresse",
+          "D": "reprise rattachée à un groupe éloigné et étranger à la phrase"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. La reprise porte sur « les pieds », placé en tête de phrase et repris deux fois, par « les » puis par « ils ». Le distracteur A est l'erreur de proximité, que la construction détachée rend probable."
+    },
+    {
+      "item_id": "FR-EAF-COMP-03",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le mouvement d'ensemble du passage ?",
+      "supports": [],
+      "propositions": {
+        "A": "une description, puis un récit, puis une morale",
+        "B": "une apostrophe au peuple, une série de questions, puis une injonction",
+        "C": "une définition reprise sous trois formes différentes",
+        "D": "une suite d'exemples sans progression"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "structure narrative projetée sur un texte d'idées",
+          "C": "reformulations prises pour des idées distinctes",
+          "D": "progression du passage non perçue, lecture ramenée à une liste"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. Le passage se lit en trois temps que le candidat doit distinguer : l'apostrophe (« Pauvres et misérables peuples insensés »), la série de questions qui fait admettre le mécanisme, et l'injonction finale. Le distracteur D vise le candidat qui ne voit que l'accumulation des « vous semez… vous nourrissez… »."
+    },
+    {
+      "item_id": "FR-EAF-COMP-04",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle intention l'auteur poursuit-il dans ce passage ?",
+      "supports": [],
+      "propositions": {
+        "A": "informer ses lecteurs de l'état politique du royaume",
+        "B": "obtenir de ceux à qui il parle qu'ils cessent d'agir comme ils agissent",
+        "C": "raconter comment un tyran est parvenu au pouvoir",
+        "D": "émouvoir en décrivant les souffrances d'un peuple"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "visée argumentative non perçue sous l'apparente constatation",
+          "C": "texte pris pour un récit",
+          "D": "l'apostrophe initiale est pathétique, mais elle sert l'injonction finale : confondre le moyen et la fin"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. Les propositions valaient pour tout texte argumentatif. Elles portent désormais sur ce que ce passage fait : il apostrophe, il interroge, et il finit par un impératif — « Soyez résolus de ne servir plus ». Le distracteur D est le plus vraisemblable, et c'est celui qui sépare le candidat qui lit l'émotion de celui qui lit la visée.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-COMP-05",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le rôle de la série de questions « D'où a-t-il pris tant d'yeux… ? Comment a-t-il tant de mains… ? » ?",
+      "supports": [],
+      "propositions": {
+        "A": "amener le lecteur à reconnaître lui-même que le maître ne tient rien que de lui",
+        "B": "demander une information que l'auteur ne possède pas",
+        "C": "réfuter une objection que le lecteur aurait formulée",
+        "D": "conclure le raisonnement engagé plus haut"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "question rhétorique prise pour une vraie demande d'information",
+          "C": "fonction d'interrogation oratoire confondue avec une réfutation",
+          "D": "position dans le passage confondue avec fonction dans le raisonnement"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. Les questions n'attendent pas de réponse : chacune porte sa réponse dans la subordonnée conditionnelle qui la suit — « si vous ne les lui baillez », « s'il ne les prend de vous ». C'est cette interrogation oratoire que l'item mesure."
+    },
+    {
+      "item_id": "FR-EAF-COMP-06",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que le passage tient-il pour admis sans jamais l'énoncer ?",
+      "supports": [],
+      "propositions": {
+        "A": "que le maître est plus nombreux qu'il ne paraît",
+        "B": "que les peuples ignorent ce qui leur arrive",
+        "C": "que ceux qui obéissent pourraient cesser de le faire",
+        "D": "que la liberté est un bien dont personne ne veut"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "contresens sur « n'a que deux yeux, n'a que deux mains »",
+          "B": "le texte reproche aux peuples non d'ignorer, mais de consentir",
+          "D": "idée du passage renversée : le texte affirme que la liberté est à portée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'implicite est la prémisse du raisonnement entier : si la domination vient de ce que les sujets donnent, alors ils peuvent le retirer. L'injonction finale en tire la conséquence, mais la prémisse n'est jamais formulée pour elle-même. Le distracteur B est le contresens le plus fréquent : confondre aveuglement et consentement."
+    },
+    {
+      "item_id": "FR-EAF-COMP-07",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle reformulation rend compte de « Celui qui vous maîtrise tant n'a que deux yeux, n'a que deux mains, n'a qu'un corps » sans en déformer le sens ?",
+      "supports": [],
+      "propositions": {
+        "A": "Le maître est un homme ordinaire : il ne possède rien de plus que le dernier de ses sujets.",
+        "B": "Le maître est un homme comme les autres, il est donc sans danger.",
+        "C": "Le maître a deux yeux et deux mains, comme le moindre homme des villes.",
+        "D": "Le maître doit sa force à la nature, qui l'a fait plus puissant."
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "conséquence ajoutée que le texte ne tire pas : il dit d'où vient le pouvoir, non qu'il serait nul",
+          "C": "paraphrase : les mots sont repris dans le même ordre, rien n'est reformulé",
+          "D": "contresens exact sur la phrase citée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'item distingue trois erreurs différentes : durcir la thèse (B), paraphraser au lieu de reformuler (C), et la contredire (D)."
+    },
+    {
+      "item_id": "FR-EAF-COMP-08",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « ce malheur, cette ruine, vous vient, non pas des ennemis, mais certes oui bien de l'ennemi », que fait l'auteur ?",
+      "supports": [],
+      "propositions": {
+        "A": "il concède un point à ses adversaires avant de maintenir sa position",
+        "B": "il écarte l'explication attendue pour lui en substituer une autre",
+        "C": "il désigne deux adversaires également responsables",
+        "D": "il annonce l'exemple qui va suivre"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "la construction « non pas… mais » est prise pour une concession, alors qu'elle corrige",
+          "C": "le passage du pluriel au singulier n'est pas vu : « les ennemis » et « l'ennemi » ne désignent pas les mêmes",
+          "D": "valeur d'annonce supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. L'item demandait sur quel point l'auteur concède quelque chose à la position adverse, et sa clé répondait « sur un point limité ». Le passage retenu ne concède rien : aucune position adverse n'y est exposée, et la bonne réponse à l'ancien énoncé aurait été « il ne concède rien ». L'item était faux sur son propre support. Il porte désormais sur la construction correctrice « non pas… mais », réellement présente, dont la difficulté tient au passage du pluriel au singulier : le malheur ne vient pas des ennemis extérieurs, il vient de celui que les peuples font grand.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "FR-EAF-COMP-09",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "En une phrase, formulez la thèse défendue dans ce passage, sans reprendre les mots de l'auteur.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase énonçant que la domination du maître ne repose que sur le concours de ceux qui la subissent — qu'elle est entretenue par eux et cesserait s'ils cessaient d'y consentir —, formulée dans un lexique différent de celui du texte et sans exemple.",
+        "reponses_1pt": [
+          "La thèse est juste mais reprend les termes du texte (« servir », « maîtriser », « libres »).",
+          "La thèse est juste mais formulée comme une question ou comme un conseil.",
+          "La réponse énonce l'injonction finale sans dire ce qui la fonde."
+        ],
+        "codes_erreur": [
+          "FR-ERR-THESE",
+          "FR-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. La reformulation est la seule opération que l'item mesure : la thèse est accessible, sa mise en mots propres ne l'est pas. Les trois réponses à un point isolent la paraphrase, l'erreur de type d'énoncé et la confusion entre la conclusion et la thèse."
+    },
+    {
+      "item_id": "FR-EAF-COMP-10",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans la dernière phrase, « Soyez résolus de ne servir plus, et vous voilà libres », relevez le mot qui lie les deux propositions et indiquez le rapport logique qu'il exprime.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le mot relevé est la conjonction « et », et le rapport nommé est la conséquence : la liberté suit immédiatement la résolution, sans autre condition.",
+        "reponses_1pt": [
+          "La conjonction « et » est relevée mais le rapport est nommé addition ou succession.",
+          "Le rapport de conséquence est identifié mais aucun mot n'est cité."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CONNECT",
+          "FR-ERR-CITATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'item portait sur « les deux derniers paragraphes », que le support ne distingue pas : il porte désormais sur une phrase désignée. La difficulté est réelle et tient en un mot : « et » n'exprime pas ici l'addition mais la conséquence, et c'est cette valeur que la réponse à un point sanctionne quand elle est manquée."
+    },
+    {
+      "item_id": "FR-EAF-COMP-11",
+      "competence": "COMP",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le passage s'adresse-t-il à un lecteur qui partage déjà la position de l'auteur, ou à un lecteur à convaincre ? Justifiez par un indice précis relevé dans le texte.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le passage s'adresse à un lecteur à convaincre — et même à réveiller —, et la réponse cite un indice : l'apostrophe « Pauvres et misérables peuples insensés », le « vous » répété, les questions oratoires, ou l'injonction finale à l'impératif.",
+        "reponses_1pt": [
+          "Le destinataire est identifié sans aucun indice cité.",
+          "Un indice est cité mais le destinataire n'est pas nommé."
+        ],
+        "codes_erreur": [
+          "FR-ERR-THESE",
+          "FR-ERR-CITATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. Le support fournit quatre indices distincts, ce qui permet d'accepter des relevés différents sans élargir la clé : l'apostrophe, la deuxième personne, l'interrogation oratoire, l'impératif final."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-01",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans la phrase « Je crois que ce poème est célèbre », quelle est la nature de la proposition subordonnée ?",
+      "supports": [],
+      "propositions": {
+        "A": "subordonnée relative",
+        "B": "subordonnée conjonctive complétive",
+        "C": "subordonnée circonstancielle de cause",
+        "D": "subordonnée interrogative indirecte"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "« que » pris pour un pronom relatif",
+          "C": "circonstancielle supposée sans rapport de cause exprimé",
+          "D": "complétive confondue avec l'interrogative indirecte"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Distinction complétive / relative, au cœur de la question de grammaire de l'oral. Le distracteur A est l'erreur dominante : « que » est lu comme relatif par défaut."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-02",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « Le livre que je lis me plaît », quelle est la fonction du pronom relatif « que » ?",
+      "supports": [],
+      "propositions": {
+        "A": "sujet",
+        "B": "complément d'objet direct",
+        "C": "complément circonstanciel",
+        "D": "attribut du sujet"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "fonction sujet attribuée par défaut au relatif",
+          "C": "fonction circonstancielle supposée",
+          "D": "fonction attribut supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Fonction du relatif dans la subordonnée. Prérequis direct de l'item LANG-03 : la lecture croisée des deux items dit si l'erreur est théorique ou pratique."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-03",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle phrase contient une négation totale ?",
+      "supports": [],
+      "propositions": {
+        "A": "Il ne lit que des poèmes.",
+        "B": "Il ne lit pas de poèmes.",
+        "C": "Il lit peu de poèmes.",
+        "D": "Il ne lit guère de poèmes."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "restriction « ne … que » prise pour une négation",
+          "C": "adverbe de quantité pris pour une négation",
+          "D": "négation partielle prise pour une négation totale"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Négation totale, partielle et restriction. Le distracteur A est le piège classique : « ne … que » n'est pas une négation, c'est une restriction."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-04",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « Je me demande si ce poème est célèbre », quelle est la nature de la subordonnée ?",
+      "supports": [],
+      "propositions": {
+        "A": "subordonnée conjonctive complétive",
+        "B": "subordonnée interrogative indirecte",
+        "C": "subordonnée circonstancielle de condition",
+        "D": "subordonnée relative"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "interrogative indirecte confondue avec la complétive",
+          "C": "« si » de l'interrogation confondu avec le « si » de condition",
+          "D": "« si » pris pour un relatif"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le « si » interrogatif contre le « si » conditionnel. Item de transfert : la forme est identique, seule la construction du verbe recteur permet de trancher."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-05",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle transformation fait passer « Viendra-t-il ? » à l'interrogation indirecte ?",
+      "supports": [],
+      "propositions": {
+        "A": "Je demande viendra-t-il.",
+        "B": "Je demande s'il viendra.",
+        "C": "Je demande est-ce qu'il viendra.",
+        "D": "Je demande qu'il viendra."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "inversion du sujet conservée dans l'interrogation indirecte",
+          "C": "tour « est-ce que » conservé à l'indirect",
+          "D": "interrogative transformée en complétive"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Passage direct / indirect, au programme de la question de grammaire. Les trois distracteurs correspondent aux trois formes réellement produites en copie."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-06",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « Quand il écrit, il oublie le monde », quelle est la nature et le rapport exprimé par la subordonnée ?",
+      "supports": [],
+      "propositions": {
+        "A": "relative, rapport de détermination",
+        "B": "circonstancielle de temps, rapport de simultanéité",
+        "C": "circonstancielle de cause, rapport de causalité",
+        "D": "complétive, rapport de complémentation"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "« quand » pris pour un relatif",
+          "C": "simultanéité interprétée comme causalité",
+          "D": "circonstancielle prise pour une complétive"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Circonstancielle de temps, seule subsistance de « l'expression du temps » du § 7.1 après l'amendement A5. Le distracteur C mesure la confusion entre succession et cause, qui se retrouve en histoire et en SES."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-07",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Transformez la phrase « Il ne lit que de la poésie » de façon à exprimer une négation totale, puis indiquez ce que la transformation change au sens.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La phrase est transformée en négation totale (« Il ne lit pas de poésie » ou équivalent) et la réponse indique que la restriction devient exclusion.",
+        "reponses_1pt": [
+          "La transformation est correcte mais le changement de sens n'est pas énoncé.",
+          "Le changement de sens est correct mais la transformation est fautive."
+        ],
+        "codes_erreur": [
+          "FR-ERR-GRAM-NATURE",
+          "FR-ERR-SYNTAXE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Manipulation suivie d'une interprétation : c'est le format exact de la question de grammaire à l'oral de l'EAF. La cotation sépare la manipulation de l'interprétation."
+    },
+    {
+      "item_id": "FR-EAF-GRAM-08",
+      "competence": "GRAM",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans la phrase « Le poème qu'il a écrit et dont il est fier a été publié », relevez les deux subordonnées relatives et donnez la fonction de chaque pronom relatif.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les deux relatives sont relevées et les fonctions sont exactes : « qu' » complément d'objet direct, « dont » complément indirect de l'adjectif « fier ».",
+        "reponses_1pt": [
+          "Les deux relatives sont relevées mais une seule fonction est exacte.",
+          "Une seule relative est relevée, avec sa fonction exacte."
+        ],
+        "codes_erreur": [
+          "FR-ERR-GRAM-NATURE",
+          "FR-ERR-SYNTAXE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Deux relatives coordonnées portant sur le même antécédent, avec deux fonctions différentes. Item discriminant : il sépare le candidat qui reconnaît une relative de celui qui sait analyser le pronom."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-01",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Nommez la figure de style employée dans : « Cette ville est une fourmilière. » Justifiez en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La figure est nommée métaphore et la justification indique qu'il y a comparaison sans outil de comparaison.",
+        "reponses_1pt": [
+          "La figure est nommée métaphore sans justification.",
+          "La figure est nommée comparaison, avec une justification exacte sur le rapprochement."
+        ],
+        "codes_erreur": [
+          "FR-ERR-PROCEDE-IDENT",
+          "FR-ERR-PROCEDE-EFFET"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Métaphore contre comparaison, distinction la plus rentable de l'analyse littéraire. La cotation à 1 point de la réponse « comparaison » n'est pas une indulgence : elle signale un candidat qui a vu le rapprochement mais pas l'absence d'outil."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-02",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans « Je vois la mort qui s'avance et me tend la main », quel procédé est employé et sur quel mot porte-t-il ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le procédé est nommé personnification et il porte sur « la mort ».",
+        "reponses_1pt": [
+          "Le procédé est nommé personnification sans indication du mot.",
+          "Le mot est correctement isolé mais le procédé est nommé métaphore."
+        ],
+        "codes_erreur": [
+          "FR-ERR-PROCEDE-IDENT",
+          "FR-ERR-PROCEDE-EFFET"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Personnification. Exiger le mot support évite la réponse apprise et vérifie que le candidat sait localiser un procédé, opération qu'il devra faire dans le commentaire."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-03",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Comptez les syllabes du vers suivant et nommez le mètre : « Je vais sous le ciel bas, le long des quais déserts ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le vers compte douze syllabes et le mètre est nommé alexandrin.",
+        "reponses_1pt": [
+          "Le mètre est nommé alexandrin sans décompte.",
+          "Le décompte est exact mais le mètre n'est pas nommé."
+        ],
+        "codes_erreur": [
+          "FR-ERR-VERSIF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Décompte syllabique avec un e muet devant consonne, cas où l'erreur est la plus fréquente. Item de transfert : le candidat doit appliquer la règle du e muet, non réciter la définition de l'alexandrin."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-04",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans le passage suivant, le narrateur rapporte les pensées d'un personnage sans guillemets ni verbe introducteur : « Il regarda la porte. Fallait-il entrer ? Personne ne l'attendait. » Nommez le type de discours rapporté.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le type est nommé discours indirect libre.",
+        "reponses_1pt": [
+          "Le type est nommé discours indirect.",
+          "La réponse décrit correctement le procédé sans le nommer."
+        ],
+        "codes_erreur": [
+          "FR-ERR-PROCEDE-IDENT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Discours indirect libre, procédé décisif dans le roman réaliste et donc dans le roman au programme de la session 2027. Son repérage conditionne l'analyse du point de vue au bloc C."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-05",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans « Le silence de la salle pesait sur ses épaules », relevez le procédé et indiquez son effet sur la perception du personnage.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le procédé est nommé (métaphore ou personnification du silence) et l'effet est énoncé : le silence devient une contrainte physique, ce qui traduit le malaise du personnage.",
+        "reponses_1pt": [
+          "Le procédé est nommé et un effet est proposé, mais sans lien avec le personnage.",
+          "L'effet est correctement analysé sans que le procédé soit nommé."
+        ],
+        "codes_erreur": [
+          "FR-ERR-PROCEDE-EFFET",
+          "FR-ERR-PROCEDE-IDENT",
+          "FR-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Item de raisonnement : nommer ne suffit pas, il faut relier le procédé à un effet de sens. C'est exactement l'attendu du critère « exploitation du texte » de la grille C ; sa réussite ou son échec éclaire directement la note de ce critère."
+    },
+    {
+      "item_id": "FR-EAF-ANAL-06",
+      "competence": "ANAL",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un récit est mené à la troisième personne, mais tout ce qui est rapporté est perçu par un seul personnage, dont on connaît les pensées. Nommez le point de vue et indiquez ce qu'il interdit au lecteur de savoir.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le point de vue est nommé interne et la réponse indique que le lecteur ne peut connaître ni les pensées des autres personnages ni ce que le personnage ignore.",
+        "reponses_1pt": [
+          "Le point de vue est nommé interne sans indication de ce qu'il interdit.",
+          "La limitation est correctement décrite mais le point de vue est nommé omniscient."
+        ],
+        "codes_erreur": [
+          "FR-ERR-PROCEDE-IDENT",
+          "FR-ERR-PROCEDE-EFFET"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Focalisation interne. Le raisonnement demandé — ce que le point de vue interdit — distingue la connaissance d'une étiquette de la compréhension d'un dispositif."
+    },
+    {
+      "item_id": "FR-EAF-ARGU-01",
+      "competence": "ARGU",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un paragraphe de commentaire, quel est le rôle de la citation ?",
+      "supports": [],
+      "propositions": {
+        "A": "allonger le paragraphe",
+        "B": "prouver l'affirmation avancée par un appui sur le texte",
+        "C": "remplacer l'analyse",
+        "D": "montrer que le texte a été lu"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "citation vue comme un remplissage",
+          "C": "citation substituée à l'analyse au lieu de la fonder",
+          "D": "citation vue comme une preuve de lecture et non comme un argument"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Fonction de la citation. Le distracteur C correspond au comportement le plus coûteux en copie et alimente le code FR-ERR-CITATION."
+    },
+    {
+      "item_id": "FR-EAF-ARGU-02",
+      "competence": "ARGU",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans quel ordre les trois éléments suivants doivent-ils apparaître dans un paragraphe de commentaire : citation, idée, analyse ? Justifiez en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est idée, citation, analyse, et la justification indique que la citation vient appuyer une idée déjà énoncée.",
+        "reponses_1pt": [
+          "L'ordre est exact sans justification.",
+          "La justification est exacte mais l'ordre proposé est erroné."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CITATION",
+          "FR-ERR-CONNECT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Structure du paragraphe. Item de méthode placé en bloc B parce qu'il porte sur une connaissance de construction, non sur une production."
+    },
+    {
+      "item_id": "FR-EAF-ARGU-03",
+      "competence": "ARGU",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Voici un enchaînement : « Le poète décrit la ville. En effet, il évoque aussi la campagne. » Le connecteur est-il adapté ? Si non, proposez-en un autre.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le connecteur n'est pas adapté et un connecteur d'addition ou d'opposition est proposé (« de plus », « mais », « en revanche »).",
+        "reponses_1pt": [
+          "La réponse signale que le connecteur ne convient pas sans en proposer un autre."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CONNECT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Détection d'un connecteur inadapté : « en effet » annonce une explication et non une addition. Item de transfert, réinvesti tel quel en philosophie et en HGGSP."
+    },
+    {
+      "item_id": "FR-EAF-ARGU-04",
+      "competence": "ARGU",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Une copie affirme : « Ce poème est beau car il est bien écrit. » Indiquez pourquoi cet argument ne peut pas être retenu dans un commentaire.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La réponse indique que l'argument est circulaire ou qu'il repose sur un jugement de goût sans appui sur le texte.",
+        "reponses_1pt": [
+          "La réponse signale que l'argument est insuffisant sans dire en quoi."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CITATION",
+          "FR-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Évaluation d'un argument : reconnaître la circularité est le prérequis de l'exercice de dissertation et de l'essai en HLP. Item de transfert, court mais exigeant."
+    },
+    {
+      "item_id": "FR-EAF-REDA-01",
+      "competence": "REDA",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "Rédigez un paragraphe de commentaire d'une quinzaine de lignes répondant à l'axe suivant : « Montrez comment le passage oppose l'éclat de l'objet et le regard qui cherche à l'expliquer. » Appuyez-vous sur l'extrait du bloc C. Vous n'avez pas à rédiger d'introduction ni de conclusion.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "IDEE",
+          "intitule": "Pertinence de l'idée directrice",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Aucune idée directrice n'est formulée : le paragraphe suit le texte ligne à ligne.",
+            "1": "Une idée est annoncée, mais le paragraphe traite d'autre chose ou change de sujet en cours de route.",
+            "2": "Une idée directrice répondant à l'axe est formulée et tenue sur la moitié du paragraphe.",
+            "3": "Une idée directrice répondant à l'axe est formulée en ouverture et tenue jusqu'à la dernière phrase."
+          }
+        },
+        {
+          "code": "TEXTE",
+          "intitule": "Exploitation du texte",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Le texte n'est pas cité.",
+            "1": "Le texte est cité mais les citations ne sont pas commentées.",
+            "2": "Une citation au moins est introduite puis commentée ; les autres sont juxtaposées.",
+            "3": "Chaque citation est introduite dans la phrase, puis commentée par la mention d'un procédé et de son effet."
+          }
+        },
+        {
+          "code": "STRU",
+          "intitule": "Structure et connecteurs",
+          "competence": "ARGU",
+          "descripteurs": {
+            "0": "Les phrases se succèdent sans lien exprimé.",
+            "1": "Un connecteur est employé ; les autres transitions sont absentes ou inadaptées.",
+            "2": "Les étapes sont reliées par des connecteurs adaptés, une transition reste implicite.",
+            "3": "Chaque étape est reliée à la précédente par un connecteur adapté au rapport logique exprimé."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou des accords non réalisés.",
+            "2": "La construction et les accords sont corrects ; le lexique de l'analyse reste approximatif.",
+            "3": "La construction, les accords et le lexique de l'analyse sont corrects tout au long du paragraphe."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Unité de production retenue par le Cahier § 7.1 : le paragraphe, et non la dissertation, parce qu'il permet de séparer un problème de langue, un problème d'analyse et un problème de structure — ce qu'une copie longue brouille. L'axe est donné pour que l'échec de l'idée directrice signale une difficulté de construction et non de compréhension du sujet. Les critères STRU et LANG sont rattachés à ARGU et LANG plutôt qu'à REDA : le bilan doit imputer une difficulté de connecteurs à l'argumentation et une difficulté d'accord à la langue, sinon le plan de démarrage porte sur le mauvais module.\nAxe récrit le 2026-09-11, à l'insertion du texte réel. L'axe précédent — « la description fait de la maison le portrait d'une société » — avait été écrit pour le support de la session 2028 et était inapplicable au support de la session 2027, que le même item servait pourtant. L'item est désormais sessionné, comme le sont les items de repères culturels. L'axe retenu est tenable sur l'extrait : l'éclat du talisman — « des rayons si lumineux, que vous eussiez dit d'une petite comète » — est immédiatement pris en charge par un regard qui le réduit à des « facettes de grenat » et à des « foyers » ; le paragraphe a donc deux séries lexicales à opposer et un mouvement à suivre.",
+      "sessions_applicables": [
+        2027
+      ]
+    },
+    {
+      "item_id": "FR-EAF-REDA-04",
+      "competence": "REDA",
+      "niveau": "EAF",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "Rédigez un paragraphe de commentaire d'une quinzaine de lignes répondant à l'axe suivant : « Montrez comment la description fait de la maison le portrait d'une société. » Appuyez-vous sur l'extrait du bloc C. Vous n'avez pas à rédiger d'introduction ni de conclusion.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "IDEE",
+          "intitule": "Pertinence de l'idée directrice",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Aucune idée directrice n'est formulée : le paragraphe suit le texte ligne à ligne.",
+            "1": "Une idée est annoncée, mais le paragraphe traite d'autre chose ou change de sujet en cours de route.",
+            "2": "Une idée directrice répondant à l'axe est formulée et tenue sur la moitié du paragraphe.",
+            "3": "Une idée directrice répondant à l'axe est formulée en ouverture et tenue jusqu'à la dernière phrase."
+          }
+        },
+        {
+          "code": "TEXTE",
+          "intitule": "Exploitation du texte",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Le texte n'est pas cité.",
+            "1": "Le texte est cité mais les citations ne sont pas commentées.",
+            "2": "Une citation au moins est introduite puis commentée ; les autres sont juxtaposées.",
+            "3": "Chaque citation est introduite dans la phrase, puis commentée par la mention d'un procédé et de son effet."
+          }
+        },
+        {
+          "code": "STRU",
+          "intitule": "Structure et connecteurs",
+          "competence": "ARGU",
+          "descripteurs": {
+            "0": "Les phrases se succèdent sans lien exprimé.",
+            "1": "Un connecteur est employé ; les autres transitions sont absentes ou inadaptées.",
+            "2": "Les étapes sont reliées par des connecteurs adaptés, une transition reste implicite.",
+            "3": "Chaque étape est reliée à la précédente par un connecteur adapté au rapport logique exprimé."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou des accords non réalisés.",
+            "2": "La construction et les accords sont corrects ; le lexique de l'analyse reste approximatif.",
+            "3": "La construction, les accords et le lexique de l'analyse sont corrects tout au long du paragraphe."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Jumeau de FR-EAF-REDA-01 pour la session 2028, créé le 2026-09-11. Même unité de production, même grille, même barème : seul l'axe change, parce que le support change. L'axe est celui désigné par la direction pour le parcours « dévoiler les rouages de la société » : l'extrait oppose la façade — « bâti pour faire de l'effet », l'escalier verni, les appartements dorés — et l'envers domestique, jusqu'à la comparaison de l'égout et au silence final. Les deux séries sont dans le texte, le paragraphe n'a rien à inventer.",
+      "sessions_applicables": [
+        2028
+      ]
+    },
+    {
+      "item_id": "FR-EAF-REDA-02",
+      "competence": "REDA",
+      "niveau": "EAF",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici un paragraphe rédigé par un autre candidat.\n\n> « L'auteur multiplie les questions. « D'où a-t-il pris tant d'yeux, dont il vous épie, si vous ne les lui baillez ? » Chaque question enferme sa réponse dans la proposition qui la suit, si bien que le lecteur conclut lui-même à la place de l'auteur. »\n\nUne étape de la construction d'un paragraphe de commentaire y manque. Indiquez laquelle, et citez le mot ou le groupe de mots du paragraphe qui le montre.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'étape manquante est l'idée directrice : le paragraphe commence par un constat de procédé — « L'auteur multiplie les questions » — sans énoncer l'idée que ce procédé doit servir. La citation attendue est ce premier groupe, ou l'attaque directe par la citation qui le suit.",
+        "reponses_1pt": [
+          "L'étape manquante est nommée sans qu'aucun mot du paragraphe soit cité.",
+          "Un mot est cité à bon escient mais l'étape nommée est la conclusion partielle, qui est bien présente — « si bien que le lecteur conclut lui-même »."
+        ],
+        "codes_erreur": [
+          "FR-ERR-AXE",
+          "FR-ERR-CITATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Item récrit le 2026-09-11 : l'énoncé annonçait « voici un paragraphe » sans en donner aucun, et la question était donc sans réponse possible. Le paragraphe fourni porte sur le support du bloc B, ce qui permet au candidat de le lire sans changer de texte ; il comporte bien une citation, une analyse et une conclusion partielle, et il lui manque exactement une étape, la première. La seconde réponse à un point isole l'erreur de diagnostic la plus probable, qui consiste à prendre la conclusion partielle pour absente."
+    },
+    {
+      "item_id": "FR-EAF-REDA-03",
+      "competence": "REDA",
+      "niveau": "EAF",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'un paragraphe de commentaire en les numérotant de 1 à 4 : analyse du procédé — idée directrice — conclusion partielle — citation.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : idée directrice (1), citation (2), analyse du procédé (3), conclusion partielle (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "FR-ERR-CITATION",
+          "FR-ERR-CONNECT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Ordonner les étapes, second item de bloc D. Palier D1 : la connaissance du modèle est restituée sans être appliquée. Comparé au D2 et au D3, il situe précisément où la difficulté commence — connaître le modèle, le reconnaître, ou le mettre en œuvre."
+    }
+  ]
+}

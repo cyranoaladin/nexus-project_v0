@@ -1,0 +1,103 @@
+{
+  "instrument": "MATH-EA",
+  "version": "SPECIFIQUES",
+  "annee_scolaire_passation_ea": "2026-2027",
+  "titre": "Diagnostic de l'épreuve anticipée de mathématiques — mathématiques intégrées à l'enseignement scientifique",
+  "note_programme": "Assemblage construit sur les programmes du 26 février 2026, en vigueur à la rentrée 2026-2027. Il ne convient pas à une passation d'une autre année scolaire : le programme évalué à l'épreuve anticipée est celui de l'année de passation.",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Les deux exercices du bloc C sont rédigés sur le cahier de composition.",
+    "**La calculatrice n'est autorisée à aucun moment**, comme à l'épreuve anticipée.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "AUTO",
+        "intitule": "Automatismes de calcul : taux d'évolution, calcul numérique et algébrique"
+      },
+      {
+        "competence": "AUTOG",
+        "intitule": "Automatismes graphiques et statistiques : lectures, droites, indicateurs"
+      },
+      {
+        "competence": "PROBA",
+        "intitule": "Probabilités conditionnelles, indépendance et répétition d'épreuves"
+      },
+      {
+        "competence": "EXACT",
+        "intitule": "Conduite d'une épreuve sans calculatrice : calcul exact, ordres de grandeur, vraisemblance"
+      },
+      {
+        "competence": "RAIS",
+        "intitule": "Raisonnement et rédaction : justifier une étape, rédiger une réponse complète"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "MEA-1-AUTO-07",
+        "MEA-1-AUTOG-07",
+        "MEA-1-EXACT-01",
+        "MEA-1-EXACT-02"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "MEA-1-AUTO-01",
+        "MEA-1-AUTO-02",
+        "MEA-1-AUTO-03",
+        "MEA-1-AUTO-04",
+        "MEA-1-AUTO-05",
+        "MEA-1-AUTO-06",
+        "MEA-1-AUTO-08",
+        "MEA-1-AUTOG-01",
+        "MEA-1-AUTOG-02",
+        "MEA-1-AUTOG-03",
+        "MEA-1-AUTOG-04",
+        "MEA-1-AUTOG-05",
+        "MEA-1-AUTOG-06",
+        "MEA-1-EXACT-03",
+        "MEA-1-EXACT-04",
+        "MEA-1-PROBA-01",
+        "MEA-1-PROBA-02",
+        "MEA-1-PROBA-03",
+        "MEA-1-PROBA-04",
+        "MEA-1-EVOL-01",
+        "MEA-1-EVOL-02",
+        "MEA-1-EVOL-03",
+        "MEA-1-EVOL-04",
+        "MEA-1-EVOL-05",
+        "MEA-1-INFO-01",
+        "MEA-1-INFO-02",
+        "MEA-1-INFO-03",
+        "MEA-1-INFO-04"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "MEA-1-RAIS-01",
+        "MEA-1-RAIS-04"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "MEA-1-RAIS-02",
+        "MEA-1-RAIS-03"
+      ]
+    }
+  ],
+  "note_duree": "Durée cible portée de 60 à 75 minutes le 2026-09-11 (EC-33). La seconde partie de l'épreuve compte deux ou trois exercices ; l'assemblage n'en portait qu'un, et le palier de raisonnement reposait sur les deux critères d'une seule tâche. Une seconde tâche, sur un domaine distinct, sépare l'échec de contenu de l'incapacité à conduire un exercice écrit.",
+  "note_blocs": "Le bloc A est l'assiette du taux de prérequis : il ne porte que des acquis du programme de seconde, auquel les deux programmes de première renvoient explicitement. Les automatismes du programme de première — qui forment la première partie de l'épreuve — sont au bloc B, avec les autres notions du niveau. Confondre les deux envoyait en remise à niveau un candidat qui échouait sur le contenu de son année (2026-09-11).",
+  "intitules_blocs": {
+    "C": "Tâches au format de l'épreuve réelle"
+  }
+}

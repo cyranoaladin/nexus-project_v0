@@ -1,0 +1,2319 @@
+{
+  "schema": "nexus.instrument.banque",
+  "instrument": "MATH-EA",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Programmes du 26 février 2026 : NOR MENE2602917A (spécialité de mathématiques, première générale) et NOR MENE2602916A (mathématiques intégrées à l'enseignement scientifique, première générale), entrés en vigueur à la rentrée 2026-2027 ; définition de l'épreuve par la note de service NOR MENE2515469N.",
+  "avertissement": "Instrument diagnostique de l'épreuve anticipée de mathématiques. Il ne mesure pas le programme de spécialité pour lui-même — c'est l'objet d'EDS-MATH — mais la préparation au format et aux attendus de l'épreuve : automatismes, exercices sans calculatrice, rédaction d'une justification. **Sept figures et un tableau, servant huit et un items**, sont portés par l'instrument : droite en repère, diagramme en boite, deux courbes, cercle trigonométrique, nuage de points, nuage avec droite d'ajustement — celui-ci partagé par deux items — et tableau croisé d'effectifs. Ils existent là où la capacité visée est une lecture ; une figure décrite en toutes lettres ne la mesure pas. Tous sont produits par le générateur déterministe du dépôt, en vectoriel, sans aucune image externe. Le bloc A porte les seuls acquis du programme de seconde, qui forment l'assiette du taux de prérequis ; les automatismes du programme de première, qui forment la première partie de l'épreuve, sont au bloc B. Les blocs A, B, C et D sont la structure du diagnostic : ils ne reproduisent pas les deux parties de l'épreuve, dont la correspondance est établie au référentiel des programmes.",
+  "items": [
+    {
+      "item_id": "MEA-1-AUTO-01",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un article coûte 80 €. Son prix augmente de 25 %. Quel est le nouveau prix ?",
+      "supports": [],
+      "propositions": {
+        "A": "100 €",
+        "B": "96 €",
+        "C": "105 €",
+        "D": "82 €"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "augmentation de 20 % appliquée au lieu de 25 %",
+          "C": "coefficient 1,25 appliqué à 84 au lieu de 80",
+          "D": "25 % lus comme 2,5 %"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « appliquer un taux d'évolution pour calculer une valeur finale ». Les nombres sont choisis pour un calcul mental exact : 80 × 1,25 = 100.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "80 × 1,25 : un quart de 80 vaut 20, donc 100. Aucune décimale.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-02",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un prix baisse de 20 %, puis augmente de 20 %. Quelle est l'évolution globale ?",
+      "supports": [],
+      "propositions": {
+        "A": "aucune évolution",
+        "B": "une baisse de 4 %",
+        "C": "une hausse de 4 %",
+        "D": "une baisse de 40 %"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "taux additionnés au lieu des coefficients multipliés",
+          "C": "sens de l'évolution globale inversé",
+          "D": "taux successifs additionnés en valeur absolue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « calculer le taux d'évolution équivalent à plusieurs évolutions successives » : 0,8 × 1,2 = 0,96.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "0,8 × 1,2 = 0,96 : produit de deux nombres à une décimale, résultat exact.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-03",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelles sont les solutions de l'équation $(x - 3)(x + 5) = 0$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "3 et 5",
+        "B": "−3 et 5",
+        "C": "3 et −5",
+        "D": "−3 et −5"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "signe du second facteur non traité",
+          "B": "signes des deux racines inversés",
+          "D": "signe du premier facteur non traité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « déterminer les solutions d'une équation produit nul ».",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.CALC-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.CALC-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Lecture directe des deux racines d'un produit nul ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-04",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une quantité a augmenté de 25 %. Quel taux d'évolution la ramène à sa valeur initiale ?",
+      "supports": [],
+      "propositions": {
+        "A": "−25 %",
+        "B": "−30 %",
+        "C": "−12,5 %",
+        "D": "−20 %"
+      },
+      "cle": {
+        "reponse": "D",
+        "distracteurs": {
+          "A": "taux réciproque confondu avec l'opposé du taux appliqué",
+          "B": "valeur approchée sans calcul du coefficient réciproque",
+          "C": "taux divisé par deux"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « calculer un taux d'évolution réciproque » : 1/1,25 = 0,8.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-4"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-4"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "1 ÷ 1,25 = 0,8 : quotient exact usuel, à reconnaitre plutôt qu'à poser.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-05",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une population augmente de 10 % une année, puis diminue de 10 % l'année suivante. Quel est le coefficient multiplicateur global ?",
+      "supports": [],
+      "propositions": {
+        "A": "0,99",
+        "B": "1",
+        "C": "1,01",
+        "D": "0,9"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "évolutions supposées se compenser",
+          "C": "sens de l'écart au 1 inversé",
+          "D": "une seule des deux évolutions prise en compte"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « composer des évolutions successives » : 1,1 × 0,9 = 0,99.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "1,1 × 0,9 = 0,99 : identité (1 + a)(1 − a) = 1 − a² avec a = 0,1.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-06",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le signe de $(x - 2)(x + 1)$ pour x strictement compris entre −1 et 2 ?",
+      "supports": [],
+      "propositions": {
+        "A": "positif",
+        "B": "négatif",
+        "C": "nul",
+        "D": "il change de signe sur cet intervalle"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "produit de deux facteurs de signes contraires déclaré positif",
+          "C": "confusion entre racine et signe",
+          "D": "racines placées à l'intérieur de l'intervalle"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « déterminer le signe d'une expression factorisée du second degré ».",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.CALC-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.CALC-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Signe de deux facteurs sur un intervalle ; aucun calcul numérique.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTO-07",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "est_prerequis": true,
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une quantité augmente de 8 %. Par quel nombre faut-il la multiplier ?",
+      "supports": [],
+      "propositions": {
+        "A": "1,08",
+        "B": "0,92",
+        "C": "8",
+        "D": "1,8"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "coefficient de la baisse de 8 % au lieu de la hausse",
+          "C": "taux lu comme un facteur",
+          "D": "virgule placée sur le chiffre du taux plutôt que sur le centième"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis, capacité du programme de seconde « Passer d'une formulation additive à une formulation multiplicative ». C'est la condition de tous les automatismes d'évolution du programme de première : un candidat qui ne la possède pas échouera sur les taux successifs et sur le taux réciproque sans que l'on sache si la notion de première ou l'acquis antérieur est en cause. Créé le 2026-09-11 pour donner au bloc A une assiette faite de véritables acquis antérieurs.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602914A.EVOL-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602914A.EVOL-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Passage d'un taux à un coefficient ; aucune opération posée."
+    },
+    {
+      "item_id": "MEA-1-AUTO-08",
+      "competence": "AUTO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "est_prerequis": false,
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle est la forme factorisée de $x^2 - 9$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "$(x - 3)^2$",
+        "B": "$(x - 9)(x + 1)$",
+        "C": "$(x - 3)(x + 3)$",
+        "D": "$x(x - 9)$"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "identité du carré d'une différence appliquée à une différence de carrés",
+          "B": "racines cherchées par somme et produit sans vérification",
+          "D": "facteur commun cherché là où il n'y en a pas"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « Développer, factoriser, réduire une expression algébrique simple », l'une des trois capacités d'automatismes que l'instrument n'observait pas. Créé le 2026-09-11 dans la marge de durée restante. La différence de carrés est la factorisation la plus employée par les items de signe et de racines du bloc B : ne pas la mesurer laissait une cause d'échec invisible. Le distracteur A isole la confusion des deux identités.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.CALC-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.CALC-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Identité remarquable $a^2 - b^2 = (a-b)(a+b)$ avec $b = 3$ ; aucun calcul posé."
+    },
+    {
+      "item_id": "MEA-1-AUTOG-01",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La droite $d$ est tracée ci-dessous. Quelle est son équation réduite ?",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-AUTOG-01-FIG",
+          "titre": "Droite $d$ dans un repère",
+          "construite": true,
+          "type_graphe": "courbe",
+          "axe_x": {
+            "label": "x",
+            "valeurs": [
+              -1,
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "axe_y": {
+            "label": "y"
+          },
+          "series": [
+            {
+              "label": "",
+              "valeurs": [
+                5,
+                3,
+                1,
+                -1,
+                -3,
+                -5
+              ]
+            }
+          ]
+        }
+      ],
+      "propositions": {
+        "A": "$y = 3x - 2$",
+        "B": "$y = -2x - 3$",
+        "C": "$y = -2x + 3$",
+        "D": "$y = 2x + 3$"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "coefficient directeur et ordonnée à l'origine intervertis",
+          "B": "signe de l'ordonnée à l'origine inversé",
+          "D": "signe du coefficient directeur inversé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Lire graphiquement l'équation réduite d'une droite ». L'item portait auparavant un point et un coefficient directeur donnés en toutes lettres : il mesurait alors l'écriture d'une équation, non sa lecture graphique. La figure est produite par le générateur déterministe du dépôt ; aucune image externe n'est insérée. L'ordonnée à l'origine (3) et la pente (−2) se lisent sur deux points entiers.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.FONC-4"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.FONC-4"
+        ]
+      },
+      "competences_math_transversales": [
+        "REPRESENTER",
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Lecture de l'ordonnée à l'origine et d'une pente entière sur deux points du quadrillage.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-02",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une droite passe par A(1 ; 2) et B(4 ; 11). Quel est son coefficient directeur ?",
+      "supports": [],
+      "propositions": {
+        "A": "3",
+        "B": "1/3",
+        "C": "9",
+        "D": "13/5"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "rapport des accroissements inversé",
+          "C": "différence des ordonnées sans division",
+          "D": "somme des coordonnées utilisée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « déterminer le coefficient directeur à partir des coordonnées de deux points » : (11 − 2)/(4 − 1).",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.FONC-5"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.FONC-5"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "(11 − 2) ÷ (4 − 1) = 9 ÷ 3 = 3 : division exacte d'entiers.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-03",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le diagramme en boite ci-dessous résume une série statistique. Que vaut sa médiane ?",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-AUTOG-03-FIG",
+          "titre": "Diagramme en boite d'une série",
+          "construite": true,
+          "type_graphe": "boite",
+          "axe_x": {
+            "label": "Valeur",
+            "valeurs": [
+              "Série"
+            ]
+          },
+          "axe_y": {
+            "label": ""
+          },
+          "series": [
+            {
+              "label": "Série",
+              "valeurs": [
+                8,
+                12,
+                15,
+                20,
+                26
+              ]
+            }
+          ]
+        }
+      ],
+      "propositions": {
+        "A": "12",
+        "B": "20",
+        "C": "16",
+        "D": "15"
+      },
+      "cle": {
+        "reponse": "D",
+        "distracteurs": {
+          "A": "premier quartile lu comme médiane",
+          "B": "troisième quartile lu comme médiane",
+          "C": "milieu de la boite calculé à la place de la lecture du trait intérieur"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Lire un graphique […] un diagramme en boite ». Le diagramme était décrit en toutes lettres : la lecture graphique, qui est la capacité visée, n'était alors pas mesurée. Le résumé porte des valeurs entières et une médiane qui n'est pas au milieu de la boite, pour que le distracteur C discrimine. La capacité « Passer du graphique aux données et vice-versa » est ajoutée le 2026-09-11 : lire la médiane sur le diagramme, c'est précisément extraire une donnée d'une représentation, et la figure rend cette lecture effective.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.STAT-1",
+          "MENE2602917A.AUTO.STAT-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.STAT-1",
+          "MENE2602916A.AUTO.STAT-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "REPRESENTER"
+      ],
+      "calcul_sans_outil": "Lecture d'un trait sur une graduation entière ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-04",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La courbe représentative d'une fonction $f$ est tracée ci-dessous. Combien l'équation $f(x) = 0$ a-t-elle de solutions ?",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-AUTOG-04-FIG",
+          "titre": "Courbe représentative de $f$",
+          "construite": true,
+          "type_graphe": "courbe",
+          "axe_x": {
+            "label": "x",
+            "valeurs": [
+              -3,
+              -2,
+              -1,
+              0,
+              1,
+              2,
+              3,
+              4
+            ]
+          },
+          "axe_y": {
+            "label": "y"
+          },
+          "series": [
+            {
+              "label": "",
+              "valeurs": [
+                5,
+                2.6,
+                0.8,
+                -1.2,
+                -2,
+                -0.5,
+                2.2,
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "propositions": {
+        "A": "aucune",
+        "B": "une",
+        "C": "deux",
+        "D": "trois"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "changement de signe non repéré",
+          "B": "une seule branche examinée",
+          "D": "nombre de variations confondu avec le nombre de solutions"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Résoudre graphiquement une équation […] du type f(x) = k ». Le tableau de variations était décrit en toutes lettres, ce qui mesurait la lecture d'un texte et non celle d'un graphique. La courbe coupe l'axe des abscisses deux fois, entre −1 et 0 puis entre 2 et 3 ; aucune racine n'est entière, ce qui interdit de répondre par un calcul.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.FONC-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.FONC-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "REPRESENTER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Comptage des intersections de la courbe avec l'axe des abscisses ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-05",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La série 4 ; 6 ; 6 ; 8 ; 11 a pour moyenne :",
+      "supports": [],
+      "propositions": {
+        "A": "6",
+        "B": "7",
+        "C": "7,5",
+        "D": "8"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "médiane de la série donnée à la place de la moyenne ; c'est aussi son mode",
+          "C": "milieu de l'étendue calculé à la place de la moyenne",
+          "D": "troisième quartile lu à la place de la moyenne"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « calculer et interpréter des indicateurs statistiques » : 35/5 = 7, calcul mental exact. Les distracteurs sont les trois autres indicateurs que la série permet de calculer : médiane 6, milieu de l'étendue 7,5, troisième quartile 8. La version précédente proposait 6,5, présenté comme la médiane, et 8, présenté comme le milieu de l'étendue : ni l'un ni l'autre ne correspondait à la série, et un candidat qui avait fait l'erreur annoncée ne trouvait pas la proposition correspondante.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.STAT-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.STAT-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "4 + 6 + 6 + 8 + 11 = 35, puis 35 ÷ 5 = 7 : somme de cinq entiers et division exacte.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-06",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La courbe représentative d'une fonction $h$ est tracée ci-dessous. Quel est le signe de $h(x)$ pour $x$ appartenant à l'intervalle $[0\\,;4]$ ?",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-AUTOG-06-FIG",
+          "titre": "Courbe représentative de $h$",
+          "construite": true,
+          "type_graphe": "courbe",
+          "axe_x": {
+            "label": "x",
+            "valeurs": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          "axe_y": {
+            "label": "y"
+          },
+          "series": [
+            {
+              "label": "",
+              "valeurs": [
+                -4,
+                -3.5,
+                -2.8,
+                -1.8,
+                -0.6,
+                0.9,
+                2.2,
+                3.2,
+                4
+              ]
+            }
+          ]
+        }
+      ],
+      "propositions": {
+        "A": "positif sur tout l'intervalle",
+        "B": "on ne peut pas le déterminer à partir de ce graphique",
+        "C": "nul en au moins une valeur",
+        "D": "négatif sur tout l'intervalle"
+      },
+      "cle": {
+        "reponse": "D",
+        "distracteurs": {
+          "A": "sens de lecture des ordonnées inversé",
+          "B": "lecture du signe tenue pour impossible alors que la courbe est entièrement sous l'axe sur l'intervalle demandé",
+          "C": "intersection avec l'axe des abscisses placée dans l'intervalle alors qu'elle lui est extérieure"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Déterminer graphiquement le signe d'une fonction ou son tableau de variations ». L'item précédent citait cette capacité sans fournir de graphique, et il était faux : de « g croissante sur [0 ; 10] et g(4) = 0 » on déduit g(x) ≤ 0 avant 4, non g(x) < 0, une fonction croissante au sens français pouvant présenter un palier nul. La proposition « on ne peut pas conclure » était donc défendable, et l'item ne discriminait rien. La courbe tracée lève l'ambiguïté : elle est strictement sous l'axe sur tout [0 ; 4], son ordonnée passant de −4 à −0,6, et elle ne coupe l'axe qu'entre 4 et 5, hors de l'intervalle interrogé. Le distracteur C vise précisément le candidat qui place l'intersection à l'intérieur de l'intervalle.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.FONC-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.FONC-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "REPRESENTER"
+      ],
+      "calcul_sans_outil": "Lecture du signe sur un graphique ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-AUTOG-07",
+      "competence": "AUTOG",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "est_prerequis": true,
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur la courbe représentative d'une fonction $f$, on lit que le point de coordonnées $(3\\,;5)$ appartient à la courbe. Que vaut $f(3)$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "3",
+        "B": "5",
+        "C": "8",
+        "D": "on ne peut pas le savoir"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "abscisse rendue à la place de l'image",
+          "C": "coordonnées additionnées",
+          "D": "appartenance d'un point à la courbe non reliée à l'image"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis, capacités du programme de seconde « Déterminer graphiquement des images et des antécédents » et « Exploiter une équation de courbe ». C'est la condition de tous les automatismes graphiques du programme de première : résoudre graphiquement une équation ou lire un signe suppose de savoir ce qu'est une image. L'item est volontairement posé sans figure : il mesure la relation entre un couple de coordonnées et une image, non une lecture, et les items graphiques de première portent leurs propres figures.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602914A.FONC-1",
+          "MENE2602914A.FONC-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602914A.FONC-1",
+          "MENE2602914A.FONC-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Lecture d'une image ; aucun calcul."
+    },
+    {
+      "item_id": "MEA-1-PROBA-01",
+      "competence": "PROBA",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans un groupe de 200 personnes, 120 sont vaccinées. Parmi les vaccinées, 12 ont contracté la maladie ; parmi les non-vaccinées, 32 l'ont contractée. On choisit une personne au hasard. Quelle est la probabilité qu'elle soit vaccinée et malade ? Donnez la valeur exacte sous forme de fraction irréductible.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La probabilité est 12/200, soit 3/50.",
+        "reponses_1pt": [
+          "La fraction 12/200 est donnée sans être réduite.",
+          "Le calcul est juste mais la réponse est donnée en pourcentage sans fraction."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CONDITIONNELLE",
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Automatisme « calculer des probabilités à partir d'un tableau croisé d'effectifs » et distinction P(A inter B). Les effectifs sont choisis pour un calcul exact sans calculatrice.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.PROB-1",
+          "MENE2602917A.AUTO.PROB-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.PROB-1",
+          "MENE2602916A.AUTO.PROB-2",
+          "MENE2602916A.ALEA-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "12 ÷ 200, réduit par 4 : 3/50. Effectifs choisis pour une réduction immédiate.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-PROBA-02",
+      "competence": "PROBA",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans un groupe de 200 personnes, 120 sont vaccinées. Parmi les vaccinées, 12 ont contracté la maladie ; parmi les non-vaccinées, 32 l'ont contractée. On choisit une personne vaccinée au hasard. Quelle est la probabilité qu'elle soit malade ? Donnez la valeur exacte.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La probabilité conditionnelle est 12/120, soit 1/10.",
+        "reponses_1pt": [
+          "Le rapport est posé correctement mais non réduit.",
+          "La réponse 0,1 est donnée sans fraction ni justification du dénominateur."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CONDITIONNELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Distinction demandée par le programme entre P(A inter B) et P_A(B) : le dénominateur est l'effectif des vaccinées, non l'effectif total.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.PROB-1",
+          "MENE2602917A.AUTO.PROB-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.PROB-1",
+          "MENE2602916A.AUTO.PROB-2",
+          "MENE2602916A.ALEA-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "12 ÷ 120 = 1/10 : division exacte.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-PROBA-03",
+      "competence": "PROBA",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une urne contient 3 jetons rouges et 2 jetons verts. On tire un jeton, on le remet, puis on en tire un second. Quelle est la probabilité d'obtenir deux jetons rouges ? Justifiez en une phrase l'emploi du produit.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La probabilité est (3/5) × (3/5) = 9/25, le tirage avec remise rendant les deux épreuves indépendantes.",
+        "reponses_1pt": [
+          "Le résultat 9/25 est donné sans justifier l'indépendance.",
+          "L'indépendance est justifiée mais le produit est mal calculé."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-ARBRE",
+          "MATH-ERR-CONDITIONNELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Répétition d'épreuves de Bernoulli identiques et indépendantes, avec n = 2 (programme : n au plus égal à 4).",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.PRO.COND-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.ALEA-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "(3/5)² = 9/25 : carré d'une fraction à petit dénominateur.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-PROBA-04",
+      "competence": "PROBA",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Deux évènements A et B vérifient P(A) = 0,4, P(B) = 0,5 et P(A inter B) = 0,2. Les évènements A et B sont-ils indépendants ? Justifiez.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Oui : P(A) × P(B) = 0,4 × 0,5 = 0,2 = P(A inter B), donc A et B sont indépendants.",
+        "reponses_1pt": [
+          "La conclusion est juste mais le critère n'est pas écrit.",
+          "Le critère est écrit correctement mais le produit est mal calculé."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CONDITIONNELLE",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « savoir utiliser ou justifier l'indépendance de deux évènements ».",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.PRO.COND-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.ALEA-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "0,4 × 0,5 = 0,2 : produit d'une décimale par un demi.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EXACT-01",
+      "competence": "EXACT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "A",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Calculez 3/4 + 2/3. Donnez la valeur exacte sous forme de fraction irréductible.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La somme vaut 17/12.",
+        "reponses_1pt": [
+          "Le dénominateur commun est trouvé mais l'addition des numérateurs est fausse.",
+          "Le résultat est donné sous forme décimale approchée."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis : capacité du programme de seconde « Effectuer des opérations et des comparaisons entre des fractions simples », à laquelle les deux programmes de première renvoient explicitement. Sans elle, aucune probabilité rendue sous forme exacte n'est possible, et l'épreuve entière se passe sans calculatrice. Le rattachement était auparavant générique — « la liste des automatismes de seconde » — il nomme désormais la ligne.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602914A.CALC-1"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602914A.CALC-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Dénominateur commun 12, puis 9 + 8 = 17 : addition de deux fractions à petits dénominateurs.",
+      "est_prerequis": true
+    },
+    {
+      "item_id": "MEA-1-EXACT-02",
+      "competence": "EXACT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "A",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Sans calculatrice, donnez l'ordre de grandeur du produit $4{,}9 \\times 10^3$ par $2{,}1 \\times 10^2$.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre de grandeur est $10^6$ : environ $5 \\times 10^3$ multiplié par environ $2 \\times 10^2$ donne environ $10^6$.",
+        "reponses_1pt": [
+          "L'ordre de grandeur est correct mais aucune estimation n'est écrite.",
+          "Le calcul exact est mené sans conclure sur l'ordre de grandeur."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-ORDRE-GRANDEUR"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis : capacités du programme de seconde « Effectuer des opérations sur les puissances » et « Estimer un ordre de grandeur ». La capacité de première sur les ordres de grandeur ne couvre que les quantités en croissance ou décroissance exponentielle, ce que cet item ne demande pas : la source est bien antérieure.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602914A.CALC-2",
+          "MENE2602914A.CALC-4"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602914A.CALC-2",
+          "MENE2602914A.CALC-4"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Arrondis à 5 × 10³ et 2 × 10², produit 10 × 10⁵ : l'item demande un ordre de grandeur, donc explicitement pas un calcul exact.",
+      "est_prerequis": true
+    },
+    {
+      "item_id": "MEA-1-EXACT-03",
+      "competence": "EXACT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Une population augmente de 3 % par an pendant trois ans. Sans calculatrice, encadrez le taux d'évolution global entre deux entiers consécutifs de pourcentage, et justifiez les deux bornes.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le taux global $t$ vérifie $9\\,\\% < t < 10\\,\\%$. Le coefficient global est $(1+0{,}03)^3$, que l'identité $(1+a)^3 = 1 + 3a + 3a^2 + a^3$ développe exactement : $1 + 0{,}09 + 0{,}0027 + 0{,}000027 = 1{,}092727$. **Borne inférieure** : les trois termes qui suivent $3a$ sont strictement positifs, donc le coefficient dépasse $1{,}09$ — trois hausses de 3 % font strictement plus que 9 %. **Borne supérieure** : $3a^2 + a^3 = 0{,}002727$, inférieur à $0{,}01$, donc le coefficient reste sous $1{,}10$. Le taux global vaut donc $9{,}2727\\,\\%$.",
+        "reponses_1pt": [
+          "La borne inférieure est établie — trois hausses de 3 % dépassent 9 % — mais la borne supérieure est affirmée sans calcul ni majoration.",
+          "Le développement de $(1+0{,}03)^3$ est mené correctement mais l'encadrement n'est pas conclu.",
+          "Le taux 9 % est donné comme valeur exacte, la composition des évolutions étant traitée comme une addition."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-TAUX-SOMME",
+          "MATH-ERR-ORDRE-GRANDEUR"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Le candidat doit voir que $3 \\times 3\\,\\%$ est une minoration et non le résultat. La clé a été durcie le 2026-09-11 : elle affirmait la borne supérieure — « sans atteindre 1,10 » — sans la démontrer. Le développement de $(1+a)^3$ donne les deux bornes d'un seul geste : les termes après $3a$ sont positifs, ce qui minore, et leur somme vaut $0{,}002727$, inférieure au centième, ce qui majore. L'énoncé demande explicitement de justifier les deux bornes, et la première réponse à un point isole le candidat qui n'en établit qu'une.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-3",
+          "MENE2602916A.EXPO-5"
+        ]
+      },
+      "competences_math_transversales": [
+        "CHERCHER",
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Développement de $(1+a)^3$ avec $a = 0{,}03$ : $3a = 0{,}09$, $3a^2 = 0{,}0027$, $a^3 = 0{,}000027$. Trois produits sur des puissances de dix et une addition ; aucune multiplication posée.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EXACT-04",
+      "competence": "EXACT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Un élève annonce qu'une somme de 200 € placée à 2 % par an dépasse 400 € au bout de dix ans. Ce résultat est-il vraisemblable ? Justifiez sans calculatrice.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Non. Doubler exige un coefficient global de 2, or $1{,}02^{10} < 2$, et on le montre sans calculatrice : $1{,}02^2 = 1{,}0404 < 1{,}05$, donc $1{,}02^{10} = (1{,}02^2)^5 < 1{,}05^5$ ; puis $1{,}05^2 = 1{,}1025 < 1{,}11$ et $1{,}11^2 = 1{,}2321 < 1{,}24$, donc $1{,}05^4 < 1{,}24$ et $1{,}05^5 < 1{,}24 \\times 1{,}05 = 1{,}302$. Le capital reste donc sous $200 \\times 1{,}302 = 260{,}40$ €, très loin de 400 €. (Valeur exacte : $1{,}02^{10} \\approx 1{,}219$, soit environ 243,80 €.)",
+        "reponses_1pt": [
+          "La réponse « non » est donnée avec la seule minoration additive — dix hausses de 2 % font un peu plus de 20 % — sans majoration établie du coefficient.",
+          "La chaîne de majorations est engagée mais abandonnée avant de conclure sur le capital.",
+          "Le raisonnement est juste mais la conclusion n'est pas formulée."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-ORDRE-GRANDEUR",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Contrôle de vraisemblance : le programme place l'esprit critique et la maitrise des ordres de grandeur parmi les objectifs des automatismes. La clé a été durcie le 2026-09-11 : elle opposait « un peu plus de 20 % » à un doublement, ce qui est la bonne intuition mais n'est pas une preuve — une minoration additive ne majore rien. La chaîne $1{,}02^2 < 1{,}05$ puis $1{,}05^5 < 1{,}302$ majore réellement le coefficient et rend la conclusion opposable, en quatre multiplications de tête. La première réponse à un point isole précisément le candidat qui s'arrête à l'intuition.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-3",
+          "MENE2602916A.EXPO-5"
+        ]
+      },
+      "competences_math_transversales": [
+        "CHERCHER",
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Trois carrés de nombres à deux décimales — $1{,}02^2 = 1{,}0404$, $1{,}05^2 = 1{,}1025$, $1{,}11^2 = 1{,}2321$ — puis une multiplication par $1{,}05$. Chaque étape se pose en une ligne, aucune puissance dixième n'est calculée.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-ALGAN-01",
+      "competence": "ALGAN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un atelier produit 5 pièces le premier jour, puis 3 pièces de plus chaque jour que la veille. Modélisez la production quotidienne par une suite, puis calculez la production du onzième jour en indiquant la relation employée.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La production suit une suite arithmétique de premier terme 5 et de raison 3 : $u_n = 5 + 3n$ pour le jour de rang $n+1$, donc le onzième jour $u_{10} = 5 + 10 \\times 3 = 35$ pièces.",
+        "reponses_1pt": [
+          "La suite est reconnue arithmétique mais le rang est décalé d'une unité.",
+          "Le résultat 35 est donné sans nommer la suite ni écrire la relation."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-MODELE",
+          "MATH-ERR-CALCUL-EXACT",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacités « Modéliser un phénomène discret à croissance linéaire par une suite arithmétique » et « Pour une suite arithmétique ou géométrique, calculer le terme général ». L'item donnait auparavant la suite toute faite — premier terme 5, raison 3 — et ne demandait qu'un calcul : la seconde partie du sujet de spécialité n'exerçait alors « modéliser » que par la tâche de production. Le contexte rend la modélisation nécessaire sans changer ni le nombre de points, ni la durée, ni le résultat attendu. La capacité ALG.SUITE-1 — « utiliser le registre de la langue naturelle, le registre algébrique, le registre graphique, et passer de l'un à l'autre » — est ajoutée le 2026-09-11 : c'est elle qui est réellement exercée par le passage de l'énoncé à la relation, et c'est elle, et non le mot porté au JSON, qui autorise l'étiquette « représenter ».",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ALG.SUITE-1",
+          "MENE2602917A.ALG.SUITE-4",
+          "MENE2602917A.ALG.SUITE-5"
+        ]
+      },
+      "competences_math_transversales": [
+        "MODELISER",
+        "CALCULER",
+        "REPRESENTER"
+      ],
+      "calcul_sans_outil": "5 + 10 × 3 = 35 : une multiplication et une addition d'entiers.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-ALGAN-02",
+      "competence": "ALGAN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Soit f(x) = $(x - 1)(x + 4)$. Donnez les racines de f puis le signe de f(x) sur $\\mathbb{R}$.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les racines sont 1 et −4 ; f(x) est négatif entre −4 et 1, positif à l'extérieur.",
+        "reponses_1pt": [
+          "Les racines sont justes mais le signe est inversé.",
+          "Le signe est correct mais une seule racine est donnée."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-SIGNE-PRODUIT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de spécialité, partie Algèbre : équations et fonctions polynômes du second degré, forme factorisée.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ALG.DEG2-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Lecture des racines d'une forme factorisée et tableau de signes ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-ALGAN-03",
+      "competence": "ALGAN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Soit $f(x) = x^2 - 4x + 1$. Calculez $f'(x)$, puis donnez le sens de variation de f sur $\\mathbb{R}$.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$f'(x) = 2x - 4$ ; f décroît sur ]−∞ ; 2] et croît sur [2 ; +∞[, la dérivée s'annulant en 2.",
+        "reponses_1pt": [
+          "La dérivée est juste mais les variations ne sont pas données.",
+          "Les variations sont justes mais la dérivée est fausse d'un terme."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de spécialité, partie Analyse : dérivation, variations et courbes représentatives.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ANA.DER-6",
+          "MENE2602917A.ANA.VAR-4"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Dérivée d'un polynôme du second degré à coefficients entiers, puis racine de 2x − 4.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-ALGAN-04",
+      "competence": "ALGAN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Simplifiez l'expression $e^3 \\times e^{-1} \\div e^2$, puis justifiez la propriété employée.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'expression vaut $e^0 = 1$, par la propriété $e^a \\times e^b = e^{a+b}$ et $e^a \\div e^b = e^{a-b}$.",
+        "reponses_1pt": [
+          "Le résultat 1 est donné sans citer la propriété.",
+          "La propriété est citée mais l'exposant final est faux."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de spécialité, partie Analyse : fonction exponentielle, propriétés algébriques.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ANA.EXP-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Somme d'exposants : 3 − 1 − 2 = 0. Aucune valeur numérique de e n'est demandée.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-GEOM-01",
+      "competence": "GEOM",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans un repère orthonormé, u a pour coordonnées (3 ; −1) et v a pour coordonnées (2 ; 4). Calculez le produit scalaire u·v.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "u·v = 3 × 2 + (−1) × 4 = 2.",
+        "reponses_1pt": [
+          "La formule est écrite mais un signe est perdu.",
+          "Le calcul est mené sur les normes au lieu des coordonnées."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de spécialité, partie Géométrie : calcul vectoriel et produit scalaire, expression en repère orthonormé.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.GEO.PS-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "3 × 2 + (−1) × 4 = 2 : deux produits d'entiers et une somme.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-GEOM-02",
+      "competence": "GEOM",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Deux vecteurs non nuls ont pour coordonnées (2 ; 3) et (−3 ; 2). Sont-ils orthogonaux ? Justifiez.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Oui : leur produit scalaire vaut 2 × (−3) + 3 × 2 = 0, et deux vecteurs non nuls de produit scalaire nul sont orthogonaux.",
+        "reponses_1pt": [
+          "La conclusion est juste mais le critère n'est pas énoncé.",
+          "Le critère est énoncé mais le produit scalaire est mal calculé."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Produit scalaire nul et orthogonalité : critère au programme de la partie Géométrie.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.GEO.PS-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "2 × (−3) + 3 × 2 = 0 : deux produits d'entiers et une somme.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-GEOM-03",
+      "competence": "GEOM",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans un repère orthonormé, A(1 ; 2) et B(4 ; 6). Calculez la distance AB, en valeur exacte.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$AB = \\sqrt{(4-1)^2 + (6-2)^2} = \\sqrt{25} = 5$.",
+        "reponses_1pt": [
+          "Le calcul est correct mais la racine n'est pas simplifiée.",
+          "Les différences de coordonnées sont justes mais la somme des carrés est fausse."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de spécialité, partie Géométrie repérée : distance dans un repère orthonormé, valeur exacte sans calculatrice. L'étiquette « représenter » a été retirée le 2026-09-11 : l'item ne fait ni produire ni changer de représentation, il applique une formule à deux couples de coordonnées. Déclarer une compétence transversale que la tâche n'exerce pas gonflerait la couverture sans rien mesurer.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.GEO.PS-1",
+          "MENE2602917A.GEO.PS-C"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "justification_rattachement": "La distance dans un repère orthonormé n'est pas une capacité attendue de première : elle relève du contenu « en base orthonormée, expression du produit scalaire et de la norme » de la partie Géométrie, et de la capacité GEO.PS-1 qui nomme le calcul d'une longueur dans le plan.",
+      "calcul_sans_outil": "3² + 4² = 25 et √25 = 5 : triplet pythagoricien choisi pour une racine entière.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-GEOM-04",
+      "competence": "GEOM",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Le cercle trigonométrique ci-dessous porte les points images des réels $\\pi/6$ et $\\pi/3$. Lisez sur la figure, puis donnez en valeur exacte, $\\cos(\\pi/3)$ et $\\sin(\\pi/6)$.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-GEOM-04-FIG",
+          "titre": "Cercle trigonométrique et points images de $\\pi/6$ et $\\pi/3$",
+          "construite": true,
+          "type_graphe": "cercle_trigo",
+          "axe_x": {
+            "label": "cosinus",
+            "valeurs": [
+              "$\\pi/6$",
+              "$\\pi/3$"
+            ]
+          },
+          "axe_y": {
+            "label": "sinus"
+          },
+          "series": [
+            {
+              "label": "",
+              "valeurs": [
+                0.523599,
+                1.047198
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "$\\cos(\\pi/3) = 1/2$ et $\\sin(\\pi/6) = 1/2$ : l'abscisse du point image de $\\pi/3$ et l'ordonnée du point image de $\\pi/6$ se lisent toutes deux à la graduation 0,5, soit un demi en valeur exacte.",
+        "reponses_1pt": [
+          "Une seule des deux valeurs est lue correctement.",
+          "Les deux lectures sont justes mais rendues sous forme décimale, 0,5, et non en valeur exacte.",
+          "L'abscisse et l'ordonnée sont interverties : le candidat rend $\\cos(\\pi/6)$ et $\\sin(\\pi/3)$."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacités « Placer un point sur le cercle trigonométrique » et « Par lecture du cercle trigonométrique, déterminer, pour des valeurs remarquables de x, les cosinus et sinus d'angles associés à x ». L'item citait cette seconde capacité sans fournir de cercle : il mesurait alors une mémorisation, non une lecture, et se rattachait par défaut à une ligne de « Contenus ». La figure porte les deux points images et leurs projections en pointillé ; les axes sont gradués au demi, ce qui rend la lecture de 0,5 non ambiguë. La troisième réponse à un point isole l'interversion abscisse/ordonnée, qui est l'erreur propre à cette lecture.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ANA.TRIG-1",
+          "MENE2602917A.ANA.TRIG-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "REPRESENTER",
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "Lecture de deux projections sur des axes gradués au demi ; aucun calcul. C'est précisément ce que l'interdiction de la calculatrice rend nécessaire : retrouver une valeur remarquable par la figure plutôt que par la touche.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EVOL-01",
+      "competence": "EVOL",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une population gagne 250 habitants chaque année. Une autre augmente de 2 % par an. Laquelle relève d'un modèle linéaire ? Justifiez en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La première : un accroissement constant en valeur absolue relève d'une croissance linéaire, tandis qu'un taux constant relève d'une croissance exponentielle.",
+        "reponses_1pt": [
+          "La bonne population est désignée sans justification.",
+          "La justification est correcte mais la population désignée est l'autre."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-MODELE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « reconnaitre un phénomène discret ou continu de croissance linéaire et savoir le modéliser », par opposition à la variation exponentielle.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.LIN-1",
+          "MENE2602916A.EXPO-1"
+        ]
+      },
+      "competences_math_transversales": [
+        "MODELISER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Comparaison qualitative de deux modes d'accroissement ; aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EVOL-02",
+      "competence": "EVOL",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une suite arithmétique a pour premier terme $u_0 = 12$ et pour raison −2. Calculez $u_7$.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$u_7 = 12 + 7 \\times (-2) = -2$.",
+        "reponses_1pt": [
+          "Le signe de la raison est perdu en cours de calcul.",
+          "La relation est juste mais le rang est décalé d'une unité."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CALCUL-EXACT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « calculer un terme de rang donné d'une suite arithmétique ».",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.LIN-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER"
+      ],
+      "calcul_sans_outil": "12 + 7 × (−2) = −2 : une multiplication et une addition d'entiers relatifs.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EVOL-03",
+      "competence": "EVOL",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une fonction est définie par $f(x) = -2x^2 + 8$. Donnez les coordonnées du sommet de sa parabole et le sens de son évolution après le sommet.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le sommet est le point de coordonnées (0 ; 8) et la fonction décroît ensuite, le coefficient de $x^2$ étant négatif.",
+        "reponses_1pt": [
+          "Le sommet est juste mais le sens d'évolution n'est pas donné.",
+          "Le sens est juste mais l'ordonnée du sommet est fausse."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-MODELE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « associer une parabole à une expression algébrique de degré 2 » pour la forme $x \\mapsto ax^2 + c$ ; aucune formule n'est attendue par le programme. L'étiquette « représenter » a été retirée le 2026-09-11 : la capacité parle bien d'associer une parabole à une expression, mais la tâche ne fait ni lire ni produire de courbe — le candidat répond par le calcul et par le signe du coefficient. Déclarer la compétence aurait compté une représentation qui n'existe pas.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.QUAD-1",
+          "MENE2602916A.QUAD-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "RAISONNER"
+      ],
+      "calcul_sans_outil": "Sommet lu sur la forme ax² + c ; aucun calcul au-delà de l'identification de c.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EVOL-04",
+      "competence": "EVOL",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une somme placée augmente de 50 % en deux ans, avec un taux annuel constant. Le taux annuel moyen est-il de 25 % ? Justifiez sans calculatrice.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Non : deux hausses de 25 % donneraient un coefficient de 1,5625, supérieur à 1,5 ; le taux annuel moyen est donc légèrement inférieur à 25 %.",
+        "reponses_1pt": [
+          "La réponse « non » est donnée sans calcul d'encadrement.",
+          "Le calcul de $1{,}25^2$ est mené mais la conclusion n'est pas formulée."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-TAUX-SOMME",
+          "MATH-ERR-ORDRE-GRANDEUR"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « calculer un taux d'évolution moyen » : le taux moyen n'est pas la moitié du taux global.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.EXPO-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "1,25² = 1,5625, comparé à 1,5 : carré d'un nombre usuel, posable de tête ou en deux lignes.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-EVOL-05",
+      "competence": "EVOL",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une bactérie double toutes les heures. À midi, la population est de 1 000. À partir de quelle heure dépasse-t-elle 30 000 ? Justifiez.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "À 17 heures : les valeurs sont 2 000, 4 000, 8 000, 16 000 puis 32 000, et 32 000 dépasse 30 000 pour la première fois cinq heures après midi.",
+        "reponses_1pt": [
+          "Le rang est juste mais aucune valeur intermédiaire n'est écrite.",
+          "Les valeurs sont justes mais le seuil est franchi une heure trop tôt ou trop tard."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-SEUIL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité attendue « résoudre un problème de seuil dans le cas d'une croissance exponentielle », ici par le calcul, sans outil numérique.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.EXPO-6"
+        ]
+      },
+      "competences_math_transversales": [
+        "CHERCHER",
+        "CALCULER",
+        "MODELISER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Doublements successifs de 1 000 : 2 000, 4 000, 8 000, 16 000, 32 000. Cinq doublements d'entiers.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-INFO-01",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Le tableau croisé ci-dessous répartit 200 personnes selon le genre et la pratique d'un sport. Quelle est la fréquence des femmes pratiquant un sport dans l'ensemble du groupe ?",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "MEA-INFO-01-TAB",
+          "titre": "Pratique d'un sport selon le genre",
+          "construite": true,
+          "colonnes": [
+            "",
+            "Pratique un sport",
+            "N'en pratique pas",
+            "Total"
+          ],
+          "lignes": [
+            [
+              "Femmes",
+              45,
+              75,
+              120
+            ],
+            [
+              "Hommes",
+              40,
+              40,
+              80
+            ],
+            [
+              "Total",
+              85,
+              115,
+              200
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "La fréquence est 45/200, soit 0,225.",
+        "reponses_1pt": [
+          "Le rapport est posé sur l'effectif des femmes au lieu de l'effectif total.",
+          "Le calcul est juste mais la fréquence est donnée en effectif."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-CONDITIONNELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Analyse statistique de deux caractères qualitatifs : lecture d'un tableau croisé d'effectifs. L'énoncé décrivait le tableau en toutes lettres alors qu'il s'agit du contenu même de la partie « Analyse de l'information chiffrée » ; le tableau est désormais montré, marges comprises, et la lecture fait partie de la tâche. Le distracteur naturel — rapporter 45 à l'effectif des femmes plutôt qu'au total — est explicitement décrit dans les réponses à un point.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.INFO-C"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "REPRESENTER"
+      ],
+      "justification_rattachement": "La lecture d'un tableau croisé d'effectifs est un contenu de la partie « Analyse de l'information chiffrée » ; les capacités attendues de cette partie portent sur le tableur, l'ajustement affine et le point moyen. L'item mesure la condition de ces capacités, non l'une d'elles.",
+      "calcul_sans_outil": "45 ÷ 200 = 0,225 : division par 200, soit une division par 2 puis par 100.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-INFO-02",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Le nuage de points ci-dessous représente une série statistique à deux caractères. Calculez les coordonnées du point moyen.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-INFO-02-FIG",
+          "titre": "Nuage de points d'une série à deux caractères",
+          "construite": true,
+          "type_graphe": "nuage",
+          "axe_x": {
+            "label": "x",
+            "valeurs": [
+              1,
+              3,
+              5,
+              7
+            ]
+          },
+          "axe_y": {
+            "label": "y"
+          },
+          "series": [
+            {
+              "label": "",
+              "valeurs": [
+                2,
+                4,
+                5,
+                9
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Le point moyen a pour coordonnées (4 ; 5).",
+        "reponses_1pt": [
+          "Une seule des deux moyennes est calculée.",
+          "Les deux moyennes sont posées mais l'une est fausse."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-POINT-MOYEN"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Savoir calculer les coordonnées d'un point moyen ». Les coordonnées étaient énumérées en toutes lettres ; la partie « Analyse de l'information chiffrée » a pour contenu la représentation par un nuage de points, et la lecture du nuage fait partie de la tâche. Les abscisses et les ordonnées ont des moyennes entières, 4 et 5, pour un calcul mental exact.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.INFO-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "REPRESENTER"
+      ],
+      "calcul_sans_outil": "(1 + 3 + 5 + 7) ÷ 4 = 4 et (2 + 4 + 5 + 9) ÷ 4 = 5 : deux moyennes entières.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-INFO-03",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Le nuage ci-dessous porte une série couvrant les rangs 1 à 8 et sa droite d'ajustement, d'équation $y = 1{,}5x + 2$. Estimez la valeur pour $x = 6$ et précisez s'il s'agit d'une interpolation ou d'une extrapolation.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-INFO-AJUST-FIG",
+          "titre": "Nuage de points et droite d'ajustement",
+          "construite": true,
+          "type_graphe": "nuage",
+          "axe_x": {
+            "label": "Rang de l'année",
+            "valeurs": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          "axe_y": {
+            "label": "Valeur observée"
+          },
+          "series": [
+            {
+              "label": "Observations",
+              "type": "points",
+              "valeurs": [
+                3,
+                5.5,
+                6,
+                8.5,
+                9,
+                11.5,
+                12,
+                14
+              ]
+            },
+            {
+              "label": "Ajustement affine",
+              "type": "ligne",
+              "valeurs": [
+                3.5,
+                5,
+                6.5,
+                8,
+                9.5,
+                11,
+                12.5,
+                14
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "La valeur estimée est 11, et il s'agit d'une interpolation puisque le rang 6 est à l'intérieur de la plage observée.",
+        "reponses_1pt": [
+          "Le calcul est juste mais la nature de l'estimation n'est pas nommée.",
+          "La nature est correcte mais la valeur calculée est fausse."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-AJUSTEMENT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Capacité « Déterminer et utiliser un ajustement affine pour interpoler ou extrapoler des valeurs inconnues ». La droite d'ajustement est tracée sur le nuage : le candidat voit l'étendue des données, sans quoi la distinction entre interpolation et extrapolation reposait sur une phrase du texte plutôt que sur le graphique. La valeur estimée, 11, se calcule de tête. L'étiquette « modéliser » a été retirée le 2026-09-12, au même titre et pour la même raison que la première question de RAIS-01 : l'ajustement affine est donné par l'énoncé, le candidat l'applique et nomme la position de la valeur estimée. Appliquer un modèle fourni n'est pas modéliser. La compétence reste largement couverte dans ce parcours.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.INFO-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "REPRESENTER"
+      ],
+      "calcul_sans_outil": "1,5 × 6 + 2 = 11 : une multiplication par 1,5 et une addition.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-INFO-04",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Avec le même nuage et le même ajustement $y = 1{,}5x + 2$, un élève annonce la valeur pour le rang 40. Que peut-on lui objecter ?",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "MEA-INFO-AJUST-FIG",
+          "titre": "Nuage de points et droite d'ajustement",
+          "construite": true,
+          "type_graphe": "nuage",
+          "axe_x": {
+            "label": "Rang de l'année",
+            "valeurs": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ]
+          },
+          "axe_y": {
+            "label": "Valeur observée"
+          },
+          "series": [
+            {
+              "label": "Observations",
+              "type": "points",
+              "valeurs": [
+                3,
+                5.5,
+                6,
+                8.5,
+                9,
+                11.5,
+                12,
+                14
+              ]
+            },
+            {
+              "label": "Ajustement affine",
+              "type": "ligne",
+              "valeurs": [
+                3.5,
+                5,
+                6.5,
+                8,
+                9.5,
+                11,
+                12.5,
+                14
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "L'estimation est une extrapolation très éloignée des données : rien ne garantit que le modèle affine reste valable si loin, et la valeur doit être présentée avec cette réserve.",
+        "reponses_1pt": [
+          "L'objection est formulée mais la notion d'extrapolation n'est pas nommée.",
+          "Le terme extrapolation est employé sans expliquer la réserve."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-AJUSTEMENT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Même capacité, versant critique : le programme demande d'utiliser un ajustement pour interpoler ou extrapoler, et l'esprit critique sur le domaine de validité fait partie des attitudes développées. Le nuage rend l'écart visible : le rang 40 est cinq fois au-delà de la dernière observation. Le support est celui de l'item précédent, repris une seule fois au rendu.",
+      "capacites_officielles": {
+        "SPECIFIQUES": [
+          "MENE2602916A.INFO-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "MODELISER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Aucun calcul : la réponse est une objection sur le domaine de validité.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-RAIS-01",
+      "competence": "RAIS",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 12,
+      "enonce": "Une commune compte 8 000 habitants. Sa population augmente de 5 % par an.\n\n1. **Modéliser** la population par une suite : définir la suite employée, écrire sa relation de récurrence **ou** son expression explicite, puis calculer la population après un an et après deux ans, en valeurs exactes.\n2. Un élu affirme qu'au bout de dix ans la population aura augmenté de 50 %. Sans calculatrice, dire si cette affirmation est exacte et justifier.\n3. Rédiger, en deux ou trois phrases, ce qu'il faudrait calculer pour connaitre l'année où la population dépasse 12 000 habitants.\n\n**La calculatrice n'est autorisée à aucun moment de cette partie**, comme à l'épreuve.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "DEMARCHE",
+          "intitule": "Démarche",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Aucune démarche n'est engagée, ou aucun modèle n'est écrit et les valeurs sont données sans origine.",
+            "1": "Une piste pertinente est engagée puis abandonnée ; le modèle n'est pas écrit.",
+            "2": "Le modèle est écrit — suite définie, relation de récurrence ou expression explicite — et la démarche aboutit sur une question.",
+            "3": "Le modèle est écrit et la démarche est conduite jusqu'au bout sur les trois questions."
+          }
+        },
+        {
+          "code": "EXACT",
+          "intitule": "Exactitude du calcul mené sans calculatrice",
+          "competence": "EXACT",
+          "descripteurs": {
+            "0": "Les calculs sont inexacts dès la première étape, ou la calculatrice est réclamée.",
+            "1": "Le calcul de la première année est exact, les suivants ne le sont pas.",
+            "2": "Les calculs sont exacts à une erreur près, qui n'affecte pas la conclusion.",
+            "3": "Tous les calculs sont exacts et les valeurs restent données sous forme exacte."
+          }
+        },
+        {
+          "code": "REDAC",
+          "intitule": "Justification rédigée",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Seuls des résultats figurent, sans aucune étape écrite.",
+            "1": "Les étapes sont écrites mais aucune propriété n'est nommée.",
+            "2": "Les étapes sont écrites et le raisonnement sur le taux global est explicité.",
+            "3": "Chaque étape est écrite et justifiée, le modèle est énoncé en toutes lettres avant d'être employé, et la réponse à l'élu est formulée en une phrase complète."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Tâche au format de la seconde partie de l'épreuve : deux ou trois exercices indépendants mobilisant connaissances, raisonnement et rédaction, sans calculatrice. La première question a été récrite le 2026-09-12 : elle demandait de « calculer la population après un an, puis après deux ans », c'est-à-dire d'appliquer un coefficient que l'énoncé fournit. Le candidat ne produisait aucun modèle, et la tâche ne pouvait pas servir de seconde observation de la compétence « modéliser » — c'est le reproche de la direction, et il était fondé. Elle exige désormais que le modèle soit **écrit** : suite définie, relation de récurrence ou expression explicite, avant tout calcul. Ni les points, ni la durée, ni les valeurs attendues ne changent. Les nombres restent choisis pour que 8 000 × 1,05 et 8 400 × 1,05 se calculent de tête. La question 2 mesure ce que le programme appelle l'esprit critique : dix hausses de 5 % dépassent 50 %, l'affirmation est donc inexacte. La question 3 demande la démarche, non le résultat.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.ALG.SUITE-5",
+          "MENE2602917A.ANA.EXP-4"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.EXPO-1",
+          "MENE2602916A.EXPO-6"
+        ]
+      },
+      "competences_math_transversales": [
+        "CHERCHER",
+        "MODELISER",
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "La suite s'écrit $u_0 = 8\\,000$ et $u_{n+1} = 1{,}05\\,u_n$, ou $u_n = 8\\,000 \\times 1{,}05^n$. Puis $8\\,000 \\times 1{,}05 = 8\\,400$ et $8\\,400 \\times 1{,}05 = 8\\,820$ : ajouter un vingtième, deux fois. La question 2 se traite par minoration additive, la question 3 ne demande aucun calcul.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-RAIS-04",
+      "competence": "RAIS",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 12,
+      "enonce": "Dans un lycée, 300 élèves sont inscrits à une sortie : 180 sont en première, les autres en terminale. Parmi les élèves de première, 45 ont choisi la randonnée ; parmi les élèves de terminale, 36 l'ont choisie.\n\n1. Calculer la probabilité qu'un élève choisi au hasard soit en première **et** ait choisi la randonnée. Donner la valeur exacte sous forme de fraction irréductible.\n2. Un délégué affirme : « le choix de la randonnée ne dépend pas du niveau de classe ». Dire si les données lui donnent raison, et justifier par un calcul.\n3. On choisit successivement deux élèves au hasard, en remettant le premier dans la liste avant le second tirage. **Construire l'arbre pondéré** de cette répétition de deux épreuves — quatre chemins, chaque branche portant sa probabilité —, puis calculer la probabilité que les deux élèves aient choisi la randonnée et **expliquer en une phrase** ce qui autorise à multiplier les probabilités le long d'un chemin.\n\n**La calculatrice n'est autorisée à aucun moment de cette partie**, comme à l'épreuve.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "DEMPROB",
+          "intitule": "Démarche probabiliste",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Aucune démarche n'est engagée, ou les effectifs sont rapportés à un total qui ne correspond à aucune question.",
+            "1": "Une piste pertinente est engagée sur la première question puis abandonnée.",
+            "2": "La démarche est pertinente et conduite jusqu'au bout sur deux questions ; l'arbre est absent ou incomplet.",
+            "3": "La démarche est pertinente et conduite jusqu'au bout sur les trois questions ; l'arbre porte ses quatre chemins et toutes ses branches sont pondérées."
+          }
+        },
+        {
+          "code": "EXACT",
+          "intitule": "Exactitude du calcul mené sans calculatrice",
+          "competence": "EXACT",
+          "descripteurs": {
+            "0": "Les fractions ne sont pas réduites et les quotients sont faux, ou la calculatrice est réclamée.",
+            "1": "Un quotient est exact, les autres ne le sont pas.",
+            "2": "Les quotients sont exacts mais l'une des fractions reste non réduite.",
+            "3": "Tous les quotients sont exacts et les valeurs sont données sous forme exacte et réduite."
+          }
+        },
+        {
+          "code": "REDPROB",
+          "intitule": "Justification rédigée du raisonnement probabiliste",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Seuls des résultats figurent, sans aucune étape écrite.",
+            "1": "Les étapes sont écrites mais aucune propriété n'est nommée.",
+            "2": "Les étapes sont écrites et la comparaison qui fonde la réponse au délégué est explicitée.",
+            "3": "Chaque étape est écrite et justifiée, la réponse au délégué est formulée en une phrase complète, et la phrase de la troisième question nomme la remise et l'indépendance qu'elle entraîne."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Seconde tâche au format de la seconde partie de l'épreuve, créée le 2026-09-11 à l'issue du réexamen de la durée. La partie 2 de l'épreuve compte deux ou trois exercices ; le diagnostic n'en observait qu'un, et les deux critères de rédaction qui servaient le palier D3 de RAIS provenaient de cette tâche unique. Deux critères d'une même tâche ne sont pas deux observations indépendantes : l'échec ne se distinguait pas d'un échec de domaine. Cette tâche porte sur les probabilités, domaine au programme des deux parcours et distinct de celui de MEA-1-RAIS-01. Les effectifs sont choisis pour que tous les quotients soient exacts de tête : 45/300 = 3/20, 45/180 = 1/4, 36/120 = 3/10. La réponse au délégué est « non » — 1/4 et 3/10 diffèrent. La troisième question a été récrite le 2026-09-11 : elle demandait auparavant de rédiger une démarche, ce qui ne construisait aucune représentation alors que la capacité citée porte sur l'arbre lui-même. Elle exige désormais l'arbre pondéré, ses quatre chemins, puis la phrase qui nomme la remise et l'indépendance — et c'est cette production qui autorise l'étiquette « représenter ».",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.PROB-1",
+          "MENE2602917A.AUTO.PROB-2",
+          "MENE2602917A.PRO.COND-1",
+          "MENE2602917A.PRO.COND-3"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.PROB-1",
+          "MENE2602916A.AUTO.PROB-2",
+          "MENE2602916A.ALEA-1",
+          "MENE2602916A.ALEA-2",
+          "MENE2602916A.ALEA-3"
+        ]
+      },
+      "competences_math_transversales": [
+        "CHERCHER",
+        "REPRESENTER",
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "45/300 = 3/20 (division par 15), 45/180 = 1/4, 36/120 = 3/10 : trois quotients exacts de tête. La comparaison 1/4 contre 3/10 se fait sur le dénominateur commun 20. La probabilité du chemin favorable vaut (27/100)² ; l'énoncé n'en demande pas la forme décimale, et le carré d'une fraction se pose en une ligne.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-RAIS-02",
+      "competence": "RAIS",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un élève écrit : « Le prix passe de 50 € à 60 €, donc il augmente de 10 %. » Repérez l'erreur de raisonnement et écrivez la phrase corrigée.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'élève confond la variation absolue et le taux : la hausse est de 10 € sur 50 €, soit 20 %.",
+        "reponses_1pt": [
+          "L'erreur est repérée mais le taux corrigé n'est pas calculé.",
+          "Le taux 20 % est donné sans expliquer l'erreur."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-TAUX-SENS",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Bloc D, méthode et rédaction : le candidat doit nommer l'erreur et la corriger par écrit, ce que la seconde partie de l'épreuve demande en permanence.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.EVOL-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.EVOL-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "CALCULER",
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "10 ÷ 50 = 0,2 : division exacte.",
+      "est_prerequis": false
+    },
+    {
+      "item_id": "MEA-1-RAIS-03",
+      "competence": "RAIS",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une copie donne : « f(x) = $(x - 2)(x + 3)$, donc f est positive. » Quelle étape manque-t-il pour que cette conclusion soit justifiée ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il manque l'étude du signe de chaque facteur et le tableau de signes du produit : f n'est positive qu'en dehors de l'intervalle des racines.",
+        "reponses_1pt": [
+          "Le manque est signalé sans dire ce qu'il faudrait écrire.",
+          "Le tableau de signes est évoqué mais la conclusion reste fausse."
+        ],
+        "codes_erreur": [
+          "MATH-ERR-SIGNE-PRODUIT",
+          "MATH-ERR-JUSTIF-ABSENTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Bloc D : repérer l'étape manquante d'une rédaction, capacité de la compétence « raisonner » et « communiquer » du préambule commun aux deux programmes.",
+      "capacites_officielles": {
+        "SPE": [
+          "MENE2602917A.AUTO.CALC-2"
+        ],
+        "SPECIFIQUES": [
+          "MENE2602916A.AUTO.CALC-2"
+        ]
+      },
+      "competences_math_transversales": [
+        "RAISONNER",
+        "COMMUNIQUER"
+      ],
+      "calcul_sans_outil": "Aucun calcul : l'item porte sur l'étape manquante d'une rédaction.",
+      "est_prerequis": false
+    }
+  ],
+  "note_permutation_qcm": "Les lettres des bonnes réponses ont été permutées le 2026-09-11 : avant cette correction, neuf des douze questions à choix multiple avaient « B » pour réponse et aucune n'avait « D ». Un candidat qui cochait systématiquement B obtenait neuf points sur douze à la première partie sans rien savoir. La permutation est une transposition — la bonne réponse et le distracteur qui occupait sa place cible échangent leur lettre —, de sorte qu'aucun énoncé, aucune proposition et aucune justification de distracteur n'est modifié : seules les lettres changent. La répartition est désormais de trois réponses par lettre.",
+  "couverture_automatismes": {
+    "date": "2026-09-11",
+    "principe": "MATH-EA est un **échantillonnage diagnostique**, non une couverture exhaustive du programme. La liste ci-dessous dit ce qui est observé et ce qui ne l'est pas, pour que personne ne lise un score d'automatismes comme un verdict sur les dix-sept capacités.",
+    "capacites_au_programme": 17,
+    "observees": 16,
+    "non_observees": [
+      {
+        "code": "AUTO.FONC-3",
+        "texte": "Tracer une droite donnée par son équation réduite ou par un point et son coefficient directeur.",
+        "statut": "non_observe_v1_modalite_graphique",
+        "qualification": {
+          "absente_du_programme": false,
+          "hors_perimetre": false,
+          "au_programme_mais_non_observee_par_la_v1": true
+        },
+        "motif": "La capacité exige une production graphique directe. La remplacer par un QCM de reconnaissance modifierait la nature de la capacité ; ouvrir un nouveau circuit de réponse graphique pour cette seule capacité n'est pas retenu avant le pilote.",
+        "interdit": "Aucun QCM prétendant mesurer le tracé, aucune grille nouvelle, aucun type d'item nouveau, aucune chaîne de saisie nouvelle.",
+        "capacite_reciproque": "AUTO.FONC-4 — « Lire graphiquement l'équation réduite d'une droite » — est observée par MEA-1-AUTOG-01. Elle ne remplace pas le tracé et n'est pas présentée comme tel.",
+        "reexamen": "après pilote chronométré"
+      }
+    ],
+    "ajout_du_2026_09_11": {
+      "item": "MEA-1-AUTO-08",
+      "capacite": "AUTO.CALC-3 — développer, factoriser, réduire une expression algébrique simple",
+      "motif": "Capacité absente de l'instrument alors que les items de signe et de racines du bloc B la supposent. Ajoutée dans la marge de durée restante : l'assemblage passe de 72 à 75 minutes, la durée cible exacte."
+    },
+    "marge_restante": "Nulle. L'assemblage totalise 75 minutes, bloc 0 compris, pour une cible de 75 minutes et une fenêtre de 67,5 à 75 minutes. Aucune capacité supplémentaire ne peut être observée sans rouvrir la durée.",
+    "decision_v1": "Décision de la direction pédagogique du 2026-09-12 : MATH-EA V1 reste un échantillonnage de **seize automatismes observés sur dix-sept**. Aucune modalité de réponse graphique n'est ouverte pour la seule capacité restante avant le pilote.",
+    "qualification_des_manques": {
+      "regle": "Trois qualifications distinctes, qu'aucun rapport ne doit confondre : une capacité absente du programme, une capacité hors du périmètre du dispositif, et une capacité au programme que la V1 n'observe pas. Seule la troisième s'applique ici.",
+      "absente_du_programme": "Aucune capacité de ce cas dans MATH-EA.",
+      "hors_perimetre": "Aucune capacité de ce cas dans MATH-EA : la voie technologique est hors périmètre, mais elle relève d'un troisième sujet que l'instrument ne prétend pas couvrir.",
+      "au_programme_non_observee_v1": [
+        "AUTO.FONC-3"
+      ]
+    }
+  },
+  "gate_de_correction": {
+    "date": "2026-09-11",
+    "objet": "Levée de la mise en correction décidée le même jour par la direction.",
+    "etapes_franchies": [
+      "banque et assemblages reconstruits ; les deux parcours valident sans erreur",
+      "quatre rendus régénérés par parcours — sujet, clé et grilles, feuille de réponses, modèle de saisie — et les PDF reconstruits",
+      "PDF rendus en images et inspectés page à page : neuf pages pour le sujet de spécialité, dix pour l'autre, treize et quatorze pour les corrigés, deux pour chaque feuille de réponses",
+      "préflight de rendu exécuté sur les six PDF : aucun nom de commande LaTeX imprimé",
+      "fixture P1 2026-2027 régénérée et bilan reconstruit",
+      "ordre de priorité EC-31 vérifié sur le bilan rendu : les mathématiques anticipées passent au premier rang",
+      "affichage du score au format 6/14 vérifié sur le bilan rendu, distinct du score global et du score des productions",
+      "suite complète exécutée"
+    ],
+    "statut": "diffusable — sous les réserves de validation pédagogique du compte rendu"
+  }
+}

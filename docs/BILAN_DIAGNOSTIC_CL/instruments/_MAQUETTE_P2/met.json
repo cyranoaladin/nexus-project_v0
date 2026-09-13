@@ -1,0 +1,20 @@
+{
+  "candidate_ref": "CL-2026-0002",
+  "fictif": true,
+  "session_date": "2026-09-15",
+  "reponses": {
+    "MET-01": "c",
+    "MET-02": "b",
+    "MET-03": "c",
+    "MET-04": "b",
+    "MET-05": "b",
+    "MET-06": "a",
+    "MET-07": "c",
+    "MET-08": "b",
+    "MET-09": "b",
+    "MET-10": "c",
+    "MET-11": "c",
+    "MET-12": "b"
+  },
+  "note": "Jeu fictif : un candidat mieux organisé que celui du profil P3, pour que les niveaux de méthode ne soient pas les mêmes d'un bilan à l'autre."
+}

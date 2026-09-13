@@ -1,0 +1,1631 @@
+{
+  "instrument": "EDS-SVT",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "SVT-2-SCI-01",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une expérience, le lot témoin sert à :",
+      "supports": [],
+      "propositions": {
+        "A": "obtenir un résultat positif",
+        "B": "disposer d'une référence où le facteur testé est absent",
+        "C": "vérifier le matériel",
+        "D": "doubler les mesures"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "témoin confondu avec un résultat attendu",
+          "C": "témoin confondu avec un étalonnage",
+          "D": "témoin confondu avec une répétition"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Rôle du témoin. Le distracteur D isole la confusion entre témoin et réplicat, deux notions distinctes."
+    },
+    {
+      "item_id": "SVT-2-SCI-02",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une hypothèse scientifique doit être :",
+      "supports": [],
+      "propositions": {
+        "A": "vraie",
+        "B": "testable par une expérience ou une observation",
+        "C": "acceptée par tous",
+        "D": "formulée par un chercheur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "hypothèse confondue avec conclusion",
+          "C": "critère de consensus employé",
+          "D": "critère d'autorité employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Nature d'une hypothèse. Le distracteur A est l'erreur de fond : croire qu'une hypothèse est déjà un savoir."
+    },
+    {
+      "item_id": "SVT-2-SCI-03",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une expérience testant l'effet de la lumière sur la croissance, la variable testée est :",
+      "supports": [],
+      "propositions": {
+        "A": "la croissance mesurée",
+        "B": "l'éclairement",
+        "C": "la température",
+        "D": "l'espèce végétale"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "variable mesurée prise pour la variable testée",
+          "C": "facteur à maintenir constant",
+          "D": "facteur à maintenir constant"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Distinction entre la variable que l'on fait varier et celle que l'on mesure, confusion la plus fréquente."
+    },
+    {
+      "item_id": "SVT-2-SCI-04",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Deux grandeurs varient ensemble dans une série de mesures. On peut en conclure :",
+      "supports": [],
+      "propositions": {
+        "A": "que l'une cause l'autre",
+        "B": "qu'elles sont corrélées, sans que le lien de cause soit établi",
+        "C": "qu'elles sont indépendantes",
+        "D": "que la mesure est fausse"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "corrélation prise pour causalité",
+          "C": "corrélation niée",
+          "D": "résultat imputé à une faute"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Corrélation et causalité, suivant le code SVT-ERR-CAUSE. Le distracteur A est la conduite spontanée et invalide toute conclusion."
+    },
+    {
+      "item_id": "SVT-2-SCI-05",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Pour qu'une expérience soit interprétable, il faut que :",
+      "supports": [],
+      "propositions": {
+        "A": "un seul facteur varie à la fois",
+        "B": "tous les facteurs varient simultanément",
+        "C": "le résultat confirme l'hypothèse",
+        "D": "l'expérience soit rapide"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "principe de variation unique inversé",
+          "C": "interprétabilité confondue avec confirmation",
+          "D": "critère pratique employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Principe de la variation unique. Le distracteur C repère un candidat pour qui une expérience qui infirme serait ratée."
+    },
+    {
+      "item_id": "SVT-2-SCI-06",
+      "competence": "SCI",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un résultat qui contredit l'hypothèse de départ :",
+      "supports": [],
+      "propositions": {
+        "A": "doit être écarté",
+        "B": "conduit à réexaminer l'hypothèse",
+        "C": "prouve une erreur de manipulation",
+        "D": "n'a aucune valeur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "donnée contraire écartée",
+          "C": "contradiction imputée à une faute",
+          "D": "valeur du résultat niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Statut d'un résultat infirmant. Prérequis de toute démarche, et transfert direct vers l'évaluation d'un argument en philosophie."
+    },
+    {
+      "item_id": "SVT-1-GEN-01",
+      "competence": "GEN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La mitose produit :",
+      "supports": [],
+      "propositions": {
+        "A": "deux cellules génétiquement identiques à la cellule mère",
+        "B": "quatre cellules à n chromosomes",
+        "C": "deux cellules différentes",
+        "D": "une cellule à 2n chromosomes"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "description de la méiose",
+          "C": "conséquence génétique inversée",
+          "D": "nombre de cellules erroné"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Résultat de la mitose. Le distracteur B suit le code SVT-ERR-DIVISION : confondre les deux divisions rend inintelligible toute la génétique."
+    },
+    {
+      "item_id": "SVT-1-GEN-02",
+      "competence": "GEN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une mutation est :",
+      "supports": [],
+      "propositions": {
+        "A": "une modification de la séquence de l'ADN",
+        "B": "un changement de l'apparence d'un individu",
+        "C": "une maladie héréditaire",
+        "D": "une adaptation à l'environnement"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "génotype confondu avec phénotype",
+          "C": "mutation confondue avec ses conséquences",
+          "D": "mutation présentée comme dirigée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Définition d'une mutation. Le distracteur D est le plus instructif : il désigne la conception finaliste que l'item SVT-T-GEN-06 mesure directement.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "SVT-1-GEN-03",
+      "competence": "GEN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Deux allèles d'un même gène :",
+      "supports": [],
+      "propositions": {
+        "A": "occupent le même locus sur des chromosomes homologues",
+        "B": "sont situés sur des chromosomes différents",
+        "C": "codent des protéines sans rapport",
+        "D": "sont toujours identiques"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "locus confondu avec chromosome",
+          "C": "lien au même gène nié",
+          "D": "variation entre allèles niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Notion d'allèle. Item de transfert : il faut relier gène, locus et chromosome, trois niveaux d'organisation distincts."
+    },
+    {
+      "item_id": "SVT-1-GEN-04",
+      "competence": "GEN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi deux cellules issues d'une mitose portent la même information génétique.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que l'ADN a été répliqué à l'identique avant la division, et que chaque cellule fille reçoit une copie de chaque chromosome.",
+        "reponses_1pt": [
+          "La réplication est mentionnée sans la répartition des chromosomes.",
+          "La répartition est décrite sans mention de la réplication préalable."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DIVISION",
+          "SVT-ERR-VOCAB"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Mécanisme en deux temps. La cotation à un point isole lequel des deux temps manque, ce qui oriente la reprise."
+    },
+    {
+      "item_id": "SVT-T-GEN-05",
+      "competence": "GEN",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le brassage interchromosomique se produit :",
+      "supports": [],
+      "propositions": {
+        "A": "lors de la mitose",
+        "B": "lors de la métaphase de première division de méiose",
+        "C": "au moment de la fécondation",
+        "D": "lors de la réplication"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "brassage attribué à la mitose",
+          "C": "brassage méiotique confondu avec le brassage de la fécondation",
+          "D": "brassage confondu avec la réplication"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Localisation du brassage interchromosomique. Le distracteur C est le plus fin : la fécondation produit bien un brassage, mais d'une autre nature."
+    },
+    {
+      "item_id": "SVT-T-GEN-06",
+      "competence": "GEN",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Un candidat écrit : « les girafes ont développé un long cou pour atteindre les feuilles ». Reformuler cette phrase de façon conforme à la théorie de l'évolution.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les individus au cou plus long ont eu un meilleur accès aux feuilles et se sont davantage reproduits, si bien que ce caractère est devenu fréquent dans la population.",
+        "reponses_1pt": [
+          "La reformulation supprime le finalisme mais ne mentionne pas la sélection.",
+          "La sélection est mentionnée mais la formulation reste finaliste."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-FINALISME",
+          "SVT-ERR-VOCAB"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Item de raisonnement court : la conception finaliste de l'évolution est l'obstacle le plus résistant du programme, et sa correction ne s'obtient pas par une définition mais par une reformulation complète du mécanisme."
+    },
+    {
+      "item_id": "SVT-1-TERR-01",
+      "competence": "TERR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Au niveau d'une dorsale océanique :",
+      "supports": [],
+      "propositions": {
+        "A": "la lithosphère océanique se forme",
+        "B": "la lithosphère plonge dans le manteau",
+        "C": "deux plaques coulissent",
+        "D": "une chaîne de montagnes se soulève"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "description d'une zone de subduction",
+          "C": "description d'une faille transformante",
+          "D": "description d'une collision"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Frontières de plaques. Chaque distracteur décrit correctement une autre frontière, ce qui interdit l'élimination par absurdité."
+    },
+    {
+      "item_id": "SVT-1-TERR-02",
+      "competence": "TERR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La croûte océanique est plus dense que la croûte continentale, ce qui explique :",
+      "supports": [],
+      "propositions": {
+        "A": "qu'elle plonge en subduction",
+        "B": "qu'elle soit plus épaisse",
+        "C": "qu'elle soit plus ancienne",
+        "D": "qu'elle porte des volcans"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "densité confondue avec épaisseur",
+          "C": "densité reliée à l'âge",
+          "D": "conséquence sans rapport avec la densité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Lien densité–subduction. Le distracteur C est contre-intuitif et instructif : la croûte océanique est au contraire la plus jeune."
+    },
+    {
+      "item_id": "SVT-1-TERR-03",
+      "competence": "TERR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Une couche sédimentaire est recoupée par une faille. Laquelle des deux structures est la plus ancienne ? Justifier.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La couche sédimentaire : une faille ne peut recouper qu'une structure déjà en place.",
+        "reponses_1pt": [
+          "La réponse est correcte sans que le principe de recoupement soit énoncé.",
+          "Le principe est énoncé mais la conclusion est inversée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-CHRONO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Principe de recoupement. La réponse inversée, cotée un point, désigne un candidat qui connaît le principe sans savoir l'appliquer."
+    },
+    {
+      "item_id": "SVT-T-TERR-04",
+      "competence": "TERR",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Deux méthodes datent une roche : l'une donne un âge relatif, l'autre un âge absolu. Indiquer laquelle repose sur la radioactivité et ce qu'elle apporte de plus.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La datation absolue repose sur la décroissance radioactive ; elle donne un âge chiffré, là où la datation relative ne donne qu'un ordre de succession.",
+        "reponses_1pt": [
+          "La méthode est correctement identifiée sans que l'apport soit précisé.",
+          "L'apport est décrit sans que la méthode soit nommée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-CHRONO",
+          "SVT-ERR-VOCAB"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Distinction datation relative / absolue. La cotation sépare la connaissance de la méthode de la compréhension de ce qu'elle apporte."
+    },
+    {
+      "item_id": "SVT-1-ECO-01",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un service écosystémique désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "un bénéfice que les sociétés humaines tirent du fonctionnement d'un écosystème",
+        "B": "une action de protection de la nature",
+        "C": "une espèce protégée",
+        "D": "un espace naturel classé"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "service confondu avec mesure de protection",
+          "C": "service confondu avec un objet de protection",
+          "D": "service confondu avec un statut foncier"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Notion de service écosystémique. Le distracteur B est le plus fréquent : il inverse le sens du rapport entre société et écosystème."
+    },
+    {
+      "item_id": "SVT-1-ECO-02",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un écosystème, la disparition d'un prédateur entraîne le plus souvent :",
+      "supports": [],
+      "propositions": {
+        "A": "aucun changement",
+        "B": "une modification en cascade des populations d'autres espèces",
+        "C": "la disparition immédiate de tout l'écosystème",
+        "D": "une augmentation de la biodiversité"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "interdépendance niée",
+          "C": "conséquence démesurée",
+          "D": "conséquence inversée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Interdépendance des populations. Les distracteurs A et C encadrent la bonne réponse par les deux excès symétriques."
+    },
+    {
+      "item_id": "SVT-T-ECO-03",
+      "competence": "ECO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "D'après le graphique ci-dessus, décrire l'évolution de la concentration en dioxyde de carbone entre 1960 et 2020, en citant deux valeurs.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "SVT-ECO-FIG",
+          "titre": "Concentration atmosphérique en dioxyde de carbone",
+          "source": "NOAA Global Monitoring Laboratory, observatoire de Mauna Loa, série publique des moyennes annuelles de CO₂, relevé 2024 — https://gml.noaa.gov/ccgg/trends/data.html (valeurs arrondies à l'unité)",
+          "type_graphe": "courbe",
+          "axe_x": {
+            "label": "Année",
+            "valeurs": [
+              1960,
+              1980,
+              2000,
+              2020
+            ]
+          },
+          "axe_y": {
+            "label": "CO₂ (ppm)"
+          },
+          "series": [
+            {
+              "label": "Moyenne annuelle",
+              "valeurs": [
+                317,
+                339,
+                369,
+                414
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "La concentration augmente continûment, passant d'environ 317 ppm en 1960 à environ 414 ppm en 2020.",
+        "reponses_1pt": [
+          "L'évolution est décrite correctement sans qu'aucune valeur ne soit citée.",
+          "Deux valeurs sont citées sans que l'évolution soit caractérisée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DOC-MOBIL",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Lecture d'un graphique et citation de valeurs, attendu de base de l'analyse de documents. La source est publique et les valeurs sont arrondies aux unités, ce qui suffit à l'exercice sans prétendre à une précision que l'arrondi ne permet pas."
+    },
+    {
+      "item_id": "SVT-T-ECO-04",
+      "competence": "ECO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Le graphique montre une corrélation entre l'année et la concentration en dioxyde de carbone. Expliquer pourquoi ce seul graphique ne suffit pas à établir la cause de cette augmentation.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "SVT-ECO-FIG",
+          "titre": "Concentration atmosphérique en dioxyde de carbone",
+          "source": "NOAA Global Monitoring Laboratory, observatoire de Mauna Loa, série publique des moyennes annuelles de CO₂, relevé 2024 — https://gml.noaa.gov/ccgg/trends/data.html (valeurs arrondies à l'unité)",
+          "type_graphe": "courbe",
+          "axe_x": {
+            "label": "Année",
+            "valeurs": [
+              1960,
+              1980,
+              2000,
+              2020
+            ]
+          },
+          "axe_y": {
+            "label": "CO₂ (ppm)"
+          },
+          "series": [
+            {
+              "label": "Moyenne annuelle",
+              "valeurs": [
+                317,
+                339,
+                369,
+                414
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Une évolution conjointe n'établit pas de mécanisme : il faudrait d'autres données, sur les émissions et sur les échanges avec les océans et la biosphère, pour identifier la cause.",
+        "reponses_1pt": [
+          "La réponse rappelle que corrélation n'est pas causalité sans dire ce qui manquerait.",
+          "La réponse propose une cause plausible sans répondre à la question posée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-CAUSE",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Item de raisonnement court sur les limites d'un document. En regard de SVT-2-SCI-04, qui pose le principe, celui-ci demande de l'appliquer à un document réel : deux paliers distincts d'une même compétence méthodologique."
+    },
+    {
+      "item_id": "SVT-1-CORP-01",
+      "competence": "CORP",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La réaction immunitaire innée se caractérise par :",
+      "supports": [],
+      "propositions": {
+        "A": "une réponse rapide et non spécifique de l'agent infectieux",
+        "B": "la production d'anticorps spécifiques",
+        "C": "une mémoire immunitaire",
+        "D": "une action retardée de plusieurs jours"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "description de la réponse adaptative",
+          "C": "propriété de la réponse adaptative",
+          "D": "délai de la réponse adaptative"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Immunité innée et adaptative. Les trois distracteurs décrivent la réponse adaptative, ce qui mesure la distinction plutôt qu'une définition isolée."
+    },
+    {
+      "item_id": "SVT-1-CORP-02",
+      "competence": "CORP",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un anticorps reconnaît :",
+      "supports": [],
+      "propositions": {
+        "A": "toute cellule étrangère",
+        "B": "un antigène déterminé",
+        "C": "les virus uniquement",
+        "D": "les cellules infectées"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "spécificité niée",
+          "C": "champ d'action restreint à tort",
+          "D": "anticorps confondu avec lymphocyte cytotoxique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Spécificité de la reconnaissance. Le distracteur D isole la confusion entre immunité humorale et cellulaire."
+    },
+    {
+      "item_id": "SVT-T-CORP-03",
+      "competence": "CORP",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'insuline est une hormone qui :",
+      "supports": [],
+      "propositions": {
+        "A": "augmente la glycémie",
+        "B": "abaisse la glycémie",
+        "C": "n'agit pas sur la glycémie",
+        "D": "est produite par le foie"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "rôle inversé, celui du glucagon",
+          "C": "rôle nié",
+          "D": "organe producteur erroné"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Rôle de l'insuline. Le distracteur A désigne le glucagon : c'est le couple antagoniste que le programme demande de distinguer."
+    },
+    {
+      "item_id": "SVT-T-CORP-04",
+      "competence": "CORP",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Après un repas, la glycémie augmente puis revient à sa valeur habituelle. Nommer le mécanisme en jeu et l'hormone responsable de la baisse.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il s'agit d'une régulation par rétroaction négative ; l'insuline, sécrétée par le pancréas, provoque la baisse.",
+        "reponses_1pt": [
+          "L'hormone est nommée sans que le mécanisme de régulation soit nommé.",
+          "Le mécanisme est nommé sans l'hormone."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-VOCAB",
+          "SVT-ERR-ECHELLE-BIO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Régulation de la glycémie. La cotation sépare la connaissance de l'acteur de celle du mécanisme, deux niveaux de compréhension distincts."
+    },
+    {
+      "item_id": "SVT-1-DOC-01",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Extraire une information d'un document, c'est :",
+      "supports": [],
+      "propositions": {
+        "A": "recopier le titre",
+        "B": "relever une donnée précise et l'énoncer avec son unité",
+        "C": "donner son avis sur le document",
+        "D": "résumer le document en entier"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "extraction confondue avec identification",
+          "C": "extraction confondue avec appréciation",
+          "D": "extraction confondue avec résumé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Définition opératoire de l'extraction. Le distracteur D est le comportement le plus fréquent et suit le code SVT-ERR-DOC-MOBIL."
+    },
+    {
+      "item_id": "SVT-1-DOC-02",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "D'après le document 1, à quelle température l'activité de l'enzyme est-elle maximale ? Citer la valeur correspondante.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SVT-DOC-TAB",
+          "titre": "Document 1 — Activité d'une enzyme en fonction de la température",
+          "simulee": true,
+          "colonnes": [
+            "Température (°C)",
+            "Activité mesurée (unités arbitraires)"
+          ],
+          "lignes": [
+            [
+              "10",
+              "12"
+            ],
+            [
+              "20",
+              "28"
+            ],
+            [
+              "30",
+              "45"
+            ],
+            [
+              "37",
+              "58"
+            ],
+            [
+              "45",
+              "31"
+            ],
+            [
+              "55",
+              "4"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "À $37\\ ^\\circ\\mathrm{C}$, l'activité vaut 58 unités arbitraires.",
+        "reponses_1pt": [
+          "La température est correcte sans que la valeur d'activité soit citée.",
+          "Une valeur est citée mais elle ne correspond pas au maximum."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DOC-MOBIL",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Données simulées à visée pédagogique : la courbe d'activité reproduit l'allure attendue d'une enzyme humaine, avec un optimum autour de 37 °C et une chute rapide au-delà de 45 °C ; les unités sont arbitraires, ce qui est déclaré, et aucune valeur n'est présentée comme issue d'une mesure réelle. L'item mesure l'extraction, non l'interprétation."
+    },
+    {
+      "item_id": "SVT-T-DOC-03",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Mettre en relation les documents 1 et 2 pour expliquer pourquoi l'activité de l'enzyme chute au-delà de $45\\ ^\\circ\\mathrm{C}$.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SVT-DOC-TAB",
+          "titre": "Document 1 — Activité d'une enzyme en fonction de la température",
+          "simulee": true,
+          "colonnes": [
+            "Température (°C)",
+            "Activité mesurée (unités arbitraires)"
+          ],
+          "lignes": [
+            [
+              "10",
+              "12"
+            ],
+            [
+              "20",
+              "28"
+            ],
+            [
+              "30",
+              "45"
+            ],
+            [
+              "37",
+              "58"
+            ],
+            [
+              "45",
+              "31"
+            ],
+            [
+              "55",
+              "4"
+            ]
+          ]
+        },
+        {
+          "type": "figure",
+          "code": "SVT-DOC-FIG",
+          "titre": "Document 2 — Proportion d'enzyme conservant sa structure après vingt minutes",
+          "simulee": true,
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Température (°C)",
+            "valeurs": [
+              10,
+              20,
+              30,
+              37,
+              45,
+              55
+            ]
+          },
+          "axe_y": {
+            "label": "Enzyme intacte (%)"
+          },
+          "series": [
+            {
+              "label": "Après 20 min",
+              "valeurs": [
+                99,
+                98,
+                97,
+                95,
+                62,
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Le document 2 montre qu'au-delà de $45\\ ^\\circ\\mathrm{C}$ la proportion d'enzyme conservant sa structure s'effondre ; la perte de structure explique la chute d'activité observée au document 1.",
+        "reponses_1pt": [
+          "Les deux documents sont décrits séparément sans que le lien soit établi.",
+          "Le lien est énoncé sans qu'aucune donnée ne soit citée à l'appui."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-RELATION",
+          "SVT-ERR-DOC-MOBIL",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Mise en relation de deux documents, opération centrale de l'exercice 2 du baccalauréat. Données simulées à visée pédagogique : les proportions d'enzyme intacte suivent une dénaturation thermique classique, quasi nulle jusqu'à 37 °C puis brutale au-delà de 45 °C, ce qui rend le lien avec le document 1 lisible sans calcul. Les deux réponses à un point distinguent le candidat qui juxtapose de celui qui affirme sans étayer."
+    },
+    {
+      "item_id": "SVT-1-REDA-01",
+      "competence": "REDA",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "À partir des documents 1 et 2 du bloc C et de vos connaissances, expliquez en une vingtaine de lignes pourquoi une fièvre élevée et prolongée peut perturber le fonctionnement de l'organisme.\n\nVotre réponse s'appuiera sur des données citées des deux documents.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SVT-DOC-TAB",
+          "titre": "Document 1 — Activité d'une enzyme en fonction de la température",
+          "simulee": true,
+          "colonnes": [
+            "Température (°C)",
+            "Activité mesurée (unités arbitraires)"
+          ],
+          "lignes": [
+            [
+              "10",
+              "12"
+            ],
+            [
+              "20",
+              "28"
+            ],
+            [
+              "30",
+              "45"
+            ],
+            [
+              "37",
+              "58"
+            ],
+            [
+              "45",
+              "31"
+            ],
+            [
+              "55",
+              "4"
+            ]
+          ]
+        },
+        {
+          "type": "figure",
+          "code": "SVT-DOC-FIG",
+          "titre": "Document 2 — Proportion d'enzyme conservant sa structure après vingt minutes",
+          "simulee": true,
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Température (°C)",
+            "valeurs": [
+              10,
+              20,
+              30,
+              37,
+              45,
+              55
+            ]
+          },
+          "axe_y": {
+            "label": "Enzyme intacte (%)"
+          },
+          "series": [
+            {
+              "label": "Après 20 min",
+              "valeurs": [
+                99,
+                98,
+                97,
+                95,
+                62,
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "EXTRAIT",
+          "intitule": "Extraction des informations",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Aucune information n'est extraite des documents.",
+            "1": "Des informations sont extraites mais elles ne servent pas la question posée.",
+            "2": "Les informations utiles sont extraites d'un document sur les deux.",
+            "3": "Les informations utiles sont extraites de chaque document et énoncées avec leurs unités."
+          }
+        },
+        {
+          "code": "RELATION",
+          "intitule": "Mise en relation",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Les documents sont traités séparément, sans lien.",
+            "1": "Un lien est annoncé mais il n'est pas construit sur les données.",
+            "2": "Les documents sont mis en relation ; une des deux données mobilisées reste implicite.",
+            "3": "Les documents sont mis en relation et chaque étape du lien s'appuie sur une donnée citée."
+          }
+        },
+        {
+          "code": "RAISON",
+          "intitule": "Raisonnement et conclusion",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Aucune conclusion n'est formulée.",
+            "1": "Une conclusion est formulée mais elle ne découle pas des informations extraites.",
+            "2": "La conclusion découle des informations ; le raisonnement intermédiaire n'est pas écrit.",
+            "3": "La conclusion découle des informations et le raisonnement qui y conduit est écrit."
+          }
+        },
+        {
+          "code": "VOCAB",
+          "intitule": "Vocabulaire scientifique",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Le vocabulaire employé ne permet pas d'identifier les notions convoquées.",
+            "1": "Les notions sont nommées par des termes courants et non par les termes du programme.",
+            "2": "Les termes du programme sont employés ; l'un d'eux l'est dans une acception approximative.",
+            "3": "Les termes du programme sont employés dans leur sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Mini-exercice 2 : deux documents, une question de raisonnement (§ 7.9). Les deux documents reposent sur des données simulées à visée pédagogique, dont les ordres de grandeur sont justifiés aux items SVT-1-DOC-02 et SVT-T-DOC-03 : optimum enzymatique vers 37 °C et dénaturation au-delà de 45 °C. Les critères d'extraction et de mise en relation appartiennent à DOC et non à REDA (EC-08) : une difficulté de lecture de documents doit conduire au module d'analyse documentaire, non au module de rédaction. REDA conserve deux critères propriétaires. La question relie les documents à une situation physiologique connue, de sorte qu'un candidat qui lit bien les documents sans connaissances puisse tout de même renseigner les deux premiers critères."
+    },
+    {
+      "item_id": "SVT-T-REDA-02",
+      "competence": "REDA",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 25,
+      "enonce": "À partir des documents 1 et 2 du bloc C et de vos connaissances, expliquez en une vingtaine de lignes pourquoi les organismes vivant dans les sources chaudes possèdent des enzymes différentes des nôtres.\n\nVotre réponse s'appuiera sur des données citées des deux documents et mobilisera la notion de sélection naturelle.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SVT-DOC-TAB",
+          "titre": "Document 1 — Activité d'une enzyme en fonction de la température",
+          "simulee": true,
+          "colonnes": [
+            "Température (°C)",
+            "Activité mesurée (unités arbitraires)"
+          ],
+          "lignes": [
+            [
+              "10",
+              "12"
+            ],
+            [
+              "20",
+              "28"
+            ],
+            [
+              "30",
+              "45"
+            ],
+            [
+              "37",
+              "58"
+            ],
+            [
+              "45",
+              "31"
+            ],
+            [
+              "55",
+              "4"
+            ]
+          ]
+        },
+        {
+          "type": "figure",
+          "code": "SVT-DOC-FIG",
+          "titre": "Document 2 — Proportion d'enzyme conservant sa structure après vingt minutes",
+          "simulee": true,
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Température (°C)",
+            "valeurs": [
+              10,
+              20,
+              30,
+              37,
+              45,
+              55
+            ]
+          },
+          "axe_y": {
+            "label": "Enzyme intacte (%)"
+          },
+          "series": [
+            {
+              "label": "Après 20 min",
+              "valeurs": [
+                99,
+                98,
+                97,
+                95,
+                62,
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "EXTRAIT",
+          "intitule": "Extraction des informations",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Aucune information n'est extraite des documents.",
+            "1": "Des informations sont extraites mais elles ne servent pas la question posée.",
+            "2": "Les informations utiles sont extraites d'un document sur les deux.",
+            "3": "Les informations utiles sont extraites de chaque document et énoncées avec leurs unités."
+          }
+        },
+        {
+          "code": "RELATION",
+          "intitule": "Mise en relation",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Les documents sont traités séparément, sans lien.",
+            "1": "Un lien est annoncé mais il n'est pas construit sur les données.",
+            "2": "Les documents sont mis en relation ; une des deux données mobilisées reste implicite.",
+            "3": "Les documents sont mis en relation et chaque étape du lien s'appuie sur une donnée citée."
+          }
+        },
+        {
+          "code": "RAISON",
+          "intitule": "Raisonnement et conclusion",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Aucune conclusion n'est formulée.",
+            "1": "Une conclusion est formulée mais elle ne découle pas des informations extraites.",
+            "2": "La conclusion découle des informations ; le raisonnement intermédiaire n'est pas écrit.",
+            "3": "La conclusion découle des informations et le raisonnement qui y conduit est écrit."
+          }
+        },
+        {
+          "code": "VOCAB",
+          "intitule": "Vocabulaire scientifique",
+          "competence": "REDA",
+          "descripteurs": {
+            "0": "Le vocabulaire employé ne permet pas d'identifier les notions convoquées.",
+            "1": "Les notions sont nommées par des termes courants et non par les termes du programme.",
+            "2": "Les termes du programme sont employés ; l'un d'eux l'est dans une acception approximative.",
+            "3": "Les termes du programme sont employés dans leur sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Même dispositif documentaire que la version N1, reposant sur les mêmes données simulées à visée pédagogique déjà justifiées (optimum vers 37 °C, dénaturation au-delà de 45 °C), avec une question qui appelle en plus la sélection naturelle : le candidat de Terminale doit relier un mécanisme moléculaire à un mécanisme évolutif. Le sujet donne prise à l'obstacle finaliste mesuré par SVT-T-GEN-06 : une réponse du type « ces organismes ont fabriqué des enzymes résistantes pour survivre » sera notée au niveau 1 du critère de raisonnement."
+    },
+    {
+      "item_id": "SVT-1-REDA-03",
+      "competence": "REDA",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'une réponse à un exercice documentaire, en les numérotant de 1 à 4 : conclure en répondant à la question — extraire les informations utiles — mobiliser une connaissance du cours — mettre les informations en relation.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : extraire (1), mettre en relation (2), mobiliser une connaissance (3), conclure (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DOC-MOBIL",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Item de bloc D de REDA, palier D1 : la méthode est restituée sans être mise en œuvre."
+    },
+    {
+      "item_id": "SVT-T-REDA-04",
+      "competence": "REDA",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici la réponse d'un autre candidat à un exercice documentaire. Elle décrit les deux documents l'un après l'autre puis conclut. Indiquez l'étape qui manque et ce qu'elle aurait dû apporter.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il manque la mise en relation : il fallait montrer comment une donnée du premier document éclaire une donnée du second, ce qui seul permet de conclure.",
+        "reponses_1pt": [
+          "L'étape manquante est nommée sans que son apport soit précisé.",
+          "Un défaut est signalé mais il porte sur la conclusion et non sur la mise en relation."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-RELATION",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Item de bloc D de REDA, palier D2 : repérer l'étape manquante dans une production fournie. C'est exactement ce que le critère RELATION de la grille mesure dans la tâche, mesuré ici hors de la production."
+    },
+    {
+      "item_id": "SVT-1-GEN-07",
+      "competence": "GEN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une cellule humaine possède 46 chromosomes. Combien en contient chacune des deux cellules issues d'une mitose ? Justifier en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "46 : la réplication précède la division, si bien que chaque cellule fille reçoit un lot complet.",
+        "reponses_1pt": [
+          "Le nombre est exact sans justification.",
+          "La justification est exacte mais le nombre annoncé est 23."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DIVISION",
+          "SVT-ERR-VOCAB"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. La réponse 23, cotée un point, désigne exactement la confusion mitose/méiose que le code SVT-ERR-DIVISION suit."
+    },
+    {
+      "item_id": "SVT-1-TERR-05",
+      "competence": "TERR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi les roches du plancher océanique sont d'autant plus anciennes qu'elles sont éloignées de la dorsale.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elles se forment à la dorsale puis s'en écartent progressivement : leur distance mesure le temps écoulé depuis leur formation.",
+        "reponses_1pt": [
+          "La réponse énonce le lien sans mentionner la formation à la dorsale.",
+          "La formation à la dorsale est mentionnée sans que le lien à l'âge soit établi."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-CHRONO",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Expansion océanique. L'item demande un mécanisme, non une donnée : c'est le palier de transfert de la compétence."
+    },
+    {
+      "item_id": "SVT-1-ECO-05",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux services rendus par une forêt aux sociétés humaines.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux services distincts parmi : production de bois, stockage du carbone, régulation du cycle de l'eau, préservation de la biodiversité, usages récréatifs.",
+        "reponses_1pt": [
+          "Un seul service est cité, ou deux formulations désignent le même service."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-VOCAB",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Restitution appliquée à un écosystème précis. La liste des réponses acceptées est fermée, ce qui maintient l'item en type B."
+    },
+    {
+      "item_id": "SVT-1-ECO-06",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la disparition des pollinisateurs affecterait la production agricole.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que de nombreuses cultures dépendent de la pollinisation animale pour produire des fruits et des graines : sans pollinisateurs, leur rendement chute.",
+        "reponses_1pt": [
+          "Le lien est affirmé sans que le mécanisme de pollinisation soit mentionné.",
+          "Le mécanisme est décrit sans que la conséquence agricole soit énoncée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-CONCL",
+          "SVT-ERR-VOCAB"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Service écosystémique appliqué. Item de transfert : le candidat doit relier un mécanisme biologique à une conséquence économique."
+    },
+    {
+      "item_id": "SVT-1-CORP-05",
+      "competence": "CORP",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Nommer les deux types de réponse immunitaire et indiquer laquelle est spécifique de l'agent infectieux.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'immunité innée et l'immunité adaptative ; l'immunité adaptative est spécifique.",
+        "reponses_1pt": [
+          "Les deux types sont nommés sans que la spécificité soit attribuée.",
+          "La spécificité est correctement attribuée mais un seul type est nommé."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-VOCAB",
+          "SVT-ERR-ECHELLE-BIO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Restitution structurée. Sert d'appui à l'item SVT-1-CORP-01 : un candidat qui réussit celui-ci et échoue au précédent relève d'une difficulté de discrimination, non de connaissance."
+    },
+    {
+      "item_id": "SVT-1-CORP-06",
+      "competence": "CORP",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une seconde infection par le même agent est généralement plus rapidement maîtrisée que la première.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la première infection a produit des cellules mémoire, qui permettent une réponse adaptative plus rapide et plus intense lors du second contact.",
+        "reponses_1pt": [
+          "La mémoire immunitaire est mentionnée sans que la rapidité soit expliquée.",
+          "La réponse décrit une immunité renforcée sans nommer la mémoire immunitaire."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-VOCAB",
+          "SVT-ERR-ECHELLE-BIO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Mémoire immunitaire. Item de transfert : le mécanisme doit être mobilisé pour expliquer une observation, non récité."
+    },
+    {
+      "item_id": "SVT-1-DOC-04",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une réponse à un exercice documentaire, une donnée citée doit être accompagnée :",
+      "supports": [],
+      "propositions": {
+        "A": "de son unité et de sa provenance",
+        "B": "d'un commentaire personnel",
+        "C": "du titre du document seul",
+        "D": "d'aucune précision"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "citation confondue avec appréciation",
+          "C": "provenance réduite au titre",
+          "D": "exigence de précision niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Attendu de citation d'une donnée. Directement relié au critère EXTRAIT de la grille du bloc C."
+    },
+    {
+      "item_id": "SVT-1-DOC-05",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "D'après le document 1, l'activité de l'enzyme à $20\\ ^\\circ\\mathrm{C}$ est-elle supérieure ou inférieure à celle mesurée à $45\\ ^\\circ\\mathrm{C}$ ? Citer les deux valeurs.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SVT-DOC-TAB",
+          "titre": "Document 1 — Activité d'une enzyme en fonction de la température",
+          "simulee": true,
+          "colonnes": [
+            "Température (°C)",
+            "Activité mesurée (unités arbitraires)"
+          ],
+          "lignes": [
+            [
+              "10",
+              "12"
+            ],
+            [
+              "20",
+              "28"
+            ],
+            [
+              "30",
+              "45"
+            ],
+            [
+              "37",
+              "58"
+            ],
+            [
+              "45",
+              "31"
+            ],
+            [
+              "55",
+              "4"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Inférieure : 28 unités à $20\\ ^\\circ\\mathrm{C}$ contre 31 à $45\\ ^\\circ\\mathrm{C}$.",
+        "reponses_1pt": [
+          "La comparaison est exacte sans que les valeurs soient citées.",
+          "Les valeurs sont citées mais la comparaison est inversée."
+        ],
+        "codes_erreur": [
+          "SVT-ERR-DOC-MOBIL",
+          "SVT-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Comparaison de deux valeurs d'un même tableau, avec les mêmes données simulées à visée pédagogique que SVT-1-DOC-02, déjà justifiées : optimum vers 37 °C, chute au-delà de 45 °C. L'écart choisi est faible, ce qui interdit de répondre à vue."
+    },
+    {
+      "item_id": "SVT-1-DOC-06",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un document ne permet pas de conclure lorsque :",
+      "supports": [],
+      "propositions": {
+        "A": "il ne comporte pas de chiffres",
+        "B": "les données qu'il contient ne portent pas sur la question posée",
+        "C": "il est ancien",
+        "D": "il est court"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "absence de chiffres prise pour absence de données",
+          "C": "critère d'ancienneté employé",
+          "D": "critère de longueur employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Limites d'un document. Prépare l'item SVT-T-ECO-04, qui demande d'appliquer ce jugement à un document réel."
+    }
+  ]
+}

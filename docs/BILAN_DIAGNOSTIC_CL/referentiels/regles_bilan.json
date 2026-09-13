@@ -1,0 +1,529 @@
+{
+  "schema": "nexus.referentiel.regles_bilan",
+  "version": "2.0",
+  "date": "2026-09-10",
+  "source": "Cahier § 5.2 à § 5.5, § 7.13 et § 8.2",
+  "avertissement": "Source unique des seuils et des règles de décision du moteur de bilan. Aucun script ne les redéfinit. Chaque règle porte, dans transcription_cahier, le ou les fragments du Cahier dont elle est la transcription ; le contrôle RB-07 vérifie que ces fragments existent réellement dans cahier.md. Une règle qui s'écarte du Cahier ou qui n'en vient pas porte à la place un bloc ecart ou origine, avec sa justification.",
+  "niveaux_competence": {
+    "source": "Cahier § 5.2",
+    "paliers": [
+      {
+        "libelle": "Solide",
+        "seuil_min": 0.75,
+        "transcription_cahier": [
+          "S ≥ 75 %",
+          "Mobilisable sans reprise",
+          "Entretien par exercices type bac ; sert d'appui pour les autres chapitres"
+        ],
+        "signification": "Mobilisable sans reprise",
+        "action": "Entretien par exercices type bac ; sert d'appui pour les autres chapitres"
+      },
+      {
+        "libelle": "En consolidation",
+        "seuil_min": 0.55,
+        "transcription_cahier": [
+          "55 % ≤ S < 75 %",
+          "Compris mais fragile sur le transfert ou le raisonnement",
+          "Séances d'approfondissement ciblées sur les paliers D2/D3"
+        ],
+        "signification": "Compris mais fragile sur le transfert ou le raisonnement",
+        "action": "Séances d'approfondissement ciblées sur les paliers D2/D3"
+      },
+      {
+        "libelle": "Fragile",
+        "seuil_min": 0.3,
+        "transcription_cahier": [
+          "30 % ≤ S < 55 %",
+          "Notions partiellement en place, erreurs récurrentes",
+          "Reprise structurée du chapitre depuis les prérequis"
+        ],
+        "signification": "Notions partiellement en place, erreurs récurrentes",
+        "action": "Reprise structurée du chapitre depuis les prérequis"
+      },
+      {
+        "libelle": "Non acquis",
+        "seuil_min": 0.0,
+        "transcription_cahier": [
+          "S < 30 %",
+          "Absence de base exploitable",
+          "Module de remise à niveau avant tout travail sur le programme visé"
+        ],
+        "signification": "Absence de base exploitable",
+        "action": "Module de remise à niveau avant tout travail sur le programme visé"
+      }
+    ],
+    "non_evalue": {
+      "libelle": "Non évalué",
+      "transcription_cahier": [
+        "< 3 items renseignés",
+        "Données insuffisantes",
+        "Évaluation complémentaire en première séance"
+      ],
+      "signification": "Données insuffisantes",
+      "action": "Évaluation complémentaire en première séance",
+      "renvoi": "Le nombre d'items est celui de conventions.regles_couverture de competences.json ; il n'est pas redit ici."
+    }
+  },
+  "palier_de_profondeur": {
+    "source": "Cahier § 5.3",
+    "transcription_cahier": [
+      "le palier de difficulté le plus élevé auquel le candidat obtient au moins 2/3 des points (D1, D2 ou D3)",
+      "Le bilan affiche toujours les deux indicateurs"
+    ],
+    "fraction": {
+      "numerateur": 2,
+      "denominateur": 3
+    },
+    "expression": "deux tiers",
+    "note": "La part est une fraction exacte, comparée par produit en croix. Arrondir 2/3 par excès ferait échouer un palier réussi 4 points sur 6 : le défaut a été introduit puis corrigé le 2026-09-10 (leçon L-06).",
+    "mention_maximum_teste": "maximum testé dans ce domaine :",
+    "regle_maximum_teste": "Le palier atteint et le palier le plus haut proposé ne disent pas la même chose. Quand l'assemblage n'a pas proposé le palier le plus haut de l'échelle pour une compétence, le rendu le nomme : sans cela, un candidat classé D2 semblerait avoir échoué à un D3 auquel il n'a pas été interrogé. Décision EC-32 du 2026-09-11.",
+    "ecart": {
+      "ref": "EC-32",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision EC-32 de la direction pédagogique, 2026-09-11"
+    }
+  },
+  "indice_calibration": {
+    "source": "Cahier § 5.4 et § 8.2",
+    "transcription_cahier": [
+      "Écart entre l'auto-positionnement (bloc 0, converti sur 0--100) et le score mesuré",
+      "Écart > 25 points dans un sens ou dans l'autre = signal explicite dans le bilan",
+      "Cet indice ne modifie jamais le niveau de compétence"
+    ],
+    "ecart_signal": 25,
+    "echelle_percue": {
+      "min": 1,
+      "max": 4,
+      "renvoi": "Échelle du bloc 0, conventions.echelle_bloc_0 de competences.json."
+    },
+    "conversion": "(valeur - min) / (max - min) × 100",
+    "sens": {
+      "surestimation": {
+        "libelle": "surestimation",
+        "transcription_cahier": [
+          "risque de sous-travail, priorité à des évaluations fréquentes"
+        ],
+        "mesure": "risque de sous-travail, priorité à des évaluations fréquentes"
+      },
+      "sous_estimation": {
+        "libelle": "sous-estimation",
+        "transcription_cahier": [
+          "risque de découragement, priorité à des réussites rapides visibles"
+        ],
+        "mesure": "risque de découragement, priorité à des réussites rapides visibles"
+      }
+    },
+    "portee": {
+      "ecart": {
+        "ref": "EC-23",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision R1 de la direction pédagogique, 2026-09-10"
+      },
+      "par_competence": {
+        "source": "bloc 0 de l'instrument passé",
+        "renvoi_format": "conventions.identifiant_bloc_0 de competences.json",
+        "cible": "score_de_la_competence",
+        "non_renseignee": "Un domaine sans réponse vaut « calibration non renseignée », jamais un écart de zéro."
+      },
+      "par_matiere": {
+        "variable_qp": "auto_par_matiere",
+        "cible": "score_global_matiere",
+        "role": "complète la calibration par compétence sans la remplacer"
+      },
+      "hors_calibration": {
+        "variable_qp": "auto_francais",
+        "role": "donnée de contexte de la section 1 ; ne produit aucun écart"
+      }
+    },
+    "echelle_convertie": {
+      "min": 0,
+      "max": 100,
+      "source": "Cahier § 5.4 : « converti sur 0–100 »"
+    }
+  },
+  "agregats": {
+    "source": "Cahier § 5.5",
+    "score_global": {
+      "transcription_cahier": [
+        "Score global matière = moyenne des S(c) pondérée par le nombre d'items de chaque compétence"
+      ],
+      "formule": "somme(S(c) × n(c)) / somme(n(c)), n(c) = nombre d'items renseignés de c",
+      "note": "Pondération par le nombre d'items, non par les points. Les deux diffèrent dès qu'un critère de production vaut 3 points et un item fermé 1 point."
+    },
+    "prerequis": {
+      "transcription_cahier": [
+        "Taux de prérequis = score global du bloc A",
+        "En dessous de 40 %, la matière est classée \"Entrée par remise à niveau\" quel que soit le score global"
+      ],
+      "seuil_remise_a_niveau": 0.4,
+      "assiette": "items du bloc A",
+      "note": "L'assiette est le bloc porté par l'item, non les blocs déclarés de sa compétence : une compétence présente en A et en B ne verse au taux de prérequis que ses items A."
+    },
+    "tache_type_epreuve": {
+      "transcription_cahier": [
+        "Score tâche type épreuve = bloc C seul, rapporté à la grille de l'épreuve réelle : c'est le seul indicateur comparable d'un bilan au suivant"
+      ],
+      "assiette": "items du bloc C",
+      "absent_si": "aucun item de bloc C dans l'assemblage passé",
+      "note": "L'assiette est prise sur le bloc porté par l'item dans l'assemblage passé. Une matière sans bloc C n'a pas de score de tâche : la ligne disparaît du rendu, elle n'affiche pas un tiret."
+    },
+    "non_reponse": {
+      "transcription_cahier": [
+        "Taux de non-réponse global et par bloc"
+      ],
+      "definition": "items laissés sans réponse, hors items de production notés par grille"
+    }
+  },
+  "module_entree": {
+    "source": "Cahier § 8.2",
+    "transcription_cahier": [
+      "prérequis < 40 % → \"Remise à niveau\" ; sinon, la première compétence du programme (dans l'ordre des chapitres) classée Fragile ou Non acquis ; si aucune, la première En consolidation ; si aucune, \"Entraînement type bac\""
+    ],
+    "renvoi_seuil": "agregats.prerequis.seuil_remise_a_niveau",
+    "ordre": "ordre de déclaration des compétences dans competences.json, qui est l'ordre des chapitres du programme",
+    "libelle_remise_a_niveau": "Remise à niveau",
+    "action_remise_a_niveau": "Reprise des prérequis du bloc A avant tout travail sur le programme visé",
+    "libelle_defaut": "Entraînement type bac"
+  },
+  "priorite_matieres": {
+    "source": "Cahier § 8.2",
+    "transcription_cahier": [
+      "P2 et P3 : spécialités poursuivies en Terminale d'abord, philosophie ensuite, tronc commun en fond continu",
+      "En cas d'égalité, la matière au coefficient le plus élevé",
+      "P1 : français d'abord si FR-EAF < 55 %, sinon spécialité la plus fragile"
+    ],
+    "ecart": {
+      "ref": "EC-16",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision de la direction pédagogique du 2026-09-10, étendue aux groupes de planification par Q-22"
+    },
+    "rangs": [
+      "specialites_poursuivies",
+      "francais_si_fragile",
+      "philosophie",
+      "specialite_abandonnee",
+      "francais_sinon",
+      "tronc_commun"
+    ],
+    "francais_si_fragile": {
+      "groupe": "FRANCAIS",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "placement": {
+        "P1": "avant_les_specialites",
+        "P2": "apres_les_specialites",
+        "P3": "apres_les_specialites"
+      },
+      "mesure": "score global le plus bas des périmètres du groupe",
+      "renvoi_seuil": "niveaux_competence.paliers[En consolidation].seuil_min",
+      "note": "Le seuil est celui du niveau En consolidation, il n'est pas réécrit ici. Le § 8.2 place le français avant les spécialités pour un P1 et après elles pour un P2 ou un P3 : c'est la même condition, à un placement près. P2 rejoint P3 depuis Q-19. Cette entrée est conservée pour mémoire : la règle qu'elle portait est devenue le cas particulier d'une catégorie générique, « épreuves anticipées si fragiles », qui ordonne aussi les mathématiques anticipées. Le moteur lit la catégorie générique ; le placement déclaré ici et celui de la catégorie doivent coïncider, et un contrôle le vérifie.",
+      "etat": "généralisé le 2026-09-11 par EC-31",
+      "remplace_par": "priorite_matieres.epreuves_anticipees_si_fragiles"
+    },
+    "epreuves_anticipees_si_fragiles": {
+      "source": "Décision EC-31 de la direction pédagogique, 2026-09-11.",
+      "regle": "Une épreuve anticipée due pendant l'année, dont la matière de travail passe sous le seuil du niveau En consolidation, est promue avant les spécialités — sur le modèle de la règle que le § 8.2 réserve au français. Les épreuves anticipées non fragiles reprennent la place prévue après les spécialités, et le tronc commun reste en fond continu.",
+      "motif": "Le § 8.2 ne connaissait qu'une épreuve anticipée, le français. Depuis Q-24 un candidat de première en présente deux, et la règle n'en ordonnait qu'une : sur le jeu P1 2026-2027, les mathématiques anticipées étaient la matière la plus fragile et figuraient au dernier rang, derrière le tronc commun. La catégorie est donc générique.",
+      "groupes": {
+        "FRANCAIS": {
+          "coefficient_officiel": 10,
+          "source_coefficient": "programmes_examen.epreuves_anticipees.coefficients : français écrit 5 et français oral 5"
+        },
+        "MATHEMATIQUES": {
+          "coefficient_officiel": 2,
+          "source_coefficient": "programmes_examen.epreuves_anticipees.coefficients : mathématiques 2"
+        }
+      },
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "placement": {
+        "P1": "avant_les_specialites",
+        "P2": "apres_les_specialites",
+        "P3": "apres_les_specialites"
+      },
+      "mesure": "score global le plus bas des périmètres du groupe",
+      "renvoi_seuil": "niveaux_competence.paliers[En consolidation].seuil_min",
+      "departage": [
+        "gravite_module_entree",
+        "score_global_le_plus_bas",
+        "coefficient_officiel_decroissant"
+      ],
+      "note_departage": "Le coefficient n'intervient qu'en troisième rang, et seulement à gravité et à score égaux : l'épreuve la plus lourdement coefficientée passe la première. Il ne départage rien sur les jeux du dépôt, et c'est normal — deux matières exactement à égalité sont un cas de bord.",
+      "exclusion": "Un groupe qui porte une spécialité est déjà ordonné par la règle des spécialités : il n'est pas promu deux fois. C'est le cas du groupe MATHEMATIQUES d'un candidat qui suit la spécialité mathématiques.",
+      "motif_rendu_fragile": "épreuve anticipée due pendant l'année, sous le seuil du niveau En consolidation : elle passe avant les spécialités",
+      "motif_rendu_non_fragile": "épreuve anticipée due pendant l'année, au-dessus du seuil : en accompagnement continu",
+      "ecart": {
+        "ref": "EC-31",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision EC-31 de la direction pédagogique, 2026-09-11"
+      }
+    },
+    "departage": {
+      "source": "Précision P1 de la direction pédagogique, 2026-09-10",
+      "ordre": [
+        "gravite_module_entree",
+        "score_global_le_plus_bas",
+        "ordre_de_declaration_au_questionnaire"
+      ],
+      "gravite_module_entree": [
+        "Remise à niveau",
+        "Non acquis",
+        "Fragile",
+        "En consolidation",
+        "Entraînement type bac"
+      ],
+      "note": "La gravité se lit sur le module d'entrée : « Remise à niveau » d'abord, puis le niveau de la compétence désignée comme module, puis « Entraînement type bac ». À gravité égale, le score global le plus bas passe premier. Les spécialités de Terminale ayant toutes le même coefficient, la règle de départage par coefficient du § 8.2 ne départage rien. À gravité et à score égaux, l'ordre est celui de déclaration des spécialités au questionnaire : il est le seul départage restant, et il est reproductible."
+    },
+    "assiette": "groupes de planification (conventions.groupes_planification de competences.json), non périmètres diagnostiques : deux périmètres d'un même groupe ont un seul rang.",
+    "placement_non_ordonne": {
+      "source": "Cahier § 8.2 — la liste des priorités ordonne le français et les spécialités ; elle ne cite ni le tronc commun ni l'épreuve anticipée de mathématiques.",
+      "regle": "Un groupe de planification que le § 8.2 n'ordonne pas est placé après ceux qu'il ordonne, dans l'ordre où le questionnaire les a fait naître. Le motif rendu dit de quelle matière il s'agit : il ne présente pas comme tronc commun ce qui n'en est pas.",
+      "motifs": {
+        "MATHEMATIQUES": "épreuve anticipée de mathématiques. Sans spécialité mathématiques, ce groupe est ouvert par le seul MATH-EA et reste une matière de travail autonome. Le § 8.2 ne lui assigne aucun rang : il est placé après les matières qu'il ordonne, ce qui n'est pas une décision pédagogique mais l'absence de règle.",
+        "_defaut": "tronc commun, en fond continu"
+      },
+      "ecart": {
+        "ref": "EC-31",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Constat ouvert par le jeu P1 2026-2027, 2026-09-11 — arbitrage attendu de la direction"
+      }
+    }
+  },
+  "rythmes_hebdomadaires": {
+    "source": "Cahier § 8.2",
+    "transcription_cahier": [
+      "Non acquis / Remise à niveau : 3 h ; Fragile : 2 h ; En consolidation : 1 h 30 ; Solide : 1 h d'entretien",
+      "Plafonné aux heures disponibles déclarées ; si le plafond est dépassé, le bilan le signale explicitement et propose un étalement de calendrier plutôt que de réduire silencieusement"
+    ],
+    "unite": "heures par semaine",
+    "par_niveau": {
+      "Remise à niveau": 3.0,
+      "Non acquis": 3.0,
+      "Fragile": 2.0,
+      "En consolidation": 1.5,
+      "Solide": 1.0
+    },
+    "assiette": {
+      "ecart": {
+        "ref": "EC-17",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision de la direction pédagogique du 2026-09-10"
+      },
+      "regle": "niveau le plus bas de la matière, hors Non évalué"
+    },
+    "sans_rythme": {
+      "instruments": [
+        "GO",
+        "FR-EAF-ORAL",
+        "MET",
+        "QP",
+        "TC-HG",
+        "TC-EMC",
+        "FR-POS",
+        "FR-POS-ORAL"
+      ],
+      "decision": "Décision C5 de la direction pédagogique, 2026-09-10",
+      "texte": "Ni la grille d'entretien Grand oral ni celle de l'oral de français n'ajoutent d'heures à la somme des rythmes."
+    },
+    "plafond": {
+      "regle": "Le total est plafonné aux heures disponibles déclarées. Si le plafond est dépassé, le bilan le signale explicitement et propose un étalement de calendrier, jamais une réduction silencieuse."
+    },
+    "groupe": {
+      "regle": "Le rythme d'un groupe de planification est le maximum des rythmes de ses périmètres, jamais leur somme.",
+      "renvoi": "conventions.groupes_planification de competences.json",
+      "ecart": {
+        "ref": "EC-28",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision Q-22 de la direction pédagogique, 2026-09-10"
+      }
+    }
+  },
+  "alerte_charge": {
+    "source": "Cahier § 8.2",
+    "transcription_cahier": [
+      "si la somme des rythmes recommandés dépasse 20 h/semaine, le bilan propose un séquencement (Première partie visée en priorité sur le premier trimestre) et le mentionne comme choix à arbitrer avec la famille"
+    ],
+    "profils": [
+      "P3"
+    ],
+    "seuil_heures": 20,
+    "comparaison": "depasse",
+    "lecture_de_la_comparaison": "« dépasse » se lit strictement : une somme de 20 h exactement ne déclenche pas le séquencement, une somme de 20,5 h le déclenche. Le Cahier écrit « dépasse 20 h/semaine » et non « atteint 20 h ».",
+    "retablissement": {
+      "decision": "Décision Q-27 de la direction pédagogique, 2026-09-10.",
+      "motif": "Le seuil du Cahier avait été abaissé à 15 h au motif qu'il était inatteignable : six matières porteuses d'un rythme, 3 h au maximum chacune, plafonnaient la somme à 18 h. La création de MATH-EA (Q-24) porte le plafond à 21 h pour un profil de sept groupes de planification. La prémisse de l'amendement est donc fausse, et un amendement dont la justification est caduque ne peut pas rester une règle active : le seuil du Cahier est rétabli.",
+      "effet": "Au-delà de 20 h, le bilan propose un séquencement et le mentionne comme choix à arbitrer avec la famille."
+    },
+    "vigilance_charge_elevee": {
+      "libelle": "vigilance — charge élevée",
+      "seuil_heures": 15,
+      "comparaison": "atteint",
+      "lecture_de_la_comparaison": "« atteint » se lit largement : une somme de 15 h exactement déclenche la vigilance, une somme de 14,5 h ne la déclenche pas.",
+      "motif": "À 15 h ou plus, au moins trois matières relèvent de la remise à niveau ou du niveau Non acquis. C'est un signal utile — il dit que le plan est dense —, mais il ne dit pas la même chose que le seuil du Cahier et n'appelle pas la même réponse.",
+      "effet": "signal",
+      "n_impose_pas": "Cet indicateur ne propose aucun séquencement et ne se substitue pas au seuil de 20 h : il nomme une charge élevée et invite à surveiller la tenue du rythme. Le séquencement reste commandé par le seul dépassement du seuil du Cahier.",
+      "phrase_bilan": "**Le volume recommandé est élevé**"
+    },
+    "seuil_cahier_initial": 20,
+    "ecart": {
+      "ref": "EC-18",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision Q-27 de la direction pédagogique, 2026-09-10"
+    },
+    "proposition": "une introduction progressive des matières dans l'ordre de priorité du plan, les prérequis bloquants étant traités avant les notions qui en dépendent",
+    "phrase_bilan": "Le bilan propose d'introduire les matières progressivement, dans l'ordre de priorité du plan",
+    "paragraphe_unique_si_plafond_aussi_depasse": {
+      "regle": "Quand les deux alertes se déclenchent ensemble pour un profil concerné, le bilan produit un seul paragraphe : l'étalement prend la forme du séquencement. Deux paragraphes diraient la même chose.",
+      "decision": "Décision Q-18 / C4 de la direction pédagogique, 2026-09-10"
+    },
+    "specialites_par_profil": {
+      "source": "Cahier § 3.2 : « Choix de spécialités : les 3 (P1/P3) ou les 2 (P2) spécialités »",
+      "transcription_cahier": [
+        "Choix de spécialités : les 3 (P1/P3) ou les 2 (P2) spécialités"
+      ],
+      "par_profil": {
+        "P1": 3,
+        "P2": 2,
+        "P3": 3
+      },
+      "note": "Le catalogue ouvre sept spécialités à chaque profil ; un candidat n'en passe que ce nombre. C'est lui qui borne la charge hebdomadaire atteignable, et donc le seuil d'alerte au-delà duquel la règle ne se déclencherait jamais (contrôle RB-05)."
+    },
+    "sequencement": {
+      "decision": "Décision Q-25 de la direction pédagogique, 2026-09-10 : refus de la politique générique du § 8.2.",
+      "regle": "Le séquencement d'une charge élevée descend de l'ordre de priorité calculé par le plan et des prérequis bloquants. Aucune priorité intrinsèque n'est attachée à l'étiquette « première partie du baccalauréat ».",
+      "prerequis_bloquants": "Les groupes dont le module d'entrée est une remise à niveau conditionnent les notions qui en dépendent : ils sont introduits avant elles.",
+      "interdit": "Aucun découpage trimestriel n'est proposé : le Cahier n'en fixe pas, et le dispositif n'en invente pas.",
+      "ecart": {
+        "ref": "EC-30",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision Q-25 de la direction pédagogique, 2026-09-10"
+      }
+    }
+  },
+  "evaluation_intermediaire": {
+    "source": "Cahier § 8.2",
+    "transcription_cahier": [
+      "toujours à 4 semaines, sur les compétences classées Fragile/Non acquis du module d'entrée, avec les mêmes codes d'items pour permettre la comparaison"
+    ],
+    "delai_semaines": 4,
+    "portee": {
+      "ecart": {
+        "ref": "EC-19",
+        "registre": "referentiels/competences.json → ecarts_cahier",
+        "decision": "Décision de la direction pédagogique du 2026-09-10"
+      },
+      "regle": "Sont réévaluées la compétence du module d'entrée ; ou, quand le module est « Remise à niveau », les compétences du bloc A dont le score est sous le seuil du niveau En consolidation.",
+      "renvoi_seuil": "niveaux_competence.paliers[En consolidation].seuil_min",
+      "ordre_de_grandeur_attendu": {
+        "profil": "P3",
+        "min": 6,
+        "max": 13,
+        "note": "Contrôle de vraisemblance du rendu, non règle de calcul. La borne haute passe de 10 à 13 le 2026-09-10 : le périmètre réglementaire corrigé ajoute MATH-EA (Q-24), dont le module d'entrée est une remise à niveau sur le jeu P3, ce qui porte trois compétences de plus à la réévaluation."
+      }
+    },
+    "contrainte": "Mêmes codes d'items qu'au diagnostic, pour permettre la comparaison."
+  },
+  "points_appui": {
+    "source": "Cahier § 8.1, section 4 du document remis",
+    "transcription_cahier": [
+      "3 compétences les plus solides (appuis) ; 3 priorités absolues ; signaux de calibration"
+    ],
+    "ecart": {
+      "ref": "EC-27",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision de la direction pédagogique du 2026-09-10, étape 3"
+    },
+    "nombre_appuis": 3,
+    "nombre_priorites": 3,
+    "tri_appuis": "score décroissant",
+    "departage": "ordre de déclaration des compétences dans competences.json, qui est l'ordre des chapitres du programme",
+    "recouvrement": "Aucune compétence ne figure à la fois dans les appuis et dans les priorités ; à recouvrement, la priorité l'emporte et l'appui suivant est pris.",
+    "effectif_insuffisant": "Le bilan affiche moins de lignes que le nombre demandé plutôt que d'en compléter avec des compétences qui ne le méritent pas.",
+    "calibration": "Un écart de calibration au-delà du seuil produit un paragraphe portant la mesure associée, sans modifier aucun niveau.",
+    "assiette_appuis": "compétences évaluées de tous les périmètres passés, indicateurs transversaux compris",
+    "priorites": {
+      "source": "module d'entrée des groupes de planification, dans l'ordre du plan",
+      "regle": "Les trois priorités sont les modules d'entrée des trois premiers groupes du plan qui appellent une intervention, dans l'ordre de priorite_matieres. Elles ne sont pas choisies séparément : la section 4 est la lecture pédagogique du plan.",
+      "intervention_requise": "Un groupe appelle une intervention dès que son module d'entrée n'est pas le module par défaut (module_entree.libelle_defaut).",
+      "effectif_insuffisant": "Moins de trois groupes concernés : moins de trois priorités. Aucune priorité de remplissage."
+    }
+  },
+  "formule_recommandee": {
+    "source": "Cahier § 8.1, section 7 du document remis",
+    "transcription_cahier": [
+      "Volume horaire hebdomadaire total, répartition, formule Nexus correspondante (tarif issu de la source de prix canonique, jamais recopié)"
+    ],
+    "emplacement_reserve": "{{formule_nexus}}",
+    "source_prix": "Source de prix canonique de Nexus Réussite. Elle n'existe pas dans ce dossier : le bilan porte l'emplacement réservé et la plateforme y substitue la formule et son tarif au moment de l'édition.",
+    "interdit_montant": "Aucun montant n'est écrit dans un bilan, en toutes lettres comme en chiffres.",
+    "controle": "V-Tarif — le rendu ne contient aucun montant."
+  },
+  "registre_parent": {
+    "source": "Cahier § 9 — « Le statut mineur/majeur du candidat est renseigné dans QP et conditionne la génération d'une version parent du bilan. »",
+    "transcription_cahier": [
+      "Le statut mineur/majeur du candidat est renseigné dans QP et conditionne la génération d'une version parent du bilan"
+    ],
+    "variable_qp": "statut_minorite",
+    "valeur_declencheuse": "mineur",
+    "regle": "Mêmes sections, mêmes valeurs, mêmes contrôles que la version remise au candidat ; seul le registre d'adresse change."
+  },
+  "grand_oral": {
+    "source": "Cahier § 7.13",
+    "transcription_cahier": [
+      "Le résultat sert à décider si la préparation au GO commence en parallèle des spécialités ou après"
+    ],
+    "ecart": {
+      "ref": "EC-20",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision de la direction pédagogique du 2026-09-10"
+    },
+    "instrument": "GO",
+    "seuil": 0.5,
+    "au_dessus": {
+      "libelle": "en parallèle",
+      "texte": "préparation au Grand oral en parallèle des spécialités dès le premier mois"
+    },
+    "en_dessous": {
+      "libelle": "différée",
+      "texte": "préparation au Grand oral différée après stabilisation des spécialités, réévaluation à l'évaluation intermédiaire"
+    },
+    "sans_rythme": true
+  },
+  "oral_de_francais": {
+    "source": "Cahier § 7.1",
+    "transcription_cahier": [
+      "Ce n'est pas un oral blanc : c'est une mesure de la langue parlée"
+    ],
+    "ecart": {
+      "ref": "EC-21",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision de la direction pédagogique du 2026-09-10"
+    },
+    "instrument": "FR-EAF-ORAL",
+    "section_bilan": 3,
+    "rattachement": "FR-EAF",
+    "sans_rythme": true,
+    "departage_critere_le_plus_bas": "À égalité de score, le critère retenu est le premier dans l'ordre de la grille, qui est l'ordre dans lequel le coach l'a renseignée pendant l'entretien."
+  },
+  "statut_specialite": {
+    "source": "Cahier § 3.2 (variable QP statut_par_specialite)",
+    "transcription_cahier": [
+      "Choix de spécialités : les 3 (P1/P3) ou les 2 (P2) spécialités"
+    ],
+    "ecart": {
+      "ref": "EC-22",
+      "registre": "referentiels/competences.json → ecarts_cahier",
+      "decision": "Décision de la direction pédagogique du 2026-09-10"
+    },
+    "statut_declencheur": "jamais_abordee",
+    "effet": "prose",
+    "phrase": "Ce taux se lit en tenant compte du statut déclaré pour cette spécialité : elle n'a jamais été abordée en classe. Il mesure un point de départ, non une perte."
+  }
+}

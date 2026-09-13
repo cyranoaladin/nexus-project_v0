@@ -1,0 +1,87 @@
+{
+  "instrument": "EDS-PC",
+  "version": "N1",
+  "titre": "Diagnostic de spécialité physique-chimie — version Première",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "La résolution du bloc C est rédigée sur le cahier de composition.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "QUANT",
+        "intitule": "Grandeurs, unités, conversions, chiffres significatifs, proportionnalité, lecture de graphique"
+      },
+      {
+        "competence": "MAT",
+        "intitule": "Constitution et transformations de la matière : mole, concentration, avancement, dosage ; acide-base et cinétique en Terminale"
+      },
+      {
+        "competence": "MOUV",
+        "intitule": "Mouvement et interactions : vecteurs vitesse, forces ; deuxième loi de Newton en Terminale"
+      },
+      {
+        "competence": "EXP",
+        "intitule": "Démarche expérimentale : protocole, incertitude, exploitation d'un tableau de mesures"
+      },
+      {
+        "competence": "RES",
+        "intitule": "Résolution de problème : identifier, modéliser, calculer, conclure avec unités"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "PC-2-QUANT-01",
+        "PC-2-QUANT-02",
+        "PC-2-QUANT-03",
+        "PC-2-QUANT-04",
+        "PC-2-QUANT-05",
+        "PC-2-QUANT-06"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "PC-1-MAT-01",
+        "PC-1-MAT-04",
+        "PC-1-MAT-03",
+        "PC-1-MAT-05",
+        "PC-1-MOUV-01",
+        "PC-1-MOUV-07",
+        "PC-1-MOUV-03",
+        "PC-1-MOUV-04",
+        "PC-1-ENER-01",
+        "PC-1-ENER-02",
+        "PC-1-ENER-05",
+        "PC-1-ENER-06",
+        "PC-1-OND-01",
+        "PC-1-OND-02",
+        "PC-1-OND-05",
+        "PC-1-OND-06",
+        "PC-1-EXP-01",
+        "PC-1-EXP-02",
+        "PC-1-EXP-03",
+        "PC-1-EXP-04"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "PC-1-RES-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "PC-1-RES-03"
+      ]
+    }
+  ]
+}

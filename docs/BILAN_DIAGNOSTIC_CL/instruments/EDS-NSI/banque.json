@@ -1,0 +1,1528 @@
+{
+  "instrument": "EDS-NSI",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "NSI-2-PYTH-01",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Après l'exécution de ces instructions, que vaut `x` ?\n\n```\nx = 3\ny = x\nx = 5\n```",
+      "supports": [],
+      "propositions": {
+        "A": "3",
+        "B": "5",
+        "C": "8",
+        "D": "y"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "affectation initiale conservée",
+          "C": "affectations additionnées",
+          "D": "variable confondue avec sa valeur"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Affectation successive. Le distracteur A désigne un candidat pour qui une variable serait une équation et non une case mémoire réaffectable."
+    },
+    {
+      "item_id": "NSI-2-PYTH-02",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Combien de fois le corps de cette boucle est-il exécuté ?\n\n```\nfor i in range(2, 7):\n    print(i)\n```",
+      "supports": [],
+      "propositions": {
+        "A": "5",
+        "B": "6",
+        "C": "7",
+        "D": "4"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "borne supérieure incluse",
+          "C": "comptage depuis zéro",
+          "D": "borne inférieure exclue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Bornes de range, suivant le code NSI-ERR-ITERATIONS : la borne supérieure est exclue, la borne inférieure incluse."
+    },
+    {
+      "item_id": "NSI-2-PYTH-03",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que renvoie cette fonction pour `n = 3` ?\n\n```\ndef f(n):\n    if n > 2:\n        return \"grand\"\n    return \"petit\"\n```",
+      "supports": [],
+      "propositions": {
+        "A": "\"petit\"",
+        "B": "\"grand\"",
+        "C": "rien",
+        "D": "une erreur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "condition évaluée à l'envers",
+          "C": "instruction return ignorée",
+          "D": "code supposé fautif"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Instruction conditionnelle et return. Le distracteur C repère un candidat qui ne voit pas que return interrompt la fonction."
+    },
+    {
+      "item_id": "NSI-2-PYTH-04",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que vaut `t` après ces instructions ?\n\n```\nt = [1, 2, 3]\nt[0] = t[2]\n```",
+      "supports": [],
+      "propositions": {
+        "A": "`[1, 2, 3]`",
+        "B": "`[3, 2, 3]`",
+        "C": "`[3, 2, 1]`",
+        "D": "`[1, 2, 1]`"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "affectation sans effet supposée",
+          "C": "échange supposé au lieu d'une affectation",
+          "D": "sens de l'affectation inversé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Affectation dans un tableau. Le distracteur C est le plus instructif : l'affectation n'est pas un échange, la valeur d'origine est perdue."
+    },
+    {
+      "item_id": "NSI-2-PYTH-05",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que renvoie cette fonction pour `L = [4, 7, 2]` ?\n\n```\ndef g(L):\n    m = 0\n    for x in L:\n        if x > m:\n            m = x\n    return m\n```",
+      "supports": [],
+      "propositions": {
+        "A": "4",
+        "B": "7",
+        "C": "13",
+        "D": "3"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "première valeur renvoyée",
+          "C": "somme calculée au lieu du maximum",
+          "D": "longueur renvoyée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Recherche du maximum. Le distracteur C distingue compteur, accumulateur et extremum, confusion qui se reporte sur tous les parcours."
+    },
+    {
+      "item_id": "NSI-2-PYTH-06",
+      "competence": "PYTH",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Cette fonction ne renvoie rien alors qu'elle devrait renvoyer la somme. Où est l'erreur ?\n\n```\ndef s(L):\n    total = 0\n    for x in L:\n        total = total + x\n        return total\n```",
+      "supports": [],
+      "propositions": {
+        "A": "la variable `total` n'est pas initialisée",
+        "B": "le `return` est à l'intérieur de la boucle",
+        "C": "la boucle ne parcourt pas la liste",
+        "D": "l'addition est fautive"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "initialisation mise en cause à tort",
+          "C": "parcours mis en cause à tort",
+          "D": "opération mise en cause à tort"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Indentation du return. L'énoncé dit que la fonction ne renvoie rien : c'est faux au sens strict, elle renvoie trop tôt — le distracteur A désigne le candidat qui cherche l'erreur là où le code est correct."
+    },
+    {
+      "item_id": "NSI-2-REPR-01",
+      "competence": "REPR",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "A",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une base de données de contacts, la ligne décrivant une personne est appelée :",
+      "supports": [],
+      "propositions": {
+        "A": "un descripteur",
+        "B": "un enregistrement",
+        "C": "une clé",
+        "D": "une requête"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "nom d'un champ pris pour la ligne",
+          "C": "identifiant pris pour la ligne",
+          "D": "opération prise pour la donnée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de niveau 2 : algorithmique du programme de mathématiques de seconde et notions de SNT (amendement A6). Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Vocabulaire des données structurées, vu en SNT. Prérequis de tout le traitement de données en tables."
+    },
+    {
+      "item_id": "NSI-1-REPR-02",
+      "competence": "REPR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle est l'écriture décimale de l'entier `1011` en binaire ?",
+      "supports": [],
+      "propositions": {
+        "A": "11",
+        "B": "13",
+        "C": "7",
+        "D": "1011"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "poids des bits décalés",
+          "C": "bit de poids fort omis",
+          "D": "écriture binaire prise pour un nombre décimal"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Conversion binaire vers décimal, suivant le code NSI-ERR-BASE."
+    },
+    {
+      "item_id": "NSI-1-REPR-03",
+      "competence": "REPR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur 8 bits non signés, quel est le plus grand entier représentable ?",
+      "supports": [],
+      "propositions": {
+        "A": "128",
+        "B": "255",
+        "C": "256",
+        "D": "127"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "puissance de deux prise pour le maximum",
+          "C": "nombre de valeurs pris pour le maximum",
+          "D": "maximum d'un entier signé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Le distracteur C est l'erreur classique : 256 valeurs distinctes, donc un maximum de 255."
+    },
+    {
+      "item_id": "NSI-1-REPR-04",
+      "competence": "REPR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Donner l'écriture binaire de l'entier 12.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`1100`.",
+        "reponses_1pt": [
+          "L'écriture proposée est correcte mais les bits sont dans l'ordre inverse.",
+          "La méthode par divisions successives est correctement décrite sans résultat écrit."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-BASE",
+          "NSI-ERR-TYPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Conversion décimal vers binaire. L'ordre inversé, coté un point, est l'erreur d'écriture la plus fréquente et se corrige en une séance."
+    },
+    {
+      "item_id": "NSI-1-REPR-05",
+      "competence": "REPR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Que vaut l'expression booléenne `(True and False) or True` ? Justifier en indiquant l'ordre d'évaluation.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`True` : la parenthèse vaut `False`, puis `False or True` vaut `True`.",
+        "reponses_1pt": [
+          "Le résultat est exact sans que l'ordre d'évaluation soit indiqué.",
+          "L'ordre est correctement décrit mais le résultat annoncé est `False`."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-TYPE",
+          "NSI-ERR-BASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Opérateurs booléens et priorité. La cotation sépare le résultat de la méthode, distinction qui prépare la lecture des conditions composées."
+    },
+    {
+      "item_id": "NSI-1-TYPE-01",
+      "competence": "TYPE",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que renvoie `d[\"b\"]` après `d = {\"a\": 1, \"b\": 2}` ?",
+      "supports": [],
+      "propositions": {
+        "A": "1",
+        "B": "2",
+        "C": "\"b\"",
+        "D": "une erreur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "valeur de l'autre clé",
+          "C": "clé renvoyée au lieu de la valeur",
+          "D": "accès supposé fautif"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Accès par clé. Le distracteur C suit le code NSI-ERR-DICT : confondre ce que l'on donne et ce que l'on obtient."
+    },
+    {
+      "item_id": "NSI-1-TYPE-02",
+      "competence": "TYPE",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Que vaut `len(t)` après `t = [[1, 2], [3, 4], [5, 6]]` ?",
+      "supports": [],
+      "propositions": {
+        "A": "2",
+        "B": "3",
+        "C": "6",
+        "D": "9"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "longueur d'un sous-tableau",
+          "C": "nombre total d'éléments comptés",
+          "D": "produit des dimensions"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Longueur d'un tableau de tableaux. Le distracteur C est le plus fréquent : compter les feuilles plutôt que les lignes."
+    },
+    {
+      "item_id": "NSI-1-TYPE-03",
+      "competence": "TYPE",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Écrire l'instruction qui ajoute la valeur 7 à la fin de la liste `L`.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`L.append(7)`.",
+        "reponses_1pt": [
+          "`L = L + [7]` ou une écriture équivalente qui construit une nouvelle liste.",
+          "La méthode est nommée sans être écrite sous forme d'instruction."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-TYPE",
+          "NSI-ERR-EFFET-BORD"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Ajout en fin de liste. La seconde forme, cotée un point, est fonctionnelle mais construit une nouvelle liste : la distinction prépare l'item sur les effets de bord."
+    },
+    {
+      "item_id": "NSI-T-TYPE-04",
+      "competence": "TYPE",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Dans une pile, quel élément est retiré en premier ? Nommer la règle correspondante.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le dernier élément ajouté : c'est la règle du dernier entré, premier sorti.",
+        "reponses_1pt": [
+          "L'élément est correctement désigné sans que la règle soit nommée.",
+          "La règle est nommée mais l'élément désigné est le premier ajouté."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-TYPE",
+          "NSI-ERR-INDICE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Structure de pile. La seconde réponse à un point isole la confusion pile / file, qui rend inexploitable tout algorithme de parcours."
+    },
+    {
+      "item_id": "NSI-1-ALGO-01",
+      "competence": "ALGO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La recherche dichotomique dans un tableau suppose que le tableau soit :",
+      "supports": [],
+      "propositions": {
+        "A": "de taille paire",
+        "B": "trié",
+        "C": "composé d'entiers",
+        "D": "de taille connue"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "condition de parité supposée",
+          "C": "condition de type supposée",
+          "D": "condition triviale prise pour la condition d'application"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Condition d'application de la dichotomie. Le distracteur D est vrai mais insuffisant : c'est l'ordre qui rend l'algorithme correct."
+    },
+    {
+      "item_id": "NSI-1-ALGO-02",
+      "competence": "ALGO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Pour un tableau de 1000 éléments triés, la recherche dichotomique effectue au plus environ :",
+      "supports": [],
+      "propositions": {
+        "A": "10 comparaisons",
+        "B": "100 comparaisons",
+        "C": "500 comparaisons",
+        "D": "1000 comparaisons"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "ordre de grandeur intermédiaire supposé",
+          "C": "moitié du tableau parcourue",
+          "D": "coût de la recherche séquentielle"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Coût de la dichotomie, suivant le code NSI-ERR-COMPLEX. Le distracteur D mesure exactement la méconnaissance du gain apporté par l'algorithme."
+    },
+    {
+      "item_id": "NSI-1-ALGO-03",
+      "competence": "ALGO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un tri par insertion est appliqué au tableau `[3, 1, 2]`. Donner l'état du tableau après la première insertion.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`[1, 3, 2]`.",
+        "reponses_1pt": [
+          "L'état donné correspond au tableau entièrement trié.",
+          "Le principe de l'insertion est correctement décrit sans état écrit."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ITERATIONS",
+          "NSI-ERR-INDICE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Trace d'un tri. La première réponse à un point désigne un candidat qui connaît le résultat de l'algorithme sans en suivre le déroulement, distinction que seule une trace révèle."
+    },
+    {
+      "item_id": "NSI-T-ALGO-04",
+      "competence": "ALGO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Cette fonction récursive est incomplète. Indiquer ce qui manque et écrire la ligne correspondante.\n\n```\ndef fact(n):\n    return n * fact(n - 1)\n```",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il manque le cas de base : `if n <= 1: return 1` avant l'appel récursif.",
+        "reponses_1pt": [
+          "L'absence de cas de base est signalée sans que la ligne soit écrite.",
+          "Une ligne est écrite mais elle ne constitue pas une condition d'arrêt correcte."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-CAS-BASE",
+          "NSI-ERR-ITERATIONS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Cas de base d'une récursion, suivant le code NSI-ERR-CAS-BASE. C'est l'erreur qui distingue une récursion d'une boucle infinie, et sa correction tient en une ligne."
+    },
+    {
+      "item_id": "NSI-1-ARCH-01",
+      "competence": "ARCH",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un ordinateur, le rôle du système d'exploitation est :",
+      "supports": [],
+      "propositions": {
+        "A": "d'exécuter les calculs arithmétiques",
+        "B": "de gérer les ressources matérielles et les processus",
+        "C": "de stocker les données",
+        "D": "d'afficher les images"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "rôle du processeur",
+          "C": "rôle de la mémoire de masse",
+          "D": "rôle du sous-système graphique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Rôle du système d'exploitation. Chaque distracteur désigne correctement un autre composant, ce qui mesure la distinction plutôt qu'une définition."
+    },
+    {
+      "item_id": "NSI-T-ARCH-02",
+      "competence": "ARCH",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un réseau, un protocole de routage sert à :",
+      "supports": [],
+      "propositions": {
+        "A": "chiffrer les données",
+        "B": "déterminer le chemin des paquets entre deux machines",
+        "C": "compresser les fichiers",
+        "D": "attribuer les adresses IP"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "fonction de sécurité",
+          "C": "fonction de compression",
+          "D": "fonction d'attribution d'adresses"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Fonction du routage. Le distracteur D désigne un autre protocole réel, ce qui interdit l'élimination par absurdité."
+    },
+    {
+      "item_id": "NSI-1-ARCH-03",
+      "competence": "ARCH",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi un processus en attente d'une donnée disque libère le processeur.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que l'attente d'une entrée-sortie est longue devant la vitesse du processeur : le système d'exploitation lui retire le processeur et l'attribue à un autre processus prêt à s'exécuter.",
+        "reponses_1pt": [
+          "La libération est affirmée sans que la différence de vitesse soit invoquée.",
+          "La différence de vitesse est invoquée sans mention de l'attribution à un autre processus."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ROUTAGE",
+          "NSI-ERR-SPEC"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Ordonnancement. Le mécanisme demandé relie une propriété matérielle à une décision logicielle, ce que le programme désigne comme la gestion des ressources."
+    },
+    {
+      "item_id": "NSI-T-ARCH-04",
+      "competence": "ARCH",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Deux routes mènent d'une machine à une autre, de coûts respectifs 3 et 5. Quelle route un protocole à vecteur de distance retient-il, et pourquoi ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La route de coût 3 : le protocole retient le chemin de coût total minimal.",
+        "reponses_1pt": [
+          "La route est correctement désignée sans justification.",
+          "Le critère de coût minimal est énoncé mais la route désignée est celle de coût 5."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ROUTAGE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Critère de sélection d'une route, suivant le code NSI-ERR-ROUTAGE."
+    },
+    {
+      "item_id": "NSI-1-WEB-01",
+      "competence": "WEB",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un formulaire HTML, la méthode `POST` se distingue de `GET` en ce que :",
+      "supports": [],
+      "propositions": {
+        "A": "les données ne sont pas visibles dans l'URL",
+        "B": "elle est plus rapide",
+        "C": "elle chiffre les données",
+        "D": "elle ne fonctionne qu'en local"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "différence supposée de performance",
+          "C": "envoi confondu avec chiffrement",
+          "D": "limitation inventée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Le distracteur C est le plus important à écarter : POST n'est pas un chiffrement, confusion qui a des conséquences de sécurité."
+    },
+    {
+      "item_id": "NSI-T-WEB-02",
+      "competence": "WEB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une base relationnelle, une clé primaire sert à :",
+      "supports": [],
+      "propositions": {
+        "A": "trier la table",
+        "B": "identifier de façon unique chaque enregistrement",
+        "C": "chiffrer la table",
+        "D": "relier deux bases distinctes"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "identification confondue avec tri",
+          "C": "identification confondue avec sécurité",
+          "D": "clé primaire confondue avec clé étrangère"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Rôle de la clé primaire. Le distracteur D désigne la clé étrangère, distinction que le programme demande explicitement."
+    },
+    {
+      "item_id": "NSI-1-WEB-03",
+      "competence": "WEB",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une validation des données effectuée uniquement côté client ne suffit pas.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que le client est sous le contrôle de l'utilisateur : les données peuvent être envoyées au serveur sans passer par la page, donc la validation doit être refaite côté serveur.",
+        "reponses_1pt": [
+          "La réponse affirme que la validation client est insuffisante sans dire pourquoi.",
+          "La réponse invoque une panne du navigateur et non le contrôle par l'utilisateur."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SPEC",
+          "NSI-ERR-SQL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Sécurité côté client et côté serveur. Le raisonnement demandé est celui d'un modèle de menace, non une règle à mémoriser."
+    },
+    {
+      "item_id": "NSI-T-WEB-04",
+      "competence": "WEB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Écrire la requête SQL qui sélectionne les noms des élèves de la table `eleve` dont la moyenne est supérieure à 12.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`SELECT nom FROM eleve WHERE moyenne > 12;`",
+        "reponses_1pt": [
+          "La requête est correcte mais la clause `WHERE` est absente.",
+          "La logique est correcte mais la syntaxe comporte une erreur qui empêcherait l'exécution."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SQL",
+          "NSI-ERR-TYPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Requête de sélection avec condition, suivant le code NSI-ERR-SQL."
+    },
+    {
+      "item_id": "NSI-T-POO-01",
+      "competence": "POO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un programme orienté objet, une classe est :",
+      "supports": [],
+      "propositions": {
+        "A": "un objet particulier",
+        "B": "un modèle décrivant les attributs et les méthodes de ses objets",
+        "C": "une variable globale",
+        "D": "un fichier de code"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "classe confondue avec instance",
+          "C": "classe confondue avec une donnée",
+          "D": "classe confondue avec son support"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Distinction classe / instance, suivant le code NSI-ERR-INSTANCE."
+    },
+    {
+      "item_id": "NSI-T-POO-02",
+      "competence": "POO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Dans cette classe, indiquer ce que représente `self` et pourquoi il figure en premier paramètre.\n\n```\nclass Compte:\n    def depot(self, montant):\n        self.solde = self.solde + montant\n```",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`self` désigne l'instance sur laquelle la méthode est appelée ; il figure en premier paramètre parce que Python le transmet automatiquement lors de l'appel.",
+        "reponses_1pt": [
+          "Le rôle de `self` est correctement décrit sans que la transmission automatique soit mentionnée.",
+          "La transmission est mentionnée mais `self` est décrit comme la classe et non l'instance."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-INSTANCE",
+          "NSI-ERR-SPEC"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Le paramètre `self`. La seconde réponse à un point isole exactement la confusion classe / instance mesurée en reconnaissance par l'item précédent."
+    },
+    {
+      "item_id": "NSI-1-PROG-01",
+      "competence": "PROG",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 25,
+      "enonce": "Sur la machine du centre, ouvrez le fichier `rendu.py` et complétez la fonction demandée.\n\nÉcrivez une fonction `compte_pairs(L)` qui prend en paramètre une liste d'entiers et **renvoie** le nombre d'entiers pairs qu'elle contient.\n\n- Sur une liste vide, la fonction renvoie `0`.\n- La liste passée en paramètre ne doit pas être modifiée.\n- Documentez la fonction par une docstring d'une ligne.\n\nLe fichier de tests `test_NSI-1-PROG-01.py` est fourni : vous pouvez l'exécuter autant de fois que vous le souhaitez. Aucun accès à Internet n'est autorisé.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "TESTS",
+          "intitule": "Tests passés",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "Le fichier ne s'exécute pas à l'import, ou moins de 40 % des tests passent.",
+            "1": "Au moins 40 % des tests passent.",
+            "2": "Au moins 75 % des tests passent.",
+            "3": "Tous les tests passent."
+          }
+        },
+        {
+          "code": "LISIB",
+          "intitule": "Lisibilité du code",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "Les noms n'ont aucun rapport avec ce qu'ils désignent et le code n'est pas indenté lisiblement.",
+            "1": "Les noms sont arbitraires ou le code comporte des fragments inutilisés.",
+            "2": "Les noms sont parlants et le code ne comporte rien d'inutile ; la docstring manque.",
+            "3": "Les noms sont parlants, le code ne comporte rien d'inutile et la docstring décrit ce que la fonction renvoie."
+          }
+        },
+        {
+          "code": "SPEC",
+          "intitule": "Respect de la spécification",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "La fonction ne porte pas le nom demandé ou ne prend pas les paramètres annoncés.",
+            "1": "La signature est respectée mais la fonction affiche au lieu de renvoyer.",
+            "2": "La signature et la valeur de retour sont respectées ; un cas annoncé par l'énoncé n'est pas traité.",
+            "3": "La signature, la valeur de retour et tous les cas annoncés sont respectés."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Bloc C de la version N1, sur machine avec fichier de tests fourni (§ 7.8). Le critère « tests passés » est calculé par exécution selon le barème du référentiel, jamais saisi (décision Q-13) ; les deux critères qualitatifs appartiennent à PROG et requièrent un correcteur habilité. La tâche est un parcours avec compteur, la plus élémentaire du programme de Première : ce qui est mesuré est la capacité à produire une fonction complète et conforme, non l'ingéniosité algorithmique. Les deux contraintes explicites — liste vide et non-modification — sont exactement les deux cas limites que les tests vérifient, ce qui rend le critère de spécification objectivable."
+    },
+    {
+      "item_id": "NSI-T-PROG-02",
+      "competence": "PROG",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 30,
+      "enonce": "Sur la machine du centre, ouvrez le fichier `rendu.py` et complétez la fonction demandée.\n\nÉcrivez une fonction `recherche(L, v)` qui prend en paramètres une liste d'entiers **triée par ordre croissant** et une valeur `v`, et **renvoie** l'indice d'une occurrence de `v` dans `L`, ou `-1` si `v` ne s'y trouve pas.\n\n- Votre fonction doit procéder par dichotomie.\n- Sur une liste vide, la fonction renvoie `-1`.\n- La liste passée en paramètre ne doit pas être modifiée.\n- Documentez la fonction par une docstring d'une ligne.\n\nLe fichier de tests `test_NSI-T-PROG-02.py` est fourni : vous pouvez l'exécuter autant de fois que vous le souhaitez. Aucun accès à Internet n'est autorisé.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "TESTS",
+          "intitule": "Tests passés",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "Le fichier ne s'exécute pas à l'import, ou moins de 40 % des tests passent.",
+            "1": "Au moins 40 % des tests passent.",
+            "2": "Au moins 75 % des tests passent.",
+            "3": "Tous les tests passent."
+          }
+        },
+        {
+          "code": "LISIB",
+          "intitule": "Lisibilité du code",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "Les noms n'ont aucun rapport avec ce qu'ils désignent et le code n'est pas indenté lisiblement.",
+            "1": "Les noms sont arbitraires ou le code comporte des fragments inutilisés.",
+            "2": "Les noms sont parlants et le code ne comporte rien d'inutile ; la docstring manque.",
+            "3": "Les noms sont parlants, le code ne comporte rien d'inutile et la docstring décrit ce que la fonction renvoie."
+          }
+        },
+        {
+          "code": "SPEC",
+          "intitule": "Respect de la spécification",
+          "competence": "PROG",
+          "descripteurs": {
+            "0": "La fonction ne porte pas le nom demandé ou ne prend pas les paramètres annoncés.",
+            "1": "La signature est respectée mais la fonction affiche au lieu de renvoyer.",
+            "2": "La signature et la valeur de retour sont respectées ; un cas annoncé par l'énoncé n'est pas traité.",
+            "3": "La signature, la valeur de retour et tous les cas annoncés sont respectés."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Bloc C de la version NT. La dichotomie est l'algorithme dont le programme de Terminale attend la maîtrise et dont les cas limites sont les plus discriminants : liste vide, valeur absente, valeur aux bornes. Les tests les couvrent tous. L'exigence de dichotomie est explicite dans l'énoncé, faute de quoi une recherche séquentielle passerait les tests sans mesurer ce qui est visé ; le correcteur habilité la vérifie au critère de spécification."
+    },
+    {
+      "item_id": "NSI-1-PROG-03",
+      "competence": "PROG",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes de l'écriture d'une fonction, en les numérotant de 1 à 4 : écrire le corps de la fonction — lire la spécification et repérer les cas limites — vérifier sur les cas limites — écrire la signature et la docstring.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : lire la spécification (1), écrire la signature et la docstring (2), écrire le corps (3), vérifier sur les cas limites (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SPEC",
+          "NSI-ERR-CAS-BASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Item de bloc D de PROG, palier D1 : la méthode est restituée sans être mise en œuvre. Placer la lecture de la spécification avant l'écriture est précisément ce que le critère SPEC sanctionne dans la tâche."
+    },
+    {
+      "item_id": "NSI-T-PROG-04",
+      "competence": "PROG",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Cette fonction devait renvoyer le nombre d'éléments strictement positifs d'une liste. Elle provoque une erreur d'exécution sur la liste vide. Indiquez pourquoi et corrigez.\n\n```\ndef positifs(L):\n    c = 0\n    for x in L:\n        if x > 0:\n            c = c + 1\n    return c / len(L)\n```",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La division par `len(L)` provoque une erreur sur une liste vide, et elle ne correspond pas à la spécification : il faut renvoyer `c` et non un quotient.",
+        "reponses_1pt": [
+          "La division par zéro est repérée sans que l'écart à la spécification soit relevé.",
+          "L'écart à la spécification est relevé sans mention du cas de la liste vide."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SPEC",
+          "NSI-ERR-CAS-BASE",
+          "NSI-ERR-INDICE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Item de bloc D de PROG, palier D2 : repérer deux défauts dans un code fourni, l'un d'exécution et l'autre de conformité. Ce sont exactement les deux dimensions que les critères TESTS et SPEC séparent dans la tâche, mesurées ici sans machine."
+    },
+    {
+      "item_id": "NSI-1-TYPE-05",
+      "competence": "TYPE",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Écrire l'instruction qui associe la valeur 20 à la clé `\"maths\"` du dictionnaire `notes`.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`notes[\"maths\"] = 20`.",
+        "reponses_1pt": [
+          "L'instruction emploie la syntaxe des listes, avec un indice entier.",
+          "La méthode est décrite en français sans être écrite."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-DICT",
+          "NSI-ERR-TYPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Affectation par clé. La première réponse à un point isole la confusion entre indice et clé, que le code NSI-ERR-DICT suit."
+    },
+    {
+      "item_id": "NSI-1-ALGO-05",
+      "competence": "ALGO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un parcours séquentiel d'un tableau de `n` éléments effectue, dans le pire des cas :",
+      "supports": [],
+      "propositions": {
+        "A": "1 comparaison",
+        "B": "`n` comparaisons",
+        "C": "`n` au carré comparaisons",
+        "D": "`n` sur 2 comparaisons"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "coût constant supposé",
+          "C": "coût quadratique supposé",
+          "D": "coût moyen pris pour le pire des cas"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Coût du parcours séquentiel. Le distracteur D est le plus fin : la moitié en moyenne, mais tout le tableau dans le pire des cas."
+    },
+    {
+      "item_id": "NSI-1-ARCH-05",
+      "competence": "ARCH",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux composants matériels d'un ordinateur et indiquer le rôle de chacun.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux composants distincts parmi processeur, mémoire vive, mémoire de masse, périphériques d'entrée-sortie, chacun assorti de son rôle.",
+        "reponses_1pt": [
+          "Deux composants sont cités mais un seul rôle est donné.",
+          "Un seul composant est cité, avec son rôle."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ROUTAGE",
+          "NSI-ERR-SPEC"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Restitution structurée. Sert d'appui à NSI-1-ARCH-01 : un candidat qui cite les composants mais échoue au QCM relève d'une difficulté de discrimination."
+    },
+    {
+      "item_id": "NSI-1-ARCH-06",
+      "competence": "ARCH",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Lorsqu'un ordinateur est éteint, les données conservées sont celles de :",
+      "supports": [],
+      "propositions": {
+        "A": "la mémoire vive",
+        "B": "la mémoire de masse",
+        "C": "les registres du processeur",
+        "D": "la mémoire cache"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "mémoire volatile prise pour permanente",
+          "C": "mémoire de travail du processeur",
+          "D": "mémoire tampon volatile"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Volatilité des mémoires. Les trois distracteurs désignent des mémoires réelles, toutes volatiles : l'item mesure la distinction, non le vocabulaire."
+    },
+    {
+      "item_id": "NSI-1-WEB-05",
+      "competence": "WEB",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une page web, le rôle d'une feuille de style CSS est :",
+      "supports": [],
+      "propositions": {
+        "A": "de décrire la structure du contenu",
+        "B": "de décrire la présentation du contenu",
+        "C": "d'exécuter des calculs",
+        "D": "de stocker les données"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "rôle du HTML",
+          "C": "rôle du script",
+          "D": "rôle de la base de données"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Séparation structure / présentation. Chaque distracteur désigne correctement une autre technologie de la page."
+    },
+    {
+      "item_id": "NSI-T-TYPE-06",
+      "competence": "TYPE",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans une file d'attente, quel élément est retiré en premier ? Nommer la règle correspondante.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le premier élément ajouté : c'est la règle du premier entré, premier sorti.",
+        "reponses_1pt": [
+          "L'élément est correctement désigné sans que la règle soit nommée.",
+          "La règle est nommée mais l'élément désigné est le dernier ajouté."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-TYPE",
+          "NSI-ERR-INDICE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). File d'attente, en regard de NSI-T-TYPE-04 sur la pile : le couple mesure la distinction, que confondre rend tout parcours de graphe incorrect."
+    },
+    {
+      "item_id": "NSI-T-ALGO-06",
+      "competence": "ALGO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un arbre binaire, un nœud possède au plus :",
+      "supports": [],
+      "propositions": {
+        "A": "un fils",
+        "B": "deux fils",
+        "C": "trois fils",
+        "D": "un nombre quelconque de fils"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "structure de liste chaînée",
+          "C": "arbre ternaire",
+          "D": "arbre général"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Définition de l'arbre binaire. Le distracteur D désigne l'arbre général, distinction que le programme demande."
+    },
+    {
+      "item_id": "NSI-T-ARCH-06",
+      "competence": "ARCH",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux ressources qu'un système d'exploitation attribue aux processus.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux ressources distinctes parmi le temps de processeur, la mémoire, l'accès aux périphériques, les fichiers.",
+        "reponses_1pt": [
+          "Une seule ressource est citée, ou deux formulations désignent la même ressource."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ROUTAGE",
+          "NSI-ERR-SPEC"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Restitution. Prépare l'item NSI-1-ARCH-03 sur l'ordonnancement, qui en demande le mécanisme."
+    },
+    {
+      "item_id": "NSI-T-WEB-06",
+      "competence": "WEB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une table relationnelle, une clé étrangère sert à :",
+      "supports": [],
+      "propositions": {
+        "A": "chiffrer une colonne",
+        "B": "référencer la clé primaire d'une autre table",
+        "C": "trier les enregistrements",
+        "D": "garantir l'unicité des lignes"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "confusion avec le chiffrement",
+          "C": "confusion avec un index",
+          "D": "rôle de la clé primaire"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Clé étrangère, en regard de NSI-T-WEB-02 sur la clé primaire : le couple mesure la distinction que le modèle relationnel impose."
+    },
+    {
+      "item_id": "NSI-1-ALGO-07",
+      "competence": "ALGO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans un parcours séquentiel à la recherche d'une valeur, à quelle condition peut-on s'arrêter avant la fin du tableau ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Dès que la valeur cherchée est trouvée : le parcours peut alors être interrompu.",
+        "reponses_1pt": [
+          "La réponse indique qu'on peut s'arrêter sans préciser à quelle condition."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-ITERATIONS",
+          "NSI-ERR-INDICE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Arrêt anticipé d'un parcours. Distingue le candidat qui applique un schéma mécanique de celui qui comprend ce que le parcours cherche."
+    },
+    {
+      "item_id": "NSI-1-WEB-06",
+      "competence": "WEB",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer les deux méthodes HTTP employées par les formulaires web et indiquer laquelle fait apparaître les données dans l'URL.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "`GET` et `POST` ; c'est `GET` qui fait apparaître les données dans l'URL.",
+        "reponses_1pt": [
+          "Les deux méthodes sont citées sans que la distinction soit faite.",
+          "La distinction est correcte mais une seule méthode est nommée."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SPEC",
+          "NSI-ERR-SQL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe de première générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Restitution appuyant NSI-1-WEB-01 : un candidat qui cite les méthodes mais échoue au QCM relève d'une difficulté de discrimination, non de connaissance."
+    },
+    {
+      "item_id": "NSI-T-ALGO-08",
+      "competence": "ALGO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Qu'appelle-t-on le cas de base d'une fonction récursive ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le cas où la fonction renvoie un résultat sans s'appeler elle-même, ce qui met fin à la récursion.",
+        "reponses_1pt": [
+          "La réponse décrit le cas de base sans mentionner l'arrêt de la récursion.",
+          "La réponse décrit l'appel récursif et non le cas de base."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-CAS-BASE",
+          "NSI-ERR-ITERATIONS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Définition du cas de base, en regard de NSI-T-ALGO-04 qui en demande l'écriture : la lecture croisée dit si la difficulté est de connaissance ou de mise en œuvre."
+    },
+    {
+      "item_id": "NSI-T-ARCH-07",
+      "competence": "ARCH",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un réseau, la fragmentation d'un message en paquets permet notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "de chiffrer le message",
+        "B": "d'emprunter des chemins différents et de réémettre les seuls paquets perdus",
+        "C": "de compresser le message",
+        "D": "d'éviter les collisions matérielles"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "fonction de sécurité",
+          "C": "fonction de compression",
+          "D": "fonction de la couche physique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Intérêt de la commutation de paquets. Item de transfert : le candidat doit relier une structure de données à une propriété du réseau."
+    },
+    {
+      "item_id": "NSI-T-WEB-07",
+      "competence": "WEB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans une base relationnelle, à quoi sert la clause `WHERE` d'une requête `SELECT` ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "À restreindre la sélection aux enregistrements qui vérifient une condition.",
+        "reponses_1pt": [
+          "La réponse décrit la clause comme servant à choisir des colonnes."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-SQL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Rôle de la clause WHERE. La réponse à un point isole la confusion entre restriction sur les lignes et projection sur les colonnes, la plus fréquente en SQL."
+    },
+    {
+      "item_id": "NSI-T-POO-03",
+      "competence": "POO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Dans le code ci-dessous, quel est le nom de la classe et quel est celui de la méthode ?\n\n```\nclass Livre:\n    def resume(self):\n        return self.titre\n```",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La classe s'appelle `Livre` et la méthode `resume`.",
+        "reponses_1pt": [
+          "L'un des deux noms est exact, l'autre non."
+        ],
+        "codes_erreur": [
+          "NSI-ERR-INSTANCE",
+          "NSI-ERR-TYPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Repérage des éléments d'une classe. Item d'entrée : sans lui, l'échec aux items suivants ne dirait pas si le candidat ne lit pas la syntaxe ou ne comprend pas le modèle."
+    },
+    {
+      "item_id": "NSI-T-POO-04",
+      "competence": "POO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Après `a = Livre()` et `b = Livre()`, les objets `a` et `b` sont :",
+      "supports": [],
+      "propositions": {
+        "A": "le même objet",
+        "B": "deux instances distinctes de la même classe",
+        "C": "deux classes différentes",
+        "D": "deux copies de la classe"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "instanciation confondue avec référence",
+          "C": "instance confondue avec classe",
+          "D": "instance décrite comme copie de la classe"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité numérique et sciences informatiques, classe terminale générale. Item traité sur papier : lecture et prédiction, sans exécution (§ 7.8). Instanciation multiple. Le distracteur A désigne un candidat qui croit qu'une classe n'a qu'une réalisation, obstacle qui bloque toute la programmation objet."
+    }
+  ]
+}

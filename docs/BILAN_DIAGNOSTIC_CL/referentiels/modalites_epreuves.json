@@ -1,0 +1,457 @@
+{
+  "schema": "modalites_epreuves/1.0",
+  "objet": "Ce que le candidat devra réellement présenter : intitulé officiel, type, durée, coefficient, nature, structure, programme évalué, et ce qui change pour un candidat individuel. Les livrets lisent ce fichier ; aucune donnée réglementaire n'est écrite à la main dans une couverture.",
+  "date_de_reference": "2026-09-11",
+  "voie": "générale",
+  "avertissement": "Les faits consignés ici sont relevés dans les textes cités, consultés le 2026-09-11 et conservés sous leur URL. Aucun n'est restitué de mémoire. Là où un texte n'a pas pu être consulté, le champ porte « confiance: a_verifier » et le dit.",
+  "sources": {
+    "memento": {
+      "titre": "Modalités de l'évaluation en cycle terminal du lycée général et technologique — cadre réglementaire et systèmes d'information",
+      "editeur": "MENSER / DGESCO",
+      "date": "2025-09",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/2025-memento-cadrereglementaire-evaluationsbacpdf-113592.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "modalites": {
+      "titre": "Note de service relative aux modalités d'évaluation des candidats au baccalauréat — version consolidée février 2025",
+      "nor": "MENE2121270N",
+      "date_texte": "2021-07-28",
+      "modifiee_par": [
+        "MENE2128670N (2021-11-09)",
+        "MENE2228103N (2023-02-22)",
+        "MENE2317755C (2023-11-17)",
+        "MENE2325677N (2023-12-21)"
+      ],
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-modalites-evaluationconsolideepdf-73581.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "nsi": {
+      "titre": "Définition de l'épreuve de spécialité NSI — version consolidée août 2024",
+      "nor": "MENE2001797N",
+      "date_texte": "2020-02-11",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-nsi-102102.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "pc": {
+      "titre": "Définition de l'épreuve de spécialité physique-chimie — consolidée août 2024",
+      "nor": "MENE2001798N",
+      "date_texte": "2020-02-11",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-physique-chimie-102096.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "svt": {
+      "titre": "Définition de l'épreuve de spécialité SVT — version consolidée août 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-svt-102087.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "hlp": {
+      "titre": "Définition de l'épreuve de spécialité HLP — version consolidée août 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-hlp-102114.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "hggsp": {
+      "titre": "Définition de l'épreuve de spécialité HGGSP — consolidée mai 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-hggsp-102117.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "maths": {
+      "titre": "Définition de l'épreuve de spécialité mathématiques — consolidée août 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-maths-102105.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "go": {
+      "titre": "Épreuve orale terminale dite « Grand oral » — version consolidée juin 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/voie-ggrand-oraldoc-consolidepdf-102120.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "eps": {
+      "titre": "Éducation physique et sportive, tronc commun — consolidée novembre 2024",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-consolidee-definition-epreuve-bac-eps-tronc-commun-105813.pdf",
+      "consulte_le": "2026-09-11"
+    },
+    "hg": {
+      "titre": "Modalités des évaluations ponctuelles en histoire-géographie — note MENE2121383N et note de rentrée MENE2523743N",
+      "nor": "MENE2121383N",
+      "date_texte": "2021-07-28",
+      "modifiee_par": [
+        "MENE2523743N (2025-08-25)"
+      ],
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-modalites-evaluationconsolideepdf-73581.pdf",
+      "consulte_le": "2026-09-11",
+      "confiance": "haute"
+    },
+    "emc": {
+      "titre": "Modalités de l'évaluation ponctuelle d'EMC — note transitoire MENE2531481N (session 2026), statut 2026-2027 a_confirmer_reglementairement",
+      "nor": "MENE2531481N",
+      "date_texte": "2025-11-20",
+      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-modalites-evaluationconsolideepdf-73581.pdf",
+      "consulte_le": "2026-09-11",
+      "statut_reglementaire_2026_2027": "a_confirmer_reglementairement",
+      "confiance": "haute"
+    }
+  },
+  "statut_candidat": {
+    "definition_individuel": "Candidat qui n'est scolarisé ni dans un établissement public ou privé sous contrat, ni au Cned en scolarité réglementée. Au titre du contrôle continu, il ne présente pas de moyennes annuelles mais des évaluations ponctuelles organisées par le recteur.",
+    "source": "modalites",
+    "repartition": "Épreuves terminales 60 % de la note globale, contrôle continu 40 %. Somme des coefficients des enseignements obligatoires : 100."
+  },
+  "evaluations_ponctuelles": {
+    "objet": "Les 40 % du contrôle continu, pour un candidat individuel.",
+    "source": "modalites",
+    "modalites_de_passation": {
+      "variable": "mode_evaluations_ponctuelles",
+      "valeurs": [
+        "fin_cycle",
+        "annuelle"
+      ],
+      "fin_cycle": "Le candidat présente toutes ses évaluations ponctuelles à la fin du cycle terminal ; elles portent alors sur l'ensemble du programme du cycle en histoire-géographie, LVA, LVB, enseignement scientifique et EMC, et sur le programme de première pour la spécialité suivie uniquement en première.",
+      "annuelle": "Le candidat est évalué en fin de première sur le programme de première, puis en fin de terminale sur celui de terminale, dans ces mêmes enseignements — à l'exception de la spécialité suivie uniquement en première, qui n'est évaluée qu'une fois.",
+      "choix": "Formulé à l'inscription à l'examen en classe de première. Définitif une fois l'inscription close, sauf situation exceptionnelle et autorisation du recteur.",
+      "consequence_sur_le_diagnostic": "Ce choix commande la version des instruments adossés au contrôle continu : « annuelle » appelle les versions de première puis de terminale, « fin_cycle » appelle la version étendue portant sur tout le cycle. Il ne se confond pas avec le profil du candidat : un candidat de première peut avoir choisi l'une ou l'autre."
+    },
+    "enseignements": [
+      {
+        "code": "EDS-1RE",
+        "intitule": "Enseignement de spécialité suivi uniquement en classe de première",
+        "coefficient_premiere": 8,
+        "coefficient_terminale": null,
+        "coefficient_total": 8,
+        "couvert_par_nexus": "EDS-<x>/N1",
+        "confiance": "haute"
+      },
+      {
+        "code": "HG",
+        "intitule": "Histoire-géographie",
+        "coefficient_premiere": 3,
+        "coefficient_terminale": 3,
+        "coefficient_total": 6,
+        "couvert_par_nexus": "TC-HG",
+        "confiance": "haute",
+        "duree_officielle_min": 120,
+        "nature": "écrite",
+        "structure": "Deux parties : réponse à une question problématisée et étude de document(s) ou production graphique",
+        "candidat_individuel": "Évaluation ponctuelle organisée par le recteur au titre du contrôle continu (coef. 6)."
+      },
+      {
+        "code": "LVA",
+        "intitule": "Langue vivante A",
+        "coefficient_premiere": 3,
+        "coefficient_terminale": 3,
+        "coefficient_total": 6,
+        "couvert_par_nexus": null,
+        "confiance": "haute"
+      },
+      {
+        "code": "LVB",
+        "intitule": "Langue vivante B",
+        "coefficient_premiere": 3,
+        "coefficient_terminale": 3,
+        "coefficient_total": 6,
+        "couvert_par_nexus": null,
+        "confiance": "haute"
+      },
+      {
+        "code": "ES",
+        "intitule": "Enseignement scientifique",
+        "coefficient_premiere": 3,
+        "coefficient_terminale": 3,
+        "coefficient_total": 6,
+        "couvert_par_nexus": "TC-ES",
+        "confiance": "haute",
+        "note": "Comprend en première, pour le candidat sans spécialité mathématiques, un enseignement de mathématiques spécifique intégré à hauteur de 40 % de la moyenne de première."
+      },
+      {
+        "code": "EPS",
+        "intitule": "Éducation physique et sportive",
+        "coefficient_premiere": null,
+        "coefficient_terminale": 6,
+        "coefficient_total": 6,
+        "couvert_par_nexus": null,
+        "confiance": "haute",
+        "note": "Évaluation physique sur trois activités relevant de trois champs d'apprentissage distincts. Aucun diagnostic sur document ne peut en tenir lieu."
+      },
+      {
+        "code": "EMC",
+        "intitule": "Enseignement moral et civique",
+        "coefficient_premiere": 1,
+        "coefficient_terminale": 1,
+        "coefficient_total": 2,
+        "couvert_par_nexus": "TC-EMC",
+        "confiance": "haute",
+        "nature": "orale",
+        "statut_modalite_2026_2027": "a_confirmer_reglementairement",
+        "candidat_individuel": "Évaluation ponctuelle au titre du contrôle continu (coef. 2). Note MENE2531481N transitoire pour 2025-2026 ; modalité exacte 2026-2027 à confirmer réglementairement."
+      }
+    ],
+    "total_coefficients": 40
+  },
+  "epreuves_terminales": {
+    "FR-EAF-ECRIT": {
+      "intitule_officiel": "Épreuve anticipée de français — épreuve écrite",
+      "type": "anticipée",
+      "classe": "première",
+      "coefficient": 5,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Voie générale : le candidat choisit entre un commentaire de texte et une dissertation sur œuvre au programme.",
+      "programme": "Programme de français de la classe de première générale et œuvres au programme de la session visée.",
+      "materiel": "aucun",
+      "calculatrice": false,
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires.",
+      "source": "memento",
+      "confiance": "haute",
+      "note_structure": "La structure — commentaire ou dissertation — est celle de la note de service définissant l'épreuve anticipée de français ; la durée et le coefficient sont relevés dans le mémento. Confiance haute sur durée et coefficient, haute sur la nature de l'exercice."
+    },
+    "FR-EAF-ORAL": {
+      "intitule_officiel": "Épreuve anticipée de français — épreuve orale",
+      "type": "anticipée",
+      "classe": "première",
+      "coefficient": 5,
+      "duree_min": 20,
+      "preparation_min": 30,
+      "nature": "orale",
+      "structure": "Deux temps : explication linéaire d'un texte du descriptif suivie d'une question de grammaire, puis entretien sur une œuvre choisie par le candidat.",
+      "programme": "Descriptif des lectures et activités ; œuvre choisie présentée par le candidat.",
+      "materiel": "descriptif des lectures et activités",
+      "calculatrice": false,
+      "candidat_individuel": "Le candidat individuel constitue et présente lui-même son descriptif.",
+      "source": "memento",
+      "confiance": "haute",
+      "materiel_court": "Descriptif des lectures"
+    },
+    "MATH-EA": {
+      "intitule_officiel": "Épreuve anticipée de mathématiques",
+      "type": "anticipée",
+      "classe": "première",
+      "coefficient": 2,
+      "duree_min": 120,
+      "nature": "écrite",
+      "structure": "Deux parties : automatismes sur 6 points, puis exercices sur 14 points.",
+      "programme": "Programme de mathématiques de la classe de première correspondant à l'année scolaire de passation — spécialité ou mathématiques spécifiques selon le parcours suivi.",
+      "materiel": "aucun",
+      "calculatrice": false,
+      "entree_en_vigueur": "à compter de juin 2026, au titre de la session 2027",
+      "candidat_individuel": "Mêmes conditions.",
+      "source": "memento",
+      "confiance": "haute",
+      "note_structure": "Le partage 6/14 et l'interdiction de la calculatrice viennent de la note de service définissant l'épreuve, déjà portée par referentiels/programmes_examen.json ; durée et coefficient sont confirmés par le mémento."
+    },
+    "PHI": {
+      "intitule_officiel": "Philosophie",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 8,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Trois sujets au choix : deux dissertations et une explication de texte.",
+      "programme": "Programme de philosophie de la classe terminale de la voie générale.",
+      "materiel": "aucun",
+      "calculatrice": false,
+      "candidat_individuel": "Mêmes conditions.",
+      "source": "memento",
+      "confiance": "haute"
+    },
+    "GO": {
+      "intitule_officiel": "Épreuve orale terminale dite « Grand oral »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 8,
+      "coefficient_anterieur": 10,
+      "changement_de_coefficient": "Coefficient 10 jusqu'à la session 2026, 8 à compter de la session 2027.",
+      "duree_min": 20,
+      "preparation_min": 20,
+      "nature": "orale",
+      "structure": "Deux temps de dix minutes : présentation d'une question choisie par le jury parmi les deux que le candidat présente, puis échange avec le jury.",
+      "programme": "Les deux enseignements de spécialité de terminale, pris isolément ou croisés.",
+      "materiel": "Le candidat présente au jury une feuille portant ses deux questions.",
+      "calculatrice": false,
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires. Le candidat individuel constitue lui-même le document portant ses deux questions.",
+      "source": "memento",
+      "source_structure": "go",
+      "confiance": "haute",
+      "materiel_court": "Feuille des deux questions"
+    },
+    "EDS-MATH": {
+      "intitule_officiel": "Enseignement de spécialité « mathématiques »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Le sujet porte sur le programme de terminale ; les notions de première non approfondies en terminale doivent être connues et mobilisables sans constituer un ressort essentiel du sujet.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "maths",
+      "confiance": "haute",
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires."
+    },
+    "EDS-PC": {
+      "intitule_officiel": "Enseignement de spécialité « physique-chimie »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 210,
+      "nature": "écrite et pratique",
+      "structure": "Partie écrite : trois exercices indépendants s'appuyant de manière équilibrée sur différents thèmes, avec une place significative à la modélisation et à la résolution de questions avec prise d'initiative ; les sujets portent sur des situations contextualisées et peuvent inclure des questions relatives aux aspects expérimentaux et aux capacités numériques.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "pc",
+      "confiance": "haute",
+      "partie_pratique": {
+        "duree_min": 60,
+        "poids_ecrit": 0.8,
+        "candidat_individuel_dispense": true,
+        "regle": "Les candidats individuels et les candidats des établissements privés hors contrat sont dispensés de la partie pratique. Pour ces candidats, la note de l'épreuve de spécialité est constituée de la note obtenue à la partie écrite, rapportée à 20 points.",
+        "consequence_diagnostic": "Le diagnostic destiné à un candidat individuel porte sur la partie écrite réellement présentée. Présenter la partie pratique comme une épreuve à préparer serait lui faire travailler une épreuve qu'il ne passera pas.",
+        "source": "pc"
+      },
+      "candidat_individuel": "Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points."
+    },
+    "EDS-NSI": {
+      "intitule_officiel": "Enseignement de spécialité « numérique et sciences informatiques »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 210,
+      "nature": "écrite et pratique",
+      "structure": "Partie écrite : trois exercices indépendants les uns des autres. Partie pratique : résolution de deux exercices sur ordinateur, notés sur 10 points chacun, évalués dans un dialogue avec un professeur-examinateur.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "nsi",
+      "confiance": "haute",
+      "partie_pratique": {
+        "duree_min": 60,
+        "poids_ecrit": 0.75,
+        "candidat_individuel_dispense": true,
+        "regle": "Les candidats individuels et les candidats des établissements privés hors contrat sont dispensés de la partie pratique. Pour ces candidats, la note de l'épreuve de spécialité est constituée de la note obtenue à la partie écrite, rapportée à 20 points.",
+        "consequence_diagnostic": "Le diagnostic destiné à un candidat individuel porte sur la partie écrite réellement présentée. Présenter la partie pratique comme une épreuve à préparer serait lui faire travailler une épreuve qu'il ne passera pas.",
+        "source": "nsi",
+        "items_hors_livret_candidat": [
+          "NSI-1-PROG-01",
+          "NSI-T-PROG-02"
+        ],
+        "motif_exclusion": "Ces deux items demandent d'ouvrir un fichier sur la machine du centre et de faire exécuter un harnais de tests : ils relèvent de la partie pratique, dont le candidat individuel est dispensé. Les laisser dans son livret le ferait préparer une épreuve qu'il ne présentera pas, deux pages après lui avoir écrit qu'il en est dispensé. Ils restent dans la banque et dans le moteur : seul le livret ne les imprime pas.",
+        "complement_nexus": "COMPLEMENT_OPTIONNEL_NSI_PRATIQUE"
+      },
+      "candidat_individuel": "Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points."
+    },
+    "EDS-SVT": {
+      "intitule_officiel": "Enseignement de spécialité « sciences de la vie et de la terre »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 210,
+      "nature": "écrite et pratique",
+      "structure": "Partie écrite : deux exercices. Exercice 1 sur 6 ou 7 points — texte argumenté répondant à une question scientifique. Exercice 2 sur 8 ou 9 points — raisonnement scientifique pour résoudre un problème à partir d'un ensemble de documents.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "svt",
+      "confiance": "haute",
+      "partie_pratique": {
+        "duree_min": 60,
+        "poids_ecrit": null,
+        "candidat_individuel_dispense": true,
+        "regle": "Les candidats individuels et les candidats des établissements privés hors contrat sont dispensés de la partie pratique. Pour ces candidats, la note de l'épreuve de spécialité est constituée de la note obtenue à la partie écrite, rapportée à 20 points.",
+        "consequence_diagnostic": "Le diagnostic destiné à un candidat individuel porte sur la partie écrite réellement présentée. Présenter la partie pratique comme une épreuve à préparer serait lui faire travailler une épreuve qu'il ne passera pas.",
+        "source": "svt"
+      },
+      "candidat_individuel": "Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points."
+    },
+    "EDS-SES": {
+      "intitule_officiel": "Enseignement de spécialité « sciences économiques et sociales »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Dissertation s'appuyant sur un dossier documentaire, ou épreuve composée en trois parties.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "memento",
+      "confiance": "haute",
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires."
+    },
+    "EDS-HGGSP": {
+      "intitule_officiel": "Enseignement de spécialité « histoire-géographie, géopolitique et sciences politiques »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Deux exercices : une dissertation, le candidat ayant le choix entre deux sujets portant chacun sur un thème distinct du programme ; et une étude critique d'un ou deux documents, portant sur un thème qui n'est celui d'aucun des deux sujets de dissertation.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "hggsp",
+      "confiance": "haute",
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires."
+    },
+    "EDS-HLP": {
+      "intitule_officiel": "Enseignement de spécialité « humanités, littérature et philosophie »",
+      "type": "finale",
+      "classe": "terminale",
+      "coefficient": 16,
+      "duree_min": 240,
+      "nature": "écrite",
+      "structure": "Deux questions portant sur un texte relatif à l'un des thèmes du programme : une question d'interprétation — littéraire ou philosophique — et un essai — littéraire ou philosophique.",
+      "programme": "Programme de l'enseignement de spécialité de la classe de terminale en vigueur. Les notions de première non approfondies en terminale doivent être connues et mobilisables, sans constituer un ressort essentiel du sujet.",
+      "materiel": "aucun",
+      "calculatrice": "selon le sujet",
+      "source": "hlp",
+      "confiance": "haute",
+      "candidat_individuel": "Mêmes conditions que les candidats scolaires."
+    }
+  },
+  "couverture_nexus": {
+    "regle": "Un enseignement est « couvert » lorsqu'un instrument du dispositif le diagnostique. Être hors couverture n'est pas un défaut caché : c'est un fait que la matrice opérateur affiche.",
+    "couverts": [
+      "FR-EAF-ECRIT",
+      "FR-EAF-ORAL",
+      "MATH-EA",
+      "PHI",
+      "GO",
+      "EDS-MATH",
+      "EDS-PC",
+      "EDS-NSI",
+      "EDS-SVT",
+      "EDS-SES",
+      "EDS-HGGSP",
+      "EDS-HLP",
+      "ES",
+      "HG",
+      "EMC",
+      "FR-POS"
+    ],
+    "non_couverts": [
+      {
+        "code": "LVA",
+        "intitule": "Langue vivante A",
+        "coefficient_total": 6,
+        "statut": "HORS_OFFRE_NEXUS",
+        "motif": "Langue vivante A (coef. 6). Évaluation ponctuelle obligatoire hors de l'offre de diagnostic Nexus."
+      },
+      {
+        "code": "LVB",
+        "intitule": "Langue vivante B",
+        "coefficient_total": 6,
+        "statut": "HORS_OFFRE_NEXUS",
+        "motif": "Langue vivante B (coef. 6). Évaluation ponctuelle obligatoire hors de l'offre de diagnostic Nexus."
+      },
+      {
+        "code": "EPS",
+        "intitule": "Éducation physique et sportive",
+        "coefficient_total": 6,
+        "statut": "HORS_OFFRE_NEXUS",
+        "motif": "Éducation physique et sportive (coef. 6). Évaluation physique sur trois activités relevant de trois champs d'apprentissage distincts. Non couvrable par un diagnostic sur document et hors offre Nexus."
+      }
+    ],
+    "coefficients_couverts_controle_continu": 22,
+    "coefficients_non_couverts_controle_continu": 18,
+    "consequence": "Le dispositif ne peut pas être présenté comme une couverture complète du baccalauréat du candidat individuel (LVA, LVB et EPS étant hors offre de diagnostic). Deux statuts distincts sont tenus : DIAGNOSTICS_NEXUS_SUPPORTED_COMPLETE, qui dit que tout ce que Nexus offre est prêt ; et REGULATORY_BAC_COVERAGE_COMPLETE, qui dirait que toutes les évaluations obligatoires sont couvertes — et qui reste faux aujourd'hui (REGULATORY_BAC_COVERAGE_COMPLETE=NO)."
+  }
+}

@@ -1,0 +1,1130 @@
+{
+  "instrument": "TC-ES",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "TC-2-DEM-01",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur un graphique, l'axe des abscisses porte :",
+      "supports": [],
+      "propositions": {
+        "A": "la grandeur mesurée",
+        "B": "la grandeur que l'on fait varier",
+        "C": "toujours le temps",
+        "D": "l'unité de mesure"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "axes intervertis",
+          "C": "cas particulier généralisé",
+          "D": "grandeur confondue avec son unité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Lecture d'un graphique. Le distracteur C est fréquent : le temps est souvent en abscisse, mais ce n'est pas la règle."
+    },
+    {
+      "item_id": "TC-2-DEM-02",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une expérience, la variable testée est celle que l'on :",
+      "supports": [],
+      "propositions": {
+        "A": "mesure",
+        "B": "fait varier volontairement",
+        "C": "maintient constante",
+        "D": "calcule ensuite"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "variable mesurée prise pour la variable testée",
+          "C": "facteur contrôlé pris pour la variable testée",
+          "D": "résultat pris pour la variable"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Distinction entre variable testée et variable mesurée, confusion la plus fréquente et la plus bloquante."
+    },
+    {
+      "item_id": "TC-2-DEM-03",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une expérience compare la croissance de plants avec et sans engrais, à la même température et au même éclairement. Indiquer la variable testée et une variable maintenue constante.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La variable testée est la présence d'engrais ; la température ou l'éclairement est maintenu constant.",
+        "reponses_1pt": [
+          "Un seul des deux éléments est indiqué correctement.",
+          "Les deux éléments sont indiqués mais intervertis."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VARIABLE",
+          "TC-ERR-TEMOIN"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Application du principe de variation unique. La réponse intervertie, cotée un point, désigne un candidat qui connaît les termes sans savoir les attribuer."
+    },
+    {
+      "item_id": "TC-2-DEM-04",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Deux grandeurs augmentent ensemble sur un graphique. On peut affirmer :",
+      "supports": [],
+      "propositions": {
+        "A": "que l'une cause l'autre",
+        "B": "qu'elles varient de façon liée, sans que la cause soit établie",
+        "C": "qu'elles sont indépendantes",
+        "D": "que le graphique est faux"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "corrélation prise pour causalité",
+          "C": "lien nié",
+          "D": "donnée rejetée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Corrélation et causalité, suivant le code TC-ERR-CAUSE. Transfert direct de SVT-2-SCI-04 : la lecture croisée dit si la difficulté est de méthode ou de matière."
+    },
+    {
+      "item_id": "TC-2-DEM-05",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un protocole compare deux engrais sur des plants placés l'un au soleil, l'autre à l'ombre. Indiquer pourquoi ce protocole ne permet pas de conclure et comment le corriger.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux facteurs varient à la fois, l'engrais et l'éclairement : on ne peut pas attribuer l'écart observé à l'engrais. Il faut placer les deux plants dans les mêmes conditions d'éclairement.",
+        "reponses_1pt": [
+          "Le défaut est repéré sans que la correction soit proposée.",
+          "Une correction est proposée sans que le défaut soit nommé."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VARIABLE",
+          "TC-ERR-TEMOIN",
+          "TC-ERR-CAUSE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Item de bloc D : critiquer un protocole fourni. C'est l'opération que le § 7.4 assigne à la compétence DEM, mesurée ici hors de tout contenu disciplinaire."
+    },
+    {
+      "item_id": "TC-2-DEM-06",
+      "competence": "DEM",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un résultat est annoncé ainsi : « la masse vaut 4,528316 g ». Les données de départ comportaient deux chiffres significatifs. Indiquer le défaut et écrire le résultat correctement.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le nombre de chiffres significatifs dépasse celui des données : il faut écrire 4,5 g.",
+        "reponses_1pt": [
+          "Le défaut est nommé sans que le résultat soit réécrit.",
+          "Le résultat est réécrit correctement sans que le défaut soit nommé."
+        ],
+        "codes_erreur": [
+          "TC-ERR-UNITE",
+          "TC-ERR-ORDRE-GRAND"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Compétences transversales de l'enseignement scientifique. Second item de bloc D. Les chiffres significatifs sont un attendu commun à toutes les matières scientifiques : l'item les mesure ici sans supposer de connaissance de programme."
+    },
+    {
+      "item_id": "TC-1-MAT-01",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un cristal se caractérise par :",
+      "supports": [],
+      "propositions": {
+        "A": "une couleur uniforme",
+        "B": "un empilement ordonné et périodique d'atomes ou d'ions",
+        "C": "une grande dureté",
+        "D": "une origine minérale"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "critère visuel",
+          "C": "propriété non définitoire",
+          "D": "origine confondue avec structure"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Définition du cristal. Le distracteur C est le plus fréquent : la dureté est une conséquence possible, non le critère."
+    },
+    {
+      "item_id": "TC-1-MAT-02",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Les éléments chimiques présents dans les êtres vivants :",
+      "supports": [],
+      "propositions": {
+        "A": "n'existent que dans le vivant",
+        "B": "sont les mêmes que dans le monde minéral, en proportions différentes",
+        "C": "sont créés par les cellules",
+        "D": "sont au nombre de quatre"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "séparation vivant/minéral supposée",
+          "C": "création d'éléments supposée",
+          "D": "nombre erroné"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Unité chimique du vivant et du minéral. Le distracteur C touche à une confusion de fond : les éléments ne sont pas créés, ils sont assemblés."
+    },
+    {
+      "item_id": "TC-1-MAT-03",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la structure d'un cristal se répète à l'identique dans les trois dimensions.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'un motif élémentaire d'atomes ou d'ions se reproduit par translation dans les trois directions de l'espace, ce qui donne l'ordre périodique du cristal.",
+        "reponses_1pt": [
+          "La répétition est affirmée sans que le motif élémentaire soit mentionné.",
+          "Le motif est mentionné sans que la répétition dans les trois dimensions soit précisée."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI",
+          "TC-ERR-ECHELLE-TEMPS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Mécanisme de la périodicité. Item de transfert : le candidat doit relier une structure microscopique à une propriété macroscopique."
+    },
+    {
+      "item_id": "TC-1-MAT-04",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "La cellule est décrite comme une structure complexe. Citer deux niveaux d'organisation que l'on y distingue, du plus petit au plus grand.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux niveaux distincts et correctement ordonnés parmi : molécule, macromolécule, organite, cellule.",
+        "reponses_1pt": [
+          "Deux niveaux sont cités mais dans l'ordre inverse.",
+          "Un seul niveau est cité."
+        ],
+        "codes_erreur": [
+          "TC-ERR-ECHELLE-TEMPS",
+          "TC-ERR-VOCAB-SCI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Niveaux d'organisation. L'ordre inversé, coté un point, isole une erreur d'échelle et non de vocabulaire."
+    },
+    {
+      "item_id": "TC-1-SON-01",
+      "competence": "SON",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La hauteur d'un son est liée :",
+      "supports": [],
+      "propositions": {
+        "A": "à son intensité",
+        "B": "à sa fréquence",
+        "C": "à sa durée",
+        "D": "à son timbre"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "hauteur confondue avec intensité",
+          "C": "hauteur confondue avec durée",
+          "D": "hauteur confondue avec timbre"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Grandeurs du son. Les trois distracteurs désignent des caractéristiques réelles mais distinctes, ce que le thème demande de séparer."
+    },
+    {
+      "item_id": "TC-1-SON-02",
+      "competence": "SON",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le rayonnement solaire reçu par la Terre dépend notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "de la seule distance au Soleil",
+        "B": "de l'angle d'incidence des rayons et de la distance",
+        "C": "de la température de l'air",
+        "D": "de la couleur du sol seulement"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "facteur unique retenu",
+          "C": "conséquence prise pour cause",
+          "D": "facteur secondaire généralisé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Bilan radiatif. Le distracteur C inverse le rapport : c'est le rayonnement qui détermine la température, non l'inverse."
+    },
+    {
+      "item_id": "TC-1-SON-03",
+      "competence": "SON",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Deux sons ont la même hauteur mais sont produits par des instruments différents. Quelle caractéristique permet de les distinguer ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le timbre.",
+        "reponses_1pt": [
+          "La réponse décrit correctement la différence perçue sans nommer le timbre."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Notion de timbre. Une seule réponse acceptée à deux points, la liste est fermée."
+    },
+    {
+      "item_id": "TC-1-SON-04",
+      "competence": "SON",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la photosynthèse est une conversion de l'énergie solaire.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elle transforme l'énergie lumineuse reçue en énergie chimique stockée dans la matière organique produite.",
+        "reponses_1pt": [
+          "La transformation est mentionnée sans que la forme d'énergie produite soit nommée.",
+          "La photosynthèse est décrite sans référence à l'énergie."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI",
+          "TC-ERR-UNITE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Conversion d'énergie, au croisement du thème solaire et de la biologie. La seconde réponse à un point désigne un candidat qui restitue un mécanisme sans en voir l'enjeu énergétique."
+    },
+    {
+      "item_id": "TC-1-ASTR-01",
+      "competence": "ASTR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'observation qui a permis à Ératosthène d'estimer la circonférence de la Terre repose sur :",
+      "supports": [],
+      "propositions": {
+        "A": "la mesure d'ombres en deux lieux différents à la même date",
+        "B": "un voyage autour de la Terre",
+        "C": "l'observation d'une éclipse",
+        "D": "la mesure de la distance à la Lune"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "méthode confondue avec une circumnavigation",
+          "C": "phénomène sans rapport avec la mesure",
+          "D": "objet de mesure erroné"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Thème « La Terre, un astre singulier », sous-thème « La forme de la Terre ». Compétence créée par l'amendement A1 : le § 7.4 n'affectait aucun item à ce thème, pourtant au programme et évaluable à l'épreuve."
+    },
+    {
+      "item_id": "TC-1-ASTR-02",
+      "competence": "ASTR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'âge de la Terre, estimé à environ 4,5 milliards d'années, a été établi principalement par :",
+      "supports": [],
+      "propositions": {
+        "A": "l'étude des textes anciens",
+        "B": "la datation radiochronologique de roches et de météorites",
+        "C": "le comptage des couches sédimentaires",
+        "D": "l'observation des fossiles"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "source non scientifique",
+          "C": "méthode donnant des durées bien plus courtes",
+          "D": "méthode relative et non absolue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Sous-thème « L'histoire de l'âge de la Terre ». Les distracteurs C et D désignent des méthodes réelles mais qui ne donnent pas un âge absolu de cet ordre."
+    },
+    {
+      "item_id": "TC-1-ASTR-03",
+      "competence": "ASTR",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux observations courantes qui montrent que la Terre n'est pas plate.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux observations distinctes parmi : la disparition progressive d'un navire à l'horizon, l'ombre circulaire de la Terre lors d'une éclipse de Lune, la variation de la hauteur des étoiles avec la latitude, les photographies depuis l'espace.",
+        "reponses_1pt": [
+          "Une seule observation est citée, ou deux formulations désignent la même."
+        ],
+        "codes_erreur": [
+          "TC-ERR-ORDRE-GRAND",
+          "TC-ERR-VOCAB-SCI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Sous-thème « La forme de la Terre ». La liste des observations est fermée par le programme, ce qui maintient l'item en type B."
+    },
+    {
+      "item_id": "TC-1-ASTR-04",
+      "competence": "ASTR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la lumière d'une étoile lointaine nous renseigne sur un passé et non sur son état actuel.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la lumière met un temps considérable à nous parvenir : ce que nous observons est l'état de l'étoile au moment de l'émission, non au moment de l'observation.",
+        "reponses_1pt": [
+          "Le décalage est affirmé sans que la vitesse finie de la lumière soit invoquée.",
+          "La vitesse de la lumière est mentionnée sans conclusion sur ce que l'on observe."
+        ],
+        "codes_erreur": [
+          "TC-ERR-ECHELLE-TEMPS",
+          "TC-ERR-ORDRE-GRAND"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Sous-thème « La Terre dans l'Univers ». Item de transfert : relier une propriété physique — la vitesse finie de la lumière — à une conséquence sur ce que l'observation établit."
+    },
+    {
+      "item_id": "TC-T-CLIM-01",
+      "competence": "CLIM",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'effet de serre naturel a pour conséquence :",
+      "supports": [],
+      "propositions": {
+        "A": "de refroidir la surface terrestre",
+        "B": "de maintenir la surface terrestre à une température plus élevée qu'en son absence",
+        "C": "de bloquer le rayonnement solaire entrant",
+        "D": "de créer de l'énergie"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "effet inversé",
+          "C": "rayonnement entrant confondu avec rayonnement réémis",
+          "D": "conservation de l'énergie ignorée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Effet de serre. Le distracteur C porte l'erreur de fond : ce sont les infrarouges réémis par la surface qui sont absorbés, non le rayonnement solaire incident."
+    },
+    {
+      "item_id": "TC-T-CLIM-02",
+      "competence": "CLIM",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un modèle climatique fournit :",
+      "supports": [],
+      "propositions": {
+        "A": "une prédiction certaine du climat futur",
+        "B": "des projections conditionnées par des hypothèses d'émissions",
+        "C": "une mesure du climat passé",
+        "D": "une opinion d'experts"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "projection confondue avec prédiction",
+          "C": "modèle confondu avec relevé",
+          "D": "modèle confondu avec avis"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Statut d'une projection climatique, suivant le code TC-ERR-MODELE. Le distracteur A est la lecture médiatique courante et fausse le débat."
+    },
+    {
+      "item_id": "TC-T-CLIM-03",
+      "competence": "CLIM",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux gaz à effet de serre présents dans l'atmosphère.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux gaz distincts parmi : la vapeur d'eau, le dioxyde de carbone, le méthane, le protoxyde d'azote, l'ozone.",
+        "reponses_1pt": [
+          "Un seul gaz est cité, ou le dioxygène est proposé, qui n'est pas un gaz à effet de serre."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Restitution. La réponse « dioxygène », cotée un point si un autre gaz correct est cité, est l'erreur la plus fréquente."
+    },
+    {
+      "item_id": "TC-T-CLIM-04",
+      "competence": "CLIM",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi deux projections climatiques peuvent différer sans qu'aucune des deux soit fausse.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elles reposent sur des hypothèses d'émissions différentes : chacune décrit ce qui adviendrait si ces hypothèses se réalisaient, non ce qui adviendra.",
+        "reponses_1pt": [
+          "La différence est attribuée à l'incertitude des modèles sans mention des hypothèses.",
+          "La réponse conclut qu'on ne peut rien savoir du climat futur."
+        ],
+        "codes_erreur": [
+          "TC-ERR-MODELE",
+          "TC-ERR-CAUSE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Item de transfert. La seconde réponse à un point désigne un candidat qui tire de l'incertitude une conclusion sceptique, glissement que le thème vise à prévenir."
+    },
+    {
+      "item_id": "TC-T-ENER-01",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'électricité est un vecteur d'énergie, ce qui signifie qu'elle :",
+      "supports": [],
+      "propositions": {
+        "A": "est une source d'énergie primaire",
+        "B": "transporte de l'énergie produite ailleurs",
+        "C": "se stocke facilement en grande quantité",
+        "D": "ne se transforme pas"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "vecteur confondu avec source",
+          "C": "propriété inexacte",
+          "D": "transformation niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Notion de vecteur d'énergie. Le distracteur C est important à écarter : la difficulté de stockage est justement ce qui structure le thème."
+    },
+    {
+      "item_id": "TC-T-ENER-02",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "On transporte l'électricité sous haute tension afin de :",
+      "supports": [],
+      "propositions": {
+        "A": "augmenter la puissance transportée",
+        "B": "réduire les pertes par effet Joule dans les lignes",
+        "C": "protéger les usagers",
+        "D": "accélérer le transport"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "tension confondue avec puissance",
+          "C": "conséquence sans rapport",
+          "D": "vitesse de propagation supposée modifiable"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Optimisation du transport. Le distracteur A confond deux grandeurs liées mais distinctes."
+    },
+    {
+      "item_id": "TC-T-ENER-03",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux sources d'énergie primaire employées pour produire de l'électricité.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux sources distinctes parmi : le rayonnement solaire, le vent, l'eau en mouvement, la chaleur interne de la Terre, la biomasse, le charbon, le gaz, l'uranium.",
+        "reponses_1pt": [
+          "Une seule source est citée, ou l'électricité elle-même est proposée."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Restitution. Proposer l'électricité comme source, coté un point si une source correcte est citée, désigne exactement la confusion mesurée par l'item TC-T-ENER-01."
+    },
+    {
+      "item_id": "TC-T-ENER-04",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la production d'électricité doit être ajustée en permanence à la consommation.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que l'électricité ne se stocke qu'en faibles quantités à l'échelle d'un réseau : ce qui est consommé doit être produit au même moment.",
+        "reponses_1pt": [
+          "La difficulté de stockage est mentionnée sans que l'ajustement soit expliqué.",
+          "La réponse invoque le coût sans mention du stockage."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI",
+          "TC-ERR-MODELE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Contrainte d'équilibre du réseau. Transfert direct de TC-T-ENER-01 : la lecture croisée dit si la notion de vecteur est comprise ou seulement mémorisée."
+    },
+    {
+      "item_id": "TC-T-INFO-01",
+      "competence": "INFO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La biodiversité désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "le nombre d'espèces animales",
+        "B": "la diversité du vivant à plusieurs niveaux, des gènes aux écosystèmes",
+        "C": "les espèces protégées",
+        "D": "la diversité des paysages"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "réduction au nombre d'espèces animales",
+          "C": "réduction aux espèces menacées",
+          "D": "confusion avec la diversité des milieux"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Définition de la biodiversité. Le distracteur A est la conception spontanée : elle omet les niveaux génétique et écosystémique."
+    },
+    {
+      "item_id": "TC-T-INFO-02",
+      "competence": "INFO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un modèle démographique, un taux de croissance constant produit une évolution :",
+      "supports": [],
+      "propositions": {
+        "A": "linéaire",
+        "B": "exponentielle",
+        "C": "périodique",
+        "D": "stationnaire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "croissance constante en valeur supposée",
+          "C": "modèle sans rapport",
+          "D": "absence de croissance supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Modèle démographique. Le distracteur A est l'erreur centrale : un taux constant n'est pas un accroissement constant, distinction commune avec les suites en mathématiques."
+    },
+    {
+      "item_id": "TC-T-INFO-03",
+      "competence": "INFO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux mécanismes qui font évoluer la composition génétique d'une population.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux mécanismes distincts parmi : la mutation, la sélection naturelle, la dérive génétique, les migrations.",
+        "reponses_1pt": [
+          "Un seul mécanisme est cité, ou l'adaptation individuelle est proposée, qui n'en est pas un."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI",
+          "TC-ERR-ECHELLE-TEMPS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Restitution. La proposition « adaptation individuelle », cotée un point si un mécanisme correct est cité, désigne la conception lamarckienne que le thème corrige."
+    },
+    {
+      "item_id": "TC-T-INFO-04",
+      "competence": "INFO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une population ne peut pas croître indéfiniment au même taux.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que les ressources du milieu sont limitées : au-delà d'un certain effectif, elles ne suffisent plus à soutenir la croissance, qui ralentit puis s'arrête.",
+        "reponses_1pt": [
+          "La limite est affirmée sans que les ressources soient invoquées.",
+          "La réponse décrit une croissance exponentielle sans expliquer sa limite."
+        ],
+        "codes_erreur": [
+          "TC-ERR-MODELE",
+          "TC-ERR-ECHELLE-TEMPS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Limites d'un modèle, transfert direct de TC-T-INFO-02. La lecture croisée dit si le candidat sait qu'un modèle a un domaine de validité, ce que le § 7.4 assigne à la démarche."
+    },
+    {
+      "item_id": "TC-1-MAT-05",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": null
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une roche peut contenir plusieurs espèces de cristaux.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elle résulte de la cristallisation successive ou simultanée de plusieurs composés, chacun formant son propre empilement ordonné.",
+        "reponses_1pt": [
+          "La pluralité est affirmée sans que la cristallisation soit invoquée.",
+          "La réponse décrit un cristal unique sans répondre à la question."
+        ],
+        "codes_erreur": [
+          "TC-ERR-VOCAB-SCI",
+          "TC-ERR-ECHELLE-TEMPS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Item propre à la version 1RE : il complète la durée sans allonger la version étendue, déjà dans sa fenêtre. Il porte sur le passage de l'échelle du cristal à celle de la roche, changement d'échelle que le thème demande."
+    },
+    {
+      "item_id": "TC-1-ASTR-05",
+      "competence": "ASTR",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": "B",
+        "TLE": null,
+        "ETENDUE": null
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'unité astronomique correspond approximativement :",
+      "supports": [],
+      "propositions": {
+        "A": "à la distance Terre-Lune",
+        "B": "à la distance Terre-Soleil",
+        "C": "au rayon de la Terre",
+        "D": "à une année-lumière"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "ordre de grandeur bien plus petit",
+          "C": "ordre de grandeur bien plus petit",
+          "D": "ordre de grandeur bien plus grand"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Ordre de grandeur des distances astronomiques, propre à la version 1RE. Chaque distracteur est une distance réelle, ce qui mesure l'échelle et non le vocabulaire."
+    },
+    {
+      "item_id": "TC-T-CLIM-05",
+      "competence": "CLIM",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": null
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une hausse de la température moyenne de quelques degrés peut avoir des conséquences importantes.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la moyenne masque des écarts régionaux et saisonniers bien plus larges, et que des seuils — fonte, régime des pluies, cycles biologiques — peuvent être franchis pour un faible écart moyen.",
+        "reponses_1pt": [
+          "La réponse affirme l'importance des conséquences sans expliquer pourquoi une faible moyenne suffit.",
+          "La réponse cite une conséquence sans relier à l'écart de température."
+        ],
+        "codes_erreur": [
+          "TC-ERR-MODELE",
+          "TC-ERR-ORDRE-GRAND"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Item propre à la version TLE. Il porte sur la lecture d'une moyenne, opération transversale que le thème climat rend décisive."
+    },
+    {
+      "item_id": "TC-T-INFO-05",
+      "competence": "INFO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "1RE": null,
+        "TLE": "B",
+        "ETENDUE": null
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'évolution humaine est reconstituée principalement à partir :",
+      "supports": [],
+      "propositions": {
+        "A": "des seuls fossiles",
+        "B": "des fossiles et de la comparaison des génomes",
+        "C": "des récits historiques",
+        "D": "de la seule anatomie comparée"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "source unique retenue",
+          "C": "source non scientifique pour ces échelles de temps",
+          "D": "source unique retenue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Item propre à la version TLE. Les distracteurs A et D désignent des sources réelles mais partielles : c'est le croisement des méthodes que le thème met en avant."
+    }
+  ]
+}

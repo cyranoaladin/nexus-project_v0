@@ -1,0 +1,47 @@
+# ── Dérivés nominatifs : jamais versionnés (dépôt public) ─────────────────────
+# Les packs candidats sont des sorties dérivées de release/diagnostics-v2 : nom,
+# session, bordereaux. Aucun chemin suivi par Git ne porte de nom de candidat.
+exports_candidats/
+
+# ── Source interne : conservée localement, exclue du dépôt public ─────────────
+# Le document de conception de l'enseignante n'est pas publiable. Ses métadonnées
+# (SHA256, taille, pages, provenance) sont versionnées : voir le README du dossier.
+sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf
+
+# ── Rendus reconstructibles ────────────────────────────────────────────────────
+# instruments/*/build : rendus déterministes (octet à octet) des instruments, requis
+# par MANIFESTE_DEPOT.json et le banc de distribution. Ils ne sont pas versionnés :
+# `python3 scripts/rendus_instruments.py` (ou la suite de tests) les reconstruit.
+instruments/*/build/
+# build/ : banc de contrôle de la chaîne de diffusion, écrit par scripts/distribution.py.
+build/
+
+# ── Release : seule release/diagnostics-v2 est versionnée (source canonique) ───
+release/*
+!release/diagnostics-v2/
+
+# ── Tableaux CSV : index versionnés, réinclus malgré le « *.csv » du dépôt parent ──
+# Les matrices d'envoi, profils pseudonymisés et grilles de maquette sont des index
+# requis par les tests et par MANIFESTE_DEPOT, pas des rendus.
+!*.csv
+
+# ── Caches, journaux et fichiers de travail ───────────────────────────────────
+**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.log
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.tmp
+
+# Fichier rendu par le candidat pendant la passation NSI, jamais versionné
+instruments/EDS-NSI/tests/rendu.py
+
+# Secrets et environnement local
+.env
+.env.*

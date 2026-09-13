@@ -1,0 +1,128 @@
+{
+  "instrument": "FR-EAF",
+  "version": "ecrit_2028",
+  "session_baccalaureat_finale": 2028,
+  "titre": "Diagnostic français — épreuve écrite anticipée seule",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Le paragraphe du bloc C est rédigé sur le cahier de composition.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "COMP",
+        "intitule": "Compréhension fine d'un texte littéraire : sens explicite, implicite, enjeux"
+      },
+      {
+        "competence": "LANG",
+        "intitule": "Correction de la langue : orthographe, accords, syntaxe, ponctuation, registres"
+      },
+      {
+        "competence": "ANAL",
+        "intitule": "Outils d'analyse : figures, énonciation, versification, point de vue, genres et mouvements"
+      },
+      {
+        "competence": "ARGU",
+        "intitule": "Construction d'un raisonnement : thèse, arguments, exemples, connecteurs"
+      },
+      {
+        "competence": "REDA",
+        "intitule": "Rédaction d'un paragraphe de commentaire structuré : idée directrice, citation, analyse, conclusion partielle"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "FR-EAF-LANG-01",
+        "FR-EAF-LANG-02",
+        "FR-EAF-LANG-03",
+        "FR-EAF-LANG-06",
+        "FR-EAF-LANG-07",
+        "FR-EAF-LANG-08",
+        "FR-EAF-CULT-01",
+        "FR-EAF-CULT-02",
+        "FR-EAF-CULT-03",
+        "FR-EAF-CULT-07",
+        "FR-EAF-CULT-09",
+        "FR-EAF-CULT-08"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "FR-EAF-COMP-01",
+        "FR-EAF-COMP-02",
+        "FR-EAF-COMP-03",
+        "FR-EAF-COMP-05",
+        "FR-EAF-COMP-06",
+        "FR-EAF-COMP-07",
+        "FR-EAF-COMP-09",
+        "FR-EAF-COMP-10",
+        "FR-EAF-COMP-11",
+        "FR-EAF-ANAL-01",
+        "FR-EAF-ANAL-02",
+        "FR-EAF-ANAL-03",
+        "FR-EAF-ANAL-04",
+        "FR-EAF-ANAL-05",
+        "FR-EAF-ANAL-06",
+        "FR-EAF-ARGU-01",
+        "FR-EAF-ARGU-02",
+        "FR-EAF-ARGU-03",
+        "FR-EAF-ARGU-04"
+      ],
+      "supports": [
+        {
+          "titre": "Texte du bloc B",
+          "texte": "Pauvres et misérables peuples insensés, nations opiniâtres en votre mal et aveugles en votre bien, vous vous laissez emporter devant vous le plus beau et le plus clair de votre revenu, piller vos champs, voler vos maisons et les dépouiller des meubles anciens et paternels ! Vous vivez de sorte que vous ne vous pouvez vanter que rien soit à vous ; et semblerait que meshui ce vous serait grand heur de tenir à ferme vos biens, vos familles et vos vies ; et tout ce dégât, ce malheur, cette ruine, vous vient, non pas des ennemis, mais certes oui bien de l’ennemi, et de celui que vous faites si grand qu’il est, pour lequel vous allez si courageusement à la guerre, pour la grandeur duquel vous ne refusez point de présenter à la mort vos personnes. Celui qui vous maîtrise tant n’a que deux yeux, n’a que deux mains, n’a qu’un corps, et n’a autre chose que ce qu’a le moindre homme du grand et infini nombre de nos villes, sinon que l’avantage que vous lui faites pour vous détruire. D’où a-t-il pris tant d’yeux, dont il vous épie, si vous ne les lui baillez ? Comment a-t-il tant de mains pour vous frapper, s’il ne les prend de vous ? Les pieds dont il foule vos cités, d’où les a-t-il, s’ils ne sont des vôtres ? Comment a-t-il aucun pouvoir sur vous, que par vous ? Comment vous oserait-il courir sus, s’il n’avait intelligence avec vous ? Que vous pourrait-il faire, si vous n’étiez recéleurs du larron qui vous pille, complices du meurtrier qui vous tue et traîtres à vous-mêmes ? Vous semez vos fruits, afin qu’il en fasse le dégât ; vous meublez et remplissez vos maisons, afin de fournir à ses pilleries ; vous nourrissez vos filles, afin qu’il ait de quoi soûler sa luxure ; vous nourrissez vos enfants, afin que, pour le mieux qu’il leur saurait faire, il les mène en ses guerres, qu’il les conduise à la boucherie, qu’il les fasse les ministres de ses convoitises, et les exécuteurs de ses vengeances ; vous rompez à la peine vos personnes, afin qu’il se puisse mignarder en ses délices et se vautrer dans les sales et vilains plaisirs ; vous vous affaiblissez, afin de le rendre plus fort et roide à vous tenir plus courte la bride ; et de tant d’indignités, que les bêtes mêmes ou ne les sentiraient point, ou ne l’endureraient point, vous pouvez vous en délivrer, si vous l’essayez, non pas de vous en délivrer, mais seulement de le vouloir faire. Soyez résolus de ne servir plus, et vous voilà libres.",
+          "reference": "Étienne de La Boétie, « Discours de la servitude volontaire », texte établi par Paul Bonnefon, Bossard, 1922 — domaine public.",
+          "edition": "Bossard, 1922, texte établi par Paul Bonnefon, p. 49-102",
+          "oeuvre_au_programme": {
+            "session": 2028,
+            "voie": "generale",
+            "objet_etude": "litterature_idees_16_18",
+            "auteur": "Étienne de La Boétie",
+            "oeuvre": "Discours de la servitude volontaire"
+          },
+          "source_texte": "laboetie"
+        }
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "FR-EAF-REDA-04"
+      ],
+      "supports": [
+        {
+          "titre": "Texte du bloc C",
+          "texte": "Au plafond, deux grandes fentes coupaient les caissons, et, dans un coin, la peinture qui s’était écaillée, montrait le plâtre.\n\n— Oui, ça fait de l’effet, dit lentement l’architecte, les yeux fixés sur le plafond. Vous comprenez, ces maisons-là, c’est bâti pour faire de l’effet… Seulement, il ne faudrait pas trop fouiller les murs. Ça n’a pas douze ans et ça part déjà… On met la façade en belle pierre, avec des machines sculptées ; on vernit l’escalier à trois couches ; on dore et on peinturlure les appartements ; et ça flatte le monde, ça inspire de la considération… Oh ! c’est encore solide, ça durera toujours autant que nous !\n\nIl lui fit traverser de nouveau l’antichambre, que des vitres dépolies éclairaient. À gauche, donnant sur la cour, il y avait une seconde chambre, où couchait sa fille Angèle ; et, toute blanche, elle était, par cette après-midi de novembre, d’une tristesse de tombe. Puis, au fond du couloir, se trouvait la cuisine, dans laquelle il tint absolument à le conduire, disant qu’il fallait tout connaître.\n\n— Entrez donc, répétait-il en poussant la porte.\n\nUn terrible bruit s’en échappa. La fenêtre, malgré le froid, était grande ouverte. Accoudées à la barre d’appui, la femme de chambre noiraude et une cuisinière grasse, une vieille débordante, se penchaient dans le puits étroit d’une cour intérieure, où s’éclairaient, face à face, les cuisines de chaque étage. Elles criaient ensemble, les reins tendus, pendant que, du fond de ce boyau, montaient des éclats de voix canailles, mêlés à des rires et à des jurons. C’était comme la déverse d’un égout : toute la domesticité de la maison était là, à se satisfaire. Octave se rappela la majesté bourgeoise du grand escalier.\n\nMais les deux femmes, averties par un instinct, s’étaient retournées. Elles restèrent saisies, en apercevant leur maître avec un monsieur. Il y eut un léger sifflement, des fenêtres se refermèrent, tout retomba à un silence de mort.",
+          "reference": "Émile Zola, « Pot-Bouille », chapitre I, G. Charpentier, 1883 — domaine public.",
+          "edition": "G. Charpentier, 1883, p. 1-24",
+          "oeuvre_au_programme": {
+            "session": 2028,
+            "voie": "generale",
+            "objet_etude": "roman_recit",
+            "auteur": "Émile Zola",
+            "oeuvre": "Pot-Bouille"
+          },
+          "source_texte": "zola"
+        }
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "FR-EAF-REDA-02",
+        "FR-EAF-REDA-03"
+      ]
+    }
+  ],
+  "note_session": "Assemblage de la session 2028, c'est-à-dire de la classe de première 2026-2027. Il partage avec l'assemblage 2027 tout ce qui ne dépend pas du programme national d'œuvres : la même banque, les mêmes blocs, les mêmes items de langue, de compréhension, de grammaire, d'analyse, d'argumentation et de rédaction. Seuls changent les items de repères culturels adossés à l'objet d'étude renouvelé et la désignation du support du bloc C."
+}

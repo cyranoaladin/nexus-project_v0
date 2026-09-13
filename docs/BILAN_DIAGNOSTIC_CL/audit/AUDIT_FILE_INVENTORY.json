@@ -1,0 +1,2298 @@
+{
+  "schema": "nexus.audit.file_inventory",
+  "produit_par": "scripts/audit_inventory.py",
+  "racine": "docs/BILAN_DIAGNOSTIC_CL",
+  "total": 325,
+  "par_categorie": {
+    "ASSEMBLY": 31,
+    "AUDIT_FIXTURE": 48,
+    "CANONICAL_CANDIDATE_PDF": 48,
+    "CANONICAL_COACH_PDF": 45,
+    "DOCUMENTATION": 10,
+    "GUIDE": 11,
+    "INSTRUMENT_BANK": 23,
+    "MANIFEST": 17,
+    "PRINT_COLLECTION": 5,
+    "REFERENTIAL": 12,
+    "SOURCE": 27,
+    "TEMPLATE": 4,
+    "TEST": 44
+  },
+  "fichiers": [
+    {
+      "path": ".gitignore",
+      "sha256": "73936ea6a6758208580d577af53f3b8f115c48ef305a87a6b5882f9939b642fe",
+      "size": 2045,
+      "category": "SOURCE",
+      "role": "configuration du dépôt"
+    },
+    {
+      "path": "00_OUVRIR_ICI.md",
+      "sha256": "c1865c52754970c43f5e12c9449068ca6cc754bbce36d8094cc59b4892f0fe13",
+      "size": 4613,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "APRES_LIVRAISON.md",
+      "sha256": "7a10952ca4d9713eb20dbf9fb205a1271eee5c9f4be21b5b03a56cbca593bfec",
+      "size": 2964,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "AUDIT_MODALITES_ET_DIAGNOSTICS.md",
+      "sha256": "46e655b390c8202ce28fb351c937553994435c1b7c31f60dcd3fc58eac29e8b5",
+      "size": 9237,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "CANDIDATE_PROFILES.csv",
+      "sha256": "40fca6395e828ba4fc1624562a2ff09b0707a9cc1e2275018df0b96dccd84252",
+      "size": 1186,
+      "category": "MANIFEST",
+      "role": "tableau d'envoi ou de profils, pseudonymisé"
+    },
+    {
+      "path": "DESIGN_SYSTEM_NEXUS_DIAGNOSTICS.md",
+      "sha256": "cd1edcd4128d0481d70ff726cbbe6aedabba581d22e4e11b29de2da30e6f70ed",
+      "size": 9279,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "DISTRIBUTION_MATRIX.csv",
+      "sha256": "3c3c3d529b57333cab2cf38fc962b1fbdac9a2f4d1a4118775c15828259a829a",
+      "size": 10715,
+      "category": "MANIFEST",
+      "role": "tableau d'envoi ou de profils, pseudonymisé"
+    },
+    {
+      "path": "MANIFESTE_DEPOT.json",
+      "sha256": "d680d37521cefd998c982bdff790f97fe98a30e9e45b49aedb60d1175e66791c",
+      "size": 109960,
+      "category": "MANIFEST",
+      "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
+    },
+    {
+      "path": "MANIFESTE_DEPOT.md",
+      "sha256": "b8414670d35fc73b08a858d0e341107271c14bb2bde560b4384ff6c08af1ccfa",
+      "size": 5323,
+      "category": "MANIFEST",
+      "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
+    },
+    {
+      "path": "NexusReussite_CandidatsLibres_CahierConception_BilansDiagnostic.docx",
+      "sha256": "c9e3dfbdd877b2e5f10950300731b77814cbfbc72fab801db67500fb8dddb9ea",
+      "size": 31284,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "PRINT_MATRIX.csv",
+      "sha256": "81311b03bb68b7958119c3312d7a2c4312c4ba8c77ad018e4e2288607e9809f3",
+      "size": 1115,
+      "category": "MANIFEST",
+      "role": "tableau d'envoi ou de profils, pseudonymisé"
+    },
+    {
+      "path": "README_ETAT.md",
+      "sha256": "6dc354a5ae4427210cf268997444a1305139591c4897c22324f1738684ab7fb9",
+      "size": 153564,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "SECURITE.md",
+      "sha256": "e5fa4f8a31490e8311c47bdea8ca91227ae7e1048a60eb5d4e2ecce453290a14",
+      "size": 1765,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "STUDENT_PACK_MATRIX.csv",
+      "sha256": "48aa0157870c96fab49651690f9f8f60a55783b7c732d61cbb45d5fd740b8ec9",
+      "size": 76110,
+      "category": "MANIFEST",
+      "role": "tableau d'envoi ou de profils, pseudonymisé"
+    },
+    {
+      "path": "assets/brand/MARQUE.json",
+      "sha256": "9f952c9251f5b5034427a1c8b98aff4a806485ff6ce400a832827ad0677c98b2",
+      "size": 1757,
+      "category": "TEMPLATE",
+      "role": "marque et images de la collection"
+    },
+    {
+      "path": "assets/brand/nexus-icone.png",
+      "sha256": "cd9128a75838321dfa1f2239cd9846fa0a41d2bd8e8b941758c61e4df1ff0db1",
+      "size": 44113,
+      "category": "TEMPLATE",
+      "role": "marque et images de la collection"
+    },
+    {
+      "path": "assets/brand/nexus-logo-horizontal.png",
+      "sha256": "e13e8a4c98d26592c1fd7f1f3862ac10e10cd2c858c077445155d3b2192ec78a",
+      "size": 48946,
+      "category": "TEMPLATE",
+      "role": "marque et images de la collection"
+    },
+    {
+      "path": "cahier.md",
+      "sha256": "7730bf6e2373349052045963024196d952080988d7f12bf914ad7df11139cb98",
+      "size": 54558,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "instruments/EDS-HGGSP/assemblages/N1.json",
+      "sha256": "de3b3a57b1d93917180f2b18eb42a10e26837a6e18e5fac42a551d8f8503efd5",
+      "size": 2680,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-HGGSP/assemblages/NT.json",
+      "sha256": "90faac3fb7e15f53e2658ea78d6745a1b1424b8d22c420ed15c3055f902fe712",
+      "size": 2868,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-HGGSP/banque.json",
+      "sha256": "1a7542c03ac9db40a3a325912b1e339079630054ae978bdb268dc9203cf952af",
+      "size": 51232,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-HLP/assemblages/N1.json",
+      "sha256": "af6ef741a16b602d0b988c82fe54b0b80a6820a0b1b5354a84aa0318f7e235ac",
+      "size": 4606,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-HLP/assemblages/NT.json",
+      "sha256": "6d0cf1bda9c9f8595792f98c5e8ec78821a57e92c0bc3c72f83064930989912a",
+      "size": 4781,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-HLP/banque.json",
+      "sha256": "e5beddcc05b058a7d608bbefdd1c196237e944566ce3532385404c09f4c21eff",
+      "size": 41658,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-MATH/assemblages/N1.json",
+      "sha256": "3255a4c44e721944c3aa8bbf9b43e695923038b18ffff2aab8e99c6a0940fe05",
+      "size": 2734,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-MATH/assemblages/NT.json",
+      "sha256": "c2b9d9bc7d17921e87d4610f680ee70c3190e645cc5bc30958eadc3ac1471951",
+      "size": 3037,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-MATH/banque.json",
+      "sha256": "a9e7c23d2af518a84ad8ffd1b0149de6a73a598b56ce46307134293de8e00ffc",
+      "size": 86696,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-NSI/assemblages/N1.json",
+      "sha256": "dc92d1d1c89bad3be1a2460662d84fc52f35d36e21024a6a788ad3203ef49d7b",
+      "size": 2890,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-NSI/assemblages/NT.json",
+      "sha256": "cf795505f1fe9886f71f854038c08501c868e8fce238d47e0d5e77550cdcab32",
+      "size": 2893,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-NSI/banque.json",
+      "sha256": "c06d4ad9c79f1f5399112f40461ea71596ae23a3e1d0df43a410d1568f3ab511",
+      "size": 63146,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/README.md",
+      "sha256": "da5b03363eea6cc28e8b25ff83174296945e210134f0315f4889d5b16beb9d76",
+      "size": 1213,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/conftest.py",
+      "sha256": "83818649c12393c8a2a6ca92616edbe2cad508fb231f4ae4b24b064c8158f37c",
+      "size": 966,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/rendu_modele.py",
+      "sha256": "d63e81dc60e903fffac5dc4822adbde5f1d4df9db8706c832e668d920fd27422",
+      "size": 187,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/rendu_reference.py",
+      "sha256": "28f90136c54ccf05cf0c03fa6e0c973a819ef68f333c815479b8e34f7b1f1def",
+      "size": 1185,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/test_NSI-1-PROG-01.py",
+      "sha256": "5c149dc3bbdd04194da8f9b28acff74110a838fd7d5124d310ef049f750136cf",
+      "size": 2159,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-NSI/tests/test_NSI-T-PROG-02.py",
+      "sha256": "121934da6c50bcea68527e27b35d097ce98c1478f36f7400462840ded35a4c43",
+      "size": 3200,
+      "category": "AUDIT_FIXTURE",
+      "role": "harnais NSI sur machine (complément facultatif)"
+    },
+    {
+      "path": "instruments/EDS-PC/assemblages/N1.json",
+      "sha256": "a6bb6fe4136cee83757d99556bb55d70caccb1f40eab0f4dab7707589ddfebf5",
+      "size": 2593,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-PC/assemblages/NT.json",
+      "sha256": "0ac12ba6809a2734a027b8d77661e3839bff2a6a1a146177c75ab9ebb16df50c",
+      "size": 2704,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-PC/banque.json",
+      "sha256": "55f843666409b6a383cc5beedb97a26636b8db9cfd78e3ff9b4fdc0443b8234b",
+      "size": 57354,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-SES/assemblages/N1.json",
+      "sha256": "1f62d08293ceb1e7416b9d2b2fceecf113dac7b995f2993c75d9f5d1b73c7619",
+      "size": 2513,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-SES/assemblages/NT.json",
+      "sha256": "bfd3e4e002987996402ab7387eec520aae0343867a9f15c96e1490dc896aec46",
+      "size": 2557,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-SES/banque.json",
+      "sha256": "187a71d68d383f4cf4143e07ab22a0af9aaef69fc1fe25f81b33e5cc5eecf4f8",
+      "size": 54524,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/EDS-SVT/assemblages/N1.json",
+      "sha256": "f749e4efaab714b82d0d85d40cc9aa6d06654713eece518d645b6226d158a800",
+      "size": 2533,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-SVT/assemblages/NT.json",
+      "sha256": "d0e39eb4d26be4484c5bb8945a023d70bdfccccb45da1642429eec2e721fd2ad",
+      "size": 2609,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/EDS-SVT/banque.json",
+      "sha256": "941cef169fb28385ced8b148089109a9564946d0ae6cce163ddb488880a05cd7",
+      "size": 60575,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF-ORAL/definition.json",
+      "sha256": "48e6d368b12b3fabc3edd3afc855ce1ee7f80b770791575b48b6274730c63d36",
+      "size": 10890,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/ecrit.json",
+      "sha256": "3866fb345bc729e3241c2df1550ea7a515e82e5202218f76009bb44d0af4357a",
+      "size": 8239,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/ecrit_2028.json",
+      "sha256": "c5f6fb0ab4c8c7687fb0c70a555e424ff0b089563d020dea08a7c574a0507853",
+      "size": 9082,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/oral.json",
+      "sha256": "75d33ddc89914016832ac56fb2e01c0732e85440b9eb9b4b36a484e3df7cab11",
+      "size": 5826,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/oral_2028.json",
+      "sha256": "f2149b03e610282a8fe253af0e6c80b088dac16b6f54a7cd10c34379d56ea77b",
+      "size": 6298,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/standard.json",
+      "sha256": "088bf4b35da0ff15736de8659610a5f22307cd005a07c60f60d12f24d186b063",
+      "size": 8463,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/assemblages/standard_2028.json",
+      "sha256": "83118f432c2224b47184ac4b223299f6d60df39ce871d425790d8dd36a00f152",
+      "size": 9306,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-EAF/banque.json",
+      "sha256": "6867cf1a5a6383a569ebc5b379388280dac7775e51b9995b8f7f48390e584d3a",
+      "size": 78214,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/FR-MAI/assemblages/standard.json",
+      "sha256": "800b493a5aa6d02db37da44f5059a56dcad7ccc8eb4eb41b24ea3e3ce82b1546",
+      "size": 5299,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-MAI/banque.json",
+      "sha256": "c7d67716d446c636cbb01d83c4e6a82572a715256ae7df2560de9ba4103d5f7d",
+      "size": 54212,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/FR-POS-ORAL/definition.json",
+      "sha256": "fd54c7754bd3ecd5aa25db3883393e1da70c55cb5f28ae9eff37e27e6f2a09af",
+      "size": 5182,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/FR-POS/assemblages/standard.json",
+      "sha256": "9937c8b86c487b5c064a69d027794c635c0ee042b6ca1da6cc096c066c149a63",
+      "size": 4373,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/FR-POS/banque.json",
+      "sha256": "4c7b3c795694ebbccd3d64bfaa19c27a59ce9890167d2ce8c5c77f395d900710",
+      "size": 23561,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/GO/definition.json",
+      "sha256": "b389065d50a3bf0ce1f91961399981ad2a2b3a99350a02783502fce8cafea0ae",
+      "size": 8311,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/MATH-EA/assemblages/SPE.json",
+      "sha256": "3d91f981aadb8c8f02e006721a8bd3a1c851b78065befd0f9c9c8e8f3e50db6d",
+      "size": 4088,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/MATH-EA/assemblages/SPECIFIQUES.json",
+      "sha256": "081d9ea95d501b2cae5be31c0f9eb5c1263d0ba3ed008625d6e094e11a6b4aba",
+      "size": 4146,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/MATH-EA/banque.json",
+      "sha256": "49e74d21da5b9468f7547af2d050a0dc2636cebc8e616304344f946b856d3d7c",
+      "size": 95610,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/MET/formulaire.json",
+      "sha256": "f0539874fbb6a6b35f65f7673923b30f23f8f90107d040409770d944b1d3ef5f",
+      "size": 7864,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/PHI/assemblages/standard.json",
+      "sha256": "6cdf402e262fc83694445353788c49babe09e3022eee22870ee2f9d11a52aaad",
+      "size": 4665,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/PHI/banque.json",
+      "sha256": "ffaf1d5171053fc9f4317b288d0c4c51e5ef06945abb5ea4d57f5fcdca63ce4a",
+      "size": 55639,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/QP/formulaire.json",
+      "sha256": "f2e081f3f154273aba61cc81ab9908ad64dbf5fbf46e6f88d61f5444474b3f65",
+      "size": 20655,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-EMC/definition.json",
+      "sha256": "0ba4718f224d5c9702fd2245426f37bae303787590f86330e8548b62c53eac8e",
+      "size": 10657,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-EMC/definition_1RE.json",
+      "sha256": "0ba4718f224d5c9702fd2245426f37bae303787590f86330e8548b62c53eac8e",
+      "size": 10657,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-EMC/definition_ETENDUE.json",
+      "sha256": "f2cce5b54321bfabcafc06499b24105f5640f0bc45fed746fc57119c0ca19292",
+      "size": 10669,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-EMC/definition_TLE.json",
+      "sha256": "0bba00401d0190b68feab9e1ebd2b2475ff10f2cff36d3f6fcfff7a7d1d25393",
+      "size": 10651,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-ES/assemblages/1RE.json",
+      "sha256": "550bb8bc7269f2beb80318a1c486dbddb59d926ab5f6236f0c3a45a06d12f8ec",
+      "size": 1988,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-ES/assemblages/ETENDUE.json",
+      "sha256": "214cf4034a63ed142b8d6726134e84ffbfaf236239627bf3c38620cb7d92f6e1",
+      "size": 2302,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-ES/assemblages/TLE.json",
+      "sha256": "a7b52ba3086192b262356a062a0cc64c3f7a84ce6f6b2cf5656156926fea76a9",
+      "size": 1917,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-ES/banque.json",
+      "sha256": "f0d120afac31f302ddad571b005609907a2a2b3426305949dba47d60b73fb612",
+      "size": 41837,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/TC-HG/assemblages/1RE.json",
+      "sha256": "c7d9e8282f563e786e5baa2f40c0e37c0a5a6f5f2462d6f30e2aad31d89cf5fa",
+      "size": 2224,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-HG/assemblages/ETENDUE.json",
+      "sha256": "99c470aeeb5e5e527c39bbb5306a6944966547aa84f37b1fe4c0765bf51541f1",
+      "size": 2355,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-HG/assemblages/TLE.json",
+      "sha256": "0260ef38a2090be9c92742af769ad2043ac20149cd00d9ecae2dbab48f708875",
+      "size": 2224,
+      "category": "ASSEMBLY",
+      "role": "assemblage d'une version d'instrument"
+    },
+    {
+      "path": "instruments/TC-HG/banque.json",
+      "sha256": "93ecd3e6271c1888c6f0ea15fab6cfc6d13c6548a554fa7725d8f821b8a8346d",
+      "size": 57874,
+      "category": "INSTRUMENT_BANK",
+      "role": "source unique de l'instrument"
+    },
+    {
+      "path": "instruments/_FIXTURE/README.md",
+      "sha256": "818e956763afdd09fda9eab589220db99274ef7de0ff5df0cbd02149b86799f6",
+      "size": 1064,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/assemblages/REDUITE.json",
+      "sha256": "0dab294fc0b4fad50157d984340ceb433c992b367055809b5c36ff5f3a12084b",
+      "size": 1471,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/assemblages/standard.json",
+      "sha256": "cee02aa1aa691dc30528048c945f66951aa8cc559fadc547d7cbe8bd11da3c54",
+      "size": 1573,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/banque.json",
+      "sha256": "64fa266d66484037311bea445828240e218d8699e50bf6f2e251a080134e7113",
+      "size": 18767,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/referentiels/catalogue_instruments.json",
+      "sha256": "0d8a6c8b5e62ec6e057b2c19ecfe108e51b870550dce73586bd1e2cf01b8a3d5",
+      "size": 3178,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/referentiels/codes_erreur.json",
+      "sha256": "647572a2455071dd6fc7f8c0d1ed2f7e72478091f174eb5fa2bdb279ad43e871",
+      "size": 3735,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_FIXTURE/referentiels/competences.json",
+      "sha256": "bacfc443d38407e4a64823e65240a782b94c1f2d794890fd66d6fb91293eed88",
+      "size": 11621,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/README.md",
+      "sha256": "325cbdbf34181b92be32c15a4ae6e80c8c6d24eb768fd7910f2493a39145e643",
+      "size": 2460,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0000.md",
+      "sha256": "18d5b61a72b819cc86dd3ce9502d7a1f2bc1a1ca090ba88ffae7b2474ab2769a",
+      "size": 25814,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0001.md",
+      "sha256": "a16b5bd3678687f3b53eb1cb1b7e2a3341e387bf0cf1af17deb5bcee74fe8a7d",
+      "size": 25814,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0001_parent.md",
+      "sha256": "a1aaac38a332bd69558490302ff276be89edbd073756a55ca365baddbff272ac",
+      "size": 25957,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/grilles.csv",
+      "sha256": "4daafd1c918e239be6bc8fd1742cbe91e275511be1e310386147412c5a531c9e",
+      "size": 2962,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/maquette_bilan.md",
+      "sha256": "e45bf048911371108aa5ccd18a7cb54e0435c39d7c0393a3bef9bbf7036f056f",
+      "size": 42117,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/maquette_bilan_parent.md",
+      "sha256": "3a86ba323371724cd1afee00ecee9624ec306600f916e5770585bf6deae5a0d1",
+      "size": 42364,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/met.json",
+      "sha256": "f1894a6fa977cd5b610a0b69348578e78a53355eb2358e4f2d7ad0d974c52837",
+      "size": 544,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/preuve_registre_CL-2026-0001.md",
+      "sha256": "0a12209881511fd8daee04fd6b5fc3a8e6654e6364cc9e3f479ae4d07d05f7d0",
+      "size": 1448,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/qp.json",
+      "sha256": "ff4c123f4f5898a0c6b2be4ee99b8bf74c3f9e08fb1f6ea37d5388d2c43328c6",
+      "size": 2195,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/qp_variante_mineure.json",
+      "sha256": "171a866326a70d3d71f3ca47f349f6cc9dcc49c94a8a4f17d3bf273a70711b0f",
+      "size": 2086,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/saisie.csv",
+      "sha256": "babc92fae7dc025e49bb9a36fe944d7bc69c59780fa8fe8f143e62f1354245d3",
+      "size": 17510,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE/specification.json",
+      "sha256": "a4190dcad9808fa7a4ee914c33ad240201b04eba91f666aab750ff9a13c6d4cc",
+      "size": 18862,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/README.md",
+      "sha256": "5e5ef8fb44002f5055bbf1a837e185c9d1a479d4b0303ad0055d2238d47e0bd4",
+      "size": 2265,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/bilan_P1_CL-2026-0003.md",
+      "sha256": "751ab8edd248a0b8c7611c39cbd9a664d60728b640fafcf3c456af45456d741a",
+      "size": 19604,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/grilles.csv",
+      "sha256": "ee25969bcbb6bb9f98cdef96c29f243dcd1b1a70d9e03640b45ccee8e790655e",
+      "size": 1554,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/met.json",
+      "sha256": "ebf5546474db79f9284c2b7d2fff89043b00d576487e1fdd519703f1436d43f5",
+      "size": 268,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/qp.json",
+      "sha256": "e5097c45a7e8363f63726b0c681b12075c6075c708245d78cb2c8853f05d366b",
+      "size": 2303,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/saisie.csv",
+      "sha256": "f7a9ab521ab4717c9300978944dd6ed676f2a0faa0f3bb8f726568a24be5bd39",
+      "size": 11693,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1/specification.json",
+      "sha256": "fff827c9f8b54669bb2be9ce0c9383f7b25cfcadf244fd417843d95795871e10",
+      "size": 8846,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/README.md",
+      "sha256": "4cf5729f4cafd3c5b26da78330282539b6dd55894a2c7d6cd0e1efa3afed7462",
+      "size": 2400,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/bilan_P1_CL-2026-0004.md",
+      "sha256": "219e520f534b4113cc77cda8c95bf39dfe6cbee0d95c9b5127a2cc90d37df01f",
+      "size": 21217,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/bilan_P1_CL-2026-0004_parent.md",
+      "sha256": "33a3f8c46127f45845264abd6d350e69c3cb8053232407ab4b815eff3327b89c",
+      "size": 21360,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/grilles.csv",
+      "sha256": "374fb150e14027c50b3b718e170fb522a85eb721cd5a707ff5a848439899e480",
+      "size": 2094,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/met.json",
+      "sha256": "91a1468edc4be7ebc912d97e1b861ad20b6e2d776311f80cf74f9b60a4862ec5",
+      "size": 268,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/qp.json",
+      "sha256": "cc88261bd182d194a5490562da586b3c1060a41f1d003ee4e4426244cc844ff9",
+      "size": 2392,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/saisie.csv",
+      "sha256": "b4a66c01e6206c384e9666794f7c445207f8481ae0f5a87efeae9c69b6a1e1b6",
+      "size": 14166,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/specification.json",
+      "sha256": "4bab3695515906cfbcd878bfcde9878e823ea55d122580f8d8755eb13c0a723f",
+      "size": 9414,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/README.md",
+      "sha256": "a4d7ca695533951daa6b5d394d11d17ab798e594d1687c4b03fd6a40ff1526c5",
+      "size": 1835,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/bilan_P2_CL-2026-0002.md",
+      "sha256": "1692d5dbe86ba65444da5747aa364651394ee866d73e6be8f86275ba4e1e5cc2",
+      "size": 21462,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/grilles.csv",
+      "sha256": "d4938b985a6ba24b8d1d59574e1e67ed85abd380061ea09be0a80fe9bfb03a16",
+      "size": 3129,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/met.json",
+      "sha256": "27f9121315973c5c48d0cba591d9f949ec7fa9101cda278b17179f100a3086b2",
+      "size": 495,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/qp.json",
+      "sha256": "2ef7d3a4ac5d2ac30ebbb5e4240c5e49a2b7b6883884325ee27085eb8f32fe68",
+      "size": 2122,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/saisie.csv",
+      "sha256": "b741fbb41545decbf35e6231e11e9838a03446a8d5320e73ffb62784f41e721b",
+      "size": 14698,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "instruments/_MAQUETTE_P2/specification.json",
+      "sha256": "3ed417986e69a7548d5cca681a42fb383d1dc3be8f87870b258e1fa303b3786e",
+      "size": 7155,
+      "category": "AUDIT_FIXTURE",
+      "role": "instrument ou maquette de test, données fictives"
+    },
+    {
+      "path": "prompt.md",
+      "sha256": "53f712a4a6adc80c50e95cecd8c84ac27149b9fedcc3575f9e9a137cb58f0965",
+      "size": 9061,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "pytest.ini",
+      "sha256": "29c6fdab72c34c87d4a33df6ce9e3c7d0eac2fe6a6b0a9063c81b2e9355cb4ec",
+      "size": 1178,
+      "category": "SOURCE",
+      "role": "configuration du dépôt"
+    },
+    {
+      "path": "referentiels/capacites_mathematiques.json",
+      "sha256": "47b59bcb3bf3ec49fb8274d65d86bd788246597468eb0a46cb5c19a6109fed9f",
+      "size": 44430,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/catalogue_instruments.json",
+      "sha256": "88c4c46276324afeb88700a0e2d6a6f8cee7669c28ceee9219f14ed9eb454390",
+      "size": 33788,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/codes_erreur.json",
+      "sha256": "634914c59b364c4fa57e309a70d2614eb969a633fc1017f4669bfd95e0b3c447",
+      "size": 77937,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/competences.json",
+      "sha256": "ffeb02c980144a13bacf651c97c38313f01d9294c052d7cce38d50bfb5c02f10",
+      "size": 231825,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/dates_anterieures_depart.json",
+      "sha256": "0c210ce55ea25835949242b9325b62827d4ea776a6297f3502df03c50b3b3dab",
+      "size": 1742,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/dimensions_met.json",
+      "sha256": "1e20946609a1b8cca8e1211feacf6f3070b9ba0dcf1839cc3b12be18a53031bc",
+      "size": 5168,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/modalites_epreuves.json",
+      "sha256": "afd0f6f49ec759acf55c35aee67b395df1c146d5d4d8370d332f8a5e6829e2b8",
+      "size": 25994,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/programmes_examen.json",
+      "sha256": "e3de4efdc44ceae40f9561d46bbb3490c85c61fee78c3d5a5ccf5d9d317e964c",
+      "size": 68754,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/regles_bilan.json",
+      "sha256": "1b3e8683ab4b068845275e092dc34db8b4984292aea02b8bc69c9d883663796f",
+      "size": 29093,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/termes_bloquants.json",
+      "sha256": "a89d9c7db21b50ebdca61f0b1fe29ac0553195175e09f35820948141e2b50dc2",
+      "size": 17396,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/textes_sources.json",
+      "sha256": "2aad45e7150cafbb7d5887c0a9d4fad2198c857a70659471eacd3a00e16a6bef",
+      "size": 26882,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "referentiels/variables_qp.json",
+      "sha256": "299940540cf3962de63ff4c492bf2267544b9a8ec82565e5c8b57a843fc66b8d",
+      "size": 23646,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.csv",
+      "sha256": "43f41d069b71dc3407942af0d64012426dfda7fe94587d3fb909ac2436e2fe1b",
+      "size": 859,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
+      "sha256": "4dcac97f8d7b2a822d17ba747e0d5d3584722d230ae1215cb12bd2d2ac63a063",
+      "size": 2506,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
+      "sha256": "5e179ff495ccb8beee56350574e587f4c4995d84b1010023068e12f8eb4ce5eb",
+      "size": 5990,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.txt",
+      "sha256": "01355d9875d34542f2fddb4eab542156fb0580ef6a3fce0047637598a3b9278f",
+      "size": 4691,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.csv",
+      "sha256": "90140d57151e68c0779e4c04b156b6f8e3bf12484e21ff49482e1f4bc7d30e69",
+      "size": 2236,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
+      "sha256": "eab8d715f34a25752fa5449612d88f195fcc4aa0416b5efd5db301c2ec967e4f",
+      "size": 2852,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.csv",
+      "sha256": "f8982857d9834700c3ba76bfea731d13e2f5dd9bcde9395a5e5793e2201dae50",
+      "size": 7255,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
+      "sha256": "940efdeb2dac2fdb87ab9167a3c33c9a6a744aa891f51cc2a368baee337c90a7",
+      "size": 4488,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/PLANCHE_COUVERTURES_CANDIDAT.png",
+      "sha256": "1b04071ad3577fc3ab802bf3576fb74be44178a6ba371fc249b2a6389dda8165",
+      "size": 1432184,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/PLANCHE_COUVERTURES_COACH.png",
+      "sha256": "878e2a9a2059288d55ae53ac80ac92eff68393e22f4094cffd8640878606fa39",
+      "size": 323647,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/00_GUIDE/PLANCHE_PAGES_INTERIEURES.png",
+      "sha256": "ad887a172e58ba94f6f76df552733006f37af49ddaa1067e7d9edb9899a3cccc",
+      "size": 2528425,
+      "category": "GUIDE",
+      "role": "guide de l'opérateur, matrices et planches"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+      "sha256": "b4279f4eaff521119a8d1b5cf678f58f957fc9549e6cd096817d0ce92851ce69",
+      "size": 179245,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "sha256": "7acac4f36655e6203418826e7af70b5ab43d459f25fa317a22b2b68358309eb7",
+      "size": 171047,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "08ceef059042cbaab68852fed5d89e2492e2f5f9132d8b5bb066b84e913e7d89",
+      "size": 209515,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "6c2882e69c1d07c41462f2a59def9b096704ce3e06e74ea1e97225f9ee091a43",
+      "size": 233882,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "70ed5486a67aeea39ecc739fccf3427a986ccff4a2f35720917691506cdc31a6",
+      "size": 221704,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "37eae1dbaf9a284e56e5b9d567162d41e1abf9faba257464a12c42ddd4840960",
+      "size": 133208,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "c015876c9bd8bf76d38a602cb49a2028c81a555cc2b6ccd14ebad6f39ba5546e",
+      "size": 154758,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "6d9b332c8a1fb86d0c1d6d1093d8be8b1ad5ec3ce89e73f546b06365d4cbf20e",
+      "size": 167999,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "32a8a01997875750764785a932fe0a23e0e5f00e7e79a6e063c5a0e5d7aca40c",
+      "size": 170177,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "66e0c4b2fb6262708221e940d79367d58e8424eba264463607cb51c9a774f220",
+      "size": 177290,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "35aa5acae9f847cfed37df30af4e2cbbdcd4aac28c567bd1df9e1a4bdeceb0d2",
+      "size": 170222,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "ef9d806b0a292d00d2f907bb52f1d3fd9e388d932b45e69b1d61926b0288d6ef",
+      "size": 171402,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "23ad94ba93b8209c6905587c6e38f3f4507aaee867ac531dde9f6b75ead998bd",
+      "size": 185556,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "c5b5b4c0da99203c979c544ed2846298d484623685603727a618498372f35f4e",
+      "size": 186234,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "sha256": "5be8620e24e0d766093bd03224b0cb1ecc74bace2ed26232a110cb2a09952d2a",
+      "size": 171144,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "5d479bcf8a76a34ec4856121e9a280d9b154438e5ffb7ddf637bc6df8409e790",
+      "size": 133292,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "c17cd93576fd4757beb7d1aa33743c19c9f7555116a7e22e6f9376fdcb4371f1",
+      "size": 154721,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "13ebaa3b052df19a8828555469ee6744b6316f9138ae7dc468348a8870f89829",
+      "size": 160863,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "sha256": "811ff1bb61e767c2342d44de58ea575b27a9b0037b3cdd0cc8f422e25fbc4efe",
+      "size": 142402,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "sha256": "a8f4cdd8cc293cf1127f3a3d33cf641f3c2e5c7954eb18bdd2c77f137242e85c",
+      "size": 189803,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "e768eebb2c9fda043b9863b9747a1b9e686e7d733341f0e0852a1ef92b56f043",
+      "size": 188680,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "801885d7d18acaaea00873276331cf7568b8ea367cc476d98081673c8ae2127c",
+      "size": 173298,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "746aa3517c8f0bc146abed7043fa9865dd4936575e74e4fb3e013c4825c58bf7",
+      "size": 180652,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "c122422235dc34ed675b93d4f075478c5a68167fe0c792ee49d1b6707ff91a56",
+      "size": 173631,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "52cb6efdbcf5b261fc53b7fbbaf60828c7ceb9334c8b4b31c1a45752456ec894",
+      "size": 172955,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "829b1e65db3f8abff2bda3487e18504d4095616478a1ccc394ff00adf20e3162",
+      "size": 187069,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "18d78b874f9dd02a1ecd75c0176fa4d8567fe7754b3b14ac8133b66377f4ba7a",
+      "size": 201248,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "sha256": "c19efb87dec9dba5dc10e0a778c721becf1fae7818c5201cb9fd4e120f4d38e4",
+      "size": 188455,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "92e318f71701f1c484821785365d64463ad77658e0fde6a4513d1b40189fb4e4",
+      "size": 218452,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+      "sha256": "e5c2a55c5db80d40b3afde327606617329526ae6903648cd09045dc6e1be4d31",
+      "size": 199785,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+      "sha256": "8181acc7f187d7a2ceee1fe91ab1c22863a790731cc11b4779982fd9ef12d667",
+      "size": 196022,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "df2172580c80467fd58fbd1b14c92d76e20afdb85775d18e661b302b0def0307",
+      "size": 221797,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "sha256": "37f20c82c7fced1e49acb39f20351874d1fb15432cdd186fbbcef462ad76fe04",
+      "size": 170958,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "24b3724c080fc2798546c82cf3c46278852b91ef39444e27016cb7af3807b03f",
+      "size": 218416,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "a3a6789866e6d21a59ce998b23483b5b16075ec9b2438b236703c06408c81437",
+      "size": 241349,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "21fe82b2b32db78e11bc936586b8468442a3c8b9fd5e0c71a1fccfd12b6f7565",
+      "size": 221647,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "b1cec5619d5fa769463e51a0306d4b9492b6b5bf78bc26ef6104c36bd8d12dfc",
+      "size": 133676,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "9636f2fba836dc71086f7309836627c0bc7de14a3bf0fe118d2080c6699b9f1b",
+      "size": 159406,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "3880526026745119bf145f3e91b49cbc2cb3bfe2c5447757fa0b098a6cd05670",
+      "size": 170756,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "sha256": "f061fa329dfbfc31c4adbe3a04b0f7f11afcbc7423aaa1a68dcf64f1fe9b5479",
+      "size": 142717,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "sha256": "84fccaa4b1140cf231d204113b19b34f82fea25455252f595ad40640ceb76ef3",
+      "size": 189854,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "edf13b1ac73f598a6b49fe894d3690e377098389929e71b2b0edafafde1be396",
+      "size": 173237,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "c9fc394454e73541885af475fcaf74dd271df4cbec4584a174d9fac6d85af146",
+      "size": 180625,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "a497ddbfd6ed84babd251a403b18aba6714cc295307781e4cc4327015ef99429",
+      "size": 173568,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "461dbeaf43fbf9a3a814c54b98a9715974bcaa9aab4797854adb9d70d101b542",
+      "size": 172868,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "aeb5cea55d27ce681e5bb92540a6bca95d9008cf4a88c994c97307a15a9c0b98",
+      "size": 186913,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "fb15c8bbba27d26099e20ecf31aebb63a8ad864d4abf117926a510cc55dc2674",
+      "size": 201271,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "sha256": "21465c726cceb782e0c6854fed77a39908526e608fba317c596ae9b4e06fa77a",
+      "size": 188062,
+      "category": "CANONICAL_CANDIDATE_PDF",
+      "role": "livret candidat canonique, remis à la famille"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+      "sha256": "1bc3ed3ddcbb14a64cc537b18ba892367cc00f5a47899bc9b3cbc571ee14a7cd",
+      "size": 211203,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "b7f7a87767e4c8085d45fedccf6784ea46baa49a2183d2696f74a87dc86d36af",
+      "size": 252473,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "0f6e37aef5833b3ad55fd2eb39f2b6237c2f6aa4a1e54ef2c9d8a757c2f009aa",
+      "size": 311746,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "2469ced6c981b84405f5e1852d818582633d539f3cb3217304d6b4fb0d6be39d",
+      "size": 263397,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "54434d2ff4f8e9f70c5d65778e59a5cad0083c2518d33e4e71a788be626e282e",
+      "size": 151811,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "252c0cad21abf71b06b8362783c3ecb916ab8622a9e3245caaee6d188b46b6d3",
+      "size": 172881,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "31a3ff02a0e74c17a995129164652659cf01533c4f56fe0dd98915f412d39a9f",
+      "size": 191296,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "aada78e45e547b54050b02a1ebc59dcf9266f2020012b75722af1252fdbaff7e",
+      "size": 195196,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "76d104aee006800694f8eb51105168301e2a3c8d55951841a36b9309510b37d2",
+      "size": 200790,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "a8fe7022db63171551727eea63cf880616b244d4d59fa54c1d3cf40205b0a1fc",
+      "size": 197833,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "2694441754b7ae9d3107c39c65536dc31296d5588f768ca40990401339950537",
+      "size": 204577,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "d52b8a252276f68d39741705fc3197828bf59b9ea333055ce296b4db4cd987c4",
+      "size": 209622,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "bc161598bc84ca93c83973691680497b5da2ec005c35a7653e34916132a42dcb",
+      "size": 211091,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "240b179e76ca27ce719365aaae7f38bdd1adff2ce9634b8685f014bd7a0c7ccc",
+      "size": 151598,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "d52606f433ef3d4e5f873c5066a581a6294b0a9fb9e2d1762ed50221f4fa454e",
+      "size": 172918,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "7bb6f719a159919c967060ebd234a95d614eb15257106fea1f7e866729edb098",
+      "size": 185213,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "sha256": "f6b086e378cb88d0b5b50c4a8daded263e65791c3633a02c8903a0373c24bfa9",
+      "size": 148583,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "sha256": "df689da93043dc79702ae4cde4235cca9c88dd22c9c82e4013d1db938b91835f",
+      "size": 217312,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "2c8714508a7e69cd2a85fc243cb4c0991892bda4120dec3defb232473c7a2427",
+      "size": 234149,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "9a0eed645941879183eec1e0f45e46336c044ff3e8878b12bf2fbc0df2d191d6",
+      "size": 207549,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "2f18ee09999e5353850be22ed31216dc1d0826ebdfaad5469432531caf03140c",
+      "size": 212909,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "14bf1f96f5091d2ccbb525e5ff9b40ff635097a53185a9caff77b85b8a877b03",
+      "size": 203775,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "0fefdad5088296053152bb85f0b6191cb6b909ac9eefc2587d2bb9c92e563ea8",
+      "size": 208699,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "ba1b4ad05ad5ee0b362486784880aacd86a82a61a473a72f2ba7b1d840db4d7d",
+      "size": 213842,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "bfc76cf5cc414cc53d0cd8f0247f25a2ab085363785f2a1ca3d6f60099995737",
+      "size": 231034,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "sha256": "13513a565b2214630eb321107e815f8890013c4adb16051b1d1a27b41b694ba0",
+      "size": 211376,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "f90a348997d7acd2165111468fa4c4651fee347bae84744b14ad4f518e2bf7ba",
+      "size": 261800,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+      "sha256": "dd1f07bd518f64148cdec28e0bc9e57a9d4cd103e9e679ef5b657d08b212d1ce",
+      "size": 232863,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+      "sha256": "40256826243d1e741b98d8405db46bdfb06606629ac7a137f5e72c41b20e2061",
+      "size": 227008,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "60cf78d4d66da6ace8bc18c9b1d2a2c412d689c6c741a0341620a959ab6fdc1c",
+      "size": 263423,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "sha256": "2616b68b481369a18fe007eb096ba4a85121fbc813644aa8d5462db29a0dc183",
+      "size": 261779,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "sha256": "1b0cdfa01f508b1a267fe2338c366b6d3f3e9faf3a7f5318e6cafa741eea08d5",
+      "size": 322664,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "sha256": "95ec81c81631802a1893fd9b2356c87d269f019aef40b30bda0006adc84a9064",
+      "size": 263440,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "sha256": "6690fde27750d568febbcef72e70219b4fa455dd1d0a070f3e9c086c034ee554",
+      "size": 152321,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "sha256": "8d5e662ab57a838084ddc7eb94910e07280e54557ca8bd11358d809f1bc8b2bc",
+      "size": 184254,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "sha256": "1792881b132967925242a691af5bf95ea0bb03a943fc0c96da2fc7b37e4b7874",
+      "size": 199279,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "sha256": "1b1e269bc371604ea4af2d240cb9a83148aaa1f910f4d40424bb84602d895f1e",
+      "size": 148555,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "sha256": "8509a0ccf95246c7dbfa8cd5778fa0ac2952c313df8888290d61282f6888cda9",
+      "size": 217340,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "sha256": "c19bb0ae2c09caceafe873b6d80562da156a61ed0c58e342f53d52e66dc6664f",
+      "size": 207278,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "sha256": "588edf4a675f3ad4495c119bd52e5115d439adf9c7b435bde655675de76c6f71",
+      "size": 212815,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "sha256": "60622027ddf9b48db354f0338af23fcc21823a62a671320950770c2b9cf792bc",
+      "size": 203585,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "sha256": "545dd63b303aa52ebc1f9bc5bbc27a5f98a2290d1fc56820a4625b825b1b40f2",
+      "size": 208789,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "sha256": "49a074986313633437976390aa37c224f42913d0863509893f495e5caec1b878",
+      "size": 213741,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "sha256": "b4fb1c4db05145006f3a91d6142d60d421422e6952ab72c6edc8983ffe47419c",
+      "size": 230964,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "sha256": "c3e7394b63c533a0aaf18b2f9404e2bb8bd31237dbc627eccad32924017c86b3",
+      "size": 211303,
+      "category": "CANONICAL_COACH_PDF",
+      "role": "corrigé et grilles, usage coach exclusivement"
+    },
+    {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "sha256": "95299cd4eb3957f7c26bb6fcf3d702239d720d2e1348912d82d5d5a23314c5f2",
+      "size": 2886180,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "sha256": "94e28bce5d4011a6da9c59bfed146b3b58b0f66c73d89d3b1cbb462675b0d1f7",
+      "size": 2870058,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.pdf",
+      "sha256": "8d7beea12728bb9b9f734533bff4e6ef48d21534e256d234eb5571e3567c5911",
+      "size": 3289072,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "sha256": "aad66f7647ad7f8f52d838c5ed649f5f64c6bcfe684b7c021f35565007912f5c",
+      "size": 3660443,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "sha256": "22ad031c4546cf1a42889f8dc8b63e9d2797b1dbe8681f2df11158da971ec2dc",
+      "size": 3635423,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/CANDIDATE_PROFILES.csv",
+      "sha256": "40fca6395e828ba4fc1624562a2ff09b0707a9cc1e2275018df0b96dccd84252",
+      "size": 1186,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/POURQUOI_CE_DOSSIER_EST_INTERNE.txt",
+      "sha256": "09960abd14a9b1e549921cfb2d17ad6fc30b754b1543e5a8e910534cbb12d4e8",
+      "size": 687,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/conftest.py",
+      "sha256": "83818649c12393c8a2a6ca92616edbe2cad508fb231f4ae4b24b064c8158f37c",
+      "size": 966,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/rendu_modele.py",
+      "sha256": "d63e81dc60e903fffac5dc4822adbde5f1d4df9db8706c832e668d920fd27422",
+      "size": 187,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/test_NSI-1-PROG-01.py",
+      "sha256": "5c149dc3bbdd04194da8f9b28acff74110a838fd7d5124d310ef049f750136cf",
+      "size": 2159,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/test_NSI-T-PROG-02.py",
+      "sha256": "121934da6c50bcea68527e27b35d097ce98c1478f36f7400462840ded35a4c43",
+      "size": 3200,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/DISTRIBUTION_MATRIX.csv",
+      "sha256": "b7ffce2a8556fa54a1e48e98187abc36bf71669594176fb7ec45ee63451481ad",
+      "size": 10712,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
+      "sha256": "dde265bdcfefb57bab426d3c54bb50ce35e137442587d2ecee940e63be513813",
+      "size": 66843,
+      "category": "MANIFEST",
+      "role": "manifeste de la release : empreintes et commit source"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
+      "sha256": "6713fdb80c7d251f1a0a85d4f60269a96d6fb60fcc11fff5beba084412d9412e",
+      "size": 14951,
+      "category": "MANIFEST",
+      "role": "manifeste de la release : empreintes et commit source"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/PRINT_MATRIX.csv",
+      "sha256": "81311b03bb68b7958119c3312d7a2c4312c4ba8c77ad018e4e2288607e9809f3",
+      "size": 1115,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/STUDENT_PACK_MATRIX.csv",
+      "sha256": "9917e2ff039f85ec727681fcd5b27c59f5a6e9d3fd707fa852ab0935cf41b10e",
+      "size": 54021,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "scripts/audit_inventory.py",
+      "sha256": "6ed5ea39cbb4ee7d096e586e4ff07bdba50ee8c46e8a17f5741e87edb8db4e75",
+      "size": 25287,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/audit_readme.py",
+      "sha256": "7bf41406234312304e6598c4fe3bfa536c026919b5c5ab48b620796682491a46",
+      "size": 11083,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/bilan.py",
+      "sha256": "46318be6eb223d3154e9848dc06aa30991f508c7a4cc8c405a154b611dcb4a3a",
+      "size": 56990,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/build_instrument.py",
+      "sha256": "dda91fac1dbd65d92413cea69fd4a0e978359188914efca95da1bc240c64f505",
+      "size": 47982,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/contexte.py",
+      "sha256": "00c404da51ccd08ec53e84845b7136926535814c0329f91dbbe2012d29d3aaef",
+      "size": 9621,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/dates_anterieures.py",
+      "sha256": "8961b0bf3bd65461a1fecedd2dbca8cd374be363869b25534c2b6f22af351690",
+      "size": 5090,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/diffusabilite.py",
+      "sha256": "04b9a252bde65db8d6188e33caccafdf65650383077d277d2801ae4d04bb5e96",
+      "size": 6265,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/distribution.py",
+      "sha256": "0f0ad7a15eda088033808ff3f4489e626c1aa19801c82176fa86ce6a28d51e20",
+      "size": 58208,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/eligibilite.py",
+      "sha256": "690ce199a0903e92a741056869c6928f2bab1271313ae930baff668b24d981f8",
+      "size": 12162,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/etat_depot.py",
+      "sha256": "db730b862aef12ae604b4c295dee28099e89afb1f6d45eba20b89dfb3ce40cee",
+      "size": 14927,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/livret.py",
+      "sha256": "bf3af0b63a669599767052febf519ec2677adb13cbd38d2deb8dc2195949b8ee",
+      "size": 74577,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/maquette_bilan.py",
+      "sha256": "32ef9c5cf7a47d1852f2d724eafcd3e8b7aaf2997a07cff7c538de4ddb4d5207",
+      "size": 82720,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/maquette_donnees.py",
+      "sha256": "93776429fc62db885ca3f820f417537e0e5d476c314c711c217b22bd4f2c3ee9",
+      "size": 28049,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/mesures.py",
+      "sha256": "7cd1b58ddefc3a63c4ee095c916e9f404dedc5f8a257d8cd25d3c2d5d00dfdf6",
+      "size": 4976,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/pack_candidat.py",
+      "sha256": "a9749ab0e1746503fc4ff7631b18f536f5347324667e3e80d126eef80a19cac3",
+      "size": 52244,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/passation.py",
+      "sha256": "cb82d076a2912d25d601abcb4128cbfc9c159b5b0979e4be2104040fd97a412b",
+      "size": 5676,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/planche_contact.py",
+      "sha256": "e6ee8d76c54d21012ebd2d8834d2ae53310471d67e08b555d0f4d92aad04061f",
+      "size": 3267,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/preuve_registre.py",
+      "sha256": "1ea490f0f2bcb1f9d3b81300528dd6b79e36f8d0dcc1e019b5f8009463398939",
+      "size": 5499,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/release.py",
+      "sha256": "157689b7b6312362a7a2b3fad53852a333844ae19ab0d8ee0109c2c586bcf058",
+      "size": 18926,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/release_v2.py",
+      "sha256": "16e3df1d38a51f159d7fd4996303024e1317cade5e7d4fbfc153f44e3f074b6f",
+      "size": 36635,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/rendus_instruments.py",
+      "sha256": "1786eb4b06752f7e1c1f2be1c39d6cc25dd883ef6702f758d113083f04a0fce0",
+      "size": 3737,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/table_math_ea.py",
+      "sha256": "0e3fc824b7891b091d0ef34036168884324bac2446a4c41df4659cc8ec1a5df3",
+      "size": 7277,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/textes_sources.py",
+      "sha256": "2a0f63bd5f8b64013f899505e536046a555f2f9770f9a4aad1dfe8b6a88a5304",
+      "size": 9940,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/validate_instrument.py",
+      "sha256": "a95a7bb56e5e28b6fe95902df54e4886b4ec94992cad3afb32799826e90e08c0",
+      "size": 80386,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/validate_referentiel.py",
+      "sha256": "cc0f6e69e9dfee297abd1fc06383db817b46d22d20ba0f5f56653bdd16b19581",
+      "size": 42323,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "sources_internes/francais/FR-POS/README.md",
+      "sha256": "f68db48151c7697f453ad0b7862aa9cb015928fa813e2e09002309f29de6e709",
+      "size": 1380,
+      "category": "DOCUMENTATION",
+      "role": "documentation gouvernante ou de conception"
+    },
+    {
+      "path": "templates/nexus-livret.tex",
+      "sha256": "b740b4f109e36ce3294c98db91241b80fbc805e745f9814b72fedf34db7c799c",
+      "size": 12907,
+      "category": "TEMPLATE",
+      "role": "gabarit XeLaTeX des livrets"
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "074421fadac8d3ab72e69548a6bf4b67368ab5971b75d895c2c3433ae205b890",
+      "size": 1918,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/instantanes/mesures.json",
+      "sha256": "eaeaeebb5c83f2643d1ff45bb3c1af1536aac4ddc67002c91dfac0764ab808f7",
+      "size": 121254,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_audit_inventory.py",
+      "sha256": "8432acbfa4709926a3da5e7f157ee0ae62ea8d91314e8236e5cdbd57aa6335f9",
+      "size": 7964,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_audit_readme.py",
+      "sha256": "387184018b295dd8845456cf1b21a61a8bfc584e0291716f8c53023e6e57375c",
+      "size": 6713,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_bilan.py",
+      "sha256": "b0fec0a27fcc25ed63db5da3d18239b79609bce1781b9b6b7cf6aca7677af69d",
+      "size": 19946,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_bordereau_durees.py",
+      "sha256": "433436295e8cf2dc5ff27b92d5bf0f5084e1e11c8d51644138a4d1e61e43d705",
+      "size": 4550,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_build_instrument.py",
+      "sha256": "fc265dbf00ab44a68ea28a2756887b8fd365ad60430fbf2d72068739d2a45556",
+      "size": 21393,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_calculatrice_coherence.py",
+      "sha256": "df8e0582a4927ccd672a251bb0fb942cf348ae9dceb250b481a5156afa16e522",
+      "size": 4974,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_charge_q27.py",
+      "sha256": "0c692256aa9f9574c44913815a024fd03c682f0df7883445b8bc9d08d7e3775e",
+      "size": 5848,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_contexte.py",
+      "sha256": "ad534e02cebb11deea1e7d6d71fa8017a0f56d0aee3c120bbb9cd5eed53079b7",
+      "size": 10645,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_dates_anterieures.py",
+      "sha256": "de80078cc5a3859a0fd8c06110da4a6aced9331822a55633266b2cfb2eb28d86",
+      "size": 1849,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_design.py",
+      "sha256": "099244e650ec6400fbe36be27eafb48cd55e12b113b70de04957c237202d694b",
+      "size": 26730,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_diffusabilite.py",
+      "sha256": "545349a923e6324a6c0dfaf11f11fa3c1336036a1aee81ae1706e26899bc0b42",
+      "size": 12098,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_distribution.py",
+      "sha256": "08f99fbaa387a23014a5b477d5663704e07e3b4169920db2d0afd4d3cd52a480",
+      "size": 19463,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_dossier_entree_personnalise.py",
+      "sha256": "6469ad675dcaffc660099dd930df9649a8ae4f4958bd3f530569e9c2654c7f82",
+      "size": 7215,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_eligibilite.py",
+      "sha256": "36d6d781a89d26bc36d2a91423e946ad24d679983e630bd645fd5bb2123b3299",
+      "size": 19032,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_etat_depot.py",
+      "sha256": "237813b402ef858494a40b17a8c0cac1799661b81f7ba19cc8b8f0edb18ec4d0",
+      "size": 8287,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_export_deterministe.py",
+      "sha256": "68003940a9ab40bbe53eebee15237967c4d37c5da57bebe46b661c7b2fcd86b5",
+      "size": 6097,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_francais.py",
+      "sha256": "3705554f7cf94bb7955111bff3b6fffd764a6ff8f19fa7b3a86188fb29062a37",
+      "size": 10621,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_gate_profil.py",
+      "sha256": "be8920880487d8a15bb6586dffe19d8c4a3fa1f470269bd4fa0a895561fe0a97",
+      "size": 7218,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_go_duree.py",
+      "sha256": "9b2d84131b27f0bb98b2a8dbcc3ba6f9b680b0278e7e22d4c570db441d6e2e7d",
+      "size": 3392,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_hg_tle_documents.py",
+      "sha256": "0eb722cbf45f1dbc0fced893e11bcdcd0260797e7088797672282642832fc502",
+      "size": 4971,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_intitules_versionnes.py",
+      "sha256": "09a25755c34bd322e3f3a4c3aed8fea0a6567f08f24ee309e7321e2327f96845",
+      "size": 5702,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_maquette.py",
+      "sha256": "92a588e16133116dd5d8a34b512c9a165d8742d2339ab4ffd8893c2f2e68f872",
+      "size": 22775,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_math_ea.py",
+      "sha256": "abb3b5b5998ba0640d4ff28d8e24ac2319d9100195dbbc88a2b33377e0408c58",
+      "size": 14011,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_math_ea_expertise.py",
+      "sha256": "797a367e05c3c47e6444eae9a522441bba4689cdf1752b594e3de4a493197eec",
+      "size": 35271,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_non_regression.py",
+      "sha256": "03d0b990b7a24d3913ed8b9a20cec686ada2c5f097b65be89451bc7a55169b41",
+      "size": 5619,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_nsi_harnais.py",
+      "sha256": "3e1e28b16161342aeba76467b684c751923c9f2fd1bbe8cd64101d0283151876",
+      "size": 4641,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_p1_2026_2027.py",
+      "sha256": "9a14fdc05c21ca8679be627ecffe7f0eeb93b5a1e7024888d90569efba43b5ae",
+      "size": 10315,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_pack_candidat.py",
+      "sha256": "fa4cff5594428fd5050cc3224309a44ded915413137e95022ddeb8b429e06a58",
+      "size": 39816,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_pack_personnalisation.py",
+      "sha256": "00c67060a36b52f2476538c3087eac431f0ee3fe9183e986c35b905f6b9c2b1d",
+      "size": 11976,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_passation.py",
+      "sha256": "d94c11fc39286da7dbcc86c053d8ee90ffe00cf37efbd354764a59e9df4cc022",
+      "size": 5677,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_passation_cas.py",
+      "sha256": "35e28113efce37389fe4209f498036cbd675e35d7fe59e1e4a9e0e6d11015654",
+      "size": 4740,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_phi_attribution.py",
+      "sha256": "b0f94c8dafea3c5b80dbcb23b7f90aafa3454b0a1a5b8c5f2a68d298edcaf7e8",
+      "size": 2445,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_profil_p1.py",
+      "sha256": "90781bbeb099486a5b6f8f2c9b6871f5482a3c0e311f75aecc0166e200708b7b",
+      "size": 6879,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_provenance.py",
+      "sha256": "2dc8b23083096fd64ba76d2108c6e497cf505632d9c7e72174bf1c6ddb35bcc1",
+      "size": 6327,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_regles_bilan.py",
+      "sha256": "a603dd19bb992150967a9525d266f0d0fe0b03bb429dcfff1ba5942031898b06",
+      "size": 14486,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_release.py",
+      "sha256": "c858b459a41dac8692363f03ad2de3369ba9ee486f1f87d610d100356d4a95ba",
+      "size": 6008,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_rendu_code.py",
+      "sha256": "5d0d4564285c6d8106df18d78bccc1df5cc2882a5b5a24d0c0df30dd512bec73",
+      "size": 7536,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_sessions_fr_eaf.py",
+      "sha256": "6344ac4cc3dcac4124b334472bd5f9da383b5a7ac6a84e61281722d1bf49e210",
+      "size": 15682,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_textes_sources.py",
+      "sha256": "bc1995092898b692fbedb25986f7fb09f5fd3b0d219a50bf62814d987e78ca1f",
+      "size": 10147,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_tronc_commun_et_positionnement.py",
+      "sha256": "d874b0f2aa38315bc7c97aa4a9cde30955d5c568245ca701109899ddf17ec359",
+      "size": 6700,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_validate_instrument.py",
+      "sha256": "c068c3c34c3402d2e5b03f30b41242d3b19e90b8349d17b7f969878f825da059",
+      "size": 22879,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_validate_referentiel.py",
+      "sha256": "fd171834e443c3b528c3e3668db63dc8bec5bf389e1bbd00f9d23fa7adcab064",
+      "size": 13972,
+      "category": "TEST",
+      "role": "test de non-régression"
+    }
+  ]
+}

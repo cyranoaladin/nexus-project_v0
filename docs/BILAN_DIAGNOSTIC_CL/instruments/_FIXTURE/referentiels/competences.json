@@ -1,0 +1,325 @@
+{
+  "schema": "nexus.referentiel.competences",
+  "version": "1.0-fixture",
+  "date": "2026-09-10",
+  "session_visee": "fictive",
+  "source": "FIXTURE — instrument fictif de test, jamais assemblé dans un instrument réel",
+  "avertissement": "FICTIF. Ce référentiel ne sert qu'aux tests de validate_instrument.py et build_instrument.py.",
+  "conventions": {
+    "item_id": {
+      "format": "<PREFIXE>-<NIVEAU>-<COMPETENCE>-<NN>",
+      "regle": "PREFIXE et NIVEAU sont donnés par le périmètre (champ prefixe_item / niveaux_item). COMPETENCE est le code de compétence du périmètre. NN est un entier sur deux chiffres, unique au sein du couple (périmètre, compétence).",
+      "arbitrage": "Le Cahier § 4.2 donne deux exemples de formats concurrents (MATH-1-SUIT-04 et FR-EAF-COMP-02). Convention retenue et validée par la direction le 2026-09-10 : le segment NIVEAU vaut 2/1/T pour les périmètres adossés à un niveau de programme, et un jeton de périmètre (EAF, MAI) pour le français, dont les deux instruments partagent le préfixe FR avec des codes de compétence homonymes mais distincts.",
+      "exemples_valides": [
+        "MATH-1-SUIT-04",
+        "NSI-T-REC-01",
+        "PHI-T-NOT-03",
+        "TC-1-MAT-02",
+        "FR-EAF-COMP-02",
+        "FR-MAI-LANG-05"
+      ]
+    },
+    "niveaux_programme": {
+      "2": "Prérequis de la classe de Seconde",
+      "1": "Programme de la classe de Première",
+      "T": "Programme de la classe de Terminale",
+      "EAF": "Attendus de l'épreuve anticipée de français (écrit et oral)",
+      "MAI": "Maîtrise du français comme outil de travail — hors programme disciplinaire"
+    },
+    "paliers": {
+      "D1": "Application : la notion est mobilisée telle qu'elle a été vue, dans le contexte où elle a été vue.",
+      "D2": "Transfert : la notion est mobilisée dans un contexte non vu, ou combinée à une autre notion.",
+      "D3": "Raisonnement : le candidat construit une démarche ou produit une justification. Un item D3 peut être court."
+    },
+    "note_paliers": "Les paliers ne sont pas une échelle facile/moyen/difficile. Un item D3 court est légitime ; un item D1 long ne l'est pas.",
+    "blocs": {
+      "0": "Auto-positionnement (échelle 1–4, sert uniquement à l'indice de calibration)",
+      "A": "Prérequis bloquants du niveau inférieur",
+      "B": "Notions du programme, aux trois paliers",
+      "C": "Tâche au format de l'épreuve réelle",
+      "D": "Méthode et rédaction"
+    },
+    "echelle_bloc_0": [
+      "Fragile",
+      "En construction",
+      "Correct",
+      "Solide"
+    ],
+    "confiance_programme": {
+      "haute": "Chapitre explicitement inscrit au programme officiel du niveau indiqué ; rattachement vérifié.",
+      "moyenne": "Chapitre au programme, mais dont le découpage ou l'intitulé exact peut différer de la formulation officielle.",
+      "a_verifier": "Rattachement à confirmer par la direction pédagogique avant écriture des items. Aucun item ne sera écrit sur ce chapitre sans confirmation."
+    },
+    "types_competence": {
+      "ordinaire": "Évaluée par des items rattachés en blocs A ou B. Soumise à la règle 3 items / 2 paliers (§ 4.2).",
+      "production": "Évaluée principalement par un item de type C : ses seuls blocs sont C et D. Soumise à la règle de production.",
+      "indicateur_transversal": "Sans items propres. Le score provient d'une grille externe déclarée ou des critères de grille C portant son code. Soumise à la règle des sources minimales."
+    },
+    "regles_couverture": {
+      "competence_ordinaire": {
+        "items_min": 3,
+        "paliers_min": 2,
+        "points_min_par_palier": 3,
+        "source": "Cahier § 4.2 (couverture) et § 5.3 (palier de profondeur)"
+      },
+      "indicateur_transversal": {
+        "sources_min": 2,
+        "equivalences": {
+          "grille_externe_declaree": 2,
+          "critere_grille_C": 1
+        },
+        "source": "Arbitrage direction pédagogique, 2026-09-10",
+        "note": "Deux critères de grille C portant le code_critere de l'indicateur, ou une grille externe déclarée dans evaluee_par, suffisent. En deçà, l'indicateur sort « Non évalué »."
+      },
+      "note_validateur": "scripts/validate_instrument.py lit ces seuils ici et ne les redéfinit pas.",
+      "production": {
+        "items_C_min": 1,
+        "criteres_min_par_item_C": 3,
+        "sources_equivalentes_item_C": 3,
+        "items_autre_palier_min": 1,
+        "types_autre_palier": [
+          "A",
+          "B"
+        ],
+        "bloc_autre_palier": "D",
+        "source": "Arbitrage direction pédagogique, 2026-09-10 (précision P1)",
+        "note": "Un item C à au moins 3 critères vaut 3 sources, au palier de la tâche. S'y ajoute au moins un item A ou B à un autre palier portant sur la même compétence, en bloc D — typiquement « repérer l'erreur dans une production fournie » (D2) ou « ordonner les étapes » (D1). Un QCM sur la rédaction ne mesure pas ce que mesure une rédaction : il complète le palier, il ne s'y substitue pas."
+      }
+    },
+    "etats_competence": {
+      "hors_version": "État du RÉFÉRENTIEL : la compétence n'appartient pas au programme du niveau évalué par cette version. Elle est absente de l'assemblage et n'apparaît pas dans le bilan, sous aucune forme.",
+      "evaluee": "État du RÉFÉRENTIEL : la compétence appartient à cette version et reçoit des items.",
+      "non_evaluee": "État du MOTEUR (Cahier § 5.2) : la compétence appartient à l'assemblage mais moins de 3 items ont été renseignés. Cet état ne se lit jamais dans le référentiel.",
+      "regle": "Une compétence hors_version n'est jamais rendue « Non évaluée » dans le bilan : le bilan ne signale pas comme non mesurée une compétence hors programme du niveau."
+    }
+  },
+  "ecarts_cahier": [],
+  "ecarts_prompt": [],
+  "perimetres": [
+    {
+      "code": "_FIXTURE",
+      "libelle": "Instrument fictif de test",
+      "prefixe_item": "FIX",
+      "niveaux_item": [
+        "2",
+        "1",
+        "T"
+      ],
+      "profils": [
+        "P1"
+      ],
+      "versions": [
+        "standard",
+        "REDUITE"
+      ],
+      "source_cahier": "aucune — fixture",
+      "competences": [
+        {
+          "code": "CALC",
+          "intitule": "Automatismes de calcul",
+          "type": "ordinaire",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "evaluee"
+          },
+          "blocs": {
+            "standard": [
+              "A"
+            ],
+            "REDUITE": [
+              "A"
+            ]
+          },
+          "niveaux_items": {
+            "standard": [
+              "2"
+            ],
+            "REDUITE": [
+              "2"
+            ]
+          },
+          "chapitres": [
+            {
+              "niveau": "2",
+              "intitule": "Calcul élémentaire",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        },
+        {
+          "code": "NOTI",
+          "intitule": "Notions du programme",
+          "type": "ordinaire",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "evaluee"
+          },
+          "blocs": {
+            "standard": [
+              "B"
+            ],
+            "REDUITE": [
+              "B"
+            ]
+          },
+          "niveaux_items": {
+            "standard": [
+              "1"
+            ],
+            "REDUITE": [
+              "1"
+            ]
+          },
+          "chapitres": [
+            {
+              "niveau": "1",
+              "intitule": "Notions de première",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        },
+        {
+          "code": "HORS",
+          "intitule": "Notion propre à la version standard",
+          "type": "ordinaire",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "hors_version"
+          },
+          "blocs": {
+            "standard": [
+              "B"
+            ],
+            "REDUITE": []
+          },
+          "niveaux_items": {
+            "standard": [
+              "1"
+            ],
+            "REDUITE": []
+          },
+          "note_cahier": "Couple hors_version de la fixture : absente de l'assemblage REDUITE, jamais rendue « Non évaluée ».",
+          "chapitres": [
+            {
+              "niveau": "1",
+              "intitule": "Notion hors version réduite",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        },
+        {
+          "code": "REDA",
+          "intitule": "Rédaction d'un paragraphe structuré",
+          "type": "production",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "evaluee"
+          },
+          "blocs": {
+            "standard": [
+              "C",
+              "D"
+            ],
+            "REDUITE": [
+              "C",
+              "D"
+            ]
+          },
+          "niveaux_items": {
+            "standard": [
+              "1"
+            ],
+            "REDUITE": [
+              "1"
+            ]
+          },
+          "grille_criteres_cahier": [
+            "idée directrice",
+            "appui sur le texte",
+            "structure",
+            "langue"
+          ],
+          "chapitres": [
+            {
+              "niveau": "1",
+              "intitule": "Paragraphe rédigé",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        },
+        {
+          "code": "INTE",
+          "intitule": "Interprétation d'un document",
+          "type": "production",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "evaluee"
+          },
+          "blocs": {
+            "standard": [
+              "C",
+              "D"
+            ],
+            "REDUITE": [
+              "C",
+              "D"
+            ]
+          },
+          "niveaux_items": {
+            "standard": [
+              "1"
+            ],
+            "REDUITE": [
+              "1"
+            ]
+          },
+          "grille_criteres_cahier": [
+            "compréhension",
+            "appui sur le document",
+            "langue"
+          ],
+          "chapitres": [
+            {
+              "niveau": "1",
+              "intitule": "Interprétation guidée",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        },
+        {
+          "code": "LANG",
+          "intitule": "Qualité de l'expression écrite",
+          "type": "indicateur_transversal",
+          "etat_par_version": {
+            "standard": "evaluee",
+            "REDUITE": "evaluee"
+          },
+          "evaluee_par": "criteres_C",
+          "code_critere": "LANG",
+          "blocs": {
+            "standard": [
+              "C"
+            ],
+            "REDUITE": [
+              "C"
+            ]
+          },
+          "note_cahier": "Indicateur transversal de la fixture : deux sources, les critères LANG des grilles REDA et INTE.",
+          "chapitres": [
+            {
+              "niveau": "1",
+              "intitule": "Expression écrite",
+              "programme": "Fixture — aucun programme officiel",
+              "confiance": "haute"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "instrument": "EDS-MATH",
+  "version": "N1",
+  "titre": "Diagnostic de spécialité mathématiques — version Première",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "L'exercice du bloc C est rédigé sur le cahier de composition.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "CALC",
+        "intitule": "Automatismes : calcul littéral, fractions, puissances, racines, équations et inéquations"
+      },
+      {
+        "competence": "FONC",
+        "intitule": "Fonctions : variations, dérivation, tangente, second degré, exponentielle"
+      },
+      {
+        "competence": "SUIT",
+        "intitule": "Suites : arithmétiques, géométriques, sens de variation ; récurrence et limites en Terminale"
+      },
+      {
+        "competence": "GEO",
+        "intitule": "Produit scalaire, géométrie repérée ; vecteurs, droites et plans de l'espace en Terminale"
+      },
+      {
+        "competence": "RAIS",
+        "intitule": "Raisonnement et rédaction : démontrer, justifier, rédiger une solution complète"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "MATH-2-CALC-01",
+        "MATH-2-CALC-02",
+        "MATH-2-CALC-03",
+        "MATH-2-CALC-04",
+        "MATH-2-CALC-05",
+        "MATH-2-CALC-06"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "MATH-1-FONC-01",
+        "MATH-1-FONC-07",
+        "MATH-1-FONC-04",
+        "MATH-1-FONC-08",
+        "MATH-1-SUIT-01",
+        "MATH-1-SUIT-07",
+        "MATH-1-SUIT-04",
+        "MATH-1-SUIT-08",
+        "MATH-1-TRIG-01",
+        "MATH-1-TRIG-03",
+        "MATH-1-TRIG-02",
+        "MATH-1-TRIG-04",
+        "MATH-1-GEO-01",
+        "MATH-1-GEO-03",
+        "MATH-1-GEO-02",
+        "MATH-1-GEO-04",
+        "MATH-1-PROB-01",
+        "MATH-1-PROB-07",
+        "MATH-1-PROB-04",
+        "MATH-1-PROB-08",
+        "MATH-1-ALGO-01",
+        "MATH-1-ALGO-02",
+        "MATH-1-ALGO-05",
+        "MATH-1-ALGO-06"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "MATH-1-RAIS-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "MATH-1-RAIS-02",
+        "MATH-1-RAIS-03"
+      ]
+    }
+  ]
+}

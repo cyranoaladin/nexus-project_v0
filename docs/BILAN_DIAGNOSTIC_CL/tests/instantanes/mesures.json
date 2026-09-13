@@ -1,0 +1,5380 @@
+{
+  "P1": {
+    "bloc_0": {
+      "EDS-MATH/CALC": 4,
+      "EDS-MATH/FONC": 4,
+      "EDS-MATH/GEO": 4,
+      "EDS-MATH/RAIS": 4,
+      "EDS-MATH/SUIT": 4,
+      "EDS-PC/EXP": 3,
+      "EDS-PC/MAT": 3,
+      "EDS-PC/MOUV": 3,
+      "EDS-PC/QUANT": 3,
+      "EDS-PC/RES": 3,
+      "EDS-SVT/DOC": 3,
+      "EDS-SVT/GEN": 3,
+      "EDS-SVT/REDA": 3,
+      "EDS-SVT/SCI": 3,
+      "EDS-SVT/TERR": 3,
+      "FR-EAF/ANAL": 3,
+      "FR-EAF/ARGU": 3,
+      "FR-EAF/COMP": 3,
+      "FR-EAF/LANG": 3,
+      "FR-EAF/REDA": 3,
+      "TC-ES/ASTR": 3,
+      "TC-ES/DEM": 3,
+      "TC-ES/MAT": 3,
+      "TC-ES/SON": 3
+    },
+    "calibration_non_renseignee": [],
+    "calibration_par_competence": {
+      "EDS-MATH/CALC": {
+        "ecart": 33.333333,
+        "mesure": 66.666667,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/FONC": {
+        "ecart": 33.333333,
+        "mesure": 66.666667,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/GEO": {
+        "ecart": 33.333333,
+        "mesure": 66.666667,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/RAIS": {
+        "ecart": 46.153846,
+        "mesure": 53.846154,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/SUIT": {
+        "ecart": 33.333333,
+        "mesure": 66.666667,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-PC/EXP": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MAT": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MOUV": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/QUANT": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/RES": {
+        "ecart": 12.121212,
+        "mesure": 54.545455,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/DOC": {
+        "ecart": 12.820513,
+        "mesure": 53.846154,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/GEN": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/REDA": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/SCI": {
+        "ecart": 33.333333,
+        "mesure": 33.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "EDS-SVT/TERR": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/ANAL": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/ARGU": {
+        "ecart": 26.666667,
+        "mesure": 40.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "FR-EAF/COMP": {
+        "ecart": 25.0,
+        "mesure": 41.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/LANG": {
+        "ecart": 33.333333,
+        "mesure": 33.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "FR-EAF/REDA": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/ASTR": {
+        "ecart": 9.52381,
+        "mesure": 57.142857,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/DEM": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/MAT": {
+        "ecart": 4.166667,
+        "mesure": 62.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/SON": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      }
+    },
+    "calibration_par_matiere": {
+      "EDS-MATH": {
+        "ecart": 35.11396,
+        "mesure": 64.88604,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-PC": {
+        "ecart": 1.564027,
+        "mesure": 65.102639,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT": {
+        "ecart": 10.616987,
+        "mesure": 56.049679,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF": null,
+      "TC-ES": null
+    },
+    "calibration_sans_domaine": [
+      "EDS-MATH/ALGO",
+      "EDS-MATH/PROB",
+      "EDS-MATH/TRIG",
+      "EDS-PC/ENER",
+      "EDS-PC/OND",
+      "EDS-SVT/CORP",
+      "EDS-SVT/ECO",
+      "FR-EAF/CULT",
+      "FR-EAF/ENTR",
+      "FR-EAF/EXPL",
+      "FR-EAF/GRAM",
+      "FR-EAF/LANG-ORAL"
+    ],
+    "competences": {
+      "EDS-MATH/ALGO": {
+        "erreurs": {
+          "MATH-ERR-PYTHON": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/CALC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/FONC": {
+        "erreurs": {
+          "MATH-ERR-DERIV": 1,
+          "MATH-ERR-SIGNE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/GEO": {
+        "erreurs": {
+          "MATH-ERR-SCALAIRE": 1,
+          "MATH-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/PROB": {
+        "erreurs": {
+          "MATH-ERR-CALC-NUM": 1,
+          "MATH-ERR-PROBA-COND": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/RAIS": {
+        "erreurs": {
+          "MATH-ERR-JUSTIF": 1,
+          "MATH-ERR-SIGNE": 1
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "—",
+        "part": 0.538462,
+        "type": "production"
+      },
+      "EDS-MATH/SUIT": {
+        "erreurs": {
+          "MATH-ERR-INDICE": 1,
+          "MATH-ERR-RAISON": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/TRIG": {
+        "erreurs": {
+          "MATH-ERR-CERCLE": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/ENER": {
+        "erreurs": {
+          "PC-ERR-CONVERSION": 1,
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/EXP": {
+        "erreurs": {
+          "PC-ERR-GRAPH": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MAT": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 1,
+          "PC-ERR-CONVERSION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MOUV": {
+        "erreurs": {
+          "PC-ERR-FORCE": 1,
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/OND": {
+        "erreurs": {
+          "PC-ERR-CONDITION": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/QUANT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/RES": {
+        "erreurs": {
+          "PC-ERR-CONCL": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SVT/CORP": {
+        "erreurs": {
+          "SVT-ERR-VOCAB": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/DOC": {
+        "erreurs": {
+          "SVT-ERR-DOC-MOBIL": 1
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.538462,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/ECO": {
+        "erreurs": {
+          "SVT-ERR-CONCL": 1,
+          "SVT-ERR-VOCAB": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/GEN": {
+        "erreurs": {
+          "SVT-ERR-DIVISION": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/REDA": {
+        "erreurs": {
+          "SVT-ERR-DOC-MOBIL": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SVT/SCI": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/TERR": {
+        "erreurs": {
+          "SVT-ERR-CHRONO": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ANAL": {
+        "erreurs": {
+          "FR-ERR-PROCEDE-IDENT": 3
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ARGU": {
+        "erreurs": {
+          "FR-ERR-CITATION": 2
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "FR-EAF/COMP": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1,
+          "FR-ERR-THESE": 1
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.416667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/CULT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ENTR": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "Fragile",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/EXPL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "production"
+      },
+      "FR-EAF/GRAM": {
+        "erreurs": {
+          "FR-ERR-GRAM-NATURE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.461538,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG-ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "indicateur_transversal"
+      },
+      "FR-EAF/REDA": {
+        "erreurs": {
+          "FR-ERR-AXE": 1,
+          "FR-ERR-CITATION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "TC-ES/ASTR": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1,
+          "TC-ERR-ORDRE-GRAND": 1
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.571429,
+        "type": "ordinaire"
+      },
+      "TC-ES/DEM": {
+        "erreurs": {
+          "TC-ERR-UNITE": 1,
+          "TC-ERR-VARIABLE": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "TC-ES/MAT": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.625,
+        "type": "ordinaire"
+      },
+      "TC-ES/SON": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      }
+    },
+    "grilles_coach": {
+      "FR-EAF-ORAL": {
+        "criteres": {
+          "ENTRET": 1,
+          "EXPLI": 2,
+          "GRAMM": 2,
+          "LANGOR": 2,
+          "LECT": 2
+        },
+        "max": 15,
+        "obtenu": 9
+      }
+    },
+    "instruments": [
+      "QP/standard",
+      "FR-EAF/standard",
+      "FR-EAF-ORAL/standard",
+      "TC-ES/1RE",
+      "MET/standard",
+      "EDS-MATH/N1",
+      "EDS-PC/N1",
+      "EDS-SVT/N1"
+    ],
+    "matieres": {
+      "EDS-MATH": {
+        "competence_module": "RAIS",
+        "global": 0.64886,
+        "mesures": 36,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.0,
+        "prerequis": 0.666667,
+        "prerequis_points": [
+          4,
+          6
+        ],
+        "reevaluation": [
+          "RAIS"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.583333,
+        "tache_points": [
+          7,
+          12
+        ]
+      },
+      "EDS-PC": {
+        "competence_module": "RES",
+        "global": 0.651026,
+        "mesures": 31,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.0,
+        "prerequis": 0.666667,
+        "prerequis_points": [
+          4,
+          6
+        ],
+        "reevaluation": [
+          "RES"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.583333,
+        "tache_points": [
+          7,
+          12
+        ]
+      },
+      "EDS-SVT": {
+        "competence_module": null,
+        "global": 0.560497,
+        "mesures": 32,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.035714,
+        "prerequis": 0.333333,
+        "prerequis_points": [
+          2,
+          6
+        ],
+        "reevaluation": [
+          "SCI"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.5,
+        "tache_points": [
+          6,
+          12
+        ]
+      },
+      "FR-EAF": {
+        "competence_module": null,
+        "global": 0.421608,
+        "mesures": 48,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.219512,
+        "prerequis": 0.333333,
+        "prerequis_points": [
+          4,
+          12
+        ],
+        "reevaluation": [
+          "CULT",
+          "LANG"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.416667,
+        "tache_points": [
+          5,
+          12
+        ]
+      },
+      "TC-ES": {
+        "competence_module": "MAT",
+        "global": 0.599107,
+        "mesures": 20,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "En consolidation",
+        "non_reponse": 0.15,
+        "prerequis": 0.6,
+        "prerequis_points": [
+          3,
+          5
+        ],
+        "reevaluation": [
+          "MAT"
+        ],
+        "rythme_perimetre": 1.5,
+        "tache": null,
+        "tache_points": null
+      }
+    },
+    "perimetres": [
+      "EDS-MATH",
+      "EDS-PC",
+      "EDS-SVT",
+      "FR-EAF",
+      "TC-ES"
+    ],
+    "profil_met": {
+      "APPR": 2,
+      "ENVI": 1,
+      "EPRE": 2,
+      "PLAN": 1
+    }
+  },
+  "P1_2026_2027": {
+    "bloc_0": {
+      "EDS-PC/EXP": 3,
+      "EDS-PC/MAT": 3,
+      "EDS-PC/MOUV": 3,
+      "EDS-PC/QUANT": 3,
+      "EDS-PC/RES": 3,
+      "EDS-SES/DOCU": 2,
+      "EDS-SES/ECO": 2,
+      "EDS-SES/MOB": 2,
+      "EDS-SES/SOC": 2,
+      "EDS-SES/STAT": 2,
+      "EDS-SVT/DOC": 3,
+      "EDS-SVT/GEN": 3,
+      "EDS-SVT/REDA": 3,
+      "EDS-SVT/SCI": 3,
+      "EDS-SVT/TERR": 3,
+      "FR-EAF/ANAL": 3,
+      "FR-EAF/ARGU": 3,
+      "FR-EAF/COMP": 3,
+      "FR-EAF/LANG": 3,
+      "FR-EAF/REDA": 2,
+      "MATH-EA/AUTO": 4,
+      "MATH-EA/AUTOG": 4,
+      "MATH-EA/EXACT": 4,
+      "MATH-EA/PROBA": 4,
+      "MATH-EA/RAIS": 3,
+      "TC-ES/ASTR": 2,
+      "TC-ES/DEM": 3,
+      "TC-ES/MAT": 3,
+      "TC-ES/SON": 3
+    },
+    "calibration_non_renseignee": [],
+    "calibration_par_competence": {
+      "EDS-PC/EXP": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MAT": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MOUV": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/QUANT": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/RES": {
+        "ecart": 12.121212,
+        "mesure": 54.545455,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/DOCU": {
+        "ecart": -4.166667,
+        "mesure": 37.5,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/ECO": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/MOB": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/SOC": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/STAT": {
+        "ecart": -3.030303,
+        "mesure": 36.363636,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SVT/DOC": {
+        "ecart": 12.820513,
+        "mesure": 53.846154,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/GEN": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/REDA": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/SCI": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SVT/TERR": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/ANAL": {
+        "ecart": 8.333333,
+        "mesure": 58.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/ARGU": {
+        "ecart": 6.666667,
+        "mesure": 60.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/COMP": {
+        "ecart": 8.333333,
+        "mesure": 58.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/LANG": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/REDA": {
+        "ecart": -26.666667,
+        "mesure": 60.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": "sous-estimation"
+      },
+      "MATH-EA/AUTO": {
+        "ecart": 50.0,
+        "mesure": 50.0,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "MATH-EA/AUTOG": {
+        "ecart": 57.142857,
+        "mesure": 42.857143,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "MATH-EA/EXACT": {
+        "ecart": 50.0,
+        "mesure": 50.0,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "MATH-EA/PROBA": {
+        "ecart": 62.5,
+        "mesure": 37.5,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "MATH-EA/RAIS": {
+        "ecart": 29.166667,
+        "mesure": 37.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "TC-ES/ASTR": {
+        "ecart": -9.52381,
+        "mesure": 42.857143,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/DEM": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/MAT": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/SON": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      }
+    },
+    "calibration_par_matiere": {
+      "EDS-PC": {
+        "ecart": 10.524601,
+        "mesure": 56.142066,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES": {
+        "ecart": -1.593521,
+        "mesure": 34.926855,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SVT": {
+        "ecart": 15.825321,
+        "mesure": 50.841346,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF": null,
+      "MATH-EA": null,
+      "TC-ES": null
+    },
+    "calibration_sans_domaine": [
+      "EDS-PC/ENER",
+      "EDS-PC/OND",
+      "EDS-SES/POL",
+      "EDS-SES/RAIS",
+      "EDS-SVT/CORP",
+      "EDS-SVT/ECO",
+      "FR-EAF/CULT",
+      "FR-EAF/ENTR",
+      "FR-EAF/EXPL",
+      "FR-EAF/GRAM",
+      "FR-EAF/LANG-ORAL",
+      "MATH-EA/EVOL",
+      "MATH-EA/INFO"
+    ],
+    "competences": {
+      "EDS-PC/ENER": {
+        "erreurs": {
+          "PC-ERR-CONVERSION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/EXP": {
+        "erreurs": {
+          "PC-ERR-GRAPH": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MAT": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MOUV": {
+        "erreurs": {
+          "PC-ERR-FORCE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/OND": {
+        "erreurs": {
+          "PC-ERR-CONDITION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/QUANT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "EDS-PC/RES": {
+        "erreurs": {
+          "PC-ERR-CONCL": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SES/DOCU": {
+        "erreurs": {
+          "SES-ERR-DOC-PRES": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "production"
+      },
+      "EDS-SES/ECO": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/MOB": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/POL": {
+        "erreurs": {
+          "SES-ERR-DEF": 1,
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/RAIS": {
+        "erreurs": {
+          "SES-ERR-THEORIE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "production"
+      },
+      "EDS-SES/SOC": {
+        "erreurs": {
+          "SES-ERR-DEF": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/STAT": {
+        "erreurs": {
+          "SES-ERR-LECTURE": 1,
+          "SES-ERR-POINT-PCT": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.363636,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/CORP": {
+        "erreurs": {
+          "SVT-ERR-VOCAB": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/DOC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 13,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.538462,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/ECO": {
+        "erreurs": {
+          "SVT-ERR-CONCL": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/GEN": {
+        "erreurs": {
+          "SVT-ERR-DIVISION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/REDA": {
+        "erreurs": {
+          "SVT-ERR-DOC-MOBIL": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D3",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SVT/SCI": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SVT/TERR": {
+        "erreurs": {
+          "SVT-ERR-CHRONO": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ANAL": {
+        "erreurs": {
+          "FR-ERR-PROCEDE-EFFET": 1,
+          "FR-ERR-PROCEDE-IDENT": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.583333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ARGU": {
+        "erreurs": {
+          "FR-ERR-CITATION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.6,
+        "type": "ordinaire"
+      },
+      "FR-EAF/COMP": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1,
+          "FR-ERR-THESE": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 9,
+        "niveau": "En consolidation",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.583333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/CULT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ENTR": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/EXPL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "production"
+      },
+      "FR-EAF/GRAM": {
+        "erreurs": {
+          "FR-ERR-GRAM-NATURE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.538462,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG-ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "indicateur_transversal"
+      },
+      "FR-EAF/REDA": {
+        "erreurs": {
+          "FR-ERR-AXE": 1,
+          "FR-ERR-CITATION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.6,
+        "type": "production"
+      },
+      "MATH-EA/AUTO": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 8,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTOG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 7,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.428571,
+        "type": "ordinaire"
+      },
+      "MATH-EA/EVOL": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-MODELE": 1,
+          "MATH-ERR-SEUIL": 1,
+          "MATH-ERR-TAUX-SOMME": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "MATH-EA/EXACT": {
+        "erreurs": {
+          "MATH-ERR-ORDRE-GRANDEUR": 2,
+          "MATH-ERR-TAUX-SOMME": 1
+        },
+        "evalue": true,
+        "max": 14,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "MATH-EA/INFO": {
+        "erreurs": {
+          "MATH-ERR-AJUSTEMENT": 2,
+          "MATH-ERR-POINT-MOYEN": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "ordinaire"
+      },
+      "MATH-EA/PROBA": {
+        "erreurs": {
+          "MATH-ERR-ARBRE": 1,
+          "MATH-ERR-CONDITIONNELLE": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "ordinaire"
+      },
+      "MATH-EA/RAIS": {
+        "erreurs": {
+          "MATH-ERR-SIGNE-PRODUIT": 1,
+          "MATH-ERR-TAUX-SENS": 1
+        },
+        "evalue": true,
+        "max": 16,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.375,
+        "type": "production"
+      },
+      "TC-ES/ASTR": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.428571,
+        "type": "ordinaire"
+      },
+      "TC-ES/DEM": {
+        "erreurs": {
+          "TC-ERR-UNITE": 1,
+          "TC-ERR-VARIABLE": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "TC-ES/MAT": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/SON": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      }
+    },
+    "grilles_coach": {
+      "FR-EAF-ORAL": {
+        "criteres": {
+          "ENTRET": 2,
+          "EXPLI": 2,
+          "GRAMM": 1,
+          "LANGOR": 2,
+          "LECT": 2
+        },
+        "max": 15,
+        "obtenu": 9
+      }
+    },
+    "instruments": [
+      "QP/standard",
+      "FR-EAF/standard_2028",
+      "FR-EAF-ORAL/standard",
+      "TC-ES/1RE",
+      "MET/standard",
+      "MATH-EA/SPECIFIQUES",
+      "EDS-PC/N1",
+      "EDS-SVT/N1",
+      "EDS-SES/N1"
+    ],
+    "matieres": {
+      "EDS-PC": {
+        "competence_module": "MAT",
+        "global": 0.561421,
+        "mesures": 31,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.222222,
+        "prerequis": 0.833333,
+        "prerequis_points": [
+          5,
+          6
+        ],
+        "reevaluation": [
+          "MAT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.5,
+        "tache_points": [
+          6,
+          12
+        ]
+      },
+      "EDS-SES": {
+        "competence_module": "ECO",
+        "global": 0.349269,
+        "mesures": 29,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.333333,
+        "prerequis": 0.5,
+        "prerequis_points": [
+          4,
+          8
+        ],
+        "reevaluation": [
+          "ECO"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.4,
+        "tache_points": [
+          6,
+          15
+        ]
+      },
+      "EDS-SVT": {
+        "competence_module": "GEN",
+        "global": 0.508413,
+        "mesures": 32,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.178571,
+        "prerequis": 0.5,
+        "prerequis_points": [
+          3,
+          6
+        ],
+        "reevaluation": [
+          "GEN"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.333333,
+        "tache_points": [
+          4,
+          12
+        ]
+      },
+      "FR-EAF": {
+        "competence_module": "GRAM",
+        "global": 0.587883,
+        "mesures": 48,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.195122,
+        "prerequis": 0.75,
+        "prerequis_points": [
+          9,
+          12
+        ],
+        "reevaluation": [
+          "GRAM"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.5,
+        "tache_points": [
+          6,
+          12
+        ]
+      },
+      "MATH-EA": {
+        "competence_module": "AUTO",
+        "global": 0.43125,
+        "mesures": 40,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.235294,
+        "prerequis": 0.833333,
+        "prerequis_points": [
+          5,
+          6
+        ],
+        "reevaluation": [
+          "AUTO"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.444444,
+        "tache_points": [
+          8,
+          18
+        ]
+      },
+      "TC-ES": {
+        "competence_module": "MAT",
+        "global": 0.49881,
+        "mesures": 20,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.3,
+        "prerequis": 1.0,
+        "prerequis_points": [
+          5,
+          5
+        ],
+        "reevaluation": [
+          "MAT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": null,
+        "tache_points": null
+      }
+    },
+    "perimetres": [
+      "EDS-PC",
+      "EDS-SES",
+      "EDS-SVT",
+      "FR-EAF",
+      "MATH-EA",
+      "TC-ES"
+    ],
+    "profil_met": {
+      "APPR": 1,
+      "ENVI": 2,
+      "EPRE": 2,
+      "PLAN": 1
+    }
+  },
+  "P2_oral": {
+    "bloc_0": {
+      "EDS-MATH/CALC": 3,
+      "EDS-MATH/FONC": 3,
+      "EDS-MATH/PROB": 3,
+      "EDS-MATH/RAIS": 3,
+      "EDS-MATH/SUIT": 2,
+      "EDS-SES/DOCU": 2,
+      "EDS-SES/ECO": 2,
+      "EDS-SES/RAIS": 2,
+      "EDS-SES/SOC": 3,
+      "EDS-SES/STAT": 2,
+      "FR-EAF/ANAL": 2,
+      "FR-EAF/COMP": 3,
+      "FR-EAF/CULT": 3,
+      "FR-EAF/GRAM": 2,
+      "FR-MAI/ARGU": 2,
+      "FR-MAI/COMPA": 3,
+      "FR-MAI/LANG": 3,
+      "FR-MAI/LEXA": 3,
+      "FR-MAI/SYNT": 2,
+      "MATH-EA/AUTO": 3,
+      "MATH-EA/AUTOG": 3,
+      "MATH-EA/EXACT": 3,
+      "MATH-EA/PROBA": 3,
+      "MATH-EA/RAIS": 3,
+      "PHI/ARGU": 3,
+      "PHI/DISS": 2,
+      "PHI/NOT": 3,
+      "PHI/PROB": 2,
+      "PHI/TEXT": 1,
+      "TC-ES/CLIM": 3,
+      "TC-ES/DEM": 3,
+      "TC-ES/ENER": 2,
+      "TC-ES/INFO": 3
+    },
+    "calibration_non_renseignee": [],
+    "calibration_par_competence": {
+      "EDS-MATH/CALC": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/FONC": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/PROB": {
+        "ecart": 6.666667,
+        "mesure": 60.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/RAIS": {
+        "ecart": 5.128205,
+        "mesure": 61.538462,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/SUIT": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/DOCU": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/ECO": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/RAIS": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/SOC": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/STAT": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/ANAL": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/COMP": {
+        "ecart": 8.333333,
+        "mesure": 58.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/CULT": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/GRAM": {
+        "ecart": -5.128205,
+        "mesure": 38.461538,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-MAI/ARGU": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-MAI/COMPA": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-MAI/LANG": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-MAI/LEXA": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-MAI/SYNT": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "MATH-EA/AUTO": {
+        "ecart": 4.166667,
+        "mesure": 62.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/AUTOG": {
+        "ecart": 9.52381,
+        "mesure": 57.142857,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/EXACT": {
+        "ecart": 9.52381,
+        "mesure": 57.142857,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/PROBA": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/RAIS": {
+        "ecart": 4.166667,
+        "mesure": 62.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "PHI/ARGU": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "PHI/DISS": {
+        "ecart": -12.121212,
+        "mesure": 45.454545,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/NOT": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "PHI/PROB": {
+        "ecart": -23.809524,
+        "mesure": 57.142857,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/TEXT": {
+        "ecart": -50.0,
+        "mesure": 50.0,
+        "percu": 1,
+        "percu100": 0.0,
+        "signal": "sous-estimation"
+      },
+      "TC-ES/CLIM": {
+        "ecart": 4.166667,
+        "mesure": 62.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/DEM": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/ENER": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/INFO": {
+        "ecart": 9.52381,
+        "mesure": 57.142857,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      }
+    },
+    "calibration_par_matiere": {
+      "EDS-MATH": {
+        "ecart": 5.419828,
+        "mesure": 61.246838,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES": {
+        "ecart": 15.530303,
+        "mesure": 51.136364,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF": null,
+      "FR-MAI": null,
+      "MATH-EA": null,
+      "PHI": null,
+      "TC-ES": null
+    },
+    "calibration_sans_domaine": [
+      "EDS-MATH/ALGO",
+      "EDS-MATH/ANA",
+      "EDS-MATH/GEO",
+      "EDS-SES/MOB",
+      "EDS-SES/POL",
+      "FR-EAF/ENTR",
+      "FR-EAF/EXPL",
+      "FR-EAF/LANG-ORAL",
+      "FR-MAI/ORAL",
+      "MATH-EA/ALGAN",
+      "MATH-EA/GEOM",
+      "PHI/LANG",
+      "PHI/REP"
+    ],
+    "competences": {
+      "EDS-MATH/ALGO": {
+        "erreurs": {
+          "MATH-ERR-PYTHON": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/ANA": {
+        "erreurs": {
+          "MATH-ERR-LIMITE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/CALC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/FONC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/GEO": {
+        "erreurs": {
+          "MATH-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/PROB": {
+        "erreurs": {
+          "MATH-ERR-CALC-NUM": 2
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 8,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.6,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/RAIS": {
+        "erreurs": {
+          "MATH-ERR-RECURRENCE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.615385,
+        "type": "production"
+      },
+      "EDS-MATH/SUIT": {
+        "erreurs": {
+          "MATH-ERR-RAISON": 1,
+          "MATH-ERR-RECURRENCE": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.545455,
+        "type": "ordinaire"
+      },
+      "EDS-SES/DOCU": {
+        "erreurs": {
+          "SES-ERR-DOC-PRES": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SES/ECO": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/MOB": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/POL": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/RAIS": {
+        "erreurs": {
+          "SES-ERR-DONNEE": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SES/SOC": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/STAT": {
+        "erreurs": {
+          "SES-ERR-POINT-PCT": 1
+        },
+        "evalue": true,
+        "max": 14,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ANAL": {
+        "erreurs": {
+          "FR-ERR-PROCEDE-EFFET": 1,
+          "FR-ERR-PROCEDE-IDENT": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "FR-EAF/COMP": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1,
+          "FR-ERR-THESE": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 9,
+        "niveau": "En consolidation",
+        "obtenu": 7,
+        "palier": "D2",
+        "part": 0.583333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/CULT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ENTR": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/EXPL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "production"
+      },
+      "FR-EAF/GRAM": {
+        "erreurs": {
+          "FR-ERR-GRAM-NATURE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.384615,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG-ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "indicateur_transversal"
+      },
+      "FR-MAI/ARGU": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "FR-MAI/COMPA": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-MAI/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 12,
+        "mesures": 8,
+        "niveau": "En consolidation",
+        "obtenu": 8,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-MAI/LEXA": {
+        "erreurs": {
+          "FR-ERR-LEXIQUE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-MAI/ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 24,
+        "mesures": 8,
+        "niveau": "En consolidation",
+        "obtenu": 17,
+        "palier": "—",
+        "part": 0.708333,
+        "type": "indicateur_transversal"
+      },
+      "FR-MAI/SYNT": {
+        "erreurs": {
+          "FR-ERR-DEFORM": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D3",
+        "part": 0.5,
+        "type": "production"
+      },
+      "MATH-EA/ALGAN": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTO": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 8,
+        "mesures": 8,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.625,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTOG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 7,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.571429,
+        "type": "ordinaire"
+      },
+      "MATH-EA/EXACT": {
+        "erreurs": {
+          "MATH-ERR-ORDRE-GRANDEUR": 2
+        },
+        "evalue": true,
+        "max": 14,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.571429,
+        "type": "ordinaire"
+      },
+      "MATH-EA/GEOM": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-JUSTIF-ABSENTE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "MATH-EA/PROBA": {
+        "erreurs": {
+          "MATH-ERR-CONDITIONNELLE": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "MATH-EA/RAIS": {
+        "erreurs": {
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 16,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 10,
+        "palier": "D3",
+        "part": 0.625,
+        "type": "production"
+      },
+      "PHI/ARGU": {
+        "erreurs": {
+          "PHI-ERR-ARG-INVAL": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "PHI/DISS": {
+        "erreurs": {
+          "PHI-ERR-INTRO": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.454545,
+        "type": "production"
+      },
+      "PHI/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D3",
+        "part": 0.833333,
+        "type": "indicateur_transversal"
+      },
+      "PHI/NOT": {
+        "erreurs": {
+          "PHI-ERR-DEF": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "PHI/PROB": {
+        "erreurs": {
+          "PHI-ERR-PROBLEME": 2
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.571429,
+        "type": "ordinaire"
+      },
+      "PHI/REP": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "PHI/TEXT": {
+        "erreurs": {
+          "PHI-ERR-PARAPHRASE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D3",
+        "part": 0.5,
+        "type": "production"
+      },
+      "TC-ES/CLIM": {
+        "erreurs": {
+          "TC-ERR-MODELE": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.625,
+        "type": "ordinaire"
+      },
+      "TC-ES/DEM": {
+        "erreurs": {
+          "TC-ERR-UNITE": 1,
+          "TC-ERR-VARIABLE": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "TC-ES/ENER": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/INFO": {
+        "erreurs": {
+          "TC-ERR-MODELE": 1
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.571429,
+        "type": "ordinaire"
+      }
+    },
+    "grilles_coach": {
+      "FR-EAF-ORAL": {
+        "criteres": {
+          "ENTRET": 2,
+          "EXPLI": 2,
+          "GRAMM": 1,
+          "LANGOR": 2,
+          "LECT": 2
+        },
+        "max": 15,
+        "obtenu": 9
+      },
+      "GO": {
+        "criteres": {
+          "ARGU": 2,
+          "DISCIP": 2,
+          "INTER": 2,
+          "LANGUE": 2,
+          "POSTURE": 3,
+          "PRECIS": 2,
+          "QUEST": 2,
+          "STRUCT": 2
+        },
+        "max": 24,
+        "obtenu": 17
+      }
+    },
+    "instruments": [
+      "QP/standard",
+      "FR-EAF/oral",
+      "FR-EAF-ORAL/standard",
+      "FR-MAI/standard",
+      "PHI/standard",
+      "TC-ES/TLE",
+      "MET/standard",
+      "GO/standard",
+      "MATH-EA/SPE",
+      "EDS-MATH/NT",
+      "EDS-SES/NT"
+    ],
+    "matieres": {
+      "EDS-MATH": {
+        "competence_module": "SUIT",
+        "global": 0.612468,
+        "mesures": 47,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.209302,
+        "prerequis": 0.916667,
+        "prerequis_points": [
+          22,
+          24
+        ],
+        "reevaluation": [
+          "SUIT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.666667,
+        "tache_points": [
+          8,
+          12
+        ]
+      },
+      "EDS-SES": {
+        "competence_module": "ECO",
+        "global": 0.511364,
+        "mesures": 32,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.25,
+        "prerequis": 0.8125,
+        "prerequis_points": [
+          13,
+          16
+        ],
+        "reevaluation": [
+          "ECO"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.5,
+        "tache_points": [
+          12,
+          24
+        ]
+      },
+      "FR-EAF": {
+        "competence_module": "GRAM",
+        "global": 0.532652,
+        "mesures": 32,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.241379,
+        "prerequis": 0.666667,
+        "prerequis_points": [
+          4,
+          6
+        ],
+        "reevaluation": [
+          "GRAM"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": null,
+        "tache_points": null
+      },
+      "FR-MAI": {
+        "competence_module": "SYNT",
+        "global": 0.623847,
+        "mesures": 23,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.25,
+        "prerequis": 1.0,
+        "prerequis_points": [
+          7,
+          7
+        ],
+        "reevaluation": [
+          "SYNT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.571429,
+        "tache_points": [
+          12,
+          21
+        ]
+      },
+      "MATH-EA": {
+        "competence_module": "PROBA",
+        "global": 0.568681,
+        "mesures": 39,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.272727,
+        "prerequis": 0.5,
+        "prerequis_points": [
+          3,
+          6
+        ],
+        "reevaluation": [
+          "PROBA"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.666667,
+        "tache_points": [
+          12,
+          18
+        ]
+      },
+      "PHI": {
+        "competence_module": "TEXT",
+        "global": 0.596487,
+        "mesures": 26,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.238095,
+        "prerequis": 0.75,
+        "prerequis_points": [
+          6,
+          8
+        ],
+        "reevaluation": [
+          "TEXT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.666667,
+        "tache_points": [
+          14,
+          21
+        ]
+      },
+      "TC-ES": {
+        "competence_module": "ENER",
+        "global": 0.599107,
+        "mesures": 20,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.2,
+        "prerequis": 1.0,
+        "prerequis_points": [
+          5,
+          5
+        ],
+        "reevaluation": [
+          "ENER"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": null,
+        "tache_points": null
+      }
+    },
+    "perimetres": [
+      "EDS-MATH",
+      "EDS-SES",
+      "FR-EAF",
+      "FR-MAI",
+      "MATH-EA",
+      "PHI",
+      "TC-ES"
+    ],
+    "profil_met": {
+      "APPR": 1,
+      "ENVI": 3,
+      "EPRE": 2,
+      "PLAN": 3
+    }
+  },
+  "P3": {
+    "bloc_0": {
+      "EDS-MATH/CALC": 4,
+      "EDS-MATH/FONC": 4,
+      "EDS-MATH/PROB": 3,
+      "EDS-MATH/RAIS": 3,
+      "EDS-MATH/SUIT": 3,
+      "EDS-PC/MAT": 3,
+      "EDS-PC/MOUV": 3,
+      "EDS-PC/OND": 2,
+      "EDS-PC/QUANT": 2,
+      "EDS-PC/RES": 2,
+      "EDS-SES/ECO": 3,
+      "EDS-SES/MOB": 2,
+      "EDS-SES/SOC": 3,
+      "EDS-SES/STAT": 2,
+      "FR-EAF/ANAL": 2,
+      "FR-EAF/ARGU": 2,
+      "FR-EAF/COMP": 4,
+      "FR-EAF/LANG": 3,
+      "FR-EAF/REDA": 2,
+      "MATH-EA/AUTO": 3,
+      "MATH-EA/AUTOG": 3,
+      "MATH-EA/EXACT": 3,
+      "MATH-EA/PROBA": 3,
+      "MATH-EA/RAIS": 3,
+      "PHI/ARGU": 2,
+      "PHI/DISS": 2,
+      "PHI/NOT": 2,
+      "PHI/PROB": 2,
+      "PHI/TEXT": 1,
+      "TC-ES/ASTR": 3,
+      "TC-ES/CLIM": 2,
+      "TC-ES/DEM": 3,
+      "TC-ES/INFO": 2,
+      "TC-ES/MAT": 2
+    },
+    "calibration_non_renseignee": [
+      "EDS-SES/DOCU"
+    ],
+    "calibration_par_competence": {
+      "EDS-MATH/CALC": {
+        "ecart": 44.444444,
+        "mesure": 55.555556,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/FONC": {
+        "ecart": 66.666667,
+        "mesure": 33.333333,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/PROB": {
+        "ecart": 26.666667,
+        "mesure": 40.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/RAIS": {
+        "ecart": 5.128205,
+        "mesure": 61.538462,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/SUIT": {
+        "ecart": 30.30303,
+        "mesure": 36.363636,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "EDS-PC/MAT": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MOUV": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/OND": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-PC/QUANT": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-PC/RES": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/ECO": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/MOB": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/SOC": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/STAT": {
+        "ecart": 6.060606,
+        "mesure": 27.272727,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/ANAL": {
+        "ecart": -8.333333,
+        "mesure": 41.666667,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/ARGU": {
+        "ecart": -6.666667,
+        "mesure": 40.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/COMP": {
+        "ecart": 41.666667,
+        "mesure": 58.333333,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "FR-EAF/LANG": {
+        "ecart": -22.222222,
+        "mesure": 88.888889,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/REDA": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "MATH-EA/AUTO": {
+        "ecart": 29.166667,
+        "mesure": 37.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "MATH-EA/AUTOG": {
+        "ecart": 23.809524,
+        "mesure": 42.857143,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/EXACT": {
+        "ecart": 2.380952,
+        "mesure": 64.285714,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/PROBA": {
+        "ecart": -8.333333,
+        "mesure": 75.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/RAIS": {
+        "ecart": -2.083333,
+        "mesure": 68.75,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "PHI/ARGU": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/DISS": {
+        "ecart": -12.121212,
+        "mesure": 45.454545,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/NOT": {
+        "ecart": 16.666667,
+        "mesure": 16.666667,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/PROB": {
+        "ecart": 4.761905,
+        "mesure": 28.571429,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/TEXT": {
+        "ecart": -50.0,
+        "mesure": 50.0,
+        "percu": 1,
+        "percu100": 0.0,
+        "signal": "sous-estimation"
+      },
+      "TC-ES/ASTR": {
+        "ecart": -16.666667,
+        "mesure": 83.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/CLIM": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/DEM": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/INFO": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/MAT": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      }
+    },
+    "calibration_par_matiere": {
+      "EDS-MATH": {
+        "ecart": 44.457009,
+        "mesure": 55.542991,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-PC": {
+        "ecart": 16.623377,
+        "mesure": 50.04329,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES": {
+        "ecart": 26.750261,
+        "mesure": 39.916405,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "FR-EAF": null,
+      "MATH-EA": null,
+      "PHI": null,
+      "TC-ES": null
+    },
+    "calibration_sans_domaine": [
+      "EDS-MATH/ALGO",
+      "EDS-MATH/ANA",
+      "EDS-MATH/GEO",
+      "EDS-PC/ENER",
+      "EDS-PC/EXP",
+      "EDS-SES/POL",
+      "EDS-SES/RAIS",
+      "FR-EAF/CULT",
+      "FR-EAF/ENTR",
+      "FR-EAF/EXPL",
+      "FR-EAF/GRAM",
+      "FR-EAF/LANG-ORAL",
+      "MATH-EA/ALGAN",
+      "MATH-EA/GEOM",
+      "PHI/LANG",
+      "PHI/REP",
+      "TC-ES/ENER",
+      "TC-ES/SON"
+    ],
+    "competences": {
+      "EDS-MATH/ALGO": {
+        "erreurs": {
+          "MATH-ERR-PYTHON": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/ANA": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 1.0,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/CALC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D3",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/FONC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/GEO": {
+        "erreurs": {
+          "MATH-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/PROB": {
+        "erreurs": {
+          "MATH-ERR-CALC-NUM": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/RAIS": {
+        "erreurs": {
+          "MATH-ERR-RECURRENCE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.615385,
+        "type": "production"
+      },
+      "EDS-MATH/SUIT": {
+        "erreurs": {
+          "MATH-ERR-RAISON": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.363636,
+        "type": "ordinaire"
+      },
+      "EDS-PC/ENER": {
+        "erreurs": {
+          "PC-ERR-CONDITION": 1,
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/EXP": {
+        "erreurs": {
+          "PC-ERR-GRAPH": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MAT": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 2,
+          "PC-ERR-CONVERSION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MOUV": {
+        "erreurs": {
+          "PC-ERR-FORCE": 1,
+          "PC-ERR-UNITE": 1,
+          "PC-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "EDS-PC/OND": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 1,
+          "PC-ERR-CONDITION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/QUANT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-PC/RES": {
+        "erreurs": {
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SES/DOCU": {
+        "erreurs": {
+          "SES-ERR-DOC-PRES": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SES/ECO": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/MOB": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/POL": {
+        "erreurs": {
+          "SES-ERR-DEF": 1,
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/RAIS": {
+        "erreurs": {
+          "SES-ERR-THEORIE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SES/SOC": {
+        "erreurs": {
+          "SES-ERR-DEF": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/STAT": {
+        "erreurs": {
+          "SES-ERR-LECTURE": 1,
+          "SES-ERR-POINT-PCT": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 7,
+        "niveau": "Non acquis",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.272727,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ANAL": {
+        "erreurs": {
+          "FR-ERR-PROCEDE-EFFET": 1,
+          "FR-ERR-PROCEDE-IDENT": 3
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.416667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ARGU": {
+        "erreurs": {
+          "FR-ERR-CITATION": 2,
+          "FR-ERR-CONNECT": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "FR-EAF/COMP": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1,
+          "FR-ERR-THESE": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 9,
+        "niveau": "En consolidation",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.583333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/CULT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Non acquis",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.166667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ENTR": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/EXPL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "Fragile",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "production"
+      },
+      "FR-EAF/GRAM": {
+        "erreurs": {
+          "FR-ERR-GRAM-NATURE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.538462,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "Solide",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.888889,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG-ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.5,
+        "type": "indicateur_transversal"
+      },
+      "FR-EAF/REDA": {
+        "erreurs": {
+          "FR-ERR-AXE": 1,
+          "FR-ERR-CITATION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "MATH-EA/ALGAN": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTO": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 8,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTOG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 7,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.428571,
+        "type": "ordinaire"
+      },
+      "MATH-EA/EXACT": {
+        "erreurs": {
+          "MATH-ERR-ORDRE-GRANDEUR": 2
+        },
+        "evalue": true,
+        "max": 14,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 9,
+        "palier": "D3",
+        "part": 0.642857,
+        "type": "ordinaire"
+      },
+      "MATH-EA/GEOM": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-JUSTIF-ABSENTE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/PROBA": {
+        "erreurs": {
+          "MATH-ERR-CONDITIONNELLE": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/RAIS": {
+        "erreurs": {
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 16,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 11,
+        "palier": "D3",
+        "part": 0.6875,
+        "type": "production"
+      },
+      "PHI/ARGU": {
+        "erreurs": {
+          "PHI-ERR-ARG-INVAL": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "PHI/DISS": {
+        "erreurs": {
+          "PHI-ERR-INTRO": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.454545,
+        "type": "production"
+      },
+      "PHI/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 1.0,
+        "type": "indicateur_transversal"
+      },
+      "PHI/NOT": {
+        "erreurs": {
+          "PHI-ERR-DEF": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Non acquis",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.166667,
+        "type": "ordinaire"
+      },
+      "PHI/PROB": {
+        "erreurs": {
+          "PHI-ERR-PROBLEME": 2
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "Non acquis",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.285714,
+        "type": "ordinaire"
+      },
+      "PHI/REP": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "PHI/TEXT": {
+        "erreurs": {
+          "PHI-ERR-PARAPHRASE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "TC-ES/ASTR": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "TC-ES/CLIM": {
+        "erreurs": {
+          "TC-ERR-MODELE": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/DEM": {
+        "erreurs": {
+          "TC-ERR-UNITE": 1,
+          "TC-ERR-VARIABLE": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "TC-ES/ENER": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "TC-ES/INFO": {
+        "erreurs": {
+          "TC-ERR-MODELE": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/MAT": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/SON": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      }
+    },
+    "grilles_coach": {
+      "FR-EAF-ORAL": {
+        "criteres": {
+          "ENTRET": 2,
+          "EXPLI": 1,
+          "GRAMM": 2,
+          "LANGOR": 2,
+          "LECT": 1
+        },
+        "max": 15,
+        "obtenu": 8
+      },
+      "GO": {
+        "criteres": {
+          "ARGU": 1,
+          "DISCIP": 2,
+          "INTER": 3,
+          "LANGUE": 1,
+          "POSTURE": 1,
+          "PRECIS": 1,
+          "QUEST": 1,
+          "STRUCT": 1
+        },
+        "max": 24,
+        "obtenu": 11
+      }
+    },
+    "instruments": [
+      "QP/standard",
+      "FR-EAF/standard",
+      "FR-EAF-ORAL/standard",
+      "PHI/standard",
+      "TC-ES/ETENDUE",
+      "MET/standard",
+      "GO/standard",
+      "MATH-EA/SPE",
+      "EDS-MATH/NT",
+      "EDS-SES/N1",
+      "EDS-PC/NT"
+    ],
+    "matieres": {
+      "EDS-MATH": {
+        "competence_module": null,
+        "global": 0.55543,
+        "mesures": 47,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.023256,
+        "prerequis": 0.333333,
+        "prerequis_points": [
+          8,
+          24
+        ],
+        "reevaluation": [
+          "FONC",
+          "PROB",
+          "SUIT"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.666667,
+        "tache_points": [
+          8,
+          12
+        ]
+      },
+      "EDS-PC": {
+        "competence_module": "QUANT",
+        "global": 0.500433,
+        "mesures": 35,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.16129,
+        "prerequis": 0.444444,
+        "prerequis_points": [
+          8,
+          18
+        ],
+        "reevaluation": [
+          "QUANT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.5,
+        "tache_points": [
+          6,
+          12
+        ]
+      },
+      "EDS-SES": {
+        "competence_module": null,
+        "global": 0.399164,
+        "mesures": 29,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.291667,
+        "prerequis": 0.25,
+        "prerequis_points": [
+          2,
+          8
+        ],
+        "reevaluation": [
+          "STAT"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.466667,
+        "tache_points": [
+          7,
+          15
+        ]
+      },
+      "FR-EAF": {
+        "competence_module": "GRAM",
+        "global": 0.51705,
+        "mesures": 48,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Non acquis",
+        "non_reponse": 0.195122,
+        "prerequis": 0.5,
+        "prerequis_points": [
+          6,
+          12
+        ],
+        "reevaluation": [
+          "GRAM"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.583333,
+        "tache_points": [
+          7,
+          12
+        ]
+      },
+      "MATH-EA": {
+        "competence_module": "AUTO",
+        "global": 0.589286,
+        "mesures": 39,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.030303,
+        "prerequis": 0.666667,
+        "prerequis_points": [
+          4,
+          6
+        ],
+        "reevaluation": [
+          "AUTO"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.666667,
+        "tache_points": [
+          12,
+          18
+        ]
+      },
+      "PHI": {
+        "competence_module": null,
+        "global": 0.362055,
+        "mesures": 26,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.142857,
+        "prerequis": 0.25,
+        "prerequis_points": [
+          2,
+          8
+        ],
+        "reevaluation": [
+          "NOT",
+          "REP"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.619048,
+        "tache_points": [
+          13,
+          21
+        ]
+      },
+      "TC-ES": {
+        "competence_module": "MAT",
+        "global": 0.6,
+        "mesures": 30,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.166667,
+        "prerequis": 0.8,
+        "prerequis_points": [
+          4,
+          5
+        ],
+        "reevaluation": [
+          "MAT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": null,
+        "tache_points": null
+      }
+    },
+    "perimetres": [
+      "EDS-MATH",
+      "EDS-PC",
+      "EDS-SES",
+      "FR-EAF",
+      "MATH-EA",
+      "PHI",
+      "TC-ES"
+    ],
+    "profil_met": {
+      "APPR": 2,
+      "ENVI": 2,
+      "EPRE": 1,
+      "PLAN": 1
+    }
+  },
+  "P3_mineur": {
+    "bloc_0": {
+      "EDS-MATH/CALC": 4,
+      "EDS-MATH/FONC": 4,
+      "EDS-MATH/PROB": 3,
+      "EDS-MATH/RAIS": 3,
+      "EDS-MATH/SUIT": 3,
+      "EDS-PC/MAT": 3,
+      "EDS-PC/MOUV": 3,
+      "EDS-PC/OND": 2,
+      "EDS-PC/QUANT": 2,
+      "EDS-PC/RES": 2,
+      "EDS-SES/ECO": 3,
+      "EDS-SES/MOB": 2,
+      "EDS-SES/SOC": 3,
+      "EDS-SES/STAT": 2,
+      "FR-EAF/ANAL": 2,
+      "FR-EAF/ARGU": 2,
+      "FR-EAF/COMP": 4,
+      "FR-EAF/LANG": 3,
+      "FR-EAF/REDA": 2,
+      "MATH-EA/AUTO": 3,
+      "MATH-EA/AUTOG": 3,
+      "MATH-EA/EXACT": 3,
+      "MATH-EA/PROBA": 3,
+      "MATH-EA/RAIS": 3,
+      "PHI/ARGU": 2,
+      "PHI/DISS": 2,
+      "PHI/NOT": 2,
+      "PHI/PROB": 2,
+      "PHI/TEXT": 1,
+      "TC-ES/ASTR": 3,
+      "TC-ES/CLIM": 2,
+      "TC-ES/DEM": 3,
+      "TC-ES/INFO": 2,
+      "TC-ES/MAT": 2
+    },
+    "calibration_non_renseignee": [
+      "EDS-SES/DOCU"
+    ],
+    "calibration_par_competence": {
+      "EDS-MATH/CALC": {
+        "ecart": 44.444444,
+        "mesure": 55.555556,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/FONC": {
+        "ecart": 66.666667,
+        "mesure": 33.333333,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/PROB": {
+        "ecart": 26.666667,
+        "mesure": 40.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "EDS-MATH/RAIS": {
+        "ecart": 5.128205,
+        "mesure": 61.538462,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-MATH/SUIT": {
+        "ecart": 30.30303,
+        "mesure": 36.363636,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "EDS-PC/MAT": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/MOUV": {
+        "ecart": 11.111111,
+        "mesure": 55.555556,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-PC/OND": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-PC/QUANT": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-PC/RES": {
+        "ecart": -21.212121,
+        "mesure": 54.545455,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/ECO": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/MOB": {
+        "ecart": 0.0,
+        "mesure": 33.333333,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "EDS-SES/SOC": {
+        "ecart": 16.666667,
+        "mesure": 50.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES/STAT": {
+        "ecart": 6.060606,
+        "mesure": 27.272727,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/ANAL": {
+        "ecart": -8.333333,
+        "mesure": 41.666667,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/ARGU": {
+        "ecart": -6.666667,
+        "mesure": 40.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "FR-EAF/COMP": {
+        "ecart": 41.666667,
+        "mesure": 58.333333,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "FR-EAF/LANG": {
+        "ecart": -22.222222,
+        "mesure": 88.888889,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "FR-EAF/REDA": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "MATH-EA/AUTO": {
+        "ecart": 29.166667,
+        "mesure": 37.5,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "MATH-EA/AUTOG": {
+        "ecart": 23.809524,
+        "mesure": 42.857143,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/EXACT": {
+        "ecart": 2.380952,
+        "mesure": 64.285714,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/PROBA": {
+        "ecart": -8.333333,
+        "mesure": 75.0,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "MATH-EA/RAIS": {
+        "ecart": -2.083333,
+        "mesure": 68.75,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "PHI/ARGU": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/DISS": {
+        "ecart": -12.121212,
+        "mesure": 45.454545,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/NOT": {
+        "ecart": 16.666667,
+        "mesure": 16.666667,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/PROB": {
+        "ecart": 4.761905,
+        "mesure": 28.571429,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "PHI/TEXT": {
+        "ecart": -50.0,
+        "mesure": 50.0,
+        "percu": 1,
+        "percu100": 0.0,
+        "signal": "sous-estimation"
+      },
+      "TC-ES/ASTR": {
+        "ecart": -16.666667,
+        "mesure": 83.333333,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/CLIM": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/DEM": {
+        "ecart": 0.0,
+        "mesure": 66.666667,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "TC-ES/INFO": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      },
+      "TC-ES/MAT": {
+        "ecart": -16.666667,
+        "mesure": 50.0,
+        "percu": 2,
+        "percu100": 33.333333,
+        "signal": null
+      }
+    },
+    "calibration_par_matiere": {
+      "EDS-MATH": {
+        "ecart": 44.457009,
+        "mesure": 55.542991,
+        "percu": 4,
+        "percu100": 100.0,
+        "signal": "surestimation"
+      },
+      "EDS-PC": {
+        "ecart": 16.623377,
+        "mesure": 50.04329,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": null
+      },
+      "EDS-SES": {
+        "ecart": 26.750261,
+        "mesure": 39.916405,
+        "percu": 3,
+        "percu100": 66.666667,
+        "signal": "surestimation"
+      },
+      "FR-EAF": null,
+      "MATH-EA": null,
+      "PHI": null,
+      "TC-ES": null
+    },
+    "calibration_sans_domaine": [
+      "EDS-MATH/ALGO",
+      "EDS-MATH/ANA",
+      "EDS-MATH/GEO",
+      "EDS-PC/ENER",
+      "EDS-PC/EXP",
+      "EDS-SES/POL",
+      "EDS-SES/RAIS",
+      "FR-EAF/CULT",
+      "FR-EAF/ENTR",
+      "FR-EAF/EXPL",
+      "FR-EAF/GRAM",
+      "FR-EAF/LANG-ORAL",
+      "MATH-EA/ALGAN",
+      "MATH-EA/GEOM",
+      "PHI/LANG",
+      "PHI/REP",
+      "TC-ES/ENER",
+      "TC-ES/SON"
+    ],
+    "competences": {
+      "EDS-MATH/ALGO": {
+        "erreurs": {
+          "MATH-ERR-PYTHON": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/ANA": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 1.0,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/CALC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D3",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/FONC": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/GEO": {
+        "erreurs": {
+          "MATH-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/PROB": {
+        "erreurs": {
+          "MATH-ERR-CALC-NUM": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "EDS-MATH/RAIS": {
+        "erreurs": {
+          "MATH-ERR-RECURRENCE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 5,
+        "niveau": "En consolidation",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.615385,
+        "type": "production"
+      },
+      "EDS-MATH/SUIT": {
+        "erreurs": {
+          "MATH-ERR-RAISON": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.363636,
+        "type": "ordinaire"
+      },
+      "EDS-PC/ENER": {
+        "erreurs": {
+          "PC-ERR-CONDITION": 1,
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/EXP": {
+        "erreurs": {
+          "PC-ERR-GRAPH": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MAT": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 2,
+          "PC-ERR-CONVERSION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/MOUV": {
+        "erreurs": {
+          "PC-ERR-FORCE": 1,
+          "PC-ERR-UNITE": 1,
+          "PC-ERR-VECTEUR": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 5,
+        "palier": "D1",
+        "part": 0.555556,
+        "type": "ordinaire"
+      },
+      "EDS-PC/OND": {
+        "erreurs": {
+          "PC-ERR-CHIFFRES": 1,
+          "PC-ERR-CONDITION": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-PC/QUANT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-PC/RES": {
+        "erreurs": {
+          "PC-ERR-UNITE": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 6,
+        "palier": "—",
+        "part": 0.545455,
+        "type": "production"
+      },
+      "EDS-SES/DOCU": {
+        "erreurs": {
+          "SES-ERR-DOC-PRES": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SES/ECO": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/MOB": {
+        "erreurs": {
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "D1",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/POL": {
+        "erreurs": {
+          "SES-ERR-DEF": 1,
+          "SES-ERR-MECANISME": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "EDS-SES/RAIS": {
+        "erreurs": {
+          "SES-ERR-THEORIE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "EDS-SES/SOC": {
+        "erreurs": {
+          "SES-ERR-DEF": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "EDS-SES/STAT": {
+        "erreurs": {
+          "SES-ERR-LECTURE": 1,
+          "SES-ERR-POINT-PCT": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 7,
+        "niveau": "Non acquis",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.272727,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ANAL": {
+        "erreurs": {
+          "FR-ERR-PROCEDE-EFFET": 1,
+          "FR-ERR-PROCEDE-IDENT": 3
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.416667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ARGU": {
+        "erreurs": {
+          "FR-ERR-CITATION": 2,
+          "FR-ERR-CONNECT": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 5,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "D1",
+        "part": 0.4,
+        "type": "ordinaire"
+      },
+      "FR-EAF/COMP": {
+        "erreurs": {
+          "FR-ERR-CONNECT": 1,
+          "FR-ERR-THESE": 2
+        },
+        "evalue": true,
+        "max": 12,
+        "mesures": 9,
+        "niveau": "En consolidation",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.583333,
+        "type": "ordinaire"
+      },
+      "FR-EAF/CULT": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Non acquis",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.166667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/ENTR": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "En consolidation",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "FR-EAF/EXPL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 3,
+        "mesures": 1,
+        "niveau": "Fragile",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "production"
+      },
+      "FR-EAF/GRAM": {
+        "erreurs": {
+          "FR-ERR-GRAM-NATURE": 2
+        },
+        "evalue": true,
+        "max": 13,
+        "mesures": 9,
+        "niveau": "Fragile",
+        "obtenu": 7,
+        "palier": "D1",
+        "part": 0.538462,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 9,
+        "mesures": 7,
+        "niveau": "Solide",
+        "obtenu": 8,
+        "palier": "D3",
+        "part": 0.888889,
+        "type": "ordinaire"
+      },
+      "FR-EAF/LANG-ORAL": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.5,
+        "type": "indicateur_transversal"
+      },
+      "FR-EAF/REDA": {
+        "erreurs": {
+          "FR-ERR-AXE": 1,
+          "FR-ERR-CITATION": 1
+        },
+        "evalue": true,
+        "max": 10,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "MATH-EA/ALGAN": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTO": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 8,
+        "mesures": 8,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.375,
+        "type": "ordinaire"
+      },
+      "MATH-EA/AUTOG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 7,
+        "mesures": 7,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "—",
+        "part": 0.428571,
+        "type": "ordinaire"
+      },
+      "MATH-EA/EXACT": {
+        "erreurs": {
+          "MATH-ERR-ORDRE-GRANDEUR": 2
+        },
+        "evalue": true,
+        "max": 14,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 9,
+        "palier": "D3",
+        "part": 0.642857,
+        "type": "ordinaire"
+      },
+      "MATH-EA/GEOM": {
+        "erreurs": {
+          "MATH-ERR-CALCUL-EXACT": 1,
+          "MATH-ERR-JUSTIF-ABSENTE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/PROBA": {
+        "erreurs": {
+          "MATH-ERR-CONDITIONNELLE": 2
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D2",
+        "part": 0.75,
+        "type": "ordinaire"
+      },
+      "MATH-EA/RAIS": {
+        "erreurs": {
+          "MATH-ERR-SIGNE-PRODUIT": 1
+        },
+        "evalue": true,
+        "max": 16,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 11,
+        "palier": "D3",
+        "part": 0.6875,
+        "type": "production"
+      },
+      "PHI/ARGU": {
+        "erreurs": {
+          "PHI-ERR-ARG-INVAL": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "PHI/DISS": {
+        "erreurs": {
+          "PHI-ERR-INTRO": 1
+        },
+        "evalue": true,
+        "max": 11,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 5,
+        "palier": "—",
+        "part": 0.454545,
+        "type": "production"
+      },
+      "PHI/LANG": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 2,
+        "niveau": "Solide",
+        "obtenu": 6,
+        "palier": "D3",
+        "part": 1.0,
+        "type": "indicateur_transversal"
+      },
+      "PHI/NOT": {
+        "erreurs": {
+          "PHI-ERR-DEF": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Non acquis",
+        "obtenu": 1,
+        "palier": "—",
+        "part": 0.166667,
+        "type": "ordinaire"
+      },
+      "PHI/PROB": {
+        "erreurs": {
+          "PHI-ERR-PROBLEME": 2
+        },
+        "evalue": true,
+        "max": 7,
+        "mesures": 5,
+        "niveau": "Non acquis",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.285714,
+        "type": "ordinaire"
+      },
+      "PHI/REP": {
+        "erreurs": {},
+        "evalue": true,
+        "max": 6,
+        "mesures": 6,
+        "niveau": "Fragile",
+        "obtenu": 2,
+        "palier": "—",
+        "part": 0.333333,
+        "type": "ordinaire"
+      },
+      "PHI/TEXT": {
+        "erreurs": {
+          "PHI-ERR-PARAPHRASE": 1
+        },
+        "evalue": true,
+        "max": 8,
+        "mesures": 3,
+        "niveau": "Fragile",
+        "obtenu": 4,
+        "palier": "—",
+        "part": 0.5,
+        "type": "production"
+      },
+      "TC-ES/ASTR": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Solide",
+        "obtenu": 5,
+        "palier": "D2",
+        "part": 0.833333,
+        "type": "ordinaire"
+      },
+      "TC-ES/CLIM": {
+        "erreurs": {
+          "TC-ERR-MODELE": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/DEM": {
+        "erreurs": {
+          "TC-ERR-UNITE": 1,
+          "TC-ERR-VARIABLE": 1
+        },
+        "evalue": true,
+        "max": 9,
+        "mesures": 6,
+        "niveau": "En consolidation",
+        "obtenu": 6,
+        "palier": "D1",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "TC-ES/ENER": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "En consolidation",
+        "obtenu": 4,
+        "palier": "D2",
+        "part": 0.666667,
+        "type": "ordinaire"
+      },
+      "TC-ES/INFO": {
+        "erreurs": {
+          "TC-ERR-MODELE": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/MAT": {
+        "erreurs": {
+          "TC-ERR-ECHELLE-TEMPS": 1,
+          "TC-ERR-VOCAB-SCI": 1
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      },
+      "TC-ES/SON": {
+        "erreurs": {
+          "TC-ERR-VOCAB-SCI": 2
+        },
+        "evalue": true,
+        "max": 6,
+        "mesures": 4,
+        "niveau": "Fragile",
+        "obtenu": 3,
+        "palier": "D1",
+        "part": 0.5,
+        "type": "ordinaire"
+      }
+    },
+    "grilles_coach": {
+      "FR-EAF-ORAL": {
+        "criteres": {
+          "ENTRET": 2,
+          "EXPLI": 1,
+          "GRAMM": 2,
+          "LANGOR": 2,
+          "LECT": 1
+        },
+        "max": 15,
+        "obtenu": 8
+      },
+      "GO": {
+        "criteres": {
+          "ARGU": 1,
+          "DISCIP": 2,
+          "INTER": 3,
+          "LANGUE": 1,
+          "POSTURE": 1,
+          "PRECIS": 1,
+          "QUEST": 1,
+          "STRUCT": 1
+        },
+        "max": 24,
+        "obtenu": 11
+      }
+    },
+    "instruments": [
+      "QP/standard",
+      "FR-EAF/standard",
+      "FR-EAF-ORAL/standard",
+      "PHI/standard",
+      "TC-ES/ETENDUE",
+      "MET/standard",
+      "GO/standard",
+      "MATH-EA/SPE",
+      "EDS-MATH/NT",
+      "EDS-SES/N1",
+      "EDS-PC/NT"
+    ],
+    "matieres": {
+      "EDS-MATH": {
+        "competence_module": null,
+        "global": 0.55543,
+        "mesures": 47,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.023256,
+        "prerequis": 0.333333,
+        "prerequis_points": [
+          8,
+          24
+        ],
+        "reevaluation": [
+          "FONC",
+          "PROB",
+          "SUIT"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.666667,
+        "tache_points": [
+          8,
+          12
+        ]
+      },
+      "EDS-PC": {
+        "competence_module": "QUANT",
+        "global": 0.500433,
+        "mesures": 35,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.16129,
+        "prerequis": 0.444444,
+        "prerequis_points": [
+          8,
+          18
+        ],
+        "reevaluation": [
+          "QUANT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.5,
+        "tache_points": [
+          6,
+          12
+        ]
+      },
+      "EDS-SES": {
+        "competence_module": null,
+        "global": 0.399164,
+        "mesures": 29,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.291667,
+        "prerequis": 0.25,
+        "prerequis_points": [
+          2,
+          8
+        ],
+        "reevaluation": [
+          "STAT"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.466667,
+        "tache_points": [
+          7,
+          15
+        ]
+      },
+      "FR-EAF": {
+        "competence_module": "GRAM",
+        "global": 0.51705,
+        "mesures": 48,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Non acquis",
+        "non_reponse": 0.195122,
+        "prerequis": 0.5,
+        "prerequis_points": [
+          6,
+          12
+        ],
+        "reevaluation": [
+          "GRAM"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.583333,
+        "tache_points": [
+          7,
+          12
+        ]
+      },
+      "MATH-EA": {
+        "competence_module": "AUTO",
+        "global": 0.589286,
+        "mesures": 39,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.030303,
+        "prerequis": 0.666667,
+        "prerequis_points": [
+          4,
+          6
+        ],
+        "reevaluation": [
+          "AUTO"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": 0.666667,
+        "tache_points": [
+          12,
+          18
+        ]
+      },
+      "PHI": {
+        "competence_module": null,
+        "global": 0.362055,
+        "mesures": 26,
+        "module_est_remise_a_niveau": true,
+        "niveau_du_rythme": "Remise à niveau",
+        "non_reponse": 0.142857,
+        "prerequis": 0.25,
+        "prerequis_points": [
+          2,
+          8
+        ],
+        "reevaluation": [
+          "NOT",
+          "REP"
+        ],
+        "rythme_perimetre": 3.0,
+        "tache": 0.619048,
+        "tache_points": [
+          13,
+          21
+        ]
+      },
+      "TC-ES": {
+        "competence_module": "MAT",
+        "global": 0.6,
+        "mesures": 30,
+        "module_est_remise_a_niveau": false,
+        "niveau_du_rythme": "Fragile",
+        "non_reponse": 0.166667,
+        "prerequis": 0.8,
+        "prerequis_points": [
+          4,
+          5
+        ],
+        "reevaluation": [
+          "MAT"
+        ],
+        "rythme_perimetre": 2.0,
+        "tache": null,
+        "tache_points": null
+      }
+    },
+    "perimetres": [
+      "EDS-MATH",
+      "EDS-PC",
+      "EDS-SES",
+      "FR-EAF",
+      "MATH-EA",
+      "PHI",
+      "TC-ES"
+    ],
+    "profil_met": {
+      "APPR": 2,
+      "ENVI": 2,
+      "EPRE": 1,
+      "PLAN": 1
+    }
+  }
+}

@@ -1,0 +1,1383 @@
+{
+  "schema": "nexus.audit.instrument_coverage",
+  "produit_par": "scripts/audit_inventory.py",
+  "catalogue": "referentiels/catalogue_instruments.json",
+  "instrument_count": 20,
+  "variant_count": 39,
+  "instruments": [
+    {
+      "instrument_id": "EDS-HGGSP",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-HGGSP",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-HGGSP",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-HGGSP/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-HGGSP/assemblages/N1.json",
+        "instruments/EDS-HGGSP/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_intitules_versionnes.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.11"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « histoire-géographie, géopolitique et sciences politiques »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-HLP",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-HLP",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-HLP",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-HLP/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-HLP/assemblages/N1.json",
+        "instruments/EDS-HLP/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_audit_readme.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_etat_depot.py",
+        "tests/test_intitules_versionnes.py",
+        "tests/test_textes_sources.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.12"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « humanités, littérature et philosophie »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-MATH",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-MATH",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-MATH",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-MATH/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-MATH/assemblages/N1.json",
+        "instruments/EDS-MATH/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_bilan.py",
+        "tests/test_calculatrice_coherence.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_intitules_versionnes.py",
+        "tests/test_maquette.py",
+        "tests/test_math_ea.py",
+        "tests/test_non_regression.py",
+        "tests/test_p1_2026_2027.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_passation.py",
+        "tests/test_profil_p1.py",
+        "tests/test_rendu_code.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.6"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « mathématiques »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-NSI",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-NSI",
+          "support": "papier_et_machine",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-NSI",
+          "support": "papier_et_machine",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-NSI/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-NSI/assemblages/N1.json",
+        "instruments/EDS-NSI/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_intitules_versionnes.py",
+        "tests/test_maquette.py",
+        "tests/test_nsi_harnais.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_rendu_code.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.8"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « numérique et sciences informatiques »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-PC",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-PC",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-PC",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-PC/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-PC/assemblages/N1.json",
+        "instruments/EDS-PC/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_calculatrice_coherence.py",
+        "tests/test_intitules_versionnes.py",
+        "tests/test_maquette.py",
+        "tests/test_profil_p1.py",
+        "tests/test_regles_bilan.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.7"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « physique-chimie »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-SES",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-SES",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-SES",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-SES/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-SES/assemblages/N1.json",
+        "instruments/EDS-SES/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_bilan.py",
+        "tests/test_intitules_versionnes.py",
+        "tests/test_maquette.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_validate_instrument.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.10"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « sciences économiques et sociales »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "EDS-SVT",
+      "versions": [
+        {
+          "version": "N1",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "EDS-SVT",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf"
+          ]
+        },
+        {
+          "version": "NT",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "EDS-SVT",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/EDS-SVT/banque.json"
+      ],
+      "assembly": [
+        "instruments/EDS-SVT/assemblages/N1.json",
+        "instruments/EDS-SVT/assemblages/NT.json"
+      ],
+      "tests_covering": [
+        "tests/test_intitules_versionnes.py",
+        "tests/test_maquette.py",
+        "tests/test_profil_p1.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.9"
+      ],
+      "official_exams": [
+        "Enseignement de spécialité « sciences de la vie et de la terre »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "FR-EAF",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ]
+        },
+        {
+          "version": "standard_2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ]
+        },
+        {
+          "version": "ecrit",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 80,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf"
+          ]
+        },
+        {
+          "version": "ecrit_2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 80,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [],
+          "coach_pdf_paths": []
+        },
+        {
+          "version": "oral",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 50,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf"
+          ]
+        },
+        {
+          "version": "oral_2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 50,
+          "perimetre": "FR-EAF",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [],
+          "coach_pdf_paths": []
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/FR-EAF/banque.json"
+      ],
+      "assembly": [
+        "instruments/FR-EAF/assemblages/ecrit.json",
+        "instruments/FR-EAF/assemblages/ecrit_2028.json",
+        "instruments/FR-EAF/assemblages/oral.json",
+        "instruments/FR-EAF/assemblages/oral_2028.json",
+        "instruments/FR-EAF/assemblages/standard.json",
+        "instruments/FR-EAF/assemblages/standard_2028.json"
+      ],
+      "tests_covering": [
+        "tests/test_bilan.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_francais.py",
+        "tests/test_gate_profil.py",
+        "tests/test_maquette.py",
+        "tests/test_non_regression.py",
+        "tests/test_p1_2026_2027.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_profil_p1.py",
+        "tests/test_release.py",
+        "tests/test_sessions_fr_eaf.py",
+        "tests/test_textes_sources.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.1",
+        "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26)",
+        "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26) ; assemblage de session créé par Q-27",
+        "§ 3.1, § 7.1 ; assemblage de session créé par Q-27"
+      ],
+      "official_exams": [
+        "Épreuve anticipée de français — épreuve écrite",
+        "Épreuve anticipée de français — épreuve orale"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "FR-EAF-ORAL",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "perimetre": null,
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/FR-EAF-ORAL/definition.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_audit_inventory.py",
+        "tests/test_build_instrument.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_etat_depot.py",
+        "tests/test_francais.py",
+        "tests/test_gate_profil.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_profil_p1.py"
+      ],
+      "regulatory_source_references": [
+        "definition.json : § 3.1 et § 7.1 ; instrument créé par la décision Q-20 du 2026-09-10, en remplacement de FR-ORAL (EC-24)",
+        "§ 3.1, § 7.1 ; instrument créé par Q-20 en remplacement de FR-ORAL (EC-24)"
+      ],
+      "official_exams": [
+        "Épreuve anticipée de français — épreuve orale"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "FR-MAI",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "perimetre": "FR-MAI",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/FR-MAI/banque.json"
+      ],
+      "assembly": [
+        "instruments/FR-MAI/assemblages/standard.json"
+      ],
+      "tests_covering": [
+        "tests/test_bilan.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_francais.py",
+        "tests/test_non_regression.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_passation.py",
+        "tests/test_textes_sources.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.2"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "FR-POS",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 45,
+          "perimetre": "FR-POS",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/FR-POS/banque.json"
+      ],
+      "assembly": [
+        "instruments/FR-POS/assemblages/standard.json"
+      ],
+      "tests_covering": [
+        "tests/test_pack_candidat.py",
+        "tests/test_tronc_commun_et_positionnement.py"
+      ],
+      "regulatory_source_references": [
+        "Hors Cahier — intégration B11 du test de positionnement linguistique",
+        "banque.json : Hors Cahier — intégration B11 du test de positionnement linguistique (/40 pts, 45 min)"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "FR-POS-ORAL",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 10,
+          "perimetre": null,
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/FR-POS-ORAL/definition.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_audit_inventory.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_tronc_commun_et_positionnement.py"
+      ],
+      "regulatory_source_references": [
+        "Hors Cahier — intégration B11 du test de positionnement linguistique",
+        "definition.json : Intégration B11 du test de positionnement linguistique — document coach"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "GO",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 15,
+          "perimetre": null,
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/GO/definition.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_audit_inventory.py",
+        "tests/test_build_instrument.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_francais.py",
+        "tests/test_gate_profil.py",
+        "tests/test_go_duree.py",
+        "tests/test_non_regression.py",
+        "tests/test_profil_p1.py",
+        "tests/test_validate_instrument.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "definition.json : § 3.1 et § 7.13",
+        "§ 3.1, § 7.13"
+      ],
+      "official_exams": [
+        "Épreuve orale terminale dite « Grand oral »"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "MATH-EA",
+      "versions": [
+        {
+          "version": "SPE",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "MATH-EA",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+          ]
+        },
+        {
+          "version": "SPECIFIQUES",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "perimetre": "MATH-EA",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/MATH-EA/banque.json"
+      ],
+      "assembly": [
+        "instruments/MATH-EA/assemblages/SPE.json",
+        "instruments/MATH-EA/assemblages/SPECIFIQUES.json"
+      ],
+      "tests_covering": [
+        "tests/test_bilan.py",
+        "tests/test_build_instrument.py",
+        "tests/test_calculatrice_coherence.py",
+        "tests/test_charge_q27.py",
+        "tests/test_contexte.py",
+        "tests/test_distribution.py",
+        "tests/test_gate_profil.py",
+        "tests/test_math_ea.py",
+        "tests/test_math_ea_expertise.py",
+        "tests/test_non_regression.py",
+        "tests/test_p1_2026_2027.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_passation.py",
+        "tests/test_passation_cas.py",
+        "tests/test_profil_p1.py",
+        "tests/test_regles_bilan.py"
+      ],
+      "regulatory_source_references": [],
+      "official_exams": [
+        "Épreuve anticipée de mathématiques"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "MET",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "perimetre": null,
+          "support": "distance",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+          ],
+          "coach_pdf_paths": []
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/MET/formulaire.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_audit_inventory.py",
+        "tests/test_bordereau_durees.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_dossier_entree_personnalise.py",
+        "tests/test_francais.py",
+        "tests/test_passation.py",
+        "tests/test_profil_p1.py",
+        "tests/test_sessions_fr_eaf.py",
+        "tests/test_validate_instrument.py"
+      ],
+      "regulatory_source_references": [
+        "formulaire.json : § 3.1 et § 7.5",
+        "§ 3.1, § 7.5"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "PHI",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "perimetre": "PHI",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/PHI/banque.json"
+      ],
+      "assembly": [
+        "instruments/PHI/assemblages/standard.json"
+      ],
+      "tests_covering": [
+        "tests/test_dates_anterieures.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_francais.py",
+        "tests/test_gate_profil.py",
+        "tests/test_maquette.py",
+        "tests/test_non_regression.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_passation.py",
+        "tests/test_phi_attribution.py",
+        "tests/test_profil_p1.py",
+        "tests/test_release.py",
+        "tests/test_textes_sources.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.3"
+      ],
+      "official_exams": [
+        "Philosophie"
+      ],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "QP",
+      "versions": [
+        {
+          "version": "standard",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "perimetre": null,
+          "support": "distance",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+          ],
+          "coach_pdf_paths": []
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/QP/formulaire.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_audit_inventory.py",
+        "tests/test_bordereau_durees.py",
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_dossier_entree_personnalise.py",
+        "tests/test_eligibilite.py",
+        "tests/test_francais.py",
+        "tests/test_passation.py",
+        "tests/test_profil_p1.py",
+        "tests/test_sessions_fr_eaf.py",
+        "tests/test_validate_instrument.py"
+      ],
+      "regulatory_source_references": [
+        "formulaire.json : § 2.1 et § 3.1",
+        "§ 3.1, § 2.1"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "TC-EMC",
+      "versions": [
+        {
+          "version": "1RE",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 20,
+          "perimetre": "TC-EMC",
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ]
+        },
+        {
+          "version": "TLE",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 20,
+          "perimetre": "TC-EMC",
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ]
+        },
+        {
+          "version": "ETENDUE",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 25,
+          "perimetre": "TC-EMC",
+          "support": "grille_coach",
+          "porte_items": false,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/TC-EMC/definition.json",
+        "instruments/TC-EMC/definition_1RE.json",
+        "instruments/TC-EMC/definition_ETENDUE.json",
+        "instruments/TC-EMC/definition_TLE.json"
+      ],
+      "assembly": [],
+      "tests_covering": [
+        "tests/test_distribution.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_tronc_commun_et_positionnement.py"
+      ],
+      "regulatory_source_references": [
+        "Hors Cahier — extension B10 (note MENE2531481N transitoire, modalité a_confirmer_reglementairement)",
+        "definition.json : Note de service transitoire MENE2531481N, note générale MENE2523743N du 25 août 2025, arrêtés du 13 juin 2024 ; modalité 2026-2027 marquée a_confirmer_reglementairement",
+        "definition_1RE.json : Note de service transitoire MENE2531481N, note générale MENE2523743N du 25 août 2025, arrêtés du 13 juin 2024 ; modalité 2026-2027 marquée a_confirmer_reglementairement",
+        "definition_ETENDUE.json : Note de service transitoire MENE2531481N, note générale MENE2523743N du 25 août 2025, arrêtés du 13 juin 2024 ; modalité 2026-2027 marquée a_confirmer_reglementairement",
+        "definition_TLE.json : Note de service transitoire MENE2531481N, note générale MENE2523743N du 25 août 2025, arrêtés du 13 juin 2024 ; modalité 2026-2027 marquée a_confirmer_reglementairement"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "TC-ES",
+      "versions": [
+        {
+          "version": "1RE",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 40,
+          "perimetre": "TC-ES",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ]
+        },
+        {
+          "version": "TLE",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 40,
+          "perimetre": "TC-ES",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ]
+        },
+        {
+          "version": "ETENDUE",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 55,
+          "perimetre": "TC-ES",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/TC-ES/banque.json"
+      ],
+      "assembly": [
+        "instruments/TC-ES/assemblages/1RE.json",
+        "instruments/TC-ES/assemblages/ETENDUE.json",
+        "instruments/TC-ES/assemblages/TLE.json"
+      ],
+      "tests_covering": [
+        "tests/test_diffusabilite.py",
+        "tests/test_distribution.py",
+        "tests/test_francais.py",
+        "tests/test_maquette.py",
+        "tests/test_p1_2026_2027.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_profil_p1.py",
+        "tests/test_validate_referentiel.py"
+      ],
+      "regulatory_source_references": [
+        "§ 3.1, § 7.4",
+        "§ 7.4"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    },
+    {
+      "instrument_id": "TC-HG",
+      "versions": [
+        {
+          "version": "1RE",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 45,
+          "perimetre": "TC-HG",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ]
+        },
+        {
+          "version": "TLE",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 45,
+          "perimetre": "TC-HG",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ]
+        },
+        {
+          "version": "ETENDUE",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "perimetre": "TC-HG",
+          "support": "papier",
+          "porte_items": true,
+          "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ],
+          "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+          ]
+        }
+      ],
+      "profile_applicability": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "source_bank": [
+        "instruments/TC-HG/banque.json"
+      ],
+      "assembly": [
+        "instruments/TC-HG/assemblages/1RE.json",
+        "instruments/TC-HG/assemblages/ETENDUE.json",
+        "instruments/TC-HG/assemblages/TLE.json"
+      ],
+      "tests_covering": [
+        "tests/test_distribution.py",
+        "tests/test_hg_tle_documents.py",
+        "tests/test_pack_candidat.py",
+        "tests/test_tronc_commun_et_positionnement.py"
+      ],
+      "regulatory_source_references": [
+        "Hors Cahier — extension B9 (note MENE2121383N et MENE2523743N)"
+      ],
+      "official_exams": [],
+      "diffusable": true,
+      "diffusable_motifs": []
+    }
+  ]
+}

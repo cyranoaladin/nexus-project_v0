@@ -1,0 +1,1328 @@
+{
+  "instrument": "EDS-SES",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "SES-2-STAT-01",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une valeur passe de 200 à 250. Le taux de variation est :",
+      "supports": [],
+      "propositions": {
+        "A": "$+50\\ \\%$",
+        "B": "$+25\\ \\%$",
+        "C": "$+20\\ \\%$",
+        "D": "$+2{,}5\\ \\%$"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "écart absolu annoncé comme un pourcentage",
+          "C": "rapport calculé sur la valeur d'arrivée",
+          "D": "erreur de virgule"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Taux de variation. Le distracteur A suit le code SES-ERR-TAUX et signale la confusion entre écart et variation relative, la plus coûteuse de la discipline."
+    },
+    {
+      "item_id": "SES-2-STAT-02",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un indice base 100 en 2015 vaut 120 en 2023. Cela signifie que la grandeur a :",
+      "supports": [],
+      "propositions": {
+        "A": "augmenté de 120 %",
+        "B": "augmenté de 20 %",
+        "C": "été multipliée par 120",
+        "D": "atteint 120 euros"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "valeur de l'indice prise pour le taux de variation",
+          "C": "indice pris pour un coefficient",
+          "D": "indice pris pour une grandeur monétaire"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Lecture d'un indice, suivant le code SES-ERR-INDICE. Le distracteur D repère un candidat qui ne voit pas que l'indice est sans unité."
+    },
+    {
+      "item_id": "SES-2-STAT-03",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une grandeur augmente de 10 %. Le coefficient multiplicateur correspondant est :",
+      "supports": [],
+      "propositions": {
+        "A": "$10$",
+        "B": "$0{,}10$",
+        "C": "$1{,}10$",
+        "D": "$1{,}010$"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "taux pris pour le coefficient",
+          "B": "taux exprimé en décimal pris pour le coefficient",
+          "D": "erreur de rang décimal"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Coefficient multiplicateur. Chaque distracteur correspond à une étape omise dans le passage du taux au coefficient."
+    },
+    {
+      "item_id": "SES-2-STAT-04",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le taux de chômage passe de 8 % à 10 %. On peut dire qu'il a augmenté de :",
+      "supports": [],
+      "propositions": {
+        "A": "2 %",
+        "B": "2 points de pourcentage",
+        "C": "20 %",
+        "D": "2 points de pourcentage, soit 25 %"
+      },
+      "cle": {
+        "reponse": "D",
+        "distracteurs": {
+          "A": "points confondus avec pourcentage",
+          "B": "réponse exacte mais incomplète, la variation relative n'étant pas donnée",
+          "C": "variation relative erronée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Points de pourcentage et variation relative, suivant le code SES-ERR-POINT-PCT. Le distracteur B n'est pas faux : il est incomplet, ce qui est précisément la nuance mesurée."
+    },
+    {
+      "item_id": "SES-2-STAT-05",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "A",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "D'après le tableau ci-dessus, rédiger une phrase de lecture de la donnée de 2023.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SES-STAT-TAB",
+          "titre": "Taux de chômage au sens du Bureau international du travail, France",
+          "source": "INSEE, enquête Emploi en continu, série publique du taux de chômage au sens du BIT, France hors Mayotte, édition 2024 — https://www.insee.fr/fr/statistiques/2012804 (valeurs arrondies au dixième)",
+          "colonnes": [
+            "Année",
+            "Taux de chômage (%)"
+          ],
+          "lignes": [
+            [
+              "2015",
+              "10,4"
+            ],
+            [
+              "2017",
+              "9,4"
+            ],
+            [
+              "2019",
+              "8,4"
+            ],
+            [
+              "2021",
+              "7,9"
+            ],
+            [
+              "2023",
+              "7,3"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "En 2023, en France, 7,3 % de la population active était au chômage au sens du Bureau international du travail, selon l'INSEE.",
+        "reponses_1pt": [
+          "La valeur et l'année sont exactes mais le champ ou la source manquent.",
+          "La phrase mentionne le champ et la source mais reprend une valeur erronée."
+        ],
+        "codes_erreur": [
+          "SES-ERR-LECTURE",
+          "SES-ERR-DONNEE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Phrase de lecture, attendu premier de l'épreuve composée. Les quatre éléments — date, champ, valeur, source — sont exigés ensemble ; la cotation à un point isole lequel manque."
+    },
+    {
+      "item_id": "SES-2-STAT-06",
+      "competence": "STAT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "A",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "D'après le tableau ci-dessus, calculer la variation du taux de chômage entre 2015 et 2023, en points de pourcentage.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "SES-STAT-TAB",
+          "titre": "Taux de chômage au sens du Bureau international du travail, France",
+          "source": "INSEE, enquête Emploi en continu, série publique du taux de chômage au sens du BIT, France hors Mayotte, édition 2024 — https://www.insee.fr/fr/statistiques/2012804 (valeurs arrondies au dixième)",
+          "colonnes": [
+            "Année",
+            "Taux de chômage (%)"
+          ],
+          "lignes": [
+            [
+              "2015",
+              "10,4"
+            ],
+            [
+              "2017",
+              "9,4"
+            ],
+            [
+              "2019",
+              "8,4"
+            ],
+            [
+              "2021",
+              "7,9"
+            ],
+            [
+              "2023",
+              "7,3"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Une baisse de 3,1 points de pourcentage.",
+        "reponses_1pt": [
+          "Le calcul est exact mais exprimé en pourcentage et non en points.",
+          "Le résultat est donné sans préciser qu'il s'agit d'une baisse."
+        ],
+        "codes_erreur": [
+          "SES-ERR-POINT-PCT",
+          "SES-ERR-TAUX"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Calcul sur données réelles. Le premier cas à un point est l'erreur exacte que SES-2-STAT-04 mesure en reconnaissance : la lecture croisée des deux dit si le candidat connaît la distinction sans savoir l'appliquer."
+    },
+    {
+      "item_id": "SES-1-ECO-01",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur un marché concurrentiel, le prix d'équilibre est celui pour lequel :",
+      "supports": [],
+      "propositions": {
+        "A": "le profit des producteurs est maximal",
+        "B": "la quantité offerte égale la quantité demandée",
+        "C": "le prix est le plus bas possible",
+        "D": "tous les consommateurs sont satisfaits"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "équilibre confondu avec optimum du producteur",
+          "C": "équilibre confondu avec prix minimal",
+          "D": "équilibre confondu avec satisfaction générale"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Définition de l'équilibre. Le distracteur A est le plus fréquent : il attribue au marché une finalité qu'il n'a pas."
+    },
+    {
+      "item_id": "SES-1-ECO-02",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une externalité négative désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "une perte subie par une entreprise",
+        "B": "un coût supporté par un tiers sans compensation",
+        "C": "une hausse des prix",
+        "D": "une baisse de la demande"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "externalité confondue avec perte interne",
+          "C": "externalité confondue avec inflation",
+          "D": "externalité confondue avec un mouvement de marché"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Défaillance de marché. Le distracteur A est instructif : il manque le point décisif, qui est que le coût pèse sur un tiers."
+    },
+    {
+      "item_id": "SES-1-ECO-03",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une hausse du prix d'un bien réduit généralement la quantité demandée.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'à revenu constant le bien devient plus coûteux relativement aux autres, si bien qu'une partie des acheteurs y renonce ou lui substitue un autre bien.",
+        "reponses_1pt": [
+          "Le lien est affirmé sans qu'un mécanisme soit énoncé.",
+          "Un mécanisme est énoncé mais il porte sur l'offre et non sur la demande."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Mécanisme élémentaire. La première réponse à un point suit le code SES-ERR-MECANISME : affirmer un lien sans les maillons intermédiaires."
+    },
+    {
+      "item_id": "SES-T-ECO-04",
+      "competence": "ECO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi le progrès technique est une source de croissance économique.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'il accroît la productivité globale des facteurs : la même quantité de travail et de capital permet de produire davantage.",
+        "reponses_1pt": [
+          "La productivité est mentionnée sans que le lien à la croissance soit établi.",
+          "Le lien est affirmé sans que la productivité soit nommée."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Sources de la croissance. La cotation sépare la connaissance de la notion de la capacité à construire l'enchaînement causal."
+    },
+    {
+      "item_id": "SES-1-SOC-01",
+      "competence": "SOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La socialisation primaire désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "l'apprentissage des normes et valeurs durant l'enfance",
+        "B": "l'intégration au monde du travail",
+        "C": "la première rencontre avec un groupe",
+        "D": "l'éducation scolaire uniquement"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "description de la socialisation secondaire",
+          "C": "socialisation réduite à un événement",
+          "D": "instance unique retenue"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Socialisation primaire et secondaire. Le distracteur D est fréquent : il réduit la socialisation à l'école, en oubliant la famille et les pairs."
+    },
+    {
+      "item_id": "SES-1-SOC-02",
+      "competence": "SOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un comportement déviant est un comportement :",
+      "supports": [],
+      "propositions": {
+        "A": "illégal",
+        "B": "qui s'écarte des normes en vigueur dans un groupe donné",
+        "C": "minoritaire",
+        "D": "nuisible à autrui"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "déviance confondue avec délinquance",
+          "C": "déviance confondue avec rareté",
+          "D": "déviance confondue avec nuisance"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Le distracteur A est l'erreur centrale : toute déviance n'est pas illégale, et toute illégalité n'est pas socialement sanctionnée."
+    },
+    {
+      "item_id": "SES-1-SOC-03",
+      "competence": "SOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Citer deux instances de socialisation et indiquer pour chacune un exemple de ce qu'elle transmet.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux instances distinctes parmi la famille, l'école, les pairs, les médias, le travail, chacune assortie d'un exemple de norme, de valeur ou de pratique transmise.",
+        "reponses_1pt": [
+          "Deux instances sont citées mais un seul exemple est donné.",
+          "Une seule instance est citée, avec son exemple."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DEF",
+          "SES-ERR-MECANISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Restitution appliquée. La liste des instances est fermée par le programme, ce qui maintient l'item en type B."
+    },
+    {
+      "item_id": "SES-T-SOC-04",
+      "competence": "SOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase pourquoi la mobilité sociale ascendante peut augmenter sans que les inégalités de destin diminuent.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la structure des emplois évolue et crée mécaniquement des positions plus qualifiées : cette mobilité structurelle peut s'accroître alors que les chances relatives d'accéder à ces positions restent inégales selon l'origine sociale.",
+        "reponses_1pt": [
+          "La distinction entre mobilité structurelle et fluidité sociale est esquissée sans être nommée.",
+          "La réponse décrit la mobilité ascendante sans expliquer la coexistence avec les inégalités."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Distinction mobilité structurelle / fluidité sociale, l'une des plus exigeantes du programme. Item de transfert : la réponse suppose de tenir deux mesures distinctes ensemble."
+    },
+    {
+      "item_id": "SES-1-POL-01",
+      "competence": "POL",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'abstention électorale s'explique notamment par :",
+      "supports": [],
+      "propositions": {
+        "A": "le seul désintérêt individuel",
+        "B": "des facteurs sociaux comme le niveau de diplôme et l'intégration sociale",
+        "C": "la complexité des bulletins",
+        "D": "le hasard"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "explication réduite à une disposition individuelle",
+          "C": "explication technique",
+          "D": "explication par le hasard"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Déterminants sociaux du vote. Le distracteur A est la conception spontanée que le programme vise précisément à déplacer."
+    },
+    {
+      "item_id": "SES-1-POL-02",
+      "competence": "POL",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi l'opinion publique mesurée par un sondage ne se confond pas avec l'opinion de la population.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'un sondage impose des questions et des réponses préformulées à un échantillon : il produit une opinion sur des sujets que les personnes interrogées ne se posaient pas nécessairement.",
+        "reponses_1pt": [
+          "La réponse invoque seulement la marge d'erreur ou la taille de l'échantillon.",
+          "La réponse signale un écart sans en donner la raison."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Construction de l'opinion publique. La première réponse à un point est révélatrice : elle relève une limite technique là où la question porte sur une limite de méthode."
+    },
+    {
+      "item_id": "SES-T-POL-03",
+      "competence": "POL",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'action publique en matière d'environnement mobilise notamment :",
+      "supports": [],
+      "propositions": {
+        "A": "la réglementation, la taxation et les marchés de quotas",
+        "B": "la seule réglementation",
+        "C": "la seule information des consommateurs",
+        "D": "aucun instrument spécifique"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "instruments réduits à la contrainte",
+          "C": "instruments réduits à l'incitation douce",
+          "D": "existence des instruments niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Instruments de l'action publique. Le distracteur B est le plus fréquent chez un candidat qui n'a pas travaillé les instruments économiques."
+    },
+    {
+      "item_id": "SES-T-POL-04",
+      "competence": "POL",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase pourquoi une taxe sur les émissions peut réduire la pollution sans l'interdire.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elle intègre au coût de production un dommage jusque-là supporté par des tiers : les pollueurs pour qui réduire coûte moins cher que payer la taxe réduisent leurs émissions.",
+        "reponses_1pt": [
+          "La réponse affirme que la taxe dissuade sans expliquer le mécanisme de coût.",
+          "Le mécanisme est décrit sans lien avec l'externalité."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-THEORIE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Internalisation d'une externalité. Transfert direct de SES-1-ECO-02 qui définit la notion : la lecture croisée dit si le candidat sait mobiliser une définition dans un raisonnement."
+    },
+    {
+      "item_id": "SES-1-MOB-01",
+      "competence": "MOB",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Définir la notion de chômage au sens du Bureau international du travail.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Est chômeur, au sens du Bureau international du travail, une personne sans emploi, disponible pour travailler et qui recherche activement un emploi.",
+        "reponses_1pt": [
+          "Deux des trois critères sont énoncés.",
+          "La définition donnée est celle de l'inactivité ou du sous-emploi."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DEF",
+          "SES-ERR-LECTURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Définition à trois critères, exigible telle quelle. Prépare la lecture des données de STAT : sans elle, la phrase de lecture du taux de chômage est approximative."
+    },
+    {
+      "item_id": "SES-1-MOB-02",
+      "competence": "MOB",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer le mécanisme par lequel une baisse des taux d'intérêt peut soutenir l'investissement des entreprises.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La baisse des taux réduit le coût du crédit ; des projets dont la rentabilité attendue était inférieure au coût de financement deviennent rentables, si bien que les entreprises investissent davantage.",
+        "reponses_1pt": [
+          "Le lien entre taux et investissement est affirmé sans mention du coût du crédit.",
+          "Le coût du crédit est mentionné sans que le critère de rentabilité soit énoncé."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-THEORIE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Mécanisme en trois maillons, format exact de l'exercice 1 de l'épreuve composée. La cotation dit combien de maillons manquent, ce qui oriente précisément la remédiation."
+    },
+    {
+      "item_id": "SES-T-MOB-03",
+      "competence": "MOB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans l'exercice de mobilisation des connaissances, il est attendu :",
+      "supports": [],
+      "propositions": {
+        "A": "une réponse structurée définissant la notion puis exposant le mécanisme",
+        "B": "un plan en deux parties",
+        "C": "une étude de document",
+        "D": "une prise de position argumentée"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "format de la dissertation employé",
+          "C": "format de l'exercice 2 employé",
+          "D": "format de l'exercice 3 employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Format attendu de l'EC1. Les trois distracteurs sont les formats des trois autres exercices : l'item mesure la discrimination entre eux.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "SES-T-MOB-04",
+      "competence": "MOB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase comment l'école peut à la fois favoriser la mobilité sociale et contribuer à la reproduction des inégalités.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Elle ouvre l'accès aux diplômes à tous, ce qui permet des trajectoires ascendantes, mais les ressources culturelles inégalement réparties dans les familles avantagent certains élèves dans l'obtention de ces mêmes diplômes.",
+        "reponses_1pt": [
+          "Un seul des deux effets est expliqué.",
+          "Les deux effets sont mentionnés sans qu'aucun mécanisme soit énoncé."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-THEORIE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Double effet d'une même institution. Item de transfert : le candidat doit tenir deux mécanismes contraires sans les hiérarchiser.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "SES-T-DOCU-02",
+      "competence": "DOCU",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 18,
+      "enonce": "À partir du document ci-dessus, vous montrerez en une quinzaine de lignes que le diplôme constitue une ressource inégalement répartie face au risque de chômage, et vous indiquerez ce que ce document ne permet pas d'établir.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "SES-DOCU-FIG",
+          "titre": "Taux de chômage selon le diplôme le plus élevé obtenu, France",
+          "source": "INSEE, enquête Emploi, taux de chômage selon le diplôme le plus élevé obtenu, France hors Mayotte, édition 2024 — https://www.insee.fr/fr/statistiques/2489498 (valeurs arrondies au dixième)",
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Diplôme",
+            "valeurs": [
+              "Sans diplôme",
+              "CAP-BEP",
+              "Baccalauréat",
+              "Supérieur"
+            ]
+          },
+          "axe_y": {
+            "label": "Taux de chômage (%)"
+          },
+          "series": [
+            {
+              "label": "Ensemble",
+              "valeurs": [
+                16.5,
+                9.2,
+                8.1,
+                4.5
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "PRESENT",
+          "intitule": "Présentation du document",
+          "competence": "DOCU",
+          "descripteurs": {
+            "0": "Le document n'est pas présenté : la réponse commence par un commentaire.",
+            "1": "Un seul élément de présentation est donné, la nature ou la source.",
+            "2": "La nature, la source et la date sont données ; le champ ne l'est pas.",
+            "3": "La nature, la source, la date et le champ sont donnés."
+          }
+        },
+        {
+          "code": "LECTURE",
+          "intitule": "Lecture et calcul sur données",
+          "competence": "STAT",
+          "descripteurs": {
+            "0": "Aucune donnée n'est citée, ou la donnée citée est mal lue.",
+            "1": "Une donnée est citée sans son unité ni son champ.",
+            "2": "Les données citées sont exactes et complètes ; aucun calcul n'est mené.",
+            "3": "Les données citées sont exactes et complètes, et un calcul pertinent est mené et interprété."
+          }
+        },
+        {
+          "code": "ANALYSE",
+          "intitule": "Analyse et mise en relation",
+          "competence": "DOCU",
+          "descripteurs": {
+            "0": "Le document est paraphrasé, ligne à ligne ou barre à barre.",
+            "1": "Une comparaison est faite mais elle n'est pas rapportée à la question posée.",
+            "2": "Les données sont mises en relation entre elles ; aucune connaissance n'est mobilisée.",
+            "3": "Les données sont mises en relation et éclairées par une connaissance du programme."
+          }
+        },
+        {
+          "code": "CONCLU",
+          "intitule": "Conclusion",
+          "competence": "DOCU",
+          "descripteurs": {
+            "0": "Aucune conclusion n'est formulée.",
+            "1": "Une conclusion est formulée mais elle excède ce que le document permet d'établir.",
+            "2": "La conclusion est fidèle au document ; ses limites ne sont pas indiquées.",
+            "3": "La conclusion est fidèle au document et ses limites sont indiquées."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Même document que la version N1, avec une consigne qui ajoute l'exigence de limites : le candidat de Terminale doit dire ce que le document n'établit pas — ici, le sens de la causalité et le rôle de l'origine sociale, qui n'apparaissent pas dans les données. C'est exactement ce que le niveau 3 du critère de conclusion mesure."
+    },
+    {
+      "item_id": "SES-T-RAIS-01",
+      "competence": "RAIS",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "À l'aide du document du bloc C et de vos connaissances, rédigez le plan détaillé d'un raisonnement répondant à la question : « le diplôme protège-t-il du chômage ? ».\n\nVous indiquerez la problématique, deux parties avec leurs arguments, et pour chaque argument la donnée ou le mécanisme mobilisé. Vous ne rédigerez pas le développement.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "SES-DOCU-FIG",
+          "titre": "Taux de chômage selon le diplôme le plus élevé obtenu, France",
+          "source": "INSEE, enquête Emploi, taux de chômage selon le diplôme le plus élevé obtenu, France hors Mayotte, édition 2024 — https://www.insee.fr/fr/statistiques/2489498 (valeurs arrondies au dixième)",
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Diplôme",
+            "valeurs": [
+              "Sans diplôme",
+              "CAP-BEP",
+              "Baccalauréat",
+              "Supérieur"
+            ]
+          },
+          "axe_y": {
+            "label": "Taux de chômage (%)"
+          },
+          "series": [
+            {
+              "label": "Ensemble",
+              "valeurs": [
+                16.5,
+                9.2,
+                8.1,
+                4.5
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "PROBLEM",
+          "intitule": "Analyse du sujet et problématique",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Le sujet est recopié : aucun terme n'est analysé.",
+            "1": "Les termes sont définis mais aucune question n'est dégagée.",
+            "2": "Une problématique est formulée ; elle ne couvre qu'une partie du sujet.",
+            "3": "Une problématique est formulée et elle couvre le sujet."
+          }
+        },
+        {
+          "code": "PLAN",
+          "intitule": "Structure de l'argumentation",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Aucun plan n'apparaît.",
+            "1": "Deux parties sont annoncées mais leur contenu ne les distingue pas.",
+            "2": "Le plan est cohérent ; la progression d'une partie à l'autre n'apparaît pas.",
+            "3": "Le plan est cohérent et la progression d'une partie à l'autre est perceptible."
+          }
+        },
+        {
+          "code": "ARTICUL",
+          "intitule": "Articulation théorie et données",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Ni mécanisme ni donnée : le propos reste au niveau des affirmations.",
+            "1": "Des connaissances sont exposées sans qu'aucune donnée ne les appuie, ou l'inverse.",
+            "2": "Connaissances et données sont présentes ; leur lien n'est établi qu'une fois.",
+            "3": "Chaque argument associe un mécanisme et une donnée qui l'illustre."
+          }
+        },
+        {
+          "code": "LECTURE",
+          "intitule": "Lecture et calcul sur données",
+          "competence": "STAT",
+          "descripteurs": {
+            "0": "Aucune donnée n'est mobilisée, ou les données citées sont mal lues.",
+            "1": "Les données sont citées sans unité ni champ.",
+            "2": "Les données sont citées correctement ; aucune n'est interprétée.",
+            "3": "Les données sont citées correctement et interprétées au service de l'argument."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Exercice 3 de l'épreuve composée, sous forme de plan détaillé plutôt que de rédaction : c'est l'unité qui permet de mesurer la construction du raisonnement sans dépendre de l'endurance rédactionnelle, comme le paragraphe pour FR-EAF. Le critère de lecture de données appartient à STAT (EC-08) ; RAIS conserve trois critères propriétaires. Le sujet reprend le document de DOCU, ce qui permet de distinguer un candidat qui sait lire un document d'un candidat qui sait construire avec."
+    },
+    {
+      "item_id": "SES-1-RAIS-02",
+      "competence": "RAIS",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'un raisonnement argumenté, en les numérotant de 1 à 4 : illustrer par une donnée — annoncer la problématique — énoncer un argument — conclure en répondant à la question.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : annoncer la problématique (1), énoncer un argument (2), illustrer par une donnée (3), conclure (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "SES-ERR-THEORIE",
+          "SES-ERR-DONNEE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Item de bloc D de RAIS, palier D1 : la structure est restituée sans être mise en œuvre."
+    },
+    {
+      "item_id": "SES-T-RAIS-03",
+      "competence": "RAIS",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat écrit : « le chômage des non-diplômés est de 16,5 %, donc le diplôme protège du chômage ». Indiquez ce qui manque à ce raisonnement.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il manque la comparaison avec les autres niveaux de diplôme et le mécanisme reliant diplôme et emploi : une donnée isolée ne fonde pas la conclusion.",
+        "reponses_1pt": [
+          "Un seul des deux manques est relevé.",
+          "La réponse conteste la conclusion sans analyser le raisonnement qui y mène."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DONNEE",
+          "SES-ERR-THEORIE",
+          "SES-ERR-MECANISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Item de bloc D de RAIS, palier D2 : repérer ce qui manque à un raisonnement fourni. Les deux manques visés sont exactement ce que les critères ARTICUL et LECTURE mesurent dans la tâche, évalués ici hors de la production."
+    },
+    {
+      "item_id": "SES-1-ECO-05",
+      "competence": "ECO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi un monopole peut fixer un prix supérieur à celui qui s'établirait sur un marché concurrentiel.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'il est seul offreur : les acheteurs ne peuvent pas se tourner vers un concurrent, ce qui lui permet de réduire les quantités offertes pour obtenir un prix plus élevé.",
+        "reponses_1pt": [
+          "L'absence de concurrence est mentionnée sans que le mécanisme sur les quantités soit énoncé.",
+          "La réponse affirme que le monopole fixe le prix qu'il veut, sans limite."
+        ],
+        "codes_erreur": [
+          "SES-ERR-MECANISME",
+          "SES-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Pouvoir de marché. La seconde réponse à un point désigne un candidat qui confond pouvoir de marché et absence totale de contrainte, ce que la demande impose pourtant."
+    },
+    {
+      "item_id": "SES-1-SOC-05",
+      "competence": "SOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi un même comportement peut être considéré comme déviant dans une société et non dans une autre.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la déviance se définit par l'écart aux normes en vigueur, et que ces normes varient selon les sociétés et les époques.",
+        "reponses_1pt": [
+          "La variabilité est affirmée sans référence aux normes.",
+          "La réponse cite un exemple sans énoncer le principe."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DEF",
+          "SES-ERR-MECANISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Relativité de la déviance. Transfert direct de SES-1-SOC-02 qui en donne la définition : la lecture croisée dit si le candidat sait mobiliser une définition."
+    },
+    {
+      "item_id": "SES-1-POL-05",
+      "competence": "POL",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux facteurs sociaux qui influencent la participation électorale.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux facteurs distincts parmi : le niveau de diplôme, l'âge, l'intégration sociale, la position sociale, la socialisation politique familiale.",
+        "reponses_1pt": [
+          "Un seul facteur est cité, ou deux formulations désignent le même facteur."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DEF",
+          "SES-ERR-MECANISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Restitution. Sert d'appui à SES-1-POL-01 : un candidat qui cite les facteurs mais échoue au QCM relève d'une difficulté de discrimination."
+    },
+    {
+      "item_id": "SES-1-POL-06",
+      "competence": "POL",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un sondage annonce 52 % d'intentions de vote avec une marge d'erreur de 3 points. On peut en conclure :",
+      "supports": [],
+      "propositions": {
+        "A": "que le candidat est majoritaire",
+        "B": "que le résultat se situe probablement entre 49 % et 55 %",
+        "C": "que le sondage est faux",
+        "D": "que la majorité est certaine"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "marge d'erreur ignorée",
+          "C": "incertitude confondue avec erreur",
+          "D": "conclusion affirmée malgré l'incertitude"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Marge d'erreur. Le distracteur A est la lecture médiatique dominante, et l'item mesure la capacité à ne pas la reprendre."
+    },
+    {
+      "item_id": "SES-1-MOB-05",
+      "competence": "MOB",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une explication de mécanisme, un enchaînement causal complet comporte :",
+      "supports": [],
+      "propositions": {
+        "A": "une cause et une conséquence",
+        "B": "une cause, les étapes intermédiaires et la conséquence",
+        "C": "une définition et un exemple",
+        "D": "une donnée chiffrée"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "étapes intermédiaires omises",
+          "C": "mécanisme confondu avec une définition illustrée",
+          "D": "mécanisme confondu avec une donnée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Structure d'un mécanisme. Le distracteur A est exactement ce que le code SES-ERR-MECANISME suit : relier une cause à une conséquence sans les maillons."
+    },
+    {
+      "item_id": "SES-1-MOB-06",
+      "competence": "MOB",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans l'expression « toutes choses égales par ailleurs », on suppose :",
+      "supports": [],
+      "propositions": {
+        "A": "que tous les individus sont identiques",
+        "B": "que les autres facteurs sont maintenus constants",
+        "C": "que le résultat est certain",
+        "D": "que la relation est valable partout"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "hypothèse portée sur les individus et non sur les facteurs",
+          "C": "hypothèse confondue avec une garantie",
+          "D": "hypothèse confondue avec une généralisation"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Clause ceteris paribus, transfert direct de FR-MAI-LEXA-06 qui en donne le sens littéral : la lecture croisée dit si la difficulté est lexicale ou conceptuelle."
+    },
+    {
+      "item_id": "SES-1-DOCU-03",
+      "competence": "DOCU",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'une étude de document, en les numérotant de 1 à 4 : conclure sans dépasser ce que le document établit — présenter le document — mettre les données en relation — citer des données précises.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : présenter (1), citer des données (2), mettre en relation (3), conclure (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DOC-PRES",
+          "SES-ERR-DONNEE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Item de bloc D de DOCU, palier D1 : la méthode de l'exercice 2 est restituée sans être mise en œuvre."
+    },
+    {
+      "item_id": "SES-T-DOCU-04",
+      "competence": "DOCU",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat commence son étude par : « ce graphique montre que le diplôme protège du chômage ». Indiquez les deux défauts de cette entrée en matière.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le document n'est pas présenté — ni nature, ni source, ni champ, ni date — et la conclusion est posée d'emblée, avant toute lecture de données.",
+        "reponses_1pt": [
+          "Un seul des deux défauts est relevé.",
+          "Les deux défauts sont évoqués sans que la présentation manquante soit détaillée."
+        ],
+        "codes_erreur": [
+          "SES-ERR-DOC-PRES",
+          "SES-ERR-DONNEE",
+          "SES-ERR-LECTURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité sciences économiques et sociales, classe terminale générale. Item de bloc D de DOCU, palier D2 : repérer les défauts d'une production fournie. Les deux défauts visés sont exactement ce que les critères PRESENT et CONCLU mesurent dans la tâche."
+    },
+    {
+      "item_id": "SES-1-DOCU-05",
+      "competence": "DOCU",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 15,
+      "duree_min": 25,
+      "enonce": "Cette partie comporte deux temps, sur le même document.\n\n**Premier temps — étude du document.** Présentez le document, puis montrez en quelques lignes ce qu'il établit au sujet du lien entre diplôme et exposition au chômage. Vous citerez des données précises et mènerez au moins un calcul pertinent.\n\n**Second temps — raisonnement argumenté.** Rédigez un paragraphe d'une quinzaine de lignes répondant à la question : « le diplôme suffit-il à protéger du chômage ? ». Votre paragraphe mobilisera à la fois une donnée du document et une connaissance du cours.",
+      "supports": [
+        {
+          "type": "figure",
+          "code": "SES-DOCU-FIG",
+          "titre": "Taux de chômage selon le diplôme le plus élevé obtenu, France",
+          "source": "INSEE, enquête Emploi, taux de chômage selon le diplôme le plus élevé obtenu, France hors Mayotte, édition 2024 — https://www.insee.fr/fr/statistiques/2489498 (valeurs arrondies au dixième)",
+          "type_graphe": "barres",
+          "axe_x": {
+            "label": "Diplôme",
+            "valeurs": [
+              "Sans diplôme",
+              "CAP-BEP",
+              "Baccalauréat",
+              "Supérieur"
+            ]
+          },
+          "axe_y": {
+            "label": "Taux de chômage (%)"
+          },
+          "series": [
+            {
+              "label": "Ensemble",
+              "valeurs": [
+                16.5,
+                9.2,
+                8.1,
+                4.5
+              ]
+            }
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "PRESENT",
+          "intitule": "Présentation du document",
+          "competence": "DOCU",
+          "descripteurs": {
+            "0": "Le document n'est pas présenté : la réponse commence par un commentaire.",
+            "1": "Un seul élément de présentation est donné, la nature ou la source.",
+            "2": "La nature, la source et la date sont données ; le champ ne l'est pas.",
+            "3": "La nature, la source, la date et le champ sont donnés."
+          }
+        },
+        {
+          "code": "LECTURE",
+          "intitule": "Lecture et calcul sur données",
+          "competence": "STAT",
+          "descripteurs": {
+            "0": "Aucune donnée n'est citée, ou la donnée citée est mal lue.",
+            "1": "Une donnée est citée sans son unité ni son champ.",
+            "2": "Les données citées sont exactes et complètes ; aucun calcul n'est mené.",
+            "3": "Les données citées sont exactes et complètes, et un calcul pertinent est mené et interprété."
+          }
+        },
+        {
+          "code": "ANALYSE",
+          "intitule": "Analyse du document",
+          "competence": "DOCU",
+          "descripteurs": {
+            "0": "Le document est paraphrasé, barre à barre.",
+            "1": "Une comparaison est faite mais elle n'est pas rapportée à la question posée.",
+            "2": "Les données sont mises en relation entre elles ; leur portée n'est pas discutée.",
+            "3": "Les données sont mises en relation et ce qu'elles n'établissent pas est indiqué."
+          }
+        },
+        {
+          "code": "ARGUM",
+          "intitule": "Argumentation structurée",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Le paragraphe n'avance aucun argument : il redit le document.",
+            "1": "Un argument est avancé mais il n'est pas relié à la question posée.",
+            "2": "Un argument répondant à la question est avancé et développé ; la nuance manque.",
+            "3": "Un argument répondant à la question est avancé, développé, et une nuance en limite la portée."
+          }
+        },
+        {
+          "code": "MOBILIS",
+          "intitule": "Mobilisation conjointe du document et du cours",
+          "competence": "RAIS",
+          "descripteurs": {
+            "0": "Ni donnée ni connaissance ne sont mobilisées.",
+            "1": "Une donnée du document est reprise, ou une connaissance exposée, mais pas les deux.",
+            "2": "Une donnée et une connaissance sont présentes ; leur lien n'est pas établi.",
+            "3": "Une donnée du document et une connaissance du cours sont articulées au service de l'argument."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Tâche unique de la version N1, en deux temps sur un support unique : c'est la structure de l'épreuve composée réduite à un document (écart EC-14). Cinq critères, deux compétences de production servies — DOCU en possède deux, RAIS en possède deux — et le critère de lecture de données appartient à STAT (EC-08). Le second temps est la seule mesure de RAIS au format de l'épreuve pour un candidat de Première : l'épreuve ponctuelle de spécialité abandonnée porte le format de l'épreuve composée, raisonnement argumenté compris, sur le programme de Première. Le premier temps reste renseignable même si le second n'est pas traité, ce qui permet au bilan de distinguer une difficulté de lecture de document d'une difficulté d'argumentation."
+    }
+  ]
+}

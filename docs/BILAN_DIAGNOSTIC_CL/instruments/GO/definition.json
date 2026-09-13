@@ -1,0 +1,144 @@
+{
+  "instrument": "GO",
+  "version": "standard",
+  "schema": "nexus.instrument.grille_coach",
+  "titre": "Grille d'entretien Grand oral — document coach",
+  "source_cahier": "§ 3.1 et § 7.13",
+  "preparation_livret": {
+    "questions_min": 12,
+    "preparation_min": 15,
+    "note": "Ces deux parties écrites précèdent l'entretien de 15 min : le livret complet dure 42 min. Le choix de la question (2 min) est inclus dans les 12 min de la première partie."
+  },
+  "avertissement": "Le Grand oral n'est pas une interrogation : le candidat y apporte deux questions qu'il a construites, et le jury en choisit une. Un diagnostic qui fournirait la question mesurerait tout sauf ce que l'épreuve pèse le plus. Le candidat propose donc ici ses deux questions, et le coach en retient une.\nVingt minutes d'épreuve et vingt minutes de préparation à l'examen ; quinze minutes ici. L'échantillonnage est assumé : le diagnostic observe la construction de la question, l'ancrage disciplinaire, la conduite d'un propos court et la tenue dans l'échange. Il n'observe pas l'endurance sur dix minutes d'exposé continu, ni le projet d'orientation du second temps. Le résultat sert à décider si la préparation au Grand oral commence en parallèle des spécialités ou après (§ 7.13).",
+  "deroule": [
+    {
+      "phase": "Questions apportées par le candidat",
+      "duree_min": 2,
+      "consigne_prononcee": "À l'épreuve, c'est vous qui apportez deux questions, et le jury en choisit une. Proposez-m'en deux, portant sur vos spécialités — prises séparément ou croisées. Énoncez-les à voix haute ; je les note."
+    },
+    {
+      "phase": "Préparation",
+      "duree_min": 3,
+      "consigne_prononcee": "Je retiens celle-ci. Vous avez trois minutes pour préparer. Vous pouvez prendre des notes ; vous ne les lirez pas pendant l'exposé."
+    },
+    {
+      "phase": "Exposé",
+      "duree_min": 3,
+      "consigne_prononcee": "Je vous écoute. Vous avez trois minutes ; je ne vous interromprai pas."
+    },
+    {
+      "phase": "Échange",
+      "duree_min": 5,
+      "consigne_prononcee": "Merci. Je vais maintenant vous poser quelques questions sur ce que vous venez de dire, et sur ce qui n'y était pas."
+    },
+    {
+      "phase": "Clôture et renseignement de la grille",
+      "duree_min": 2,
+      "consigne_prononcee": "C'est terminé, merci. Je renseigne la grille ; vous n'avez plus rien à faire."
+    }
+  ],
+  "consignes_correcteur": [
+    "La grille est renseignée immédiatement après l'entretien, jamais de mémoire en fin de journée.",
+    "Chaque critère est noté de 0 à 3 d'après ce qui a été observé, non d'après une impression d'ensemble.",
+    "Le total n'est jamais saisi : il est calculé depuis les critères.",
+    "Aucun commentaire libre n'est porté sur la grille ; les observations utiles au coach passent par les codes d'erreur de la matière concernée."
+  ],
+  "criteres": [
+    {
+      "code": "QUEST",
+      "intitule": "Qualité des questions apportées",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Aucune question n'est proposée, ou les énoncés ne sont pas des questions.",
+        "1": "Les questions sont proposées mais sont des intitulés de cours : elles appellent une récitation, pas une réponse construite.",
+        "2": "Une des deux questions ouvre un raisonnement ; l'autre reste un intitulé de chapitre, ou les deux portent sur le même point.",
+        "3": "Les deux questions sont adossées aux spécialités, appellent chacune un raisonnement et ne se recouvrent pas."
+      }
+    },
+    {
+      "code": "STRUCT",
+      "intitule": "Structure du propos",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le propos n'a pas d'organisation repérable : les idées se succèdent sans ordre.",
+        "1": "Une annonce est faite mais le propos ne la suit pas.",
+        "2": "Le propos suit une organisation repérable ; une transition manque ou reste implicite.",
+        "3": "Le propos est annoncé, suivi et conclu, chaque étape reliée à la précédente."
+      }
+    },
+    {
+      "code": "DISCIP",
+      "intitule": "Ancrage disciplinaire",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le propos ne mobilise aucune connaissance de la spécialité.",
+        "1": "Des termes de la spécialité sont employés sans que leur sens soit maîtrisé.",
+        "2": "Des connaissances exactes sont mobilisées, mais juxtaposées à la question plutôt que mises à son service.",
+        "3": "Les connaissances mobilisées sont exactes et servent la question : chacune est amenée parce qu'elle fait avancer la réponse."
+      }
+    },
+    {
+      "code": "ARGU",
+      "intitule": "Argumentation et esprit critique",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le propos affirme sans étayer.",
+        "1": "Des arguments sont avancés sans exemple ni donnée qui les soutienne.",
+        "2": "Les arguments sont étayés ; aucune objection n'est envisagée ni aucune limite posée.",
+        "3": "Les arguments sont étayés, une objection ou une limite est envisagée, et le candidat dit ce qu'elle change à sa réponse."
+      }
+    },
+    {
+      "code": "PRECIS",
+      "intitule": "Précision et rigueur",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Les termes employés ne correspondent pas aux notions convoquées.",
+        "1": "Les notions sont nommées mais restent employées de façon vague.",
+        "2": "Les notions sont employées correctement ; un exemple manque pour les asseoir.",
+        "3": "Les notions sont employées correctement et étayées par au moins un exemple précis."
+      }
+    },
+    {
+      "code": "LANGUE",
+      "intitule": "Qualité de la langue orale",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Les ruptures de construction empêchent de suivre ce qui est affirmé.",
+        "1": "Le propos se suit malgré des ruptures de construction fréquentes.",
+        "2": "Les phrases sont construites ; le lexique reste courant là où un lexique précis est attendu.",
+        "3": "Les phrases sont construites et le lexique est adapté au propos."
+      }
+    },
+    {
+      "code": "INTER",
+      "intitule": "Interaction",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Les questions ne sont pas prises en compte : le candidat reprend son exposé.",
+        "1": "Le candidat répond aux questions par oui ou non, sans développer.",
+        "2": "Le candidat répond aux questions et développe ; il ne relance pas.",
+        "3": "Le candidat répond, développe, et signale les limites de ce qu'il avance sans se déstabiliser."
+      }
+    },
+    {
+      "code": "POSTURE",
+      "intitule": "Posture et gestion du temps",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le temps n'est pas géré : l'exposé s'arrête bien avant ou déborde largement.",
+        "1": "Le temps est approximativement tenu ; le regard reste fixé sur les notes.",
+        "2": "Le temps est tenu ; le contact visuel est intermittent.",
+        "3": "Le temps est tenu, le débit est régulier et le contact visuel est établi."
+      }
+    }
+  ],
+  "perimetres_alimentes": [
+    {
+      "perimetre": "FR-MAI",
+      "competence": "ORAL",
+      "note": "Le § 7.2 reporte intégralement FR-MAI/ORAL à cette grille."
+    }
+  ],
+  "audit_2026_09_11": "Audit contre la définition officielle de l'épreuve (version consolidée juin 2024) et le mémento de septembre 2025. Trois manques relevés et comblés. La grille ne mesurait pas la qualité de la question, alors que le candidat l'apporte et que le jury choisit parmi les deux : le diagnostic fournissait la question et rendait le premier acte de l'épreuve invisible. Elle ne mesurait pas l'ancrage disciplinaire, alors que la question porte sur les spécialités. Elle ne mesurait ni l'argumentation ni l'esprit critique, que le second temps de l'épreuve éprouve. Trois critères ajoutés — QUEST, DISCIP, ARGU — et le déroulé revu pour que le candidat apporte ses deux questions. Coefficient officiel de l'épreuve : 8 à compter de la session 2027, 10 jusqu'à 2026 ; cela ne change pas le diagnostic, qui ne note pas sur le barème de l'examen."
+}

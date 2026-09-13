@@ -1,0 +1,70 @@
+{
+  "instrument": "TC-ES",
+  "version": "TLE",
+  "titre": "Tronc commun — enseignement scientifique, version Terminale",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "DEM",
+        "intitule": "Démarche scientifique : lire un graphique, identifier une variable, critiquer un protocole"
+      },
+      {
+        "competence": "CLIM",
+        "intitule": "Science, climat et société"
+      },
+      {
+        "competence": "ENER",
+        "intitule": "Le futur des énergies"
+      },
+      {
+        "competence": "INFO",
+        "intitule": "Une histoire du vivant"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "TC-2-DEM-01",
+        "TC-2-DEM-02",
+        "TC-2-DEM-03",
+        "TC-2-DEM-04"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "TC-T-CLIM-01",
+        "TC-T-CLIM-02",
+        "TC-T-CLIM-03",
+        "TC-T-CLIM-04",
+        "TC-T-ENER-01",
+        "TC-T-ENER-02",
+        "TC-T-ENER-03",
+        "TC-T-ENER-04",
+        "TC-T-INFO-01",
+        "TC-T-INFO-02",
+        "TC-T-INFO-03",
+        "TC-T-INFO-04",
+        "TC-T-CLIM-05",
+        "TC-T-INFO-05"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "TC-2-DEM-05",
+        "TC-2-DEM-06"
+      ]
+    }
+  ]
+}

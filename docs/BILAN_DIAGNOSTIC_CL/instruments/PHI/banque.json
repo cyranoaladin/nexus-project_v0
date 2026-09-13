@@ -1,0 +1,1170 @@
+{
+  "instrument": "PHI",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "PHI-T-NOT-01",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle formulation définit la conscience plutôt qu'elle ne l'illustre ?",
+      "supports": [],
+      "propositions": {
+        "A": "c'est ce qui fait qu'on se réveille le matin",
+        "B": "c'est le rapport par lequel un sujet se sait présent à lui-même et au monde",
+        "C": "c'est quand on a mauvaise conscience après une faute",
+        "D": "c'est le contraire du sommeil"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "définition remplacée par un phénomène observable",
+          "C": "notion morale prise pour la notion psychologique",
+          "D": "définition par opposition à un état, sans contenu propre"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Distinguer définir et illustrer, opération préalable à toute dissertation. Le distracteur C isole la confusion entre conscience psychologique et conscience morale, la plus répandue."
+    },
+    {
+      "item_id": "PHI-T-NOT-02",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Croire et savoir se distinguent en ce que :",
+      "supports": [],
+      "propositions": {
+        "A": "savoir suppose des raisons que l'on peut donner, croire n'en suppose pas nécessairement",
+        "B": "croire est toujours faux et savoir toujours vrai",
+        "C": "savoir concerne les sciences, croire concerne la religion",
+        "D": "croire est individuel, savoir est collectif"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "distinction ramenée à une opposition vrai/faux",
+          "C": "distinction ramenée à des domaines d'objets",
+          "D": "distinction ramenée au nombre de sujets"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère croire/savoir. Les trois distracteurs correspondent aux trois réductions observées en copie ; aucune n'est absurde, ce qui oblige à trancher sur le critère de justification. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-03",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Ce qui est légal est :",
+      "supports": [],
+      "propositions": {
+        "A": "nécessairement juste",
+        "B": "conforme à la loi en vigueur",
+        "C": "conforme à la morale",
+        "D": "conforme à ce que chacun estime juste"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "légal confondu avec légitime",
+          "C": "domaine du droit confondu avec celui de la morale",
+          "D": "légalité ramenée à l'opinion individuelle"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère légal/légitime, prérequis de tout sujet sur l'État et la justice. Le distracteur A est l'erreur qui rend impossible la problématisation de ces sujets. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-04",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le travail se distingue du simple effort en ce qu'il :",
+      "supports": [],
+      "propositions": {
+        "A": "est toujours pénible",
+        "B": "est rémunéré",
+        "C": "transforme la nature en vue d'une fin et s'inscrit dans un rapport social",
+        "D": "demande de la force physique"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "notion ramenée à une expérience subjective",
+          "B": "notion ramenée à sa forme salariée contemporaine",
+          "D": "notion ramenée à une modalité physique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Le distracteur B est le plus instructif : il désigne un candidat qui prend une forme historique particulière pour la définition de la notion. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-05",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans « il est libre de partir », le mot liberté désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "l'absence d'obstacle extérieur à l'action",
+        "B": "l'autonomie de la volonté",
+        "C": "le libre arbitre",
+        "D": "l'indépendance économique"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "sens moral employé pour un sens physique",
+          "C": "sens métaphysique employé pour un sens pratique",
+          "D": "sens économique employé pour un sens juridique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de transfert : le candidat doit reconnaître quel sens d'une notion polysémique un énoncé ordinaire met en jeu. C'est l'opération demandée dès l'analyse des termes d'un sujet."
+    },
+    {
+      "item_id": "PHI-T-NOT-06",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une explication et une compréhension se distinguent en ce que :",
+      "supports": [],
+      "propositions": {
+        "A": "expliquer relie à des causes, comprendre saisit un sens",
+        "B": "expliquer est long, comprendre est immédiat",
+        "C": "expliquer concerne les autres, comprendre concerne soi",
+        "D": "il n'y a aucune différence"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "distinction ramenée à une durée",
+          "C": "distinction ramenée aux personnes concernées",
+          "D": "distinction niée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère expliquer/comprendre, décisif pour distinguer sciences de la nature et sciences humaines. Le distracteur D repère un candidat qui ne voit pas l'enjeu. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-07",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dire d'une œuvre qu'elle est belle relève d'un jugement :",
+      "supports": [],
+      "propositions": {
+        "A": "de connaissance, vérifiable par l'expérience",
+        "B": "de goût, qui prétend pourtant à une valeur partagée",
+        "C": "purement privé, dont on ne peut pas discuter",
+        "D": "moral, portant sur l'intention de l'auteur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "jugement esthétique assimilé à un énoncé de fait",
+          "C": "jugement esthétique réduit à la préférence, sans prétention au partage",
+          "D": "jugement esthétique confondu avec un jugement moral"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Le distracteur C est la position spontanée de la plupart des candidats ; la distinguer de la réponse attendue est précisément ce que le programme demande. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-08",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une thèse est dite universelle lorsqu'elle :",
+      "supports": [],
+      "propositions": {
+        "A": "est admise par tous",
+        "B": "vaut pour tous les cas de son domaine",
+        "C": "est ancienne",
+        "D": "est enseignée partout"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "universalité confondue avec unanimité",
+          "C": "universalité confondue avec ancienneté",
+          "D": "universalité confondue avec diffusion"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère universel/général. Le distracteur A est l'erreur qui conduit à réfuter une thèse universelle en citant un désaccord. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-09",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Définir en une phrase ce qu'est une obligation, en la distinguant d'une contrainte.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'obligation engage la volonté par une raison ou un devoir reconnu, tandis que la contrainte s'exerce par une force extérieure à laquelle on ne peut se soustraire.",
+        "reponses_1pt": [
+          "La définition de l'obligation est exacte mais la distinction n'est pas faite.",
+          "La distinction est esquissée sans que l'obligation soit définie."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-DEF",
+          "PHI-ERR-REPERE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère obligation/contrainte, à produire et non à reconnaître. La cotation à un point sépare le candidat qui sait définir de celui qui sait distinguer."
+    },
+    {
+      "item_id": "PHI-T-NOT-10",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat écrit : « la liberté, c'est faire ce qu'on veut ». Indiquer ce que cette définition laisse de côté.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Elle laisse de côté la question de l'origine du vouloir : un désir subi n'est pas plus libre qu'une contrainte extérieure, et la liberté suppose une autonomie de la volonté.",
+        "reponses_1pt": [
+          "La réponse signale que la définition est insuffisante sans dire en quoi.",
+          "La réponse oppose seulement liberté et loi, sans interroger le vouloir."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-DEF",
+          "PHI-ERR-OPINION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Critique d'une définition spontanée. Item de transfert : il mesure la capacité à prendre du recul sur une évidence, ce que la dissertation exige dès l'introduction."
+    },
+    {
+      "item_id": "PHI-T-NOT-11",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Distinguer en une phrase ce qui est nécessaire de ce qui est contingent.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Est nécessaire ce qui ne peut pas ne pas être ou être autrement ; est contingent ce qui est mais aurait pu ne pas être.",
+        "reponses_1pt": [
+          "Une seule des deux notions est correctement définie.",
+          "Les deux notions sont définies par des exemples et non par leur concept."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-REPERE",
+          "PHI-ERR-DEF"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère contingent/nécessaire, prérequis des sujets sur la nature et la science. La seconde réponse à un point suit le code PHI-ERR-DEF. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-NOT-12",
+      "competence": "NOT",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Peut-on dire d'une œuvre d'art qu'elle est vraie au même sens qu'une proposition scientifique ? Répondre en une phrase et justifier.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Non : la vérité d'une proposition scientifique tient à son accord avec ce qui est, tandis qu'une œuvre ne décrit pas un état de fait et sa valeur ne se mesure pas à cet accord.",
+        "reponses_1pt": [
+          "La réponse est négative avec une justification qui reste allusive.",
+          "La justification est pertinente mais la réponse elle-même n'est pas formulée."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-DEF",
+          "PHI-ERR-OPINION",
+          "PHI-ERR-ARG-INVAL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de raisonnement court : deux acceptions d'une même notion doivent être distinguées et l'écart justifié. C'est le palier D3 tel que le § 4.2 le définit — court, mais exigeant une justification construite. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-REP-01",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "À quel auteur attribue-t-on la thèse selon laquelle les hommes, à l'état de nature, sont dans une guerre de tous contre tous, ce qui rend nécessaire un pouvoir souverain ?",
+      "supports": [],
+      "propositions": {
+        "A": "Hobbes",
+        "B": "Rousseau",
+        "C": "Aristote",
+        "D": "Épicure"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "auteur dont l'état de nature est au contraire pacifique",
+          "C": "auteur pour qui l'homme est naturellement politique",
+          "D": "auteur dont la philosophie porte sur le plaisir et l'ataraxie"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Attribution d'une thèse à son auteur, vérifiable dans le « Léviathan ». Le distracteur B est l'erreur la plus fréquente : les deux auteurs sont associés au contrat, mais avec des états de nature opposés."
+    },
+    {
+      "item_id": "PHI-T-REP-02",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le doute méthodique, par lequel on tient provisoirement pour faux tout ce qui peut être mis en doute, est la démarche de :",
+      "supports": [],
+      "propositions": {
+        "A": "Descartes",
+        "B": "Platon",
+        "C": "Kant",
+        "D": "Nietzsche"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "auteur associé à la dialectique et au monde des Idées",
+          "C": "auteur associé à la critique des conditions de la connaissance",
+          "D": "auteur associé à la généalogie et au soupçon"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Attribution d'une démarche, vérifiable dans les « Méditations métaphysiques ». Les distracteurs sont trois auteurs du programme, chacun associé à une autre démarche."
+    },
+    {
+      "item_id": "PHI-T-REP-03",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel repère oppose ce qui est établi par une règle à ce qui est fondé en raison ?",
+      "supports": [],
+      "propositions": {
+        "A": "légal / légitime",
+        "B": "objectif / subjectif",
+        "C": "en acte / en puissance",
+        "D": "cause / fin"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "repère portant sur le rapport au sujet",
+          "C": "repère portant sur la réalisation d'une possibilité",
+          "D": "repère portant sur les types d'explication"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Reconnaissance d'un repère à partir de sa fonction. Les distracteurs sont trois repères réels du programme, ce qui interdit l'élimination par méconnaissance."
+    },
+    {
+      "item_id": "PHI-T-REP-04",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un candidat écrit : « comme le disait Kant, l'homme est un loup pour l'homme ». L'erreur est :",
+      "supports": [],
+      "propositions": {
+        "A": "la formule vient de Plaute et a notamment été reprise par Hobbes ; elle n'est pas de Kant",
+        "B": "la formule n'existe pas",
+        "C": "Kant n'a jamais traité de la nature humaine",
+        "D": "l'attribution à Kant est exacte"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "existence de la formule niée",
+          "C": "affirmation démesurée sur l'œuvre d'un auteur",
+          "D": "attribution fautive non repérée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repérage d'une attribution fautive, suivant le code PHI-ERR-ATTRIB. Item de transfert : il faut connaître l'auteur réel pour trancher, non reconnaître un nom. Correction factuelle du 2026-09-13 : « homo homini lupus » est attesté chez Plaute (Asinaria) et repris notamment par Hobbes (De Cive) ; la bonne réponse ne l'attribue plus à Hobbes seul."
+    },
+    {
+      "item_id": "PHI-T-REP-05",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Situer le courant selon lequel la valeur d'une action se mesure à ses conséquences, en particulier au bonheur qu'elle produit pour le plus grand nombre :",
+      "supports": [],
+      "propositions": {
+        "A": "l'utilitarisme",
+        "B": "le stoïcisme",
+        "C": "le scepticisme",
+        "D": "le rationalisme"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "doctrine du consentement à l'ordre du monde",
+          "C": "doctrine de la suspension du jugement",
+          "D": "position sur l'origine de la connaissance, non sur la morale"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Situer un courant à partir de son critère moral. Le distracteur D mesure la confusion entre une position morale et une position épistémologique."
+    },
+    {
+      "item_id": "PHI-T-REP-06",
+      "competence": "REP",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel repère permet de distinguer une preuve d'une simple persuasion ?",
+      "supports": [],
+      "propositions": {
+        "A": "persuader / convaincre",
+        "B": "idéal / réel",
+        "C": "genre / espèce",
+        "D": "médiat / immédiat"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "repère portant sur le rapport entre modèle et existence",
+          "C": "repère portant sur la classification",
+          "D": "repère portant sur le mode d'accès à une connaissance"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère persuader/convaincre, directement réinvesti dans l'évaluation d'un argument et dans le Grand oral."
+    },
+    {
+      "item_id": "PHI-T-ARGU-01",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un raisonnement, une prémisse est :",
+      "supports": [],
+      "propositions": {
+        "A": "la proposition que l'on cherche à établir",
+        "B": "une proposition admise à partir de laquelle on raisonne",
+        "C": "un exemple qui illustre la thèse",
+        "D": "une objection que l'on réfute"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "prémisse confondue avec la conclusion",
+          "C": "prémisse confondue avec une illustration",
+          "D": "prémisse confondue avec une objection"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Vocabulaire de l'analyse d'un argument. Le distracteur A est l'erreur qui rend impossible toute reconstitution de raisonnement."
+    },
+    {
+      "item_id": "PHI-T-ARGU-02",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un raisonnement est valide lorsque :",
+      "supports": [],
+      "propositions": {
+        "A": "ses prémisses sont vraies",
+        "B": "sa conclusion découle nécessairement de ses prémisses",
+        "C": "sa conclusion est vraie",
+        "D": "il convainc l'auditoire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "validité confondue avec vérité des prémisses",
+          "C": "validité confondue avec vérité de la conclusion",
+          "D": "validité confondue avec efficacité rhétorique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Distinction validité / vérité, prérequis de toute évaluation d'argument. Le distracteur D relie cet item au repère persuader/convaincre de PHI-T-REP-06. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-ARGU-03",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "« Tous les hommes sont mortels ; or Socrate est mortel ; donc Socrate est un homme. » Ce raisonnement est :",
+      "supports": [],
+      "propositions": {
+        "A": "valide",
+        "B": "invalide, car la conclusion ne découle pas des prémisses",
+        "C": "invalide, car une prémisse est fausse",
+        "D": "valide mais inutile"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "invalidité non repérée, la conclusion étant vraie par ailleurs",
+          "C": "invalidité attribuée au contenu et non à la forme",
+          "D": "jugement porté sur l'utilité et non sur la validité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de transfert : la conclusion est vraie mais le raisonnement invalide. C'est exactement ce qui distingue la logique de l'opinion, et le distracteur A mesure combien un candidat se laisse conduire par la vérité de la conclusion."
+    },
+    {
+      "item_id": "PHI-T-ARGU-04",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Objecter à une thèse, c'est :",
+      "supports": [],
+      "propositions": {
+        "A": "affirmer le contraire",
+        "B": "produire une raison qui met en difficulté l'argument qui la soutient",
+        "C": "citer un auteur d'avis contraire",
+        "D": "changer de sujet"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "objection réduite à une négation",
+          "C": "objection réduite à un argument d'autorité",
+          "D": "objection confondue avec une diversion"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Nature d'une objection. Le distracteur C est fréquent et coûteux : l'autorité d'un auteur ne vaut pas objection, ce que la dissertation sanctionne. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-ARGU-05",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Reconstituer le raisonnement suivant en séparant les prémisses de la conclusion : « puisque toute loi vise l'intérêt général et que cette mesure ne vise qu'un groupe, elle n'est pas une loi au sens plein ».",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Prémisse 1 : toute loi vise l'intérêt général. Prémisse 2 : cette mesure ne vise qu'un groupe. Conclusion : elle n'est pas une loi au sens plein.",
+        "reponses_1pt": [
+          "Les prémisses et la conclusion sont identifiées mais dans un ordre erroné.",
+          "Une seule prémisse est isolée, la conclusion étant exacte."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-ARG-INVAL",
+          "PHI-ERR-OPINION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Reconstitution d'un raisonnement enchâssé dans une phrase. Opération préalable à toute évaluation ; sa réussite conditionne l'item suivant."
+    },
+    {
+      "item_id": "PHI-T-ARGU-06",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Formuler une objection au raisonnement précédent, en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une objection portant sur la première prémisse — une loi peut viser un groupe particulier tout en servant l'intérêt général — ou sur le passage de « ne vise qu'un groupe » à « n'est pas une loi ».",
+        "reponses_1pt": [
+          "Une objection est formulée mais elle porte sur la conclusion sans viser une prémisse ni l'inférence.",
+          "L'objection consiste à affirmer le contraire de la conclusion."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-ARG-INVAL",
+          "PHI-ERR-OPINION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Production d'une objection ciblée. La seconde réponse à un point correspond exactement au distracteur A de PHI-T-ARGU-04 : le candidat nie au lieu d'objecter."
+    },
+    {
+      "item_id": "PHI-T-ARGU-07",
+      "competence": "ARGU",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "« Cette loi est juste puisqu'elle est votée par la majorité, et ce que veut la majorité est juste. » Indiquer pourquoi ce raisonnement ne peut pas établir sa conclusion.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La seconde prémisse suppose déjà ce que la conclusion affirme : le raisonnement tourne en cercle et n'établit rien.",
+        "reponses_1pt": [
+          "La réponse signale que le raisonnement est fautif sans nommer la circularité.",
+          "La réponse conteste la vérité des prémisses sans examiner l'inférence."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-ARG-INVAL",
+          "PHI-ERR-OPINION",
+          "PHI-ERR-REPERE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repérage d'une pétition de principe. Item D3 court : aucun contenu nouveau, mais un raisonnement à construire sur la structure de l'argument. Transfert direct de l'item MATH-T-RAIS-06, qui porte la même erreur en récurrence. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-PROB-01",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Le sujet est : « faut-il toujours dire la vérité ? ». Indiquer ce que le mot « toujours » introduit dans le sujet.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il introduit la question des exceptions : le sujet ne demande pas si la vérité est une valeur, mais si l'obligation de la dire souffre des cas où elle ne vaut plus.",
+        "reponses_1pt": [
+          "La réponse signale que « toujours » porte sur la généralité, sans en tirer la question des exceptions.",
+          "La réponse reformule le sujet sans analyser le terme."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-PROBLEME",
+          "PHI-ERR-PRESUP"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Analyse d'un terme du sujet, première opération de l'introduction. Le mot marqueur est ce qui fait la différence entre un sujet et un thème."
+    },
+    {
+      "item_id": "PHI-T-PROB-02",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le sujet est : « la technique nous libère-t-elle ? ». Quel présupposé ce sujet contient-il ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il présuppose que la technique a un effet sur notre liberté, et que la liberté est quelque chose dont on peut être privé puis affranchi.",
+        "reponses_1pt": [
+          "Un présupposé est énoncé mais il reformule le sujet plutôt que ce qu'il tient pour acquis.",
+          "La réponse répond au sujet au lieu d'en dégager le présupposé."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-PRESUP",
+          "PHI-ERR-PROBLEME"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repérage d'un présupposé, transfert direct de l'item FR-EAF-COMP-06 qui porte la même opération sur un texte argumentatif. La lecture croisée des deux dit si la difficulté est philosophique ou tient à la lecture. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-PROB-03",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Transformer la question « le bonheur dépend-il de nous ? » en un problème, c'est-à-dire faire apparaître la tension entre deux réponses également défendables.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Si le bonheur dépend de nous, il devient une tâche et un mérite, mais nul ne choisit les circonstances qui l'affectent ; s'il n'en dépend pas, il échappe à toute conduite de vie et la sagesse serait vaine.",
+        "reponses_1pt": [
+          "Deux réponses sont proposées mais la tension entre elles n'est pas énoncée.",
+          "Une seule des deux branches est développée."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-PROBLEME",
+          "PHI-ERR-OPINION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Problématisation proprement dite. La réponse à deux points exige les deux branches et leur incompatibilité ; c'est l'attendu qui sépare une introduction de dissertation d'une annonce de plan. Durée ramenée à 3 minutes : la réponse attendue tient en deux phrases, la première énonçant chaque branche, la seconde leur incompatibilité."
+    },
+    {
+      "item_id": "PHI-T-PROB-04",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat écrit en introduction : « nous verrons d'abord que l'art est utile, puis qu'il ne l'est pas ». Indiquer ce qui manque à cette formulation pour constituer un problème.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Il manque la raison pour laquelle les deux réponses sont défendables : juxtaposer deux thèses n'énonce pas la difficulté qui oblige à les examiner.",
+        "reponses_1pt": [
+          "La réponse signale que la formulation est insuffisante sans dire ce qui manque.",
+          "La réponse propose un plan différent au lieu d'analyser la formulation."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-PROBLEME",
+          "PHI-ERR-INTRO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Critique d'une fausse problématique. C'est l'erreur la plus répandue en début d'accompagnement : le plan dialectique tenu pour un problème. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PHI-T-TEXT-01",
+      "competence": "TEXT",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 12,
+      "enonce": "Expliquez l'extrait du bloc C en une vingtaine de lignes. Dégagez la thèse que l'auteur y soutient et les étapes par lesquelles il l'établit. Vous n'avez pas à rédiger d'introduction ni de conclusion.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "THESE",
+          "intitule": "Thèse dégagée",
+          "competence": "TEXT",
+          "descripteurs": {
+            "0": "Aucune thèse n'est formulée : le texte est redit dans l'ordre.",
+            "1": "Une thèse est annoncée mais elle ne correspond pas à ce que le texte soutient.",
+            "2": "La thèse est exacte et formulée en ouverture, sans être reprise ensuite.",
+            "3": "La thèse est exacte, formulée en ouverture, et chaque étape lui est explicitement rapportée."
+          }
+        },
+        {
+          "code": "ETAPES",
+          "intitule": "Étapes du texte",
+          "competence": "TEXT",
+          "descripteurs": {
+            "0": "Le texte est traité comme un bloc, sans découpage.",
+            "1": "Un découpage est proposé mais il ne correspond pas aux articulations du texte.",
+            "2": "Les étapes sont repérées ; le rôle de l'une d'elles dans la démonstration n'est pas énoncé.",
+            "3": "Les étapes sont repérées et le rôle de chacune dans la démonstration est énoncé."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Expression écrite",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou un lexique impropre.",
+            "2": "La construction est correcte ; le vocabulaire conceptuel reste employé de façon approximative.",
+            "3": "La construction est correcte et chaque terme conceptuel est employé dans son sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-11",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Explication de texte réduite, second sujet au choix de l'épreuve écrite (§ 7.3). Trois critères, dont deux appartiennent à TEXT : la règle de production est satisfaite sans que le critère de langue soit imputé à l'explication.\nCorrigé complété le 2026-09-11, à l'insertion du texte réel. La note antérieure affirmait que l'énoncé « fonctionne avec tout texte argumentatif, de sorte que le choix du passage ne modifie aucun item » : c'est vrai de l'énoncé, faux du corrigé. Une grille de niveaux sans thèse ni étapes nommées n'est pas opposable, et deux correcteurs ne noteraient pas la même copie de la même façon. La thèse, les cinq étapes, les articulations, les réponses partiellement exactes et les codes d'erreur sont désormais ceux de ce passage et d'aucun autre.",
+      "elements_attendus": [
+        "**Thèse.** La raison — que l'auteur identifie au bon sens — est également répartie entre tous les hommes ; la diversité des opinions ne vient donc pas d'une inégalité des esprits mais de la diversité des voies par lesquelles chacun conduit sa pensée. Il suit que ce qui importe n'est pas d'avoir l'esprit bon, mais de l'appliquer bien.",
+        "**Étape 1** — l'affirmation initiale et son indice : chacun se croit assez pourvu de bon sens et n'en désire pas davantage. L'universalité de ce contentement est présentée comme un signe, non comme une preuve de vanité : la copie qui y lit seulement de l'ironie a manqué l'argument.",
+        "**Étape 2** — l'inférence : « il n'est pas vraisemblable que tous se trompent », donc ce contentement témoigne d'une faculté réellement égale. C'est là que l'auteur définit le bon sens : « la puissance de bien juger et distinguer le vrai d'avec le faux ».",
+        "**Étape 3** — la conséquence sur le désaccord : si la faculté est égale, la diversité des opinions a une autre cause, les « diverses voies » et les objets différents que nous considérons.",
+        "**Étape 4** — la conclusion pratique : « ce n'est pas assez d'avoir l'esprit bon, mais le principal est de l'appliquer bien », illustrée par l'opposition des grandes âmes capables des plus grands vices et de ceux qui, marchant lentement, avancent davantage en suivant le droit chemin.",
+        "**Étape 5** — le retour à la première personne : l'auteur se range lui-même dans le commun, ce qui écarte le soupçon que sa thèse le flatterait.",
+        "**Articulations à repérer.** Le « car » qui donne l'indice ; le « mais plutôt » qui redresse l'interprétation de cet indice ; le « et ainsi » qui tire la conséquence sur le désaccord ; le « Car… mais » qui fait passer de la faculté à son usage ; le « Pour moi » qui change de plan."
+      ],
+      "reponses_partielles": [
+        "La copie énonce que « le bon sens est également partagé » mais s'arrête là : la thèse est exacte et incomplète, il lui manque la conséquence sur l'origine du désaccord. Critère THESE au niveau 2.",
+        "La copie lit la première phrase comme une ironie sur la sottise humaine et en conclut que l'auteur se moque : contresens sur l'indice, la thèse annoncée ne correspond pas à ce que le texte soutient. Critère THESE au niveau 1.",
+        "La copie suit le texte phrase à phrase sans rapporter les étapes à la thèse : le découpage existe mais le rôle de chaque étape n'est pas énoncé. Critère ETAPES au niveau 2.",
+        "La copie confond le bon sens avec le savoir ou avec l'intelligence : le terme conceptuel est employé hors de son sens, alors que le texte le définit explicitement. Critère LANG au niveau 2 au plus."
+      ],
+      "codes_erreur": [
+        "PHI-ERR-THESE-TXT",
+        "PHI-ERR-PARAPHRASE",
+        "PHI-ERR-DEF",
+        "PHI-ERR-ATTRIB"
+      ]
+    },
+    {
+      "item_id": "PHI-T-TEXT-02",
+      "competence": "TEXT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici l'explication d'un texte rédigée par un autre candidat. Elle reformule le texte sans l'expliquer. Indiquez à quel endroit une explication devrait intervenir et ce qu'elle devrait porter.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La réponse désigne un terme ou une articulation du texte laissés sans explicitation, et indique qu'il faudrait en définir le sens ou en justifier le rôle dans la démonstration.",
+        "reponses_1pt": [
+          "Le défaut de paraphrase est repéré sans que soit désigné l'endroit à expliquer.",
+          "Un endroit est désigné sans indication de ce que l'explication devrait porter."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-PARAPHRASE",
+          "PHI-ERR-THESE-TXT"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de bloc D de TEXT, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu, et le mesurer hors de la tâche permet de savoir si le candidat le reconnaît sans parvenir à l'éviter, ou ne le reconnaît pas."
+    },
+    {
+      "item_id": "PHI-T-DISS-01",
+      "competence": "DISS",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 12,
+      "enonce": "Rédigez l'introduction d'une dissertation sur le sujet : « la loi suffit-elle à rendre les hommes justes ? ». Votre introduction comportera une entrée en matière, la définition des termes, la formulation du problème et l'annonce du plan. Vous ne rédigerez pas le développement.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "TERMES",
+          "intitule": "Définition des termes",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun terme du sujet n'est défini.",
+            "1": "Un terme est défini, les autres sont repris tels quels.",
+            "2": "Les termes principaux sont définis ; l'un l'est par un exemple plutôt que par son concept.",
+            "3": "Chaque terme principal est défini par son concept, et la définition sert la suite."
+          }
+        },
+        {
+          "code": "PROBLEME",
+          "intitule": "Formulation du problème",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Le sujet est recopié en guise de problème.",
+            "1": "Deux réponses sont juxtaposées sans que leur incompatibilité soit énoncée.",
+            "2": "La tension entre deux réponses est énoncée, sans que le présupposé du sujet soit interrogé.",
+            "3": "La tension est énoncée et rapportée à ce que le sujet tient pour acquis."
+          }
+        },
+        {
+          "code": "PLAN",
+          "intitule": "Annonce du plan",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun plan n'est annoncé.",
+            "1": "Le plan annoncé ne répond pas au problème formulé.",
+            "2": "Le plan répond au problème ; la progression d'une partie à l'autre n'apparaît pas.",
+            "3": "Le plan répond au problème et la progression d'une partie à l'autre est perceptible."
+          }
+        },
+        {
+          "code": "LANG",
+          "intitule": "Expression écrite",
+          "competence": "LANG",
+          "descripteurs": {
+            "0": "La construction des phrases ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction ou un lexique impropre.",
+            "2": "La construction est correcte ; le vocabulaire conceptuel reste employé de façon approximative.",
+            "3": "La construction est correcte et chaque terme conceptuel est employé dans son sens propre."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Introduction de dissertation, et non dissertation complète : c'est l'unité qui permet de mesurer la problématisation sans dépendre de l'endurance ni des connaissances mobilisées. Le sujet retenu porte sur des notions du programme — la justice, l'État, le devoir — dont aucune n'est marginale. Trois critères sur quatre appartiennent à DISS ; le critère de langue alimente l'indicateur transversal PHI/LANG avec celui de TEXT, soit deux sources."
+    },
+    {
+      "item_id": "PHI-T-DISS-02",
+      "competence": "DISS",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'une introduction de dissertation, en les numérotant de 1 à 4 : annonce du plan — définition des termes — entrée en matière — formulation du problème.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : entrée en matière (1), définition des termes (2), formulation du problème (3), annonce du plan (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "PHI-ERR-INTRO"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de bloc D de DISS, palier D1 : la structure est restituée sans être mise en œuvre. Comparé au palier D3 de la tâche, il dit si la difficulté vient de la connaissance du modèle ou de son application."
+    },
+    {
+      "item_id": "PHI-T-PROB-05",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Problématiser un sujet, c'est :",
+      "supports": [],
+      "propositions": {
+        "A": "annoncer les deux parties du devoir",
+        "B": "faire apparaître pourquoi deux réponses opposées sont également défendables",
+        "C": "reformuler la question du sujet avec d'autres mots",
+        "D": "choisir la réponse que l'on va défendre"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "problématique confondue avec l'annonce de plan",
+          "C": "problématique confondue avec une reformulation",
+          "D": "problématique confondue avec une prise de position"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Définition opératoire de la problématisation. Le distracteur A est l'erreur dominante et fait le pendant de l'item PHI-T-PROB-04, qui la fait repérer dans une production : la lecture croisée des deux dit si le candidat connaît la distinction sans savoir l'appliquer."
+    },
+    {
+      "item_id": "PHI-T-PROB-06",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans le sujet « suffit-il d'obéir à la loi pour être juste ? », le mot qui appelle l'analyse la plus décisive est :",
+      "supports": [],
+      "propositions": {
+        "A": "« obéir », parce qu'il désigne une conduite",
+        "B": "« suffit-il », parce qu'il demande si la condition est nécessaire ou aussi suffisante",
+        "C": "« loi », parce qu'il faut la définir",
+        "D": "« juste », parce que c'est le plus abstrait"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "analyse portée sur un terme accessoire",
+          "C": "définition nécessaire prise pour l'enjeu du sujet",
+          "D": "abstraction confondue avec importance dans le sujet"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repérage du terme marqueur d'un sujet. Les distracteurs C et D ne sont pas faux en soi — ces termes doivent être définis — mais ils ne portent pas la difficulté : c'est cette hiérarchie que l'item mesure."
+    },
+    {
+      "item_id": "PHI-T-PROB-07",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Parmi ces quatre formulations, laquelle énonce un problème et non une question ?",
+      "supports": [],
+      "propositions": {
+        "A": "L'art est-il utile ?",
+        "B": "Si l'art était utile, il servirait une fin qui lui est extérieure ; s'il ne l'est pas, on ne voit pas ce qui justifierait qu'on lui consacre des ressources.",
+        "C": "Nous étudierons d'abord l'utilité de l'art, puis son inutilité.",
+        "D": "L'art, selon de nombreux auteurs, n'est pas utile."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "question du sujet, reprise telle quelle",
+          "C": "annonce de plan prise pour un problème",
+          "D": "thèse assortie d'un argument d'autorité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Reconnaître un problème parmi quatre formulations voisines : c'est le palier D1 de la problématisation, où l'opération est reconnue et non produite. Les trois distracteurs sont les trois substituts observés en copie — la question recopiée, l'annonce de plan et la thèse d'autorité — et chacun correspond à un item de production de la même compétence, ce qui rend la lecture croisée informative."
+    }
+  ]
+}

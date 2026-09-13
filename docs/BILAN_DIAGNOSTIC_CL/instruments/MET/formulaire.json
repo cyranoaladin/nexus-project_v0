@@ -1,0 +1,295 @@
+{
+  "instrument": "MET",
+  "version": "standard",
+  "schema": "nexus.instrument.formulaire",
+  "titre": "Méthodes de travail, organisation, autonomie",
+  "source_cahier": "§ 3.1 et § 7.5",
+  "avertissement": "Questionnaire fermé, corrigé automatiquement. Il n'y a ni bonne ni mauvaise réponse : chaque dimension produit un profil en trois niveaux, auquel correspond une recommandation d'outillage.",
+  "saisie": {
+    "support": "plateforme",
+    "note_papier": "Le formulaire imprimable n'est qu'un secours pour une passation empêchée (§ 3.2)."
+  },
+  "consigne_liminaire": "Pour chaque question, cochez la réponse qui décrit le mieux ce que vous faites habituellement, et non ce que vous pensez devoir faire.",
+  "calcul": {
+    "reference": "referentiels/dimensions_met.json",
+    "methode": "Pour chaque dimension, la somme des poids des réponses cochées est rapportée au total possible de la dimension ; le niveau est celui dont le seuil est le plus élevé parmi ceux que la part atteint."
+  },
+  "questions": [
+    {
+      "id": "MET-01",
+      "libelle": "Quand vous vous mettez au travail, vous savez ce que vous allez faire :",
+      "cible_dimension": "PLAN",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "rarement, je vois sur le moment",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "souvent, pour la séance en cours",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "toujours, je l'ai prévu à l'avance",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-02",
+      "libelle": "Sur une semaine, vos heures de travail sont :",
+      "cible_dimension": "PLAN",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "variables selon les jours et les envies",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "à peu près régulières",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "fixées à l'avance, aux mêmes créneaux",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-03",
+      "libelle": "La répartition de votre temps entre les matières est :",
+      "cible_dimension": "PLAN",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "non prévue, je travaille ce qui vient",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "décidée en début de semaine",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "décidée en fonction de ce qui vous résiste le plus",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-04",
+      "libelle": "Pour apprendre un chapitre, vous commencez par :",
+      "cible_dimension": "APPR",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "relire le cours",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "relire puis refaire un exercice déjà traité",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "essayer un exercice nouveau, puis revenir au cours",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-05",
+      "libelle": "Quand vous avez terminé un chapitre, vous vérifiez que vous l'avez compris :",
+      "cible_dimension": "APPR",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "en relisant vos notes",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "en refaisant les exercices du cours",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "en vous posant des questions sans regarder vos notes",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-06",
+      "libelle": "Vous reprenez un chapitre ancien :",
+      "cible_dimension": "APPR",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "seulement avant une évaluation",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "de temps en temps",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "régulièrement, même sans évaluation prévue",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-07",
+      "libelle": "Devant un devoir en temps limité, vous répartissez le temps entre les questions :",
+      "cible_dimension": "EPRE",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "non, vous avancez dans l'ordre",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "approximativement",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "oui, avant de commencer à rédiger",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-08",
+      "libelle": "Vous utilisez un brouillon :",
+      "cible_dimension": "EPRE",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "rarement",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "pour les calculs seulement",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "pour organiser vos idées avant de rédiger",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-09",
+      "libelle": "À la fin d'un devoir, vous relisez :",
+      "cible_dimension": "EPRE",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "rarement, faute de temps",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "en survolant",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "en vérifiant des points précis décidés à l'avance",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-10",
+      "libelle": "Vous travaillez le plus souvent :",
+      "cible_dimension": "ENVI",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "dans un endroit qui change, avec des interruptions",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "dans un endroit fixe, avec quelques interruptions",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "dans un endroit fixe et calme",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-11",
+      "libelle": "Le matériel dont vous avez besoin est :",
+      "cible_dimension": "ENVI",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "souvent indisponible",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "disponible en partie",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "disponible",
+          "poids": 2
+        }
+      ]
+    },
+    {
+      "id": "MET-12",
+      "libelle": "Quand une difficulté vous arrête, vous :",
+      "cible_dimension": "ENVI",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "a",
+          "libelle": "passez à autre chose",
+          "poids": 0
+        },
+        {
+          "valeur": "b",
+          "libelle": "cherchez seul jusqu'à trouver ou renoncer",
+          "poids": 1
+        },
+        {
+          "valeur": "c",
+          "libelle": "cherchez seul puis notez la question pour la poser",
+          "poids": 2
+        }
+      ]
+    }
+  ]
+}

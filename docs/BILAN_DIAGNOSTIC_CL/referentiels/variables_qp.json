@@ -1,0 +1,660 @@
+{
+  "schema": "nexus.referentiel.variables_qp",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Cahier § 2.1 (ce que le questionnaire doit établir), § 8.1 (section 1 du bilan), § 9 (protection des données)",
+  "conventions": {
+    "principe": "Le questionnaire de parcours ne mesure aucune compétence. Il fournit les variables qui conditionnent l'interprétation des scores et le plan proposé.",
+    "cible_obligatoire": "Chaque question du formulaire déclare la variable qu'elle renseigne. Une question sans cible ne sert à rien et le validateur la refuse.",
+    "donnees_nominatives": {
+      "regle": "Le nom, la date de naissance et les coordonnées sont saisis sur la plateforme uniquement. Le formulaire imprimable ne porte que le code candidat.",
+      "source": "Cahier § 9 et § 3.2 ; précision de la direction pédagogique du 2026-09-10",
+      "champs_plateforme_seulement": [
+        "nom",
+        "prenom",
+        "date_naissance",
+        "adresse",
+        "telephone",
+        "courriel",
+        "responsable_legal"
+      ]
+    },
+    "types": {
+      "choix_unique": "Une seule réponse parmi une liste fermée",
+      "choix_multiple": "Plusieurs réponses parmi une liste fermée",
+      "echelle_1_4": "Échelle en quatre points, aux libellés du Cahier",
+      "entier": "Nombre entier, borné",
+      "texte_court": "Texte libre, à n'employer que lorsqu'aucun choix fermé n'est possible"
+    },
+    "configurations_francais": {
+      "source": "Décision Q-19 de la direction pédagogique, 2026-09-10",
+      "regle": "La matrice du § 3.2 est amendée : les instruments de français sont indexés par epreuves_francais_a_presenter, le reste des instruments par le profil.",
+      "assemblage_fr_eaf": {
+        "les_deux": "standard",
+        "ecrit": "ecrit",
+        "oral": "oral",
+        "aucune": null
+      },
+      "oral_passe": {
+        "les_deux": true,
+        "ecrit": false,
+        "oral": true,
+        "aucune": false
+      },
+      "note": "« aucune » retire le français du périmètre évalué : ni assemblage écrit, ni entretien oral. Le bilan n'en porte alors aucune section française."
+    },
+    "donnees_back_office": {
+      "source": "Décision Q-26 de la direction pédagogique, 2026-09-11",
+      "regle": "Les pièces justificatives et les décisions administratives ne sont pas des réponses du candidat : elles sont saisies par Nexus après réception ou obtention. Un candidat ne certifie pas lui-même que sa pièce est au dossier, ni qu'une autorité a statué. Le formulaire ne peut donc pas les cibler.",
+      "champs": [
+        "pieces_justificatives",
+        "decisions_administratives",
+        "centre_examen_dans_le_pays",
+        "centre_examen_eloigne"
+      ],
+      "note_centres": "L'existence et l'éloignement d'un centre d'examen dans un pays sont des faits administratifs. Le candidat déclare son pays de résidence ; Nexus confronte cette déclaration à la liste officielle des centres, absente du dépôt à ce jour."
+    },
+    "sections_conditionnelles": {
+      "source": "Décision Q-26 de la direction pédagogique, 2026-09-11",
+      "regle": "Une section conditionnelle n'est présentée qu'aux candidats dont une réponse antérieure la rend nécessaire. Le questionnaire de parcours n'est pas un questionnaire juridique : personne ne répond à l'article 3 sans y être conduit.",
+      "sections": {
+        "eligibilite_meme_session": {
+          "titre": "Passage de toutes les épreuves à la même session",
+          "condition": {
+            "variable": "passage_meme_session_sollicite",
+            "valeurs": [
+              "oui"
+            ]
+          },
+          "fondement": "arrêté du 16 juillet 2018, article 3",
+          "note": "Le candidat qui prépare la première partie du baccalauréat ou qui prépare la Terminale par anticipation ne voit pas cette section.",
+          "condition_lisible": "si vous présentez les épreuves anticipées et les épreuves terminales à la même session",
+          "consigne": "Elles servent à établir que la réglementation vous autorise à présenter toutes les épreuves la même année. Vos réponses sont vérifiées sur pièces, et certaines situations relèvent d'une décision de l'autorité d'examen : déclarer une situation ne suffit jamais à ouvrir ce passage."
+        }
+      }
+    },
+    "derivations": {
+      "regle": "Une variable dérivée ne se saisit jamais : elle se calcule depuis ce que le candidat a déjà déclaré, ou depuis les données de la plateforme. Redemander un fait connu est une faute de conception, et une source de contradiction.",
+      "source": "Décision Q-26 de la direction pédagogique, 2026-09-11"
+    }
+  },
+  "variables": [
+    {
+      "code": "profil",
+      "libelle": "Profil du candidat",
+      "type": "choix_unique",
+      "valeurs": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "obligatoire": true,
+      "usage": "Détermine la matrice d'instruments du § 3.2 et la lecture du bilan",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "session_visee",
+      "libelle": "Session visée",
+      "type": "choix_unique",
+      "valeurs": [
+        "2027",
+        "2028"
+      ],
+      "obligatoire": true,
+      "usage": "Détermine les programmes et les œuvres applicables ; borne le calendrier du plan",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "statut_minorite",
+      "libelle": "Statut mineur ou majeur à la session visée",
+      "type": "choix_unique",
+      "valeurs": [
+        "mineur",
+        "majeur"
+      ],
+      "obligatoire": true,
+      "derive": true,
+      "derive_de": "date_naissance",
+      "usage": "Conditionne la génération d'une version parent du bilan (§ 9)",
+      "note": "Jamais saisi : calculé sur la plateforme depuis la date de naissance, elle-même hors du formulaire imprimable.",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "systeme_scolaire",
+      "libelle": "Système scolaire suivi en dernier lieu",
+      "type": "choix_unique",
+      "valeurs": [
+        "AEFE",
+        "homologue",
+        "tunisien",
+        "autre",
+        "aucun"
+      ],
+      "obligatoire": true,
+      "usage": "Conditionne l'interprétation des acquis et la langue de travail",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "derniere_classe_complete",
+      "libelle": "Dernière classe suivie en entier",
+      "type": "choix_unique",
+      "valeurs": [
+        "troisieme",
+        "seconde",
+        "premiere",
+        "terminale",
+        "aucune"
+      ],
+      "obligatoire": true,
+      "usage": "Situe le point de départ et l'écart au programme visé",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "annees_interruption",
+      "libelle": "Années d'interruption de scolarité",
+      "type": "entier",
+      "min": 0,
+      "max": 10,
+      "obligatoire": true,
+      "usage": "Module le rythme proposé : une interruption longue appelle une reprise progressive",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "epreuves_francais_a_presenter",
+      "libelle": "Épreuves de français à présenter à la session visée",
+      "type": "choix_unique",
+      "valeurs": [
+        "les_deux",
+        "ecrit",
+        "oral",
+        "aucune"
+      ],
+      "libelles_valeurs": {
+        "les_deux": "L'écrit et l'oral de l'épreuve anticipée",
+        "ecrit": "L'écrit seul (l'oral est conservé)",
+        "oral": "L'oral seul (l'écrit est conservé)",
+        "aucune": "Aucune : les deux notes sont conservées"
+      },
+      "obligatoire": true,
+      "usage": "Indexe les instruments de français de la matrice § 3.2 et l'assemblage FR-EAF retenu. Orthogonale au profil : un redoublant de Terminale qui conserve son écrit et repasse l'oral est un P2 accompagné de la configuration « oral ».",
+      "note": "Un candidat qui a échoué au baccalauréat et se représente en individuel conserve, épreuve par épreuve, ses notes égales ou supérieures à 10 pendant cinq ans ; l'écrit et l'oral de l'épreuve anticipée sont deux épreuves distinctes.",
+      "source": "Décision Q-19 de la direction pédagogique, 2026-09-10",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "eaf_deja_passe",
+      "libelle": "Épreuve anticipée de français déjà présentée",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "obligatoire": true,
+      "derive": true,
+      "derive_de": "epreuves_francais_a_presenter",
+      "formule": "« aucune » ⇒ oui ; toute autre valeur ⇒ non",
+      "usage": "Conservée pour la lecture du parcours en section 1 ; ne conditionne plus aucun assemblage, ce rôle revenant à epreuves_francais_a_presenter.",
+      "note": "Jamais saisi depuis la Q-19. Les notes obtenues sont enregistrées comme contexte sur la plateforme, jamais employées comme indicateur de niveau (§ 7.2).",
+      "source": "Décision Q-19 de la direction pédagogique, 2026-09-10",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "specialites",
+      "libelle": "Enseignements de spécialité",
+      "type": "choix_multiple",
+      "valeurs": [
+        "MATH",
+        "PC",
+        "NSI",
+        "SVT",
+        "SES",
+        "HGGSP",
+        "HLP"
+      ],
+      "min_choix": 2,
+      "max_choix": 3,
+      "obligatoire": true,
+      "usage": "Détermine les instruments EDS assemblés et leur version",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "statut_par_specialite",
+      "libelle": "Situation pour chaque spécialité choisie",
+      "type": "choix_unique",
+      "valeurs": [
+        "deja_suivie_en_classe",
+        "etudiee_seul",
+        "jamais_abordee"
+      ],
+      "obligatoire": true,
+      "repete_pour": "specialites",
+      "usage": "Distingue une lacune de programme d'une lacune d'apprentissage",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "specialite_abandonnee",
+      "libelle": "Spécialité abandonnée en fin de Première",
+      "type": "choix_unique",
+      "valeurs": [
+        "MATH",
+        "PC",
+        "NSI",
+        "SVT",
+        "SES",
+        "HGGSP",
+        "HLP",
+        "aucune"
+      ],
+      "obligatoire": false,
+      "condition": "profil in (P1, P3)",
+      "usage": "Détermine l'instrument assemblé en version N1",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "langue_scolarisation",
+      "libelle": "Langue principale de scolarisation",
+      "type": "choix_unique",
+      "valeurs": [
+        "francais",
+        "arabe",
+        "anglais",
+        "autre"
+      ],
+      "obligatoire": true,
+      "usage": "Conditionne l'interprétation des scores de langue et le rythme",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "langue_maison",
+      "libelle": "Langue parlée à la maison",
+      "type": "choix_unique",
+      "valeurs": [
+        "francais",
+        "arabe",
+        "les_deux",
+        "autre"
+      ],
+      "obligatoire": true,
+      "usage": "Complète la précédente pour l'interprétation des scores de langue",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "auto_francais",
+      "libelle": "Auto-évaluation en français",
+      "type": "echelle_1_4",
+      "axes": [
+        "comprendre",
+        "ecrire",
+        "parler",
+        "lire_textes_litteraires"
+      ],
+      "obligatoire": true,
+      "usage": "Entre dans l'indice de calibration du § 5.4, jamais dans un score de compétence",
+      "section_bilan": "4. Points d'appui et vigilances"
+    },
+    {
+      "code": "auto_par_matiere",
+      "libelle": "Auto-positionnement global par matière",
+      "type": "echelle_1_4",
+      "repete_pour": "specialites",
+      "obligatoire": true,
+      "usage": "Entre dans l'indice de calibration du § 5.4",
+      "section_bilan": "4. Points d'appui et vigilances"
+    },
+    {
+      "code": "heures_disponibles",
+      "libelle": "Heures de travail disponibles par semaine",
+      "type": "entier",
+      "min": 0,
+      "max": 60,
+      "obligatoire": true,
+      "usage": "Plafonne les rythmes du § 8.2 ; un dépassement est signalé, jamais absorbé en silence",
+      "section_bilan": "7. Formule recommandée"
+    },
+    {
+      "code": "activite_parallele",
+      "libelle": "Activité professionnelle ou formation en parallèle",
+      "type": "choix_unique",
+      "valeurs": [
+        "aucune",
+        "temps_partiel",
+        "temps_plein",
+        "autre_formation"
+      ],
+      "obligatoire": true,
+      "usage": "Module la faisabilité du rythme proposé",
+      "section_bilan": "7. Formule recommandée"
+    },
+    {
+      "code": "acces_materiel",
+      "libelle": "Accès au matériel",
+      "type": "choix_multiple",
+      "valeurs": [
+        "ordinateur",
+        "calculatrice",
+        "connexion_stable",
+        "imprimante",
+        "aucun"
+      ],
+      "obligatoire": true,
+      "usage": "Conditionne la passation de NSI sur machine et le format de suivi proposé",
+      "section_bilan": "6. Méthode et organisation"
+    },
+    {
+      "code": "orientation_visee",
+      "libelle": "Orientation envisagée après le baccalauréat",
+      "type": "texte_court",
+      "max_caracteres": 120,
+      "obligatoire": false,
+      "usage": "Oriente la hiérarchie entre matières lorsque deux sont également fragiles",
+      "justification_texte_libre": "Aucune liste fermée ne couvrirait les orientations possibles sans en exclure ; le champ est facultatif et n'entre dans aucun calcul.",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "parcoursup_concerne",
+      "libelle": "Parcoursup concerné",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non",
+        "ne_sait_pas"
+      ],
+      "obligatoire": true,
+      "usage": "Modifie les priorités et le calendrier du plan de démarrage",
+      "section_bilan": "5. Plan de démarrage"
+    },
+    {
+      "code": "mode_passation_ea",
+      "libelle": "Mode de passation des épreuves anticipées",
+      "type": "choix_unique",
+      "valeurs": [
+        "anticipation",
+        "meme_session"
+      ],
+      "obligatoire": true,
+      "derive_partielle": true,
+      "derive_de": "profil",
+      "formule": "profil P1 ⇒ anticipation ; profil P3 ⇒ meme_session ; profil P2 : saisi, un redoublant de Terminale pouvant représenter une épreuve anticipée l'année de ses épreuves terminales",
+      "conditionnelle": {
+        "variable": "profil",
+        "valeurs": [
+          "P2"
+        ]
+      },
+      "usage": "Troisième axe du modèle temporel ; commande l'application de l'article 3",
+      "section_bilan": "1. Situation"
+    },
+    {
+      "code": "passage_meme_session_sollicite",
+      "libelle": "Passage de toutes les épreuves à la même session",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "obligatoire": true,
+      "derive": true,
+      "derive_de": "mode_passation_ea",
+      "formule": "« meme_session » ⇒ oui ; « anticipation » ⇒ non",
+      "usage": "Ouvre la section d'éligibilité de l'article 3 ; jamais saisie",
+      "note": "C'est la porte du sous-questionnaire : un candidat qui ne sollicite ni ne nécessite ce passage n'en voit aucune question."
+    },
+    {
+      "code": "age_au_31_decembre_annee_examen",
+      "libelle": "Âge au 31 décembre de l'année de l'examen",
+      "type": "entier",
+      "min": 14,
+      "max": 80,
+      "derive": true,
+      "derive_de": "date_naissance",
+      "formule": "année de la session finale moins année de naissance",
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère AGE-20 de l'article 3",
+      "note": "Jamais saisi : la date de naissance est déjà connue de la plateforme, et la redemander sous forme d'âge exposerait le candidat à se tromper."
+    },
+    {
+      "code": "epreuves_anticipees_presentees_annee_precedente",
+      "libelle": "Épreuves anticipées présentées l'année précédente",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Condition préalable du premier alinéa de l'article 3",
+      "piece": "releve_notes_anterieur"
+    },
+    {
+      "code": "enfant_a_charge",
+      "libelle": "Enfant à charge au moment de l'inscription",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère ENFANT",
+      "piece": "justificatif_charge_enfant"
+    },
+    {
+      "code": "retour_formation_initiale",
+      "libelle": "Retour en formation initiale",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère RETOUR",
+      "piece": "attestation_formation"
+    },
+    {
+      "code": "force_majeure_constatee",
+      "libelle": "Empêchement de présenter les épreuves anticipées, pour un motif indépendant de votre volonté",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non",
+        "en_cours"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère FORCE-MAJEURE",
+      "note": "Fait déclaré. Le verdict n'en découle pas : la force majeure est constatée par l'autorité d'examen, et le statut reste « décision administrative requise »."
+    },
+    {
+      "code": "residence_etranger",
+      "libelle": "Résidence à l'étranger pendant la scolarité",
+      "type": "choix_unique",
+      "valeurs": [
+        "aucune",
+        "temporaire_en_premiere",
+        "permanente"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critères ETRANGER-TEMPORAIRE et ETRANGER-PERMANENT-*",
+      "piece": "justificatif_residence"
+    },
+    {
+      "code": "pays_de_residence",
+      "libelle": "Pays de résidence",
+      "type": "texte_court",
+      "justification_texte_libre": "Aucune liste fermée de pays n'est tenue au dépôt ; le pays déclaré est confronté par Nexus à la liste officielle des centres d'examen ouverts à l'étranger.",
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "residence_etranger",
+        "valeurs": [
+          "permanente"
+        ]
+      },
+      "usage": "Entrée de la vérification administrative sur l'existence et l'éloignement d'un centre d'examen",
+      "note": "Le candidat déclare où il réside. Il ne certifie jamais qu'aucun centre n'existe dans son pays, ni qu'il en est trop éloigné : ce sont des faits administratifs.",
+      "max_caracteres": 60,
+      "condition_lisible": "si vous résidez à l'étranger de façon permanente"
+    },
+    {
+      "code": "examens_anterieurs",
+      "libelle": "Baccalauréat déjà présenté",
+      "type": "choix_unique",
+      "valeurs": [
+        "jamais_presente",
+        "presente_sans_succes",
+        "presente_avec_succes"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Historique déclaré dont se dérive le critère ECHEC-ANTERIEUR",
+      "piece": "releve_notes_anterieur"
+    },
+    {
+      "code": "echec_anterieur_baccalaureat",
+      "libelle": "Échec antérieur au baccalauréat",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "derive": true,
+      "derive_de": "examens_anterieurs",
+      "formule": "« presente_sans_succes » ⇒ oui ; sinon non",
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère ECHEC-ANTERIEUR"
+    },
+    {
+      "code": "ea_presentees_puis_absence_inscription",
+      "libelle": "Épreuves anticipées présentées, puis absence d'inscription au baccalauréat l'année suivante",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère EA-SANS-INSCRIPTION-SUIVANTE",
+      "piece": "releve_notes_anterieur"
+    },
+    {
+      "code": "diplome_francais_detenu",
+      "libelle": "Diplôme français déjà obtenu",
+      "type": "choix_unique",
+      "valeurs": [
+        "aucun",
+        "baccalaureat_general",
+        "baccalaureat_technologique",
+        "baccalaureat_professionnel",
+        "brevet_de_technicien",
+        "brevet_de_technicien_agricole"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère TITULAIRE-DIPLOME-FR",
+      "piece": "diplome",
+      "note": "Liste fermée, strictement celle de l'article 3 : aucun autre diplôme n'ouvre ce critère, et le candidat n'a pas à en juger."
+    },
+    {
+      "code": "diplome_etranger_comparable",
+      "libelle": "Diplôme étranger de fin d'études secondaires",
+      "type": "choix_unique",
+      "valeurs": [
+        "non",
+        "oui",
+        "a_reconnaitre"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère TITULAIRE-DIPLOME-ETRANGER",
+      "note": "Déclarer un diplôme étranger déclenche une vérification de comparabilité ; cela n'ouvre jamais le passage automatiquement."
+    },
+    {
+      "code": "changement_voie_ou_serie",
+      "libelle": "Changement de voie ou de série en terminale",
+      "type": "choix_unique",
+      "valeurs": [
+        "oui",
+        "non"
+      ],
+      "section": "eligibilite_meme_session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "usage": "Critère CHANGEMENT-VOIE-TERMINALE",
+      "piece": "attestation_scolarite"
+    },
+    {
+      "code": "mode_evaluations_ponctuelles",
+      "libelle": "Modalité choisie pour les évaluations ponctuelles",
+      "type": "choix_unique",
+      "valeurs": [
+        "annuelle",
+        "fin_cycle"
+      ],
+      "obligatoire": true,
+      "usage": "Conditionne la version des instruments de contrôle continu (TC-ES, TC-HG, TC-EMC) : annuelle appelle les versions 1RE puis TLE, fin_cycle appelle ETENDUE",
+      "section_bilan": "1. Situation"
+    }
+  ]
+}

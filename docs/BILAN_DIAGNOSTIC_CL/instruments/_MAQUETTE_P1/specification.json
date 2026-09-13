@@ -1,0 +1,493 @@
+{
+  "schema": "nexus.maquette.specification",
+  "version": "1.0",
+  "date": "2026-09-11",
+  "source": "Contre-expertise de clôture du 2026-09-11, point 9 : couvrir la règle de priorité du § 8.2 propre au profil P1, jusqu'ici déclarée et jamais exercée.",
+  "avertissement": "Troisième jeu fictif. Il ne rejoue pas toutes les règles du § 8.2 — c'est l'objet du jeu P3 — mais il exerce ce qu'aucun autre jeu n'atteignait : le placement du français avant les spécialités pour un P1 sous le seuil, l'égalité entre spécialités, et une remise à niveau de spécialité en version de Première.",
+  "candidat": {
+    "reference": "CL-2026-0003",
+    "fictif": true,
+    "note": "Aucune passation réelle, aucun élément nominatif."
+  },
+  "attendus": [
+    {
+      "id": "U-01",
+      "demande": "Profil P1 présentant les deux épreuves anticipées de français",
+      "regle_exercee": "matrice du § 3.2 et configuration française (Q-19)",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "profil",
+          "valeur": "P1"
+        },
+        {
+          "type": "qp",
+          "champ": "epreuves_francais_a_presenter",
+          "valeur": "les_deux"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "FR-EAF",
+          "version": "standard"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "TC-ES",
+          "version": "1RE"
+        }
+      ]
+    },
+    {
+      "id": "U-02",
+      "demande": "Français sous le seuil du niveau En consolidation",
+      "regle_exercee": "§ 8.2 — « P1 : français d'abord si FR-EAF < 55 % »",
+      "verifications": [
+        {
+          "type": "agregat",
+          "perimetre": "FR-EAF",
+          "cle": "global",
+          "min": 0.4,
+          "max": 0.549
+        }
+      ]
+    },
+    {
+      "id": "U-03",
+      "demande": "Le français passe avant les spécialités",
+      "regle_exercee": "§ 8.2, placement propre au profil P1",
+      "verifications": [
+        {
+          "type": "rang_groupe",
+          "groupe": "FRANCAIS",
+          "rang": 1
+        }
+      ]
+    },
+    {
+      "id": "U-04",
+      "demande": "Une spécialité entre par remise à niveau",
+      "regle_exercee": "§ 8.2 — prérequis sous 40 % quel que soit le score global",
+      "verifications": [
+        {
+          "type": "module_entree",
+          "perimetre": "EDS-SVT",
+          "module": "Remise à niveau"
+        },
+        {
+          "type": "agregat",
+          "perimetre": "EDS-SVT",
+          "cle": "prerequis",
+          "min": 0.0,
+          "max": 0.399
+        }
+      ]
+    },
+    {
+      "id": "U-05",
+      "demande": "Deux spécialités de gravité égale, départagées de façon reproductible",
+      "regle_exercee": "EC-16 — départage par gravité, puis score, puis ordre de déclaration au questionnaire",
+      "verifications": [
+        {
+          "type": "rang_groupe",
+          "groupe": "MATHEMATIQUES",
+          "rang": 3
+        },
+        {
+          "type": "rang_groupe",
+          "groupe": "EDS-PC",
+          "rang": 4
+        }
+      ]
+    },
+    {
+      "id": "U-06",
+      "demande": "Aucune philosophie ni Grand oral pour un P1",
+      "regle_exercee": "matrice du § 3.2",
+      "verifications": [
+        {
+          "type": "perimetre_absent",
+          "perimetre": "PHI"
+        },
+        {
+          "type": "instrument_absent",
+          "code": "GO"
+        }
+      ]
+    }
+  ],
+  "cibles": {
+    "FR-EAF/standard": {
+      "LANG|A|D1|item": [
+        1,
+        3
+      ],
+      "LANG|A|D2|item": [
+        1,
+        3
+      ],
+      "CULT|A|D1|item": [
+        1,
+        3
+      ],
+      "CULT|A|D2|item": [
+        1,
+        3
+      ],
+      "COMP|B|D1|item": [
+        1,
+        3
+      ],
+      "COMP|B|D2|item": [
+        2,
+        5
+      ],
+      "COMP|B|D3|item": [
+        2,
+        4
+      ],
+      "GRAM|B|D1|item": [
+        1,
+        3
+      ],
+      "GRAM|B|D2|item": [
+        3,
+        7
+      ],
+      "ANAL|B|D1|item": [
+        2,
+        4
+      ],
+      "ANAL|B|D2|item": [
+        2,
+        4
+      ],
+      "ANAL|B|D3|item": [
+        2,
+        4
+      ],
+      "ARGU|B|D1|item": [
+        1,
+        3
+      ],
+      "ARGU|B|D2|item": [
+        2,
+        4
+      ],
+      "REDA|C|D3|critere": [
+        3,
+        6
+      ],
+      "ARGU|C|D3|critere": [
+        1,
+        3
+      ],
+      "LANG|C|D3|critere": [
+        1,
+        3
+      ],
+      "REDA|D|D2|item": [
+        1,
+        2
+      ],
+      "REDA|D|D1|item": [
+        1,
+        2
+      ]
+    },
+    "TC-ES/1RE": {
+      "DEM|A|D1|item": [
+        2,
+        4
+      ],
+      "DEM|A|D2|item": [
+        1,
+        1
+      ],
+      "MAT|B|D1|item": [
+        2,
+        3
+      ],
+      "MAT|B|D2|item": [
+        3,
+        5
+      ],
+      "SON|B|D1|item": [
+        2,
+        3
+      ],
+      "SON|B|D2|item": [
+        2,
+        3
+      ],
+      "ASTR|B|D1|item": [
+        2,
+        3
+      ],
+      "ASTR|B|D2|item": [
+        2,
+        4
+      ],
+      "DEM|D|D2|item": [
+        2,
+        4
+      ]
+    },
+    "EDS-MATH/N1": {
+      "CALC|A|D1|item": [
+        2,
+        3
+      ],
+      "CALC|A|D2|item": [
+        2,
+        3
+      ],
+      "FONC|B|D1|item": [
+        2,
+        3
+      ],
+      "FONC|B|D2|item": [
+        2,
+        3
+      ],
+      "SUIT|B|D1|item": [
+        2,
+        3
+      ],
+      "SUIT|B|D2|item": [
+        2,
+        3
+      ],
+      "TRIG|B|D1|item": [
+        2,
+        3
+      ],
+      "TRIG|B|D2|item": [
+        2,
+        3
+      ],
+      "GEO|B|D1|item": [
+        2,
+        3
+      ],
+      "GEO|B|D2|item": [
+        2,
+        3
+      ],
+      "PROB|B|D1|item": [
+        2,
+        3
+      ],
+      "PROB|B|D2|item": [
+        2,
+        3
+      ],
+      "ALGO|B|D1|item": [
+        2,
+        3
+      ],
+      "ALGO|B|D2|item": [
+        2,
+        3
+      ],
+      "RAIS|C|D3|critere": [
+        5,
+        9
+      ],
+      "CALC|C|D3|critere": [
+        2,
+        3
+      ],
+      "RAIS|D|D1|item": [
+        1,
+        2
+      ],
+      "RAIS|D|D2|item": [
+        1,
+        2
+      ]
+    },
+    "EDS-PC/N1": {
+      "QUANT|A|D1|item": [
+        2,
+        3
+      ],
+      "QUANT|A|D2|item": [
+        2,
+        3
+      ],
+      "MAT|B|D1|item": [
+        2,
+        3
+      ],
+      "MAT|B|D2|item": [
+        2,
+        3
+      ],
+      "MOUV|B|D1|item": [
+        2,
+        3
+      ],
+      "MOUV|B|D2|item": [
+        2,
+        3
+      ],
+      "ENER|B|D1|item": [
+        2,
+        3
+      ],
+      "ENER|B|D2|item": [
+        2,
+        3
+      ],
+      "OND|B|D1|item": [
+        2,
+        3
+      ],
+      "OND|B|D2|item": [
+        2,
+        3
+      ],
+      "EXP|B|D1|item": [
+        2,
+        3
+      ],
+      "EXP|B|D2|item": [
+        2,
+        3
+      ],
+      "RES|C|D3|critere": [
+        5,
+        9
+      ],
+      "QUANT|C|D3|critere": [
+        2,
+        3
+      ],
+      "RES|D|D1|item": [
+        1,
+        2
+      ]
+    },
+    "EDS-SVT/N1": {
+      "SCI|A|D1|item": [
+        1,
+        3
+      ],
+      "SCI|A|D2|item": [
+        1,
+        3
+      ],
+      "GEN|B|D1|item": [
+        2,
+        3
+      ],
+      "GEN|B|D2|item": [
+        2,
+        3
+      ],
+      "TERR|B|D1|item": [
+        2,
+        3
+      ],
+      "TERR|B|D2|item": [
+        2,
+        3
+      ],
+      "ECO|B|D1|item": [
+        2,
+        3
+      ],
+      "ECO|B|D2|item": [
+        2,
+        3
+      ],
+      "CORP|B|D1|item": [
+        2,
+        3
+      ],
+      "CORP|B|D2|item": [
+        2,
+        3
+      ],
+      "DOC|B|D1|item": [
+        2,
+        4
+      ],
+      "DOC|B|D2|item": [
+        2,
+        3
+      ],
+      "DOC|C|D3|critere": [
+        3,
+        6
+      ],
+      "REDA|C|D3|critere": [
+        3,
+        6
+      ],
+      "REDA|D|D1|item": [
+        1,
+        2
+      ]
+    }
+  },
+  "auto_positionnement": {
+    "FR-EAF/standard": {
+      "COMP": 3,
+      "LANG": 3,
+      "ANAL": 3,
+      "ARGU": 3,
+      "REDA": 3
+    },
+    "TC-ES/1RE": {
+      "DEM": 3,
+      "MAT": 3,
+      "SON": 3,
+      "ASTR": 3
+    },
+    "EDS-MATH/N1": {
+      "CALC": 4,
+      "FONC": 4,
+      "SUIT": 4,
+      "GEO": 4,
+      "RAIS": 4
+    },
+    "EDS-PC/N1": {
+      "QUANT": 3,
+      "MAT": 3,
+      "MOUV": 3,
+      "EXP": 3,
+      "RES": 3
+    },
+    "EDS-SVT/N1": {
+      "SCI": 3,
+      "GEN": 3,
+      "TERR": 3,
+      "DOC": 3,
+      "REDA": 3
+    }
+  },
+  "grilles_coach": {
+    "FR-EAF-ORAL/standard": {
+      "LECT": 2,
+      "EXPLI": 2,
+      "GRAMM": 2,
+      "ENTRET": 1,
+      "LANGOR": 2
+    }
+  },
+  "met": {
+    "MET-01": "b",
+    "MET-02": "a",
+    "MET-03": "b",
+    "MET-04": "c",
+    "MET-05": "a",
+    "MET-06": "b",
+    "MET-07": "b",
+    "MET-08": "a",
+    "MET-09": "c",
+    "MET-10": "b",
+    "MET-11": "b",
+    "MET-12": "a"
+  }
+}

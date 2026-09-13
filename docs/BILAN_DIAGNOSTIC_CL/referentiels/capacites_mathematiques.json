@@ -1,0 +1,939 @@
+{
+  "objet": "Capacités attendues et contenus des deux programmes de mathématiques de première applicables à l'épreuve anticipée de la session 2027 et suivantes, pour une passation de l'année scolaire 2026-2027. Chaque item de MATH-EA renvoie à un code de ce référentiel : un renvoi générique au programme ne suffit pas à établir qu'un item évalue une capacité exigible.",
+  "source": {
+    "publication": "Bulletin officiel de l'éducation nationale, de la jeunesse et des sports n° 14 du 2 avril 2026",
+    "lecture": "Annexes des deux arrêtés lues dans le PDF officiel du Bulletin officiel n° 14, le 2026-09-11. Les libellés ci-dessous sont la transcription littérale des lignes « Capacités attendues » et, lorsque la nature le précise, des lignes « Contenus ».",
+    "confiance": "haute"
+  },
+  "natures": {
+    "capacite_attendue": "Ligne figurant sous l'intitulé « Capacités attendues » de l'annexe : exigible du candidat.",
+    "contenu": "Ligne figurant sous l'intitulé « Contenus » : la notion est au programme, mais l'annexe n'en fait pas une capacité attendue explicite. Un item qui s'y rattache doit le justifier.",
+    "renvoi": "Renvoi explicite de l'annexe à un autre programme — en pratique celui de la classe de seconde. Un item qui s'y rattache mesure un acquis antérieur entretenu, et non une capacité nouvelle de première."
+  },
+  "competences_transversales": {
+    "source": "Préambule commun aux deux annexes : « le travail en mathématiques s'appuie sur six compétences essentielles ».",
+    "regle": "Une compétence transversale n'est pas un domaine de contenu : elle n'est déclarée couverte par un item que si la tâche demandée l'exerce réellement. Répondre à un QCM à quatre propositions n'exerce ni « communiquer » ni « modéliser » du seul fait que la question porte sur un modèle.",
+    "liste": [
+      {
+        "code": "CHERCHER",
+        "texte": "chercher, expérimenter, en particulier à l'aide d'outils logiciels"
+      },
+      {
+        "code": "MODELISER",
+        "texte": "modéliser, faire une simulation, valider ou invalider un modèle"
+      },
+      {
+        "code": "REPRESENTER",
+        "texte": "représenter, choisir un cadre (numérique, algébrique, géométrique), changer de registre"
+      },
+      {
+        "code": "RAISONNER",
+        "texte": "raisonner, démontrer, trouver des résultats partiels et les mettre en perspective"
+      },
+      {
+        "code": "CALCULER",
+        "texte": "calculer, appliquer des techniques et mettre en œuvre des algorithmes"
+      },
+      {
+        "code": "COMMUNIQUER",
+        "texte": "communiquer un résultat par oral ou par écrit, expliquer une démarche"
+      }
+    ],
+    "regle_couverture": {
+      "sources_min_partie_2": 2,
+      "motif": "Une compétence transversale n'est tenue pour couverte que si au moins deux tâches de la seconde partie l'exercent. Une seule tâche ne distingue pas la compétence de la situation particulière où elle a été observée, et la première partie, faite de questions à choix multiple, ne peut porter la preuve ni de « communiquer » ni de « chercher ».",
+      "consequence": "Le contrôle refuse l'assemblage plutôt que d'afficher une couverture qui n'existe pas."
+    },
+    "preuves": {
+      "principe": "Une étiquette n'est pas une preuve. Une compétence transversale n'est tenue pour exercée par un item que si la tâche en porte la trace : un support à lire, une production à construire, une phrase à écrire. Sans cette règle, la couverture se déclare au clavier.",
+      "REPRESENTER": {
+        "regle": "L'item lit une représentation, en produit une, ou opère un changement de registre nommé par une capacité officielle.",
+        "supports_admis": [
+          "figure",
+          "tableau"
+        ],
+        "verbes_de_production": [
+          "construire",
+          "construis",
+          "tracer",
+          "trace",
+          "représenter",
+          "représente",
+          "compléter",
+          "complète",
+          "placer",
+          "place"
+        ],
+        "capacites_de_registre": [
+          "MENE2602917A.ALG.SUITE-1"
+        ],
+        "note_registre": "Une seule ligne des deux annexes nomme explicitement le passage d'un registre à l'autre : celle des suites du programme de spécialité. Elle vaut preuve parce qu'elle est officielle, non parce qu'elle est commode."
+      },
+      "COMMUNIQUER": {
+        "regle": "Le candidat écrit. Un questionnaire à choix multiple ne peut donc jamais l'exercer, et une question ouverte ne l'exerce que si elle demande une justification, une explication ou une rédaction — ou si sa grille porte un critère de rédaction.",
+        "types_exclus": [
+          "A"
+        ],
+        "verbes_de_redaction": [
+          "justifier",
+          "justifie",
+          "expliquer",
+          "explique",
+          "rédiger",
+          "rédige",
+          "dire si",
+          "indiquer",
+          "indique",
+          "formuler",
+          "formule",
+          "préciser",
+          "précise",
+          "objecter",
+          "objection",
+          "écrire",
+          "écrivez",
+          "écrivent"
+        ]
+      }
+    },
+    "couverture_v1": {
+      "source": "Décision de la direction pédagogique du 2026-09-12.",
+      "MODELISER": {
+        "parcours": "SPE",
+        "sources_partie_2": 2,
+        "porteurs": [
+          "MEA-1-ALGAN-01",
+          "MEA-1-RAIS-01"
+        ],
+        "statut": "minimum de couverture V1 — à réexaminer après pilote",
+        "regle": "Deux observations indépendantes suffisent en V1. Elles doivent l'une et l'autre faire **produire** le modèle : ALGAN-01 fait modéliser une croissance linéaire par une suite arithmétique, RAIS-01 une croissance exponentielle par une suite géométrique. Appliquer un coefficient ou un ajustement fourni par l'énoncé n'est pas modéliser, et ne compte pas.",
+        "note": "La première question de RAIS-01 demandait d'appliquer le taux de 5 % fourni par l'énoncé : elle ne constituait pas une seconde source. Récrite le 2026-09-12 pour exiger que le modèle soit écrit — suite définie, relation de récurrence ou expression explicite — avant tout calcul, à points et à durée inchangés."
+      }
+    }
+  },
+  "programmes": {
+    "MENE2602917A": {
+      "intitule": "Programme d'enseignement de spécialité de mathématiques de la classe de première de la voie générale",
+      "texte": "arrêté du 26 février 2026",
+      "parcours": "SPE",
+      "capacites": [
+        {
+          "code": "MENE2602917A.AUTO.EVOL-1",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Appliquer un taux d’évolution pour calculer une valeur finale ou initiale.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.EVOL-2",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer un taux d’évolution, l’exprimer en pourcentage.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.EVOL-3",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer le taux d’évolution équivalent à plusieurs évolutions successives.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.EVOL-4",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer un taux d’évolution réciproque.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.CALC-1",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Déterminer les solutions d’une équation produit nul.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.CALC-2",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Déterminer le signe d’une expression du premier degré, d’une expression factorisée du second degré.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.CALC-3",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Développer, factoriser, réduire une expression algébrique simple.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.FONC-1",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Résoudre graphiquement une équation, une inéquation du type : f(x) = k, f(x) < k, etc.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.FONC-2",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Déterminer graphiquement le signe d’une fonction ou son tableau de variations.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.FONC-3",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Tracer une droite donnée par son équation réduite ou par un point et son coefficient directeur.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.FONC-4",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Lire graphiquement l’équation réduite d’une droite.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.FONC-5",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Déterminer le coefficient directeur d’une droite à partir des coordonnées de deux de ses points.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.STAT-1",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Lire un graphique, un histogramme, un diagramme en barres ou circulaire, un diagramme en boite ou toute autre représentation (repérer l’origine du repère, les unités de graduations ou les échelles, etc.).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.STAT-2",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Passer du graphique aux données et vice-versa.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.STAT-3",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Calculer et interpréter des indicateurs statistiques pour une série statistique.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.PROB-1",
+          "partie": "Automatismes",
+          "section": "Probabilités",
+          "texte": "Calculer des probabilités conditionnelles lorsque les évènements sont présentés sous forme de tableau croisé d’effectifs ou d’arbres pondérés.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.AUTO.PROB-2",
+          "partie": "Automatismes",
+          "section": "Probabilités",
+          "texte": "Distinguer P(A ∩ B), P_A(B), P_B(A).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-1",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Dans le cadre de l’étude d’une suite, utiliser le registre de la langue naturelle, le registre algébrique, le registre graphique, et passer de l’un à l’autre.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-2",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Proposer, modéliser une situation permettant de générer une suite de nombres. Déterminer une relation explicite ou une relation de récurrence pour une suite définie par un motif géométrique, par une question de dénombrement.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-3",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Calculer des termes d’une suite définie explicitement, par récurrence ou par un algorithme.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-4",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Pour une suite arithmétique ou géométrique, calculer le terme général, la somme de termes consécutifs, déterminer le sens de variation.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-5",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Modéliser un phénomène discret à croissance linéaire par une suite arithmétique, un phénomène discret à croissance exponentielle par une suite géométrique.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.SUITE-6",
+          "partie": "Algèbre",
+          "section": "Suites numériques, modèles discrets",
+          "texte": "Conjecturer, dans des cas simples, la limite éventuelle d’une suite.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.DEG2-1",
+          "partie": "Algèbre",
+          "section": "Équations, fonctions polynômes du second degré",
+          "texte": "Étudier le signe d’une fonction polynôme du second degré donnée sous forme factorisée.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.DEG2-2",
+          "partie": "Algèbre",
+          "section": "Équations, fonctions polynômes du second degré",
+          "texte": "Déterminer les fonctions polynômes du second degré s’annulant en deux nombres réels distincts.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.DEG2-3",
+          "partie": "Algèbre",
+          "section": "Équations, fonctions polynômes du second degré",
+          "texte": "Factoriser une fonction polynôme du second degré, en diversifiant les stratégies : racine évidente, détection des racines par leur somme et leur produit, identité remarquable, application des formules générales.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALG.DEG2-4",
+          "partie": "Algèbre",
+          "section": "Équations, fonctions polynômes du second degré",
+          "texte": "Choisir une forme adaptée (développée réduite, canonique, factorisée) d’une fonction polynôme du second degré dans le cadre de la résolution d’un problème (équation, inéquation, optimisation, variations).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-1",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Calculer un taux de variation, la pente d’une sécante.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-2",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Interpréter le nombre dérivé en contexte : pente d’une tangente, vitesse instantanée, cout marginal, etc.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-3",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Déterminer graphiquement un nombre dérivé par la pente de la tangente. Construire la tangente en un point à une courbe représentative connaissant le nombre dérivé.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-4",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Déterminer l’équation de la tangente en un point à la courbe représentative d’une fonction.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-5",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Calculer une valeur approchée de f(a + h).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.DER-6",
+          "partie": "Analyse",
+          "section": "Dérivation",
+          "texte": "Dans des cas simples, calculer une fonction dérivée en utilisant les propriétés des opérations sur les fonctions dérivables.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.VAR-1",
+          "partie": "Analyse",
+          "section": "Variations et courbes représentatives des fonctions",
+          "texte": "Étudier les variations d’une fonction. Déterminer les extrémums.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.VAR-2",
+          "partie": "Analyse",
+          "section": "Variations et courbes représentatives des fonctions",
+          "texte": "Résoudre un problème d’optimisation.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.VAR-3",
+          "partie": "Analyse",
+          "section": "Variations et courbes représentatives des fonctions",
+          "texte": "Exploiter les variations d’une fonction pour établir une inégalité. Étudier la position relative de deux courbes représentatives.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.VAR-4",
+          "partie": "Analyse",
+          "section": "Variations et courbes représentatives des fonctions",
+          "texte": "Étudier, en lien avec la dérivation, une fonction polynôme du second degré : variations, extrémum, allure selon le signe du coefficient de x².",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.EXP-1",
+          "partie": "Analyse",
+          "section": "Fonction exponentielle",
+          "texte": "Transformer une expression en utilisant les propriétés algébriques de la fonction exponentielle.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.EXP-2",
+          "partie": "Analyse",
+          "section": "Fonction exponentielle",
+          "texte": "Pour a réel, dérivée de la fonction t ↦ e^(at).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.EXP-3",
+          "partie": "Analyse",
+          "section": "Fonction exponentielle",
+          "texte": "Pour une valeur numérique strictement positive de k, représenter graphiquement les fonctions t ↦ e^(–kt) et t ↦ e^(kt).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.EXP-4",
+          "partie": "Analyse",
+          "section": "Fonction exponentielle",
+          "texte": "Modéliser une situation par une croissance, une décroissance exponentielle (par exemple évolution d’un capital à taux fixe, décroissance radioactive).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.TRIG-1",
+          "partie": "Analyse",
+          "section": "Trigonométrie",
+          "texte": "Placer un point sur le cercle trigonométrique.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.TRIG-2",
+          "partie": "Analyse",
+          "section": "Trigonométrie",
+          "texte": "Par lecture du cercle trigonométrique, déterminer, pour des valeurs remarquables de x, les cosinus et sinus d’angles associés à x.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ANA.TRIG-C",
+          "partie": "Analyse",
+          "section": "Trigonométrie",
+          "texte": "Cosinus et sinus d’un nombre réel. Lien avec le sinus et le cosinus dans un triangle rectangle. Valeurs remarquables.",
+          "nature": "contenu"
+        },
+        {
+          "code": "MENE2602917A.GEO.PS-1",
+          "partie": "Géométrie",
+          "section": "Calcul vectoriel et produit scalaire",
+          "texte": "Utiliser le produit scalaire pour démontrer une orthogonalité, pour calculer un angle, une longueur dans le plan.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.PS-2",
+          "partie": "Géométrie",
+          "section": "Calcul vectoriel et produit scalaire",
+          "texte": "En vue de la résolution d’un problème, calculer le produit scalaire de deux vecteurs en choisissant une méthode adaptée (en utilisant la projection orthogonale, à l’aide des coordonnées, à l’aide des normes et d’un angle, à l’aide de normes).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.PS-3",
+          "partie": "Géométrie",
+          "section": "Calcul vectoriel et produit scalaire",
+          "texte": "Utiliser le produit scalaire pour résoudre un problème géométrique.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.PS-C",
+          "partie": "Géométrie",
+          "section": "Calcul vectoriel et produit scalaire",
+          "texte": "Bilinéarité, symétrie. En base orthonormée, expression du produit scalaire et de la norme, critère d’orthogonalité. Expression des coordonnées dans une base orthonormée en termes de produits scalaires avec les vecteurs de la base.",
+          "nature": "contenu"
+        },
+        {
+          "code": "MENE2602917A.GEO.REP-1",
+          "partie": "Géométrie",
+          "section": "Géométrie repérée",
+          "texte": "Déterminer une équation cartésienne d’une droite connaissant un point et un vecteur normal.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.REP-2",
+          "partie": "Géométrie",
+          "section": "Géométrie repérée",
+          "texte": "Déterminer les coordonnées du projeté orthogonal d’un point sur une droite.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.REP-3",
+          "partie": "Géométrie",
+          "section": "Géométrie repérée",
+          "texte": "Déterminer et utiliser l’équation d’un cercle donné par son centre et son rayon.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.REP-4",
+          "partie": "Géométrie",
+          "section": "Géométrie repérée",
+          "texte": "Reconnaitre une équation de cercle, déterminer centre et rayon.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.GEO.REP-5",
+          "partie": "Géométrie",
+          "section": "Géométrie repérée",
+          "texte": "Utiliser un repère pour étudier une configuration.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.COND-1",
+          "partie": "Probabilités et statistiques",
+          "section": "Probabilités conditionnelles et indépendance",
+          "texte": "Savoir utiliser ou justifier l’indépendance de deux évènements.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.COND-2",
+          "partie": "Probabilités et statistiques",
+          "section": "Probabilités conditionnelles et indépendance",
+          "texte": "Représenter la succession de deux épreuves indépendantes par un arbre ou un tableau.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.COND-3",
+          "partie": "Probabilités et statistiques",
+          "section": "Probabilités conditionnelles et indépendance",
+          "texte": "Pour n ⩽ 4, représenter l’arbre associé à la répétition de n épreuves de Bernoulli indépendantes et identiques afin de calculer des probabilités.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.VA-1",
+          "partie": "Probabilités et statistiques",
+          "section": "Variables aléatoires réelles",
+          "texte": "Interpréter en situation et utiliser les notations {X = a}, {X ⩽ a}, P(X = a), P(X ⩽ a). Passer du registre de la langue naturelle au registre symbolique et inversement.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.VA-2",
+          "partie": "Probabilités et statistiques",
+          "section": "Variables aléatoires réelles",
+          "texte": "Modéliser une situation à l’aide d’une variable aléatoire.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.VA-3",
+          "partie": "Probabilités et statistiques",
+          "section": "Variables aléatoires réelles",
+          "texte": "Déterminer la loi de probabilité d’une variable aléatoire.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.VA-4",
+          "partie": "Probabilités et statistiques",
+          "section": "Variables aléatoires réelles",
+          "texte": "Calculer une espérance, une variance, un écart type.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.PRO.VA-5",
+          "partie": "Probabilités et statistiques",
+          "section": "Variables aléatoires réelles",
+          "texte": "Utiliser la notion d’espérance dans une résolution de problème (mise pour un jeu équitable, etc.).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALGO.LIST-1",
+          "partie": "Algorithmique et programmation",
+          "section": "Notion de liste",
+          "texte": "Générer une liste (en extension, par ajouts successifs ou en compréhension).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALGO.LIST-2",
+          "partie": "Algorithmique et programmation",
+          "section": "Notion de liste",
+          "texte": "Manipuler des éléments d’une liste (ajouter, supprimer, etc.) et leurs indices.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALGO.LIST-3",
+          "partie": "Algorithmique et programmation",
+          "section": "Notion de liste",
+          "texte": "Parcourir une liste.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602917A.ALGO.LIST-4",
+          "partie": "Algorithmique et programmation",
+          "section": "Notion de liste",
+          "texte": "Itérer sur les éléments d’une liste.",
+          "nature": "capacite_attendue"
+        }
+      ]
+    },
+    "MENE2602916A": {
+      "intitule": "Programme de mathématiques intégré à l'enseignement scientifique en classe de première générale",
+      "texte": "arrêté du 26 février 2026",
+      "parcours": "SPECIFIQUES",
+      "capacites": [
+        {
+          "code": "MENE2602916A.AUTO.EVOL-1",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Appliquer un taux d’évolution pour calculer une valeur finale ou initiale.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.EVOL-2",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer un taux d’évolution, l’exprimer en pourcentage.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.EVOL-3",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer le taux d’évolution équivalent à plusieurs évolutions successives.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.EVOL-4",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Calculer un taux d’évolution réciproque.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.CALC-1",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Déterminer les solutions d’une équation produit nul.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.CALC-2",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Déterminer le signe d’une expression du premier degré, d’une expression factorisée du second degré.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.CALC-3",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Développer, factoriser, réduire une expression algébrique simple.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.FONC-1",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Résoudre graphiquement une équation, une inéquation du type : f(x) = k, f(x) < k, etc.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.FONC-2",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Déterminer graphiquement le signe d’une fonction ou son tableau de variations.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.FONC-3",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Tracer une droite donnée par son équation réduite ou par un point et son coefficient directeur.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.FONC-4",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Lire graphiquement l’équation réduite d’une droite.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.FONC-5",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Déterminer le coefficient directeur d’une droite à partir des coordonnées de deux de ses points.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.STAT-1",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Lire un graphique, un histogramme, un diagramme en barres ou circulaire, un diagramme en boite ou toute autre représentation (repérer l’origine du repère, les unités de graduations ou les échelles, etc.).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.STAT-2",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Passer du graphique aux données et vice-versa.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.STAT-3",
+          "partie": "Automatismes",
+          "section": "Statistiques",
+          "texte": "Calculer et interpréter des indicateurs statistiques pour une série statistique.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.PROB-1",
+          "partie": "Automatismes",
+          "section": "Probabilités",
+          "texte": "Calculer des probabilités conditionnelles lorsque les évènements sont présentés sous forme de tableau croisé d’effectifs ou d’arbres pondérés.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.AUTO.PROB-2",
+          "partie": "Automatismes",
+          "section": "Probabilités",
+          "texte": "Distinguer P(A ∩ B), P_A(B), P_B(A).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.INFO-1",
+          "partie": "Analyse de l'information chiffrée",
+          "section": "Analyse de l'information chiffrée",
+          "texte": "Utiliser un tableur pour représenter des données sous forme de tableau ou de diagramme.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.INFO-2",
+          "partie": "Analyse de l'information chiffrée",
+          "section": "Analyse de l'information chiffrée",
+          "texte": "Déterminer et utiliser un ajustement affine pour interpoler ou extrapoler des valeurs inconnues.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.INFO-3",
+          "partie": "Analyse de l'information chiffrée",
+          "section": "Analyse de l'information chiffrée",
+          "texte": "Savoir calculer les coordonnées d’un point moyen.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.INFO-C",
+          "partie": "Analyse de l'information chiffrée",
+          "section": "Analyse de l'information chiffrée",
+          "texte": "Analyse statistique de deux caractères qualitatifs. Tableau croisé d'effectifs. Exemples d'analyse du croisement de deux caractères par représentation graphique (diagrammes en barres, diagrammes circulaires). Analyse statistique de deux caractères quantitatifs. Représentation par un nuage de points. Ajustement affine, point moyen. Interpolation, extrapolation.",
+          "nature": "contenu"
+        },
+        {
+          "code": "MENE2602916A.ALEA-1",
+          "partie": "Phénomènes aléatoires",
+          "section": "Phénomènes aléatoires",
+          "texte": "Calculer des probabilités conditionnelles à l'aide d'un tableau croisé d'effectifs ou d'un arbre pondéré.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.ALEA-2",
+          "partie": "Phénomènes aléatoires",
+          "section": "Phénomènes aléatoires",
+          "texte": "Représenter par un arbre de probabilités la répétition de n épreuves aléatoires identiques et indépendantes de Bernoulli avec n ⩽ 4 afin de calculer des probabilités.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.ALEA-3",
+          "partie": "Phénomènes aléatoires",
+          "section": "Phénomènes aléatoires",
+          "texte": "Savoir utiliser ou justifier l’indépendance de deux évènements.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.LIN-1",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation linéaire",
+          "texte": "Reconnaitre un phénomène discret ou continu de croissance linéaire et savoir le modéliser.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.LIN-2",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation linéaire",
+          "texte": "Calculer un terme de rang donné d'une suite arithmétique définie par une relation fonctionnelle ou une relation de récurrence.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.LIN-3",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation linéaire",
+          "texte": "Réaliser et exploiter la représentation graphique des termes d'une suite arithmétique ou d'une fonction affine.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.LIN-4",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation linéaire",
+          "texte": "Résoudre un problème de seuil dans le cas d'une croissance linéaire.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.QUAD-1",
+          "partie": "Phénomènes d'évolution",
+          "section": "Modélisation quadratique",
+          "texte": "Associer une parabole à une expression algébrique de degré 2, pour les fonctions de la forme : x ↦ ax², x ↦ ax² + c, x ↦ a(x – x1)(x – x2).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.QUAD-2",
+          "partie": "Phénomènes d'évolution",
+          "section": "Modélisation quadratique",
+          "texte": "Déterminer des éléments caractéristiques de la fonction x ↦ ax² + bx + c. Aucune formule n’est attendue. On déterminera l’axe de symétrie par exemple en résolvant l’équation f(x) = c.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.QUAD-3",
+          "partie": "Phénomènes d'évolution",
+          "section": "Modélisation quadratique",
+          "texte": "Utiliser la forme factorisée (en produit de facteurs du premier degré) d’un polynôme de degré 2 pour trouver ses racines et étudier son signe.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-1",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Reconnaitre un phénomène discret ou continu de croissance ou décroissance exponentielle et savoir le modéliser.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-2",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Calculer un terme de rang donné d'une suite géométrique définie par une relation fonctionnelle ou une relation de récurrence.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-3",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Calculer un taux d'évolution moyen.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-4",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Réaliser et exploiter la représentation graphique des termes d'une suite géométrique ou d'une fonction exponentielle.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-5",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Estimer les ordres de grandeur d’une quantité en croissance ou décroissance exponentielle.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602916A.EXPO-6",
+          "partie": "Phénomènes d'évolution",
+          "section": "Variation exponentielle",
+          "texte": "Résoudre un problème de seuil dans le cas d'une croissance ou décroissance exponentielle par le calcul, à l'aide d'une représentation graphique ou en utilisant un outil numérique.",
+          "nature": "capacite_attendue"
+        }
+      ]
+    },
+    "MENE2602914A": {
+      "intitule": "Programme d'enseignement de mathématiques de la classe de seconde générale et technologique",
+      "texte": "arrêté du 26 février 2026",
+      "parcours": null,
+      "anterieur": true,
+      "role": "Programme de la classe antérieure. Les deux programmes de première renvoient explicitement à sa liste d'automatismes, « qui doivent être entretenus en classe de première » : c'est la seule source canonique d'un prérequis. Une capacité de première n'est pas un prérequis parce qu'elle figure parmi les automatismes.",
+      "capacites": [
+        {
+          "code": "MENE2602914A.CALC-1",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Effectuer des opérations et des comparaisons entre des fractions simples.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.CALC-2",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Effectuer des opérations sur les puissances.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.CALC-3",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Passer d’une écriture d’un nombre à une autre (décimale, fractionnaire, pourcentage).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.CALC-4",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Estimer un ordre de grandeur.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.CALC-5",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "S’assurer de la vraisemblance, de la cohérence d’un résultat.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.CALC-6",
+          "partie": "Automatismes",
+          "section": "Calcul numérique et algébrique",
+          "texte": "Développer, factoriser, réduire une expression algébrique simple : identités (factorisation et développement) : (a + b)², (a – b)², (a + b)(a – b) ; factorisation de ax² + bx, ax + bx.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.PROP-1",
+          "partie": "Automatismes",
+          "section": "Proportions et pourcentages",
+          "texte": "Calculer, appliquer, exprimer une proportion sous différentes formes (décimale, fractionnaire, pourcentage).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.EVOL-1",
+          "partie": "Automatismes",
+          "section": "Évolutions et variations",
+          "texte": "Passer d’une formulation additive (« augmenter de 5 % », respectivement « diminuer de 5 % ») à une formulation multiplicative (« multiplier par 1,05 », respectivement « multiplier par 0,95 »).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.FONC-1",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Déterminer graphiquement des images et des antécédents.",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.FONC-2",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Exploiter une équation de courbe (appartenance d’un point, calcul de coordonnées).",
+          "nature": "capacite_attendue"
+        },
+        {
+          "code": "MENE2602914A.FONC-3",
+          "partie": "Automatismes",
+          "section": "Fonctions et représentations",
+          "texte": "Reconnaitre l’expression d’une fonction linéaire, d’une fonction affine, savoir que leur représentation graphique est une droite.",
+          "nature": "capacite_attendue"
+        }
+      ]
+    }
+  },
+  "renvois_externes": [
+    {
+      "code": "RENVOI.SECONDE",
+      "partie": "Automatismes",
+      "section": "Renvoi au programme de seconde",
+      "texte": "À la liste ci-dessous s’ajoute la liste des automatismes travaillés en classe de seconde, qui doivent être entretenus en classe de première.",
+      "nature": "renvoi"
+    }
+  ]
+}

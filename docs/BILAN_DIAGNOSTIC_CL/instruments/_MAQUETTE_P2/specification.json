@@ -1,0 +1,322 @@
+{
+  "schema": "nexus.maquette.specification",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Demande de la direction pédagogique du 2026-09-10 : « un bilan manuel court pour une configuration oral (P2 + oral) afin d'éprouver le titre et les sections »",
+  "avertissement": "Second jeu fictif. Il ne vise pas à exercer chaque règle du § 8.2 — c'est l'objet du jeu P3 — mais à vérifier qu'un bilan dont la partie française ne porte que l'oral se titre et se structure correctement. Les cibles sont donc données par compétence et non par palier.",
+  "candidat": {
+    "reference": "CL-2026-0002",
+    "fictif": true,
+    "note": "Aucune passation réelle, aucun élément nominatif."
+  },
+  "attendus": [
+    {
+      "id": "T-01",
+      "demande": "Profil P2 en configuration « oral »",
+      "regle_exercee": "la configuration française est orthogonale au profil (Q-19)",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "profil",
+          "valeur": "P2"
+        },
+        {
+          "type": "qp",
+          "champ": "epreuves_francais_a_presenter",
+          "valeur": "oral"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "FR-EAF",
+          "version": "oral"
+        }
+      ]
+    },
+    {
+      "id": "T-02",
+      "demande": "Aucune compétence d'épreuve écrite évaluée en français",
+      "regle_exercee": "le masquage se fait par assemblage, non à l'exécution (Q-21, EC-26)",
+      "verifications": [
+        {
+          "type": "competence_absente",
+          "perimetre": "FR-EAF",
+          "competence": "REDA"
+        },
+        {
+          "type": "competence_absente",
+          "perimetre": "FR-EAF",
+          "competence": "LANG"
+        },
+        {
+          "type": "competence_absente",
+          "perimetre": "FR-EAF",
+          "competence": "ARGU"
+        }
+      ]
+    },
+    {
+      "id": "T-03",
+      "demande": "Les compétences propres à l'oral sont évaluées",
+      "regle_exercee": "EC-25 : une compétence mesurée par une grille coach est couverte par ses critères propriétaires",
+      "verifications": [
+        {
+          "type": "competence_evaluee",
+          "perimetre": "FR-EAF",
+          "competence": "EXPL"
+        },
+        {
+          "type": "competence_evaluee",
+          "perimetre": "FR-EAF",
+          "competence": "ENTR"
+        },
+        {
+          "type": "competence_evaluee",
+          "perimetre": "FR-EAF",
+          "competence": "LANG-ORAL"
+        }
+      ]
+    },
+    {
+      "id": "T-04",
+      "demande": "Aucune tâche type épreuve en français",
+      "regle_exercee": "une matière sans bloc C n'affiche pas la ligne (§ 5.5, § 7.4)",
+      "verifications": [
+        {
+          "type": "agregat_absent",
+          "perimetre": "FR-EAF",
+          "cle": "tache"
+        }
+      ]
+    },
+    {
+      "id": "T-05",
+      "demande": "Deux spécialités poursuivies, aucune abandonnée",
+      "regle_exercee": "matrice du § 3.2 pour un profil P2",
+      "verifications": [
+        {
+          "type": "instrument",
+          "perimetre": "EDS-MATH",
+          "version": "NT"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "EDS-SES",
+          "version": "NT"
+        },
+        {
+          "type": "qp",
+          "champ": "specialite_abandonnee",
+          "valeur": "aucune"
+        }
+      ]
+    }
+  ],
+  "cibles_par_competence": {
+    "_lecture": "Part des points obtenus, par compétence, sur l'ensemble de ses mesures dans l'assemblage. Le générateur la répartit sur les groupes dans l'ordre de l'assemblage.",
+    "FR-EAF/oral": {
+      "COMP": 0.6,
+      "GRAM": 0.4,
+      "ANAL": 0.5,
+      "CULT": 0.7
+    },
+    "FR-MAI/standard": {
+      "LANG": 0.7,
+      "LEXA": 0.6,
+      "COMPA": 0.6,
+      "SYNT": 0.5,
+      "ARGU": 0.5
+    },
+    "PHI/standard": {
+      "NOT": 0.6,
+      "PROB": 0.5,
+      "ARGU": 0.6,
+      "TEXT": 0.5,
+      "DISS": 0.45,
+      "REP": 0.7,
+      "LANG": 0.8
+    },
+    "TC-ES/TLE": {
+      "CLIM": 0.6,
+      "ENER": 0.5,
+      "INFO": 0.6,
+      "DEM": 0.7
+    },
+    "EDS-MATH/NT": {
+      "CALC": 0.7,
+      "FONC": 0.6,
+      "SUIT": 0.5,
+      "GEO": 0.6,
+      "PROB": 0.55,
+      "ANA": 0.5,
+      "ALGO": 0.7,
+      "RAIS": 0.6
+    },
+    "EDS-SES/NT": {
+      "ECO": 0.5,
+      "SOC": 0.55,
+      "POL": 0.45,
+      "STAT": 0.5,
+      "MOB": 0.5,
+      "DOCU": 0.5,
+      "RAIS": 0.5
+    }
+  },
+  "auto_positionnement": {
+    "_lecture": "Valeur de l'échelle du bloc 0 par domaine imprimé.",
+    "FR-EAF/oral": {
+      "COMP": 3,
+      "ANAL": 2,
+      "CULT": 3,
+      "GRAM": 2
+    },
+    "FR-MAI/standard": {
+      "LANG": 3,
+      "LEXA": 3,
+      "COMPA": 3,
+      "SYNT": 2,
+      "ARGU": 2
+    },
+    "PHI/standard": {
+      "NOT": 3,
+      "PROB": 2,
+      "ARGU": 3,
+      "TEXT": 1,
+      "DISS": 2
+    },
+    "TC-ES/TLE": {
+      "DEM": 3,
+      "CLIM": 3,
+      "ENER": 2,
+      "INFO": 3
+    },
+    "EDS-MATH/NT": {
+      "CALC": 3,
+      "FONC": 3,
+      "SUIT": 2,
+      "PROB": 3,
+      "RAIS": 3
+    },
+    "EDS-SES/NT": {
+      "STAT": 2,
+      "ECO": 2,
+      "SOC": 3,
+      "DOCU": 2,
+      "RAIS": 2
+    },
+    "MATH-EA/SPE": {
+      "AUTO": 3,
+      "AUTOG": 3,
+      "PROBA": 3,
+      "EXACT": 3,
+      "RAIS": 3
+    }
+  },
+  "grilles_coach": {
+    "GO/standard": {
+      "QUEST": 2,
+      "STRUCT": 2,
+      "DISCIP": 2,
+      "ARGU": 2,
+      "PRECIS": 2,
+      "LANGUE": 2,
+      "INTER": 2,
+      "POSTURE": 3
+    },
+    "FR-EAF-ORAL/standard": {
+      "LECT": 2,
+      "EXPLI": 2,
+      "GRAMM": 1,
+      "ENTRET": 2,
+      "LANGOR": 2
+    }
+  },
+  "met": {
+    "MET-01": "c",
+    "MET-02": "b",
+    "MET-03": "c",
+    "MET-04": "b",
+    "MET-05": "b",
+    "MET-06": "a",
+    "MET-07": "c",
+    "MET-08": "b",
+    "MET-09": "b",
+    "MET-10": "c",
+    "MET-11": "c",
+    "MET-12": "b"
+  },
+  "cibles": {
+    "MATH-EA/SPE": {
+      "AUTO|A|D1|item": [
+        1,
+        1
+      ],
+      "AUTOG|A|D1|item": [
+        0,
+        1
+      ],
+      "EXACT|A|D1|item": [
+        2,
+        4
+      ],
+      "AUTO|B|D1|item": [
+        2,
+        4
+      ],
+      "AUTO|B|D2|item": [
+        2,
+        3
+      ],
+      "AUTOG|B|D1|item": [
+        2,
+        3
+      ],
+      "AUTOG|B|D2|item": [
+        2,
+        3
+      ],
+      "EXACT|B|D2|item": [
+        2,
+        4
+      ],
+      "PROBA|B|D1|item": [
+        2,
+        4
+      ],
+      "PROBA|B|D2|item": [
+        2,
+        4
+      ],
+      "ALGAN|B|D1|item": [
+        2,
+        4
+      ],
+      "ALGAN|B|D2|item": [
+        2,
+        4
+      ],
+      "GEOM|B|D1|item": [
+        2,
+        4
+      ],
+      "GEOM|B|D2|item": [
+        2,
+        4
+      ],
+      "RAIS|C|D3|critere": [
+        8,
+        12
+      ],
+      "EXACT|C|D3|critere": [
+        4,
+        6
+      ],
+      "RAIS|D|D2|item": [
+        2,
+        4
+      ]
+    }
+  },
+  "notes_de_revision": [
+    "2026-09-11 — trois critères ajoutés à la grille du Grand oral après audit contre la définition officielle de l'épreuve : QUEST, DISCIP, ARGU. Le jeu les renseigne dans la cohérence du profil qu'il décrit déjà."
+  ]
+}

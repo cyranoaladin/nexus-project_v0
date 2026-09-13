@@ -1,0 +1,730 @@
+{
+  "instrument": "QP",
+  "version": "standard",
+  "schema": "nexus.instrument.formulaire",
+  "titre": "Questionnaire de parcours et contraintes",
+  "source_cahier": "§ 2.1 et § 3.1",
+  "avertissement": "Ce questionnaire ne mesure aucune compétence. Il établit les éléments qui conditionnent l'interprétation des résultats et le plan proposé. Les questions QP-20 à QP-30 forment une section conditionnelle : elles ne sont présentées qu'aux candidats qui présentent toutes les épreuves à la même session. Les pièces justificatives et les décisions administratives ne sont pas des réponses du candidat ; elles sont saisies par Nexus.",
+  "saisie": {
+    "support": "plateforme",
+    "note_papier": "Le formulaire imprimable n'est qu'un secours pour une passation empêchée (§ 3.2). Il ne porte aucun champ nominatif autre que le code candidat : le nom, la date de naissance et les coordonnées sont saisis sur la plateforme uniquement."
+  },
+  "consigne_liminaire": "Répondez à chaque question. Il n'y a ni bonne ni mauvaise réponse : ces éléments servent à construire un plan de travail adapté à votre situation.",
+  "questions": [
+    {
+      "id": "QP-01",
+      "libelle": "Quel profil correspond à votre situation ?",
+      "cible": "profil",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "P1",
+          "libelle": "Je prépare la première partie du baccalauréat"
+        },
+        {
+          "valeur": "P2",
+          "libelle": "J'ai validé la première partie et je prépare la Terminale"
+        },
+        {
+          "valeur": "P3",
+          "libelle": "Je présente la totalité des épreuves la même année"
+        }
+      ]
+    },
+    {
+      "id": "QP-02",
+      "libelle": "Quelle session visez-vous ?",
+      "cible": "session_visee",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "2027",
+          "libelle": "Session 2027"
+        },
+        {
+          "valeur": "2028",
+          "libelle": "Session 2028"
+        }
+      ]
+    },
+    {
+      "id": "QP-03",
+      "libelle": "Dans quel système avez-vous été scolarisé en dernier lieu ?",
+      "cible": "systeme_scolaire",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "AEFE",
+          "libelle": "Établissement du réseau de l'enseignement français à l'étranger"
+        },
+        {
+          "valeur": "homologue",
+          "libelle": "Établissement homologué"
+        },
+        {
+          "valeur": "tunisien",
+          "libelle": "Système tunisien"
+        },
+        {
+          "valeur": "autre",
+          "libelle": "Un autre système"
+        },
+        {
+          "valeur": "aucun",
+          "libelle": "Je n'ai pas été scolarisé récemment"
+        }
+      ]
+    },
+    {
+      "id": "QP-04",
+      "libelle": "Quelle est la dernière classe que vous avez suivie en entier ?",
+      "cible": "derniere_classe_complete",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "troisieme",
+          "libelle": "Troisième"
+        },
+        {
+          "valeur": "seconde",
+          "libelle": "Seconde"
+        },
+        {
+          "valeur": "premiere",
+          "libelle": "Première"
+        },
+        {
+          "valeur": "terminale",
+          "libelle": "Terminale"
+        },
+        {
+          "valeur": "aucune",
+          "libelle": "Aucune de ces classes"
+        }
+      ]
+    },
+    {
+      "id": "QP-05",
+      "libelle": "Combien d'années se sont écoulées depuis votre dernière année de scolarité ?",
+      "cible": "annees_interruption",
+      "type": "entier",
+      "min": 0,
+      "max": 10,
+      "unite": "années"
+    },
+    {
+      "id": "QP-06",
+      "libelle": "Quelles épreuves de français devez-vous présenter à la session visée ? (Un candidat qui se représente conserve ses notes égales ou supérieures à 10 ; l'écrit et l'oral sont deux épreuves distinctes.)",
+      "cible": "epreuves_francais_a_presenter",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "les_deux",
+          "libelle": "L'écrit et l'oral"
+        },
+        {
+          "valeur": "ecrit",
+          "libelle": "L'écrit seul — je conserve ma note d'oral"
+        },
+        {
+          "valeur": "oral",
+          "libelle": "L'oral seul — je conserve ma note d'écrit"
+        },
+        {
+          "valeur": "aucune",
+          "libelle": "Aucune — je conserve mes deux notes"
+        }
+      ]
+    },
+    {
+      "id": "QP-07",
+      "libelle": "Quels enseignements de spécialité présentez-vous ?",
+      "cible": "specialites",
+      "type": "choix_multiple",
+      "min_choix": 2,
+      "max_choix": 3,
+      "options": [
+        {
+          "valeur": "MATH",
+          "libelle": "Mathématiques"
+        },
+        {
+          "valeur": "PC",
+          "libelle": "Physique-chimie"
+        },
+        {
+          "valeur": "NSI",
+          "libelle": "Numérique et sciences informatiques"
+        },
+        {
+          "valeur": "SVT",
+          "libelle": "Sciences de la vie et de la Terre"
+        },
+        {
+          "valeur": "SES",
+          "libelle": "Sciences économiques et sociales"
+        },
+        {
+          "valeur": "HGGSP",
+          "libelle": "Histoire-géographie, géopolitique et sciences politiques"
+        },
+        {
+          "valeur": "HLP",
+          "libelle": "Humanités, littérature et philosophie"
+        }
+      ]
+    },
+    {
+      "id": "QP-08",
+      "libelle": "Pour chaque spécialité choisie, quelle est votre situation ?",
+      "cible": "statut_par_specialite",
+      "type": "choix_unique",
+      "repete_pour": "specialites",
+      "options": [
+        {
+          "valeur": "deja_suivie_en_classe",
+          "libelle": "Je l'ai suivie en classe"
+        },
+        {
+          "valeur": "etudiee_seul",
+          "libelle": "Je l'ai étudiée seul"
+        },
+        {
+          "valeur": "jamais_abordee",
+          "libelle": "Je ne l'ai jamais abordée"
+        }
+      ]
+    },
+    {
+      "id": "QP-09",
+      "libelle": "Quelle spécialité abandonnez-vous en fin de Première ?",
+      "cible": "specialite_abandonnee",
+      "type": "choix_unique",
+      "condition": "profil in (P1, P3)",
+      "options": [
+        {
+          "valeur": "MATH",
+          "libelle": "Mathématiques"
+        },
+        {
+          "valeur": "PC",
+          "libelle": "Physique-chimie"
+        },
+        {
+          "valeur": "NSI",
+          "libelle": "Numérique et sciences informatiques"
+        },
+        {
+          "valeur": "SVT",
+          "libelle": "Sciences de la vie et de la Terre"
+        },
+        {
+          "valeur": "SES",
+          "libelle": "Sciences économiques et sociales"
+        },
+        {
+          "valeur": "HGGSP",
+          "libelle": "Histoire-géographie, géopolitique et sciences politiques"
+        },
+        {
+          "valeur": "HLP",
+          "libelle": "Humanités, littérature et philosophie"
+        },
+        {
+          "valeur": "aucune",
+          "libelle": "Aucune"
+        }
+      ]
+    },
+    {
+      "id": "QP-10",
+      "libelle": "Dans quelle langue avez-vous été scolarisé principalement ?",
+      "cible": "langue_scolarisation",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "francais",
+          "libelle": "Français"
+        },
+        {
+          "valeur": "arabe",
+          "libelle": "Arabe"
+        },
+        {
+          "valeur": "anglais",
+          "libelle": "Anglais"
+        },
+        {
+          "valeur": "autre",
+          "libelle": "Une autre langue"
+        }
+      ]
+    },
+    {
+      "id": "QP-11",
+      "libelle": "Quelle langue parlez-vous à la maison ?",
+      "cible": "langue_maison",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "francais",
+          "libelle": "Français"
+        },
+        {
+          "valeur": "arabe",
+          "libelle": "Arabe"
+        },
+        {
+          "valeur": "les_deux",
+          "libelle": "Les deux"
+        },
+        {
+          "valeur": "autre",
+          "libelle": "Une autre langue"
+        }
+      ]
+    },
+    {
+      "id": "QP-12",
+      "libelle": "Comment estimez-vous votre français aujourd'hui, sur chacun de ces axes ?",
+      "cible": "auto_francais",
+      "type": "echelle_1_4",
+      "axes": [
+        "Comprendre à l'oral",
+        "Écrire",
+        "Parler",
+        "Lire des textes littéraires"
+      ]
+    },
+    {
+      "id": "QP-13",
+      "libelle": "Comment estimez-vous votre niveau dans chaque spécialité choisie ?",
+      "cible": "auto_par_matiere",
+      "type": "echelle_1_4",
+      "repete_pour": "specialites"
+    },
+    {
+      "id": "QP-14",
+      "libelle": "Combien d'heures par semaine pouvez-vous consacrer au travail personnel, de façon réaliste ?",
+      "cible": "heures_disponibles",
+      "type": "entier",
+      "min": 0,
+      "max": 60,
+      "unite": "heures par semaine"
+    },
+    {
+      "id": "QP-15",
+      "libelle": "Exercez-vous une activité en parallèle ?",
+      "cible": "activite_parallele",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "aucune",
+          "libelle": "Aucune"
+        },
+        {
+          "valeur": "temps_partiel",
+          "libelle": "Une activité à temps partiel"
+        },
+        {
+          "valeur": "temps_plein",
+          "libelle": "Une activité à temps plein"
+        },
+        {
+          "valeur": "autre_formation",
+          "libelle": "Une autre formation"
+        }
+      ]
+    },
+    {
+      "id": "QP-16",
+      "libelle": "De quel matériel disposez-vous chez vous ?",
+      "cible": "acces_materiel",
+      "type": "choix_multiple",
+      "min_choix": 1,
+      "max_choix": 5,
+      "options": [
+        {
+          "valeur": "ordinateur",
+          "libelle": "Un ordinateur"
+        },
+        {
+          "valeur": "calculatrice",
+          "libelle": "Une calculatrice"
+        },
+        {
+          "valeur": "connexion_stable",
+          "libelle": "Une connexion internet stable"
+        },
+        {
+          "valeur": "imprimante",
+          "libelle": "Une imprimante"
+        },
+        {
+          "valeur": "aucun",
+          "libelle": "Aucun de ces éléments"
+        }
+      ]
+    },
+    {
+      "id": "QP-17",
+      "libelle": "Quelle orientation envisagez-vous après le baccalauréat ?",
+      "cible": "orientation_visee",
+      "type": "texte_court",
+      "max_caracteres": 120,
+      "obligatoire": false
+    },
+    {
+      "id": "QP-18",
+      "libelle": "Êtes-vous concerné par Parcoursup ?",
+      "cible": "parcoursup_concerne",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        },
+        {
+          "valeur": "ne_sait_pas",
+          "libelle": "Je ne sais pas encore"
+        }
+      ]
+    },
+    {
+      "id": "QP-19",
+      "libelle": "Comment présenterez-vous les épreuves anticipées ?",
+      "cible": "mode_passation_ea",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "profil",
+        "valeurs": [
+          "P2"
+        ]
+      },
+      "options": [
+        {
+          "valeur": "anticipation",
+          "libelle": "Je passe les épreuves anticipées une année avant les épreuves terminales"
+        },
+        {
+          "valeur": "meme_session",
+          "libelle": "Je passe les épreuves anticipées et les épreuves terminales à la même session"
+        }
+      ],
+      "aide": "Question posée aux seuls candidats qui préparent la Terminale : un redoublant peut représenter une épreuve anticipée l'année de ses épreuves terminales. Pour les autres profils, la réponse se déduit du profil déclaré."
+    },
+    {
+      "id": "QP-20",
+      "libelle": "Avez-vous présenté les épreuves anticipées l'année précédente ?",
+      "cible": "epreuves_anticipees_presentees_annee_precedente",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui, je les ai présentées l'an dernier"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-21",
+      "libelle": "Avez-vous un enfant à charge ?",
+      "cible": "enfant_a_charge",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-22",
+      "libelle": "Reprenez-vous vos études après une interruption ?",
+      "cible": "retour_formation_initiale",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui, je reprends mes études après les avoir interrompues"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-23",
+      "libelle": "Avez-vous été empêché de présenter les épreuves anticipées pour un motif indépendant de votre volonté ?",
+      "cible": "force_majeure_constatee",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui, et la situation a été constatée par l'autorité d'examen"
+        },
+        {
+          "valeur": "en_cours",
+          "libelle": "Oui, et la demande est en cours d'examen"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-24",
+      "libelle": "Avez-vous résidé à l'étranger pendant votre scolarité ?",
+      "cible": "residence_etranger",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "aucune",
+          "libelle": "Je n'ai pas résidé à l'étranger"
+        },
+        {
+          "valeur": "temporaire_en_premiere",
+          "libelle": "J'ai résidé temporairement à l'étranger au niveau de la première"
+        },
+        {
+          "valeur": "permanente",
+          "libelle": "Je réside à l'étranger de façon permanente"
+        }
+      ]
+    },
+    {
+      "id": "QP-25",
+      "libelle": "Dans quel pays résidez-vous ?",
+      "cible": "pays_de_residence",
+      "type": "texte_court",
+      "conditionnelle": {
+        "variable": "residence_etranger",
+        "valeurs": [
+          "permanente"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "aide": "Nous vérifions nous-mêmes, auprès de l'autorité d'examen, quels centres y sont ouverts.",
+      "max_caracteres": 60,
+      "condition_lisible": "si vous résidez à l'étranger de façon permanente"
+    },
+    {
+      "id": "QP-26",
+      "libelle": "Avez-vous déjà présenté le baccalauréat ?",
+      "cible": "examens_anterieurs",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "jamais_presente",
+          "libelle": "Je ne l'ai jamais présenté"
+        },
+        {
+          "valeur": "presente_sans_succes",
+          "libelle": "Je l'ai présenté sans l'obtenir"
+        },
+        {
+          "valeur": "presente_avec_succes",
+          "libelle": "Je l'ai obtenu"
+        }
+      ]
+    },
+    {
+      "id": "QP-27",
+      "libelle": "Avez-vous présenté les épreuves anticipées sans vous inscrire au baccalauréat l'année suivante ?",
+      "cible": "ea_presentees_puis_absence_inscription",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-28",
+      "libelle": "Détenez-vous déjà l'un de ces diplômes français ?",
+      "cible": "diplome_francais_detenu",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "aucun",
+          "libelle": "Aucun"
+        },
+        {
+          "valeur": "baccalaureat_general",
+          "libelle": "Baccalauréat général"
+        },
+        {
+          "valeur": "baccalaureat_technologique",
+          "libelle": "Baccalauréat technologique"
+        },
+        {
+          "valeur": "baccalaureat_professionnel",
+          "libelle": "Baccalauréat professionnel"
+        },
+        {
+          "valeur": "brevet_de_technicien",
+          "libelle": "Brevet de technicien"
+        },
+        {
+          "valeur": "brevet_de_technicien_agricole",
+          "libelle": "Brevet de technicien agricole"
+        }
+      ]
+    },
+    {
+      "id": "QP-29",
+      "libelle": "Détenez-vous un diplôme étranger de fin d'études secondaires ?",
+      "cible": "diplome_etranger_comparable",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        },
+        {
+          "valeur": "oui",
+          "libelle": "Oui"
+        },
+        {
+          "valeur": "a_reconnaitre",
+          "libelle": "Oui, et sa comparabilité n'a pas encore été reconnue"
+        }
+      ]
+    },
+    {
+      "id": "QP-30",
+      "libelle": "Changez-vous de voie ou de série en terminale ?",
+      "cible": "changement_voie_ou_serie",
+      "type": "choix_unique",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "section": "eligibilite_meme_session",
+      "options": [
+        {
+          "valeur": "oui",
+          "libelle": "Oui"
+        },
+        {
+          "valeur": "non",
+          "libelle": "Non"
+        }
+      ]
+    },
+    {
+      "id": "QP-31",
+      "libelle": "Quelle modalité avez-vous choisie (ou envisagez-vous) pour vos évaluations ponctuelles de contrôle continu ?",
+      "cible": "mode_evaluations_ponctuelles",
+      "type": "choix_unique",
+      "options": [
+        {
+          "valeur": "annuelle",
+          "libelle": "Évaluation annuelle (épreuves en fin de première puis en fin de terminale)"
+        },
+        {
+          "valeur": "fin_cycle",
+          "libelle": "Évaluation globale en fin de cycle terminal"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "code": "eligibilite_meme_session",
+      "titre": "Passage de toutes les épreuves à la même session",
+      "conditionnelle": {
+        "variable": "passage_meme_session_sollicite",
+        "valeurs": [
+          "oui"
+        ]
+      },
+      "consigne": "Elles servent à établir que la réglementation vous autorise à présenter toutes les épreuves la même année. Vos réponses sont vérifiées sur pièces, et certaines situations relèvent d'une décision de l'autorité d'examen : déclarer une situation ne suffit jamais à ouvrir ce passage.",
+      "fondement": "arrêté du 16 juillet 2018, article 3",
+      "condition_lisible": "si vous présentez les épreuves anticipées et les épreuves terminales à la même session"
+    }
+  ]
+}

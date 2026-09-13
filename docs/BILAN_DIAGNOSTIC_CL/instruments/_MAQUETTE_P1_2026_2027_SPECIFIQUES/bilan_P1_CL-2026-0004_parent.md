@@ -1,0 +1,244 @@
+# Bilan diagnostic — document destiné aux responsables légaux
+
+**MAQUETTE — DONNÉES FICTIVES — NON DIFFUSABLE**
+
+> Ce document est produit sur un jeu fictif pour éprouver les règles et les contrôles. Il ne décrit aucun candidat réel et n'est remis à personne. Plusieurs instruments qui l'alimentent ne sont pas diffusables.
+
+- Candidat : `CL-2026-0004`
+- Session du baccalauréat : **2028**
+- Épreuves anticipées : par anticipation, l'année scolaire **2026-2027**
+- Date de passation : 2026-09-15
+
+> Ce bilan décrit un point de départ mesuré un jour donné. Il ne prédit aucun résultat et ne se compare à aucun autre candidat. Il porte exactement les mêmes valeurs que le document remis au candidat.
+
+---
+
+## 1. Situation
+
+- Profil **P1**, dernière classe complète : Seconde, sans interruption
+- Épreuves de français à présenter : **L'écrit et l'oral de l'épreuve anticipée**
+- Spécialités : **Physique-chimie**, **Sciences de la vie et de la Terre**, **Sciences économiques et sociales**
+- Temps disponible déclaré : **16 h** par semaine ; activité en parallèle : aucune
+- Langue de scolarisation : Arabe ; langue à la maison : Arabe
+- Français déclaré, à titre de contexte : comprendre à l'oral 3/4 · écrire 3/4 · parler 2/4 · lire des textes littéraires 2/4
+
+Instruments passés et version de banque :
+
+- Questionnaire de parcours et contraintes — **QP / standard**
+- Diagnostic français — les deux épreuves anticipées — session 2028 — **FR-EAF / standard_2028**, banque 1.0
+- Épreuve orale anticipée de français — grille coach — **FR-EAF-ORAL / standard**
+- Tronc commun — enseignement scientifique, programme de Première — **TC-ES / 1RE**, banque 1.0
+- Méthodes de travail, organisation, autonomie — **MET / standard**
+- Épreuve anticipée de mathématiques — parcours mathématiques de l'enseignement scientifique — **MATH-EA / SPECIFIQUES**, banque 1.0
+- Spécialité physique-chimie — version Première — **EDS-PC / N1**, banque 1.0
+- Spécialité sciences de la vie et de la Terre — version Première — **EDS-SVT / N1**, banque 1.0
+- Spécialité sciences économiques et sociales — version Première — **EDS-SES / N1**, banque 1.0
+
+---
+
+## 2. Synthèse
+
+| Matière | Score global | Taux de prérequis | Palier de profondeur | Tâche type épreuve | Niveau d'entrée | Priorité |
+|---|---|---|---|---|---|---|
+| **Mathématiques — épreuve anticipée de première** | 43 % | 83 % | D1 | 44 % | Fragile | 1 |
+| **Spécialité sciences économiques et sociales** | 35 % | 50 % | D1 | 40 % | Fragile | 2 |
+| **Spécialité sciences de la vie et de la Terre** | 51 % | 50 % | D3 | 33 % | Fragile | 3 |
+| **Spécialité physique-chimie** | 56 % | 83 % | D3 | 50 % | Fragile | 4 |
+| **Français — épreuve anticipée, écrit et oral** | 59 % | 75 % | D3 | 50 % | Fragile | 5 |
+| **Tronc commun — enseignement scientifique** | 50 % | 100 % | D1 | — | Fragile | 6 |
+
+*Le score global et le palier de profondeur se lisent ensemble : à score égal, un palier bas signale une notion qui tient dans le contexte où elle a été vue, un palier haut une notion qui se transporte dans un raisonnement à construire. Un palier noté « — » signifie qu'aucun palier n'atteint les deux tiers de points requis.*
+
+*Spécialité sciences économiques et sociales — Ce taux se lit en tenant compte du statut déclaré pour cette spécialité : elle n'a jamais été abordée en classe. Il mesure un point de départ, non une perte.*
+
+---
+
+## 3. Cartographie par matière
+
+### Mathématiques — épreuve anticipée de première
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Automatismes de calcul : taux d'évolution, calcul numérique et algébrique | Fragile | 50 % | — (maximum testé dans ce domaine : D2) |
+| Automatismes graphiques et statistiques : lectures, droites, indicateurs | Fragile | 43 % | — (maximum testé dans ce domaine : D2) |
+| Probabilités conditionnelles, indépendance et répétition d'épreuves | Fragile | 38 % | — (maximum testé dans ce domaine : D2) |
+| Modélisation d'un phénomène d'évolution : linéaire, quadratique, exponentielle | Fragile | 40 % | — (maximum testé dans ce domaine : D2) |
+| Analyse de l'information chiffrée : séries bivariées et ajustement affine | Fragile | 38 % | — (maximum testé dans ce domaine : D2) |
+| Conduite d'une épreuve sans calculatrice : calcul exact, ordres de grandeur, vraisemblance | Fragile | 50 % | D1 |
+| Raisonnement et rédaction : justifier une étape, rédiger une réponse complète | Fragile | 38 % | — |
+
+Score global du diagnostic : 43 %. Taux de non-réponse : 24 %. Production au format de l'épreuve (bloc C) : 44 % (8 points sur 18). Erreurs les plus fréquentes : Ajustement extrapolé sans réserve (2) · Probabilité conditionnelle confondue avec l'intersection (2) · Ordre de grandeur non contrôlé (2).
+
+**Note estimée au format de l'épreuve : 7,8 sur 20.** automatismes : 2,3 sur 6 · seconde partie : 5,5 sur 14. Le score global du diagnostic et le score au format de l'épreuve ne mesurent pas la même chose : le premier pondère les compétences comme la banque les pondère, le second applique la pondération officielle 6/14. Les deux sont rendus, et jamais confondus.
+
+### Spécialité sciences économiques et sociales
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Marché, monnaie et financement, défaillances | Fragile | 33 % | D1 (maximum testé dans ce domaine : D2) |
+| Socialisation, liens sociaux, déviance | Fragile | 33 % | D1 (maximum testé dans ce domaine : D2) |
+| Opinion publique, vote | Fragile | 33 % | D1 (maximum testé dans ce domaine : D2) |
+| Lecture de données : pourcentage, taux de variation, indice, coefficient multiplicateur, lecture de tableau et de graphique | Fragile | 36 % | D1 |
+| Mobilisation des connaissances : définir, expliquer un mécanisme | Fragile | 33 % | D1 (maximum testé dans ce domaine : D2) |
+| Étude d'un document : présenter, analyser, calculer | Fragile | 38 % | — |
+| Raisonnement argumenté et dissertation : structurer, articuler théorie et données | Fragile | 38 % | — |
+
+Score global du diagnostic : 35 %. Taux de non-réponse : 33 %. Production au format de l'épreuve (bloc C) : 40 % (6 points sur 15). Erreurs les plus fréquentes : Mécanisme énoncé sans étapes (1) · Notion définie par un exemple (1) · Nature ou source du document absente (1).
+
+### Spécialité sciences de la vie et de la Terre
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Transmission, variation et expression du génome | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Dynamique interne du globe | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Écosystèmes et services | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Corps humain et santé : immunité, régulation, glycémie | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Analyse de documents : extraire, mettre en relation, conclure | Fragile | 54 % | D2 |
+| Prérequis de méthode scientifique : hypothèse, expérience témoin, variable | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Rédiger une synthèse structurée ; résoudre un problème documentaire | Fragile | 50 % | D3 |
+
+Score global du diagnostic : 51 %. Taux de non-réponse : 18 %. Production au format de l'épreuve (bloc C) : 33 % (4 points sur 12). Erreurs les plus fréquentes : Chronologie géologique inversée (1) · Conclusion sans appui sur les données (1) · Étapes de division cellulaire confondues (1).
+
+### Spécialité physique-chimie
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Grandeurs, unités, conversions, chiffres significatifs, proportionnalité, lecture de graphique | En consolidation | 56 % | D2 |
+| Constitution et transformations de la matière : mole, concentration, avancement, dosage | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Mouvement et interactions : vecteurs vitesse, forces | En consolidation | 67 % | D1 (maximum testé dans ce domaine : D2) |
+| Énergie : travail, énergie cinétique et potentielle, conservation, bilans énergétiques | En consolidation | 67 % | D1 (maximum testé dans ce domaine : D2) |
+| Ondes et signaux : caractéristiques, optique géométrique | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Démarche expérimentale : protocole, incertitude, exploitation d'un tableau de mesures | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Résolution de problème : identifier, modéliser, calculer, conclure avec unités | Fragile | 55 % | D3 |
+
+Score global du diagnostic : 56 %. Taux de non-réponse : 22 %. Production au format de l'épreuve (bloc C) : 50 % (6 points sur 12). Erreurs les plus fréquentes : Chiffres significatifs non respectés (1) · Conclusion sans retour à la question (1) · Relation appliquée hors condition (1).
+
+### Français — épreuve anticipée, écrit et oral
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Compréhension fine d'un texte littéraire : sens explicite, implicite, enjeux | En consolidation | 58 % | D2 |
+| Correction de la langue : orthographe, accords, syntaxe, ponctuation, registres | En consolidation | 56 % | D2 |
+| Grammaire du programme de l'oral : subordonnées (relatives, conjonctives complétives et circonstancielles), négation, interrogation | Fragile | 54 % | D1 (maximum testé dans ce domaine : D2) |
+| Outils d'analyse : figures, énonciation, versification, point de vue, genres et mouvements | En consolidation | 58 % | D2 |
+| Construction d'un raisonnement : thèse, arguments, exemples, connecteurs | En consolidation | 60 % | D2 |
+| Rédaction d'un paragraphe de commentaire structuré : idée directrice, citation, analyse, conclusion partielle | En consolidation | 60 % | D3 |
+| Repères : œuvres au programme, parcours associés, mouvements littéraires | En consolidation | 67 % | D1 (maximum testé dans ce domaine : D2) |
+| Explication linéaire d'un extrait : mouvement du texte, procédés au service du sens, lecture personnelle argumentée | En consolidation | 67 % | — |
+| Entretien sur une œuvre choisie : présentation du choix, appui sur la lecture, réponse aux relances | En consolidation | 67 % | — |
+| Langue parlée : lecture expressive, correction syntaxique et interaction | En consolidation | 67 % | — |
+
+Score global du diagnostic : 59 %. Taux de non-réponse : 20 %. Production au format de l'épreuve (bloc C) : 50 % (6 points sur 12). Erreurs les plus fréquentes : Citation absente ou non intégrée (1) · Nature de la proposition inexacte (2) · Procédé identifié pour un autre (2).
+
+**Oral de français.** 9 points sur 15. Point de vigilance : réponse à la question de grammaire, à 1 sur 3.
+
+### Tronc commun — enseignement scientifique
+
+| Compétence | Niveau | Score | Palier |
+|---|---|---|---|
+| Une longue histoire de la matière : cristaux, cellule, Soleil, rayonnement | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| Son et musique ; Le Soleil, notre source d'énergie | Fragile | 50 % | D1 (maximum testé dans ce domaine : D2) |
+| La Terre, un astre singulier | Fragile | 43 % | D1 (maximum testé dans ce domaine : D2) |
+| Démarche scientifique : lire un graphique, identifier une variable, critiquer un protocole | En consolidation | 56 % | D1 (maximum testé dans ce domaine : D2) |
+
+Score global du diagnostic : 50 %. Taux de non-réponse : 30 %. Erreurs les plus fréquentes : Terme scientifique employé approximativement (1) · Échelle de temps confondue (1) · Unité absente ou inadaptée (1).
+
+### Langue, mesures mises en regard
+
+| Instrument | Mesure | Score | Niveau |
+|---|---|---|---|
+| Français — épreuve anticipée, écrit et oral | Correction de la langue : orthographe, accords, syntaxe, ponctuation, registres | 56 % | En consolidation |
+| Français — épreuve anticipée, écrit et oral | Langue parlée : lecture expressive, correction syntaxique et interaction | 67 % | En consolidation |
+
+*Ces mesures sont affichées côte à côte et ne sont jamais moyennées : elles servent à distinguer une difficulté de langue d'une difficulté propre à la matière.*
+
+---
+
+## 4. Points d'appui et vigilances
+
+**Sur quoi votre enfant peut s'appuyer.**
+
+| Matière | Compétence | Score | Palier |
+|---|---|---|---|
+| Spécialité physique-chimie | Mouvement et interactions : vecteurs vitesse, forces | 67 % | D1 (maximum testé dans ce domaine : D2) |
+| Spécialité physique-chimie | Énergie : travail, énergie cinétique et potentielle, conservation, bilans énergétiques | 67 % | D1 (maximum testé dans ce domaine : D2) |
+| Français — épreuve anticipée, écrit et oral | Repères : œuvres au programme, parcours associés, mouvements littéraires | 67 % | D1 (maximum testé dans ce domaine : D2) |
+
+**Les priorités.** Ce sont les modules d'entrée du plan de démarrage, dans son ordre : la section qui suit dit comment chacun se travaille.
+
+| Rang | Matière | Module d'entrée | Mesure | Niveau d'entrée |
+|---|---|---|---|---|
+| 1 | Mathématiques — épreuve anticipée de première | Automatismes de calcul : taux d'évolution, calcul numérique et algébrique | 50 % | Fragile |
+| 2 | Spécialité sciences économiques et sociales | Marché, monnaie et financement, défaillances | 33 % | Fragile |
+| 3 | Spécialité sciences de la vie et de la Terre | Transmission, variation et expression du génome | 50 % | Fragile |
+
+Ce que chacun de ces niveaux appelle : **Fragile** — reprise structurée du chapitre depuis les prérequis.
+
+**Ce que la mesure dit de l'auto-positionnement.** Avant chaque épreuve, votre enfant a situé son niveau sur une échelle de 1 à 4. Un écart de plus de 25 points avec la mesure est signalé ici. Il ne modifie aucun des niveaux ci-dessus.
+
+- **Mathématiques — épreuve anticipée de première — Probabilités conditionnelles, indépendance et répétition d'épreuves** : auto-positionnement 4 sur 4, soit 100 sur 100 ; mesure 38. Écart de 62 points en surestimation — risque de sous-travail, priorité à des évaluations fréquentes.
+- **Mathématiques — épreuve anticipée de première — Automatismes graphiques et statistiques : lectures, droites, indicateurs** : auto-positionnement 4 sur 4, soit 100 sur 100 ; mesure 43. Écart de 57 points en surestimation — risque de sous-travail, priorité à des évaluations fréquentes.
+- **Mathématiques — épreuve anticipée de première — Automatismes de calcul : taux d'évolution, calcul numérique et algébrique** : auto-positionnement 4 sur 4, soit 100 sur 100 ; mesure 50. Écart de 50 points en surestimation — risque de sous-travail, priorité à des évaluations fréquentes.
+- **Mathématiques — épreuve anticipée de première — Conduite d'une épreuve sans calculatrice : calcul exact, ordres de grandeur, vraisemblance** : auto-positionnement 4 sur 4, soit 100 sur 100 ; mesure 50. Écart de 50 points en surestimation — risque de sous-travail, priorité à des évaluations fréquentes.
+- **Mathématiques — épreuve anticipée de première — Raisonnement et rédaction : justifier une étape, rédiger une réponse complète** : auto-positionnement 3 sur 4, soit 67 sur 100 ; mesure 38. Écart de 29 points en surestimation — risque de sous-travail, priorité à des évaluations fréquentes.
+- **Français — épreuve anticipée, écrit et oral — Rédaction d'un paragraphe de commentaire structuré : idée directrice, citation, analyse, conclusion partielle** : auto-positionnement 2 sur 4, soit 33 sur 100 ; mesure 60. Écart de 27 points en sous-estimation — risque de découragement, priorité à des réussites rapides visibles.
+
+---
+
+## 5. Plan de démarrage
+
+Les matières de travail sont données dans l'ordre de priorité du plan. Deux mesures d'une même matière — le français peut en compter deux — n'ouvrent qu'une seule enveloppe hebdomadaire.
+
+**Mathématiques — épreuve anticipée de première — module d'entrée : Automatismes de calcul : taux d'évolution, calcul numérique et algébrique.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Automatismes de calcul : taux d'évolution, calcul numérique et algébrique.
+
+**Spécialité sciences économiques et sociales — module d'entrée : Marché, monnaie et financement, défaillances.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Marché, monnaie et financement, défaillances.
+
+**Spécialité sciences de la vie et de la Terre — module d'entrée : Transmission, variation et expression du génome.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Transmission, variation et expression du génome.
+
+**Spécialité physique-chimie — module d'entrée : Constitution et transformations de la matière : mole, concentration, avancement, dosage.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Constitution et transformations de la matière : mole, concentration, avancement, dosage.
+
+**Français — épreuve anticipée, écrit et oral — module d'entrée : Grammaire du programme de l'oral : subordonnées (relatives, conjonctives complétives et circonstancielles), négation, interrogation.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Grammaire du programme de l'oral : subordonnées (relatives, conjonctives complétives et circonstancielles), négation, interrogation.
+
+**Tronc commun — enseignement scientifique — module d'entrée : Une longue histoire de la matière : cristaux, cellule, Soleil, rayonnement.** C'est la première compétence classée Fragile dans l'ordre des chapitres. Rythme : 2 h par semaine — le rythme suit le niveau le plus bas de la matière, ici Fragile. Objectif de l'évaluation à 4 semaines : Une longue histoire de la matière : cristaux, cellule, Soleil, rayonnement.
+
+**Première évaluation intermédiaire : à 4 semaines**, sur les compétences nommées ci-dessus, avec les mêmes codes d'items qu'aujourd'hui pour que la comparaison soit possible.
+
+---
+
+## 6. Méthode et organisation
+
+Le questionnaire de méthode situe la manière de travailler de votre enfant sur quatre dimensions. Pour chacune, l'outillage proposé est celui que le niveau constaté appelle.
+
+**Planification du travail.** Travaille au jour le jour, sans répartition prévue à l'avance. Outillage : Planning hebdomadaire imposé, rempli avec le coach en fin de séance et vérifié à la séance suivante. Deux plages de travail fixes par matière, aux mêmes créneaux chaque semaine.
+
+**Stratégies d'apprentissage.** Apprend surtout en relisant ses cours. Outillage : Auto-évaluations courtes en fin de chaque séance, sur le contenu de la séance elle-même. Introduction du principe de la question posée avant la relecture.
+
+**Gestion de l'épreuve.** Répartit le temps mais relit rarement. Outillage : Une production complète chronométrée toutes les deux semaines, suivie d'une relecture guidée par la grille de correction de l'épreuve.
+
+**Ressources et environnement de travail.** Dispose d'un lieu de travail, avec un matériel partiel. Outillage : Prêt du matériel manquant lorsque le centre en dispose. Séances de spécialité sur machine programmées au centre lorsque l'ordinateur manque à domicile.
+
+---
+
+## 7. Formule recommandée
+
+**Volume horaire hebdomadaire recommandé : 12 h**, réparti ainsi.
+
+| Matière de travail | Heures par semaine |
+|---|---|
+| Mathématiques — épreuve anticipée de première | 2 h |
+| Spécialité sciences économiques et sociales | 2 h |
+| Spécialité sciences de la vie et de la Terre | 2 h |
+| Spécialité physique-chimie | 2 h |
+| Français — épreuve anticipée, écrit et oral | 2 h |
+| Tronc commun — enseignement scientifique | 2 h |
+
+Le volume recommandé tient dans les 16 h déclarées par votre enfant.
+
+Formule Nexus correspondante : {{formule_nexus}}
+
+*Source de prix canonique de Nexus Réussite. Elle n'existe pas dans ce dossier : le bilan porte l'emplacement réservé et la plateforme y substitue la formule et son tarif au moment de l'édition.*
+
+---
+
+*Contrôles de diffusion du § 6.3 : V-Instruments sans objet · V-Complétude réussi · V-Bornes réussi · V-Cohérence réussi · V-Couverture réussi · V-Double lecture réussi · V-Texte réussi · V-Provenance réussi · V-Tarif réussi.* *Rendu de maquette : ces contrôles montrent que la chaîne fonctionne, ils ne rendent pas ce document diffusable.*
+

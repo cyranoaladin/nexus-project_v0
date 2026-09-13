@@ -1,0 +1,1330 @@
+{
+  "instrument": "TC-HG",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "HG-2-HIST-01",
+      "competence": "HIST",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1.5,
+      "enonce": "L'année 1789 constitue une rupture majeure dans l'histoire politique française car elle marque :",
+      "supports": [],
+      "propositions": {
+        "A": "la proclamation de la Première République",
+        "B": "la fin de la monarchie absolue de droit divin et la souveraineté nationale",
+        "C": "la promulgation du Code civil des Français",
+        "D": "l'abolition définitive de la royauté en Europe"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "confusion chronologique avec septembre 1792",
+          "C": "confusion chronologique avec 1804 sous le Consulat",
+          "D": "généralisation abusive à l'ensemble du continent européen"
+        }
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de Seconde sur la périodisation et la rupture de 1789."
+    },
+    {
+      "item_id": "HG-2-GEO-01",
+      "competence": "GEO",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1.5,
+      "enonce": "En géographie, changer d'échelle d'analyse permet principalement de :",
+      "supports": [],
+      "propositions": {
+        "A": "modifier les réalités observées sans lien avec le terrain",
+        "B": "mettre en évidence des logiques et des dynamiques spatiales différentes",
+        "C": "remplacer systématiquement l'analyse locale par l'échelle mondiale",
+        "D": "éliminer les contrastes spatiaux au profit d'une moyenne générale"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "conception erronée de la démarche géographique",
+          "C": "hiérarchisation injustifiée des échelles",
+          "D": "méconnaissance de l'intérêt de la variation multi-scalaire"
+        }
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Prérequis de Seconde sur l'analyse multi-scalaire."
+    },
+    {
+      "item_id": "HG-2-CART-01",
+      "competence": "CART",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "1RE": "A",
+        "TLE": "A",
+        "ETENDUE": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1.5,
+      "enonce": "Sur un croquis cartographique, pour représenter un phénomène continu et étendu dans l'espace (comme un espace agricole ou une zone dense), on utilise :",
+      "supports": [],
+      "propositions": {
+        "A": "un figuré ponctuel géométrique",
+        "B": "un figuré de surface (aplat de couleur ou hachures)",
+        "C": "une flèche orientée à largeur variable",
+        "D": "un symbole pictographique isolé"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "un figuré ponctuel est réservé aux lieux ou localisations précises",
+          "C": "une flèche est réservée aux dynamiques et aux flux",
+          "D": "un symbole isolé ne traduit pas une étendue spatiale"
+        }
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Règles sémiologiques de base du langage cartographique."
+    },
+    {
+      "item_id": "HG-1-HIST-01",
+      "competence": "HIST",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "A",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Nommez deux principes proclamés par la Déclaration des droits de l'homme et du citoyen du 26 août 1789 qui fondent le nouvel ordre politique français.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux principes exacts cités parmi : l'égalité en droits, la liberté individuelle, la souveraineté de la Nation, la séparation des pouvoirs, ou le droit de propriété.",
+        "reponses_1pt": [
+          "Un seul principe exact est mentionné avec précision.",
+          "Deux principes sont évoqués de manière imprécise ou confondus avec des réformes postérieures."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : fondements de la Révolution française."
+    },
+    {
+      "item_id": "HG-1-HIST-02",
+      "competence": "HIST",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Expliquez en quoi le Congrès de Vienne (1815) a cherché à restaurer l'ordre ancien tout en suscitant la montée des mouvements libéraux et nationaux en Europe.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le candidat explique la restauration des dynasties légitimes et le découpage de la carte européenne au profit des puissances monarchiques, puis montre que le rejet des aspirations nationales alimente les révolutions de 1830 et 1848.",
+        "reponses_1pt": [
+          "L'explication aborde la Sainte-Alliance et la restauration mais omet la réaction nationale des peuples.",
+          "La réponse mentionne les révolutions de 1848 sans les relier aux décisions du Congrès de Vienne."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : l'Europe entre restauration et révolutions (1815-1848)."
+    },
+    {
+      "item_id": "HG-1-HIST-03",
+      "competence": "HIST",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Précisez le rôle de la France de Napoléon III dans le processus d'unification italienne entre 1858 et 1860.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'alliance militaire de Plombières entre la France et le royaume de Piémont-Sardaigne contre l'Autriche (victoires de Magenta et Solférino) permet l'annexion de la Lombardie et le rattachement de Nice et de la Savoie à la France.",
+        "reponses_1pt": [
+          "L'intervention militaire française est mentionnée mais sans citer les contreparties territoriales ou les victoires clés.",
+          "La réponse confond le rôle de la France en Italie avec la guerre franco-prussienne."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : la France et l'Europe des nationalités."
+    },
+    {
+      "item_id": "HG-1-GEO-01",
+      "competence": "GEO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "A",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Définissez la **métropolisation** et citez deux fonctions de commandement qui caractérisent une métropole de rang mondial.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La métropolisation est définie comme la concentration des populations, des activités et des fonctions de commandement dans les grandes villes. Deux fonctions parmi : financière (bourses), politique (sièges d'institutions), économique (sièges de firmes), culturelle/scientifique.",
+        "reponses_1pt": [
+          "La définition se limite à la croissance urbaine démographique sans mentionner les fonctions de commandement.",
+          "Une seule fonction de commandement est identifiée correctement."
+        ],
+        "codes_erreur": [
+          "HG-ERR-ECHELLE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : la métropolisation, un processus mondial différencié."
+    },
+    {
+      "item_id": "HG-1-GEO-02",
+      "competence": "GEO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Montrez comment la diversification des espaces productifs combine des logiques d'intégration mondiale (littoralisation, technopôles) et des disparités territoriales.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'analyse montre que les espaces productifs les plus dynamiques sont connectés aux flux mondiaux (ports, métropoles, clusters d'innovation), tandis que les espaces périphériques ou en désindustrialisation subissent des difficultés de reconversion.",
+        "reponses_1pt": [
+          "L'exposé décrit les espaces dynamiques mais n'évoque pas les contrastes ou les espaces en difficulté.",
+          "Les exemples cités sont vagues ou non localisés."
+        ],
+        "codes_erreur": [
+          "HG-ERR-ECHELLE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : diversification des espaces et des paysages de production."
+    },
+    {
+      "item_id": "HG-1-GEO-03",
+      "competence": "GEO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Expliquez ce qu'est la gentrification urbaine au sein des métropoles et indiquez une conséquence socio-spatiale directe de ce processus.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La gentrification est la transformation de quartiers populaires centraux par l'arrivée de populations aisées et la réhabilitation du bâti. Conséquence : hausse des loyers et relégation des ménages modestes vers les périphéries.",
+        "reponses_1pt": [
+          "La gentrification est comprise comme une simple rénovation urbaine sans mention du changement de profil social.",
+          "Une conséquence est citée mais sans définition du processus."
+        ],
+        "codes_erreur": [
+          "HG-ERR-ECHELLE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Première : fragmentations socio-spatiales dans les métropoles."
+    },
+    {
+      "item_id": "HG-1-DOC-01",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "À partir de la notice du document (ci-dessous), identifiez l'auteur, la nature du texte et son contexte historique immédiat.\n\n*Notice : Alphonse de Lamartine, Discours au gouvernement provisoire, 25 février 1848.*",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Auteur : Alphonse de Lamartine (homme politique républicain, poète) ; nature : discours politique / proclamation ; contexte : proclamation de la Deuxième République à Paris lors des journées révolutionnaires de février 1848.",
+        "reponses_1pt": [
+          "Deux éléments sur trois sont mentionnés avec exactitude.",
+          "L'auteur est cité mais la date ou le contexte révolutionnaire est erroné."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Capacités méthodologiques : identification critique des sources."
+    },
+    {
+      "item_id": "HG-1-DOC-02",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Relevez dans ce discours de Lamartine l'argument utilisé pour défendre le maintien du drapeau tricolore face aux partisans du drapeau rouge.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Lamartine rappelle que le drapeau tricolore symbolise l'unité de la Nation et a porté la liberté à travers le monde, tandis que le drapeau rouge est associé à la violence civile du Champ-de-Mars en 1791.",
+        "reponses_1pt": [
+          "La citation est faite sans contextualisation ni explication de la portée symbolique.",
+          "L'argument est compris mais rapporté de façon incomplète."
+        ],
+        "codes_erreur": [
+          "HG-ERR-PARAPHRASE",
+          "HG-ERR-SOURCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Analyse documentaire : contextualisation et portée symbolique."
+    },
+    {
+      "item_id": "HG-1-DOC-03",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Portez un regard critique sur ce texte : en quoi reflète-t-il les divisions idéologiques entre républicains modérés et partisans de réformes sociales plus radicales en 1848 ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'analyse montre que le texte de Lamartine illustre la position des républicains libéraux attachés à l'ordre et à l'unité nationale, face aux ouvriers et républicains socialistes qui revendiquent le droit au travail et une république sociale.",
+        "reponses_1pt": [
+          "Le clivage politique est mentionné mais sans mise en relation avec la situation sociale parisienne.",
+          "La réponse se borne à répéter les propos de l'auteur sans distance critique."
+        ],
+        "codes_erreur": [
+          "HG-ERR-PARAPHRASE",
+          "HG-ERR-SOURCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Analyse critique : mise en perspective historique et confrontation de points de vue."
+    },
+    {
+      "item_id": "HG-1-DOC-04",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.5,
+      "enonce": "Confrontez ce document à un extrait de programme des ateliers nationaux : comment ces deux sources révèlent-elles l'échec de la conciliation républicaine avant les journées de juin 1848 ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le candidat montre que la promesse politique d'unité formulée en février se heurte à la fermeture des ateliers nationaux en juin, transformant l'espoir socialiste en insurrection ouvrière réprimée par la République bourgeoise.",
+        "reponses_1pt": [
+          "La fermeture des ateliers nationaux est mentionnée sans analyse de la rupture de confiance avec le peuple.",
+          "L'analyse juxtapose les deux faits sans établir de confrontation causale."
+        ],
+        "codes_erreur": [
+          "HG-ERR-PARAPHRASE",
+          "HG-ERR-SOURCE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Confrontation de sources historiques contradictoires."
+    },
+    {
+      "item_id": "HG-1-CART-01",
+      "competence": "CART",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "A",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Associez chacune des métropoles mondiales suivantes au continent sur lequel elle exerce son rayonnement : Tokyo, São Paulo, Londres, Le Caire.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Tokyo : Asie ; São Paulo : Amérique du Sud ; Londres : Europe ; Le Caire : Afrique.",
+        "reponses_1pt": [
+          "Trois associations exactes sur les quatre.",
+          "Deux associations exactes."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LOCALISATION",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Repères spatiaux fondamentaux à l'échelle mondiale."
+    },
+    {
+      "item_id": "HG-1-CART-02",
+      "competence": "CART",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Pour un croquis intitulé « La métropolisation du territoire français », proposez deux titres de parties ordonnées pour la légende.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux parties logiques et ordonnées (ex: I. Paris, métropole de rang mondial / II. Des métropoles régionales aux dynamiques contrastées).",
+        "reponses_1pt": [
+          "Les deux parties sont formulées mais manquent de cohérence ou d'ordre démonstratif.",
+          "Une seule partie satisfaisante est proposée."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LEGENDE",
+          "HG-ERR-FIGURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Méthode de la légende organisée pour les croquis de géographie."
+    },
+    {
+      "item_id": "HG-1-CART-03",
+      "competence": "CART",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Indiquez quel figuré cartographique respecte la sémiologie graphique pour représenter : 1° l'axe de transport fluvial et ferré rhénan ; 2° les disparités de densité démographique départementales.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "1° Axe rhénan : figuré linéaire orienté (bande ou ligne épaisse de couleur vive) ; 2° Densités démographiques : figuré de surface par plages de couleur graduées (dégradé d'intensité).",
+        "reponses_1pt": [
+          "Un seul figuré conforme aux règles de la sémiologie graphique.",
+          "Les propositions sont données sans préciser la logique de dégradé ou d'orientation."
+        ],
+        "codes_erreur": [
+          "HG-ERR-FIGURE",
+          "HG-ERR-LEGENDE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Sémiologie graphique : figurés linéaires et plages choroplèthes."
+    },
+    {
+      "item_id": "HG-1-PROB-01",
+      "competence": "PROB",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": {
+        "1RE": "C",
+        "TLE": "C",
+        "ETENDUE": "C"
+      },
+      "score_max": 9,
+      "duree_min": 12.0,
+      "enonce": "Rédigez l'introduction complète et la trame rédigée des deux parties d'une réponse à la question problématisée suivante :\n\n**« En quoi la période révolutionnaire (1789-1804) marque-t-elle à la fois une rupture politique décisive et une difficile stabilisation du régime en France ? »**\n\nVotre réponse comportera une introduction avec accroche, définition des termes, problématique et annonce du plan, puis les deux axes argumentés appuyés sur des repères historiques précis.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "HG-CRIT-PB",
+          "intitule": "Problématisation du sujet et fil conducteur",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Le sujet est recopié mot à mot sans questionnement ni mise en perspective.",
+            "1": "Le thème est abordé de façon descriptive sans véritable problématique historique.",
+            "2": "Une problématique est formulée et dégage la tension entre rupture et instabilité.",
+            "3": "La problématique est formulée avec clarté, rigueur conceptuelle et borne le cadre temporel."
+          }
+        },
+        {
+          "code": "HG-CRIT-PLAN",
+          "intitule": "Structure et organisation du plan",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Aucune structure n'apparaît, les faits sont juxtaposés sans ordre.",
+            "1": "Le plan est annoncé mais les parties sont déséquilibrées ou partielles.",
+            "2": "Deux parties distinctes et cohérentes répondent aux deux aspects du sujet.",
+            "3": "Le plan est parfaitement articulé avec transitions explicites et progression logique."
+          }
+        },
+        {
+          "code": "HG-CRIT-ARG",
+          "intitule": "Mobilisation des connaissances et exemples historiques",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Aucun repère chronologique ni fait historique précis n'est mobilisé.",
+            "1": "Quelques connaissances générales sont mentionnées avec des imprécisions factuelles.",
+            "2": "Des repères et acteurs historiques clés sont mobilisés pour soutenir chaque argument.",
+            "3": "Les connaissances sont riches, datées, exactes et illustrent précisément chaque sous-partie."
+          }
+        }
+      ],
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Format officiel de la réponse à une question problématisée (voie générale)."
+    },
+    {
+      "item_id": "HG-1-PROB-02",
+      "competence": "PROB",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "D",
+        "TLE": "D",
+        "ETENDUE": "D"
+      },
+      "score_max": 2,
+      "duree_min": 2.5,
+      "enonce": "Face au sujet « Les métropoles dans la mondialisation : des espaces moteurs mais inégalement intégrés », indiquez quelle problématique parmi les propositions suivantes est la plus rigoureuse et justifiez brièvement pourquoi.",
+      "supports": [],
+      "propositions": {
+        "A": "Pourquoi les villes sont-elles très peuplées dans le monde aujourd'hui ?",
+        "B": "Dans quelle mesure la mondialisation renforce-t-elle la puissance des métropoles tout en accentuant les fractures socio-spatiales à toutes les échelles ?",
+        "C": "Quelles sont les plus grandes métropoles mondiales et où se trouvent-elles ?"
+      },
+      "cle": {
+        "reponse_2pts": "La proposition B est choisie et le candidat justifie qu'elle pose une tension dialectique (moteur vs inégalités) et invite à une démonstration multi-scalaire, contrairement à A et C qui sont purement descriptives.",
+        "reponses_1pt": [
+          "La proposition B est choisie mais la justification reste superficielle.",
+          "Le candidat élimine A et C sans justifier les atouts démonstratifs de B."
+        ],
+        "codes_erreur": [
+          "HG-ERR-STRUCTURE",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Bloc D de méthode : choix et justification d'une problématique."
+    },
+    {
+      "item_id": "HG-T-HIST-01",
+      "competence": "HIST",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Citez deux caractéristiques communes aux régimes totalitaires (fascisme italien, nazisme allemand, stalinisme soviétique) des années 1930.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux caractéristiques parmi : parti unique, culte du chef, embrigadement de la jeunesse, idéologie exclusive, recours à la terreur de masse et police politique, contrôle absolu de l'économie et des médias.",
+        "reponses_1pt": [
+          "Une seule caractéristique est clairement nommée et illustrée.",
+          "Deux caractéristiques sont évoquées de façon trop vague (ex: « pas de liberté »)."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : les régimes totalitaires de l'entre-deux-guerres."
+    },
+    {
+      "item_id": "HG-T-HIST-02",
+      "competence": "HIST",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Montrez en quoi l'année 1942 marque un tournant stratégique et militaire décisif dans la Seconde Guerre mondiale.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le candidat identifie l'arrêt de l'expansion de l'Axe sur trois théâtres majeurs : Midway dans le Pacifique, El Alamein en Afrique du Nord, et le début de la bataille de Stalingrad en Europe de l'Est, ouvrant la phase de reconquête alliée.",
+        "reponses_1pt": [
+          "Une seule bataille clé est citée sans expliquer le basculement global du conflit.",
+          "Les repères sont évoqués mais les puissances belligérantes sont confondues."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : la Seconde Guerre mondiale et ses tournants."
+    },
+    {
+      "item_id": "HG-T-HIST-03",
+      "competence": "HIST",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Expliquez comment le régime de Vichy met en œuvre la collaboration d'État avec l'Allemagne nazie à partir d'octobre 1940.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Pétain engage la collaboration à Montoire (octobre 1940), illustrée par la collaboration policière (rafle du Vel d'Hiv en juillet 1942), économique (STO en 1943) et idéologique (lois antisémites d'octobre 1940 devançant les exigences allemandes).",
+        "reponses_1pt": [
+          "L'entrevue de Montoire est citée sans détailler les formes concrètes de la collaboration.",
+          "La collaboration est attribuée à une contrainte militaire sans mentionner l'initiative propre du régime de Vichy."
+        ],
+        "codes_erreur": [
+          "HG-ERR-CHRONO",
+          "HG-ERR-ANACHRONISME"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : la France dans la Seconde Guerre mondiale."
+    },
+    {
+      "item_id": "HG-T-GEO-01",
+      "competence": "GEO",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Citez deux détroits ou canaux stratégiques pour la circulation maritime mondiale et indiquez pour chacun les espaces maritimes qu'il relie.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux passages stratégiques avec espaces reliés (ex: canal de Suez entre Méditerranée et mer Rouge ; détroit de Malacca entre océan Indien et océan Pacifique ; canal de Panama entre océan Atlantique et Pacifique).",
+        "reponses_1pt": [
+          "Un seul passage stratégique est exactement décrit avec ses mers bordières.",
+          "Deux passages sont nommés mais la localisation des espaces reliés est erronée."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LOCALISATION",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : mers et océans au cœur de la mondialisation."
+    },
+    {
+      "item_id": "HG-T-GEO-02",
+      "competence": "GEO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Expliquez comment la convention des Nations unies sur le droit de la mer (Montego Bay, 1982) organise la territorialisation des espaces maritimes et suscite des tensions géopolitiques.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le candidat présente la distinction juridique entre eaux territoriales (souveraineté totale), ZEE (droits exclusifs d'exploitation économique jusqu'à 200 milles) et haute mer (bien commun), puis cite un exemple de tension (mer de Chine méridionale ou Arctique).",
+        "reponses_1pt": [
+          "La notion de ZEE est définie sans mentionner les enjeux de délimitation ou de conflit.",
+          "L'explication reste abstraite sans référence à un espace maritime sous tension."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LOCALISATION",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : appropriation, territorialisation et rivalités maritimes."
+    },
+    {
+      "item_id": "HG-T-GEO-03",
+      "competence": "GEO",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Décrivez deux enjeux environnementaux majeurs liés à la surexploitation des océans et aux activités de transport maritime international.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux enjeux parmi : l'épuisement des stocks halieutiques par la surpêche industrielle, la pollution par les plastiques et microplastiques (continents de plastique), l'acidification et le réchauffement des eaux détruisant les récifs coralliens, les marées noires et les émissions atmosphériques du transport.",
+        "reponses_1pt": [
+          "Un seul enjeu est développé avec rigueur.",
+          "Deux enjeux sont mentionnés mais de façon superficielle sans vocabulaire géographique."
+        ],
+        "codes_erreur": [
+          "HG-ERR-ECHELLE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Programme de Terminale : la protection des milieux marins."
+    },
+    {
+      "item_id": "HG-T-DOC-01",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "À partir de la légende d'une carte thématique mondiale des flux conteneurisés, identifiez l'unité de mesure utilisée et le sens des figurés de flux.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Unité : EVP (Équivalent Vingt Pieds) ou millions d'EVP ; les figurés linéaires proportionnels indiquent l'intensité des échanges et les flèches en précisent le sens dominant.",
+        "reponses_1pt": [
+          "L'unité est comprise mais le sens des figurés n'est pas explicité.",
+          "Les flux sont décrits de manière globale sans repérer l'unité de la légende."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-FIGURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Lecture et analyse critique d'un document cartographique."
+    },
+    {
+      "item_id": "HG-T-DOC-02",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Relevez sur cette carte les trois façades maritimes majeures qui concentrent l'essentiel du trafic conteneurisé mondial.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les trois façades majeures : façade est-asiatique (Chine, Japon, Corée), rangée nord-européenne (Northern Range), et façade nord-américaine (façades atlantique et pacifique).",
+        "reponses_1pt": [
+          "Deux façades sur trois sont correctement identifiées.",
+          "Des pays isolés sont cités à la place de façades régionales maritimes."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LOCALISATION",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Analyse spatiale à partir d'une carte thématique."
+    },
+    {
+      "item_id": "HG-T-DOC-03",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Confrontez cette carte à vos connaissances : quelles limites environnementales et stratégiques le document omet-il d'illustrer quant à l'intensification des routes maritimes ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le candidat montre que la carte privilégie les volumes économiques mais ne figure ni la pollution marine (rejets d'hydrocarbures, émissions de soufre/CO2), ni la surpêche, ni la vulnérabilité des goulets d'étranglement (risques de piraterie ou de blocus géopolitique).",
+        "reponses_1pt": [
+          "Un seul angle critique (environnemental ou sécuritaire) est développé.",
+          "Les limites sont évoquées sans lien direct avec les réalités de la navigation maritime."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Regard critique et confrontation de documents en Terminale."
+    },
+    {
+      "item_id": "HG-T-DOC-04",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.5,
+      "enonce": "Analysez une affiche de propagande totalitaire soviétique des années 1930 : comment le graphisme et les slogans construisent-ils le culte de la personnalité de Staline ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'analyse met en valeur la composition pyramidale centrant le regard sur le chef bienveillant et infaillible, guidant les ouvriers et paysans vers un avenir radieux, avec des slogans célébrant le bâtisseur du socialisme.",
+        "reponses_1pt": [
+          "L'affiche est décrite sans décoder les ressorts idéologiques de la mise en scène.",
+          "La réponse mentionne la propagande sans analyser le graphisme spécifique."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Décodage de l'image de propagande en Terminale."
+    },
+    {
+      "item_id": "HG-T-CART-01",
+      "competence": "CART",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Sur un schéma de façade maritime, quel type de figuré convient pour représenter : 1° un port à rayonnement mondial ; 2° une autoroute maritime majeure reliant deux océans ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "1° Port mondial : figuré ponctuel géométrique (cercle proportionnel au trafic) ; 2° Autoroute maritime : figuré linéaire orienté (flèche ou bande à largeur proportionnelle à l'intensité du flux).",
+        "reponses_1pt": [
+          "Un seul figuré conforme aux règles sémiologiques.",
+          "Les deux figurés sont proposés sans justification de proportionnalité."
+        ],
+        "codes_erreur": [
+          "HG-ERR-FIGURE",
+          "HG-ERR-LEGENDE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Choix sémiologique pour les productions graphiques de Terminale."
+    },
+    {
+      "item_id": "HG-T-CART-02",
+      "competence": "CART",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Pour un croquis sur « Les mers et les océans : vecteurs essentiels de la mondialisation », formulez deux rubriques thématiques ordonnées pour la légende.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux rubriques logiques et ordonnées (ex: I. Des espaces majeurs de circulation et d'échanges / II. Des ressources convoitées et sous tensions géopolitiques).",
+        "reponses_1pt": [
+          "Deux rubriques sont proposées mais redondantes ou sans fil conducteur.",
+          "Une seule rubrique formulée convenablement."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LEGENDE",
+          "HG-ERR-FIGURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Conception d'une légende organisée en Terminale."
+    },
+    {
+      "item_id": "HG-T-CART-03",
+      "competence": "CART",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "B",
+        "TLE": "B",
+        "ETENDUE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Sur un fond de carte de l'Asie orientale, identifiez deux détroits stratégiques de la région et indiquez le figuré cartographique approprié pour les signaler.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Détroits de Malacca, de Formose/Taïwan ou de la Sonde ; représentés par un figuré ponctuel ou linéaire contrasté (triangle ou trait rouge barrant le passage ou flèche resserrée).",
+        "reponses_1pt": [
+          "Un seul détroit correctement localisé avec son figuré.",
+          "Les détroits sont nommés mais sans proposition de figuré cartographique."
+        ],
+        "codes_erreur": [
+          "HG-ERR-FIGURE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Repérage cartographique de points de passage stratégiques."
+    },
+    {
+      "item_id": "HG-T-PROB-01",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": {
+        "1RE": "C",
+        "TLE": "C",
+        "ETENDUE": "C"
+      },
+      "score_max": 9,
+      "duree_min": 12.0,
+      "enonce": "Rédigez l'introduction complète et la trame rédigée des deux parties d'une réponse à la question problématisée suivante :\n\n**« En quoi la crise des années 1930 a-t-elle contribué à la fragilisation des démocraties et à la montée des régimes totalitaires en Europe ? »**\n\nVotre réponse comportera une introduction avec accroche, définition, problématique et annonce du plan, puis deux parties structurées illustrées par des exemples précis (Allemagne, France ou Italie).",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "HG-CRIT-PB",
+          "intitule": "Problématisation du sujet et fil conducteur",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Le sujet est recopié sans formulation de problématique.",
+            "1": "Le sujet est reformulé sans expliciter le lien entre crise économique et crise politique.",
+            "2": "Une problématique claire relie la déstabilisation socio-économique aux réponses autoritaires.",
+            "3": "La problématique est conceptualisée avec rigueur et embrasse les nuances démocratie/totalitarisme."
+          }
+        },
+        {
+          "code": "HG-CRIT-PLAN",
+          "intitule": "Structure et organisation du plan",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Aucune division logique, narration confuse des années 1930.",
+            "1": "Un plan chronologique simple sans articulation thématique.",
+            "2": "Deux parties distinctes analysent la crise puis la divergence des réponses politiques.",
+            "3": "Le plan est équilibré, rigoureusement ordonné avec des transitions dynamiques."
+          }
+        },
+        {
+          "code": "HG-CRIT-ARG",
+          "intitule": "Mobilisation des connaissances et exemples historiques",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Aucun exemple ni repère historique n'est apporté.",
+            "1": "Des faits généraux sont cités sans précision de date ni de pays.",
+            "2": "Des repères clés (1929, 1933, 1936) et des exemples nationaux contrastés sont mobilisés.",
+            "3": "Connaissances historiques précises, variées et parfaitement intégrées à la démonstration."
+          }
+        }
+      ],
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Question problématisée officielle de Terminale."
+    },
+    {
+      "item_id": "HG-T-PROB-02",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "1RE": "D",
+        "TLE": "D",
+        "ETENDUE": "D"
+      },
+      "score_max": 2,
+      "duree_min": 2.5,
+      "enonce": "Face au sujet de géographie « Les espaces maritimes : entre exploitation économique et préservation environnementale », identifiez le plan le plus adapté et justifiez en une phrase votre choix :\n- Plan 1 : I. La pêche dans le monde / II. Le pétrole en mer / III. Les baleines\n- Plan 2 : I. Des espaces moteurs au cœur de l'économie mondialisée / II. Des écosystèmes menacés appelant une gouvernance internationale durable\n- Plan 3 : I. L'océan Atlantique / II. L'océan Pacifique / III. L'océan Indien",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le plan 2 est sélectionné car il problématise la tension entre valorisation économique et durabilité écologique à l'échelle planétaire, tandis que le plan 1 est un catalogue d'exemples et le plan 3 une juxtaposition régionale sans raisonnement.",
+        "reponses_1pt": [
+          "Le plan 2 est choisi mais la justification n'explicite pas les défauts méthodologiques des plans 1 et 3.",
+          "Le choix est correct mais la justification est tautologique."
+        ],
+        "codes_erreur": [
+          "HG-ERR-STRUCTURE",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Méthode de Terminale : choix et critique d'un plan thématique."
+    },
+    {
+      "item_id": "HG-T-PROB-03",
+      "competence": "PROB",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": {
+        "1RE": "C",
+        "TLE": "C",
+        "ETENDUE": "C"
+      },
+      "score_max": 9,
+      "duree_min": 18.5,
+      "enonce": "Rédigez l'introduction complète et la trame rédigée des deux parties d'une réponse à la question problématisée suivante portant sur l'ensemble du cycle terminal :\n\n**« Comment les dynamiques spatiales et historiques contemporaines (mondialisation, affirmation des puissances et tensions territoriales) redéfinissent-elles les équilibres mondiaux ? »**\n\nVotre travail comportera une introduction rigoureuse (accroche, définition des termes, problématique, plan) et deux axes argumentés mobilisant à la fois des repères historiques et géographiques du cycle terminal.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "HG-CRIT-PB",
+          "intitule": "Problématisation du sujet et fil conducteur",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Le sujet n'est pas problématisé.",
+            "1": "La problématique est formulée sans croiser les dimensions historiques et géographiques.",
+            "2": "Une problématique pertinente confronte l'intégration globale aux rivalités de puissance.",
+            "3": "La problématique articule avec brio échelles spatiales, héritages historiques et mutations actuelles."
+          }
+        },
+        {
+          "code": "HG-CRIT-PLAN",
+          "intitule": "Structure et organisation du plan",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Plan inexistant ou hors sujet.",
+            "1": "Plan descriptif juxtaposant histoire et géographie sans synthèse.",
+            "2": "Deux parties équilibrées répondant clairement à la problématique formulée.",
+            "3": "Plan remarquable par sa rigueur démonstrative, ses équilibres et ses transitions fluides."
+          }
+        },
+        {
+          "code": "HG-CRIT-ARG",
+          "intitule": "Mobilisation des connaissances du cycle terminal",
+          "competence": "PROB",
+          "descripteurs": {
+            "0": "Aucune connaissance disciplinaire précise.",
+            "1": "Connaissances limitées à un seul niveau (Première ou Terminale).",
+            "2": "Repères historiques et géographiques du cycle terminal mobilisés de manière équilibrée.",
+            "3": "Exemples précis, variés, parfaitement contextualisés et analysés avec esprit critique."
+          }
+        }
+      ],
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-12",
+      "source_version": "1.0",
+      "notes_conception": "Question problématisée transverse pour la version étendue (fin de cycle)."
+    },
+    {
+      "item_id": "HG-T-DOC-11",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "TLE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Document pédagogique Nexus — extrait de légende proposé pour un exercice : « Flux annuels de conteneurs, en millions d'EVP (équivalents vingt pieds). Des flèches orientées représentent les trajets ; leur largeur augmente avec le volume transporté. »\n\nQue mesure l'unité indiquée ? Expliquez ce que signifient la pointe et la largeur d'une flèche.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'EVP est une unité standardisée de capacité correspondant à un conteneur de vingt pieds ; les volumes sont exprimés en millions d'EVP. La pointe indique le sens du flux ; la largeur en indique l'importance. 1 point pour l'unité et 1 point pour les deux propriétés du figuré.",
+        "reponses_1pt": [
+          "L'unité est correctement expliquée, mais l'interprétation du figuré est incomplète.",
+          "La direction et la largeur de la flèche sont comprises, mais l'unité est mal expliquée."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-FIGURE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-13",
+      "source_version": "1.1",
+      "notes_conception": "Variante autonome réservée à TLE / Profil B. Lecture d'une légende intégralement transcrite, sans carte absente ni données de trafic présentées comme réelles."
+    },
+    {
+      "item_id": "HG-T-DOC-12",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "TLE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 1.5,
+      "enonce": "Document pédagogique Nexus — trois ensembles portuaires sont décrits : A, les ports des littoraux chinois, japonais et coréens ; B, les ports européens de la Manche et de la mer du Nord ; C, les ports de la côte pacifique des États-Unis et du Canada.\n\nNommez les trois façades maritimes correspondant à A, B et C. Votre réponse doit désigner des ensembles régionaux, et non un port isolé.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "A : façade est-asiatique (Asie orientale). B : façade nord-européenne ou Northern Range. C : façade pacifique de l'Amérique du Nord. Trois associations correctes : 2 points ; deux associations correctes : 1 point. Les formulations géographiques équivalentes sont acceptées.",
+        "reponses_1pt": [
+          "Deux ensembles régionaux sont correctement identifiés et associés aux lettres.",
+          "Les trois régions sont reconnues, mais une façade est remplacée par un port ou un pays isolé."
+        ],
+        "codes_erreur": [
+          "HG-ERR-LOCALISATION",
+          "HG-ERR-ECHELLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-13",
+      "source_version": "1.1",
+      "notes_conception": "Variante autonome réservée à TLE / Profil B. Analyse spatiale d'un relevé textuel pédagogique ; aucun classement statistique ni carte non fournie n'est présupposé."
+    },
+    {
+      "item_id": "HG-T-DOC-13",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "TLE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Document pédagogique Nexus — notice d'un projet de représentation des échanges maritimes : « L'objectif est de montrer les volumes de conteneurs et les principaux itinéraires entre les ports. »\n\nÀ partir de cet objectif et de vos connaissances, expliquez deux limites de la représentation envisagée : une limite environnementale et une limite stratégique.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La notice privilégie les volumes économiques. Une limite environnementale expliquée : elle ne renseigne pas les émissions du transport, les pollutions ou leurs effets sur les milieux marins. Une limite stratégique expliquée : elle ne renseigne pas la vulnérabilité des détroits aux blocages, aux conflits ou à la piraterie. 1 point par angle pertinent relié à l'objectif de la notice ; ne pas exiger l'observation d'une carte.",
+        "reponses_1pt": [
+          "Un seul angle critique, environnemental ou stratégique, est expliqué en lien avec la notice.",
+          "Deux risques pertinents sont cités, mais un seul est expliqué comme une limite d'une représentation centrée sur les volumes."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-13",
+      "source_version": "1.1",
+      "notes_conception": "Variante autonome réservée à TLE / Profil B. Critique du périmètre d'un document à partir d'une notice explicite, sans supposer le contenu d'une carte inexistante."
+    },
+    {
+      "item_id": "HG-T-DOC-14",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "TLE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.5,
+      "enonce": "Document pédagogique Nexus — texte de travail, et non extrait d'une affiche historique : « Dans la propagande stalinienne, le chef occupe le centre du récit. Les succès collectifs lui sont attribués personnellement ; ses décisions sont présentées comme infaillibles. »\n\nRelevez deux procédés décrits dans ce texte et expliquez comment chacun contribue au culte de la personnalité de Staline dans l'URSS des années 1930.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux liens expliqués parmi : la place centrale du chef concentre l'attention et personnalise le pouvoir ; l'attribution des succès collectifs à Staline le présente comme un bienfaiteur indispensable ; l'infaillibilité proclamée décourage la critique et légitime l'obéissance. 1 point par procédé relié à un effet. Le document est un texte pédagogique : aucune composition graphique ni aucun slogan historique précis n'est attendu.",
+        "reponses_1pt": [
+          "Un procédé est relevé et son rôle dans le culte de la personnalité est expliqué.",
+          "Deux procédés sont relevés, mais un seul est relié à un effet politique précis."
+        ],
+        "codes_erreur": [
+          "HG-ERR-SOURCE",
+          "HG-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-13",
+      "source_version": "1.1",
+      "notes_conception": "Variante autonome réservée à TLE / Profil B. Analyse d'un texte pédagogique original sur les mécanismes de propagande ; aucune affiche, citation de propagande ou source historique n'est inventée."
+    },
+    {
+      "item_id": "HG-T-CART-13",
+      "competence": "CART",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "TLE": "B"
+      },
+      "score_max": 2,
+      "duree_min": 2.0,
+      "enonce": "Repères fournis : le détroit de Malacca sépare la péninsule Malaise et Sumatra ; le détroit de Taïwan sépare la Chine continentale et l'île de Taïwan.\n\nSans carte à compléter, proposez un figuré ponctuel lisible en noir et blanc pour ces deux passages et rédigez l'entrée correspondante d'une légende. Expliquez pourquoi un figuré de surface serait inadapté à l'échelle mondiale.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Un symbole ponctuel distinct, par exemple un triangle noir ou un cercle noir, accompagné de la légende « Détroits stratégiques : Malacca et Taïwan » : 1 point. Justification : à l'échelle mondiale, il s'agit de localiser des passages étroits, et non de représenter une vaste zone ; leur surface réelle n'est pas lisible à cette échelle : 1 point. Accepter tout symbole ponctuel lisible sans couleur et une légende équivalente ; aucun placement sur une carte absente n'est attendu.",
+        "reponses_1pt": [
+          "Le symbole ponctuel et sa légende sont appropriés, mais le choix n'est pas justifié par l'échelle.",
+          "L'inadéquation du figuré de surface est expliquée, mais le symbole ou sa légende manque."
+        ],
+        "codes_erreur": [
+          "HG-ERR-FIGURE",
+          "HG-ERR-LOCALISATION"
+        ]
+      },
+      "grille": null,
+      "auteur": "Nexus Direction Pédagogique",
+      "date": "2026-09-13",
+      "source_version": "1.1",
+      "notes_conception": "Variante autonome réservée à TLE / Profil B. Choix et justification de conventions cartographiques en noir et blanc à partir de repères fournis ; aucune carte à compléter n'est nécessaire."
+    }
+  ]
+}

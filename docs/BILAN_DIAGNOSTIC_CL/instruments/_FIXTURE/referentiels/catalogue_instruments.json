@@ -1,0 +1,97 @@
+{
+  "schema": "nexus.referentiel.catalogue_instruments",
+  "version": "1.0-fixture",
+  "date": "2026-09-10",
+  "source": "FIXTURE",
+  "conventions": {
+    "duree_cible_min": "Durée d'évaluation effective, en minutes, telle que fixée par le Cahier § 3.1. Source unique : aucun script ni gabarit ne la recopie.",
+    "fenetre_duree": {
+      "ratio_min": 0.9,
+      "ratio_max": 1.0,
+      "calcul": "La fenêtre acceptable est calculée par le validateur : ratio × duree_cible_min. Elle n'est jamais stockée.",
+      "somme_controlee": "Somme des duree_min réels des items de l'assemblage, lus dans banque.json.",
+      "source": "Prompt de production § 4.8"
+    },
+    "supports": {
+      "papier": "Passation au centre, surveillée, sur feuille de réponses standardisée (§ 3.2)",
+      "papier_et_machine": "Blocs A, B et D sur papier ; bloc C sur ordinateur du centre, sans accès Internet (§ 7.8)",
+      "grille_coach": "Aucun support candidat : le coach renseigne une grille critériée pendant l'entretien",
+      "distance": "Formulaire en ligne, seule modalité admise à distance (§ 3.2)"
+    },
+    "materiel": {
+      "calculatrice_bloc_c": "Calculatrice autorisée au bloc C uniquement, en mode examen, sans programme ni mémoire accessible. Blocs A, B et D sans calculatrice. Consigne identique en MATH et PC (arbitrage A-05, 2026-09-10).",
+      "aucun": "Aucun matériel spécifique."
+    },
+    "hypothese_planification": {
+      "note": "NON UTILISÉE PAR LE VALIDATEUR. Chaque item porte son propre duree_min dans banque.json, et c'est cette valeur qui est sommée. Ces références servent uniquement à cadrer la rédaction et à estimer un assemblage avant écriture.",
+      "references_min_par_item": {
+        "A": [
+          1,
+          1.5
+        ],
+        "B": [
+          2,
+          3
+        ],
+        "C": "Durée déclarée par l'item, jamais estimée par type."
+      },
+      "references_item_C": {
+        "paragraphe": [
+          15,
+          20
+        ],
+        "exercice_specialite": [
+          20,
+          30
+        ]
+      },
+      "source": "Précision P3 de la direction pédagogique, 2026-09-10"
+    }
+  },
+  "instruments": [
+    {
+      "code": "_FIXTURE",
+      "version": "standard",
+      "perimetre": "_FIXTURE",
+      "libelle": "Instrument fictif — version standard",
+      "profils": [
+        "P1"
+      ],
+      "duree_cible_min": 65,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "aucune — fixture"
+    },
+    {
+      "code": "_FIXTURE",
+      "version": "REDUITE",
+      "perimetre": "_FIXTURE",
+      "libelle": "Instrument fictif — version réduite",
+      "profils": [
+        "P1"
+      ],
+      "duree_cible_min": 58,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "aucune — fixture"
+    }
+  ]
+}

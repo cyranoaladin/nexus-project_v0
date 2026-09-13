@@ -1,0 +1,567 @@
+{
+  "instrument": "FR-POS",
+  "version": "1.0",
+  "source_cahier": "Hors Cahier — intégration B11 du test de positionnement linguistique (/40 pts, 45 min)",
+  "items": [
+    {
+      "item_id": "FRP-2-COMP-01",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "COMP",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "B",
+      "enonce": "Quel est le thème principal du texte ?",
+      "propositions": {
+        "A": "Les dangers d’Internet pour les adultes.",
+        "B": "Les avantages et les limites des réseaux sociaux pour les adolescents.",
+        "C": "Les nouvelles applications utilisées par les adolescents.",
+        "D": "Le travail scolaire sur Internet."
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "Le texte est centré sur les adolescents et non sur les adultes.",
+          "C": "Les applications ne sont citées qu’en exemple introductif.",
+          "D": "Le travail scolaire n’est qu’un aspect parmi d’autres abordé au paragraphe 2."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Repérage du thème global de l’article (avantages et limites pour les adolescents)."
+    },
+    {
+      "item_id": "FRP-2-COMP-02",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "COMP",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "B",
+      "enonce": "Le texte présente principalement :",
+      "propositions": {
+        "A": "un récit.",
+        "B": "une description.",
+        "C": "une réflexion argumentée.",
+        "D": "une histoire personnelle."
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "Il n’y a pas de trame narrative ni de succession chronologique d’événements.",
+          "B": "Le texte ne se borne pas à décrire un objet mais examine des arguments pour et contre.",
+          "D": "L’auteur n’emploie pas la première personne et ne raconte pas sa propre vie."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Identification de la typologie et de la visée argumentative de l’écrit."
+    },
+    {
+      "item_id": "FRP-2-COMP-03",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "Quelle est l’idée défendue dans la dernière phrase du texte ? Répondez en une ou deux phrases.",
+      "cle": {
+        "reponse_2pts": "L’idée défendue est que les réseaux sociaux ne sont ni entièrement bons ni entièrement mauvais en eux-mêmes, mais que leur valeur dépend de l’usage et de la manière dont chacun les utilise.",
+        "reponses_1pt": [
+          "Les réseaux sociaux dépendent de la manière dont on les utilise.",
+          "Ils ne sont ni positifs ni négatifs."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-SENS-GLOBAL"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Compréhension de la conclusion nuancée posée par l’auteur."
+    },
+    {
+      "item_id": "FRP-2-COMP-04",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "Citez deux avantages des réseaux sociaux mentionnés dans le texte.",
+      "cle": {
+        "reponse_2pts": "Deux avantages mentionnés sont de rester en contact avec des amis qui habitent loin et d’aider au travail scolaire (s’entraider avant un contrôle, s’envoyer des documents).",
+        "reponses_1pt": [
+          "Rester en contact avec des amis éloignés (un seul avantage cité).",
+          "Partager des photos et communiquer facilement (mention partielle)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-INFO-DETAIL"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Prélèvement d’informations explicites au paragraphe 2."
+    },
+    {
+      "item_id": "FRP-2-COMP-05",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "Citez deux problèmes liés à l’utilisation des réseaux sociaux mentionnés dans le texte.",
+      "cle": {
+        "reponse_2pts": "Deux problèmes mentionnés sont la difficulté à se concentrer sur les devoirs (perte de temps) et le sentiment de comparaison défavorable avec la vie des autres (ou le cyberharcèlement / conflits).",
+        "reponses_1pt": [
+          "La difficulté à se concentrer sur les devoirs (un seul problème cité).",
+          "Le risque de harcèlement en ligne (un seul problème cité)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-INFO-DETAIL"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Repérage précis des effets négatifs et risques décrits dans le texte."
+    },
+    {
+      "item_id": "FRP-2-COMP-06",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "D’après le texte, pourquoi les réseaux sociaux peuvent-ils provoquer des conflits, et quelle solution concrète est proposée pour un usage équilibré ?",
+      "cle": {
+        "reponse_2pts": "Les réseaux peuvent provoquer des conflits car un message écrit peut être mal compris et ne remplace pas une véritable conversation ; pour un usage équilibré, le texte propose de fixer des limites (éviter le téléphone pendant les repas ou avant de dormir, couper les notifications pendant les devoirs).",
+        "reponses_1pt": [
+          "Parce qu’un message écrit peut être mal compris (explication des conflits sans la solution).",
+          "En désactivant les notifications pendant les devoirs (solution sans explication des conflits)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-INFO-DETAIL"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Mise en relation d’une cause relationnelle et d’une solution préconisée par l’auteur."
+    },
+    {
+      "item_id": "FRP-2-COMP-07",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "Dans le texte, trouvez le mot ou l’expression correspondant à chacune des deux définitions suivantes :\na. Être en relation avec quelqu’un.\nb. Harcèlement réalisé à travers Internet.",
+      "cle": {
+        "reponse_2pts": "a. Communiquer (ou « rester en contact ») ; b. Cyberharcèlement.",
+        "reponses_1pt": [
+          "Une seule des deux définitions correctement appariée.",
+          "a. Parler ; b. Harcèlement (termes hors texte exact)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-LEXIQUE-CTX"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Recherche lexicale ciblée dans le texte d’appui."
+    },
+    {
+      "item_id": "FRP-2-COMP-08",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "COMP",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "B",
+      "enonce": "Expliquez avec vos propres mots ce que signifie l’expression : « fixer certaines limites ».",
+      "cle": {
+        "reponse_2pts": "L’expression signifie définir des règles raisonnables d’utilisation, restreindre le temps passé sur l’écran ou interdire le téléphone à certains moments (repas, sommeil) pour ne pas se laisser déborder.",
+        "reponses_1pt": [
+          "Ne pas trop utiliser son téléphone.",
+          "Mettre des règles pour le téléphone."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-LEXIQUE-CTX"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Capacité à reformuler le sens d’une locution en contexte pratique."
+    },
+    {
+      "item_id": "FRP-2-COMP-09",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "COMP",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "B",
+      "enonce": "Dans le texte, que signifie une utilisation « équilibrée » ?",
+      "propositions": {
+        "A": "très importante",
+        "B": "excessive",
+        "C": "raisonnable et contrôlée",
+        "D": "difficile"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "L’importance quantitative n’implique pas l’équilibre.",
+          "B": "Excessif est l’antonyme d’équilibré.",
+          "D": "Une pratique équilibrée vise la régulation, pas la difficulté."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Compréhension du sens de l’adjectif en contexte d’argumentation."
+    },
+    {
+      "item_id": "FRP-2-LANG-01",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "LANG",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "A",
+      "enonce": "Choisissez le mot qui convient pour compléter la phrase : « Beaucoup d’adolescents utilisent les réseaux sociaux pour _____ avec leurs amis. »",
+      "propositions": {
+        "A": "communiquer",
+        "B": "isoler",
+        "C": "déconnecter",
+        "D": "surveiller"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "Isoler contredit la relation d’amitié énoncée.",
+          "C": "Déconnecter ne correspond pas à l’usage actif du réseau.",
+          "D": "Surveiller introduit une nuance inappropriée et péjorative."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Sélection d’un verbe à l’infinitif adapté au contexte propositionnel."
+    },
+    {
+      "item_id": "FRP-2-LANG-02",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "LANG",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "A",
+      "enonce": "Choisissez la forme verbale correcte pour compléter : « Hier, je/j’ _____ deux heures sur mon téléphone. »",
+      "propositions": {
+        "A": "passais",
+        "B": "ai passé",
+        "C": "passerai",
+        "D": "passerais"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "L’imparfait ne convient pas pour une action ponctuelle et achevée délimitée par « Hier ».",
+          "C": "Le futur simple contredit l’adverbe temporel « Hier ».",
+          "D": "Le conditionnel présent ne convient pas pour un fait passé attesté."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Choix du passé composé en présence d’un marqueur de temps passé révolu."
+    },
+    {
+      "item_id": "FRP-2-LANG-03",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "bloc": "A",
+      "enonce": "Complétez les deux phrases suivantes avec les verbes qui conviennent parmi la liste (gérer — se concentrer) :\na. Il est parfois difficile de _____ quand on reçoit beaucoup de notifications.\nb. Pour avoir une utilisation plus saine du téléphone, il faut apprendre à _____ son temps.",
+      "cle": {
+        "reponse_2pts": "a. se concentrer ; b. gérer.",
+        "reponses_1pt": [
+          "Un seul verbe correctement inséré à la bonne place.",
+          "a. concentrer ; b. gérer (omission du pronom réfléchi)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-ACCORD-VERBE",
+          "FRP-ERR-SYNTAXE-PHRASE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Emploi de verbes pronominaux et transitifs à l’infinitif en contexte scolaire."
+    },
+    {
+      "item_id": "FRP-2-LANG-04",
+      "niveau": "2",
+      "palier": "D1",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 1.5,
+      "bloc": "A",
+      "enonce": "Conjuguez les verbes entre parenthèses aux temps indiqués :\na. Quand j’étais au collège, je (utiliser, imparfait) _____ moins les réseaux sociaux.\nb. Demain, nous (essayer, futur simple) _____ de limiter notre temps d’écran.",
+      "cle": {
+        "reponse_2pts": "a. utilisais ; b. essaierons (ou essayerons).",
+        "reponses_1pt": [
+          "Un seul verbe correctement conjugué et orthographié.",
+          "a. utilisait ; b. essaierons (erreur de personne sur l’imparfait)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-TEMPS-VERBAL",
+          "FRP-ERR-ACCORD-VERBE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Morphologie de l’imparfait et du futur simple avec accord sujet-verbe."
+    },
+    {
+      "item_id": "FRP-2-LANG-05",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "LANG",
+      "type": "A",
+      "score_max": 1,
+      "duree_min": 1.0,
+      "bloc": "A",
+      "enonce": "Quel connecteur logique convient pour relier ces deux propositions : « Les réseaux sociaux sont utiles ; _____, ils peuvent présenter des risques. » ?",
+      "propositions": {
+        "A": "cependant",
+        "B": "donc",
+        "C": "parce que",
+        "D": "afin de"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "Donc exprime la conséquence et non l’opposition.",
+          "C": "Parce que introduit une cause et non une restriction.",
+          "D": "Afin de introduit un but et requiert un infinitif."
+        }
+      },
+      "grille": null,
+      "notes_conception": "Identification de la relation logique d’opposition / concession."
+    },
+    {
+      "item_id": "FRP-2-LANG-06",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "A",
+      "enonce": "Reliez les deux propositions avec le connecteur indiqué entre parenthèses :\na. Les réseaux sociaux sont utiles. Ils peuvent aussi présenter des dangers. (cependant)\nb. Je désactive mon téléphone. Je veux mieux me concentrer. (afin de)",
+      "cle": {
+        "reponse_2pts": "a. Les réseaux sociaux sont utiles, cependant ils peuvent aussi présenter des dangers (ou cependant ils présentent...). b. Je désactive mon téléphone afin de mieux me concentrer.",
+        "reponses_1pt": [
+          "Une seule des deux phrases correctement reliée et ponctuée.",
+          "b. Je désactive mon téléphone afin de je veux mieux me concentrer (absence de transformation à l’infinitif)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-CONNECTEUR",
+          "FRP-ERR-SYNTAXE-PHRASE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Emploi de l’adverbe de liaison et de la locution prépositive de but avec infinitif."
+    },
+    {
+      "item_id": "FRP-2-LANG-07",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.0,
+      "bloc": "A",
+      "enonce": "Réécrivez les phrases selon la consigne indiquée :\na. Reliez avec « parce que » : « Il passe beaucoup de temps sur son téléphone. Il dort mal. »\nb. Conjuguez au conditionnel présent : « Si je recevais moins de notifications, je (pouvoir) _____ mieux travailler. »",
+      "cle": {
+        "reponse_2pts": "a. Il dort mal parce qu’il passe beaucoup de temps sur son téléphone. b. pourrais.",
+        "reponses_1pt": [
+          "Une seule des deux consignes correctement exécutée.",
+          "b. pourrais écrit « pourrait » ou « pourrai » (erreur de terminaison)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-CONNECTEUR",
+          "FRP-ERR-TEMPS-VERBAL"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Subordonnée circonstancielle de cause et système hypothétique (si + imparfait -> conditionnel présent)."
+    },
+    {
+      "item_id": "FRP-2-LANG-08",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "A",
+      "enonce": "Transformez les phrases suivantes à la voix passive :\na. Les adolescents utilisent beaucoup les réseaux sociaux.\nb. Certaines applications recueillent les données des utilisateurs.",
+      "cle": {
+        "reponse_2pts": "a. Les réseaux sociaux sont beaucoup utilisés par les adolescents. b. Les données des utilisateurs sont recueillies par certaines applications.",
+        "reponses_1pt": [
+          "Une seule phrase correctement passivée avec l’accord du participe.",
+          "Erreur sur l’accord du participe (« recueillis » au lieu de « recueillies »)."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-PASSIVATION",
+          "FRP-ERR-ACCORD-VERBE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Passivation et accord du participe passé avec le nouveau sujet grammatical."
+    },
+    {
+      "item_id": "FRP-2-LANG-09",
+      "niveau": "2",
+      "palier": "D2",
+      "competence": "LANG",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "A",
+      "enonce": "Transformez les phrases selon la consigne :\na. « Je regarde toujours mon téléphone avant de dormir. » (forme négative avec « ne… jamais »)\nb. « J’utilise mon téléphone et je travaille en même temps. » (réécriture avec « même si »)",
+      "cle": {
+        "reponse_2pts": "a. Je ne regarde jamais mon téléphone avant de dormir. b. Même si j’utilise mon téléphone, je travaille en même temps (ou J’utilise mon téléphone même si je travaille...).",
+        "reponses_1pt": [
+          "Une seule transformation correctement réalisée.",
+          "a. Omission de la particule « ne » dans la négation."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-CONNECTEUR",
+          "FRP-ERR-SYNTAXE-PHRASE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Emploi de la négation restrictive et réécriture avec subordonnant de concession."
+    },
+    {
+      "item_id": "FRP-1-PROD-01",
+      "niveau": "1",
+      "palier": "D1",
+      "competence": "PROD",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "C",
+      "enonce": "Sujet : « Les téléphones et les réseaux sociaux occupent une place importante dans la vie des adolescents. Selon vous, est-il nécessaire de limiter leur utilisation ? »\nDans l’introduction de votre texte argumentatif (120 à 150 mots au total), énoncez clairement votre prise de position personnelle sur cette question.",
+      "cle": {
+        "reponse_2pts": "Le candidat présente une prise de position claire et nette sur la nécessité ou non de limiter l’usage des réseaux sociaux (par exemple en affirmant qu’une régulation est indispensable pour préserver le travail et le sommeil, ou au contraire qu’une liberté encadrée suffit), sans se contenter d’un simple « oui » ou « non ».",
+        "reponses_1pt": [
+          "La position est perceptible mais exprimée de façon très vague ou elliptique.",
+          "Le candidat reprend la question sans expliciter son jugement propre."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-THESE-IMPREC"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Formulation explicite de la thèse et engagement argumentatif du scripteur."
+    },
+    {
+      "item_id": "FRP-1-PROD-02",
+      "niveau": "1",
+      "palier": "D1",
+      "competence": "PROD",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "C",
+      "enonce": "Développez au moins deux arguments distincts et cohérents pour soutenir votre point de vue.",
+      "cle": {
+        "reponse_2pts": "Le candidat formule au moins deux arguments distincts et valides (par exemple la protection du sommeil et la qualité de la concentration pour le travail scolaire, ou la prévention du cyberharcèlement).",
+        "reponses_1pt": [
+          "Un seul argument solide est présenté.",
+          "Deux arguments sont mentionnés mais ils se répètent sous deux formulations différentes."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-ARG-NON-ETAYE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Capacité à étayer son propos par deux arguments complémentaires."
+    },
+    {
+      "item_id": "FRP-1-PROD-03",
+      "niveau": "1",
+      "palier": "D2",
+      "competence": "PROD",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "C",
+      "enonce": "Appuyez votre argumentation sur un ou deux exemples concrets tirés de l’expérience scolaire, de la vie quotidienne ou de l’actualité.",
+      "cle": {
+        "reponse_2pts": "Le texte intègre un ou deux exemples concrets et développés qui illustrent directement les arguments avancés (ex: cas d’un élève distrait par les notifications lors des devoirs, ou anecdote sur les groupes d’entraide).",
+        "reponses_1pt": [
+          "Un exemple est esquissé mais reste très allusif sans réel ancrage concret.",
+          "L’exemple ne concorde pas avec l’argument soutenu."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-ARG-NON-ETAYE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Mobilisation d’exemples précis pour asseoir la démonstration argumentative."
+    },
+    {
+      "item_id": "FRP-1-PROD-04",
+      "niveau": "1",
+      "palier": "D2",
+      "competence": "PROD",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 2.5,
+      "bloc": "C",
+      "enonce": "Proposez une ou plusieurs solutions concrètes pour favoriser une utilisation équilibrée des téléphones et réseaux sociaux.",
+      "cle": {
+        "reponse_2pts": "Le candidat propose au moins une solution pratique et réaliste (ex: plages horaires sans écran, rangement du téléphone hors de la chambre la nuit, application de suivi du temps d’écran, activités sportives alternatives).",
+        "reponses_1pt": [
+          "La solution proposée est vague (« faire attention ») sans démarche opérationnelle.",
+          "Une interdiction irréaliste est posée sans mesure concrète."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-SOLUTION-ABS"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Capacité à formuler des propositions constructives pour un usage régulé."
+    },
+    {
+      "item_id": "FRP-1-PROD-05",
+      "niveau": "1",
+      "palier": "D2",
+      "competence": "PROD",
+      "type": "B",
+      "score_max": 2,
+      "duree_min": 3.0,
+      "bloc": "C",
+      "enonce": "Organisez votre texte en paragraphes structurés à l’aide de connecteurs variés (d’abord, ensuite, cependant, parce que, par exemple, donc, enfin).",
+      "cle": {
+        "reponse_2pts": "Le texte présente une progression logique visible avec des alinéas ou paragraphes distincts, articulés par au moins trois connecteurs d’organisation ou de raisonnement judicieusement employés.",
+        "reponses_1pt": [
+          "Les connecteurs sont présents mais peu variés ou employés de façon répétitive.",
+          "Le texte est écrit d’un seul bloc sans structuration visible malgré quelques mots de liaison."
+        ],
+        "codes_erreur": [
+          "FRP-ERR-CONNECTEUR",
+          "FRP-ERR-SYNTAXE-PHRASE"
+        ]
+      },
+      "grille": null,
+      "notes_conception": "Maîtrise des connecteurs logiques, de la cohésion textuelle et de la ponctuation."
+    }
+  ]
+}

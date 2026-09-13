@@ -1,0 +1,1973 @@
+{
+  "schema": "nexus.audit.migration_file_classification",
+  "source": {
+    "old_repository": "~/Téléchargements/BILAN_DIAGNOSTIC_CL (dépôt imbriqué copié puis mis en quarantaine)",
+    "old_nested_head": "9b7a3d0cd89e2733872ef4aec4fb71ebc61c8b78",
+    "old_branch": "diagnostic/instruments",
+    "old_tracked_files": 321
+  },
+  "categories": {
+    "ANCIEN_TRACKED": 321,
+    "NOUVEAU_PUBLIC_TRACKED": 320,
+    "EXCLUDED_PRIVATE": 1,
+    "EXCLUDED_OBSOLETE": 0,
+    "GENERATED_REPRODUCIBLE": [
+      "instruments/*/build/ (rendus déterministes, reconstruits par scripts/rendus_instruments.py et par tests/conftest.py)",
+      "build/controle-diffusion/ (banc de distribution, écrit par scripts/distribution.py)",
+      "exports_candidats/ (packs nominatifs dérivés, jamais versionnés)"
+    ],
+    "UNEXPLAINED": 0,
+    "NOUVEAU_PUBLIC_TRACKED_TOTAL": 341
+  },
+  "added_in_public_import": [
+    "audit/AUDIT_CANDIDATE_COVERAGE.json",
+    "audit/AUDIT_FILE_INVENTORY.json",
+    "audit/AUDIT_INSTRUMENT_COVERAGE.json",
+    "audit/MIGRATION.md",
+    "audit/MIGRATION_FILE_CLASSIFICATION.json",
+    "audit/golden_packs/P1_annuelle_orientation_inconnue.json",
+    "audit/golden_packs/P1_annuelle_specialite_abandonnee_connue.json",
+    "audit/golden_packs/P1_fin_cycle.json",
+    "audit/golden_packs/P2_EAF_exceptionnel_ecrit.json",
+    "audit/golden_packs/P2_EAF_exceptionnel_oral.json",
+    "audit/golden_packs/P2_EAF_les_deux.json",
+    "audit/golden_packs/P2_annuelle_standard.json",
+    "audit/golden_packs/P2_fin_cycle.json",
+    "audit/golden_packs/P2_maths_anticipee_SPECIFIQUES_exceptionnelle.json",
+    "audit/golden_packs/P2_maths_anticipee_SPE_exceptionnelle.json",
+    "audit/golden_packs/P3_bac_en_une_session.json",
+    "referentiels/dates_anterieures_depart.json",
+    "scripts/audit_inventory.py",
+    "scripts/rendus_instruments.py",
+    "sources_internes/francais/FR-POS/README.md",
+    "tests/test_audit_inventory.py"
+  ],
+  "files": [
+    {
+      "old_path": "00_OUVRIR_ICI.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé après neutralisation d'une identité réelle (fixture Camille TEST / CL-TEST-0001)"
+    },
+    {
+      "old_path": "APRES_LIVRAISON.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "assets/brand/MARQUE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "assets/brand/nexus-icone.png",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "assets/brand/nexus-logo-horizontal.png",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "AUDIT_MODALITES_ET_DIAGNOSTICS.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "cahier.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "CANDIDATE_PROFILES.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "DESIGN_SYSTEM_NEXUS_DIAGNOSTICS.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "DISTRIBUTION_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": ".gitignore",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé avec adaptation au dépôt parent (préfixe Git, rendus reconstruits, exclusions)"
+    },
+    {
+      "old_path": "instruments/EDS-HGGSP/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-HGGSP/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-HGGSP/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-HLP/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-HLP/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-HLP/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-MATH/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-MATH/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-MATH/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/conftest.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/rendu_modele.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/rendu_reference.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/test_NSI-1-PROG-01.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-NSI/tests/test_NSI-T-PROG-02.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-PC/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-PC/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-PC/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SES/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SES/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SES/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SVT/assemblages/N1.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SVT/assemblages/NT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/EDS-SVT/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/assemblages/REDUITE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/assemblages/standard.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/referentiels/catalogue_instruments.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/referentiels/codes_erreur.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_FIXTURE/referentiels/competences.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/ecrit_2028.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/ecrit.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/oral_2028.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/oral.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/standard_2028.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/assemblages/standard.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-EAF-ORAL/definition.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-MAI/assemblages/standard.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-MAI/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-POS/assemblages/standard.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-POS/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/FR-POS-ORAL/definition.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/GO/definition.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0000.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0001.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/bilan_P3_CL-2026-0001_parent.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/grilles.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/maquette_bilan.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/maquette_bilan_parent.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/met.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/bilan_P1_CL-2026-0004.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/bilan_P1_CL-2026-0004_parent.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/grilles.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/met.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/qp.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/saisie.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1_2026_2027_SPECIFIQUES/specification.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/bilan_P1_CL-2026-0003.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/grilles.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/met.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/qp.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/saisie.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P1/specification.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/bilan_P2_CL-2026-0002.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/grilles.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/met.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/qp.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/saisie.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE_P2/specification.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/preuve_registre_CL-2026-0001.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/qp.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/qp_variante_mineure.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/README.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/saisie.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/_MAQUETTE/specification.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/MATH-EA/assemblages/SPECIFIQUES.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/MATH-EA/assemblages/SPE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/MATH-EA/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/MET/formulaire.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/PHI/assemblages/standard.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/PHI/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/QP/formulaire.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-EMC/definition_1RE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-EMC/definition_ETENDUE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-EMC/definition.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-EMC/definition_TLE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-ES/assemblages/1RE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-ES/assemblages/ETENDUE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-ES/assemblages/TLE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-ES/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-HG/assemblages/1RE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-HG/assemblages/ETENDUE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-HG/assemblages/TLE.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "instruments/TC-HG/banque.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "MANIFESTE_DEPOT.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "MANIFESTE_DEPOT.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "NexusReussite_CandidatsLibres_CahierConception_BilansDiagnostic.docx",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "PRINT_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "prompt.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "pytest.ini",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "README_ETAT.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/capacites_mathematiques.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/catalogue_instruments.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/codes_erreur.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/competences.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/dimensions_met.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/modalites_epreuves.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/programmes_examen.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/regles_bilan.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/termes_bloquants.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/textes_sources.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "referentiels/variables_qp.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.txt",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/PLANCHE_COUVERTURES_CANDIDAT.png",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/PLANCHE_COUVERTURES_COACH.png",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/00_GUIDE/PLANCHE_PAGES_INTERIEURES.png",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/CANDIDATE_PROFILES.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/conftest.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/POURQUOI_CE_DOSSIER_EST_INTERNE.txt",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/rendu_modele.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/test_NSI-1-PROG-01.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/COMPETENCES_COMPLEMENTAIRES/COMPLEMENT_OPTIONNEL_NSI_PRATIQUE/test_NSI-T-PROG-02.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/DISTRIBUTION_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/PRINT_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "release/diagnostics-v2/04_INTERNE/STUDENT_PACK_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "artefact canonique de release, versionné par la politique en vigueur (commit B_PUBLIC)"
+    },
+    {
+      "old_path": "scripts/audit_readme.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/bilan.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/build_instrument.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/contexte.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/dates_anterieures.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/diffusabilite.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/distribution.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/eligibilite.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/etat_depot.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/livret.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/maquette_bilan.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/maquette_donnees.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/mesures.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/pack_candidat.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/passation.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/planche_contact.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/preuve_registre.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/release.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/release_v2.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/table_math_ea.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/textes_sources.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/validate_instrument.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "scripts/validate_referentiel.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "SECURITE.md",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+      "classification": "EXCLUDED_PRIVATE",
+      "new_path": null,
+      "reason": "document interne d'enseignante : conservé localement, exclu du dépôt public ; métadonnées, SHA256 et README versionnés"
+    },
+    {
+      "old_path": "STUDENT_PACK_MATRIX.csv",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "templates/nexus-livret.tex",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/conftest.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé avec adaptation au dépôt parent (préfixe Git, rendus reconstruits, exclusions)"
+    },
+    {
+      "old_path": "tests/instantanes/mesures.json",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_audit_readme.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_bilan.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_bordereau_durees.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé après neutralisation d'une identité réelle (fixture Camille TEST / CL-TEST-0001)"
+    },
+    {
+      "old_path": "tests/test_build_instrument.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_calculatrice_coherence.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_charge_q27.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_contexte.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_dates_anterieures.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_design.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé avec adaptation au dépôt parent (préfixe Git, rendus reconstruits, exclusions)"
+    },
+    {
+      "old_path": "tests/test_diffusabilite.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_distribution.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_dossier_entree_personnalise.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_eligibilite.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_etat_depot.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_export_deterministe.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé après neutralisation d'une identité réelle (fixture Camille TEST / CL-TEST-0001)"
+    },
+    {
+      "old_path": "tests/test_francais.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_gate_profil.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_go_duree.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_hg_tle_documents.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_intitules_versionnes.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_maquette.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_math_ea_expertise.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_math_ea.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_non_regression.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_nsi_harnais.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_p1_2026_2027.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_pack_candidat.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_pack_personnalisation.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_passation_cas.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_passation.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_phi_attribution.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_profil_p1.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_provenance.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_regles_bilan.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_release.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_rendu_code.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_sessions_fr_eaf.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_textes_sources.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_tronc_commun_et_positionnement.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "importé ; test FR-POS adapté à l'absence du PDF privé dans un clone public"
+    },
+    {
+      "old_path": "tests/test_validate_instrument.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    },
+    {
+      "old_path": "tests/test_validate_referentiel.py",
+      "classification": "NOUVEAU_PUBLIC_TRACKED",
+      "new_path": null,
+      "reason": "source, référentiel, test, gabarit ou documentation importé tel quel"
+    }
+  ]
+}

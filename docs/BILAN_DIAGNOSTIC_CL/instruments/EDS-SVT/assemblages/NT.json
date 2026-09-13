@@ -1,0 +1,92 @@
+{
+  "instrument": "EDS-SVT",
+  "version": "NT",
+  "titre": "Diagnostic de spécialité sciences de la vie et de la Terre — version Terminale",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "La synthèse du bloc C est rédigée sur le cahier de composition.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "GEN",
+        "intitule": "Transmission, variation et expression du génome ; génétique et évolution en Terminale"
+      },
+      {
+        "competence": "TERR",
+        "intitule": "Dynamique interne du globe ; géologie et temps long en Terminale"
+      },
+      {
+        "competence": "CORP",
+        "intitule": "Corps humain et santé : immunité, régulation, glycémie"
+      },
+      {
+        "competence": "DOC",
+        "intitule": "Analyse de documents : extraire, mettre en relation, conclure"
+      },
+      {
+        "competence": "REDA",
+        "intitule": "Rédiger une synthèse structurée ; résoudre un problème documentaire"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "SVT-2-SCI-01",
+        "SVT-2-SCI-02",
+        "SVT-2-SCI-03",
+        "SVT-2-SCI-04",
+        "SVT-2-SCI-05",
+        "SVT-2-SCI-06",
+        "SVT-1-GEN-01",
+        "SVT-1-GEN-07",
+        "SVT-1-GEN-03",
+        "SVT-1-GEN-04",
+        "SVT-1-TERR-01",
+        "SVT-1-TERR-03",
+        "SVT-1-TERR-05"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "SVT-T-GEN-05",
+        "SVT-T-GEN-06",
+        "SVT-T-TERR-04",
+        "SVT-T-ECO-03",
+        "SVT-T-ECO-04",
+        "SVT-T-CORP-03",
+        "SVT-1-CORP-05",
+        "SVT-1-CORP-02",
+        "SVT-T-CORP-04",
+        "SVT-1-DOC-01",
+        "SVT-1-DOC-04",
+        "SVT-1-DOC-05",
+        "SVT-1-DOC-02",
+        "SVT-T-DOC-03",
+        "SVT-1-ECO-01",
+        "SVT-1-ECO-05",
+        "SVT-1-ECO-02",
+        "SVT-1-DOC-06"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "SVT-T-REDA-02"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "SVT-T-REDA-04"
+      ]
+    }
+  ]
+}

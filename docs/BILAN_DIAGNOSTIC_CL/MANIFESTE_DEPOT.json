@@ -1,0 +1,2437 @@
+{
+  "version": "diagnostics-v2",
+  "libelle": "Diagnostics Nexus Réussite — état du dépôt",
+  "date_de_build": "2026-09-13",
+  "note_sur_les_dates": "Toute métadonnée créée par cette release porte la date de l'horloge, 2026-09-11. Des occurrences de « 2026-09-12 » subsistent : elles étaient déjà enregistrées au commit de départ et appartiennent à la passe précédente, qui avait daté son travail du lendemain. Une décision déjà enregistrée ne se réécrit pas ; elle se classe. Le classement est recalculé par scripts/dates_anterieures.py et reporté ci-dessous.",
+  "dates_anterieures": {
+    "date_future": "2026-09-12",
+    "commit_de_depart": "dbee5b0",
+    "total": 53,
+    "par_classement": {
+      "EXPLANATORY_REFERENCE": 7,
+      "PREEXISTING_IMMUTABLE_HISTORICAL_RECORD": 12,
+      "B9_B12_AUTHORIZED_EXTENSION": 34
+    },
+    "decisions_anterieures": [
+      {
+        "fichier": "README_ETAT.md",
+        "ligne": 869
+      },
+      {
+        "fichier": "instruments/MATH-EA/banque.json",
+        "ligne": 1927
+      },
+      {
+        "fichier": "instruments/MATH-EA/banque.json",
+        "ligne": 2083
+      },
+      {
+        "fichier": "instruments/MATH-EA/banque.json",
+        "ligne": 2294
+      },
+      {
+        "fichier": "referentiels/capacites_mathematiques.json",
+        "ligne": 100
+      },
+      {
+        "fichier": "referentiels/capacites_mathematiques.json",
+        "ligne": 110
+      },
+      {
+        "fichier": "referentiels/programmes_examen.json",
+        "ligne": 831
+      },
+      {
+        "fichier": "referentiels/programmes_examen.json",
+        "ligne": 858
+      },
+      {
+        "fichier": "scripts/validate_instrument.py",
+        "ligne": 1515
+      },
+      {
+        "fichier": "tests/test_math_ea_expertise.py",
+        "ligne": 620
+      },
+      {
+        "fichier": "tests/test_math_ea_expertise.py",
+        "ligne": 666
+      },
+      {
+        "fichier": "tests/test_math_ea_expertise.py",
+        "ligne": 707
+      }
+    ],
+    "UNEXPLAINED_FUTURE_DATES": 0
+  },
+  "commit_precedent": "fcf2e65ceaa65741341ac9764df9b7f632211f34",
+  "note_sur_le_commit": "« commit_precedent » est le dernier commit au moment du build. Le manifeste ne peut pas nommer le commit qui le contient — il est écrit avant lui. Ce qui fait foi n'est donc pas ce SHA mais les empreintes ci-dessous : elles décrivent exactement les fichiers mesurés, et se recalculent.",
+  "produit_par": "scripts/release.py",
+  "regle": "Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.",
+  "reconstructibilite": "Les rendus ne sont pas versionnés : `instruments/*/build/` est exclu du dépôt (SECURITE.md). Les empreintes de rendus consignées ici sont celles des fichiers produits au moment de ce build, et la construction est déterministe octet à octet — `scripts/build_instrument.py <dossier> --check-determinisme` le vérifie. Reconstruire à ce commit redonne les mêmes empreintes ; les obtenir autrement signifie que la source a bougé.",
+  "critere_de_fin": {
+    "INSTRUMENTS_METIER": 20,
+    "DIFFUSABLES": 20,
+    "NON_DIFFUSABLES": 0,
+    "PLACEHOLDERS_INSTRUMENTS": 0,
+    "VALIDATION_ERRORS": 0,
+    "PDF_PREFLIGHT_ERRORS": 0,
+    "MISSING_RENDERS": 0,
+    "SOURCE_TEXT_HASH_COLLISIONS": 0,
+    "CANDIDATE_CORRECTION_LEAKS": 0,
+    "PDF_PREFLIGHT_ERRORS_DISTRIBUTION": 0,
+    "PROFILE_COMBINATIONS": 204,
+    "ACTIVE_CANDIDATES": 0,
+    "UNEXPECTED_DUPLICATE": 0,
+    "VERSION_COLLISION": 0,
+    "PROFILE_PACKS_INCOMPLETS": 0,
+    "CANDIDATES_WITH_MISSING_REQUIRED_TESTS": 0,
+    "UNEXPLAINED_FUTURE_DATES": 0
+  },
+  "conforme": true,
+  "textes_sources": {
+    "laboetie": {
+      "auteur": "Étienne de La Boétie",
+      "oeuvre": "Discours de la servitude volontaire",
+      "edition": "texte établi par Paul Bonnefon, Bossard, 1922",
+      "editeur": "Bossard",
+      "annee": 1922,
+      "chapitre_ou_partie": "Discours — texte continu, sans division en chapitres ; le passage ouvre l'apostrophe aux peuples",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Discours de la servitude volontaire/Édition 1922/Discours",
+        "url": "https://fr.wikisource.org/wiki/Discours_de_la_servitude_volontaire/%C3%89dition_1922/Discours"
+      },
+      "facsimile": {
+        "scan": "La Boétie - Discours de la servitude volontaire.djvu",
+        "pages_du_scan": [
+          64,
+          65,
+          66
+        ],
+        "niveau_de_relecture": {
+          "64": 4,
+          "65": 4,
+          "66": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 et comparées mot à mot : aucun écart.",
+        "url": "https://commons.wikimedia.org/wiki/File:La_Bo%C3%A9tie_-_Discours_de_la_servitude_volontaire.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "B",
+          "assemblages": [
+            "standard",
+            "ecrit",
+            "oral",
+            "standard_2028",
+            "ecrit_2028",
+            "oral_2028"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Commun aux deux sessions parce que l'œuvre l'est : « Discours de la servitude volontaire » figure au programme 2027 et au programme 2028, objet d'étude « la littérature d'idées du XVIᵉ au XVIIIᵉ siècle ». Le bloc B n'est pas sessionné ; les blocs C le sont.",
+      "ancre_debut": "Pauvres et misérables peuples insensés, nations opiniâtres en votre…",
+      "ancre_fin": "…résolus de ne servir plus, et vous voilà libres.",
+      "nombre_paragraphes": 1,
+      "nombre_mots": 441,
+      "nombre_lignes_dans_le_pdf_final": 25,
+      "page_du_pdf_final": 3,
+      "sha256_texte_normalise": "f9ed7f46d0b803681ab2bcd58a17383c97b09b9f6eafa83513045a21d859fab6",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 49-102",
+      "pages_du_passage_dans_l_edition": "p. 58-60",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 25,
+      "fenetre_lignes": [
+        20,
+        25
+      ]
+    },
+    "balzac": {
+      "auteur": "Honoré de Balzac",
+      "oeuvre": "La Peau de chagrin",
+      "edition": "Charpentier, libraire-éditeur, 1839",
+      "editeur": "Charpentier",
+      "annee": 1839,
+      "chapitre_ou_partie": "Le Talisman",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "La Peau de chagrin/Le Talisman",
+        "url": "https://fr.wikisource.org/wiki/La_Peau_de_chagrin/Le_Talisman"
+      },
+      "facsimile": {
+        "scan": "La peau de chagrin, Honoré de Balzac.pdf",
+        "pages_du_scan": [
+          49,
+          50
+        ],
+        "niveau_de_relecture": {
+          "49": 3,
+          "50": 3
+        },
+        "confrontation": "pages corrigées contre le scan (niveau 3). Les deux images ont été lues le 2026-09-11 et comparées mot à mot : deux écarts relevés et rétablis (voir confrontation_au_facsimile).",
+        "url": "https://commons.wikimedia.org/wiki/File:La_peau_de_chagrin,_Honor%C3%A9_de_Balzac.pdf"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "C",
+          "assemblages": [
+            "standard",
+            "ecrit"
+          ],
+          "sessions": [
+            2027
+          ]
+        }
+      ],
+      "note": "Session 2027 seulement. Le passage s'arrête avant toute mention du texte gravé sur la peau : le candidat décrit ce que le regard voit, il n'a pas à connaître le roman.",
+      "ancre_debut": "— Retournez-vous, dit le marchand en saisissant tout à…",
+      "ancre_fin": "…pressé de connaître les secrets de son jouet nouveau.",
+      "nombre_paragraphes": 2,
+      "nombre_mots": 265,
+      "nombre_lignes_dans_le_pdf_final": 17,
+      "page_du_pdf_final": 7,
+      "sha256_texte_normalise": "6612ede1f783dd4896c97446a69f9e1c0a5dd15e43c58269a2b914dcf893d177",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 1-92",
+      "pages_du_passage_dans_l_edition": "p. 57-58",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 16,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "zola": {
+      "auteur": "Émile Zola",
+      "oeuvre": "Pot-Bouille",
+      "edition": "G. Charpentier, 1883",
+      "editeur": "G. Charpentier",
+      "annee": 1883,
+      "chapitre_ou_partie": "chapitre I",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Pot-Bouille/1",
+        "url": "https://fr.wikisource.org/wiki/Pot-Bouille/1"
+      },
+      "facsimile": {
+        "scan": "Emile Zola - Pot-Bouille.djvu",
+        "pages_du_scan": [
+          8,
+          9
+        ],
+        "niveau_de_relecture": {
+          "8": 4,
+          "9": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les deux images ont été lues le 2026-09-11 : aucun écart, hormis l'accent de capitale rétabli (« A gauche »).",
+        "url": "https://commons.wikimedia.org/wiki/File:Emile_Zola_-_Pot-Bouille.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF",
+          "bloc": "C",
+          "assemblages": [
+            "standard_2028",
+            "ecrit_2028"
+          ],
+          "sessions": [
+            2028
+          ]
+        }
+      ],
+      "note": "Session 2028 seulement. Six paragraphes, dont les répliques de l'architecte : la division en paragraphes appartient à l'édition et porte l'analyse.",
+      "ancre_debut": "Au plafond, deux grandes fentes coupaient les caissons, et,…",
+      "ancre_fin": "…se refermèrent, tout retomba à un silence de mort.",
+      "nombre_paragraphes": 6,
+      "nombre_mots": 326,
+      "nombre_lignes_dans_le_pdf_final": 23,
+      "page_du_pdf_final": 7,
+      "sha256_texte_normalise": "2a754febca37a8f7a849eefee386ff20b64b45d3086d0879640608886c321a6b",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 1-24",
+      "pages_du_passage_dans_l_edition": "p. 8-9",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 18,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "montaigne": {
+      "auteur": "Michel de Montaigne",
+      "oeuvre": "Essais",
+      "edition": "texte établi par l'abbé Musart, Périsse Frères, 1847",
+      "editeur": "Périsse Frères",
+      "annee": 1847,
+      "chapitre_ou_partie": "De la vanité des paroles",
+      "identification_dans_l_edition": {
+        "chapitre_imprime": "CHAPITRE XX",
+        "titre_canonique": "De la vanité des paroles",
+        "avertissement": "L'édition Musart ne numérote pas le chapitre comme les éditions de référence modernes, qui le placent au livre I, chapitre LI. Le fac-similé porte « CHAPITRE XX » en tête de la page 175 : c'est l'identification de cette édition, vérifiée sur l'image, et non une numérotation canonique. Le titre du chapitre, lui, est bien celui que le programme nomme.",
+        "verifie_le": "2026-09-11"
+      },
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Essais/édition Musart, 1847/20",
+        "url": "https://fr.wikisource.org/wiki/Essais/%C3%A9dition_Musart,_1847/20"
+      },
+      "facsimile": {
+        "scan": "Montaigne - Essais, Musart, 1847.djvu",
+        "pages_du_scan": [
+          180,
+          181
+        ],
+        "niveau_de_relecture": {
+          "180": 1,
+          "181": 1
+        },
+        "confrontation": "pages NON corrigées sur Wikisource (niveau 1) : la transcription en ligne ne valait donc pas vérification. Les deux images du fac-similé ont été téléchargées et lues le 2026-09-11, et la transcription comparée mot à mot au scan. Aucun écart. L'appel de note « 1 » après « pellegrin » est un apparat de l'éditeur (« Étranger. ») et n'entre pas dans le support.",
+        "url": "https://commons.wikimedia.org/wiki/File:Montaigne_-_Essais,_Musart,_1847.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "EDS-HLP",
+          "bloc": "C",
+          "assemblages": [
+            "N1",
+            "NT"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Graphie modernisée par l'édition Musart elle-même ; rien n'a été modernisé ici. Le passage contient l'impératif « Oyez dire métonymie, métaphore, allégorie » et l'adresse au lecteur « votre chambrière », que les items du bloc C exploitent.",
+      "ancre_debut": "Après cela, il est entré sur l’ordre du service,…",
+      "ancre_fin": "…ait honoré un ou deux personnages en plusieurs siècles.",
+      "nombre_paragraphes": 4,
+      "nombre_mots": 248,
+      "nombre_lignes_dans_le_pdf_final": 18,
+      "page_du_pdf_final": 4,
+      "sha256_texte_normalise": "6370a293520f1cf524c964e7e30497f55e85f6aa41c8bcab6f81f02b3d0cdf41",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 174-175",
+      "pages_du_passage_dans_l_edition": "p. 174-175",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 15,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "condorcet": {
+      "auteur": "Condorcet",
+      "oeuvre": "Sur l'instruction publique",
+      "edition": "Œuvres de Condorcet, Firmin Didot frères, 1847, tome 7",
+      "editeur": "Firmin Didot frères",
+      "annee": 1847,
+      "chapitre_ou_partie": "Premier mémoire, « Nature et objet de l'instruction publique », section « La société doit au peuple une instruction publique »",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Sur l’instruction publique/Nature et objet de l’instruction publique",
+        "url": "https://fr.wikisource.org/wiki/Sur_l%E2%80%99instruction_publique/Nature_et_objet_de_l%E2%80%99instruction_publique"
+      },
+      "facsimile": {
+        "scan": "Condorcet - Œuvres, Didot, 1847, volume 7.djvu",
+        "pages_du_scan": [
+          179,
+          180,
+          181
+        ],
+        "niveau_de_relecture": {
+          "179": 4,
+          "180": 4,
+          "181": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 : trois écarts relevés et rétablis, dont un titre de section pris pour du texte courant (voir confrontation_au_facsimile).",
+        "url": "https://commons.wikimedia.org/wiki/File:Condorcet_-_%C5%92uvres,_Didot,_1847,_volume_7.djvu"
+      },
+      "reparations_d_extraction": [
+        {
+          "observe": "ta-lent",
+          "retabli": "talent",
+          "nature": "coupure de mot en fin de ligne du scan, recollée par la transcription ; réparation d'extraction, non correction du texte"
+        }
+      ],
+      "usages": [
+        {
+          "instrument": "FR-MAI",
+          "bloc": "B",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Sept paragraphes continus, depuis la thèse « L'instruction publique est un devoir de la société à l'égard des citoyens. » Aucun paragraphe distant n'a été rapproché d'un autre.",
+      "ancre_debut": "L’instruction publique est un devoir de la société à…",
+      "ancre_fin": "…pouvoir le gêner dans la jouissance de ses droits.",
+      "nombre_paragraphes": 8,
+      "nombre_mots": 395,
+      "nombre_lignes_dans_le_pdf_final": 28,
+      "page_du_pdf_final": 3,
+      "sha256_texte_normalise": "70f8a889ae61b432268f574d8ecf708d9949a7e4da8bc9519398e806cea14ba4",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 169-228",
+      "pages_du_passage_dans_l_edition": "p. 169-171",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 21,
+      "fenetre_lignes": null,
+      "fenetre_mots": [
+        380,
+        420
+      ]
+    },
+    "descartes": {
+      "auteur": "René Descartes",
+      "oeuvre": "Discours de la méthode",
+      "edition": "Œuvres de Descartes, publiées par Victor Cousin, Levrault, 1824, tome I",
+      "editeur": "Levrault",
+      "annee": 1824,
+      "chapitre_ou_partie": "Première partie",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Discours de la méthode (éd. Cousin)/Première partie",
+        "url": "https://fr.wikisource.org/wiki/Discours_de_la_m%C3%A9thode_(%C3%A9d._Cousin)/Premi%C3%A8re_partie"
+      },
+      "facsimile": {
+        "scan": "Œuvres de Descartes, éd. Cousin, tome I.djvu",
+        "pages_du_scan": [
+          127,
+          128,
+          129
+        ],
+        "niveau_de_relecture": {
+          "127": 4,
+          "128": 4,
+          "129": 4
+        },
+        "confrontation": "pages validées contre le scan par deux contributeurs (niveau 4). Les trois images ont été lues le 2026-09-11 : aucun écart de graphie. Les italiques de l'édition sur « accidents », « formes », « individus » et « espèce » ont été rétablies : elles signalent les termes de l'École que l'explication doit définir.",
+        "url": "https://commons.wikimedia.org/wiki/File:%C5%92uvres_de_Descartes,_%C3%A9d._Cousin,_tome_I.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "PHI",
+          "bloc": "C",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Le passage va de « Le bon sens est la chose du monde la mieux partagée » jusqu'à la fin du développement sur la diversité des voies de la pensée ; il déborde d'une phrase sur le paragraphe suivant, qui achève l'articulation.",
+      "ancre_debut": "Le bon sens est la chose du monde la…",
+      "ancre_fin": "…les formes ou natures des individus d’une même espèce.",
+      "nombre_paragraphes": 2,
+      "nombre_mots": 322,
+      "nombre_lignes_dans_le_pdf_final": 20,
+      "page_du_pdf_final": 4,
+      "sha256_texte_normalise": "830f04d104b5e4ac74a225001cfd08b162a6b5a22cc8ff6bd4c39615be7c003e",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 121-132",
+      "pages_du_passage_dans_l_edition": "p. 121-123",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 19,
+      "fenetre_lignes": [
+        15,
+        20
+      ]
+    },
+    "moliere": {
+      "auteur": "Molière",
+      "oeuvre": "Le Misanthrope",
+      "edition": "Œuvres complètes, texte établi par Charles Louandre, Charpentier, 1910, tome II",
+      "editeur": "Charpentier",
+      "annee": 1910,
+      "chapitre_ou_partie": "acte I, scène 1",
+      "source": {
+        "depot": "fr.wikisource.org",
+        "page": "Le Misanthrope/Édition Louandre, 1910/Acte I",
+        "url": "https://fr.wikisource.org/wiki/Le_Misanthrope/%C3%89dition_Louandre,_1910/Acte_I"
+      },
+      "facsimile": {
+        "scan": "Molière - Édition Louandre, 1910, tome 2.djvu",
+        "pages_du_scan": [
+          181
+        ],
+        "niveau_de_relecture": {
+          "181": 4
+        },
+        "confrontation": "page validée contre le scan (niveau 4). L'image a été lue le 2026-09-11 : un écart relevé et rétabli (« sauroit »). Le rendu HTML de Wikisource répète les hémistiches des vers partagés pour figurer leur décalage typographique ; la transcription a donc été reprise sur le wikitexte de la page du scan, où chaque vers ne figure qu'une fois, et l'apparat {{NumVers}} écarté.",
+        "url": "https://commons.wikimedia.org/wiki/File:Moli%C3%A8re_-_%C3%89dition_Louandre,_1910,_tome_2.djvu"
+      },
+      "usages": [
+        {
+          "instrument": "FR-EAF-ORAL",
+          "bloc": "support d'entretien",
+          "assemblages": [
+            "definition"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ],
+          "note": "FR-EAF-ORAL n'a pas d'assemblage : son support est porté par la définition de l'instrument, et le coach le remet au candidat depuis la grille."
+        }
+      ],
+      "note": "Dix vers et deux noms de locuteur. Le support est stocké en répliques, non en prose : le champ « texte » qui porte l'empreinte reprend les noms de locuteur et les vers dans leur ordre, ce qui suffit à identifier le passage et à interdire son emploi ailleurs. La question de grammaire porte sur une phrase réellement présente dans ces dix vers — « Et quand je vous demande après quel est cet homme, à peine pouvez-vous dire comme il se nomme. »",
+      "ancre_debut": "Philinte Je suis donc bien coupable, Alceste, à votre…",
+      "ancre_fin": "…À peine pouvez-vous dire comme il se nomme ;",
+      "nombre_paragraphes": 1,
+      "nombre_mots": 82,
+      "nombre_lignes_dans_le_pdf_final": 12,
+      "page_du_pdf_final": 1,
+      "sha256_texte_normalise": "3f29ae278b4b5452922319b32920964c156617ae02f00cd5d865b6ee6a8d01d8",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 170-188",
+      "pages_du_passage_dans_l_edition": "p. 171",
+      "pages_du_passage_verifiees_sur": "les numéros imprimés en tête des pages du scan",
+      "lignes_pleines_equivalentes": 12,
+      "fenetre_lignes": [
+        10,
+        12
+      ]
+    },
+    "fr_pos_adolescents": {
+      "auteur": "Enseignante de français Nexus Réussite",
+      "auteur_conception": "enseignante de français Nexus Réussite",
+      "oeuvre": "Test de positionnement — Français scolaire",
+      "edition": "Test_positionnement_source_enseignante.pdf, document de conception interne Nexus",
+      "editeur": "Nexus Réussite",
+      "annee": 2026,
+      "source_type": "interne_nexus",
+      "sha256_binaire": "f1b56017e48b9a4793bcd800d4fdf1ce4ff171747960853f23448cebc4173687",
+      "pages": 7,
+      "taille": 345948,
+      "chemin_source": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+      "chapitre_ou_partie": "Partie 1 — Compréhension écrite",
+      "source": {
+        "depot": "interne",
+        "page": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+        "url": "https://nexus-reussite.fr/pedagogie/positionnement/francais-scolaire"
+      },
+      "facsimile": {
+        "scan": "sources_internes/francais/FR-POS/Test_positionnement_source_enseignante.pdf",
+        "pages_du_scan": [
+          2
+        ],
+        "niveau_de_relecture": {
+          "2": 4
+        },
+        "confrontation": "Texte extrait mot à mot du document de positionnement de l'enseignante de français.",
+        "url": "https://nexus-reussite.fr/pedagogie/positionnement/facsimile-test-candidat.pdf"
+      },
+      "usages": [
+        {
+          "instrument": "FR-POS",
+          "bloc": "B",
+          "assemblages": [
+            "standard"
+          ],
+          "sessions": [
+            2027,
+            2028
+          ]
+        }
+      ],
+      "note": "Support de compréhension écrite de l'instrument de positionnement linguistique.",
+      "ancre_debut": "Aujourd’hui, les réseaux sociaux occupent une place importante…",
+      "ancre_fin": "…Tout dépend de la manière dont on les utilise.",
+      "nombre_paragraphes": 6,
+      "nombre_mots": 266,
+      "nombre_lignes_dans_le_pdf_final": 20,
+      "page_du_pdf_final": 2,
+      "sha256_texte_normalise": "72624d2dcdc2842d10467d866e7c3fa6e41738ccdf24b83580b56b5960414cc2",
+      "pages_de_l_oeuvre_dans_l_edition": "p. 2",
+      "pages_du_passage_dans_l_edition": "p. 2",
+      "pages_du_passage_verifiees_sur": "page 2 du document PDF de l'enseignante",
+      "lignes_pleines_equivalentes": 15,
+      "fenetre_lignes": [
+        10,
+        25
+      ]
+    }
+  },
+  "distribution": {
+    "racine": "build/controle-diffusion",
+    "facade": {
+      "00_INDEX": "par où commencer, et les quatre tableaux",
+      "01_A_ENVOYER_AUX_CANDIDATS": "un dossier par destinataire préparé",
+      "02_A_IMPRIMER": "le même document, prêt pour l'imprimante",
+      "03_COACH_CORRECTIONS": "corrigés et grilles — ne sort jamais de chez Nexus",
+      "10_CATALOGUE_CANONIQUE": "l'autorité : un exemplaire de chaque artefact",
+      "20_MATERIEL_NSI_MACHINE": "les fichiers à déposer sur le poste du candidat",
+      "90_PROFILS_POSSIBLES": "une archive par combinaison de profil"
+    },
+    "refus": [],
+    "instruments_par_version": 39,
+    "pdf_candidats": 33,
+    "pdf_correcteurs": 37,
+    "modes_de_remise": {
+      "QP": "SELF_ADMINISTERED",
+      "FR-EAF": "SELF_ADMINISTERED",
+      "FR-EAF-ORAL": "COACH_INTERVIEW",
+      "FR-MAI": "SELF_ADMINISTERED",
+      "PHI": "SELF_ADMINISTERED",
+      "TC-ES": "SELF_ADMINISTERED",
+      "MET": "SELF_ADMINISTERED",
+      "GO": "COACH_INTERVIEW",
+      "EDS-MATH": "SELF_ADMINISTERED",
+      "EDS-PC": "SELF_ADMINISTERED",
+      "EDS-NSI": "SELF_ADMINISTERED",
+      "EDS-SVT": "SELF_ADMINISTERED",
+      "EDS-SES": "SELF_ADMINISTERED",
+      "EDS-HGGSP": "SELF_ADMINISTERED",
+      "EDS-HLP": "SELF_ADMINISTERED",
+      "MATH-EA": "SELF_ADMINISTERED",
+      "TC-HG": "SELF_ADMINISTERED",
+      "TC-EMC": "COACH_INTERVIEW",
+      "FR-POS": "SELF_ADMINISTERED",
+      "FR-POS-ORAL": "COACH_INTERVIEW"
+    },
+    "version_courante_2026_2027": {
+      "FR-EAF": "oral_2028"
+    },
+    "profile_combinations": 204,
+    "active_candidates": 0,
+    "note_destinataires": "Le dépôt ne porte aucune liste d'élèves inscrits. Les cinq profils de 01_A_ENVOYER_AUX_CANDIDATS/PROFILS_DE_REFERENCE sont les profils de référence qui éprouvent la chaîne ; leurs identifiants sont des codes, jamais des noms. Les 154 combinaisons de 90_PROFILS_POSSIBLES sont le catalogue des profils possibles, non un effectif.",
+    "doublons": {
+      "DISTRIBUTION_FILE_COUNT": 347,
+      "DISTRIBUTION_UNIQUE_CONTENT_HASHES": 330,
+      "EXACT_DUPLICATE_FILE_COUNT": 17,
+      "EXPECTED_DERIVED_PACK_COPY": 17,
+      "UNEXPECTED_DUPLICATE": 0,
+      "VERSION_COLLISION": 0
+    },
+    "packs_incomplets": [],
+    "profils_du_projet": [
+      {
+        "etiquette": "CL-2026-0000",
+        "niveau": "Premiere-et-Terminale",
+        "profil": "P3",
+        "eds": [
+          "MATH",
+          "SES",
+          "PC"
+        ],
+        "config_francais": "les_deux",
+        "diagnostics_requis": [
+          "QP/standard",
+          "FR-EAF/standard",
+          "FR-EAF-ORAL/standard",
+          "PHI/standard",
+          "TC-ES/ETENDUE",
+          "MET/standard",
+          "GO/standard",
+          "MATH-EA/SPE",
+          "EDS-MATH/NT",
+          "EDS-SES/N1",
+          "EDS-PC/NT"
+        ],
+        "documents_prets": 11,
+        "documents_manquants": [],
+        "duree_totale_min": 610
+      },
+      {
+        "etiquette": "CL-2026-0001",
+        "niveau": "Premiere-et-Terminale",
+        "profil": "P3",
+        "eds": [
+          "MATH",
+          "SES",
+          "PC"
+        ],
+        "config_francais": "les_deux",
+        "diagnostics_requis": [
+          "QP/standard",
+          "FR-EAF/standard",
+          "FR-EAF-ORAL/standard",
+          "PHI/standard",
+          "TC-ES/ETENDUE",
+          "MET/standard",
+          "GO/standard",
+          "MATH-EA/SPE",
+          "EDS-MATH/NT",
+          "EDS-SES/N1",
+          "EDS-PC/NT"
+        ],
+        "documents_prets": 11,
+        "documents_manquants": [],
+        "duree_totale_min": 610
+      },
+      {
+        "etiquette": "CL-2026-0003",
+        "niveau": "Premiere",
+        "profil": "P1",
+        "eds": [
+          "MATH",
+          "PC",
+          "SVT"
+        ],
+        "config_francais": "les_deux",
+        "diagnostics_requis": [
+          "QP/standard",
+          "FR-EAF/standard",
+          "FR-EAF-ORAL/standard",
+          "TC-ES/1RE",
+          "MET/standard",
+          "EDS-MATH/N1",
+          "EDS-PC/N1",
+          "EDS-SVT/N1"
+        ],
+        "documents_prets": 8,
+        "documents_manquants": [],
+        "duree_totale_min": 415
+      },
+      {
+        "etiquette": "CL-2026-0004",
+        "niveau": "Premiere",
+        "profil": "P1",
+        "eds": [
+          "PC",
+          "SVT",
+          "SES"
+        ],
+        "config_francais": "les_deux",
+        "diagnostics_requis": [
+          "QP/standard",
+          "FR-EAF/standard_2028",
+          "FR-EAF-ORAL/standard",
+          "TC-ES/1RE",
+          "MET/standard",
+          "MATH-EA/SPECIFIQUES",
+          "EDS-PC/N1",
+          "EDS-SVT/N1",
+          "EDS-SES/N1"
+        ],
+        "documents_prets": 9,
+        "documents_manquants": [],
+        "duree_totale_min": 490
+      },
+      {
+        "etiquette": "CL-2026-0002",
+        "niveau": "Terminale",
+        "profil": "P2",
+        "eds": [
+          "MATH",
+          "SES"
+        ],
+        "config_francais": "oral",
+        "diagnostics_requis": [
+          "QP/standard",
+          "FR-EAF/oral",
+          "FR-EAF-ORAL/standard",
+          "FR-MAI/standard",
+          "PHI/standard",
+          "TC-ES/TLE",
+          "MET/standard",
+          "GO/standard",
+          "MATH-EA/SPE",
+          "EDS-MATH/NT",
+          "EDS-SES/NT"
+        ],
+        "documents_prets": 11,
+        "documents_manquants": [],
+        "duree_totale_min": 540
+      }
+    ],
+    "tableaux": [
+      "DISTRIBUTION_MATRIX.csv",
+      "STUDENT_PACK_MATRIX.csv",
+      "PRINT_MATRIX.csv",
+      "CANDIDATE_PROFILES.csv"
+    ],
+    "regle": "Les packs sont des liens durs vers les rendus, reconstruits par scripts/distribution.py. Ils ne sont pas versionnés : les versionner reviendrait à porter deux fois la même chose et à les laisser diverger de leur source. Les trois tableaux le sont, eux : ce sont des index."
+  },
+  "instruments": {
+    "EDS-HGGSP": {
+      "code": "EDS-HGGSP",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "e507caa4c3f545570a87291532abab0eca8897efb2aac6deacb20d0bd90f8459",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 24,
+          "sha256_assemblage": "477aadbdc8dd4325a6440b2c123fab05bcddb41b6d5426cd0ee7e483639dd593",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_sujet_candidat.md",
+              "sha256": "57961de0046d94362fd048c1f4e7d3519a40c99713c593039fcca8c00ee396cb",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_sujet_candidat.pdf",
+              "pdf_sha256": "0aa3e149935e3c7b54471b8a901dbe8e3d4beebd94e1cb2c622dc8bd9a107c9b"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_cle_et_grilles_correcteur.md",
+              "sha256": "c537524c9e38ea370db96b3f2f6b1840fd67a1e004ab0bb3e67c72cbeaaecbe6",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "6bde0a20e61de95357146de00c922cdd0d7dbe3952a09a687790d5e35d755a8a"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_feuille_reponses.md",
+              "sha256": "96ea66c860b6583132be593bae1039d2ac61eed1fced8cc78955963c317d5dd7",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_feuille_reponses.pdf",
+              "pdf_sha256": "a2c15f5efbd7886acd70c99342b1e498b9b8b2e4f7e41abda977cefce9741ba9"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_N1_saisie_vierge.csv",
+              "sha256": "51abc7dc1e8fd6df0c0f68da6849295c8a5246592236a7ef1b9d414364a2913a"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 31,
+          "sha256_assemblage": "652361f5f9f7abef385cebf87f70c9e1ec098e3c6d98966bbcf59d96217e00b7",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_sujet_candidat.md",
+              "sha256": "9a324fdf6511451db3c024c2d58d8c46e517b185c121b8a26853a71dc15b54ef",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_sujet_candidat.pdf",
+              "pdf_sha256": "144dc71cbc85155b4d5629bddcddacc8bcd01bfe1aebd6b11cbcf8802fbc2ddb"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_cle_et_grilles_correcteur.md",
+              "sha256": "425c714c9bf181b8d7d0027d79cf4d665ba4f475a72ff44d36dcfcc01fc0d62e",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "f3dc26476a8a8883e560ba2e084990270455f892fca0f184ca78bf52e390fc00"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_feuille_reponses.md",
+              "sha256": "8a066911d7a3981ac968c71e8a323e2d35ad287755df3a62f9f1bd3dc659e2b4",
+              "pdf": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_feuille_reponses.pdf",
+              "pdf_sha256": "00f1eb28b1e8c4e0e3a7e5c09e0367a6a0c93b340e2583cb85e2303787783968"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-HGGSP/build/EDS-HGGSP_NT_saisie_vierge.csv",
+              "sha256": "854921f37a779ba7d3740cf82e46115297fbfc610dff12da174cbc68ae18b87d"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "EDS-HLP": {
+      "code": "EDS-HLP",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "1bcdf05e189eeb2d39f03b146200b2997cb97b9bd16f60cabb19dd0996d1c808",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité humanités, littérature et philosophie — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 21,
+          "sha256_assemblage": "1931d006da2ed40a5a63c6710957d43a6325e50e81e168cefa0698c6f16d6555",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_N1_sujet_candidat.md",
+              "sha256": "145f6a3ac48fa203cf3aa9599b21b6a976050a65f477d20b397f7acac47a8d88",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_N1_sujet_candidat.pdf",
+              "pdf_sha256": "e644b734b0b22352f47e2ad2eefd01bf1c21c9867cb5a63e54299d32f6f02447"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_N1_cle_et_grilles_correcteur.md",
+              "sha256": "02686da81a094b038add2f3dc03f2077669332c57628a063bb7090693c1429e1",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "577c3a647795c69bd975d0d16a4418b3a6156f0aa83292d20798b8359b796d34"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_N1_feuille_reponses.md",
+              "sha256": "45d8c7dec6bb34adec6e2d3370a15533e712201bfc7de427f0a5963d1e3b3127",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_N1_feuille_reponses.pdf",
+              "pdf_sha256": "151e7eecb5d5d912f579b7f2bb5a415fe479ae28bf11ad40cd68e123a5ac30ba"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_N1_saisie_vierge.csv",
+              "sha256": "545c739eb15e1c99180ea33200d5a9a3e2f2f7da0d9f04b79d21a28e2c7b8a16"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité humanités, littérature et philosophie — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 28,
+          "sha256_assemblage": "45a74445bd092259a04da7a2b9f99f33a0f8842cb00e50233af3ba0ca96bd056",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_NT_sujet_candidat.md",
+              "sha256": "589d438cb3c2f1b9eec449eae8a5277099d9f84ef1426e5f75a04f2887692d98",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_NT_sujet_candidat.pdf",
+              "pdf_sha256": "1b03fe047764c6dd945f60b82344ea5c951d2e59f25a2b4ca3ed76786abf0514"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_NT_cle_et_grilles_correcteur.md",
+              "sha256": "c7c2f1c7bc198a5acf39019d3e7e29021d746f1b7a8eb9c23ff373ba316e6d66",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "c3dd22d3e5d50910c1c5a6e6344a6101edb5029154447cac5eee85a71d3f8710"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_NT_feuille_reponses.md",
+              "sha256": "14fee1e47ed56d64803e9a9605d913123f4b04c77484639da53916c0427e37d5",
+              "pdf": "instruments/EDS-HLP/build/EDS-HLP_NT_feuille_reponses.pdf",
+              "pdf_sha256": "58df310a497e9f929d4e62c406dc6375408d03e70c008d9398cc6b858a3065a9"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-HLP/build/EDS-HLP_NT_saisie_vierge.csv",
+              "sha256": "543b6dde3dc25cad54c2c1abfee2522b1ab3d46b5f6a6e6956d9221a5b87ebba"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "montaigne": {
+          "auteur": "Michel de Montaigne",
+          "oeuvre": "Essais",
+          "edition": "texte établi par l'abbé Musart, Périsse Frères, 1847",
+          "annee": 1847,
+          "mots": 248,
+          "lignes_pdf": 18,
+          "sha256_texte_normalise": "6370a293520f1cf524c964e7e30497f55e85f6aa41c8bcab6f81f02b3d0cdf41",
+          "assemblages": [
+            "N1",
+            "NT"
+          ]
+        }
+      }
+    },
+    "EDS-MATH": {
+      "code": "EDS-MATH",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "e21ea5c3f80e164760f87473b5a08a7d86ad407111f394d842f0e8d34aed18e3",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité mathématiques — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 33,
+          "sha256_assemblage": "99b8982cf8b323b7d244bac890fe9cbc54cd54a9c6f70bfcbbe0818a80222d15",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_N1_sujet_candidat.md",
+              "sha256": "15ba923583826593e0bdcf478f5932c2e5ede3284bd30d6d36ad4dc519aa0e13",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_N1_sujet_candidat.pdf",
+              "pdf_sha256": "9c581f8873d171c226d166e934364432a98658fc80872e8c5adbf2d32e12b4d8"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_N1_cle_et_grilles_correcteur.md",
+              "sha256": "762bb6ca2e5a9224e10ee1f94d245ae291dc9468e59122210de80eda5bd93360",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "ff793ebf9e0afd44fd0e6b2f5de1a6ed7c41f4bfb5ef1f65108e67963335d54d"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_N1_feuille_reponses.md",
+              "sha256": "d406c8b27de23117bc16f4846a828a66034fafef8ccc0ca9975c0d6dcf3b967c",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_N1_feuille_reponses.pdf",
+              "pdf_sha256": "9d514b6e2d799a0c27c612ebe0ad3447b69c5fd3a07ecd965d0ba3dfcccd6637"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_N1_saisie_vierge.csv",
+              "sha256": "90dee35d139a0f862e8a1577f46f3573df17eb5fea5c88dc4dacab7e0df829e6"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité mathématiques — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 44,
+          "sha256_assemblage": "f638eeb67c0c20538be0c56eb3562f254af95af774ff38bd958319768c25697b",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_NT_sujet_candidat.md",
+              "sha256": "4cb3924aa1705d68fa216cf1cf855ab841f2156fae4678bf8310f5de5ae633ab",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_NT_sujet_candidat.pdf",
+              "pdf_sha256": "56e859bde4503ed3a8ea5448b6ad40e27d9127cdc7f8d7e7a70b569f2a98cecd"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_NT_cle_et_grilles_correcteur.md",
+              "sha256": "8948e09aa75037a9c85447e0a30ccacd67f67d095bd8f798485a9066b2270842",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "31e95f590da30f40baf63f5e44cd2a894c35b13a5944f4dd6f87f2d99be84172"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_NT_feuille_reponses.md",
+              "sha256": "1496dd874d7b64e3c8b99854332ed9ceb86eb675d9410b8d7258b72379bd78ab",
+              "pdf": "instruments/EDS-MATH/build/EDS-MATH_NT_feuille_reponses.pdf",
+              "pdf_sha256": "c244f76616d82ffca78697ee3ea75b2ec1247143cd43fa433d014ecd0782f1e3"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-MATH/build/EDS-MATH_NT_saisie_vierge.csv",
+              "sha256": "30922df49f7086cf228bed994233f877b15b2e7d336bd0c2435294b25b5be642"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "EDS-NSI": {
+      "code": "EDS-NSI",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "a30861658a6bdb31b568451190d5bb2c9d1e189c35e97d21867f749856f64dc2",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité numérique et sciences informatiques — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 30,
+          "sha256_assemblage": "025b0c49e0be5fc5af74be39acc13f5ba3d77a4aaf8beb4ba7a47a972b94cc5c",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_N1_sujet_candidat.md",
+              "sha256": "2b283b484ae38f2e6d69014c53169da24c88c2a519a5a4f024c05c50f3840e94",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_N1_sujet_candidat.pdf",
+              "pdf_sha256": "9420442a695235a7d75eb372352a54f10c6bb856da874998c74194459607967f"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_N1_cle_et_grilles_correcteur.md",
+              "sha256": "d3d8a761593dadacef1236603e8268dff7f3c78c9bbf6894d52e36d8510b3c50",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "93d4c7b38e88eca8fd4969c089ceaedf89e3a092a4bdf628340b0ac4f55043a0"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_N1_feuille_reponses.md",
+              "sha256": "cadd395929285d108e008828a360577cc8352160d5bdfa1bc98703a7552cecdd",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_N1_feuille_reponses.pdf",
+              "pdf_sha256": "c1cea098d72f2d5ddfcc126d399225ffe9bd5a91d794c41a104e1ce74d9b90b6"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_N1_saisie_vierge.csv",
+              "sha256": "d45240e498f41c9cb2da630dae0d185c11853d28f1549697514839042d88ec55"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité numérique et sciences informatiques — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 33,
+          "sha256_assemblage": "252d688a2bce64296974b9b9d2ff3208887f205f29306fa6f7b5bd891ceece69",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_NT_sujet_candidat.md",
+              "sha256": "4a5c0bb513a209803badc8243c81f6497bd61e5c00ac8e543016fb4ed448bc77",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_NT_sujet_candidat.pdf",
+              "pdf_sha256": "5d6808b7e3293bfd6e6c280bbda2dce3d1091d680f88dce2ae630d74e9096d95"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_NT_cle_et_grilles_correcteur.md",
+              "sha256": "45a7443eb991599ae3a6ecf50cd9883a1a9f3becb6938c19dbb2dac85970e991",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "9fb65641c63c44e7839191414c288a55eaa3ae14e5cdfceb39b98a8003efd203"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_NT_feuille_reponses.md",
+              "sha256": "e2d69862c0902819ce23917d0f53035a9f8453079ab666e3ca108165d395ee4e",
+              "pdf": "instruments/EDS-NSI/build/EDS-NSI_NT_feuille_reponses.pdf",
+              "pdf_sha256": "aeb5e0afc7b9ced5fbb1b885ec283f6c47dd47def2e6209ac0399a09dce01173"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-NSI/build/EDS-NSI_NT_saisie_vierge.csv",
+              "sha256": "f9a3892cb8e22406b57de0c50f75e17bcfdab6b4d3f32b0e755bce1019c33136"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "EDS-PC": {
+      "code": "EDS-PC",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "97742a073a1ce4d1330ba6ca863c0860bb1c46c01299be25bcc09b21f133cdbd",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité physique-chimie — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 28,
+          "sha256_assemblage": "76afa9d06e0bb6f9623a166ae944a1bc7187b33d7bb6bb86984bf0a7c2e520da",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_N1_sujet_candidat.md",
+              "sha256": "c2071bf856a3e1de027b2c12c5c51ec1b435b7540a7a7842a985e95039ac1bcf",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_N1_sujet_candidat.pdf",
+              "pdf_sha256": "8c969312b8d44abf3c1d18e671ec076d2f5237f09bbf31ac43bb7812d236117a"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_N1_cle_et_grilles_correcteur.md",
+              "sha256": "4dd915cf74ee1c3c3e608efe49172a0868f1e569e0bc907f73a5d7ca618d5637",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "b24a5b99cac510f5d27dadb7655dbe0b848110e69c7d3a1097dd5cf68809012e"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_N1_feuille_reponses.md",
+              "sha256": "c6b9b490e9868eac3b8e86cdb475163d4a1daea9c8b5379b53cbf4ec4853d8ca",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_N1_feuille_reponses.pdf",
+              "pdf_sha256": "7c75beefcdfa5113c875f2a706eec61baf4f6e38ffb6f7fc4b3c8039248050a3"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_N1_saisie_vierge.csv",
+              "sha256": "37ab11a57e0b602cd7103cf127961dd73c74ca8fffcf2dec1d3950fda6fd458c"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité physique-chimie — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 32,
+          "sha256_assemblage": "d9714d554c219876a1f0617384e6f915f3c90d5df11d07eafeb2a3ba14724f9d",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_NT_sujet_candidat.md",
+              "sha256": "bfef42087875f0708586844d4a9edb0eb128f37056b906f0e038afc92d78fafe",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_NT_sujet_candidat.pdf",
+              "pdf_sha256": "b1c5cd1b2471eaab12751c8f91882ae5d16282c63fa26ba722903cd3c8d01828"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_NT_cle_et_grilles_correcteur.md",
+              "sha256": "9c5c6bdbdf024f47e366046e607d45ff3eaf3d3f475912ab22afd84aaa6eaa06",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "25bc498f3293798206bd6e8330473d6bd54997fa07321c70726d3938a9ef0f5b"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_NT_feuille_reponses.md",
+              "sha256": "f8e55781cd7e53471f77992af96e3be430b6ce9f1d901231522a41f0b2fb61fc",
+              "pdf": "instruments/EDS-PC/build/EDS-PC_NT_feuille_reponses.pdf",
+              "pdf_sha256": "3a516373b76cb2aa36a17cc2cb9422e46e39f52971953f5360aa7835b4ba714f"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-PC/build/EDS-PC_NT_saisie_vierge.csv",
+              "sha256": "5372e355df4f4fb247c8b22072aab152b8103b86bcd7acfe70f25a4b2ae58ab6"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "EDS-SES": {
+      "code": "EDS-SES",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "31759eecfb9440e60147b2061f735cf341b5a35e99033060670561b009731fe7",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité sciences économiques et sociales — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 25,
+          "sha256_assemblage": "357cffcbf8ef619f3c43da1f661d0a4b281bf01d3bf157e2f2a6e539b5bbc04f",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_N1_sujet_candidat.md",
+              "sha256": "ad64cb7b926fd2e3554811f7b726dc4ecbfaedfd96e48a5292ed79658b56f6e8",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_N1_sujet_candidat.pdf",
+              "pdf_sha256": "d5cdfc1b500b24761b559c7b665c88c2579be01218a1f0663e75bab42ec9c428"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_N1_cle_et_grilles_correcteur.md",
+              "sha256": "af668135d3bf035e82e0d84a362362218a232e6cf6b4c0619c8eed7c0795b68c",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "822d2e5cd61a7eaaf496f9df1afd99f62280900f9f173f3490e69649bfd539ed"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_N1_feuille_reponses.md",
+              "sha256": "282c3aa256288da61973e0c7c2629bc1366f6f01ba882ac78ccd0bd3679d84b4",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_N1_feuille_reponses.pdf",
+              "pdf_sha256": "b5ab97393f40782fb570138a11f63e3cfc98cbadb3e376db1d40a3d67396e577"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_N1_saisie_vierge.csv",
+              "sha256": "8b48473c8c3d2bfc3bf266655956e12836de30f71f19c6c59680304fdb5ea6dd"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité sciences économiques et sociales — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 26,
+          "sha256_assemblage": "cc0d25ad6560979824cac26877cc7386d8ff98669bb48764e36c8bfc24325a36",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_NT_sujet_candidat.md",
+              "sha256": "23afcc264b0b2dfe2380ad11f223c191d5e1b63e832b740defa793573dc0b677",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_NT_sujet_candidat.pdf",
+              "pdf_sha256": "79dfdcde6e77fb1a0259226b51b3de7905d6dfec80b3460897d93011950688fc"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_NT_cle_et_grilles_correcteur.md",
+              "sha256": "6a37c6fd434d6ed7d9b2a1cefffffcbde13907f236ae2b3cae1a250df805924f",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "ea9ebc1bb0783cb0ffa4d1353193cacb1a75c53c1e7016cde9b0ce79f93c4f68"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_NT_feuille_reponses.md",
+              "sha256": "bc7f563cc1f7917070c5530471c385ba77c376f9111f9b286610e69427d7d37d",
+              "pdf": "instruments/EDS-SES/build/EDS-SES_NT_feuille_reponses.pdf",
+              "pdf_sha256": "ecb737cb7e7aa7870638cce29247ab27566435a3c3e8ac0a4f4a90af4d490711"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-SES/build/EDS-SES_NT_saisie_vierge.csv",
+              "sha256": "5db2c8512c4c38c834c788fd00e38bbb9b4b8430575b2b995641a5fd32c0e10e"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "EDS-SVT": {
+      "code": "EDS-SVT",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "fe8e02902ec15f62483736d931c54bd02df41410c97bc4def87377272b8d47ce",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "N1": {
+          "libelle": "Spécialité sciences de la vie et de la Terre — version Première",
+          "profils": [
+            "P1",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 29,
+          "sha256_assemblage": "9facad38631c1060bf62c23b526f7af01c281195a8a851fed9ff2c75d74b680d",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_N1_sujet_candidat.md",
+              "sha256": "ab605941338e533bcc77fad2e059b943cea24e99620932e737f38dfd1221bc33",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_N1_sujet_candidat.pdf",
+              "pdf_sha256": "66968758587e190fedbe93bf4680a67e4c129435be397ad9480dbb57ee00e638"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_N1_cle_et_grilles_correcteur.md",
+              "sha256": "537942937be3d0647ca38165186357df1c1ecdb9a1c89136f9e3a42da2fc67e5",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_N1_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "eacab8612ca782b73e4d653c5c1672290d53bedea5cc834428b80efbb7470790"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_N1_feuille_reponses.md",
+              "sha256": "2b37efdbf5fac5379bc94935a9c0be6fcab22bcabde91b3bebd54c97173ca86f",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_N1_feuille_reponses.pdf",
+              "pdf_sha256": "53cc985774b21ad198267718905ba083caaab853d79567f824eece79291eaa7d"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_N1_saisie_vierge.csv",
+              "sha256": "7e9846f4a5b5af0f6ea490e650fca86678dd7994af3e25e0a9fbca75f3155abc"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "NT": {
+          "libelle": "Spécialité sciences de la vie et de la Terre — version Terminale",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 33,
+          "sha256_assemblage": "fe932fb9897857c18b8f6288b890033f0961f7b4c4608e578b2d80da9875de77",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_NT_sujet_candidat.md",
+              "sha256": "353fd7da0ab19fdd2e8ddf9905f2913fd0b87098b3d2ea9bb174b8ec5cd3d5d3",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_NT_sujet_candidat.pdf",
+              "pdf_sha256": "c435ef5ea891ad5d6fa621326dbe9de7b9749a73f3d6a19521241b5b92f5926c"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_NT_cle_et_grilles_correcteur.md",
+              "sha256": "425df5969df4678500d825639e8c85f7dad0b480daa6c1cb2d604c528b9b2451",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_NT_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "9465093d9e28a4732c0c3612833fd9e7312dfc6914cfb816e435a0bc55134342"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_NT_feuille_reponses.md",
+              "sha256": "bcf6b9b921463387aab68f64d369267a804cf563f15f616c082d2ed6205fe1ac",
+              "pdf": "instruments/EDS-SVT/build/EDS-SVT_NT_feuille_reponses.pdf",
+              "pdf_sha256": "387637a62cbda2a964eccf5b74a2e1afabbd662a0166e3aebe95ad65b660f327"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/EDS-SVT/build/EDS-SVT_NT_saisie_vierge.csv",
+              "sha256": "1957c08375209f3fb84f68d8da1575a471896cd48ee7331cb48604d7d279ebbc"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "FR-EAF": {
+      "code": "FR-EAF",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "33be05b3e78029f206d9ccc3f57b462f190979571ff91625db62ca8754de577e",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Diagnostic français — les deux épreuves anticipées",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": 2027,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 42,
+          "sha256_assemblage": "53d01c2cf255f4653ee0eab387ce2aee04b55ba3d926834d187a3298f4fcc18d",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_sujet_candidat.md",
+              "sha256": "7c24217ed2dae08cf966f8843f516f8838d60cb3a1ed16581095466f55403c66",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_sujet_candidat.pdf",
+              "pdf_sha256": "db4951ad8d813837cfa58c2fd65dadc6076459d02a6780f77a68c2bfec7305c3"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_cle_et_grilles_correcteur.md",
+              "sha256": "896fe18edef83b85b1b98eac471f991e6bb05ae117d99d1270f5cbbcdf8da2d5",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "599e7a9cdb1bd085d6b84cb576bf90a816fd8f16d5f1f0e47da37fb937017fe3"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_feuille_reponses.md",
+              "sha256": "88fdbb3b0a052e12c74c53e7fa7b73f942298f592a41b58d2145e3c036adeba7",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_feuille_reponses.pdf",
+              "pdf_sha256": "2df4ecbba79d4dd6e8315402dd6ed7c099e33583fce8bb869158573d961b129b"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_saisie_vierge.csv",
+              "sha256": "bb65b29ccdb9d380dd9c4344b7bb55bf52759d19d6ad0b3487595f782aac5c82"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "standard_2028": {
+          "libelle": "Diagnostic français — les deux épreuves anticipées — session 2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 90,
+          "session_baccalaureat_finale": 2028,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 42,
+          "sha256_assemblage": "fe3d1ac895d96d63f71792368bc9fd41156ed1a419b8661b1484fb18e7a4728c",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_2028_sujet_candidat.md",
+              "sha256": "b52a487efdbdab83805ca5a2264c8f0cffa0a2b9c4e71808ba713a5f5e63a3ed",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_2028_sujet_candidat.pdf",
+              "pdf_sha256": "c0ba536c600c90d781bfc6d155bcaf4e209e2c14e6bc49db630d9382f8e45d0b"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_2028_cle_et_grilles_correcteur.md",
+              "sha256": "95e127aa13da0cadf70b9536066efb500a2eb06f765f6823c0b64735213e859f",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_2028_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "e06b3b605885ee1c9be84c8675a322ad87cba70a9b39a28ece69fb6cc399a88a"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_2028_feuille_reponses.md",
+              "sha256": "01a5c4dcea37d9ee6678cf55e3c645dd85b87133b2d95e41273e6b60bb326f6e",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_standard_2028_feuille_reponses.pdf",
+              "pdf_sha256": "c5f0005c07447ab4a27d281b5e471647c705119dd2678458bd0908a6f08e9c4c"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_standard_2028_saisie_vierge.csv",
+              "sha256": "42a55de3b0d8a8cd3b24313b0fc1b6df39fb4731370484e3f2558e133b10ab45"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "ecrit": {
+          "libelle": "Diagnostic français — épreuve écrite seule",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 80,
+          "session_baccalaureat_finale": 2027,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 34,
+          "sha256_assemblage": "cdb88c935efac126ab8bd73666bd4475ec99174a20a8cc182f4482e457641c02",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_sujet_candidat.md",
+              "sha256": "276421dacaa11fa597fe47048ccc54d22522bed8b2348bbb9c453b35c344f993",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_sujet_candidat.pdf",
+              "pdf_sha256": "35dceca188b2b96412301d8501f179fae2f05bc2c4b493b452f4f7ba0585fddf"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_cle_et_grilles_correcteur.md",
+              "sha256": "c111ee91fbf5ecd030a10e15e3d2c48ad0cfe2dd3dd95e3b86d1d98ac4d89dcb",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "bc981767bbf51fcfe1f886e89d2e60c77cb00460d5671cd3bf6e7f13e3149568"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_feuille_reponses.md",
+              "sha256": "4bb9b187acfa0788292a5492d758658d316615f83bd4ca34932ba5e02408a5ad",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_feuille_reponses.pdf",
+              "pdf_sha256": "df4f831ea65bd55191a38d104e975d7f5c80f82d4f7273d25bc9426bd5f04b8d"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_saisie_vierge.csv",
+              "sha256": "f5e02ce03e443f4dbd20652903c451e0ed8635c7d3c6c5072111973a01a023d5"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "ecrit_2028": {
+          "libelle": "Diagnostic français — épreuve écrite seule — session 2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 80,
+          "session_baccalaureat_finale": 2028,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 34,
+          "sha256_assemblage": "28fbdddbd21b74f7679f6eb7a069bc092b9d7d6240c9285d9db27314422a4636",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_sujet_candidat.md",
+              "sha256": "4a81b6977270ee2eedf93be4c4308bd8931919bf235f1fa87967c127a580f095",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_sujet_candidat.pdf",
+              "pdf_sha256": "cefb45f207839890eb4ab2e143316e6da2bf273eafac0c5e2b8e3649fdb949e9"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_cle_et_grilles_correcteur.md",
+              "sha256": "d30a5dc75ebd605d28f741efb378e9a8e3379eab73fc744958f81076e0540c02",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "7054eb9c38f5e01d514b9eb986eabca9e1d6e85391032dc527b27c1893208cd5"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_feuille_reponses.md",
+              "sha256": "05e504b90513f49e8178aa2d154313406e895b5d360e7bd3f6984ad23541936d",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_feuille_reponses.pdf",
+              "pdf_sha256": "23776844f2a2f2347080c646aba6675d52814bd50f5bb9e47abcb4385cc19b98"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_ecrit_2028_saisie_vierge.csv",
+              "sha256": "2596cc24f422955ecd5a46767b399d6dd42dd73b9c7ef1b5eec4138252983ab8"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "oral": {
+          "libelle": "Diagnostic français — épreuve orale seule",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 50,
+          "session_baccalaureat_finale": 2027,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 29,
+          "sha256_assemblage": "8408e282f6ef5ea4266657806bfde5a04528cb7e021fde69be1b19602e42c905",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_sujet_candidat.md",
+              "sha256": "c10da574f2d389611e0cd4c18a4c337e07db4c09b2ce499e9819883d8893feb2",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_sujet_candidat.pdf",
+              "pdf_sha256": "766d6f67b767407b0baec4c6d73418cc41091f9a8a6daee149ff1dc058ee3832"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_cle_et_grilles_correcteur.md",
+              "sha256": "b2ef329207df986fd6352521fcf024b3800137fb44354755fb06931c1a353265",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "f7de026259915289ddb71b5074db8471fa8dc7f47e66615ab95dfdb48506b9fe"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_feuille_reponses.md",
+              "sha256": "00ab99c79241600ab5dd96f6e8ddc5a4801c01e219acc22d8dd39fc69b169e02",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_feuille_reponses.pdf",
+              "pdf_sha256": "219372292608f7a0db3a89c9e826cbd7780f10cdd533a0eafff82378a81fa745"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_saisie_vierge.csv",
+              "sha256": "096ea35b8a34d4201f5d5ed2033a814ce636562c02a8822755be2115a1e1c5a9"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "oral_2028": {
+          "libelle": "Diagnostic français — épreuve orale seule — session 2028",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 50,
+          "session_baccalaureat_finale": 2028,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 29,
+          "sha256_assemblage": "578e42caa2fb03c61331b8a0996497199c74be38e9a8ce624b52b06edba99499",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_2028_sujet_candidat.md",
+              "sha256": "3b8f7a23c353c60bb82e22d14b98686f95e5d44c70f9902a0bf95042e03bfd66",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_2028_sujet_candidat.pdf",
+              "pdf_sha256": "d83d4d689560a74c0ee127de785e813f749731f83a9b537042b6efc47b418e13"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_2028_cle_et_grilles_correcteur.md",
+              "sha256": "fc5c055fafe7fa4feb65f7fbe73c6e55d1e9141c7179ba68709ccb997407e89f",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_2028_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "74ecb07342af4ba96ad426b7455cee4eae2e6b6c7a49a1796b36f5e6efebe772"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_2028_feuille_reponses.md",
+              "sha256": "3323759a1f51047a91d8dff184536f20608e251a07e4c65bfd177e8da888aafe",
+              "pdf": "instruments/FR-EAF/build/FR-EAF_oral_2028_feuille_reponses.pdf",
+              "pdf_sha256": "59edc8194f784ac633519227843dd8b68cf9ec5b2b9444dbdb6d85d703e07d9e"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF/build/FR-EAF_oral_2028_saisie_vierge.csv",
+              "sha256": "5fed5719adf029c9cd1cf0e37c548f1eab9aa19f100e7ec813f4a901f4fb3118"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "laboetie": {
+          "auteur": "Étienne de La Boétie",
+          "oeuvre": "Discours de la servitude volontaire",
+          "edition": "texte établi par Paul Bonnefon, Bossard, 1922",
+          "annee": 1922,
+          "mots": 441,
+          "lignes_pdf": 25,
+          "sha256_texte_normalise": "f9ed7f46d0b803681ab2bcd58a17383c97b09b9f6eafa83513045a21d859fab6",
+          "assemblages": [
+            "standard",
+            "ecrit",
+            "oral",
+            "standard_2028",
+            "ecrit_2028",
+            "oral_2028"
+          ]
+        },
+        "balzac": {
+          "auteur": "Honoré de Balzac",
+          "oeuvre": "La Peau de chagrin",
+          "edition": "Charpentier, libraire-éditeur, 1839",
+          "annee": 1839,
+          "mots": 265,
+          "lignes_pdf": 17,
+          "sha256_texte_normalise": "6612ede1f783dd4896c97446a69f9e1c0a5dd15e43c58269a2b914dcf893d177",
+          "assemblages": [
+            "standard",
+            "ecrit"
+          ]
+        },
+        "zola": {
+          "auteur": "Émile Zola",
+          "oeuvre": "Pot-Bouille",
+          "edition": "G. Charpentier, 1883",
+          "annee": 1883,
+          "mots": 326,
+          "lignes_pdf": 23,
+          "sha256_texte_normalise": "2a754febca37a8f7a849eefee386ff20b64b45d3086d0879640608886c321a6b",
+          "assemblages": [
+            "standard_2028",
+            "ecrit_2028"
+          ]
+        }
+      }
+    },
+    "FR-EAF-ORAL": {
+      "code": "FR-EAF-ORAL",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": "ec121de89d45c37fbc06fda129d6b4f973206ed95207e872521515e588c7b32c",
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Épreuve orale anticipée de français — grille coach",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/FR-EAF-ORAL/build/FR-EAF-ORAL_standard_grille_coach.md",
+              "sha256": "a36658d4547c6c6e26d137c52665158508b48890f931c1a29c5bb02b232f7bad",
+              "pdf": "instruments/FR-EAF-ORAL/build/FR-EAF-ORAL_standard_grille_coach.pdf",
+              "pdf_sha256": "362ddd9304c8b67f41058233950a4a572c5e2b2748f353b4d43f0d1fbd2eccda"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-EAF-ORAL/build/FR-EAF-ORAL_standard_saisie_vierge.csv",
+              "sha256": "52c3ee9365e5b4fc758571396b2732cac3156510e863b25dec01915f8f603b96"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "moliere": {
+          "auteur": "Molière",
+          "oeuvre": "Le Misanthrope",
+          "edition": "Œuvres complètes, texte établi par Charles Louandre, Charpentier, 1910, tome II",
+          "annee": 1910,
+          "mots": 82,
+          "lignes_pdf": 12,
+          "sha256_texte_normalise": "3f29ae278b4b5452922319b32920964c156617ae02f00cd5d865b6ee6a8d01d8",
+          "assemblages": [
+            "definition"
+          ]
+        }
+      }
+    },
+    "FR-MAI": {
+      "code": "FR-MAI",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "55ec591dad67ee611a0d383d65d258f7e0fd02adbedb2c875c9dedab80b947ad",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Diagnostic de maîtrise du français (outil de travail)",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 18,
+          "sha256_assemblage": "124e6e532b057fd8f4732295b55c073d7c1e67a5b5e51fc5ce7a247cae0b7462",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-MAI/build/FR-MAI_standard_sujet_candidat.md",
+              "sha256": "9de320c061d6c6fffe37e070236b3e8af34ba6d18045ef5e5048f63d9ace4e15",
+              "pdf": "instruments/FR-MAI/build/FR-MAI_standard_sujet_candidat.pdf",
+              "pdf_sha256": "8ac76834a162fb2a85e2acb82aa75b045de0b7668c9c6890970cde7d3095da4c"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-MAI/build/FR-MAI_standard_cle_et_grilles_correcteur.md",
+              "sha256": "15c64414460bd584611f2872ed72ea006fd2c85afa1d83b342c03c7d2173d4f1",
+              "pdf": "instruments/FR-MAI/build/FR-MAI_standard_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "2c1beddd6f4b8ec34fec0e5e22f23dd8245cd78c355f2e5505d9d0822b4d7bf4"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-MAI/build/FR-MAI_standard_feuille_reponses.md",
+              "sha256": "60c5f89830fe457e7d7f52e4ef8b881520288bce181f08e4e78cc083361e2079",
+              "pdf": "instruments/FR-MAI/build/FR-MAI_standard_feuille_reponses.pdf",
+              "pdf_sha256": "f88895766a3b4cb72041b8a59b469f68661ca677f0581bc545a60954dd23dfd2"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-MAI/build/FR-MAI_standard_saisie_vierge.csv",
+              "sha256": "1131ab7dc1ed56bffde42e3b88ea43bc38a3a5c0dcae1e5be014d46cddb89218"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "condorcet": {
+          "auteur": "Condorcet",
+          "oeuvre": "Sur l'instruction publique",
+          "edition": "Œuvres de Condorcet, Firmin Didot frères, 1847, tome 7",
+          "annee": 1847,
+          "mots": 395,
+          "lignes_pdf": 28,
+          "sha256_texte_normalise": "70f8a889ae61b432268f574d8ecf708d9949a7e4da8bc9519398e806cea14ba4",
+          "assemblages": [
+            "standard"
+          ]
+        }
+      }
+    },
+    "FR-POS": {
+      "code": "FR-POS",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "5fe62041782db8ce4bc6950b5b4f5949efc4223a1c44dd0e56387c19adbcf199",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Positionnement en français scolaire — écrit",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 45,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 23,
+          "sha256_assemblage": "c888c261e581dd9c7845eeee8ec0aa0adf869e12c2bc32fec8820711bcbb2311",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/FR-POS/build/FR-POS_standard_sujet_candidat.md",
+              "sha256": "e3cf87dafba1b06245336b496018aa80caa89243bc1430f59394c0ac5c3d5460",
+              "pdf": "instruments/FR-POS/build/FR-POS_standard_sujet_candidat.pdf",
+              "pdf_sha256": "8990c2427123c9036e567174bf4360dcd01e71015e1bc85b6aeb21367a3f3c48"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/FR-POS/build/FR-POS_standard_cle_et_grilles_correcteur.md",
+              "sha256": "5f5465d85c5d242b98889002c7d9ccf6a80e220e85fee76eb44767e20a85a218",
+              "pdf": "instruments/FR-POS/build/FR-POS_standard_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "285938a10337dfeee082863055fcde4dbc72194689074a7e0534d8c6bdf26f86"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/FR-POS/build/FR-POS_standard_feuille_reponses.md",
+              "sha256": "98e88792b2cc396e827a89dd1858c236d6e9e1591208c38d6728fc2a219861dd",
+              "pdf": "instruments/FR-POS/build/FR-POS_standard_feuille_reponses.pdf",
+              "pdf_sha256": "be5dc065f3357ecd2adb8b18a32b747f8c6756f97aa1423fbc04fb5cd481d819"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-POS/build/FR-POS_standard_saisie_vierge.csv",
+              "sha256": "0b41385f5e5e53613aa89b731f217783c9e1754558196e07df5dccbe4d938d88"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "fr_pos_adolescents": {
+          "auteur": "Enseignante de français Nexus Réussite",
+          "oeuvre": "Test de positionnement — Français scolaire",
+          "edition": "Test_positionnement_source_enseignante.pdf, document de conception interne Nexus",
+          "annee": 2026,
+          "mots": 266,
+          "lignes_pdf": 20,
+          "sha256_texte_normalise": "72624d2dcdc2842d10467d866e7c3fa6e41738ccdf24b83580b56b5960414cc2",
+          "assemblages": [
+            "standard"
+          ]
+        }
+      }
+    },
+    "FR-POS-ORAL": {
+      "code": "FR-POS-ORAL",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": "5a7c2252168b6250cd44ddd06d9dc45e660487a361d4e64aa8f0ee93120fb8ed",
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Positionnement en français scolaire — entretien oral coach",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 10,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/FR-POS-ORAL/build/FR-POS-ORAL_standard_grille_coach.md",
+              "sha256": "a030b71c518f4835a45c328ce5459743ceb77e7f972271ebc2b90ddcd18dc491",
+              "pdf": "instruments/FR-POS-ORAL/build/FR-POS-ORAL_standard_grille_coach.pdf",
+              "pdf_sha256": "1dd4095abe46a1549bb0e25c070f6eb9027759c5a145f12300ad8ef4d4d57c30"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/FR-POS-ORAL/build/FR-POS-ORAL_standard_saisie_vierge.csv",
+              "sha256": "36fde27c14c605461f59c77aad0ebba84a5250131eaaf51d05ee043b550d59a5"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "GO": {
+      "code": "GO",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": "6035cb89bd827753b24b855837f752db0e552a62058a5ac99ac009bd124932b9",
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Grille d'entretien Grand oral — coach",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 15,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/GO/build/GO_standard_grille_coach.md",
+              "sha256": "ec4dd6b92600d84ad83b1c5705afbbc3f140bd6590a6b76f8f6952b96e727707",
+              "pdf": "instruments/GO/build/GO_standard_grille_coach.pdf",
+              "pdf_sha256": "2c82e458a09391f281f7f977cbb3a5d3330849bd4b6dd472b9130134808ed0fa"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/GO/build/GO_standard_saisie_vierge.csv",
+              "sha256": "1207b82ce179db87cf7995fa26204bc05e3778d80dd0b1dcda0bf01fb63f0155"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "MATH-EA": {
+      "code": "MATH-EA",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "1d5fadf339907e4ee93009199901d67840b7e716226c3f72ec16b70ad337f47f",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "SPE": {
+          "libelle": "Épreuve anticipée de mathématiques — parcours enseignement de spécialité",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": "2026-2027",
+          "nombre_items": 35,
+          "sha256_assemblage": "f5fa33a849ba43c0b7e424a59d898dc4ba54f96742673c99b302ca90427223c6",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPE_sujet_candidat.md",
+              "sha256": "d008d5ee0a0dca59e714fbc9d1eb48a5c326c8b2a37bb14ed343c2f9f5489e9c",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPE_sujet_candidat.pdf",
+              "pdf_sha256": "c35bf652ec45ef5c9398b3071d4e79e4a49be743439c4000aef54161b517bb05"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPE_cle_et_grilles_correcteur.md",
+              "sha256": "aed469262632345f34b147c423e23c6610029c522695ac56456bc094ae963772",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "d72651612d78af5e0a99c22392fe5e14e4186d08867084cbd8780a83438a97c8"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPE_feuille_reponses.md",
+              "sha256": "320e5bdd9efe3dccfa6ea7801b76d1d96268b15de8ebd3a550f28727471471c7",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPE_feuille_reponses.pdf",
+              "pdf_sha256": "52c81183da4f30f00dcf0726c6c8c3f403db2d3307b0087196e1b400e56799b7"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPE_saisie_vierge.csv",
+              "sha256": "13e5bb00121799513f1b71bbc9a1ba94f258c4bd17efad50bffdee4d2ee9a4fb"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "SPECIFIQUES": {
+          "libelle": "Épreuve anticipée de mathématiques — parcours mathématiques de l'enseignement scientifique",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 75,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": "2026-2027",
+          "nombre_items": 36,
+          "sha256_assemblage": "5361addd8b95f185baee1a083930c74434af72694e00117b061bc5599339e093",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_sujet_candidat.md",
+              "sha256": "fc2e08c601edd051fb24f6950271fde46b2f0cd37ac0f5fd200fcbb3476ba92b",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_sujet_candidat.pdf",
+              "pdf_sha256": "bc957c50f65b576c4dbff821b480792e644234948a92de950f1e55716731f3cc"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_cle_et_grilles_correcteur.md",
+              "sha256": "b9fc04d76aeaae0fb64587d2653037c26ed935b55b9c584692f4ed2e34ab01ca",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "a0af13a00064fe9f078a52a29a9e282b32ee535c78cedfd228652883b98cb768"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_feuille_reponses.md",
+              "sha256": "fea7a45e70b2c4aa46d5c5450d1af4ff89e12ef23068b8d5f8009321eeeaaf32",
+              "pdf": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_feuille_reponses.pdf",
+              "pdf_sha256": "1f32323d443e9201c7015a0ef5cf75c04b90e2c107c58691f608a72ce0a8e538"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/MATH-EA/build/MATH-EA_SPECIFIQUES_saisie_vierge.csv",
+              "sha256": "b769a301db42ccf1250d8feca5c3f313894102846ffb77899c3afea2d242eeda"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "MET": {
+      "code": "MET",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": null,
+      "sha256_formulaire": "3cc8705147e507efe6749d09b1e1a5471cbf4a2dbaf0da6cc630a3e7074797b0",
+      "versions": {
+        "standard": {
+          "libelle": "Méthodes de travail, organisation, autonomie",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "formulaire_secours": {
+              "fichier": "instruments/MET/build/MET_standard_formulaire_secours.md",
+              "sha256": "047aeef5d704e53d0cc71d856ab4970b40ceca51ad0ee522dd96544b59b35f09",
+              "pdf": "instruments/MET/build/MET_standard_formulaire_secours.pdf",
+              "pdf_sha256": "8b5c4f49451113fac1b80c7136408ae198a8527fa2bee8d767ead3ae88a0804f"
+            },
+            "variables": {
+              "fichier": "instruments/MET/build/MET_standard_variables.csv",
+              "sha256": "7b2aa518431c8a0a9115ecbdea5abfbd8f4033070b54fae004334ef96d2bf34d"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "PHI": {
+      "code": "PHI",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "08c07dbe3d39bce868b8a0e0c25b39a5fd977e710efaa1dc86b16451f54b5473",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "standard": {
+          "libelle": "Diagnostic philosophie",
+          "profils": [
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 23,
+          "sha256_assemblage": "ec24f7acb9215013da1046679f99135202f7da4c6914e15876f5b3f5bed506b9",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/PHI/build/PHI_standard_sujet_candidat.md",
+              "sha256": "6bb3ee6fb7493f8b0451f44df84a3b15d54fcd000b17960b53f35dcd9211e930",
+              "pdf": "instruments/PHI/build/PHI_standard_sujet_candidat.pdf",
+              "pdf_sha256": "6f20174c13b7085b912f9d550f91455d4773c03dd321da4aa9e656fe5b2ffe87"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/PHI/build/PHI_standard_cle_et_grilles_correcteur.md",
+              "sha256": "0711b962c445213e262a635ce8436d8406728272541875fde3df4490ae0597c5",
+              "pdf": "instruments/PHI/build/PHI_standard_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "70b524a43dd6dc84cd54638af49d372c6429e135be7f69aeccbdf62976933c77"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/PHI/build/PHI_standard_feuille_reponses.md",
+              "sha256": "2997ab6af6513b328073a8fbbd61805b3256bc6de5e92a959fbf846fddfd881a",
+              "pdf": "instruments/PHI/build/PHI_standard_feuille_reponses.pdf",
+              "pdf_sha256": "db2b87f3b780a959d96d493fb65b0eca94b044b2daa15be150aeb248b11edc65"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/PHI/build/PHI_standard_saisie_vierge.csv",
+              "sha256": "f50317cc340467dc2aa353609c7f357ea8e135e65cc98c945fe96a4ef0f96707"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {
+        "descartes": {
+          "auteur": "René Descartes",
+          "oeuvre": "Discours de la méthode",
+          "edition": "Œuvres de Descartes, publiées par Victor Cousin, Levrault, 1824, tome I",
+          "annee": 1824,
+          "mots": 322,
+          "lignes_pdf": 20,
+          "sha256_texte_normalise": "830f04d104b5e4ac74a225001cfd08b162a6b5a22cc8ff6bd4c39615be7c003e",
+          "assemblages": [
+            "standard"
+          ]
+        }
+      }
+    },
+    "QP": {
+      "code": "QP",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": null,
+      "sha256_formulaire": "5a7d65e74ac2aa6070341ac99b51232266f065ab48a16501d1476137e6d7e31f",
+      "versions": {
+        "standard": {
+          "libelle": "Questionnaire de parcours et contraintes",
+          "profils": [
+            "P1",
+            "P2",
+            "P3"
+          ],
+          "duree_cible_min": 20,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "formulaire_secours": {
+              "fichier": "instruments/QP/build/QP_standard_formulaire_secours.md",
+              "sha256": "d31cfe541ee31d72408629016e0c764be246a4e2253a2e56a30b3db07d3ab0de",
+              "pdf": "instruments/QP/build/QP_standard_formulaire_secours.pdf",
+              "pdf_sha256": "d50b6c083180467d49006716a7ec50ae8627f7a8cd43e6ac937396bff3f37383"
+            },
+            "variables": {
+              "fichier": "instruments/QP/build/QP_standard_variables.csv",
+              "sha256": "5605aa8919ba394b5c5dc63ad53999ddf3cc85f493be0af6eb4ab7a014db9763"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "TC-EMC": {
+      "code": "TC-EMC",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": null,
+      "sha256_definition": "05aa47a280e893cee317864793820feb7907197ee9ea5f09e6a9af904758457d",
+      "sha256_formulaire": null,
+      "versions": {
+        "1RE": {
+          "libelle": "Tronc commun — enseignement moral et civique, programme de Première",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 20,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_1RE_grille_coach.md",
+              "sha256": "80b96b87c721cca8f68ab4cebb1fcde4a459c7e6e82d94308a0e9fd867334d92",
+              "pdf": "instruments/TC-EMC/build/TC-EMC_1RE_grille_coach.pdf",
+              "pdf_sha256": "86d1b25ca3e97956aff504aef2add74c8f755cabd738dedabc43725eddc318fe"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_1RE_saisie_vierge.csv",
+              "sha256": "7d2e34b2ddd39d40920ad6e2856ffd9d9ca2c37e283d2022d9137de0c1c92cde"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "TLE": {
+          "libelle": "Tronc commun — enseignement moral et civique, programme de Terminale",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 20,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_TLE_grille_coach.md",
+              "sha256": "9ad159de022a08d55835b215b20ab1ca63e42cb0a6d3bf42470840790646a538",
+              "pdf": "instruments/TC-EMC/build/TC-EMC_TLE_grille_coach.pdf",
+              "pdf_sha256": "c013c0cb60f49cd6324da21680e5d05dbca98ba7f13bb0550399c0033348f0e8"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_TLE_saisie_vierge.csv",
+              "sha256": "c67f8633af667ebe51207b38fdeeb4dcd495d7591ff9466bfa0e4223a514561f"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "ETENDUE": {
+          "libelle": "Tronc commun — enseignement moral et civique, version étendue cycle terminal",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 25,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": null,
+          "sha256_assemblage": null,
+          "rendus": {
+            "grille_coach": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_ETENDUE_grille_coach.md",
+              "sha256": "1a5c4ddb652c262d75ed5211f7e6bcbf0f3c06c0a400ab00f292f409e47abcb7",
+              "pdf": "instruments/TC-EMC/build/TC-EMC_ETENDUE_grille_coach.pdf",
+              "pdf_sha256": "813169b5df744d8b829bd37a55dbb81176c7227743431f1074898cfa5048ab22"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-EMC/build/TC-EMC_ETENDUE_saisie_vierge.csv",
+              "sha256": "453d6e6b9d4a44718989c6ac2463d03f0398f35b417d54267e178e1fffd40346"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "TC-ES": {
+      "code": "TC-ES",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "a1557172e3dabc0152eb118f6d457906336a5e757c2737d43d51cce0a2621bcd",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "1RE": {
+          "libelle": "Tronc commun — enseignement scientifique, programme de Première",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 40,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 20,
+          "sha256_assemblage": "5bc7f4ac939de366e1a8bac8a723b816b96b36096d0b4e847d9aaf90ed725092",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-ES/build/TC-ES_1RE_sujet_candidat.md",
+              "sha256": "2067aeab7f18f23a64c784a356c1d5ac2eb369dfef3a75734a6940c0be8f76d5",
+              "pdf": "instruments/TC-ES/build/TC-ES_1RE_sujet_candidat.pdf",
+              "pdf_sha256": "4833fda4145781a4a6fe0aba1f4924ca79bf7d6bb6c3be4c492a1088217f4932"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-ES/build/TC-ES_1RE_cle_et_grilles_correcteur.md",
+              "sha256": "d77d4a8a6f5b522e9f20a6bdd7a9c7a372cdd15accec5f3fb0bd5dbd8c336a3c",
+              "pdf": "instruments/TC-ES/build/TC-ES_1RE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "4af80560be1afebfd67057611977efa1312bb166df2b6b1489284703811fc96c"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-ES/build/TC-ES_1RE_feuille_reponses.md",
+              "sha256": "759de60cb778a8bc69020952369ef93815ae0b2ffe72d437792dc929511cb93a",
+              "pdf": "instruments/TC-ES/build/TC-ES_1RE_feuille_reponses.pdf",
+              "pdf_sha256": "3a75bd46c5009d3ec597fd48f6a35d915426c7ebd4de925518132eef52cf9012"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-ES/build/TC-ES_1RE_saisie_vierge.csv",
+              "sha256": "decff2e9ff5bae96ec8f078f04dbddf5478d065a3217f8f689ca476864b40b9c"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "TLE": {
+          "libelle": "Tronc commun — enseignement scientifique, programme de Terminale",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 40,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 20,
+          "sha256_assemblage": "e33adc97d5d521cad7cff2e961fb654999a46e9a26d72551914fc25e37c29d0d",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-ES/build/TC-ES_TLE_sujet_candidat.md",
+              "sha256": "72e7b2265f0951a8e4053a28cdf8ee30f6d128c4c46c8b57467ed8d5d9ccfe72",
+              "pdf": "instruments/TC-ES/build/TC-ES_TLE_sujet_candidat.pdf",
+              "pdf_sha256": "60163bfc751fb26d9512ae8de4a514ec3db3f5df5cd5a17282f6f233b4e6e6ea"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-ES/build/TC-ES_TLE_cle_et_grilles_correcteur.md",
+              "sha256": "9dd9a652f321fe2eb227afdcdcb86fa4be66dbcbd31aa321eb8d263796132897",
+              "pdf": "instruments/TC-ES/build/TC-ES_TLE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "fbb64c16924ae65780fe4804748c0db63b5eafcb72945ff28c0a7974ce4e04d6"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-ES/build/TC-ES_TLE_feuille_reponses.md",
+              "sha256": "f9d411c916941ff8f3b81ced9f8e2c1722af0e39aef15518e736e8afc1733a5a",
+              "pdf": "instruments/TC-ES/build/TC-ES_TLE_feuille_reponses.pdf",
+              "pdf_sha256": "955fb1d9e2048739d3bf2e501596b67575c51dcfe175662f21f4a7c838ed1ba4"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-ES/build/TC-ES_TLE_saisie_vierge.csv",
+              "sha256": "67e2885cf089ccc6bdbb6bf34ced4ad2f88fdb3020ae97369cc4d4fce30ad7af"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "ETENDUE": {
+          "libelle": "Tronc commun — enseignement scientifique, version étendue",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 55,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 30,
+          "sha256_assemblage": "56540e2ab204f8fde7c39ca168b9db9944545f271d082d2252fc5bdda9186eca",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-ES/build/TC-ES_ETENDUE_sujet_candidat.md",
+              "sha256": "b3179918785b41be9918d7fbe51f667cc82510eb20927ae050ffd8dde1b05e04",
+              "pdf": "instruments/TC-ES/build/TC-ES_ETENDUE_sujet_candidat.pdf",
+              "pdf_sha256": "44c048b37fe256b0b748dc3908f9ff55b6a3ca39c4608e037a7923972edda596"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-ES/build/TC-ES_ETENDUE_cle_et_grilles_correcteur.md",
+              "sha256": "03ac4548138bd8272c1a1a4abc31633a80f60216b80331c2ca2a3427bdfcd8fd",
+              "pdf": "instruments/TC-ES/build/TC-ES_ETENDUE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "240885a6ea29be60d93fcf98f957c45fc87e3fdea24ed62f35c22d80ef9d971c"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-ES/build/TC-ES_ETENDUE_feuille_reponses.md",
+              "sha256": "f14abf87ecf6a29cc8c30c77d6d91c137a8418ddf8bf4a3b115a7137721af063",
+              "pdf": "instruments/TC-ES/build/TC-ES_ETENDUE_feuille_reponses.pdf",
+              "pdf_sha256": "12cfb929ec73ca7f3f3a0f2dcff35770a43753ac63b314096b01bc666874c499"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-ES/build/TC-ES_ETENDUE_saisie_vierge.csv",
+              "sha256": "6e95800230c6e17587c347104b0a1926b383b7c0cf845810d85646c1033f56e8"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    },
+    "TC-HG": {
+      "code": "TC-HG",
+      "etat": "diffusable",
+      "motifs_de_non_diffusabilite": [],
+      "sha256_banque": "d879303cb0ec692719f13ac93a2e010f7ca2d7900fa1d28ca7bcf825381511f1",
+      "sha256_definition": null,
+      "sha256_formulaire": null,
+      "versions": {
+        "1RE": {
+          "libelle": "Tronc commun — histoire-géographie, programme de Première",
+          "profils": [
+            "P1"
+          ],
+          "duree_cible_min": 45,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 18,
+          "sha256_assemblage": "3a60231eec877812eebef1cbf9158676c7f45124fe4a1ed2aaf1f9ab8f925a03",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-HG/build/TC-HG_1RE_sujet_candidat.md",
+              "sha256": "3c1c99d0a2fbe0c0a8a42696e5b17a6749669de265896a4acc12a6208122a0cf",
+              "pdf": "instruments/TC-HG/build/TC-HG_1RE_sujet_candidat.pdf",
+              "pdf_sha256": "17976477e566fce4d47d020e379d2a372156cfc6cdcfb75162c2461b3bb4cd9c"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-HG/build/TC-HG_1RE_cle_et_grilles_correcteur.md",
+              "sha256": "a897afd518187634f6eea07e72ab6f7b31b70b080d62f1bc857d905b4f8799af",
+              "pdf": "instruments/TC-HG/build/TC-HG_1RE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "6b0ea23efd979733281d2962711279413fbc0b8772fccaf5c9c9b8b7a2b641e3"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-HG/build/TC-HG_1RE_feuille_reponses.md",
+              "sha256": "f3e73f95adea04aa119f78a8bca41fedd45ab17441fa06301be9556411bca4d0",
+              "pdf": "instruments/TC-HG/build/TC-HG_1RE_feuille_reponses.pdf",
+              "pdf_sha256": "0a389f653839b4632546742a441f984e2f619c104ceea8065d89c71374a53f77"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-HG/build/TC-HG_1RE_saisie_vierge.csv",
+              "sha256": "7c0b1e44bcf9a361839ef50a3318ffaff75b880099858cbd87cbbdf477a0b193"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "TLE": {
+          "libelle": "Tronc commun — histoire-géographie, programme de Terminale",
+          "profils": [
+            "P2"
+          ],
+          "duree_cible_min": 45,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 18,
+          "sha256_assemblage": "596240aa5e995ce8499e01d1243de7c5a9aefdad463be0db8e7713aa54da5cb5",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-HG/build/TC-HG_TLE_sujet_candidat.md",
+              "sha256": "e10cfa2a6f1e0974d22411dc63ae93fb4bd6028dab0d266154b143b095784c0a",
+              "pdf": "instruments/TC-HG/build/TC-HG_TLE_sujet_candidat.pdf",
+              "pdf_sha256": "26c0b53d1e53a8d209d10844a933438c5c8a2d9687ea41f322832075a5142a6e"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-HG/build/TC-HG_TLE_cle_et_grilles_correcteur.md",
+              "sha256": "ccf361c2424646029c85f8f79b0bd2ceb49b123aa3113fc13a1c81ead4cafc35",
+              "pdf": "instruments/TC-HG/build/TC-HG_TLE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "15f20b8a97aaf8746ed013e452697dcf8e29a8da44a1e783954b0ed3ff599a7e"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-HG/build/TC-HG_TLE_feuille_reponses.md",
+              "sha256": "5dceba6b408e71f88adb3447e7d671ef8b286b3acda2ae68474d7a3d3c768502",
+              "pdf": "instruments/TC-HG/build/TC-HG_TLE_feuille_reponses.pdf",
+              "pdf_sha256": "e1a09bb31b5361b322691dd1e81688c869368f39cc8d34e270ff150fe1286987"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-HG/build/TC-HG_TLE_saisie_vierge.csv",
+              "sha256": "49cc235eaa8c48fcc20679e5104be5e8a52dcb28f830b28311793527c95170bc"
+            }
+          },
+          "rendus_manquants": []
+        },
+        "ETENDUE": {
+          "libelle": "Tronc commun — histoire-géographie, version étendue cycle terminal",
+          "profils": [
+            "P3"
+          ],
+          "duree_cible_min": 60,
+          "session_baccalaureat_finale": null,
+          "annee_scolaire_passation_ea": null,
+          "nombre_items": 23,
+          "sha256_assemblage": "d63c923ffc18d791e81b45d5b494aaf15f99f926b226e81555727d7376864a4f",
+          "rendus": {
+            "sujet_candidat": {
+              "fichier": "instruments/TC-HG/build/TC-HG_ETENDUE_sujet_candidat.md",
+              "sha256": "66f08c12380420d45f8d19b21a9c7a2015951ddcc4186b7a785028bd343cd539",
+              "pdf": "instruments/TC-HG/build/TC-HG_ETENDUE_sujet_candidat.pdf",
+              "pdf_sha256": "a0f0c7d6c6b1353367064f19183788354720e3b97450aa29b302bed5c5da1c71"
+            },
+            "cle_et_grilles_correcteur": {
+              "fichier": "instruments/TC-HG/build/TC-HG_ETENDUE_cle_et_grilles_correcteur.md",
+              "sha256": "dbd230b8507cdbeb5d7a4e6d67e864a1e74ded75b640f9a3bdd37db9880c04c3",
+              "pdf": "instruments/TC-HG/build/TC-HG_ETENDUE_cle_et_grilles_correcteur.pdf",
+              "pdf_sha256": "254fce78d9cc59ca05ded0441c768a7c252385b4595fa6bc06004a02df8cbaeb"
+            },
+            "feuille_reponses": {
+              "fichier": "instruments/TC-HG/build/TC-HG_ETENDUE_feuille_reponses.md",
+              "sha256": "80c1a14fa09f590fe3a72d01e174ee34231639aa2affaee8a4a25741c948713f",
+              "pdf": "instruments/TC-HG/build/TC-HG_ETENDUE_feuille_reponses.pdf",
+              "pdf_sha256": "ffb121c55172d5b87b38cf7eebcfac89b28fcd1351a1981a844b5690ed566652"
+            },
+            "saisie_vierge": {
+              "fichier": "instruments/TC-HG/build/TC-HG_ETENDUE_saisie_vierge.csv",
+              "sha256": "bcf9dbff93d3bd826701d0b20aae32fc33dcfdd24c92499f03ee559c89724823"
+            }
+          },
+          "rendus_manquants": []
+        }
+      },
+      "textes_sources": {}
+    }
+  }
+}

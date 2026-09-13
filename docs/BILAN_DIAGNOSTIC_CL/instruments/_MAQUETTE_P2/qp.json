@@ -1,0 +1,57 @@
+{
+  "candidate_ref": "CL-2026-0002",
+  "mode_rendu": "maquette",
+  "fictif": true,
+  "session_date": "2026-09-15",
+  "reponses": {
+    "profil": "P2",
+    "session_visee": "2027",
+    "session_baccalaureat_finale": 2027,
+    "annee_scolaire_passation_ea": "2026-2027",
+    "mode_passation_ea": "meme_session",
+    "age_au_31_decembre_annee_examen": 20,
+    "pieces_justificatives": [
+      "piece_identite"
+    ],
+    "note_preuve_eligibilite": "AGE-20 : la date de naissance est établie par la pièce d'identité du dossier d'inscription.",
+    "note_eligibilite": "Fait de l'article 3 (Q-26) : ce candidat représente une épreuve anticipée à la session de ses épreuves terminales, situation que l'article 3 encadre. La variable n'est pas encore au questionnaire.",
+    "note_contexte_temporel": "P2 : l'oral anticipé se représente en juin 2027, année des épreuves terminales.",
+    "statut_minorite": "majeur",
+    "systeme_scolaire": "homologue",
+    "derniere_classe_complete": "premiere",
+    "annees_interruption": 0,
+    "epreuves_francais_a_presenter": "oral",
+    "eaf_deja_passe": "non",
+    "specialites": [
+      "MATH",
+      "SES"
+    ],
+    "statut_par_specialite": {
+      "MATH": "deja_suivie_en_classe",
+      "SES": "deja_suivie_en_classe"
+    },
+    "specialite_abandonnee": "aucune",
+    "langue_scolarisation": "francais",
+    "langue_maison": "les_deux",
+    "auto_francais": {
+      "comprendre": 3,
+      "ecrire": 3,
+      "parler": 2,
+      "lire_textes_litteraires": 2
+    },
+    "auto_par_matiere": {
+      "MATH": 3,
+      "SES": 3
+    },
+    "heures_disponibles": 12,
+    "activite_parallele": "aucune",
+    "acces_materiel": [
+      "ordinateur",
+      "calculatrice",
+      "connexion_stable"
+    ],
+    "orientation_visee": "licence de sciences économiques",
+    "parcoursup_concerne": "oui"
+  },
+  "note": "Jeu fictif. Candidat de Terminale qui a validé la première partie du baccalauréat mais doit repasser l'oral de français : profil P2, configuration « oral ». Il sert à éprouver le titre et les sections d'un bilan dont la partie française ne porte que l'oral."
+}

@@ -1,0 +1,72 @@
+{
+  "instrument": "_FIXTURE",
+  "version": "standard",
+  "titre": "Instrument fictif de test — version standard",
+  "consignes_passation": [
+    "Durée indiquée en tête de chaque bloc.",
+    "Répondez sur la feuille de réponses jointe.",
+    "Aucun document n'est autorisé."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation. Cette estimation ne compte pas dans les résultats.",
+    "domaines": [
+      {
+        "competence": "CALC",
+        "intitule": "Automatismes de calcul"
+      },
+      {
+        "competence": "NOTI",
+        "intitule": "Notions du programme"
+      },
+      {
+        "competence": "REDA",
+        "intitule": "Rédaction d'un paragraphe structuré"
+      },
+      {
+        "competence": "INTE",
+        "intitule": "Interprétation d'un document"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "FIX-2-CALC-01",
+        "FIX-2-CALC-02",
+        "FIX-2-CALC-03",
+        "FIX-2-CALC-04",
+        "FIX-2-CALC-05",
+        "FIX-2-CALC-06"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "FIX-1-NOTI-01",
+        "FIX-1-NOTI-02",
+        "FIX-1-NOTI-03",
+        "FIX-1-NOTI-04",
+        "FIX-1-HORS-01",
+        "FIX-1-HORS-02",
+        "FIX-1-HORS-03",
+        "FIX-1-HORS-04"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "FIX-1-REDA-01",
+        "FIX-1-INTE-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "FIX-1-REDA-02",
+        "FIX-1-INTE-02"
+      ]
+    }
+  ]
+}

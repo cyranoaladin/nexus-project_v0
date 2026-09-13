@@ -1,0 +1,70 @@
+{
+  "instrument": "TC-ES",
+  "version": "1RE",
+  "titre": "Tronc commun — enseignement scientifique, version Première",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "DEM",
+        "intitule": "Démarche scientifique : lire un graphique, identifier une variable, critiquer un protocole"
+      },
+      {
+        "competence": "MAT",
+        "intitule": "Une longue histoire de la matière : cristaux, cellule, Soleil, rayonnement"
+      },
+      {
+        "competence": "SON",
+        "intitule": "Son et musique ; Le Soleil, notre source d'énergie"
+      },
+      {
+        "competence": "ASTR",
+        "intitule": "La Terre, un astre singulier"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "TC-2-DEM-01",
+        "TC-2-DEM-02",
+        "TC-2-DEM-03",
+        "TC-2-DEM-04"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "TC-1-MAT-01",
+        "TC-1-MAT-02",
+        "TC-1-MAT-03",
+        "TC-1-MAT-04",
+        "TC-1-SON-01",
+        "TC-1-SON-02",
+        "TC-1-SON-03",
+        "TC-1-SON-04",
+        "TC-1-ASTR-01",
+        "TC-1-ASTR-02",
+        "TC-1-ASTR-03",
+        "TC-1-ASTR-04",
+        "TC-1-MAT-05",
+        "TC-1-ASTR-05"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "TC-2-DEM-05",
+        "TC-2-DEM-06"
+      ]
+    }
+  ]
+}

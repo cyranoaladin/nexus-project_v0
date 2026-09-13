@@ -1,0 +1,160 @@
+{
+  "schema": "nexus.audit.golden_pack",
+  "produit_par": "scripts/audit_inventory.py",
+  "golden_pack_id": "P2_EAF_exceptionnel_ecrit",
+  "identity": {
+    "candidat": "Camille TEST",
+    "candidat_id": "CL-TEST-0006",
+    "session": 2027,
+    "fictional": true
+  },
+  "export_directory": "Camille_TEST__CL-TEST-0006__BAC2027",
+  "facts": {
+    "profil": "P2",
+    "mode_ep": "annuelle",
+    "spes_premiere": [
+      "MATH",
+      "PC",
+      "NSI"
+    ],
+    "spe_non_poursuivie": "NSI",
+    "spes_terminales": [
+      "MATH",
+      "PC"
+    ],
+    "eaf_due": "ecrit"
+  },
+  "official_obligations": [
+    "FR-EAF/ecrit",
+    "PHI/standard",
+    "TC-ES/TLE",
+    "GO/standard",
+    "TC-HG/TLE",
+    "TC-EMC/TLE",
+    "EDS-MATH/NT",
+    "EDS-PC/NT"
+  ],
+  "reported_to_end_of_cycle": [],
+  "diagnostics": [
+    "QP/standard",
+    "FR-EAF/ecrit",
+    "PHI/standard",
+    "TC-ES/TLE",
+    "MET/standard",
+    "GO/standard",
+    "TC-HG/TLE",
+    "TC-EMC/TLE",
+    "EDS-MATH/NT",
+    "EDS-PC/NT"
+  ],
+  "booklets_selected": [
+    {
+      "libelle": "Dossier d'entrée Nexus",
+      "fichier": "DOSSIER_D_ENTREE_NEXUS.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+      "variante": "Formulaires QP et MET"
+    },
+    {
+      "libelle": "Histoire-géographie",
+      "fichier": "HISTOIRE-GEOGRAPHIE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "variante": "Tronc commun"
+    },
+    {
+      "libelle": "Enseignement moral et civique",
+      "fichier": "ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+      "variante": "Tronc commun"
+    },
+    {
+      "libelle": "Enseignement scientifique",
+      "fichier": "ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "variante": "Tronc commun"
+    },
+    {
+      "libelle": "Français (EAF)",
+      "fichier": "FRANCAIS_ECRIT_SEUL.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+      "variante": "Épreuve anticipée — écrit seul"
+    },
+    {
+      "libelle": "Mathématiques",
+      "fichier": "MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "variante": "Avec spécialité"
+    },
+    {
+      "libelle": "Philosophie",
+      "fichier": "PHILOSOPHIE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "variante": "Épreuve terminale obligatoire"
+    },
+    {
+      "libelle": "Grand oral",
+      "fichier": "GRAND_ORAL.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "variante": "Épreuve terminale"
+    },
+    {
+      "libelle": "Spécialité PC",
+      "fichier": "SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+      "variante": "Enseignement de spécialité (PC)"
+    }
+  ],
+  "booklets_excluded": [
+    "FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "FRANCAIS_ORAL_SEUL.pdf",
+    "MAITRISE_DU_FRANCAIS.pdf",
+    "MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "POSITIONNEMENT_FRANCAIS.pdf",
+    "SPECIALITE_HGGSP.pdf",
+    "SPECIALITE_HLP.pdf",
+    "SPECIALITE_NSI.pdf",
+    "SPECIALITE_SES.pdf",
+    "SPECIALITE_SVT.pdf"
+  ],
+  "family_manifest_lines": [
+    {
+      "libelle": "Dossier d’entrée Nexus — parcours et méthodes de travail",
+      "minutes": 40
+    },
+    {
+      "libelle": "Français écrit",
+      "minutes": 80
+    },
+    {
+      "libelle": "Philosophie",
+      "minutes": 60
+    },
+    {
+      "libelle": "Enseignement scientifique",
+      "minutes": 40
+    },
+    {
+      "libelle": "Grand oral",
+      "minutes": 42
+    },
+    {
+      "libelle": "Histoire-géographie",
+      "minutes": 45
+    },
+    {
+      "libelle": "Enseignement moral et civique",
+      "minutes": 20
+    },
+    {
+      "libelle": "Spécialité Mathématiques",
+      "minutes": 90
+    },
+    {
+      "libelle": "Spécialité Physique-Chimie",
+      "minutes": 90
+    }
+  ],
+  "total_diagnostic_duration_min": 507,
+  "tests_proving": [
+    "tests/test_audit_inventory.py::test_couverture_candidats_synchronisee"
+  ]
+}

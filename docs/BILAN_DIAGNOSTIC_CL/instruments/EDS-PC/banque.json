@@ -1,0 +1,1445 @@
+{
+  "instrument": "EDS-PC",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "PC-2-QUANT-01",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle est l'unité de la puissance dans le système international ?",
+      "supports": [],
+      "propositions": {
+        "A": "le joule",
+        "B": "le watt",
+        "C": "le newton",
+        "D": "le pascal"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "unité d'énergie prise pour celle de puissance",
+          "C": "unité de force",
+          "D": "unité de pression"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Unités fondamentales. Le distracteur A correspond au code PC-ERR-UNITE et signale la confusion énergie/puissance, la plus coûteuse en résolution de problème."
+    },
+    {
+      "item_id": "PC-2-QUANT-02",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Combien vaut $250\\ \\mathrm{mL}$ en litres ?",
+      "supports": [],
+      "propositions": {
+        "A": "$0{,}25\\ \\mathrm{L}$",
+        "B": "$2{,}5\\ \\mathrm{L}$",
+        "C": "$25\\ \\mathrm{L}$",
+        "D": "$0{,}025\\ \\mathrm{L}$"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "facteur 100 au lieu de 1000",
+          "C": "facteur 10 au lieu de 1000",
+          "D": "division par 10 000"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Conversion de volume, prérequis de tout calcul de concentration."
+    },
+    {
+      "item_id": "PC-2-QUANT-03",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le résultat d'un calcul mené à partir des valeurs $2{,}5$ et $1{,}3$ doit être écrit avec :",
+      "supports": [],
+      "propositions": {
+        "A": "autant de chiffres que la calculatrice en affiche",
+        "B": "deux chiffres significatifs",
+        "C": "un seul chiffre",
+        "D": "quatre chiffres significatifs"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "chiffres significatifs ignorés",
+          "C": "arrondi excessif",
+          "D": "chiffres ajoutés sans justification"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Chiffres significatifs. Le distracteur A est la conduite spontanée et suit le code PC-ERR-CHIFFRES."
+    },
+    {
+      "item_id": "PC-2-QUANT-04",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une grandeur double quand une autre double. Ces deux grandeurs sont :",
+      "supports": [],
+      "propositions": {
+        "A": "proportionnelles",
+        "B": "inversement proportionnelles",
+        "C": "indépendantes",
+        "D": "égales"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "relation inverse supposée",
+          "C": "absence de relation supposée",
+          "D": "proportionnalité confondue avec égalité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Reconnaissance d'une proportionnalité. Le distracteur D repère un candidat qui confond relation et identité."
+    },
+    {
+      "item_id": "PC-2-QUANT-05",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Sur un graphique, le coefficient directeur d'une droite passant par l'origine représente :",
+      "supports": [],
+      "propositions": {
+        "A": "l'ordonnée à l'origine",
+        "B": "le rapport constant entre l'ordonnée et l'abscisse",
+        "C": "la valeur maximale atteinte",
+        "D": "l'aire sous la droite"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "coefficient confondu avec l'ordonnée à l'origine",
+          "C": "lecture d'un extremum",
+          "D": "confusion avec une intégration"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Exploitation d'un graphique linéaire, opération de base de toute modélisation."
+    },
+    {
+      "item_id": "PC-2-QUANT-06",
+      "competence": "QUANT",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un ordre de grandeur de la masse d'une pomme est :",
+      "supports": [],
+      "propositions": {
+        "A": "$10^{-3}\\ \\mathrm{kg}$",
+        "B": "$10^{-1}\\ \\mathrm{kg}$",
+        "C": "$10\\ \\mathrm{kg}$",
+        "D": "$10^{3}\\ \\mathrm{kg}$"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "ordre de grandeur du gramme",
+          "C": "ordre de grandeur d'un sac",
+          "D": "ordre de grandeur d'une tonne"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Contrôle d'ordre de grandeur, prérequis du critère de vérification du bloc C."
+    },
+    {
+      "item_id": "PC-1-MAT-01",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La concentration en quantité de matière d'une solution s'exprime en :",
+      "supports": [],
+      "propositions": {
+        "A": "$\\mathrm{mol}$",
+        "B": "$\\mathrm{mol\\cdot L^{-1}}$",
+        "C": "$\\mathrm{g\\cdot L^{-1}}$",
+        "D": "$\\mathrm{L\\cdot mol^{-1}}$"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "unité de quantité de matière",
+          "C": "concentration massique",
+          "D": "unité inversée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Unité de la concentration. Le distracteur C isole la confusion entre concentration massique et molaire, qui fausse tout calcul de dosage."
+    },
+    {
+      "item_id": "PC-1-MAT-02",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un tableau d'avancement, le réactif limitant est celui qui :",
+      "supports": [],
+      "propositions": {
+        "A": "est présent en plus grande quantité",
+        "B": "s'épuise le premier",
+        "C": "a la plus grande masse molaire",
+        "D": "est écrit en premier dans l'équation"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "réactif en excès pris pour le limitant",
+          "C": "critère de masse molaire employé",
+          "D": "critère d'écriture employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Réactif limitant, suivant le code PC-ERR-LIMITANT. Le distracteur A est l'erreur dominante.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PC-1-MAT-03",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un dosage par étalonnage repose sur :",
+      "supports": [],
+      "propositions": {
+        "A": "une réaction chimique totale entre deux solutions",
+        "B": "la comparaison d'une grandeur mesurée à une courbe établie avec des solutions de concentration connue",
+        "C": "une pesée précise du soluté",
+        "D": "le repérage d'un changement de couleur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "dosage par titrage décrit à la place",
+          "C": "préparation d'une solution décrite",
+          "D": "indicateur coloré pris pour la méthode"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Distinction étalonnage / titrage. Le distracteur A est le plus discriminant : les deux méthodes sont au programme mais reposent sur des principes différents."
+    },
+    {
+      "item_id": "PC-1-MAT-04",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Calculer la quantité de matière contenue dans $250\\ \\mathrm{mL}$ d'une solution de concentration $0{,}20\\ \\mathrm{mol\\cdot L^{-1}}$.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$n = c \\times V = 0{,}20 \\times 0{,}250 = 5{,}0 \\times 10^{-2}\\ \\mathrm{mol}$.",
+        "reponses_1pt": [
+          "La relation est écrite et appliquée, mais le volume n'est pas converti en litres.",
+          "Le résultat numérique est exact, sans unité."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONVERSION",
+          "PC-ERR-UNITE",
+          "PC-ERR-CHIFFRES"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Application directe avec conversion. Les deux réponses à un point isolent deux erreurs distinctes — la conversion et l'unité — qui appellent des remédiations différentes."
+    },
+    {
+      "item_id": "PC-T-MAT-05",
+      "competence": "MAT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Lors d'un titrage, on verse $12{,}5\\ \\mathrm{mL}$ de solution titrante de concentration $0{,}100\\ \\mathrm{mol\\cdot L^{-1}}$ pour atteindre l'équivalence. La réaction a pour stœchiométrie $1:1$. Calculer la quantité de matière de réactif titré.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$n = 0{,}100 \\times 12{,}5 \\times 10^{-3} = 1{,}25 \\times 10^{-3}\\ \\mathrm{mol}$.",
+        "reponses_1pt": [
+          "Le calcul est posé correctement mais le volume n'est pas converti.",
+          "Le résultat est exact avec un nombre de chiffres significatifs non justifié."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONVERSION",
+          "PC-ERR-CHIFFRES"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Équivalence d'un titrage. La stœchiométrie est donnée pour que l'item mesure l'exploitation de l'équivalence et non la lecture d'une équation."
+    },
+    {
+      "item_id": "PC-T-MAT-06",
+      "competence": "MAT",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Une solution a un $\\mathrm{pH}$ de $3{,}0$. Une seconde a un $\\mathrm{pH}$ de $5{,}0$. Comparer leurs concentrations en ions hydrogène.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "La première est cent fois plus concentrée : la concentration est divisée par dix quand le $\\mathrm{pH}$ augmente d'une unité.",
+        "reponses_1pt": [
+          "La réponse indique que la première est plus concentrée, sans le facteur.",
+          "Le facteur $100$ est donné dans le mauvais sens."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CHIFFRES",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Échelle logarithmique du pH. Le second cas à un point isole l'inversion de sens, erreur distincte de la méconnaissance du facteur."
+    },
+    {
+      "item_id": "PC-1-MOUV-01",
+      "competence": "MOUV",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le vecteur vitesse d'un point est toujours :",
+      "supports": [],
+      "propositions": {
+        "A": "perpendiculaire à la trajectoire",
+        "B": "tangent à la trajectoire",
+        "C": "vertical",
+        "D": "dirigé vers le centre"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "direction confondue avec celle de l'accélération centripète",
+          "C": "direction supposée fixe",
+          "D": "cas du mouvement circulaire généralisé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Direction du vecteur vitesse. Le distracteur A confond vitesse et accélération, ce qui rend impossible l'étude d'un mouvement circulaire."
+    },
+    {
+      "item_id": "PC-1-MOUV-02",
+      "competence": "MOUV",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "D'après le principe d'inertie, un système soumis à des forces qui se compensent :",
+      "supports": [],
+      "propositions": {
+        "A": "est nécessairement immobile",
+        "B": "est immobile ou en mouvement rectiligne uniforme",
+        "C": "ralentit progressivement",
+        "D": "accélère"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "repos pris pour seule conséquence",
+          "C": "frottement supposé sans être mentionné",
+          "D": "conséquence inversée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Principe d'inertie. Le distracteur A est l'intuition aristotélicienne, la plus tenace.",
+      "reserve_intermediaire": true
+    },
+    {
+      "item_id": "PC-1-MOUV-03",
+      "competence": "MOUV",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un objet lâché sans vitesse initiale voit son vecteur vitesse :",
+      "supports": [],
+      "propositions": {
+        "A": "rester constant",
+        "B": "varier en direction seulement",
+        "C": "varier en valeur, sa direction restant verticale",
+        "D": "varier en direction et changer de sens"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "variation niée",
+          "B": "variation attribuée à la seule direction",
+          "D": "changement de sens supposé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Variation du vecteur vitesse en chute libre. Item de transfert : il faut distinguer les deux composantes de la variation d'un vecteur."
+    },
+    {
+      "item_id": "PC-1-MOUV-04",
+      "competence": "MOUV",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un solide de masse $m$ est posé sur une table horizontale. Faire le bilan des forces qui s'exercent sur lui et indiquer si elles se compensent.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Le poids et la réaction normale du support s'exercent sur le solide ; elles se compensent puisque le solide reste immobile.",
+        "reponses_1pt": [
+          "Les deux forces sont nommées sans conclusion sur leur compensation.",
+          "La conclusion est correcte mais une force inexistante est ajoutée au bilan."
+        ],
+        "codes_erreur": [
+          "PC-ERR-FORCE",
+          "PC-ERR-VECTEUR",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Bilan des forces, opération préalable à toute application des lois de Newton. La seconde réponse à un point suit le code PC-ERR-FORCE."
+    },
+    {
+      "item_id": "PC-T-MOUV-05",
+      "competence": "MOUV",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La deuxième loi de Newton relie la somme des forces à :",
+      "supports": [],
+      "propositions": {
+        "A": "la vitesse du système",
+        "B": "l'accélération du système multipliée par sa masse",
+        "C": "la distance parcourue",
+        "D": "l'énergie cinétique"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "force reliée à la vitesse et non à sa variation",
+          "C": "force reliée à une longueur",
+          "D": "force confondue avec une énergie"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Énoncé de la deuxième loi. Le distracteur A est l'erreur de fond : relier la force à la vitesse et non à sa variation."
+    },
+    {
+      "item_id": "PC-T-MOUV-06",
+      "competence": "MOUV",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Un satellite décrit une orbite circulaire autour de la Terre à vitesse constante en valeur. Son vecteur accélération est-il nul ? Justifier.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Non : la direction du vecteur vitesse change, donc le vecteur vitesse varie et l'accélération, dirigée vers le centre, n'est pas nulle.",
+        "reponses_1pt": [
+          "La réponse est correcte mais la justification ne mentionne pas le changement de direction.",
+          "La justification est exacte mais la direction de l'accélération n'est pas indiquée."
+        ],
+        "codes_erreur": [
+          "PC-ERR-VECTEUR",
+          "PC-ERR-CONDITION",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Mouvement circulaire uniforme, paliers D1 et D2 fixés par l'amendement A4. Item de transfert direct de PC-1-MOUV-03 : la lecture croisée dit si la difficulté tient au caractère vectoriel ou au contexte gravitationnel."
+    },
+    {
+      "item_id": "PC-1-ENER-01",
+      "competence": "ENER",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "L'énergie cinétique d'un solide de masse $m$ et de vitesse $v$ vaut :",
+      "supports": [],
+      "propositions": {
+        "A": "$mv$",
+        "B": "$\\dfrac{1}{2}mv^2$",
+        "C": "$\\dfrac{1}{2}mv$",
+        "D": "$mv^2$"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "expression de la quantité de mouvement",
+          "C": "carré de la vitesse omis",
+          "D": "facteur un demi omis"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Expression de l'énergie cinétique. Chaque distracteur isole une composante manquante de la formule."
+    },
+    {
+      "item_id": "PC-1-ENER-02",
+      "competence": "ENER",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un solide de masse $2{,}0\\ \\mathrm{kg}$ se déplace à $3{,}0\\ \\mathrm{m\\cdot s^{-1}}$. Calculer son énergie cinétique.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$E_c = \\tfrac{1}{2} \\times 2{,}0 \\times 3{,}0^2 = 9{,}0\\ \\mathrm{J}$.",
+        "reponses_1pt": [
+          "Le calcul est exact mais l'unité est absente ou inadaptée.",
+          "La formule est appliquée sans élever la vitesse au carré."
+        ],
+        "codes_erreur": [
+          "PC-ERR-UNITE",
+          "PC-ERR-CHIFFRES"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Application directe. La première réponse à un point suit le code PC-ERR-UNITE, la plus fréquente en physique."
+    },
+    {
+      "item_id": "PC-T-ENER-03",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Lors d'une chute avec frottements, l'énergie mécanique du système :",
+      "supports": [],
+      "propositions": {
+        "A": "se conserve",
+        "B": "diminue, une partie étant dissipée",
+        "C": "augmente",
+        "D": "reste nulle"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "conservation appliquée hors de ses conditions",
+          "C": "création d'énergie supposée",
+          "D": "valeur particulière supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Conditions de conservation. Le distracteur A correspond au code PC-ERR-CONDITION : appliquer une relation sans vérifier ses hypothèses."
+    },
+    {
+      "item_id": "PC-T-ENER-04",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Un objet tombe d'une hauteur $h$ sans frottement. Exprimer sa vitesse à l'arrivée au sol en fonction de $g$ et $h$, en indiquant la relation employée.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Par conservation de l'énergie mécanique, $\\tfrac{1}{2}mv^2 = mgh$, d'où $v = \\sqrt{2gh}$.",
+        "reponses_1pt": [
+          "La relation de conservation est écrite mais l'expression finale n'est pas isolée.",
+          "L'expression est exacte sans que la relation employée soit nommée."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONDITION",
+          "PC-ERR-UNITE",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Conservation appliquée à un cas où ses conditions sont vérifiées, en regard de PC-T-ENER-03 où elles ne le sont pas. Le couple mesure si le candidat vérifie les hypothèses ou applique par réflexe."
+    },
+    {
+      "item_id": "PC-1-OND-01",
+      "competence": "OND",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La longueur d'onde d'une onde périodique est reliée à sa célérité et à sa période par :",
+      "supports": [],
+      "propositions": {
+        "A": "$\\lambda = v \\times T$",
+        "B": "$\\lambda = \\dfrac{v}{T}$",
+        "C": "$\\lambda = \\dfrac{T}{v}$",
+        "D": "$\\lambda = v + T$"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "division au lieu du produit",
+          "C": "rapport inversé",
+          "D": "somme de grandeurs de dimensions différentes"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Relation fondamentale des ondes. Le distracteur D repère un candidat qui n'effectue aucun contrôle dimensionnel."
+    },
+    {
+      "item_id": "PC-1-OND-02",
+      "competence": "OND",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une lentille convergente de distance focale $f' = 10\\ \\mathrm{cm}$ reçoit un faisceau de rayons parallèles à son axe. Où se forme l'image ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Au foyer image, à $10\\ \\mathrm{cm}$ de la lentille, sur l'axe optique.",
+        "reponses_1pt": [
+          "La position est correcte sans que le foyer image soit nommé.",
+          "Le foyer est nommé sans que la distance soit indiquée."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONDITION",
+          "PC-ERR-UNITE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Foyer image d'une lentille convergente, cas le plus simple de construction. Prérequis de toute exploitation d'un montage optique."
+    },
+    {
+      "item_id": "PC-T-OND-03",
+      "competence": "OND",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le phénomène de diffraction est d'autant plus marqué que :",
+      "supports": [],
+      "propositions": {
+        "A": "l'ouverture est grande devant la longueur d'onde",
+        "B": "l'ouverture est du même ordre de grandeur que la longueur d'onde",
+        "C": "la source est intense",
+        "D": "la distance à l'écran est faible"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "condition inversée",
+          "C": "intensité confondue avec géométrie",
+          "D": "distance confondue avec condition de diffraction"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Condition de diffraction. Le distracteur C mesure la confusion entre une grandeur énergétique et une condition géométrique."
+    },
+    {
+      "item_id": "PC-T-OND-04",
+      "competence": "OND",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Le niveau d'intensité sonore passe de $60\\ \\mathrm{dB}$ à $70\\ \\mathrm{dB}$. Par quel facteur l'intensité sonore a-t-elle été multipliée ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Par $10$ : une augmentation de dix décibels correspond à une intensité multipliée par dix.",
+        "reponses_1pt": [
+          "La réponse indique une augmentation sans donner le facteur.",
+          "Le facteur donné est $2$, l'échelle étant traitée comme linéaire."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CHIFFRES",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Échelle logarithmique de l'intensité sonore, niveau T fixé par l'amendement A4. Transfert direct de PC-T-MAT-06 sur le pH : la lecture croisée dit si la difficulté tient à l'échelle logarithmique elle-même."
+    },
+    {
+      "item_id": "PC-1-EXP-01",
+      "competence": "EXP",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans une série de mesures, l'incertitude-type traduit :",
+      "supports": [],
+      "propositions": {
+        "A": "une erreur de manipulation",
+        "B": "la dispersion des valeurs obtenues en répétant la mesure",
+        "C": "la différence avec la valeur exacte",
+        "D": "le nombre de chiffres affichés par l'appareil"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "incertitude confondue avec faute",
+          "C": "incertitude confondue avec écart à une référence",
+          "D": "incertitude confondue avec résolution"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Nature de l'incertitude. Le distracteur A est l'erreur conceptuelle la plus répandue : croire qu'une mesure sans faute serait sans incertitude."
+    },
+    {
+      "item_id": "PC-1-EXP-02",
+      "competence": "EXP",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "À partir du tableau ci-dessus, la longueur du ressort est-elle proportionnelle à la masse suspendue ? Justifier par un calcul.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "PC-EXP-TAB",
+          "titre": "Mesures de la longueur d'un ressort en fonction de la masse suspendue",
+          "simulee": true,
+          "colonnes": [
+            "Masse suspendue (g)",
+            "Longueur mesurée (cm)"
+          ],
+          "lignes": [
+            [
+              "0",
+              "10,0"
+            ],
+            [
+              "50",
+              "12,1"
+            ],
+            [
+              "100",
+              "13,9"
+            ],
+            [
+              "150",
+              "16,2"
+            ],
+            [
+              "200",
+              "17,9"
+            ],
+            [
+              "250",
+              "20,1"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Non : le rapport longueur/masse n'est pas constant, et la longueur vaut $10{,}0\\ \\mathrm{cm}$ pour une masse nulle. C'est l'allongement, et non la longueur, qui est proportionnel à la masse.",
+        "reponses_1pt": [
+          "La réponse « non » est donnée avec un calcul de rapport, sans mention de la valeur à masse nulle.",
+          "La distinction longueur/allongement est faite sans calcul à l'appui."
+        ],
+        "codes_erreur": [
+          "PC-ERR-GRAPH",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Données simulées à visée pédagogique : les valeurs reproduisent un ressort de raideur voisine de 25 N/m avec une longueur à vide de 10 cm, ordres de grandeur usuels d'un ressort de travaux pratiques ; une dispersion de l'ordre du millimètre est introduite pour que la proportionnalité ne soit pas parfaite. L'item mesure la distinction entre proportionnalité et relation affine, qui est l'erreur d'exploitation la plus fréquente."
+    },
+    {
+      "item_id": "PC-1-EXP-03",
+      "competence": "EXP",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Deux mesures valent $4{,}2$ et $4{,}5$, avec une incertitude-type de $0{,}4$ sur chacune. On peut conclure que :",
+      "supports": [],
+      "propositions": {
+        "A": "les deux valeurs sont différentes",
+        "B": "l'écart n'est pas significatif au regard des incertitudes",
+        "C": "une des deux mesures est fausse",
+        "D": "il faut refaire les mesures"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "écart déclaré significatif sans comparaison à l'incertitude",
+          "C": "écart imputé à une faute",
+          "D": "conclusion différée sans exploitation"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Comparaison de deux mesures, suivant le code PC-ERR-INCERT. Le distracteur A est la conduite spontanée et invalide toute conclusion expérimentale."
+    },
+    {
+      "item_id": "PC-1-EXP-04",
+      "competence": "EXP",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "On veut vérifier que l'allongement d'un ressort est proportionnel à la masse suspendue. Indiquer la grandeur à faire varier, la grandeur à mesurer et une grandeur à maintenir constante.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "On fait varier la masse suspendue, on mesure l'allongement, et on conserve le même ressort tout au long de l'expérience.",
+        "reponses_1pt": [
+          "Deux des trois éléments sont indiqués correctement.",
+          "Les trois éléments sont indiqués mais la grandeur mesurée est la longueur et non l'allongement."
+        ],
+        "codes_erreur": [
+          "PC-ERR-GRAPH",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Construction d'un protocole. En regard de PC-1-EXP-02, qui exploite des données, cet item mesure la capacité à les produire : deux compétences distinctes que le bilan doit séparer."
+    },
+    {
+      "item_id": "PC-1-RES-01",
+      "competence": "RES",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "Un mobile de masse $0{,}50\\ \\mathrm{kg}$ est lâché sans vitesse initiale d'une hauteur de $1{,}8\\ \\mathrm{m}$. On néglige les frottements et on prend $g = 9{,}8\\ \\mathrm{m\\cdot s^{-2}}$.\n\n1. Identifier les formes d'énergie en jeu au départ et à l'arrivée au sol.\n2. Déterminer la vitesse du mobile à l'arrivée au sol.\n3. Donner le résultat avec son unité et un nombre de chiffres significatifs justifié, puis vérifier que l'ordre de grandeur obtenu est plausible.\n\nLa calculatrice est autorisée pour cette partie.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "MODEL",
+          "intitule": "Identification et modélisation",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Aucune grandeur n'est identifiée : la situation n'est pas traduite en termes physiques.",
+            "1": "Les grandeurs sont identifiées mais la relation choisie ne peut pas mener au résultat.",
+            "2": "Les grandeurs et la relation sont pertinentes ; une hypothèse nécessaire reste implicite.",
+            "3": "Les grandeurs, la relation et les hypothèses qui la justifient sont explicitées."
+          }
+        },
+        {
+          "code": "CALCUL",
+          "intitule": "Conduite du calcul",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Le calcul n'est pas engagé, ou il est inexact dès la première étape.",
+            "1": "Le calcul est engagé et une étape sur deux est menée sans erreur.",
+            "2": "Le calcul est mené à son terme, à une erreur près qui n'affecte pas la suite.",
+            "3": "Le calcul est mené à son terme sans erreur."
+          }
+        },
+        {
+          "code": "UNITES",
+          "intitule": "Unités et chiffres significatifs",
+          "competence": "QUANT",
+          "descripteurs": {
+            "0": "Les résultats sont donnés sans unité.",
+            "1": "Les unités sont présentes mais l'une d'elles ne correspond pas à la grandeur.",
+            "2": "Les unités sont exactes ; le nombre de chiffres significatifs n'est pas justifié.",
+            "3": "Les unités sont exactes et le nombre de chiffres significatifs est cohérent avec les données."
+          }
+        },
+        {
+          "code": "CRITIQUE",
+          "intitule": "Conclusion et regard critique",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Aucune conclusion n'est formulée.",
+            "1": "Une valeur est encadrée sans phrase de réponse à la question posée.",
+            "2": "La question reçoit une réponse ; l'ordre de grandeur du résultat n'est pas discuté.",
+            "3": "La question reçoit une réponse et l'ordre de grandeur du résultat est discuté."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Bloc C de la version N1 : résolution de problème sur le mouvement (§ 7.7). La question 1 isole la modélisation, de sorte qu'un candidat bloqué au calcul puisse tout de même renseigner le premier critère. La question 3 donne prise aux critères d'unités et de regard critique : une vitesse de chute de 1,8 m se contrôle sans calcul, elle doit valoir quelques mètres par seconde. Le critère « unités et chiffres significatifs » appartient à QUANT et non à RES (EC-08) : une difficulté d'unités conduit au module d'automatismes, pas au module de résolution de problème."
+    },
+    {
+      "item_id": "PC-T-RES-02",
+      "competence": "RES",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 25,
+      "enonce": "Un solide de masse $0{,}80\\ \\mathrm{kg}$ glisse sur un plan horizontal. Il est lancé à $4{,}0\\ \\mathrm{m\\cdot s^{-1}}$ et s'arrête après avoir parcouru $3{,}2\\ \\mathrm{m}$.\n\n1. Faire le bilan des forces et indiquer laquelle est responsable de l'arrêt.\n2. Déterminer la valeur de la force de frottement, supposée constante.\n3. Donner le résultat avec son unité et un nombre de chiffres significatifs justifié, puis indiquer si l'ordre de grandeur obtenu est plausible pour un frottement solide.\n\nLa calculatrice est autorisée pour cette partie.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "MODEL",
+          "intitule": "Identification et modélisation",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Aucune grandeur n'est identifiée : la situation n'est pas traduite en termes physiques.",
+            "1": "Les grandeurs sont identifiées mais la relation choisie ne peut pas mener au résultat.",
+            "2": "Les grandeurs et la relation sont pertinentes ; une hypothèse nécessaire reste implicite.",
+            "3": "Les grandeurs, la relation et les hypothèses qui la justifient sont explicitées."
+          }
+        },
+        {
+          "code": "CALCUL",
+          "intitule": "Conduite du calcul",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Le calcul n'est pas engagé, ou il est inexact dès la première étape.",
+            "1": "Le calcul est engagé et une étape sur deux est menée sans erreur.",
+            "2": "Le calcul est mené à son terme, à une erreur près qui n'affecte pas la suite.",
+            "3": "Le calcul est mené à son terme sans erreur."
+          }
+        },
+        {
+          "code": "UNITES",
+          "intitule": "Unités et chiffres significatifs",
+          "competence": "QUANT",
+          "descripteurs": {
+            "0": "Les résultats sont donnés sans unité.",
+            "1": "Les unités sont présentes mais l'une d'elles ne correspond pas à la grandeur.",
+            "2": "Les unités sont exactes ; le nombre de chiffres significatifs n'est pas justifié.",
+            "3": "Les unités sont exactes et le nombre de chiffres significatifs est cohérent avec les données."
+          }
+        },
+        {
+          "code": "CRITIQUE",
+          "intitule": "Conclusion et regard critique",
+          "competence": "RES",
+          "descripteurs": {
+            "0": "Aucune conclusion n'est formulée.",
+            "1": "Une valeur est encadrée sans phrase de réponse à la question posée.",
+            "2": "La question reçoit une réponse ; l'ordre de grandeur du résultat n'est pas discuté.",
+            "3": "La question reçoit une réponse et l'ordre de grandeur du résultat est discuté."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Bloc C de la version NT : mécanique newtonienne (§ 7.7). Le problème se traite par le théorème de l'énergie cinétique ou par la deuxième loi de Newton, ce qui laisse deux voies au critère de modélisation et évite de mesurer la mémorisation d'une méthode unique. La question 1 est renseignable même sans calcul. La force attendue vaut deux newtons, ordre de grandeur contrôlable en regard du poids du solide."
+    },
+    {
+      "item_id": "PC-1-RES-03",
+      "competence": "RES",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'une résolution de problème en les numérotant de 1 à 4 : conclure en revenant à la question — identifier les grandeurs et choisir une relation — vérifier l'ordre de grandeur — mener le calcul.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : identifier et choisir une relation (1), mener le calcul (2), vérifier l'ordre de grandeur (3), conclure (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Item de bloc D de RES, palier D1 : le modèle de résolution est restitué sans être mis en œuvre."
+    },
+    {
+      "item_id": "PC-T-RES-04",
+      "competence": "RES",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat écrit : « la vitesse vaut $12\\ \\mathrm{m}$ ». Indiquez les deux défauts de cette réponse et corrigez-la.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'unité ne correspond pas à une vitesse et aucune phrase ne répond à la question : il faut écrire une vitesse en mètres par seconde et conclure.",
+        "reponses_1pt": [
+          "Un seul des deux défauts est relevé.",
+          "Les deux défauts sont relevés sans que la correction soit proposée."
+        ],
+        "codes_erreur": [
+          "PC-ERR-UNITE",
+          "PC-ERR-CONCL"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Item de bloc D de RES, palier D2 : repérer les défauts d'une réponse fournie. Les deux défauts visés sont exactement ceux que les critères UNITES et CRITIQUE mesurent dans la tâche."
+    },
+    {
+      "item_id": "PC-1-MAT-05",
+      "competence": "MAT",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "On dispose de $2{,}0\\ \\mathrm{g}$ de chlorure de sodium, de masse molaire $58{,}5\\ \\mathrm{g\\cdot mol^{-1}}$. Calculer la quantité de matière correspondante.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$n = \\dfrac{m}{M} = \\dfrac{2{,}0}{58{,}5} = 3{,}4 \\times 10^{-2}\\ \\mathrm{mol}$.",
+        "reponses_1pt": [
+          "Le quotient est posé à l'envers et le résultat annoncé sans contrôle d'ordre de grandeur.",
+          "Le résultat est exact avec un nombre de chiffres significatifs non justifié."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CHIFFRES",
+          "PC-ERR-UNITE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Relation masse–quantité de matière. Le quotient inversé, coté un point, est repérable par l'ordre de grandeur : il donne près de trente moles pour deux grammes."
+    },
+    {
+      "item_id": "PC-1-MOUV-07",
+      "competence": "MOUV",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un mobile parcourt $12\\ \\mathrm{m}$ en $4{,}0\\ \\mathrm{s}$ à vitesse constante. Calculer sa vitesse.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$v = \\dfrac{d}{t} = \\dfrac{12}{4{,}0} = 3{,}0\\ \\mathrm{m\\cdot s^{-1}}$.",
+        "reponses_1pt": [
+          "Le calcul est exact mais l'unité est absente ou inadaptée."
+        ],
+        "codes_erreur": [
+          "PC-ERR-UNITE",
+          "PC-ERR-CHIFFRES"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Vitesse moyenne, application directe. Sert de point d'appui : un candidat qui échoue ici relève du module d'automatismes et non du chapitre sur le mouvement."
+    },
+    {
+      "item_id": "PC-1-ENER-05",
+      "competence": "ENER",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un objet est soulevé lentement d'une hauteur $h$. L'énergie potentielle de pesanteur du système :",
+      "supports": [],
+      "propositions": {
+        "A": "diminue",
+        "B": "augmente de $mgh$",
+        "C": "reste constante",
+        "D": "devient nulle"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "variation de sens inversé",
+          "C": "variation niée",
+          "D": "valeur particulière supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Variation de l'énergie potentielle. Le distracteur C repère un candidat qui associe l'énergie potentielle à la vitesse et non à l'altitude."
+    },
+    {
+      "item_id": "PC-1-ENER-06",
+      "competence": "ENER",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une lampe de puissance $60\\ \\mathrm{W}$ fonctionne pendant $5{,}0\\ \\mathrm{min}$. Calculer l'énergie consommée en joules.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$E = P \\times t = 60 \\times 300 = 1{,}8 \\times 10^{4}\\ \\mathrm{J}$.",
+        "reponses_1pt": [
+          "Le produit est posé correctement mais la durée n'est pas convertie en secondes.",
+          "Le résultat est exact, sans unité."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONVERSION",
+          "PC-ERR-UNITE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Relation énergie–puissance–durée, avec conversion. La conversion omise, cotée un point, est l'erreur dominante et suit le code PC-ERR-CONVERSION."
+    },
+    {
+      "item_id": "PC-1-OND-05",
+      "competence": "OND",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un objet paraît rouge sous lumière blanche parce qu'il :",
+      "supports": [],
+      "propositions": {
+        "A": "émet de la lumière rouge",
+        "B": "absorbe toutes les radiations sauf le rouge, qu'il diffuse",
+        "C": "absorbe le rouge",
+        "D": "transmet le rouge uniquement"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "diffusion confondue avec émission",
+          "C": "rôle de l'absorption inversé",
+          "D": "objet opaque traité comme transparent"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Couleur des objets, rattachée à OND en Première par l'amendement A4. Le distracteur A confond un objet éclairé et une source, distinction fondatrice du chapitre."
+    },
+    {
+      "item_id": "PC-1-OND-06",
+      "competence": "OND",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Une onde sonore se propage à $340\\ \\mathrm{m\\cdot s^{-1}}$. Un écho revient après $2{,}0\\ \\mathrm{s}$. À quelle distance se trouve l'obstacle ?",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$170\\ \\mathrm{m}$ : le son a parcouru l'aller et le retour, soit $680\\ \\mathrm{m}$ au total.",
+        "reponses_1pt": [
+          "Le résultat $340\\ \\mathrm{m}$ est donné, l'aller-retour n'ayant pas été pris en compte.",
+          "Le raisonnement sur l'aller-retour est exposé sans résultat numérique."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONDITION",
+          "PC-ERR-UNITE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Application de la relation distance–vitesse–durée avec une subtilité de modélisation. La réponse à un point isole précisément le candidat qui applique la formule sans analyser le trajet, ce que le critère de modélisation du bloc C mesure ensuite."
+    },
+    {
+      "item_id": "PC-T-ENER-05",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le premier principe de la thermodynamique exprime que la variation d'énergie interne d'un système est due :",
+      "supports": [],
+      "propositions": {
+        "A": "au seul travail reçu",
+        "B": "à la somme du travail et du transfert thermique reçus",
+        "C": "au seul transfert thermique",
+        "D": "à la variation de température seule"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "transfert thermique omis",
+          "C": "travail omis",
+          "D": "cause confondue avec un indicateur"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Énoncé du premier principe. Les distracteurs A et C isolent chacun un terme omis."
+    },
+    {
+      "item_id": "PC-T-ENER-06",
+      "competence": "ENER",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Un système reçoit un travail de $150\\ \\mathrm{J}$ et cède $40\\ \\mathrm{J}$ par transfert thermique. Calculer la variation de son énergie interne.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "$\\Delta U = 150 - 40 = 110\\ \\mathrm{J}$.",
+        "reponses_1pt": [
+          "Le calcul est exact mais l'unité est absente.",
+          "La somme $190\\ \\mathrm{J}$ est donnée, le signe du transfert cédé n'ayant pas été traité."
+        ],
+        "codes_erreur": [
+          "PC-ERR-UNITE",
+          "PC-ERR-CONDITION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Convention de signe des échanges. La seconde réponse à un point isole exactement l'erreur de convention, distincte d'une erreur de calcul."
+    },
+    {
+      "item_id": "PC-T-OND-05",
+      "competence": "OND",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le phénomène d'interférences se produit lorsque :",
+      "supports": [],
+      "propositions": {
+        "A": "une onde rencontre un obstacle de petite taille",
+        "B": "deux ondes de même fréquence se superposent",
+        "C": "une source se déplace par rapport à un observateur",
+        "D": "une onde change de milieu"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "description de la diffraction",
+          "C": "description de l'effet Doppler",
+          "D": "description de la réfraction"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Distinction entre les quatre phénomènes ondulatoires du programme. Chaque distracteur décrit correctement un autre phénomène, ce qui interdit l'élimination par absurdité."
+    },
+    {
+      "item_id": "PC-T-OND-06",
+      "competence": "OND",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Une lunette astronomique afocale est constituée de deux lentilles convergentes. Indiquer où se situe le foyer image de l'objectif par rapport au foyer objet de l'oculaire.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les deux foyers sont confondus : le foyer image de l'objectif coïncide avec le foyer objet de l'oculaire.",
+        "reponses_1pt": [
+          "La réponse indique que les foyers sont proches sans dire qu'ils coïncident."
+        ],
+        "codes_erreur": [
+          "PC-ERR-CONDITION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Condition afocale, niveau T fixé par l'amendement A4. Une seule réponse acceptée à un point : la liste est fermée, l'item reste de type B."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "instrument": "EDS-NSI",
+  "version": "NT",
+  "titre": "Diagnostic de spécialité numérique et sciences informatiques — version Terminale",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Les blocs A, B et D se traitent sur papier : vous n'exécutez aucun programme pour y répondre.",
+    "Le bloc C se traite sur l'ordinateur du centre, sans accès à Internet. Le fichier de tests vous est fourni et vous pouvez l'exécuter autant de fois que vous le souhaitez.",
+    "Répondez aux blocs A, B et D sur la feuille de réponses jointe.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "REPR",
+        "intitule": "Représentation des données : binaire, hexadécimal, booléens, caractères, flottants"
+      },
+      {
+        "competence": "TYPE",
+        "intitule": "Types construits : listes, tuples, dictionnaires, tableaux ; structures de données linéaires et arbres en Terminale"
+      },
+      {
+        "competence": "ALGO",
+        "intitule": "Algorithmes : parcours, recherche, tris, dichotomie, complexité ; récursivité et diviser pour régner en Terminale"
+      },
+      {
+        "competence": "POO",
+        "intitule": "Programmation orientée objet"
+      },
+      {
+        "competence": "PROG",
+        "intitule": "Écrire une fonction complète et documentée répondant à une spécification"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "NSI-2-PYTH-01",
+        "NSI-2-PYTH-02",
+        "NSI-2-PYTH-03",
+        "NSI-2-PYTH-04",
+        "NSI-2-PYTH-05",
+        "NSI-2-PYTH-06",
+        "NSI-2-REPR-01",
+        "NSI-1-REPR-02",
+        "NSI-1-REPR-04",
+        "NSI-1-REPR-03",
+        "NSI-1-REPR-05"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "NSI-1-TYPE-01",
+        "NSI-T-TYPE-06",
+        "NSI-T-TYPE-04",
+        "NSI-1-TYPE-05",
+        "NSI-T-ALGO-06",
+        "NSI-1-ALGO-02",
+        "NSI-T-ALGO-04",
+        "NSI-T-ARCH-02",
+        "NSI-T-ARCH-06",
+        "NSI-T-ARCH-04",
+        "NSI-T-WEB-02",
+        "NSI-T-WEB-06",
+        "NSI-T-WEB-04",
+        "NSI-T-POO-01",
+        "NSI-T-POO-02",
+        "NSI-T-ALGO-08",
+        "NSI-T-ARCH-07",
+        "NSI-T-WEB-07",
+        "NSI-T-POO-03",
+        "NSI-T-POO-04"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "NSI-T-PROG-02"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "NSI-T-PROG-04"
+      ]
+    }
+  ]
+}

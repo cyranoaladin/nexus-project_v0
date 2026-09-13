@@ -1,0 +1,82 @@
+{
+  "instrument": "TC-HG",
+  "version": "ETENDUE",
+  "titre": "Tronc commun — histoire-géographie, version étendue cycle terminal",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "HIST",
+        "intitule": "Histoire : repères chronologiques, connaissances fondamentales et contextualisation"
+      },
+      {
+        "competence": "GEO",
+        "intitule": "Géographie : repères spatiaux, mondialisation, échelles et dynamiques territoriales"
+      },
+      {
+        "competence": "DOC",
+        "intitule": "Exploitation et analyse critique de documents historiques et géographiques"
+      },
+      {
+        "competence": "CART",
+        "intitule": "Langages graphiques et cartographiques : repères, croquis et légende organisée"
+      },
+      {
+        "competence": "PROB",
+        "intitule": "Réponse à une question problématisée et argumentation structurée"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "HG-2-HIST-01",
+        "HG-2-GEO-01",
+        "HG-2-CART-01"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "HG-1-HIST-01",
+        "HG-1-HIST-02",
+        "HG-T-HIST-01",
+        "HG-T-HIST-02",
+        "HG-1-GEO-01",
+        "HG-1-GEO-02",
+        "HG-T-GEO-01",
+        "HG-T-GEO-02",
+        "HG-1-DOC-01",
+        "HG-1-DOC-03",
+        "HG-T-DOC-01",
+        "HG-T-DOC-03",
+        "HG-T-DOC-04",
+        "HG-1-CART-01",
+        "HG-1-CART-02",
+        "HG-T-CART-01",
+        "HG-T-CART-02",
+        "HG-T-CART-03"
+      ]
+    },
+    {
+      "bloc": "C",
+      "items": [
+        "HG-T-PROB-03"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "HG-1-PROB-02"
+      ]
+    }
+  ]
+}

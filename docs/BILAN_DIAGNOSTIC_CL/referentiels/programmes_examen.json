@@ -1,0 +1,1298 @@
+{
+  "schema": "nexus.referentiel.programmes_examen",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "objet": "Cartographie réglementaire des programmes et des épreuves, par session d'examen.",
+  "avertissement": "Le Cahier de conception ne fait pas foi contre un texte réglementaire applicable à la session visée. Ce fichier porte les textes officiels et leur date de vérification ; tout support déclaré « œuvre au programme de la session » y est confronté par le validateur. Un support qui désigne une œuvre absente de la session visée est refusé, même s'il figurait au Cahier.",
+  "regle_de_correspondance": {
+    "enonce": "Le programme national d'œuvres d'une année scolaire de première vaut pour les épreuves anticipées de français de la session du baccalauréat qui suit la fin de cette année scolaire.",
+    "formule": "session = année de fin de la classe de première + 1",
+    "preuve": "Note de service du 12-6-2023 (NOR MENE2315136N) : « La liste des œuvres et des parcours inscrits au programme de première pour l'année scolaire 2024-2025 et pour les épreuves anticipées de la session 2026 du baccalauréat est la suivante ».",
+    "consequence": "Une œuvre du programme de première 2026-2027 relève de la session 2028, jamais de la session 2027. C'est le contrôle qui tranche, non la mémoire du rédacteur.",
+    "confiance": "haute"
+  },
+  "sessions": {
+    "2026": {
+      "annee_scolaire_premiere": "2024-2025",
+      "source": {
+        "texte": "Note de service du 12-6-2023",
+        "nor": "MENE2315136N",
+        "publication": "Bulletin officiel",
+        "confiance": "haute",
+        "lecture": "note de service lue intégralement en PDF le 2026-09-11"
+      },
+      "voies": {
+        "generale": {
+          "poesie_19_21": [
+            {
+              "auteur": "Arthur Rimbaud",
+              "oeuvre": "Cahier de Douai",
+              "precision": "22 poèmes, de « Première soirée » à « Ma Bohème (Fantaisie) »",
+              "parcours": "émancipations créatrices"
+            },
+            {
+              "auteur": "Francis Ponge",
+              "oeuvre": "La rage de l'expression",
+              "parcours": "dans l'atelier du poète"
+            },
+            {
+              "auteur": "Hélène Dorion",
+              "oeuvre": "Mes forêts",
+              "parcours": "la poésie, la nature, l'intime"
+            }
+          ],
+          "litterature_idees_16_18": [
+            {
+              "auteur": "Rabelais",
+              "oeuvre": "Gargantua",
+              "parcours": "rire et savoir"
+            },
+            {
+              "auteur": "La Bruyère",
+              "oeuvre": "Les Caractères",
+              "precision": "livres V à X",
+              "parcours": "la comédie sociale"
+            },
+            {
+              "auteur": "Olympe de Gouges",
+              "oeuvre": "Déclaration des droits de la femme et de la citoyenne",
+              "precision": "du préambule au postambule",
+              "parcours": "écrire et combattre pour l'égalité"
+            }
+          ],
+          "roman_recit": [
+            {
+              "auteur": "Abbé Prévost",
+              "oeuvre": "Manon Lescaut",
+              "parcours": "personnages en marge, plaisirs du romanesque"
+            },
+            {
+              "auteur": "Balzac",
+              "oeuvre": "La Peau de chagrin",
+              "parcours": "les romans de l'énergie, création et destruction"
+            },
+            {
+              "auteur": "Colette",
+              "oeuvre": "Sido suivi de Les Vrilles de la vigne",
+              "parcours": "la célébration du monde"
+            }
+          ],
+          "theatre_17_21": [
+            {
+              "auteur": "Pierre Corneille",
+              "oeuvre": "Le Menteur",
+              "parcours": "mensonge et comédie"
+            },
+            {
+              "auteur": "Alfred de Musset",
+              "oeuvre": "On ne badine pas avec l'amour",
+              "parcours": "les jeux du cœur et de la parole"
+            },
+            {
+              "auteur": "Nathalie Sarraute",
+              "oeuvre": "Pour un oui ou pour un non",
+              "parcours": "théâtre et dispute"
+            }
+          ]
+        },
+        "technologique": {
+          "note": "Mêmes objets d'étude, extraits restreints ; le roman y est Balzac, « Mémoires de deux jeunes mariées » (parcours : raison et sentiments) et non « La Peau de chagrin ».",
+          "confiance": "haute"
+        }
+      }
+    },
+    "2027": {
+      "annee_scolaire_premiere": "2025-2026",
+      "session_visee_du_dispositif": true,
+      "source": {
+        "texte": "Note de service « Programme national d'œuvres pour l'enseignement de français pour l'année scolaire 2025-2026 »",
+        "nor": "MENE2418442N",
+        "publication": "Bulletin officiel n° 30 du 25 juillet 2024",
+        "url": "https://www.education.gouv.fr/bo/2024/Hebdo30/MENE2418442N",
+        "confiance": "haute",
+        "lecture": "Page officielle du Bulletin officiel confirmée par la direction pédagogique le 2026-09-10. La note énonce que la liste vaut pour « l'année scolaire 2025-2026 et les épreuves anticipées de la session 2027 ».",
+        "applicabilite": "l'année scolaire 2025-2026 et les épreuves anticipées de la session 2027"
+      },
+      "objet_renouvele": "litterature_idees_16_18",
+      "voies": {
+        "generale": {
+          "poesie_19_21": [
+            {
+              "auteur": "Arthur Rimbaud",
+              "oeuvre": "Cahier de Douai",
+              "precision": "22 poèmes, de « Première soirée » à « Ma Bohème (Fantaisie) »",
+              "parcours": "émancipations créatrices",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Francis Ponge",
+              "oeuvre": "La rage de l'expression",
+              "parcours": "dans l'atelier du poète",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Hélène Dorion",
+              "oeuvre": "Mes forêts",
+              "parcours": "la poésie, la nature, l'intime",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ],
+          "litterature_idees_16_18": [
+            {
+              "auteur": "Étienne de La Boétie",
+              "oeuvre": "Discours de la servitude volontaire",
+              "parcours": "« Défendre » et « entretenir » la liberté",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Bernard Le Bouyer de Fontenelle",
+              "oeuvre": "Entretiens sur la pluralité des mondes",
+              "parcours": "le goût de la science",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Françoise de Graffigny",
+              "oeuvre": "Lettres d'une Péruvienne",
+              "precision": "en incluant les éléments de la seconde édition augmentée de 1752",
+              "parcours": "« un nouvel univers s'est offert à mes yeux »",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            }
+          ],
+          "roman_recit": [
+            {
+              "auteur": "Abbé Prévost",
+              "oeuvre": "Manon Lescaut",
+              "parcours": "personnages en marge, plaisirs du romanesque",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Balzac",
+              "oeuvre": "La Peau de chagrin",
+              "parcours": "les romans de l'énergie, création et destruction",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Colette",
+              "oeuvre": "Sido suivi de Les Vrilles de la vigne",
+              "parcours": "la célébration du monde",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ],
+          "theatre_17_21": [
+            {
+              "auteur": "Pierre Corneille",
+              "oeuvre": "Le Menteur",
+              "parcours": "mensonge et comédie",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Alfred de Musset",
+              "oeuvre": "On ne badine pas avec l'amour",
+              "parcours": "les jeux du cœur et de la parole",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Nathalie Sarraute",
+              "oeuvre": "Pour un oui ou pour un non",
+              "parcours": "théâtre et dispute",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ]
+        },
+        "technologique": {
+          "note": "Hors périmètre du dispositif : le Cahier § 7.1 exclut la contraction-essai de la voie technologique. Les restrictions d'extraits propres à cette voie ne sont pas relevées ici.",
+          "confiance": "a_verifier"
+        }
+      },
+      "role": "Session des épreuves terminales des profils P2 et P3, et des épreuves anticipées présentées à la même session par les candidats de l'article 3. Le champ « session_visee_du_dispositif » signale qu'elle est la session de référence des jeux réglementaires historiques ; il ne signifie pas qu'elle serait la seule instrumentée, la session 2028 l'étant depuis Q-27."
+    },
+    "2028": {
+      "annee_scolaire_premiere": "2026-2027",
+      "source": {
+        "texte": "Note de service « Programme national d'œuvres pour l'enseignement de français pour l'année scolaire 2026-2027 »",
+        "nor": "MENE2518792N",
+        "publication": "Bulletin officiel n° 30 du 24 juillet 2025",
+        "url": "https://www.education.gouv.fr/bo/2025/Hebdo30/MENE2518792N",
+        "confiance": "haute",
+        "lecture": "Page officielle du Bulletin officiel confirmée par la direction pédagogique le 2026-09-10 : le programme 2026-2027 vaut pour les épreuves anticipées de la session 2028, et y place Zola, « Pot-Bouille ».",
+        "applicabilite": "l'année scolaire 2026-2027 et les épreuves anticipées de la session 2028"
+      },
+      "objet_renouvele": "roman_recit",
+      "role": "Session des épreuves anticipées de la cohorte entrée en première en septembre 2026, c'est-à-dire du P1 opérationnel du dispositif (décision Q-27 du 2026-09-11). Elle est instrumentée : FR-EAF porte trois assemblages de session 2028 et MATH-EA évalue le programme de l'année scolaire 2026-2027. Elle reste par ailleurs la seule session où « Pot-Bouille » est au programme, ce qui rend l'erreur de session démontrable.",
+      "voies": {
+        "generale": {
+          "roman_recit": [
+            {
+              "auteur": "Chrétien de Troyes",
+              "oeuvre": "Le Chevalier de la charrette",
+              "precision": "édition bilingue",
+              "parcours": "le roman et l'invention de l'amour",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Émile Zola",
+              "oeuvre": "Pot-Bouille",
+              "parcours": "dévoiler les rouages de la société",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Simone Schwarz-Bart",
+              "oeuvre": "Pluie et vent sur Télumée Miracle",
+              "parcours": "tisser des mémoires, habiter le monde",
+              "statut": "renouvelee",
+              "confiance": "haute"
+            }
+          ],
+          "note_autres_objets": "Poésie, littérature d'idées et théâtre sont maintenus depuis l'année scolaire 2025-2026 : les mêmes œuvres et les mêmes parcours. La Boétie est donc au programme des sessions 2027 et 2028, ce que le contrôle des œuvres citées doit refléter.",
+          "confiance": "haute",
+          "poesie_19_21": [
+            {
+              "auteur": "Arthur Rimbaud",
+              "oeuvre": "Cahier de Douai",
+              "precision": "22 poèmes, de « Première soirée » à « Ma Bohème (Fantaisie) »",
+              "parcours": "émancipations créatrices",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Francis Ponge",
+              "oeuvre": "La rage de l'expression",
+              "parcours": "dans l'atelier du poète",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Hélène Dorion",
+              "oeuvre": "Mes forêts",
+              "parcours": "la poésie, la nature, l'intime",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ],
+          "litterature_idees_16_18": [
+            {
+              "auteur": "Étienne de La Boétie",
+              "oeuvre": "Discours de la servitude volontaire",
+              "parcours": "« Défendre » et « entretenir » la liberté",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Bernard Le Bouyer de Fontenelle",
+              "oeuvre": "Entretiens sur la pluralité des mondes",
+              "parcours": "le goût de la science",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Françoise de Graffigny",
+              "oeuvre": "Lettres d'une Péruvienne",
+              "precision": "en incluant les éléments de la seconde édition augmentée de 1752",
+              "parcours": "« un nouvel univers s'est offert à mes yeux »",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ],
+          "theatre_17_21": [
+            {
+              "auteur": "Pierre Corneille",
+              "oeuvre": "Le Menteur",
+              "parcours": "mensonge et comédie",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Alfred de Musset",
+              "oeuvre": "On ne badine pas avec l'amour",
+              "parcours": "les jeux du cœur et de la parole",
+              "statut": "maintenue",
+              "confiance": "haute"
+            },
+            {
+              "auteur": "Nathalie Sarraute",
+              "oeuvre": "Pour un oui ou pour un non",
+              "parcours": "théâtre et dispute",
+              "statut": "maintenue",
+              "confiance": "haute"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "epreuves_anticipees": {
+    "coefficients": {
+      "objet": "Coefficients officiels des épreuves anticipées du baccalauréat général, pour la part qu'elles prennent dans la note finale. Ils ne servent au dispositif qu'au troisième rang du départage des priorités (EC-31) : à gravité et à score égaux.",
+      "francais_ecrit": {
+        "coefficient": 5,
+        "fondement": "arrêté du 16 juillet 2018 relatif aux épreuves du baccalauréat général",
+        "confiance": "haute"
+      },
+      "francais_oral": {
+        "coefficient": 5,
+        "fondement": "arrêté du 16 juillet 2018 relatif aux épreuves du baccalauréat général",
+        "confiance": "haute"
+      },
+      "mathematiques": {
+        "coefficient": 2,
+        "fondement": "arrêté du 10 juin 2025 (NOR MENE2508110A) et note de service MENE2515469N",
+        "confiance": "haute"
+      }
+    },
+    "avertissement": "Recensement des épreuves anticipées applicables à la session visée. Il conditionne le périmètre du diagnostic : une épreuve anticipée que le candidat doit présenter et que le dispositif ne mesure pas est un trou de couverture.",
+    "session_2027": {
+      "francais_ecrit": {
+        "duree_min": 240,
+        "coefficient": 5,
+        "source": "Cahier § 7.1 et réglementation des épreuves anticipées de français",
+        "confiance": "moyenne",
+        "note": "Durée et coefficient repris du dispositif existant ; non revérifiés dans cet audit, qui portait sur le programme d'œuvres et sur les mathématiques."
+      },
+      "francais_oral": {
+        "duree_min": 20,
+        "coefficient": 5,
+        "source": "Cahier § 7.1",
+        "confiance": "moyenne"
+      },
+      "mathematiques": {
+        "existe": true,
+        "textes": [
+          {
+            "nature": "décret",
+            "reference": "décret n° 2025-513 du 10 juin 2025",
+            "objet": "institue l'épreuve anticipée de mathématiques",
+            "confiance": "haute"
+          },
+          {
+            "nature": "arrêté",
+            "reference": "arrêté du 10 juin 2025",
+            "nor": "MENE2508110A",
+            "objet": "création de l'épreuve, dispositions transitoires (art. 16 et 17)",
+            "confiance": "haute"
+          },
+          {
+            "nature": "note de service",
+            "reference": "note de service du 10-6-2025",
+            "nor": "MENE2515469N",
+            "objet": "définition de l'épreuve",
+            "citation": "S'applique à compter de l'année scolaire 2025-2026, pour les épreuves présentées au titre de la session 2027 des baccalauréats général et technologique.",
+            "confiance": "haute"
+          },
+          {
+            "nature": "note de service",
+            "reference": "note de service du 10-6-2025",
+            "nor": "MENE2516240N",
+            "objet": "automatismes évaluables pour l'année scolaire 2025-2026 au titre de la session 2027",
+            "confiance": "haute"
+          },
+          {
+            "nature": "arrêté",
+            "reference": "arrêté du 16 juillet 2018 relatif aux épreuves anticipées",
+            "version": "en vigueur depuis le 1er septembre 2025",
+            "objet": "régime des épreuves anticipées : passage à la même session (art. 3), redoublement (art. 4), conservation (art. 5)",
+            "confiance": "a_confirmer"
+          },
+          {
+            "nature": "note de service",
+            "reference": "note de service du 25 août 2025",
+            "nor": "MENE2523745N",
+            "objet": "situations particulières d'inscription : passation, dispenses, conservation",
+            "confiance": "a_confirmer"
+          }
+        ],
+        "duree_min": 120,
+        "coefficient": 2,
+        "calculatrice": false,
+        "notation": "sur 20 points",
+        "structure": [
+          {
+            "partie": 1,
+            "nature": "QCM d'automatismes",
+            "points": 6
+          },
+          {
+            "partie": 2,
+            "nature": "deux ou trois exercices indépendants",
+            "points": 14
+          }
+        ],
+        "sujets": {
+          "SPE": {
+            "libelle": "Enseignement de spécialité de mathématiques de la voie générale",
+            "voie": "generale",
+            "perimetre_dispositif": "couvert par aucun instrument"
+          },
+          "SPECIFIQUES": {
+            "libelle": "Mathématiques spécifiques intégrées à l'enseignement scientifique de la voie générale",
+            "voie": "generale",
+            "perimetre_dispositif": "aucun périmètre d'accueil"
+          },
+          "TECHNO": {
+            "libelle": "Mathématiques du tronc commun de la voie technologique",
+            "voie": "technologique",
+            "perimetre_dispositif": "hors périmètre V1 du dispositif"
+          }
+        },
+        "note_nommage": "Trois sujets distincts, et non deux : pour la voie générale, le texte oppose l'enseignement de spécialité aux mathématiques spécifiques intégrées à l'enseignement scientifique. « Tronc commun » désigne la voie technologique et ne doit pas nommer le cas général sans spécialité.",
+        "premiere_passation": "juin 2026, pour les élèves de première de l'année scolaire 2025-2026, au titre de la session 2027",
+        "dispenses_transitoires": [
+          {
+            "code": "DISP-ECHEC-2026",
+            "situation": "Candidat ayant échoué au baccalauréat à la session 2026",
+            "effet": "dispensé de l'épreuve anticipée de mathématiques pour la session 2027",
+            "sessions_dispensees": [
+              2027
+            ],
+            "fondement": "arrêté du 10 juin 2025, article 17",
+            "confiance": "haute"
+          },
+          {
+            "code": "DISP-FORCE-MAJEURE-2026",
+            "situation": "Candidat régulièrement inscrit à la session 2026, ayant présenté les épreuves anticipées en 2024-2025, empêché par force majeure de subir toutes les épreuves de la session 2026 et les épreuves de remplacement correspondantes",
+            "effet": "dispensé pour la session 2027 et, en cas d'échec à cette session, pour la session 2028",
+            "sessions_dispensees": [
+              2027,
+              2028
+            ],
+            "fondement": "arrêté du 10 juin 2025, article 17",
+            "confiance": "haute"
+          },
+          {
+            "code": "DISP-ETRANGER-2024-2025",
+            "situation": "Candidat résidant temporairement à l'étranger un ou deux ans, ayant présenté les épreuves anticipées au cours de l'année scolaire 2024-2025",
+            "effet": "dispensé pour l'une des deux sessions suivantes et, en cas d'échec à cette session, pour la session suivante",
+            "sessions_dispensees": [
+              2027,
+              2028
+            ],
+            "fondement": "arrêté du 10 juin 2025, article 17",
+            "confiance": "haute"
+          },
+          {
+            "code": "DISP-AMENAGEMENT-PREMIERE",
+            "situation": "Candidat dont la scolarité a été aménagée sur autorisation du recteur, ayant commencé les enseignements de première avant la rentrée 2025 et les achevant à compter de l'année scolaire 2025-2026",
+            "effet": "dispensé, à sa demande, pour la session où intervient la décision du jury et, en cas d'échec à cette session, pour la session suivante",
+            "sur_demande": true,
+            "fondement": "arrêté du 10 juin 2025, article 17",
+            "confiance": "haute"
+          },
+          {
+            "code": "DISP-AMENAGEMENT-TERMINALE",
+            "situation": "Candidat dont la scolarité a été aménagée sur autorisation du recteur, entré en classe terminale avant la rentrée 2026",
+            "effet": "dispensé pour la session où intervient la décision du jury et, en cas d'échec à cette session, pour la session suivante",
+            "fondement": "arrêté du 10 juin 2025, article 17",
+            "confiance": "haute"
+          }
+        ],
+        "regime_des_epreuves_anticipees": [
+          {
+            "code": "EA-REDOUBLANT-PREMIERE",
+            "regle": "L'élève qui redouble la classe de première représente les épreuves anticipées ; les notes obtenues remplacent les précédentes. Le texte réserve des exceptions, dont celle de l'élève qui redouble une partie de l'année scolaire dans un établissement de l'hémisphère nord après avoir présenté les épreuves anticipées l'année précédente dans l'hémisphère sud, qui peut conserver ses notes.",
+            "fondement": "arrêté du 16 juillet 2018, article 2",
+            "confiance": "haute",
+            "correction": "Ce cas était rattaché à l'article 4 : la source primaire est l'article 2."
+          },
+          {
+            "code": "EA-CONSERVATION-ART-4",
+            "regle": "Le candidat qui se représente au baccalauréat peut demander à conserver les notes obtenues aux épreuves anticipées pour la session qui suit immédiatement son succès ou son échec.",
+            "fondement": "arrêté du 16 juillet 2018, article 4",
+            "confiance": "haute",
+            "domaine": "représentation à la session suivante — à distinguer du redoublement de première, qui relève de l'article 2 et impose de représenter les épreuves"
+          },
+          {
+            "code": "EA-CONSERVATION-ART-5",
+            "regle": "Le candidat régulièrement inscrit qui n'a pu subir les épreuves anticipées, ou les épreuves de remplacement correspondantes, conserve ses notes pour la session suivante.",
+            "fondement": "arrêté du 16 juillet 2018, article 5",
+            "confiance": "haute"
+          },
+          {
+            "code": "EA-CONSERVATION-APRES-ECHEC",
+            "regle": "Après échec au baccalauréat, les notes égales ou supérieures à 10 sur 20 sont conservables pendant les cinq sessions suivantes, sur demande du candidat.",
+            "fondement": "code de l'éducation, articles D334-13 et D336-13",
+            "confiance": "haute",
+            "domaine": "échec à l'examen — ce fondement ne couvre ni le redoublement de première ni l'empêchement"
+          },
+          {
+            "code": "EA-SITUATIONS-PARTICULIERES",
+            "regle": "Les dispenses et conservations propres aux situations particulières d'inscription relèvent de la note de service du 25 août 2025.",
+            "fondement": "MENE2523745N",
+            "confiance": "haute"
+          }
+        ],
+        "couverture_dispositif": "aucune",
+        "ecart": {
+          "ref": "Q-24",
+          "registre": "README_ETAT.md § 8",
+          "etat": "ouvert — architecture acceptée dans son principe, création subordonnée à la levée des points « a_confirmer »"
+        },
+        "statut_derive": {
+          "objet": "J — le candidat ne décide pas s'il doit présenter l'épreuve : le moteur le dérive des faits réglementaires.",
+          "faits_necessaires": [
+            "session_baccalaureat_finale",
+            "annee_scolaire_passation_ea",
+            "mode_passation_ea",
+            "parcours_mathematiques (specialite | specifiques | aucun_enseignement_general)",
+            "ea_mathematiques_deja_presentee",
+            "note_ea_mathematiques (entier ou null)",
+            "echec_session_anterieure",
+            "dispense_transitoire (code ou null)",
+            "conservation_demandee",
+            "eligibilite_meme_session (résultat de Q-26)"
+          ],
+          "statuts": [
+            {
+              "code": "a_presenter_spe",
+              "sens": "Épreuve due, sujet « enseignement de spécialité de mathématiques »"
+            },
+            {
+              "code": "a_presenter_specifiques",
+              "sens": "Épreuve due, sujet « mathématiques spécifiques intégrées à l'enseignement scientifique »"
+            },
+            {
+              "code": "dispensee",
+              "sens": "Dispense transitoire de l'article 17 applicable à cette session"
+            },
+            {
+              "code": "note_conservee",
+              "sens": "Note antérieure conservée : l'épreuve n'est pas représentée"
+            },
+            {
+              "code": "deja_presentee_valable",
+              "sens": "Épreuve déjà présentée au titre de cette session finale : rien à représenter"
+            },
+            {
+              "code": "a_verifier",
+              "sens": "Les faits déclarés ne suffisent pas à trancher : la situation relève de l'autorité d'examen"
+            }
+          ],
+          "interdit": "Aucune question ne demande au candidat s'il « doit » passer l'épreuve : le questionnaire collecte des faits, le moteur conclut."
+        },
+        "format_epreuve": {
+          "source": "Note de service MENE2515469N et arrêté du 10 juin 2025 : épreuve écrite de 2 h, coefficient 2, calculatrice interdite, en deux parties.",
+          "perimetre": "MATH-EA",
+          "note_perimetre": "La pondération 6/14 est celle de cette épreuve et d'aucune autre. L'appliquer à la philosophie ou au tronc commun produirait un nombre sans objet : le score au format n'est calculé que pour le périmètre nommé ici.",
+          "duree_min": 120,
+          "coefficient": 2,
+          "calculatrice": "interdite",
+          "parties": [
+            {
+              "code": "partie_1",
+              "intitule": "Automatismes — questionnaire à choix multiple",
+              "points_officiels": 6,
+              "registre": "QCM",
+              "intitule_court": "automatismes"
+            },
+            {
+              "code": "partie_2",
+              "intitule": "Deux ou trois exercices",
+              "points_officiels": 14,
+              "registre": "questions ouvertes et tâche rédigée",
+              "intitule_court": "seconde partie"
+            }
+          ],
+          "correspondance_blocs": {
+            "avertissement": "Les blocs A, B, C et D sont la structure du **diagnostic** ; ils ne reproduisent pas la structure de l'épreuve. Le bloc A rassemble les prérequis bloquants, ce qui n'est pas la définition de la première partie officielle, et le bloc D n'a aucun équivalent à l'épreuve. Aucune prose du dépôt ne doit présenter A, B, C, D comme les parties de l'épreuve.",
+            "regle": "La correspondance se fait par **registre de tâche et par bloc**, jamais par bloc seul. La première partie officielle est un questionnaire à choix multiple portant les automatismes du programme de première : lui correspondent les items de type A du bloc B. La seconde partie est faite d'exercices rédigés : lui correspondent les items ouverts des blocs B et C. Le bloc A, qui ne porte que des acquis du programme de seconde, et le bloc D, qui fait analyser une copie fautive, sont diagnostiques et n'ont pas d'équivalent à l'épreuve.",
+            "partie_1": {
+              "blocs": [
+                "B"
+              ],
+              "types_item": [
+                "A"
+              ]
+            },
+            "partie_2": {
+              "blocs": [
+                "B",
+                "C"
+              ],
+              "types_item": [
+                "B",
+                "C"
+              ]
+            },
+            "hors_format": {
+              "blocs": [
+                "A",
+                "D"
+              ],
+              "motif": "Le bloc A mesure des acquis du programme de seconde, que les programmes de première demandent d'entretenir : ce sont des prérequis, non le contenu de l'épreuve. Le bloc D fait analyser au candidat une copie fautive pour repérer l'étape manquante d'une rédaction : l'épreuve ne comporte rien de tel. Ni l'un ni l'autre n'entre dans le score au format de l'épreuve, et le bilan le dit."
+            }
+          },
+          "score_format": {
+            "definition": "score_format_epreuve = 6 × (points obtenus en partie 1 / points disponibles en partie 1) + 14 × (points obtenus en partie 2 / points disponibles en partie 2), arrondi au dixième, sur 20.",
+            "independance": "Le score ne dépend ni du nombre d'items d'une partie ni du barème interne de la banque : seule la part réussie de chaque partie entre dans le calcul. Doubler le nombre d'items d'une partie sans changer la performance ne le change pas.",
+            "distinction": "Le score global du diagnostic et le score au format de l'épreuve ne mesurent pas la même chose : le premier pondère les compétences comme la banque les pondère, le second applique la pondération officielle 6/14. Les deux sont rendus, et jamais confondus."
+          }
+        },
+        "sans_calculatrice": {
+          "statut": "Condition de passation de toute l'épreuve, et non capacité d'un programme. Ni MENE2602917A ni MENE2602916A ne comportent de ligne « calculer sans calculatrice » : l'interdiction vient du texte qui définit l'épreuve. Le dispositif ne l'érige donc pas en compétence officielle.",
+          "consequence_diagnostique": "Une épreuve entière sans outil change ce qu'un échec veut dire. Le dispositif doit distinguer quatre situations que le score global confond, faute de quoi il conseillerait la même chose à un candidat qui ne comprend pas la notion et à un candidat qui la comprend mais pose mal une division.",
+          "lectures": [
+            {
+              "code": "automatisme_disponible",
+              "libelle": "Automatisme disponible sans outil",
+              "signature": "Les items du bloc A sont réussis et aucun code d'erreur de calcul n'est relevé sur eux.",
+              "codes_erreur": []
+            },
+            {
+              "code": "erreur_conceptuelle",
+              "libelle": "Erreur conceptuelle",
+              "signature": "La notion elle-même est mal formée : le modèle, le conditionnement ou le sens d'une variation sont faux, indépendamment de l'exactitude du calcul.",
+              "codes_erreur": [
+                "MATH-ERR-MODELE",
+                "MATH-ERR-CONDITIONNELLE",
+                "MATH-ERR-TAUX-SENS",
+                "MATH-ERR-TAUX-SOMME",
+                "MATH-ERR-SIGNE-PRODUIT",
+                "MATH-ERR-AJUSTEMENT"
+              ]
+            },
+            {
+              "code": "erreur_de_calcul",
+              "libelle": "Erreur de calcul, démarche juste",
+              "signature": "La démarche écrite est correcte et le résultat ne l'est pas : c'est la conduite du calcul, non la notion, qui a manqué.",
+              "codes_erreur": [
+                "MATH-ERR-CALCUL-EXACT",
+                "MATH-ERR-POINT-MOYEN"
+              ]
+            },
+            {
+              "code": "dependance_a_loutil",
+              "libelle": "Dépendance excessive à l'outil de calcul",
+              "signature": "Le candidat réussit les notions mais échoue dès que le calcul doit être conduit à la main ou remplacé par un ordre de grandeur : le score de l'indicateur EXACT décroche nettement du reste du périmètre.",
+              "codes_erreur": [
+                "MATH-ERR-ORDRE-GRANDEUR",
+                "MATH-ERR-CALCUL-EXACT"
+              ]
+            }
+          ],
+          "indicateur_dependance": {
+            "nom": "dependance_a_loutil",
+            "calcul": "Écart entre la part réussie de la compétence EXACT et la part moyenne des autres compétences du périmètre MATH-EA.",
+            "seuil_ecart": 0.15,
+            "regle": "L'indicateur ne se déclenche que si l'écart atteint le seuil **et** si les autres compétences sont au moins au niveau En consolidation : un candidat en difficulté partout n'est pas dépendant d'un outil, il est en difficulté.",
+            "interdit": "Cet indicateur ne produit ni niveau ni palier : il nomme une hypothèse de lecture, à confirmer par le professeur lors de la première séance."
+          },
+          "exigence_items": {
+            "regle": "Aucun item de MATH-EA ne doit exiger une calculatrice pour être résolu raisonnablement dans la durée annoncée.",
+            "preuve": "Chaque item porte le champ « calcul_sans_outil », qui nomme le calcul exact à conduire. Le contrôle d'instrument refuse un item de MATH-EA qui ne le porterait pas."
+          }
+        }
+      }
+    }
+  },
+  "conservation_des_notes": {
+    "regle": "Les notes égales ou supérieures à 10 sur 20 obtenues aux épreuves anticipées sont conservables pendant les cinq sessions qui suivent la première présentation à l'examen.",
+    "fondement": "Code de l'éducation, article D334-13 (voie générale) et article D336-13 (voie technologique)",
+    "consequence_dispositif": "Un candidat qui conserve une note d'épreuve anticipée ne la représente pas : la variable de configuration du français, et son équivalent mathématique s'il est créé, doivent pouvoir porter cette situation.",
+    "confiance": "haute"
+  },
+  "candidats_individuels": {
+    "presentation": "Un candidat individuel peut choisir, à l'inscription, de présenter les évaluations ponctuelles en une seule fois à la fin du cycle terminal, ou à la fin de chaque année du cycle.",
+    "consequence_dispositif": "Un P3 présente donc ses épreuves anticipées la même année que les épreuves terminales ; le programme d'œuvres applicable reste celui de la session, non celui d'une scolarité qu'il n'a pas suivie.",
+    "confiance": "moyenne",
+    "reserve": "La note de service du 25 août 2025 (NOR MENE2523745N), « Règles applicables aux situations particulières d'inscription aux baccalauréats général et technologique », est le texte de référence pour les dispenses et la conservation. Elle n'a pas pu être lue intégralement (HTTP 403) : les points qui en dépendent sont marqués « a_verifier » dans le dossier Q-24."
+  },
+  "hierarchie_normative": {
+    "objet": "Ordre de préséance des sources du dispositif. Il remplace la formule « le Cahier fait foi », qui était fausse : l'audit du 2026-09-10 a montré que le Cahier pouvait être obsolète — œuvre du bloc C rattachée à la mauvaise session, épreuve anticipée de mathématiques ignorée.",
+    "ordre": [
+      {
+        "rang": 1,
+        "source": "Textes réglementaires officiels applicables à la session et à la situation du candidat",
+        "exemples": [
+          "décret et arrêté du 10 juin 2025",
+          "arrêté du 16 juillet 2018 relatif aux épreuves anticipées",
+          "notes de service publiées au Bulletin officiel"
+        ]
+      },
+      {
+        "rang": 2,
+        "source": "Décisions formelles de la direction pédagogique compatibles avec ces textes",
+        "exemples": [
+          "arbitrages A-01 à A-10",
+          "décisions Q-13 à Q-25",
+          "reprises R1, P1, P2"
+        ]
+      },
+      {
+        "rang": 3,
+        "source": "Cahier de conception, version 1.0 du 10 septembre 2026"
+      },
+      {
+        "rang": 4,
+        "source": "Référentiels et conventions techniques dérivées",
+        "exemples": [
+          "competences.json",
+          "catalogue_instruments.json",
+          "regles_bilan.json",
+          "programmes_examen.json"
+        ]
+      },
+      {
+        "rang": 5,
+        "source": "Code et rendus"
+      }
+    ],
+    "regle_de_conflit": "Un texte officiel postérieur ou plus spécifique l'emporte toujours sur le Cahier. Une divergence entre le Cahier et un texte réglementaire applicable se tranche en faveur du texte, se déclare comme écart et se trace au registre.",
+    "interdit": "Aucun document ni référentiel du dépôt ne peut affirmer la primauté du Cahier contre une disposition réglementaire applicable. Un contrôle le vérifie, sur le README comme sur les référentiels.",
+    "decision": "Décision de la direction pédagogique du 2026-09-10, contre-expertise de clôture, point 1."
+  },
+  "verification": {
+    "date": "2026-09-10",
+    "methode": "Notes de service et sujet zéro lus en source primaire quand la récupération était possible ; les listes d'œuvres des sessions 2027 et 2028 ont été confirmées par la direction sur les pages officielles du Bulletin officiel.",
+    "limite": "legifrance.gouv.fr, education.gouv.fr et eduscol refusent la récupération automatisée (HTTP 403). Les articles d'arrêté cités le sont d'après leur restitution par les moteurs de recherche et par des sources académiques concordantes : ils portent la confiance « a_confirmer » tant que la direction ne les a pas lus au Journal officiel.",
+    "dates_anterieures": {
+      "objet": "Le dépôt porte encore des dates du 2026-09-12 alors que l'horloge dit 2026-09-11 : la passe précédente avait daté son travail du lendemain.",
+      "regle": "La release V1 date toutes ses métadonnées de l'horloge. Les dates antérieures ne sont pas réécrites : une décision enregistrée garde la date sous laquelle elle a été prise. Elles sont classées, une par une.",
+      "calcul": "scripts/dates_anterieures.py classe chaque occurrence en confrontant la ligne à sa version au commit de départ. La liste n'est pas figée ici : l'écrire créerait de nouvelles occurrences, qu'il faudrait décrire à leur tour. Le décompte est vérifié par tests/test_dates_anterieures.py.",
+      "classements": [
+        "PREEXISTING_IMMUTABLE_HISTORICAL_RECORD",
+        "EXPLANATORY_REFERENCE",
+        "UNEXPLAINED"
+      ],
+      "exigence": "UNEXPLAINED_FUTURE_DATES = 0"
+    }
+  },
+  "designations_oeuvres": {
+    "objet": "Œuvres désignées par la direction pour les supports du dispositif. La désignation est une décision ; le passage et sa transcription en sont distincts, et conditionnent seuls la diffusabilité. Les désignations sont propres à une session : un objet d'étude renouvelé d'une année sur l'autre annule la désignation faite pour la session précédente, il ne la reporte pas.",
+    "FR-EAF/bloc_C": {
+      "session": 2027,
+      "voie": "generale",
+      "objet_etude": "roman_recit",
+      "auteur": "Balzac",
+      "oeuvre": "La Peau de chagrin",
+      "parcours": "les romans de l'énergie, création et destruction",
+      "decision": "Décision de la direction pédagogique du 2026-09-10, contre-expertise de clôture, point 3.",
+      "motifs": [
+        "au programme de la session 2027 en voie générale",
+        "domaine public",
+        "objet d'étude distinct de celui du bloc B, qui porte La Boétie",
+        "prose continue, compatible avec un paragraphe de commentaire diagnostique"
+      ],
+      "remplace": {
+        "auteur": "Émile Zola",
+        "oeuvre": "Pot-Bouille",
+        "motif_du_retrait": "Au programme de la classe de première 2026-2027, donc des épreuves anticipées de la session 2028 : hors de la session visée par le dispositif."
+      },
+      "passage": {
+        "etat": "non désigné",
+        "regle": "Le passage reste à désigner par la direction, puis à transcrire depuis une édition libre de droits vérifiable. Tant qu'il ne l'est pas, le support porte un emplacement réservé et FR-EAF n'est pas diffusable."
+      }
+    },
+    "FR-EAF/bloc_B": {
+      "session": 2027,
+      "voie": "generale",
+      "objet_etude": "litterature_idees_16_18",
+      "auteur": "Étienne de La Boétie",
+      "oeuvre": "Discours de la servitude volontaire",
+      "parcours": "« Défendre » et « entretenir » la liberté",
+      "decision": "Désignation du Cahier, confirmée le 2026-09-10 par confrontation au programme de la session 2027.",
+      "passage": {
+        "etat": "désigné, non transcrit",
+        "regle": "Passage désigné par la direction ; la transcription depuis une édition libre de droits reste à faire."
+      }
+    },
+    "FR-EAF/bloc_B@2028": {
+      "session": 2028,
+      "voie": "generale",
+      "objet_etude": "litterature_idees_16_18",
+      "auteur": "Étienne de La Boétie",
+      "oeuvre": "Discours de la servitude volontaire",
+      "parcours": "« Défendre » et « entretenir » la liberté",
+      "decision": "Décision Q-27 du 2026-09-11 : la littérature d'idées n'est pas renouvelée au programme 2026-2027, la désignation de la session 2027 est reconduite pour la session 2028 après confrontation au programme.",
+      "passage": {
+        "etat": "désigné, non transcrit",
+        "regle": "Même passage qu'à la session 2027 ; une seule transcription servira les six assemblages."
+      }
+    },
+    "FR-EAF/bloc_C@2028": {
+      "session": 2028,
+      "voie": "generale",
+      "objet_etude": "roman_recit",
+      "auteur": "Émile Zola",
+      "oeuvre": "Pot-Bouille",
+      "parcours": "dévoiler les rouages de la société",
+      "etat": "désignée",
+      "decision": "Décision de la direction pédagogique du 2026-09-11, passage arrêté définitivement le 2026-09-12. L'œuvre est au programme national 2026-2027, session 2028, voie générale, objet d'étude « le roman et le récit », parcours « dévoiler les rouages de la société ».",
+      "candidates_ecartees": [
+        {
+          "auteur": "Chrétien de Troyes",
+          "oeuvre": "Le Chevalier de la charrette"
+        },
+        {
+          "auteur": "Simone Schwarz-Bart",
+          "oeuvre": "Pluie et vent sur Télumée Miracle"
+        }
+      ],
+      "edition_source": {
+        "reference": "G. Charpentier, 1883",
+        "verification": "Texte vérifiable sur Wikisource et sur Gallica ; domaine public.",
+        "note": "Édition retenue pour la transcription à venir. Aucun texte n'est inséré dans le dépôt à ce jour."
+      },
+      "passage": {
+        "statut": "passage_transcrit",
+        "oeuvre": "Pot-Bouille",
+        "auteur": "Émile Zola",
+        "edition": "G. Charpentier, 1883",
+        "chapitre": "chapitre I",
+        "ancre_debut": "Au plafond, deux grandes fentes coupaient les caissons…",
+        "ancre_fin": "…tout retomba à un silence de mort.",
+        "mots": 326,
+        "lignes_mesurees": 23,
+        "mesure": {
+          "date": "2026-09-12",
+          "gabarit": "instruments/FR-EAF, assemblage standard_2028, bloc C — rendu par scripts/build_instrument.py, pandoc et xelatex, A4, marges de 2 cm : le gabarit réel du sujet, et non une composition approchée.",
+          "methode": "Texte relevé entre les deux ancres dans l'édition source vérifiée, injecté dans une copie de travail de l'instrument hors du dépôt, sujet construit, lignes comptées sur le PDF produit et vérifiées à l'œil sur la page rendue.",
+          "fenetre_attendue": "15 à 20 lignes pleines équivalentes — voir referentiels/textes_sources.json → mesure_de_longueur",
+          "conforme": true,
+          "borne_deplacee": false,
+          "note": "Mesure du 2026-09-12, avant transcription : 20 lignes, sur un rendu où les six paragraphes du passage — dont les répliques de l'architecte — n'en formaient qu'un. Ce rendu n'était pas celui de l'édition. Après transcription et rétablissement des paragraphes : 23 lignes brutes pour les mêmes 326 mots. Les cinq lignes de différence sont les cinq dernières lignes de paragraphe, qui ne sont pas pleines et n'ajoutent rien à lire.\nLe 2026-09-11, un reflow typographique a été mesuré avant toute autre décision : déclaration de la langue au moteur, marges à 1,8 cm puis à 1,6 cm. Aucun réglage n'atteint 20 lignes brutes, et 1,6 cm n'est pas une marge d'impression acceptable. Le reflow ne pouvait pas résoudre l'écart.\nLa fenêtre est une convention de conception, non une exigence réglementaire : aucun texte applicable ne fixe la longueur de l'extrait. Elle est donc énoncée sur la grandeur qu'elle a toujours voulu borner — ce qu'il y a à lire — et vérifiée comme telle par scripts/textes_sources.py. Dix-huit lignes pleines équivalentes : conforme. Les sept passages du dépôt passent ce contrôle.",
+          "lignes_brutes": 23,
+          "lignes_pleines_equivalentes": 18
+        },
+        "motifs": [
+          "séquence continue, dialogue compris — le dialogue participe ici à l'analyse",
+          "apparence bourgeoise et fragilité de la construction",
+          "discours de l'architecte sur une maison construite pour l'apparence, et sur ce qu'elle cache",
+          "opposition entre façade sociale et envers domestique",
+          "métaphore de l'égout",
+          "retour brutal au silence et à la respectabilité",
+          "correspondance forte avec le parcours « dévoiler les rouages de la société »"
+        ],
+        "remplace": {
+          "ancre_debut": "La chambre, carrée, assez grande…",
+          "ancre_fin": "…la vie murée des appartements voisins.",
+          "motif_du_refus": "136 mots et 8 lignes seulement dans le gabarit réel, insuffisant au regard des 15 à 20 lignes prévues. La direction a refusé également l'assemblage de deux fragments disjoints et l'abaissement de la spécification à huit lignes ; elle a autorisé en revanche le dialogue lorsqu'il appartient à une séquence continue et participe à l'analyse."
+        },
+        "regle": "Transcription faite le 2026-09-11 depuis l'édition G. Charpentier, 1883, confrontée au fac-similé. Le support du bloc C des assemblages de session 2028 porte le texte ; FR-EAF est diffusable pour cette session.",
+        "note_motifs": "Les motifs sont formulés sans citer le passage : seules les deux ancres, que la désignation exige, en reprennent les mots. Le passage transcrit vit dans les assemblages de session 2028 et nulle part ailleurs — ni dans ce référentiel, ni dans le README, ni dans un assemblage de session 2027.",
+        "registre": "referentiels/textes_sources.json → zola"
+      },
+      "avertissement": "« Pot-Bouille » figurait au Cahier et redevient éligible dans un contexte de session 2028. Cela ne vaut pas désignation : le Cahier l'avait retenu pour un dispositif visant la session 2027, où l'œuvre n'était pas au programme, et la désignation suppose de vérifier le passage retenu, sa longueur, son adéquation à un paragraphe de commentaire et le fait qu'aucun item de production ne l'anticipe."
+    }
+  },
+  "eligibilite_meme_session": {
+    "objet": "Q-26 — qui peut présenter à la même session toutes les épreuves, y compris les anticipées. C'est la condition d'existence du profil P3 : vouloir passer le baccalauréat en un an n'y suffit pas.",
+    "fondement": "arrêté du 16 juillet 2018 relatif aux épreuves anticipées, article 3, version consolidée en vigueur ; note de service du 25 août 2025, NOR MENE2523745N, pour les situations particulières",
+    "confiance": "haute",
+    "note_de_lecture": "Les catégories sont celles de l'article 3, énumérées par la direction le 2026-09-10 et recoupées par la restitution du texte consolidé. La condition posée au premier alinéa vaut pour toutes.",
+    "deux_dimensions": {
+      "regle": "Le droit et la preuve sont deux choses. Une catégorie explicitement prévue ouvre le droit ; il peut rester une pièce à produire. Une pièce non encore contrôlée n'est pas une ambiguïté juridique.",
+      "eligibilite_reglementaire": [
+        "oui",
+        "non",
+        "conditionnelle"
+      ],
+      "statut_verification": [
+        "verifie",
+        "piece_a_verifier",
+        "decision_administrative_requise"
+      ],
+      "ouverture_p3": "Le profil P3 ne s'ouvre en production que si l'éligibilité vaut « oui » et la vérification « verifie ». « conditionnelle » ne l'ouvre pas tant que la pièce ou la décision manque."
+    },
+    "condition_prealable": {
+      "regle": "N'avoir pas présenté les épreuves anticipées l'année précédente.",
+      "fondement": "arrêté du 16 juillet 2018, article 3, premier alinéa",
+      "effet_si_non_remplie": "non — le candidat relève du parcours en deux sessions"
+    },
+    "criteres": [
+      {
+        "code": "AGE-20",
+        "libelle": "Candidat âgé d'au moins vingt ans au 31 décembre de l'année de l'examen",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "age_au_31_decembre_annee_examen",
+        "fondement": "art. 3",
+        "piece_requise": "piece_identite",
+        "source_de_verification": "Date de naissance établie par la pièce d'identité du dossier."
+      },
+      {
+        "code": "ENFANT",
+        "libelle": "Candidat ayant un enfant à charge au moment de l'inscription",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "enfant_a_charge",
+        "fondement": "art. 3",
+        "note": "Le droit est ouvert ; le justificatif de charge est produit à l'inscription.",
+        "piece_requise": "justificatif_charge_enfant",
+        "source_de_verification": "Charge d'enfant établie par le justificatif produit."
+      },
+      {
+        "code": "RETOUR",
+        "libelle": "Candidat de retour en formation initiale",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "retour_formation_initiale",
+        "fondement": "art. 3",
+        "note": "Catégorie explicite : le droit n'est pas conditionnel, seule la qualité de « retour en formation initiale » se justifie.",
+        "piece_requise": "attestation_formation",
+        "source_de_verification": "Qualité de retour en formation initiale établie par l'attestation."
+      },
+      {
+        "code": "FORCE-MAJEURE",
+        "libelle": "Candidat régulièrement inscrit aux épreuves anticipées n'ayant pu les présenter pour cause de force majeure dûment constatée",
+        "eligibilite": "conditionnelle",
+        "verification": "decision_administrative_requise",
+        "variable": "force_majeure_constatee",
+        "fondement": "art. 3",
+        "note": "« Dûment constatée » : le constat appartient à l'autorité d'examen.",
+        "piece_requise": null,
+        "source_de_verification": "Constat de force majeure prononcé par l'autorité d'examen : aucune pièce du dossier ne l'établit."
+      },
+      {
+        "code": "ETRANGER-TEMPORAIRE",
+        "libelle": "Candidat résidant temporairement à l'étranger au niveau de la classe de première",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "residence_etranger",
+        "fondement": "art. 3",
+        "piece_requise": "justificatif_residence",
+        "source_de_verification": "Résidence temporaire établie par le justificatif de résidence."
+      },
+      {
+        "code": "ETRANGER-PERMANENT-SANS-CENTRE",
+        "libelle": "Candidat résidant de façon permanente à l'étranger dans un pays où il n'existe pas de centre d'examen",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "centre_examen_dans_le_pays",
+        "fondement": "art. 3",
+        "note": "La résidence permanente ne suffit pas : le texte la conditionne à l'absence de centre d'examen, ou à son éloignement.",
+        "piece_requise": null,
+        "source_de_verification": "Absence de centre d'examen dans le pays : exige la liste officielle des centres, absente du dossier, ou une attestation de l'autorité d'examen."
+      },
+      {
+        "code": "ETRANGER-PERMANENT-CENTRE-ELOIGNE",
+        "libelle": "Candidat résidant de façon permanente à l'étranger, dans un pays où le centre d'examen est trop éloigné de sa résidence",
+        "eligibilite": "conditionnelle",
+        "verification": "decision_administrative_requise",
+        "variable": "centre_examen_eloigne",
+        "fondement": "art. 3",
+        "note": "L'éloignement s'apprécie : il n'est pas déclaratif.",
+        "piece_requise": null,
+        "source_de_verification": "Éloignement apprécié par l'autorité d'examen."
+      },
+      {
+        "code": "ECHEC-ANTERIEUR",
+        "libelle": "Candidat ayant échoué au baccalauréat général ou technologique et se présentant de nouveau",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "echec_anterieur_baccalaureat",
+        "fondement": "art. 3",
+        "note": "Catégorie explicitement prévue : elle ne relève d'aucune appréciation.",
+        "piece_requise": "releve_notes_anterieur",
+        "source_de_verification": "Échec établi par le relevé de notes de la session antérieure."
+      },
+      {
+        "code": "EA-SANS-INSCRIPTION-SUIVANTE",
+        "libelle": "Candidat ayant présenté les épreuves anticipées puis ne s'étant pas inscrit au baccalauréat l'année suivante",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "ea_presentees_puis_absence_inscription",
+        "fondement": "art. 3",
+        "piece_requise": "releve_notes_anterieur",
+        "source_de_verification": "Présentation antérieure des épreuves anticipées établie par le relevé de notes."
+      },
+      {
+        "code": "TITULAIRE-DIPLOME-FR",
+        "libelle": "Candidat titulaire d'un baccalauréat général, technologique ou professionnel, d'un brevet de technicien ou d'un brevet de technicien agricole",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "diplome_francais_detenu",
+        "fondement": "art. 3",
+        "note": "Liste réglementaire fermée : le droit est acquis, le diplôme se produit.",
+        "piece_requise": "diplome",
+        "source_de_verification": "Diplôme produit à l'inscription."
+      },
+      {
+        "code": "TITULAIRE-DIPLOME-ETRANGER",
+        "libelle": "Candidat titulaire d'un diplôme étranger sanctionnant des études d'un niveau et d'une durée comparables",
+        "eligibilite": "conditionnelle",
+        "verification": "decision_administrative_requise",
+        "variable": "diplome_etranger_comparable",
+        "fondement": "art. 3",
+        "note": "La comparabilité doit être reconnue : elle ne se déclare pas.",
+        "piece_requise": null,
+        "source_de_verification": "Comparabilité reconnue par l'autorité compétente."
+      },
+      {
+        "code": "CHANGEMENT-VOIE-TERMINALE",
+        "libelle": "Candidat changeant de voie ou de série au niveau de la classe terminale",
+        "eligibilite": "oui",
+        "verification": "piece_a_verifier",
+        "variable": "changement_voie_ou_serie",
+        "fondement": "art. 3 ; arrêtés du 6 novembre 2019 et du 14 mai 2020 pour les dispenses associées",
+        "piece_requise": "attestation_scolarite",
+        "source_de_verification": "Changement établi par l'attestation de scolarité."
+      }
+    ],
+    "defaut": {
+      "eligibilite": "non",
+      "verification": "verifie",
+      "consequence": "Le profil P3 est interdit : le candidat suit le parcours P1 puis P2 sur deux sessions, sauf validation explicite d'une situation particulière par l'autorité d'examen."
+    },
+    "variables_proposees": [
+      {
+        "code": "age_au_31_decembre_annee_examen",
+        "type": "entier",
+        "min": 14,
+        "max": 80,
+        "necessite": "critère AGE-20"
+      },
+      {
+        "code": "enfant_a_charge",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "critère ENFANT"
+      },
+      {
+        "code": "retour_formation_initiale",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "critère RETOUR"
+      },
+      {
+        "code": "force_majeure_constatee",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non",
+          "en_cours"
+        ],
+        "necessite": "critère FORCE-MAJEURE"
+      },
+      {
+        "code": "residence_etranger",
+        "type": "choix_unique",
+        "valeurs": [
+          "aucune",
+          "temporaire_en_premiere",
+          "permanente"
+        ],
+        "necessite": "critères ETRANGER-*"
+      },
+      {
+        "code": "centre_examen_dans_le_pays",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non",
+          "sans_objet"
+        ],
+        "necessite": "condition de l'article 3 sur la résidence permanente"
+      },
+      {
+        "code": "centre_examen_eloigne",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non",
+          "sans_objet"
+        ],
+        "necessite": "seconde branche de la même condition, soumise à appréciation"
+      },
+      {
+        "code": "echec_anterieur_baccalaureat",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "critère ECHEC-ANTERIEUR"
+      },
+      {
+        "code": "ea_presentees_puis_absence_inscription",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "critère EA-SANS-INSCRIPTION-SUIVANTE"
+      },
+      {
+        "code": "diplome_francais_detenu",
+        "type": "choix_unique",
+        "valeurs": [
+          "aucun",
+          "baccalaureat_general",
+          "baccalaureat_technologique",
+          "baccalaureat_professionnel",
+          "brevet_de_technicien",
+          "brevet_de_technicien_agricole"
+        ],
+        "necessite": "critère TITULAIRE-DIPLOME-FR"
+      },
+      {
+        "code": "diplome_etranger_comparable",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non",
+          "a_reconnaitre"
+        ],
+        "necessite": "critère TITULAIRE-DIPLOME-ETRANGER"
+      },
+      {
+        "code": "changement_voie_ou_serie",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "critère CHANGEMENT-VOIE-TERMINALE"
+      },
+      {
+        "code": "epreuves_anticipees_presentees_annee_precedente",
+        "type": "choix_unique",
+        "valeurs": [
+          "oui",
+          "non"
+        ],
+        "necessite": "condition préalable du premier alinéa"
+      }
+    ],
+    "interdit": "Ne demander aucune information sans nécessité fonctionnelle : chaque variable sert un critère nommé de l'article 3, et aucune autre.",
+    "etat": "modélisée et testée ; non branchée sur le questionnaire tant que la direction n'a pas décidé l'entrée de ces variables",
+    "preuve": {
+      "principe": "La règle juridique peut être déterministe ; la preuve de ses prémisses ne l'est pas. Un fait déclaré par le candidat n'est pas un fait vérifié : chaque critère nomme la pièce ou la source qui l'établit, et le statut « verifie » n'est atteint que lorsque cette pièce est au dossier.",
+      "defaut": "piece_a_verifier",
+      "pieces": {
+        "piece_identite": "Pièce d'identité ou acte d'état civil, déjà au dossier d'inscription : elle établit la date de naissance.",
+        "justificatif_charge_enfant": "Justificatif de charge d'enfant produit à l'inscription.",
+        "attestation_formation": "Attestation de reprise d'études ou de retour en formation initiale.",
+        "justificatif_residence": "Justificatif de résidence à l'étranger.",
+        "releve_notes_anterieur": "Relevé de notes de la session antérieure, qui établit l'échec ou la présentation des épreuves anticipées.",
+        "diplome": "Diplôme français de la liste réglementaire, produit à l'inscription.",
+        "attestation_scolarite": "Attestation de scolarité établissant le changement de voie ou de série."
+      },
+      "sources_canoniques_manquantes": [
+        {
+          "critere": "ETRANGER-PERMANENT-SANS-CENTRE",
+          "source_necessaire": "Liste officielle des centres d'examen ouverts à l'étranger, par pays et par session.",
+          "etat": "absente du dossier",
+          "consequence": "L'absence de centre ne peut pas être tenue pour vérifiée sur la seule déclaration du candidat : le critère reste « piece_a_verifier » jusqu'à ce que cette liste soit versionnée ou qu'une attestation de l'autorité d'examen soit produite."
+        }
+      ]
+    }
+  },
+  "modele_temporel": {
+    "objet": "Trois axes distincts là où le dispositif n'avait qu'un champ « session_visee », qui servait à deux décisions réglementaires différentes.",
+    "axes": [
+      {
+        "code": "session_baccalaureat_finale",
+        "type": "entier",
+        "semantique": "Session du baccalauréat dont relèvent les épreuves terminales du candidat, et dont les épreuves anticipées font partie intégrante. C'est elle qui commande le programme d'œuvres de l'EAF et le régime de conservation."
+      },
+      {
+        "code": "annee_scolaire_passation_ea",
+        "type": "texte",
+        "format": "AAAA-AAAA",
+        "semantique": "Année scolaire au cours de laquelle les épreuves anticipées sont passées. C'est elle qui commande le programme de mathématiques évalué à l'épreuve anticipée (MENE2515469N : le candidat compose sur le programme en vigueur pendant l'année scolaire de passation)."
+      },
+      {
+        "code": "mode_passation_ea",
+        "type": "choix_unique",
+        "valeurs": [
+          "anticipation",
+          "meme_session"
+        ],
+        "semantique": "« anticipation » : les épreuves anticipées sont passées un an avant les épreuves terminales, cas ordinaire. « meme_session » : elles sont passées à la même session que les épreuves terminales, ce que l'article 3 de l'arrêté du 16 juillet 2018 réserve à des situations énumérées."
+      }
+    ],
+    "regle_de_coherence": "En mode « anticipation », la session finale est l'année civile qui suit la fin de l'année scolaire de passation. En mode « meme_session », elle est cette année civile elle-même.",
+    "cas_du_calendrier_2027": "En juin 2027 coexistent deux populations : celle qui passe les épreuves anticipées au titre de la session finale 2027 — mode « meme_session » — et celle qui les passe par anticipation au titre de la session finale 2028. Même année scolaire de passation, sessions finales différentes, programmes d'œuvres différents. Un champ unique ne peut pas porter les deux.",
+    "session_visee": {
+      "etat": "deprecated",
+      "regle": "Conservé pour compatibilité des jeux existants ; il vaut la session finale. Aucune décision réglementaire nouvelle ne s'y adosse : le moteur dérive le contexte des trois axes, et un contrôle refuse qu'une règle s'y réfère seule."
+    },
+    "decision": "Décision de la direction pédagogique du 2026-09-10, contre-expertise de clôture, point D."
+  },
+  "programmes_mathematiques": {
+    "objet": "I — le programme évalué à l'épreuve anticipée de mathématiques est celui en vigueur pendant l'année scolaire de passation, non celui de la session finale.",
+    "regle": "MENE2515469N : le candidat compose sur le programme en vigueur pendant l'année scolaire au cours de laquelle il présente l'épreuve. L'axe qui commande est donc `annee_scolaire_passation_ea`, jamais `session_baccalaureat_finale`.",
+    "par_annee_scolaire": {
+      "2025-2026": {
+        "etat": "historique",
+        "automatismes": {
+          "texte": "note de service du 10-6-2025",
+          "nor": "MENE2516240N",
+          "portee": "candidats présentant l'épreuve durant l'année scolaire 2025-2026 au titre de la session 2027",
+          "exclusion": "Ne s'applique pas aux candidats qui présentent l'épreuve pendant l'année scolaire 2026-2027 au titre de la session 2027.",
+          "confiance": "haute"
+        },
+        "programmes": [
+          {
+            "objet": "programmes de première en vigueur en 2025-2026",
+            "confiance": "moyenne",
+            "note": "Non recensés ici : aucune passation 2025-2026 n'est instrumentée par le dispositif."
+          }
+        ]
+      },
+      "2026-2027": {
+        "etat": "en vigueur — année de passation visée par le dispositif",
+        "programmes": [
+          {
+            "parcours": "SPE",
+            "intitule": "Programme d'enseignement de spécialité de mathématiques de la classe de première de la voie générale",
+            "nor": "MENE2602917A",
+            "texte": "arrêté du 26 février 2026",
+            "publication": "Bulletin officiel n° 14 du 2 avril 2026, JO du 27 mars 2026",
+            "entree_en_vigueur": "rentrée scolaire 2026-2027",
+            "confiance": "haute",
+            "lecture": "annexe lue intégralement le 2026-09-10 depuis le PDF du Bulletin officiel n° 14"
+          },
+          {
+            "parcours": "SPECIFIQUES",
+            "intitule": "Programme de mathématiques intégré à l'enseignement scientifique en classe de première générale",
+            "nor": "MENE2602916A",
+            "texte": "arrêté du 26 février 2026",
+            "publication": "Bulletin officiel n° 14 du 2 avril 2026, JO du 27 mars 2026",
+            "entree_en_vigueur": "rentrée scolaire 2026-2027",
+            "confiance": "haute",
+            "lecture": "annexe lue intégralement le 2026-09-10 depuis le PDF du Bulletin officiel n° 14"
+          }
+        ],
+        "automatismes": "Définis par les annexes des deux arrêtés ci-dessus, chacune comportant une partie « Automatismes ». La note MENE2516240N ne s'applique pas à cette année de passation.",
+        "interdit": "Construire un instrument de passation 2026-2027 sur la liste transitoire MENE2516240N."
+      }
+    },
+    "autres_programmes_du_26_fevrier_2026": [
+      {
+        "nor": "MENE2602914A",
+        "objet": "mathématiques, seconde générale et technologique"
+      },
+      {
+        "nor": "MENE2602918A",
+        "objet": "autre programme du même Bulletin officiel, hors périmètre"
+      },
+      {
+        "nor": "MENE2602919A",
+        "objet": "autre programme du même Bulletin officiel, hors périmètre"
+      },
+      {
+        "nor": "MENE2602921A",
+        "objet": "autre programme du même Bulletin officiel, hors périmètre"
+      }
+    ]
+  }
+}

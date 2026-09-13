@@ -1,0 +1,857 @@
+{
+  "schema": "nexus.maquette.specification",
+  "version": "2.0",
+  "date": "2026-09-10",
+  "source": "Spécification de la direction pédagogique, Porte 7, rappelée dans l'audit de la maquette v1 (partie I, section A) du 2026-09-10",
+  "avertissement": "Ce fichier est la commande, pas le résultat. scripts/maquette_donnees.py en dérive saisie.csv et grilles.csv ; tests/test_maquette.py confronte le bilan produit à chaque assertion. Un jeu de données qui s'écarterait de la commande ferait échouer le test au lieu de passer inaperçu, ce qui est le défaut que l'audit a relevé sur la v1.",
+  "candidat": {
+    "reference": "CL-2026-0000",
+    "fictif": true,
+    "note": "Aucune passation réelle, aucun élément nominatif."
+  },
+  "attendus": [
+    {
+      "id": "S-01",
+      "demande": "MATH et PC poursuivies en version Terminale, SES abandonnée en version Première",
+      "regle_exercee": "priorité P3 entre spécialités poursuivies et abandonnée ; blocage SES/STAT lu sur la version N1",
+      "verifications": [
+        {
+          "type": "instrument",
+          "perimetre": "EDS-MATH",
+          "version": "NT"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "EDS-PC",
+          "version": "NT"
+        },
+        {
+          "type": "instrument",
+          "perimetre": "EDS-SES",
+          "version": "N1"
+        },
+        {
+          "type": "qp",
+          "champ": "specialite_abandonnee",
+          "valeur": "SES"
+        }
+      ]
+    },
+    {
+      "id": "S-02",
+      "demande": "18 h disponibles déclarées",
+      "regle_exercee": "confrontation de la somme des rythmes aux heures déclarées, sur un cas réaliste et non sur un écart absurde",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "heures_disponibles",
+          "valeur": 18
+        }
+      ]
+    },
+    {
+      "id": "S-03",
+      "demande": "Deux ans d'interruption",
+      "regle_exercee": "lecture du parcours en section 1",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "annees_interruption",
+          "valeur": 2
+        }
+      ]
+    },
+    {
+      "id": "S-04",
+      "demande": "EDS-MATH/NT : taux de prérequis 35 %, score global correct, porté par ALGO solide",
+      "regle_exercee": "un taux de prérequis sous 40 % impose la remise à niveau malgré un score global correct",
+      "verifications": [
+        {
+          "type": "agregat",
+          "perimetre": "EDS-MATH",
+          "cle": "prerequis",
+          "min": 0.3,
+          "max": 0.4
+        },
+        {
+          "type": "agregat",
+          "perimetre": "EDS-MATH",
+          "cle": "global",
+          "min": 0.55,
+          "max": 0.75
+        },
+        {
+          "type": "niveau",
+          "perimetre": "EDS-MATH",
+          "competence": "ALGO",
+          "niveau": "Solide"
+        },
+        {
+          "type": "module_entree",
+          "perimetre": "EDS-MATH",
+          "module": "Remise à niveau"
+        }
+      ],
+      "impossible": {
+        "point": "le taux de prérequis exact de 35 %",
+        "raison": "Le bloc A de EDS-MATH/NT compte vingt-quatre items à un point : les taux atteignables y vont de 4,2 % en 4,2 %. 35 % vaut 8,4 points. Le jeu retient 8 points sur 24, soit 33 %, valeur atteignable la plus proche de la commande, et la contrainte de fond — sous le seuil de 40 % — est tenue."
+      }
+    },
+    {
+      "id": "S-05",
+      "demande": "EDS-MATH/SUIT au palier de profondeur D1",
+      "regle_exercee": "lecture croisée du score et du palier : deux candidats au même score ne relèvent pas du même accompagnement",
+      "verifications": [
+        {
+          "type": "palier",
+          "perimetre": "EDS-MATH",
+          "competence": "SUIT",
+          "palier": "D1"
+        }
+      ]
+    },
+    {
+      "id": "S-06",
+      "demande": "PHI/LANG solide alors que la philosophie est fragile",
+      "regle_exercee": "famille LANGUE : la mise en regard distingue une difficulté de langue d'une difficulté disciplinaire ; ici elle montre que la langue n'est pas en cause",
+      "verifications": [
+        {
+          "type": "niveau",
+          "perimetre": "PHI",
+          "competence": "LANG",
+          "niveau": "Solide"
+        },
+        {
+          "type": "agregat",
+          "perimetre": "PHI",
+          "cle": "global",
+          "min": 0.3,
+          "max": 0.55
+        }
+      ]
+    },
+    {
+      "id": "S-07",
+      "demande": "FR-EAF : LANG solide, CULT non acquis, COMP en consolidation visée et surestimation sur COMP",
+      "regle_exercee": "indice de calibration au grain de la compétence, lu dans le bloc 0 de l'instrument ; écart entre deux compétences d'une même matière",
+      "verifications": [
+        {
+          "type": "niveau",
+          "perimetre": "FR-EAF",
+          "competence": "LANG",
+          "niveau": "Solide"
+        },
+        {
+          "type": "niveau",
+          "perimetre": "FR-EAF",
+          "competence": "CULT",
+          "niveau": "Non acquis"
+        },
+        {
+          "type": "niveau",
+          "perimetre": "FR-EAF",
+          "competence": "COMP",
+          "niveau": "En consolidation"
+        },
+        {
+          "type": "calibration",
+          "perimetre": "FR-EAF",
+          "competence": "COMP",
+          "signal": "surestimation"
+        }
+      ],
+      "source_complement": "Le niveau visé de COMP n'était pas repris dans le tableau « Demandé » de l'audit ; il est rappelé par la précision P2 du 2026-09-10 et inscrit ici."
+    },
+    {
+      "id": "S-08",
+      "demande": "EDS-PC : QUANT fragile, par les unités",
+      "regle_exercee": "un critère transversal de la tâche de production — les unités — est la cause du niveau d'une compétence qui n'est pas celle de la tâche (EC-08)",
+      "verifications": [
+        {
+          "type": "niveau",
+          "perimetre": "EDS-PC",
+          "competence": "QUANT",
+          "niveau": "Fragile"
+        },
+        {
+          "type": "critere_proprietaire",
+          "perimetre": "EDS-PC",
+          "competence": "QUANT",
+          "instrument": "EDS-PC",
+          "critere": "UNITES",
+          "part_max": 0.5
+        }
+      ],
+      "impossible": {
+        "point": "un code d'erreur dominant sur EDS-PC/QUANT",
+        "raison": "En version Terminale, QUANT n'est présent qu'au bloc A, dont les six items sont de type A. Un code d'erreur ne se saisit que sur un item de type B (§ 6.2) : aucun code ne peut donc être attaché à QUANT dans cet assemblage. Ce que la commande vise — les unités comme cause du niveau — est porté par le critère UNITES de la tâche de production, dont EC-08 donne la propriété à QUANT ; c'est lui que la vérification contrôle. Ajouter un item B à QUANT serait une substitution de nature, qui relève d'une soumission préalable (règle de la Porte 4) et non d'une maquette."
+      }
+    },
+    {
+      "id": "S-09",
+      "demande": "MET : planification au premier niveau, stratégies d'apprentissage au deuxième",
+      "regle_exercee": "différenciation des niveaux de méthode et de leur outillage",
+      "verifications": [
+        {
+          "type": "met",
+          "dimension": "PLAN",
+          "rang": 1
+        },
+        {
+          "type": "met",
+          "dimension": "APPR",
+          "rang": 2
+        }
+      ]
+    },
+    {
+      "id": "S-10",
+      "demande": "GO : structure du propos à 1, interaction à 3",
+      "regle_exercee": "décision du § 7.13 : la préparation au Grand oral commence en parallèle ou après",
+      "verifications": [
+        {
+          "type": "critere",
+          "instrument": "GO",
+          "critere": "STRUCT",
+          "score": 1
+        },
+        {
+          "type": "critere",
+          "instrument": "GO",
+          "critere": "INTER",
+          "score": 3
+        },
+        {
+          "type": "decision_go",
+          "decision": "différée"
+        }
+      ]
+    },
+    {
+      "id": "S-11",
+      "demande": "Une spécialité poursuivie déclarée jamais abordée en classe",
+      "regle_exercee": "décision C6 : le taux de prérequis se lit avec le statut de la spécialité",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "statut_par_specialite.MATH",
+          "valeur": "jamais_abordee"
+        },
+        {
+          "type": "prose_statut",
+          "perimetre": "EDS-MATH"
+        }
+      ]
+    },
+    {
+      "id": "S-12",
+      "demande": "Un domaine de bloc 0 laissé sans réponse",
+      "regle_exercee": "un domaine non renseigné vaut « calibration non renseignée » pour la compétence visée, jamais un écart de zéro",
+      "verifications": [
+        {
+          "type": "calibration_absente",
+          "perimetre": "EDS-SES",
+          "competence": "DOCU"
+        }
+      ]
+    }
+  ],
+  "impossibilites_signalees": [
+    {
+      "point": "Plafond des heures déclarées dépassé « de peu » avec 18 h disponibles",
+      "raison": "Un P3 passe six matières porteuses d'un rythme et le rythme maximal est de 3 h : la somme ne peut pas excéder 18 h. Avec 18 h déclarées, le plafond peut au mieux être égalé, jamais dépassé — c'est le même raisonnement que celui qui a fondé la décision Q-18 sur le seuil d'alerte. Le jeu exerce donc l'alerte de charge (somme ≥ 15 h) et non le dépassement de plafond ; la branche du dépassement, et la fusion des deux paragraphes qu'impose C4, sont couvertes par des tests unitaires dédiés.",
+      "couverture": [
+        "tests/test_maquette.py::test_fusion_des_deux_alertes",
+        "tests/test_maquette.py::test_plafond_depasse_seul"
+      ]
+    }
+  ],
+  "cibles": {
+    "_lecture": "points obtenus / points au maximum, par compétence, bloc de l'assemblage et palier. Le générateur consomme les points dans l'ordre des items de l'assemblage.",
+    "FR-EAF/standard": {
+      "LANG|A|D1|item": [
+        3,
+        3
+      ],
+      "LANG|A|D2|item": [
+        2,
+        3
+      ],
+      "CULT|A|D1|item": [
+        1,
+        3
+      ],
+      "CULT|A|D2|item": [
+        0,
+        3
+      ],
+      "COMP|B|D1|item": [
+        3,
+        3
+      ],
+      "COMP|B|D2|item": [
+        3,
+        5
+      ],
+      "COMP|B|D3|item": [
+        1,
+        4
+      ],
+      "GRAM|B|D1|item": [
+        2,
+        3
+      ],
+      "GRAM|B|D2|item": [
+        3,
+        7
+      ],
+      "ANAL|B|D1|item": [
+        2,
+        4
+      ],
+      "ANAL|B|D2|item": [
+        2,
+        4
+      ],
+      "ANAL|B|D3|item": [
+        1,
+        4
+      ],
+      "ARGU|B|D1|item": [
+        2,
+        3
+      ],
+      "ARGU|B|D2|item": [
+        1,
+        4
+      ],
+      "REDA|C|D3|critere": [
+        3,
+        6
+      ],
+      "ARGU|C|D3|critere": [
+        1,
+        3
+      ],
+      "LANG|C|D3|critere": [
+        3,
+        3
+      ],
+      "REDA|D|D2|item": [
+        1,
+        2
+      ],
+      "REDA|D|D1|item": [
+        1,
+        2
+      ]
+    },
+    "PHI/standard": {
+      "REP|A|D1|item": [
+        1,
+        3
+      ],
+      "REP|A|D2|item": [
+        1,
+        3
+      ],
+      "NOT|A|D1|item": [
+        0,
+        1
+      ],
+      "NOT|A|D2|item": [
+        0,
+        1
+      ],
+      "NOT|B|D1|item": [
+        1,
+        2
+      ],
+      "NOT|B|D2|item": [
+        0,
+        2
+      ],
+      "ARGU|B|D1|item": [
+        2,
+        3
+      ],
+      "ARGU|B|D2|item": [
+        1,
+        3
+      ],
+      "PROB|B|D1|item": [
+        1,
+        3
+      ],
+      "PROB|B|D2|item": [
+        1,
+        4
+      ],
+      "TEXT|C|D3|critere": [
+        3,
+        6
+      ],
+      "LANG|C|D3|critere": [
+        6,
+        6
+      ],
+      "DISS|C|D3|critere": [
+        4,
+        9
+      ],
+      "TEXT|D|D2|item": [
+        1,
+        2
+      ],
+      "DISS|D|D1|item": [
+        1,
+        2
+      ]
+    },
+    "TC-ES/ETENDUE": {
+      "DEM|A|D1|item": [
+        3,
+        4
+      ],
+      "DEM|A|D2|item": [
+        1,
+        1
+      ],
+      "MAT|B|D1|item": [
+        2,
+        3
+      ],
+      "MAT|B|D2|item": [
+        1,
+        3
+      ],
+      "SON|B|D1|item": [
+        2,
+        3
+      ],
+      "SON|B|D2|item": [
+        1,
+        3
+      ],
+      "ASTR|B|D1|item": [
+        3,
+        3
+      ],
+      "ASTR|B|D2|item": [
+        2,
+        3
+      ],
+      "CLIM|B|D1|item": [
+        2,
+        3
+      ],
+      "CLIM|B|D2|item": [
+        1,
+        3
+      ],
+      "ENER|B|D1|item": [
+        2,
+        3
+      ],
+      "ENER|B|D2|item": [
+        2,
+        3
+      ],
+      "INFO|B|D1|item": [
+        2,
+        3
+      ],
+      "INFO|B|D2|item": [
+        1,
+        3
+      ],
+      "DEM|D|D2|item": [
+        2,
+        4
+      ]
+    },
+    "EDS-MATH/NT": {
+      "CALC|A|D1|item": [
+        3,
+        3
+      ],
+      "CALC|A|D2|item": [
+        0,
+        3
+      ],
+      "FONC|A|D1|item": [
+        2,
+        3
+      ],
+      "FONC|A|D2|item": [
+        0,
+        3
+      ],
+      "SUIT|A|D1|item": [
+        2,
+        3
+      ],
+      "SUIT|A|D2|item": [
+        0,
+        3
+      ],
+      "PROB|A|D1|item": [
+        1,
+        3
+      ],
+      "PROB|A|D2|item": [
+        0,
+        3
+      ],
+      "SUIT|B|D2|item": [
+        0,
+        1
+      ],
+      "SUIT|B|D3|item": [
+        2,
+        4
+      ],
+      "PROB|B|D1|item": [
+        2,
+        2
+      ],
+      "PROB|B|D2|item": [
+        1,
+        2
+      ],
+      "GEO|B|D1|item": [
+        3,
+        3
+      ],
+      "GEO|B|D2|item": [
+        2,
+        3
+      ],
+      "ANA|B|D1|item": [
+        3,
+        3
+      ],
+      "ANA|B|D2|item": [
+        3,
+        3
+      ],
+      "ALGO|B|D1|item": [
+        3,
+        3
+      ],
+      "ALGO|B|D2|item": [
+        2,
+        3
+      ],
+      "RAIS|C|D3|critere": [
+        6,
+        9
+      ],
+      "CALC|C|D3|critere": [
+        2,
+        3
+      ],
+      "RAIS|D|D1|item": [
+        1,
+        2
+      ],
+      "RAIS|D|D2|item": [
+        1,
+        2
+      ]
+    },
+    "EDS-PC/NT": {
+      "QUANT|A|D1|item": [
+        1,
+        3
+      ],
+      "QUANT|A|D2|item": [
+        1,
+        3
+      ],
+      "MAT|A|D1|item": [
+        2,
+        3
+      ],
+      "MAT|A|D2|item": [
+        1,
+        3
+      ],
+      "MOUV|A|D1|item": [
+        2,
+        3
+      ],
+      "MOUV|A|D2|item": [
+        1,
+        3
+      ],
+      "MAT|B|D2|item": [
+        2,
+        4
+      ],
+      "MOUV|B|D1|item": [
+        1,
+        1
+      ],
+      "MOUV|B|D2|item": [
+        1,
+        2
+      ],
+      "ENER|B|D1|item": [
+        2,
+        3
+      ],
+      "ENER|B|D2|item": [
+        1,
+        3
+      ],
+      "OND|B|D1|item": [
+        2,
+        3
+      ],
+      "OND|B|D2|item": [
+        1,
+        3
+      ],
+      "EXP|B|D1|item": [
+        2,
+        3
+      ],
+      "EXP|B|D2|item": [
+        2,
+        3
+      ],
+      "RES|C|D3|critere": [
+        5,
+        9
+      ],
+      "QUANT|C|D3|critere": [
+        1,
+        3
+      ],
+      "RES|D|D2|item": [
+        1,
+        2
+      ]
+    },
+    "EDS-SES/N1": {
+      "STAT|A|D1|item": [
+        1,
+        3
+      ],
+      "STAT|A|D2|item": [
+        1,
+        5
+      ],
+      "ECO|B|D1|item": [
+        2,
+        3
+      ],
+      "ECO|B|D2|item": [
+        1,
+        3
+      ],
+      "SOC|B|D1|item": [
+        2,
+        3
+      ],
+      "SOC|B|D2|item": [
+        1,
+        3
+      ],
+      "POL|B|D1|item": [
+        1,
+        3
+      ],
+      "POL|B|D2|item": [
+        1,
+        3
+      ],
+      "MOB|B|D1|item": [
+        2,
+        3
+      ],
+      "MOB|B|D2|item": [
+        0,
+        3
+      ],
+      "DOCU|C|D3|critere": [
+        3,
+        6
+      ],
+      "STAT|C|D3|critere": [
+        1,
+        3
+      ],
+      "RAIS|C|D3|critere": [
+        3,
+        6
+      ],
+      "RAIS|D|D1|item": [
+        1,
+        2
+      ],
+      "DOCU|D|D1|item": [
+        1,
+        2
+      ]
+    },
+    "MATH-EA/SPE": {
+      "AUTO|A|D1|item": [
+        1,
+        1
+      ],
+      "AUTOG|A|D1|item": [
+        1,
+        1
+      ],
+      "EXACT|A|D1|item": [
+        2,
+        4
+      ],
+      "AUTO|B|D1|item": [
+        1,
+        4
+      ],
+      "AUTO|B|D2|item": [
+        1,
+        3
+      ],
+      "AUTOG|B|D1|item": [
+        1,
+        3
+      ],
+      "AUTOG|B|D2|item": [
+        1,
+        3
+      ],
+      "EXACT|B|D2|item": [
+        3,
+        4
+      ],
+      "PROBA|B|D1|item": [
+        3,
+        4
+      ],
+      "PROBA|B|D2|item": [
+        3,
+        4
+      ],
+      "ALGAN|B|D1|item": [
+        3,
+        4
+      ],
+      "ALGAN|B|D2|item": [
+        3,
+        4
+      ],
+      "GEOM|B|D1|item": [
+        3,
+        4
+      ],
+      "GEOM|B|D2|item": [
+        3,
+        4
+      ],
+      "RAIS|C|D3|critere": [
+        8,
+        12
+      ],
+      "EXACT|C|D3|critere": [
+        4,
+        6
+      ],
+      "RAIS|D|D2|item": [
+        3,
+        4
+      ]
+    }
+  },
+  "grilles_coach": {
+    "GO/standard": {
+      "QUEST": 1,
+      "STRUCT": 1,
+      "DISCIP": 2,
+      "ARGU": 1,
+      "PRECIS": 1,
+      "LANGUE": 1,
+      "INTER": 3,
+      "POSTURE": 1
+    },
+    "FR-EAF-ORAL/standard": {
+      "LECT": 1,
+      "EXPLI": 1,
+      "GRAMM": 2,
+      "ENTRET": 2,
+      "LANGOR": 2
+    }
+  },
+  "met": {
+    "MET-01": "b",
+    "MET-02": "a",
+    "MET-03": "a",
+    "MET-04": "b",
+    "MET-05": "c",
+    "MET-06": "b",
+    "MET-07": "b",
+    "MET-08": "b",
+    "MET-09": "a",
+    "MET-10": "b",
+    "MET-11": "c",
+    "MET-12": "b"
+  },
+  "auto_positionnement": {
+    "_lecture": "Valeur de l'échelle du bloc 0 (1 à 4) déclarée par le candidat fictif pour chaque domaine imprimé. Un domaine absent de cette table est laissé non renseigné : le bilan doit alors écrire « calibration non renseignée » pour la compétence, jamais un écart de zéro. EDS-SES/DOCU est délibérément absent pour exercer cette règle.",
+    "FR-EAF/standard": {
+      "COMP": 4,
+      "LANG": 3,
+      "ANAL": 2,
+      "ARGU": 2,
+      "REDA": 2
+    },
+    "PHI/standard": {
+      "NOT": 2,
+      "PROB": 2,
+      "ARGU": 2,
+      "TEXT": 1,
+      "DISS": 2
+    },
+    "TC-ES/ETENDUE": {
+      "DEM": 3,
+      "MAT": 2,
+      "ASTR": 3,
+      "CLIM": 2,
+      "INFO": 2
+    },
+    "EDS-MATH/NT": {
+      "CALC": 4,
+      "FONC": 4,
+      "SUIT": 3,
+      "PROB": 3,
+      "RAIS": 3
+    },
+    "EDS-SES/N1": {
+      "STAT": 2,
+      "ECO": 3,
+      "SOC": 3,
+      "MOB": 2
+    },
+    "EDS-PC/NT": {
+      "QUANT": 2,
+      "MAT": 3,
+      "MOUV": 3,
+      "OND": 2,
+      "RES": 2
+    },
+    "MATH-EA/SPE": {
+      "AUTO": 3,
+      "AUTOG": 3,
+      "PROBA": 3,
+      "EXACT": 3,
+      "RAIS": 3
+    }
+  },
+  "notes_de_revision": [
+    "2026-09-11 — trois critères ajoutés à la grille du Grand oral après audit contre la définition officielle de l'épreuve : QUEST, DISCIP, ARGU. Le jeu les renseigne dans la cohérence du profil qu'il décrit déjà."
+  ]
+}

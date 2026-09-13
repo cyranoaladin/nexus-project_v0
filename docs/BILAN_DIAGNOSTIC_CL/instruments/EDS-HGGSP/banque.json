@@ -1,0 +1,1320 @@
+{
+  "instrument": "EDS-HGGSP",
+  "version": "1.0",
+  "items": [
+    {
+      "item_id": "HGGSP-2-REP-01",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La souveraineté d'un État désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "sa puissance militaire",
+        "B": "l'autorité suprême qu'il exerce sur son territoire et sa population",
+        "C": "son indépendance économique",
+        "D": "sa reconnaissance par l'ONU"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "souveraineté confondue avec puissance",
+          "C": "souveraineté confondue avec autonomie économique",
+          "D": "souveraineté confondue avec sa reconnaissance"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Notion fondatrice du thème sur la démocratie et de celui sur les frontières. Le distracteur D est le plus fin : la reconnaissance est une conséquence, non la définition."
+    },
+    {
+      "item_id": "HGGSP-2-REP-02",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Les traités de Westphalie, qui posent les bases de l'ordre européen des États, datent de :",
+      "supports": [],
+      "propositions": {
+        "A": "1648",
+        "B": "1789",
+        "C": "1815",
+        "D": "1919"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "date de la Révolution française",
+          "C": "date du congrès de Vienne",
+          "D": "date du traité de Versailles"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Repère chronologique. Les trois distracteurs sont des dates réelles de recomposition européenne, ce qui mesure la connaissance et non l'élimination."
+    },
+    {
+      "item_id": "HGGSP-2-REP-03",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Une frontière est dite « ouverte » lorsqu'elle :",
+      "supports": [],
+      "propositions": {
+        "A": "n'existe plus",
+        "B": "laisse circuler personnes et marchandises sans contrôle systématique",
+        "C": "est contestée",
+        "D": "est récente"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "ouverture confondue avec disparition",
+          "C": "ouverture confondue avec contestation",
+          "D": "ouverture confondue avec ancienneté"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Vocabulaire des frontières. Le distracteur A est l'erreur qui empêche de comprendre qu'une frontière ouverte reste une limite juridique."
+    },
+    {
+      "item_id": "HGGSP-2-REP-04",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La laïcité, dans le droit français, garantit :",
+      "supports": [],
+      "propositions": {
+        "A": "l'interdiction des religions dans l'espace public",
+        "B": "la neutralité de l'État et la liberté de conscience",
+        "C": "l'absence de croyants dans l'administration",
+        "D": "la reconnaissance officielle des cultes"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "laïcité confondue avec effacement du religieux",
+          "C": "neutralité de l'État étendue aux personnes",
+          "D": "laïcité confondue avec le régime concordataire"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Notion du thème États et religions. Le distracteur A est la lecture la plus répandue et la plus fautive."
+    },
+    {
+      "item_id": "HGGSP-2-REP-05",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le régime parlementaire se caractérise par :",
+      "supports": [],
+      "propositions": {
+        "A": "l'élection du chef de l'État au suffrage universel",
+        "B": "la responsabilité du gouvernement devant le parlement",
+        "C": "l'absence de partis politiques",
+        "D": "le vote obligatoire"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "critère du régime présidentiel",
+          "C": "critère sans rapport",
+          "D": "modalité électorale prise pour un critère de régime"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Typologie des régimes politiques. Le distracteur A désigne un critère réel mais d'un autre régime, ce que le programme demande de distinguer."
+    },
+    {
+      "item_id": "HGGSP-2-REP-06",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le terme « géopolitique » désigne l'étude :",
+      "supports": [],
+      "propositions": {
+        "A": "des reliefs et des climats",
+        "B": "des rivalités de pouvoir sur des territoires",
+        "C": "des échanges commerciaux",
+        "D": "des systèmes électoraux"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "géopolitique confondue avec géographie physique",
+          "C": "géopolitique confondue avec économie",
+          "D": "géopolitique confondue avec science politique interne"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Définition de la discipline. Le distracteur A est l'erreur d'entrée dans la spécialité."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-01",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La démocratie athénienne se distingue des démocraties contemporaines en ce qu'elle était :",
+      "supports": [],
+      "propositions": {
+        "A": "représentative",
+        "B": "directe et réservée à une minorité de citoyens",
+        "C": "universelle",
+        "D": "fédérale"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "caractère représentatif attribué à tort",
+          "C": "extension du corps civique surestimée",
+          "D": "organisation territoriale supposée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Thème « Comprendre un régime politique : la démocratie ». Le distracteur C est le plus important : le corps civique athénien excluait femmes, métèques et esclaves."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-02",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le « soft power » d'un État désigne sa capacité à :",
+      "supports": [],
+      "propositions": {
+        "A": "imposer sa volonté par la force",
+        "B": "influencer par l'attractivité de sa culture et de ses valeurs",
+        "C": "contrôler ses frontières",
+        "D": "financer son armée"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "définition du hard power",
+          "C": "capacité territoriale",
+          "D": "moyen du hard power"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Thème sur les puissances. Le couple hard power / soft power structure tout le thème ; le distracteur A en désigne l'autre terme."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-03",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux critères par lesquels on mesure la puissance d'un État.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux critères distincts parmi la puissance militaire, le poids économique, l'influence culturelle, le rayonnement diplomatique, la maîtrise technologique.",
+        "reponses_1pt": [
+          "Un seul critère est cité, ou deux formulations désignent le même critère."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-EXEMPLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Restitution structurée. La liste est fermée par le programme, ce qui maintient l'item en type B."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-04",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi une frontière peut être à la fois une limite et une zone d'échange.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'elle marque juridiquement la limite de deux souverainetés tout en concentrant, de part et d'autre, des flux de personnes et de marchandises qui la traversent.",
+        "reponses_1pt": [
+          "La double nature est affirmée sans que le mécanisme soit énoncé.",
+          "Un seul des deux aspects est développé."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-EXEMPLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Thème sur les frontières. Item de transfert : tenir ensemble deux caractères apparemment contradictoires est l'attendu du thème."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-05",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Le patrimoine mondial de l'UNESCO a pour finalité :",
+      "supports": [],
+      "propositions": {
+        "A": "de financer la restauration des monuments",
+        "B": "d'identifier et de protéger des biens jugés d'intérêt universel",
+        "C": "de classer les pays selon leur richesse culturelle",
+        "D": "d'organiser le tourisme"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "finalité réduite au financement",
+          "C": "classement des biens confondu avec classement des États",
+          "D": "conséquence prise pour finalité"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème « Identifier, protéger et valoriser le patrimoine ». Le distracteur D confond une finalité et un effet."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-06",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Distinguer en une phrase l'histoire et la mémoire d'un événement.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'histoire est une connaissance construite par la critique des sources et soumise à discussion ; la mémoire est le souvenir qu'un groupe en conserve, sélectif et porteur d'affects.",
+        "reponses_1pt": [
+          "Une seule des deux notions est caractérisée.",
+          "La distinction est faite par des exemples et non par les notions."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème « Histoire et mémoires ». La distinction est le cœur du thème et conditionne tout traitement de sujet sur les usages du passé."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-07",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La conquête spatiale constitue un enjeu géopolitique parce qu'elle :",
+      "supports": [],
+      "propositions": {
+        "A": "n'intéresse que les scientifiques",
+        "B": "met en jeu des rivalités de puissance sur un espace non approprié",
+        "C": "relève du seul droit privé",
+        "D": "concerne uniquement les télécommunications"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "dimension politique niée",
+          "C": "régime juridique erroné",
+          "D": "enjeu réduit à un usage technique"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème « De nouveaux espaces de conquête », confirmé par l'amendement A3 et la décision Q-11. Le distracteur A désigne la conception spontanée que le thème vise à déplacer."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-08",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase pourquoi l'espace extra-atmosphérique est difficile à réguler juridiquement.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'aucun État ne peut s'y approprier de territoire, tandis que les acteurs qui l'exploitent — États comme entreprises — relèvent de droits nationaux différents et que les traités existants n'ont pas de mécanisme de contrainte.",
+        "reponses_1pt": [
+          "La non-appropriation est mentionnée sans la difficulté qui en découle.",
+          "La difficulté est affirmée sans référence au régime juridique de l'espace."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-CONTEXTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Second item du thème « De nouveaux espaces de conquête », conformément à la décision Q-11 qui en demande au moins deux. Item de transfert : le candidat doit relier un régime juridique à une difficulté politique."
+    },
+    {
+      "item_id": "HGGSP-1-INFO-01",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans un article de presse, un fait se distingue d'une opinion en ce qu'il :",
+      "supports": [],
+      "propositions": {
+        "A": "est écrit par un journaliste",
+        "B": "peut être vérifié par une source indépendante",
+        "C": "est placé en début d'article",
+        "D": "n'emploie pas la première personne"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "critère d'autorité",
+          "C": "critère de position",
+          "D": "critère de forme"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Distinction fait / opinion, suivant le code HGGSP-ERR-FAIT-OPINION. Le distracteur D est le plus trompeur : l'absence de « je » ne garantit rien."
+    },
+    {
+      "item_id": "HGGSP-1-INFO-02",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux éléments à vérifier avant de tenir une information trouvée en ligne pour fiable.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux éléments distincts parmi : l'identité et la qualité de l'auteur, la date de publication, la présence de sources vérifiables, la recoupabilité par un autre média, la nature du site.",
+        "reponses_1pt": [
+          "Un seul élément est cité, ou deux formulations désignent le même élément."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-FAIT-OPINION",
+          "HGGSP-ERR-POINT-VUE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Thème « S'informer ». La liste des critères est fermée par le programme."
+    },
+    {
+      "item_id": "HGGSP-1-INFO-03",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi la vitesse de circulation d'une information en ligne peut nuire à sa fiabilité.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la reprise est plus rapide que la vérification : une information circule et se recopie avant que ses sources aient pu être contrôlées, ce qui donne à sa répétition l'apparence d'une confirmation.",
+        "reponses_1pt": [
+          "La rapidité est mise en cause sans que le mécanisme de reprise soit énoncé.",
+          "La réponse décrit un cas particulier sans énoncer le principe."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-FAIT-OPINION",
+          "HGGSP-ERR-POINT-VUE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Mécanisme de la circulation de l'information. Item de transfert : le candidat doit expliquer pourquoi la répétition n'est pas une preuve, raisonnement réinvesti en philosophie."
+    },
+    {
+      "item_id": "HGGSP-1-DOC-01",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Identifier un document, c'est d'abord indiquer :",
+      "supports": [],
+      "propositions": {
+        "A": "son idée principale",
+        "B": "sa nature, son auteur ou sa source, et sa date",
+        "C": "son intérêt pour le sujet",
+        "D": "ses limites"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "analyse anticipée sur l'identification",
+          "C": "portée anticipée sur l'identification",
+          "D": "critique anticipée sur l'identification"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Première étape de l'étude critique, suivant le code HGGSP-ERR-NATURE. Les trois distracteurs sont des étapes réelles, mais ultérieures."
+    },
+    {
+      "item_id": "HGGSP-1-DOC-02",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "D'après le document ci-dessus, quel État connaît la plus forte progression relative de ses dépenses militaires entre 2013 et 2023 ? Justifier par un calcul.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "L'Inde : ses dépenses passent de 47 à 84 milliards, soit une progression d'environ 79 %, supérieure à celle de la Chine (environ 65 %).",
+        "reponses_1pt": [
+          "L'État est correctement désigné sans calcul à l'appui.",
+          "Le calcul est mené mais sur la progression absolue, ce qui désigne les États-Unis."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NATURE",
+          "HGGSP-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Exploitation chiffrée d'un document. La seconde réponse à un point isole exactement la confusion entre progression absolue et relative, transversale aux SES et aux mathématiques."
+    },
+    {
+      "item_id": "HGGSP-T-DOC-03",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Ce document est produit par un institut de recherche sur la paix. Indiquer en une phrase en quoi cette origine doit être prise en compte dans son interprétation.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Parce qu'un institut spécialisé applique une définition précise des dépenses militaires, qui peut différer des comptabilités nationales : les chiffres sont comparables entre eux mais ne recouvrent pas nécessairement ce que chaque État déclare.",
+        "reponses_1pt": [
+          "La réponse signale qu'il faut tenir compte de l'origine sans dire pourquoi.",
+          "La réponse met en doute la fiabilité de la source sans argument."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-POINT-VUE",
+          "HGGSP-ERR-CONTEXTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Distance critique sur une source de données. La seconde réponse à un point est instructive : contester une source sans argument n'est pas de la critique, c'est du soupçon."
+    },
+    {
+      "item_id": "HGGSP-1-DISS-01",
+      "competence": "DISS",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 25,
+      "enonce": "Rédigez le **plan détaillé** — et non le développement — d'une dissertation sur le sujet : « la puissance d'un État se mesure-t-elle encore à sa force militaire ? ».\n\nVotre plan comportera : l'analyse des termes du sujet, la problématique, deux ou trois parties avec leurs arguments, et pour chaque argument l'exemple qui l'appuie. Vous mobiliserez le document du bloc C au moins une fois, en l'identifiant.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "SUJET",
+          "intitule": "Analyse du sujet et problématique",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Le sujet est recopié : aucun terme n'est analysé.",
+            "1": "Les termes sont définis mais aucune question n'est dégagée.",
+            "2": "Une problématique est formulée ; elle ne couvre qu'une partie du sujet.",
+            "3": "Une problématique est formulée et elle couvre le sujet, bornes chronologiques et spatiales comprises."
+          }
+        },
+        {
+          "code": "PLAN",
+          "intitule": "Pertinence et cohérence du plan",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun plan n'apparaît, ou les parties juxtaposent des thèmes sans lien au sujet.",
+            "1": "Deux ou trois parties sont annoncées mais leur contenu ne les distingue pas.",
+            "2": "Le plan répond au sujet ; la progression d'une partie à l'autre n'apparaît pas.",
+            "3": "Le plan répond au sujet et chaque partie prépare la suivante."
+          }
+        },
+        {
+          "code": "EXEMPLES",
+          "intitule": "Mobilisation des connaissances et des exemples",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun exemple n'est mobilisé.",
+            "1": "Des exemples sont cités par leur nom, sans être développés.",
+            "2": "Les exemples sont développés ; l'un d'eux ne sert pas l'argument qu'il accompagne.",
+            "3": "Chaque exemple est développé et sert explicitement l'argument qu'il accompagne."
+          }
+        },
+        {
+          "code": "CRITIQUE",
+          "intitule": "Exploitation critique du document",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Le document n'est pas mobilisé.",
+            "1": "Le document est cité sans être identifié ni discuté.",
+            "2": "Le document est identifié et exploité ; son point de vue n'est pas discuté.",
+            "3": "Le document est identifié, exploité, et son point de vue est discuté."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Bloc C de la version N1 : plan détaillé, sans rédaction complète (§ 7.11). Le sujet porte sur le thème des puissances et se traite avec les connaissances de Première. Le critère d'exploitation critique du document appartient à DOC et non à DISS (EC-08) : une difficulté de lecture de document doit conduire au module d'étude critique, non au module de dissertation. DISS conserve trois critères propriétaires. Le § 7.11 prévoit deux exercices au bloc C avec deux grilles distinctes ; ils sont ici réunis en une tâche unique dont la grille sert les deux compétences, selon le mécanisme validé pour EDS-SES (EC-14)."
+    },
+    {
+      "item_id": "HGGSP-T-DISS-02",
+      "competence": "DISS",
+      "niveau": "T",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 25,
+      "enonce": "Rédigez le **plan détaillé** — et non le développement — d'une dissertation sur le sujet : « l'espace, nouveau terrain de rivalités entre puissances ? ».\n\nVotre plan comportera : l'analyse des termes du sujet, la problématique, deux ou trois parties avec leurs arguments, et pour chaque argument l'exemple qui l'appuie. Vous mobiliserez le document du bloc C au moins une fois, en l'identifiant et en discutant son point de vue.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": null,
+      "grille": [
+        {
+          "code": "SUJET",
+          "intitule": "Analyse du sujet et problématique",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Le sujet est recopié : aucun terme n'est analysé.",
+            "1": "Les termes sont définis mais aucune question n'est dégagée.",
+            "2": "Une problématique est formulée ; elle ne couvre qu'une partie du sujet.",
+            "3": "Une problématique est formulée et elle couvre le sujet, bornes chronologiques et spatiales comprises."
+          }
+        },
+        {
+          "code": "PLAN",
+          "intitule": "Pertinence et cohérence du plan",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun plan n'apparaît, ou les parties juxtaposent des thèmes sans lien au sujet.",
+            "1": "Deux ou trois parties sont annoncées mais leur contenu ne les distingue pas.",
+            "2": "Le plan répond au sujet ; la progression d'une partie à l'autre n'apparaît pas.",
+            "3": "Le plan répond au sujet et chaque partie prépare la suivante."
+          }
+        },
+        {
+          "code": "EXEMPLES",
+          "intitule": "Mobilisation des connaissances et des exemples",
+          "competence": "DISS",
+          "descripteurs": {
+            "0": "Aucun exemple n'est mobilisé.",
+            "1": "Des exemples sont cités par leur nom, sans être développés.",
+            "2": "Les exemples sont développés ; l'un d'eux ne sert pas l'argument qu'il accompagne.",
+            "3": "Chaque exemple est développé et sert explicitement l'argument qu'il accompagne."
+          }
+        },
+        {
+          "code": "CRITIQUE",
+          "intitule": "Exploitation critique du document",
+          "competence": "DOC",
+          "descripteurs": {
+            "0": "Le document n'est pas mobilisé.",
+            "1": "Le document est cité sans être identifié ni discuté.",
+            "2": "Le document est identifié et exploité ; son point de vue n'est pas discuté.",
+            "3": "Le document est identifié, exploité, et son point de vue est discuté."
+          }
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Bloc C de la version NT, sur le thème « De nouveaux espaces de conquête » confirmé par la décision Q-11. Le sujet impose de relier deux thèmes du programme — les nouveaux espaces et les rivalités de puissance — ce qui distingue un candidat qui restitue un thème d'un candidat qui les articule. La consigne ajoute la discussion du point de vue, ce que le niveau 3 du critère critique attend."
+    },
+    {
+      "item_id": "HGGSP-1-DISS-03",
+      "competence": "DISS",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes de la construction d'une dissertation, en les numérotant de 1 à 4 : rédiger les paragraphes — analyser les termes du sujet — bâtir le plan — formuler la problématique.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'ordre est : analyser les termes (1), formuler la problématique (2), bâtir le plan (3), rédiger les paragraphes (4).",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont à leur place."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-PROBLEM",
+          "HGGSP-ERR-PLAN"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Item de bloc D de DISS, palier D1 : la méthode est restituée sans être mise en œuvre."
+    },
+    {
+      "item_id": "HGGSP-T-DISS-04",
+      "competence": "DISS",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Un candidat annonce : « nous verrons d'abord les acteurs, puis les enjeux, puis les conflits ». Indiquez pourquoi ce plan ne répond pas nécessairement à un sujet et ce qu'il faudrait vérifier.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce qu'il découpe le thème sans répondre à la question posée : il faudrait vérifier que chaque partie apporte un élément de réponse à la problématique et que leur succession construit une progression.",
+        "reponses_1pt": [
+          "Le défaut est signalé sans que soit indiqué ce qu'il faudrait vérifier.",
+          "La réponse propose un autre plan au lieu d'analyser celui-ci."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-PLAN",
+          "HGGSP-ERR-PROBLEM"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Item de bloc D de DISS, palier D2 : repérer un plan thématique qui ne répond pas au sujet, l'erreur la plus fréquente et la plus coûteuse en dissertation."
+    },
+    {
+      "item_id": "HGGSP-1-DOC-04",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Pour le document du bloc C, indiquer sa nature, sa source et sa date.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Un tableau de données statistiques, produit par le SIPRI, dans son édition 2024.",
+        "reponses_1pt": [
+          "Deux des trois éléments sont donnés.",
+          "Un seul élément est donné."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NATURE",
+          "HGGSP-ERR-CONTEXTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Identification appliquée au document de la tâche. Sa réussite isolée, en regard d'un échec au bloc C, indique que le candidat sait identifier mais pas exploiter."
+    },
+    {
+      "item_id": "HGGSP-1-DOC-05",
+      "competence": "DOC",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Un document statistique produit par un institut spécialisé :",
+      "supports": [],
+      "propositions": {
+        "A": "est nécessairement objectif",
+        "B": "repose sur des définitions et un périmètre qu'il faut connaître",
+        "C": "n'a aucune valeur scientifique",
+        "D": "reflète l'opinion de son auteur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "objectivité supposée acquise",
+          "C": "disqualification sans argument",
+          "D": "donnée statistique confondue avec une opinion"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Statut d'une donnée statistique. Les distracteurs A et C sont les deux excès symétriques : croire sans examen ou rejeter sans argument."
+    },
+    {
+      "item_id": "HGGSP-1-INFO-04",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux types d'acteurs qui produisent de l'information en ligne.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux types distincts parmi : les rédactions de presse, les institutions publiques, les entreprises, les organisations non gouvernementales, les particuliers, les comptes automatisés.",
+        "reponses_1pt": [
+          "Un seul type est cité, ou deux formulations désignent le même type."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-FAIT-OPINION",
+          "HGGSP-ERR-NOTION"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Restitution. Prépare l'évaluation de la fiabilité d'une source, qui suppose de savoir qui parle."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-09",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Expliquer en une phrase pourquoi un État peut être puissant sans être le plus riche.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la puissance combine plusieurs ressources — militaires, diplomatiques, culturelles, technologiques — dont la richesse n'est qu'une composante, et que leur mobilisation compte autant que leur volume.",
+        "reponses_1pt": [
+          "La pluralité des critères est affirmée sans qu'aucun ne soit nommé.",
+          "Un seul critère non économique est mentionné."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-EXEMPLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Transfert direct de HGGSP-1-CONN-03 qui demande les critères : la lecture croisée dit si le candidat sait les mobiliser dans un raisonnement."
+    },
+    {
+      "item_id": "HGGSP-2-REP-07",
+      "competence": "REP",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "A",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Distinguer en une phrase un État et une nation.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'État est une organisation politique et juridique exerçant la souveraineté sur un territoire ; la nation est une communauté humaine qui se reconnaît une appartenance commune, sans coïncider nécessairement avec un État.",
+        "reponses_1pt": [
+          "Une seule des deux notions est caractérisée.",
+          "La distinction est faite par des exemples et non par les notions."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-PARAPHRASE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Distinction fondatrice des thèmes sur la démocratie et sur les frontières. Sa méconnaissance rend inintelligible toute question sur les États-nations."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-10",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La notion de patrimoine immatériel désigne :",
+      "supports": [],
+      "propositions": {
+        "A": "les monuments non classés",
+        "B": "les pratiques, savoir-faire et expressions transmis au sein d'un groupe",
+        "C": "les archives numériques",
+        "D": "les biens privés"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "patrimoine matériel non protégé",
+          "C": "support technique confondu avec l'objet",
+          "D": "critère de propriété employé"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème du patrimoine. Le distracteur C est fréquent : le numérique est un support, non une catégorie patrimoniale."
+    },
+    {
+      "item_id": "HGGSP-T-CONN-11",
+      "competence": "CONN",
+      "niveau": "T",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 4,
+      "enonce": "Expliquer en une phrase pourquoi la mémoire d'un conflit peut évoluer alors que les faits, eux, ne changent pas.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Parce que la mémoire est portée par des groupes dont les préoccupations et le rapport au passé se transforment : ce sont la sélection des faits retenus et le sens qu'on leur donne qui changent, non les faits eux-mêmes.",
+        "reponses_1pt": [
+          "L'évolution est affirmée sans que la sélection ou le sens soient invoqués.",
+          "La réponse confond mémoire et connaissance historique."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-CONTEXTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Transfert direct de HGGSP-T-CONN-06 qui pose la distinction : la lecture croisée dit si le candidat sait l'employer."
+    },
+    {
+      "item_id": "HGGSP-T-DOC-06",
+      "competence": "DOC",
+      "niveau": "T",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Pour le document du bloc C, indiquer sa nature, sa source et sa date.",
+      "supports": [
+        {
+          "type": "tableau",
+          "code": "HGGSP-DOC-TAB",
+          "titre": "Document — Dépenses militaires des cinq premiers États, en milliards de dollars courants",
+          "source": "SIPRI, Military Expenditure Database, édition 2024 — https://milex.sipri.org/sipri (valeurs arrondies au milliard, dollars courants)",
+          "colonnes": [
+            "État",
+            "2013",
+            "2023"
+          ],
+          "lignes": [
+            [
+              "États-Unis",
+              "640",
+              "916"
+            ],
+            [
+              "Chine",
+              "179",
+              "296"
+            ],
+            [
+              "Russie",
+              "88",
+              "109"
+            ],
+            [
+              "Inde",
+              "47",
+              "84"
+            ],
+            [
+              "Arabie saoudite",
+              "67",
+              "76"
+            ]
+          ]
+        }
+      ],
+      "cle": {
+        "reponse_2pts": "Un tableau de données statistiques, produit par le SIPRI, dans son édition 2024.",
+        "reponses_1pt": [
+          "Deux des trois éléments sont donnés.",
+          "Un seul élément est donné."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NATURE",
+          "HGGSP-ERR-CONTEXTE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Identification appliquée, préalable à la discussion du point de vue demandée en version NT."
+    },
+    {
+      "item_id": "HGGSP-1-CONN-12",
+      "competence": "CONN",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": {
+        "N1": "B",
+        "NT": "A"
+      },
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Citer deux formes que peut prendre une frontière dans le monde contemporain.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Deux formes distinctes parmi : une frontière terrestre matérialisée, une frontière maritime, une frontière fermée et militarisée, une frontière ouverte au sein d'un espace d'intégration, une frontière contestée.",
+        "reponses_1pt": [
+          "Une seule forme est citée, ou deux formulations désignent la même forme."
+        ],
+        "codes_erreur": [
+          "HGGSP-ERR-NOTION",
+          "HGGSP-ERR-EXEMPLE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Restitution sur le thème des frontières, en appui de HGGSP-1-CONN-04 qui en demande le raisonnement."
+    },
+    {
+      "item_id": "HGGSP-1-INFO-05",
+      "competence": "INFO",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Recouper une information consiste à :",
+      "supports": [],
+      "propositions": {
+        "A": "la republier",
+        "B": "vérifier qu'une source indépendante la rapporte également",
+        "C": "la résumer",
+        "D": "en citer l'auteur"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "diffusion confondue avec vérification",
+          "C": "reformulation confondue avec vérification",
+          "D": "attribution confondue avec vérification"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0",
+      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Définition opératoire du recoupement. Le distracteur A est exactement le comportement que le thème « S'informer » vise à corriger."
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema": "nexus.referentiel.codes_erreur",
+  "version": "1.0-fixture",
+  "date": "2026-09-10",
+  "source": "FIXTURE",
+  "conventions": {
+    "format": "MATIERE-ERR-LIBELLE",
+    "usage": "Un item de type B référence uniquement des codes de ce catalogue. Un item peut ajouter un code au catalogue ; il n'en invente jamais un localement.",
+    "libelle": "Six mots au plus, descriptif d'un observable, sans jugement de valeur. Ce libellé est recopié tel quel dans la section « points de vigilance » du bilan : il passe le contrôle des termes bloquants.",
+    "description_observable": "Ce que le correcteur voit sur la copie, en une phrase. Ce n'est pas une cause supposée ni un conseil.",
+    "competences_concernees": "Codes du référentiel au format PERIMETRE/COMPETENCE, vérifiés par validate_referentiel.py."
+  },
+  "matieres": {
+    "FIX": {
+      "libelle": "Fixture",
+      "perimetres": [
+        "_FIXTURE"
+      ]
+    }
+  },
+  "codes": [
+    {
+      "code": "FIX-ERR-SIGNE",
+      "matiere": "FIX",
+      "libelle": "Erreur de signe",
+      "description_observable": "Un signe est modifié au cours du calcul.",
+      "competences_concernees": [
+        "_FIXTURE/CALC"
+      ],
+      "exemple": "−(x−3) développé en −x−3."
+    },
+    {
+      "code": "FIX-ERR-CALCUL",
+      "matiere": "FIX",
+      "libelle": "Calcul numérique inexact",
+      "description_observable": "Une opération ne donne pas le résultat attendu.",
+      "competences_concernees": [
+        "_FIXTURE/CALC"
+      ],
+      "exemple": "7×8 annoncé à 54."
+    },
+    {
+      "code": "FIX-ERR-ETAPE",
+      "matiere": "FIX",
+      "libelle": "Étape de calcul absente",
+      "description_observable": "Le résultat est donné sans étape intermédiaire.",
+      "competences_concernees": [
+        "_FIXTURE/CALC",
+        "_FIXTURE/NOTI",
+        "_FIXTURE/HORS",
+        "_FIXTURE/INTE"
+      ],
+      "exemple": "Réponse seule, aucun calcul."
+    },
+    {
+      "code": "FIX-ERR-DEF",
+      "matiere": "FIX",
+      "libelle": "Notion définie par un exemple",
+      "description_observable": "La définition est remplacée par un cas particulier.",
+      "competences_concernees": [
+        "_FIXTURE/NOTI"
+      ],
+      "exemple": "« C'est comme quand… »"
+    },
+    {
+      "code": "FIX-ERR-CONFUS",
+      "matiere": "FIX",
+      "libelle": "Notions voisines confondues",
+      "description_observable": "Deux notions du programme sont employées l'une pour l'autre.",
+      "competences_concernees": [
+        "_FIXTURE/NOTI",
+        "_FIXTURE/HORS"
+      ],
+      "exemple": "Terme A employé pour le terme B."
+    },
+    {
+      "code": "FIX-ERR-APPUI",
+      "matiere": "FIX",
+      "libelle": "Document non cité à l'appui",
+      "description_observable": "L'affirmation n'est étayée par aucun élément du document.",
+      "competences_concernees": [
+        "_FIXTURE/INTE",
+        "_FIXTURE/REDA"
+      ],
+      "exemple": "Trois affirmations, aucune citation."
+    },
+    {
+      "code": "FIX-ERR-CONNECT",
+      "matiere": "FIX",
+      "libelle": "Connecteur absent ou inadapté",
+      "description_observable": "Les étapes se succèdent sans lien explicite.",
+      "competences_concernees": [
+        "_FIXTURE/REDA"
+      ],
+      "exemple": "« En effet » introduisant une opposition."
+    },
+    {
+      "code": "FIX-ERR-HORSSUJ",
+      "matiere": "FIX",
+      "libelle": "Réponse décalée de la consigne",
+      "description_observable": "La réponse porte sur autre chose que ce qui est demandé.",
+      "competences_concernees": [
+        "_FIXTURE/REDA",
+        "_FIXTURE/INTE",
+        "_FIXTURE/HORS"
+      ],
+      "exemple": "Consigne sur l'axe X, réponse sur Y."
+    }
+  ]
+}

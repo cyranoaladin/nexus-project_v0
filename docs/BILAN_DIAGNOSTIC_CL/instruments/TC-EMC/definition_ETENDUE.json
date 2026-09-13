@@ -1,0 +1,177 @@
+{
+  "instrument": "TC-EMC",
+  "version": "ETENDUE",
+  "schema": "nexus.instrument.grille_coach",
+  "titre": "Grille d’entretien Enseignement moral et civique (EMC) — document coach",
+  "source_cahier": "Note de service transitoire MENE2531481N, note générale MENE2523743N du 25 août 2025, arrêtés du 13 juin 2024 ; modalité 2026-2027 marquée a_confirmer_reglementairement",
+  "avertissement": "Cet entretien évalue l’ensemble du cycle terminal (première et terminale) en enseignement moral et civique dans le cadre de l’évaluation ponctuelle de fin de cycle des candidats individuels. L’évaluation observe l’acquisition des repères civiques et institutionnels, la compréhension des valeurs républicaines et de la laïcité, la distinction entre faits et opinions ainsi que la qualité de l’expression orale et du dialogue républicain.",
+  "deroule": [
+    {
+      "phase": "Préparation",
+      "duree_min": 10,
+      "consigne_prononcee": "Voici le sujet d’étude et le dossier documentaire qui l’accompagne. Vous disposez du temps imparti pour préparer votre exposé et organiser vos notes. Vous pouvez annoter les documents."
+    },
+    {
+      "phase": "Exposé du candidat",
+      "duree_min": 7,
+      "consigne_prononcee": "Je vous écoute. Présentez votre analyse de la situation ou de la question posée en mobilisant les principes républicains et les repères civiques étudiés. Je ne vous interromprai pas."
+    },
+    {
+      "phase": "Entretien approfondi et élargissement",
+      "duree_min": 8,
+      "consigne_prononcee": "Merci. Nous engageons maintenant un échange au cours duquel je vais vous poser plusieurs questions pour approfondir votre réflexion et élargir la perspective aux enjeux du cycle terminal."
+    }
+  ],
+  "consignes_correcteur": [
+    "La grille est renseignée immédiatement après l’entretien, jamais de mémoire en fin de journée.",
+    "Chaque critère est noté de 0 à 3 d’après ce qui a été observé pendant l’épreuve, non d’après une impression d’ensemble.",
+    "Le total n’est jamais saisi : il est calculé depuis les critères.",
+    "Aucun commentaire libre n’est porté sur la grille ; les observations utiles passent par les codes d’erreur de la discipline."
+  ],
+  "criteres": [
+    {
+      "code": "INSTIT",
+      "intitule": "Identification et rôle des institutions de la République et principes de l’État de droit",
+      "competence": "CIVIQ",
+      "descripteurs": {
+        "0": "Aucune institution n’est identifiée ou les attributions mentionnées sont erronées.",
+        "1": "Les principales institutions républicaines sont nommées mais leur rôle demeure imprécis.",
+        "2": "Le rôle et les interactions des institutions sont décrits correctement ; une précision institutionnelle fait défaut.",
+        "3": "Les compétences institutionnelles, la séparation des pouvoirs et les garanties de l’État de droit sont clairement explicitées."
+      }
+    },
+    {
+      "code": "DROITS",
+      "intitule": "Maîtrise des libertés fondamentales et du cadre juridique républicain",
+      "competence": "CIVIQ",
+      "descripteurs": {
+        "0": "Les libertés fondamentales ne sont pas mobilisées ou sont confondues avec des autorisations particulières.",
+        "1": "Des droits fondamentaux sont mentionnés sans que leur cadre constitutionnel ou conventionnel ne soit établi.",
+        "2": "Le cadre juridique des libertés et leurs limitations légales sont énoncés de façon cohérente.",
+        "3": "L’articulation entre libertés individuelles, ordre public et protection juridictionnelle des droits est rigoureusement exposée."
+      }
+    },
+    {
+      "code": "REGLES",
+      "intitule": "Connaissance des règles constitutionnelles et du fonctionnement démocratique",
+      "competence": "CIVIQ",
+      "descripteurs": {
+        "0": "Les mécanismes de la démocratie représentative et le principe de souveraineté nationale ne sont pas abordés.",
+        "1": "Le principe du suffrage ou de la loi est évoqué de manière fragmentaire.",
+        "2": "Les principes démocratiques, le rôle du législateur et la hiérarchie des normes sont correctement restitués.",
+        "3": "Le fonctionnement démocratique, le contrôle de constitutionnalité et la participation citoyenne sont pleinement maîtrisés."
+      }
+    },
+    {
+      "code": "LAIC",
+      "intitule": "Compréhension et application du principe de laïcité",
+      "competence": "VAL",
+      "descripteurs": {
+        "0": "Le principe de laïcité est confondu avec l’interdiction de toute opinion religieuse ou mal défini.",
+        "1": "La laïcité est définie comme simple neutralité sans lien avec la liberté de conscience.",
+        "2": "La laïcité est présentée dans sa double dimension de liberté de conscience et de neutralité des services publics.",
+        "3": "Le cadre juridique et historique de la laïcité républicaine est mobilisé pour analyser une situation avec équilibre et rigueur."
+      }
+    },
+    {
+      "code": "VALREP",
+      "intitule": "Mobilisation des valeurs républicaines (liberté, égalité, fraternité, dignité)",
+      "competence": "VAL",
+      "descripteurs": {
+        "0": "Les valeurs de la devise républicaine ne sont pas articulées au propos.",
+        "1": "Les principes d’égalité ou de fraternité sont invoqués sans analyse de leur portée concrète.",
+        "2": "Les valeurs républicaines sont mobilisées et mises en relation avec l’idéal démocratique.",
+        "3": "La cohésion républicaine, l’égale dignité de chacun et l’intérêt général sont solidement fondés et illustrés."
+      }
+    },
+    {
+      "code": "SITUAT",
+      "intitule": "Analyse critique d’une situation concrète ou d’une controverse sociétale",
+      "competence": "VAL",
+      "descripteurs": {
+        "0": "La situation ou la controverse proposée n’est pas comprise dans ses enjeux civiques.",
+        "1": "La situation est résumée sans repérage des tensions entre droits ou principes concurrents.",
+        "2": "Les enjeux de la situation sont dégagés et mis en tension de manière objective.",
+        "3": "La situation fait l’objet d’un examen équilibré identifiant les principes en débat et les voies d’arbitrage républicaines."
+      }
+    },
+    {
+      "code": "DISTINC",
+      "intitule": "Distinction rigoureuse entre faits avérés, opinions et croyances",
+      "competence": "ARGU",
+      "descripteurs": {
+        "0": "Les opinions personnelles, croyances et faits vérifiés sont indistinctement confondus.",
+        "1": "Une distinction entre fait et commentaire est esquissée mais demeure fluctuante.",
+        "2": "La frontière entre données objectives et jugements d’opinion est explicitement maintenue.",
+        "3": "La distinction entre faits avérés, interprétations argumentées et jugements de valeur est constante et méthodique."
+      }
+    },
+    {
+      "code": "STRUCT",
+      "intitule": "Construction cohérente de l’argumentation civique",
+      "competence": "ARGU",
+      "descripteurs": {
+        "0": "L’exposé ne présente pas de fil conducteur ni d’enchaînement logique repérable.",
+        "1": "Une intention générale apparaît mais le raisonnement est discontinu.",
+        "2": "L’argumentation est structurée en étapes successives et parvient à une conclusion explicite.",
+        "3": "La démonstration est rigoureusement articulée, progressant d’un constat initial à une synthèse éclairée."
+      }
+    },
+    {
+      "code": "SOURCES",
+      "intitule": "Évaluation critique des sources et confrontation des points de vue",
+      "competence": "ARGU",
+      "descripteurs": {
+        "0": "Aucune référence à un support ou à une source d’information n’est formulée.",
+        "1": "Des éléments documentaires sont repris sans questionnement sur leur origine ou leur statut.",
+        "2": "La fiabilité des éléments avancés est examinée et appuyée sur des références vérifiables.",
+        "3": "L’origine des sources est analysée de manière critique et les points de vue opposés sont confrontés loyalement."
+      }
+    },
+    {
+      "code": "CLARTE",
+      "intitule": "Clarté de l’expression orale, précision du vocabulaire civique et posture",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "L’expression orale est inaudible ou entravée par des ruptures syntaxiques empêchant la compréhension.",
+        "1": "Le propos est compréhensible malgré des hésitations et un recours fréquent à un registre familier.",
+        "2": "L’élocution est fluide, la syntaxe correcte et le vocabulaire civique employé à bon escient.",
+        "3": "L’expression est soignée, le lexique juridique et civique est précis et le rythme de parole est maîtrisé."
+      }
+    },
+    {
+      "code": "DIALOG",
+      "intitule": "Écoute active, interaction avec le jury et capacité à nuancer son propos",
+      "competence": "ORAL",
+      "descripteurs": {
+        "0": "Le candidat refuse le dialogue ou n’entend pas les questions posées lors de l’entretien.",
+        "1": "Les réponses aux relances sont laconiques sans réel développement.",
+        "2": "Le dialogue est constructif, le candidat apporte des compléments précis aux interrogations du jury.",
+        "3": "L’interaction est dynamique, le candidat accueille les objections, précise son point de vue et sait nuancer sa position."
+      }
+    }
+  ],
+  "perimetres_alimentes": [
+    {
+      "perimetre": "TC-EMC",
+      "competence": "CIVIQ",
+      "note": "Critères INSTIT, DROITS et REGLES couvrant les connaissances civiques, juridiques et institutionnelles."
+    },
+    {
+      "perimetre": "TC-EMC",
+      "competence": "VAL",
+      "note": "Critères LAIC, VALREP et SITUAT portant sur les valeurs républicaines, la laïcité et l’analyse de situations."
+    },
+    {
+      "perimetre": "TC-EMC",
+      "competence": "ARGU",
+      "note": "Critères DISTINC, STRUCT et SOURCES portant sur l’argumentation civique et l’esprit critique."
+    },
+    {
+      "perimetre": "TC-EMC",
+      "competence": "ORAL",
+      "note": "Critères CLARTE et DIALOG portant sur l’expression orale et l’interaction lors de l’entretien."
+    }
+  ],
+  "audit_2026_09_12": "Création B10 pour couvrir l’évaluation ponctuelle d’enseignement moral et civique de fin de cycle (25 min). Note de service transitoire MENE2531481N échue, modalité 2026-2027 marquée a_confirmer_reglementairement."
+}

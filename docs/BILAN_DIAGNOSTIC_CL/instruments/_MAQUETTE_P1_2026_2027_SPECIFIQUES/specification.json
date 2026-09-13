@@ -1,0 +1,365 @@
+{
+  "schema": "nexus.maquette.specification",
+  "version": "1.0",
+  "date": "2026-09-11",
+  "source": "Mandat de la direction pédagogique du 2026-09-11, point 6 : éprouver de bout en bout le P1 opérationnel de la cohorte 2026-2027, sans spécialité mathématiques, avec MATH-EA/SPECIFIQUES et FR-EAF de la session 2028.",
+  "avertissement": "Quatrième jeu fictif. Il n'est pas une variante du jeu P1 existant : celui-ci relève de la cohorte 2025-2026 et reste au dépôt comme jeu de non-régression réglementaire. Celui-là est le P1 opérationnel — première en septembre 2026, épreuves anticipées en juin 2027, session finale 2028 — et il exerce la seule combinaison que le dépôt ne traversait pas : parcours mathématique « specifiques », groupe MATHEMATIQUES ouvert par le seul MATH-EA, et programme d'œuvres de la session 2028.",
+  "candidat": {
+    "reference": "CL-2026-0004",
+    "fictif": true,
+    "note": "Aucune passation réelle, aucun élément nominatif."
+  },
+  "attendus": [
+    {
+      "id": "W-01",
+      "demande": "P1 de la cohorte entrée en première en septembre 2026",
+      "regle_exercee": "modèle temporel à trois axes (D) — anticipation, session finale n+1",
+      "verifications": [
+        {
+          "type": "qp",
+          "champ": "profil",
+          "valeur": "P1"
+        },
+        {
+          "type": "qp",
+          "champ": "session_baccalaureat_finale",
+          "valeur": 2028
+        },
+        {
+          "type": "qp",
+          "champ": "annee_scolaire_passation_ea",
+          "valeur": "2026-2027"
+        },
+        {
+          "type": "qp",
+          "champ": "mode_passation_ea",
+          "valeur": "anticipation"
+        }
+      ]
+    },
+    {
+      "id": "W-02",
+      "demande": "Aucune spécialité mathématiques",
+      "regle_exercee": "sélection des instruments de spécialité par les spécialités déclarées",
+      "verifications": [
+        {
+          "type": "instrument_absent",
+          "code": "EDS-MATH"
+        },
+        {
+          "type": "perimetre_absent",
+          "perimetre": "EDS-MATH"
+        }
+      ]
+    },
+    {
+      "id": "W-03",
+      "demande": "Épreuve anticipée de mathématiques au sujet « mathématiques spécifiques de l'enseignement scientifique »",
+      "regle_exercee": "Q-24 — le parcours mathématique est dérivé des spécialités, jamais déclaré",
+      "verifications": [
+        {
+          "type": "instrument",
+          "perimetre": "MATH-EA",
+          "version": "SPECIFIQUES"
+        }
+      ]
+    },
+    {
+      "id": "W-04",
+      "demande": "Le groupe MATHEMATIQUES est ouvert par le seul MATH-EA et reste autonome",
+      "regle_exercee": "EC-28 — groupes de planification ; EC-31 — rang d'un groupe que le § 8.2 n'ordonne pas",
+      "verifications": [
+        {
+          "type": "groupe_membres",
+          "groupe": "MATHEMATIQUES",
+          "perimetres": [
+            "MATH-EA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "W-05",
+      "demande": "Le français est évalué sur le programme d'œuvres de la session 2028",
+      "regle_exercee": "session_baccalaureat_finale — le programme d'œuvres suit la session finale",
+      "verifications": [
+        {
+          "type": "instrument",
+          "perimetre": "FR-EAF",
+          "version": "standard_2028"
+        },
+        {
+          "type": "assemblage_session",
+          "code": "FR-EAF",
+          "session": 2028
+        }
+      ]
+    },
+    {
+      "id": "W-06",
+      "demande": "Le français n'est pas fragile : il reprend sa place après les spécialités, en accompagnement continu",
+      "regle_exercee": "EC-31 — épreuves anticipées si fragiles ; une épreuve au-dessus du seuil n'est pas promue",
+      "verifications": [
+        {
+          "type": "agregat",
+          "perimetre": "FR-EAF",
+          "cle": "global",
+          "min": 0.55,
+          "max": 0.7
+        },
+        {
+          "type": "rang_groupe",
+          "groupe": "FRANCAIS",
+          "rang": 5
+        }
+      ]
+    },
+    {
+      "id": "W-07",
+      "demande": "L'épreuve anticipée de mathématiques est la matière la plus fragile : elle passe avant les spécialités",
+      "regle_exercee": "EC-31 — décision de la direction du 2026-09-11 : une épreuve anticipée sous le seuil du niveau En consolidation est promue avant les spécialités, comme le français",
+      "verifications": [
+        {
+          "type": "agregat",
+          "perimetre": "MATH-EA",
+          "cle": "global",
+          "min": 0.35,
+          "max": 0.5
+        },
+        {
+          "type": "rang_groupe",
+          "groupe": "MATHEMATIQUES",
+          "rang": 1
+        }
+      ]
+    },
+    {
+      "id": "W-08",
+      "demande": "La spécialité jamais abordée ouvre les spécialités",
+      "regle_exercee": "§ 8.2 — départage des spécialités par gravité du module puis par score",
+      "verifications": [
+        {
+          "type": "rang_groupe",
+          "groupe": "EDS-SES",
+          "rang": 2
+        },
+        {
+          "type": "agregat",
+          "perimetre": "EDS-SES",
+          "cle": "global",
+          "min": 0.28,
+          "max": 0.42
+        }
+      ]
+    },
+    {
+      "id": "W-09",
+      "demande": "Les acquis du programme de seconde tiennent, alors que les notions du programme de première sont fragiles",
+      "regle_exercee": "§ 5.5 — taux de prérequis sur le bloc A ; le bloc A ne porte que des acquis antérieurs depuis le 2026-09-11",
+      "verifications": [
+        {
+          "type": "agregat",
+          "perimetre": "MATH-EA",
+          "cle": "prerequis",
+          "min": 0.75,
+          "max": 1.0
+        },
+        {
+          "type": "agregat",
+          "perimetre": "MATH-EA",
+          "cle": "global",
+          "min": 0.3,
+          "max": 0.5
+        },
+        {
+          "type": "module_entree",
+          "perimetre": "MATH-EA",
+          "module": "AUTO — Automatismes de calcul : taux d'évolution, calcul numérique et algébrique"
+        }
+      ]
+    }
+  ],
+  "cibles_par_competence": {
+    "FR-EAF/standard_2028": {
+      "COMP": 0.62,
+      "LANG": 0.58,
+      "ANAL": 0.6,
+      "ARGU": 0.6,
+      "REDA": 0.55,
+      "CULT": 0.67,
+      "GRAM": 0.62
+    },
+    "TC-ES/1RE": {
+      "DEM": 0.6,
+      "MAT": 0.55,
+      "SON": 0.5,
+      "ASTR": 0.45
+    },
+    "EDS-PC/N1": {
+      "QUANT": 0.6,
+      "MAT": 0.58,
+      "MOUV": 0.62,
+      "EXP": 0.55,
+      "RES": 0.55,
+      "ENER": 0.6,
+      "OND": 0.58
+    },
+    "EDS-SVT/N1": {
+      "SCI": 0.52,
+      "GEN": 0.5,
+      "TERR": 0.48,
+      "DOC": 0.55,
+      "REDA": 0.5,
+      "CORP": 0.5,
+      "ECO": 0.5
+    },
+    "EDS-SES/N1": {
+      "STAT": 0.35,
+      "ECO": 0.38,
+      "SOC": 0.4,
+      "MOB": 0.38,
+      "DOCU": 0.42,
+      "POL": 0.4,
+      "RAIS": 0.35
+    }
+  },
+  "auto_positionnement": {
+    "FR-EAF/standard_2028": {
+      "COMP": 3,
+      "LANG": 3,
+      "ANAL": 3,
+      "ARGU": 3,
+      "REDA": 2
+    },
+    "TC-ES/1RE": {
+      "DEM": 3,
+      "MAT": 3,
+      "SON": 3,
+      "ASTR": 2
+    },
+    "MATH-EA/SPECIFIQUES": {
+      "AUTO": 4,
+      "AUTOG": 4,
+      "PROBA": 4,
+      "EXACT": 4,
+      "RAIS": 3
+    },
+    "EDS-PC/N1": {
+      "QUANT": 3,
+      "MAT": 3,
+      "MOUV": 3,
+      "EXP": 3,
+      "RES": 3
+    },
+    "EDS-SVT/N1": {
+      "SCI": 3,
+      "GEN": 3,
+      "TERR": 3,
+      "DOC": 3,
+      "REDA": 3
+    },
+    "EDS-SES/N1": {
+      "STAT": 2,
+      "ECO": 2,
+      "SOC": 2,
+      "MOB": 2,
+      "DOCU": 2
+    }
+  },
+  "grilles_coach": {
+    "FR-EAF-ORAL/standard": {
+      "LECT": 2,
+      "EXPLI": 2,
+      "GRAMM": 1,
+      "ENTRET": 2,
+      "LANGOR": 2
+    }
+  },
+  "met": {
+    "MET-01": "b",
+    "MET-02": "b",
+    "MET-03": "a",
+    "MET-04": "b",
+    "MET-05": "b",
+    "MET-06": "a",
+    "MET-07": "c",
+    "MET-08": "b",
+    "MET-09": "b",
+    "MET-10": "a",
+    "MET-11": "c",
+    "MET-12": "b"
+  },
+  "cibles": {
+    "MATH-EA/SPECIFIQUES": {
+      "AUTO|A|D1|item": [
+        1,
+        1
+      ],
+      "AUTOG|A|D1|item": [
+        1,
+        1
+      ],
+      "EXACT|A|D1|item": [
+        3,
+        4
+      ],
+      "AUTO|B|D1|item": [
+        2,
+        4
+      ],
+      "AUTO|B|D2|item": [
+        1,
+        3
+      ],
+      "AUTOG|B|D1|item": [
+        1,
+        3
+      ],
+      "AUTOG|B|D2|item": [
+        1,
+        3
+      ],
+      "EXACT|B|D2|item": [
+        1,
+        4
+      ],
+      "PROBA|B|D1|item": [
+        2,
+        4
+      ],
+      "PROBA|B|D2|item": [
+        1,
+        4
+      ],
+      "EVOL|B|D1|item": [
+        3,
+        6
+      ],
+      "EVOL|B|D2|item": [
+        1,
+        4
+      ],
+      "INFO|B|D1|item": [
+        2,
+        4
+      ],
+      "INFO|B|D2|item": [
+        1,
+        4
+      ],
+      "RAIS|C|D3|critere": [
+        5,
+        12
+      ],
+      "EXACT|C|D3|critere": [
+        3,
+        6
+      ],
+      "RAIS|D|D2|item": [
+        1,
+        4
+      ]
+    }
+  },
+  "note_cibles_math_ea": "Cibles exactes, et non parts par compétence : le jeu doit montrer le cas que la séparation prérequis / partie officielle a rendu lisible — un candidat dont les acquis du programme de seconde tiennent (bloc A : 5 points sur 6) et dont les notions du programme de première sont fragiles. Avant cette séparation, l'échec sur les notions de première faisait chuter le taux de prérequis et envoyait le candidat en remise à niveau."
+}

@@ -1,0 +1,594 @@
+{
+  "instrument": "_FIXTURE",
+  "version": "1.0",
+  "avertissement": "FICTIF — instrument de test. Jamais assemblé dans un instrument réel, jamais remis à un candidat.",
+  "items": [
+    {
+      "item_id": "FIX-2-CALC-01",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Combien vaut 3 × 7 ?",
+      "supports": [],
+      "propositions": {
+        "A": "10",
+        "B": "21",
+        "C": "3,7",
+        "D": "24"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "table de 3 confondue avec celle de 7",
+          "C": "addition au lieu du produit",
+          "D": "erreur de report"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-2-CALC-02",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le signe de $-(2-5)$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "positif",
+        "B": "négatif",
+        "C": "nul",
+        "D": "indéterminé"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "parenthèse développée sans changer les signes",
+          "C": "soustraction inversée",
+          "D": "valeur absolue prise par défaut"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-2-CALC-03",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle écriture est égale à $\\dfrac{2}{4}$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "$\\dfrac{6}{8}$",
+        "B": "$\\dfrac{2}{8}$",
+        "C": "$\\dfrac{1}{2}$",
+        "D": "$\\dfrac{4}{2}$"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "numérateur et dénominateur additionnés",
+          "B": "seul le numérateur simplifié",
+          "D": "fraction inversée"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-2-CALC-04",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Développer $(x+1)(x-1)$ donne :",
+      "supports": [],
+      "propositions": {
+        "A": "$x^2 + 1$",
+        "B": "$x^2 - 1$",
+        "C": "$x^2 + 2x + 1$",
+        "D": "$x^2 + 2x - 1$"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "double produit oublié",
+          "C": "signe du dernier terme conservé",
+          "D": "identité confondue avec le carré d'une somme"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-2-CALC-05",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Résoudre $2x + 4 = 0$ donne :",
+      "supports": [],
+      "propositions": {
+        "A": "$x = -2$",
+        "B": "$x = 2$",
+        "C": "$x = -4$",
+        "D": "$x = 4$"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "signe non changé au passage à l'autre membre",
+          "C": "division oubliée",
+          "D": "terme constant ignoré"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-2-CALC-06",
+      "competence": "CALC",
+      "niveau": "2",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "A",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quel est le coefficient de $x$ dans $5 - 3x$ ?",
+      "supports": [],
+      "propositions": {
+        "A": "$3$",
+        "B": "$5$",
+        "C": "$-3$",
+        "D": "$x$"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "signe omis",
+          "B": "terme constant pris pour coefficient",
+          "D": "coefficient lu comme exposant"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-1-NOTI-01",
+      "competence": "NOTI",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "La notion étudiée se définit par :",
+      "supports": [],
+      "propositions": {
+        "A": "une illustration du cours",
+        "B": "un genre et une différence propre",
+        "C": "un exemple bien choisi",
+        "D": "une de ses conséquences"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "définition d'une notion voisine",
+          "C": "exemple donné pour définition",
+          "D": "propriété prise pour définition"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-1-NOTI-02",
+      "competence": "NOTI",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Définir la notion en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase énonçant le genre prochain et la différence spécifique.",
+        "reponses_1pt": [
+          "Une phrase correcte mais incomplète sur la différence spécifique."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-DEF",
+          "FIX-ERR-CONFUS"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type B, liste fermée de codes d'erreur."
+    },
+    {
+      "item_id": "FIX-1-NOTI-03",
+      "competence": "NOTI",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans le cas proposé, la notion s'applique-t-elle ?",
+      "supports": [],
+      "propositions": {
+        "A": "oui, le critère d'application est vérifié",
+        "B": "non, le cas est hors du champ",
+        "C": "oui, par analogie avec le cours",
+        "D": "on ne peut pas le savoir"
+      },
+      "cle": {
+        "reponse": "A",
+        "distracteurs": {
+          "B": "critère d'application ignoré",
+          "C": "notion voisine appliquée",
+          "D": "réponse fondée sur l'exemple du cours"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-1-NOTI-04",
+      "competence": "NOTI",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Justifier en une phrase pourquoi la notion s'applique ici.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase reliant le critère d'application au cas proposé.",
+        "reponses_1pt": [
+          "Une phrase citant le critère sans le relier au cas."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-CONFUS",
+          "FIX-ERR-ETAPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type B, liste fermée de codes d'erreur."
+    },
+    {
+      "item_id": "FIX-1-HORS-01",
+      "competence": "HORS",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Quelle proposition correspond à la notion hors version réduite ?",
+      "supports": [],
+      "propositions": {
+        "A": "la proposition du bloc précédent",
+        "B": "une définition partielle",
+        "C": "la propriété et sa condition d'emploi",
+        "D": "un contre-exemple"
+      },
+      "cle": {
+        "reponse": "C",
+        "distracteurs": {
+          "A": "notion du bloc précédent",
+          "B": "définition partielle",
+          "D": "contre-exemple pris pour exemple"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-1-HORS-02",
+      "competence": "HORS",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Énoncer la propriété en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase énonçant la propriété et sa condition d'emploi.",
+        "reponses_1pt": [
+          "Une phrase énonçant la propriété sans sa condition."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-CONFUS",
+          "FIX-ERR-ETAPE"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type B, liste fermée de codes d'erreur."
+    },
+    {
+      "item_id": "FIX-1-HORS-03",
+      "competence": "HORS",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "A",
+      "bloc": "B",
+      "score_max": 1,
+      "duree_min": 1,
+      "enonce": "Dans le cas proposé, la propriété s'applique-t-elle ?",
+      "supports": [],
+      "propositions": {
+        "A": "oui, sans condition",
+        "B": "non, la condition n'est pas remplie",
+        "C": "oui, par une propriété voisine",
+        "D": "le cas du cours suffit à conclure"
+      },
+      "cle": {
+        "reponse": "B",
+        "distracteurs": {
+          "A": "condition d'emploi ignorée",
+          "C": "propriété voisine invoquée",
+          "D": "réponse fondée sur le cas du cours"
+        }
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type A, un point, une seule bonne réponse."
+    },
+    {
+      "item_id": "FIX-1-HORS-04",
+      "competence": "HORS",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "B",
+      "score_max": 2,
+      "duree_min": 2,
+      "enonce": "Justifier la réponse précédente en une phrase.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Une phrase vérifiant la condition d'emploi sur le cas proposé.",
+        "reponses_1pt": [
+          "Une phrase affirmant la condition sans la vérifier."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-CONFUS",
+          "FIX-ERR-HORSSUJ"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type B, liste fermée de codes d'erreur."
+    },
+    {
+      "item_id": "FIX-1-REDA-01",
+      "competence": "REDA",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 12,
+      "duree_min": 20,
+      "enonce": "À partir du document fourni, rédigez un paragraphe d'une quinzaine de lignes répondant à l'axe : « en quoi le document éclaire-t-il la notion étudiée ? »",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "IDEE",
+          "intitule": "Idée directrice",
+          "descripteurs": {
+            "0": "Aucune idée directrice n'est formulée.",
+            "1": "Une idée est annoncée mais le paragraphe traite d'autre chose.",
+            "2": "Une idée directrice est formulée et tenue sur la moitié du paragraphe.",
+            "3": "Une idée directrice est formulée en ouverture et tenue jusqu'à la fin."
+          },
+          "competence": "REDA"
+        },
+        {
+          "code": "APPUI",
+          "intitule": "Appui sur le document",
+          "descripteurs": {
+            "0": "Le document n'est pas cité.",
+            "1": "Le document est cité sans être commenté.",
+            "2": "Une citation est commentée, les autres sont juxtaposées.",
+            "3": "Chaque citation est introduite puis commentée."
+          },
+          "competence": "REDA"
+        },
+        {
+          "code": "STRU",
+          "intitule": "Structure et connecteurs",
+          "descripteurs": {
+            "0": "Les phrases se succèdent sans lien.",
+            "1": "Un connecteur est employé, les autres transitions manquent.",
+            "2": "Les étapes sont reliées, une transition reste implicite.",
+            "3": "Chaque étape est reliée à la précédente par un connecteur adapté."
+          },
+          "competence": "NOTI"
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "descripteurs": {
+            "0": "La phrase ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction.",
+            "2": "La construction est correcte, le lexique reste approximatif.",
+            "3": "La construction et le lexique sont corrects tout au long."
+          },
+          "competence": "LANG"
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type C, total calculé depuis les critères."
+    },
+    {
+      "item_id": "FIX-1-REDA-02",
+      "competence": "REDA",
+      "niveau": "1",
+      "palier": "D2",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Voici un paragraphe rédigé par un autre candidat. Indiquez l'étape qui manque et citez le mot du paragraphe qui le montre.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "L'étape manquante est nommée et un mot du paragraphe est cité à l'appui.",
+        "reponses_1pt": [
+          "L'étape manquante est nommée sans citation."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-CONNECT",
+          "FIX-ERR-APPUI"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de bloc D d'une compétence de production — repérer l'erreur dans une production fournie, palier D2, complément exigé par la règle de couverture des productions."
+    },
+    {
+      "item_id": "FIX-1-INTE-01",
+      "competence": "INTE",
+      "niveau": "1",
+      "palier": "D3",
+      "type": "C",
+      "bloc": "C",
+      "score_max": 9,
+      "duree_min": 15,
+      "enonce": "Répondez en une dizaine de lignes à la question d'interprétation posée sous le document.",
+      "supports": [],
+      "cle": null,
+      "grille": [
+        {
+          "code": "COMP",
+          "intitule": "Compréhension du document",
+          "descripteurs": {
+            "0": "Le document n'est pas compris.",
+            "1": "Le sens général est saisi, un contresens subsiste sur un passage.",
+            "2": "Le sens général et les passages sont compris, un implicite est manqué.",
+            "3": "Le sens général, les passages et les implicites sont restitués."
+          },
+          "competence": "INTE"
+        },
+        {
+          "code": "APPUI",
+          "intitule": "Appui sur le document",
+          "descripteurs": {
+            "0": "Aucun élément du document n'est relevé.",
+            "1": "Un élément est relevé sans être exploité.",
+            "2": "Plusieurs éléments sont relevés, un seul est exploité.",
+            "3": "Chaque élément relevé est exploité au service de la réponse."
+          },
+          "competence": "INTE"
+        },
+        {
+          "code": "LANG",
+          "intitule": "Langue",
+          "descripteurs": {
+            "0": "La phrase ne permet pas d'identifier ce qui est affirmé.",
+            "1": "Le sens se reconstitue malgré des ruptures de construction.",
+            "2": "La construction est correcte, le lexique reste approximatif.",
+            "3": "La construction et le lexique sont corrects tout au long."
+          },
+          "competence": "LANG"
+        }
+      ],
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de type C, total calculé depuis les critères."
+    },
+    {
+      "item_id": "FIX-1-INTE-02",
+      "competence": "INTE",
+      "niveau": "1",
+      "palier": "D1",
+      "type": "B",
+      "bloc": "D",
+      "score_max": 2,
+      "duree_min": 3,
+      "enonce": "Remettez dans l'ordre les quatre étapes d'une réponse d'interprétation, en les numérotant de 1 à 4.",
+      "supports": [],
+      "cle": {
+        "reponse_2pts": "Les quatre étapes sont numérotées dans l'ordre attendu.",
+        "reponses_1pt": [
+          "Trois étapes sur quatre sont dans l'ordre attendu."
+        ],
+        "codes_erreur": [
+          "FIX-ERR-ETAPE",
+          "FIX-ERR-HORSSUJ"
+        ]
+      },
+      "grille": null,
+      "auteur": "claude-opus",
+      "date": "2026-09-10",
+      "source_version": "1.0-fixture",
+      "notes_conception": "Fixture : item de bloc D d'une compétence de production — ordonner les étapes, palier D1, second palier exigé par la règle de couverture des productions."
+    }
+  ]
+}

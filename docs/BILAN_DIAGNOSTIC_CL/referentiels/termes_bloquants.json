@@ -1,0 +1,512 @@
+{
+  "schema": "nexus.referentiel.termes_bloquants",
+  "version": "1.1",
+  "date": "2026-09-10",
+  "source": "Cahier § 8.3 (liste bloquante), § 6.3 (contrôle V-Texte), § 1.1 (aucune promesse) ; décisions D1 à D3 de la direction pédagogique, 2026-09-10",
+  "statut": "Liste ouverte. La direction pédagogique en reste propriétaire ; toute expression ajoutée par le concepteur est signalée dans le rapport de la porte où elle est ajoutée.",
+  "conventions": {
+    "principe": "Une expression interdite se décrit par des motifs littéraux et, si nécessaire, des expressions régulières couvrant les personnes et les tournures nominales. Un motif d'un seul mot n'est admis que si ses contextes interdits se limitent à la prose de bilan et aux descripteurs de grille, où aucun énoncé disciplinaire ne peut apparaître.",
+    "normalisation": "Minuscules, accents retirés, espaces réduits. Les motifs littéraux, les expressions régulières et les exceptions sont écrits sous cette forme normalisée et comparés au texte normalisé.",
+    "categories": {
+      "jugement": "Porte une appréciation sur le candidat plutôt que sur un observable",
+      "anxiogene": "Installe une urgence ou une fatalité",
+      "pronostic": "Annonce un résultat futur",
+      "comparaison": "Situe le candidat par rapport à d'autres",
+      "garantie": "Promet un résultat",
+      "minimisation": "Présente l'effort attendu comme négligeable"
+    },
+    "contextes": {
+      "enonce_candidat": "Énoncés, consignes et supports remis au candidat",
+      "descripteur_grille": "Descripteurs des grilles de type C, à chacun des quatre niveaux",
+      "libelle_code_erreur": "Libellés du catalogue des codes d'erreur, recopiés dans les points de vigilance du bilan",
+      "prose_bilan": "Texte du bilan remis au candidat et à la famille",
+      "cle_correcteur": "Clé de correction et consignes d'harmonisation, lues par le seul correcteur habilité"
+    },
+    "controle": {
+      "contexte_caracteres": 60,
+      "regle": "Le validateur signale chaque occurrence avec 60 caractères de contexte de part et d'autre. Une occurrence dont la fenêtre de contexte satisfait une exception applicable au périmètre courant passe ; toute autre occurrence bloque.",
+      "exception_forme": "Une exception est une expression régulière testable, assortie de la liste des périmètres où elle s'applique et d'un « exemple » : un texte réel où l'exception sert. Le validateur vérifie que cet exemple déclenche bien un motif de l'expression parente et qu'il est bien couvert par l'exception. Une exception dont l'exemple ne déclenche aucun motif est décorative : elle est refusée. Une exception qui ne peut pas s'écrire ainsi n'existe pas ; le cas est arbitré à l'occurrence.",
+      "exceptions": "Aucune liste blanche silencieuse : toute exception ajoutée est listée dans le rapport de la porte."
+    }
+  },
+  "expressions": [
+    {
+      "motif": "en echec",
+      "categorie": "jugement",
+      "variantes": [
+        "situation d'echec",
+        "echec scolaire",
+        "voue a l'echec",
+        "risque d'echec",
+        "echec previsible",
+        "voues a l'echec"
+      ],
+      "regex": [
+        "\\b(vous|il|elle|ils|elles|le candidat|les candidats|l'eleve|les eleves|votre enfant|vos enfants|l'enfant)\\b[^.]{0,30}\\b(en|dans une situation d')\\s?echec",
+        "\\b(vous|il|elle|ils|elles|le candidat|les candidats|l'eleve|les eleves|votre enfant|vos enfants|l'enfant)\\b[^.]{0,30}\\bechou\\w*",
+        "\\brisque[nz]? d'echouer\\b",
+        "\\ba\\w* echoue\\b"
+      ],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [
+        {
+          "regex": "\\b(test|tests|protocole|montage|essai|compilation|requete|transformation|reaction)\\b[^.]{0,25}\\ben echec\\b",
+          "perimetres": [
+            "EDS-PC",
+            "EDS-SVT",
+            "TC-ES",
+            "EDS-NSI"
+          ],
+          "justification": "Un test automatisé, un montage ou une transformation qui n'aboutit pas est dit « en échec » dans les énoncés de NSI et de sciences expérimentales.",
+          "exemple": "le test unitaire est en echec apres la modification de la fonction"
+        }
+      ],
+      "source": "Cahier § 8.3",
+      "note": "Le mot « échec » seul n'est pas contrôlé : il a des emplois disciplinaires (« l'échec du protocole s'explique par… »), qu'aucun motif n'atteint. Les tournures visant le candidat le sont, au singulier et au pluriel, aux formes nominales comme verbales. Seule « … est en échec » entre en collision avec un emploi technique : d'où l'exception."
+    },
+    {
+      "motif": "retard scolaire",
+      "categorie": "jugement",
+      "variantes": [
+        "retard irrattrapable",
+        "retard important",
+        "retard considerable",
+        "retard consequent",
+        "trop de retard",
+        "en retard sur le programme",
+        "en retard sur son programme"
+      ],
+      "regex": [
+        "\\b(prend|prends|prenez|prennent|pris|accumule|accumulez|accumulent|a|as|avez|ont|avait|avaient)\\b\\s+(du|un|beaucoup de|trop de)\\s+retard",
+        "\\b(vous|il|elle|ils|elles|le candidat|les candidats|l'eleve|les eleves|votre enfant|vos enfants|l'enfant)\\b[^.]{0,30}\\ben retard\\b"
+      ],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3",
+      "note": "Le mot « retard » seul n'est pas contrôlé : c'est une grandeur au programme de physique (retard de propagation) et un terme de réseaux. Aucun motif de cette expression ne matche ces emplois : la précision des motifs suffit, aucune exception n'est nécessaire."
+    },
+    {
+      "motif": "lacune",
+      "categorie": "jugement",
+      "variantes": [
+        "lacunes",
+        "lacune grave",
+        "lacunes graves",
+        "graves lacunes",
+        "lacune importante",
+        "lacunes importantes",
+        "combler ses lacunes"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [
+        {
+          "regex": "lacune (stratigraphique|sedimentaire)",
+          "perimetres": [
+            "EDS-SVT",
+            "TC-ES"
+          ],
+          "justification": "La lacune stratigraphique est une notion de géologie au programme.",
+          "exemple": "la coupe presente une lacune stratigraphique entre les deux couches"
+        }
+      ],
+      "source": "Décision D3 de la direction, 2026-09-10",
+      "note": "Motif d'un seul mot, admis parce que ses contextes interdits excluent les énoncés candidat."
+    },
+    {
+      "motif": "niveau insuffisant",
+      "categorie": "jugement",
+      "variantes": [
+        "insuffisant",
+        "insuffisante",
+        "insuffisants",
+        "insuffisantes",
+        "niveau tres faible",
+        "niveau catastrophique",
+        "niveau alarmant",
+        "niveau preoccupant"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 ; décision D3",
+      "note": "« insuffisant » est proscrit dans les descripteurs : un descripteur décrit un comportement observable, jamais un verdict."
+    },
+    {
+      "motif": "faible",
+      "categorie": "jugement",
+      "variantes": [
+        "faibles",
+        "faiblesse",
+        "faiblesses",
+        "tres faible"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [
+        {
+          "regex": "(intensite|concentration|champ|signal|amplitude|dose|pression|frequence|puissance|eclairement) (tres )?faible",
+          "perimetres": [
+            "EDS-PC",
+            "EDS-SVT",
+            "TC-ES"
+          ],
+          "justification": "Grandeur physique ou biologique qualifiée de faible dans un descripteur d'exploitation de données.",
+          "exemple": "le capteur delivre un signal faible en fin de mesure"
+        },
+        {
+          "regex": "faible (intensite|concentration|amplitude|dose|pression|frequence|puissance|effectif|eclairement)",
+          "perimetres": [
+            "EDS-PC",
+            "EDS-SVT",
+            "TC-ES",
+            "EDS-SES"
+          ],
+          "justification": "Même emploi, ordre inverse ; « faible effectif » est un terme de lecture de tableau en SES.",
+          "exemple": "la solution presente une faible concentration en ions"
+        }
+      ],
+      "source": "Décision D3"
+    },
+    {
+      "motif": "mauvais",
+      "categorie": "jugement",
+      "variantes": [
+        "mauvaise",
+        "mauvaises",
+        "tres mauvais",
+        "mediocre",
+        "mediocres"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Décision D3"
+    },
+    {
+      "motif": "incapable",
+      "categorie": "jugement",
+      "variantes": [
+        "incapables",
+        "incapacite",
+        "n'est pas capable",
+        "n'est pas en mesure",
+        "ne maitrise rien",
+        "ne sait rien",
+        "ne comprend rien"
+      ],
+      "regex": [
+        "\\b(vous|il|elle|ils|elles|le candidat|les candidats|l'eleve|les eleves|votre enfant|vos enfants|l'enfant)\\b[^.]{0,20}\\b(ne|n')\\s?(saura|sait|savent|pourra|pourront|peut|peuvent)\\s+pas\\b"
+      ],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 ; décision D3",
+      "note": "Un descripteur décrit ce que la copie montre (« cite le texte mais ne l'analyse pas »), jamais une incapacité du candidat."
+    },
+    {
+      "motif": "difficulte grave",
+      "categorie": "jugement",
+      "variantes": [
+        "graves difficultes",
+        "difficultes graves",
+        "probleme grave",
+        "graves problemes",
+        "situation grave"
+      ],
+      "regex": [
+        "grave[s]?\\s+(difficulte|lacune|probleme|retard)",
+        "(difficulte|lacune|probleme|retard)[s]?\\s+(tres\\s+)?grave"
+      ],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 ; décision D3",
+      "note": "Le mot « grave » n'est contrôlé qu'appliqué à une difficulté, conformément à la décision D3."
+    },
+    {
+      "motif": "ne pourra pas",
+      "categorie": "anxiogene",
+      "variantes": [
+        "ne pourra jamais",
+        "n'y arrivera pas",
+        "n'a aucune chance",
+        "aucune chance de",
+        "c'est perdu",
+        "il faut tout reprendre",
+        "tout est a reprendre",
+        "trop juste"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Décision D3"
+    },
+    {
+      "motif": "dans l'urgence",
+      "categorie": "anxiogene",
+      "variantes": [
+        "situation d'urgence",
+        "il y a urgence",
+        "urgence absolue",
+        "de toute urgence"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3"
+    },
+    {
+      "motif": "derniere chance",
+      "categorie": "anxiogene",
+      "variantes": [
+        "ultime chance",
+        "seule chance",
+        "dernier recours"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3"
+    },
+    {
+      "motif": "trop tard",
+      "categorie": "anxiogene",
+      "variantes": [
+        "il est trop tard",
+        "plus le temps",
+        "n'aura pas le temps"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Décision D1 de la direction, 2026-09-10"
+    },
+    {
+      "motif": "vous reussirez",
+      "categorie": "pronostic",
+      "variantes": [
+        "vous obtiendrez",
+        "vous aurez la moyenne",
+        "vous decrocherez",
+        "vous validerez",
+        "il reussira",
+        "elle reussira",
+        "le candidat obtiendra"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 1.1 et § 8.3"
+    },
+    {
+      "motif": "vous risquez de",
+      "categorie": "pronostic",
+      "variantes": [
+        "vous risquez d'",
+        "il est probable que vous",
+        "vous n'obtiendrez pas",
+        "vous echouerez",
+        "risque de ne pas obtenir"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 1.1 et § 8.3"
+    },
+    {
+      "motif": "note prevue",
+      "categorie": "pronostic",
+      "variantes": [
+        "note previsible",
+        "note attendue au bac",
+        "pronostic de note",
+        "estimation de note",
+        "note probable",
+        "note escomptee"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 (aucune note prédite)"
+    },
+    {
+      "motif": "chances de reussite",
+      "categorie": "pronostic",
+      "variantes": [
+        "probabilite de reussite",
+        "taux de reussite",
+        "pourcentage de reussite"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 (aucun pourcentage de réussite)"
+    },
+    {
+      "motif": "la plupart des candidats",
+      "categorie": "comparaison",
+      "variantes": [
+        "les autres candidats",
+        "comparativement aux candidats",
+        "par rapport aux autres eleves",
+        "la moyenne des candidats",
+        "comme la majorite des eleves"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3 (aucune comparaison à d'autres candidats)"
+    },
+    {
+      "motif": "meilleur que",
+      "categorie": "comparaison",
+      "variantes": [
+        "moins bon que",
+        "au-dessus de la moyenne",
+        "en dessous de la moyenne",
+        "dans la moyenne des"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 8.3"
+    },
+    {
+      "motif": "se classe",
+      "categorie": "comparaison",
+      "variantes": [
+        "se situe parmi les",
+        "rang parmi",
+        "classe parmi les"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 1 (« il ne classe pas ») et § 8.3",
+      "note": "Le mot « classement » seul n'est pas contrôlé : c'est une opération de tri en SES et en NSI."
+    },
+    {
+      "motif": "garantie de reussite",
+      "categorie": "garantie",
+      "variantes": [
+        "nous garantissons",
+        "resultat garanti",
+        "succes assure",
+        "assure d'obtenir",
+        "certain de reussir",
+        "reussite assuree"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Cahier § 1.1 (ni garantie de résultat)"
+    },
+    {
+      "motif": "il suffit de",
+      "categorie": "minimisation",
+      "variantes": [
+        "il suffit d'",
+        "vous n'avez qu'a",
+        "c'est facile",
+        "c'est simple",
+        "sans difficulte",
+        "en un rien de temps"
+      ],
+      "regex": [],
+      "contexte_interdit": [
+        "descripteur_grille",
+        "enonce_candidat",
+        "libelle_code_erreur",
+        "prose_bilan"
+      ],
+      "exceptions_domaine": [],
+      "source": "Décision D2 de la direction, 2026-09-10",
+      "note": "La clé correcteur est exemptée : « il suffit de factoriser » y est une instruction technique légitime."
+    }
+  ]
+}

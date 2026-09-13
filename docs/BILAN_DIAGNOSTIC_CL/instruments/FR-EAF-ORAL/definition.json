@@ -1,0 +1,169 @@
+{
+  "instrument": "FR-EAF-ORAL",
+  "version": "standard",
+  "schema": "nexus.instrument.grille_coach",
+  "titre": "Épreuve orale anticipée de français — document coach",
+  "source_cahier": "§ 3.1 et § 7.1 ; instrument créé par la décision Q-20 du 2026-09-10, en remplacement de FR-ORAL (EC-24)",
+  "avertissement": "Cet entretien mesure l'oral de l'épreuve anticipée dans son exercice réel : explication linéaire, question de grammaire, entretien sur une œuvre. Il remplace l'entretien court de langue parlée, dont les critères sont repris ici. Aucune note d'examen n'est produite. L'extrait remis au candidat est tiré du « Misanthrope » : aucun autre instrument du dispositif ne l'emploie, de sorte qu'un candidat qui passe plusieurs diagnostics la même période ne retrouve jamais deux fois le même texte.",
+  "supports": [
+    {
+      "titre": "Extrait remis au candidat",
+      "forme": "vers",
+      "repliques": [
+        {
+          "locuteur": "Philinte",
+          "vers": [
+            "Je suis donc bien coupable, Alceste, à votre compte ?"
+          ]
+        },
+        {
+          "locuteur": "Alceste",
+          "vers": [
+            "Allez, vous devriez mourir de pure honte ;",
+            "Une telle action ne sauroit s’excuser,",
+            "Et tout homme d’honneur s’en doit scandaliser.",
+            "Je vous vois accabler un homme de caresses,",
+            "Et témoigner pour lui les dernières tendresses ;",
+            "De protestations, d’offres, et de serments,",
+            "Vous chargez la fureur de vos embrassements :",
+            "Et quand je vous demande après quel est cet homme,",
+            "À peine pouvez-vous dire comme il se nomme ;"
+          ]
+        }
+      ],
+      "texte": "Philinte\nJe suis donc bien coupable, Alceste, à votre compte ?\nAlceste\nAllez, vous devriez mourir de pure honte ;\nUne telle action ne sauroit s’excuser,\nEt tout homme d’honneur s’en doit scandaliser.\nJe vous vois accabler un homme de caresses,\nEt témoigner pour lui les dernières tendresses ;\nDe protestations, d’offres, et de serments,\nVous chargez la fureur de vos embrassements :\nEt quand je vous demande après quel est cet homme,\nÀ peine pouvez-vous dire comme il se nomme ;",
+      "reference": "Molière, « Le Misanthrope », acte I, scène 1, texte établi par Charles Louandre, Charpentier, 1910 — domaine public.",
+      "edition": "Charpentier, 1910, texte établi par Charles Louandre, tome II, p. 170-188",
+      "source_texte": "moliere"
+    }
+  ],
+  "deroule": [
+    {
+      "phase": "Remise du texte et préparation",
+      "duree_min": 10,
+      "consigne_prononcee": "Voici un extrait et la question de grammaire qui l'accompagne. Vous avez dix minutes pour préparer votre explication linéaire et votre réponse. Vous pouvez annoter le texte et prendre des notes ; vous garderez ces notes sous les yeux pendant l'épreuve. Je vous préviendrai à la fin des dix minutes."
+    },
+    {
+      "phase": "Explication linéaire",
+      "duree_min": 5,
+      "consigne_prononcee": "Je vous écoute. Expliquez l'extrait en suivant son déroulement, et dites ce que chaque étape apporte au sens. Vous avez cinq minutes ; je ne vous interromprai pas."
+    },
+    {
+      "phase": "Question de grammaire",
+      "duree_min": 1,
+      "consigne_prononcee": "Répondez maintenant à la question de grammaire portant sur la phrase indiquée dans le texte."
+    },
+    {
+      "phase": "Entretien sur une œuvre lue",
+      "duree_min": 4,
+      "consigne_prononcee": "Présentez une œuvre que vous avez lue et dites pourquoi vous la choisiriez pour l'entretien. Je vous poserai ensuite quelques questions."
+    }
+  ],
+  "consignes_correcteur": [
+    "La grille est renseignée immédiatement après le départ du candidat, jamais de mémoire en fin de journée. Ce temps de renseignement est celui du coach : il n'entre pas dans les vingt minutes de passation, à la différence de la grille d'entretien Grand oral, dont le déroulé le compte.",
+    "Chaque critère est noté de 0 à 3 d'après ce qui a été observé pendant la phase correspondante, non d'après une impression d'ensemble.",
+    "Le total n'est jamais saisi : il est calculé depuis les critères.",
+    "L'explication linéaire n'est pas comparée à un plan attendu : ce qui est évalué est la capacité à suivre le texte et à relier une observation à un effet de sens.",
+    "La question de grammaire porte sur une phrase de l'extrait, désignée au candidat avant la préparation.",
+    "Aucun commentaire libre n'est porté sur la grille ; les observations utiles au coach passent par les codes d'erreur de la matière concernée."
+  ],
+  "criteres": [
+    {
+      "code": "LECT",
+      "intitule": "Lecture expressive de l'extrait",
+      "competence": "LANG-ORAL",
+      "descripteurs": {
+        "0": "La lecture est interrompue par des blocages qui empêchent de suivre le sens.",
+        "1": "La lecture est hachée ; la ponctuation n'est pas rendue.",
+        "2": "La lecture est régulière et la ponctuation rendue ; l'intonation reste plate.",
+        "3": "La lecture est régulière, la ponctuation rendue et l'intonation sert le sens."
+      }
+    },
+    {
+      "code": "EXPLI",
+      "intitule": "Explication linéaire de l'extrait",
+      "competence": "EXPL",
+      "descripteurs": {
+        "0": "Le texte est paraphrasé : aucune observation n'est reliée à un effet de sens.",
+        "1": "Des procédés sont nommés mais restent détachés du sens de l'extrait.",
+        "2": "Le déroulement du texte est suivi et des procédés sont reliés au sens ; un mouvement du texte est laissé de côté.",
+        "3": "Le déroulement du texte est suivi de bout en bout, chaque mouvement identifié et les procédés reliés à ce qu'ils produisent."
+      }
+    },
+    {
+      "code": "GRAMM",
+      "intitule": "Réponse à la question de grammaire",
+      "competence": "GRAM",
+      "descripteurs": {
+        "0": "La construction demandée n'est pas identifiée.",
+        "1": "La construction est identifiée sans être analysée ni justifiée.",
+        "2": "La construction est identifiée et analysée ; la justification reste incomplète.",
+        "3": "La construction est identifiée, analysée et justifiée par un élément de la phrase."
+      }
+    },
+    {
+      "code": "ENTRET",
+      "intitule": "Entretien sur l'œuvre choisie",
+      "competence": "ENTR",
+      "descripteurs": {
+        "0": "L'œuvre n'est pas présentée, ou l'est sans qu'une lecture soit perceptible.",
+        "1": "L'œuvre est présentée en résumé ; le choix n'est pas motivé.",
+        "2": "Le choix est motivé et appuyé sur un passage ; les relances n'amènent pas de développement nouveau.",
+        "3": "Le choix est motivé, appuyé sur des passages précis, et les relances amènent le candidat à préciser ou à nuancer."
+      }
+    },
+    {
+      "code": "LANGOR",
+      "intitule": "Langue orale et interaction",
+      "competence": "LANG-ORAL",
+      "descripteurs": {
+        "0": "Les ruptures de construction empêchent de suivre ce qui est affirmé.",
+        "1": "Le propos se suit malgré des ruptures de construction fréquentes ; le candidat lit ses notes.",
+        "2": "Les phrases sont construites et le regard se détache des notes ; le lexique reste courant là où un lexique précis est attendu.",
+        "3": "Les phrases sont construites, le lexique est adapté et le candidat répond aux relances sans se déstabiliser."
+      }
+    }
+  ],
+  "perimetres_alimentes": [
+    {
+      "perimetre": "FR-EAF",
+      "competence": "LANG-ORAL",
+      "note": "Indicateur de langue parlée, deux critères propriétaires : la lecture expressive et la langue orale en interaction. Famille LANGUE, mis en regard de FR-EAF/LANG et de PHI/LANG, jamais moyenné avec elles."
+    },
+    {
+      "perimetre": "FR-EAF",
+      "competence": "EXPL",
+      "note": "Compétence de production mesurée en totalité par ce critère (EC-25)."
+    },
+    {
+      "perimetre": "FR-EAF",
+      "competence": "GRAM",
+      "note": "Complète la mesure écrite de la grammaire du programme de l'oral."
+    },
+    {
+      "perimetre": "FR-EAF",
+      "competence": "ENTR",
+      "note": "Compétence mesurée en totalité par ce critère (EC-25)."
+    }
+  ],
+  "question_grammaire": {
+    "phrase": "Et quand je vous demande après quel est cet homme, à peine pouvez-vous dire comme il se nomme.",
+    "reperage": "les deux derniers vers de l'extrait",
+    "question": "Analysez la proposition subordonnée introduite par « quand » : donnez sa nature, sa fonction, et ce qui la justifie dans la phrase.",
+    "analyse_attendue": "« quand je vous demande après quel est cet homme » est une proposition subordonnée conjonctive circonstancielle de temps. Elle est introduite par la conjonction de subordination « quand » ; elle a pour fonction complément circonstanciel de temps du verbe « pouvez » de la proposition principale « à peine pouvez-vous dire comme il se nomme ». Elle situe dans le temps le moment où se révèle l'ignorance que le vers principal énonce, et c'est de cette simultanéité que naît l'effet : l'empressement précède immédiatement l'aveu.",
+    "criteres_de_reussite": [
+      "la nature est nommée : proposition subordonnée conjonctive circonstancielle",
+      "la circonstance est précisée : le temps",
+      "la fonction est donnée : complément circonstanciel de temps du verbe de la principale",
+      "la justification s'appuie sur un élément de la phrase : le subordonnant « quand », ou le verbe conjugué « demande » qui en fait une proposition"
+    ],
+    "reponses_partielles": [
+      "« subordonnée de temps » sans la nature conjonctive ni la fonction : la construction est reconnue, elle n'est pas analysée — un point de moins au critère GRAMM",
+      "« subordonnée relative » : confusion fréquente, « quand » n'a pas d'antécédent et ne reprend aucun nom ; la réponse est fausse",
+      "« subordonnée interrogative indirecte » : le candidat a analysé « quel est cet homme », qui est bien une interrogative indirecte mais n'est pas la proposition demandée — l'observation est juste, elle porte sur une autre construction",
+      "analyse portée sur « comme il se nomme » : même remarque, la proposition n'est pas celle que la question désigne"
+    ],
+    "vigilance": "Le candidat qui cite « quand » comme adverbe interrogatif n'a pas tort en général mais se trompe ici : la phrase n'est pas interrogative, et le mot y introduit une proposition. C'est cette distinction, et non la récitation d'une liste, que le critère mesure.",
+    "programme": "Grammaire du programme de l'oral : subordination — propositions conjonctives circonstancielles ; expression du temps."
+  }
+}

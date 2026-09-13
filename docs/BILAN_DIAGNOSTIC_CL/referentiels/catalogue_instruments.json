@@ -1,0 +1,1111 @@
+{
+  "schema": "nexus.referentiel.catalogue_instruments",
+  "version": "1.0",
+  "date": "2026-09-10",
+  "source": "Cahier § 3.1 (catalogue), § 3.2 (plan de passation), § 4 (squelette), § 7.4 (version étendue TC-ES)",
+  "conventions": {
+    "duree_cible_min": "Durée d'évaluation effective, en minutes, telle que fixée par le Cahier § 3.1. Source unique : aucun script ni gabarit ne la recopie.",
+    "fenetre_duree": {
+      "ratio_min": 0.9,
+      "ratio_max": 1.0,
+      "calcul": "La fenêtre acceptable est calculée par le validateur : ratio × duree_cible_min. Elle n'est jamais stockée.",
+      "somme_controlee": "Somme des duree_min réels des items de l'assemblage, lus dans banque.json.",
+      "source": "Prompt de production § 4.8"
+    },
+    "supports": {
+      "papier": "Passation au centre, surveillée, sur feuille de réponses standardisée (§ 3.2)",
+      "papier_et_machine": "Blocs A, B et D sur papier ; bloc C sur ordinateur du centre, sans accès Internet (§ 7.8)",
+      "grille_coach": "Aucun support candidat : le coach renseigne une grille critériée pendant l'entretien",
+      "distance": "Formulaire en ligne, seule modalité admise à distance (§ 3.2)"
+    },
+    "materiel": {
+      "calculatrice_bloc_c": "Calculatrice autorisée dans le bloc C uniquement, en mode examen, sans programme ni mémoire accessible. Les blocs A, B et D se traitent sans calculatrice.",
+      "aucun": "Aucun matériel spécifique."
+    },
+    "hypothese_planification": {
+      "note": "NON UTILISÉE PAR LE VALIDATEUR. Chaque item porte son propre duree_min dans banque.json, et c'est cette valeur qui est sommée. Ces références servent uniquement à cadrer la rédaction et à estimer un assemblage avant écriture.",
+      "references_min_par_item": {
+        "A": [
+          1,
+          1.5
+        ],
+        "B": [
+          2,
+          3
+        ],
+        "C": "Durée déclarée par l'item, jamais estimée par type."
+      },
+      "references_item_C": {
+        "paragraphe": [
+          15,
+          20
+        ],
+        "exercice_specialite": [
+          20,
+          30
+        ]
+      },
+      "source": "Précision P3 de la direction pédagogique, 2026-09-10"
+    },
+    "plan_passation": {
+      "source": "Cahier § 1.1 et § 3.2",
+      "transcription_cahier": [
+        "Aucune demi-journée de passation ne dépasse 3 h 15 d'évaluation effective ; les épreuves de production longue sont placées en début de session",
+        "La passation à distance n'est admise que pour QP et MET"
+      ],
+      "duree_max_demi_journee_min": 195,
+      "supports_a_distance": [
+        "distance"
+      ],
+      "ordre_de_placement": "durée décroissante, puis code de l'instrument ; les épreuves les plus longues sont les productions, elles ouvrent la session",
+      "algorithme": "nombre minimal de demi-journées, remplissage au premier emplacement disponible dans l'ordre de placement ; aucune demi-journée ne dépasse le plafond, aucun instrument n'est retiré",
+      "ecart": {
+        "ref": "EC-29",
+        "registre": "referentiels/competences.json → ecarts_cahier"
+      }
+    },
+    "format_saisie": [
+      {
+        "colonne": "candidate_ref",
+        "contenu": "Code candidat",
+        "controle": "Existe dans la base ; pas de donnée personnelle"
+      },
+      {
+        "colonne": "instrument",
+        "contenu": "Code instrument et version",
+        "controle": "Version connue de la banque"
+      },
+      {
+        "colonne": "item_id",
+        "contenu": "Identifiant d'item",
+        "controle": "Appartient à l'instrument déclaré"
+      },
+      {
+        "colonne": "response",
+        "contenu": "Réponse brute (types A et B)",
+        "controle": "Format attendu par l'item"
+      },
+      {
+        "colonne": "score",
+        "contenu": "Points attribués",
+        "controle": "Entre 0 et le score max de l'item"
+      },
+      {
+        "colonne": "error_code",
+        "contenu": "Code d'erreur (type B) ou vide",
+        "controle": "Appartient à la liste fermée de l'item"
+      },
+      {
+        "colonne": "criterion",
+        "contenu": "Critère (type C uniquement)",
+        "controle": "Appartient à la grille de l'item"
+      },
+      {
+        "colonne": "corrector_ref",
+        "contenu": "Code correcteur",
+        "controle": "Habilité pour cette matière"
+      },
+      {
+        "colonne": "session_date",
+        "contenu": "Date de passation",
+        "controle": "Antérieure ou égale à la date du jour"
+      }
+    ],
+    "format_saisie_source": "Cahier § 6.2 — source unique des colonnes d'import",
+    "materiel_source": "Arbitrage A-05 de la direction pédagogique, 2026-09-10. Ce champ est interne ; les libellés ci-dessus sont lus par le candidat et ne portent aucune référence d'arbitrage.",
+    "selection_version_specialite": {
+      "source": "Cahier § 3.1, colonne « Profil » des lignes EDS-x",
+      "transcription_cahier": [
+        "P1 ; P3 (spé abandonnée)",
+        "P2 ; P3 (spés poursuivies)"
+      ],
+      "regle": "Le champ profils d'un enregistrement EDS dit à quels profils la version est ouverte, pas laquelle un candidat donné passe : un P3 figure sur N1 et sur NT. La version se choisit sur le statut de la spécialité chez ce candidat.",
+      "par_profil": {
+        "P1": {
+          "toutes": "N1"
+        },
+        "P2": {
+          "toutes": "NT"
+        },
+        "P3": {
+          "poursuivie": "NT",
+          "abandonnee": "N1"
+        }
+      },
+      "note": "La spécialité abandonnée est celle que la variable QP specialite_abandonnee désigne ; les autres sont poursuivies."
+    },
+    "configuration_francais": {
+      "source": "Décisions Q-19 à Q-21 de la direction pédagogique, 2026-09-10",
+      "variable_qp": "epreuves_francais_a_presenter",
+      "regle": "Les instruments de français sont sélectionnés par la configuration déclarée au questionnaire, et par elle seule ; les autres instruments le sont par le profil. La configuration est orthogonale au profil : un redoublant de Terminale qui conserve son écrit et repasse l'oral est un P2 en configuration « oral ». Le champ profils d'un instrument de français vaut donc pour tous les profils ; il n'entre pas dans la sélection.",
+      "note": "La valeur « aucune » retire le français du périmètre : aucun assemblage FR-EAF, aucun entretien oral.",
+      "epreuves_admises": {
+        "les_deux": [
+          "les_deux",
+          "ecrit",
+          "oral"
+        ],
+        "ecrit": [
+          "les_deux",
+          "ecrit"
+        ],
+        "oral": [
+          "les_deux",
+          "oral"
+        ]
+      },
+      "note_admises": "Table de compatibilité entre la configuration d'un assemblage et le champ epreuve d'une compétence. Source unique : le validateur la lit ici et ne la redéfinit pas."
+    },
+    "lignes_bloc_0": {
+      "source": "Décision R1 de la direction pédagogique, 2026-09-10",
+      "regle": "Une ligne par domaine du bloc 0 renseigné. La colonne item_id porte l'identifiant du domaine tel qu'imprimé, la colonne response la valeur 1 à 4 de l'échelle, la colonne score reste vide. Un score porté sur une ligne de bloc 0 est refusé à l'import : le bloc 0 ne compte pas dans les résultats.",
+      "domaine_non_renseigne": "Un domaine sans ligne, ou sans valeur, vaut « calibration non renseignée » pour la compétence visée — jamais un écart de zéro.",
+      "renvoi_format": "conventions.identifiant_bloc_0 de competences.json"
+    },
+    "selection_math_ea": {
+      "source": "Décision Q-24 de la direction pédagogique, 2026-09-10 ; note de service NOR MENE2515469N",
+      "regle": "L'instrument MATH-EA est sélectionné quand l'épreuve anticipée de mathématiques est due — statut dérivé « a_presenter_spe » ou « a_presenter_specifiques » — et que l'année scolaire de passation du candidat est celle de l'assemblage. La version suit le parcours suivi : « SPE » pour l'enseignement de spécialité, « SPECIFIQUES » pour les mathématiques intégrées à l'enseignement scientifique.",
+      "parcours_derive": "Le parcours n'est pas demandé au candidat : il se déduit des spécialités déclarées. La spécialité mathématiques déclarée donne « specialite », son absence donne « specifiques » en voie générale.",
+      "annee_de_passation": "L'assemblage porte l'année scolaire de passation dont il évalue le programme. Un candidat d'une autre année ne peut pas le composer : le programme évalué est celui de l'année de passation (MENE2515469N).",
+      "voie_technologique": "Hors périmètre V1 : aucun assemblage technologique n'est produit sans décision de périmètre."
+    },
+    "preflight_rendu": {
+      "source": "Audit direct des PDF remis, 2026-09-11 : le sujet SPE imprimait « times », « mathbb » et « div » en toutes lettres.",
+      "regle": "Après production d'un PDF, le texte extrait ne doit contenir aucun nom de commande LaTeX employé dans la source. Une commande qui s'imprime est une commande qui n'a pas été interprétée : le document est faux, et le contrôle refuse le rendu plutôt que de le livrer.",
+      "homographes_admis": [
+        "le",
+        "ne",
+        "bar"
+      ],
+      "note_homographes": "Trois noms de commande sont aussi des mots français ou des mots courants : les chercher comme mots isolés dans un texte français produirait une alerte à chaque page. Ils sont donc exclus du préflight ; le contrôle de source, lui, les couvre.",
+      "outil": "pdftotext",
+      "operateurs_nommes": [
+        "cos",
+        "sin",
+        "tan",
+        "ln",
+        "log",
+        "exp",
+        "lim",
+        "max",
+        "min",
+        "deg",
+        "gcd"
+      ],
+      "note_operateurs": "Ces commandes composent leur propre nom en romain : « \\cos » s'imprime « cos », et c'est le rendu correct. Les chercher dans le texte extrait signalerait un défaut là où il n'y en a pas. Le double échappement les concernant est attrapé par le contrôle de source, qui ne lit pas le PDF mais la chaîne décodée."
+    },
+    "epreuves_anticipees": {
+      "source": "Décision EC-31 de la direction pédagogique, 2026-09-11",
+      "regle": "Un enregistrement du catalogue déclare s'il prépare une épreuve anticipée. Le moteur s'en sert pour savoir quels groupes de planification portent une épreuve due pendant l'année : la règle de priorité ne peut pas deviner cette qualité depuis un code d'instrument.",
+      "champ": "epreuve_anticipee"
+    },
+    "fenetre_criteres_grille": {
+      "min": 3,
+      "max": 5,
+      "regle": "Une grille d'entretien tient de trois à cinq critères : au-delà, le coach coche au lieu d'observer. La fenêtre s'élargit quand la définition officielle de l'épreuve impose d'observer davantage — l'enregistrement de l'instrument porte alors « nb_criteres » et « motif_fenetre », et le validateur s'y tient.",
+      "exceptions": [
+        {
+          "instrument": "GO/standard",
+          "nb_criteres": 8,
+          "motif": "Audit du 2026-09-11 contre la définition officielle de l'épreuve orale terminale. Trois observations manquaient et sont exigibles : la qualité des deux questions que le candidat apporte, l'ancrage disciplinaire, l'argumentation et l'esprit critique. Les cinq critères d'origine ne pouvaient pas les absorber sans devenir des fourre-tout.",
+          "source": "referentiels/modalites_epreuves.json → epreuves_terminales.GO"
+        }
+      ]
+    }
+  },
+  "instruments": [
+    {
+      "code": "QP",
+      "version": "standard",
+      "perimetre": null,
+      "libelle": "Questionnaire de parcours et contraintes",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 20,
+      "support": "distance",
+      "materiel": "aucun",
+      "correction": "automatique",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "source_cahier": "§ 3.1, § 2.1"
+    },
+    {
+      "code": "FR-EAF",
+      "version": "standard",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2027,
+      "libelle": "Diagnostic français — les deux épreuves anticipées",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1",
+      "configuration_francais": "les_deux",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF",
+      "version": "standard_2028",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2028,
+      "libelle": "Diagnostic français — les deux épreuves anticipées — session 2028",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1 ; assemblage de session créé par Q-27",
+      "configuration_francais": "les_deux",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF",
+      "version": "ecrit",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2027,
+      "libelle": "Diagnostic français — épreuve écrite seule",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 80,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26)",
+      "configuration_francais": "ecrit",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF",
+      "version": "ecrit_2028",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2028,
+      "libelle": "Diagnostic français — épreuve écrite seule — session 2028",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 80,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26) ; assemblage de session créé par Q-27",
+      "configuration_francais": "ecrit",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF",
+      "version": "oral",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2027,
+      "libelle": "Diagnostic français — épreuve orale seule",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 50,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26)",
+      "configuration_francais": "oral",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF",
+      "version": "oral_2028",
+      "perimetre": "FR-EAF",
+      "session_baccalaureat_finale": 2028,
+      "libelle": "Diagnostic français — épreuve orale seule — session 2028",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 50,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26) ; assemblage de session créé par Q-27",
+      "configuration_francais": "oral",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-EAF-ORAL",
+      "version": "standard",
+      "perimetre": null,
+      "libelle": "Épreuve orale anticipée de français — grille coach",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 20,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille_criteriee",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 5,
+      "configuration_francais": [
+        "les_deux",
+        "oral"
+      ],
+      "source_cahier": "§ 3.1, § 7.1 ; instrument créé par Q-20 en remplacement de FR-ORAL (EC-24)",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "FR-MAI",
+      "version": "standard",
+      "perimetre": "FR-MAI",
+      "libelle": "Diagnostic de maîtrise du français (outil de travail)",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 60,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.2"
+    },
+    {
+      "code": "PHI",
+      "version": "standard",
+      "perimetre": "PHI",
+      "libelle": "Diagnostic philosophie",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 60,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.3"
+    },
+    {
+      "code": "TC-ES",
+      "version": "1RE",
+      "perimetre": "TC-ES",
+      "libelle": "Tronc commun — enseignement scientifique, programme de Première",
+      "profils": [
+        "P1"
+      ],
+      "duree_cible_min": 40,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.4"
+    },
+    {
+      "code": "TC-ES",
+      "version": "TLE",
+      "perimetre": "TC-ES",
+      "libelle": "Tronc commun — enseignement scientifique, programme de Terminale",
+      "profils": [
+        "P2"
+      ],
+      "duree_cible_min": 40,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.4"
+    },
+    {
+      "code": "TC-ES",
+      "version": "ETENDUE",
+      "perimetre": "TC-ES",
+      "libelle": "Tronc commun — enseignement scientifique, version étendue",
+      "profils": [
+        "P3"
+      ],
+      "duree_cible_min": 55,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 7.4"
+    },
+    {
+      "code": "MET",
+      "version": "standard",
+      "perimetre": null,
+      "libelle": "Méthodes de travail, organisation, autonomie",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 20,
+      "support": "distance",
+      "materiel": "aucun",
+      "correction": "automatique",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "source_cahier": "§ 3.1, § 7.5"
+    },
+    {
+      "code": "GO",
+      "version": "standard",
+      "perimetre": null,
+      "libelle": "Grille d'entretien Grand oral — coach",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 15,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 8,
+      "source_cahier": "§ 3.1, § 7.13",
+      "motif_fenetre": "audit réglementaire du 2026-09-11 (voir conventions)"
+    },
+    {
+      "code": "EDS-MATH",
+      "version": "N1",
+      "perimetre": "EDS-MATH",
+      "libelle": "Spécialité mathématiques — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "calculatrice_bloc_c",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.6"
+    },
+    {
+      "code": "EDS-MATH",
+      "version": "NT",
+      "perimetre": "EDS-MATH",
+      "libelle": "Spécialité mathématiques — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "calculatrice_bloc_c",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.6"
+    },
+    {
+      "code": "EDS-PC",
+      "version": "N1",
+      "perimetre": "EDS-PC",
+      "libelle": "Spécialité physique-chimie — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "calculatrice_bloc_c",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.7"
+    },
+    {
+      "code": "EDS-PC",
+      "version": "NT",
+      "perimetre": "EDS-PC",
+      "libelle": "Spécialité physique-chimie — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "calculatrice_bloc_c",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.7"
+    },
+    {
+      "code": "EDS-NSI",
+      "version": "N1",
+      "perimetre": "EDS-NSI",
+      "libelle": "Spécialité numérique et sciences informatiques — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier_et_machine",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.8"
+    },
+    {
+      "code": "EDS-NSI",
+      "version": "NT",
+      "perimetre": "EDS-NSI",
+      "libelle": "Spécialité numérique et sciences informatiques — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier_et_machine",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.8"
+    },
+    {
+      "code": "EDS-SVT",
+      "version": "N1",
+      "perimetre": "EDS-SVT",
+      "libelle": "Spécialité sciences de la vie et de la Terre — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.9"
+    },
+    {
+      "code": "EDS-SVT",
+      "version": "NT",
+      "perimetre": "EDS-SVT",
+      "libelle": "Spécialité sciences de la vie et de la Terre — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.9"
+    },
+    {
+      "code": "EDS-SES",
+      "version": "N1",
+      "perimetre": "EDS-SES",
+      "libelle": "Spécialité sciences économiques et sociales — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.10"
+    },
+    {
+      "code": "EDS-SES",
+      "version": "NT",
+      "perimetre": "EDS-SES",
+      "libelle": "Spécialité sciences économiques et sociales — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.10"
+    },
+    {
+      "code": "EDS-HGGSP",
+      "version": "N1",
+      "perimetre": "EDS-HGGSP",
+      "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.11"
+    },
+    {
+      "code": "EDS-HGGSP",
+      "version": "NT",
+      "perimetre": "EDS-HGGSP",
+      "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.11"
+    },
+    {
+      "code": "EDS-HLP",
+      "version": "N1",
+      "perimetre": "EDS-HLP",
+      "libelle": "Spécialité humanités, littérature et philosophie — version Première",
+      "profils": [
+        "P1",
+        "P3"
+      ],
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.12"
+    },
+    {
+      "code": "EDS-HLP",
+      "version": "NT",
+      "perimetre": "EDS-HLP",
+      "libelle": "Spécialité humanités, littérature et philosophie — version Terminale",
+      "profils": [
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 90,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "§ 3.1, § 7.12"
+    },
+    {
+      "code": "MATH-EA",
+      "version": "SPE",
+      "libelle": "Épreuve anticipée de mathématiques — parcours enseignement de spécialité",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "annee_scolaire_passation_ea": "2026-2027",
+      "parcours_mathematiques": "specialite",
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "blocs_attendus": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "perimetre": "MATH-EA",
+      "correction": "cle_et_grille",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "MATH-EA",
+      "version": "SPECIFIQUES",
+      "libelle": "Épreuve anticipée de mathématiques — parcours mathématiques de l'enseignement scientifique",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "annee_scolaire_passation_ea": "2026-2027",
+      "parcours_mathematiques": "specifiques",
+      "duree_cible_min": 75,
+      "support": "papier",
+      "materiel": "aucun",
+      "blocs_attendus": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "perimetre": "MATH-EA",
+      "correction": "cle_et_grille",
+      "epreuve_anticipee": true
+    },
+    {
+      "code": "TC-HG",
+      "version": "1RE",
+      "perimetre": "TC-HG",
+      "libelle": "Tronc commun — histoire-géographie, programme de Première",
+      "profils": [
+        "P1"
+      ],
+      "duree_cible_min": 45,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "Hors Cahier — extension B9 (note MENE2121383N et MENE2523743N)"
+    },
+    {
+      "code": "TC-HG",
+      "version": "TLE",
+      "perimetre": "TC-HG",
+      "libelle": "Tronc commun — histoire-géographie, programme de Terminale",
+      "profils": [
+        "P2"
+      ],
+      "duree_cible_min": 45,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "Hors Cahier — extension B9 (note MENE2121383N et MENE2523743N)"
+    },
+    {
+      "code": "TC-HG",
+      "version": "ETENDUE",
+      "perimetre": "TC-HG",
+      "libelle": "Tronc commun — histoire-géographie, version étendue cycle terminal",
+      "profils": [
+        "P3"
+      ],
+      "duree_cible_min": 60,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "0",
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "porte_items": true,
+      "source_cahier": "Hors Cahier — extension B9 (note MENE2121383N et MENE2523743N)"
+    },
+    {
+      "code": "TC-EMC",
+      "version": "1RE",
+      "perimetre": "TC-EMC",
+      "libelle": "Tronc commun — enseignement moral et civique, programme de Première",
+      "profils": [
+        "P1"
+      ],
+      "duree_cible_min": 20,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille_criteriee",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 11,
+      "motif_fenetre": "évaluation orale d'EMC couvrant les 11 attendus réglementaires et civiques",
+      "source_cahier": "Hors Cahier — extension B10 (note MENE2531481N transitoire, modalité a_confirmer_reglementairement)"
+    },
+    {
+      "code": "TC-EMC",
+      "version": "TLE",
+      "perimetre": "TC-EMC",
+      "libelle": "Tronc commun — enseignement moral et civique, programme de Terminale",
+      "profils": [
+        "P2"
+      ],
+      "duree_cible_min": 20,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille_criteriee",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 11,
+      "motif_fenetre": "évaluation orale d'EMC couvrant les 11 attendus réglementaires et civiques",
+      "source_cahier": "Hors Cahier — extension B10 (note MENE2531481N transitoire, modalité a_confirmer_reglementairement)"
+    },
+    {
+      "code": "TC-EMC",
+      "version": "ETENDUE",
+      "perimetre": "TC-EMC",
+      "libelle": "Tronc commun — enseignement moral et civique, version étendue cycle terminal",
+      "profils": [
+        "P3"
+      ],
+      "duree_cible_min": 25,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille_criteriee",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 11,
+      "motif_fenetre": "évaluation orale d'EMC couvrant les 11 attendus réglementaires et civiques",
+      "source_cahier": "Hors Cahier — extension B10 (note MENE2531481N transitoire, modalité a_confirmer_reglementairement)"
+    },
+    {
+      "code": "FR-POS",
+      "version": "standard",
+      "perimetre": "FR-POS",
+      "libelle": "Positionnement en français scolaire — écrit",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 45,
+      "support": "papier",
+      "materiel": "aucun",
+      "correction": "cle_et_grille",
+      "blocs_attendus": [
+        "A",
+        "B",
+        "C"
+      ],
+      "porte_items": true,
+      "source_cahier": "Hors Cahier — intégration B11 du test de positionnement linguistique",
+      "configuration_francais": [
+        "les_deux",
+        "ecrit",
+        "oral"
+      ]
+    },
+    {
+      "code": "FR-POS-ORAL",
+      "version": "standard",
+      "perimetre": null,
+      "libelle": "Positionnement en français scolaire — entretien oral coach",
+      "profils": [
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "duree_cible_min": 10,
+      "support": "grille_coach",
+      "materiel": "aucun",
+      "correction": "grille_criteriee",
+      "blocs_attendus": [],
+      "porte_items": false,
+      "nb_criteres": 5,
+      "source_cahier": "Hors Cahier — intégration B11 du test de positionnement linguistique",
+      "configuration_francais": [
+        "les_deux",
+        "ecrit",
+        "oral"
+      ]
+    }
+  ]
+}

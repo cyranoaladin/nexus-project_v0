@@ -1,0 +1,99 @@
+{
+  "instrument": "EDS-HLP",
+  "version": "NT",
+  "titre": "Diagnostic de spécialité humanités, littérature et philosophie — version Terminale",
+  "consignes_passation": [
+    "La durée de l'épreuve est indiquée en tête de ce document. La durée portée en tête de chaque bloc est une indication de répartition.",
+    "Répondez sur la feuille de réponses jointe, en respectant l'identifiant de chaque question.",
+    "Les deux productions du bloc C sont rédigées sur le cahier de composition, chacune en dix à douze lignes.",
+    "Aucun document n'est autorisé.",
+    "Si une question vous arrête, passez à la suivante et revenez-y ensuite."
+  ],
+  "bloc_0": {
+    "duree_min": 2,
+    "consigne": "Pour chaque domaine, cochez la case qui correspond à votre estimation d'aujourd'hui. Cette estimation ne compte pas dans les résultats : elle sert à comparer ce que vous percevez et ce que l'épreuve mesure.",
+    "domaines": [
+      {
+        "competence": "LECT",
+        "intitule": "Lecture de textes complexes : thèse, mouvement du texte, implicite"
+      },
+      {
+        "competence": "THEM",
+        "intitule": "Thèmes : pouvoirs de la parole et représentations du monde en Première ; recherche de soi et l'Humanité en question en Terminale"
+      },
+      {
+        "competence": "CULT",
+        "intitule": "Références culturelles, philosophiques et littéraires liées aux thèmes"
+      },
+      {
+        "competence": "INTER",
+        "intitule": "Interprétation littéraire : rendre compte d'un texte à partir d'une question"
+      },
+      {
+        "competence": "ESSAI",
+        "intitule": "Essai philosophique : prendre position, argumenter, mobiliser des références"
+      }
+    ]
+  },
+  "blocs": [
+    {
+      "bloc": "A",
+      "items": [
+        "HLP-2-LECT-01",
+        "HLP-2-LECT-02",
+        "HLP-2-LECT-03",
+        "HLP-1-THEM-01",
+        "HLP-1-THEM-03",
+        "HLP-1-THEM-02",
+        "HLP-1-THEM-06"
+      ]
+    },
+    {
+      "bloc": "B",
+      "items": [
+        "HLP-1-LECT-04",
+        "HLP-1-LECT-05",
+        "HLP-1-LECT-06",
+        "HLP-T-THEM-04",
+        "HLP-T-THEM-05",
+        "HLP-1-CULT-01",
+        "HLP-1-CULT-02",
+        "HLP-1-CULT-03",
+        "HLP-T-THEM-07",
+        "HLP-1-CULT-04",
+        "HLP-1-CULT-05",
+        "HLP-T-CULT-06",
+        "HLP-1-LECT-07",
+        "HLP-1-LECT-08",
+        "HLP-T-LECT-09",
+        "HLP-T-CULT-07",
+        "HLP-T-THEM-08"
+      ]
+    },
+    {
+      "bloc": "C",
+      "supports": [
+        {
+          "titre": "Texte du bloc C",
+          "code": "HLP-C-TEXTE",
+          "texte": "Après cela, il est entré sur l’ordre du service, plein de belles et importantes considérations ; et tout cela enflé de riches et magnifiques paroles, et celles même qu’on emploie à traiter du gouvernement d’un empire.\n\nSi est-ce que les Grecs même louèrent grandement l’ordre et la disposition que Paul Émile observa au festin qu’il leur fit au retour de Macédoine. Mais je ne parle point ici des effets, je parle des mots.\n\nJe ne sais s’il en advient aux autres comme à moi ; mais je ne me puis garder, quand je vois nos architectes s’enfler de ces gros mots de pilastres, architraves, corniches, d’ouvrage corinthien et dorique, et semblables de leur jargon, que mon imagination ne se saisisse incontinent du palais d’Apollidon : et, par effet, je trouve que ce sont les chétives pièces de la porte de ma cuisine. Oyez dire métonymie, métaphore, allégorie, et autres tels noms de la grammaire ; semble-t-il pas qu’on signifie quelque forme de langage rare et pellegrin ? ce sont titres qui touchent le babil de votre chambrière.\n\nC’est une piperie voisine à celle-ci d’appeler les offices de notre état par les titres superbes des Romains, encore qu’ils n’aient aucune ressemblance de charge, et encore moins d’autorité et de puissance. Et celle-ci aussi, qui servira, à mon avis, un jour de reproche à notre siècle, d’employer indignement, à qui bon nous semble, les surnoms les plus glorieux de quoi l’ancienneté ait honoré un ou deux personnages en plusieurs siècles.",
+          "reference": "Michel de Montaigne, « Essais », « De la vanité des paroles », texte établi par l'abbé Musart, Périsse Frères, 1847 — domaine public.",
+          "edition": "Périsse Frères, 1847, texte établi par l'abbé Musart, chapitre XX, p. 172-176",
+          "repli": "Jean-Jacques Rousseau, « Essai sur l'origine des langues », chapitre I.",
+          "source_texte": "montaigne"
+        }
+      ],
+      "items": [
+        "HLP-1-INTER-01",
+        "HLP-1-ESSAI-01"
+      ]
+    },
+    {
+      "bloc": "D",
+      "items": [
+        "HLP-1-INTER-02",
+        "HLP-1-ESSAI-02"
+      ]
+    }
+  ]
+}
