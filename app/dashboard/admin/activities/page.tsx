@@ -1,11 +1,12 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Activity, CreditCard, Loader2, LogOut, Search, Users } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -25,6 +26,8 @@ interface Activity {
 }
 
 export default function ActivitiesPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -61,7 +64,7 @@ export default function ActivitiesPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, typeFilter, searchTerm]);
+  }, [currentPage, typeFilter, searchTerm, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;

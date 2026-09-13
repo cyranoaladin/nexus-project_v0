@@ -1,9 +1,9 @@
 "use client";
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle,CreditCard,Loader2,LogOut,MessageCircle,Users } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useVerifiedSession } from '@/hooks/use-verified-session';
-import { SessionVerificationUnavailable } from '@/components/auth/SessionVerificationUnavailable';
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { useCallback,useEffect,useRef,useState } from "react";
 
@@ -23,11 +23,13 @@ interface ParentDashboardData {
 
 export default function DashboardParent() {
   const verifiedSession = useVerifiedSession('PARENT');
-  return <ParentDashboardContent key={`${verifiedSession.status}:${verifiedSession.data?.user.id ?? ''}`} verifiedSession={verifiedSession} />;
+  return <ParentDashboardContent verifiedSession={verifiedSession} />;
 }
 
 function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
-  const { data: session, status, verificationUnavailable, retryVerification } = verifiedSession;
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
+  const { data: session, status } = verifiedSession;
   const pendingRequest = useRef<AbortController | null>(null);
   useEffect(() => () => pendingRequest.current?.abort(), []);
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
@@ -60,7 +62,7 @@ function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnTy
     } finally {
       if (!controller.signal.aborted && !silent) setLoading(false)
     }
-  }, [])
+  }, [fetch])
 
   useEffect(() => {
     if (status !== 'authenticated' || session?.user.role !== 'PARENT') return
@@ -68,7 +70,6 @@ function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnTy
     void refreshDashboardData()
   }, [session, status, refreshDashboardData])
 
-  if (verificationUnavailable) return <SessionVerificationUnavailable retry={retryVerification} />;
 
   if (status !== 'authenticated' || session?.user.role !== 'PARENT' || loading) {
     return (

@@ -1,8 +1,9 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +108,8 @@ function normalizeAriaSubjects(value: unknown): string[] {
 }
 
 export default function AssistanteSubscriptionsPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -166,7 +169,7 @@ export default function AssistanteSubscriptionsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetch]);
 
   const fetchRequests = useCallback(async () => {
     try {
@@ -180,7 +183,7 @@ export default function AssistanteSubscriptionsPage() {
     } finally {
       setRequestsLoading(false);
     }
-  }, [requestsStatus]);
+  }, [requestsStatus, fetch]);
 
   useEffect(() => {
     if (status !== "authenticated") return;

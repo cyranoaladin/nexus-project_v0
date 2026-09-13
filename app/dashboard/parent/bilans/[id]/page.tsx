@@ -9,6 +9,7 @@
  * (the API itself already strips the latter for non-staff roles).
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -37,6 +38,7 @@ interface BilanData {
 }
 
 export default function ParentBilanPage() {
+  const fetch = useProtectedFetch();
   const params = useParams();
   const router = useRouter();
   const bilanId = params.id as string;
@@ -50,7 +52,6 @@ export default function ParentBilanPage() {
 
     fetch(`/api/bilans/${bilanId}`)
       .then((res) => {
-        if (res.status === 401) { router.push('/auth/signin'); return null; }
         if (res.status === 404) throw new Error('Ce bilan est introuvable ou n\'est pas encore disponible.');
         if (!res.ok) throw new Error('Erreur lors du chargement du bilan.');
         return res.json();
@@ -58,7 +59,7 @@ export default function ParentBilanPage() {
       .then((data) => { if (data) setBilan(data.data); })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [bilanId, router]);
+  }, [bilanId, router, fetch]);
 
   if (loading) {
     return (

@@ -7,6 +7,7 @@
  * horizontal (§19).
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import {
   BookOpen,
@@ -47,6 +48,7 @@ export function AriaCockpitShell({
   onOpenChat,
   onToggleCourse,
 }: AriaCockpitShellProps) {
+  const fetch = useProtectedFetch();
   const [panel, setPanel] = useState<AriaCockpitPanel>(
     cockpit.profile.preferences.defaultPanel ?? 'TODAY',
   );
@@ -90,7 +92,7 @@ export function AriaCockpitShell({
     return () => {
       cancelled = true;
     };
-  }, [openCourseKey]);
+  }, [openCourseKey, fetch]);
 
   function goToPanel(next: AriaCockpitPanel) {
     setPanel(next);

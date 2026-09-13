@@ -105,6 +105,7 @@
      Mutations
      --------------------------------------------------------------- */
   function commit(label, mutator, opts) {
+    if (!captureSessionOperation()) return false;
     opts = opts || {};
     if (state.mode === 'integrated' && state.sync.status === 'loading') {
       Panels.toast('Chargement du planning partagé en cours… Veuillez patienter.', 'warning');
@@ -169,9 +170,18 @@
   function isIntegrated() { return state.mode === 'integrated'; }
   function isDirty() { return isIntegrated() && ['dirty', 'error', 'invalid', 'conflict'].includes(state.sync.status); }
 
+  function captureSessionOperation() {
+    if (!isIntegrated()) return () => {};
+    try { return Nexus.SessionRecovery.captureMutation(); } catch (err) { return null; }
+  }
+  function sessionOperationCurrent(check) {
+    if (!check) return false;
+    try { check(); return true; } catch (err) { return false; }
+  }
+
   function scheduleAutosave() {
     clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(() => { saveToServer({ auto: true }); }, AUTOSAVE_DELAY_MS);
+    autosaveTimer = setTimeout(Nexus.SessionRecovery.bindDeferredMutation(() => { saveToServer({ auto: true }); }), AUTOSAVE_DELAY_MS);
   }
 
   function applyServerDocument(doc) {
@@ -191,6 +201,8 @@
 
   async function saveToServer(opts) {
     opts = opts || {};
+    const check = captureSessionOperation();
+    if (!check) return false;
     if (!isIntegrated() || state.readOnly) return false;
     clearTimeout(autosaveTimer);
     if (!opts.force && (state.sync.status === 'saved' || (!isDirty() && state.sync.status !== 'error'))) {
@@ -213,6 +225,7 @@
     renderChrome();
     try {
       const result = await Sync.save({ expectedRevision: state.revision, payload: state.data, action: opts.action || 'SAVE', summary: opts.summary || undefined });
+      check();
       state.revision = result.revision;
       state.sync.latestRevision = result.revision;
       state.sync.lastSavedAt = result.updatedAt ? new Date(result.updatedAt) : new Date();
@@ -231,6 +244,7 @@
       if (!opts.auto) Panels.toast('Planning enregistré (révision ' + result.revision + ').', 'success', 2500);
       return true;
     } catch (err) {
+      if (!sessionOperationCurrent(check)) return false;
       return handleSaveError(err, opts);
     }
   }
@@ -269,10 +283,13 @@
 
   async function loadFromServer(opts) {
     opts = opts || {};
+    const check = captureSessionOperation();
+    if (!check) return false;
     if (state.sync.status === 'saving') return false;
     const wasDirty = isDirty();
     try {
       const doc = await Sync.fetchDocument();
+      check();
       if (state.sync.status === 'saving' || (!wasDirty && isDirty())) {
         state.sync.status = 'conflict';
         renderChrome();
@@ -287,13 +304,15 @@
       if (!opts.silent) Panels.toast('Planning partagé rechargé (révision ' + state.revision + ').', 'success', 2500);
       return true;
     } catch (err) {
-      if (err && err.status === 401) { global.location.href = (Sync.config && Sync.config.signinPath) || '/auth/signin'; return false; }
+      if (!sessionOperationCurrent(check)) return false;
       Panels.toast('Impossible de charger le planning partagé : ' + (err && err.message ? err.message : 'erreur'), 'error', 8000);
       return false;
     }
   }
 
   async function refreshFromServer() {
+    const check = captureSessionOperation();
+    if (!check) return;
     if (!isIntegrated() || state.sync.status === 'saving') return;
     if (isDirty()) {
       const ok = await Panels.confirmDialog({
@@ -301,31 +320,32 @@
         message: 'Vous avez des modifications non enregistrées. Recharger la version du serveur les remplacera à l\'écran (le brouillon local est conservé jusqu\'au prochain enregistrement).',
         confirmLabel: 'Recharger', danger: true
       });
-      if (!ok) return;
+      if (!ok || !sessionOperationCurrent(check)) return;
     }
     await loadFromServer();
   }
 
   async function checkLatest() {
     if (!isIntegrated() || state.sync.status === 'saving' || document.hidden) return;
+    const check = captureSessionOperation();
+    if (!check) return;
     try {
       const meta = await Sync.fetchMeta();
+      check();
       const latest = meta.document.revision;
       if (latest <= state.revision) return;
       state.sync.latestRevision = latest;
       state.sync.latestBy = meta.document.updatedBy || null;
-      if (state.sync.status === 'saved' || state.sync.status === 'readonly') {
-        await loadFromServer({ silent: true });
+      if ((state.sync.status === 'saved' || state.sync.status === 'readonly') && !Panels.isModalOpen() && !Panels.editorHasUnsaved(state.selectedId)) {
+        const loaded = await loadFromServer({ silent: true });
+        check();
+        if (!loaded) return;
         Panels.toast('Planning mis à jour par ' + ((meta.document.updatedBy && meta.document.updatedBy.name) || 'un autre utilisateur') + ' (révision ' + latest + ').', '', 5000);
       } else {
         renderChrome();
       }
     } catch (e) {
-      if (e && e.status === 401) {
-        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-        global.location.href = (Sync.config && Sync.config.signinPath) || '/auth/signin';
-        return;
-      }
+      if (!sessionOperationCurrent(check)) return;
       if (e && e.status === 404) {
         if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
         Panels.toast('Planning introuvable sur le serveur. Synchronisation interrompue.', 'error', 8000);
@@ -341,26 +361,35 @@
   }
 
   async function restoreRevision(revision) {
+    const check = captureSessionOperation();
+    if (!check) return;
     if (!isIntegrated() || !(state.permissions && state.permissions.canRestore)) return;
     const ok = await Panels.confirmDialog({
       title: 'Restaurer la révision ' + revision,
       message: 'Le planning partagé reviendra au contenu de la révision ' + revision + '. Une nouvelle révision sera créée : l\'historique reste intact.',
       confirmLabel: 'Restaurer', danger: true
     });
-    if (!ok) return;
+    if (!ok || !sessionOperationCurrent(check)) return;
     try {
       const result = await Sync.restore({ revision: revision, expectedRevision: state.revision });
+      check();
       Panels.closeModal();
-      await loadFromServer({ silent: true });
+      const loaded = await loadFromServer({ silent: true });
+      check();
+      if (!loaded) return;
       Panels.toast('Révision ' + revision + ' restaurée (nouvelle révision ' + result.revision + ').', 'success', 5000);
     } catch (err) {
+      if (!sessionOperationCurrent(check)) return;
       handleSaveError(err, {});
     }
   }
 
   async function exportRevision(revision) {
+    const check = captureSessionOperation();
+    if (!check) return;
     try {
       const row = await Sync.getRevision(revision);
+      check();
       download(JSON.stringify(row.payload, null, 2), 'nexus-planning-revision-' + revision + '.json', 'application/json;charset=utf-8');
     } catch (err) {
       Panels.toast('Export impossible : ' + (err && err.message), 'error');
@@ -368,6 +397,7 @@
   }
 
   function undo() {
+    if (!captureSessionOperation()) return;
     if (state.readOnly) return;
     const r = history.undo(state.data);
     if (!r) return;
@@ -376,6 +406,7 @@
     Panels.toast('Annulé : ' + (r.label || 'dernière opération'), 'success', 2500);
   }
   function redo() {
+    if (!captureSessionOperation()) return;
     if (state.readOnly) return;
     const r = history.redo(state.data);
     if (!r) return;
@@ -471,6 +502,8 @@
   }
 
   function deleteSession(id) {
+    const check = captureSessionOperation();
+    if (!check) return;
     const s = getSession(id);
     if (!s) return;
     Panels.confirmDialog({
@@ -479,7 +512,7 @@
       detail: 'Vous pourrez annuler cette suppression avec le bouton Annuler (Ctrl+Z). Pour une mise en pause, préférez « Désactiver ».',
       confirmLabel: 'Supprimer', danger: true
     }).then((ok) => {
-      if (!ok) return;
+      if (!ok || !sessionOperationCurrent(check)) return;
       commit('Suppression de ' + sessionLabel(state.data, s), (d) => { d.sessions = d.sessions.filter((x) => x.id !== id); });
       if (state.selectedId === id) state.selectedId = null;
       render();
@@ -593,9 +626,12 @@
   }
   function importFromFile(file) {
     if (!file) return;
+    const check = captureSessionOperation();
+    if (!check) return;
     const reader = new FileReader();
-    reader.onerror = () => Panels.toast('Lecture du fichier impossible.', 'error');
+    reader.onerror = () => { if (sessionOperationCurrent(check)) Panels.toast('Lecture du fichier impossible.', 'error'); };
     reader.onload = () => {
+      if (!sessionOperationCurrent(check)) return;
       let raw;
       try {
         raw = JSON.parse(String(reader.result));
@@ -603,7 +639,7 @@
         Panels.openImportDialog(app, null, { ok: false, errors: ['Le fichier n\'est pas un JSON valide (' + e.message + ').'], warnings: [] }, file.name);
         return;
       }
-      Panels.openImportDialog(app, raw, inspectImport(raw), file.name);
+      Panels.openImportDialog(app, raw, inspectImport(raw), file.name, check);
     };
     reader.readAsText(file, 'utf-8');
   }
@@ -623,6 +659,8 @@
     if (isIntegrated()) saveToServer({ action: opts.action || 'IMPORT', summary: label });
   }
   function resetToDefault() {
+    const check = captureSessionOperation();
+    if (!check) return;
     if (isIntegrated()) {
       if (!(state.permissions && state.permissions.canReset)) { Panels.toast('Réinitialisation réservée à la direction.', 'warning'); return; }
       Panels.confirmDialog({
@@ -631,12 +669,15 @@
         detail: 'Une nouvelle révision sera créée ; les révisions précédentes restent restaurables depuis l\'historique.',
         confirmLabel: 'Réinitialiser', danger: true
       }).then(async (ok) => {
-        if (!ok) return;
+        if (!ok || !sessionOperationCurrent(check)) return;
         try {
           const result = await Sync.reset({ expectedRevision: state.revision });
-          await loadFromServer({ silent: true });
+          check();
+          const loaded = await loadFromServer({ silent: true });
+          check();
+          if (!loaded) return;
           Panels.toast('Planning initial restauré (révision ' + result.revision + ').', 'success');
-        } catch (err) { handleSaveError(err, {}); }
+        } catch (err) { if (sessionOperationCurrent(check)) handleSaveError(err, {}); }
       });
       return;
     }
@@ -970,6 +1011,26 @@
   }
 
   async function bootIntegrated() {
+    const observation = global.NexusSessionRecovery.mountStaticSessionRecovery({
+      onSessionEnded: () => { global.location.href = (Sync.config && Sync.config.signinPath) || '/auth/signin'; },
+      onIdentityChanged: () => global.location.reload()
+    });
+    Nexus.SessionRecovery = observation.controller;
+    let interruptedSave = false;
+    observation.controller.subscribe(() => {
+      if (!observation.controller.getSnapshot().canMutate) {
+        clearTimeout(autosaveTimer);
+        state.sync.pending = false;
+        if (state.sync.status === 'saving') {
+          state.sync.status = 'error';
+          interruptedSave = true;
+        }
+      } else if (interruptedSave) {
+        interruptedSave = false;
+        // Refresh only save controls: keep the mounted editor and its draft.
+        renderChrome();
+      }
+    });
     state.mode = 'integrated';
     state.sync.status = 'loading';
     state.readOnly = true;
@@ -983,10 +1044,19 @@
     bindEvents();
     renderChrome();
     let doc;
-    try {
-      doc = await Sync.fetchDocument();
-    } catch (err) {
-      if (err && err.status === 401) { global.location.href = (Sync.config && Sync.config.signinPath) || '/auth/signin'; return; }
+    let check;
+    // Bootstrap is a read, not a queued mutation. If verification retires its
+    // response, resume that read after verification without reloading the page.
+    while (!doc) {
+      try { await observation.whenVerified(); } catch (_) { return; }
+      check = captureSessionOperation();
+      if (!check) continue;
+      try {
+        const candidate = await Sync.fetchDocument();
+        check();
+        doc = candidate;
+      } catch (err) {
+        if (!sessionOperationCurrent(check)) continue;
       state.readOnly = true;
       state.sync.status = 'error';
       render();
@@ -996,7 +1066,8 @@
         body: h('p', null, 'Impossible de charger le planning depuis le serveur (' + (err && err.message ? err.message : 'erreur') + '). Le planning de démarrage est affiché en lecture seule.'),
         footer: [h('button', { type: 'button', class: 'btn primary', onclick: () => global.location.reload() }, 'Réessayer')]
       });
-      return;
+        return;
+      }
     }
     applyServerDocument(doc);
     state.viewTeacherId = (state.data.teachers.find((t) => t.active) || state.data.teachers[0] || {}).id || '';
@@ -1009,12 +1080,11 @@
       const same = JSON.stringify(normalize(draft.data)) === JSON.stringify(state.data);
       if (same) Sync.draft.clear();
       else Panels.showDraftDialog(app, draft);
-    } else if (draft) {
-      Sync.draft.clear();
     }
   }
 
   function adoptDraft(draft) {
+    if (!captureSessionOperation()) return;
     if (draft.baseRevision !== state.revision) {
       Panels.toast('Ce brouillon est basé sur la révision ' + draft.baseRevision + ' ; le serveur est à la révision ' + state.revision + '. Il est exporté pour comparaison, pas appliqué.', 'warning', 8000);
       download(toExportJson(normalize(draft.data)), 'nexus-planning-brouillon-rev' + draft.baseRevision + '.json', 'application/json;charset=utf-8');
@@ -1032,7 +1102,8 @@
 
   const app = {
     state, history,
-    isIntegrated, isDirty, canEdit: () => !state.readOnly,
+    isIntegrated, isDirty, canEdit: () => !state.readOnly && Boolean(captureSessionOperation()),
+    captureSessionOperation, sessionOperationCurrent,
     saveToServer, refreshFromServer, loadFromServer, exportDraft, restoreRevision, exportRevision, adoptDraft,
     visibleSessions, filterSummary, hasFilters,
     commit, undo, redo,

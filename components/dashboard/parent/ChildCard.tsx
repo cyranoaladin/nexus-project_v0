@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
@@ -50,6 +51,7 @@ interface ChildCardProps {
 }
 
 export function ChildCard({ child }: ChildCardProps) {
+  const fetch = useProtectedFetch();
   const hasAlerts = child.alerts && child.alerts.length > 0;
   const [activationLoading, setActivationLoading] = useState(false);
   const [activationError, setActivationError] = useState(false);

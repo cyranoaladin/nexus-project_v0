@@ -1,7 +1,8 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -81,6 +82,7 @@ const READINESS_STYLES: Record<string, string> = {
 };
 
 export default function CoachNsiStudentDetailPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
   const { studentId } = useParams<{ studentId: string }>();
@@ -109,7 +111,7 @@ export default function CoachNsiStudentDetailPage() {
       .then(setData)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [authStatus, role, studentId]);
+  }, [authStatus, role, studentId, fetch]);
 
   if (authStatus === 'loading' || loading) {
     return (

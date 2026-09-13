@@ -1,6 +1,7 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, ArrowLeft } from "lucide-react";
@@ -12,6 +13,7 @@ import {
 import Link from "next/link";
 
 export default function CoachStudentDetailPage() {
+  const fetch = useProtectedFetch();
   const { status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -49,7 +51,7 @@ export default function CoachStudentDetailPage() {
     };
 
     void fetchDossier();
-  }, [status, studentId, router]);
+  }, [status, studentId, router, fetch]);
 
   if (loading || status === "loading") {
     return (

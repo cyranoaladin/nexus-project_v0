@@ -4,7 +4,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import EAMPrep from "@/components/EAMPrep";
 import { Button } from "@/components/ui/button";
 

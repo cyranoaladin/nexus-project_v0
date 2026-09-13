@@ -1,6 +1,7 @@
 import type { JWT } from 'next-auth/jwt'
 import { isAccountActivationRequired } from '@/lib/auth/parent-activation'
 import { prisma } from '@/lib/prisma'
+import { recordSessionVerificationUnavailable } from '@/lib/auth/session-verification-outcome'
 
 type SessionUserState = {
   id: string
@@ -48,6 +49,7 @@ export async function validateSessionToken(
     if (isAccountActivationRequired(user.role, user.activatedAt)) return null
     return token
   } catch {
+    recordSessionVerificationUnavailable()
     return null
   }
 }

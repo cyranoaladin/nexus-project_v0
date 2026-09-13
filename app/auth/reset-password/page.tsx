@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signOut } from "next-auth/react";
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 import { useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { ArrowLeft, CheckCircle, Eye, EyeOff, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 
 function ResetPasswordForm() {
+  const signOut = useCanonicalSignOut();
   const searchParams = useSearchParams();
   const token = searchParams?.get("token") || "";
 

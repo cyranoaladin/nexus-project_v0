@@ -17,6 +17,7 @@
  * `AriaMessage`/`AriaConversation`.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { GraduationCap, Loader2, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -65,6 +66,7 @@ const MASTERY_BADGE_TONE: Record<AriaCourseSkillMastery['level'], string> = {
 const SKIPPED_WHEN_UNSTARTED: readonly AriaCourseSkillMastery['level'][] = ['NOT_STARTED'];
 
 export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) {
+  const fetch = useProtectedFetch();
   const [courses, setCourses] = useState<readonly AriaParentChildCourse[] | null>(null);
   const [selectedCourseKey, setSelectedCourseKey] = useState<string | null>(null);
   const [skills, setSkills] = useState<readonly AriaCourseSkillMastery[] | null>(null);
@@ -88,7 +90,7 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     void loadCourses();
@@ -116,7 +118,7 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
     return () => {
       cancelled = true;
     };
-  }, [studentId, selectedCourseKey]);
+  }, [studentId, selectedCourseKey, fetch]);
 
   useEffect(() => {
     if (!selectedCourseKey) {
@@ -140,7 +142,7 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
     return () => {
       cancelled = true;
     };
-  }, [studentId, selectedCourseKey]);
+  }, [studentId, selectedCourseKey, fetch]);
 
   useEffect(() => {
     if (!selectedCourseKey) {
@@ -164,7 +166,7 @@ export function AriaMasteryCard({ studentId }: Readonly<{ studentId: string }>) 
     return () => {
       cancelled = true;
     };
-  }, [studentId, selectedCourseKey]);
+  }, [studentId, selectedCourseKey, fetch]);
 
   if (loading) {
     return (

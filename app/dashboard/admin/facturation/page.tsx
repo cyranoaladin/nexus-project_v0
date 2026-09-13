@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState, useEffect, useCallback } from 'react';
 import {
   FileText,
@@ -138,6 +139,7 @@ const NEXUS_PRESETS: ProductPreset[] = [
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function FacturationPage() {
+  const fetch = useProtectedFetch();
   // List state
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
@@ -179,7 +181,7 @@ export default function FacturationPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, searchQuery]);
+  }, [statusFilter, searchQuery, fetch]);
 
   useEffect(() => {
     fetchInvoices(1);

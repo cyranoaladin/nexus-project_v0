@@ -6,6 +6,7 @@
  * shown until the child has a real, published ARIA_PERIODIC bilan.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FileText, Loader2 } from 'lucide-react';
@@ -19,6 +20,7 @@ interface AriaPeriodicBilanForParent {
 }
 
 export function AriaBilansCard({ studentId }: Readonly<{ studentId: string }>) {
+  const fetch = useProtectedFetch();
   const [bilans, setBilans] = useState<readonly AriaPeriodicBilanForParent[] | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +36,7 @@ export function AriaBilansCard({ studentId }: Readonly<{ studentId: string }>) {
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     void load();

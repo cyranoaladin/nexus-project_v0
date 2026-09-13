@@ -1,10 +1,11 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle, Calendar, CreditCard, Loader2, LogOut, Mail, Phone, Users, Settings, UserPlus, Menu, X } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -52,6 +53,8 @@ interface AssistantDashboardData {
 }
 
 export default function DashboardAssistante() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<AssistantDashboardData | null>(null);
@@ -89,7 +92,7 @@ export default function DashboardAssistante() {
     };
 
     fetchDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, fetch]);
 
   if (status === "loading" || loading) {
     return (

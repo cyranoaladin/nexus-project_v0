@@ -1,6 +1,7 @@
 "use client";
 
 // BadgeWidget reserved for gamification phase
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { AutomatismesDashboardCard } from "@/components/automatismes/AutomatismesDashboardCard";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import {
@@ -30,7 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import SessionBooking from "@/components/ui/session-booking";
 import { AlertCircle,ArrowRight,BookOpen,Calculator,Calendar,Loader2,LogOut,Sparkles,Target,User,Zap } from "lucide-react";
-import { signOut,useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect,useState } from "react";
@@ -38,6 +39,8 @@ import { useEffect,useState } from "react";
 import { resolveDashboardRubrique, type DashboardRubrique } from "@/components/dashboard/eleve/dashboard-view-model";
 
 export default function DashboardEleve() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<EleveDashboardData | null>(null);
@@ -88,7 +91,7 @@ export default function DashboardEleve() {
     };
 
     fetchDashboardData();
-  }, [session, status, router]);
+  }, [session, status, router, fetch]);
 
   useEffect(() => {
     if (!dashboardData) return;

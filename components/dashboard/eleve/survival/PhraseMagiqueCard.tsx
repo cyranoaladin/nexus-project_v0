@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Copy } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ type PhraseMagiqueCardProps = {
 };
 
 export function PhraseMagiqueCard({ phrase, copiedCount }: PhraseMagiqueCardProps) {
+  const fetch = useProtectedFetch();
   const [count, setCount] = useState(copiedCount);
 
   async function copyPhrase() {
