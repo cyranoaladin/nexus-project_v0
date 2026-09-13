@@ -3,7 +3,8 @@ import { GET } from '@/app/api/sessions/[sessionId]/route';
 import { prisma } from '@/lib/prisma';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { SessionStatus } from '@prisma/client';
-import { generateDeterministicRoomName, deterministicRoomSeedForSession } from '@/lib/jitsi';
+import { generateDeterministicRoomName } from '@/lib/jitsi';
+import { deterministicRoomSeedForSession } from '@/lib/jitsi-server';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),

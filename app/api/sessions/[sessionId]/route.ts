@@ -6,7 +6,8 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import { deterministicRoomSeedForSession, generateDeterministicRoomName } from '@/lib/jitsi';
+import { generateDeterministicRoomName } from '@/lib/jitsi';
+import { deterministicRoomSeedForSession } from '@/lib/jitsi-server';
 
 /**
  * GET /api/sessions/[sessionId] — the single real backend for the video

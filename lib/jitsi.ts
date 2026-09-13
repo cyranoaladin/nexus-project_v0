@@ -1,8 +1,14 @@
-import { createHmac } from 'node:crypto';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Utilitaires pour la gestion des salles de visioconférence Jitsi
  * Implémentation selon les directives CTO pour Nexus Réussite
+ *
+ * Ce module est importé à la fois côté serveur (app/api/sessions/[sessionId])
+ * ET côté client (components/ui/video-conference.tsx, "use client") — il ne
+ * doit donc JAMAIS importer `node:crypto` ou tout autre module Node-only, ce
+ * qui casserait le bundle webpack client (`UnhandledSchemeError: node:crypto`).
+ * Le générateur de graine HMAC (qui a réellement besoin de `node:crypto`) vit
+ * séparément dans lib/jitsi-server.ts, importé uniquement côté serveur.
  */
 
 const DEFAULT_JITSI_SERVER_URL = 'https://meet.jit.si';
@@ -52,26 +58,6 @@ export function generateDeterministicRoomName(sessionId: string, additionalSeed?
   // Utiliser sessionId + seed pour créer un nom déterministe mais unique
   const hash = btoa(`${sessionId}-${seed}`).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
   return `nexus-reussite-${sessionId.slice(0, 8)}-${hash.slice(0, 12)}`;
-}
-
-/**
- * Graine serveur pour `generateDeterministicRoomName`, pour un
- * `SessionBooking` donné — sans elle, le nom de salle ne dépend que du
- * `sessionId` (un simple encodage Base64 réversible, `btoa`), donc
- * reconstituable hors ligne par quiconque connaît l'algorithme. Avec un
- * HMAC serveur, la salle reste déterministe (même valeur à chaque appel,
- * pour tous les participants légitimes) mais n'est plus calculable sans
- * le secret serveur. La vraie frontière d'accès reste le RBAC vérifié à
- * chaque appel de `GET /api/sessions/[sessionId]` (identité serveur, pas
- * un id client) — ceci est une défense en profondeur supplémentaire, pas
- * le contrôle d'accès principal.
- */
-export function deterministicRoomSeedForSession(sessionId: string): string {
-  const secret = process.env.JITSI_ROOM_SECRET || process.env.NEXTAUTH_SECRET;
-  if (!secret) {
-    throw new Error('JITSI_ROOM_SECRET_OR_NEXTAUTH_SECRET_REQUIRED');
-  }
-  return createHmac('sha256', secret).update(sessionId).digest('hex').slice(0, 16);
 }
 
 /**
