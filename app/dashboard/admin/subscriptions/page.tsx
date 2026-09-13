@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,6 +38,8 @@ interface Subscription {
 }
 
 export default function SubscriptionsManagementPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -77,7 +80,7 @@ export default function SubscriptionsManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, statusFilter, searchTerm]);
+  }, [currentPage, statusFilter, searchTerm, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;

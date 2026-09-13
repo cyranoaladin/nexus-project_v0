@@ -1,8 +1,9 @@
 "use client";
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { BookOpen,FileText,Loader2,Users,Zap } from "lucide-react";
-import { signOut,useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useCallback,useEffect,useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
@@ -29,6 +30,8 @@ interface CoachDashboardData {
 }
 
 export default function DashboardCoach() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<CoachDashboardData | null>(null);
@@ -38,7 +41,7 @@ export default function DashboardCoach() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard');
   const [activeRubrique, setActiveRubrique] = useState<'cohorte' | 'planning' | 'alertes' | 'bilans'>('cohorte');
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const [response, eamResponse] = await Promise.all([
@@ -60,7 +63,7 @@ export default function DashboardCoach() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetch]);
 
   useEffect(() => {
     if (status === "loading") return
@@ -69,7 +72,7 @@ export default function DashboardCoach() {
       return
     }
     fetchDashboardData()
-  }, [session, status, router])
+  }, [session, status, router, fetchDashboardData])
 
   if (loading) return <div className="min-h-screen bg-surface-darker flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand-accent" /></div>
 
@@ -102,7 +105,7 @@ export default function DashboardCoach() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
@@ -242,7 +245,7 @@ export default function DashboardCoach() {
         <TabsContent value="availability" className="mt-0">
           <CoachAvailability coachId={session?.user?.id ?? ''} onAvailabilityUpdated={fetchDashboardData} />
         </TabsContent>
-      </main>
+      </div>
      </Tabs>
     </div>
   )

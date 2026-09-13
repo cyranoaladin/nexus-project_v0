@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VideoConference } from "@/components/ui/video-conference";
 import { ArrowLeft, BookOpen, Clock, User } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";

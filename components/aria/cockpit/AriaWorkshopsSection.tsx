@@ -8,6 +8,7 @@
  * doesn't render, never an error blocking the rest of the workspace).
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { CalendarDays, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +33,7 @@ const ATTENDANCE_LABELS: Record<NonNullable<AriaWorkshopForStudent['myAttendance
 };
 
 export function AriaWorkshopsSection({ courseKey }: Readonly<{ courseKey: string }>) {
+  const fetch = useProtectedFetch();
   const [workshops, setWorkshops] = useState<readonly AriaWorkshopForStudent[] | null>(null);
   const [registeringId, setRegisteringId] = useState<string | null>(null);
 
@@ -49,7 +51,7 @@ export function AriaWorkshopsSection({ courseKey }: Readonly<{ courseKey: string
       // failed fetch simply leaves it absent, never blocks the workspace.
       setWorkshops(null);
     }
-  }, [courseKey]);
+  }, [courseKey, fetch]);
 
   useEffect(() => {
     void load();
@@ -65,7 +67,7 @@ export function AriaWorkshopsSection({ courseKey }: Readonly<{ courseKey: string
         setRegisteringId(null);
       }
     },
-    [load],
+    [load, fetch],
   );
 
   if (!workshops || workshops.length === 0) return null;

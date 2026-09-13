@@ -10,6 +10,7 @@
  * parent's).
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { CalendarDays, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +37,7 @@ const ATTENDANCE_LABELS: Record<AriaWorkshopForParent['childAttendanceStatus'], 
 };
 
 export function AriaWorkshopsCard({ studentId }: Readonly<{ studentId: string }>) {
+  const fetch = useProtectedFetch();
   const [courses, setCourses] = useState<readonly AriaParentChildCourse[] | null>(null);
   const [workshops, setWorkshops] = useState<readonly AriaWorkshopForParent[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export function AriaWorkshopsCard({ studentId }: Readonly<{ studentId: string }>
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     void loadCourses();
@@ -84,7 +86,7 @@ export function AriaWorkshopsCard({ studentId }: Readonly<{ studentId: string }>
     return () => {
       cancelled = true;
     };
-  }, [studentId, courses]);
+  }, [studentId, courses, fetch]);
 
   if (loading) {
     return (

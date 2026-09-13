@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from '@/components/ui/button';
 import {
 Card,
@@ -38,6 +39,7 @@ export default function StudentDocumentsManager({
   studentName,
   onDocumentCreated 
 }: StudentDocumentsManagerProps) {
+  const fetch = useProtectedFetch();
   const [isCreating, setIsCreating] = useState(false);
   const [showForm, setShowForm] = useState(false);
   

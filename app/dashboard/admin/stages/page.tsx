@@ -1,8 +1,9 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import {
   Calendar,
   CheckCircle2,
@@ -508,6 +509,7 @@ function StageFormFields({
 }
 
 export default function AdminStagesPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -564,7 +566,7 @@ export default function AdminStagesPage() {
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, fetch]);
 
   const loadStageDetail = useCallback(async (stageId: string) => {
     if (!stageId) {
@@ -590,7 +592,7 @@ export default function AdminStagesPage() {
     } finally {
       setDetailLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, fetch]);
 
   const loadCoaches = useCallback(async () => {
     try {
@@ -602,7 +604,7 @@ export default function AdminStagesPage() {
     } catch {
       showToast('Impossible de charger les coachs.', 'error');
     }
-  }, [showToast]);
+  }, [showToast, fetch]);
 
   useEffect(() => {
     if (status === 'loading') return;

@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,10 +19,9 @@ import {
   Users,
   CalendarDays,
 } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 import Link from 'next/link';
 import { useVerifiedSession } from '@/hooks/use-verified-session';
-import { SessionVerificationUnavailable } from '@/components/auth/SessionVerificationUnavailable';
 import { useEffect, useState } from 'react';
 import { DashboardPilotage } from '@/components/dashboard/DashboardPilotage';
 
@@ -72,11 +72,13 @@ interface AdminDashboardData {
 
 export default function DashboardAdmin() {
   const verifiedSession = useVerifiedSession('ADMIN');
-  return <AdminDashboardContent key={`${verifiedSession.status}:${verifiedSession.data?.user.id ?? ''}`} verifiedSession={verifiedSession} />;
+  return <AdminDashboardContent verifiedSession={verifiedSession} />;
 }
 
 function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
-  const { data: session, status, verificationUnavailable, retryVerification } = verifiedSession;
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
+  const { data: session, status } = verifiedSession;
   const [adminData, setAdminData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,9 +109,8 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
 
     fetchAdminData();
     return () => controller.abort();
-  }, [session, status]);
+  }, [session, status, fetch]);
 
-  if (verificationUnavailable) return <SessionVerificationUnavailable retry={retryVerification} />;
 
   if (status !== 'authenticated' || session?.user.role !== 'ADMIN' || loading) {
     return (

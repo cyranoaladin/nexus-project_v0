@@ -8,6 +8,7 @@
  * attendance — every mutation goes through the real, authorized API.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { CalendarDays, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,6 +52,7 @@ const EMPTY_FORM = {
 };
 
 export function AriaWorkshopsAdmin() {
+  const fetch = useProtectedFetch();
   const [sessions, setSessions] = useState<readonly AriaWorkshopSessionForStaff[] | null>(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
@@ -65,7 +67,7 @@ export function AriaWorkshopsAdmin() {
     }
     const body = (await response.json()) as { workshops: readonly AriaWorkshopSessionForStaff[] };
     setSessions(body.workshops);
-  }, []);
+  }, [fetch]);
 
   useEffect(() => {
     void load();
@@ -97,7 +99,7 @@ export function AriaWorkshopsAdmin() {
     } finally {
       setSubmitting(false);
     }
-  }, [form, load]);
+  }, [form, load, fetch]);
 
   const markAttendance = useCallback(
     async (attendeeId: string, status: 'ATTENDED' | 'ABSENT') => {
@@ -113,7 +115,7 @@ export function AriaWorkshopsAdmin() {
         setMarkingId(null);
       }
     },
-    [load],
+    [load, fetch],
   );
 
   return (

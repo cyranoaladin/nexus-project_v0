@@ -849,6 +849,11 @@ jobs:
           curl -v http://localhost:3000/api/health 2>&1 || true
           exit 1
 
+      - name: Alias redis-e2e vers le service Redis jetable
+        # Public dashboard audits use the same fail-closed fixture cleanup as
+        # the auth lane; production quotas remain enabled and unchanged.
+        run: echo "127.0.0.1 redis-e2e" | sudo tee -a /etc/hosts
+
       - name: Run Playwright E2E tests
         timeout-minutes: 20
         env:
@@ -857,6 +862,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
           REUSE_EXISTING_SERVER: 'true'
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
         run: npx playwright test --config=playwright.ci.config.ts --project=chromium
 
       - name: Seal public E2E execution evidence

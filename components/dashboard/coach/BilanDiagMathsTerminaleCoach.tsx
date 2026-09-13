@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from '@/components/ui/button';
 import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { DOMAINS,ERROR_TYPES,QUESTIONS_OPEN } from '@/lib/diagnostic/maths-terminale/data';
@@ -361,6 +362,7 @@ type CoachDiagnosticSource = {
 type CoachDiagnosticBilan = { sourceData: CoachDiagnosticSource };
 
 export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDiagMathsTerminaleCoachProps) {
+  const fetch = useProtectedFetch();
 
   const [loading, setLoading] = useState(true);
   const [bilan, setBilan] = useState<CoachDiagnosticBilan | null>(null);
@@ -388,7 +390,7 @@ export function BilanDiagMathsTerminaleCoach({ studentId, studentName }: BilanDi
       finally { setLoading(false); }
     }
     void load();
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   const handleSubmitGrades = async () => {
     setSubmitting(true);

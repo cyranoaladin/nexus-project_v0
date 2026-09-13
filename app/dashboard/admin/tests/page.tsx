@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Alert,AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,8 +8,8 @@ import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { AlertTriangle,CheckCircle,CreditCard,Mail,Settings,XCircle } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { useEffect,useState } from 'react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
+import { useCallback,useEffect,useState } from 'react';
 
 interface ConfigStatus {
   variable: string;
@@ -29,6 +30,7 @@ interface PaymentConfig {
 }
 
 export default function AdminTestsPage() {
+  const fetch = useProtectedFetch();
   const { data: session } = useSession();
   const [emailConfig, setEmailConfig] = useState<ConfigStatus[]>([]);
   const [paymentConfig, setPaymentConfig] = useState<PaymentConfig | null>(null);
@@ -39,12 +41,7 @@ export default function AdminTestsPage() {
   // Vérifier l'autorisation (éviter hook conditionnel)
   const isAuthorized = !!(session?.user && session.user.role === 'ADMIN');
 
-  // Charger les configurations au démarrage
-  useEffect(() => {
-    loadConfigurations();
-  }, []);
-
-  const loadConfigurations = async () => {
+  const loadConfigurations = useCallback(async () => {
     try {
       // Charger config email
       const emailResponse = await fetch('/api/admin/test-email');
@@ -60,7 +57,9 @@ export default function AdminTestsPage() {
       });
     } catch {
     }
-  };
+  }, [fetch]);
+
+  useEffect(() => { if (isAuthorized) void loadConfigurations(); }, [isAuthorized, loadConfigurations]);
 
   const runTest = async (testType: string, endpoint: string, data: Record<string, unknown> = {}) => {
     setLoading(true);

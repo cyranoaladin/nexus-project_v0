@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalReports";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
@@ -11,13 +12,14 @@ import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { ArrowLeft,Calendar,Loader2,MessageCircle,Shield } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useParams,useRouter } from "next/navigation";
 import { useEffect,useState } from "react";
 import { CanonicalConsentCard } from "./canonical-consent-card";
 
 export default function ChildDetailPage() {
+  const fetch = useProtectedFetch();
   const { status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -53,7 +55,7 @@ export default function ChildDetailPage() {
     if (status === "authenticated") {
       fetchChildData();
     }
-  }, [status, studentId, router]);
+  }, [status, studentId, router, fetch]);
 
   if (loading || status === "loading") {
     return (

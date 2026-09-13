@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FileText, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Card, CardContent } from '@/components/ui/card';
 type QuestionnaireStatus = 'not_started' | 'draft' | 'submitted' | 'loading';
 
 export function MathsPremiereStageQuestionnaireCard() {
+  const fetch = useProtectedFetch();
   const [status, setStatus] = useState<QuestionnaireStatus>('loading');
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function MathsPremiereStageQuestionnaireCard() {
       }
     }
     void fetchStatus();
-  }, []);
+  }, [fetch]);
 
   const statusConfig: Record<Exclude<QuestionnaireStatus, 'loading'>, { label: string; color: string }> = {
     not_started: {

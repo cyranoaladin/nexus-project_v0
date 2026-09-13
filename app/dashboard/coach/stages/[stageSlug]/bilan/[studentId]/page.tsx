@@ -1,8 +1,9 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import {
   ArrowLeft, Save, Send, CheckCircle, AlertCircle,
   RefreshCw, Tag, X, Plus,
@@ -46,6 +47,7 @@ const EMPTY_BILAN: BilanData = {
 type Tab = 'eleve' | 'parent' | 'interne';
 
 export default function CoachBilanPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -145,7 +147,7 @@ export default function CoachBilanPage() {
     } finally {
       setLoading(false);
     }
-  }, [stageSlug, studentId]);
+  }, [stageSlug, studentId, fetch]);
 
   useEffect(() => { load(); }, [load]);
 

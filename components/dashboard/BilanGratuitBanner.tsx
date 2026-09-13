@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ClipboardCheck, X } from "lucide-react";
@@ -23,6 +24,7 @@ type BilanGratuitBannerProps = {
  * Dismiss state is persisted in DB via /api/bilan-gratuit/status and /dismiss.
  */
 export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: BilanGratuitBannerProps) {
+  const fetch = useProtectedFetch();
   const [visible, setVisible] = useState(false);
   const [dismissing, setDismissing] = useState(false);
   const [dismissError, setDismissError] = useState(false);
@@ -38,7 +40,7 @@ export function BilanGratuitBanner({ hasChildren = false, onGoToChildren }: Bila
       .catch(() => {
         // API unavailable — hide banner to avoid broken UX
       });
-  }, []);
+  }, [fetch]);
 
   const handleDismiss = async () => {
     setDismissing(true);

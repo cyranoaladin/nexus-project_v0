@@ -1,8 +1,9 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from 'next/link';
 import {
   Loader2,
@@ -66,6 +67,7 @@ const SUBJECT_META: Record<string, { label: string; icon: typeof Calculator; col
 };
 
 export default function ParentStagesPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [data, setData] = useState<ApiResponse | null>(null);
@@ -97,7 +99,7 @@ export default function ParentStagesPage() {
         setLoading(false);
       }
     })();
-  }, [session, status, router]);
+  }, [session, status, router, fetch]);
 
   if (status === 'loading' || loading) {
     return (

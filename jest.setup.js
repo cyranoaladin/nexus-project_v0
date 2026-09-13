@@ -139,6 +139,24 @@ jest.mock('next-auth/react', () => ({
   SessionProvider: ({ children }) => children,
 }));
 
+// Isolated page/component tests inject a display projection, not a live auth
+// transport. The auth recovery suites explicitly unmock this boundary and test
+// the real coordinator/provider/HTTP protocol, including uncertainty and logout.
+jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
+  ...jest.requireActual('@/components/auth/SessionRecoveryProvider'),
+  useCanonicalSession: () => require('next-auth/react').useSession(),
+  useCanonicalSignOut: () => require('next-auth/react').signOut,
+  useProtectedFetch: () => global.fetch,
+  useSessionMutationSuspended: () => false,
+  useSessionRecoveryController: () => ({
+    captureMutation: () => () => {},
+    bindDeferredMutation: task => task,
+    retry: jest.fn(),
+    getSnapshot: () => ({ canMutate: true, identityEpoch: 0 }),
+    subscribe: () => () => {},
+  }),
+}));
+
 // Mock auth.ts to prevent ESM import chain (next-auth → @auth/core)
 jest.mock('./auth', () => ({
   auth: jest.fn(() => Promise.resolve(null)),

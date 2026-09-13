@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-import { useSession } from 'next-auth/react';
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useState, useEffect, useRef, useCallback, type Dispatch, type SetStateAction } from 'react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +75,7 @@ const SUBJECTS = [
 ];
 
 export default function CoachManagement() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [coaches, setCoaches] = useState<Coach[]>([]);
@@ -88,18 +90,7 @@ export default function CoachManagement() {
   // Form state
   const [formData, setFormData] = useState<CoachFormData>(INITIAL_FORM_DATA);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchCoaches();
-  }, [session, status, router]);
-
-  const fetchCoaches = async () => {
+  const fetchCoaches = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/assistante/coaches/manage');
@@ -115,7 +106,13 @@ export default function CoachManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetch]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'ASSISTANTE') { router.push('/auth/signin'); return; }
+    void fetchCoaches();
+  }, [session, status, router, fetchCoaches]);
 
   const resetForm = () => {
     setFormData({

@@ -1,6 +1,7 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,6 +30,7 @@ interface PendingPayment {
 }
 
 export default function PaiementsAssistantePage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession()
   const router = useRouter()
   const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([])
@@ -50,7 +52,7 @@ export default function PaiementsAssistantePage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [fetch])
 
   useEffect(() => {
     if (status === "loading") return

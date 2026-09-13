@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState, useCallback } from 'react';
 import { BookOpen, ChevronDown, ChevronUp, Database, Loader2, Sparkles, X } from 'lucide-react';
 
@@ -99,6 +100,7 @@ function HitCard({ hit }: { hit: RAGHit }) {
 }
 
 export default function RAGSources({ chapId, chapTitre }: RAGSourcesProps) {
+  const fetch = useProtectedFetch();
   const [state, setState] = useState<State>({ status: 'idle' });
   const [userQuery, setUserQuery] = useState('');
 
@@ -119,7 +121,7 @@ export default function RAGSources({ chapId, chapTitre }: RAGSourcesProps) {
     } catch (e) {
       setState({ status: 'error', message: (e as Error).message });
     }
-  }, [chapId, chapTitre]);
+  }, [chapId, chapTitre, fetch]);
 
   const reset = () => {
     setState({ status: 'idle' });
