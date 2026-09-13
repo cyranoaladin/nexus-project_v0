@@ -1,5 +1,8 @@
+/** @jest-environment node */
+
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parse } from 'yaml';
 
 const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
@@ -81,6 +84,23 @@ describe('ephemeral E2E bootstrap contract', () => {
     expect(resetHelper).toContain("url.hostname !== 'redis-e2e'");
     expect(resetHelper).toContain("process.env.E2E_DISPOSABLE_STACK !== '1'");
     expect(resetHelper).toContain('flushDb');
+  });
+
+  it('gives public dashboard audits the same guarded disposable quota isolation as auth audits', () => {
+    const workflow = parse(read('.github/workflows/ci.yml')) as { jobs: { e2e: {
+      env: Record<string, string>;
+      services: Record<string, { ports: string[] }>;
+      steps: Array<{ name?: string; run?: string; env?: Record<string, string> }>;
+    } } };
+    const job = workflow.jobs.e2e;
+    const runIndex = job.steps.findIndex(step => step.name === 'Run Playwright E2E tests');
+    const aliasIndex = job.steps.findIndex(step => step.name === 'Alias redis-e2e vers le service Redis jetable');
+    expect(job.env.E2E_DISPOSABLE_STACK).toBe('1');
+    expect(job.services['redis-e2e'].ports).toContain('6380:6379');
+    expect(job.steps[runIndex].env?.E2E_DISPOSABLE_REDIS_URL).toBe('redis://redis-e2e:6380/0');
+    expect(aliasIndex).toBeGreaterThanOrEqual(0);
+    expect(aliasIndex).toBeLessThan(runIndex);
+    expect(job.steps[aliasIndex].run).toContain('127.0.0.1 redis-e2e');
   });
 
   it('runs only allowlisted hermetic configs and projects without argument injection', () => {

@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 import { CREDS } from '@/e2e/helpers/credentials';
+import { resetDisposableE2ERateLimits } from '@/e2e/helpers/rate-limit';
 
 /**
  * REAL AUDIT — Dashboard pages (authenticated).
@@ -19,6 +20,9 @@ function dashboardContent(page: Page, path: DashboardPath) {
 
 /** URL/load events can precede canonical verification and dashboard data. */
 async function loginAndGo(page: Page, email: string, password: string, expectedUrl: DashboardPath) {
+  // Independent page audits must not consume previous scenarios' login quota.
+  // This helper refuses every target except the explicitly disposable Redis.
+  await resetDisposableE2ERateLimits();
   await page.goto('/auth/signin', { waitUntil: 'load' });
   await page.getByTestId('input-email').fill(email);
   await page.getByTestId('input-password').fill(password);
