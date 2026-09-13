@@ -1,10 +1,11 @@
 "use client";
 import { AlertCircle,CreditCard,Loader2,LogOut,MessageCircle,Users } from "lucide-react";
-import { signOut,useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useVerifiedSession } from '@/hooks/use-verified-session';
+import { SessionVerificationUnavailable } from '@/components/auth/SessionVerificationUnavailable';
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { useCallback,useEffect,useState } from "react";
+import { useCallback,useEffect,useRef,useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,14 @@ interface ParentDashboardData {
 }
 
 export default function DashboardParent() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const verifiedSession = useVerifiedSession('PARENT');
+  return <ParentDashboardContent key={`${verifiedSession.status}:${verifiedSession.data?.user.id ?? ''}`} verifiedSession={verifiedSession} />;
+}
+
+function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
+  const { data: session, status, verificationUnavailable, retryVerification } = verifiedSession;
+  const pendingRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => pendingRequest.current?.abort(), []);
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -30,6 +37,9 @@ export default function DashboardParent() {
   const [addChildOpen, setAddChildOpen] = useState(false);
 
   const refreshDashboardData = useCallback(async (options: { silent?: boolean } = {}) => {
+    pendingRequest.current?.abort();
+    const controller = new AbortController();
+    pendingRequest.current = controller;
     const silent = options.silent === true;
     try {
       if (!silent) {
@@ -37,33 +47,30 @@ export default function DashboardParent() {
         setError(null)
       }
 
-      const response = await fetch('/api/parent/dashboard')
+      const response = await fetch('/api/parent/dashboard', { signal: controller.signal })
 
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard data')
       }
 
       const data = await response.json()
-      setDashboardData(data)
+      if (!controller.signal.aborted) setDashboardData(data)
     } catch (err) {
-      if (!silent) setError(err instanceof Error ? err.message : 'An error occurred')
+      if (!controller.signal.aborted && !silent) setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      if (!silent) setLoading(false)
+      if (!controller.signal.aborted && !silent) setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin")
-      return
-    }
+    if (status !== 'authenticated' || session?.user.role !== 'PARENT') return
 
     void refreshDashboardData()
-  }, [session, status, router, refreshDashboardData])
+  }, [session, status, refreshDashboardData])
 
-  if (status === "loading" || loading) {
+  if (verificationUnavailable) return <SessionVerificationUnavailable retry={retryVerification} />;
+
+  if (status !== 'authenticated' || session?.user.role !== 'PARENT' || loading) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />

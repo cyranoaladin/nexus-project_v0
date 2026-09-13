@@ -78,11 +78,11 @@ test.describe('Parent dashboard — current production contract', () => {
     });
 
     test('renders exactly one progress action per child', async ({ page }) => {
-      await expect(page.getByRole('link', { name: /Voir la progression/ })).toHaveCount(3);
+      await expect(page.getByRole('link', { name: /Voir les bilans et le suivi/ })).toHaveCount(3);
     });
 
     test('uses a distinct canonical detail URL for each child', async ({ page }) => {
-      const hrefs = await page.getByRole('link', { name: /Voir la progression/ }).evaluateAll((links) => (
+      const hrefs = await page.getByRole('link', { name: /Voir les bilans et le suivi/ }).evaluateAll((links) => (
         links.map((link) => link.getAttribute('href'))
       ));
       expect(hrefs).toHaveLength(3);
@@ -114,23 +114,27 @@ test.describe('Parent dashboard — current production contract', () => {
       await expect(page.getByText(/STMG/).first()).toBeVisible();
     });
 
-    test('exposes one NexusIndex label per child', async ({ page }) => {
-      await expect(page.getByText('NexusIndex', { exact: true })).toHaveCount(3);
-    });
+    // The per-child NexusIndex display was deliberately removed from
+    // ChildCard alongside the WhatsApp-onboarding rework (339dd8fa8,
+    // "feat(platform): integrate family WhatsApp onboarding without
+    // credits") -- the parent dashboard no longer renders a "NexusIndex"
+    // label at all. That commit predates this spec's own last edit
+    // (e47573dd0), so this assertion was already stale before e2e/auth
+    // was ever wired into CI (PR #235) -- nothing to fix in the app.
 
     test('exposes one next-session summary per child', async ({ page }) => {
       await expect(page.getByText('Prochaine séance', { exact: true })).toHaveCount(3);
     });
 
     test('gives every progress link an accessible name', async ({ page }) => {
-      const links = page.getByRole('link', { name: /Voir la progression/ });
+      const links = page.getByRole('link', { name: /Voir les bilans et le suivi/ });
       for (let index = 0; index < await links.count(); index += 1) {
         await expect(links.nth(index)).toBeVisible();
       }
     });
 
     test('opens the canonical child detail from a card', async ({ page }) => {
-      await page.getByRole('link', { name: /Voir la progression/ }).first().click();
+      await page.getByRole('link', { name: /Voir les bilans et le suivi/ }).first().click();
       await expect(page).toHaveURL(/\/dashboard\/parent\/enfant\/[a-z0-9]+$/i);
       const requestSlot = page.getByRole('link', { name: /demander un créneau/i });
       await expect(requestSlot).toBeVisible();
@@ -145,7 +149,7 @@ test.describe('Parent dashboard — current production contract', () => {
 
     test('uses the same child IDs in the API and card URLs', async ({ page }) => {
       const payload = await dashboardPayload(page);
-      const hrefs = await page.getByRole('link', { name: /Voir la progression/ }).evaluateAll((links) => (
+      const hrefs = await page.getByRole('link', { name: /Voir les bilans et le suivi/ }).evaluateAll((links) => (
         links.map((link) => link.getAttribute('href'))
       ));
       expect(new Set(hrefs)).toEqual(new Set(payload.children.map(({ id }) => `/dashboard/parent/enfant/${id}`)));
@@ -202,7 +206,7 @@ test.describe('Parent dashboard — current production contract', () => {
     test('can return from alerts to the full children list', async ({ page }) => {
       await page.getByRole('button', { name: 'Alertes', exact: true }).click();
       await page.getByRole('button', { name: 'Mes Enfants', exact: true }).click();
-      await expect(page.getByRole('link', { name: /Voir la progression/ })).toHaveCount(3);
+      await expect(page.getByRole('link', { name: /Voir les bilans et le suivi/ })).toHaveCount(3);
     });
 
     test('resets the transient rubrique to children after reload', async ({ page }) => {
@@ -258,7 +262,7 @@ test.describe('Parent dashboard — current production contract', () => {
       for (const name of ['Facturation', 'Alertes', 'Mes Enfants', 'Facturation', 'Mes Enfants']) {
         await page.getByRole('button', { name, exact: true }).click();
       }
-      await expect(page.getByRole('link', { name: /Voir la progression/ })).toHaveCount(3);
+      await expect(page.getByRole('link', { name: /Voir les bilans et le suivi/ })).toHaveCount(3);
     });
 
     test('does not emit browser console errors during the rendered flow', async ({ page }) => {

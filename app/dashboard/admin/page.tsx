@@ -18,9 +18,10 @@ import {
   Users,
   CalendarDays,
 } from 'lucide-react';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useVerifiedSession } from '@/hooks/use-verified-session';
+import { SessionVerificationUnavailable } from '@/components/auth/SessionVerificationUnavailable';
 import { useEffect, useState } from 'react';
 import { DashboardPilotage } from '@/components/dashboard/DashboardPilotage';
 
@@ -70,44 +71,47 @@ interface AdminDashboardData {
 }
 
 export default function DashboardAdmin() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const verifiedSession = useVerifiedSession('ADMIN');
+  return <AdminDashboardContent key={`${verifiedSession.status}:${verifiedSession.data?.user.id ?? ''}`} verifiedSession={verifiedSession} />;
+}
+
+function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
+  const { data: session, status, verificationUnavailable, retryVerification } = verifiedSession;
   const [adminData, setAdminData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ADMIN') {
-      router.push("/auth/signin");
-      return;
-    }
+    if (status !== 'authenticated' || session?.user.role !== 'ADMIN') return;
+    const controller = new AbortController();
 
     const fetchAdminData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('/api/admin/dashboard');
+        const response = await fetch('/api/admin/dashboard', { signal: controller.signal });
 
         if (!response.ok) {
           throw new Error('Failed to fetch admin dashboard data');
         }
 
         const data = await response.json();
-        setAdminData(data);
+        if (!controller.signal.aborted) setAdminData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchAdminData();
-  }, [session, status, router]);
+    return () => controller.abort();
+  }, [session, status]);
 
-  if (status === "loading" || loading) {
+  if (verificationUnavailable) return <SessionVerificationUnavailable retry={retryVerification} />;
+
+  if (status !== 'authenticated' || session?.user.role !== 'ADMIN' || loading) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">

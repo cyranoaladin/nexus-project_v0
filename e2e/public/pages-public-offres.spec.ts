@@ -17,10 +17,17 @@ test.describe('/offres — Page Tarifs', () => {
   });
 
   test('prix affichés pour les formules', async ({ page }) => {
+    // Prices are rendered dynamically from data/pricing.canonical.json's
+    // price_annual field (app/offres/page.tsx:324), so asserting specific
+    // hardcoded amounts goes stale on every catalogue change -- this test
+    // previously hardcoded 150/450/750 TND, values from a removed 3-tier
+    // ACCES_PLATEFORME/HYBRIDE/IMMERSION subscription model that no longer
+    // exists on this page (found via E2E orphan-spec triage). Assert the
+    // real, stable invariant instead: the page actually displays several
+    // distinct TND price amounts, matching how prices are truly rendered.
     const body = await page.textContent('body');
-    expect(body).toMatch(/150/);
-    expect(body).toMatch(/450/);
-    expect(body).toMatch(/750/);
+    const priceMatches = body?.match(/\d[\d\s ]{0,6}TND/g) ?? [];
+    expect(priceMatches.length).toBeGreaterThanOrEqual(3);
   });
 
   test('CTA redirige vers /bilan-gratuit', async ({ page }) => {

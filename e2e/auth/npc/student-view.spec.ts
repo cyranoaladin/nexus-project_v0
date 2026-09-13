@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser } from '../../helpers/auth';
 
 test.describe('NPC Student View', () => {
   test.beforeEach(async ({ page }) => {

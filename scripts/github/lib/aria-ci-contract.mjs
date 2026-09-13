@@ -103,7 +103,17 @@ function inspectCommonJob(jobKey, job, findings) {
 }
 
 function inspectArtifact(jobKey, job, expectedName, expectedPath, findings) {
-  const uploads = uploadSteps(job);
+  const allUploads = uploadSteps(job);
+  // The unified Core+ARIA execution aggregate consumes a separate, exact-run
+  // envelope. Keep the original ARIA artifact contract intact; permit only
+  // this precisely scoped additional export, not arbitrary extra uploads.
+  const executionUploads = jobKey === 'aria-browser' ? allUploads.filter(step =>
+    step.with?.name === `e2e-execution-aria-${'${{ matrix.lane }}'}-${PR_HEAD_REF}-${'${{ github.run_id }}'}-${RUN_ATTEMPT}`
+    && step.with?.path === 'e2e-execution/'
+    && step.if === 'always()'
+    && step.with?.['if-no-files-found'] === 'error') : [];
+  const uploads = executionUploads.length === 1
+    ? allUploads.filter(step => step !== executionUploads[0]) : allUploads;
   if (uploads.length !== 1) {
     findings.push(`ARIA_CI_ARTIFACT_STEP_COUNT:${jobKey}:${uploads.length}`);
     return;

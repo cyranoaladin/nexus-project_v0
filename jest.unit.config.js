@@ -54,4 +54,11 @@ const customJestConfig = {
   ],
 };
 
-module.exports = createJestConfig(customJestConfig);
+const resolveJestConfig = createJestConfig(customJestConfig);
+module.exports = async () => ({
+  ...await resolveJestConfig(),
+  // next/jest prepends its own node_modules ignore patterns. Appending our
+  // ESM allowlist cannot override those, so unmocked SessionProvider tests
+  // otherwise fail to load the very dependency whose lifecycle they verify.
+  transformIgnorePatterns: customJestConfig.transformIgnorePatterns,
+});

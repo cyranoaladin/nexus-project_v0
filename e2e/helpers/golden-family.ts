@@ -52,6 +52,7 @@ export interface GoldenFamilyIds {
   assignmentBId?: string;
   seriesAId?: string;
   seriesBId?: string;
+  selfServiceSeriesIds?: string[];
   idempotencyOwners?: string[]; // userIds whose idempotency keys must be purged
 }
 
@@ -98,7 +99,7 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
   const coachUserIds = compact([ids.coach1UserId, ids.coach2UserId]);
   const parentUserIds = compact([ids.parent1UserId, ids.parent2UserId]);
   const assignmentIds = compact([ids.assignmentAId, ids.assignmentBId]);
-  const seriesIds = compact([ids.seriesAId, ids.seriesBId]);
+  const seriesIds = compact([ids.seriesAId, ids.seriesBId, ...(ids.selfServiceSeriesIds ?? [])]);
 
   if (studentIds.length > 0 || coachUserIds.length > 0) {
     await prisma.sessionBooking.deleteMany({
@@ -203,30 +204,16 @@ export async function signInAs(page: Page, identifier: string, password: string,
     // Say WHY the form did not leave /auth/signin: a rejected credential (rate
     // limit, inactive account) renders role="alert"; a silent stall does not.
     const alert = await page.getByRole('alert').allInnerTexts().catch(() => [] as string[]);
-    const sessionProbe = await page.request.get(`${BASE_URL}/api/auth/session`, { failOnStatusCode: false }).then(async (r) => `${r.status()} ${(await r.text()).slice(0, 200)}`).catch((e: unknown) => `probe failed: ${String(e)}`);
+    const sessionProbe = await page.request.get(`${BASE_URL}/api/auth/session`, { failOnStatusCode: false }).then(async (r) => {
+      const session = await r.json().catch(() => null) as { user?: unknown } | null;
+      return { status: r.status(), authenticated: Boolean(session?.user) };
+    }).catch(() => ({ status: 'unavailable', authenticated: false }));
     throw new Error(
       `GOLDEN_FAMILY_SIGNIN_STALLED url=${page.url()} alert=${JSON.stringify(alert)} session=${JSON.stringify(sessionProbe)} cause=${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`,
     );
   }
   await page.waitForLoadState('domcontentloaded');
   await waitForSessionUserId(page, expectedUserId);
-}
-
-/**
- * WebKit is occasionally stricter about a `page.goto` fired right after
- * `clearCookies()`/a prior navigation than Chromium/Firefox, and aborts with
- * "Frame load interrupted" / `NS_BINDING_ABORTED` even though the target URL
- * is otherwise fine — a real, observed cross-engine flake in this scenario's
- * many role-switch navigations, not a product bug. One retry absorbs it
- * without weakening what's actually asserted after the navigation.
- */
-export async function gotoStable(page: Page, url: string): Promise<void> {
-  try {
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-  } catch {
-    await page.waitForTimeout(300);
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-  }
 }
 
 export async function disconnectGoldenFamilyPrisma(): Promise<void> {

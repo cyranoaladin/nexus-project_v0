@@ -46,7 +46,7 @@ const ROLE_PATHS = {
 } as const;
 
 const FORBIDDEN_PROBES = {
-  admin: [],
+  admin: ['/dashboard/parent'],
   parent: ['/dashboard/admin', '/dashboard/coach', '/dashboard/eleve'],
   coach: ['/dashboard/admin', '/dashboard/parent', '/dashboard/eleve'],
   student: ['/dashboard/admin', '/dashboard/parent', '/dashboard/coach'],
@@ -75,11 +75,8 @@ test.describe('RBAC dashboards - contrat', () => {
       await loginAsUser(page, role);
 
       for (const forbiddenRoute of FORBIDDEN_PROBES[role]) {
-        await page.goto(forbiddenRoute, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-
-        const pathname = new URL(page.url()).pathname;
-        const blocked = !pathname.startsWith(forbiddenRoute);
-        expect(blocked).toBeTruthy();
+        await page.goto(forbiddenRoute, { waitUntil: 'domcontentloaded' });
+        await expect(page).toHaveURL(new RegExp(`${ROLE_PATHS[role][0]}(?:[/?#]|$)`));
       }
     });
   }

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser } from '../../helpers/auth';
 
 test.describe.serial('NPC Coach Workflow', () => {
   test.beforeEach(async ({ page }) => {
