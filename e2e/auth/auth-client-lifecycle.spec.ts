@@ -15,6 +15,7 @@ test('static planning preserves its exact editor through unavailable canonical v
   await loginAsUser(page, 'admin');
   await page.goto('/planning', { waitUntil: 'networkidle' });
   await page.locator('.card').first().click();
+  const editor = page.locator('#side');
   const draft = page.locator('#sess-title');
   await draft.fill('Synthetic planning draft retained');
   await draft.evaluate(element => element.setAttribute('data-retained-draft', 'original-node'));
@@ -27,14 +28,16 @@ test('static planning preserves its exact editor through unavailable canonical v
   await page.route('**/api/auth/session', route => unavailable ? route.abort('failed') : route.continue());
   try {
     await requestProviderRefresh(page);
-    await expect(page.getByText('La vérification de session est indisponible. Votre travail est conservé ; les actions sont suspendues.', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(editor.getByText('La vérification de session est indisponible. Votre travail est conservé ; les actions sont suspendues.', { exact: true })).toBeVisible({ timeout: 15_000 });
     expect(page.url()).toBe(original);
     await expect(draft).toHaveValue('Synthetic planning draft retained');
     await expect(draft).toHaveAttribute('data-retained-draft', 'original-node');
     await expect(page.locator('#btnApply')).toBeDisabled();
     expect(mutations).toEqual([]);
     unavailable = false;
-    await page.getByRole('button', { name: 'Réessayer la vérification', exact: true }).click();
+    // The editor is a drawer on mobile: its own recovery control must be
+    // reachable without dismissing the drawer or replacing the draft node.
+    await editor.getByRole('button', { name: 'Réessayer la vérification', exact: true }).click();
     await expect(page.locator('#btnApply')).toBeEnabled();
     await expect(draft).toHaveValue('Synthetic planning draft retained');
     await expect(draft).toHaveAttribute('data-retained-draft', 'original-node');

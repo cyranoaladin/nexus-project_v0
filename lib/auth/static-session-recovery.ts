@@ -56,6 +56,10 @@ export function mountStaticSessionRecovery(options: { onSessionEnded(): void; on
     if (nextIdentity) identity = nextIdentity;
     const visible = !snapshot.canMutate;
     notice(banner, visible, snapshot.state === 'UNAVAILABLE');
+    // The mobile editor drawer overlays the global banner. Keep recovery
+    // controls inside that surface, outside its replaceable editor body.
+    const side = root!.querySelector('#side');
+    if (side) notice(side, visible, snapshot.state === 'UNAVAILABLE');
     modalRoot!.querySelectorAll('.modal').forEach(modal => notice(modal, visible, snapshot.state === 'UNAVAILABLE'));
     for (const scope of [root!, modalRoot!]) {
       scope.querySelectorAll<HTMLInputElement | HTMLButtonElement | HTMLSelectElement | HTMLTextAreaElement>('input,button,select,textarea').forEach(control => {
