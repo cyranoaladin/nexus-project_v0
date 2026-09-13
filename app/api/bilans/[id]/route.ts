@@ -16,7 +16,14 @@ import {
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
 import { BilanStatus, BilanReviewDecision } from '@/lib/bilan/types';
-import { notifyParentPeriodicBilanPublished } from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
+import {
+  resolvePeriodicBilanNotificationIntent,
+  enqueuePeriodicBilanNotification,
+  isDuplicateNotificationError,
+  type PeriodicBilanNotificationIntent,
+} from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
+import { isParentReportingEligibleForStudent } from '@/lib/aria/bilans/periodic/parent-reporting-eligibility';
+import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
@@ -100,6 +107,25 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!bilan) {
+      return NextResponse.json(
+        { success: false, error: 'Bilan not found' },
+        { status: 404 }
+      );
+    }
+
+    // ARIA_PERIODIC parent-reporting gate: ownership (checked above via
+    // buildBilanReadWhere) is necessary but not sufficient for this type —
+    // a parent whose child's ARIA tier doesn't include `parentReporting`
+    // must not be able to read the detail either, even if they somehow
+    // hold the bilan id (e.g. from a stale link, or one sent before a
+    // downgrade). Same 404 shape as "not found": never reveal that a
+    // bilan exists for a family that isn't entitled to see it.
+    if (
+      authResponse.user.role === 'PARENT'
+      && bilan.type === 'ARIA_PERIODIC'
+      && bilan.studentId
+      && !(await isParentReportingEligibleForStudent(bilan.studentId))
+    ) {
       return NextResponse.json(
         { success: false, error: 'Bilan not found' },
         { status: 404 }
@@ -204,31 +230,51 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (body.sourceVersion !== undefined) updateData.sourceVersion = body.sourceVersion;
     if (body.engineVersion !== undefined) updateData.engineVersion = body.engineVersion;
 
-    // Update bilan
-    const updated = await prisma.bilan.update({
-      where: { id },
-      data: updateData,
-    });
-
-    // ARIA_PERIODIC parent notification (P7c): fires exactly once, only on
-    // a real false->true publish transition for this type — the same
-    // transition already guarded above by the review gate. A notification
-    // failure must never fail an already-persisted publication.
-    if (
+    // ARIA_PERIODIC parent notification (P7c): resolved BEFORE the write,
+    // as a pure read (see resolvePeriodicBilanNotificationIntent) — it
+    // decides only WHETHER a notification is owed (parent exists, has an
+    // email, and the child's ARIA tier grants `parentReporting`) and
+    // builds its content, without touching the database. `null` means no
+    // notification is owed at all (ineligible tier, or no real parent
+    // contact) — not a failure.
+    const notificationIntent: PeriodicBilanNotificationIntent | null =
       existing.type === 'ARIA_PERIODIC'
       && body.isPublished === true
       && !existing.isPublished
       && existing.studentId
-    ) {
-      try {
-        await notifyParentPeriodicBilanPublished({
-          bilanId: existing.id,
-          studentId: existing.studentId,
-          subject: existing.subject,
-        });
-      } catch (error) {
-        console.error('[PUT /api/bilans/[id]] parent notification failed', serializeError(error));
+        ? await resolvePeriodicBilanNotificationIntent({
+            bilanId: existing.id,
+            studentId: existing.studentId,
+            subject: existing.subject,
+          })
+        : null;
+
+    // The publish (or any other update) and the durable notification
+    // intent commit atomically: either both land, or neither does. There
+    // is no window in which the bilan is published but no notification
+    // was durably recorded — a transient outbox failure now fails the
+    // whole PUT (the caller can retry) instead of silently losing the
+    // notification behind an already-committed publication.
+    const updated = await prisma.$transaction(async (transaction) => {
+      const row = await transaction.bilan.update({
+        where: { id },
+        data: updateData,
+      });
+      if (notificationIntent) {
+        try {
+          await enqueuePeriodicBilanNotification(transaction, notificationIntent);
+        } catch (error) {
+          if (!isDuplicateNotificationError(error)) throw error;
+          // Already enqueued by a transaction that won a genuine
+          // concurrent double-fire race — not a failure, and this
+          // transaction's publish write is still correct to keep.
+        }
       }
+      return row;
+    });
+
+    if (notificationIntent) {
+      kickEmailOutboxDrain();
     }
 
     return NextResponse.json({

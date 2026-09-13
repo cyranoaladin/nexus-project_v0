@@ -6,8 +6,31 @@ import { prisma } from '@/lib/prisma';
 import { prismaLearningEvidenceRepository } from '@/lib/aria/infrastructure/prisma/learning-evidence-repository';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
 import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
-import { notifyParentPeriodicBilanPublished } from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
+import {
+  resolvePeriodicBilanNotificationIntent,
+  enqueuePeriodicBilanNotification,
+  isDuplicateNotificationError,
+} from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
 import { AriaError } from '@/lib/aria/kernel/errors';
+
+/**
+ * Mirrors exactly what `PUT /api/bilans/[id]` does: resolve the intent
+ * (pure read, includes the parentReporting tier gate) then, only if one
+ * was produced, enqueue it inside a transaction — swallowing a genuine
+ * concurrent double-fire (unique dedupeKey violation) rather than
+ * treating it as a failure. Used here so this real-DB suite exercises the
+ * exact same two-step, atomic-with-the-publish pattern production uses,
+ * instead of a bespoke one-shot helper this suite alone would invent.
+ */
+async function publishAndNotify(input: { bilanId: string; studentId: string; subject: string }): Promise<void> {
+  const intent = await resolvePeriodicBilanNotificationIntent(input);
+  if (!intent) return;
+  try {
+    await prisma.$transaction((transaction) => enqueuePeriodicBilanNotification(transaction, intent));
+  } catch (error) {
+    if (!isDuplicateNotificationError(error)) throw error;
+  }
+}
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -388,7 +411,7 @@ describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
   });
 });
 
-describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)', () => {
+describe('resolvePeriodicBilanNotificationIntent + enqueuePeriodicBilanNotification — real parent notification (P7c)', () => {
   let pool: Pool;
   let family: AriaRealDbFixtureIds;
 
@@ -430,13 +453,18 @@ describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)'
     await cleanupAriaRealDbFixture(pool, family);
   });
 
-  it('queues exactly one real parent email intent on a real publication', async () => {
+  it('queues exactly one real parent email intent on a real publication for an ARIA_SUIVI+ family', async () => {
     family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    // Parent notification is a SUIVI+ parentReporting capability, exactly
+    // like the list — the base fixture's default ARIA_AUTONOMIE
+    // entitlement would otherwise correctly deny it (see the dedicated
+    // tier-gate test below).
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Marie', family.parentUser]);
     const bilanId = await createBilan(family.student);
 
-    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
 
     const rows = await pool.query(
       `SELECT id, "jobType", status FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
@@ -448,15 +476,18 @@ describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)'
 
   it('never queues a second notification for the same real bilan publication (idempotent dedupeKey)', async () => {
     family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Karim', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', family.parentUser]);
     const bilanId = await createBilan(family.student);
 
-    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
     // A genuine concurrent double-fire hits the outbox's own unique
-    // constraint and must be caught, not thrown — mirrors the workshop
-    // notification's own real concurrency test.
-    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    // constraint inside the transaction and must be swallowed, not
+    // thrown — mirrors the workshop notification's own real concurrency
+    // test, and proves `publishAndNotify` (mirroring the real route)
+    // tolerates the race exactly like the route's own transaction does.
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
 
     const rows = await pool.query(
       `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
@@ -465,13 +496,32 @@ describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)'
     expect(rows.rows).toHaveLength(1);
   });
 
+  it('queues no notification when the child\'s ARIA tier does not include parentReporting (real DB proof of the tier gate)', async () => {
+    // Deliberately NOT upgraded past the base fixture's default
+    // ARIA_AUTONOMIE entitlement, with otherwise fully valid parent/student
+    // names — isolates the tier gate as the only reason nothing is queued.
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Leila', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
   it('queues no notification when the student has no real first name on file', async () => {
     // seedAriaRealDbFixture deliberately never sets firstName — the same
     // real degrade-gracefully guard notifyParentPublished (bilans) uses.
     family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
     const bilanId = await createBilan(family.student);
 
-    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
 
     const rows = await pool.query(
       `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
@@ -482,10 +532,11 @@ describe('notifyParentPeriodicBilanPublished — real parent notification (P7c)'
 
   it('queues no notification when the parent has no real name on file', async () => {
     family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', family.studentUser]);
     const bilanId = await createBilan(family.student);
 
-    await notifyParentPeriodicBilanPublished({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
 
     const rows = await pool.query(
       `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
