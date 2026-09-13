@@ -258,6 +258,12 @@ test(`ten seconds of unavailable verification preserve the modal draft through $
     await requestProviderRefresh(page);
     await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'UNAVAILABLE', { timeout: 15_000 });
     expect(page.url()).toBe(original);
+    // Recovery controls must remain reachable inside the focus-trapped dialog.
+    // Tailwind's individual translate and Motion's transform must not double-center it.
+    const bounds = await dialog.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.y).toBeGreaterThanOrEqual(0);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
     await expect(draft).toHaveValue('Synthetic unsaved draft');
     await expect(draft).toHaveAttribute('data-retained-draft', 'original-node');
     await expect(dialog.getByRole('button', { name: 'Enregistrer', exact: true })).toBeDisabled();

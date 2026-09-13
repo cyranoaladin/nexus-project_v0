@@ -68,6 +68,8 @@ A further review regression reproduces protected-to-protected navigation where N
 
 The real browser diagnostic also reproduced an inaccessible retry button when the recovery notice made a fixed centered modal exceed the viewport. The shared dialog is now height-bounded and scrollable; the existing real click regression qualifies the correction without forced clicks. NSI hydration additionally merges the current owner-scoped draft after the GET returns, preserving edits made while that read was pending. The commit credential scanner rejected a synthetic literal in the new encrypted-handler test; its key is now generated at runtime instead of weakening the scanner.
 
+Follow-up measured geometry corrected the initial modal hypothesis: the coaches dialog already had its own 90vh limit. On a 1280×720 viewport its actual y was -288 and height 648; computed CSS `translate: -50% -50%` combined with Motion `transform: translateY(-324px)`. Tailwind 4 individual translation and Motion doubled vertical centering. Motion now owns both x/y transforms; CSS no longer adds a second translation. Browser regressions additionally assert the dialog stays within the viewport. The height-only candidate is not treated as a successful correction.
+
 ## Core v2 integration contract for #252
 
 Current main does not contain Core v2 authentication modes or `AccountStatus` session enforcement. Scenario E (real SUSPENDED/DISABLED account lifecycle) is `NOT_PRESENT_ON_BASE`; it is not represented as an executed real lifecycle test. The client has no User lookup, rollout mode, account-status enum, or independent account authority. Its session identity comparison retains opaque server authority claims.
