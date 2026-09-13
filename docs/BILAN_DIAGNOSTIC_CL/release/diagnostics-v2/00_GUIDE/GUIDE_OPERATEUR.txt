@@ -1,0 +1,91 @@
+GUIDE DE L'OPÉRATEUR — DIAGNOSTICS NEXUS V2
+
+SOURCE OFFICIELLE D'ENVOI
+
+  release/diagnostics-v2/01_LIVRETS_CANDIDAT
+
+  C'est la seule. Rien d'autre ne se remet à un candidat ni à sa famille.
+
+  Source de contenu        banques, assemblages, référentiels, gabarits, assets.
+                           C'est d'elle que tout est calculé.
+  Artefacts de construction instruments/*/build et build/*. Reconstructibles,
+                           jetables, jamais envoyés directement.
+  Distribution             release/diagnostics-v2/ — ci-dessus.
+
+TROIS PROFILS CANDIDATS, ET SEULEMENT TROIS
+
+  PREMIÈRE PARTIE      Le candidat prépare les épreuves anticipées, et selon sa
+                       modalité d'inscription les évaluations ponctuelles de première.
+  DEUXIÈME PARTIE      Il a déjà présenté les anticipées et prépare la partie terminale.
+  BAC EN UNE SESSION   Sa situation l'autorise à tout présenter à la même session.
+
+SCOPE TRANSVERSAL — DIAGNOSTIC COMMUN
+
+  00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf
+                       Diagnostic linguistique transverse (écrit + entretien oral),
+                       applicable à tous les profils pour situer le niveau de maîtrise.
+
+ARBORESCENCE THÉMATIQUE DES PROFILS (6 SOUS-DOSSIERS)
+
+  Chaque profil candidat classe ses livrets en six sous-dossiers thématiques :
+
+    00_DOSSIER_ENTREE/        Questionnaire de parcours et méthodes de travail (QP + MET).
+    01_EPREUVES_ANTICIPEES/   Français (écrit + oral) et livrets comportant l'épreuve
+                              anticipée de mathématiques (avec ou sans spécialité).
+    02_EVALUATIONS_PONCTUELLES/ Histoire-géographie, EMC, Enseignement scientifique.
+    03_EPREUVES_TERMINALES/   Philosophie, Grand oral (profils B et C).
+    04_SPECIALITES/           Spécialités de terminale et enseignements de spécialité.
+    05_DIAGNOSTICS_NEXUS/     Maîtrise du français comme outil de travail (FR-MAI).
+    90_CAS_PARTICULIERS/      Dérogations exceptionnelles du Profil B (variantes EAF sous
+                              90_CAS_PARTICULIERS/EAF/ et MATH-EA sans spécialité).
+                              Ne jamais distribuer en parcours standard.
+
+CE QU'ON IMPRIME
+
+  03_IMPRESSION/                  les livrets assemblés en recueils complets de consultation
+                                  (CATALOGUE_RECUEIL_COMPLET_*.pdf), avec un intercalaire par matière.
+                                  Pour imprimer le pack sur-mesure d'un candidat réel, utiliser
+                                  exclusivement scripts/pack_candidat.py.
+
+CE QU'ON NE DIFFUSE JAMAIS
+
+  02_CORRECTIONS_COACH/           corrigés, clés, grilles. Couverture bordeaux, mention
+                                  CONFIDENTIEL sur chaque page. Ne sort pas de chez Nexus.
+
+OÙ SONT LES TABLEAUX
+
+  Chacun existe en PDF, à lire ou à imprimer, et en CSV, à ouvrir dans un tableur.
+
+  00_GUIDE/MATRICE_PROFILS              quel livret pour quel profil
+  00_GUIDE/MATRICE_EPREUVES_OFFICIELLES ce que le candidat passera réellement
+  00_GUIDE/COUVERTURE_REGLEMENTAIRE     ce que Nexus couvre, et ce qu'il ne couvre pas
+  00_GUIDE/PLANCHE_*.png                les couvertures et des pages intérieures, d'un coup d'œil
+
+CE QUE NEXUS NE COUVRE PAS
+
+  Langue vivante A et langue vivante B donnent lieu à des évaluations ponctuelles
+  obligatoires pour le candidat individuel — 12 points de coefficient sur 40 —
+  et ne font l'objet d'aucun diagnostic Nexus (hors offre). L'éducation physique et
+  sportive, 6 points, est une évaluation physique qu'aucun document ne peut remplacer.
+  Au total, 18 points de coefficient sur 40 du contrôle continu restent non couverts
+  par le dispositif, contre 22 points couverts (histoire-géographie, EMC, enseignement
+  scientifique, spécialité abandonnée).
+
+  Le dispositif ne doit donc jamais être présenté comme couvrant l'intégralité du
+  baccalauréat.
+
+VERDICTS PRODUIT OFFICIELS
+
+  READY_FOR_NEXUS_SUPPORTED_SCOPE = YES
+  Le périmètre soutenu par Nexus est rigoureusement couvert, testé et documenté.
+
+  READY_FOR_FULL_REGULATORY_BAC_COVERAGE = NO
+  Le dispositif ne couvre ni les langues vivantes (LVA/LVB) ni l'EPS, et la définition
+  réglementaire précise de l'épreuve ponctuelle EMC 2026-2027 reste sous réserve ministérielle.
+
+RÉSERVE OFFICIELLE EMC
+
+  Le diagnostic EMC Nexus évalue les contenus et compétences du programme en vigueur.
+  Sa durée de 20/25 minutes est une durée diagnostique interne. La définition
+  réglementaire de l'évaluation ponctuelle applicable aux passations de l'année scolaire
+  2026-2027 reste à confirmer dès publication d'un texte ministériel.

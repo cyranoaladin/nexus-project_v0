@@ -1,0 +1,8 @@
+enseignement,intitule,coefficient_total,statut_nexus,motif
+EDS-1RE,Enseignement de spécialité suivi uniquement en classe de première,8,couvert par EDS-<x>/N1,
+HG,Histoire-géographie,6,couvert par TC-HG,
+LVA,Langue vivante A,6,HORS_OFFRE_NEXUS,Langue vivante A (coef. 6). Évaluation ponctuelle obligatoire hors de l'offre de diagnostic Nexus.
+LVB,Langue vivante B,6,HORS_OFFRE_NEXUS,Langue vivante B (coef. 6). Évaluation ponctuelle obligatoire hors de l'offre de diagnostic Nexus.
+ES,Enseignement scientifique,6,couvert par TC-ES,
+EPS,Éducation physique et sportive,6,HORS_OFFRE_NEXUS,Éducation physique et sportive (coef. 6). Évaluation physique sur trois activités relevant de trois champs d'apprentissage distincts. Non couvrable par un diagnostic sur document et hors offre Nexus.
+EMC,Enseignement moral et civique,2,couvert par TC-EMC,

@@ -1,0 +1,6 @@
+candidate_safe_label,source_dataset,level,profile,eds,french_config,required_diagnostics,ready_pdfs,missing_pdfs,estimated_total_duration_min
+CL-2026-0000,_MAQUETTE,Premiere-et-Terminale,P3,MATH+SES+PC,les_deux,QP/standard FR-EAF/standard FR-EAF-ORAL/standard PHI/standard TC-ES/ETENDUE MET/standard GO/standard MATH-EA/SPE EDS-MATH/NT EDS-SES/N1 EDS-PC/NT,11,,610
+CL-2026-0001,_MAQUETTE,Premiere-et-Terminale,P3,MATH+SES+PC,les_deux,QP/standard FR-EAF/standard FR-EAF-ORAL/standard PHI/standard TC-ES/ETENDUE MET/standard GO/standard MATH-EA/SPE EDS-MATH/NT EDS-SES/N1 EDS-PC/NT,11,,610
+CL-2026-0003,_MAQUETTE_P1,Premiere,P1,MATH+PC+SVT,les_deux,QP/standard FR-EAF/standard FR-EAF-ORAL/standard TC-ES/1RE MET/standard EDS-MATH/N1 EDS-PC/N1 EDS-SVT/N1,8,,415
+CL-2026-0004,_MAQUETTE_P1_2026_2027_SPECIFIQUES,Premiere,P1,PC+SVT+SES,les_deux,QP/standard FR-EAF/standard_2028 FR-EAF-ORAL/standard TC-ES/1RE MET/standard MATH-EA/SPECIFIQUES EDS-PC/N1 EDS-SVT/N1 EDS-SES/N1,9,,490
+CL-2026-0002,_MAQUETTE_P2,Terminale,P2,MATH+SES,oral,QP/standard FR-EAF/oral FR-EAF-ORAL/standard FR-MAI/standard PHI/standard TC-ES/TLE MET/standard GO/standard MATH-EA/SPE EDS-MATH/NT EDS-SES/NT,11,,540

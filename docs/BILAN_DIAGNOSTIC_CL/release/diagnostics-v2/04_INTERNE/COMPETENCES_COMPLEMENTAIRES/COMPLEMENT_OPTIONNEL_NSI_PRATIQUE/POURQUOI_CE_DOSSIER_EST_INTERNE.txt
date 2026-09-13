@@ -1,0 +1,11 @@
+Les candidats individuels sont dispensés de la partie pratique de l'épreuve de
+spécialité NSI : leur note est celle de la partie écrite, rapportée à 20 points.
+Ce matériel sur machine n'est donc pas une partie de l'épreuve qu'ils passeront.
+
+Il reste un outil pédagogique Nexus : la programmation est au programme, et
+l'écrire vaut mieux que la lire. Il peut être proposé en complément, jamais
+présenté comme une épreuve à préparer.
+
+Les deux items correspondants — NSI-1-PROG-01 et NSI-T-PROG-02 — ne sont plus
+imprimés dans le livret candidat. Ils restent dans la banque et dans le moteur :
+aucune mesure ne change, seul le document remis au candidat les omet.

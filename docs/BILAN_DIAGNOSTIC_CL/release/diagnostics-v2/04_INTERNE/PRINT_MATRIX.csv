@@ -1,0 +1,6 @@
+safe_candidate_or_profile,level,session,eds,eaf_mode,paper_pack_pdf,nsi_machine_zip,coach_pack,pages,ready_to_send,ready_to_print
+CL-2026-0000,Premiere-et-Terminale,2027,MATH+SES+PC,EAF-ecrit-et-oral,build/controle-diffusion/audit-fixtures/assemblages-papier/CL-2026-0000/ASSEMBLAGE_PAPIER_AUDIT.pdf,,03_COACH_CORRECTIONS,68,true,true
+CL-2026-0001,Premiere-et-Terminale,2027,MATH+SES+PC,EAF-ecrit-et-oral,build/controle-diffusion/audit-fixtures/assemblages-papier/CL-2026-0001/ASSEMBLAGE_PAPIER_AUDIT.pdf,,03_COACH_CORRECTIONS,68,true,true
+CL-2026-0003,Premiere,2027,MATH+PC+SVT,EAF-ecrit-et-oral,build/controle-diffusion/audit-fixtures/assemblages-papier/CL-2026-0003/ASSEMBLAGE_PAPIER_AUDIT.pdf,,03_COACH_CORRECTIONS,47,true,true
+CL-2026-0004,Premiere,2028,PC+SVT+SES,EAF-ecrit-et-oral,build/controle-diffusion/audit-fixtures/assemblages-papier/CL-2026-0004/ASSEMBLAGE_PAPIER_AUDIT.pdf,,03_COACH_CORRECTIONS,60,true,true
+CL-2026-0002,Terminale,2027,MATH+SES,EAF-oral-seul,build/controle-diffusion/audit-fixtures/assemblages-papier/CL-2026-0002/ASSEMBLAGE_PAPIER_AUDIT.pdf,,03_COACH_CORRECTIONS,63,true,true

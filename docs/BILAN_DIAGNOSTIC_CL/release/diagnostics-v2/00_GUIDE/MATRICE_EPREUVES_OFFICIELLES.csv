@@ -1,0 +1,13 @@
+code,intitule_officiel,type,classe,coefficient,duree_min,nature,candidat_individuel,source,confiance
+FR-EAF-ECRIT,Épreuve anticipée de français — épreuve écrite,anticipée,première,5,240,écrite,Mêmes conditions que les candidats scolaires.,memento,haute
+FR-EAF-ORAL,Épreuve anticipée de français — épreuve orale,anticipée,première,5,20,orale,Le candidat individuel constitue et présente lui-même son descriptif.,memento,haute
+MATH-EA,Épreuve anticipée de mathématiques,anticipée,première,2,120,écrite,Mêmes conditions.,memento,haute
+PHI,Philosophie,finale,terminale,8,240,écrite,Mêmes conditions.,memento,haute
+GO,Épreuve orale terminale dite « Grand oral »,finale,terminale,8,20,orale,Mêmes conditions que les candidats scolaires. Le candidat individuel constitue lui-même le document portant ses deux questions.,memento,haute
+EDS-MATH,Enseignement de spécialité « mathématiques »,finale,terminale,16,240,écrite,Mêmes conditions que les candidats scolaires.,maths,haute
+EDS-PC,Enseignement de spécialité « physique-chimie »,finale,terminale,16,210,écrite et pratique,Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points.,pc,haute
+EDS-NSI,Enseignement de spécialité « numérique et sciences informatiques »,finale,terminale,16,210,écrite et pratique,Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points.,nsi,haute
+EDS-SVT,Enseignement de spécialité « sciences de la vie et de la terre »,finale,terminale,16,210,écrite et pratique,Dispensé de la partie pratique ; la note est celle de la partie écrite rapportée à 20 points.,svt,haute
+EDS-SES,Enseignement de spécialité « sciences économiques et sociales »,finale,terminale,16,240,écrite,Mêmes conditions que les candidats scolaires.,memento,haute
+EDS-HGGSP,"Enseignement de spécialité « histoire-géographie, géopolitique et sciences politiques »",finale,terminale,16,240,écrite,Mêmes conditions que les candidats scolaires.,hggsp,haute
+EDS-HLP,"Enseignement de spécialité « humanités, littérature et philosophie »",finale,terminale,16,240,écrite,Mêmes conditions que les candidats scolaires.,hlp,haute
