@@ -1,8 +1,27 @@
+import { createHmac } from 'node:crypto';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Utilitaires pour la gestion des salles de visioconférence Jitsi
  * Implémentation selon les directives CTO pour Nexus Réussite
  */
+
+const DEFAULT_JITSI_SERVER_URL = 'https://meet.jit.si';
+
+/**
+ * Seule autorité pour l'URL du serveur Jitsi — toute lecture de
+ * `NEXT_PUBLIC_JITSI_SERVER_URL` (serveur ou client) doit passer par ici,
+ * jamais réimplémenter `process.env.NEXT_PUBLIC_JITSI_SERVER_URL ||
+ * 'https://meet.jit.si'` localement (c'était le cas à 4 endroits séparés,
+ * dont un composant client qui ignorait totalement la variable d'env).
+ */
+export function getJitsiServerUrl(): string {
+  return process.env.NEXT_PUBLIC_JITSI_SERVER_URL || DEFAULT_JITSI_SERVER_URL;
+}
+
+/** Domaine nu (sans protocole), tel qu'attendu par `JitsiMeetExternalAPI(domain, options)`. */
+export function getJitsiDomain(): string {
+  return getJitsiServerUrl().replace(/^https?:\/\//, '').replace(/\/$/, '');
+}
 
 /**
  * Génère une URL de salle Jitsi unique et sécurisée
@@ -17,11 +36,8 @@ export function generateJitsiRoomUrl(sessionId: string, userType: 'coach' | 'stu
   // Construire le nom de salle unique et difficile à deviner
   const roomName = `nexus-reussite-session-${sessionId}-${uuid}`;
 
-  // Récupérer l'URL du serveur Jitsi depuis les variables d'environnement
-  const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
-
   // Construire l'URL complète
-  return `${jitsiServerUrl}/${roomName}`;
+  return `${getJitsiServerUrl()}/${roomName}`;
 }
 
 /**
@@ -39,6 +55,26 @@ export function generateDeterministicRoomName(sessionId: string, additionalSeed?
 }
 
 /**
+ * Graine serveur pour `generateDeterministicRoomName`, pour un
+ * `SessionBooking` donné — sans elle, le nom de salle ne dépend que du
+ * `sessionId` (un simple encodage Base64 réversible, `btoa`), donc
+ * reconstituable hors ligne par quiconque connaît l'algorithme. Avec un
+ * HMAC serveur, la salle reste déterministe (même valeur à chaque appel,
+ * pour tous les participants légitimes) mais n'est plus calculable sans
+ * le secret serveur. La vraie frontière d'accès reste le RBAC vérifié à
+ * chaque appel de `GET /api/sessions/[sessionId]` (identité serveur, pas
+ * un id client) — ceci est une défense en profondeur supplémentaire, pas
+ * le contrôle d'accès principal.
+ */
+export function deterministicRoomSeedForSession(sessionId: string): string {
+  const secret = process.env.JITSI_ROOM_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error('JITSI_ROOM_SECRET_OR_NEXTAUTH_SECRET_REQUIRED');
+  }
+  return createHmac('sha256', secret).update(sessionId).digest('hex').slice(0, 16);
+}
+
+/**
  * Génère l'URL complète Jitsi avec nom déterministe
  * @param sessionId - L'ID de la session de cours
  * @param additionalSeed - Graine additionnelle optionnelle
@@ -46,8 +82,7 @@ export function generateDeterministicRoomName(sessionId: string, additionalSeed?
  */
 export function generateDeterministicJitsiUrl(sessionId: string, additionalSeed?: string): string {
   const roomName = generateDeterministicRoomName(sessionId, additionalSeed);
-  const jitsiServerUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
-  return `${jitsiServerUrl}/${roomName}`;
+  return `${getJitsiServerUrl()}/${roomName}`;
 }
 
 /**
@@ -148,7 +183,7 @@ export function createJitsiRoomInfo(
 ): JitsiRoomInfo {
   const baseUrl = generateDeterministicJitsiUrl(sessionId);
   const fullUrl = buildJitsiUrlWithConfig(baseUrl, userDisplayName, isHost);
-  const serverUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
+  const serverUrl = getJitsiServerUrl();
   const roomName = generateDeterministicRoomName(sessionId);
 
   return {

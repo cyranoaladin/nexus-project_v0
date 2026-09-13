@@ -144,7 +144,7 @@ describe('CSRF Protection', () => {
   });
 
   describe('Permissions Policy', () => {
-    it('should disable camera, microphone, and geolocation', () => {
+    it('disables geolocation everywhere, and scopes camera/microphone to the trusted Jitsi origin only (never an empty allowlist that would also block the video-conference iframe CSP trusts)', () => {
       // Arrange
       const response = NextResponse.json({ ok: true });
 
@@ -153,8 +153,8 @@ describe('CSRF Protection', () => {
       const pp = response.headers.get('Permissions-Policy') || '';
 
       // Assert
-      expect(pp).toContain('camera=()');
-      expect(pp).toContain('microphone=()');
+      expect(pp).toContain('camera=(self "https://meet.jit.si")');
+      expect(pp).toContain('microphone=(self "https://meet.jit.si")');
       expect(pp).toContain('geolocation=()');
     });
   });
