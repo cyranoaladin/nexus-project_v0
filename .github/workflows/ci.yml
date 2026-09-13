@@ -819,6 +819,9 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          # Same lib/env-validation.ts fail-fast reason, for the Jitsi
+          # room-identity secret (lib/jitsi-server.ts).
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
           # Same fail-fast reason for the email outbox scheduler
           # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler):
           # EMAIL_OUTBOX_WORKER_CONFIGURATION_REQUIRED in production unless
@@ -1367,6 +1370,7 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e-auth
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
           SMTP_HOST: 127.0.0.1
@@ -1738,6 +1742,7 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-build-jitsi-room-secret-placeholder-32chars
           # Same fail-fast reason for the email outbox scheduler -- see the
           # matching comment on the E2E job's "Start Next.js server in
           # background" step.

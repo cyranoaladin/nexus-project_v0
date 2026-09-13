@@ -12,7 +12,12 @@
  * - 'unsafe-eval' on script-src: required for WebAssembly (some client libs).
  * - 'unsafe-inline' on style-src: required by Next.js inline styles, Radix UI,
  *   and TailwindCSS v4 runtime. Cannot be removed without breaking the UI.
- * - Jitsi frame-src: required for video conferencing embeds.
+ * - Jitsi frame-src AND script-src: the iframe embed AND the
+ *   external_api.js loader script (components/ui/video-conference.tsx)
+ *   both come from the Jitsi origin — script-src without it left the
+ *   loader script itself blocked by CSP, so the video-conference feature
+ *   never actually started in a browser that enforces CSP even after the
+ *   script tag was added.
  * - wss: on connect-src: required for WebSocket connections (Jitsi, real-time).
  */
 
@@ -49,7 +54,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need
         // custom Document + middleware per-request nonce — tracked as future improvement.
         // 'unsafe-eval' is required for WebAssembly (used by some client-side libraries).
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${jitsiOrigin} https://cdn.jsdelivr.net https://www.googletagmanager.com`,
         // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",

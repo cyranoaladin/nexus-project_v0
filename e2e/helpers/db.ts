@@ -691,6 +691,66 @@ export async function createScheduledSession(studentEmail: string, coachEmail: s
   return booking.id;
 }
 
+/**
+ * Same booking shape as `createScheduledSession`, but at a caller-chosen
+ * real UTC instant instead of a fixed "48h from now" — needed to seed a
+ * session that is actually inside (or deliberately outside) the join
+ * window tested by app/api/sessions/[sessionId]/route.ts
+ * (e2e/sessions/video-join.spec.ts).
+ */
+export async function createSessionAtRealInstant(
+  studentEmail: string,
+  coachEmail: string,
+  startInstant: Date,
+  durationMinutes = 60,
+): Promise<string> {
+  const client = getPrisma();
+  const studentUser = await client.user.findUnique({
+    where: { email: studentEmail },
+    include: { student: { include: { parent: true } } },
+  });
+  const coachUser = await client.user.findUnique({ where: { email: coachEmail } });
+  if (!studentUser?.student || !coachUser) {
+    throw new Error(`Missing student or coach for ${studentEmail} / ${coachEmail}`);
+  }
+
+  const parentUser = await client.user.findFirst({
+    where: { parentProfile: { id: studentUser.student.parentId! } },
+  });
+
+  // Africa/Tunis, fixed UTC+1 — same convention as
+  // lib/planning/invariants.ts' tunisWallClockToUtcInstant, inverted: shift
+  // the real instant by +1h and read its UTC calendar/time fields to get
+  // the Tunis wall-clock values this booking's scheduledDate/startTime
+  // columns actually store.
+  const toTunisWallClock = (instant: Date) => new Date(instant.getTime() + 60 * 60 * 1000);
+  const startWallClock = toTunisWallClock(startInstant);
+  const endWallClock = toTunisWallClock(new Date(startInstant.getTime() + durationMinutes * 60 * 1000));
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  const booking = await client.sessionBooking.create({
+    data: {
+      studentId: studentUser.id,
+      coachId: coachUser.id,
+      parentId: parentUser?.id ?? null,
+      subject: 'MATHEMATIQUES',
+      title: 'Session E2E — video join',
+      scheduledDate: new Date(Date.UTC(
+        startWallClock.getUTCFullYear(), startWallClock.getUTCMonth(), startWallClock.getUTCDate(),
+      )),
+      startTime: `${pad(startWallClock.getUTCHours())}:${pad(startWallClock.getUTCMinutes())}`,
+      endTime: `${pad(endWallClock.getUTCHours())}:${pad(endWallClock.getUTCMinutes())}`,
+      duration: durationMinutes,
+      status: 'SCHEDULED',
+      type: 'INDIVIDUAL',
+      modality: 'ONLINE',
+      meetingUrl: `https://meet.jit.si/nexus-${Date.now()}`,
+      creditsUsed: 1,
+    },
+  });
+  return booking.id;
+}
+
 export async function createSessionNotification(userEmail: string, message: string): Promise<void> {
   const client = getPrisma();
   const user = await client.user.findUnique({ where: { email: userEmail } });

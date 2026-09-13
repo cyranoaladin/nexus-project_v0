@@ -128,6 +128,9 @@ services:
       RATE_LIMIT_KEY_SECRET: e2e-compose-rate-limit-key-secret-please-rotate
       RATE_LIMIT_KEY_NAMESPACE: nexus-e2e-compose
       RATE_LIMIT_TRUST_PROXY_HOPS: "1"
+      # Same lib/env-validation.ts fail-fast reason, for the Jitsi
+      # room-identity secret (lib/jitsi-server.ts).
+      JITSI_ROOM_SECRET: e2e-compose-jitsi-room-secret-please-rotate
       # SMTP is captured by the disposable Mailpit service. No message leaves
       # the isolated Docker network.
       EMAIL_OUTBOX_WORKER_ENABLED: "true"

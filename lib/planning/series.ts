@@ -64,6 +64,7 @@ import { getCourse } from '@/lib/curriculum/catalog';
 import {
   verifyPlanningInvariants,
   ACTIVE_BOOKING_STATUSES,
+  TUNIS_UTC_OFFSET_HOURS,
   type PlanningInvariantFailure,
   type PlanningInvariantRequester,
   type VerifyPlanningInvariantsInput,
@@ -204,7 +205,7 @@ function addUTCDays(date: Date, days: number): Date {
  * bascule +1h.
  */
 export function tunisNowAsPretendUtc(): Date {
-  return new Date(Date.now() + 60 * 60 * 1000);
+  return new Date(Date.now() + TUNIS_UTC_OFFSET_HOURS * 60 * 60 * 1000);
 }
 
 /**

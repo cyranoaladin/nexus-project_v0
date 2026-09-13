@@ -1,4 +1,4 @@
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import { VideoConference } from '@/components/ui/video-conference';
 
 describe('VideoConference', () => {
@@ -79,5 +79,36 @@ describe('VideoConference', () => {
 
     expect(() => unmount()).not.toThrow();
     expect(disposeSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call JitsiMeetExternalAPI before the external_api.js script has loaded (the real production bug: the script was never included anywhere, so this constructor call always threw)', () => {
+    delete (window as any).JitsiMeetExternalAPI;
+    render(<VideoConference {...baseProps} />);
+
+    // window.JitsiMeetExternalAPI is genuinely absent (as in a fresh
+    // browser tab) — the component must wait for its own <Script>'s
+    // onLoad, never assume the global already exists.
+    expect((window as any).JitsiMeetExternalAPI).toBeUndefined();
+  });
+
+  it('initialises JitsiMeetExternalAPI only once its loader script fires onLoad', async () => {
+    delete (window as any).JitsiMeetExternalAPI;
+    render(<VideoConference {...baseProps} />);
+
+    const script = await waitFor(() => {
+      const el = document.querySelector('script[src*="external_api.js"]');
+      expect(el).not.toBeNull();
+      return el;
+    });
+
+    // Simulate the real browser loading the script: it defines the
+    // global, then next/script fires its onLoad callback.
+    (window as any).JitsiMeetExternalAPI = jest.fn().mockImplementation((domain: string, options: unknown) => {
+      constructorSpy(domain, options);
+      return { addListener: jest.fn(), removeListener: jest.fn(), dispose: disposeSpy };
+    });
+    script?.dispatchEvent(new Event('load'));
+
+    await waitFor(() => expect(constructorSpy).toHaveBeenCalled());
   });
 });

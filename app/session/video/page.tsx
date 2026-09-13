@@ -52,7 +52,10 @@ function SessionVideoCallContent() {
 
     const fetchSessionData = async () => {
       try {
-        const res = await fetch(`/api/sessions/${sessionId}`);
+        // POST, not GET: loading this page IS the act of joining the
+        // session — the server transitions SCHEDULED→IN_PROGRESS here.
+        // GET alone never mutates (see app/api/sessions/[sessionId]/route.ts).
+        const res = await fetch(`/api/sessions/${sessionId}`, { method: 'POST' });
         if (!res.ok) {
           setError(`Session introuvable (${res.status})`);
           setLoading(false);

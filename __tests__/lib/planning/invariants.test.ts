@@ -11,6 +11,8 @@ import {
   evaluatePlanningInvariants,
   hasOverlappingRange,
   rangesOverlap,
+  TUNIS_UTC_OFFSET_HOURS,
+  tunisWallClockToUtcInstant,
   verifyPlanningInvariants,
   type PlanningInvariantData,
   type PlanningInvariantRequester,
@@ -87,6 +89,19 @@ describe('combineDateAndTime', () => {
   it('combine une date (heure ignorée) et une heure locale en un instant UTC', () => {
     const combined = combineDateAndTime(new Date('2026-03-10T23:59:00Z'), '09:30');
     expect(combined.toISOString()).toBe('2026-03-10T09:30:00.000Z');
+  });
+});
+
+describe('tunisWallClockToUtcInstant', () => {
+  it("convertit une heure murale Tunis en l'instant UTC réel (décalage -1h par rapport à combineDateAndTime)", () => {
+    const date = new Date('2026-03-10T00:00:00Z');
+    const pseudoUtc = combineDateAndTime(date, '10:00');
+    const realInstant = tunisWallClockToUtcInstant(date, '10:00');
+
+    expect(pseudoUtc.toISOString()).toBe('2026-03-10T10:00:00.000Z');
+    // 10:00 heure murale Tunis (UTC+1) == 09:00 UTC réel.
+    expect(realInstant.toISOString()).toBe('2026-03-10T09:00:00.000Z');
+    expect(pseudoUtc.getTime() - realInstant.getTime()).toBe(TUNIS_UTC_OFFSET_HOURS * 60 * 60 * 1000);
   });
 });
 

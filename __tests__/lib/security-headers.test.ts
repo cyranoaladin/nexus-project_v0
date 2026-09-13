@@ -20,6 +20,10 @@ describe('Security Headers', () => {
       'camera=(self "https://meet.jit.si"), microphone=(self "https://meet.jit.si"), geolocation=()'
     );
     expect(response.headers.get('Content-Security-Policy')).toContain('frame-src \'self\' https://meet.jit.si');
+    // The external_api.js loader script (components/ui/video-conference.tsx)
+    // is fetched from the Jitsi origin, not just the frame it embeds —
+    // script-src without it silently blocked the loader itself.
+    expect(response.headers.get('Content-Security-Policy')).toContain('script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://meet.jit.si');
   });
 
   it('applies CORS headers with default origin', () => {

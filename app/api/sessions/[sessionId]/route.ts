@@ -6,17 +6,23 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
-import { generateDeterministicRoomName } from '@/lib/jitsi';
-import { deterministicRoomSeedForSession } from '@/lib/jitsi-server';
+import { tunisWallClockToUtcInstant } from '@/lib/planning/invariants';
+import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
 
 /**
- * GET /api/sessions/[sessionId] — the single real backend for the video
- * join flow (app/session/video/page.tsx). Replaces the previous, entirely
- * dead app/api/sessions/video/route.ts (never called by any client — the
- * page called this exact path and always got a 404, since it didn't
- * exist) and the client-side, non-deterministic room-name generation the
- * page used to fall back to (`session-${sessionId}-${Date.now()}`, which
- * gave every participant a different, private room).
+ * /api/sessions/[sessionId] — the real backend for the video join flow
+ * (app/session/video/page.tsx). Replaces the previous, entirely dead
+ * app/api/sessions/video/route.ts (never called by any client — the page
+ * called this exact path and always got a 404, since it didn't exist) and
+ * the client-side, non-deterministic room-name generation the page used
+ * to fall back to (`session-${sessionId}-${Date.now()}`, which gave every
+ * participant a different, private room).
+ *
+ * GET is read-only (a safe, cacheable status check) and never mutates the
+ * booking. POST is the explicit join action: same checks as GET, plus the
+ * SCHEDULED→IN_PROGRESS transition — an HTTP GET must never have a side
+ * effect (a browser prefetch, retry, or link preview could otherwise
+ * silently flip a session to IN_PROGRESS before anyone actually joined).
  *
  * Ownership is scoped strictly server-side to the booking's own
  * student/coach/parent (never a client-supplied id). Whether staff
@@ -25,23 +31,6 @@ import { deterministicRoomSeedForSession } from '@/lib/jitsi-server';
  * decided here; see the go-live audit's blocker register.
  */
 
-// Africa/Tunis: fixed UTC+1, no DST since 2009 — the same assumption
-// already relied on elsewhere in this codebase (lib/planning/series.ts'
-// tunisNowAsPretendUtc). Written correctly here (explicit UTC arithmetic,
-// never a bare `new Date(localString)` whose interpretation depends on
-// the server process' own timezone) rather than reintroducing a THIRD,
-// naive ad hoc implementation. Full convergence onto a real IANA
-// timezone authority is tracked separately (audit.md TZ-1) — this is a
-// correct instance of the existing, already-documented convention, not a
-// new one.
-const TUNIS_UTC_OFFSET_HOURS = 1;
-
-function resolveTunisWallClockToUtc(calendarDate: Date, hhmm: string): Date {
-  const dateOnly = calendarDate.toISOString().split('T')[0];
-  const asIfUtc = new Date(`${dateOnly}T${hhmm}:00.000Z`);
-  return new Date(asIfUtc.getTime() - TUNIS_UTC_OFFSET_HOURS * 60 * 60 * 1000);
-}
-
 const JOIN_EARLY_WINDOW_MS = 15 * 60 * 1000;
 const JOIN_LATE_TOLERANCE_MS = 30 * 60 * 1000;
 
@@ -49,113 +38,178 @@ interface RouteParams {
   params: Promise<{ sessionId: string }>;
 }
 
+interface JoinableBookingSession {
+  id: string;
+  scheduledDate: Date;
+  startTime: string;
+  duration: number;
+  status: SessionStatus;
+  subject: string;
+  student: { firstName: string | null; lastName: string | null };
+  coach: { firstName: string | null; lastName: string | null };
+}
+
+type ResolveResult =
+  | { ok: true; booking: JoinableBookingSession; sessionStart: Date }
+  | { ok: false; response: NextResponse };
+
+/**
+ * Loads the booking, checks ownership, lifecycle status, and the join
+ * time window. Shared by GET (read-only) and POST (join, mutates) so the
+ * two never drift — the eligibility rule is defined exactly once.
+ */
+async function resolveJoinableBooking(sessionId: string, userId: string): Promise<ResolveResult> {
+  const bookingSession = await prisma.sessionBooking.findFirst({
+    where: {
+      id: sessionId,
+      OR: [
+        { studentId: userId },
+        { coachId: userId },
+        { parentId: userId },
+      ],
+    },
+    select: {
+      id: true,
+      scheduledDate: true,
+      startTime: true,
+      duration: true,
+      status: true,
+      subject: true,
+      student: { select: { firstName: true, lastName: true } },
+      coach: { select: { firstName: true, lastName: true } },
+    },
+  });
+
+  if (!bookingSession) {
+    return { ok: false, response: NextResponse.json({ error: 'Session non trouvée' }, { status: 404 }) };
+  }
+
+  // A cancelled or already-completed booking is never joinable, no
+  // matter the time window — the dead code this replaces had no such
+  // guard at all.
+  if (bookingSession.status === SessionStatus.CANCELLED) {
+    return { ok: false, response: NextResponse.json({ error: 'Cette session a été annulée.' }, { status: 410 }) };
+  }
+  if (bookingSession.status === SessionStatus.COMPLETED) {
+    return { ok: false, response: NextResponse.json({ error: 'Cette session est déjà terminée.' }, { status: 410 }) };
+  }
+
+  const sessionStart = tunisWallClockToUtcInstant(bookingSession.scheduledDate, bookingSession.startTime);
+  const sessionEnd = new Date(sessionStart.getTime() + bookingSession.duration * 60 * 1000);
+  const now = new Date();
+
+  if (now.getTime() < sessionStart.getTime() - JOIN_EARLY_WINDOW_MS) {
+    return { ok: false, response: NextResponse.json({ error: "La session n'est pas encore disponible." }, { status: 400 }) };
+  }
+  // The previous logic only checked "too early" despite its own error
+  // message claiming to also cover "or a expiré" — there was no upper
+  // bound at all. A session stays joinable up to 30 minutes past its
+  // scheduled end before being treated as expired.
+  if (now.getTime() > sessionEnd.getTime() + JOIN_LATE_TOLERANCE_MS) {
+    return { ok: false, response: NextResponse.json({ error: 'La fenêtre de cette session a expiré.' }, { status: 410 }) };
+  }
+
+  return { ok: true, booking: bookingSession, sessionStart };
+}
+
+function serializeBooking(booking: JoinableBookingSession, sessionStart: Date, displayStatus: SessionStatus) {
+  // Deterministic AND stable for the booking: every participant who
+  // calls this endpoint for the same sessionId gets the exact same
+  // room name, every time — never regenerated per call (the bug this
+  // replaces: both the page and the old dead route minted a fresh
+  // random/Date.now()-seeded name on every request, so the coach and
+  // the student never landed in the same Jitsi room).
+  const roomName = resolveJitsiRoomNameForSession(booking.id);
+
+  return {
+    id: booking.id,
+    studentName: `${booking.student.firstName ?? ''} ${booking.student.lastName ?? ''}`.trim(),
+    coachName: `${booking.coach.firstName ?? ''} ${booking.coach.lastName ?? ''}`.trim(),
+    subject: booking.subject,
+    scheduledAt: sessionStart.toISOString(),
+    duration: booking.duration,
+    status: displayStatus,
+    roomName,
+  };
+}
+
+async function guardRequest(request: NextRequest) {
+  // Same registered scopes (lib/rate-limit/sensitive.ts) for GET and POST:
+  // both hit the same booking lookup and are worth rate-limiting
+  // identically — no need for the read/join split to also fork the
+  // rate-limit registry.
+  const ipBlocked = await guardSensitiveRateLimit(request, {
+    scope: 'session-video-ip',
+    dimensions: ['ip'],
+  });
+  if (ipBlocked) return { blocked: ipBlocked, session: null };
+
+  const session = await auth();
+  if (!session?.user) {
+    return { blocked: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }), session: null };
+  }
+
+  const userBlocked = await guardSensitiveRateLimit(request, {
+    scope: 'session-video-user',
+    identity: session.user.id,
+    dimensions: ['identity'],
+  });
+  if (userBlocked) return { blocked: userBlocked, session: null };
+
+  return { blocked: null, session };
+}
+
+/** Read-only status check — never mutates the booking. */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    // IP-based rate-limit first — blocks anonymous abuse before auth()
-    const ipBlocked = await guardSensitiveRateLimit(request, {
-      scope: 'session-video-ip',
-      dimensions: ['ip'],
-    });
-    if (ipBlocked) return ipBlocked;
-
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
-    }
-
-    // Refine with userId-based rate-limit post-auth
-    const userBlocked = await guardSensitiveRateLimit(request, {
-      scope: 'session-video-user',
-      identity: session.user.id,
-      dimensions: ['identity'],
-    });
-    if (userBlocked) return userBlocked;
+    const { blocked, session } = await guardRequest(request);
+    if (blocked) return blocked;
 
     const { sessionId } = await params;
     if (!sessionId || sessionId.length > 128) {
       return NextResponse.json({ error: 'ID de session invalide' }, { status: 400 });
     }
 
-    // Ownership: strictly the booking's own student/coach/parent, resolved
-    // server-side from the authenticated session — sessionId never grants
-    // access by itself, and the client never supplies who it thinks it is.
-    const bookingSession = await prisma.sessionBooking.findFirst({
-      where: {
-        id: sessionId,
-        OR: [
-          { studentId: session.user.id },
-          { coachId: session.user.id },
-          { parentId: session.user.id },
-        ],
-      },
-      select: {
-        id: true,
-        scheduledDate: true,
-        startTime: true,
-        duration: true,
-        status: true,
-        subject: true,
-        student: { select: { firstName: true, lastName: true } },
-        coach: { select: { firstName: true, lastName: true } },
-      },
-    });
+    const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
+    if (!resolved.ok) return resolved.response;
 
-    if (!bookingSession) {
-      return NextResponse.json({ error: 'Session non trouvée' }, { status: 404 });
+    return NextResponse.json(
+      serializeBooking(resolved.booking, resolved.sessionStart, resolved.booking.status)
+    );
+  } catch (error) {
+    console.error('[GET /api/sessions/[sessionId]]', serializeError(error));
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+/** Explicit join action — same eligibility as GET, plus the SCHEDULED→IN_PROGRESS transition. */
+export async function POST(request: NextRequest, { params }: RouteParams) {
+  try {
+    const { blocked, session } = await guardRequest(request);
+    if (blocked) return blocked;
+
+    const { sessionId } = await params;
+    if (!sessionId || sessionId.length > 128) {
+      return NextResponse.json({ error: 'ID de session invalide' }, { status: 400 });
     }
 
-    // A cancelled or already-completed booking is never joinable, no
-    // matter the time window — the dead code this replaces had no such
-    // guard at all.
-    if (bookingSession.status === SessionStatus.CANCELLED) {
-      return NextResponse.json({ error: 'Cette session a été annulée.' }, { status: 410 });
-    }
-    if (bookingSession.status === SessionStatus.COMPLETED) {
-      return NextResponse.json({ error: 'Cette session est déjà terminée.' }, { status: 410 });
-    }
+    const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
+    if (!resolved.ok) return resolved.response;
 
-    const sessionStart = resolveTunisWallClockToUtc(bookingSession.scheduledDate, bookingSession.startTime);
-    const sessionEnd = new Date(sessionStart.getTime() + bookingSession.duration * 60 * 1000);
-    const now = new Date();
-
-    if (now.getTime() < sessionStart.getTime() - JOIN_EARLY_WINDOW_MS) {
-      return NextResponse.json({ error: "La session n'est pas encore disponible." }, { status: 400 });
-    }
-    // The previous logic only checked "too early" despite its own error
-    // message claiming to also cover "or a expiré" — there was no upper
-    // bound at all. A session stays joinable up to 30 minutes past its
-    // scheduled end before being treated as expired.
-    if (now.getTime() > sessionEnd.getTime() + JOIN_LATE_TOLERANCE_MS) {
-      return NextResponse.json({ error: 'La fenêtre de cette session a expiré.' }, { status: 410 });
-    }
-
-    if (bookingSession.status === SessionStatus.SCHEDULED) {
+    let displayStatus = resolved.booking.status;
+    if (resolved.booking.status === SessionStatus.SCHEDULED) {
       await prisma.sessionBooking.update({
         where: { id: sessionId },
         data: { status: SessionStatus.IN_PROGRESS },
       });
+      displayStatus = SessionStatus.IN_PROGRESS;
     }
 
-    // Deterministic AND stable for the booking: every participant who
-    // calls this endpoint for the same sessionId gets the exact same
-    // room name, every time — never regenerated per call (the bug this
-    // replaces: both the page and the old dead route minted a fresh
-    // random/Date.now()-seeded name on every request, so the coach and
-    // the student never landed in the same Jitsi room).
-    const roomName = generateDeterministicRoomName(sessionId, deterministicRoomSeedForSession(sessionId));
-
-    return NextResponse.json({
-      id: bookingSession.id,
-      studentName: `${bookingSession.student.firstName ?? ''} ${bookingSession.student.lastName ?? ''}`.trim(),
-      coachName: `${bookingSession.coach.firstName ?? ''} ${bookingSession.coach.lastName ?? ''}`.trim(),
-      subject: bookingSession.subject,
-      scheduledAt: sessionStart.toISOString(),
-      duration: bookingSession.duration,
-      status: bookingSession.status === SessionStatus.SCHEDULED ? SessionStatus.IN_PROGRESS : bookingSession.status,
-      roomName,
-    });
+    return NextResponse.json(
+      serializeBooking(resolved.booking, resolved.sessionStart, displayStatus)
+    );
   } catch (error) {
-    console.error('[GET /api/sessions/[sessionId]]', serializeError(error));
+    console.error('[POST /api/sessions/[sessionId]]', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
