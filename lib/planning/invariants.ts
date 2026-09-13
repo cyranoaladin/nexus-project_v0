@@ -46,6 +46,7 @@
  */
 
 import type { Prisma, SessionStatus } from '@prisma/client';
+import { getOrganizationUtcOffsetHours } from '../timezone';
 import {
   loadPlanningIdentitySnapshot,
   verifyPlanningIdentities,
@@ -97,29 +98,23 @@ export function combineDateAndTime(date: Date, time: string): Date {
 }
 
 /**
- * Décalage FIXE Africa/Tunis (UTC+1, aucun changement d'heure d'été depuis
- * 2009) — seule autorité nommée pour ce fait. Plusieurs endroits du dépôt
- * réimplémentaient ce même "+1h" ad hoc (`lib/planning/series.ts`'
- * `tunisNowAsPretendUtc`, et `app/api/sessions/[sessionId]/route.ts` avant
- * sa convergence vers `tunisWallClockToUtcInstant` ci-dessous) ; toute
- * nouvelle arithmétique d'instant réel Tunis doit passer par cette
- * constante plutôt que réécrire le nombre localement. Une vraie
- * bibliothèque de fuseaux (PR #258) remplacera ce module le jour où la
- * Tunisie change de politique DST — non nécessaire tant que ce n'est pas le
- * cas (voir la justification de `combineDateAndTime` ci-dessus).
- */
-export const TUNIS_UTC_OFFSET_HOURS = 1;
-
-/**
  * Combine une date calendaire et une heure murale Tunis `"HH:MM"` en
  * l'INSTANT UTC réel qu'elle représente — contrairement à
  * `combineDateAndTime` (pseudo-UTC : l'heure murale est encodée directement
  * dans les accesseurs UTC, valable uniquement pour des comparaisons
  * internes entre valeurs de même convention), le résultat ici est un vrai
  * instant, comparable directement à `Date.now()` / `new Date()`.
+ *
+ * Le décalage Africa/Tunis est calculé dynamiquement via `lib/timezone.ts`
+ * (seule autorité, partagée avec `lib/planning/series.ts` et — via
+ * celui-ci — la planification des ateliers ARIA) plutôt que codé en dur :
+ * voir ce module pour la justification (dérivé de l'IANA tzdata via
+ * `Intl`, jamais une constante `+1` réimplémentée localement).
  */
 export function tunisWallClockToUtcInstant(date: Date, time: string): Date {
-  return new Date(combineDateAndTime(date, time).getTime() - TUNIS_UTC_OFFSET_HOURS * 60 * 60 * 1000);
+  const pseudoUtc = combineDateAndTime(date, time);
+  const offsetHours = getOrganizationUtcOffsetHours(pseudoUtc);
+  return new Date(pseudoUtc.getTime() - offsetHours * 60 * 60 * 1000);
 }
 
 /** Statuts `SessionBooking` considérés actifs — même ensemble que les

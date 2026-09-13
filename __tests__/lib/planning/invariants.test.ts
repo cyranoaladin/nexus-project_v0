@@ -11,13 +11,13 @@ import {
   evaluatePlanningInvariants,
   hasOverlappingRange,
   rangesOverlap,
-  TUNIS_UTC_OFFSET_HOURS,
   tunisWallClockToUtcInstant,
   verifyPlanningInvariants,
   type PlanningInvariantData,
   type PlanningInvariantRequester,
 } from '@/lib/planning/invariants';
 import type { PlanningIdentitySnapshot } from '@/lib/planning/identities';
+import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
 
 // ── Prédicat de chevauchement ────────────────────────────────────────────────
 
@@ -101,7 +101,7 @@ describe('tunisWallClockToUtcInstant', () => {
     expect(pseudoUtc.toISOString()).toBe('2026-03-10T10:00:00.000Z');
     // 10:00 heure murale Tunis (UTC+1) == 09:00 UTC réel.
     expect(realInstant.toISOString()).toBe('2026-03-10T09:00:00.000Z');
-    expect(pseudoUtc.getTime() - realInstant.getTime()).toBe(TUNIS_UTC_OFFSET_HOURS * 60 * 60 * 1000);
+    expect(pseudoUtc.getTime() - realInstant.getTime()).toBe(getOrganizationUtcOffsetHours(pseudoUtc) * 60 * 60 * 1000);
   });
 });
 
