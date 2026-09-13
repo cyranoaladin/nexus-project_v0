@@ -130,13 +130,21 @@ describe('resolvePeriodicBilanNotificationIntent', () => {
       user: { firstName: 'Karim', entitlements: [ACTIVE_SUIVI_ENTITLEMENT] },
       parent: { user: { id: 'parent-2', email: 'parent2@test.local', firstName: 'Ali', lastName: 'Ben' } },
     });
-    const fakeTransaction = { student: { findUnique: txStudentFindUnique } } as unknown as Prisma.TransactionClient;
+    const txQueryRaw = jest.fn().mockResolvedValue([]);
+    const fakeTransaction = {
+      student: { findUnique: txStudentFindUnique },
+      $queryRaw: txQueryRaw,
+    } as unknown as Prisma.TransactionClient;
 
     const intent = await resolvePeriodicBilanNotificationIntent(
       { bilanId: 'bilan-2', studentId: 'student-2', subject: 'NSI' },
       fakeTransaction,
     );
 
+    // The FOR UPDATE lock (see the module's race-safety comment) must be
+    // taken on the SAME caller-provided transaction client too — locking
+    // through the global client would defeat the whole point.
+    expect(txQueryRaw).toHaveBeenCalledTimes(1);
     expect(txStudentFindUnique).toHaveBeenCalledTimes(1);
     expect(prisma.student.findUnique).not.toHaveBeenCalled();
     expect(intent?.parentUserId).toBe('parent-2');

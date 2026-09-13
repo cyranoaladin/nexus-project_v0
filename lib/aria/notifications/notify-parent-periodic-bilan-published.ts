@@ -91,6 +91,26 @@ export async function resolvePeriodicBilanNotificationIntent(
   },
   db: Prisma.TransactionClient | typeof prisma = prisma,
 ): Promise<PeriodicBilanNotificationIntent | null> {
+  // Closes a race a plain (unlocked) read would leave open: under READ
+  // COMMITTED, a bare SELECT never blocks on a concurrent writer — it
+  // just returns whichever version was already committed at the instant
+  // it runs. If an entitlement REVOKE/SUSPEND (suspendEntitlements /
+  // entitlement.update in lib/entitlement/engine.ts) is in flight but not
+  // yet committed exactly when this function's read would fire, a plain
+  // SELECT would silently return the still-current-but-about-to-be-stale
+  // ACTIVE row instead of waiting for it — sending a notification for an
+  // entitlement that, by the time this transaction commits, has already
+  // been revoked. `SELECT ... FOR UPDATE` on the exact rows those revoke
+  // paths write forces this transaction to block until any such
+  // concurrent writer finishes, then the ordinary read below (a fresh
+  // statement, so a fresh READ COMMITTED snapshot) observes its outcome —
+  // never a value that was already stale the moment it was read.
+  await db.$queryRaw(Prisma.sql`
+    SELECT id FROM entitlements
+    WHERE "userId" = (SELECT "userId" FROM students WHERE id = ${input.studentId})
+    FOR UPDATE
+  `);
+
   const student = await db.student.findUnique({
     where: { id: input.studentId },
     select: {

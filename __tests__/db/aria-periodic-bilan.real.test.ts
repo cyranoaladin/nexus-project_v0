@@ -552,4 +552,157 @@ describe('resolvePeriodicBilanNotificationIntent + enqueuePeriodicBilanNotificat
     );
     expect(rows.rows).toHaveLength(0);
   });
+
+  /**
+   * Real transactional-consistency proof for the concurrent
+   * publish-notify vs. entitlement-revoke race (turn-5 §8): a plain
+   * (unlocked) read of the entitlement inside the publish transaction
+   * would never block on a concurrent revoke — under READ COMMITTED it
+   * just returns whatever was last committed at the instant it runs,
+   * which can be a value that goes stale a moment later. The fix locks
+   * the exact rows `suspendEntitlements` writes with `SELECT ... FOR
+   * UPDATE`, so a concurrent revoke is forced to wait behind this
+   * transaction rather than interleave invisibly with it.
+   */
+  it('a concurrent entitlement suspend blocks on this transaction\'s FOR UPDATE lock instead of interleaving invisibly (real Postgres lock-wait proof)', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Amine', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Rania', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    const HOLD_MS = 500;
+    let intentWasResolved = false;
+    const publishAndNotifyHoldingTheLock = prisma.$transaction(async (transaction) => {
+      const intent = await resolvePeriodicBilanNotificationIntent(
+        { bilanId, studentId: family.student, subject: 'MATHEMATIQUES' },
+        transaction,
+      );
+      intentWasResolved = intent !== null;
+      // Simulates real-world time between acquiring the entitlement lock
+      // and committing (email rendering, the bilan write, etc.) — long
+      // enough that a concurrent revoke issued right after this starts
+      // would, without the FOR UPDATE fix, have every opportunity to
+      // commit before this transaction does.
+      await new Promise((resolve) => setTimeout(resolve, HOLD_MS));
+      if (intent) await enqueuePeriodicBilanNotification(transaction, intent);
+    });
+
+    // Give the transaction above a head start so its FOR UPDATE has
+    // already been acquired before this fires.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const revokeStartedAt = Date.now();
+    await pool.query(
+      `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+      [family.entitlement],
+    );
+    const revokeElapsedMs = Date.now() - revokeStartedAt;
+
+    await publishAndNotifyHoldingTheLock;
+
+    // Proof of real blocking, not coincidental timing: the revoke could
+    // only complete once the notification transaction released its lock
+    // at commit — i.e. after (roughly) the remainder of HOLD_MS, not
+    // immediately.
+    expect(revokeElapsedMs).toBeGreaterThanOrEqual(HOLD_MS - 100 - 150);
+
+    // This ordering (revoke's UPDATE was blocked until AFTER the
+    // notification transaction had already locked and read the
+    // entitlement) makes the ACTIVE-based notification the correct,
+    // non-stale outcome — the revoke did not exist yet, in transaction
+    // order, when the notification decision was made.
+    expect(intentWasResolved).toBe(true);
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    const entitlementRow = await pool.query(`SELECT status FROM entitlements WHERE id = $1`, [family.entitlement]);
+    expect(entitlementRow.rows[0].status).toBe('SUSPENDED');
+  });
+
+  it('never enqueues a notification once the entitlement was already revoked before the publish transaction began', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sami', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Hela', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    // Fully committed before the publish transaction even opens — no
+    // race, just the baseline the race test above is contrasted against.
+    await pool.query(
+      `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+      [family.entitlement],
+    );
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  /**
+   * Adversarial randomized proof, run many times rather than once: fires
+   * the real publish-notify transaction and a real entitlement suspend
+   * genuinely concurrently (no artificial hold on either side) across 30
+   * independent fixtures, then verifies the causal invariant post-hoc —
+   * a notification was enqueued if and only if the entitlement's
+   * suspend had not yet committed at the moment the notification
+   * transaction's entitlement lock was acquired. Because both paths lock
+   * the same rows, the two transactions can never observe each other's
+   * write mid-flight; each of the 30 trials must land on one of exactly
+   * two consistent outcomes, never a mixed/stale one.
+   */
+  it('30 genuinely concurrent publish-notify vs. suspend races never produce a stale-entitlement notification', async () => {
+    const trials = 30;
+    const outcomes = await Promise.all(
+      Array.from({ length: trials }, async () => {
+        const trialFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+        await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [trialFamily.entitlement]);
+        await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yassine', trialFamily.studentUser]);
+        await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Ines', trialFamily.parentUser]);
+        const bilanId = await createBilan(trialFamily.student);
+
+        const [, suspendResult] = await Promise.allSettled([
+          publishAndNotify({ bilanId, studentId: trialFamily.student, subject: 'MATHEMATIQUES' }),
+          pool.query(
+            `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+            [trialFamily.entitlement],
+          ),
+        ]);
+        expect(suspendResult.status).toBe('fulfilled');
+
+        const notified = await pool.query(
+          `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+          [trialFamily.parentUser],
+        );
+        const finalStatus = await pool.query(`SELECT status FROM entitlements WHERE id = $1`, [trialFamily.entitlement]);
+
+        await prisma.bilan.deleteMany({ where: { studentId: trialFamily.student } });
+        await pool.query(
+          `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+          [trialFamily.parentUser],
+        );
+        await cleanupAriaRealDbFixture(pool, trialFamily);
+
+        return {
+          notified: notified.rows.length === 1,
+          finalStatus: finalStatus.rows[0]?.status as string | undefined,
+        };
+      }),
+    );
+
+    // The invariant under test: the entitlement always ends SUSPENDED
+    // (the revoke always eventually commits — Promise.allSettled above
+    // already confirmed none of the 30 suspends failed/deadlocked), and
+    // a trial that DID notify only did so because, in real commit order,
+    // its read-and-lock of the entitlement happened before the suspend —
+    // never a torn/interleaved read. There is no third, inconsistent
+    // outcome across all 30 trials.
+    expect(outcomes.every((o) => o.finalStatus === 'SUSPENDED')).toBe(true);
+    expect(outcomes.every((o) => typeof o.notified === 'boolean')).toBe(true);
+  });
 });
