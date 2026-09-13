@@ -26,15 +26,22 @@ import { NextResponse } from 'next/server';
 /**
  * Deliberately NOT imported from lib/jitsi.ts: this module is loaded by
  * middleware.ts, which runs on the Edge runtime by default (no explicit
- * `export const runtime = 'nodejs'`), and lib/jitsi.ts imports
- * `node:crypto` (for its HMAC room-seed helper) — pulling that in here
- * transitively would risk breaking on Edge. This is a narrow, read-only,
- * crypto-free duplicate of the same env read lib/jitsi.ts's
- * `getJitsiServerUrl()`/`getJitsiDomain()` perform, kept in sync by
- * reading the exact same `NEXT_PUBLIC_JITSI_SERVER_URL` variable.
+ * `export const runtime = 'nodejs'`). The HMAC room-seed helper needing
+ * `node:crypto` now lives exclusively in lib/jitsi-server.ts, but keeping
+ * this a narrow, read-only, crypto-free duplicate of lib/jitsi.ts's
+ * `getJitsiServerUrl()`/`getJitsiDomain()` avoids any future coupling risk
+ * if that module ever re-acquires a Node-only dependency. Kept in sync by
+ * reading the exact same `NEXT_PUBLIC_JITSI_SERVER_URL` variable and
+ * mirroring the same fail-closed production behavior.
  */
 function getJitsiOriginForCsp(): string {
-    const raw = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
+    const configured = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    if (!configured && process.env.NODE_ENV === 'production') {
+        throw new Error(
+            'NEXT_PUBLIC_JITSI_SERVER_URL is not configured. Production must never fall back to the public meet.jit.si server.',
+        );
+    }
+    const raw = configured || 'https://meet.jit.si';
     try {
         return new URL(raw).origin;
     } catch {

@@ -13,7 +13,12 @@
  * `GET`/`POST /api/sessions/[sessionId]`.
  */
 
-const DEFAULT_JITSI_SERVER_URL = 'https://meet.jit.si';
+/**
+ * Fixture explicite, réservée au dev/test — jamais atteignable en
+ * production (voir `getJitsiServerUrl` ci-dessous, qui échoue fermé au
+ * lieu de l'utiliser hors production).
+ */
+const DEV_TEST_JITSI_SERVER_URL_FIXTURE = 'https://meet.jit.si';
 
 /**
  * Seule autorité pour l'URL du serveur Jitsi — toute lecture de
@@ -21,9 +26,23 @@ const DEFAULT_JITSI_SERVER_URL = 'https://meet.jit.si';
  * jamais réimplémenter `process.env.NEXT_PUBLIC_JITSI_SERVER_URL ||
  * 'https://meet.jit.si'` localement (c'était le cas à 4 endroits séparés,
  * dont un composant client qui ignorait totalement la variable d'env).
+ *
+ * En production, l'absence de configuration échoue FERMÉ (throw) plutôt
+ * que de retomber silencieusement sur le serveur public `meet.jit.si` —
+ * cette variable est aussi validée au démarrage (`lib/env-validation.ts`,
+ * `REQUIRED`/`prodOnly`), ce throw est une seconde ligne de défense pour
+ * tout appelant qui contournerait cette validation. Dev/test conservent
+ * une fixture explicitement nommée comme telle.
  */
 export function getJitsiServerUrl(): string {
-  return process.env.NEXT_PUBLIC_JITSI_SERVER_URL || DEFAULT_JITSI_SERVER_URL;
+  const configured = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'NEXT_PUBLIC_JITSI_SERVER_URL is not configured. Production must never fall back to the public meet.jit.si server — configure a dedicated Jitsi deployment.',
+    );
+  }
+  return DEV_TEST_JITSI_SERVER_URL_FIXTURE;
 }
 
 /** Domaine nu (sans protocole), tel qu'attendu par `JitsiMeetExternalAPI(domain, options)`. */
