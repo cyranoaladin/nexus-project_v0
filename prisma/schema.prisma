@@ -565,7 +565,8 @@ enum AcademicEnrollmentSource {
 model StudentAcademicEnrollment {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): academic enrollment history must never be silently destroyed by an account delete.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   courseKey         String
   kind              AcademicEnrollmentKind
@@ -654,7 +655,8 @@ model CoachProfile {
 model Subscription {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): billing/subscription history must never be silently destroyed by an account delete.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Détails de l'abonnement
   planName        String // ACCES_PLATEFORME, HYBRIDE, IMMERSION
@@ -887,7 +889,8 @@ model AriaCockpitProfile {
 model LearningEvidence {
   id                String                 @id @default(cuid())
   studentId         String
-  student           Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): assessment evidence must never be silently destroyed by an account delete.
+  student           Student                @relation(fields: [studentId], references: [id], onDelete: Restrict)
   courseKey         String
   skillId           String?
   curriculumVersion String
@@ -1052,7 +1055,8 @@ model ActivityResult {
 model AriaConversation {
   id                    String                       @id @default(cuid())
   studentId             String
-  student               Student                      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): ARIA conversation history must never be silently destroyed by an account delete.
+  student               Student                      @relation(fields: [studentId], references: [id], onDelete: Restrict)
   courseKey             String?
   skillId               String?
   resourceId            String?
@@ -1551,9 +1555,11 @@ model SessionBooking {
 
   // Participants historiques (User.id), conservés pendant la migration.
   studentId String
-  student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): see the coach FK below for the shared rationale.
+  student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Restrict)
   coachId   String
-  coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a legacy identity FK on the same row as the canonical, safely-SetNull studentProfile/coachProfile/assignment FKs declared just below — Cascade here previously defeated their safety by hard-deleting the whole booking row regardless.
+  coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Restrict)
   parentId  String?
   parent    User?   @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
 
@@ -3526,7 +3532,8 @@ model UserDocument {
 
   // Relations
   userId String
-  user   User   @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): uploaded documents must never be silently destroyed by an account delete.
+  user   User   @relation("UserDocuments", fields: [userId], references: [id], onDelete: Restrict)
 
   uploadedById String?
   uploadedBy   User?   @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
@@ -3632,11 +3639,13 @@ model CoachNote {
 
   // Subject of the note (the student, by User.id)
   studentId String
-  student   User   @relation("CoachNoteSubject", fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): notes about a student must never be silently destroyed by deleting the student's account.
+  student   User   @relation("CoachNoteSubject", fields: [studentId], references: [id], onDelete: Restrict)
 
   // Author of the note (the coach, by User.id)
   coachId String
-  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a coach's authored notes must never be silently destroyed by deleting the coach's account.
+  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Restrict)
 
   body   String  @db.Text
   pinned Boolean @default(false)
@@ -3659,10 +3668,12 @@ model CoachStudentAssignment {
   id String @id @default(cuid())
 
   coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): same rationale as the student side below.
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a routine coach/admin delete of a User must never silently destroy academic assignment history. See docs/audits — DELETE-1/DELETE-2.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   assignedById String?
   assignedBy   User?   @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
