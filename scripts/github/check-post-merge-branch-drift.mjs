@@ -11,20 +11,48 @@
  * (proven incident: PR #272, merged at bf4dfd0, later advanced to 112ca1e
  * with a real feature commit that only reached main via a brand-new PR #275).
  *
- * For every merged PR (standard merge-commit strategy — the merge commit's
- * second parent is the exact SHA that was actually merged), this compares:
- *   - prMergedHead: the merge commit's second parent
- *   - currentRemoteHead: `git ls-remote` of the PR's head branch today
- *   - mainContainsDelta: whether currentRemoteHead is an ancestor of main
- *     (i.e. the delta, if any, was independently re-landed)
- *   - supersedingPr: any other PR (open or closed, any state) sharing the
- *     same head branch name — a branch can be reused after merge for a
- *     later, separately-reviewed attempt, which is a lower-urgency situation
- *     than drift nobody ever opened a review for.
+ * A naive "current head != merged head AND not an ancestor of main" check is
+ * too coarse: a branch can also be force-pushed BACKWARDS (rewound), or
+ * reused later for something unrelated and diverged from its merged state —
+ * neither of those is "unreviewed product work that almost reached main"
+ * (proven false positive: PR #15's branch is DIVERGED from what was merged,
+ * ahead_by=566/behind_by=459 per GitHub's own compare view — a branch-hygiene
+ * fact, not a silently-dropped delta). So every merged-then-drifted branch is
+ * classified into exactly one of:
  *
- * Exits non-zero when POST_MERGE_UNREVIEWED_REQUIRED_DELTAS > 0: a merged PR
- * whose branch was pushed to after merge, with content not otherwise on main
- * AND no other PR (of any state) ever surfaced that work for review.
+ *   UNCHANGED                        — current head == merged head
+ *   FAST_FORWARD_ADVANCED_AFTER_MERGE — current head is a descendant of the
+ *                                       merged head (the dangerous #272 shape)
+ *   REWOUND_AFTER_MERGE              — current head is an ANCESTOR of the
+ *                                       merged head (force-pushed backwards) —
+ *                                       never a product-delta finding
+ *   PATCH_EQUIVALENT                 — advanced or diverged, but every commit
+ *                                       reachable only from current head has a
+ *                                       patch-id match already reachable from
+ *                                       the merged head (rebase/re-commit,
+ *                                       same content)
+ *   UNIQUE_PATCH_ALREADY_IN_MAIN     — advanced or diverged, with genuinely
+ *                                       new patches vs. the merged head, but
+ *                                       every one of those patches already has
+ *                                       a patch-id match reachable from main
+ *                                       (independently re-landed / squashed)
+ *   UNIQUE_PATCH_REVIEWED_ELSEWHERE  — genuinely new patches, not (yet) on
+ *                                       main, but another PR (any state) on
+ *                                       the same branch name already surfaced
+ *                                       them for review
+ *   UNIQUE_PATCH_UNREVIEWED          — genuinely new patches, not on main, no
+ *                                       other PR ever reviewed them — the
+ *                                       ONLY classification that counts
+ *                                       toward POST_MERGE_UNREVIEWED_REQUIRED_DELTA
+ *   DIVERGED_OR_REUSED               — (falls through to one of the two
+ *                                       patch-id outcomes above; kept as an
+ *                                       internal label only if patch-id
+ *                                       classification could not run)
+ *
+ * "Genuinely new patches vs. the merged head" and "already on main" are both
+ * decided via `git cherry`'s own patch-id comparison (not raw SHA/ancestry),
+ * so a rebase, cherry-pick, or squash-merge that changed commit hashes but
+ * not content is correctly recognized as equivalent.
  *
  * Requires (CLI mode only): `gh` CLI authenticated, run from a full clone
  * (not shallow).
@@ -51,13 +79,33 @@ export function createGitOps(execFileSyncImpl = defaultExecFileSync) {
       }
       return out.split('\t')[0] ?? '';
     },
-    isAncestorOfMain(sha) {
+    isAncestor(ancestorSha, descendantSha) {
       try {
-        execFileSyncImpl('git', ['merge-base', '--is-ancestor', sha, 'origin/main']);
+        execFileSyncImpl('git', ['merge-base', '--is-ancestor', ancestorSha, descendantSha], { stdio: 'ignore' });
         return true;
       } catch {
         return false;
       }
+    },
+    // Commits reachable from `tip` but not `base`, marked '+' by `git cherry`
+    // when no patch-id-equivalent commit exists on the `base`-only side —
+    // i.e. genuinely new content, not a rebase/cherry-pick of something the
+    // base already has. Returns null (not an empty array) when the
+    // comparison could not be computed at all (e.g. a shallow clone missing
+    // objects), so callers can tell "computed, found nothing" apart from
+    // "could not compute".
+    cherryPlus(base, tip) {
+      let out;
+      try {
+        out = sh(['cherry', base, tip]);
+      } catch {
+        return null;
+      }
+      if (!out) return [];
+      return out
+        .split('\n')
+        .filter(line => line.startsWith('+'))
+        .map(line => line.trim().split(/\s+/)[1]);
     },
   };
 }
@@ -65,7 +113,9 @@ export function createGitOps(execFileSyncImpl = defaultExecFileSync) {
 /**
  * Pure classification: given the merged PRs, every PR (any state, for
  * superseding-branch detection), and injectable git operations, returns the
- * list of merged PRs whose branch drifted post-merge.
+ * list of merged PRs whose branch drifted post-merge, each tagged with its
+ * classification (see the module doc comment) and whether it counts as a
+ * required, unreviewed delta.
  */
 export function classifyPostMergeDrift(mergedPrs, allPrs, gitOps) {
   const prsByBranch = new Map();
@@ -91,30 +141,60 @@ export function classifyPostMergeDrift(mergedPrs, allPrs, gitOps) {
 
     const currentRemoteHead = gitOps.currentRemoteHead(pr.headRefName);
     if (!currentRemoteHead) continue; // branch deleted post-merge — nothing to drift
-    if (currentRemoteHead === prMergedHead) continue; // untouched since merge — compliant
-
-    const mainContainsDelta = gitOps.isAncestorOfMain(currentRemoteHead);
+    if (currentRemoteHead === prMergedHead) continue; // UNCHANGED — untouched since merge, compliant
 
     // A branch name can be reused: someone may have continued work on it after
     // merge and opened a SEPARATE, later PR (open or closed) on that same
-    // headRefName. That changes the risk category even though the raw SHA
-    // comparison above still shows drift: an open superseding PR is a still-live,
-    // still-open review track (arguably just needs a rebase-off-main note); a
-    // closed-unmerged one is an abandoned but at-least-surfaced attempt; NO
-    // superseding PR at all is the dangerous case (#272): drift nobody ever
-    // opened a review for.
+    // headRefName. An open superseding PR is a still-live, still-open review
+    // track; a closed-unmerged one is an abandoned but at-least-surfaced
+    // attempt; NO superseding PR at all is the dangerous case (#272): drift
+    // nobody ever opened a review for.
     const supersedingPr =
       prsByBranch
         .get(pr.headRefName)
         ?.filter(candidate => candidate.number !== pr.number)
         .sort((a, b) => b.number - a.number)[0] ?? null;
 
+    const advanced = gitOps.isAncestor(prMergedHead, currentRemoteHead);
+    const rewound = !advanced && gitOps.isAncestor(currentRemoteHead, prMergedHead);
+
+    let classification;
+    let requiredDelta = false;
+
+    if (rewound) {
+      classification = 'REWOUND_AFTER_MERGE';
+    } else {
+      // FAST_FORWARD_ADVANCED_AFTER_MERGE or DIVERGED_OR_REUSED so far —
+      // both need the same patch-id-based refinement below.
+      const vsMergedPlus = gitOps.cherryPlus(prMergedHead, currentRemoteHead);
+
+      if (vsMergedPlus === null) {
+        // Could not compute (e.g. objects missing in a shallow clone) — fall
+        // back to the coarse shape label rather than guessing a patch verdict.
+        classification = advanced ? 'FAST_FORWARD_ADVANCED_AFTER_MERGE' : 'DIVERGED_OR_REUSED';
+      } else if (vsMergedPlus.length === 0) {
+        classification = 'PATCH_EQUIVALENT';
+      } else {
+        const vsMainPlus = new Set(gitOps.cherryPlus('origin/main', currentRemoteHead) ?? []);
+        const stillMissingFromMain = vsMergedPlus.some(sha => vsMainPlus.has(sha));
+        if (!stillMissingFromMain) {
+          classification = 'UNIQUE_PATCH_ALREADY_IN_MAIN';
+        } else if (supersedingPr) {
+          classification = 'UNIQUE_PATCH_REVIEWED_ELSEWHERE';
+        } else {
+          classification = 'UNIQUE_PATCH_UNREVIEWED';
+          requiredDelta = true;
+        }
+      }
+    }
+
     findings.push({
       number: pr.number,
       headRefName: pr.headRefName,
       prMergedHead,
       currentRemoteHead,
-      mainContainsDelta,
+      classification,
+      requiredDelta,
       supersedingPr,
     });
   }
@@ -123,8 +203,7 @@ export function classifyPostMergeDrift(mergedPrs, allPrs, gitOps) {
 }
 
 function report(findings) {
-  const requiredDeltas = findings.filter(f => !f.mainContainsDelta);
-  const silentRequiredDeltas = requiredDeltas.filter(f => !f.supersedingPr);
+  const unreviewedRequiredDeltas = findings.filter(f => f.requiredDelta);
 
   if (findings.length === 0) {
     console.log('POST_MERGE_UNREVIEWED_REQUIRED_DELTAS=0');
@@ -132,7 +211,7 @@ function report(findings) {
     return 0;
   }
 
-  console.log('Merged PR branches that were pushed to AFTER merge:');
+  console.log('Merged PR branches that differ from their merged head today:');
   for (const f of findings) {
     const supersedingNote = f.supersedingPr
       ? `SUPERSEDING_PR=#${f.supersedingPr.number}(${f.supersedingPr.state})`
@@ -140,21 +219,22 @@ function report(findings) {
     console.log(
       `  PR #${f.number} (${f.headRefName}): PR_MERGED_HEAD=${f.prMergedHead.slice(0, 12)} ` +
         `CURRENT_REMOTE_BRANCH_HEAD=${f.currentRemoteHead.slice(0, 12)} ` +
-        `MAIN_CONTAINS_BRANCH_DELTA=${f.mainContainsDelta ? 'YES' : 'NO'} ${supersedingNote}`,
+        `CLASSIFICATION=${f.classification} ${supersedingNote}`,
     );
   }
 
-  console.log(`POST_MERGE_REQUIRED_DELTAS_TOTAL=${requiredDeltas.length}`);
-  console.log(`POST_MERGE_UNREVIEWED_REQUIRED_DELTAS=${silentRequiredDeltas.length}`);
-  if (silentRequiredDeltas.length > 0) {
+  console.log(`POST_MERGE_DRIFTED_BRANCHES_TOTAL=${findings.length}`);
+  console.log(`POST_MERGE_UNREVIEWED_REQUIRED_DELTAS=${unreviewedRequiredDeltas.length}`);
+  if (unreviewedRequiredDeltas.length > 0) {
     console.error(
-      '\nEach PR above with MAIN_CONTAINS_BRANCH_DELTA=NO and SUPERSEDING_PR=NONE has commits ' +
-        'that were never reviewed under ANY PR and never reached main. Per governance rule ' +
-        'MERGED_BRANCH_IS_IMMUTABLE=true / POST_MERGE_CHANGES_REQUIRE_NEW_PR=true: open a NEW PR ' +
-        'from current main cherry-picking only the unique delta — never assume the old (merged) PR ' +
-        'delivered it, and never reuse that PR as review authority for the new commits.\n' +
-        'Entries with a SUPERSEDING_PR are lower-urgency (already surfaced under a real PR, even ' +
-        'if closed/abandoned) but still warrant an explicit decision: land, rebase, or delete.',
+      '\nEach PR above classified UNIQUE_PATCH_UNREVIEWED has commits that were never reviewed ' +
+        'under ANY PR and are not otherwise present on main (by content, not just by SHA). Per ' +
+        'governance rule MERGED_BRANCH_IS_IMMUTABLE=true / POST_MERGE_CHANGES_REQUIRE_NEW_PR=true: ' +
+        'open a NEW PR from current main cherry-picking only the unique delta — never assume the ' +
+        'old (merged) PR delivered it, and never reuse that PR as review authority for the new ' +
+        'commits.\nEvery other classification above is a branch-hygiene finding (rewind, reuse, ' +
+        'already-landed-elsewhere, or already-reviewed-elsewhere) and does not block on its own, ' +
+        'but still warrants an explicit decision: land, rebase, or delete the branch.',
     );
     return 1;
   }
