@@ -19,8 +19,11 @@ const independentEvidenceJobs = [
   'e2e',
   // Gate des parcours authentifiés (playwright.auth.config.ts) : requis
   // depuis #134 — c'est l'angle mort par lequel les défauts d'enchaînement
-  // passaient malgré des CI vertes.
-  'e2e-auth',
+  // passaient malgré des CI vertes. Split into two parallel jobs
+  // (AUTH_E2E_JOB_TIME_BUDGET_EXCEEDED — the combined job outgrew its
+  // 30-minute budget as e2e/auth gained coverage).
+  'e2e-auth-chromium',
+  'e2e-auth-cross-browser',
   'security',
   'build',
   'documents',
