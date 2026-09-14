@@ -12,6 +12,15 @@ SOURCE OFFICIELLE D'ENVOI
                            jetables, jamais envoyés directement.
   Distribution             release/diagnostics-v2/ — ci-dessus.
 
+SITUATIONS CANDIDATES ET TABLEAUX
+
+  Les faits d'un candidat ont une seule construction (scripts/faits_candidat.py) ; l'espace
+  des situations valides en est dérivé, et chaque situation est exécutée par la suite de
+  tests. 04_INTERNE/STUDENT_PACK_MATRIX.csv porte une ligne par classe d'équivalence de
+  sélection (mêmes instruments, mêmes livrets) et non par candidat : « states_in_class »
+  compte les situations réunies, « archive » nomme l'archive témoin du banc quand il en
+  bâtit une. FR-POS et FR-MAI n'y figurent que sur demande explicite.
+
 TROIS PROFILS CANDIDATS, ET SEULEMENT TROIS
 
   PREMIÈRE PARTIE      Le candidat prépare les épreuves anticipées, et selon sa
