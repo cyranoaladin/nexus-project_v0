@@ -45,6 +45,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RATE_LIMIT_TRUST_PROXY_HOPS', level: 'REQUIRED', description: 'Exact trusted reverse-proxy hop count', prodOnly: true },
   { name: 'JITSI_ROOM_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for deterministic Jitsi room names (≥32 chars, never NEXTAUTH_SECRET)', prodOnly: true },
   { name: 'NEXT_PUBLIC_JITSI_SERVER_URL', level: 'REQUIRED', description: 'Dedicated Jitsi deployment URL — must never fall back to the public meet.jit.si in production', prodOnly: true },
+  { name: 'NEXUS_ORGANIZATION_TIMEZONE', level: 'REQUIRED', description: 'IANA timezone name the organization operates in (e.g. Africa/Tunis) — must be an explicit, validated config value, never a hardcoded assumption (see lib/timezone.ts)', prodOnly: true },
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },
@@ -102,6 +103,20 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   const secret = process.env.NEXTAUTH_SECRET;
   if (isProd && secret && secret.length < 32) {
     warnings.push(`NEXTAUTH_SECRET is ${secret.length} chars — recommended ≥32 for production security`);
+  }
+
+  // NEXUS_ORGANIZATION_TIMEZONE validity check — a typo'd or non-IANA value
+  // would otherwise only surface the first time lib/timezone.ts is actually
+  // invoked (a booking read, a workshop reminder), not at boot.
+  const organizationTimezone = process.env.NEXUS_ORGANIZATION_TIMEZONE;
+  if (isProd && organizationTimezone) {
+    try {
+      new Intl.DateTimeFormat('en-US', { timeZone: organizationTimezone });
+    } catch {
+      missing.push(
+        `NEXUS_ORGANIZATION_TIMEZONE — "${organizationTimezone}" is not a valid IANA timezone name`,
+      );
+    }
   }
 
   if (isProd) {

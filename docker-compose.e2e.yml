@@ -133,6 +133,9 @@ services:
       # (lib/jitsi.ts) — both REQUIRED/prodOnly.
       JITSI_ROOM_SECRET: e2e-compose-jitsi-room-secret-please-rotate
       NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-e2e-compose.nexus-e2e.test
+      # Same fail-fast reason for the organization timezone authority
+      # (lib/timezone.ts) — also REQUIRED/prodOnly.
+      NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
       # SMTP is captured by the disposable Mailpit service. No message leaves
       # the isolated Docker network.
       EMAIL_OUTBOX_WORKER_ENABLED: "true"

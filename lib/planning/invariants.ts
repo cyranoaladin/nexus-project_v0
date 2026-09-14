@@ -46,7 +46,7 @@
  */
 
 import type { Prisma, SessionStatus } from '@prisma/client';
-import { getOrganizationUtcOffsetHours } from '../timezone';
+import { getOrganizationTimezone, zonedWallClockToUtcInstant } from '../timezone';
 import {
   loadPlanningIdentitySnapshot,
   verifyPlanningIdentities,
@@ -98,23 +98,24 @@ export function combineDateAndTime(date: Date, time: string): Date {
 }
 
 /**
- * Combine une date calendaire et une heure murale Tunis `"HH:MM"` en
+ * Combine une date calendaire et une heure murale organisation `"HH:MM"` en
  * l'INSTANT UTC réel qu'elle représente — contrairement à
  * `combineDateAndTime` (pseudo-UTC : l'heure murale est encodée directement
  * dans les accesseurs UTC, valable uniquement pour des comparaisons
  * internes entre valeurs de même convention), le résultat ici est un vrai
  * instant, comparable directement à `Date.now()` / `new Date()`.
  *
- * Le décalage Africa/Tunis est calculé dynamiquement via `lib/timezone.ts`
- * (seule autorité, partagée avec `lib/planning/series.ts` et — via
- * celui-ci — la planification des ateliers ARIA) plutôt que codé en dur :
- * voir ce module pour la justification (dérivé de l'IANA tzdata via
- * `Intl`, jamais une constante `+1` réimplémentée localement).
+ * Le fuseau et le décalage sont résolus dynamiquement via
+ * `lib/timezone.ts` (seule autorité, partagée avec `lib/planning/series.ts`
+ * et — via celui-ci — la planification des ateliers ARIA) plutôt que codés
+ * en dur, avec une politique explicite et testée pour les heures murales
+ * AMBIGUËS ou INEXISTANTES près d'une transition DST (voir
+ * `zonedWallClockToUtcInstant` — jamais une simple soustraction d'un seul
+ * décalage non vérifié).
  */
 export function tunisWallClockToUtcInstant(date: Date, time: string): Date {
   const pseudoUtc = combineDateAndTime(date, time);
-  const offsetHours = getOrganizationUtcOffsetHours(pseudoUtc);
-  return new Date(pseudoUtc.getTime() - offsetHours * 60 * 60 * 1000);
+  return zonedWallClockToUtcInstant(getOrganizationTimezone(), pseudoUtc).instant;
 }
 
 /** Statuts `SessionBooking` considérés actifs — même ensemble que les

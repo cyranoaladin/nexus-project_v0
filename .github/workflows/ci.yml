@@ -834,6 +834,10 @@ jobs:
           # the runner's ambient env), so both fail closed without these.
           JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler
           # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler):
           # EMAIL_OUTBOX_WORKER_CONFIGURATION_REQUIRED in production unless
@@ -1387,6 +1391,10 @@ jobs:
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
           JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
           SMTP_HOST: 127.0.0.1
@@ -1764,6 +1772,7 @@ jobs:
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
           JITSI_ROOM_SECRET: ci-build-jitsi-room-secret-placeholder-32chars
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler -- see the
           # matching comment on the E2E job's "Start Next.js server in
           # background" step.
