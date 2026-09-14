@@ -69,6 +69,22 @@ export interface PeriodicBilanNotificationIntent {
 }
 
 /**
+ * Consistency contract (PR #268): no durable parent-notification intent is
+ * ever committed against an entitlement grant that is stale at commit time.
+ * Enforced by taking a `SELECT ... FOR UPDATE` row lock on the child's
+ * entitlement(s) as the FIRST statement in the same transaction as the
+ * publish write, so any concurrent writer to that row — a full suspend/
+ * revoke (`status`) OR a tier downgrade below the `parentReporting`
+ * threshold (`ariaTier`, same row, same lock) — is forced to serialize
+ * behind this transaction rather than interleave invisibly with it. A
+ * concurrent double-publish on the same bilan is handled separately by the
+ * outbox's own unique `dedupeKey` constraint: the loser's insert fails and
+ * is swallowed (`isDuplicateNotificationError`), never producing a
+ * duplicate send. Proven under real Postgres, not asserted: see
+ * __tests__/db/aria-periodic-bilan.real.test.ts's lock-wait, tier-downgrade
+ * lock-wait, pre-committed-revoke baseline, 30-trial concurrent
+ * suspend-race, and concurrent double-publish tests.
+ *
  * Read-only: decides whether a parent notification should be sent, and
  * builds its content. Returns `null` whenever no email should go out —
  * missing parent/email/name (defensive — should not happen for a real
