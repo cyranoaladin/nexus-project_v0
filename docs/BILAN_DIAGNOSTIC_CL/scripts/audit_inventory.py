@@ -75,7 +75,7 @@ def categorie(p: str) -> tuple[str, str]:
         return "MANIFEST", "index interne de la release"
     if p in ("MANIFESTE_DEPOT.json", "MANIFESTE_DEPOT.md"):
         return "MANIFEST", "manifeste du dépôt : instruments, empreintes, critère de fin"
-    if p.endswith("_MATRIX.csv") or p == "CANDIDATE_PROFILES.csv":
+    if p.endswith("_MATRIX.csv") or p.endswith("_MATRIX.json") or p == "CANDIDATE_PROFILES.csv":
         return "MANIFEST", "tableau d'envoi ou de profils, pseudonymisé"
     if p.startswith("audit/"):
         return "AUDIT_FIXTURE", "inventaire ou manifeste synthétique d'audit"

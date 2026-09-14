@@ -405,7 +405,7 @@ def test_les_tableaux_internes_voyagent_avec_la_release():
     interne = V2 / "04_INTERNE"
     if not interne.exists():
         pytest.skip("release v2 non construite")
-    for nom in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv",
+    for nom in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv", "STUDENT_PACK_MATRIX.json",
                 "CANDIDATE_PROFILES.csv", "PRINT_MATRIX.csv"):
         assert (interne / nom).exists(), f"{nom} absent de 04_INTERNE"
 
@@ -595,7 +595,7 @@ def test_provenance_git_du_manifeste_v2():
                              capture_output=True, text=True).stdout.strip()
     fichiers = [f[len(prefixe):] for f in r_diff.stdout.splitlines()
                 if f.strip() and f.startswith(prefixe)]
-    non_release = [f for f in fichiers if not (f.startswith("release/") or f in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv"))]
+    non_release = [f for f in fichiers if not (f.startswith("release/") or f in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv", "STUDENT_PACK_MATRIX.json"))]
     if not non_release and fichiers:
         r_parent = subprocess.run(["git", "-C", str(RACINE), "rev-parse", "HEAD^"],
                                   capture_output=True, text=True)

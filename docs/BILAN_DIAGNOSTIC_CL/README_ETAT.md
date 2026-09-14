@@ -190,6 +190,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_passation.py` | 10 |
 | `tests/test_passation_cas.py` | 6 |
 | `tests/test_phi_attribution.py` | 3 |
+| `tests/test_print_canonicalization.py` | 9 |
 | `tests/test_profil_p1.py` | 14 |
 | `tests/test_provenance.py` | 12 |
 | `tests/test_regles_bilan.py` | 32 |
@@ -200,7 +201,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **779** |
+| **total** | **788** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -244,6 +245,11 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_pack_personnalisation.py:41` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_personnalisation.py:53` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_phi_attribution.py:46` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_print_canonicalization.py:51` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_print_canonicalization.py:90` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_print_canonicalization.py:122` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_print_canonicalization.py:140` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_print_canonicalization.py:182` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_rendu_code.py:149` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 
 Un mécanisme non annoté fait échouer la production de ce tableau : un test qui ne s'exécute pas doit dire ce qu'il laisse non prouvé.

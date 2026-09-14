@@ -216,7 +216,9 @@ SITUATIONS CANDIDATES ET TABLEAUX
   tests. 04_INTERNE/STUDENT_PACK_MATRIX.csv porte une ligne par classe d'équivalence de
   sélection (mêmes instruments, mêmes livrets) et non par candidat : « states_in_class »
   compte les situations réunies, « archive » nomme l'archive témoin du banc quand il en
-  bâtit une. FR-POS et FR-MAI n'y figurent que sur demande explicite.
+  bâtit une. « operator_print_catalogue_id » désigne le catalogue de référence opérateur
+  (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO). FR-POS et FR-MAI n'y figurent que sur
+  demande explicite.
 
 TROIS PROFILS CANDIDATS, ET SEULEMENT TROIS
 
@@ -228,15 +230,13 @@ TROIS PROFILS CANDIDATS, ET SEULEMENT TROIS
 SCOPE TRANSVERSAL — DIAGNOSTIC COMMUN
 
   00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf
-                       Diagnostic linguistique transverse (écrit + entretien oral),
-                       applicable à tous les profils pour situer le niveau de maîtrise.
 
-ARBORESCENCE THÉMATIQUE DES PROFILS (6 SOUS-DOSSIERS)
+CE QU'ON DONNE AU CANDIDAT
 
-  Chaque profil candidat classe ses livrets en six sous-dossiers thématiques :
-
-    00_DOSSIER_ENTREE/        Questionnaire de parcours et méthodes de travail (QP + MET).
-    01_EPREUVES_ANTICIPEES/   Français (écrit + oral) et livrets comportant l'épreuve
+  01_LIVRETS_CANDIDAT/            les livrets de matière, avec le cartouche du profil.
+                                  Remis à la famille pour l'épreuve.
+    00_DOSSIER_ENTREE/        Dossier d'entrée (QP + MET) composé sous le gabarit Nexus.
+    01_EPREUVES_ANTICIPEES/   Français écrit et oral (profils A et C), épreuve
                               anticipée de mathématiques (avec ou sans spécialité).
     02_EVALUATIONS_PONCTUELLES/ Histoire-géographie, EMC, Enseignement scientifique.
     03_EPREUVES_TERMINALES/   Philosophie, Grand oral (profils B et C).
@@ -248,8 +248,8 @@ ARBORESCENCE THÉMATIQUE DES PROFILS (6 SOUS-DOSSIERS)
 
 CE QU'ON IMPRIME
 
-  03_IMPRESSION/                  les livrets assemblés en recueils complets de consultation
-                                  (CATALOGUE_RECUEIL_COMPLET_*.pdf), avec un intercalaire par matière.
+  03_IMPRESSION/                  les livrets assemblés en catalogues complets de consultation
+                                  et d'impression opérateur (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO).
                                   Pour imprimer le pack sur-mesure d'un candidat réel, utiliser
                                   exclusivement scripts/pack_candidat.py.
 
@@ -563,7 +563,7 @@ def construire(plan_seulement: bool = False) -> dict:
         "imprimés dans le livret candidat. Ils restent dans la banque et dans le moteur :\n"
         "aucune mesure ne change, seul le document remis au candidat les omet.\n",
         encoding="utf-8")
-    for f in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv",
+    for f in ("DISTRIBUTION_MATRIX.csv", "STUDENT_PACK_MATRIX.csv", "STUDENT_PACK_MATRIX.json",
               "CANDIDATE_PROFILES.csv", "PRINT_MATRIX.csv"):
         if (RACINE / f).exists():
             shutil.copy2(RACINE / f, INTERNE / f)
@@ -587,54 +587,99 @@ ORDRE_IMPRESSION = ["HISTOIRE-GEOGRAPHIE", "EMC", "ENSEIGNEMENT-SCIENTIFIQUE", "
                     "SPE-NSI", "SPE-SVT", "SPE-SES", "SPE-HGGSP", "SPE-HLP", "GRAND-ORAL"]
 
 
-def assembler_impression(src: Path, dossier: Path, profil: str,
-                         livrets: dict) -> list[Path]:
-    """Les livrets d'un profil, assemblés dans l'ordre de passation, prêts à imprimer.
+def specifications_catalogues_impression() -> list[dict]:
+    """Charge le référentiel déclaratif canonique des catalogues d'impression opérateur."""
+    ref = RACINE / "referentiels" / "catalogues_operateur.json"
+    if not ref.exists():
+        raise FileNotFoundError(f"Référentiel manquant : {ref}")
+    with open(ref, encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("catalogues", [])
 
-    Le pack imprimé perd les signets : chaque matière est donc précédée d'une page
-    intercalaire, pour qu'une liasse de soixante feuilles reste une collection de livrets.
 
-    Une matière à plusieurs variantes réglementaires donne **plusieurs packs**. Glisser
-    les deux livrets de mathématiques dans la même liasse ferait composer au candidat une
-    spécialité qu'il ne suit pas ; n'en glisser qu'un priverait l'autre situation de tout
-    document.
+def recueil_impression_pour(profil: str, instruments: list | tuple,
+                            mode_ep: str | None = None) -> tuple[str, str]:
+    """Retourne (catalogue_id, chemin_relatif_release) du catalogue opérateur associé.
+
+    (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO)
     """
-    import itertools
+    inst_set = set(instruments)
+    has_math_ea_spe = ("MATH-EA", "SPE") in inst_set
+    has_eds_math_nt = ("EDS-MATH", "NT") in inst_set
+    has_eds_math_n1 = ("EDS-MATH", "N1") in inst_set
+
+    if profil == "P1":
+        if has_eds_math_n1:
+            cat_id = "CATALOGUE_P1_AVEC_SPECIALITE"
+        elif has_math_ea_spe:
+            cat_id = "CATALOGUE_P1_ANTICIPEE_SPE"
+        else:
+            cat_id = "CATALOGUE_P1_SANS_SPECIALITE"
+    elif profil == "P2":
+        is_fdc = (mode_ep == "fin_cycle")
+        prefix = "CATALOGUE_P2_FIN_DE_CYCLE_" if is_fdc else "CATALOGUE_P2_ANNUELLE_"
+        if has_eds_math_nt and has_math_ea_spe:
+            cat_id = prefix + "AVEC_SPECIALITE_ET_ANTICIPEE"
+        elif has_eds_math_nt:
+            cat_id = prefix + "AVEC_SPECIALITE"
+        elif has_eds_math_n1 and has_math_ea_spe:
+            cat_id = prefix + "ANTICIPEE_SPE_NON_POURSUIVIE" if is_fdc else prefix + "ANTICIPEE_SPE"
+        elif has_eds_math_n1:
+            cat_id = prefix + "NON_POURSUIVIE" if is_fdc else prefix + "ANTICIPEE_SPE"
+        elif has_math_ea_spe:
+            cat_id = prefix + "ANTICIPEE_SPE"
+        else:
+            cat_id = prefix + "SANS_SPECIALITE"
+    elif profil == "P3":
+        if has_eds_math_nt:
+            cat_id = "CATALOGUE_P3_AVEC_SPECIALITE"
+        elif has_eds_math_n1:
+            cat_id = "CATALOGUE_P3_ANTICIPEE_SPE_NON_POURSUIVIE"
+        else:
+            cat_id = "CATALOGUE_P3_SANS_SPECIALITE"
+    else:
+        raise ValueError(f"Profil inconnu : {profil}")
+
+    specs = {c["catalogue_id"]: c for c in specifications_catalogues_impression()}
+    if cat_id not in specs:
+        raise KeyError(f"Catalogue {cat_id} introuvable dans les spécifications")
+    cat = specs[cat_id]
+    dossier = DOSSIER_PROFIL[profil]
+    rel_path = f"release/diagnostics-v2/03_IMPRESSION/{dossier}/{cat['nom_fichier']}"
+    return cat_id, rel_path
+
+
+def assembler_impression(src: Path, dossier: Path, profil: str,
+                         livrets: dict | None = None) -> list[Path]:
+    """Les livrets d'un profil, assemblés en catalogues de consultation opérateur.
+
+    Chaque catalogue déclaré dans referentiels/catalogues_operateur.json est assemblé
+    dans l'ordre de passation, avec intercalaire par matière.
+    (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO)
+    """
     import pypdf
 
-    # Ce que ce profil possède, matière par matière, variante par variante.
-    par_matiere: dict[str, list[tuple]] = {}
-    for (mat, prof, versions, _s) in livrets:
-        if prof == profil:
-            if prof == "P2" and mat == "FRANCAIS":
-                # L'épreuve anticipée de français ne fait pas partie du parcours standard P2
-                continue
-            if prof == "P2" and mat == "MATHEMATIQUES" and variante(mat, versions, prof)[0] != "AVEC_SPECIALITE":
-                # En P2 standard, les mathématiques sont présentées avec la spécialité
-                continue
-            par_matiere.setdefault(mat, []).append(versions)
-    choix = [[(mat, v) for v in sorted(par_matiere[mat], key=str)]
-             for mat in ORDRE_IMPRESSION if mat in par_matiere]
-    if not choix:
+    catalogues = [c for c in specifications_catalogues_impression() if c["profil"] == profil]
+    if not catalogues:
         return []
 
     ecrits = []
     inter = dossier / "_intercalaires"
-    for combinaison in itertools.product(*choix):
-        retenu = dict(combinaison)
-        suffixes = [variante(mat, v, profil)[1] for mat, v in combinaison if variante(mat, v, profil)[1]]
-        nom = "CATALOGUE_RECUEIL_COMPLET" + ("_" + "_".join(suffixes) if suffixes else "") + ".pdf"
+    inter.mkdir(parents=True, exist_ok=True)
+    entree = src / "00_DOSSIER_ENTREE" / "DOSSIER_D_ENTREE_NEXUS.pdf"
+
+    for cat in catalogues:
+        nom = cat["nom_fichier"]
         w = pypdf.PdfWriter()
-        entree = src / "00_DOSSIER_ENTREE" / "DOSSIER_D_ENTREE_NEXUS.pdf"
         if entree.exists():
             w.add_outline_item("Dossier d'entrée Nexus", len(w.pages))
             for page in pypdf.PdfReader(str(entree)).pages:
                 w.add_page(page)
-        for mat in ORDRE_IMPRESSION:
-            if mat not in retenu:
-                continue
-            sd = sous_dossier_livret(mat, profil, retenu[mat])
-            f = src / sd / nom_livret(mat, profil, retenu[mat])
+
+        for mat, v_list in cat["booklets"].items():
+            v_tuples = [tuple(v) for v in v_list]
+            sd = sous_dossier_livret(mat, profil, v_tuples)
+            f = src / sd / nom_livret(mat, profil, v_tuples)
             if not f.exists():
                 continue
             sep = inter / f"{mat}_{profil}.pdf"
@@ -645,13 +690,15 @@ def assembler_impression(src: Path, dossier: Path, profil: str,
                 w.add_page(page)
             for page in pypdf.PdfReader(str(f)).pages:
                 w.add_page(page)
+
         if not w.pages:
             continue
         dossier.mkdir(parents=True, exist_ok=True)
         cible = dossier / nom
-        with open(cible, "wb") as f:
-            w.write(f)
+        with open(cible, "wb") as f_out:
+            w.write(f_out)
         ecrits.append(cible)
+
     shutil.rmtree(inter, ignore_errors=True)
     return ecrits
 
@@ -722,6 +769,16 @@ def ecrire_manifeste(livrets: dict, composes: list[dict], erreurs: list[str]) ->
             if profil:
                 a.update({"profil": DOSSIER_PROFIL[profil],
                           "profil_libelle": LI.PROFILS[profil]["long"]})
+            if role == "impression":
+                cat = next((c for c in specifications_catalogues_impression()
+                            if c["nom_fichier"] == f.name and c["profil"] == profil), None)
+                if cat:
+                    a.update({
+                        "catalogue_id": cat["catalogue_id"],
+                        "libelle": cat["libelle"],
+                        "operator_catalogue_signature": cat["operator_catalogue_signature"],
+                        "purpose": cat["purpose"],
+                    })
         artefacts.append(a)
 
     ids = [a["artifact_id"] for a in artefacts]
@@ -770,7 +827,7 @@ def manifeste_lisible(m: dict) -> str:
          "|---|---|---|---|---|---|"]
     for a in m["artefacts"]:
         L.append(f"| {a['role']} | `{Path(a['path']).name}` | "
-                 f"{a.get('profil_libelle', '—')} | {a.get('matiere', '—')} | "
+                 f"{a.get('profil_libelle', '—')} | {a.get('matiere') or a.get('libelle', '—')} | "
                  f"{a.get('variante', '—')} | `{a['sha256'][:16]}…` |")
     return "\n".join(L) + "\n"
 

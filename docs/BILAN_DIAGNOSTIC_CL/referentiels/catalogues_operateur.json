@@ -1,0 +1,1725 @@
+{
+  "schema": "catalogues_operateur/1.0",
+  "meta": {
+    "description": "Spécification déclarative canonique des catalogues d'impression opérateur génériques de consultation/impression (release/diagnostics-v2/03_IMPRESSION).",
+    "regle": "OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO. Chaque catalogue est un produit éditorial opérateur de référence regroupant les livrets de passation pour un profil et un parcours réglementaire donnés. Les packs candidats exacts sont produits exclusivement par pack_candidat.py."
+  },
+  "catalogues": [
+    {
+      "catalogue_id": "CATALOGUE_P1_AVEC_SPECIALITE",
+      "profil": "P1",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "libelle": "Recueil complet Première — Spécialité Mathématiques (Écrit et Oral)",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "francais": "ecrit_et_oral",
+        "maths": "specialite_premiere",
+        "spes_illustrees": "toutes_spes_premiere"
+      },
+      "purpose": "Catalogue de référence complet pour la Première générale avec spécialité mathématiques : dossier d'entrée, tronc commun 1re, français écrit et oral, mathématiques (spécialité) et l'ensemble des 6 spécialités de 1re.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "N1"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "N1"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "N1"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "N1"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "N1"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "N1"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "N1"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+      ],
+      "classes_represented_count": 31,
+      "operator_catalogue_signature": "P1|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MATHEMATIQUES_AVEC_SPECIALITE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P1_ANTICIPEE_SPE",
+      "profil": "P1",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE.pdf",
+      "libelle": "Recueil complet Première — Anticipée Mathématiques (voie spé)",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "francais": "ecrit_et_oral",
+        "maths": "anticipee_voie_spe",
+        "spes_illustrees": "toutes_spes_premiere"
+      },
+      "purpose": "Catalogue de référence pour la Première avec épreuve anticipée de mathématiques seule (candidat suivant la spé maths sans épreuve anticipée d'EDS) : dossier d'entrée, tronc commun 1re, français, maths anticipée et 6 spécialités 1re.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "N1"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "N1"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "N1"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "N1"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "N1"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "N1"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+      ],
+      "classes_represented_count": 8,
+      "operator_catalogue_signature": "P1|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MATHEMATIQUES_ANTICIPEE_SPE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P1_SANS_SPECIALITE",
+      "profil": "P1",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "libelle": "Recueil complet Première — Mathématiques spécifiques (sans spé maths)",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "francais": "ecrit_et_oral",
+        "maths": "sans_specialite_specifiques",
+        "spes_illustrees": "toutes_spes_premiere"
+      },
+      "purpose": "Catalogue de référence pour la Première sans spécialité mathématiques : dossier d'entrée, tronc commun 1re, français, mathématiques spécifiques de tronc commun et 6 spécialités 1re.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPECIFIQUES"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "N1"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "N1"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "N1"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "N1"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "N1"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "N1"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+      ],
+      "classes_represented_count": 48,
+      "operator_catalogue_signature": "P1|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MATHEMATIQUES_SANS_SPECIALITE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_ANNUELLE_AVEC_SPECIALITE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.pdf",
+      "libelle": "Recueil complet Terminale Annuelle — Spécialité Mathématiques",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "maths": "specialite_terminale",
+        "tronc_commun": "annuelle_tle",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale en évaluation annuelle avec spécialité maths : dossier d'entrée, tronc commun Tle, maîtrise du français, maths spé Tle, philo, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "EDS-MATH",
+            "NT"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 120,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_AVEC_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_ANNUELLE_AVEC_SPECIALITE_ET_ANTICIPEE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+      "libelle": "Recueil complet Terminale Annuelle — Spécialité Maths et Anticipée",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "maths": "specialite_terminale_et_anticipee",
+        "tronc_commun": "annuelle_tle",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale annuelle avec spé maths poursuivie et rattrapage anticipée : tronc commun Tle, philo, maths spé + EA, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "NT"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 120,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_ANNUELLE_ANTICIPEE_SPE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ANTICIPEE_SPE.pdf",
+      "libelle": "Recueil complet Terminale Annuelle — Anticipée Maths seule (voie spé)",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "maths": "anticipee_voie_spe_seule",
+        "tronc_commun": "annuelle_tle",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour candidat de Terminale annuelle présentant l'épreuve anticipée de maths voie spé par dérogation (sans épreuve spé maths en Tle) : tronc commun Tle, philo, maths EA spé, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 300,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_ANTICIPEE_SPE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_ANNUELLE_SANS_SPECIALITE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_SANS_SPECIALITE.pdf",
+      "libelle": "Recueil complet Terminale Annuelle — Mathématiques spécifiques (sans spé maths)",
+      "axes_reglementaires": {
+        "session": "annuelle",
+        "maths": "sans_specialite_specifiques",
+        "tronc_commun": "annuelle_tle",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour candidat de Terminale annuelle sans spé maths (avec ou sans épreuve anticipée spécifique de tronc commun) : tronc commun Tle, philo, maths spécifiques, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPECIFIQUES"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 600,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_SANS_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_FIN_DE_CYCLE_AVEC_SPECIALITE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE.pdf",
+      "libelle": "Recueil complet Terminale Fin de Cycle — Spécialité Mathématiques",
+      "axes_reglementaires": {
+        "session": "fin_de_cycle",
+        "maths": "specialite_terminale",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale en évaluation ponctuelle étendue de fin de cycle avec spécialité maths : tronc commun étendu (1re+Tle), philo, maths spé Tle, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "ETENDUE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "ETENDUE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "ETENDUE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "EDS-MATH",
+            "NT"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 600,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_AVEC_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_FIN_DE_CYCLE_AVEC_SPECIALITE_ET_ANTICIPEE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+      "libelle": "Recueil complet Terminale Fin de Cycle — Spécialité Maths et Anticipée",
+      "axes_reglementaires": {
+        "session": "fin_de_cycle",
+        "maths": "specialite_terminale_et_anticipee",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale fin de cycle avec spé maths poursuivie et rattrapage anticipée : tronc commun étendu, philo, maths spé + EA, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "ETENDUE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "ETENDUE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "ETENDUE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "NT"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 600,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_FIN_DE_CYCLE_ANTICIPEE_SPE_NON_POURSUIVIE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+      "libelle": "Recueil complet Terminale Fin de Cycle — Spécialité Maths non poursuivie et Anticipée",
+      "axes_reglementaires": {
+        "session": "fin_de_cycle",
+        "maths": "anticipee_spe_et_abandon_n1",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale fin de cycle où les maths étaient la spécialité suivie en 1ère et abandonnée, avec rattrapage anticipée : tronc commun étendu, maths EA+N1, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "ETENDUE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "ETENDUE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "ETENDUE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "N1"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 300,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_FIN_DE_CYCLE_NON_POURSUIVIE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_NON_POURSUIVIE.pdf",
+      "libelle": "Recueil complet Terminale Fin de Cycle — Spécialité Maths non poursuivie",
+      "axes_reglementaires": {
+        "session": "fin_de_cycle",
+        "maths": "specialite_abandonnee_n1",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale fin de cycle avec épreuve ponctuelle sur la spécialité maths abandonnée en 1ère : tronc commun étendu, maths N1, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "ETENDUE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "ETENDUE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "ETENDUE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "EDS-MATH",
+            "N1"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 300,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_NON_POURSUIVIE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P2_FIN_DE_CYCLE_SANS_SPECIALITE",
+      "profil": "P2",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_SANS_SPECIALITE.pdf",
+      "libelle": "Recueil complet Terminale Fin de Cycle — Mathématiques spécifiques (sans spé maths)",
+      "axes_reglementaires": {
+        "session": "fin_de_cycle",
+        "maths": "sans_specialite_specifiques",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour la Terminale fin de cycle sans spé maths (avec ou sans anticipation spécifique) : tronc commun étendu, philo, maths spécifiques, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "ETENDUE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "ETENDUE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "ETENDUE"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPECIFIQUES"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 2400,
+      "operator_catalogue_signature": "P2|HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf|ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_SANS_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P3_AVEC_SPECIALITE",
+      "profil": "P3",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+      "libelle": "Recueil complet Bac en une session — Spécialité Mathématiques",
+      "axes_reglementaires": {
+        "session": "bac_en_une_session",
+        "francais": "ecrit_et_oral",
+        "maths": "specialite_terminale_et_anticipee",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence complet pour le Bac en 1 session (candidat individuel Article 3) avec spécialité maths : tronc commun étendu, français écrit et oral, maths spé Tle et anticipée, philo, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ],
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ],
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ],
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "NT"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 150,
+      "operator_catalogue_signature": "P3|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_AVEC_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P3_ANTICIPEE_SPE_NON_POURSUIVIE",
+      "profil": "P3",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+      "libelle": "Recueil complet Bac en une session — Spécialité Maths non poursuivie et Anticipée",
+      "axes_reglementaires": {
+        "session": "bac_en_une_session",
+        "francais": "ecrit_et_oral",
+        "maths": "anticipee_spe_et_abandon_n1",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour le Bac en 1 session où les maths étaient la spé de 1re abandonnée : tronc commun étendu, français écrit et oral, maths anticipée spé et abandon N1, philo, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ],
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ],
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ],
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPE"
+          ],
+          [
+            "EDS-MATH",
+            "N1"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 75,
+      "operator_catalogue_signature": "P3|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    },
+    {
+      "catalogue_id": "CATALOGUE_P3_SANS_SPECIALITE",
+      "profil": "P3",
+      "nom_fichier": "CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+      "libelle": "Recueil complet Bac en une session — Mathématiques spécifiques (sans spé maths)",
+      "axes_reglementaires": {
+        "session": "bac_en_une_session",
+        "francais": "ecrit_et_oral",
+        "maths": "sans_specialite_specifiques",
+        "tronc_commun": "fin_de_cycle_etendue",
+        "spes_illustrees": "toutes_spes_terminale"
+      },
+      "purpose": "Catalogue de référence pour le Bac en 1 session sans spécialité mathématiques : tronc commun étendu, français écrit et oral, maths spécifiques, philo, 6 spécialités Tle et Grand Oral.",
+      "booklets": {
+        "HISTOIRE-GEOGRAPHIE": [
+          [
+            "TC-HG",
+            "1RE"
+          ],
+          [
+            "TC-HG",
+            "TLE"
+          ]
+        ],
+        "EMC": [
+          [
+            "TC-EMC",
+            "1RE"
+          ],
+          [
+            "TC-EMC",
+            "TLE"
+          ]
+        ],
+        "ENSEIGNEMENT-SCIENTIFIQUE": [
+          [
+            "TC-ES",
+            "1RE"
+          ],
+          [
+            "TC-ES",
+            "TLE"
+          ]
+        ],
+        "FRANCAIS": [
+          [
+            "FR-EAF",
+            "standard_2028"
+          ],
+          [
+            "FR-EAF-ORAL",
+            "standard"
+          ]
+        ],
+        "FRANCAIS-MAITRISE": [
+          [
+            "FR-MAI",
+            "standard"
+          ]
+        ],
+        "MATHEMATIQUES": [
+          [
+            "MATH-EA",
+            "SPECIFIQUES"
+          ]
+        ],
+        "PHILOSOPHIE": [
+          [
+            "PHI",
+            "standard"
+          ]
+        ],
+        "SPE-PHYSIQUE-CHIMIE": [
+          [
+            "EDS-PC",
+            "NT"
+          ]
+        ],
+        "SPE-NSI": [
+          [
+            "EDS-NSI",
+            "NT"
+          ]
+        ],
+        "SPE-SVT": [
+          [
+            "EDS-SVT",
+            "NT"
+          ]
+        ],
+        "SPE-SES": [
+          [
+            "EDS-SES",
+            "NT"
+          ]
+        ],
+        "SPE-HGGSP": [
+          [
+            "EDS-HGGSP",
+            "NT"
+          ]
+        ],
+        "SPE-HLP": [
+          [
+            "EDS-HLP",
+            "NT"
+          ]
+        ],
+        "GRAND-ORAL": [
+          [
+            "GO",
+            "standard"
+          ]
+        ]
+      },
+      "ordered_booklet_paths": [
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+        "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+      ],
+      "classes_represented_count": 300,
+      "operator_catalogue_signature": "P3|HISTOIRE-GEOGRAPHIE.pdf|ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf|ENSEIGNEMENT_SCIENTIFIQUE.pdf|FRANCAIS_ECRIT_ET_ORAL.pdf|MAITRISE_DU_FRANCAIS.pdf|MATHEMATIQUES_SANS_SPECIALITE.pdf|PHILOSOPHIE.pdf|SPECIALITE_PHYSIQUE-CHIMIE.pdf|SPECIALITE_NSI.pdf|SPECIALITE_SVT.pdf|SPECIALITE_SES.pdf|SPECIALITE_HGGSP.pdf|SPECIALITE_HLP.pdf|GRAND_ORAL.pdf"
+    }
+  ]
+}

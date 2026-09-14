@@ -362,6 +362,10 @@ def lignes_des_classes(par_cle: dict, packs: list[dict]) -> list[dict]:
             __import__("release_v2").nom_livret(mat, c["profil"], versions)
             for mat, versions in LI.livrets_de(c["instruments"]).items()))
         temoin = archives.get(cle)
+        cand_sig = f"{c['profil']}|" + " ".join(livrets)
+        cat_id, cat_path = __import__("release_v2").recueil_impression_pour(
+            c["profil"], c["instruments"], e.get("mode_ep")
+        )
         rows.append({"classe": cle, "profil": c["profil"], "mode_ep": e["mode_ep"],
                      "spes_premiere": e["spes_premiere"], "spes_terminales": e.get("spes_terminales") or [],
                      "abandonnee": e.get("spe_non_poursuivie") or "inconnue", "eaf_due": e["eaf_due"],
@@ -370,7 +374,11 @@ def lignes_des_classes(par_cle: dict, packs: list[dict]) -> list[dict]:
                      "diagnostic_nexus_utile": bool(e.get("diagnostic_nexus_utile", True)),
                      "same_session_basis": e.get("same_session_basis") or "",
                      "instruments": list(c["instruments"]),
-                     "livrets": livrets, "etats": len(c["etats"]), "representant": e["scenario_id"],
+                     "livrets": livrets,
+                     "candidate_booklet_signature": cand_sig,
+                     "operator_print_catalogue_id": cat_id,
+                     "operator_print_catalogue": cat_path,
+                     "etats": len(c["etats"]), "representant": e["scenario_id"],
                      "candidats": sum(1 for i in choisis if i["pdf_candidat"]),
                      "coach": sum(1 for i in choisis if i["pdf_coach"]),
                      "duree_totale_min": sum(m for _, m in lignes),
@@ -1115,7 +1123,9 @@ def ecrire_matrices(r: dict) -> list[Path]:
         w.writerow(["selection_class", "level", "profile", "ep_mode", "eds_premiere", "eds_terminale",
                     "eds_non_poursuivie", "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis",
                     "diagnostic_nexus_utile", "same_session_basis",
-                    "instruments", "candidate_booklets", "candidate_pdfs", "coach_keys",
+                    "instruments", "candidate_booklets", "candidate_booklet_signature",
+                    "operator_print_catalogue_id", "operator_print_catalogue",
+                    "candidate_pdfs", "coach_keys",
                     "estimated_total_duration_min", "states_in_class", "representative_state",
                     "archive", "missing_pdfs", "ready_to_send"])
         for k in r["classes"]:
@@ -1127,10 +1137,56 @@ def ecrire_matrices(r: dict) -> list[Path]:
                 "oui" if k["fr_pos_requis"] else "non", "oui" if k["fr_mai_requis"] else "non",
                 "oui" if k["diagnostic_nexus_utile"] else "non", k["same_session_basis"],
                 " ".join(f"{c}/{v}" for c, v in k["instruments"]), " ".join(k["livrets"]),
+                k["candidate_booklet_signature"],
+                k["operator_print_catalogue_id"],
+                k["operator_print_catalogue"],
                 k["candidats"], k["coach"], k["duree_totale_min"], k["etats"], k["representant"],
                 str(temoin["zip"].relative_to(SORTIE)) if temoin and temoin.get("zip") else "",
                 " ".join(k["manquants"]), "oui" if not k["manquants"] else "non"])
     ecrits.append(p)
+
+    p_json = RACINE / "STUDENT_PACK_MATRIX.json"
+    matrice_json = {
+        "schema": "student_pack_matrix/1.0",
+        "meta": {
+            "description": "Matrice des classes d'équivalence de sélection de l'espace d'états candidats valide.",
+            "total_classes": len(r["classes"]),
+            "regle": "OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO. Chaque classe pointe vers un catalogue d'impression opérateur générique de référence.",
+        },
+        "classes": [
+            {
+                "selection_class": k["classe"],
+                "level": {"P1": "Premiere", "P2": "Terminale", "P3": "Premiere-et-Terminale"}[k["profil"]],
+                "profile": k["profil"],
+                "ep_mode": k["mode_ep"],
+                "eds_premiere": k["spes_premiere"],
+                "eds_terminale": k["spes_terminales"],
+                "eds_non_poursuivie": k["abandonnee"],
+                "eaf_due": k["eaf_due"],
+                "math_ea_due": k["math_ea_due"],
+                "fr_pos_requis": k["fr_pos_requis"],
+                "fr_mai_requis": k["fr_mai_requis"],
+                "diagnostic_nexus_utile": k["diagnostic_nexus_utile"],
+                "same_session_basis": k["same_session_basis"],
+                "instruments": [f"{c}/{v}" for c, v in k["instruments"]],
+                "candidate_booklets": k["livrets"],
+                "candidate_booklet_signature": k["candidate_booklet_signature"],
+                "operator_print_catalogue_id": k["operator_print_catalogue_id"],
+                "operator_print_catalogue": k["operator_print_catalogue"],
+                "candidate_pdfs_count": k["candidats"],
+                "coach_keys_count": k["coach"],
+                "estimated_total_duration_min": k["duree_totale_min"],
+                "states_in_class": k["etats"],
+                "representative_state": k["representant"],
+                "archive": str(k["archive"]["zip"].relative_to(SORTIE)) if k["archive"] and k["archive"].get("zip") else "",
+                "missing_pdfs": k["manquants"],
+                "ready_to_send": not k["manquants"],
+            }
+            for k in r["classes"]
+        ]
+    }
+    p_json.write_text(json.dumps(matrice_json, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    ecrits.append(p_json)
 
     # § 17 · la matrice d'impression : une ligne par destinataire réel.
     p = RACINE / "PRINT_MATRIX.csv"

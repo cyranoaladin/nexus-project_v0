@@ -2,7 +2,7 @@
   "schema": "nexus.audit.file_inventory",
   "produit_par": "scripts/audit_inventory.py",
   "racine": "docs/BILAN_DIAGNOSTIC_CL",
-  "total": 418,
+  "total": 385,
   "par_categorie": {
     "ASSEMBLY": 31,
     "AUDIT_FIXTURE": 48,
@@ -11,12 +11,12 @@
     "DOCUMENTATION": 10,
     "GUIDE": 11,
     "INSTRUMENT_BANK": 23,
-    "MANIFEST": 17,
-    "PRINT_COLLECTION": 52,
-    "REFERENTIAL": 12,
+    "MANIFEST": 19,
+    "PRINT_COLLECTION": 15,
+    "REFERENTIAL": 13,
     "SOURCE": 28,
     "TEMPLATE": 4,
-    "TEST": 47
+    "TEST": 48
   },
   "fichiers": [
     {
@@ -70,14 +70,14 @@
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "c620abca5bf5edf692690f26931c38bc4c17ef1707bf576a42596382e2f6ab56",
+      "sha256": "00b0db496a76a91d672423479ebb7bf2c9c53fdd9767635e8f9a3bf54f9afca2",
       "size": 109960,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "29ac66cd7b742d24f24506252e18f985bbac6ff579141e1a44fde8ba399e665d",
+      "sha256": "7a7710a1131300488452c39cef9b9e13c2ce678e69208dd55adb50348ace41e6",
       "size": 5323,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -98,8 +98,8 @@
     },
     {
       "path": "README_ETAT.md",
-      "sha256": "b537c31114df31f0eb8fd0833fbe9a78344ea912605cd4e1c6212d918ccf6309",
-      "size": 154204,
+      "sha256": "9914b0aa43a10db209b5953e07435bba99ede080a4be315dbcedc8c31b65f652",
+      "size": 155734,
       "category": "DOCUMENTATION",
       "role": "documentation gouvernante ou de conception"
     },
@@ -112,8 +112,15 @@
     },
     {
       "path": "STUDENT_PACK_MATRIX.csv",
-      "sha256": "f318048a4d9ec90f1a49d5fb3cc137784cd29a7afdd5894b1f2da8034fb2b2ef",
-      "size": 4809275,
+      "sha256": "fa279c66b31c30152003e3ae2380b56f974528f14c51c93b23e3be7d6f22ef4c",
+      "size": 7372943,
+      "category": "MANIFEST",
+      "role": "tableau d'envoi ou de profils, pseudonymisé"
+    },
+    {
+      "path": "STUDENT_PACK_MATRIX.json",
+      "sha256": "799259415f01e24d89aa65e04819b2c338ee4ed8cda10579f295b472eac49e7e",
+      "size": 13676045,
       "category": "MANIFEST",
       "role": "tableau d'envoi ou de profils, pseudonymisé"
     },
@@ -888,6 +895,13 @@
       "role": "référentiel réglementaire ou de conception"
     },
     {
+      "path": "referentiels/catalogues_operateur.json",
+      "sha256": "12c086f1c3b50eabce1abf68b6d33c314e042841670e68c52a6f09cea26cae4c",
+      "size": 63633,
+      "category": "REFERENTIAL",
+      "role": "référentiel réglementaire ou de conception"
+    },
+    {
       "path": "referentiels/codes_erreur.json",
       "sha256": "634914c59b364c4fa57e309a70d2614eb969a633fc1017f4669bfd95e0b3c447",
       "size": 77937,
@@ -966,22 +980,22 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
-      "sha256": "0a2741c0549f2da734a71c212ea2aebd0e6e2ce8838df9127be6b4bf7f068030",
+      "sha256": "ba0e947989765f2c0673d3550568fc0f56bbff55b7adf334d788fecac6c82c4b",
       "size": 2506,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
-      "sha256": "52fc834071f10c019ce3edf2729703e412c96ac5a3f49eae3769a4c86f5ea940",
-      "size": 6443,
+      "sha256": "eed798455ffaab6709d83be56065bce16f148452fedf82717b4902c256f27eb7",
+      "size": 6477,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.txt",
-      "sha256": "22f8b14bd83dd6600fda20a1450b71baa34213f91141a28a3158d11fd8b7abbd",
-      "size": 5258,
+      "sha256": "fddc19811a2162779a23cdc375b66356c923c4145fc915ebc9370fe4d551e259",
+      "size": 5280,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
     },
@@ -994,7 +1008,7 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
-      "sha256": "44db9f734838d4b4a679611a5d3245585099bfd15b8d35d4b41916a08683e79b",
+      "sha256": "9386e4c93321c9e2dc8a6587273c0544dd03a983e638aeb51e4b2d1fa279888a",
       "size": 2852,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
@@ -1008,7 +1022,7 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
-      "sha256": "acf0c49837b9e1db22df0f63b9004819b4326c86b4307134390d4ce783eb0b4b",
+      "sha256": "e75707503aa3ce39c2059e48a151e008d9a55a15a82736218a5ca05802c308fb",
       "size": 4989,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
@@ -2001,6 +2015,13 @@
       "role": "recueil d'impression d'un profil"
     },
     {
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_ANTICIPEE_SPE.pdf",
+      "sha256": "73b43a6ed8d63bc3ec6a919de95b3fc4d381788e50a468cdf1604b306f3bb833",
+      "size": 3317092,
+      "category": "PRINT_COLLECTION",
+      "role": "recueil d'impression d'un profil"
+    },
+    {
       "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.pdf",
       "sha256": "8d7beea12728bb9b9f734533bff4e6ef48d21534e256d234eb5571e3567c5911",
       "size": 3289072,
@@ -2008,191 +2029,51 @@
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "4c52e04b4d41987e76a9f1f98956fcb41523e4e75fe4d9ca550a669ef2c1042d",
-      "size": 3285424,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+      "sha256": "674ba2be36221875c809eb443df66fe13528da30af53894e474ad634ac69709f",
+      "size": 3360792,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "3df53649cc88509847c05486beb6689c93e91716fd1b951a607e8331ee9f140f",
-      "size": 3282010,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "713d4b0a09c49c2d01977c7082425e36f091d27ea3cdd3720705f8b8ce6f672c",
-      "size": 3280177,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "982910136dfacf560549fe7d514d73829c5db1a4a1b03b66ddbebc23bc4c29b3",
-      "size": 3261399,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "8b16a44e5d689ea6490fc2e15f23431b98154c8abe3f73bb23d576f87b5b141e",
-      "size": 3257691,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "7ade8d7e72e58a0c822e05f76e1e678fe58ff419cde95bb4249b5f2629194f87",
-      "size": 3256054,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+      "sha256": "eea65153e6614984ecfcea88badbfa65e1116d4bebfa596c1ad066856a7e91fe",
+      "size": 3368932,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
       "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE.pdf",
-      "sha256": "517f89a2286acb7eb917fa2ea4bd458196e120db0fa4aa7474acdb333e280967",
-      "size": 3294695,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "e5a3dafb73e7b620081d35f57e4935b77c079c0df4863d59801816e6de56817e",
-      "size": 3291047,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "84c1fd8617e48a17958002f3c8ebcf522dfaf7c9f65db3c45a09b6dd57122600",
-      "size": 3287633,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "0b2175ea164429e6a308e6ae11f4de67450affa3ec5adfe9662e4f8e1be1f378",
-      "size": 3285800,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "5a9cc7c4172fdac3132387c2c5a7170e20356f22895334bb4e7aaf2d17c751c7",
-      "size": 3267022,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "baf6d838556ebacfa65e41bfdf927d492bc585f27975f7da59b0fc75d7535aa0",
-      "size": 3263314,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "bf08b1a1f0ff00352fdd5cecf4ec340d895ca4046c65a9bca38df2370b596cfa",
-      "size": 3261678,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE.pdf",
-      "sha256": "96fd067815b16aab9b06ca5e3574be469950732b550a30c95f5bf909c45ed13f",
-      "size": 3295121,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "b416d4f0e5ed01c76319fad1f05169cfa6d339ccbdf01539091875296bbbd77d",
-      "size": 3291473,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "b33e3df2ca7a625726fc22a73b29d7ec4b83b1a90ee05dfad96832fdcd250091",
-      "size": 3288059,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "58ccff60109a1cb1bcdfa144a11da86cd5b8ead702737e94805dc504d9b5a78d",
-      "size": 3286226,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "3ac8b41c8c261e857310cd23de0a116e832c2b94bd28fd88c24e698e73d21168",
-      "size": 3267448,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "3a572a942e936d783df05043695daa77dee0ef01ee1f33b2234cbd58f2854d46",
-      "size": 3263740,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "5816029ac2725936f38557e7406c55e6251fd76091a30c0530bf60ff34a182fb",
-      "size": 3262104,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE.pdf",
       "sha256": "66c133fea22991e6bf4ed47b2f6e426476d9e5e221443242e6827762fbb7f051",
       "size": 3306034,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "60b3ecb1ab2e2026894b957ca809bc342bfcc77fb5e6865ac75c496a45d9bf29",
-      "size": 3302386,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+      "sha256": "b14aae5db0af2d1dc2a74a2551793a5c1a0a7bf25f16acb10df31d6f3e7046cf",
+      "size": 3377753,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "313374cfd5c384922b6ea9dd0f65207e0c7fe199ee49b347c5544f163deef6dd",
-      "size": 3298972,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_NON_POURSUIVIE.pdf",
+      "sha256": "ca837613e523f1bba79edf4ab483d066cb4ee18b51619f8b987e4cc06f911c09",
+      "size": 3296402,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "d0a5d8b57b1ee1e933da1bde8491f184d258c4f78ae44772a010da42804ac595",
-      "size": 3297138,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_SANS_SPECIALITE.pdf",
+      "sha256": "5720c082e52c2ad7d7e901256f788557795042ced476f055df8f1b9d7ee815c1",
+      "size": 3352783,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "51fb1f4d0e5bce838000acd7ad86adb060bef38d453dcdf20d55dec11686dd29",
-      "size": 3278360,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "2ccb9af04f39d47a62277cc833e428093be731c557d74679452b3625443f8ecd",
-      "size": 3274652,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_FIN_DE_CYCLE_FIN_DE_CYCLE_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "e2cc198343faaf48935637ffd37313ba6ca76f2240d5efad27a73ccbc5d2a1d5",
-      "size": 3273016,
+      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_SANS_SPECIALITE.pdf",
+      "sha256": "489f24f8e903b0512742079cb367666a714511c5c516e29066a77cd4561dc9ad",
+      "size": 3335819,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
@@ -2204,48 +2085,6 @@
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "f98a858cc75ec1502e18544419c539f684dd1e258ebf43cd99dc19d8f34398ee",
-      "size": 3647965,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "f5803e5e2c1f5e368e05a0ae56554374449b014da2b157705345cc3d0e224897",
-      "size": 3644562,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "f6e43b53c0a2506ad20aa93d85fa7928377e97917025d45b1bababf6ebaf52e2",
-      "size": 3642676,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "bcd9f1b9ad470aa6ec59b1a96eea2bb2b328960e9e85e0a7831bd027a351428a",
-      "size": 3623894,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "b1dd6ec2c8e8c05981d1202f8beb92e0994b920c5c2a265383b94212597c3e94",
-      "size": 3620192,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "6494d7e443028a55c8431a951abf72e47cc524c39928f098f2082b46e0a50402",
-      "size": 3618739,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
       "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
       "sha256": "aad66f7647ad7f8f52d838c5ed649f5f64c6bcfe684b7c021f35565007912f5c",
       "size": 3660443,
@@ -2253,93 +2092,9 @@
       "role": "recueil d'impression d'un profil"
     },
     {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "8f60ee333797802f5daae5b0cffea5a88fdcfa6b1b896227d6568521bae49567",
-      "size": 3656805,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "1ed2d463a2264bc923b9c5476d32a12087b064f5d2dce7a766531c3e859dd01d",
-      "size": 3653402,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "590597ecdc6068103ef96e4dc0718c5255ba884e26dd982f8454b1848695e785",
-      "size": 3651516,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "10173a394eb45bdea94eab28b6442da763697cf4e44577ee387543350e9a9a54",
-      "size": 3632734,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "cdfc4321b87ecda24666bdc91c8c29ea9e6334b18655fe3901092852d59d4871",
-      "size": 3629032,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "453a859ae9734df2976ecd1011179af5ca5ae6232b1c95b14c7a83d8548fa4e8",
-      "size": 3627579,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
       "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
       "sha256": "22ad031c4546cf1a42889f8dc8b63e9d2797b1dbe8681f2df11158da971ec2dc",
       "size": 3635423,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
-      "sha256": "d1b8bba3adcf98618c83150457e1df0da5f7bb8203db12e8405d1f9327ca0dbe",
-      "size": 3631785,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "54d7f9e9e0a7f67d0bea6a50be0bc9b9d947fb5bff2728888dc9b01b9e638d77",
-      "size": 3628382,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "9dad6ac45af5cc264820e7e0807fadb7a6a767c16f27a27e475cd4631b3844d5",
-      "size": 3626496,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "ace30b1e55d05a4a7ab326fe271fa16f0c154efa27293da4e9e1f29b852bfbd0",
-      "size": 3607714,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "f641b1519e0e5b035c15ce60ce174e196867cc2cc2c2a6027c5949e23b8114ae",
-      "size": 3604012,
-      "category": "PRINT_COLLECTION",
-      "role": "recueil d'impression d'un profil"
-    },
-    {
-      "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE_NON_POURSUIVIE.pdf",
-      "sha256": "9dd031569941abd602016a7cdb3ab0e11f97edd5aa0c29526654d68e5bf9ddd5",
-      "size": 3602559,
       "category": "PRINT_COLLECTION",
       "role": "recueil d'impression d'un profil"
     },
@@ -2394,15 +2149,15 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "5fadd02a1cdff23c03e09f79668b8391c2e639a06458b391a352ae371fe14505",
-      "size": 123828,
+      "sha256": "36364fbc62eadf3b5a3b03878e9f0a77e634e32256e482f3b613b708b3ac3079",
+      "size": 110897,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "0441438c1fb153cac1a7ed2158f6f79e6f9b311d725af648f704ddd13f6bb540",
-      "size": 31088,
+      "sha256": "3df6b474160dd4250763c278fcea9d498954816b3faac142fdb79172eb3fceec",
+      "size": 24168,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
@@ -2415,15 +2170,22 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/STUDENT_PACK_MATRIX.csv",
-      "sha256": "f318048a4d9ec90f1a49d5fb3cc137784cd29a7afdd5894b1f2da8034fb2b2ef",
-      "size": 4809275,
+      "sha256": "fa279c66b31c30152003e3ae2380b56f974528f14c51c93b23e3be7d6f22ef4c",
+      "size": 7372943,
+      "category": "MANIFEST",
+      "role": "index interne de la release"
+    },
+    {
+      "path": "release/diagnostics-v2/04_INTERNE/STUDENT_PACK_MATRIX.json",
+      "sha256": "799259415f01e24d89aa65e04819b2c338ee4ed8cda10579f295b472eac49e7e",
+      "size": 13676045,
       "category": "MANIFEST",
       "role": "index interne de la release"
     },
     {
       "path": "scripts/audit_inventory.py",
-      "sha256": "d3b11d4ee36d21ea303938fab977d005530e215a36bbb2f10f00a12028eece6f",
-      "size": 33392,
+      "sha256": "57fb7e21ae59ae37780320613b65a39e4c54a796a63bffcc7f143e8404a1dab4",
+      "size": 33422,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2471,8 +2233,8 @@
     },
     {
       "path": "scripts/distribution.py",
-      "sha256": "4d1bc2d4a8d57eebaae2d1ad36d47e4e236c28b0e13d07f118e2dbeae8feaa4f",
-      "size": 62273,
+      "sha256": "823582f280f72d9716c060b555434f9ca306af1591540e143482fe95fede6c34",
+      "size": 65262,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2562,8 +2324,8 @@
     },
     {
       "path": "scripts/release_v2.py",
-      "sha256": "59df9234c6510cd31efa6b4ea2fa574ab1ed3e66654726b6ec4e0ea5afca5f18",
-      "size": 38017,
+      "sha256": "4c28d6a637bc9f7b9034c4520097e450471911d0a575d6a33a5410252dc6f403",
+      "size": 40097,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2702,8 +2464,8 @@
     },
     {
       "path": "tests/test_design.py",
-      "sha256": "099244e650ec6400fbe36be27eafb48cd55e12b113b70de04957c237202d694b",
-      "size": 26730,
+      "sha256": "1828c4d4edafa14411a4609b266b4da88355ba7b1fc2f33d3b806c29207dbcea",
+      "size": 26786,
       "category": "TEST",
       "role": "test de non-régression"
     },
@@ -2872,6 +2634,13 @@
       "path": "tests/test_phi_attribution.py",
       "sha256": "b0f94c8dafea3c5b80dbcb23b7f90aafa3454b0a1a5b8c5f2a68d298edcaf7e8",
       "size": 2445,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_print_canonicalization.py",
+      "sha256": "7c20b683e5e983246b0fae64756c19cb6943ed3c14f14c85cf7b3808ac8f7c13",
+      "size": 12060,
       "category": "TEST",
       "role": "test de non-régression"
     },
