@@ -265,7 +265,9 @@ def gabarit_qp() -> dict:
 def profil_reel(profil: str, spes: tuple[str, ...], config: str = "les_deux",
                 abandonnee: str = "aucune", mode_ep: str | None = None,
                 math_ea_due: bool | None = None, eaf_due: str | None = None,
-                fr_mai_requis: bool | None = None, fr_pos_requis: bool | None = None) -> dict:
+                fr_mai_requis: bool | None = None, fr_pos_requis: bool | None = None,
+                diagnostic_nexus_utile: bool = True,
+                same_session_basis: str | None = None) -> dict:
     """Les faits d'un candidat, dans la forme que la dérivation attend.
 
     Adaptateur d'arguments, et rien de plus : la construction et les règles sont celles
@@ -284,7 +286,9 @@ def profil_reel(profil: str, spes: tuple[str, ...], config: str = "les_deux",
     return FC.build_candidate_facts(
         profil=profil, mode_ep=mode_ep, spes_premiere=spes_premiere, spe_non_poursuivie=abandon,
         spes_terminales=spes_terminales, eaf_due=eaf, math_ea_due=bool(math_ea_due),
-        fr_pos_requis=bool(fr_pos_requis), fr_mai_requis=bool(fr_mai_requis), candidat_id="COMBINAISON")
+        fr_pos_requis=bool(fr_pos_requis), fr_mai_requis=bool(fr_mai_requis),
+        diagnostic_nexus_utile=diagnostic_nexus_utile, same_session_basis=same_session_basis,
+        candidat_id="COMBINAISON")
 
 
 def _combinaison_de(classe: dict) -> dict:
@@ -297,7 +301,10 @@ def _combinaison_de(classe: dict) -> dict:
             "config": "aucune" if e["eaf_due"] == "none" else e["eaf_due"], "eaf_due": e["eaf_due"],
             "abandonnee": e.get("spe_non_poursuivie") or "aucune", "mode_ep": e["mode_ep"],
             "math_ea_due": bool(e.get("math_ea_due")), "fr_pos_requis": bool(e.get("fr_pos_requis")),
-            "fr_mai_requis": bool(e.get("fr_mai_requis")), "scenario_id": e["scenario_id"],
+            "fr_mai_requis": bool(e.get("fr_mai_requis")),
+            "diagnostic_nexus_utile": bool(e.get("diagnostic_nexus_utile", True)),
+            "same_session_basis": e.get("same_session_basis"),
+            "scenario_id": e["scenario_id"],
             "classe": classe["cle"], "etats_dans_la_classe": len(classe["etats"])}
 
 
@@ -325,10 +332,11 @@ def combinaisons() -> list[dict]:
         livrets = {(c["profil"], mat, versions) for mat, versions in LI.livrets_de(c["instruments"]).items()}
         # Trois familles de clés à couvrir : chaque livret physique, chaque version
         # d'instrument, et chaque combinaison d'options réglementaires (mode, EAF,
-        # mathématiques anticipées, FR-POS, FR-MAI) — un pack « sans EAF » se contrôle
-        # aussi, même s'il n'apporte aucun livret nouveau.
+        # mathématiques anticipées, FR-POS, FR-MAI, diagnostic_nexus_utile) — un pack
+        # « sans EAF » se contrôle aussi, même s'il n'apporte aucun livret nouveau.
         options = (c["profil"], e["mode_ep"], e["eaf_due"], bool(e.get("math_ea_due")),
-                   bool(e.get("fr_pos_requis")), bool(e.get("fr_mai_requis")))
+                   bool(e.get("fr_pos_requis")), bool(e.get("fr_mai_requis")),
+                   bool(e.get("diagnostic_nexus_utile", True)))
         cles = livrets | {(c["profil"], code, version) for code, version in c["instruments"]} | {options}
         if cles - couverts:
             couverts |= cles
@@ -358,7 +366,10 @@ def lignes_des_classes(par_cle: dict, packs: list[dict]) -> list[dict]:
                      "spes_premiere": e["spes_premiere"], "spes_terminales": e.get("spes_terminales") or [],
                      "abandonnee": e.get("spe_non_poursuivie") or "inconnue", "eaf_due": e["eaf_due"],
                      "math_ea_due": bool(e.get("math_ea_due")), "fr_pos_requis": bool(e.get("fr_pos_requis")),
-                     "fr_mai_requis": bool(e.get("fr_mai_requis")), "instruments": list(c["instruments"]),
+                     "fr_mai_requis": bool(e.get("fr_mai_requis")),
+                     "diagnostic_nexus_utile": bool(e.get("diagnostic_nexus_utile", True)),
+                     "same_session_basis": e.get("same_session_basis") or "",
+                     "instruments": list(c["instruments"]),
                      "livrets": livrets, "etats": len(c["etats"]), "representant": e["scenario_id"],
                      "candidats": sum(1 for i in choisis if i["pdf_candidat"]),
                      "coach": sum(1 for i in choisis if i["pdf_coach"]),
@@ -374,8 +385,13 @@ def instruments_du_profil(c: dict) -> list[tuple[str, str]]:
     par le même chemin que les packs candidats."""
     q = profil_reel(c["profil"], c["spes"], c["config"], abandonnee=c.get("abandonnee", "aucune"),
                     mode_ep=c.get("mode_ep"), math_ea_due=c.get("math_ea_due"), eaf_due=c.get("eaf_due"),
-                    fr_mai_requis=c.get("fr_mai_requis"), fr_pos_requis=c.get("fr_pos_requis"))
-    return MD.epreuves_reglementaires_dues_vs_diagnostics(q, catalogue())["diagnostics_nexus_utiles"]
+                    fr_mai_requis=c.get("fr_mai_requis"), fr_pos_requis=c.get("fr_pos_requis"),
+                    diagnostic_nexus_utile=c.get("diagnostic_nexus_utile", True),
+                    same_session_basis=c.get("same_session_basis"))
+    res = MD.epreuves_reglementaires_dues_vs_diagnostics(q, catalogue())
+    if c.get("diagnostic_nexus_utile", True):
+        return res["diagnostics_nexus_utiles"]
+    return res["epreuves_reglementaires_dues"]
 
 
 
@@ -413,6 +429,8 @@ def nom_pack(c: dict) -> str:
         base += "_FR-POS-requis"
     if c.get("fr_mai_requis"):
         base += "_FR-MAI-requis"
+    if not c.get("diagnostic_nexus_utile", True):
+        base += "_sans-diagnostic-utile"
     return base
 
 
@@ -1096,6 +1114,7 @@ def ecrire_matrices(r: dict) -> list[Path]:
         w = csv.writer(f)
         w.writerow(["selection_class", "level", "profile", "ep_mode", "eds_premiere", "eds_terminale",
                     "eds_non_poursuivie", "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis",
+                    "diagnostic_nexus_utile", "same_session_basis",
                     "instruments", "candidate_booklets", "candidate_pdfs", "coach_keys",
                     "estimated_total_duration_min", "states_in_class", "representative_state",
                     "archive", "missing_pdfs", "ready_to_send"])
@@ -1106,6 +1125,7 @@ def ecrire_matrices(r: dict) -> list[Path]:
                 k["profil"], k["mode_ep"], "+".join(k["spes_premiere"]), "+".join(k["spes_terminales"]),
                 k["abandonnee"], k["eaf_due"], "oui" if k["math_ea_due"] else "non",
                 "oui" if k["fr_pos_requis"] else "non", "oui" if k["fr_mai_requis"] else "non",
+                "oui" if k["diagnostic_nexus_utile"] else "non", k["same_session_basis"],
                 " ".join(f"{c}/{v}" for c, v in k["instruments"]), " ".join(k["livrets"]),
                 k["candidats"], k["coach"], k["duree_totale_min"], k["etats"], k["representant"],
                 str(temoin["zip"].relative_to(SORTIE)) if temoin and temoin.get("zip") else "",

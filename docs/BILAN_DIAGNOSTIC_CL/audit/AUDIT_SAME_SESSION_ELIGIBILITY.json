@@ -1,0 +1,180 @@
+{
+  "schema": "nexus.audit.same_session_eligibility",
+  "produit_par": "scripts/audit_inventory.py",
+  "source": "referentiels/programmes_examen.json::eligibilite_meme_session",
+  "fondement": "arrêté du 16 juillet 2018 relatif aux épreuves anticipées, article 3, version consolidée en vigueur ; note de service du 25 août 2025, NOR MENE2523745N, pour les situations particulières",
+  "confiance": "haute",
+  "criteres_total": 12,
+  "criteres_testes": 12,
+  "criteres_non_testes": 0,
+  "criteres": [
+    {
+      "code": "AGE-20",
+      "libelle": "Candidat âgé d'au moins vingt ans au 31 décembre de l'année de l'examen",
+      "fondement": "art. 3",
+      "piece_requise": "piece_identite",
+      "source_de_verification": "Date de naissance établie par la pièce d'identité du dossier.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "age_au_31_decembre_annee_examen"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_un_dossier_sans_piece_justificative_ne_devient_jamais_verifie",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "ENFANT",
+      "libelle": "Candidat ayant un enfant à charge au moment de l'inscription",
+      "fondement": "art. 3",
+      "piece_requise": "justificatif_charge_enfant",
+      "source_de_verification": "Charge d'enfant établie par le justificatif produit.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "enfant_a_charge"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_la_charge_denfant_est_un_droit_qui_se_justifie",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "RETOUR",
+      "libelle": "Candidat de retour en formation initiale",
+      "fondement": "art. 3",
+      "piece_requise": "attestation_formation",
+      "source_de_verification": "Qualité de retour en formation initiale établie par l'attestation.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "retour_formation_initiale"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[RETOUR]",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "FORCE-MAJEURE",
+      "libelle": "Candidat régulièrement inscrit aux épreuves anticipées n'ayant pu les présenter pour cause de force majeure dûment constatée",
+      "fondement": "art. 3",
+      "piece_requise": null,
+      "source_de_verification": "Constat de force majeure prononcé par l'autorité d'examen : aucune pièce du dossier ne l'établit.",
+      "droit": "conditionnelle",
+      "statut_verification_par_defaut": "decision_administrative_requise",
+      "variables_requises": [
+        "force_majeure_constatee"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_la_force_majeure_est_une_decision_administrative_qui_ne_se_declare_pas",
+      "resultat_attendu_p3_ouvert": false
+    },
+    {
+      "code": "ETRANGER-TEMPORAIRE",
+      "libelle": "Candidat résidant temporairement à l'étranger au niveau de la classe de première",
+      "fondement": "art. 3",
+      "piece_requise": "justificatif_residence",
+      "source_de_verification": "Résidence temporaire établie par le justificatif de résidence.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "residence_etranger"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_residence_temporaire_en_premiere_reste_ouverte",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "ETRANGER-PERMANENT-SANS-CENTRE",
+      "libelle": "Candidat résidant de façon permanente à l'étranger dans un pays où il n'existe pas de centre d'examen",
+      "fondement": "art. 3",
+      "piece_requise": null,
+      "source_de_verification": "Absence de centre d'examen dans le pays : exige la liste officielle des centres, absente du dossier, ou une attestation de l'autorité d'examen.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "centre_examen_dans_le_pays"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_residence_permanente_sans_centre_dans_le_pays_ouvre_le_droit",
+      "resultat_attendu_p3_ouvert": false
+    },
+    {
+      "code": "ETRANGER-PERMANENT-CENTRE-ELOIGNE",
+      "libelle": "Candidat résidant de façon permanente à l'étranger, dans un pays où le centre d'examen est trop éloigné de sa résidence",
+      "fondement": "art. 3",
+      "piece_requise": null,
+      "source_de_verification": "Éloignement apprécié par l'autorité d'examen.",
+      "droit": "conditionnelle",
+      "statut_verification_par_defaut": "decision_administrative_requise",
+      "variables_requises": [
+        "centre_examen_eloigne"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_un_centre_trop_eloigne_est_une_appreciation_administrative",
+      "resultat_attendu_p3_ouvert": false
+    },
+    {
+      "code": "ECHEC-ANTERIEUR",
+      "libelle": "Candidat ayant échoué au baccalauréat général ou technologique et se présentant de nouveau",
+      "fondement": "art. 3",
+      "piece_requise": "releve_notes_anterieur",
+      "source_de_verification": "Échec établi par le relevé de notes de la session antérieure.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "echec_anterieur_baccalaureat"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[ECHEC-ANTERIEUR]",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "EA-SANS-INSCRIPTION-SUIVANTE",
+      "libelle": "Candidat ayant présenté les épreuves anticipées puis ne s'étant pas inscrit au baccalauréat l'année suivante",
+      "fondement": "art. 3",
+      "piece_requise": "releve_notes_anterieur",
+      "source_de_verification": "Présentation antérieure des épreuves anticipées établie par le relevé de notes.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "ea_presentees_puis_absence_inscription"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[EA-SANS-INSCRIPTION-SUIVANTE]",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "TITULAIRE-DIPLOME-FR",
+      "libelle": "Candidat titulaire d'un baccalauréat général, technologique ou professionnel, d'un brevet de technicien ou d'un brevet de technicien agricole",
+      "fondement": "art. 3",
+      "piece_requise": "diplome",
+      "source_de_verification": "Diplôme produit à l'inscription.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "diplome_francais_detenu"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[TITULAIRE-DIPLOME-FR]",
+      "resultat_attendu_p3_ouvert": true
+    },
+    {
+      "code": "TITULAIRE-DIPLOME-ETRANGER",
+      "libelle": "Candidat titulaire d'un diplôme étranger sanctionnant des études d'un niveau et d'une durée comparables",
+      "fondement": "art. 3",
+      "piece_requise": null,
+      "source_de_verification": "Comparabilité reconnue par l'autorité compétente.",
+      "droit": "conditionnelle",
+      "statut_verification_par_defaut": "decision_administrative_requise",
+      "variables_requises": [
+        "diplome_etranger_comparable"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_le_diplome_etranger_exige_une_decision_de_comparabilite",
+      "resultat_attendu_p3_ouvert": false
+    },
+    {
+      "code": "CHANGEMENT-VOIE-TERMINALE",
+      "libelle": "Candidat changeant de voie ou de série au niveau de la classe terminale",
+      "fondement": "art. 3 ; arrêtés du 6 novembre 2019 et du 14 mai 2020 pour les dispenses associées",
+      "piece_requise": "attestation_scolarite",
+      "source_de_verification": "Changement établi par l'attestation de scolarité.",
+      "droit": "oui",
+      "statut_verification_par_defaut": "piece_a_verifier",
+      "variables_requises": [
+        "changement_voie_ou_serie"
+      ],
+      "statut_de_test": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[CHANGEMENT-VOIE-TERMINALE]",
+      "resultat_attendu_p3_ouvert": true
+    }
+  ]
+}

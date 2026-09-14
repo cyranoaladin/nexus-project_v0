@@ -435,6 +435,8 @@ def lignes_diagnostics_famille(effective: list, cat: dict, duree_dossier: int) -
             lignes.append((NOMS_MATIERES_FAMILLE.get(code, code), minutes))
         else:
             lignes.append((inst.get("libelle") or inst.get("nom") or code, minutes))
+    if not dossier_pose and duree_dossier > 0:
+        lignes.insert(0, (LIBELLE_DOSSIER_ENTREE, duree_dossier))
     return lignes
 
 
@@ -449,6 +451,7 @@ def create_candidate_pack(
     fr_pos_requis: bool = False,
     fr_mai_requis: bool = False,
     diagnostic_nexus_utile: bool = True,
+    same_session_basis: str | None = None,
     candidat_id: str | None = None,
     output_dir: Path | None = None,
     assemble_pdf: bool = True,
@@ -475,6 +478,7 @@ def create_candidate_pack(
         fr_pos_requis=fr_pos_requis,
         fr_mai_requis=fr_mai_requis,
         diagnostic_nexus_utile=diagnostic_nexus_utile,
+        same_session_basis=same_session_basis,
         candidat_id=candidat_id,
         config_francais=config_francais,
     )
@@ -803,22 +807,24 @@ canonique release/diagnostics-v2/02_CORRECTIONS_COACH/
     return booklets
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Nexus candidate pack generator")
     parser.add_argument("--profil", "-p", choices=["P1", "P2", "P3"], required=True,
                         help="Regulatory profile (P1: 1re, P2: Tle, P3: Bac 1 session)")
     parser.add_argument("--mode-ep", choices=["annuelle", "fin_cycle"], default=None,
                         help="Mode for punctual evaluations (default: annuelle for P1/P2, fin_cycle for P3)")
-    parser.add_argument("--spes-1re", nargs="+", choices=SPECIALITES_VALIDES, default=["MATH", "PC", "NSI"],
-                        help="Specialities in Première (3 required for P1/P3)")
-    parser.add_argument("--spe-abandonnee", choices=SPECIALITES_VALIDES + ("aucune",), default="NSI",
+    parser.add_argument("--spes-1re", nargs="+", choices=SPECIALITES_VALIDES, default=None,
+                        help="Specialities in Première (3 required)")
+    parser.add_argument("--spe-abandonnee", choices=SPECIALITES_VALIDES + ("aucune",), default=None,
                         help="Speciality dropped after Première")
     parser.add_argument("--spes-tle", nargs="+", choices=SPECIALITES_VALIDES, default=None,
-                        help="Specialities in Terminale (2 required for P2)")
+                        help="Specialities in Terminale (2 required for P2/P3)")
     parser.add_argument("--eaf-due", choices=["none", "ecrit", "oral", "les_deux"], default=None,
                         help="French anticipation exams due (default: none for P2, les_deux for P1/P3)")
     parser.add_argument("--math-ea-due", action="store_true", default=False,
                         help="Set if MATH-EA is due in P2")
+    parser.add_argument("--same-session-basis", choices=["retake_after_failure", "same_session_article3"], default=None,
+                        help="Regulatory basis for same-session EA in P2")
     parser.add_argument("--fr-pos", action="store_true", default=False,
                         help="Include FR-POS linguistic positioning diagnostic")
     parser.add_argument("--fr-mai", action="store_true", default=False,
@@ -831,18 +837,68 @@ def parse_args() -> argparse.Namespace:
                         help="Candidate name, only written to exports_candidats/ (requires PyMuPDF and Lato)")
     parser.add_argument("--output", "-o", type=Path, default=None,
                         help="Target export directory")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
-def main() -> int:
-    args = parse_args()
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
     mode_ep = args.mode_ep
     if mode_ep is None:
         mode_ep = "fin_cycle" if args.profil == "P3" else "annuelle"
 
-    spes_1re = list(args.spes_1re)
-    abandonnee = args.spe_abandonnee
-    spes_tle = list(args.spes_tle) if args.spes_tle else [s for s in spes_1re if s != abandonnee][:2]
+    if args.spes_1re is None:
+        # Parcours canonique de référence par défaut
+        spes_1re = ["MATH", "PC", "NSI"]
+        if args.profil in ("P2", "P3"):
+            abandonnee = args.spe_abandonnee if (args.spe_abandonnee and args.spe_abandonnee != "aucune") else "NSI"
+            spes_tle = list(args.spes_tle) if args.spes_tle else [s for s in spes_1re if s != abandonnee]
+        else:
+            abandonnee = args.spe_abandonnee if (args.spe_abandonnee and args.spe_abandonnee != "aucune") else None
+            spes_tle = [s for s in spes_1re if s != abandonnee] if abandonnee else []
+    else:
+        if len(args.spes_1re) != 3 or len(set(args.spes_1re)) != 3:
+            sys.stderr.write("Erreur: --spes-1re doit comporter exactement 3 spécialités distinctes.\n")
+            return 2
+
+        spes_1re = list(args.spes_1re)
+
+        if args.profil in ("P2", "P3"):
+            if args.spes_tle:
+                if len(args.spes_tle) != 2 or len(set(args.spes_tle)) != 2:
+                    sys.stderr.write("Erreur: --spes-tle doit comporter exactement 2 spécialités distinctes.\n")
+                    return 2
+                if not set(args.spes_tle) <= set(spes_1re):
+                    sys.stderr.write(f"Erreur: les spécialités de Terminale ({args.spes_tle}) doivent être incluses dans les spécialités de 1re ({spes_1re}).\n")
+                    return 2
+                deduite = next(s for s in spes_1re if s not in args.spes_tle)
+                if args.spe_abandonnee and args.spe_abandonnee != "aucune":
+                    if args.spe_abandonnee != deduite:
+                        sys.stderr.write(f"Erreur: la spécialité abandonnée déclarée '{args.spe_abandonnee}' ne correspond pas à la différence 1re - Tle '{deduite}'.\n")
+                        return 2
+                abandonnee = deduite
+                spes_tle = list(args.spes_tle)
+            else:
+                if not args.spe_abandonnee or args.spe_abandonnee == "aucune":
+                    sys.stderr.write(f"Erreur: Pour le profil {args.profil}, spécifier explicitement --spes-tle (2 spécialités) ou --spe-abandonnee (1 spécialité parmi --spes-1re).\n")
+                    return 2
+                if args.spe_abandonnee not in spes_1re:
+                    sys.stderr.write(f"Erreur: la spécialité abandonnée '{args.spe_abandonnee}' doit faire partie de --spes-1re ({spes_1re}).\n")
+                    return 2
+                abandonnee = args.spe_abandonnee
+                spes_tle = [s for s in spes_1re if s != abandonnee]
+        else:  # P1
+            if args.spe_abandonnee is None:
+                sys.stderr.write("Erreur: Pour le profil P1, spécifier explicitement --spe-abandonnee <SPE> ou --spe-abandonnee aucune.\n")
+                return 2
+            if args.spe_abandonnee == "aucune":
+                abandonnee = None
+                spes_tle = []
+            else:
+                if args.spe_abandonnee not in spes_1re:
+                    sys.stderr.write(f"Erreur: la spécialité abandonnée '{args.spe_abandonnee}' doit faire partie de --spes-1re ({spes_1re}).\n")
+                    return 2
+                abandonnee = args.spe_abandonnee
+                spes_tle = [s for s in spes_1re if s != abandonnee]
 
     out = create_candidate_pack(
         profil=args.profil,
@@ -852,6 +908,7 @@ def main() -> int:
         spes_terminales=spes_tle,
         eaf_due=args.eaf_due,
         math_ea_due=args.math_ea_due,
+        same_session_basis=args.same_session_basis,
         fr_pos_requis=args.fr_pos,
         fr_mai_requis=args.fr_mai,
         diagnostic_nexus_utile=not args.sans_diagnostic_utile,

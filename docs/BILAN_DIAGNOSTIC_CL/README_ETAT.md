@@ -156,7 +156,7 @@ cesse d'être un état dès la porte suivante.
 <!-- ETAT-CALCULE tests début : produit par scripts/etat_depot.py, ne pas éditer -->
 | Fichier de test | Fonctions de test |
 |---|---|
-| `tests/test_audit_inventory.py` | 13 |
+| `tests/test_audit_inventory.py` | 14 |
 | `tests/test_audit_readme.py` | 15 |
 | `tests/test_bilan.py` | 34 |
 | `tests/test_bordereau_durees.py` | 3 |
@@ -200,7 +200,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **778** |
+| **total** | **779** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -236,7 +236,7 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_distribution.py:145` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:59` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:145` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_espace_candidats.py:36` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_espace_candidats.py:39` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_export_deterministe.py:67` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:391` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:640` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |

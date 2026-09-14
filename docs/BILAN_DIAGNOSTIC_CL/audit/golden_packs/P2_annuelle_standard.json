@@ -22,7 +22,10 @@
       "MATH",
       "NSI"
     ],
-    "eaf_due": "none"
+    "eaf_due": "none",
+    "math_ea_due": false,
+    "same_session_basis": null,
+    "diagnostic_nexus_utile": true
   },
   "official_obligations": [
     "PHI/standard",
@@ -103,10 +106,11 @@
     "FRANCAIS_ORAL_SEUL.pdf",
     "HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
     "MAITRISE_DU_FRANCAIS.pdf",
+    "MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
     "MATHEMATIQUES_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_SANS_SPECIALITE.pdf",
-    "MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
     "POSITIONNEMENT_FRANCAIS.pdf",
     "SPECIALITE_HGGSP.pdf",
     "SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",

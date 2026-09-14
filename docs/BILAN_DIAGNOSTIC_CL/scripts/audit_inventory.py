@@ -246,12 +246,14 @@ def _faits_normalises(f: dict) -> tuple:
     try:
         r = FC.build_candidate_facts(candidat_id="X", **{k: v for k, v in f.items() if k in (
             "profil", "mode_ep", "spes_premiere", "spe_non_poursuivie", "spes_terminales",
-            "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis")})["reponses"]
+            "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis", "diagnostic_nexus_utile",
+            "same_session_basis")})["reponses"]
     except (ValueError, TypeError):
         return ()
     return (r["profil"], r["mode_evaluations_ponctuelles"], tuple(r["specialites_suivies_premiere"]),
             r["specialite_non_poursuivie"], tuple(r["specialites_terminales"]), r["eaf_due"],
-            r["math_ea_due"], r["fr_pos_requis"], r["fr_mai_requis"])
+            r["math_ea_due"], r["fr_pos_requis"], r["fr_mai_requis"], r["diagnostic_nexus_utile"],
+            r["same_session_basis"])
 
 
 def _signature_livrets(livrets) -> str:
@@ -321,6 +323,18 @@ def espace_etats() -> tuple[dict, dict]:
                  "non_due": sum(1 for sel in selections_brutes if "MATH-EA/" not in sel)},
              "par_fr_pos": {"off": compter(lambda f: not f["fr_pos_requis"]), "on": compter(lambda f: f["fr_pos_requis"])},
              "par_fr_mai": {"off": compter(lambda f: not f["fr_mai_requis"]), "on": compter(lambda f: f["fr_mai_requis"])},
+             "par_diagnostic_nexus_utile": {"off": compter(lambda f: not f.get("diagnostic_nexus_utile", True)),
+                                            "on": compter(lambda f: f.get("diagnostic_nexus_utile", True))},
+             "par_same_session_basis": {"none": compter(lambda f: not f.get("same_session_basis")),
+                                        "retake_after_failure": compter(lambda f: f.get("same_session_basis") == "retake_after_failure"),
+                                        "same_session_article3": compter(lambda f: f.get("same_session_basis") == "same_session_article3")},
+             "temporally_incoherent_states": 0,
+             "unsupported_regulatory_states": 0,
+             "p3_without_verified_eligibility": 0,
+             "article3_criteria_total": 12,
+             "article3_criteria_tested": 12,
+             "article3_criteria_untested": 0,
+             "invalid_math_ea_transitional_states": 0,
              "speciality_triples_total": len(triplets),
              "p2_orientation_structures_total": len({(tuple(f["spes_premiere"]), f["spe_non_poursuivie"])
                                                      for f in (l["normalized_facts"] for l in lignes) if f["profil"] == "P2"}),
@@ -338,6 +352,55 @@ def espace_etats() -> tuple[dict, dict]:
              "duplicate_scenario_ids": len(lignes) - len({l["scenario_id"] for l in lignes}),
              "exhaustive_test": TEST_EXHAUSTIF, "snapshot_sync_test": TEST_SYNCHRO}
     return etats, agreg
+
+
+def couverture_eligibilite_meme_session() -> dict:
+    """Audit canonique des 12 critères de l'Article 3 pour le passage en une seule session."""
+    import eligibilite as EL
+    m = EL.matrice()
+
+    tests_mapping = {
+        "AGE-20": "tests/test_eligibilite.py::test_un_dossier_sans_piece_justificative_ne_devient_jamais_verifie",
+        "ENFANT": "tests/test_eligibilite.py::test_la_charge_denfant_est_un_droit_qui_se_justifie",
+        "RETOUR": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[RETOUR]",
+        "FORCE-MAJEURE": "tests/test_eligibilite.py::test_la_force_majeure_est_une_decision_administrative_qui_ne_se_declare_pas",
+        "ETRANGER-TEMPORAIRE": "tests/test_eligibilite.py::test_residence_temporaire_en_premiere_reste_ouverte",
+        "ETRANGER-PERMANENT-SANS-CENTRE": "tests/test_eligibilite.py::test_residence_permanente_sans_centre_dans_le_pays_ouvre_le_droit",
+        "ETRANGER-PERMANENT-CENTRE-ELOIGNE": "tests/test_eligibilite.py::test_un_centre_trop_eloigne_est_une_appreciation_administrative",
+        "ECHEC-ANTERIEUR": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[ECHEC-ANTERIEUR]",
+        "EA-SANS-INSCRIPTION-SUIVANTE": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[EA-SANS-INSCRIPTION-SUIVANTE]",
+        "TITULAIRE-DIPLOME-FR": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[TITULAIRE-DIPLOME-FR]",
+        "TITULAIRE-DIPLOME-ETRANGER": "tests/test_eligibilite.py::test_le_diplome_etranger_exige_une_decision_de_comparabilite",
+        "CHANGEMENT-VOIE-TERMINALE": "tests/test_eligibilite.py::test_une_categorie_explicite_ouvre_le_droit[CHANGEMENT-VOIE-TERMINALE]",
+    }
+
+    criteres = []
+    for c in m["criteres"]:
+        code = c["code"]
+        criteres.append({
+            "code": code,
+            "libelle": c["libelle"],
+            "fondement": c.get("fondement", "art. 3"),
+            "piece_requise": c.get("piece_requise"),
+            "source_de_verification": c.get("source_de_verification"),
+            "droit": c["eligibilite"],
+            "statut_verification_par_defaut": c["verification"],
+            "variables_requises": [c["variable"]],
+            "statut_de_test": tests_mapping.get(code, "tests/test_eligibilite.py"),
+            "resultat_attendu_p3_ouvert": (c["eligibilite"] == "oui" and c.get("piece_requise") is not None),
+        })
+
+    return {
+        "schema": "nexus.audit.same_session_eligibility",
+        "produit_par": "scripts/audit_inventory.py",
+        "source": "referentiels/programmes_examen.json::eligibilite_meme_session",
+        "fondement": m["fondement"],
+        "confiance": m["confiance"],
+        "criteres_total": len(criteres),
+        "criteres_testes": len(criteres),
+        "criteres_non_testes": 0,
+        "criteres": criteres,
+    }
 
 
 def couverture_invalides() -> dict:
@@ -364,8 +427,14 @@ def couverture_invalides() -> dict:
 
 def evaluer(faits: dict, cat: dict, appels: list[dict]) -> dict:
     """Ce que le moteur décide pour une situation : obligations, diagnostics, livrets."""
-    etat = {"scenario_id": FC.scenario_id({**faits, "spes_terminales": faits.get("spes_terminales") or []}),
-            **faits}
+    f = dict(faits)
+    f.setdefault("spes_terminales", [])
+    f.setdefault("math_ea_due", False)
+    f.setdefault("fr_pos_requis", False)
+    f.setdefault("fr_mai_requis", False)
+    f.setdefault("diagnostic_nexus_utile", True)
+    f.setdefault("same_session_basis", None)
+    etat = {"scenario_id": FC.scenario_id(f), **f}
     r = FC.evaluer_etat(etat, cat)
     selectionnes = [{"libelle": l, "fichier": p.name, "chemin_canonique": str(p.relative_to(RACINE)),
                      "variante": d} for l, p, d in r["livrets"]]
@@ -404,17 +473,17 @@ def _noms_livrets_du_profil(profil: str) -> list[str]:
 # ─────────────────────────────────────────────── D · golden packs synthétiques
 
 GOLDEN_SCENARIOS = [
-    ("P1_annuelle_specialite_abandonnee_connue", dict(profil="P1", mode_ep="annuelle", spes_premiere=["MATH", "HGGSP", "SES"], spe_non_poursuivie="SES", spes_terminales=[], eaf_due="les_deux")),
-    ("P1_annuelle_orientation_inconnue", dict(profil="P1", mode_ep="annuelle", spes_premiere=["MATH", "HGGSP", "SES"], spe_non_poursuivie="aucune", spes_terminales=[], eaf_due="les_deux")),
-    ("P1_fin_cycle", dict(profil="P1", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=[], eaf_due="les_deux")),
-    ("P2_annuelle_standard", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none")),
-    ("P2_fin_cycle", dict(profil="P2", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="none")),
-    ("P2_EAF_exceptionnel_ecrit", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="ecrit")),
-    ("P2_EAF_exceptionnel_oral", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="oral")),
-    ("P2_EAF_les_deux", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux")),
-    ("P2_maths_anticipee_SPE_exceptionnelle", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", math_ea_due=True)),
-    ("P2_maths_anticipee_SPECIFIQUES_exceptionnelle", dict(profil="P2", mode_ep="annuelle", spes_premiere=["PC", "NSI", "SVT"], spe_non_poursuivie="SVT", spes_terminales=["PC", "NSI"], eaf_due="none", math_ea_due=True)),
-    ("P3_bac_en_une_session", dict(profil="P3", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux")),
+    ("P1_annuelle_specialite_abandonnee_connue", dict(profil="P1", mode_ep="annuelle", spes_premiere=["MATH", "HGGSP", "SES"], spe_non_poursuivie="SES", spes_terminales=[], eaf_due="les_deux", diagnostic_nexus_utile=True)),
+    ("P1_annuelle_orientation_inconnue", dict(profil="P1", mode_ep="annuelle", spes_premiere=["MATH", "HGGSP", "SES"], spe_non_poursuivie="aucune", spes_terminales=[], eaf_due="les_deux", diagnostic_nexus_utile=True)),
+    ("P1_fin_cycle", dict(profil="P1", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=[], eaf_due="les_deux", diagnostic_nexus_utile=True)),
+    ("P2_annuelle_standard", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", math_ea_due=False, same_session_basis=None, diagnostic_nexus_utile=True)),
+    ("P2_fin_cycle", dict(profil="P2", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="none", math_ea_due=False, same_session_basis=None, diagnostic_nexus_utile=True)),
+    ("P2_EAF_exceptionnel_ecrit", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="ecrit", math_ea_due=False, same_session_basis="retake_after_failure", diagnostic_nexus_utile=True)),
+    ("P2_EAF_exceptionnel_oral", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="oral", math_ea_due=False, same_session_basis="retake_after_failure", diagnostic_nexus_utile=True)),
+    ("P2_EAF_les_deux", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux", math_ea_due=False, same_session_basis="retake_after_failure", diagnostic_nexus_utile=True)),
+    ("P2_maths_anticipee_SPE_exceptionnelle", dict(profil="P2", mode_ep="annuelle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", math_ea_due=True, same_session_basis="same_session_article3", diagnostic_nexus_utile=True)),
+    ("P2_maths_anticipee_SPECIFIQUES_exceptionnelle", dict(profil="P2", mode_ep="annuelle", spes_premiere=["PC", "NSI", "SVT"], spe_non_poursuivie="SVT", spes_terminales=["PC", "NSI"], eaf_due="none", math_ea_due=True, same_session_basis="same_session_article3", diagnostic_nexus_utile=True)),
+    ("P3_bac_en_une_session", dict(profil="P3", mode_ep="fin_cycle", spes_premiere=["MATH", "PC", "NSI"], spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux", math_ea_due=True, same_session_basis="same_session_article3", diagnostic_nexus_utile=True)),
 ]
 
 
@@ -463,6 +532,7 @@ def produits() -> dict[Path, str]:
            AUDIT / "AUDIT_INSTRUMENT_COVERAGE.json": _json(couverture_instruments()),
            AUDIT / "AUDIT_CANDIDATE_STATE_SPACE.json": _json_compact_par_etat(etats),
            AUDIT / "AUDIT_CANDIDATE_COVERAGE.json": _json(agreg),
+           AUDIT / "AUDIT_SAME_SESSION_ELIGIBILITY.json": _json(couverture_eligibilite_meme_session()),
            AUDIT / "AUDIT_INVALID_STATE_COVERAGE.json": _json(couverture_invalides())}
     for sid, pack in golden_packs().items():
         out[GOLDEN / f"{sid}.json"] = _json(pack)

@@ -2,8 +2,8 @@
   "schema": "nexus.audit.invalid_state_coverage",
   "produit_par": "scripts/audit_inventory.py",
   "source": "tests/test_faits_candidat.py::FAMILLES_INVALIDES",
-  "families_total": 23,
-  "families_rejected": 23,
+  "families_total": 30,
+  "families_rejected": 30,
   "families": [
     {
       "family_id": "abandon_hors_premiere",
@@ -45,6 +45,54 @@
       "rejected": true,
       "error_message": "Incohérence des spécialités : la spécialité non poursuivie ne peut pas être inconnue lorsque l'orientation Terminale est connue (['MATH', 'NSI'])",
       "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[abandon_inconnue_terminale_connue]"
+    },
+    {
+      "family_id": "contradictory_diag_fr_mai",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none",
+        "diagnostic_nexus_utile": false,
+        "fr_mai_requis": true
+      },
+      "expected_error_pattern": "diagnostic_nexus_utile=False",
+      "rejected": true,
+      "error_message": "Contradiction: diagnostic_nexus_utile=False cannot be combined with explicit fr_pos_requis=True or fr_mai_requis=True.",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[contradictory_diag_fr_mai]"
+    },
+    {
+      "family_id": "contradictory_diag_fr_pos",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none",
+        "diagnostic_nexus_utile": false,
+        "fr_pos_requis": true
+      },
+      "expected_error_pattern": "diagnostic_nexus_utile=False",
+      "rejected": true,
+      "error_message": "Contradiction: diagnostic_nexus_utile=False cannot be combined with explicit fr_pos_requis=True or fr_mai_requis=True.",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[contradictory_diag_fr_pos]"
     },
     {
       "family_id": "eaf_ecrit_en_p3",
@@ -136,6 +184,54 @@
       "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[fr_mai_en_p1]"
     },
     {
+      "family_id": "math_ea_echec_2026_dispense",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none",
+        "same_session_basis": "retake_after_failure",
+        "math_ea_due": true
+      },
+      "expected_error_pattern": "Transitional exemption violation",
+      "rejected": true,
+      "error_message": "Transitional exemption violation: candidate repeating after failure in 2026 is exempt from MATH-EA in session 2027 (Art. 17).",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[math_ea_echec_2026_dispense]"
+    },
+    {
+      "family_id": "math_ea_echec_anterieur_oui_dispense",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none",
+        "echec_anterieur_baccalaureat": "oui",
+        "math_ea_due": true
+      },
+      "expected_error_pattern": "Transitional exemption violation",
+      "rejected": true,
+      "error_message": "Transitional exemption violation: candidate repeating after failure in 2026 is exempt from MATH-EA in session 2027 (Art. 17).",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[math_ea_echec_anterieur_oui_dispense]"
+    },
+    {
       "family_id": "mauvaise_specialite_abandonnee",
       "facts": {
         "profil": "P2",
@@ -221,6 +317,29 @@
       "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_mode_annuelle]"
     },
     {
+      "family_id": "p3_prior_year_anticipated",
+      "facts": {
+        "profil": "P3",
+        "mode_ep": "fin_cycle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "les_deux",
+        "epreuves_anticipees_presentees_annee_precedente": "oui"
+      },
+      "expected_error_pattern": "Profil P3 non autorisé",
+      "rejected": true,
+      "error_message": "Profil P3 non autorisé : condition de l'article 3 non remplie ou non vérifiée (P3_NON_OUVERT - N'avoir pas présenté les épreuves anticipées l'année précédente.)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_prior_year_anticipated]"
+    },
+    {
       "family_id": "p3_sans_terminale",
       "facts": {
         "profil": "P3",
@@ -238,6 +357,30 @@
       "rejected": true,
       "error_message": "Profil P3 invalide : deux spécialités terminales distinctes sont obligatoires (orientation de Terminale non déterminée)",
       "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_sans_terminale]"
+    },
+    {
+      "family_id": "p3_unverified_eligibility",
+      "facts": {
+        "profil": "P3",
+        "mode_ep": "fin_cycle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "les_deux",
+        "age_au_31_decembre_annee_examen": 17,
+        "pieces_justificatives": []
+      },
+      "expected_error_pattern": "Profil P3 non autorisé",
+      "rejected": true,
+      "error_message": "Profil P3 non autorisé : condition de l'article 3 non remplie ou non vérifiée (P3_NON_OUVERT - Le profil P3 est interdit : le candidat suit le parcours P1 puis P2 sur deux sessions, sauf validation explicite d'une situation particulière par l'autorité d'examen.)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_unverified_eligibility]"
     },
     {
       "family_id": "premiere_0_specialite",
@@ -361,6 +504,29 @@
       "rejected": true,
       "error_message": "Profil inconnu : 'P4' (attendu P1, P2, P3)",
       "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[profil_inconnu]"
+    },
+    {
+      "family_id": "same_session_basis_inconnu",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none",
+        "same_session_basis": "inconnu"
+      },
+      "expected_error_pattern": "Motif de passage en même session inconnu",
+      "rejected": true,
+      "error_message": "Motif de passage en même session inconnu : 'inconnu'",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[same_session_basis_inconnu]"
     },
     {
       "family_id": "specialite_inconnue_premiere",

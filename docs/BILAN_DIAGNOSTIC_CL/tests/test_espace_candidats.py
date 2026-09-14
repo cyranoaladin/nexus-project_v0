@@ -14,9 +14,12 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "tests"))
 import distribution as DIS  # noqa: E402
+import eligibilite as EL  # noqa: E402
 import faits_candidat as FC  # noqa: E402
 import livret as LI  # noqa: E402
+import oracles_reglementaires as OR  # noqa: E402
 import pack_candidat as PC  # noqa: E402
 import release_v2 as REL  # noqa: E402
 
@@ -42,15 +45,17 @@ def test_l_espace_est_derive_et_sans_doublon():
     assert len(ids) == len(set(ids))
     par_profil = {p: sum(e["profil"] == p for e in ETATS) for p in FC.PROFILS}
     triplets = len(list(itertools.combinations(FC.SPECIALITES_VALIDES, 3)))
-    assert par_profil["P1"] == triplets * 4 * len(FC.MODES_EP) * len(FC.EAF_ADMIS["P1"]) * 2
-    assert par_profil["P2"] == triplets * 3 * len(FC.MODES_EP) * len(FC.EAF_ADMIS["P2"]) * 2 * 2 * 2
-    assert par_profil["P3"] == triplets * 3 * len(FC.EAF_ADMIS["P3"]) * 2 * 2
+    assert par_profil["P1"] == triplets * 4 * len(FC.MODES_EP) * len(FC.EAF_ADMIS["P1"]) * 3
+    assert par_profil["P2"] == triplets * 3 * len(FC.MODES_EP) * 11 * 5
+    assert par_profil["P3"] == triplets * 3 * len(FC.EAF_ADMIS["P3"]) * 5
     assert len(ETATS) == sum(par_profil.values())
 
 
 @pytest.mark.parametrize("dimension,valeurs", [
     ("mode_ep", FC.MODES_EP), ("eaf_due", ("none", "ecrit", "oral", "les_deux")),
     ("math_ea_due", (False, True)), ("fr_pos_requis", (False, True)), ("fr_mai_requis", (False, True)),
+    ("diagnostic_nexus_utile", (True, False)),
+    ("same_session_basis", (None, "retake_after_failure", "same_session_article3")),
 ])
 def test_chaque_valeur_de_chaque_dimension_est_servie_en_p2(dimension, valeurs):
     for v in valeurs:
@@ -71,23 +76,36 @@ def test_toutes_les_structures_de_specialites_sont_servies():
 @pytest.mark.parametrize("etat", ETATS, ids=[e["scenario_id"] for e in ETATS])
 def test_etat_valide(etat, catalogue, release_presente):
     r = FC.evaluer_etat(etat, catalogue)
-    faits, dues, diags, livrets, lignes = r["faits"], r["dues"], r["diagnostics"], r["livrets"], r["lignes"]
+    faits, dues, diags, effective = r["faits"], r["dues"], r["diagnostics"], r["effective"]
+    livrets, lignes = r["livrets"], r["lignes"]
     profil, mode = etat["profil"], etat["mode_ep"]
     codes_dues = {c for c, _ in dues}
     codes = {c for c, _ in diags}
+    codes_effective = {c for c, _ in effective}
     versions = dict(diags)
+
+    # Oracles réglementaires indépendants
+    assert OR.check_temporal_context(faits) is True
+    assert OR.check_math_ea_path(faits, versions.get("MATH-EA")) is True
+    assert OR.check_math_ea_transitional_exemption(faits) is True
+    if profil == "P3":
+        assert OR.check_article3_eligibility(faits) is True
+        st = EL.statut_profil(faits)
+        assert st["ouvert"] is True and st["statut"] == EL.P3_OUVERT
 
     # Aucun doublon d'instrument ni de livret ; obligations incluses dans les diagnostics.
     assert len(diags) == len(set(diags)), diags
     assert len(dues) == len(set(dues)), dues
     assert set(dues) <= set(diags), set(dues) - set(diags)
+    assert len(effective) == len(set(effective)), effective
+    assert set(effective) == (set(diags) if etat.get("diagnostic_nexus_utile", True) else set(dues))
     noms = [p.name for _, p, _ in livrets]
     assert len(noms) == len(set(noms)), noms
     assert "DOSSIER_D_ENTREE_NEXUS.pdf" in noms
 
-    # Tous les livrets appelés par la sélection existent dans la release, à la bonne variante.
-    attendus = {REL.nom_livret(mat, profil, v) for mat, v in LI.livrets_de(diags).items()}
-    if codes & LI.TRANSVERSE:
+    # Tous les livrets appelés par la sélection effective existent dans la release.
+    attendus = {REL.nom_livret(mat, profil, v) for mat, v in LI.livrets_de(effective).items()}
+    if codes_effective & LI.TRANSVERSE:
         attendus.add("POSITIONNEMENT_FRANCAIS.pdf")
     assert set(noms) == attendus | {"DOSSIER_D_ENTREE_NEXUS.pdf"}, (set(noms) ^ attendus)
     for _, p, _ in livrets:
@@ -113,10 +131,10 @@ def test_etat_valide(etat, catalogue, release_presente):
     if fr is not None:
         assert fr.endswith("_2028") == (profil == "P1"), (profil, fr)
 
-    # Mathématiques anticipées : SPE si les maths sont suivies au parcours pertinent, SPECIFIQUES sinon.
-    suivies = faits["specialites"]
+    # Mathématiques anticipées : SPE si les maths sont suivies au parcours pertinent (Première), SPECIFIQUES sinon.
+    suivies_1re = faits.get("specialites_suivies_premiere") or faits["specialites"]
     if faits["math_ea_due"]:
-        assert versions.get("MATH-EA") == ("SPE" if "MATH" in suivies else "SPECIFIQUES"), (suivies, versions)
+        assert versions.get("MATH-EA") == ("SPE" if "MATH" in suivies_1re else "SPECIFIQUES"), (suivies_1re, versions)
     else:
         assert "MATH-EA" not in codes
     assert (faits["math_ea_due"]) == (profil != "P2" or etat["math_ea_due"])

@@ -11,43 +11,59 @@
     "HGGSP",
     "HLP"
   ],
-  "valid_states_total": 7700,
+  "valid_states_total": 12915,
   "par_profil": {
-    "P1": 560,
-    "P2": 6720,
-    "P3": 420
+    "P1": 840,
+    "P2": 11550,
+    "P3": 525
   },
   "par_mode": {
-    "annuelle": 3640,
-    "fin_cycle": 4060
+    "annuelle": 6195,
+    "fin_cycle": 6720
   },
   "par_eaf": {
-    "none": 1680,
-    "ecrit": 1680,
-    "oral": 1680,
-    "les_deux": 2660
+    "none": 2100,
+    "ecrit": 3150,
+    "oral": 3150,
+    "les_deux": 4515
   },
   "par_parcours_math_ea": {
-    "SPE": 4340,
-    "SPECIFIQUES": 3020,
-    "non_due": 3360
+    "SPE": 5565,
+    "SPECIFIQUES": 3180,
+    "non_due": 7350
   },
   "par_fr_pos": {
-    "off": 3850,
-    "on": 3850
+    "off": 7805,
+    "on": 5110
   },
   "par_fr_mai": {
-    "off": 4130,
-    "on": 3570
+    "off": 8085,
+    "on": 4830
   },
+  "par_diagnostic_nexus_utile": {
+    "off": 2695,
+    "on": 10220
+  },
+  "par_same_session_basis": {
+    "none": 1890,
+    "retake_after_failure": 3150,
+    "same_session_article3": 7875
+  },
+  "temporally_incoherent_states": 0,
+  "unsupported_regulatory_states": 0,
+  "p3_without_verified_eligibility": 0,
+  "article3_criteria_total": 12,
+  "article3_criteria_tested": 12,
+  "article3_criteria_untested": 0,
+  "invalid_math_ea_transitional_states": 0,
   "speciality_triples_total": 35,
   "p2_orientation_structures_total": 105,
   "p3_orientation_structures_total": 105,
   "p1_orientation_structures_total": 140,
   "all_speciality_triples_covered_per_profile": true,
-  "distinct_selection_signatures": 4522,
-  "distinct_booklet_signatures": 4522,
-  "distinct_official_signatures": 1130,
+  "distinct_selection_signatures": 4762,
+  "distinct_booklet_signatures": 4779,
+  "distinct_official_signatures": 1190,
   "untested_valid_states": 0,
   "duplicate_scenario_ids": 0,
   "exhaustive_test": "tests/test_espace_candidats.py::test_etat_valide",

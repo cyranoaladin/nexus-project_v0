@@ -110,7 +110,8 @@ def _instruments_du_profil(qp: dict, cat: dict) -> list[tuple[str, str]]:
                 continue
             if i.get("annee_scolaire_passation_ea") != r.get("annee_scolaire_passation_ea"):
                 continue
-            parcours = "specialite" if "MATH" in r["specialites"] else "specifiques"
+            spes_1re = r.get("specialites_suivies_premiere") or r.get("specialites", [])
+            parcours = "specialite" if "MATH" in spes_1re else "specifiques"
             if i.get("parcours_mathematiques") != parcours:
                 continue
             if CTX.statut_math_ea({**r, "parcours_mathematiques": parcours})["statut"] \

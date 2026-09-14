@@ -22,7 +22,10 @@
       "MATH",
       "PC"
     ],
-    "eaf_due": "les_deux"
+    "eaf_due": "les_deux",
+    "math_ea_due": false,
+    "same_session_basis": "retake_after_failure",
+    "diagnostic_nexus_utile": true
   },
   "official_obligations": [
     "FR-EAF/standard",
@@ -112,10 +115,11 @@
     "FRANCAIS_ORAL_SEUL.pdf",
     "HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
     "MAITRISE_DU_FRANCAIS.pdf",
+    "MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
     "MATHEMATIQUES_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_SANS_SPECIALITE.pdf",
-    "MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
     "POSITIONNEMENT_FRANCAIS.pdf",
     "SPECIALITE_HGGSP.pdf",
     "SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
@@ -173,7 +177,7 @@
   ],
   "total_diagnostic_duration_min": 537,
   "tests_proving_independent": [
-    "tests/test_espace_candidats.py::test_etat_valide[P2_annuelle_MATH-PC-NSI_tle-MATH-PC_EAF-les_deux]"
+    "tests/test_espace_candidats.py::test_etat_valide[P2_annuelle_MATH-PC-NSI_tle-MATH-PC_EAF-les_deux_basis-retake_after_failure]"
   ],
   "snapshot_sync_test": "tests/test_audit_inventory.py::test_golden_packs_synchronises"
 }

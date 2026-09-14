@@ -22,7 +22,10 @@
       "MATH",
       "PC"
     ],
-    "eaf_due": "les_deux"
+    "eaf_due": "les_deux",
+    "math_ea_due": true,
+    "same_session_basis": "same_session_article3",
+    "diagnostic_nexus_utile": true
   },
   "official_obligations": [
     "FR-EAF/standard",
@@ -117,8 +120,8 @@
   ],
   "booklets_excluded": [
     "MAITRISE_DU_FRANCAIS.pdf",
+    "MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_SANS_SPECIALITE.pdf",
-    "MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
     "POSITIONNEMENT_FRANCAIS.pdf",
     "SPECIALITE_HGGSP.pdf",
     "SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
@@ -186,7 +189,7 @@
     "tests/test_faits_candidat.py::test_p3_normalise_le_mode_fin_de_cycle",
     "tests/test_pack_candidat.py::test_philosophie_derivation_automatique",
     "tests/test_pack_candidat.py::test_six_golden_packs_complets",
-    "tests/test_espace_candidats.py::test_etat_valide[P3_fin_cycle_MATH-PC-NSI_tle-MATH-PC_EAF-les_deux]"
+    "tests/test_espace_candidats.py::test_etat_valide[P3_fin_cycle_MATH-PC-NSI_tle-MATH-PC_EAF-les_deux_MATH-EA-due_basis-same_session_article3]"
   ],
   "snapshot_sync_test": "tests/test_audit_inventory.py::test_golden_packs_synchronises"
 }

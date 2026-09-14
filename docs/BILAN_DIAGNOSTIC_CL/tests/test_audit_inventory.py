@@ -52,6 +52,10 @@ def test_couverture_invalides_synchronisee(produits):
     assert charger("AUDIT_INVALID_STATE_COVERAGE.json") == produits["audit/AUDIT_INVALID_STATE_COVERAGE.json"]
 
 
+def test_couverture_same_session_eligibilite_synchronisee(produits):
+    assert charger("AUDIT_SAME_SESSION_ELIGIBILITY.json") == produits["audit/AUDIT_SAME_SESSION_ELIGIBILITY.json"]
+
+
 def test_golden_packs_synchronises(produits):
     attendus = {k: v for k, v in produits.items() if k.startswith("audit/golden_packs/")}
     assert len(attendus) == len(AI.GOLDEN_SCENARIOS) >= 11
@@ -136,6 +140,13 @@ def test_l_agregation_dit_le_domaine_entier():
     assert any(f["profil"] == "P2" and f["math_ea_due"] and "MATH" not in f["spes_terminales"] for f in faits)
     for etat in ("off", "on"):
         assert agreg["par_fr_pos"][etat] > 0 and agreg["par_fr_mai"][etat] > 0, etat
+        assert agreg["par_diagnostic_nexus_utile"][etat] > 0, etat
+    assert agreg["par_same_session_basis"]["retake_after_failure"] > 0
+    assert agreg["par_same_session_basis"]["same_session_article3"] > 0
+    assert agreg["temporally_incoherent_states"] == 0
+    assert agreg["unsupported_regulatory_states"] == 0
+    assert agreg["p3_without_verified_eligibility"] == 0
+    assert agreg["invalid_math_ea_transitional_states"] == 0
     for profil in FC.PROFILS:
         assert any(f["profil"] == profil and f["fr_pos_requis"] for f in faits), profil
     for profil in FC.FR_MAI_PROFILS:

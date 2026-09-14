@@ -124,7 +124,10 @@ def variante(mat: str, versions, profil: str | None = None) -> tuple[str, str]:
         if eds and not n1_non_poursuivie:
             base = "AVEC_SPECIALITE"
         elif "MATH-EA" in codes:
-            base = "SANS_SPECIALITE"
+            if vers.get("MATH-EA") == "SPE":
+                base = "ANTICIPEE_SPE"
+            else:
+                base = "SANS_SPECIALITE"
         else:
             base = ""
         if profil == "P2" and "MATH-EA" in codes and eds == "NT":

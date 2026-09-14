@@ -43,6 +43,13 @@ FAMILLES_INVALIDES = {
     "eaf_ecrit_en_p3": ({**VALIDE_P2, "profil": "P3", "mode_ep": "fin_cycle", "eaf_due": "ecrit"}, "inadmissible"),
     "eaf_statut_inconnu": ({**VALIDE_P2, "eaf_due": "les_trois"}, "inadmissible"),
     "fr_mai_en_p1": ({**VALIDE_P2, "profil": "P1", "eaf_due": "les_deux", "fr_mai_requis": True}, "FR-MAI"),
+    "contradictory_diag_fr_pos": ({**VALIDE_P2, "diagnostic_nexus_utile": False, "fr_pos_requis": True}, "diagnostic_nexus_utile=False"),
+    "contradictory_diag_fr_mai": ({**VALIDE_P2, "diagnostic_nexus_utile": False, "fr_mai_requis": True}, "diagnostic_nexus_utile=False"),
+    "math_ea_echec_2026_dispense": ({**VALIDE_P2, "same_session_basis": "retake_after_failure", "math_ea_due": True}, "Transitional exemption violation"),
+    "math_ea_echec_anterieur_oui_dispense": ({**VALIDE_P2, "echec_anterieur_baccalaureat": "oui", "math_ea_due": True}, "Transitional exemption violation"),
+    "p3_unverified_eligibility": ({**VALIDE_P2, "profil": "P3", "mode_ep": "fin_cycle", "eaf_due": "les_deux", "age_au_31_decembre_annee_examen": 17, "pieces_justificatives": []}, "Profil P3 non autorisé"),
+    "p3_prior_year_anticipated": ({**VALIDE_P2, "profil": "P3", "mode_ep": "fin_cycle", "eaf_due": "les_deux", "epreuves_anticipees_presentees_annee_precedente": "oui"}, "Profil P3 non autorisé"),
+    "same_session_basis_inconnu": ({**VALIDE_P2, "same_session_basis": "inconnu"}, "Motif de passage en même session inconnu"),
 }
 
 
@@ -57,7 +64,8 @@ def test_les_familles_invalides_couvrent_le_cahier_des_charges():
     noms = " ".join(FAMILLES_INVALIDES)
     for attendu in ("premiere_0", "premiere_1", "premiere_2", "premiere_4", "doublon", "inconnue",
                     "non_incluse", "terminale_1", "terminale_3", "mauvaise_specialite_abandonnee",
-                    "abandon_inconnue_terminale_connue", "p3_mode"):
+                    "abandon_inconnue_terminale_connue", "p3_mode", "contradictory_diag",
+                    "math_ea_echec_2026_dispense", "p3_unverified_eligibility"):
         assert attendu in noms, attendu
 
 

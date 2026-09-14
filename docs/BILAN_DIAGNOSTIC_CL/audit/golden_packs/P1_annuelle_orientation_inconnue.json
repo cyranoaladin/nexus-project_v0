@@ -19,7 +19,8 @@
     ],
     "spe_non_poursuivie": "aucune",
     "spes_terminales": [],
-    "eaf_due": "les_deux"
+    "eaf_due": "les_deux",
+    "diagnostic_nexus_utile": true
   },
   "official_obligations": [
     "FR-EAF/standard_2028",
@@ -94,6 +95,7 @@
     }
   ],
   "booklets_excluded": [
+    "MATHEMATIQUES_ANTICIPEE_SPE.pdf",
     "MATHEMATIQUES_SANS_SPECIALITE.pdf",
     "POSITIONNEMENT_FRANCAIS.pdf",
     "SPECIALITE_HLP.pdf",
