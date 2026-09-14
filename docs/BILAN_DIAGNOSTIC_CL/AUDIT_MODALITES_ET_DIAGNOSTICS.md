@@ -122,11 +122,13 @@ version des instruments adossés au contrôle continu — `1RE` et `TLE` pour la
 annuelle, `ETENDUE` pour la fin de cycle — et il ne se confond pas avec le profil : un
 candidat de première peut avoir choisi l'une ou l'autre.
 
-Le dépôt liait jusqu'ici `TC-ES/1RE` au profil P1, `TLE` à P2 et `ETENDUE` à P3. C'est
+Le dépôt liait autrefois `TC-ES/1RE` au profil P1, `TLE` à P2 et `ETENDUE` à P3. C'était
 vrai du cas le plus fréquent et faux en général. La variable
-`mode_evaluations_ponctuelles` est portée au référentiel avec sa règle ; **le brancher dans
-la sélection reste à faire** et figure dans `APRES_LIVRAISON.md` : le corriger demande de
-toucher la dérivation des instruments, ce qui n'est pas un geste de veille de diffusion.
+`mode_evaluations_ponctuelles` est portée au référentiel avec sa règle et **branchée dans
+la sélection** : `maquette_donnees._instruments_du_profil` choisit la version de TC-HG,
+TC-EMC et TC-ES d'après le mode, les faits candidats (`faits_candidat`) le portent et le
+refusent hors domaine, et chaque situation valide est vérifiée par
+`tests/test_espace_candidats.py`. Le point est fermé dans `APRES_LIVRAISON.md`.
 
 ## 7. Ce que l'audit d'acceptation a rouvert (2026-09-12)
 

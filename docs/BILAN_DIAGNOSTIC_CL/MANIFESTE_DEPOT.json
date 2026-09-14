@@ -64,7 +64,7 @@
     ],
     "UNEXPLAINED_FUTURE_DATES": 0
   },
-  "commit_precedent": "bbfaaa279960f1a655074c50945c22078440fad0",
+  "commit_precedent": "6b760b721b8d664246b897042dcaf6dfe032d682",
   "note_sur_le_commit": "« commit_precedent » est le dernier commit au moment du build. Le manifeste ne peut pas nommer le commit qui le contient — il est écrit avant lui. Ce qui fait foi n'est donc pas ce SHA mais les empreintes ci-dessous : elles décrivent exactement les fichiers mesurés, et se recalculent.",
   "produit_par": "scripts/release.py",
   "regle": "Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.",
@@ -604,8 +604,8 @@
     "active_candidates": 0,
     "note_destinataires": "Le dépôt ne porte aucune liste d'élèves inscrits. Les cinq profils de 01_A_ENVOYER_AUX_CANDIDATS/PROFILS_DE_REFERENCE sont les profils de référence qui éprouvent la chaîne ; leurs identifiants sont des codes, jamais des noms. Les 154 combinaisons de 90_PROFILS_POSSIBLES sont le catalogue des profils possibles, non un effectif.",
     "doublons": {
-      "DISTRIBUTION_FILE_COUNT": 241,
-      "DISTRIBUTION_UNIQUE_CONTENT_HASHES": 224,
+      "DISTRIBUTION_FILE_COUNT": 246,
+      "DISTRIBUTION_UNIQUE_CONTENT_HASHES": 229,
       "EXACT_DUPLICATE_FILE_COUNT": 17,
       "EXPECTED_DERIVED_PACK_COPY": 17,
       "UNEXPECTED_DUPLICATE": 0,

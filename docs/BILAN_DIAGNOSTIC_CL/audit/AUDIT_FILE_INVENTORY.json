@@ -42,8 +42,8 @@
     },
     {
       "path": "AUDIT_MODALITES_ET_DIAGNOSTICS.md",
-      "sha256": "46e655b390c8202ce28fb351c937553994435c1b7c31f60dcd3fc58eac29e8b5",
-      "size": 9237,
+      "sha256": "4e7b6532148600354b9f4a775e7f4531eb723aabb27ff6257ab4490a38b0029f",
+      "size": 9386,
       "category": "DOCUMENTATION",
       "role": "documentation gouvernante ou de conception"
     },
@@ -63,21 +63,21 @@
     },
     {
       "path": "DISTRIBUTION_MATRIX.csv",
-      "sha256": "3c3c3d529b57333cab2cf38fc962b1fbdac9a2f4d1a4118775c15828259a829a",
+      "sha256": "97d8ad6b1a7bda2fb9cc31d62d08e8829a0f0722e4a77a062571bdfbffa8c05a",
       "size": 10715,
       "category": "MANIFEST",
       "role": "tableau d'envoi ou de profils, pseudonymisé"
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "61305a55e420f801fa35e6f90c670db6a87e029f8c06d0a83337828082154019",
+      "sha256": "68949e26cf7d928e617cc67798e605242f975e441e78aca17c444f25952f0ba5",
       "size": 109958,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "e07f076a17c6467bc0f948cd86d7fd1416a0ef400325ed7f620e925b227c462c",
+      "sha256": "b42af96905a5460b4a98f2c85c18e08d55075c2c08da3633aebe7f2dac01ef32",
       "size": 5322,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -112,8 +112,8 @@
     },
     {
       "path": "STUDENT_PACK_MATRIX.csv",
-      "sha256": "48aa0157870c96fab49651690f9f8f60a55783b7c732d61cbb45d5fd740b8ec9",
-      "size": 76110,
+      "sha256": "3a4a2cc198c340ea9e106840d25f69b2f9bbaef1ad05847092daf76454933783",
+      "size": 3556116,
       "category": "MANIFEST",
       "role": "tableau d'envoi ou de profils, pseudonymisé"
     },
@@ -966,14 +966,14 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
-      "sha256": "549f29d0b718214fb5dab75fbd621de8e15a0c257688317e7804c3a4ef2d9912",
+      "sha256": "d0d351c7f0c27623f8c4272d49052d4a4f51a6a6b0a968a6fdd3a6c06f93863e",
       "size": 2506,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
-      "sha256": "5afc77e01742e22e205a1962bb9b319ca6a0afd29c7322af4b25ef463c4d2046",
+      "sha256": "a9d69a98eee7c17436f0f49a0a415e5da003a353726428b3816b5c6119cd84af",
       "size": 6443,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
@@ -994,7 +994,7 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
-      "sha256": "1f086079194553f4ebd4ed946b0490fd011b9f6ab4183ddf88aaf34aa37aada3",
+      "sha256": "141865acc1c041b311e284aa0b8b86009bba569ee462d01a8c118389ec069cce",
       "size": 2852,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
@@ -1008,7 +1008,7 @@
     },
     {
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
-      "sha256": "c37321f6a2b74285762d76e8fc406b99b9933ad980a0cc9a08b4db726fcb4bf2",
+      "sha256": "c8b147e47108b49545b699f4a60d5f19e424333b56d004725b5033fee2e0e4c6",
       "size": 4945,
       "category": "GUIDE",
       "role": "guide de l'opérateur, matrices et planches"
@@ -2317,14 +2317,14 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "6db316cb217ed72b7d27e867e775ef728f4e8097006f2fdf2829f4ec676eb04a",
+      "sha256": "8c0010d905fa013b0dbe638d58c48ac970101ae367a354dc7b92a326f2c7e9a3",
       "size": 117043,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "aadffca5ada8922cd66bf71193ec9f628aa0c4087254d2bb0953384a5c8a2ee2",
+      "sha256": "2c26e839b7a8bc7357d461bf6f06212678279d5d101fddc323ea5ba2c4f2c6d3",
       "size": 29168,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
