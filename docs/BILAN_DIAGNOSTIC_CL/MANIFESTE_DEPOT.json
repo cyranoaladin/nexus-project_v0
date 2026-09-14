@@ -1,7 +1,7 @@
 {
   "version": "diagnostics-v2",
   "libelle": "Diagnostics Nexus Réussite — état du dépôt",
-  "date_de_build": "2026-09-13",
+  "date_de_build": "2026-09-14",
   "note_sur_les_dates": "Toute métadonnée créée par cette release porte la date de l'horloge, 2026-09-11. Des occurrences de « 2026-09-12 » subsistent : elles étaient déjà enregistrées au commit de départ et appartiennent à la passe précédente, qui avait daté son travail du lendemain. Une décision déjà enregistrée ne se réécrit pas ; elle se classe. Le classement est recalculé par scripts/dates_anterieures.py et reporté ci-dessous.",
   "dates_anterieures": {
     "date_future": "2026-09-12",
@@ -15,7 +15,7 @@
     "decisions_anterieures": [
       {
         "fichier": "README_ETAT.md",
-        "ligne": 869
+        "ligne": 872
       },
       {
         "fichier": "instruments/MATH-EA/banque.json",
@@ -64,7 +64,7 @@
     ],
     "UNEXPLAINED_FUTURE_DATES": 0
   },
-  "commit_precedent": "fcf2e65ceaa65741341ac9764df9b7f632211f34",
+  "commit_precedent": "bbfaaa279960f1a655074c50945c22078440fad0",
   "note_sur_le_commit": "« commit_precedent » est le dernier commit au moment du build. Le manifeste ne peut pas nommer le commit qui le contient — il est écrit avant lui. Ce qui fait foi n'est donc pas ce SHA mais les empreintes ci-dessous : elles décrivent exactement les fichiers mesurés, et se recalculent.",
   "produit_par": "scripts/release.py",
   "regle": "Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.",
@@ -80,7 +80,7 @@
     "SOURCE_TEXT_HASH_COLLISIONS": 0,
     "CANDIDATE_CORRECTION_LEAKS": 0,
     "PDF_PREFLIGHT_ERRORS_DISTRIBUTION": 0,
-    "PROFILE_COMBINATIONS": 204,
+    "PROFILE_COMBINATIONS": 98,
     "ACTIVE_CANDIDATES": 0,
     "UNEXPECTED_DUPLICATE": 0,
     "VERSION_COLLISION": 0,
@@ -600,12 +600,12 @@
     "version_courante_2026_2027": {
       "FR-EAF": "oral_2028"
     },
-    "profile_combinations": 204,
+    "profile_combinations": 98,
     "active_candidates": 0,
     "note_destinataires": "Le dépôt ne porte aucune liste d'élèves inscrits. Les cinq profils de 01_A_ENVOYER_AUX_CANDIDATS/PROFILS_DE_REFERENCE sont les profils de référence qui éprouvent la chaîne ; leurs identifiants sont des codes, jamais des noms. Les 154 combinaisons de 90_PROFILS_POSSIBLES sont le catalogue des profils possibles, non un effectif.",
     "doublons": {
-      "DISTRIBUTION_FILE_COUNT": 347,
-      "DISTRIBUTION_UNIQUE_CONTENT_HASHES": 330,
+      "DISTRIBUTION_FILE_COUNT": 241,
+      "DISTRIBUTION_UNIQUE_CONTENT_HASHES": 224,
       "EXACT_DUPLICATE_FILE_COUNT": 17,
       "EXPECTED_DERIVED_PACK_COPY": 17,
       "UNEXPECTED_DUPLICATE": 0,

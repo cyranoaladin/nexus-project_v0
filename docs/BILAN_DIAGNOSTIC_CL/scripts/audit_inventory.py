@@ -6,8 +6,10 @@ Trois inventaires, tous dérivés du dépôt lui-même — aucun n'est saisi à 
     audit/AUDIT_FILE_INVENTORY.json        chaque fichier public : empreinte, taille, rôle
     audit/AUDIT_INSTRUMENT_COVERAGE.json   chaque instrument du catalogue : versions,
                                            profils, sources, livrets, tests, diffusabilité
-    audit/AUDIT_CANDIDATE_COVERAGE.json    chaque situation candidate que le moteur sert :
-                                           faits, obligations, diagnostics, livrets, tests
+    audit/AUDIT_CANDIDATE_STATE_SPACE.json chaque situation candidate valide, une ligne
+                                           compacte : faits, signatures, durée, preuves
+    audit/AUDIT_CANDIDATE_COVERAGE.json    agrégation par classes d'équivalence
+    audit/AUDIT_INVALID_STATE_COVERAGE.json familles de faits refusées, et leur test
     audit/golden_packs/*.json              manifestes synthétiques (identité fictive)
 
     python3 scripts/audit_inventory.py             # écrit les quatre
@@ -202,6 +204,13 @@ def couverture_instruments() -> dict:
 
 # ─────────────────────────────────────────────── C · situations candidates
 
+import faits_candidat as FC  # noqa: E402
+
+TEST_EXHAUSTIF = "tests/test_espace_candidats.py::test_etat_valide"
+TEST_SYNCHRO = "tests/test_audit_inventory.py::test_couverture_candidats_synchronisee"
+TEST_INVALIDES = "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses"
+
+
 def _appels_de_tests() -> list[dict]:
     """Les appels au moteur dans les tests, avec leurs arguments littéraux."""
     appels = []
@@ -209,6 +218,8 @@ def _appels_de_tests() -> list[dict]:
     params = ["profil", "mode_ep", "spes_premiere", "spe_non_poursuivie", "spes_terminales",
               "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis"]
     for t in sorted((RACINE / "tests").glob("test_*.py")):
+        if t.name in ("test_espace_candidats.py", "test_audit_inventory.py"):
+            continue  # le test exhaustif est cité à part ; le test de synchronisation n'est pas une preuve
         arbre = ast.parse(t.read_text(encoding="utf-8"))
         for fn in [n for n in ast.walk(arbre) if isinstance(n, ast.FunctionDef)]:
             for n in ast.walk(fn):
@@ -231,80 +242,154 @@ def _appels_de_tests() -> list[dict]:
     return appels
 
 
-def _faits_normalises(f: dict) -> dict:
-    return {"profil": f.get("profil"), "mode_ep": f.get("mode_ep"),
-            "spes_premiere": sorted(f.get("spes_premiere") or []),
-            "spe_non_poursuivie": PC._normaliser_spe(f.get("spe_non_poursuivie")),
-            "spes_terminales": sorted(f.get("spes_terminales") or []),
-            "eaf_due": f.get("eaf_due"), "math_ea_due": bool(f.get("math_ea_due", False)),
-            "fr_pos_requis": bool(f.get("fr_pos_requis", False)),
-            "fr_mai_requis": bool(f.get("fr_mai_requis", False))}
+def _faits_normalises(f: dict) -> tuple:
+    try:
+        r = FC.build_candidate_facts(candidat_id="X", **{k: v for k, v in f.items() if k in (
+            "profil", "mode_ep", "spes_premiere", "spe_non_poursuivie", "spes_terminales",
+            "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis")})["reponses"]
+    except (ValueError, TypeError):
+        return ()
+    return (r["profil"], r["mode_evaluations_ponctuelles"], tuple(r["specialites_suivies_premiere"]),
+            r["specialite_non_poursuivie"], tuple(r["specialites_terminales"]), r["eaf_due"],
+            r["math_ea_due"], r["fr_pos_requis"], r["fr_mai_requis"])
 
 
-def scenarios() -> list[dict]:
-    """Les situations candidates servies par le moteur, dérivées des spécialités valides."""
-    spes = list(PC.SPECIALITES_VALIDES)
-    base_triplet = ["MATH", "PC", "NSI"]
-    out = []
+def _signature_livrets(livrets) -> str:
+    return " ".join(sorted(p.name for _, p, _ in livrets))
 
-    def ajouter(sid, **faits):
-        out.append({"scenario_id": sid, "faits": faits})
 
-    # Profil A (P1) : première partie.
-    for mode in ("annuelle", "fin_cycle"):
-        for abandon in base_triplet:
-            ajouter(f"P1_{mode}_abandon-{abandon}", profil="P1", mode_ep=mode,
-                    spes_premiere=base_triplet, spe_non_poursuivie=abandon, spes_terminales=[],
-                    eaf_due="les_deux")
-        ajouter(f"P1_{mode}_orientation-inconnue", profil="P1", mode_ep=mode,
-                spes_premiere=base_triplet, spe_non_poursuivie="aucune", spes_terminales=[],
-                eaf_due="les_deux")
-    for s in spes:  # chaque spécialité au moins une fois, avec et sans mathématiques
-        triplet = [s] + [x for x in ("MATH", "PC", "SVT", "SES") if x != s][:2]
-        ajouter(f"P1_annuelle_spe-{s}", profil="P1", mode_ep="annuelle", spes_premiere=triplet,
-                spe_non_poursuivie=triplet[-1], spes_terminales=[], eaf_due="les_deux")
-    ajouter("P1_annuelle_sans-MATH_anticipee-SPECIFIQUES", profil="P1", mode_ep="annuelle",
-            spes_premiere=["PC", "SVT", "SES"], spe_non_poursuivie="SES", spes_terminales=[],
-            eaf_due="les_deux")
-    for eaf in ("ecrit", "oral"):
-        ajouter(f"P1_annuelle_EAF-{eaf}", profil="P1", mode_ep="annuelle", spes_premiere=base_triplet,
-                spe_non_poursuivie="NSI", spes_terminales=[], eaf_due=eaf)
+def espace_etats() -> tuple[dict, dict]:
+    """L'espace d'états compact (une ligne par état) et son agrégation par classes."""
+    cat = DIS.catalogue()
+    appels = _appels_de_tests()
+    par_faits: dict[tuple, set] = {}
+    for a in appels:
+        cle = _faits_normalises(a["faits"])
+        if cle:
+            par_faits.setdefault(cle, set()).add(a["test"])
+    lignes = []
+    signatures_selection, signatures_livrets = set(), set()
+    selections_brutes: list[str] = []
+    # Les signatures sont des chaînes longues et très répétées : elles sont numérotées une
+    # fois dans `signatures`, et chaque état ne porte que leurs identifiants courts.
+    dictionnaire: dict[str, str] = {}
 
-    # Profil B (P2) : deuxième partie.
-    for mode in ("annuelle", "fin_cycle"):
-        for paire in itertools.combinations(spes, 2):
-            abandon = next(x for x in spes if x not in paire)
-            ajouter(f"P2_{mode}_{'-'.join(paire)}_abandon-{abandon}", profil="P2", mode_ep=mode,
-                    spes_premiere=list(paire) + [abandon], spe_non_poursuivie=abandon,
-                    spes_terminales=list(paire), eaf_due="none")
-    for eaf in ("ecrit", "oral", "les_deux"):
-        ajouter(f"P2_annuelle_EAF-{eaf}", profil="P2", mode_ep="annuelle", spes_premiere=base_triplet,
-                spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due=eaf)
-    ajouter("P2_annuelle_MATH-EA-due_SPE", profil="P2", mode_ep="annuelle", spes_premiere=base_triplet,
-            spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", math_ea_due=True)
-    ajouter("P2_annuelle_MATH-EA-due_SPECIFIQUES", profil="P2", mode_ep="annuelle",
-            spes_premiere=["PC", "NSI", "SVT"], spe_non_poursuivie="SVT", spes_terminales=["PC", "NSI"],
-            eaf_due="none", math_ea_due=True)
-    ajouter("P2_annuelle_FR-POS", profil="P2", mode_ep="annuelle", spes_premiere=base_triplet,
-            spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", fr_pos_requis=True)
-    ajouter("P2_annuelle_FR-MAI", profil="P2", mode_ep="annuelle", spes_premiere=base_triplet,
-            spe_non_poursuivie="PC", spes_terminales=["MATH", "NSI"], eaf_due="none", fr_mai_requis=True)
-    # Un P2 dont l'orientation terminale est connue a, par construction, une spécialité
-    # non poursuivie connue : le moteur refuse l'inverse, et le scénario n'existe pas.
+    def ident(texte: str) -> str:
+        h = "S" + hashlib.sha256(texte.encode("utf-8")).hexdigest()[:10]
+        dictionnaire.setdefault(h, texte)
+        return h
+    for etat in FC.candidate_state_space():
+        r = FC.evaluer_etat(etat, cat)
+        cle = _faits_normalises(etat)
+        independants = sorted(par_faits.get(cle, set())) + [f"{TEST_EXHAUSTIF}[{etat['scenario_id']}]"]
+        sel = FC.signature_selection(r["diagnostics"])
+        liv = _signature_livrets(r["livrets"])
+        signatures_selection.add(f"{etat['profil']}|{sel}")
+        signatures_livrets.add(f"{etat['profil']}|{liv}")
+        selections_brutes.append(sel)
+        lignes.append({"scenario_id": etat["scenario_id"],
+                       "normalized_facts": {k: v for k, v in etat.items() if k != "scenario_id"},
+                       "official_signature": ident(FC.signature_selection(r["dues"])),
+                       "selection_signature": ident(sel), "booklet_signature": ident(liv),
+                       "duration": r["duree_min"],
+                       "independently_tested": True,
+                       # Le test exhaustif exécute l'état sous l'identifiant
+                       # `exhaustive_test[scenario_id]` ; ne sont listés ici que les tests
+                       # métier supplémentaires qui appellent exactement ces faits.
+                       "other_independent_tests": independants[:-1]})
+    etats = {"schema": "nexus.audit.candidate_state_space", "produit_par": "scripts/audit_inventory.py",
+             "source": "faits_candidat.candidate_state_space", "total": len(lignes),
+             "exhaustive_test": TEST_EXHAUSTIF, "exhaustive_test_id_pattern": TEST_EXHAUSTIF + "[{scenario_id}]",
+             "snapshot_sync_test": TEST_SYNCHRO,
+             "signatures": dict(sorted(dictionnaire.items())), "etats": lignes}
 
-    # Profil C (P3) : baccalauréat en une session.
-    for s in spes:
-        triplet = [s] + [x for x in ("MATH", "PC", "SVT", "SES") if x != s][:2]
-        ajouter(f"P3_spe-{s}", profil="P3", mode_ep="fin_cycle", spes_premiere=triplet,
-                spe_non_poursuivie=triplet[-1], spes_terminales=triplet[:2], eaf_due="les_deux")
-    ajouter("P3_sans-MATH_anticipee-SPECIFIQUES", profil="P3", mode_ep="fin_cycle",
-            spes_premiere=["PC", "SVT", "SES"], spe_non_poursuivie="SES", spes_terminales=["PC", "SVT"],
-            eaf_due="les_deux")
-    ajouter("P3_FR-POS", profil="P3", mode_ep="fin_cycle", spes_premiere=base_triplet,
-            spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux", fr_pos_requis=True)
-    ajouter("P3_FR-MAI", profil="P3", mode_ep="fin_cycle", spes_premiere=base_triplet,
-            spe_non_poursuivie="NSI", spes_terminales=["MATH", "PC"], eaf_due="les_deux", fr_mai_requis=True)
-    return out
+    def compter(pred):
+        return sum(1 for l in lignes if pred(l["normalized_facts"]))
+    triplets = sorted({tuple(l["normalized_facts"]["spes_premiere"]) for l in lignes})
+    agreg = {"schema": "nexus.audit.candidate_coverage", "produit_par": "scripts/audit_inventory.py",
+             "note": "Agrégation par classes d'équivalence de l'espace d'états valide "
+                     "(audit/AUDIT_CANDIDATE_STATE_SPACE.json). Chaque état est exécuté par le test "
+                     "paramétré exhaustif ; le test de synchronisation JSON n'est jamais une preuve métier.",
+             "specialites_valides": list(FC.SPECIALITES_VALIDES),
+             "valid_states_total": len(lignes),
+             "par_profil": {p: compter(lambda f, p=p: f["profil"] == p) for p in FC.PROFILS},
+             "par_mode": {m: compter(lambda f, m=m: f["mode_ep"] == m) for m in FC.MODES_EP},
+             "par_eaf": {e: compter(lambda f, e=e: f["eaf_due"] == e) for e in ("none", "ecrit", "oral", "les_deux")},
+             "par_parcours_math_ea": {
+                 "SPE": sum(1 for sel in selections_brutes if "MATH-EA/SPE" in sel),
+                 "SPECIFIQUES": sum(1 for sel in selections_brutes if "MATH-EA/SPECIFIQUES" in sel),
+                 "non_due": sum(1 for sel in selections_brutes if "MATH-EA/" not in sel)},
+             "par_fr_pos": {"off": compter(lambda f: not f["fr_pos_requis"]), "on": compter(lambda f: f["fr_pos_requis"])},
+             "par_fr_mai": {"off": compter(lambda f: not f["fr_mai_requis"]), "on": compter(lambda f: f["fr_mai_requis"])},
+             "speciality_triples_total": len(triplets),
+             "p2_orientation_structures_total": len({(tuple(f["spes_premiere"]), f["spe_non_poursuivie"])
+                                                     for f in (l["normalized_facts"] for l in lignes) if f["profil"] == "P2"}),
+             "p3_orientation_structures_total": len({(tuple(f["spes_premiere"]), f["spe_non_poursuivie"])
+                                                     for f in (l["normalized_facts"] for l in lignes) if f["profil"] == "P3"}),
+             "p1_orientation_structures_total": len({(tuple(f["spes_premiere"]), f.get("spe_non_poursuivie"))
+                                                     for f in (l["normalized_facts"] for l in lignes) if f["profil"] == "P1"}),
+             "all_speciality_triples_covered_per_profile": all(
+                 {tuple(l["normalized_facts"]["spes_premiere"]) for l in lignes if l["normalized_facts"]["profil"] == p}
+                 == set(triplets) for p in FC.PROFILS),
+             "distinct_selection_signatures": len(signatures_selection),
+             "distinct_booklet_signatures": len(signatures_livrets),
+             "distinct_official_signatures": len({(l["normalized_facts"]["profil"], l["official_signature"]) for l in lignes}),
+             "untested_valid_states": sum(1 for l in lignes if not l["independently_tested"]),
+             "duplicate_scenario_ids": len(lignes) - len({l["scenario_id"] for l in lignes}),
+             "exhaustive_test": TEST_EXHAUSTIF, "snapshot_sync_test": TEST_SYNCHRO}
+    return etats, agreg
+
+
+def couverture_invalides() -> dict:
+    """Les familles de faits que le moteur refuse, et le test qui le prouve."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("test_faits_candidat", RACINE / "tests" / "test_faits_candidat.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    familles = []
+    for nom, (faits, motif) in sorted(mod.FAMILLES_INVALIDES.items()):
+        try:
+            FC.build_candidate_facts(candidat_id="X", **faits)
+            refuse, message = False, None
+        except ValueError as e:
+            refuse, message = True, str(e)
+        familles.append({"family_id": nom, "facts": faits, "expected_error_pattern": motif,
+                         "rejected": refuse, "error_message": message,
+                         "test_proving": f"{TEST_INVALIDES}[{nom}]"})
+    return {"schema": "nexus.audit.invalid_state_coverage", "produit_par": "scripts/audit_inventory.py",
+            "source": "tests/test_faits_candidat.py::FAMILLES_INVALIDES",
+            "families_total": len(familles), "families_rejected": sum(f["rejected"] for f in familles),
+            "families": familles}
+
+
+def evaluer(faits: dict, cat: dict, appels: list[dict]) -> dict:
+    """Ce que le moteur décide pour une situation : obligations, diagnostics, livrets."""
+    etat = {"scenario_id": FC.scenario_id({**faits, "spes_terminales": faits.get("spes_terminales") or []}),
+            **faits}
+    r = FC.evaluer_etat(etat, cat)
+    selectionnes = [{"libelle": l, "fichier": p.name, "chemin_canonique": str(p.relative_to(RACINE)),
+                     "variante": d} for l, p, d in r["livrets"]]
+    choisis = {x["fichier"] for x in selectionnes}
+    exclus = [n for n in _noms_livrets_du_profil(faits["profil"]) if n not in choisis]
+    cle = _faits_normalises(faits)
+    preuves = sorted({a["test"] for a in appels if _faits_normalises(a["faits"]) == cle})
+    return {"expected_official_obligations": [f"{c}/{v}" for c, v in r["dues"]],
+            "expected_reported_to_end_of_cycle": [_libelle_instrument(x) for x in r["reportees"]],
+            "expected_nexus_diagnostics": [f"{c}/{v}" for c, v in r["diagnostics"]],
+            "expected_candidate_booklets": selectionnes,
+            "expected_excluded_booklets": exclus,
+            "family_manifest_lines": [{"libelle": l, "minutes": m} for l, m in r["lignes"]],
+            "total_diagnostic_duration_min": r["duree_min"],
+            "tests_proving_independent": preuves + [f"{TEST_EXHAUSTIF}[{etat['scenario_id']}]"],
+            "snapshot_sync_test": "tests/test_audit_inventory.py::test_golden_packs_synchronises"}
+
+
+def _libelle_instrument(x) -> str:
+    if isinstance(x, (tuple, list)):
+        return "/".join(str(e) for e in x[:2]) if len(x) >= 2 else str(x[0])
+    if isinstance(x, dict):
+        return "/".join(str(x[k]) for k in ("code", "version") if k in x)
+    return str(x)
 
 
 def _noms_livrets_du_profil(profil: str) -> list[str]:
@@ -314,53 +399,6 @@ def _noms_livrets_du_profil(profil: str) -> list[str]:
         if prof == profil:
             noms.add(REL.nom_livret(mat, prof, versions))
     return sorted(noms)
-
-
-def _libelle_instrument(x) -> str:
-    """« CODE/version » quel que soit le format que le moteur renvoie pour un instrument."""
-    if isinstance(x, (tuple, list)):
-        return "/".join(str(e) for e in x[:2]) if len(x) >= 2 else str(x[0])
-    if isinstance(x, dict):
-        return "/".join(str(x[k]) for k in ("code", "version") if k in x)
-    return str(x)
-
-
-def evaluer(faits: dict, cat: dict, appels: list[dict]) -> dict:
-    """Ce que le moteur décide pour une situation : obligations, diagnostics, livrets."""
-    qp = PC.build_candidate_facts(candidat_id="CL-TEST-0000", **faits)
-    analyse = MD.epreuves_reglementaires_dues_vs_diagnostics(qp, cat)
-    dues = analyse["epreuves_reglementaires_dues"]
-    diags = analyse["diagnostics_nexus_utiles"]
-    livrets = PC.map_instruments_to_booklets(diags, faits["profil"], REL.LIVRETS)
-    selectionnes = [{"libelle": l, "fichier": p.name, "chemin_canonique": str(p.relative_to(RACINE)),
-                     "variante": d} for l, p, d in livrets]
-    choisis = {x["fichier"] for x in selectionnes}
-    exclus = [n for n in _noms_livrets_du_profil(faits["profil"]) if n not in choisis]
-    lignes = PC.lignes_diagnostics_famille(diags, cat, LI.duree_dossier_entree())
-    normal = _faits_normalises(faits)
-    preuves = sorted({a["test"] for a in appels if _faits_normalises(a["faits"]) == normal})
-    return {"expected_official_obligations": [f"{c}/{v}" for c, v in dues],
-            "expected_reported_to_end_of_cycle": [_libelle_instrument(x) for x in analyse.get("evaluations_reportees_fin_cycle", [])],
-            "expected_nexus_diagnostics": [f"{c}/{v}" for c, v in diags],
-            "expected_candidate_booklets": selectionnes,
-            "expected_excluded_booklets": exclus,
-            "family_manifest_lines": [{"libelle": l, "minutes": m} for l, m in lignes],
-            "total_diagnostic_duration_min": sum(m for _, m in lignes),
-            "tests_proving": preuves + ["tests/test_audit_inventory.py::test_couverture_candidats_synchronisee"]}
-
-
-def couverture_candidats() -> dict:
-    cat = DIS.catalogue()
-    appels = _appels_de_tests()
-    out = []
-    for s in scenarios():
-        out.append({"scenario_id": s["scenario_id"], "facts": s["faits"], **evaluer(s["faits"], cat, appels)})
-    return {"schema": "nexus.audit.candidate_coverage", "produit_par": "scripts/audit_inventory.py",
-            "note": "Les livrets sont les PDF canoniques de release/diagnostics-v2 ; aucun PDF "
-                    "nominatif n'est matérialisé. Chaque scénario est recalculé par le moteur et "
-                    "comparé à ce fichier par tests/test_audit_inventory.py.",
-            "specialites_valides": list(PC.SPECIALITES_VALIDES),
-            "scenario_count": len(out), "scenarios": out}
 
 
 # ─────────────────────────────────────────────── D · golden packs synthétiques
@@ -399,7 +437,8 @@ def golden_packs() -> dict[str, dict]:
                       "booklets_excluded": e["expected_excluded_booklets"],
                       "family_manifest_lines": e["family_manifest_lines"],
                       "total_diagnostic_duration_min": e["total_diagnostic_duration_min"],
-                      "tests_proving": e["tests_proving"]}
+                      "tests_proving_independent": e["tests_proving_independent"],
+                      "snapshot_sync_test": e["snapshot_sync_test"]}
     return packs
 
 
@@ -409,10 +448,22 @@ def _json(x) -> str:
     return json.dumps(x, ensure_ascii=False, indent=2, sort_keys=False) + "\n"
 
 
+def _json_compact_par_etat(x: dict) -> str:
+    """L'espace d'états : un objet JSON par ligne, lisible dans un diff et dix fois plus
+    court qu'une indentation complète de sept mille états."""
+    tete = {k: v for k, v in x.items() if k != "etats"}
+    corps = ",\n".join("    " + json.dumps(e, ensure_ascii=False) for e in x["etats"])
+    entete = json.dumps(tete, ensure_ascii=False, indent=2)[:-2]  # sans l'accolade fermante
+    return entete + ',\n  "etats": [\n' + corps + "\n  ]\n}\n"
+
+
 def produits() -> dict[Path, str]:
+    etats, agreg = espace_etats()
     out = {AUDIT / "AUDIT_FILE_INVENTORY.json": _json(inventaire_fichiers()),
            AUDIT / "AUDIT_INSTRUMENT_COVERAGE.json": _json(couverture_instruments()),
-           AUDIT / "AUDIT_CANDIDATE_COVERAGE.json": _json(couverture_candidats())}
+           AUDIT / "AUDIT_CANDIDATE_STATE_SPACE.json": _json_compact_par_etat(etats),
+           AUDIT / "AUDIT_CANDIDATE_COVERAGE.json": _json(agreg),
+           AUDIT / "AUDIT_INVALID_STATE_COVERAGE.json": _json(couverture_invalides())}
     for sid, pack in golden_packs().items():
         out[GOLDEN / f"{sid}.json"] = _json(pack)
     return out

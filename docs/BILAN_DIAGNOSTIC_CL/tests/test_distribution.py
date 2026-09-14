@@ -191,9 +191,13 @@ def test_un_pack_de_premiere_porte_les_epreuves_anticipees(etat):
 
 
 def test_un_pack_de_terminale_porte_la_philosophie(etat):
-    k = next(x for x in etat["packs"] if x["profil"] == "P2")
-    codes = {i["code"] for i in k["instruments"]}
-    assert {"PHI", "GO", "FR-MAI"} <= codes
+    for k in (x for x in etat["packs"] if x["profil"] == "P2"):
+        codes = {i["code"] for i in k["instruments"]}
+        assert {"PHI", "GO"} <= codes, D.nom_pack(k)
+        # FR-MAI n'est plus un défaut : il suit le fait fr_mai_requis, et lui seul.
+        assert ("FR-MAI" in codes) == bool(k.get("fr_mai_requis")), D.nom_pack(k)
+    assert any(k.get("fr_mai_requis") for k in etat["packs"] if k["profil"] == "P2"), \
+        "le banc doit éprouver au moins un pack P2 avec le diagnostic de maîtrise du français"
 
 
 def test_la_configuration_francaise_change_le_pack(etat):
@@ -376,12 +380,17 @@ def test_le_libelle_de_la_configuration_francaise_nest_plus_ambigu():
     assert sans, "aucun pack sans épreuve anticipée de français"
 
 
-def test_un_pack_sans_eaf_garde_la_maitrise_du_francais():
+def test_un_pack_sans_eaf_garde_la_maitrise_du_francais_sur_demande():
+    """Sans épreuve anticipée de français, aucun FR-EAF ; la maîtrise du français suit le
+    fait fr_mai_requis, et lui seul — le banc éprouve les deux cas."""
     etat = D.construire(verifier=True)
-    k = next(x for x in etat["packs"] if x["config"] == "aucune")
-    codes = {i["code"] for i in k["instruments"]}
-    assert "FR-EAF" not in codes
-    assert "FR-MAI" in codes, "le diagnostic de maîtrise du français a disparu"
+    sans_eaf = [x for x in etat["packs"] if x["config"] == "aucune"]
+    assert sans_eaf
+    for k in sans_eaf:
+        codes = {i["code"] for i in k["instruments"]}
+        assert "FR-EAF" not in codes and "FR-EAF-ORAL" not in codes, D.nom_pack(k)
+        assert ("FR-MAI" in codes) == bool(k.get("fr_mai_requis")), D.nom_pack(k)
+    assert any(k.get("fr_mai_requis") for k in sans_eaf), "le diagnostic de maîtrise du français a disparu"
 
 
 def test_les_entretiens_sont_declares_comme_tels():
@@ -431,8 +440,12 @@ def test_matrice_3_profils_x_2_modes():
     cat = D.catalogue()
     for prof in ("P1", "P2", "P3"):
         for mode in ("annuelle", "fin_cycle"):
+            if prof == "P3" and mode == "annuelle":
+                with pytest.raises(ValueError, match="fin_cycle"):
+                    D.profil_reel(prof, ("MATH", "PC", "NSI"), abandonnee="NSI", mode_ep=mode)
+                continue
             qp = D.profil_reel(prof, ("MATH", "PC", "NSI") if prof in ("P1", "P3") else ("PC", "NSI"),
-                               mode_ep=mode)
+                               abandonnee="MATH" if prof == "P2" else "NSI", mode_ep=mode)
             res = MD.epreuves_reglementaires_dues_vs_diagnostics(qp, cat)
             assert "epreuves_reglementaires_dues" in res
             assert "diagnostics_nexus_utiles" in res

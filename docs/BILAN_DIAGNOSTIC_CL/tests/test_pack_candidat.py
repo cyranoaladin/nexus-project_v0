@@ -194,9 +194,12 @@ def test_p2_math_ea_due_condition(catalogue):
 
 def test_aucun_module_francais_duplique_dans_un_parcours(catalogue):
     """Un même module FR-POS, FR-POS-ORAL, FR-MAI ou FR-EAF ne doit jamais apparaître deux fois."""
+    import faits_candidat as FC
     for prof in ("P1", "P2", "P3"):
         for mode in ("annuelle", "fin_cycle"):
-            for cfg in ("les_deux", "ecrit", "oral", "aucune"):
+            if prof == "P3" and mode == "annuelle":
+                continue  # hors domaine : un bac en une session est en fin de cycle
+            for cfg in ("aucune" if e == "none" else e for e in FC.EAF_ADMIS[prof]):
                 qp = PC.build_candidate_facts(
                     profil=prof,
                     mode_ep=mode,
@@ -531,9 +534,12 @@ def test_gardefou_1_invariants_specialites_rejets_et_derivations():
     assert qp["reponses"]["specialites_suivies_premiere"] == ["MATH", "PC", "NSI"]
     assert qp["reponses"]["specialites_terminales"] == ["MATH", "PC"]
 
-    # 2. Rejet si spécialité fournie incohérente avec la différence
-    with pytest.raises(ValueError, match="Incohérence des spécialités"):
+    # 2. Rejet si spécialité fournie incohérente avec la différence (hors du triplet,
+    #    ou dans le triplet mais différente de la déduction)
+    with pytest.raises(ValueError, match="non présente dans les spécialités de Première"):
         PC.build_candidate_facts("P1", "annuelle", ["MATH", "PC", "NSI"], "SES", ["MATH", "PC"])
+    with pytest.raises(ValueError, match="Incohérence des spécialités"):
+        PC.build_candidate_facts("P1", "annuelle", ["MATH", "PC", "NSI"], "MATH", ["MATH", "PC"])
 
     # 3. Rejet si déclarée inconnue alors que Terminale est connue
     with pytest.raises(ValueError, match="Incohérence des spécialités"):

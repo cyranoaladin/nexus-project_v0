@@ -1,30 +1,14 @@
 # À faire après la livraison
 
-Deux points, et aucun ne doit entrer dans la release candidate.
+Un point livré, un point ouvert ; aucun ne doit entrer dans la release candidate sans son propre commit.
 
-## Brancher `mode_evaluations_ponctuelles` dans la sélection
+## `mode_evaluations_ponctuelles` — livré
 
-Le candidat individuel choisit, à son inscription en première, de présenter ses
-évaluations ponctuelles **en fin de chaque année** ou **à la fin du cycle terminal**. Ce
-choix est définitif, et il commande la version des instruments adossés au contrôle continu :
-`1RE` puis `TLE` pour la modalité annuelle, `ETENDUE` pour la fin de cycle.
-
-Le dépôt lie aujourd'hui `TC-ES/1RE` au profil P1, `TLE` à P2 et `ETENDUE` à P3. C'est le
-cas le plus fréquent, et c'est faux en général : un candidat de première peut avoir choisi
-l'une ou l'autre modalité.
-
-La variable et sa règle sont portées par `referentiels/modalites_epreuves.json` →
-`evaluations_ponctuelles.modalites_de_passation`. Ce qui reste à faire :
-
-1. ajouter `mode_evaluations_ponctuelles` aux variables du questionnaire de parcours ;
-2. lire cette variable dans `maquette_donnees._instruments_du_profil` pour choisir la
-   version de `TC-ES`, au lieu de la déduire du profil ;
-3. rejouer l'instantané de non-régression — les jeux de référence devront déclarer leur
-   modalité, et les mesures ne doivent pas bouger pour ceux dont la modalité correspond à
-   ce que le profil impliquait.
-
-Ce n'est pas un correctif de mise en page : cela touche la dérivation des instruments, donc
-ce que chaque candidat reçoit. Le faire la veille d'une diffusion serait imprudent.
+Le point est fermé : la variable est lue par `maquette_donnees._instruments_du_profil`, qui
+choisit `1RE` (P1), `TLE` ou `ETENDUE` (P2 selon le mode annuel ou de fin de cycle) et
+`ETENDUE` (P3) pour TC-HG, TC-EMC et TC-ES ; les faits candidats (`faits_candidat`) portent
+le mode et le refusent hors domaine ; `tests/test_espace_candidats.py` vérifie la version
+du tronc commun pour chaque situation valide.
 
 ## Déplacer les jeux de test hors de `instruments/`
 

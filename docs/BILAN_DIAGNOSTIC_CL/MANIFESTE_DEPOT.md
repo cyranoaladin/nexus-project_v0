@@ -1,6 +1,6 @@
 # Diagnostics Nexus Réussite — diagnostics-v2
 
-*Manifeste produit le 2026-09-13 par `scripts/release.py` depuis le dépôt, au-delà du commit `fcf2e65ceaa6`.*
+*Manifeste produit le 2026-09-14 par `scripts/release.py` depuis le dépôt, au-delà du commit `bbfaaa279960`.*
 
 Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.
 
@@ -22,7 +22,7 @@ Toute métadonnée créée par cette release porte la date de l'horloge, 2026-09
 | `SOURCE_TEXT_HASH_COLLISIONS` | 0 |
 | `CANDIDATE_CORRECTION_LEAKS` | 0 |
 | `PDF_PREFLIGHT_ERRORS_DISTRIBUTION` | 0 |
-| `PROFILE_COMBINATIONS` | 204 |
+| `PROFILE_COMBINATIONS` | 98 |
 | `ACTIVE_CANDIDATES` | 0 |
 | `UNEXPECTED_DUPLICATE` | 0 |
 | `VERSION_COLLISION` | 0 |

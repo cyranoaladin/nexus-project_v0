@@ -42,6 +42,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "scripts"))
 
 import distribution as DIS
+import faits_candidat as FC
 import livret as LI
 import maquette_donnees as MD
 import release_v2 as REL
@@ -58,172 +59,51 @@ LIBELLE_PROFIL = {
     "P3": "Baccalauréat complet en une session",
 }
 
-SPECIALITES_VALIDES = ("MATH", "PC", "NSI", "SVT", "SES", "HGGSP", "HLP")
+# Les faits d'un candidat ont une seule construction, un seul domaine : faits_candidat.
+# Les noms restent exposés ici pour les appelants historiques.
+SPECIALITES_VALIDES = FC.SPECIALITES_VALIDES
+_normaliser_spe = FC._normaliser_spe
+build_candidate_facts = FC.build_candidate_facts
 
 
-def _normaliser_spe(spe: str | None) -> str | None:
-    if not spe:
-        return None
-    s = spe.strip().upper()
-    return s
-
-
-def build_candidate_facts(
-    profil: str,
-    mode_ep: str,
-    spes_premiere: list[str],
-    spe_non_poursuivie: str | None = None,
-    spes_terminales: list[str] | None = None,
-    eaf_due: str | None = None,
-    math_ea_due: bool = False,
-    fr_pos_requis: bool = False,
-    fr_mai_requis: bool = False,
-    diagnostic_nexus_utile: bool = True,
-    candidat_id: str | None = None,
-    config_francais: str | None = None,
-) -> dict[str, Any]:
-    """Builds a structured fact dictionary suitable for derivation engines."""
-    cid = candidat_id or f"CAND-{hashlib.sha256(os.urandom(16)).hexdigest()[:8].upper()}"
-
-    # Strict automatic derivation of philosophie_due : P1=False, P2=True, P3=True
-    philosophie_due = profil in ("P2", "P3")
-
-    # eaf_due resolution: "none", "ecrit", "oral", "les_deux"
-    if eaf_due is None:
-        if config_francais is not None:
-            effective_eaf = "none" if config_francais == "aucune" else config_francais
-        else:
-            effective_eaf = "none" if profil == "P2" else "les_deux"
-    else:
-        effective_eaf = eaf_due
-
-    # Guard 2: French pedagogical diagnostics are strictly optional and False by default
-    effective_fr_pos = bool(fr_pos_requis)
-    effective_fr_mai = bool(fr_mai_requis) and (profil in ("P2", "P3"))
-
-    # Guard 1: Strong normalisation and validation of specialities invariant
-    spes_1re_norm = [_normaliser_spe(s) for s in (spes_premiere or [])]
-    spes_1re_norm = [s for s in spes_1re_norm if s]
-    if len(spes_1re_norm) != len(set(spes_1re_norm)):
-        raise ValueError(f"Spécialités de Première en double : {spes_1re_norm}")
-    for s in spes_1re_norm:
-        if s not in SPECIALITES_VALIDES:
-            raise ValueError(f"Spécialité invalide en Première : {s}")
-
-    spes_tle_norm = [_normaliser_spe(s) for s in (spes_terminales or [])] if spes_terminales is not None else None
-    if spes_tle_norm is not None:
-        spes_tle_norm = [s for s in spes_tle_norm if s]
-        if len(spes_tle_norm) != len(set(spes_tle_norm)):
-            raise ValueError(f"Spécialités de Terminale en double : {spes_tle_norm}")
-        for s in spes_tle_norm:
-            if s not in SPECIALITES_VALIDES:
-                raise ValueError(f"Spécialité invalide en Terminale : {s}")
-
-    spe_non_poursuivie_norm = _normaliser_spe(spe_non_poursuivie) if spe_non_poursuivie else None
-    if spe_non_poursuivie_norm in ("AUCUNE", "INCONNUE", "UNKNOWN", "NON_RENSEIGNEE", ""):
-        spe_non_poursuivie_norm = "inconnue"
-
-    # En P2 et P3, deux spécialités terminales distinctes sont strictement obligatoires
-    if profil in ("P2", "P3"):
-        if spes_tle_norm is None or len(spes_tle_norm) != 2:
-            if len(spes_1re_norm) == 3 and spe_non_poursuivie_norm and spe_non_poursuivie_norm != "inconnue":
-                spes_tle_norm = [s for s in spes_1re_norm if s != spe_non_poursuivie_norm]
-            else:
-                raise ValueError(f"Profil {profil} invalide : deux spécialités terminales distinctes sont obligatoires (reçu {spes_tle_norm})")
-
-    if spes_tle_norm:
-        if len(spes_tle_norm) != 2:
-            raise ValueError(f"Nombre de spécialités terminales invalide : attendu 2, reçu {len(spes_tle_norm)} ({spes_tle_norm})")
-        if spes_1re_norm:
-            if len(spes_1re_norm) != 3:
-                raise ValueError(f"Nombre de spécialités de Première invalide : attendu 3, reçu {len(spes_1re_norm)} ({spes_1re_norm})")
-            if not set(spes_tle_norm).issubset(set(spes_1re_norm)):
-                raise ValueError(f"Spécialités de Terminale ({spes_tle_norm}) non incluses dans les spécialités de Première ({spes_1re_norm})")
-            diff = set(spes_1re_norm) - set(spes_tle_norm)
-            if len(diff) != 1:
-                raise ValueError(f"Différence entre 1re ({spes_1re_norm}) et Tle ({spes_tle_norm}) invalide : {diff}")
-            spe_deduite = list(diff)[0]
-            if spe_non_poursuivie_norm == "inconnue":
-                raise ValueError(f"Incohérence des spécialités : la spécialité non poursuivie ne peut pas être inconnue lorsque l'orientation Terminale est connue ({spes_tle_norm})")
-            if spe_non_poursuivie_norm and spe_non_poursuivie_norm != spe_deduite:
-                raise ValueError(f"Incohérence des spécialités : spécialité fournie '{spe_non_poursuivie_norm}' ≠ différence 1re - Tle '{spe_deduite}'")
-            spe_non_poursuivie_norm = spe_deduite
-    else:
-        # spes_terminales vide : strictement réservé à une orientation non encore déterminée en P1
-        if profil != "P1":
-            raise ValueError(f"Le profil {profil} exige deux spécialités terminales connues.")
-        if spe_non_poursuivie_norm and spe_non_poursuivie_norm != "inconnue":
-            if spes_1re_norm and spe_non_poursuivie_norm not in spes_1re_norm:
-                raise ValueError(f"Spécialité non poursuivie '{spe_non_poursuivie_norm}' non présente dans les spécialités de Première ({spes_1re_norm})")
-            if spes_1re_norm and len(spes_1re_norm) == 3:
-                spes_tle_norm = [s for s in spes_1re_norm if s != spe_non_poursuivie_norm]
-            else:
-                spes_tle_norm = []
-        else:
-            spe_non_poursuivie_norm = "inconnue"
-            spes_tle_norm = []
-
-    final_spe_abandonnee = spe_non_poursuivie_norm if spe_non_poursuivie_norm else "inconnue"
-
-    qp = {
-        "candidat_id": cid,
-        "reponses": {
-            "profil": profil,
-            "mode_evaluations_ponctuelles": mode_ep,
-            "diagnostic_nexus_utile": diagnostic_nexus_utile,
-            "philosophie_due": philosophie_due,
-            "eaf_due": effective_eaf,
-            "epreuves_francais_a_presenter": "aucune" if effective_eaf == "none" else effective_eaf,
-            "fr_pos_requis": effective_fr_pos,
-            "positionnement_francais": effective_fr_pos,
-            "fr_mai_requis": effective_fr_mai,
-            "specialites_suivies_premiere": spes_1re_norm,
-            "specialite_non_poursuivie": final_spe_abandonnee,
-            "specialite_abandonnee": final_spe_abandonnee,
-            "specialites_terminales": spes_tle_norm,
-        },
-    }
-    r = qp["reponses"]
-    if profil == "P1":
-        r["session_baccalaureat_finale"] = 2028
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "anticipation"
-        r["specialites"] = spes_1re_norm
-        r["math_ea_due"] = True
-    elif profil == "P2":
-        r["session_baccalaureat_finale"] = 2027
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "anticipation"
-        r["specialites"] = spes_tle_norm
-        r["math_ea_due"] = math_ea_due
-        if math_ea_due:
-            r["ea_mathematiques_deja_presentee"] = "non"
-            r["note_ea_mathematiques"] = None
-            r["conservation_demandee"] = "non"
-        else:
-            r["ea_mathematiques_deja_presentee"] = "oui"
-            r["session_de_presentation_ea_math"] = 2026
-            r["note_ea_mathematiques"] = 12
-            r["conservation_demandee"] = "oui"
-    else:  # P3
-        r["session_baccalaureat_finale"] = 2027
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "meme_session"
-        r["specialites"] = spes_tle_norm
-        r["math_ea_due"] = True
-
-    return qp
+_LIVRETS_TROUVES: dict[tuple[str, str], Path] = {}
 
 
 def find_booklet(prof_dir: Path, name: str) -> Path | None:
-    """Searches for a booklet in prof_dir or its thematic subdirectories."""
+    """Cherche un livret dans le dossier du profil ou ses sous-dossiers thématiques.
+
+    Le résultat est mémorisé : l'espace d'états compte des milliers de situations et
+    parcourir la release à chaque fois coûtait plus que la dérivation elle-même."""
+    cle = (str(prof_dir), name)
+    trouve = _LIVRETS_TROUVES.get(cle)
+    if trouve is not None and trouve.exists():
+        return trouve
     p = prof_dir / name
-    if p.exists():
-        return p
-    matches = list(prof_dir.rglob(name))
-    if matches:
-        return matches[0]
-    return None
+    if not p.exists():
+        matches = sorted(prof_dir.rglob(name)) if prof_dir.is_dir() else []
+        if not matches:
+            return None
+        p = matches[0]
+    _LIVRETS_TROUVES[cle] = p
+    return p
+
+
+#: Le libellé d'un livret dans le bordereau famille, par matière de composition.
+LIBELLE_LIVRET = {
+    "FRANCAIS": "Français (EAF)", "POSITIONNEMENT-FRANCAIS": "Positionnement français",
+    "FRANCAIS-MAITRISE": "Maîtrise du français", "GRAND-ORAL": "Grand oral",
+    "SPE-PHYSIQUE-CHIMIE": "Spécialité PC", "SPE-NSI": "Spécialité NSI", "SPE-SVT": "Spécialité SVT",
+    "SPE-SES": "Spécialité SES", "SPE-HGGSP": "Spécialité HGGSP", "SPE-HLP": "Spécialité HLP",
+}
+#: Le détail d'une variante de livret, en mots que lit une famille.
+DETAIL_VARIANTE = {
+    "AVEC_SPECIALITE": "Avec spécialité", "SANS_SPECIALITE": "Sans spécialité (anticipée spécifique)",
+    "AVEC_SPECIALITE_ET_ANTICIPEE": "Avec spécialité et épreuve anticipée à représenter",
+    "NON_POURSUIVIE": "Spécialité non poursuivie (programme de Première)",
+    "SANS_SPECIALITE_NON_POURSUIVIE": "Anticipée spécifique et spécialité non poursuivie",
+    "ECRIT_ET_ORAL": "Épreuve anticipée — écrit et oral", "ECRIT_SEUL": "Épreuve anticipée — écrit seul",
+    "ORAL_SEUL": "Épreuve anticipée — oral seul", "FIN_DE_CYCLE": "Évaluation ponctuelle — fin de cycle",
+}
 
 
 def map_instruments_to_booklets(
@@ -231,100 +111,43 @@ def map_instruments_to_booklets(
     profil: str,
     source_dir: Path,
 ) -> list[tuple[str, Path, str]]:
-    """Maps derived instruments to physical PDF files in release directory.
+    """Les livrets physiques d'une sélection d'instruments, dans la release.
 
-    Returns list of tuples: (subject_label, booklet_path, variant_details).
+    Le regroupement par matière et le nom de chaque variante sont ceux de la release
+    (`livret.livrets_de`, `release_v2.nom_livret`) : la version d'un instrument choisit le
+    livret — évaluation ponctuelle de fin de cycle, spécialité non poursuivie — et le pack
+    ne peut plus recevoir un livret d'une autre variante que celle que le moteur a dérivée.
+    Renvoie des triplets (libellé, chemin, détail).
     """
     mapped: list[tuple[str, Path, str]] = []
-    codes = {c for c, _ in instruments}
     prof_dir = source_dir / DOSSIER_PROFIL[profil]
-
-    # Entry dossier is always included
     entry_pdf = find_booklet(prof_dir, "DOSSIER_D_ENTREE_NEXUS.pdf")
-    if entry_pdf and entry_pdf.exists():
+    if entry_pdf is not None:
         mapped.append(("Dossier d'entrée Nexus", entry_pdf, "Formulaires QP et MET"))
-
-    # Common trunk: HG, EMC, ES
-    if "TC-HG" in codes:
-        p = find_booklet(prof_dir, "HISTOIRE-GEOGRAPHIE.pdf")
-        if p and p.exists():
-            mapped.append(("Histoire-géographie", p, "Tronc commun"))
-
-    if "TC-EMC" in codes:
-        p = find_booklet(prof_dir, "ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf")
-        if p and p.exists():
-            mapped.append(("Enseignement moral et civique", p, "Tronc commun"))
-
-    if "TC-ES" in codes:
-        p = find_booklet(prof_dir, "ENSEIGNEMENT_SCIENTIFIQUE.pdf")
-        if p and p.exists():
-            mapped.append(("Enseignement scientifique", p, "Tronc commun"))
-
-    # French EAF (only if due)
-    eaf_written = any(c == "FR-EAF" and v in ("standard", "ecrit", "standard_2028", "ecrit_2028") for c, v in instruments)
-    eaf_oral = "FR-EAF-ORAL" in codes or any(c == "FR-EAF" and "oral" in v for c, v in instruments)
-
-    if eaf_written and eaf_oral:
-        p = find_booklet(prof_dir, "FRANCAIS_ECRIT_ET_ORAL.pdf")
-        if p and p.exists():
-            mapped.append(("Français (EAF)", p, "Épreuve anticipée — écrit et oral"))
-    elif eaf_written:
-        p = find_booklet(prof_dir, "FRANCAIS_ECRIT_SEUL.pdf")
-        if p and p.exists():
-            mapped.append(("Français (EAF)", p, "Épreuve anticipée — écrit seul"))
-    elif eaf_oral:
-        p = find_booklet(prof_dir, "FRANCAIS_ORAL_SEUL.pdf")
-        if p and p.exists():
-            mapped.append(("Français (EAF)", p, "Épreuve anticipée — oral seul"))
-
-    # Pedagogical French diagnostics (FR-MAI & FR-POS)
-    if "FR-POS" in codes or "FR-POS-ORAL" in codes:
+    codes = {c for c, _ in instruments}
+    for mat, versions in LI.livrets_de(instruments).items():
+        nom = REL.nom_livret(mat, profil, versions)
+        p = find_booklet(prof_dir, nom)
+        if p is None:
+            continue
+        ident, _ = REL.variante(mat, versions, profil)
+        if mat in LI.TRONC_COMMUN_MATIERES:
+            detail = DETAIL_VARIANTE.get(ident, "Tronc commun")
+        elif mat == "PHILOSOPHIE":
+            detail = "Épreuve terminale obligatoire"
+        elif mat == "GRAND-ORAL":
+            detail = "Épreuve terminale"
+        elif mat == "FRANCAIS-MAITRISE":
+            detail = "Diagnostic pédagogique transverse"
+        elif mat.startswith("SPE-"):
+            detail = DETAIL_VARIANTE.get(ident, f"Enseignement de spécialité ({mat[4:]})")
+        else:
+            detail = DETAIL_VARIANTE.get(ident, ident.replace("_", " ").capitalize())
+        mapped.append((LIBELLE_LIVRET.get(mat, LI.MATIERES[mat][0]), p, detail))
+    if codes & LI.TRANSVERSE:
         pos_pdf = source_dir / "00_COMMUN" / "POSITIONNEMENT_FRANCAIS.pdf"
         if pos_pdf.exists():
             mapped.append(("Positionnement français", pos_pdf, "Diagnostic linguistique commun (écrit et oral)"))
-
-    if "FR-MAI" in codes:
-        p = find_booklet(prof_dir, "MAITRISE_DU_FRANCAIS.pdf")
-        if p and p.exists():
-            mapped.append(("Maîtrise du français", p, "Diagnostic pédagogique transverse"))
-
-    # Mathematics
-    if "EDS-MATH" in codes:
-        p = find_booklet(prof_dir, "MATHEMATIQUES_AVEC_SPECIALITE.pdf")
-        if p and p.exists():
-            mapped.append(("Mathématiques", p, "Avec spécialité"))
-    elif "MATH-EA" in codes:
-        p = find_booklet(prof_dir, "MATHEMATIQUES_SANS_SPECIALITE.pdf")
-        if p and p.exists():
-            mapped.append(("Mathématiques", p, "Sans spécialité (anticipée spécifique)"))
-
-    # Philosophy & Grand Oral
-    if "PHI" in codes:
-        p = find_booklet(prof_dir, "PHILOSOPHIE.pdf")
-        if p and p.exists():
-            mapped.append(("Philosophie", p, "Épreuve terminale obligatoire"))
-
-    if "GO" in codes:
-        p = find_booklet(prof_dir, "GRAND_ORAL.pdf")
-        if p and p.exists():
-            mapped.append(("Grand oral", p, "Épreuve terminale"))
-
-    # Specialities
-    spe_fichiers = {
-        "PC": "SPECIALITE_PHYSIQUE-CHIMIE.pdf",
-        "NSI": "SPECIALITE_NSI.pdf",
-        "SVT": "SPECIALITE_SVT.pdf",
-        "SES": "SPECIALITE_SES.pdf",
-        "HGGSP": "SPECIALITE_HGGSP.pdf",
-        "HLP": "SPECIALITE_HLP.pdf",
-    }
-    for spe in SPECIALITES_VALIDES:
-        if f"EDS-{spe}" in codes and spe != "MATH":
-            nom_f = spe_fichiers.get(spe, f"SPECIALITE_{spe}.pdf")
-            p = find_booklet(prof_dir, nom_f)
-            if p and p.exists():
-                mapped.append((f"Spécialité {spe}", p, f"Enseignement de spécialité ({spe})"))
-
     return mapped
 
 

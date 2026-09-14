@@ -1,0 +1,498 @@
+{
+  "schema": "nexus.audit.invalid_state_coverage",
+  "produit_par": "scripts/audit_inventory.py",
+  "source": "tests/test_faits_candidat.py::FAMILLES_INVALIDES",
+  "families_total": 23,
+  "families_rejected": 23,
+  "families": [
+    {
+      "family_id": "abandon_hors_premiere",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "SVT",
+        "spes_terminales": null,
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "non présente dans les spécialités de Première",
+      "rejected": true,
+      "error_message": "Spécialité non poursuivie 'SVT' non présente dans les spécialités de Première (['MATH', 'PC', 'NSI'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[abandon_hors_premiere]"
+    },
+    {
+      "family_id": "abandon_inconnue_terminale_connue",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "aucune",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Incohérence des spécialités",
+      "rejected": true,
+      "error_message": "Incohérence des spécialités : la spécialité non poursuivie ne peut pas être inconnue lorsque l'orientation Terminale est connue (['MATH', 'NSI'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[abandon_inconnue_terminale_connue]"
+    },
+    {
+      "family_id": "eaf_ecrit_en_p3",
+      "facts": {
+        "profil": "P3",
+        "mode_ep": "fin_cycle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "ecrit"
+      },
+      "expected_error_pattern": "inadmissible",
+      "rejected": true,
+      "error_message": "Statut EAF 'ecrit' inadmissible pour le profil P3 (admis : les_deux)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[eaf_ecrit_en_p3]"
+    },
+    {
+      "family_id": "eaf_none_en_p1",
+      "facts": {
+        "profil": "P1",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "inadmissible",
+      "rejected": true,
+      "error_message": "Statut EAF 'none' inadmissible pour le profil P1 (admis : les_deux)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[eaf_none_en_p1]"
+    },
+    {
+      "family_id": "eaf_statut_inconnu",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "les_trois"
+      },
+      "expected_error_pattern": "inadmissible",
+      "rejected": true,
+      "error_message": "Statut EAF 'les_trois' inadmissible pour le profil P2 (admis : none, ecrit, oral, les_deux)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[eaf_statut_inconnu]"
+    },
+    {
+      "family_id": "fr_mai_en_p1",
+      "facts": {
+        "profil": "P1",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "les_deux",
+        "fr_mai_requis": true
+      },
+      "expected_error_pattern": "FR-MAI",
+      "rejected": true,
+      "error_message": "FR-MAI n'est pas admis pour le profil P1 (profils admis : P2, P3)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[fr_mai_en_p1]"
+    },
+    {
+      "family_id": "mauvaise_specialite_abandonnee",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "MATH",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Incohérence des spécialités",
+      "rejected": true,
+      "error_message": "Incohérence des spécialités : spécialité fournie 'MATH' ≠ différence 1re - Tle 'PC'",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[mauvaise_specialite_abandonnee]"
+    },
+    {
+      "family_id": "mode_inconnu",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "trimestriel",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Mode d'évaluations ponctuelles inconnu",
+      "rejected": true,
+      "error_message": "Mode d'évaluations ponctuelles inconnu : 'trimestriel' (attendu annuelle, fin_cycle)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[mode_inconnu]"
+    },
+    {
+      "family_id": "p2_sans_terminale",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": null,
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "deux spécialités terminales",
+      "rejected": true,
+      "error_message": "Profil P2 invalide : deux spécialités terminales distinctes sont obligatoires (orientation de Terminale non déterminée)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p2_sans_terminale]"
+    },
+    {
+      "family_id": "p3_mode_annuelle",
+      "facts": {
+        "profil": "P3",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "les_deux"
+      },
+      "expected_error_pattern": "fin_cycle",
+      "rejected": true,
+      "error_message": "Profil P3 invalide : le mode réglementaire d'un baccalauréat en une session est fin_cycle",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_mode_annuelle]"
+    },
+    {
+      "family_id": "p3_sans_terminale",
+      "facts": {
+        "profil": "P3",
+        "mode_ep": "fin_cycle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": null,
+        "eaf_due": "les_deux"
+      },
+      "expected_error_pattern": "deux spécialités terminales",
+      "rejected": true,
+      "error_message": "Profil P3 invalide : deux spécialités terminales distinctes sont obligatoires (orientation de Terminale non déterminée)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[p3_sans_terminale]"
+    },
+    {
+      "family_id": "premiere_0_specialite",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités de Première",
+      "rejected": true,
+      "error_message": "Nombre de spécialités de Première invalide : attendu 3, reçu 0 ([])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[premiere_0_specialite]"
+    },
+    {
+      "family_id": "premiere_1_specialite",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": null,
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités de Première",
+      "rejected": true,
+      "error_message": "Nombre de spécialités de Première invalide : attendu 3, reçu 1 (['MATH'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[premiere_1_specialite]"
+    },
+    {
+      "family_id": "premiere_2_specialites",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités de Première",
+      "rejected": true,
+      "error_message": "Nombre de spécialités de Première invalide : attendu 3, reçu 2 (['MATH', 'NSI'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[premiere_2_specialites]"
+    },
+    {
+      "family_id": "premiere_4_specialites",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI",
+          "SVT"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités de Première",
+      "rejected": true,
+      "error_message": "Nombre de spécialités de Première invalide : attendu 3, reçu 4 (['MATH', 'PC', 'NSI', 'SVT'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[premiere_4_specialites]"
+    },
+    {
+      "family_id": "premiere_doublon",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "MATH",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "en double",
+      "rejected": true,
+      "error_message": "Spécialités de Première en double : ['MATH', 'MATH', 'NSI']",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[premiere_doublon]"
+    },
+    {
+      "family_id": "profil_inconnu",
+      "facts": {
+        "profil": "P4",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Profil inconnu",
+      "rejected": true,
+      "error_message": "Profil inconnu : 'P4' (attendu P1, P2, P3)",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[profil_inconnu]"
+    },
+    {
+      "family_id": "specialite_inconnue_premiere",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "LATIN"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Spécialité invalide",
+      "rejected": true,
+      "error_message": "Spécialité invalide en Première : LATIN",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[specialite_inconnue_premiere]"
+    },
+    {
+      "family_id": "specialite_inconnue_terminale",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": [
+          "MATH",
+          "LATIN"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Spécialité invalide",
+      "rejected": true,
+      "error_message": "Spécialité invalide en Terminale : LATIN",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[specialite_inconnue_terminale]"
+    },
+    {
+      "family_id": "terminale_1_specialite",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": [
+          "MATH"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités terminales",
+      "rejected": true,
+      "error_message": "Nombre de spécialités terminales invalide : attendu 2, reçu 1 (['MATH'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[terminale_1_specialite]"
+    },
+    {
+      "family_id": "terminale_3_specialites",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "Nombre de spécialités terminales",
+      "rejected": true,
+      "error_message": "Nombre de spécialités terminales invalide : attendu 2, reçu 3 (['MATH', 'PC', 'NSI'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[terminale_3_specialites]"
+    },
+    {
+      "family_id": "terminale_doublon",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": "PC",
+        "spes_terminales": [
+          "MATH",
+          "MATH"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "en double",
+      "rejected": true,
+      "error_message": "Spécialités de Terminale en double : ['MATH', 'MATH']",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[terminale_doublon]"
+    },
+    {
+      "family_id": "terminale_non_incluse_dans_premiere",
+      "facts": {
+        "profil": "P2",
+        "mode_ep": "annuelle",
+        "spes_premiere": [
+          "MATH",
+          "PC",
+          "NSI"
+        ],
+        "spe_non_poursuivie": null,
+        "spes_terminales": [
+          "MATH",
+          "SVT"
+        ],
+        "eaf_due": "none"
+      },
+      "expected_error_pattern": "non incluses",
+      "rejected": true,
+      "error_message": "Spécialités de Terminale (['MATH', 'SVT']) non incluses dans les spécialités de Première (['MATH', 'PC', 'NSI'])",
+      "test_proving": "tests/test_faits_candidat.py::test_les_faits_invalides_sont_refuses[terminale_non_incluse_dans_premiere]"
+    }
+  ]
+}

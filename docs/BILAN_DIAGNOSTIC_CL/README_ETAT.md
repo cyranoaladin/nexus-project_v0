@@ -156,7 +156,7 @@ cesse d'être un état dès la porte suivante.
 <!-- ETAT-CALCULE tests début : produit par scripts/etat_depot.py, ne pas éditer -->
 | Fichier de test | Fonctions de test |
 |---|---|
-| `tests/test_audit_inventory.py` | 9 |
+| `tests/test_audit_inventory.py` | 13 |
 | `tests/test_audit_readme.py` | 15 |
 | `tests/test_bilan.py` | 34 |
 | `tests/test_bordereau_durees.py` | 3 |
@@ -170,8 +170,10 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_distribution.py` | 41 |
 | `tests/test_dossier_entree_personnalise.py` | 7 |
 | `tests/test_eligibilite.py` | 35 |
+| `tests/test_espace_candidats.py` | 5 |
 | `tests/test_etat_depot.py` | 13 |
 | `tests/test_export_deterministe.py` | 9 |
+| `tests/test_faits_candidat.py` | 8 |
 | `tests/test_francais.py` | 15 |
 | `tests/test_gate_profil.py` | 12 |
 | `tests/test_go_duree.py` | 5 |
@@ -198,7 +200,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **761** |
+| **total** | **778** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -234,10 +236,11 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_distribution.py:145` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:59` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:145` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_espace_candidats.py:36` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_export_deterministe.py:67` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_pack_candidat.py:388` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_pack_candidat.py:634` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_pack_candidat.py:705` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_pack_candidat.py:391` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_pack_candidat.py:640` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_pack_candidat.py:711` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_personnalisation.py:41` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_personnalisation.py:53` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_phi_attribution.py:46` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
@@ -403,7 +406,7 @@ Les quatre tableaux restent versionnés — ce sont des index, pas des rendus :
 | Fichier | Contenu |
 |---|---|
 | `DISTRIBUTION_MATRIX.csv` | une ligne par version d'instrument : niveau, matière, mode de remise, version courante, durée, empreinte |
-| `STUDENT_PACK_MATRIX.csv` | une ligne par combinaison : instruments, pages du pack, archive, durée totale |
+| `STUDENT_PACK_MATRIX.csv` | une ligne par **classe d'équivalence de sélection** de l'espace d'états candidats valide (`faits_candidat.candidate_state_space`) : faits représentatifs, instruments, livrets, nombre d'états, durée, archive témoin du banc quand elle existe |
 | `PRINT_MATRIX.csv` | une ligne par destinataire préparé : pack papier, archive NSI, prêt à envoyer, prêt à imprimer |
 | `CANDIDATE_PROFILES.csv` | les profils du dépôt, anonymisés : diagnostics requis, documents prêts et manquants |
 
@@ -1178,7 +1181,7 @@ distingué de la conservation générale, et catégorie vague « première parti
 générale ; « tronc commun » est réservé à la voie technologique, conformément au texte. Pas
 d'assemblage technologique sans décision de périmètre.
 
-**Q-26 (point 6).** Ouverte, modélisée, testée, non branchée. La règle est déterministe et
+**Q-26 (point 6).** Ouverte, modélisée, testée, branchée en amont de la dérivation (`liste_effective_des_instruments_a_passer` consulte le gate, une seule fois). La règle est déterministe et
 rend `oui`, `non` ou `a_verifier` ; toute situation soumise à appréciation administrative
 produit `a_verifier`, jamais `oui`.
 

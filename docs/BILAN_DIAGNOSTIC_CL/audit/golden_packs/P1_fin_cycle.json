@@ -53,6 +53,24 @@
       "variante": "Formulaires QP et MET"
     },
     {
+      "libelle": "Français (EAF)",
+      "fichier": "FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+      "variante": "Épreuve anticipée — écrit et oral"
+    },
+    {
+      "libelle": "Enseignement scientifique",
+      "fichier": "ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "variante": "Tronc commun"
+    },
+    {
+      "libelle": "Mathématiques",
+      "fichier": "MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+      "variante": "Avec spécialité"
+    },
+    {
       "libelle": "Histoire-géographie",
       "fichier": "HISTOIRE-GEOGRAPHIE.pdf",
       "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
@@ -65,28 +83,10 @@
       "variante": "Tronc commun"
     },
     {
-      "libelle": "Enseignement scientifique",
-      "fichier": "ENSEIGNEMENT_SCIENTIFIQUE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
-      "variante": "Tronc commun"
-    },
-    {
-      "libelle": "Français (EAF)",
-      "fichier": "FRANCAIS_ECRIT_ET_ORAL.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
-      "variante": "Épreuve anticipée — écrit et oral"
-    },
-    {
-      "libelle": "Mathématiques",
-      "fichier": "MATHEMATIQUES_AVEC_SPECIALITE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
-      "variante": "Avec spécialité"
-    },
-    {
       "libelle": "Spécialité PC",
       "fichier": "SPECIALITE_PHYSIQUE-CHIMIE.pdf",
       "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
-      "variante": "Enseignement de spécialité (PC)"
+      "variante": "Enseignement de spécialité (PHYSIQUE-CHIMIE)"
     },
     {
       "libelle": "Spécialité NSI",
@@ -146,7 +146,10 @@
     }
   ],
   "total_diagnostic_duration_min": 555,
-  "tests_proving": [
-    "tests/test_audit_inventory.py::test_couverture_candidats_synchronisee"
-  ]
+  "tests_proving_independent": [
+    "tests/test_pack_candidat.py::test_p1_fin_cycle_separation_dues_vs_diagnostics",
+    "tests/test_pack_candidat.py::test_six_golden_packs_complets",
+    "tests/test_espace_candidats.py::test_etat_valide[P1_fin_cycle_MATH-PC-NSI_tle-inconnue_EAF-les_deux]"
+  ],
+  "snapshot_sync_test": "tests/test_audit_inventory.py::test_golden_packs_synchronises"
 }

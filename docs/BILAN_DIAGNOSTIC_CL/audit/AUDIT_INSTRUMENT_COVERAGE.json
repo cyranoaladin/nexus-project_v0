@@ -19,10 +19,14 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -85,10 +89,14 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -154,10 +162,16 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -172,10 +186,12 @@
           "porte_items": true,
           "candidate_pdf_paths": [
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
           ],
           "coach_pdf_paths": [
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
           ]
         }
@@ -231,10 +247,14 @@
           "support": "papier_et_machine",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -300,10 +320,14 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -369,10 +393,14 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -438,10 +466,14 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf"
           ]
         },
         {
@@ -617,6 +649,7 @@
         "tests/test_bilan.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_gate_profil.py",
         "tests/test_maquette.py",
@@ -680,10 +713,10 @@
       ],
       "assembly": [],
       "tests_covering": [
-        "tests/test_audit_inventory.py",
         "tests/test_build_instrument.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_etat_depot.py",
         "tests/test_francais.py",
         "tests/test_gate_profil.py",
@@ -737,6 +770,8 @@
         "tests/test_bilan.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
+        "tests/test_faits_candidat.py",
         "tests/test_francais.py",
         "tests/test_non_regression.py",
         "tests/test_pack_candidat.py",
@@ -785,6 +820,8 @@
         "instruments/FR-POS/assemblages/standard.json"
       ],
       "tests_covering": [
+        "tests/test_espace_candidats.py",
+        "tests/test_faits_candidat.py",
         "tests/test_pack_candidat.py",
         "tests/test_tronc_commun_et_positionnement.py"
       ],
@@ -828,7 +865,7 @@
       ],
       "assembly": [],
       "tests_covering": [
-        "tests/test_audit_inventory.py",
+        "tests/test_espace_candidats.py",
         "tests/test_pack_candidat.py",
         "tests/test_tronc_commun_et_positionnement.py"
       ],
@@ -872,10 +909,10 @@
       ],
       "assembly": [],
       "tests_covering": [
-        "tests/test_audit_inventory.py",
         "tests/test_build_instrument.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_gate_profil.py",
         "tests/test_go_duree.py",
@@ -910,10 +947,12 @@
           "porte_items": true,
           "candidate_pdf_paths": [
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
           ],
           "coach_pdf_paths": [
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
           ]
         },
@@ -930,13 +969,17 @@
           "porte_items": true,
           "candidate_pdf_paths": [
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
-            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf"
           ],
           "coach_pdf_paths": [
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
-            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf"
           ]
         }
       ],
@@ -959,6 +1002,7 @@
         "tests/test_charge_q27.py",
         "tests/test_contexte.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_gate_profil.py",
         "tests/test_math_ea.py",
         "tests/test_math_ea_expertise.py",
@@ -1009,11 +1053,11 @@
       ],
       "assembly": [],
       "tests_covering": [
-        "tests/test_audit_inventory.py",
         "tests/test_bordereau_durees.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
         "tests/test_dossier_entree_personnalise.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_passation.py",
         "tests/test_profil_p1.py",
@@ -1065,6 +1109,7 @@
         "tests/test_dates_anterieures.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_gate_profil.py",
         "tests/test_maquette.py",
@@ -1118,12 +1163,12 @@
       ],
       "assembly": [],
       "tests_covering": [
-        "tests/test_audit_inventory.py",
         "tests/test_bordereau_durees.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
         "tests/test_dossier_entree_personnalise.py",
         "tests/test_eligibilite.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_passation.py",
         "tests/test_profil_p1.py",
@@ -1183,9 +1228,11 @@
           "support": "grille_coach",
           "porte_items": false,
           "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
           ],
           "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
           ]
         }
@@ -1204,6 +1251,7 @@
       "assembly": [],
       "tests_covering": [
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_pack_candidat.py",
         "tests/test_tronc_commun_et_positionnement.py"
       ],
@@ -1263,9 +1311,11 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
           ],
           "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
           ]
         }
@@ -1286,6 +1336,7 @@
       "tests_covering": [
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_francais.py",
         "tests/test_maquette.py",
         "tests/test_p1_2026_2027.py",
@@ -1346,9 +1397,11 @@
           "support": "papier",
           "porte_items": true,
           "candidate_pdf_paths": [
+            "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
           ],
           "coach_pdf_paths": [
+            "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
             "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
           ]
         }
@@ -1368,6 +1421,7 @@
       ],
       "tests_covering": [
         "tests/test_distribution.py",
+        "tests/test_espace_candidats.py",
         "tests/test_hg_tle_documents.py",
         "tests/test_pack_candidat.py",
         "tests/test_tronc_commun_et_positionnement.py"

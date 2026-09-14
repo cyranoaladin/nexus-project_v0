@@ -55,21 +55,33 @@
       "variante": "Formulaires QP et MET"
     },
     {
+      "libelle": "Philosophie",
+      "fichier": "PHILOSOPHIE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+      "variante": "Épreuve terminale obligatoire"
+    },
+    {
+      "libelle": "Enseignement scientifique",
+      "fichier": "ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+      "variante": "Tronc commun"
+    },
+    {
+      "libelle": "Grand oral",
+      "fichier": "GRAND_ORAL.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+      "variante": "Épreuve terminale"
+    },
+    {
       "libelle": "Histoire-géographie",
-      "fichier": "HISTOIRE-GEOGRAPHIE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+      "fichier": "HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
       "variante": "Tronc commun"
     },
     {
       "libelle": "Enseignement moral et civique",
-      "fichier": "ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
-      "variante": "Tronc commun"
-    },
-    {
-      "libelle": "Enseignement scientifique",
-      "fichier": "ENSEIGNEMENT_SCIENTIFIQUE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+      "fichier": "ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
       "variante": "Tronc commun"
     },
     {
@@ -79,41 +91,41 @@
       "variante": "Avec spécialité"
     },
     {
-      "libelle": "Philosophie",
-      "fichier": "PHILOSOPHIE.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
-      "variante": "Épreuve terminale obligatoire"
-    },
-    {
-      "libelle": "Grand oral",
-      "fichier": "GRAND_ORAL.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
-      "variante": "Épreuve terminale"
-    },
-    {
       "libelle": "Spécialité PC",
       "fichier": "SPECIALITE_PHYSIQUE-CHIMIE.pdf",
       "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
-      "variante": "Enseignement de spécialité (PC)"
+      "variante": "Enseignement de spécialité (PHYSIQUE-CHIMIE)"
     },
     {
       "libelle": "Spécialité NSI",
-      "fichier": "SPECIALITE_NSI.pdf",
-      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+      "fichier": "SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+      "chemin_canonique": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
       "variante": "Enseignement de spécialité (NSI)"
     }
   ],
   "booklets_excluded": [
+    "ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+    "ENSEIGNEMENT_SCIENTIFIQUE.pdf",
     "FRANCAIS_ECRIT_ET_ORAL.pdf",
     "FRANCAIS_ECRIT_SEUL.pdf",
     "FRANCAIS_ORAL_SEUL.pdf",
+    "HISTOIRE-GEOGRAPHIE.pdf",
     "MAITRISE_DU_FRANCAIS.pdf",
+    "MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+    "MATHEMATIQUES_NON_POURSUIVIE.pdf",
     "MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "MATHEMATIQUES_SANS_SPECIALITE_NON_POURSUIVIE.pdf",
     "POSITIONNEMENT_FRANCAIS.pdf",
     "SPECIALITE_HGGSP.pdf",
+    "SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
     "SPECIALITE_HLP.pdf",
+    "SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+    "SPECIALITE_NSI.pdf",
+    "SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
     "SPECIALITE_SES.pdf",
-    "SPECIALITE_SVT.pdf"
+    "SPECIALITE_SES_NON_POURSUIVIE.pdf",
+    "SPECIALITE_SVT.pdf",
+    "SPECIALITE_SVT_NON_POURSUIVIE.pdf"
   ],
   "family_manifest_lines": [
     {
@@ -154,9 +166,10 @@
     }
   ],
   "total_diagnostic_duration_min": 537,
-  "tests_proving": [
+  "tests_proving_independent": [
     "tests/test_pack_candidat.py::test_p2_fin_cycle_spe_non_poursuivie_dans_obligations_officielles",
     "tests/test_pack_candidat.py::test_six_golden_packs_complets",
-    "tests/test_audit_inventory.py::test_couverture_candidats_synchronisee"
-  ]
+    "tests/test_espace_candidats.py::test_etat_valide[P2_fin_cycle_MATH-PC-NSI_tle-MATH-PC_EAF-none]"
+  ],
+  "snapshot_sync_test": "tests/test_audit_inventory.py::test_golden_packs_synchronises"
 }

@@ -1268,6 +1268,34 @@ def _reponse_de_la_demande(q: dict, echelle: list[str]) -> list[str]:
     return [rf"\cadreponse{{3}}"]
 
 
+#: Les formulaires d'entrée et le positionnement transversal ne sont pas des matières :
+#: ils ont leur propre livret, hors du regroupement par matière.
+ENTREE = {"QP", "MET"}
+TRANSVERSE = {"FR-POS", "FR-POS-ORAL"}
+TRONC_COMMUN_MATIERES = ("HISTOIRE-GEOGRAPHIE", "EMC", "ENSEIGNEMENT-SCIENTIFIQUE")
+
+
+def matiere_de(code: str) -> str | None:
+    for mat, codes in COMPOSITION.items():
+        if code in codes:
+            return mat
+    return None
+
+
+def livrets_de(instruments) -> dict[str, tuple]:
+    """Les livrets qu'appelle une sélection d'instruments : matière → versions, dans
+    l'ordre de composition. Un seul regroupement, pour la release comme pour les packs."""
+    par_matiere: dict[str, list] = {}
+    for code, version in instruments:
+        if code in ENTREE or code in TRANSVERSE:
+            continue
+        mat = matiere_de(code)
+        if mat is not None:
+            par_matiere.setdefault(mat, []).append((code, version))
+    return {mat: tuple(sorted(v, key=lambda x: COMPOSITION[mat].index(x[0])))
+            for mat, v in par_matiere.items()}
+
+
 #: Le titre de module d'un instrument dans un livret qui en réunit plusieurs. La clé est
 #: le code, ou le couple code/version quand deux assemblages du même instrument ne
 #: préparent pas la même chose : `FR-EAF/oral` est un travail écrit qui prépare l'oral, et

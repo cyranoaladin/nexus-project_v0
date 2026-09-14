@@ -37,6 +37,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE / "scripts"))
 
 import diffusabilite as DIF          # noqa: E402
+import faits_candidat as FC          # noqa: E402
 import maquette_donnees as MD        # noqa: E402
 
 #: **Ce n'est plus la façade remise aux candidats.** Celle-ci est `release/diagnostics-v2/`,
@@ -264,115 +265,117 @@ def gabarit_qp() -> dict:
 def profil_reel(profil: str, spes: tuple[str, ...], config: str = "les_deux",
                 abandonnee: str = "aucune", mode_ep: str | None = None,
                 math_ea_due: bool | None = None, eaf_due: str | None = None,
-                fr_mai_requis: bool | None = None) -> dict:
-    """Les faits d'un candidat, dans la forme que la dérivation attend."""
-    q = copy.deepcopy(gabarit_qp())
-    r = q["reponses"]
-    r["profil"] = profil
-    r["specialites"] = list(spes)
-    r["specialite_abandonnee"] = abandonnee
-    if fr_mai_requis is not None:
-        r["fr_mai_requis"] = fr_mai_requis
+                fr_mai_requis: bool | None = None, fr_pos_requis: bool | None = None) -> dict:
+    """Les faits d'un candidat, dans la forme que la dérivation attend.
 
-    # Configuration français et statut eaf_due (none / ecrit / oral / les_deux)
-    if profil == "P2":
-        effective_eaf = eaf_due if eaf_due is not None else ("none" if config == "aucune" else config)
-        r["eaf_due"] = effective_eaf
-        r["epreuves_francais_a_presenter"] = "aucune" if effective_eaf == "none" else effective_eaf
-    else:
-        effective_eaf = eaf_due or config
-        r["eaf_due"] = effective_eaf
-        r["epreuves_francais_a_presenter"] = effective_eaf
-
-    # Modélisation explicite des enseignements de spécialité
-    if profil == "P1":
-        r["session_baccalaureat_finale"] = 2028
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "anticipation"
-        r["specialites_suivies_premiere"] = list(spes)
-        r["specialite_non_poursuivie"] = abandonnee
-        r["specialites_terminales"] = [s for s in spes if s != abandonnee]
-    elif profil == "P2":
-        r["session_baccalaureat_finale"] = 2027
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "anticipation"
-        r["specialites_terminales"] = list(spes)
-        r["specialite_non_poursuivie"] = abandonnee
-        r["specialites_suivies_premiere"] = list(spes) + ([abandonnee] if abandonnee != "aucune" else [])
-    else:
-        r["session_baccalaureat_finale"] = 2027
-        r["annee_scolaire_passation_ea"] = "2026-2027"
-        r["mode_passation_ea"] = "meme_session"
-        r["specialites_suivies_premiere"] = list(spes)
-        r["specialite_non_poursuivie"] = abandonnee
-        r["specialites_terminales"] = [s for s in spes if s != abandonnee]
-
-    # Mode des évaluations ponctuelles (annuelle ou fin_cycle)
-    if mode_ep is not None:
-        r["mode_evaluations_ponctuelles"] = mode_ep
-    else:
-        r["mode_evaluations_ponctuelles"] = "fin_cycle" if profil == "P3" else "annuelle"
-
-    if profil == "P2":
-        r["positionnement_francais"] = (eaf_due not in (None, "none", "aucune", False)) if eaf_due is not None else (config != "aucune")
-    else:
-        r["positionnement_francais"] = True
-
-    # Statut MATH-EA pour le profil B : sélectionné uniquement si math_ea_due est vrai
-    if profil == "P2":
-        if math_ea_due is True:
-            r["math_ea_due"] = True
-            r["ea_mathematiques_deja_presentee"] = "non"
-            r["note_ea_mathematiques"] = None
-            r["conservation_demandee"] = "non"
-        else:
-            r["math_ea_due"] = False
-            r["ea_mathematiques_deja_presentee"] = "oui"
-            r["session_de_presentation_ea_math"] = 2026
-            r["note_ea_mathematiques"] = 12
-            r["conservation_demandee"] = "oui"
-
-    return q
-
-
-def combinaisons() -> list[dict]:
-    """Les combinaisons de diffusion réelles : profil × spécialités.
-
-    Trois familles, et rien d'autre : un élève de première suit trois spécialités, un
-    élève de terminale en suit deux, un candidat qui présente tout à la même session en
-    déclare trois.
+    Adaptateur d'arguments, et rien de plus : la construction et les règles sont celles
+    de `faits_candidat.build_candidate_facts`. `spes` sont les trois spécialités de
+    Première (P1, P3) ou les deux de Terminale (P2, avec la non-poursuivie dans
+    `abandonnee`) ; `config` est la configuration française du questionnaire.
     """
-    out = []
-    for spes in itertools.combinations(SPECIALITES, 3):
-        out.append({"profil": "P1", "niveau": "Premiere", "spes": spes,
-                    "config": "les_deux", "eaf_due": "les_deux"})
-    # En parcours standard P2, l'épreuve anticipée de français a déjà été présentée
-    for spes in itertools.combinations(SPECIALITES, 2):
-        out.append({"profil": "P2", "niveau": "Terminale", "spes": spes,
-                    "config": "aucune", "math_ea_due": False, "eaf_due": "none"})
-        # Cas réglementaire : P2 devant représenter MATH-EA sans spécialité maths
-        if "MATH" not in spes:
-            out.append({"profil": "P2", "niveau": "Terminale", "spes": spes,
-                        "config": "aucune", "math_ea_due": True, "eaf_due": "none"})
-        # Cas exceptionnels réglementaires : P2 devant repasser les EAF
-        for cfg in ("ecrit", "oral", "les_deux"):
-            out.append({"profil": "P2", "niveau": "Terminale", "spes": spes,
-                        "config": cfg, "math_ea_due": False, "eaf_due": cfg})
-    for spes in itertools.combinations(SPECIALITES, 3):
-        out.append({"profil": "P3", "niveau": "Premiere-et-Terminale", "spes": spes,
-                    "config": "les_deux", "eaf_due": "les_deux"})
-        out.append({"profil": "P3", "niveau": "Premiere-et-Terminale", "spes": spes,
-                    "config": "les_deux", "eaf_due": "les_deux", "fr_mai_requis": True})
+    abandon = None if abandonnee in (None, "aucune") else abandonnee
+    if profil == "P2":
+        spes_premiere = list(spes) + ([abandon] if abandon else [])
+        spes_terminales = list(spes)
+    else:
+        spes_premiere = list(spes)
+        spes_terminales = [x for x in spes if x != abandon] if abandon else None
+    eaf = eaf_due if eaf_due is not None else ("none" if config == "aucune" else config)
+    return FC.build_candidate_facts(
+        profil=profil, mode_ep=mode_ep, spes_premiere=spes_premiere, spe_non_poursuivie=abandon,
+        spes_terminales=spes_terminales, eaf_due=eaf, math_ea_due=bool(math_ea_due),
+        fr_pos_requis=bool(fr_pos_requis), fr_mai_requis=bool(fr_mai_requis), candidat_id="COMBINAISON")
+
+
+def _combinaison_de(classe: dict) -> dict:
+    """Un enregistrement de combinaison du banc, depuis le représentant d'une classe."""
+    e = classe["representant"]
+    profil = e["profil"]
+    niveau = {"P1": "Premiere", "P2": "Terminale", "P3": "Premiere-et-Terminale"}[profil]
+    spes = tuple(e["spes_terminales"]) if profil == "P2" else tuple(e["spes_premiere"])
+    return {"profil": profil, "niveau": niveau, "spes": spes,
+            "config": "aucune" if e["eaf_due"] == "none" else e["eaf_due"], "eaf_due": e["eaf_due"],
+            "abandonnee": e.get("spe_non_poursuivie") or "aucune", "mode_ep": e["mode_ep"],
+            "math_ea_due": bool(e.get("math_ea_due")), "fr_pos_requis": bool(e.get("fr_pos_requis")),
+            "fr_mai_requis": bool(e.get("fr_mai_requis")), "scenario_id": e["scenario_id"],
+            "classe": classe["cle"], "etats_dans_la_classe": len(classe["etats"])}
+
+
+def classes() -> dict[str, dict]:
+    """Les classes de sélection de l'espace d'états valide, avec leur clé."""
+    out = FC.classes_de_selection()
+    for cle, c in out.items():
+        c["cle"] = cle
     return out
 
 
+def combinaisons() -> list[dict]:
+    """Les combinaisons du banc de contrôle : un représentant par classe de sélection
+    qui apporte au moins un livret ou un instrument que les précédentes n'ont pas.
+
+    Le banc bâtit une archive par combinaison pour éprouver la chaîne — preflight, fuite
+    de corrigé, complétude — et non pour distribuer : couvrir chaque livret physique une
+    fois suffit. Les classes elles-mêmes, toutes, sont dans STUDENT_PACK_MATRIX.csv.
+    """
+    import livret as LI
+    couverts: set = set()
+    out = []
+    for cle, c in sorted(classes().items(), key=lambda kv: (kv[1]["profil"], kv[1]["representant"]["scenario_id"])):
+        e = c["representant"]
+        livrets = {(c["profil"], mat, versions) for mat, versions in LI.livrets_de(c["instruments"]).items()}
+        # Trois familles de clés à couvrir : chaque livret physique, chaque version
+        # d'instrument, et chaque combinaison d'options réglementaires (mode, EAF,
+        # mathématiques anticipées, FR-POS, FR-MAI) — un pack « sans EAF » se contrôle
+        # aussi, même s'il n'apporte aucun livret nouveau.
+        options = (c["profil"], e["mode_ep"], e["eaf_due"], bool(e.get("math_ea_due")),
+                   bool(e.get("fr_pos_requis")), bool(e.get("fr_mai_requis")))
+        cles = livrets | {(c["profil"], code, version) for code, version in c["instruments"]} | {options}
+        if cles - couverts:
+            couverts |= cles
+            out.append(_combinaison_de(c))
+    return out
+
+
+def lignes_des_classes(par_cle: dict, packs: list[dict]) -> list[dict]:
+    """Une ligne par classe de sélection de l'espace d'états valide : ce que
+    STUDENT_PACK_MATRIX.csv représente. Les états d'une même classe reçoivent les mêmes
+    instruments et les mêmes livrets ; la ligne dit combien d'états elle réunit et si le
+    banc en a bâti une archive témoin."""
+    import livret as LI
+    import pack_candidat as PC
+    cat = catalogue()
+    archives = {k.get("classe"): k for k in packs}
+    rows = []
+    for cle, c in sorted(classes().items(), key=lambda kv: (kv[1]["profil"], kv[1]["representant"]["scenario_id"])):
+        e = c["representant"]
+        choisis = [par_cle[k] for k in c["instruments"] if k in par_cle]
+        lignes = PC.lignes_diagnostics_famille(list(c["instruments"]), cat, LI.duree_dossier_entree())
+        livrets = sorted(nom for nom in (
+            __import__("release_v2").nom_livret(mat, c["profil"], versions)
+            for mat, versions in LI.livrets_de(c["instruments"]).items()))
+        temoin = archives.get(cle)
+        rows.append({"classe": cle, "profil": c["profil"], "mode_ep": e["mode_ep"],
+                     "spes_premiere": e["spes_premiere"], "spes_terminales": e.get("spes_terminales") or [],
+                     "abandonnee": e.get("spe_non_poursuivie") or "inconnue", "eaf_due": e["eaf_due"],
+                     "math_ea_due": bool(e.get("math_ea_due")), "fr_pos_requis": bool(e.get("fr_pos_requis")),
+                     "fr_mai_requis": bool(e.get("fr_mai_requis")), "instruments": list(c["instruments"]),
+                     "livrets": livrets, "etats": len(c["etats"]), "representant": e["scenario_id"],
+                     "candidats": sum(1 for i in choisis if i["pdf_candidat"]),
+                     "coach": sum(1 for i in choisis if i["pdf_coach"]),
+                     "duree_totale_min": sum(m for _, m in lignes),
+                     "manquants": [f"{i['code']}/{i['version']}" for i in choisis
+                                   if not i["pdf_candidat"] and not i["pdf_coach"]],
+                     "archive": temoin})
+    return rows
+
+
 def instruments_du_profil(c: dict) -> list[tuple[str, str]]:
-    q = profil_reel(c["profil"], c["spes"], c["config"],
-                    mode_ep=c.get("mode_ep"),
-                    math_ea_due=c.get("math_ea_due"),
-                    eaf_due=c.get("eaf_due"),
-                    fr_mai_requis=c.get("fr_mai_requis"))
-    return MD.instruments_passes(q, catalogue())
+    """Les instruments d'une combinaison : les diagnostics utiles que dérive le moteur,
+    par le même chemin que les packs candidats."""
+    q = profil_reel(c["profil"], c["spes"], c["config"], abandonnee=c.get("abandonnee", "aucune"),
+                    mode_ep=c.get("mode_ep"), math_ea_due=c.get("math_ea_due"), eaf_due=c.get("eaf_due"),
+                    fr_mai_requis=c.get("fr_mai_requis"), fr_pos_requis=c.get("fr_pos_requis"))
+    return MD.epreuves_reglementaires_dues_vs_diagnostics(q, catalogue())["diagnostics_nexus_utiles"]
 
 
 
@@ -398,10 +401,16 @@ LIBELLE_CONFIG = {
 
 def nom_pack(c: dict) -> str:
     base = f"{c['profil']}_{'-'.join(c['spes'])}_{NOM_CONFIG[c['config']]}"
+    if c.get("mode_ep") == "fin_cycle" and c["profil"] != "P3":
+        base += "_fin-de-cycle"
+    if c.get("abandonnee") and c["abandonnee"] != "aucune" and c["profil"] != "P1":
+        base += f"_non-poursuivie-{c['abandonnee']}"
     if c.get("math_ea_due"):
         base += "_MATH-EA-due"
     if c.get("eaf_due") and c["eaf_due"] != "none" and c["profil"] == "P2":
         base += f"_EAF-{c['eaf_due']}"
+    if c.get("fr_pos_requis"):
+        base += "_FR-POS-requis"
     if c.get("fr_mai_requis"):
         base += "_FR-MAI-requis"
     return base
@@ -667,9 +676,11 @@ def construire(verifier: bool = False) -> dict:
                                     if not i["pdf_candidat"] and not i["pdf_coach"]],
                       "duree_totale_min": sum(i["duree_min"] for i in choisis)})
     profils = profils_du_projet(par_cle)
+    classes_rows = lignes_des_classes(par_cle, packs)
 
     if err or verifier:
-        return {"erreurs": err, "packs": packs, "inventaire": inv, "profils": profils}
+        return {"erreurs": err, "packs": packs, "inventaire": inv, "profils": profils,
+                "classes": classes_rows}
 
     if SORTIE.exists():
         shutil.rmtree(SORTIE)
@@ -740,7 +751,8 @@ def construire(verifier: bool = False) -> dict:
 
     _ecrire_index(inv, packs, profils)
     err += _controler_facade()
-    return {"erreurs": err, "packs": packs, "inventaire": inv, "profils": profils}
+    return {"erreurs": err, "packs": packs, "inventaire": inv, "profils": profils,
+            "classes": classes_rows}
 
 
 def _batir_pack(k: dict, dossier: Path, archive: Path | None) -> int:
@@ -1073,23 +1085,31 @@ def ecrire_matrices(r: dict) -> list[Path]:
                 "oui" if i["diffusable"] and (cand or i["pdf_coach"]) else "non"])
     ecrits.append(p)
 
+    # STUDENT_PACK_MATRIX : une ligne par CLASSE D'ÉQUIVALENCE DE SÉLECTION de l'espace
+    # d'états candidats valide (faits_candidat.candidate_state_space), et non par état
+    # ni par archive du banc. Les états d'une classe reçoivent les mêmes instruments et les
+    # mêmes livrets ; `states_in_class` les compte, `representative_state` en nomme un.
+    # `archive` n'est renseignée que pour les classes dont le banc bâtit une archive témoin.
+    # FR-POS et FR-MAI y sont ce que les faits disent : faux par défaut, vrais sur demande.
     p = RACINE / "STUDENT_PACK_MATRIX.csv"
     with open(p, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["pack", "level", "profile", "eds", "eaf_mode", "instruments",
-                    "candidate_pdfs", "coach_keys", "estimated_total_duration_min",
-                    "pack_pages", "archive", "missing_pdfs", "ready_to_send"])
-        for k in r["packs"]:
+        w.writerow(["selection_class", "level", "profile", "ep_mode", "eds_premiere", "eds_terminale",
+                    "eds_non_poursuivie", "eaf_due", "math_ea_due", "fr_pos_requis", "fr_mai_requis",
+                    "instruments", "candidate_booklets", "candidate_pdfs", "coach_keys",
+                    "estimated_total_duration_min", "states_in_class", "representative_state",
+                    "archive", "missing_pdfs", "ready_to_send"])
+        for k in r["classes"]:
+            temoin = k["archive"]
             w.writerow([
-                nom_pack(k), k["niveau"], k["profil"], "+".join(k["spes"]),
-                NOM_CONFIG[k["config"]],
-                " ".join(f"{i['code']}/{i['version']}" for i in k["instruments"]),
-                len(k["candidats"]),
-                sum(1 for i in k["instruments"] if i["pdf_coach"]),
-                k["duree_totale_min"], k.get("pages", ""),
-                str(k["zip"].relative_to(SORTIE)) if k.get("zip") else "",
-                " ".join(k["manquants"]),
-                "oui" if not k["manquants"] else "non"])
+                k["classe"], {"P1": "Premiere", "P2": "Terminale", "P3": "Premiere-et-Terminale"}[k["profil"]],
+                k["profil"], k["mode_ep"], "+".join(k["spes_premiere"]), "+".join(k["spes_terminales"]),
+                k["abandonnee"], k["eaf_due"], "oui" if k["math_ea_due"] else "non",
+                "oui" if k["fr_pos_requis"] else "non", "oui" if k["fr_mai_requis"] else "non",
+                " ".join(f"{c}/{v}" for c, v in k["instruments"]), " ".join(k["livrets"]),
+                k["candidats"], k["coach"], k["duree_totale_min"], k["etats"], k["representant"],
+                str(temoin["zip"].relative_to(SORTIE)) if temoin and temoin.get("zip") else "",
+                " ".join(k["manquants"]), "oui" if not k["manquants"] else "non"])
     ecrits.append(p)
 
     # § 17 · la matrice d'impression : une ligne par destinataire réel.

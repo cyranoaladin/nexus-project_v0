@@ -45,15 +45,10 @@ DOSSIER_PROFIL = {"P1": "PROFIL_A_PREMIERE_PARTIE",
 #: Instruments qui ne composent pas un livret de matière de profil :
 #: QP et MET forment le dossier d'entrée par profil.
 #: FR-POS et FR-POS-ORAL forment le livret transversal commun sous 00_COMMUN.
-ENTREE = {"QP", "MET"}
-TRANSVERSE = {"FR-POS", "FR-POS-ORAL"}
-
-
-def matiere_de(code: str) -> str | None:
-    for mat, codes in LI.COMPOSITION.items():
-        if code in codes:
-            return mat
-    return None
+ENTREE = LI.ENTREE
+TRANSVERSE = LI.TRANSVERSE
+matiere_de = LI.matiere_de
+TRONC_COMMUN = LI.TRONC_COMMUN_MATIERES
 
 
 def sous_dossier_livret(mat: str, profil: str, versions: tuple) -> str:
@@ -93,28 +88,17 @@ def livrets_attendus() -> dict:
     de profil : un livret est un triplet matière × profil × versions, et deux candidats
     qui appellent le même triplet reçoivent le même livret.
     """
-    cat = DIS.catalogue()
+    import faits_candidat as FC
     vus = {}
-    for c in DIS.combinaisons():
-        session = LI_session(c)
-        par_matiere = {}
-        for code, version in DIS.instruments_du_profil(c):
-            if code in ENTREE or code in TRANSVERSE:
-                continue
-            mat = matiere_de(code)
-            if mat is None:
-                continue
-            par_matiere.setdefault(mat, []).append((code, version))
-        for mat, versions in par_matiere.items():
-            versions.sort(key=lambda v: LI.COMPOSITION[mat].index(v[0]))
-            cle = (mat, c["profil"], tuple(versions), session)
-            vus.setdefault(cle, []).append(DIS.nom_pack(c))
+    # Toutes les classes de sélection de l'espace d'états valide : chaque livret qu'un
+    # candidat peut recevoir est composé, et pas seulement ceux du banc de contrôle.
+    for cle_classe, classe in FC.classes_de_selection().items():
+        profil = classe["profil"]
+        session = int(FC.faits_de(classe["representant"])["reponses"]["session_baccalaureat_finale"])
+        for mat, versions in LI.livrets_de(classe["instruments"]).items():
+            cle = (mat, profil, tuple(versions), session)
+            vus.setdefault(cle, []).append(cle_classe)
     return vus
-
-
-def LI_session(c: dict) -> int:
-    q = DIS.profil_reel(c["profil"], c["spes"], c["config"])
-    return int(q["reponses"]["session_baccalaureat_finale"])
 
 
 #: Les variantes réglementaires d'une même matière, dans un même profil. Deux candidats
@@ -123,17 +107,35 @@ def LI_session(c: dict) -> int:
 #: des deux. Ce sont des **livrets différents**, et ils doivent porter des chemins
 #: différents — sans quoi le dernier composé écrase les autres et une situation
 #: réglementaire entière se retrouve sans document.
-def variante(mat: str, versions) -> tuple[str, str]:
+def variante(mat: str, versions, profil: str | None = None) -> tuple[str, str]:
     """Le couple (identifiant de variante, suffixe lisible) d'un livret.
 
     L'identifiant entre dans l'`artifact_id` du manifeste ; le suffixe entre dans le nom
-    du fichier, et reste un mot que lit un opérateur — jamais un code technique.
+    du fichier, et reste un mot que lit un opérateur — jamais un code technique. Le profil
+    distingue ce qui, dans un même profil, appelle deux livrets : en deuxième partie, une
+    évaluation ponctuelle de fin de cycle (ETENDUE) à côté de la version annuelle (TLE),
+    et la spécialité non poursuivie (N1) à côté des spécialités présentées (NT).
     """
     codes = {c for c, _ in versions}
     vers = dict(versions)
     if mat == "MATHEMATIQUES":
-        return (("AVEC_SPECIALITE", "AVEC_SPECIALITE") if "EDS-MATH" in codes
-                else ("SANS_SPECIALITE", "SANS_SPECIALITE"))
+        eds = vers.get("EDS-MATH")
+        n1_non_poursuivie = eds == "N1" and profil in ("P2", "P3")
+        if eds and not n1_non_poursuivie:
+            base = "AVEC_SPECIALITE"
+        elif "MATH-EA" in codes:
+            base = "SANS_SPECIALITE"
+        else:
+            base = ""
+        if profil == "P2" and "MATH-EA" in codes and eds == "NT":
+            base += "_ET_ANTICIPEE"
+        if n1_non_poursuivie:
+            base = f"{base}_NON_POURSUIVIE" if base else "NON_POURSUIVIE"
+        return (base or "UNIQUE", base)
+    if mat in TRONC_COMMUN and profil == "P2" and "ETENDUE" in vers.values():
+        return ("ETENDUE", "FIN_DE_CYCLE")
+    if mat.startswith("SPE-") and profil in ("P2", "P3") and "N1" in vers.values():
+        return ("N1_NON_POURSUIVIE", "NON_POURSUIVIE")
     if mat == "FRANCAIS":
         oral = "FR-EAF-ORAL" in codes
         v = vers.get("FR-EAF", "")
@@ -162,14 +164,14 @@ def nom_livret(mat: str, profil: str, versions=()) -> str:
     sépare — `MATHEMATIQUES_AVEC_SPECIALITE.pdf` — et le pack d'un candidat réel reprend
     le nom simple de la matière une fois la variante choisie.
     """
-    _, suffixe = variante(mat, tuple(versions))
+    _, suffixe = variante(mat, tuple(versions), profil)
     return nom_matiere(mat) + (f"_{suffixe}" if suffixe else "") + ".pdf"
 
 
 def artifact_id(role: str, profil: str, mat: str, versions=()) -> str:
     """L'identité canonique d'un artefact. Unique par construction."""
     dossier = DOSSIER_PROFIL.get(profil, "00_COMMUN" if profil == "COMMUN" else profil)
-    return f"{role}.{dossier}.{nom_matiere(mat)}.{variante(mat, tuple(versions))[0]}"
+    return f"{role}.{dossier}.{nom_matiere(mat)}.{variante(mat, tuple(versions), profil)[0]}"
 
 
 def empreinte(p: Path) -> str:
@@ -203,6 +205,15 @@ SOURCE OFFICIELLE D'ENVOI
   Artefacts de construction instruments/*/build et build/*. Reconstructibles,
                            jetables, jamais envoyés directement.
   Distribution             release/diagnostics-v2/ — ci-dessus.
+
+SITUATIONS CANDIDATES ET TABLEAUX
+
+  Les faits d'un candidat ont une seule construction (scripts/faits_candidat.py) ; l'espace
+  des situations valides en est dérivé, et chaque situation est exécutée par la suite de
+  tests. 04_INTERNE/STUDENT_PACK_MATRIX.csv porte une ligne par classe d'équivalence de
+  sélection (mêmes instruments, mêmes livrets) et non par candidat : « states_in_class »
+  compte les situations réunies, « archive » nomme l'archive témoin du banc quand il en
+  bâtit une. FR-POS et FR-MAI n'y figurent que sur demande explicite.
 
 TROIS PROFILS CANDIDATS, ET SEULEMENT TROIS
 
@@ -365,7 +376,7 @@ def ecrire_guide(livrets: dict, m: dict) -> list[Path]:
                     "correction_coach", "instruments_internes", "session", "packs_concernes"])
         for (mat, profil, versions, session), packs in sorted(livrets.items(), key=str):
             w.writerow([DOSSIER_PROFIL[profil], LI.PROFILS[profil]["long"],
-                        LI.MATIERES[mat][0], variante(mat, versions)[0],
+                        LI.MATIERES[mat][0], variante(mat, versions, profil)[0],
                         nom_livret(mat, profil, versions),
                         nom_livret(mat, profil, versions),
                         " ".join(f"{a}/{b}" for a, b in versions), session, len(packs)])
@@ -374,7 +385,7 @@ def ecrire_guide(livrets: dict, m: dict) -> list[Path]:
         "Matrice des profils", "Quel livret pour quel profil — release diagnostics-v2",
         ["Profil", "Matière", "Situation", "Livret candidat", "Instruments", "Session"],
         [[LI.PROFILS[profil]["long"], LI.MATIERES[mat][0],
-          variante(mat, versions)[0].replace("_", " ").capitalize(),
+          variante(mat, versions, profil)[0].replace("_", " ").capitalize(),
           nom_livret(mat, profil, versions),
           " ".join(f"{a}/{b}" for a, b in versions), session]
          for (mat, profil, versions, session) in sorted(livrets, key=str)],
@@ -511,7 +522,7 @@ def construire(plan_seulement: bool = False) -> dict:
             continue
         cand, cor = r
         composes.append({"matiere": t[0], "profil": t[1], "session": t[3],
-                         "variante": variante(t[0], t[2])[0],
+                         "variante": variante(t[0], t[2], t[1])[0],
                          "versions": [f"{a}/{b}" for a, b in t[2]],
                          "candidat": str(cand.relative_to(RACINE)),
                          "coach": str(cor.relative_to(RACINE)),
@@ -595,7 +606,7 @@ def assembler_impression(src: Path, dossier: Path, profil: str,
             if prof == "P2" and mat == "FRANCAIS":
                 # L'épreuve anticipée de français ne fait pas partie du parcours standard P2
                 continue
-            if prof == "P2" and mat == "MATHEMATIQUES" and variante(mat, versions)[0] != "AVEC_SPECIALITE":
+            if prof == "P2" and mat == "MATHEMATIQUES" and variante(mat, versions, prof)[0] != "AVEC_SPECIALITE":
                 # En P2 standard, les mathématiques sont présentées avec la spécialité
                 continue
             par_matiere.setdefault(mat, []).append(versions)
@@ -608,7 +619,7 @@ def assembler_impression(src: Path, dossier: Path, profil: str,
     inter = dossier / "_intercalaires"
     for combinaison in itertools.product(*choix):
         retenu = dict(combinaison)
-        suffixes = [variante(mat, v)[1] for mat, v in combinaison if variante(mat, v)[1]]
+        suffixes = [variante(mat, v, profil)[1] for mat, v in combinaison if variante(mat, v, profil)[1]]
         nom = "CATALOGUE_RECUEIL_COMPLET" + ("_" + "_".join(suffixes) if suffixes else "") + ".pdf"
         w = pypdf.PdfWriter()
         entree = src / "00_DOSSIER_ENTREE" / "DOSSIER_D_ENTREE_NEXUS.pdf"

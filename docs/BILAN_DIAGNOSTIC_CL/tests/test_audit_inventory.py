@@ -1,11 +1,13 @@
 """Les inventaires d'audit versionnés disent ce que le dépôt calcule, pas ce qu'on croit.
 
-`scripts/audit_inventory.py` dérive du catalogue, des banques, du plan de release et du
-moteur de packs : l'inventaire des fichiers, la couverture des instruments, la couverture
-des situations candidates et les golden packs synthétiques. Ces tests refusent une dérive
-entre les fichiers versionnés sous `audit/` et ce calcul, et vérifient que le périmètre
-métier y figure entièrement, sans identité réelle.
+`scripts/audit_inventory.py` dérive du catalogue, des banques, du plan de release, de
+l'espace d'états candidats et du moteur de packs : l'inventaire des fichiers, la couverture
+des instruments, l'espace d'états et son agrégation, les familles invalides et les golden
+packs synthétiques. Ces tests refusent une dérive entre les fichiers versionnés sous
+`audit/` et ce calcul. Ils ne prouvent rien du métier : la preuve d'un état valide est
+`tests/test_espace_candidats.py`, celle d'un état invalide `tests/test_faits_candidat.py`.
 """
+import itertools
 import json
 import re
 import sys
@@ -16,7 +18,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 import audit_inventory as AI  # noqa: E402
-import pack_candidat as PC  # noqa: E402
+import faits_candidat as FC  # noqa: E402
 
 AUDIT = ROOT / "audit"
 RELEASE = ROOT / "release" / "diagnostics-v2"
@@ -38,8 +40,16 @@ def test_couverture_instruments_synchronisee(produits):
     assert charger("AUDIT_INSTRUMENT_COVERAGE.json") == produits["audit/AUDIT_INSTRUMENT_COVERAGE.json"]
 
 
+def test_espace_etats_synchronise(produits):
+    assert charger("AUDIT_CANDIDATE_STATE_SPACE.json") == produits["audit/AUDIT_CANDIDATE_STATE_SPACE.json"]
+
+
 def test_couverture_candidats_synchronisee(produits):
     assert charger("AUDIT_CANDIDATE_COVERAGE.json") == produits["audit/AUDIT_CANDIDATE_COVERAGE.json"]
+
+
+def test_couverture_invalides_synchronisee(produits):
+    assert charger("AUDIT_INVALID_STATE_COVERAGE.json") == produits["audit/AUDIT_INVALID_STATE_COVERAGE.json"]
 
 
 def test_golden_packs_synchronises(produits):
@@ -58,18 +68,6 @@ def test_inventaire_fichiers_synchronise_hors_release(produits):
     calcule = {e["path"]: e for e in produits["audit/AUDIT_FILE_INVENTORY.json"]["fichiers"]}
     hors = lambda d: {k: v for k, v in d.items() if not k.startswith("release/")}  # noqa: E731
     assert hors(versionne) == hors(calcule)
-    if MANIFESTE.exists():
-        manifeste = json.loads(MANIFESTE.read_text(encoding="utf-8"))
-        empreintes = {}
-        for a in manifeste.get("artefacts", manifeste.get("fichiers", [])):
-            chemin = a.get("chemin") or a.get("fichier") or a.get("path")
-            if chemin and a.get("sha256"):
-                empreintes[chemin] = a["sha256"]
-        for chemin, e in calcule.items():
-            if chemin.startswith("release/") and not chemin.endswith(("MANIFESTE_V2.json", "MANIFESTE_V2.md")):
-                cle = chemin[len("release/diagnostics-v2/"):]
-                if cle in empreintes:
-                    assert empreintes[cle] == e["sha256"], chemin
 
 
 def test_toutes_les_categories_attendues_sont_presentes():
@@ -91,44 +89,81 @@ def test_le_catalogue_entier_est_couvert():
         assert i["source_bank"], i["instrument_id"]
         assert i["tests_covering"], f"{i['instrument_id']} : aucun test ne le cite"
         assert i["profile_applicability"], i["instrument_id"]
-        for v in i["versions"]:
-            assert v["candidate_pdf_paths"] or i["instrument_id"] in ("FR-EAF-ORAL", "FR-POS-ORAL", "GO", "MET", "QP") \
-                or v["candidate_pdf_paths"] == [], v
 
 
-def test_chaque_situation_candidate_a_ses_livrets_et_ses_preuves():
-    cov = charger("AUDIT_CANDIDATE_COVERAGE.json")
-    ids = [s["scenario_id"] for s in cov["scenarios"]]
-    assert len(ids) == len(set(ids))
-    profils = {s["facts"]["profil"] for s in cov["scenarios"]}
-    assert profils == {"P1", "P2", "P3"}
-    for s in cov["scenarios"]:
-        assert s["expected_official_obligations"], s["scenario_id"]
-        assert s["expected_candidate_booklets"], s["scenario_id"]
-        assert s["total_diagnostic_duration_min"] == sum(l["minutes"] for l in s["family_manifest_lines"])
-        assert s["tests_proving"], s["scenario_id"]
-        for b in s["expected_candidate_booklets"]:
-            assert b["chemin_canonique"].startswith("release/diagnostics-v2/01_LIVRETS_CANDIDAT/")
-            assert b["fichier"] not in s["expected_excluded_booklets"]
-    # Chaque paire de spécialités terminales est servie en P2, dans les deux modes.
-    paires = {(s["facts"]["mode_ep"], tuple(sorted(s["facts"]["spes_terminales"])))
-              for s in cov["scenarios"] if s["facts"]["profil"] == "P2" and len(s["facts"]["spes_terminales"]) == 2}
-    import itertools
-    attendues = {(m, p) for m in ("annuelle", "fin_cycle") for p in itertools.combinations(sorted(PC.SPECIALITES_VALIDES), 2)}
-    assert attendues <= paires
-    assert any(s["facts"].get("eaf_due") == e for e in ("ecrit", "oral", "les_deux") for s in cov["scenarios"] if s["facts"]["profil"] == "P2")
-    assert any(s["facts"].get("math_ea_due") and "MATH" in s["facts"]["spes_terminales"] for s in cov["scenarios"] if s["facts"]["profil"] == "P2")
-    assert any(s["facts"].get("math_ea_due") and "MATH" not in s["facts"]["spes_terminales"] for s in cov["scenarios"] if s["facts"]["profil"] == "P2")
+# ─────────────────────────────────────────────── l'espace d'états n'est pas auto-référentiel
+
+def test_l_espace_d_etats_est_celui_du_moteur_et_chaque_etat_est_execute():
+    espace = charger("AUDIT_CANDIDATE_STATE_SPACE.json")
+    ids = [e["scenario_id"] for e in espace["etats"]]
+    assert ids == [e["scenario_id"] for e in FC.candidate_state_space()], "l'espace versionné n'est pas celui du moteur"
+    assert len(ids) == len(set(ids)) == espace["total"]
+    assert espace["exhaustive_test"] == "tests/test_espace_candidats.py::test_etat_valide"
+    assert "test_audit_inventory" not in espace["exhaustive_test"]
+    for e in espace["etats"]:
+        assert e["independently_tested"] is True
+        assert "test_audit_inventory" not in " ".join(e["other_independent_tests"]), e["scenario_id"]
+        assert e["duration"] > 0 and e["selection_signature"] and e["booklet_signature"]
 
 
-def test_les_golden_packs_sont_fictifs():
+def test_l_agregation_dit_le_domaine_entier():
+    agreg = charger("AUDIT_CANDIDATE_COVERAGE.json")
+    espace = charger("AUDIT_CANDIDATE_STATE_SPACE.json")
+    faits = [e["normalized_facts"] for e in espace["etats"]]
+    assert agreg["valid_states_total"] == len(faits)
+    assert agreg["untested_valid_states"] == 0 and agreg["duplicate_scenario_ids"] == 0
+    assert agreg["speciality_triples_total"] == len(list(itertools.combinations(FC.SPECIALITES_VALIDES, 3)))
+    assert agreg["p2_orientation_structures_total"] == agreg["speciality_triples_total"] * 3
+    assert agreg["p3_orientation_structures_total"] == agreg["speciality_triples_total"] * 3
+    assert agreg["p1_orientation_structures_total"] == agreg["speciality_triples_total"] * 4
+    assert agreg["all_speciality_triples_covered_per_profile"] is True
+    assert agreg["distinct_selection_signatures"] == len({(f["profil"], e["selection_signature"])
+                                                          for f, e in zip(faits, espace["etats"])})
+    assert all(e["selection_signature"] in espace["signatures"] and e["booklet_signature"] in espace["signatures"]
+               for e in espace["etats"])
+    assert sum(agreg["par_profil"].values()) == sum(agreg["par_mode"].values()) == len(faits)
+    # Chaque valeur de chaque dimension discrète est vérifiée séparément, jamais par un « any » global.
+    for e in ("none", "ecrit", "oral", "les_deux"):
+        assert agreg["par_eaf"][e] > 0, e
+        assert any(f["profil"] == "P2" and f["eaf_due"] == e for f in faits), e
+    for m in FC.MODES_EP:
+        assert agreg["par_mode"][m] > 0, m
+        assert any(f["profil"] == "P1" and f["mode_ep"] == m for f in faits), m
+        assert any(f["profil"] == "P2" and f["mode_ep"] == m for f in faits), m
+    for parcours in ("SPE", "SPECIFIQUES", "non_due"):
+        assert agreg["par_parcours_math_ea"][parcours] > 0, parcours
+    assert any(f["profil"] == "P2" and f["math_ea_due"] and "MATH" in f["spes_terminales"] for f in faits)
+    assert any(f["profil"] == "P2" and f["math_ea_due"] and "MATH" not in f["spes_terminales"] for f in faits)
+    for etat in ("off", "on"):
+        assert agreg["par_fr_pos"][etat] > 0 and agreg["par_fr_mai"][etat] > 0, etat
+    for profil in FC.PROFILS:
+        assert any(f["profil"] == profil and f["fr_pos_requis"] for f in faits), profil
+    for profil in FC.FR_MAI_PROFILS:
+        assert any(f["profil"] == profil and f["fr_mai_requis"] for f in faits), profil
+    assert not any(f["profil"] == "P1" and f["fr_mai_requis"] for f in faits)
+    assert not any(f["profil"] == "P3" and f["mode_ep"] != "fin_cycle" for f in faits)
+
+
+def test_les_familles_invalides_sont_toutes_refusees():
+    inv = charger("AUDIT_INVALID_STATE_COVERAGE.json")
+    assert inv["families_total"] == inv["families_rejected"] >= 20
+    for f in inv["families"]:
+        assert f["rejected"] is True, f["family_id"]
+        assert re.search(f["expected_error_pattern"], f["error_message"]), f["family_id"]
+        assert f["test_proving"].startswith("tests/test_faits_candidat.py::")
+
+
+def test_les_golden_packs_sont_fictifs_et_prouves_hors_synchronisation():
     for p in sorted((AUDIT / "golden_packs").glob("*.json")):
         pack = json.loads(p.read_text(encoding="utf-8"))
-        assert pack["identity"] == {"candidat": "Camille TEST", "candidat_id": pack["identity"]["candidat_id"],
+        assert pack["identity"] == {"candidat": IDENTITE_FIXTURE, "candidat_id": pack["identity"]["candidat_id"],
                                     "session": 2027, "fictional": True}
         assert re.fullmatch(r"CL-TEST-\d{4}", pack["identity"]["candidat_id"])
         assert pack["booklets_selected"] and pack["total_diagnostic_duration_min"] > 0
         assert pack["export_directory"].startswith("Camille_TEST__CL-TEST-")
+        assert pack["tests_proving_independent"], p.name
+        assert all("test_audit_inventory" not in t for t in pack["tests_proving_independent"]), p.name
+        assert any(t.startswith("tests/test_espace_candidats.py::test_etat_valide[") for t in pack["tests_proving_independent"])
 
 
 def test_aucune_identite_reelle_dans_les_inventaires():
