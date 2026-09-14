@@ -3273,7 +3273,7 @@ model ProgressionHistory {
 model ProjectionHistory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   ssnProjected    Float // Predicted SSN at horizon (0-100)
   confidenceIndex Float // Prediction confidence (0-100)
@@ -3463,7 +3463,7 @@ model Trajectory {
 model Entitlement {
   id                   String                 @id @default(cuid())
   userId               String
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Restrict)
   productCode          String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
   label                String // Human-readable label (snapshot from invoice item)
   // Formule ARIA (AriaTier), pertinente uniquement quand productCode='ARIA_ACCESS'.
@@ -3569,7 +3569,7 @@ enum MathsLevel {
 model MathsProgress {
   id     String        @id @default(cuid())
   userId String
-  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
   track  AcademicTrack @default(EDS_GENERALE)
 
@@ -3618,7 +3618,7 @@ model MathsProgress {
 model EamProgress {
   id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
   userId    String   @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   checks    Json     @default("{}")
   quiz      Json     @default("{}")
   createdAt DateTime @default(now()) @map("created_at")
@@ -3632,7 +3632,7 @@ model EamProgress {
 model NsiPracticeProgress {
   id        String   @id @default(cuid())
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   data      Json // Full NsiProgress object (same structure as localStorage)
   version   Int      @default(1)
   createdAt DateTime @default(now())
@@ -3719,7 +3719,7 @@ model CoachStudentAssignment {
 model SurvivalProgress {
   id        String  @id @default(cuid())
   studentId String  @unique
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   startedAt DateTime @default(now())
   examDate  DateTime

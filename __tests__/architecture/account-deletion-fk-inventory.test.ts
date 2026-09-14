@@ -4,27 +4,31 @@
  * was enumerated against real `pg_constraint` data and classified into
  * exactly one of PURE_MEMBERSHIP_CASCADE_ALLOWED, EPHEMERAL_CASCADE_ALLOWED,
  * HISTORICAL_RESTRICT, FINANCIAL_RESTRICT, or AUDIT_RETAIN — see
- * __tests__/architecture/account-deletion-fk-classification.json (generated
- * by scripts/db/build-fk-classification.mjs from a real disposable
- * Postgres) and lib/security/account-deletion-guard.ts.
+ * data/security/account-deletion-fk-manifest.json (the checked-in, reviewed
+ * business classification) and lib/security/account-deletion-guard.ts.
  *
- * This test parses prisma/schema.prisma statically (no DB required, so it
- * actually runs in the "Unit Tests" CI job — jest.config.db.js's DB-backed
- * lane is not wired into any CI job today), reconstructs each relation's
- * real Postgres constraint name the same way Prisma does
- * (`{childTable}_{fkColumnName}_fkey`), and fails if:
+ * This is the FAST, no-DB half of the guard: it parses prisma/schema.prisma
+ * statically (so it runs in the "Unit Tests" CI job on every commit),
+ * reconstructs each relation's real Postgres constraint name the same way
+ * Prisma does (`{childTable}_{fkColumnName}_fkey`), and fails if:
  *  - a relation into one of the 4 protected models exists in the schema but
- *    its reconstructed constraint name is not in the checked-in
- *    classification (drift: a new relation was added without an explicit,
- *    reviewed classification), or
- *  - a classified FK's onDelete action in the schema no longer matches what
+ *    its reconstructed constraint name is not in the checked-in manifest
+ *    (drift: a new relation was added without an explicit, reviewed
+ *    classification), or
+ *  - a manifest FK's onDelete action in the schema no longer matches what
  *    was classified (drift: someone silently changed Restrict back to
- *    Cascade, or vice versa, without updating the classification/guard).
+ *    Cascade, or vice versa, without updating the manifest/guard).
+ *
+ * The AUTHORITATIVE half — exact DB ground truth via real `pg_constraint`,
+ * catching drift this static parser cannot see at all (e.g. a hand-written
+ * SQL migration that never touched schema.prisma) — is
+ * scripts/db/check-account-deletion-fk-manifest.ts, wired into the CI "Real
+ * DB Integration" job.
  */
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import classification from './account-deletion-fk-classification.json';
+import manifest from '../../data/security/account-deletion-fk-manifest.json';
 
 type ClassifiedFk = {
   conname: string;
@@ -39,7 +43,7 @@ type ClassifiedFk = {
     | 'AUDIT_RETAIN';
 };
 
-const CLASSIFIED = classification as ClassifiedFk[];
+const CLASSIFIED = manifest as ClassifiedFk[];
 const CLASSIFIED_BY_CONNAME = new Map(CLASSIFIED.map((fk) => [fk.conname, fk]));
 const PROTECTED_MODELS = new Set(['User', 'Student', 'ParentProfile', 'CoachProfile']);
 
@@ -132,15 +136,19 @@ describe('#273 account-deletion FK inventory — no silent drift', () => {
   const schemaSource = readFileSync(join(process.cwd(), 'prisma/schema.prisma'), 'utf8');
   const relations = parseSchemaRelations(schemaSource);
 
-  it('found at least the 107 relations the classification was built from', () => {
-    // A loose floor, not an exact count: a handful of real constraint names
-    // in the classification don't follow the `{childTable}_{fkColumn}_fkey`
-    // convention exactly (legacy tables predating @@map, e.g. "SessionBooking"
-    // and "CoachAvailability" keep their original PascalCase table name), so
-    // this reconstruction can miss a few. It never OVER-counts, so a large
-    // drop here is real signal, and every relation it DOES find is checked
-    // exactly below.
-    expect(relations.length).toBeGreaterThanOrEqual(70);
+  it('finds exactly as many relations as the manifest classifies', () => {
+    // An exact count, not a loose floor: tables that don't follow the
+    // `{childTable}_{fkColumn}_fkey` convention (legacy tables predating
+    // @@map, e.g. "SessionBooking"/"CoachAvailability", which keep their
+    // original PascalCase table name) fall back to the model name itself as
+    // childTable above, which reconstructs their real constraint name
+    // correctly too — verified empirically: this parser's count matches the
+    // real `pg_constraint` count (scripts/db/check-account-deletion-fk-manifest.ts)
+    // exactly. A mismatch here means either a relation was added/removed in
+    // the schema without updating the manifest, or this parser's
+    // reconstruction logic itself needs a new special case — investigate,
+    // don't loosen this back into a floor.
+    expect(relations.length).toBe(CLASSIFIED.length);
   });
 
   it('has zero UNKNOWN classifications in the checked-in allowlist', () => {
@@ -163,9 +171,9 @@ describe('#273 account-deletion FK inventory — no silent drift', () => {
         throw new Error(
           `${relation.model}.${relation.fkColumn} -> ${relation.targetModel} (expected constraint ` +
             `"${relation.conname}") has no reviewed classification. If this is a new relation, add it to ` +
-            '__tests__/architecture/account-deletion-fk-classification.json (regenerate via ' +
-            'scripts/db/build-fk-classification.mjs against a real disposable Postgres) and, if it protects ' +
-            'real history, add its constraint name to lib/security/account-deletion-guard.ts.',
+            'data/security/account-deletion-fk-manifest.json with an explicit category (verify against real ' +
+            '`pg_constraint` via scripts/db/check-account-deletion-fk-manifest.ts) and, if it protects real ' +
+            'history, add its constraint name to lib/security/account-deletion-guard.ts.',
         );
       }
       if (classified.onDelete !== relation.onDelete) {

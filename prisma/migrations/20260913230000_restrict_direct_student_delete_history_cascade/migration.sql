@@ -50,6 +50,12 @@
 -- CONSTRAINT must be in separate migration files to get the weaker lock in
 -- production — putting both in this same file would hold
 -- AccessExclusiveLock for the whole transaction regardless.
+--
+-- This 200k-row figure is a synthetic disposable-Postgres measurement, not
+-- a production-sized sanitized clone (none was available at the time) —
+-- still rehearse this migration against one before deploying to production;
+-- treat the 45ms/58ms numbers as evidence the general approach (NOT VALID +
+-- separate VALIDATE) is sound, not as a promise of production timing.
 
 ALTER TABLE "credit_transactions" DROP CONSTRAINT "credit_transactions_studentId_fkey";
 ALTER TABLE "sessions" DROP CONSTRAINT "sessions_studentId_fkey";

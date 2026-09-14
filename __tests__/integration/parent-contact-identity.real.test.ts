@@ -15,6 +15,11 @@ beforeAll(() => { assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || p
 async function cleanupFixtures() {
  await prisma.notification.deleteMany({ where: activationNotifications });
  await prisma.parentPhoneChallenge.deleteMany({ where: { userId: { startsWith: PREFIX } } });
+ // entitlements_userId_fkey is now onDelete: Restrict (#273 FK hardening,
+ // 20260914000000) — this fixture creates an Entitlement row (see the
+ // historical-fixture entitlement below), so it must be cleared before the
+ // owning users, or this deleteMany fails with P2003.
+ await prisma.entitlement.deleteMany({ where: { userId: { startsWith: PREFIX } } });
  await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
 }
 const activationNotifications = { type: 'BILAN_PARENT_ACTIVATED', data: { path: ['parentUserId'], string_starts_with: PREFIX } };

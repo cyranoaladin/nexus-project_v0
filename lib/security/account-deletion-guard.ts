@@ -1,7 +1,10 @@
 /**
  * Shared mapping from the `onDelete: Restrict` foreign keys added by
- * migrations 20260913200000_restrict_account_delete_cascades and
- * 20260913210000_restrict_parent_delete_student_cascade to a clear,
+ * migrations 20260913200000_restrict_account_delete_cascades,
+ * 20260913210000_restrict_parent_delete_student_cascade,
+ * 20260913220000_restrict_coach_report_history_cascade,
+ * 20260913230000_restrict_direct_student_delete_history_cascade, and
+ * 20260914000000_restrict_uncertain_pedagogical_and_grant_cascades to a clear,
  * actionable API error — used by every route that can end up trying to
  * hard-delete a User/Student/CoachProfile/ParentProfile (currently
  * `DELETE /api/admin/users` and `DELETE /api/assistante/coaches/manage/[id]`).
@@ -49,6 +52,12 @@ const RESTRICT_CONSTRAINT_LABELS: Readonly<Record<string, string>> = Object.free
   candidate_diagnostic_consents_studentId_fkey: 'un consentement de diagnostic',
   subscription_requests_studentId_fkey: 'une demande d\'abonnement',
   copy_submissions_studentId_fkey: 'une copie soumise',
+  entitlements_userId_fkey: 'un historique de droits d\'accès (achats, offres)',
+  maths_progress_userId_fkey: 'une progression enregistrée en mathématiques',
+  nsi_practice_progress_userId_fkey: 'une progression enregistrée en NSI',
+  eam_progress_user_id_fkey: 'une progression enregistrée en EAF',
+  projection_history_studentId_fkey: 'un historique de projections de notes',
+  survival_progress_studentId_fkey: 'une progression enregistrée en mode révision',
 });
 
 function constraintNameFromMeta(meta: Record<string, unknown> | undefined): string | null {

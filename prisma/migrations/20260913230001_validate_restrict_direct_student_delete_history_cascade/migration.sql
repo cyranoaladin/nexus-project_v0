@@ -1,8 +1,12 @@
 -- Companion to 20260913230000: validates the 12 NOT VALID constraints
 -- added there, in a separate transaction/migration so validation runs
--- under ShareUpdateExclusiveLock instead of AccessExclusiveLock — safe
--- against production-sized tables (credit_transactions, sessions in
--- particular) without blocking concurrent reads/writes.
+-- under ShareUpdateExclusiveLock — a lock mode that, per Postgres's own
+-- documented locking semantics, does not block concurrent reads/writes
+-- regardless of table size (credit_transactions, sessions in particular).
+-- The specific duration numbers this reasoning was checked against (see
+-- 20260913230000) came from a synthetic 200k-row disposable-Postgres
+-- measurement, not a production-sized sanitized clone — still rehearse
+-- against one before deploying to production.
 
 ALTER TABLE "credit_transactions" VALIDATE CONSTRAINT "credit_transactions_studentId_fkey";
 ALTER TABLE "sessions" VALIDATE CONSTRAINT "sessions_studentId_fkey";
