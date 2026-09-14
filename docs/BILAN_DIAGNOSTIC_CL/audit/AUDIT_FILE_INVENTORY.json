@@ -70,14 +70,14 @@
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "00b0db496a76a91d672423479ebb7bf2c9c53fdd9767635e8f9a3bf54f9afca2",
+      "sha256": "463b02dab9b256602148606c3e4ff5d25ec712b4f3dcd5af7be73fe4ec70c1c0",
       "size": 109960,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "7a7710a1131300488452c39cef9b9e13c2ce678e69208dd55adb50348ace41e6",
+      "sha256": "7d074a34fc11810e368bbaf2eae6f184e8b96e0a0d0a2145faa347730da6e96b",
       "size": 5323,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -98,8 +98,8 @@
     },
     {
       "path": "README_ETAT.md",
-      "sha256": "9914b0aa43a10db209b5953e07435bba99ede080a4be315dbcedc8c31b65f652",
-      "size": 155734,
+      "sha256": "8d910850c315a8a7a516711db3df1ca2f4e287aa573a33c77be04db51addef77",
+      "size": 156923,
       "category": "DOCUMENTATION",
       "role": "documentation gouvernante ou de conception"
     },
@@ -896,8 +896,8 @@
     },
     {
       "path": "referentiels/catalogues_operateur.json",
-      "sha256": "12c086f1c3b50eabce1abf68b6d33c314e042841670e68c52a6f09cea26cae4c",
-      "size": 63633,
+      "sha256": "c22dacb655457fe8d456d86a7259d753cbd208fc036480b2dc7c09e95309492e",
+      "size": 92651,
       "category": "REFERENTIAL",
       "role": "référentiel réglementaire ou de conception"
     },
@@ -2149,15 +2149,15 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "36364fbc62eadf3b5a3b03878e9f0a77e634e32256e482f3b613b708b3ac3079",
-      "size": 110897,
+      "sha256": "2b534944332743f28290a1acac0c4dd1f950e9828a2b54fd39e06cd9afcf65d9",
+      "size": 95693,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "3df6b474160dd4250763c278fcea9d498954816b3faac142fdb79172eb3fceec",
-      "size": 24168,
+      "sha256": "6efadd4f1adf204eacea74970836fbe5d8431f08241c798e739d4631e3294220",
+      "size": 21142,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
@@ -2324,8 +2324,8 @@
     },
     {
       "path": "scripts/release_v2.py",
-      "sha256": "4c28d6a637bc9f7b9034c4520097e450471911d0a575d6a33a5410252dc6f403",
-      "size": 40097,
+      "sha256": "a5b42f58854057c966cde34090aaa7086563f5bba8ba6dd518ea131dc7def061",
+      "size": 43624,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2639,8 +2639,8 @@
     },
     {
       "path": "tests/test_print_canonicalization.py",
-      "sha256": "7c20b683e5e983246b0fae64756c19cb6943ed3c14f14c85cf7b3808ac8f7c13",
-      "size": 12060,
+      "sha256": "e38f0e75dc96c33f833e4b317351a097a97d30fba061f61ae919c300cfe773cf",
+      "size": 19631,
       "category": "TEST",
       "role": "test de non-régression"
     },

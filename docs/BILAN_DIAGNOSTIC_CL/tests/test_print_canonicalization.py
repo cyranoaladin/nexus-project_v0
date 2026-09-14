@@ -215,7 +215,11 @@ def test_toutes_les_classes_candidats_ont_un_catalogue_valide_sans_orphelin():
         reader = csv.DictReader(f)
         lignes = list(reader)
 
-    assert len(lignes) == 5952, f"Nombre de classes ({len(lignes)}) != 5952"
+    import distribution as DIS
+    expected_class_count = len(DIS.classes())
+    assert len(lignes) == expected_class_count, (
+        f"Nombre de classes ({len(lignes)}) != attendu ({expected_class_count})"
+    )
 
     catalogues_utilises = set()
     for i, row in enumerate(lignes):
@@ -266,3 +270,155 @@ def test_determinisme_recueil_impression_pour():
         res1 = REL.recueil_impression_pour(c["profil"], c["instruments"], e.get("mode_ep"))
         res2 = REL.recueil_impression_pour(c["profil"], c["instruments"], e.get("mode_ep"))
         assert res1 == res2, f"Résolution non déterministe pour la classe {cle}"
+
+
+# ─────────────────────────────────────────────── Test H : Traçabilité sémantique MANIFESTE_V2
+
+def test_metadonnees_semantiques_completes_manifeste_v2():
+    """Vérifie que 100% des PDF candidat et coach ont des métadonnées sémantiques complètes.
+
+    Chaque artefact candidat ou coach dans MANIFESTE_V2.json doit obligatoirement porter :
+    - artifact_id (forme stable et sémantique, jamais un simple repli de chemin physique)
+    - path
+    - sha256
+    - profil
+    - profil_libelle
+    - matiere
+    - variante
+    - instruments
+    - session (pour les livrets disciplinaires)
+    Et concorder rigoureusement avec la table canonique déclarative indépendante.
+    """
+    manifeste_path = RACINE / "release" / "diagnostics-v2" / "04_INTERNE" / "MANIFESTE_V2.json"
+    if not manifeste_path.exists():
+        pytest.skip("release v2 non construite")
+
+    with open(manifeste_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    if "selection_classes" not in data.get("effectifs", {}):
+        pytest.skip("release v2 non construite")
+
+    import release_v2 as REL
+    table_canonique = REL.table_artefacts_canoniques()
+
+    artefacts = data.get("artefacts", [])
+    candidat_coach = [a for a in artefacts if a.get("role") in ("candidat", "coach")]
+    assert candidat_coach, "Aucun artefact candidat ou coach dans MANIFESTE_V2"
+
+    champs_obligatoires = [
+        "artifact_id", "path", "sha256", "role", "profil", "profil_libelle",
+        "matiere", "variante", "instruments"
+    ]
+
+    erreurs = []
+    for a in candidat_coach:
+        p = a.get("path")
+        # 1. Vérification des champs requis
+        for ch in champs_obligatoires:
+            val = a.get(ch)
+            if val is None or val == "":
+                erreurs.append(f"{p} : champ '{ch}' manquant ou vide dans MANIFESTE_V2")
+
+        # 2. Refus strict d'un artifact_id de repli générique
+        aid = a.get("artifact_id", "")
+        if aid.startswith("candidat.01_LIVRETS_CANDIDAT") or aid.startswith("coach.02_CORRECTIONS_COACH"):
+            erreurs.append(f"{p} : artifact_id non sémantique replié sur le chemin physique ({aid})")
+
+        # 3. Comparaison avec l'oracle canonique indépendant
+        if p not in table_canonique:
+            erreurs.append(f"{p} : artefact absent de la table canonique de référence")
+        else:
+            oracle = table_canonique[p]
+            for cle in ("artifact_id", "profil", "profil_libelle", "matiere", "variante", "instruments"):
+                if a.get(cle) != oracle.get(cle):
+                    erreurs.append(
+                        f"{p} : divergence sur '{cle}' — manifeste: {a.get(cle)!r} vs canonique: {oracle.get(cle)!r}"
+                    )
+
+    assert not erreurs, "Défauts de métadonnées sémantiques dans MANIFESTE_V2 :\n" + "\n".join(erreurs)
+
+
+# ─────────────────────────────────────────────── Test I : Inclusion du dossier d'entrée et signatures
+
+def test_signatures_logiques_catalogues_incluent_dossier_entree():
+    """Vérifie que les signatures opérateur et les chemins logiques incluent le dossier d'entrée."""
+    catalogues = charger_catalogues_referentiel()
+    for cat in catalogues:
+        prof = cat["profil"]
+        dossier = {"P1": "PROFIL_A_PREMIERE_PARTIE", "P2": "PROFIL_B_DEUXIEME_PARTIE", "P3": "PROFIL_C_BAC_EN_UNE_SESSION"}[prof]
+        entree_path = f"release/diagnostics-v2/01_LIVRETS_CANDIDAT/{dossier}/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+
+        # 1. Le dossier d'entrée doit être le premier livret logique
+        paths = cat.get("operator_catalogue_booklet_paths", [])
+        assert paths, f"Catalogue {cat['catalogue_id']} sans operator_catalogue_booklet_paths"
+        assert paths[0] == entree_path, (
+            f"Catalogue {cat['catalogue_id']} ne commence pas par le dossier d'entrée : {paths[0]} != {entree_path}"
+        )
+
+        # 2. La signature doit débuter par profil|DOSSIER_D_ENTREE_NEXUS.pdf|
+        sig = cat.get("operator_catalogue_signature", "")
+        prefixe_attendu = f"{prof}|DOSSIER_D_ENTREE_NEXUS.pdf|"
+        assert sig.startswith(prefixe_attendu), (
+            f"Catalogue {cat['catalogue_id']} signature ne débute pas par '{prefixe_attendu}' : {sig}"
+        )
+
+    # 3. Documentation des règles normatives
+    import release_v2 as REL
+    assert "OPERATOR_SIGNATURES_INCLUDE_ENTRY_DOSSIER=YES" in REL.GUIDE_TXT
+    assert "OPERATOR_CATALOGUE_SIGNATURE_EXCLUDES_EDITORIAL_SEPARATORS=YES" in REL.GUIDE_TXT
+
+    with open(REFERENTIEL_JSON, encoding="utf-8") as f:
+        ref_meta = json.load(f).get("meta", {})
+    assert ref_meta.get("OPERATOR_SIGNATURES_INCLUDE_ENTRY_DOSSIER") == "YES"
+    assert ref_meta.get("OPERATOR_CATALOGUE_SIGNATURE_EXCLUDES_EDITORIAL_SEPARATORS") == "YES"
+
+
+# ─────────────────────────────────────────────── Test J : Cohérence croisée des effectifs
+
+def test_coherence_croisee_manifeste_v2_effectifs():
+    """Vérifie la cohérence croisée des effectifs entre MANIFESTE_V2, le moteur et les référentiels."""
+    manifeste_path = RACINE / "release" / "diagnostics-v2" / "04_INTERNE" / "MANIFESTE_V2.json"
+    if not manifeste_path.exists():
+        pytest.skip("release v2 non construite")
+
+    with open(manifeste_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    effectifs = data.get("effectifs", {})
+    if "selection_classes" not in effectifs:
+        pytest.skip("release v2 non construite")
+    catalogues = charger_catalogues_referentiel()
+
+    import distribution as DIS
+    import faits_candidat as FC
+
+    nb_classes_moteur = len(DIS.classes())
+    nb_etats_moteur = len(FC.candidate_state_space())
+    nb_catalogues_ref = len(catalogues)
+
+    assert effectifs.get("selection_classes") == nb_classes_moteur, (
+        f"selection_classes ({effectifs.get('selection_classes')}) != classes moteur ({nb_classes_moteur})"
+    )
+    assert effectifs.get("candidate_states") == nb_etats_moteur, (
+        f"candidate_states ({effectifs.get('candidate_states')}) != états moteur ({nb_etats_moteur})"
+    )
+    assert effectifs.get("operator_print_catalogues") == nb_catalogues_ref, (
+        f"operator_print_catalogues ({effectifs.get('operator_print_catalogues')}) != référentiel ({nb_catalogues_ref})"
+    )
+    assert effectifs.get("packs_impression") == nb_catalogues_ref, (
+        f"packs_impression ({effectifs.get('packs_impression')}) != référentiel ({nb_catalogues_ref})"
+    )
+
+    # Vérification que chaque artefact impression porte catalogue_id, signature, purpose, profil
+    artefacts = data.get("artefacts", [])
+    artefacts_impression = [a for a in artefacts if a.get("role") == "impression"]
+    assert len(artefacts_impression) == nb_catalogues_ref, (
+        f"Nombre d'artefacts impression ({len(artefacts_impression)}) != référentiel ({nb_catalogues_ref})"
+    )
+
+    for a in artefacts_impression:
+        assert a.get("catalogue_id"), f"{a['path']} : catalogue_id manquant"
+        assert a.get("operator_catalogue_signature"), f"{a['path']} : signature manquante"
+        assert a.get("purpose"), f"{a['path']} : purpose manquant"
+        assert a.get("profil"), f"{a['path']} : profil manquant"

@@ -250,6 +250,9 @@ CE QU'ON IMPRIME
 
   03_IMPRESSION/                  les livrets assemblés en catalogues complets de consultation
                                   et d'impression opérateur (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO).
+                                  Les signatures logiques incluent le dossier d'entrée en tête
+                                  (OPERATOR_SIGNATURES_INCLUDE_ENTRY_DOSSIER=YES) et excluent les pages
+                                  intercalaires éditoriales (OPERATOR_CATALOGUE_SIGNATURE_EXCLUDES_EDITORIAL_SEPARATORS=YES).
                                   Pour imprimer le pack sur-mesure d'un candidat réel, utiliser
                                   exclusivement scripts/pack_candidat.py.
 
@@ -723,19 +726,101 @@ def tete_git() -> str:
     return r.stdout.strip() or "inconnu"
 
 
-def ecrire_manifeste(livrets: dict, composes: list[dict], erreurs: list[str]) -> Path:
+def table_artefacts_canoniques(livrets: dict | None = None) -> dict[str, dict]:
+    """Construit la table canonique des métadonnées métier de tous les PDF candidat et coach.
+
+    Dérivée de façon déterministe depuis livrets_attendus(), nom_livret(),
+    sous_dossier_livret() et DOSSIER_PROFIL, ainsi que des livrets transversaux
+    (dossier d'entrée et positionnement linguistique).
+    """
+    if livrets is None:
+        livrets = livrets_attendus()
+
+    par_chemin = {}
+
+    # 1. Livrets transversaux communs : Positionnement linguistique
+    pos_cand = "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+    pos_coach = "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+
+    meta_pos = {
+        "scope": "commun",
+        "profil": "00_COMMUN",
+        "profil_libelle": "Tous profils (positionnement linguistique)",
+        "matiere": "Positionnement français",
+        "variante": "POSITIONNEMENT",
+        "session": 2027,
+        "instruments": ["FR-POS/standard", "FR-POS-ORAL/standard"],
+    }
+    par_chemin[pos_cand] = {
+        **meta_pos,
+        "role": "candidat",
+        "artifact_id": "candidat.00_COMMUN.POSITIONNEMENT_FRANCAIS.POSITIONNEMENT",
+    }
+    par_chemin[pos_coach] = {
+        **meta_pos,
+        "role": "coach",
+        "artifact_id": "coach.00_COMMUN.POSITIONNEMENT_FRANCAIS.POSITIONNEMENT",
+    }
+
+    # 2. Dossiers d'entrée de chaque profil
+    for prof, dossier in DOSSIER_PROFIL.items():
+        entree_cand = f"release/diagnostics-v2/01_LIVRETS_CANDIDAT/{dossier}/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+        meta_entree = {
+            "profil": dossier,
+            "profil_libelle": LI.PROFILS[prof]["long"],
+            "matiere": "Dossier d'entrée",
+            "variante": "QP_MET",
+            "session": 2027,
+            "instruments": ["QP/standard", "MET/standard"],
+        }
+        par_chemin[entree_cand] = {
+            **meta_entree,
+            "role": "candidat",
+            "artifact_id": f"candidat.{dossier}.DOSSIER_ENTREE.QP_MET",
+        }
+
+    # 3. Tous les livrets disciplinaires déclarés dans livrets_attendus()
+    for (mat, prof, versions, session), packs in livrets.items():
+        nom = nom_livret(mat, prof, versions)
+        sd = sous_dossier_livret(mat, prof, versions)
+        dossier = DOSSIER_PROFIL[prof]
+        cand_path = f"release/diagnostics-v2/01_LIVRETS_CANDIDAT/{dossier}/{sd}/{nom}"
+        coach_path = f"release/diagnostics-v2/02_CORRECTIONS_COACH/{dossier}/{sd}/{nom}"
+        var_nom = variante(mat, versions, prof)[0]
+        inst_list = [f"{a}/{b}" for a, b in versions]
+
+        meta_base = {
+            "profil": dossier,
+            "profil_libelle": LI.PROFILS[prof]["long"],
+            "matiere": LI.MATIERES[mat][0],
+            "variante": var_nom,
+            "session": session,
+            "instruments": inst_list,
+        }
+        par_chemin[cand_path] = {
+            **meta_base,
+            "role": "candidat",
+            "artifact_id": artifact_id("candidat", prof, mat, versions),
+        }
+        par_chemin[coach_path] = {
+            **meta_base,
+            "role": "coach",
+            "artifact_id": artifact_id("coach", prof, mat, versions),
+        }
+
+    return par_chemin
+
+
+def ecrire_manifeste(livrets: dict, composes: list[dict] | None = None,
+                     erreurs: list[str] | None = None) -> Path:
     """Recense **tous** les fichiers de la release, avec leur identité et leur empreinte.
 
-    Le manifeste précédent décrivait des livrets, non des fichiers : huit entrées se
-    partageaient trois chemins et héritaient toutes de l'empreinte du dernier écrit. Il
-    attestait donc un contenu qui n'existait pas, et masquait la collision qu'il aurait dû
-    révéler. Celui-ci part des fichiers réellement présents, refuse deux identités
-    identiques et refuse deux artefacts sur un même chemin.
+    Chaque fichier de livret candidat ou coach est enrichi depuis la table canonique
+    déterministe, garantissant des métadonnées complètes et stables.
     """
-    par_chemin = {}
-    for c in composes:
-        par_chemin[c["candidat"]] = ("candidat", c)
-        par_chemin[c["coach"]] = ("coach", c)
+    if erreurs is None:
+        erreurs = []
+    table_canonique = table_artefacts_canoniques(livrets)
 
     artefacts = []
     for f in sorted(SORTIE.rglob("*")):
@@ -743,26 +828,24 @@ def ecrire_manifeste(livrets: dict, composes: list[dict], erreurs: list[str]) ->
             continue
         rel = str(f.relative_to(RACINE))
         partie = f.relative_to(SORTIE).parts[0]
-        role, c = par_chemin.get(rel, (ROLES.get(partie, "interne"), None))
-        a = {"artifact_id": None, "path": rel, "sha256": empreinte(f),
-             "octets": f.stat().st_size, "role": role}
-        if c is not None:
-            a["artifact_id"] = artifact_id(role, c["profil"], c["matiere"],
-                                           [tuple(v.split("/")) for v in c["versions"]])
-            if c["profil"] in DOSSIER_PROFIL:
-                a.update({"profil": DOSSIER_PROFIL[c["profil"]],
-                          "profil_libelle": LI.PROFILS[c["profil"]]["long"],
-                          "matiere": LI.MATIERES[c["matiere"]][0],
-                          "variante": c["variante"], "session": c["session"],
-                          "instruments": c["versions"]})
-            else:
-                a.update({"scope": "commun",
-                          "profil": "00_COMMUN",
-                          "profil_libelle": "Tous profils (positionnement linguistique)",
-                          "matiere": LI.MATIERES[c["matiere"]][0],
-                          "variante": c["variante"], "session": c["session"],
-                          "instruments": c["versions"]})
+
+        if rel in table_canonique:
+            meta = table_canonique[rel]
+            role = meta["role"]
+            a = {
+                "artifact_id": meta["artifact_id"],
+                "path": rel,
+                "sha256": empreinte(f),
+                "octets": f.stat().st_size,
+                "role": role,
+            }
+            for k, v in meta.items():
+                if k not in ("role", "artifact_id"):
+                    a[k] = v
         else:
+            role = ROLES.get(partie, "interne")
+            a = {"artifact_id": None, "path": rel, "sha256": empreinte(f),
+                 "octets": f.stat().st_size, "role": role}
             a["artifact_id"] = f"{role}.{f.relative_to(SORTIE).as_posix()}"
             profil = next((p for p, d in DOSSIER_PROFIL.items()
                            if d in f.relative_to(SORTIE).parts), None)
@@ -790,6 +873,12 @@ def ecrire_manifeste(livrets: dict, composes: list[dict], erreurs: list[str]) ->
     if doublons_ch:
         raise SystemExit("duplicate canonical path : " + " ; ".join(doublons_ch))
 
+    import distribution as DIS
+    import faits_candidat as FC
+    classes_sel = DIS.classes()
+    etats_cand = FC.candidate_state_space()
+    catalogues_specs = specifications_catalogues_impression()
+
     manifeste = {
         "schema": "manifeste_release/2.0",
         "release_version": "diagnostics-v2",
@@ -805,7 +894,15 @@ def ecrire_manifeste(livrets: dict, composes: list[dict], erreurs: list[str]) ->
             "livrets_candidat": sum(1 for a in artefacts if a["role"] == "candidat"),
             "corrections_coach": sum(1 for a in artefacts if a["role"] == "coach"),
             "packs_impression": sum(1 for a in artefacts if a["role"] == "impression"),
+            "selection_classes": len(classes_sel),
+            "candidate_states": len(etats_cand),
+            "booklet_class_links": sum(len(v) for v in livrets.values()),
+            "operator_print_catalogues": len(catalogues_specs),
             "combinaisons_servies": sum(len(v) for v in livrets.values()),
+            "_combinaisons_servies_deprecation": (
+                "DEPRECATED: ce compteur represente booklet_class_links (liens livret-classe) "
+                "et non le nombre de classes ou d'etats. Utiliser selection_classes ou candidate_states."
+            ),
         },
         "artefacts": artefacts,
         "erreurs": erreurs,
