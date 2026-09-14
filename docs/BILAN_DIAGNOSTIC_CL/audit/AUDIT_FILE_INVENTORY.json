@@ -70,14 +70,14 @@
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "68949e26cf7d928e617cc67798e605242f975e441e78aca17c444f25952f0ba5",
+      "sha256": "2fbb171f51011188e62251907bab148baf8f3a20d0ae80aca0da031a92dfe4c5",
       "size": 109958,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "b42af96905a5460b4a98f2c85c18e08d55075c2c08da3633aebe7f2dac01ef32",
+      "sha256": "cd7a41cdce3e9faa5148ec9edcaf9b1fffa54900bcb41c85171ed4e05d1063e8",
       "size": 5322,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -2492,8 +2492,8 @@
     },
     {
       "path": "scripts/rendus_instruments.py",
-      "sha256": "1786eb4b06752f7e1c1f2be1c39d6cc25dd883ef6702f758d113083f04a0fce0",
-      "size": 3737,
+      "sha256": "ceeedd9147fefd43fcb1039bcf2fc13097bffe68f05303755ede77a482c97898",
+      "size": 4101,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },

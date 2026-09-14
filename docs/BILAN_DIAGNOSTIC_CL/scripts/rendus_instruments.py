@@ -65,10 +65,16 @@ def reconstruire_banc(force: bool = False) -> bool:
     preflight, packs. Plusieurs tests le lisent ; un clone propre le reconstruit."""
     if BANC.is_dir() and any(BANC.iterdir()) and not force:
         return False
+    import contextlib
+    import io
     import distribution as DIS
-    r = DIS.construire()
-    if r.get("erreurs"):
-        raise SystemExit("banc de distribution : " + " | ".join(r["erreurs"][:4]))
+    # Le même geste que `python3 scripts/distribution.py` : le banc, puis les tableaux et
+    # l'index posés dedans. Un banc bâti autrement compte d'autres fichiers, et le
+    # manifeste du dépôt — qui recense le banc — divergerait d'un clone à l'autre.
+    with contextlib.redirect_stdout(io.StringIO()) as sortie:
+        code = DIS.main([])
+    if code != 0:
+        raise SystemExit("banc de distribution : " + sortie.getvalue().strip()[-600:])
     return True
 
 
