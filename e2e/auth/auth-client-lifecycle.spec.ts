@@ -149,6 +149,11 @@ test('an aborted session refresh cannot replace an in-flight planning navigation
   }
 });
 
+// Registry R1 (docs/qa/flake-registry-2026-09.md): has twice timed out at
+// this test's 5000ms toHaveURL budget under the full job's cumulative
+// resource load (never in 13 local + 30 isolated-CI repeats). OPEN, not
+// fixed — no timeout change without a measured failing trace. If this
+// fails again, capture and attach its trace to the registry entry first.
 test('the real session provider still observes revocation on focus after recovering from a network failure', async ({ page }) => {
   await loginAsUser(page, 'admin');
   await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
