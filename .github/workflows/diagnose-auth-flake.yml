@@ -13,6 +13,12 @@ name: Diagnose auth-client-lifecycle flake
 
 on:
   workflow_dispatch: {}
+  # workflow_dispatch alone can't be discovered/dispatched by the API until
+  # the workflow file exists on the default branch, which this temporary
+  # diagnostic deliberately never will. Trigger it the same way any normal
+  # commit triggers CI: a push to this exact throwaway branch.
+  push:
+    branches: [diagnose/auth-flake-in-ci]
 
 permissions:
   contents: read
