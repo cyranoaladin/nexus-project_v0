@@ -792,7 +792,7 @@ export async function createSessionAtRealInstant(
  * the transition logic itself (use the real POST /api/sessions/[sessionId]
  * flow for that).
  */
-export async function setSessionBookingStatus(sessionId: string, status: 'COMPLETED'): Promise<void> {
+export async function setSessionBookingStatus(sessionId: string, status: 'COMPLETED' | 'CANCELLED'): Promise<void> {
   const client = getPrisma();
   await client.sessionBooking.update({ where: { id: sessionId }, data: { status } });
 }

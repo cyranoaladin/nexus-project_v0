@@ -71,8 +71,47 @@ async function joinAsParticipant(context: BrowserContext, role: 'student' | 'coa
 }
 
 test.describe('Video join flow — /session/video', () => {
+  // This whole file runs multiple times per CI job — chromium first, then
+  // firefox-smoke/webkit-smoke/mobile-smoke, each only a few minutes apart —
+  // against the SAME already-seeded, never-reset database (see the "Run
+  // Playwright auth E2E gate" + "...cross-browser smoke" steps in
+  // .github/workflows/ci.yml). A booking left in an active status
+  // (SCHEDULED/CONFIRMED/IN_PROGRESS — the exact set SessionBooking_no_
+  // overlap_excl protects, see prisma/migrations/20260201201415_add_
+  // session_overlap_prevention/migration.sql) for the same coach and a
+  // relative "now + fixed offset" instant collides with the next project's
+  // re-run of the identical test, whose "now" differs only by that few-
+  // minute gap — well inside the default 60-minute duration. This was a
+  // real, deterministic failure (not a flake): tests that already
+  // transition to CANCELLED/COMPLETED as part of their own assertions
+  // survived by accident (those statuses are outside the constraint); every
+  // other test in this file did not. Track and force-cancel every booking
+  // this file creates so no run ever leaves an active row behind for the
+  // next project.
+  const trackedSessionIds: string[] = [];
+
+  async function createTrackedSession(
+    studentEmail: string,
+    coachEmail: string,
+    startInstant: Date,
+  ): Promise<string> {
+    const sessionId = await createSessionAtRealInstant(studentEmail, coachEmail, startInstant);
+    trackedSessionIds.push(sessionId);
+    return sessionId;
+  }
+
+  test.afterEach(async () => {
+    const ids = trackedSessionIds.splice(0, trackedSessionIds.length);
+    for (const id of ids) {
+      // Best-effort: a booking already CANCELLED/COMPLETED by the test
+      // itself, or never actually created because the test's own creation
+      // call failed, must not fail cleanup for the next test.
+      await setSessionBookingStatus(id, 'CANCELLED').catch(() => {});
+    }
+  });
+
   test('student and coach land in the same room; POST (join) marks the session IN_PROGRESS; GET alone never mutates', async ({ page, browser }) => {
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, new Date());
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, new Date());
 
     await loginAsUser(page, 'student', { navigate: false });
 
@@ -113,7 +152,7 @@ test.describe('Video join flow — /session/video', () => {
 
   test('joining more than 15 minutes before the scheduled start is rejected', async ({ page }) => {
     const farFutureStart = new Date(Date.now() + 60 * 60 * 1000); // 1h from now
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, farFutureStart);
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, farFutureStart);
 
     await loginAsUser(page, 'student', { navigate: false });
     const res = await page.request.post(`/api/sessions/${sessionId}`);
@@ -127,7 +166,7 @@ test.describe('Video join flow — /session/video', () => {
     // constraint on overlapping SessionBooking windows never trips —
     // real DB safety, not a test artifact.
     const start = new Date(Date.now() + 3 * 60 * 60 * 1000);
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, start);
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, start);
 
     await loginAsUser(page, 'student', { navigate: false });
     const cancelRes = await page.request.post('/api/sessions/cancel', {
@@ -142,7 +181,7 @@ test.describe('Video join flow — /session/video', () => {
 
   test('a user not party to the booking cannot read or join it (IDOR)', async ({ page }) => {
     const start = new Date(Date.now() + 5 * 60 * 60 * 1000);
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, start);
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, start);
 
     // admin is authenticated but neither the student, coach, nor parent
     // on this specific booking — ownership is scoped server-side, never
@@ -155,7 +194,7 @@ test.describe('Video join flow — /session/video', () => {
 
   test('a COMPLETED session is never joinable', async ({ page }) => {
     const start = new Date(Date.now() + 6 * 60 * 60 * 1000);
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, start);
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, start);
     await setSessionBookingStatus(sessionId, 'COMPLETED');
 
     await loginAsUser(page, 'student', { navigate: false });
@@ -174,7 +213,7 @@ test.describe('Video join flow — /session/video', () => {
     // through the same shared Tunis wall-clock primitive as every other
     // fixture in this file, not a synthetic "expired" flag.
     const longPast = new Date(Date.now() - 2 * 60 * 60 * 1000);
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach.email, longPast);
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach.email, longPast);
 
     await loginAsUser(page, 'student', { navigate: false });
 
@@ -193,7 +232,7 @@ test.describe('Video join flow — /session/video', () => {
     // first test in this file. coach2 (a distinct fixture from `coach`,
     // used by every other test here) avoids colliding with that first
     // test's own real-time SessionBooking exclusion-constraint window.
-    const sessionId = await createSessionAtRealInstant(CREDS.student.email, CREDS.coach2.email, new Date());
+    const sessionId = await createTrackedSession(CREDS.student.email, CREDS.coach2.email, new Date());
 
     const studentContext = await browser.newContext();
     const coachContext = await browser.newContext();
