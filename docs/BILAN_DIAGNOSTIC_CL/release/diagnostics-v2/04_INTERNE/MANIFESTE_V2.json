@@ -1,7 +1,7 @@
 {
   "schema": "manifeste_release/2.0",
   "release_version": "diagnostics-v2",
-  "source_git_head": "fc3a47273732c6556bb2668601c0c50ef09b5ae0",
+  "source_git_head": "fa85575a9ddf07e1e4c66501d092814d7b6e29f2",
   "regle": "Tout fichier de release/diagnostics-v2 est décrit ici, sauf le manifeste lui-même et sa projection lisible. Chaque artefact porte un artifact_id et un chemin uniques ; la construction échoue sur un doublon de l'un ou de l'autre.",
   "source_officielle_d_envoi": "release/diagnostics-v2/01_LIVRETS_CANDIDAT",
   "profils": {
@@ -27,14 +27,14 @@
     {
       "artifact_id": "guide.00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
       "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
-      "sha256": "d0d351c7f0c27623f8c4272d49052d4a4f51a6a6b0a968a6fdd3a6c06f93863e",
+      "sha256": "c0ab64f6bb50e1d009e4dac32bf2bceb6217e99fc72a21d0bda60dd6bed5399f",
       "octets": 2506,
       "role": "guide"
     },
     {
       "artifact_id": "guide.00_GUIDE/GUIDE_OPERATEUR.pdf",
       "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
-      "sha256": "a9d69a98eee7c17436f0f49a0a415e5da003a353726428b3816b5c6119cd84af",
+      "sha256": "01a382013645ad302b30abfef9f7f1ba2aadd02603467a7326531b6e222576ac",
       "octets": 6443,
       "role": "guide"
     },
@@ -55,7 +55,7 @@
     {
       "artifact_id": "guide.00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
-      "sha256": "141865acc1c041b311e284aa0b8b86009bba569ee462d01a8c118389ec069cce",
+      "sha256": "7c469c407ad068cbd66f50b74c10bca45f9eddc210a869f6297607c4599163d9",
       "octets": 2852,
       "role": "guide"
     },
@@ -69,7 +69,7 @@
     {
       "artifact_id": "guide.00_GUIDE/MATRICE_PROFILS.pdf",
       "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
-      "sha256": "c8b147e47108b49545b699f4a60d5f19e424333b56d004725b5033fee2e0e4c6",
+      "sha256": "fbcbd26a06aa5a88e444cf4a9e1cf56155c1fb8536c53e0aa5b0bcb953be47f2",
       "octets": 4945,
       "role": "guide"
     },
@@ -2513,7 +2513,7 @@
     {
       "artifact_id": "interne.04_INTERNE/DISTRIBUTION_MATRIX.csv",
       "path": "release/diagnostics-v2/04_INTERNE/DISTRIBUTION_MATRIX.csv",
-      "sha256": "3c3c3d529b57333cab2cf38fc962b1fbdac9a2f4d1a4118775c15828259a829a",
+      "sha256": "97d8ad6b1a7bda2fb9cc31d62d08e8829a0f0722e4a77a062571bdfbffa8c05a",
       "octets": 10715,
       "role": "interne"
     },
@@ -2527,8 +2527,8 @@
     {
       "artifact_id": "interne.04_INTERNE/STUDENT_PACK_MATRIX.csv",
       "path": "release/diagnostics-v2/04_INTERNE/STUDENT_PACK_MATRIX.csv",
-      "sha256": "48aa0157870c96fab49651690f9f8f60a55783b7c732d61cbb45d5fd740b8ec9",
-      "octets": 76110,
+      "sha256": "3a4a2cc198c340ea9e106840d25f69b2f9bbaef1ad05847092daf76454933783",
+      "octets": 3556116,
       "role": "interne"
     }
   ],

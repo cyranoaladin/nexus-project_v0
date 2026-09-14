@@ -1,19 +1,19 @@
 # Manifeste — diagnostics-v2
 
-Commit source : `fc3a47273732c6556bb2668601c0c50ef09b5ae0`
+Commit source : `fa85575a9ddf07e1e4c66501d092814d7b6e29f2`
 
 Source officielle d'envoi : `release/diagnostics-v2/01_LIVRETS_CANDIDAT`
 
 | Rôle | Fichier | Profil | Matière | Variante | SHA-256 |
 |---|---|---|---|---|---|
 | guide | `COUVERTURE_REGLEMENTAIRE.csv` | — | — | — | `43f41d069b71dc34…` |
-| guide | `COUVERTURE_REGLEMENTAIRE.pdf` | — | — | — | `d0d351c7f0c27623…` |
-| guide | `GUIDE_OPERATEUR.pdf` | — | — | — | `a9d69a98eee7c174…` |
+| guide | `COUVERTURE_REGLEMENTAIRE.pdf` | — | — | — | `c0ab64f6bb50e1d0…` |
+| guide | `GUIDE_OPERATEUR.pdf` | — | — | — | `01a382013645ad30…` |
 | guide | `GUIDE_OPERATEUR.txt` | — | — | — | `22f8b14bd83dd660…` |
 | guide | `MATRICE_EPREUVES_OFFICIELLES.csv` | — | — | — | `90140d57151e68c0…` |
-| guide | `MATRICE_EPREUVES_OFFICIELLES.pdf` | — | — | — | `141865acc1c041b3…` |
+| guide | `MATRICE_EPREUVES_OFFICIELLES.pdf` | — | — | — | `7c469c407ad068cb…` |
 | guide | `MATRICE_PROFILS.csv` | — | — | — | `9286a2774126bdd0…` |
-| guide | `MATRICE_PROFILS.pdf` | — | — | — | `c8b147e47108b495…` |
+| guide | `MATRICE_PROFILS.pdf` | — | — | — | `fbcbd26a06aa5a88…` |
 | guide | `PLANCHE_COUVERTURES_CANDIDAT.png` | — | — | — | `898482cb17b15c00…` |
 | guide | `PLANCHE_COUVERTURES_COACH.png` | — | — | — | `878e2a9a2059288d…` |
 | guide | `PLANCHE_PAGES_INTERIEURES.png` | — | — | — | `ad887a172e58ba94…` |
@@ -199,6 +199,6 @@ Source officielle d'envoi : `release/diagnostics-v2/01_LIVRETS_CANDIDAT`
 | interne | `rendu_modele.py` | — | — | — | `d63e81dc60e903ff…` |
 | interne | `test_NSI-1-PROG-01.py` | — | — | — | `5c149dc3bbdd0419…` |
 | interne | `test_NSI-T-PROG-02.py` | — | — | — | `121934da6c50bcea…` |
-| interne | `DISTRIBUTION_MATRIX.csv` | — | — | — | `3c3c3d529b57333c…` |
+| interne | `DISTRIBUTION_MATRIX.csv` | — | — | — | `97d8ad6b1a7bda2f…` |
 | interne | `PRINT_MATRIX.csv` | — | — | — | `81311b03bb68b795…` |
-| interne | `STUDENT_PACK_MATRIX.csv` | — | — | — | `48aa0157870c96fa…` |
+| interne | `STUDENT_PACK_MATRIX.csv` | — | — | — | `3a4a2cc198c340ea…` |
