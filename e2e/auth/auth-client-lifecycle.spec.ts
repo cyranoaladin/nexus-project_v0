@@ -2,6 +2,7 @@ import { expect, test, type Page, type Route } from '@playwright/test';
 import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
+import { ControlledSessionRouteBarrier } from '../helpers/session-route-barrier';
 
 async function requestProviderRefresh(page: Page) {
   await page.evaluate(() => {
@@ -153,37 +154,58 @@ test('the real session provider still observes revocation on focus after recover
   await loginAsUser(page, 'admin');
   await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
   await page.waitForLoadState('networkidle');
-  let abortNextRefresh = true;
-  let holdRecovery = true;
-  const pendingRecovery: Route[] = [];
-  await page.route('**/api/auth/session', async route => {
-    if (abortNextRefresh) {
-      abortNextRefresh = false;
-      await route.abort('failed');
-    } else if (holdRecovery) pendingRecovery.push(route);
-    else await route.continue();
+
+  const barrier = await ControlledSessionRouteBarrier.install(page, {
+    abortCount: 1,
+    holdSubsequent: true,
   });
+
   const failed = page.waitForEvent('requestfailed', request => new URL(request.url()).pathname === '/api/auth/session');
   const recovery = page.waitForResponse(response => new URL(response.url()).pathname === '/api/auth/session' && response.status() === 200);
-  // The storage branch does not rebroadcast its failed response. A focus
-  // refresh would schedule another provider fetch that could mask a broken
-  // hook recovery by independently restoring the canonical cache.
-  await requestProviderRefresh(page);
-  await failed;
-  await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
-  await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'RECOVERING');
-  holdRecovery = false;
-  await Promise.all(pendingRecovery.map(route => route.continue()));
-  await recovery;
-  await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
-  // Real server revocation, not a mocked auth response or a deleted browser cookie.
-  const revoked = await page.evaluate(async () => (await fetch('/api/auth/sessions/revoke', { method: 'POST' })).status);
-  expect(revoked).toBe(200);
-  const refresh = page.waitForResponse(response => new URL(response.url()).pathname === '/api/auth/session');
-  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
-  await refresh;
-  await expect(page).toHaveURL(/\/auth\/signin/);
-  await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).not.toBeVisible();
+
+  try {
+    // The storage branch does not rebroadcast its failed response. A focus
+    // refresh would schedule another provider fetch that could mask a broken
+    // hook recovery by independently restoring the canonical cache.
+    await requestProviderRefresh(page);
+    await failed;
+    await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
+    await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'RECOVERING');
+
+    // Drain all intercepted recovery requests deterministically:
+    await barrier.drain();
+    await recovery;
+    await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
+
+    // Detach barrier so revocation and focus run against the real unmodified network path
+    await barrier.detach();
+
+    // Assert pre-revocation state: UI boundary is AUTHENTICATED
+    const boundary = page.locator('[data-session-observation]');
+    await expect(boundary).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+
+    // Perform a real canonical server-session read using a channel that does not re-enter the page harness
+    const canonical = await page.request.get('/api/auth/session');
+    expect(canonical.ok()).toBe(true);
+    const sessionData = await canonical.json();
+    expect(sessionData?.user?.id).toBeTruthy();
+
+    // Assert outstanding intercepted session requests == 0
+    barrier.assertIdle();
+
+    // Real server revocation, not a mocked auth response or a deleted browser cookie.
+    const revoked = await page.evaluate(async () => (await fetch('/api/auth/sessions/revoke', { method: 'POST' })).status);
+    expect(revoked).toBe(200);
+
+    const refresh = page.waitForResponse(response => new URL(response.url()).pathname === '/api/auth/session');
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+    await refresh;
+
+    await expect(page).toHaveURL(/\/auth\/signin/);
+    await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).not.toBeVisible();
+  } finally {
+    await barrier.detach({ drainFirst: false });
+  }
 });
 
 const protectedSurfaces = [
@@ -206,13 +228,10 @@ for (const [role, path] of protectedSurfaces) {
     expect(canonical.ok()).toBe(true);
     const identity = await canonical.json();
     expect(identity.user.id).toBeTruthy();
-    let abortOne = true;
-    let held = true;
-    const pending: Route[] = [];
-    await page.route('**/api/auth/session', async route => {
-      if (abortOne) { abortOne = false; await route.abort('failed'); }
-      else if (held) pending.push(route);
-      else await route.continue();
+
+    const barrier = await ControlledSessionRouteBarrier.install(page, {
+      abortCount: 1,
+      holdSubsequent: true,
     });
     const failed = page.waitForEvent('requestfailed', request => new URL(request.url()).pathname === '/api/auth/session');
     try {
@@ -222,13 +241,13 @@ for (const [role, path] of protectedSurfaces) {
       expect(page.url()).toBe(original);
       const stillValid = await page.request.get('/api/auth/session');
       expect((await stillValid.json()).user.id).toBe(identity.user.id);
-      held = false;
-      await Promise.all(pending.map(route => route.continue()));
+
+      await barrier.drain();
       await expect(boundary).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
       expect(page.url()).toBe(original);
+      barrier.assertIdle();
     } finally {
-      held = false;
-      await page.unrouteAll({ behavior: 'ignoreErrors' });
+      await barrier.detach({ drainFirst: false });
     }
   });
 }
@@ -249,16 +268,13 @@ test(`ten seconds of unavailable verification preserve the modal draft through $
   });
   let unavailable = true;
   let firstRefresh = true;
-  const pending: Route[] = [];
-  await page.route('**/api/auth/session', async route => {
-    if (unavailable && (recovery === 'explicit retry' || firstRefresh)) {
-      firstRefresh = false;
-      await route.abort('failed');
-    } else if (unavailable) pending.push(route);
-    else await route.continue();
+  const barrier = await ControlledSessionRouteBarrier.install(page, {
+    shouldAbort: () => unavailable && (recovery === 'explicit retry' || firstRefresh),
+    shouldHold: () => unavailable,
   });
   try {
     await requestProviderRefresh(page);
+    firstRefresh = false;
     await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'UNAVAILABLE', { timeout: 15_000 });
     expect(page.url()).toBe(original);
     // Recovery controls must remain reachable inside the focus-trapped dialog.
@@ -273,10 +289,12 @@ test(`ten seconds of unavailable verification preserve the modal draft through $
     expect(mutations).toEqual([]);
     unavailable = false;
     if (recovery === 'explicit retry') {
+      barrier.release();
       await dialog.getByRole('button', { name: 'Réessayer la vérification', exact: true }).click();
+      await barrier.drain();
     } else {
-      expect(pending.length).toBeGreaterThan(0);
-      await Promise.all(pending.map(route => route.continue()));
+      expect(barrier.held).toBeGreaterThan(0);
+      await barrier.drain();
     }
     await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
     await expect(draft).toHaveValue('Synthetic unsaved draft');
@@ -284,7 +302,8 @@ test(`ten seconds of unavailable verification preserve the modal draft through $
     await expect(dialog.getByRole('button', { name: 'Enregistrer', exact: true })).toBeEnabled();
     expect(page.url()).toBe(original);
     expect(mutations).toEqual([]);
-  } finally { await page.unrouteAll({ behavior: 'ignoreErrors' }); }
+    barrier.assertIdle();
+  } finally { await barrier.detach({ drainFirst: false }); }
 });
 }
 
