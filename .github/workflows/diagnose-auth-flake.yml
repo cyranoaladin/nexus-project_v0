@@ -83,6 +83,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
+      - name: Prepare isolated document storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          document_storage_root="$RUNNER_TEMP/document-storage"
+          install -d -m 0700 -- "$document_storage_root"
+          canonical_storage_root="$(realpath -- "$document_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'Document storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
       - name: Prepare ARIA RAG E2E fixture manifest
         shell: bash
         run: |
