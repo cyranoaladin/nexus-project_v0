@@ -53,6 +53,9 @@ CE QU'ON IMPRIME
 
   03_IMPRESSION/                  les livrets assemblés en catalogues complets de consultation
                                   et d'impression opérateur (OPERATOR_PRINT_CATALOGUE_IS_EXACT_CANDIDATE_PACK=NO).
+                                  Les signatures logiques incluent le dossier d'entrée en tête
+                                  (OPERATOR_SIGNATURES_INCLUDE_ENTRY_DOSSIER=YES) et excluent les pages
+                                  intercalaires éditoriales (OPERATOR_CATALOGUE_SIGNATURE_EXCLUDES_EDITORIAL_SEPARATORS=YES).
                                   Pour imprimer le pack sur-mesure d'un candidat réel, utiliser
                                   exclusivement scripts/pack_candidat.py.
 
