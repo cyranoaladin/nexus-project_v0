@@ -60,6 +60,12 @@ const exactPlaceholders = new Set([
 // synthetic test/example assignments. A value or path change invalidates the
 // exception; potential secrets never need to be copied into this scanner.
 const allowedAssignmentDigests = new Set([
+  // .github/workflows/diagnose-auth-flake.yml — same disposable E2E build/CI
+  // placeholders already allowlisted for ci.yml's e2e-auth job, reviewed
+  // again for this temporary flake-diagnostic workflow (delete together).
+  'f58c50514cb6cc8715bf74eb094b5fb14ffe7876b9d84f8d9baae0970d681384',
+  '9af037a0527909060a8b8c208484b9c6f2bd0048d1c610f70bf96cc0695635f8',
+  '7b538acd1fd4350edf6edb1b56356b303d97bae5937fd5bb4ac49b85508dbd3c',
   // scripts/demo-utica-env-guard.sh — local-only placeholder secrets for the
   // UTICA demo standalone process, only ever exported after
   // demo_utica_refuse_inherited_env() has proven the calling shell holds no
@@ -181,6 +187,10 @@ const allowedAssignmentDigests = new Set([
   'df82f260a2b299605cd973738cfc6701db94ce1c35acfb39f9e73f86ff0e7511', // coach2Password
 ]);
 const allowedDatabaseDigests = new Set([
+  // .github/workflows/diagnose-auth-flake.yml — same disposable E2E Postgres
+  // placeholder already allowlisted for ci.yml's e2e-auth job, reviewed
+  // again for this temporary flake-diagnostic workflow (delete together).
+  'f0b3497abf859c4d5f9597d779a532cf977ae06b6900e7041ed4df51c8372e54',
   '48bc2617c350f2a1caae494ea38af3a2c258d1b1479334ff6b804030c0db1d9e',
   '5a13e858d4f6e224c31cfb093a14c09e675ff7fd4902207d699675a5f390622b',
   '8074d859e15119c0ed754cdfaea1198a93858a8556617fa8eb394e569cd05612',
