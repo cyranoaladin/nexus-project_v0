@@ -177,8 +177,15 @@ test('the real session provider still observes revocation on focus after recover
     await recovery;
     await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
 
-    // Detach barrier so revocation and focus run against the real unmodified network path
-    await barrier.detach();
+    // Close the barrier through its single shutdown authority so revocation and
+    // focus run against the real unmodified network path. closeAndDrain proves
+    // every intercepted session request reached a terminal state, tears down the
+    // interceptor before the accounting listeners, and re-checks quiescence
+    // afterwards — so no session response can land after the revoke below.
+    const shutdown = await barrier.closeAndDrain();
+    expect(shutdown.state).toBe('CLOSED');
+    expect(shutdown.outstanding).toBe(0);
+    expect(shutdown.started).toBe(shutdown.finished + shutdown.failed);
 
     // Assert pre-revocation state: UI boundary is AUTHENTICATED
     const boundary = page.locator('[data-session-observation]');
