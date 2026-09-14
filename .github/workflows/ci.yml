@@ -566,6 +566,7 @@ jobs:
             __tests__/integration/family-registration.real.test.ts \
             __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/integration/assignment-concurrency.real.test.ts \
+            __tests__/integration/session-video-join-state-race.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure

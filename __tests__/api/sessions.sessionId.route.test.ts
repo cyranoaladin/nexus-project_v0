@@ -13,7 +13,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     sessionBooking: {
       findFirst: jest.fn(),
-      update: jest.fn(),
+      updateMany: jest.fn(),
     },
   },
 }));
@@ -66,6 +66,7 @@ describe.each([
     (auth as jest.Mock).mockResolvedValue(baseSession);
     (guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
   });
 
   afterEach(() => {
@@ -124,7 +125,7 @@ describe.each([
 
     expect(response.status).toBe(410);
     expect(body.error).toContain('annulée');
-    expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
   });
 
   it('rejects an already-COMPLETED booking regardless of the time window', async () => {
@@ -231,7 +232,7 @@ describe('GET /api/sessions/[sessionId] — read-only, never mutates', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
     expect(body.status).toBe(SessionStatus.SCHEDULED);
   });
 
@@ -244,7 +245,7 @@ describe('GET /api/sessions/[sessionId] — read-only, never mutates', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
     expect(body.status).toBe(SessionStatus.IN_PROGRESS);
   });
 });
@@ -261,16 +262,20 @@ describe('POST /api/sessions/[sessionId] — explicit join, mutates', () => {
     jest.useRealTimers();
   });
 
-  it('marks a SCHEDULED booking IN_PROGRESS on join', async () => {
+  it('marks a SCHEDULED booking IN_PROGRESS on join via an atomic conditional update', async () => {
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
-    (prisma.sessionBooking.update as jest.Mock).mockResolvedValue({});
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
 
     const response = await POST(makeRequest() as any, params());
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(prisma.sessionBooking.update).toHaveBeenCalledWith({
-      where: { id: 'session-1' },
+    // The WHERE clause repeats status: SCHEDULED — this is the TOCTOU guard
+    // itself: the transition can only ever apply to a row that is STILL
+    // SCHEDULED at the instant this statement executes, not merely at the
+    // instant it was read above.
+    expect(prisma.sessionBooking.updateMany).toHaveBeenCalledWith({
+      where: { id: 'session-1', status: SessionStatus.SCHEDULED },
       data: { status: SessionStatus.IN_PROGRESS },
     });
     expect(body.status).toBe(SessionStatus.IN_PROGRESS);
@@ -284,6 +289,32 @@ describe('POST /api/sessions/[sessionId] — explicit join, mutates', () => {
     const response = await POST(makeRequest() as any, params());
 
     expect(response.status).toBe(200);
-    expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('loses the race to a concurrent CANCEL (updateMany matches 0 rows) and re-resolves to the real, current, terminal state instead of forcing IN_PROGRESS', async () => {
+    (prisma.sessionBooking.findFirst as jest.Mock)
+      .mockResolvedValueOnce(buildBooking({ status: SessionStatus.SCHEDULED }))
+      .mockResolvedValueOnce(buildBooking({ status: SessionStatus.CANCELLED }));
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+
+    const response = await POST(makeRequest() as any, params());
+    const body = await response.json();
+
+    expect(response.status).toBe(410);
+    expect(body.error).toContain('annulée');
+  });
+
+  it('loses the race to a concurrent join that already won (updateMany matches 0 rows, re-resolve finds IN_PROGRESS) and returns success idempotently', async () => {
+    (prisma.sessionBooking.findFirst as jest.Mock)
+      .mockResolvedValueOnce(buildBooking({ status: SessionStatus.SCHEDULED }))
+      .mockResolvedValueOnce(buildBooking({ status: SessionStatus.IN_PROGRESS }));
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+
+    const response = await POST(makeRequest() as any, params());
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.status).toBe(SessionStatus.IN_PROGRESS);
   });
 });

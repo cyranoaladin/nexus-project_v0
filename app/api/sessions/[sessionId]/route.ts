@@ -198,10 +198,34 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     let displayStatus = resolved.booking.status;
     if (resolved.booking.status === SessionStatus.SCHEDULED) {
-      await prisma.sessionBooking.update({
-        where: { id: sessionId },
+      // TOCTOU guard: `resolveJoinableBooking` above only PROVES the booking
+      // was SCHEDULED at read time. Without a conditional write, a CANCEL or
+      // COMPLETE committing in the gap between that read and this write would
+      // be silently overwritten back to IN_PROGRESS by an unconditional
+      // update — resurrecting a terminal booking. `updateMany`'s WHERE
+      // clause makes the SCHEDULED->IN_PROGRESS transition a single atomic
+      // compare-and-swap at the database level: it can only ever affect a
+      // row that is STILL SCHEDULED at the instant Postgres executes it.
+      const transition = await prisma.sessionBooking.updateMany({
+        where: { id: sessionId, status: SessionStatus.SCHEDULED },
         data: { status: SessionStatus.IN_PROGRESS },
       });
+
+      if (transition.count === 0) {
+        // Lost the race: something else changed the booking's status between
+        // our read and this write. Re-resolve from scratch rather than
+        // trusting anything we read earlier — this reuses the exact same
+        // eligibility/messaging rules as GET (CANCELLED -> 410 "annulée",
+        // COMPLETED -> 410 "terminée"), and if the booking is already
+        // IN_PROGRESS (a concurrent join won first), that is a valid,
+        // idempotent outcome, not an error.
+        const reResolved = await resolveJoinableBooking(sessionId, session!.user.id);
+        if (!reResolved.ok) return reResolved.response;
+        return NextResponse.json(
+          serializeBooking(reResolved.booking, reResolved.sessionStart, reResolved.booking.status)
+        );
+      }
+
       displayStatus = SessionStatus.IN_PROGRESS;
     }
 
