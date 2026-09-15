@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
@@ -86,7 +87,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   afterAll(async () => {
-    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await cleanupDisposableTestFixture(pool, { userIds: [staffUserId] });
     await pool.end();
   });
 
@@ -432,7 +433,7 @@ describe('notifyParentWorkshopReminder — real parent notification, direct (P7c
   });
 
   afterAll(async () => {
-    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await cleanupDisposableTestFixture(pool, { userIds: [staffUserId] });
     await pool.end();
   });
 

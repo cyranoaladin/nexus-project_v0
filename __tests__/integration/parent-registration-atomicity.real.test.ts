@@ -22,6 +22,7 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }))
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { NextRequest } from 'next/server'
 
 import { POST as registerBilan } from '@/app/api/bilan-gratuit/route'
@@ -101,7 +102,9 @@ async function cleanupRows() {
     "WHERE u.\"firstName\" LIKE 'P0DAtomic%')",
   )
   await prisma.familyRequest.deleteMany({ where: { contactFirstName: { startsWith: PREFIX } } })
-  await prisma.user.deleteMany({ where: { firstName: { startsWith: PREFIX } } })
+  const fixtureUserIds = (await prisma.user.findMany({ where: { firstName: { startsWith: PREFIX } }, select: { id: true } }))
+    .map((user) => user.id)
+  if (fixtureUserIds.length > 0) await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds })
 }
 
 async function counts() {
@@ -175,7 +178,7 @@ describe('P0-D Parent registration atomicity on real PostgreSQL', () => {
   afterAll(async () => {
     await cleanupRows()
     await removeFailureInjection()
-    if (staffUserId) await prisma.user.deleteMany({ where: { id: staffUserId } })
+    if (staffUserId) await cleanupDisposableTestFixture(prisma, { userIds: [staffUserId] })
     await prisma.$disconnect()
   })
 
