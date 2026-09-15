@@ -201,14 +201,47 @@ def gates() -> dict:
     }
 
 
+#: Les champs qui changent d'un commit à l'autre sans que rien n'ait bougé dans l'état du
+#: dépôt : l'empreinte du commit courant, celle de son parent, la liste des chemins
+#: modifiés. Ils sont consignés comme preuve datée, mais les comparer ferait dériver le
+#: fichier à chaque commit — la release étant commitée après les sources, l'empreinte du
+#: HEAD a nécessairement changé entre l'écriture du fichier et sa vérification.
+VOLATILS = {"head", "parent", "chemins_sales", "manifeste_source_git_head",
+            "arbre_de_travail_propre"}
+
+
+def stable(d: dict) -> dict:
+    """Le verdict, débarrassé de ce qui ne fait que dater sa production."""
+    return {
+        "GO_LIVE_READY": d["GO_LIVE_READY"],
+        "gates_en_echec": d["gates_en_echec"],
+        "findings": d["findings"],
+        "compteurs": d["compteurs"],
+        "gates": [{"gate": g["gate"], "titre": g["titre"], "status": g["status"],
+                   "preuves": {k: v for k, v in g["preuves"].items()
+                               if k not in VOLATILS}}
+                  for g in d["gates"]],
+    }
+
+
 def main() -> int:
     d = gates()
     cible = AUDIT / "GO_LIVE_GATE.json"
     rendu = json.dumps(d, ensure_ascii=False, indent=1) + "\n"
     if "--verifier" in sys.argv:
-        actuel = cible.read_text(encoding="utf-8") if cible.exists() else ""
-        if actuel != rendu:
+        if not cible.exists():
+            print("GO_LIVE_GATE.json absent", file=sys.stderr)
+            return 1
+        versionne = json.loads(cible.read_text(encoding="utf-8"))
+        if stable(versionne) != stable(d):
             print("GO_LIVE_GATE.json a dérivé de l'état du dépôt", file=sys.stderr)
+            for g_v, g_d in zip(versionne["gates"], d["gates"]):
+                if stable({"GO_LIVE_READY": "", "gates_en_echec": [], "findings": {},
+                           "compteurs": {}, "gates": [g_v]})["gates"] != \
+                   stable({"GO_LIVE_READY": "", "gates_en_echec": [], "findings": {},
+                           "compteurs": {}, "gates": [g_d]})["gates"]:
+                    print(f"  {g_v['gate']} : {g_v['status']} → {g_d['status']}",
+                          file=sys.stderr)
             return 1
         print("GO_LIVE_GATE.json conforme")
         return 0

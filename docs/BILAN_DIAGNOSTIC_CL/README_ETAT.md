@@ -178,6 +178,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_francais.py` | 15 |
 | `tests/test_gate_profil.py` | 12 |
 | `tests/test_go_duree.py` | 6 |
+| `tests/test_go_live_gate.py` | 6 |
 | `tests/test_hg_tle_documents.py` | 8 |
 | `tests/test_intitules_versionnes.py` | 7 |
 | `tests/test_maquette.py` | 36 |
@@ -204,7 +205,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **807** |
+| **total** | **813** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -242,6 +243,7 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:145` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_espace_candidats.py:39` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_export_deterministe.py:67` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_go_live_gate.py:107` | arbre de travail en cours de modification — cette gate est vérifiée dans le clone propre, où l'arbre est nécessairement propre | GATE 01 du verdict de mise en service : la source de vérité est propre et le HEAD est celui qu'on croit | non — contrôle de provenance, pas de contenu d'instrument | sans effet sur la diffusabilité : la gate est rejouée dans le clone propre de `audit/CLEAN_CLONE_ACCEPTANCE.json`, où l'arbre ne peut pas être sale, et le fichier `audit/GO_LIVE_GATE.json` porte son verdict. L'ignorer pendant qu'on travaille évite qu'un fichier ouvert dans l'éditeur fasse échouer la suite |
 | `pytest.skip` | `tests/test_pack_candidat.py:391` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:640` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:711` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |

@@ -165,6 +165,28 @@ def bloc_tests() -> str:
 #: échouer la production du bloc : un test qui ne s'exécute pas doit dire pourquoi, ce
 #: qu'il couvrirait, et ce que son absence laisse non prouvé.
 SKIPS_ANNOTES = {
+    "arbre de travail en cours de modification — cette gate est vérifiée dans le clone "
+    "propre, où l'arbre est nécessairement propre": {
+        "fonctionnalite": "GATE 01 du verdict de mise en service : la source de vérité est "
+                          "propre et le HEAD est celui qu'on croit",
+        "passation": "non — contrôle de provenance, pas de contenu d'instrument",
+        "statut": "sans effet sur la diffusabilité : la gate est rejouée dans le clone "
+                  "propre de `audit/CLEAN_CLONE_ACCEPTANCE.json`, où l'arbre ne peut pas "
+                  "être sale, et le fichier `audit/GO_LIVE_GATE.json` porte son verdict. "
+                  "L'ignorer pendant qu'on travaille évite qu'un fichier ouvert dans "
+                  "l'éditeur fasse échouer la suite",
+    },
+    "{len(items)} QCM : sous {ASSEZ_DE_QUESTIONS}, la part modale ne mesure rien — le "
+    "contrôle de collection couvre ces items": {
+        "fonctionnalite": "répartition de la position des bonnes réponses, par instrument",
+        "passation": "non — mesure de la collection, pas d'une question",
+        "statut": "sans effet : TC-HG porte trois QCM et FR-POS six. Sous dix questions, "
+                  "la part modale vaut au mieux un tiers et au pire la totalité sans "
+                  "qu'aucun biais soit en cause. Ces items restent comptés par "
+                  "`test_la_collection_ne_privilegie_aucune_position`, qui porte sur les "
+                  "267 QCM, et leur position est vérifiée une par une par "
+                  "`test_la_position_est_derivee_de_la_banque_donc_reproductible`",
+    },
     "rendu.py absent du répertoire de travail": {
         "fonctionnalite": "correction des tâches sur machine du bloc C de EDS-NSI (§ 7.8)",
         "passation": "oui — le fichier est écrit par le candidat pendant l'épreuve, il "

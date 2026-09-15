@@ -539,11 +539,33 @@ def produits() -> dict[Path, str]:
     return out
 
 
+def hors_release(contenu: str, chemin: Path) -> str:
+    """L'inventaire privé de ses entrées de release.
+
+    L'inventaire des fichiers porte l'empreinte de chaque fichier versionné, release
+    comprise. Or la release est commitée **après** les sources, dans un commit qui ne
+    touche qu'elle : entre les deux, l'inventaire versionné ne peut pas décrire les
+    empreintes qu'il décrira une fois la release reconstruite. C'est déjà le raisonnement
+    que tient `tests/test_audit_inventory.py`, qui compare les entrées hors release et
+    laisse MANIFESTE_V2 prouver celles de la release. Le vérificateur l'ignorait, et
+    signalait une dérive à chaque clôture.
+    """
+    if chemin.name != "AUDIT_FILE_INVENTORY.json":
+        return contenu
+    d = json.loads(contenu)
+    d["fichiers"] = [e for e in d["fichiers"] if not e["path"].startswith("release/")]
+    d.pop("par_categorie", None)
+    return json.dumps(d, ensure_ascii=False, sort_keys=True)
+
+
 def main(argv: list[str]) -> int:
     derive = []
     for chemin, contenu in produits().items():
         if "--verifier" in argv:
-            if not chemin.exists() or chemin.read_text(encoding="utf-8") != contenu:
+            if not chemin.exists():
+                derive.append(chemin)
+            elif hors_release(chemin.read_text(encoding="utf-8"), chemin) != \
+                    hors_release(contenu, chemin):
                 derive.append(chemin)
         else:
             chemin.parent.mkdir(parents=True, exist_ok=True)

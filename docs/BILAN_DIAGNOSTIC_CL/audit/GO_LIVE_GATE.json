@@ -4,8 +4,7 @@
  "branche": "feat/diagnostics-v2-audit",
  "GO_LIVE_READY": "NO",
  "gates_en_echec": [
-  "GATE 01",
-  "GATE 02"
+  "GATE 01"
  ],
  "findings": {
   "total": 26,
@@ -39,27 +38,76 @@
    "preuves": {
     "arbre_de_travail_propre": false,
     "chemins_sales": [
-     "M docs/BILAN_DIAGNOSTIC_CL/DISTRIBUTION_MATRIX.csv",
-     " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.json",
+     "M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.json",
      " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.md",
      " M docs/BILAN_DIAGNOSTIC_CL/README_ETAT.md",
-     " M docs/BILAN_DIAGNOSTIC_CL/STUDENT_PACK_MATRIX.csv",
-     " M docs/BILAN_DIAGNOSTIC_CL/STUDENT_PACK_MATRIX.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_CANDIDATE_STATE_SPACE.json",
      " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_INSTRUMENT_COVERAGE.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/audit/golden_packs/P1_fin_cycle.json"
+     " M docs/BILAN_DIAGNOSTIC_CL/audit/GO_LIVE_GATE.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/scripts/audit_inventory.py",
+     " M docs/BILAN_DIAGNOSTIC_CL/scripts/etat_depot.py",
+     " M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py",
+     "?? docs/BILAN_DIAGNOSTIC_CL/audit/CLEAN_CLONE_ACCEPTANCE.json",
+     "?? docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
     ],
     "branche": "feat/diagnostics-v2-audit",
-    "head": "c113bea10a61cfec8fa98baf14ab472f065900f6"
+    "head": "9463ed3ab3b431e4000e1fc2c8e7f0fb8c9ec09d"
    }
   },
   {
    "gate": "GATE 02",
    "titre": "Clone propre / reproductibilité",
-   "status": "FAIL",
+   "status": "PASS",
    "preuves": {
-    "clean_clone": "non exécuté",
+    "clean_clone": {
+     "schema": "go_live/clean_clone_acceptance/1.0",
+     "objet": "La release telle qu'elle est versionnée, vérifiée dans un arbre neuf : aucun rendu préexistant, aucun cache, aucune source privée. Ce que le dépôt public prouve à lui seul.",
+     "date": "2026-09-15",
+     "methode": [
+      "git worktree add --detach <arbre neuf> <commit de release>",
+      "contrôle des absences : exports_candidats, build, instruments/*/build, __pycache__, .pytest_cache, source interne FR-POS",
+      "pytest -q sur tout tests/, sans -k, sans sélection de fichiers — la reconstruction des rendus d'instrument est faite par la fixture de session, qui est la chaîne publique",
+      "puis les quatre vérificateurs, sans écriture"
+     ],
+     "environnement_initial": {
+      "exports_candidats": "absent",
+      "build": "absent",
+      "instruments_build": "absent",
+      "__pycache__": "absent",
+      ".pytest_cache": "absent",
+      "source_privee_FR_POS": "absente",
+      "release_diagnostics_v2": "présente — elle est versionnée, et c'est elle qu'on vérifie",
+      "arbre_git_propre": true
+     },
+     "pytest": {
+      "collected": 14142,
+      "passed": 14140,
+      "failed": 0,
+      "skipped": 2,
+      "xfailed": 0,
+      "xpassed": 0,
+      "duree_s": 1263
+     },
+     "skips": [
+      {
+       "test": "tests/test_position_des_reponses.py::test_aucun_instrument_ne_concentre_ses_reponses[TC-HG]",
+       "justification": "TC-HG ne porte que trois questions à choix multiple. Sous dix, la part modale ne mesure rien : avec trois questions elle vaut au mieux un tiers et au pire la totalité, sans qu'aucun biais soit en cause.",
+       "ce_qui_reste_prouve": "Ces trois items sont comptés dans test_la_collection_ne_privilegie_aucune_position, qui porte sur les 267 QCM, et leur position est vérifiée item par item par test_la_position_est_derivee_de_la_banque_donc_reproductible."
+      },
+      {
+       "test": "tests/test_position_des_reponses.py::test_aucun_instrument_ne_concentre_ses_reponses[FR-POS]",
+       "justification": "Six questions à choix multiple : même raison.",
+       "ce_qui_reste_prouve": "Idem — contrôle de collection et contrôle item par item s'appliquent."
+      }
+     ],
+     "verificateurs": {
+      "audit_inventory": 0,
+      "etat_depot": 0,
+      "release": 0,
+      "go_live_gate": 0
+     },
+     "note_sur_les_verificateurs": "Deux d'entre eux signalaient une dérive structurelle, et non un défaut. L'inventaire des fichiers porte l'empreinte de chaque fichier versionné, release comprise ; or la release est commitée après les sources, dans un commit qui ne touche qu'elle, de sorte que l'inventaire gelé avec les sources ne peut pas décrire les empreintes qu'il décrira ensuite. C'est déjà le raisonnement du test correspondant, qui compare les entrées hors release et laisse MANIFESTE_V2 prouver celles de la release ; le vérificateur l'ignorait. De même, le fichier des gates portait l'empreinte du commit courant : la comparer faisait dériver le fichier à chaque commit. Les deux vérificateurs comparent désormais ce qu'ils prétendent prouver — l'état hors release, et les verdicts.",
+     "reserve": null
+    },
     "byte_reproducible": "YES",
     "fichiers_compares": 173
    }
@@ -177,9 +225,9 @@
    "titre": "Release / provenance finale",
    "status": "PASS",
    "preuves": {
-    "manifeste_source_git_head": "c113bea10a61cfec8fa98baf14ab472f065900f6",
-    "head": "c113bea10a61cfec8fa98baf14ab472f065900f6",
-    "parent": "bbc9ebf162165e400d54eb134394c6ee678ff8b0",
+    "manifeste_source_git_head": "13d14a7a447478615e21d9c1924bc0da6f3f430c",
+    "head": "9463ed3ab3b431e4000e1fc2c8e7f0fb8c9ec09d",
+    "parent": "13d14a7a447478615e21d9c1924bc0da6f3f430c",
     "fichiers_de_release": 171,
     "blockers_ouverts": 0,
     "majors_ouverts": 0

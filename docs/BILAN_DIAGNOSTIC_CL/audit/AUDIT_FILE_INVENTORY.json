@@ -2,7 +2,7 @@
   "schema": "nexus.audit.file_inventory",
   "produit_par": "scripts/audit_inventory.py",
   "racine": "docs/BILAN_DIAGNOSTIC_CL",
-  "total": 391,
+  "total": 392,
   "par_categorie": {
     "ASSEMBLY": 31,
     "AUDIT_FIXTURE": 48,
@@ -16,7 +16,7 @@
     "REFERENTIAL": 13,
     "SOURCE": 31,
     "TEMPLATE": 4,
-    "TEST": 51
+    "TEST": 52
   },
   "fichiers": [
     {
@@ -70,14 +70,14 @@
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "2777bb2bad767b38daa863acf3cb5d1be5fb67a52e89d64af18696f1cf4efd8d",
+      "sha256": "469c0b378db5db112a618ca357c4fa425a6b22a3f45cf6998d929eb0159cbd40",
       "size": 109960,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "b2809b8930f3b561ae755ad3ee99c9f0f280e900697d09238d050980ea966be6",
+      "sha256": "0a613c9be4c7745abad857d58b9621f5863b18021c2a3944ae37daabf28d0ff9",
       "size": 5323,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -98,8 +98,8 @@
     },
     {
       "path": "README_ETAT.md",
-      "sha256": "3837a7722b1983641a225c2eaf6287acf43c12d1817a31743675314740fcddac",
-      "size": 157071,
+      "sha256": "72f00954864d512f5fe3d2781b9021651fd6ca821d5bd7419c78d946cdefb093",
+      "size": 157783,
       "category": "DOCUMENTATION",
       "role": "documentation gouvernante ou de conception"
     },
@@ -2149,14 +2149,14 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "387c0fc864d5fc947e98e89bb5d187f3eb31fa0efa846f1792fc76fa9dc6b66e",
+      "sha256": "9a6b01a025fb1d7034fc0d8964cc73a9857f131f276ada511859e5003d44e39a",
       "size": 112048,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "57c398f21000e7ce4595c21fdc9bd16044a278fd773c7ffe83d12abaa99631cf",
+      "sha256": "1419022dee318a080bdb5a84bd4a916b7e2fc754987997fc52d09663470432e6",
       "size": 24235,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
@@ -2184,8 +2184,8 @@
     },
     {
       "path": "scripts/audit_inventory.py",
-      "sha256": "57fb7e21ae59ae37780320613b65a39e4c54a796a63bffcc7f143e8404a1dab4",
-      "size": 33422,
+      "sha256": "f1296fd75b275ff8c099c61248ca12773d673129e6c41db53507926edb874f96",
+      "size": 34516,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2254,8 +2254,8 @@
     },
     {
       "path": "scripts/etat_depot.py",
-      "sha256": "db730b862aef12ae604b4c295dee28099e89afb1f6d45eba20b89dfb3ce40cee",
-      "size": 14927,
+      "sha256": "c934e35305df55461c0767aaf80b5b23ea37e18c530330e75e0ce5829bb96703",
+      "size": 16582,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2275,8 +2275,8 @@
     },
     {
       "path": "scripts/go_live_gate.py",
-      "sha256": "61662c8b2175c779d0ff542a03ae99ff122ef3785b71a3d7ca1c703111883312",
-      "size": 10052,
+      "sha256": "c5c6462cbdb8629b18ed2ee1fadeec89aa70c06f165e3462105399f59daf1da0",
+      "size": 11785,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2571,6 +2571,13 @@
       "path": "tests/test_go_duree.py",
       "sha256": "63db9a825beececf68df027e107d24200e9f95ad2b62f81c74b7b74d65ae4c3e",
       "size": 6390,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_go_live_gate.py",
+      "sha256": "7e84878e97ee91effc140ed515701abffeca8219c8b360bf36124ab2f434c736",
+      "size": 4793,
       "category": "TEST",
       "role": "test de non-régression"
     },

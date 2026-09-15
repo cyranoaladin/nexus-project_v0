@@ -15,7 +15,7 @@
     "decisions_anterieures": [
       {
         "fichier": "README_ETAT.md",
-        "ligne": 885
+        "ligne": 887
       },
       {
         "fichier": "instruments/MATH-EA/banque.json",
@@ -64,7 +64,7 @@
     ],
     "UNEXPLAINED_FUTURE_DATES": 0
   },
-  "commit_precedent": "c113bea10a61cfec8fa98baf14ab472f065900f6",
+  "commit_precedent": "9463ed3ab3b431e4000e1fc2c8e7f0fb8c9ec09d",
   "note_sur_le_commit": "« commit_precedent » est le dernier commit au moment du build. Le manifeste ne peut pas nommer le commit qui le contient — il est écrit avant lui. Ce qui fait foi n'est donc pas ce SHA mais les empreintes ci-dessous : elles décrivent exactement les fichiers mesurés, et se recalculent.",
   "produit_par": "scripts/release.py",
   "regle": "Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.",
