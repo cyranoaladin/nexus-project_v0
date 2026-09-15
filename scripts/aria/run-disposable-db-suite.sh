@@ -121,7 +121,11 @@ elif [[ "$lane" == 'backfills' ]]; then
   )
 fi
 
-pull_image_with_retry pgvector/pgvector:pg15
+# One reference feeds both the retry-wrapped pull and docker run. Pulling a
+# mutable tag and running a digest makes the retry useless: docker run would
+# fall back to its own implicit, unretried pull of a reference nothing warmed.
+ARIA_DISPOSABLE_DB_IMAGE="pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da" # pg15
+pull_image_with_retry "$ARIA_DISPOSABLE_DB_IMAGE"
 
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 CONTAINER_NAME="nexus-aria-real-${random_suffix}"
@@ -145,7 +149,7 @@ docker run --detach \
   --health-interval 1s \
   --health-timeout 3s \
   --health-retries 30 \
-  pgvector/pgvector:pg15 >/dev/null
+  "$ARIA_DISPOSABLE_DB_IMAGE" >/dev/null
 rm -f -- "$ENV_FILE"
 ENV_FILE=''
 

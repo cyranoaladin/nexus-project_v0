@@ -296,7 +296,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -312,7 +312,7 @@ jobs:
       # their cleanup and concurrency fixtures cannot affect another lane.
       # Every URL is still checked by the shared fail-closed database guard.
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
         ports:
           - 1025:1025
           - 8025:8025
@@ -503,7 +503,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
@@ -593,7 +593,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
@@ -671,7 +671,7 @@ jobs:
 
     services:
       postgres-e2e:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -684,7 +684,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis-e2e:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6380:6379
         options: >-
@@ -935,7 +935,7 @@ jobs:
 
     services:
       postgres-e2e:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -948,7 +948,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis-e2e:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6380:6379
         options: >-
@@ -957,7 +957,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
         ports:
           - 1025:1025
           - 8025:8025
@@ -1209,7 +1209,7 @@ jobs:
 
     services:
       postgres-e2e:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -1222,7 +1222,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis-e2e:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6380:6379
         options: >-
@@ -1231,7 +1231,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
         ports:
           - 1025:1025
           - 8025:8025
@@ -1615,7 +1615,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -1628,7 +1628,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
       redis:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6379:6379
         options: >-
@@ -2299,7 +2299,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

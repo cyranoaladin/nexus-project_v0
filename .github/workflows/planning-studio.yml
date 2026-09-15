@@ -111,7 +111,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
