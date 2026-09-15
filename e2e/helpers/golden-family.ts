@@ -2,7 +2,7 @@ import { cleanupDisposableTestFixture } from '../../__tests__/helpers/real-db-fi
 import type { Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { resetBrowserSession } from './auth';
+import { gotoSignInForm, resetBrowserSession } from './auth';
 import { assertDisposableE2eDatabase } from './disposable-database';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 import { sameOriginHeaders } from './same-origin';
@@ -196,7 +196,8 @@ export async function waitForSessionUserId(page: Page, expectedUserId: string, a
 export async function signInAs(page: Page, identifier: string, password: string, expectedUserId: string): Promise<void> {
   await resetDisposableE2ERateLimits();
   await resetBrowserSession(page);
-  await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+  // Observe the outcome rather than trusting the pre-check: see gotoSignInForm.
+  await gotoSignInForm(page);
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(identifier);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();

@@ -206,6 +206,44 @@ export async function waitForAuthenticatedSession(page: Page, expectedEmail: str
  * The architecture guard __tests__/architecture/e2e-browser-session-isolation.test.ts
  * makes this the only way to clear cookies under e2e/.
  */
+/**
+ * Navigate to the sign-in form and PROVE we landed on it.
+ *
+ * `resetBrowserSession` clears the cookie jar and confirms with the server
+ * that no session resolves. That check is necessary but not sufficient: it
+ * proves the state at the instant it ran, and a session refresh still on the
+ * wire from the previous role's document can land its Set-Cookie immediately
+ * afterwards. A real CI trace showed the whole race inside 34ms —
+ *
+ *   19:32:26.819  200  /api/auth/session   (server: no session)
+ *   19:32:26.853  307  /auth/signin        (server: you are admin)
+ *   19:32:26.875  200  /dashboard
+ *
+ * — so `/auth/signin` (`await auth()`) redirected to the previous role's
+ * dashboard and the sign-in textbox never appeared.
+ *
+ * No amount of pre-checking closes that window, because the check and the
+ * navigation cannot be atomic. So this observes the OUTCOME instead: if the
+ * navigation did not land on the form, the session was resurrected, and we
+ * clear and try again. Bounded, deterministic, and driven by what actually
+ * happened rather than by a proxy for it.
+ */
+export async function gotoSignInForm(page: Page, attempts = 3): Promise<void> {
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+        await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+        if (new URL(page.url()).pathname.startsWith('/auth/signin')) return;
+
+        // Redirected away: a straggler refresh re-issued the session cookie
+        // between the clear and this navigation. Dispose and clear again.
+        await resetBrowserSession(page);
+    }
+
+    throw new Error(
+        `gotoSignInForm: /auth/signin redirected to ${page.url()} on all ${attempts} attempts. ` +
+        'A previous role\'s session keeps being re-issued after the cookie jar is cleared.'
+    );
+}
+
 export async function resetBrowserSession(page: Page): Promise<void> {
     // Dispose the previous document FIRST. Auth.js re-issues the JWT cookie on
     // the client-side /api/auth/session refresh, so a refresh still in flight
@@ -274,7 +312,8 @@ export async function loginViaSigninForm(page: Page, userType: UserType) {
 
     await resetDisposableE2ERateLimits();
     await resetBrowserSession(page);
-    await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+    // Same race as signInAs: prove we landed on the form, do not assume it.
+    await gotoSignInForm(page);
     await page.waitForFunction(() => {
         const email = document.querySelector<HTMLInputElement>('#email');
         const password = document.querySelector<HTMLInputElement>('#password');
