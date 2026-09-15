@@ -12,6 +12,7 @@
  *
  *   DATABASE_URL=postgresql://... npm run test:db -- uncertain-pedagogical-delete-restrict
  */
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { PrismaClient, UserRole, GradeLevel, MathsLevel, AcademicTrack } from '@prisma/client';
 
 jest.mock('@/lib/prisma', () => {
@@ -69,9 +70,15 @@ afterAll(async () => {
   await realPrisma.eamProgress.deleteMany({ where: { userId: { startsWith: RUN_ID } } });
   await realPrisma.projectionHistory.deleteMany({ where: { student: { user: { id: { startsWith: RUN_ID } } } } });
   await realPrisma.survivalProgress.deleteMany({ where: { student: { user: { id: { startsWith: RUN_ID } } } } });
-  await realPrisma.student.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
-  await realPrisma.parentProfile.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
-  await realPrisma.user.deleteMany({ where: { id: { startsWith: RUN_ID } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await realPrisma.user.findMany({
+    where: { id: { startsWith: RUN_ID } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(realPrisma, { userIds: fixtureUserIds });
+  }
   await realPrisma.$disconnect();
 });
 

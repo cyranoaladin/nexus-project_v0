@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 jest.mock('@/lib/guards', () => ({ requireRole: jest.fn(async () => ({ user: { id: 'identity-test-admin', role: 'ADMIN' } })), isErrorResponse: () => false }));
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,7 +21,15 @@ async function cleanupFixtures() {
  // historical-fixture entitlement below), so it must be cleared before the
  // owning users, or this deleteMany fails with P2003.
  await prisma.entitlement.deleteMany({ where: { userId: { startsWith: PREFIX } } });
- await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
+ // Order comes from the live schema via the canonical fixture cleanup,
+ // so this teardown no longer hand-maintains which relations are RESTRICT.
+ const fixtureUserIds = (await prisma.user.findMany({
+   where: { id: { startsWith: PREFIX } },
+   select: { id: true },
+ })).map((user) => user.id);
+ if (fixtureUserIds.length > 0) {
+   await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+ }
 }
 const activationNotifications = { type: 'BILAN_PARENT_ACTIVATED', data: { path: ['parentUserId'], string_starts_with: PREFIX } };
 afterEach(async () => {

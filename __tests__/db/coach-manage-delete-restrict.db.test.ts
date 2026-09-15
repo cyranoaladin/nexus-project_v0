@@ -12,6 +12,7 @@
  *
  *   DATABASE_URL=postgresql://... npm run test:db -- coach-manage-delete-restrict
  */
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { GradeLevel, UserRole } from '@prisma/client';
 import type { PrismaClient } from '@prisma/client';
 
@@ -53,10 +54,15 @@ async function createUser(suffix: string, role: UserRole = UserRole.COACH) {
 afterAll(async () => {
   await realPrisma.eafPreparationReport.deleteMany({ where: { coach: { user: { id: { startsWith: RUN_ID } } } } });
   await realPrisma.coachStudentAssignment.deleteMany({ where: { coach: { user: { id: { startsWith: RUN_ID } } } } });
-  await realPrisma.coachProfile.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
-  await realPrisma.student.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
-  await realPrisma.parentProfile.deleteMany({ where: { user: { id: { startsWith: RUN_ID } } } });
-  await realPrisma.user.deleteMany({ where: { id: { startsWith: RUN_ID } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await realPrisma.user.findMany({
+    where: { id: { startsWith: RUN_ID } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(realPrisma, { userIds: fixtureUserIds });
+  }
   await realPrisma.$disconnect();
 });
 

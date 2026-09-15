@@ -1,3 +1,4 @@
+import { cleanupDisposableTestFixture } from '../../__tests__/helpers/real-db-fixture-cleanup';
 import type { Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -151,7 +152,15 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
   }
   const allUserIds = [...childUserIds, ...parentUserIds, ...coachUserIds];
   if (allUserIds.length > 0) {
-    await prisma.user.deleteMany({ where: { id: { in: allUserIds } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { id: { in: allUserIds } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
   }
 }
 
