@@ -10,7 +10,7 @@ services:
   # PostgreSQL Database
   # ========================================
   postgres:
-    image: pgvector/pgvector:pg15
+    image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
     container_name: nexus-postgres-prod
     restart: unless-stopped
     environment:
