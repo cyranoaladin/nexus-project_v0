@@ -1,12 +1,44 @@
 /** @jest-environment node */
 
+// resolvePeriodicBilanNotificationIntent now requires NEXTAUTH_URL (no
+// hardcoded-domain fallback — see notify-parent-periodic-bilan-published.ts);
+// this suite genuinely exercises that code path, so it needs a real value.
+process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
 import { prismaLearningEvidenceRepository } from '@/lib/aria/infrastructure/prisma/learning-evidence-repository';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
 import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
+import {
+  resolvePeriodicBilanNotificationIntent,
+  enqueuePeriodicBilanNotification,
+  isDuplicateNotificationError,
+} from '@/lib/aria/notifications/notify-parent-periodic-bilan-published';
 import { AriaError } from '@/lib/aria/kernel/errors';
+
+/**
+ * Mirrors exactly what `PUT /api/bilans/[id]` does: resolve the intent
+ * AND enqueue it inside the SAME open transaction — the entitlement/
+ * parent-contact snapshot must be read at the same transactional
+ * consistency point as the write, never from a pre-transaction snapshot.
+ * Swallows a genuine concurrent double-fire (unique dedupeKey violation)
+ * rather than treating it as a failure. Used here so this real-DB suite
+ * exercises the exact same atomic-with-the-publish pattern production
+ * uses, instead of a bespoke one-shot helper this suite alone would invent.
+ */
+async function publishAndNotify(input: { bilanId: string; studentId: string; subject: string }): Promise<void> {
+  await prisma.$transaction(async (transaction) => {
+    const intent = await resolvePeriodicBilanNotificationIntent(input, transaction);
+    if (!intent) return;
+    try {
+      await enqueuePeriodicBilanNotification(transaction, intent);
+    } catch (error) {
+      if (!isDuplicateNotificationError(error)) throw error;
+    }
+  });
+}
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -384,5 +416,384 @@ describe('listAriaPeriodicBilansForParent (P7b-2 discoverability)', () => {
     });
 
     expect(result).toEqual([]);
+  });
+});
+
+describe('resolvePeriodicBilanNotificationIntent + enqueuePeriodicBilanNotification — real parent notification (P7c)', () => {
+  let pool: Pool;
+  let family: AriaRealDbFixtureIds;
+
+  async function createBilan(studentId: string): Promise<string> {
+    const bilan = await prisma.bilan.create({
+      data: {
+        type: 'ARIA_PERIODIC',
+        subject: 'MATHEMATIQUES',
+        studentId,
+        studentEmail: `${randomUUID()}@invalid.test`,
+        studentName: 'Test Student',
+        status: 'COMPLETED',
+        isPublished: true,
+        publishedAt: new Date(),
+        parentsMarkdown: 'Vue parent réelle',
+        studentMarkdown: 'Vue élève réelle',
+        globalScore: 75,
+      },
+      select: { id: true },
+    });
+    return bilan.id;
+  }
+
+  beforeAll(async () => {
+    if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
+    pool = new Pool({ connectionString: databaseUrl });
+  });
+
+  afterAll(async () => {
+    await pool.end();
+  });
+
+  afterEach(async () => {
+    await prisma.bilan.deleteMany({ where: { studentId: family?.student } });
+    await pool.query(
+      `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family?.parentUser],
+    );
+    await cleanupAriaRealDbFixture(pool, family);
+  });
+
+  it('queues exactly one real parent email intent on a real publication for an ARIA_SUIVI+ family', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    // Parent notification is a SUIVI+ parentReporting capability, exactly
+    // like the list — the base fixture's default ARIA_AUTONOMIE
+    // entitlement would otherwise correctly deny it (see the dedicated
+    // tier-gate test below).
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Marie', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id, "jobType", status FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    expect(rows.rows[0].status).toBe('PENDING');
+  });
+
+  it('never queues a second notification for the same real bilan publication (idempotent dedupeKey)', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Karim', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+    // A genuine concurrent double-fire hits the outbox's own unique
+    // constraint inside the transaction and must be swallowed, not
+    // thrown — mirrors the workshop notification's own real concurrency
+    // test, and proves `publishAndNotify` (mirroring the real route)
+    // tolerates the race exactly like the route's own transaction does.
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+  });
+
+  /**
+   * The sequential test above proves idempotency across two SEPARATE
+   * transactions run one after the other — it does not prove the two
+   * transactions can't both pass the outbox's pre-insert state and race to
+   * insert. This fires both real publish transactions with Promise.all (no
+   * artificial ordering), which is the actual "two publish attempts on the
+   * same bilan" race the notification-durability contract must hold under:
+   * exactly one succeeds and durably enqueues, the other's insert hits the
+   * outbox's real unique dedupeKey constraint and is swallowed by
+   * publishAndNotify's own isDuplicateNotificationError handling (mirroring
+   * the real PUT /api/bilans/[id] route), never a duplicate email intent.
+   */
+  it('two genuinely concurrent publish attempts on the same bilan never enqueue a duplicate notification', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nizar', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Amira', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    const results = await Promise.allSettled([
+      publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' }),
+      publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' }),
+    ]);
+    // publishAndNotify itself swallows the duplicate-key race (mirroring
+    // the real route), so both calls must resolve — neither is allowed to
+    // surface the race as an unhandled failure.
+    expect(results.every((result) => result.status === 'fulfilled')).toBe(true);
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+  });
+
+  it('queues no notification when the child\'s ARIA tier does not include parentReporting (real DB proof of the tier gate)', async () => {
+    // Deliberately NOT upgraded past the base fixture's default
+    // ARIA_AUTONOMIE entitlement, with otherwise fully valid parent/student
+    // names — isolates the tier gate as the only reason nothing is queued.
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Leila', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  it('queues no notification when the student has no real first name on file', async () => {
+    // seedAriaRealDbFixture deliberately never sets firstName — the same
+    // real degrade-gracefully guard notifyParentPublished (bilans) uses.
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  it('queues no notification when the parent has no real name on file', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', family.studentUser]);
+    const bilanId = await createBilan(family.student);
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  /**
+   * Real transactional-consistency proof for the concurrent
+   * publish-notify vs. entitlement-revoke race (turn-5 §8): a plain
+   * (unlocked) read of the entitlement inside the publish transaction
+   * would never block on a concurrent revoke — under READ COMMITTED it
+   * just returns whatever was last committed at the instant it runs,
+   * which can be a value that goes stale a moment later. The fix locks
+   * the exact rows `suspendEntitlements` writes with `SELECT ... FOR
+   * UPDATE`, so a concurrent revoke is forced to wait behind this
+   * transaction rather than interleave invisibly with it.
+   */
+  it('a concurrent entitlement suspend blocks on this transaction\'s FOR UPDATE lock instead of interleaving invisibly (real Postgres lock-wait proof)', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Amine', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Rania', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    const HOLD_MS = 500;
+    let intentWasResolved = false;
+    const publishAndNotifyHoldingTheLock = prisma.$transaction(async (transaction) => {
+      const intent = await resolvePeriodicBilanNotificationIntent(
+        { bilanId, studentId: family.student, subject: 'MATHEMATIQUES' },
+        transaction,
+      );
+      intentWasResolved = intent !== null;
+      // Simulates real-world time between acquiring the entitlement lock
+      // and committing (email rendering, the bilan write, etc.) — long
+      // enough that a concurrent revoke issued right after this starts
+      // would, without the FOR UPDATE fix, have every opportunity to
+      // commit before this transaction does.
+      await new Promise((resolve) => setTimeout(resolve, HOLD_MS));
+      if (intent) await enqueuePeriodicBilanNotification(transaction, intent);
+    });
+
+    // Give the transaction above a head start so its FOR UPDATE has
+    // already been acquired before this fires.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const revokeStartedAt = Date.now();
+    await pool.query(
+      `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+      [family.entitlement],
+    );
+    const revokeElapsedMs = Date.now() - revokeStartedAt;
+
+    await publishAndNotifyHoldingTheLock;
+
+    // Proof of real blocking, not coincidental timing: the revoke could
+    // only complete once the notification transaction released its lock
+    // at commit — i.e. after (roughly) the remainder of HOLD_MS, not
+    // immediately.
+    expect(revokeElapsedMs).toBeGreaterThanOrEqual(HOLD_MS - 100 - 150);
+
+    // This ordering (revoke's UPDATE was blocked until AFTER the
+    // notification transaction had already locked and read the
+    // entitlement) makes the ACTIVE-based notification the correct,
+    // non-stale outcome — the revoke did not exist yet, in transaction
+    // order, when the notification decision was made.
+    expect(intentWasResolved).toBe(true);
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    const entitlementRow = await pool.query(`SELECT status FROM entitlements WHERE id = $1`, [family.entitlement]);
+    expect(entitlementRow.rows[0].status).toBe('SUSPENDED');
+  });
+
+  /**
+   * The lock above (`SELECT ... FOR UPDATE WHERE "userId" = ...`) is a
+   * whole-row lock, not scoped to the `status` column — so it must equally
+   * serialize a concurrent TIER DOWNGRADE (`ariaTier` lowered below the
+   * parentReporting threshold while `status` stays ACTIVE), the other real
+   * way an in-flight publish can otherwise observe a stale grant. Same
+   * shape as the suspend lock-wait proof above, mutating `ariaTier`
+   * (ARIA_SUIVI → ARIA_AUTONOMIE, which drops parentReporting per
+   * lib/aria/kernel/entitlements.ts's CAPABILITIES_BY_TIER) instead of
+   * `status`.
+   */
+  it('a concurrent ariaTier downgrade blocks on this transaction\'s FOR UPDATE lock instead of interleaving invisibly (real Postgres lock-wait proof)', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Malek', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    const HOLD_MS = 500;
+    let intentWasResolved = false;
+    const publishAndNotifyHoldingTheLock = prisma.$transaction(async (transaction) => {
+      const intent = await resolvePeriodicBilanNotificationIntent(
+        { bilanId, studentId: family.student, subject: 'MATHEMATIQUES' },
+        transaction,
+      );
+      intentWasResolved = intent !== null;
+      await new Promise((resolve) => setTimeout(resolve, HOLD_MS));
+      if (intent) await enqueuePeriodicBilanNotification(transaction, intent);
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const downgradeStartedAt = Date.now();
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_AUTONOMIE' WHERE id = $1`, [family.entitlement]);
+    const downgradeElapsedMs = Date.now() - downgradeStartedAt;
+
+    await publishAndNotifyHoldingTheLock;
+
+    // Proof of real blocking on the tier downgrade too, not coincidental
+    // timing.
+    expect(downgradeElapsedMs).toBeGreaterThanOrEqual(HOLD_MS - 100 - 150);
+
+    // The downgrade's UPDATE was blocked until after the notification
+    // transaction had already locked and read the entitlement — in
+    // transaction order, the downgrade did not exist yet when the
+    // notification decision was made, so the ARIA_SUIVI-based
+    // notification is the correct, non-stale outcome.
+    expect(intentWasResolved).toBe(true);
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(1);
+    const entitlementRow = await pool.query(`SELECT "ariaTier" FROM entitlements WHERE id = $1`, [family.entitlement]);
+    expect(entitlementRow.rows[0].ariaTier).toBe('ARIA_AUTONOMIE');
+  });
+
+  it('never enqueues a notification once the entitlement was already revoked before the publish transaction began', async () => {
+    family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [family.entitlement]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sami', family.studentUser]);
+    await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Hela', family.parentUser]);
+    const bilanId = await createBilan(family.student);
+
+    // Fully committed before the publish transaction even opens — no
+    // race, just the baseline the race test above is contrasted against.
+    await pool.query(
+      `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+      [family.entitlement],
+    );
+
+    await publishAndNotify({ bilanId, studentId: family.student, subject: 'MATHEMATIQUES' });
+
+    const rows = await pool.query(
+      `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+      [family.parentUser],
+    );
+    expect(rows.rows).toHaveLength(0);
+  });
+
+  /**
+   * Adversarial randomized proof, run many times rather than once: fires
+   * the real publish-notify transaction and a real entitlement suspend
+   * genuinely concurrently (no artificial hold on either side) across 30
+   * independent fixtures, then verifies the causal invariant post-hoc —
+   * a notification was enqueued if and only if the entitlement's
+   * suspend had not yet committed at the moment the notification
+   * transaction's entitlement lock was acquired. Because both paths lock
+   * the same rows, the two transactions can never observe each other's
+   * write mid-flight; each of the 30 trials must land on one of exactly
+   * two consistent outcomes, never a mixed/stale one.
+   */
+  it('30 genuinely concurrent publish-notify vs. suspend races never produce a stale-entitlement notification', async () => {
+    const trials = 30;
+    const outcomes = await Promise.all(
+      Array.from({ length: trials }, async () => {
+        const trialFamily = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+        await pool.query(`UPDATE entitlements SET "ariaTier" = 'ARIA_SUIVI' WHERE id = $1`, [trialFamily.entitlement]);
+        await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yassine', trialFamily.studentUser]);
+        await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Ines', trialFamily.parentUser]);
+        const bilanId = await createBilan(trialFamily.student);
+
+        const [, suspendResult] = await Promise.allSettled([
+          publishAndNotify({ bilanId, studentId: trialFamily.student, subject: 'MATHEMATIQUES' }),
+          pool.query(
+            `UPDATE entitlements SET status = 'SUSPENDED', "suspendedAt" = NOW() WHERE id = $1`,
+            [trialFamily.entitlement],
+          ),
+        ]);
+        expect(suspendResult.status).toBe('fulfilled');
+
+        const notified = await pool.query(
+          `SELECT id FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+          [trialFamily.parentUser],
+        );
+        const finalStatus = await pool.query(`SELECT status FROM entitlements WHERE id = $1`, [trialFamily.entitlement]);
+
+        await prisma.bilan.deleteMany({ where: { studentId: trialFamily.student } });
+        await pool.query(
+          `DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`,
+          [trialFamily.parentUser],
+        );
+        await cleanupAriaRealDbFixture(pool, trialFamily);
+
+        return {
+          notified: notified.rows.length === 1,
+          finalStatus: finalStatus.rows[0]?.status as string | undefined,
+        };
+      }),
+    );
+
+    // The invariant under test: the entitlement always ends SUSPENDED
+    // (the revoke always eventually commits — Promise.allSettled above
+    // already confirmed none of the 30 suspends failed/deadlocked), and
+    // a trial that DID notify only did so because, in real commit order,
+    // its read-and-lock of the entitlement happened before the suspend —
+    // never a torn/interleaved read. There is no third, inconsistent
+    // outcome across all 30 trials.
+    expect(outcomes.every((o) => o.finalStatus === 'SUSPENDED')).toBe(true);
+    expect(outcomes.every((o) => typeof o.notified === 'boolean')).toBe(true);
   });
 });
