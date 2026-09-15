@@ -64,7 +64,11 @@ pull_image_with_retry() {
   echo "docker pull ${image} failed after 3 attempts" >&2
   return 1
 }
-pull_image_with_retry nginx:1.27-alpine
+# One reference feeds both the retry-wrapped pull and docker run: pulling a
+# mutable tag and running a digest makes the retry useless, because docker run
+# falls back to its own implicit, unretried pull of a reference nothing warmed.
+NGINX_SSE_IMAGE="nginx@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10" # 1.27-alpine
+pull_image_with_retry "$NGINX_SSE_IMAGE"
 
 echo "Extracting the current /api/aria/chat location block from nginx/nginx.conf..."
 node "$FIXTURE_DIR/extract-nginx-location.mjs" "$ROOT_DIR/nginx/nginx.conf" 'location = /api/aria/chat {' \
@@ -103,7 +107,7 @@ done
 echo "Starting real Nginx (Docker) with the extracted location block, --network host..."
 docker run -d --rm --name "$CONTAINER_NAME" --network host \
   -v "$WORK_DIR/nginx.conf:/etc/nginx/nginx.conf:ro" \
-  nginx:1.27-alpine >/dev/null
+  "$NGINX_SSE_IMAGE" >/dev/null
 
 for _ in $(seq 1 30); do
   if curl -sf "http://127.0.0.1:${NGINX_PORT}/api/aria/chat" -o /dev/null --max-time 1 2>/dev/null; then break; fi

@@ -48,6 +48,10 @@ const independentEvidenceJobs = [
   'build',
   'documents',
   'bilan-runtime-real-db',
+  // Real Nginx SSE streaming: proves the repository's own proxy configuration
+  // streams incrementally rather than only that it parses. `nginx -t` would
+  // have accepted the buffering regression this gate exists to catch.
+  'nginx-sse-streaming',
 ];
 const ariaQualificationJobs = [
   'aria-jest',
