@@ -37,13 +37,10 @@
     "extraction_du_commit_audite_propre": true,
     "arbre_de_travail_courant_propre": false,
     "chemins_sales": [
-     "M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/audit/GO_LIVE_GATE.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py",
-     " M docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
+     "M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py"
     ],
     "branche": "feat/diagnostics-v2-audit",
-    "head": "592ac102962d9ebdb866a8c369d77d057bbb87a8"
+    "head": "b8fe745b02613c4b89f534583df15b49d1261ed9"
    }
   },
   {
@@ -220,9 +217,9 @@
    "titre": "Release / provenance finale",
    "status": "PASS",
    "preuves": {
-    "manifeste_source_git_head": "07d78f9630756368414478d98bf8a7df172cb962",
-    "head": "592ac102962d9ebdb866a8c369d77d057bbb87a8",
-    "parent": "07d78f9630756368414478d98bf8a7df172cb962",
+    "manifeste_source_git_head": "7c06ed2ebde12ef88d9628dca0b05881f6c4fbc6",
+    "head": "b8fe745b02613c4b89f534583df15b49d1261ed9",
+    "parent": "7c06ed2ebde12ef88d9628dca0b05881f6c4fbc6",
     "fichiers_de_release": 171,
     "blockers_ouverts": 0,
     "majors_ouverts": 0

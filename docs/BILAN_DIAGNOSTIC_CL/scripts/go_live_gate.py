@@ -219,7 +219,9 @@ def gates() -> dict:
 #: modifiés. Ils sont consignés comme preuve datée, mais les comparer ferait dériver le
 #: fichier à chaque commit — la release étant commitée après les sources, l'empreinte du
 #: HEAD a nécessairement changé entre l'écriture du fichier et sa vérification.
-VOLATILS = {"head", "parent", "chemins_sales", "manifeste_source_git_head",
+#: « branche » en fait partie : un arbre extrait en HEAD détaché — ce qu'est un clone de
+#: vérification — n'en porte aucune, et `git rev-parse --abbrev-ref HEAD` y répond « HEAD ».
+VOLATILS = {"head", "parent", "branche", "chemins_sales", "manifeste_source_git_head",
             "arbre_de_travail_courant_propre", "clean_clone"}
 
 
