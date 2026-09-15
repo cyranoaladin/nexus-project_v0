@@ -1,6 +1,6 @@
 # Manifeste — diagnostics-v2
 
-Commit source : `13d14a7a447478615e21d9c1924bc0da6f3f430c`
+Commit source : `07d78f9630756368414478d98bf8a7df172cb962`
 
 Source officielle d'envoi : `release/diagnostics-v2/01_LIVRETS_CANDIDAT`
 

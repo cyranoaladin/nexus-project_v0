@@ -1,7 +1,7 @@
 {
   "schema": "manifeste_release/2.0",
   "release_version": "diagnostics-v2",
-  "source_git_head": "13d14a7a447478615e21d9c1924bc0da6f3f430c",
+  "source_git_head": "07d78f9630756368414478d98bf8a7df172cb962",
   "regle": "Tout fichier de release/diagnostics-v2 est décrit ici, sauf le manifeste lui-même et sa projection lisible. Chaque artefact porte un artifact_id et un chemin uniques ; la construction échoue sur un doublon de l'un ou de l'autre.",
   "source_officielle_d_envoi": "release/diagnostics-v2/01_LIVRETS_CANDIDAT",
   "profils": {
