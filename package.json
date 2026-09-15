@@ -147,6 +147,8 @@
     "governance:snapshot": "node scripts/github/snapshot-governance.mjs",
     "governance:doctor": "node scripts/github/doctor.mjs",
     "governance:apply": "node scripts/github/apply-governance.mjs",
+    "governance:post-merge-drift": "node scripts/github/check-post-merge-branch-drift.mjs",
+    "governance:pr-worktree-target": "node scripts/github/check-pr-worktree-target.mjs",
     "test:governance": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.governance.js --runInBand",
     "test:e2e:full": "npm run test:e2e:ephemeral",
     "test:ci": "npm test -- --coverage --maxWorkers=2 && npm run test:db-integration",
