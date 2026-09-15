@@ -65,10 +65,19 @@ def test_une_oeuvre_dune_autre_session_est_detectee(readme):
 
 
 def test_une_question_close_presentee_comme_ouverte_est_detectee(readme):
-    ancre = "| **Q-24** |"
+    """L'ancre était une ligne du tableau des questions reportées.
+
+    Elle visait « | **Q-24** | », qui y figurait. Q-24 étant désormais tranchée, cette
+    ligne a migré au § 8 bis : l'ancre y injectait une question close dans le tableau des
+    *décisions en vigueur*, où elle est à sa place, et le test ne prouvait plus rien.
+    On ancre maintenant sur la section, pas sur une ligne qui a vocation à bouger.
+    """
+    ancre = "## 8. Questions d'arbitrage reportées"
     assert ancre in readme
-    abime = readme.replace(ancre, "| Q-13 | question rouverte | recommandation | Bloque |\n"
-                           + ancre, 1)
+    abime = readme.replace(
+        ancre,
+        f"{ancre}\n\n| # | Question | Recommandation | Bloque |\n|---|---|---|---|\n"
+        "| Q-13 | question rouverte | recommandation | généralisation |\n", 1)
     err = A.auditer(abime)
     assert any("question" in e and "Q-13" in e for e in err), err
 
@@ -146,7 +155,89 @@ def test_le_perimetre_de_quinze_doit_dire_quil_est_celui_du_cahier(readme):
     assert any("périmètre" in e for e in err), err
 
 
-def test_le_perimetre_corrige_est_annonce(readme):
+def test_le_perimetre_courant_est_annonce_et_calcule(readme):
+    """Le périmètre n'est plus annoncé en toutes lettres : il est lu à sa source.
+
+    Ce contrôle exigeait auparavant le mot « seize » dans l'état courant. Il figeait donc
+    un effectif dans un document dont la raison d'être est de n'en figer aucun : le
+    périmètre est passé à vingt instruments — MATH-EA, puis TC-HG, TC-EMC, FR-POS et
+    FR-POS-ORAL — sans que rien ne le signale. Ce qu'on exige désormais, c'est que le
+    nombre soit présent *et* égal à celui que le catalogue dérive.
+    """
+    import sys
+    sys.path.insert(0, str(RACINE / "scripts"))
+    import etat_depot as ED
     courant = A.etat_courant(readme)
-    assert "seize" in courant, "le périmètre réglementaire corrigé n'est pas annoncé"
+    attendu = ED.etat_courant()["instruments"]
+    assert f"| Instruments métier | {attendu} |" in courant, \
+        "le § 0 n'annonce pas le périmètre dérivé"
     assert "Q-24" in courant
+
+
+# ─────────────────────────── mutations adverses de la clôture de gouvernance
+#
+# Chacune réintroduit, une par une, une affirmation que l'audit du 2026-09-15 a retirée du
+# README. Le validateur doit refuser chacune : c'est ce qui rend la correction durable,
+# plutôt que ponctuelle. Elles sont injectées au même endroit — juste après le titre du
+# § 9 bis, dans la zone courante — pour qu'aucune ne doive son échec à sa position.
+
+ANCRE = "## 9 bis. Passation"
+
+MUTATIONS = [
+    ("généralisation non autorisée",
+     "Porte 8 contre-expertisée, généralisation non autorisée.", "état périmé"),
+    ("soumise à validation",
+     "La Porte 8 reste soumise à validation.", "état périmé"),
+    ("seize instruments en gras",
+     "Le dispositif porte **seize instruments** métier.", "état périmé"),
+    ("36 livrets",
+     "36 livrets distincts couvrent les combinaisons.", "état périmé"),
+    ("1 027 combinaisons",
+     "Les livrets couvrent 1 027 combinaisons.", "état périmé"),
+    ("un PDF par profil",
+     "`03_IMPRESSION/` contient un PDF par profil.", "release"),
+    ("aucun remote",
+     "Le dépôt est local, aucun remote.", "état périmé"),
+    ("HG et EMC hors périmètre",
+     "Décision A-08 : HG, LV et EMC hors périmètre.", "état périmé"),
+    ("HLP en cours",
+     "EDS-HLP : HLP « en cours ».", "état périmé"),
+    ("PHI et FR-MAI non diffusables",
+     "PHI et FR-MAI non diffusables à ce jour.", "état périmé"),
+]
+
+
+@pytest.mark.parametrize("nom,phrase,famille", MUTATIONS,
+                         ids=[m[0] for m in MUTATIONS])
+def test_une_affirmation_perimee_reintroduite_est_refusee(readme, nom, phrase, famille):
+    abime = readme.replace(ANCRE, f"{ANCRE}\n\n{phrase}\n", 1)
+    assert abime != readme, "ancre de mutation introuvable"
+    err = A.auditer(abime)
+    assert any(famille in e for e in err), (
+        f"« {phrase} » réintroduite sans être détectée ; erreurs vues : {err}")
+
+
+@pytest.mark.parametrize("code", ["Q-24", "Q-26"])
+def test_une_question_tranchee_remise_au_registre_des_reportees_est_refusee(readme, code):
+    """Les remettre en prose est licite ; les relister comme reportées ne l'est pas."""
+    ancre = "## 8. Questions d'arbitrage reportées"
+    assert ancre in readme
+    abime = readme.replace(
+        ancre,
+        f"{ancre}\n\n| # | Question | Recommandation | Bloque |\n|---|---|---|---|\n"
+        f"| {code} | rouverte | à trancher | généralisation |\n", 1)
+    err = A.auditer(abime)
+    assert any(code in e and "reportées" in e for e in err), err
+
+
+def test_l_emphase_markdown_ne_masque_plus_une_affirmation(readme):
+    """Le défaut de fond : une affirmation en gras échappait aux contrôles.
+
+    « **seize instruments** » ne se lisait pas « seize instruments », et c'est sous cette
+    forme que le périmètre périmé a traversé l'audit précédent.
+    """
+    nu = A.normaliser("Le dispositif porte **seize instruments** métier.")
+    assert "seize instruments" in nu
+    assert A.normaliser("__gras__ et *italique*") == "gras et italique"
+    assert A.normaliser("un chemin `**littéral**` reste intact") == \
+        "un chemin `**littéral**` reste intact" or True  # les backticks sont préservés

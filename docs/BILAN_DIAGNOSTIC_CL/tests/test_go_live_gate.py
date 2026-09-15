@@ -88,6 +88,34 @@ def test_chaque_item_de_banque_est_audite():
         f"{manquants[:10]}")
 
 
+def test_le_snapshot_de_generation_ne_se_presente_pas_comme_une_preuve(versionne):
+    """Les empreintes de commit datent le fichier ; elles ne fondent aucun verdict.
+
+    Elles vivaient dans les preuves des gates, où une empreinte périmée dès le commit
+    suivant se lisait comme une preuve courante. Elles sont désormais rangées à part, et
+    le bloc dit lui-même qu'il n'est pas normatif. Aucun verdict ne peut plus dépendre
+    d'un SHA que le fichier porterait sur le commit auquel il appartient.
+    """
+    snap = versionne["generation_snapshot"]
+    assert "NON NORMATIF" in snap["avertissement"]
+    volatils_dans_les_gates = [
+        (g["gate"], k) for g in versionne["gates"] for k in g["preuves"]
+        if k in GLG.VOLATILS]
+    assert volatils_dans_les_gates == [], volatils_dans_les_gates
+    # Aucune preuve de gate ne doit ressembler à une empreinte de commit.
+    import re
+    suspects = [(g["gate"], k, v) for g in versionne["gates"]
+                for k, v in g["preuves"].items()
+                if isinstance(v, str) and re.fullmatch(r"[0-9a-f]{40}", v)]
+    assert suspects == [], suspects
+
+
+def test_la_gate_de_provenance_porte_des_proprietes_de_forme(versionne):
+    g = next(x for x in versionne["gates"] if x["gate"] == "GATE 12")
+    assert g["preuves"]["release_manifest_references_source_commit"] is True
+    assert g["preuves"]["release_commit_modifies_release_only"] is True
+
+
 def test_le_clone_propre_a_ete_accepte():
     cc = json.loads((AUDIT / "CLEAN_CLONE_ACCEPTANCE.json").read_text(encoding="utf-8"))
     assert cc["pytest"]["failed"] == 0

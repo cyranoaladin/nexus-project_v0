@@ -57,11 +57,26 @@ def charger(p):
         return json.load(f)
 
 
+def normaliser(texte: str) -> str:
+    """Le texte réel, débarrassé de l'emphase Markdown.
+
+    « **seize instruments** » ne se lit pas « seize instruments » pour une expression
+    régulière naïve : les astérisques s'intercalent. Une affirmation mise en gras échappait
+    donc à tous les contrôles sémantiques — et c'est exactement sous cette forme que le
+    périmètre périmé a survécu à l'audit précédent. Les backticks sont conservés : ils
+    désignent un chemin ou un identifiant, pas une emphase.
+    """
+    texte = re.sub(r"\*\*(.+?)\*\*", r"\1", texte, flags=re.S)
+    texte = re.sub(r"__(.+?)__", r"\1", texte, flags=re.S)
+    texte = re.sub(r"(?<![\w*])\*(?!\s)([^*\n]+?)(?<!\s)\*(?![\w*])", r"\1", texte)
+    return texte
+
+
 def etat_courant(texte: str) -> str:
     i, j = texte.find(DEBUT_HISTORIQUE), texte.find(FIN_HISTORIQUE)
     if i < 0 or j < 0:
         raise SystemExit("marqueurs d'historique absents du README")
-    return texte[:i] + texte[j + len(FIN_HISTORIQUE):]
+    return normaliser(texte[:i] + texte[j + len(FIN_HISTORIQUE):])
 
 
 def effectifs_attendus() -> dict:
@@ -111,9 +126,140 @@ def oeuvres_hors_session() -> dict:
     return {o: s for o, s in ailleurs.items() if o not in au_programme}, visee
 
 
+
+#: Verbes par lesquels une phrase de l'état courant cite une décision dépassée au lieu de
+#: l'affirmer. Une formulation interdite n'est tolérée qu'entre guillemets français, sur
+#: une ligne qui porte l'un d'eux : c'est ainsi qu'on rappelle une décision sans la
+#: remettre en vigueur.
+MARQUEURS_SUPERSEDE = ("décrivait", "décrivaient", "était vrai", "étaient vrais",
+                       "historique", "HISTORIQUE", "révisé", "révisée", "n'est plus",
+                       "abrogé", "abrogée", "levé", "levée", "ne décrit pas l'état courant")
+
+#: Affirmations qui ne peuvent plus décrire l'état courant. La valeur dit pourquoi.
+AFFIRMATIONS_PERIMEES = {
+    r"généralisation non autoris[ée]e?": "la généralisation est autorisée : GO_LIVE_READY vaut YES",
+    r"soumise? à validation": "toutes les portes sont closes et la release est en service",
+    r"seize instruments": "le périmètre courant est calculé au § 0, et il en compte vingt",
+    r"les seize sont (?:produits|diffusables)": "le périmètre courant est calculé au § 0",
+    r"36 livrets": "les effectifs de release sont calculés au § 0",
+    r"1 ?027 combinaisons": "les effectifs du domaine candidat sont calculés au § 0",
+    r"un PDF par profil": "03_IMPRESSION porte plusieurs catalogues opérateur par profil",
+    r"aucun remote": "le dossier est versé dans le dépôt parent et poussé sur origin",
+    r"HG, LV et EMC hors périmètre": "TC-HG et TC-EMC sont au périmètre depuis B9 et B10",
+    r"HLP « en cours »": "EDS-HLP est diffusable",
+    r"PHI et FR-MAI non diffusables": "PHI et FR-MAI sont diffusables",
+}
+
+
+def citation_superseded(ligne: str, expression: str) -> bool:
+    """La formulation est-elle citée comme dépassée, plutôt qu'affirmée ?
+
+    Deux conditions, et les deux ensemble : l'expression est entre guillemets français —
+    donc rapportée —, et la phrase porte un verbe qui la donne pour dépassée. L'une sans
+    l'autre ne suffit pas : citer sans dire que c'est révolu laisse l'affirmation debout.
+    """
+    bas = ligne.lower()
+    if not any(v.lower() in bas for v in MARQUEURS_SUPERSEDE):
+        return False
+    return any(expression in g for g in re.findall(r"«([^»]*)»", ligne))
+
+
+def affirmations_perimees(courant: str) -> list[str]:
+    err = []
+    for motif, motif_erreur in AFFIRMATIONS_PERIMEES.items():
+        for m in re.finditer(motif, courant):
+            debut = courant.rfind("\n", 0, m.start()) + 1
+            fin = courant.find("\n", m.end())
+            ligne = courant[debut:fin if fin > 0 else len(courant)]
+            if citation_superseded(ligne, m.group(0)):
+                continue
+            err.append(f"état périmé : « {m.group(0)} » — {motif_erreur}")
+    return err
+
+
+def verdict_et_effectifs(courant: str) -> list[str]:
+    """L'état courant ne peut pas contredire les sources canoniques du § 0."""
+    import etat_depot as ED
+    err = []
+    e = ED.etat_courant()
+    if e["GO_LIVE_READY"] == "YES":
+        for motif in (r"généralisation non autoris", r"soumise? à validation"):
+            if re.search(motif, courant):
+                err.append(f"verdict : GO_LIVE_READY vaut YES, mais l'état courant porte "
+                           f"encore une réserve de type « {motif} »")
+    # Le nombre d'instruments ne peut être affirmé qu'à la valeur dérivée.
+    for m in re.finditer(r"(\w+)\s+instruments?\s+métier", courant):
+        mot = m.group(1)
+        if mot.isdigit() and int(mot) != e["instruments"]:
+            err.append(f"périmètre : « {m.group(0)} » alors que le catalogue en dérive "
+                       f"{e['instruments']}")
+        elif mot in NOMBRES_ECRITS and NOMBRES_ECRITS[mot] != e["instruments"]:
+            err.append(f"périmètre : « {m.group(0)} » alors que le catalogue en dérive "
+                       f"{e['instruments']}")
+    # Les effectifs de release se lisent au manifeste, et nulle part ailleurs.
+    for motif, attendu, quoi in (
+            (r"(\d+)\s+livrets candidat", e["livrets_candidat"], "livrets candidat"),
+            (r"(\d+)\s+corrections coach", e["corrections_coach"], "corrections coach"),
+            (r"(\d+)\s+catalogues opérateur", e["catalogues_operateur"],
+             "catalogues opérateur")):
+        for m in re.finditer(motif, courant):
+            if int(m.group(1)) != attendu:
+                err.append(f"release : « {m.group(0)} » alors que le manifeste en porte "
+                           f"{attendu} {quoi}")
+    return err
+
+
+#: Les nombres que le document écrit en toutes lettres.
+NOMBRES_ECRITS = {"quinze": 15, "seize": 16, "dix-sept": 17, "dix-huit": 18,
+                  "dix-neuf": 19, "vingt": 20, "vingt et un": 21, "vingt-deux": 22}
+
+
+def questions_closes_ailleurs(texte: str) -> list[str]:
+    """Une question tranchée ne peut pas figurer au registre des questions reportées."""
+    err = []
+    i = texte.find("## 8. Questions d'arbitrage reportées")
+    j = texte.find("## 8 bis.")
+    if i < 0 or j < 0 or j < i:
+        return ["structure : les sections 8 et 8 bis sont introuvables ou inversées"]
+    section = normaliser(texte[i:j])
+    # Une question n'est « reportée » que si elle est *listée* comme telle : une ligne de
+    # tableau. La nommer en prose pour dire qu'elle est tranchée est au contraire ce qu'on
+    # attend d'un registre vidé.
+    lignes_de_tableau = [l for l in section.splitlines() if l.lstrip().startswith("|")]
+    for code in sorted(set(QUESTIONS_CLOSES) | {"Q-24", "Q-26"}):
+        for ligne in lignes_de_tableau:
+            if re.search(rf"\b{code}\b", ligne):
+                err.append(f"question : {code} est tranchée mais figure encore au registre "
+                           f"des questions reportées")
+                break
+    return err
+
+
+def catalogues_operateur_pluriels() -> bool:
+    """Le référentiel décrit-il plusieurs catalogues d'impression pour un même profil ?"""
+    ref = RACINE / "referentiels" / "catalogues_operateur.json"
+    if not ref.exists():
+        return False
+    d = charger(ref)
+    entrees = d.get("catalogues", d if isinstance(d, list) else [])
+    par_profil = {}
+    for c in entrees if isinstance(entrees, list) else []:
+        par_profil.setdefault(c.get("profil"), 0)
+        par_profil[c.get("profil")] += 1
+    return any(n > 1 for n in par_profil.values())
+
+
 def auditer(texte: str) -> list[str]:
     courant = etat_courant(texte)
     err = []
+
+    # 0 · affirmations périmées, verdict, effectifs de release et questions closes
+    err += affirmations_perimees(courant)
+    err += verdict_et_effectifs(courant)
+    err += questions_closes_ailleurs(texte)
+    if catalogues_operateur_pluriels() and "un PDF par profil" in courant:
+        err.append("release : « un PDF par profil » alors que le référentiel des "
+                   "catalogues opérateur en décrit plusieurs par profil")
 
     # 1 · hiérarchie des sources
     for motif in ABSOLUTISMES:

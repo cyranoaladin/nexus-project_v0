@@ -1,6 +1,6 @@
 # Diagnostics Nexus Réussite — diagnostics-v2
 
-*Manifeste produit le 2026-09-15 par `scripts/release.py` depuis le dépôt, au-delà du commit `9463ed3ab3b4`.*
+*Manifeste produit le 2026-09-15 par `scripts/release.py` depuis le dépôt, au-delà du commit `9f0e33684167`.*
 
 Aucun état n'est recopié : chaque champ de ce manifeste est calculé depuis les fichiers du dépôt au moment du build.
 

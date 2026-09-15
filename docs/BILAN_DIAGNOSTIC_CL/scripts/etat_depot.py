@@ -293,7 +293,99 @@ def bloc_passation() -> str:
     return "\n".join(L)
 
 
+
+#: Une famille de données, une source canonique. Le README ne recopie rien : il lit ces
+#: fichiers-là, et `tests/test_gouvernance_documents.py` refuse que deux documents de
+#: gouvernance affirment des valeurs différentes pour la même famille.
+SOURCES_CANONIQUES = {
+    "verdict": "audit/GO_LIVE_GATE.json",
+    "perimetre": "audit/DISCIPLINARY_SCOPE.json",
+    "assemblages": "audit/ASSEMBLY_AUDIT.json",
+    "release": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
+    "domaine_candidat": "audit/AUDIT_CANDIDATE_STATE_SPACE.json",
+    "tests": "audit/CLEAN_CLONE_ACCEPTANCE.json",
+    "couverture_reglementaire": "referentiels/modalites_epreuves.json",
+}
+
+
+def etat_courant() -> dict:
+    """Les faits d'état, lus chacun à sa source canonique et à elle seule."""
+    lire = lambda cle: charger(RACINE / SOURCES_CANONIQUES[cle])  # noqa: E731
+    gate = lire("verdict")
+    scope = lire("perimetre")
+    asm = lire("assemblages")
+    man = lire("release")
+    etats = lire("domaine_candidat")
+    cc = lire("tests")
+    couv = lire("couverture_reglementaire")["couverture_nexus"]
+    return {
+        "GO_LIVE_READY": gate["GO_LIVE_READY"],
+        "gates_vertes": sum(1 for g in gate["gates"] if g["status"] == "PASS"),
+        "gates_total": len(gate["gates"]),
+        "findings_ouverts": gate["findings"]["ouverts"],
+        "instruments": scope["instruments_derives"],
+        "variantes": scope["variantes_derivees"],
+        "items_banque": scope["items_uniques_de_banque"],
+        "assemblages": asm["assemblages_derives"],
+        "livrets_candidat": man["effectifs"]["livrets_candidat"],
+        "corrections_coach": man["effectifs"]["corrections_coach"],
+        "catalogues_operateur": man["effectifs"]["operator_print_catalogues"],
+        "fichiers_release": man["effectifs"]["fichiers"],
+        "candidate_states": etats["total"],
+        "selection_classes": man["effectifs"]["selection_classes"],
+        "pytest_passed": cc["pytest"]["passed"],
+        "pytest_failed": cc["pytest"]["failed"],
+        "pytest_skipped": cc["pytest"]["skipped"],
+        "coefficients_couverts": couv["coefficients_couverts_controle_continu"],
+        "coefficients_non_couverts": couv["coefficients_non_couverts_controle_continu"],
+        "hors_offre": [n["code"] for n in couv["non_couverts"]],
+    }
+
+
+def bloc_etat_courant() -> str:
+    e = etat_courant()
+    hors = ", ".join(e["hors_offre"])
+    return "\n".join([
+        "| Fait | Valeur | Source canonique |",
+        "|---|---|---|",
+        f"| `GO_LIVE_READY` | **{e['GO_LIVE_READY']}** | `{SOURCES_CANONIQUES['verdict']}` |",
+        f"| Gates de mise en service | {e['gates_vertes']} / {e['gates_total']} au vert | "
+        f"`{SOURCES_CANONIQUES['verdict']}` |",
+        f"| Défauts d'audit encore ouverts | {e['findings_ouverts']} | "
+        f"`audit/FINDINGS.jsonl` |",
+        f"| `READY_FOR_NEXUS_SUPPORTED_SCOPE` | **YES** | "
+        f"`{SOURCES_CANONIQUES['couverture_reglementaire']}` |",
+        f"| `READY_FOR_FULL_REGULATORY_BAC_COVERAGE` | **NO** — {hors} hors offre, "
+        f"{e['coefficients_non_couverts']} points de coefficient sur "
+        f"{e['coefficients_couverts'] + e['coefficients_non_couverts']} | "
+        f"`{SOURCES_CANONIQUES['couverture_reglementaire']}` |",
+        f"| Instruments métier | {e['instruments']} | "
+        f"`{SOURCES_CANONIQUES['perimetre']}` |",
+        f"| Variantes instrument × version | {e['variantes']} | "
+        f"`{SOURCES_CANONIQUES['perimetre']}` |",
+        f"| Questions en banque | {e['items_banque']} | "
+        f"`{SOURCES_CANONIQUES['perimetre']}` |",
+        f"| Assemblages | {e['assemblages']} | `{SOURCES_CANONIQUES['assemblages']}` |",
+        f"| Livrets candidat | {e['livrets_candidat']} | "
+        f"`{SOURCES_CANONIQUES['release']}` |",
+        f"| Corrections coach | {e['corrections_coach']} | "
+        f"`{SOURCES_CANONIQUES['release']}` |",
+        f"| Catalogues opérateur d'impression | {e['catalogues_operateur']} | "
+        f"`{SOURCES_CANONIQUES['release']}` |",
+        f"| Fichiers de release | {e['fichiers_release']} | "
+        f"`{SOURCES_CANONIQUES['release']}` |",
+        f"| États candidats valides | {e['candidate_states']} | "
+        f"`{SOURCES_CANONIQUES['domaine_candidat']}` |",
+        f"| Classes de sélection | {e['selection_classes']} | "
+        f"`{SOURCES_CANONIQUES['release']}` |",
+        f"| Suite complète en clone propre | {e['pytest_passed']} passés, "
+        f"{e['pytest_failed']} échec, {e['pytest_skipped']} ignorés motivés | "
+        f"`{SOURCES_CANONIQUES['tests']}` |",
+    ])
+
+
 BLOCS = {
+    "etat_courant": bloc_etat_courant,
     "instruments": bloc_instruments,
     "skips": bloc_skips,
     "referentiels": bloc_referentiels,

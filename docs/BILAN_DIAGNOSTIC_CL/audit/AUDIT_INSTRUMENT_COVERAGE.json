@@ -772,6 +772,7 @@
         "instruments/FR-MAI/assemblages/standard.json"
       ],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_bilan.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
@@ -825,6 +826,7 @@
         "instruments/FR-POS/assemblages/standard.json"
       ],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_espace_candidats.py",
         "tests/test_faits_candidat.py",
         "tests/test_pack_candidat.py",
@@ -870,6 +872,7 @@
       ],
       "assembly": [],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_espace_candidats.py",
         "tests/test_pack_candidat.py",
         "tests/test_tronc_commun_et_positionnement.py"
@@ -1005,6 +1008,7 @@
         "instruments/MATH-EA/assemblages/SPECIFIQUES.json"
       ],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_bilan.py",
         "tests/test_build_instrument.py",
         "tests/test_calculatrice_coherence.py",
@@ -1115,6 +1119,7 @@
         "instruments/PHI/assemblages/standard.json"
       ],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_bareme_atteignable_et_supports.py",
         "tests/test_dates_anterieures.py",
         "tests/test_diffusabilite.py",
@@ -1260,6 +1265,7 @@
       ],
       "assembly": [],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_distribution.py",
         "tests/test_espace_candidats.py",
         "tests/test_pack_candidat.py",
@@ -1430,6 +1436,7 @@
         "instruments/TC-HG/assemblages/TLE.json"
       ],
       "tests_covering": [
+        "tests/test_audit_readme.py",
         "tests/test_distribution.py",
         "tests/test_espace_candidats.py",
         "tests/test_hg_tle_documents.py",

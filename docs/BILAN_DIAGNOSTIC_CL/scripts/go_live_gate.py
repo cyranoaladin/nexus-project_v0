@@ -73,6 +73,8 @@ def gates() -> dict:
     extraction_propre = cc.get("environnement_initial", {}).get("arbre_git_propre") is True
     gate(1, "Git / source de vérité",
          extraction_propre and git("rev-parse", "HEAD") != "",
+         source_tree_verified=extraction_propre,
+         clean_extraction_verified=extraction_propre,
          extraction_du_commit_audite_propre=extraction_propre,
          arbre_de_travail_courant_propre=sale == "",
          chemins_sales=[l for l in sale.splitlines()][:10],
@@ -179,19 +181,49 @@ def gates() -> dict:
          source_privee_suivie=sec["source_privee_frpos_suivie"])
 
     parent = git("rev-parse", "HEAD^")
+    # Ce que la gate affirme est une propriété de forme, vraie quel que soit le commit :
+    # le manifeste de release désigne un commit source de cette branche — son parent quand
+    # la release vient d'être commitée, lui-même quand on se tient sur le commit source —
+    # et le commit de release ne touche que la release. L'identité du couple final est
+    # portée par le tag, pas par un SHA recopié dans un fichier de ce même commit.
+    tete = git("rev-parse", "HEAD")
+    designe_une_source = manifeste["source_git_head"] in (parent, tete)
+    release_seule = True
+    if manifeste["source_git_head"] == parent:
+        touches = git("diff", "--name-only", f"{parent}..{tete}").splitlines()
+        release_seule = bool(touches) and all(
+            "release/diagnostics-v2/" in t for t in touches)
     gate(12, "Release / provenance finale",
-         manifeste["source_git_head"] in (parent, git("rev-parse", "HEAD")),
-         manifeste_source_git_head=manifeste["source_git_head"],
-         head=git("rev-parse", "HEAD"), parent=parent,
+         designe_une_source and release_seule,
+         release_manifest_references_source_commit=designe_une_source,
+         release_commit_modifies_release_only=release_seule,
          fichiers_de_release=manifeste["effectifs"]["fichiers"],
          blockers_ouverts=par_severite["BLOCKER"],
          majors_ouverts=par_severite["MAJOR"])
 
     echecs = [g["gate"] for g in G if g["status"] != "PASS"]
+    # Les preuves volatiles sortent des gates : elles datent la production du fichier, elles
+    # ne fondent aucun verdict. Les laisser dans les gates faisait passer pour une preuve
+    # courante une empreinte de commit périmée dès le commit suivant.
+    snapshot = {"avertissement": "NON NORMATIF — information de génération. Ne constitue "
+                                 "pas l'identité du gel : celle-ci est portée par le tag "
+                                 "annoté de mise en service, qui désigne le couple final "
+                                 "sans qu'aucun fichier ait à nommer le commit auquel il "
+                                 "appartient.",
+                "produit_le": "2026-09-15",
+                "branche": git("rev-parse", "--abbrev-ref", "HEAD"),
+                "head_au_moment_de_la_generation": git("rev-parse", "HEAD"),
+                "parent": git("rev-parse", "HEAD^"),
+                "arbre_de_travail_courant_propre": sale == "",
+                "chemins_en_cours_de_modification": [l for l in sale.splitlines()][:10],
+                "manifeste_source_git_head_au_moment_de_la_generation":
+                    manifeste["source_git_head"]}
+    for g in G:
+        g["preuves"] = {k: v for k, v in g["preuves"].items() if k not in VOLATILS}
     return {
-        "schema": "go_live/gate/1.0",
+        "schema": "go_live/gate/2.0",
         "date": "2026-09-15",
-        "branche": git("rev-parse", "--abbrev-ref", "HEAD"),
+        "generation_snapshot": snapshot,
         "GO_LIVE_READY": "YES" if not echecs and not ouverts else "NO",
         "gates_en_echec": echecs,
         "findings": {"total": len(findings), "ouverts": len(ouverts),
@@ -214,13 +246,16 @@ def gates() -> dict:
     }
 
 
-#: Les champs qui changent d'un commit à l'autre sans que rien n'ait bougé dans l'état du
-#: dépôt : l'empreinte du commit courant, celle de son parent, la liste des chemins
-#: modifiés. Ils sont consignés comme preuve datée, mais les comparer ferait dériver le
-#: fichier à chaque commit — la release étant commitée après les sources, l'empreinte du
-#: HEAD a nécessairement changé entre l'écriture du fichier et sa vérification.
-#: « branche » en fait partie : un arbre extrait en HEAD détaché — ce qu'est un clone de
-#: vérification — n'en porte aucune, et `git rev-parse --abbrev-ref HEAD` y répond « HEAD ».
+#: Ce qui change d'un commit à l'autre, ou d'un arbre à l'autre, sans que rien n'ait bougé
+#: dans l'état du dépôt : l'empreinte du commit courant et de son parent, le nom de la
+#: branche — un arbre extrait en HEAD détaché n'en porte aucune —, la liste des chemins en
+#: cours de modification. Un fichier de verdict qui les comparerait dériverait à chaque
+#: commit : la release est commitée après les sources, donc le HEAD a nécessairement changé
+#: entre l'écriture du fichier et sa vérification.
+#:
+#: Ces valeurs ne disparaissent pas : elles sont rangées sous `generation_snapshot`, qui se
+#: déclare non normatif. Le statut d'une gate ne dépend d'aucune d'elles — en particulier
+#: d'aucun SHA que le fichier porterait sur le commit auquel il appartient lui-même.
 VOLATILS = {"head", "parent", "branche", "chemins_sales", "manifeste_source_git_head",
             "arbre_de_travail_courant_propre", "clean_clone"}
 

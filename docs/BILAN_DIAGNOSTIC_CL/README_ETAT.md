@@ -28,8 +28,56 @@ commit qui la produit ; aucune date future n'y figure. Les sections « 5 undecie
 « 5 decies » avaient été datées du 2026-09-11 par erreur, pour des travaux commités le
 2026-09-10 à 20 h 41 et 22 h 07 : corrigé.
 
-Dernière mise à jour : 2026-09-10 — **Portes 1 à 7 produites, Porte 8 consolidée puis
-contre-expertisée, soumise à validation ; généralisation non autorisée**. L'état des instruments, des référentiels et des tests n'est plus recopié ici : il est calculé au § 1 bis et vérifié par test.
+---
+
+## 0. État courant
+
+*Dernière clôture : audit de mise en service des 14 et 15 septembre 2026.*
+
+Aucun chiffre de ce tableau n'est saisi. Chaque ligne est lue à **une** source canonique,
+nommée en regard, par `scripts/etat_depot.py` ; `scripts/audit_readme.py` refuse que le
+reste du document affirme le contraire, et `tests/test_gouvernance_documents.py` refuse
+que deux documents de gouvernance donnent deux valeurs à la même famille de faits.
+
+<!-- ETAT-CALCULE etat_courant début : produit par scripts/etat_depot.py, ne pas éditer -->
+| Fait | Valeur | Source canonique |
+|---|---|---|
+| `GO_LIVE_READY` | **YES** | `audit/GO_LIVE_GATE.json` |
+| Gates de mise en service | 12 / 12 au vert | `audit/GO_LIVE_GATE.json` |
+| Défauts d'audit encore ouverts | 0 | `audit/FINDINGS.jsonl` |
+| `READY_FOR_NEXUS_SUPPORTED_SCOPE` | **YES** | `referentiels/modalites_epreuves.json` |
+| `READY_FOR_FULL_REGULATORY_BAC_COVERAGE` | **NO** — LVA, LVB, EPS hors offre, 18 points de coefficient sur 40 | `referentiels/modalites_epreuves.json` |
+| Instruments métier | 20 | `audit/DISCIPLINARY_SCOPE.json` |
+| Variantes instrument × version | 39 | `audit/DISCIPLINARY_SCOPE.json` |
+| Questions en banque | 553 | `audit/DISCIPLINARY_SCOPE.json` |
+| Assemblages | 31 | `audit/ASSEMBLY_AUDIT.json` |
+| Livrets candidat | 69 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
+| Corrections coach | 66 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
+| Catalogues opérateur d'impression | 15 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
+| Fichiers de release | 171 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
+| États candidats valides | 12915 | `audit/AUDIT_CANDIDATE_STATE_SPACE.json` |
+| Classes de sélection | 5952 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
+| Suite complète en clone propre | 14140 passés, 0 échec, 2 ignorés motivés | `audit/CLEAN_CLONE_ACCEPTANCE.json` |
+<!-- ETAT-CALCULE etat_courant fin : produit par scripts/etat_depot.py, ne pas éditer -->
+
+**Ce que le dispositif ne couvre pas.** Langue vivante A, langue vivante B et éducation
+physique et sportive restent hors de l'offre de diagnostic. Ce sont des évaluations
+obligatoires pour le candidat individuel : le dispositif ne doit jamais être présenté
+comme couvrant l'intégralité du baccalauréat.
+
+**Une réserve réglementaire ouverte.** Aucune modalité d'évaluation ponctuelle
+d'enseignement moral et civique n'est publiée pour l'année scolaire 2026-2027 : la note du
+10 décembre 2025 ne vaut que pour 2025-2026, au titre des sessions 2026 et 2027, et elle
+abroge celle de 2021. Le livret d'EMC n'énonce donc aucune forme d'épreuve. À réévaluer à
+chaque Bulletin officiel.
+
+**Où lire quoi.** Le verdict gate par gate est dans `audit/GO_LIVE_GATE.json`, la synthèse
+destinée à la direction dans `audit/GO_LIVE_READINESS.md`, les vingt-six défauts trouvés
+et corrigés dans `audit/FINDINGS.jsonl`, la relecture question par question dans
+`audit/ITEM_AUDIT.jsonl`, et les textes officiels relevés dans
+`audit/REGULATORY_SOURCE_REGISTER.json`.
+
+L'état des instruments, des référentiels et des tests est calculé au § 1 bis.
 
 ---
 
@@ -45,60 +93,62 @@ contre-expertisée, soumise à validation ; généralisation non autorisée**. L
 | `referentiels/termes_bloquants.json` | Expressions proscrites, avec motifs et exceptions de domaine | **Effectifs : § 1 bis, calculé** |
 | `referentiels/catalogue_instruments.json` | Enregistrements instrument × version, durées cibles du § 3.1, plan de passation | **Effectifs : § 1 bis, calculé** |
 | `scripts/validate_referentiel.py` | Contrôles des quatre référentiels, importé par `validate_instrument.py` | Portes 1 et 1b |
-| `scripts/validate_instrument.py` | Contrôles d'un instrument : banque + assemblage | **Porte 1c — soumis à validation** |
-| `scripts/build_instrument.py` | Génération déterministe des quatre rendus, plus PDF | **Porte 1c — soumis à validation** |
+| `scripts/validate_instrument.py` | Contrôles d'un instrument : banque + assemblage | Validé — contrôles d'instrument |
+| `scripts/build_instrument.py` | Génération déterministe des quatre rendus, plus PDF | Validé — contrôles d'instrument |
 | `instruments/_FIXTURE/` | Instrument **fictif** de test, deux versions | Porte 1c |
 | `tests/` | Suite pytest — référentiels, validateur, générateur, français, règles de bilan, maquette, bilan, provenance, passation | **Effectifs : § 1 bis, calculé** |
 | `instruments/<CODE>/` | Banques, assemblages, grilles et formulaires des **20 instruments métier** : les quinze du Cahier initial, `MATH-EA` (Q-24), `TC-HG` (B9), `TC-EMC` (B10), `FR-POS` et `FR-POS-ORAL` (B11). S'y ajoutent `_FIXTURE`, **fixture technique** sur laquelle les contrôles s'éprouvent, et les dossiers `_MAQUETTE*`, qui sont des jeux de données et non des instruments : ni l'une ni les autres n'entrent dans le décompte du dispositif | **Inventaire, effectifs et état : § 1 bis, calculé** |
 | `referentiels/variables_qp.json` | Variables du questionnaire, typées et bornées | **Effectifs : § 1 bis, calculé** |
 | `referentiels/dimensions_met.json` | Dimensions de méthode et outillage par niveau | **Effectifs : § 1 bis, calculé** |
-| `referentiels/regles_bilan.json` | Seuils et règles de décision du moteur de bilan (§ 5.2 à § 5.5, § 7.13, § 8.1, § 8.2) | **Porte 8 — soumis à validation** |
+| `referentiels/regles_bilan.json` | Seuils et règles de décision du moteur de bilan (§ 5.2 à § 5.5, § 7.13, § 8.1, § 8.2) | Validé — moteur de bilan et passation |
 | `scripts/maquette_donnees.py` | Dérive le jeu de saisie fictif depuis la commande portée par `specification.json` | Porte 8 |
-| `scripts/maquette_bilan.py` | Moteur : scores, agrégats, groupes de planification, règles du § 8.2 ; maquette destinée à la direction | **Porte 8 — soumis à validation** |
-| `scripts/bilan.py` | Rendu déterministe du document remis : sept sections du § 8.1, deux registres, provenance des nombres, contrôles du § 6.3 | **Porte 8 — soumis à validation** |
-| `scripts/passation.py` | Plan de passation calculé : demi-journées, plafond du § 1.1, supports à distance | **Porte 8 — soumis à validation** |
-| `scripts/etat_depot.py` | Produit les blocs calculés du § 1 bis et vérifie que ce README n'a pas dérivé | **Porte 8 — soumis à validation** |
-| `scripts/diffusabilite.py` | Statut de diffusabilité d'un instrument, calculé depuis ses fichiers — source unique | **Contre-expertise — soumis à validation** |
-| `scripts/mesures.py` | Relevé sémantique des mesures diagnostiques, pour la non-régression | **Contre-expertise — soumis à validation** |
-| `scripts/preuve_registre.py` | Preuve automatisée que la version parent ne diffère que par le registre | **Contre-expertise — soumis à validation** |
-| `scripts/audit_readme.py` | Audite l'état courant du README contre le dépôt : effectifs, noms retirés, œuvres hors session, questions closes, statuts, hiérarchie des sources | **Contre-expertise — soumis à validation** |
-| `scripts/eligibilite.py` | Q-26 — éligibilité au passage de toutes les épreuves à la même session, évaluée depuis la matrice du référentiel | **Contre-expertise — soumis à validation** |
-| `referentiels/programmes_examen.json` | Cartographie réglementaire par session : œuvres au programme, épreuves anticipées, conservation des notes | **Contre-expertise — soumis à validation** |
-| `instruments/_MAQUETTE_P1/` | Jeu fictif P1 : couvre la règle de priorité du § 8.2 propre à ce profil | **Contre-expertise — soumis à validation** |
+| `scripts/maquette_bilan.py` | Moteur : scores, agrégats, groupes de planification, règles du § 8.2 ; maquette destinée à la direction | Validé — moteur de bilan et passation |
+| `scripts/bilan.py` | Rendu déterministe du document remis : sept sections du § 8.1, deux registres, provenance des nombres, contrôles du § 6.3 | Validé — moteur de bilan et passation |
+| `scripts/passation.py` | Plan de passation calculé : demi-journées, plafond du § 1.1, supports à distance | Validé — moteur de bilan et passation |
+| `scripts/etat_depot.py` | Produit les blocs calculés du § 1 bis et vérifie que ce README n'a pas dérivé | Validé — moteur de bilan et passation |
+| `scripts/diffusabilite.py` | Statut de diffusabilité d'un instrument, calculé depuis ses fichiers — source unique | Validé — contre-expertise close |
+| `scripts/mesures.py` | Relevé sémantique des mesures diagnostiques, pour la non-régression | Validé — contre-expertise close |
+| `scripts/preuve_registre.py` | Preuve automatisée que la version parent ne diffère que par le registre | Validé — contre-expertise close |
+| `scripts/audit_readme.py` | Audite l'état courant du README contre le dépôt : effectifs, noms retirés, œuvres hors session, questions closes, statuts, hiérarchie des sources | Validé — contre-expertise close |
+| `scripts/eligibilite.py` | Q-26 — éligibilité au passage de toutes les épreuves à la même session, évaluée depuis la matrice du référentiel | Validé — contre-expertise close |
+| `referentiels/programmes_examen.json` | Cartographie réglementaire par session : œuvres au programme, épreuves anticipées, conservation des notes | Validé — contre-expertise close |
+| `instruments/_MAQUETTE_P1/` | Jeu fictif P1 : couvre la règle de priorité du § 8.2 propre à ce profil | Validé — contre-expertise close |
 | `tests/instantanes/mesures.json` | Instantané des mesures, figé au commit précédent la contre-expertise | Contre-expertise |
-| `instruments/_MAQUETTE/` | Jeu fictif P3 : commande, saisie, maquette, bilans candidat et parent | **Porte 8 — soumis à validation** |
-| `instruments/_MAQUETTE_P2/` | Jeu fictif P2 en configuration « oral » : commande, saisie, bilan court | **Porte 8 — soumis à validation** |
-| `referentiels/textes_sources.json` | Registre des sept textes sources : édition, fac-similé, bornes, mesures, empreintes, usages autorisés | **Release V1 — soumis à validation** |
-| `scripts/textes_sources.py` | Contrôles du registre : appariement par empreinte, collision, contamination entre instruments, champs recalculés | **Release V1 — soumis à validation** |
-| `scripts/release.py` | Produit le manifeste de version depuis le dépôt, et son résumé lisible | **Release V1 — soumis à validation** |
-| `scripts/distribution.py` | **Banc de contrôle** de la chaîne de diffusion : scan de fuite de correction, preflight PDF, complétude des packs, doublons. Écrit dans `build/controle-diffusion/{preflight,audit-fixtures}`, hors de `release/`, sous des noms qui ne peuvent pas se confondre avec un envoi | **Livraison V1 — soumis à validation** |
-| `scripts/dates_anterieures.py` | Classe les dates postérieures à aujourd'hui : décision antérieure, citation explicative, ou inexpliquée | **Livraison V1 — soumis à validation** |
+| `instruments/_MAQUETTE/` | Jeu fictif P3 : commande, saisie, maquette, bilans candidat et parent | Validé — moteur de bilan et passation |
+| `instruments/_MAQUETTE_P2/` | Jeu fictif P2 en configuration « oral » : commande, saisie, bilan court | Validé — moteur de bilan et passation |
+| `referentiels/textes_sources.json` | Registre des sept textes sources : édition, fac-similé, bornes, mesures, empreintes, usages autorisés | Validé — registre des textes sources |
+| `scripts/textes_sources.py` | Contrôles du registre : appariement par empreinte, collision, contamination entre instruments, champs recalculés | Validé — registre des textes sources |
+| `scripts/release.py` | Produit le manifeste de version depuis le dépôt, et son résumé lisible | Validé — registre des textes sources |
+| `scripts/distribution.py` | **Banc de contrôle** de la chaîne de diffusion : scan de fuite de correction, preflight PDF, complétude des packs, doublons. Écrit dans `build/controle-diffusion/{preflight,audit-fixtures}`, hors de `release/`, sous des noms qui ne peuvent pas se confondre avec un envoi | Validé — banc de contrôle de diffusion |
+| `scripts/dates_anterieures.py` | Classe les dates postérieures à aujourd'hui : décision antérieure, citation explicative, ou inexpliquée | Validé — banc de contrôle de diffusion |
 | `DISTRIBUTION_MATRIX.csv` | Une ligne par version d'instrument : niveau, matière, profils, durée, fichiers, empreinte, prêt ou non | Généré par `scripts/distribution.py` |
 | `STUDENT_PACK_MATRIX.csv` | Une ligne par pack de profil : instruments, documents, durée totale, manquants | Généré par `scripts/distribution.py` |
 | `CANDIDATE_PROFILES.csv` | Profils de candidats du dépôt, anonymisés : diagnostics requis, documents prêts et manquants | Généré par `scripts/distribution.py` |
-| `pytest.ini` | Restreint la collecte par défaut à `tests/` : le matériel de passation NSI n'est pas la suite du dépôt | **Livraison V1 — soumis à validation** |
+| `pytest.ini` | Restreint la collecte par défaut à `tests/` : le matériel de passation NSI n'est pas la suite du dépôt | Validé — banc de contrôle de diffusion |
 | `PRINT_MATRIX.csv` | Une ligne par destinataire préparé : pack papier, archive NSI, prêt à envoyer, prêt à imprimer | Généré par `scripts/distribution.py` |
 | `APRES_LIVRAISON.md` | Le seul chantier reporté après diffusion : sortir les jeux de test de `instruments/` | Go-live V1 |
 | `MANIFESTE_DEPOT.json` | Manifeste du **dépôt** : effectifs, empreintes de banques, d'assemblages, de rendus et de PDF, textes sources, critère de fin. Nommé `RELEASE_DIAGNOSTICS_V1` jusqu'à la refonte, ce qui laissait croire à une release concurrente de `diagnostics-v2` | Généré par `scripts/release.py` |
 | `MANIFESTE_DEPOT.md` | Le même manifeste, lisible par la direction — dérivé du JSON, jamais ressaisi | Généré par `scripts/release.py` |
-| `assets/brand/` | Logos officiels Nexus — horizontal et icône — et `MARQUE.json` : dimensions, rapport, empreintes SHA-256 | **Refonte V2 — soumis à validation** |
-| `referentiels/modalites_epreuves.json` | Modalités officielles de chaque épreuve et évaluation ponctuelle : intitulé, type, durée, coefficient, structure, matériel, calculatrice, dispenses, source et NOR | **Refonte V2 — soumis à validation** |
-| `templates/nexus-livret.tex` | Gabarit éditorial A4 : palette, polices, règles de composition, bandeaux, zones de réponse, extraits, documents d'appui | **Refonte V2 — soumis à validation** |
-| `scripts/livret.py` | Compose **un livret autonome par matière**, candidat ou coach, depuis la banque et le référentiel des modalités | **Refonte V2 — soumis à validation** |
-| `scripts/release_v2.py` | Construit `release/diagnostics-v2/` : guide, livrets par profil, corrections coach, packs d'impression, interne | **Refonte V2 — soumis à validation** |
-| `scripts/planche_contact.py` | Planches de contact des couvertures et des pages intérieures, pour la revue visuelle de la direction | **Refonte V2 — soumis à validation** |
-| `tests/test_design.py` | Garde-fous de la collection : marque, couvertures, composition, zones de réponse, documents d'appui, absence de fuite de correction | **Refonte V2 — soumis à validation** |
-| `DESIGN_SYSTEM_NEXUS_DIAGNOSTICS.md` | Charte : palette, typographie, grille, règles de composition, couverture, zones, corrigés, profils | **Refonte V2 — soumis à validation** |
-| `AUDIT_MODALITES_ET_DIAGNOSTICS.md` | Audit réglementaire par épreuve, blueprints par spécialité, écarts de couverture et leurs deux statuts | **Refonte V2 — soumis à validation** |
-| `SECURITE.md` | Régime du dépôt : local, sans remote, clés dans la source | Porte 1 |
+| `assets/brand/` | Logos officiels Nexus — horizontal et icône — et `MARQUE.json` : dimensions, rapport, empreintes SHA-256 | Validé — collection V2 en service |
+| `referentiels/modalites_epreuves.json` | Modalités officielles de chaque épreuve et évaluation ponctuelle : intitulé, type, durée, coefficient, structure, matériel, calculatrice, dispenses, source et NOR | Validé — collection V2 en service |
+| `templates/nexus-livret.tex` | Gabarit éditorial A4 : palette, polices, règles de composition, bandeaux, zones de réponse, extraits, documents d'appui | Validé — collection V2 en service |
+| `scripts/livret.py` | Compose **un livret autonome par matière**, candidat ou coach, depuis la banque et le référentiel des modalités | Validé — collection V2 en service |
+| `scripts/release_v2.py` | Construit `release/diagnostics-v2/` : guide, livrets par profil, corrections coach, packs d'impression, interne | Validé — collection V2 en service |
+| `scripts/planche_contact.py` | Planches de contact des couvertures et des pages intérieures, pour la revue visuelle de la direction | Validé — collection V2 en service |
+| `tests/test_design.py` | Garde-fous de la collection : marque, couvertures, composition, zones de réponse, documents d'appui, absence de fuite de correction | Validé — collection V2 en service |
+| `DESIGN_SYSTEM_NEXUS_DIAGNOSTICS.md` | Charte : palette, typographie, grille, règles de composition, couverture, zones, corrigés, profils | Validé — collection V2 en service |
+| `AUDIT_MODALITES_ET_DIAGNOSTICS.md` | Audit réglementaire par épreuve, blueprints par spécialité, écarts de couverture et leurs deux statuts | Validé — collection V2 en service |
+| `SECURITE.md` | Régime du dépôt : clés de correction dans la source versionnée, aucune donnée nominative | Porte 1 · révisé au versement dans le dépôt parent |
 | `.gitignore` | Exclut `instruments/*/build/` et les fichiers de travail | Porte 1 |
 
 Aucun référentiel, aucune banque d'items, aucun gabarit, aucun script ne préexiste.
 Aucun `AGENTS.md` dans le dossier ni dans son parent immédiat ; un `AGENTS.md` global
 existe dans `~/` (règles de méthode : validation des specs avant code, découpage en
 étapes validées, TDD, vérification avant de déclarer terminé) — appliqué.
-Le dossier n'était **pas** un dépôt Git à l'audit ; il l'est depuis la Porte 1 (décision A-06 :
-branche `diagnostic/instruments`, un commit par porte, aucun remote).
+Le dossier n'était **pas** un dépôt Git à l'audit. Il l'est depuis la Porte 1, puis il a
+été versé dans le dépôt parent `nexus-project_v0`, dont il suit désormais la branche et le
+remote `origin` sur GitHub. La décision A-06 — « aucun remote » — décrivait le régime de
+la Porte 1 ; elle est historique.
 
 ## 1 bis. État calculé du dépôt
 
@@ -157,7 +207,7 @@ cesse d'être un état dès la porte suivante.
 | Fichier de test | Fonctions de test |
 |---|---|
 | `tests/test_audit_inventory.py` | 14 |
-| `tests/test_audit_readme.py` | 15 |
+| `tests/test_audit_readme.py` | 18 |
 | `tests/test_bareme_atteignable_et_supports.py` | 5 |
 | `tests/test_bilan.py` | 34 |
 | `tests/test_bordereau_durees.py` | 3 |
@@ -178,7 +228,8 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_francais.py` | 15 |
 | `tests/test_gate_profil.py` | 12 |
 | `tests/test_go_duree.py` | 6 |
-| `tests/test_go_live_gate.py` | 6 |
+| `tests/test_go_live_gate.py` | 8 |
+| `tests/test_gouvernance_documents.py` | 10 |
 | `tests/test_hg_tle_documents.py` | 8 |
 | `tests/test_intitules_versionnes.py` | 7 |
 | `tests/test_maquette.py` | 36 |
@@ -205,7 +256,7 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **813** |
+| **total** | **828** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -243,7 +294,7 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:145` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_espace_candidats.py:39` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_export_deterministe.py:67` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_go_live_gate.py:107` | arbre de travail en cours de modification — cette gate est vérifiée dans le clone propre, où l'arbre est nécessairement propre | GATE 01 du verdict de mise en service : la source de vérité est propre et le HEAD est celui qu'on croit | non — contrôle de provenance, pas de contenu d'instrument | sans effet sur la diffusabilité : la gate est rejouée dans le clone propre de `audit/CLEAN_CLONE_ACCEPTANCE.json`, où l'arbre ne peut pas être sale, et le fichier `audit/GO_LIVE_GATE.json` porte son verdict. L'ignorer pendant qu'on travaille évite qu'un fichier ouvert dans l'éditeur fasse échouer la suite |
+| `pytest.skip` | `tests/test_go_live_gate.py:135` | arbre de travail en cours de modification — cette gate est vérifiée dans le clone propre, où l'arbre est nécessairement propre | GATE 01 du verdict de mise en service : la source de vérité est propre et le HEAD est celui qu'on croit | non — contrôle de provenance, pas de contenu d'instrument | sans effet sur la diffusabilité : la gate est rejouée dans le clone propre de `audit/CLEAN_CLONE_ACCEPTANCE.json`, où l'arbre ne peut pas être sale, et le fichier `audit/GO_LIVE_GATE.json` porte son verdict. L'ignorer pendant qu'on travaille évite qu'un fichier ouvert dans l'éditeur fasse échouer la suite |
 | `pytest.skip` | `tests/test_pack_candidat.py:391` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:640` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_candidat.py:711` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
@@ -299,40 +350,16 @@ Tous produits. **Effectifs : § 1 bis, calculés** — ce paragraphe ne les reco
 
 ### Instruments (source unique `banque.json` + assemblages + `build/`)
 
-**Deux périmètres, à ne pas confondre.** Le *périmètre du Cahier initial* compte **quinze
-instruments**. Le *périmètre réglementaire corrigé* en compte **seize** : l'audit du 2026-09-10 a
-établi qu'une épreuve anticipée de mathématiques est due à compter de la session 2027 (Q-24), et
-**`MATH-EA` a été créé le même jour**, sur autorisation de la direction et après le passage du
-gate réglementaire. Les seize sont produits. Effectifs, assemblages, durées et état de diffusion :
-**§ 1 bis, calculé**. Les cinq instruments qui attendaient un texte — `FR-EAF`,
-`FR-EAF-ORAL`, `FR-MAI`, `PHI`, `EDS-HLP` — l'ont reçu le 2026-09-11 (§ 4) : **les seize
-sont diffusables**. `FR-ORAL` est retiré du dépôt depuis Q-20 et remplacé par
-`FR-EAF-ORAL`.
+**Le périmètre s'est élargi trois fois depuis le Cahier.**
+Le périmètre du Cahier initial comptait quinze instruments. L'audit du 2026-09-10 a établi qu'une épreuve anticipée de
+mathématiques est due à compter de la session 2027 (Q-24) : `MATH-EA` a été créé le même
+jour. Les extensions B9, B10 et B11 ont ensuite fait entrer `TC-HG`, `TC-EMC`, `FR-POS` et
+`FR-POS-ORAL`. **Le nombre d'instruments métier du périmètre courant est celui du § 0, et
+il est calculé** ; effectifs, assemblages, durées et état de diffusion sont au § 1 bis.
 
-## 3. Ce qui est produit dans cette session
-
-**Rien avant validation de la Porte 1.** Ordre prévu (Cahier § 10, portes du prompt § 6) :
-
-| Porte | Contenu | Statut |
-|---|---|---|
-| — | Audit du dossier, lecture du Cahier, `README_ETAT.md` | **fait** |
-| — | Questions d'arbitrage de démarrage (§ 9) | **8 tranchées le 2026-09-10, 7 reportées aux portes concernées** |
-| 1 | `referentiels/competences.json` + `validate_referentiel.py` + dépôt Git | **validée** |
-| 1b | `codes_erreur.json`, `termes_bloquants.json`, `catalogue_instruments.json` + validateur étendu | **validée** |
-| 1c | `validate_instrument.py`, `build_instrument.py`, fixture, 125 tests | **validée** |
-| 2 | FR-EAF (à l'époque, FR-ORAL reporté en Porte 4 ; retiré depuis par Q-20) | **validée** — instrument non diffusable jusqu'à insertion des textes |
-| 3 | EDS-MATH N1 et NT | **produite, clôturée — instrument terminé** |
-| 4 | PHI, FR-MAI, GO, et FR-ORAL — ce dernier retiré depuis par Q-20 | **produite — GO terminé, PHI et FR-MAI non diffusables (textes à insérer)** |
-| 5 | EDS-PC, EDS-SVT, EDS-SES | **validée, clôturée — les trois terminés** |
-| 6 | EDS-NSI, EDS-HGGSP, EDS-HLP | **produite — NSI et HGGSP terminés, HLP « en cours »** |
-| 7 | TC-ES, MET, QP | **produite — les trois terminés** |
-| 8 | Moteur de bilan, maquettes v1 et v2, configurations du français, bilan de sortie, consolidation | **produite — soumise à validation** |
-
-Étapes de la Porte 8, dans l'ordre : seuils du moteur portés au référentiel · maquette du bilan
-sur candidat fictif · audit de la direction et maquette v2 · configurations du français (Q-19 à
-Q-21) · calibration par le bloc 0 (R1, P1, P2) · bilan de sortie P3 et bilan court P2 ·
-**consolidation** (Q-22, EC-27 repris, provenance des nombres, plan de passation, README
-calculé) — § 5 decies.
+Tous sont produits et diffusables. Les cinq instruments qui attendaient un texte —
+`FR-EAF`, `FR-EAF-ORAL`, `FR-MAI`, `PHI`, `EDS-HLP` — l'ont reçu le 2026-09-11 (§ 4).
+`FR-ORAL` est retiré du dépôt depuis Q-20 et remplacé par `FR-EAF-ORAL`.
 
 ## 4. Textes sources insérés
 
@@ -428,10 +455,12 @@ Les quatre tableaux restent versionnés — ce sont des index, pas des rendus :
 Ils sont recopiés dans `release/diagnostics-v2/04_INTERNE/` : l'opérateur qui ouvre la
 release n'a pas à revenir dans le dépôt pour les lire.
 
-**154 combinaisons ne sont pas 154 élèves.** Le dépôt ne porte aucune liste d'inscrits :
-`PROFILE_COMBINATIONS = 154` est le catalogue des profils possibles, `ACTIVE_CANDIDATES = 0`
-l'effectif réel. La combinatoire reste un contrôle interne ; elle n'est plus une
-expérience utilisateur.
+**Une combinaison n'est pas un élève.** Le dépôt ne porte aucune liste d'inscrits :
+`PROFILE_COMBINATIONS` est le catalogue des profils possibles — sa valeur courante est
+calculée par `scripts/release.py` et portée par `MANIFESTE_DEPOT.json` —, tandis que
+`ACTIVE_CANDIDATES = 0` est l'effectif réel. La combinatoire est un contrôle interne ;
+elle n'est pas une expérience utilisateur. Le nombre d'états candidats et celui des
+classes de sélection sont au § 0.
 
 **Deux instruments ne s'envoient pas.** L'entretien oral de français et le Grand oral sont
 menés par un coach avec une grille : leur `delivery_mode` vaut `COACH_INTERVIEW`. Ils
@@ -447,13 +476,16 @@ Ce que le candidat reçoit n'est plus une archive à décompresser : ce sont des
 | `00_GUIDE/` | `GUIDE_OPERATEUR.pdf`, la matrice des profils, la matrice des épreuves officielles, les planches de contact |
 | `01_LIVRETS_CANDIDAT/` | `PROFIL_A_PREMIERE_PARTIE/`, `PROFIL_B_DEUXIEME_PARTIE/`, `PROFIL_C_BAC_EN_UNE_SESSION/` — un PDF par matière, plus le dossier d'entrée |
 | `02_CORRECTIONS_COACH/` | le corrigé de chaque livret, même arborescence, couverture bordeaux, `CONFIDENTIEL` en pied de chaque page |
-| `03_IMPRESSION/` | un PDF par profil, assemblé depuis les mêmes livrets, intercalaire avant chaque matière et signets |
+| `03_IMPRESSION/` | les **catalogues opérateur**, assemblés depuis les mêmes livrets : plusieurs par profil, un par combinaison de recueil, avec intercalaire avant chaque matière et signets. Leur nombre est au § 0 ; leur liste est portée par `referentiels/catalogues_operateur.json` |
 | `04_INTERNE/` | matériel NSI sur machine, tableaux techniques, manifeste — jamais remis à une famille |
 
-**36 livrets distincts couvrent 1 027 combinaisons.** Le nombre de fichiers ne suit plus le
-nombre de combinaisons possibles : un livret de mathématiques de profil A est le même quels
-que soient les autres enseignements du candidat. Les 154 archives de la V1 étaient une
-expérience utilisateur, pas un catalogue ; le catalogue, ce sont les livrets.
+**Le nombre de fichiers ne suit pas le nombre de combinaisons.** Un livret de
+mathématiques de profil A est le même quels que soient les autres enseignements du
+candidat : quelques dizaines de livrets canoniques couvrent des milliers de situations.
+Les effectifs exacts — livrets candidat, corrections coach, catalogues opérateur, classes
+de sélection, états candidats — sont au § 0, lus au manifeste de la release. Les archives
+de combinaison de la V1 étaient une expérience utilisateur, pas un catalogue ; le
+catalogue, ce sont les livrets.
 
 **Le candidat ne voit aucun code technique.** Ni `N1`, ni `NT`, ni `SPECIFIQUES`, ni
 `ETENDUE`, ni `standard_2028`. Les trois profils portent leur nom : *Première partie du
@@ -473,13 +505,58 @@ existe.
 | A-03 | Format d'identifiant | **Niveau 2/1/T pour les périmètres adossés à un programme ; jeton de périmètre (EAF, MAI) pour le français.** Tracé sous `conventions.item_id`. |
 | A-04 | Format des rendus | **Markdown source + PDF généré par script.** `xelatex`, `pdflatex` et `weasyprint` sont disponibles sur le poste. |
 | A-05 | Calculatrice (Q-05) | **Bloc C uniquement**, mode examen, sans programme ni mémoire accessible. Consigne identique en MATH et PC. Blocs A, B et D sans calculatrice : ils mesurent des automatismes et des ordres de grandeur. |
-| A-06 | Dépôt Git (Q-07) | **`git init`, branche `diagnostic/instruments`, un commit par porte** (message = titre de la porte), aucun `git add -A`, **aucun remote**. Les clés restent dans la source versionnée ; seul `build/` est exclu. Voir `SECURITE.md`. |
+| A-06 | Dépôt Git (Q-07) | **`git init`, un commit par porte**, aucun `git add -A`. Les clés restent dans la source versionnée ; seul `build/` est exclu. Voir `SECURITE.md`. *La mention « aucun remote » de cet arbitrage décrivait la Porte 1 : le dossier a depuis été versé dans le dépôt parent, poussé sur son `origin` GitHub.* |
 | A-07 | Termes bloquants (Q-15) | **Expressions contextualisées**, jamais de mots isolés. Chaque entrée porte `motif`, `contexte_interdit` et `exceptions_domaine` ; le validateur affiche 60 caractères de contexte de part et d'autre. Toute exception ajoutée est listée dans le rapport de la porte. |
-| A-08 | Périmètre V1 (Q-09) | **HG, LV et EMC hors périmètre.** Aucun code de compétence créé pour ces matières, pas même vide. |
+| A-08 | Périmètre V1 (Q-09) | Décision de la V1 : « HG, LV et EMC hors périmètre ». *Révisée depuis : `TC-HG` est entré au périmètre par l'extension B9 et `TC-EMC` par B10 ; tous deux sont diffusables et servis. Seules les langues vivantes restent hors offre, avec l'EPS — voir le § 0.* |
 | A-09 | Compétences sans items (Q-12) | Statut **`indicateur_transversal`** : FR-MAI/ORAL (`evaluee_par: GO`) et HLP/LANG (`evaluee_par: criteres_C`, `code_critere: LANG`). Exclues de la règle 3 items / 2 paliers, soumises à un minimum de 2 sources. |
 | A-10 | États de compétence | **`hors_version`** (référentiel : hors programme du niveau, absente du bilan) distingué de **`non_evaluee`** (moteur § 5.2 : moins de 3 items renseignés). Une compétence `hors_version` n'est jamais rendue « Non évaluée ». |
 
-## 7. Dossiers réglementaires ouverts
+<!-- HISTORIQUE début : phrases datées, citées comme telles -->
+
+## Historique des décisions et des audits
+
+*Tout ce qui suit, jusqu'au registre des questions, est un journal daté : ces sections disent ce qui a été décidé à une date, non ce qui est vrai aujourd'hui. Elles peuvent citer un nom retiré depuis, un effectif d'alors ou une règle amendée. L'état courant est aux sections 1 à 5 et 8 à 10.*
+
+## Journal des portes de production (HISTORIQUE — ne décrit pas l'état courant)
+
+Ce tableau dit dans quel ordre le dispositif a été bâti. Les statuts d'instrument
+qu'il porte — « non diffusable », « en cours », « soumise à validation » — étaient
+vrais à la porte concernée et ont tous été levés depuis. L'état courant est au § 0.
+
+
+**Toutes les portes sont closes.** Ce tableau est le journal de la production initiale : il
+dit dans quel ordre le dispositif a été bâti, et non l'état d'aujourd'hui, qui est au § 0.
+Les statuts d'instrument qu'il porte — « non diffusable », « en cours » — étaient vrais à
+la porte concernée ; ils ont tous été levés depuis (§ 4, extensions B9 à B11, audit de
+clôture des 14 et 15 septembre 2026).
+
+| Porte | Contenu | Statut |
+|---|---|---|
+| — | Audit du dossier, lecture du Cahier, `README_ETAT.md` | **fait** |
+| — | Questions d'arbitrage de démarrage (§ 9) | **8 tranchées le 2026-09-10, 7 reportées aux portes concernées** |
+| 1 | `referentiels/competences.json` + `validate_referentiel.py` + dépôt Git | **validée** |
+| 1b | `codes_erreur.json`, `termes_bloquants.json`, `catalogue_instruments.json` + validateur étendu | **validée** |
+| 1c | `validate_instrument.py`, `build_instrument.py`, fixture, 125 tests | **validée** |
+| 2 | FR-EAF (à l'époque, FR-ORAL reporté en Porte 4 ; retiré depuis par Q-20) | **validée** — instrument non diffusable jusqu'à insertion des textes |
+| 3 | EDS-MATH N1 et NT | **produite, clôturée — instrument terminé** |
+| 4 | PHI, FR-MAI, GO, et FR-ORAL — ce dernier retiré depuis par Q-20 | **produite — GO terminé, PHI et FR-MAI non diffusables (textes à insérer)** |
+| 5 | EDS-PC, EDS-SVT, EDS-SES | **validée, clôturée — les trois terminés** |
+| 6 | EDS-NSI, EDS-HGGSP, EDS-HLP | **produite — NSI et HGGSP terminés, HLP « en cours »** |
+| 7 | TC-ES, MET, QP | **produite — les trois terminés** |
+| 8 | Moteur de bilan, maquettes v1 et v2, configurations du français, bilan de sortie, consolidation | **validée, close** |
+
+Étapes de la Porte 8, dans l'ordre : seuils du moteur portés au référentiel · maquette du bilan
+sur candidat fictif · audit de la direction et maquette v2 · configurations du français (Q-19 à
+Q-21) · calibration par le bloc 0 (R1, P1, P2) · bilan de sortie P3 et bilan court P2 ·
+**consolidation** (Q-22, EC-27 repris, provenance des nombres, plan de passation, README
+calculé) — § 5 decies.
+
+## Q-24 et Q-26 — dossiers réglementaires, instruits et clos (HISTORIQUE — ne décrit pas l'état courant)
+
+Ces deux dossiers étaient ouverts le 2026-09-10 et bloquaient la généralisation.
+Ils sont tranchés : la décision en vigueur est au § 8 bis. Le dossier d'instruction
+est conservé ci-dessous pour mémoire.
+
 
 Deux questions bloquent la suite : elles portent sur ce que le candidat **doit** présenter,
 et aucune n'est tranchable dans le dépôt. La cartographie est portée par
@@ -582,12 +659,6 @@ créées ; un test refuse leur entrée au formulaire tant que la direction ne l'
 jeux de maquette les portent dans leur `qp.json` pour exercer la règle avant son branchement,
 et les jeux P2 et P3 portent leur pièce justificative : ils franchissent le gate pour de bon,
 sans user de la porte de simulation que le mode de rendu « maquette » ouvre.
-
-<!-- HISTORIQUE début : phrases datées, citées comme telles -->
-
-## Historique des décisions et des audits
-
-*Tout ce qui suit, jusqu'au registre des questions, est un journal daté : ces sections disent ce qui a été décidé à une date, non ce qui est vrai aujourd'hui. Elles peuvent citer un nom retiré depuis, un effectif d'alors ou une règle amendée. L'état courant est aux sections 1 à 5 et 8 à 10.*
 
 ## 5 quatervicies. Fermeture des huit bloqueurs d'acceptation (2026-09-12)
 
@@ -1740,12 +1811,8 @@ donné — le plafond de 18 h qui fonde la décision Q-18 : 3 h × 6 matières p
 
 ## 8. Questions d'arbitrage reportées
 
-Chacune sera reposée **complète, avec recommandation, à la porte qu'elle bloque**.
-
-| # | Question | Recommandation | Bloque |
-|---|---|---|---|
-| **Q-24** | **Épreuve anticipée de mathématiques**, créée à compter de la session 2027 (2 h, coefficient 2, sans calculatrice) : le Cahier l'ignore, aucun instrument ne la mesure, et le questionnaire n'a pas de variable pour la porter. | Ouvrir une variable `maths_anticipees_a_presenter` sur le modèle du français, puis créer un instrument dédié — l'épreuve a son format propre et concerne aussi les candidats sans spécialité mathématiques, qu'aucun périmètre actuel ne couvre. Dossier complet au § 5 undecies. | **Généralisation — arbitrage requis avant toute création d'instrument** |
-| **Q-26** | **Éligibilité au passage de toutes les épreuves à la même session** : le profil P3 était ouvert à qui le demandait, alors que l'article 3 de l'arrêté du 16 juillet 2018 énumère les situations qui l'autorisent. | Matrice, règle déterministe et variables minimales proposées au § 7 ; confirmer le texte au Journal officiel, puis décider l'entrée des six variables au questionnaire. Tant que la réserve tient, aucun bilan de production ne devrait ouvrir P3 sans fondement enregistré. | **Généralisation — arbitrage requis** |
+**Aucune.** Les deux dernières — Q-24 et Q-26 — sont tranchées et en vigueur ; elles
+figurent au § 8 bis. Leur dossier d'instruction est conservé à l'historique.
 
 ## 8 bis. Questions tranchées
 
@@ -1754,6 +1821,8 @@ l'historique, section indiquée.
 
 | # | Objet | Décision | Où |
 |---|---|---|---|
+| **Q-24** | Épreuve anticipée de mathématiques, session 2027 | **Tranchée et implémentée.** `MATH-EA` existe, en deux parcours : `SPE` pour le candidat qui a suivi la spécialité mathématiques en première, `SPECIFIQUES` pour celui qui a suivi les mathématiques du tronc commun. Le parcours n'est pas demandé au candidat : il est **dérivé de ses spécialités de première**. Le contexte temporel est modélisé sur trois axes — session finale, année scolaire de passation de l'épreuve anticipée, mode de passation — et les dispenses transitoires de l'article 17 de l'arrêté du 10 juin 2025 sont prises en compte. **Ne bloque plus rien.** | Dossier à l'historique · oracles `tests/oracles_reglementaires.py` · `referentiels/capacites_mathematiques.json` |
+| **Q-26** | Éligibilité au passage de toutes les épreuves à la même session | **Tranchée et implémentée.** L'article 3 de l'arrêté du 16 juillet 2018 est modélisé : ses douze critères sont couverts, le **droit** et la **preuve** sont tenus séparément, et le profil P3 ne s'ouvre qu'avec une éligibilité réglementaire établie *et* la vérification correspondante. À défaut, aucun instrument n'est dérivé et aucun plan de passation ne se construit. **Ne bloque plus rien.** | Dossier à l'historique · `scripts/eligibilite.py` · `audit/AUDIT_SAME_SESSION_ELIGIBILITY.json` |
 | Q-08 | Instruments sans items scorés | Structure allégée `definition.json` ; le validateur n'applique que les contrôles pertinents | Portes 4 et 7 |
 | Q-13 | NSI — barème du critère « tests passés » | Conversion par tranches, `conventions.bareme_tests_machine` | Porte 6 |
 | Q-14 | SVT — critères de grille rattachés à DOC | Chaque critère est rattaché à sa compétence propriétaire (EC-08) | Porte 5 |

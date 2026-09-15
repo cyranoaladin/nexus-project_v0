@@ -2,7 +2,7 @@
   "schema": "nexus.audit.file_inventory",
   "produit_par": "scripts/audit_inventory.py",
   "racine": "docs/BILAN_DIAGNOSTIC_CL",
-  "total": 392,
+  "total": 394,
   "par_categorie": {
     "ASSEMBLY": 31,
     "AUDIT_FIXTURE": 48,
@@ -14,9 +14,9 @@
     "MANIFEST": 19,
     "PRINT_COLLECTION": 15,
     "REFERENTIAL": 13,
-    "SOURCE": 31,
+    "SOURCE": 32,
     "TEMPLATE": 4,
-    "TEST": 52
+    "TEST": 53
   },
   "fichiers": [
     {
@@ -70,14 +70,14 @@
     },
     {
       "path": "MANIFESTE_DEPOT.json",
-      "sha256": "469c0b378db5db112a618ca357c4fa425a6b22a3f45cf6998d929eb0159cbd40",
+      "sha256": "88e6afb723498dfda176930c1fdb5d81646b7ae032aafac6cd9c874bb7cd2e6b",
       "size": 109960,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
     },
     {
       "path": "MANIFESTE_DEPOT.md",
-      "sha256": "0a613c9be4c7745abad857d58b9621f5863b18021c2a3944ae37daabf28d0ff9",
+      "sha256": "a92d6939bb3880500f83f7c67e9e523b101fc8f8a66ff0a18d83fde569573009",
       "size": 5323,
       "category": "MANIFEST",
       "role": "manifeste du dépôt : instruments, empreintes, critère de fin"
@@ -98,8 +98,8 @@
     },
     {
       "path": "README_ETAT.md",
-      "sha256": "72f00954864d512f5fe3d2781b9021651fd6ca821d5bd7419c78d946cdefb093",
-      "size": 157783,
+      "sha256": "4becbb6896239ead5692ee1a6ab18a9100729f5ef1ed22cf4e477b4f0e0d7d78",
+      "size": 162842,
       "category": "DOCUMENTATION",
       "role": "documentation gouvernante ou de conception"
     },
@@ -2149,14 +2149,14 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "4fdcbfb74bd61b158bf58abc3cdb2c14f44dc7d060e6bffd6ecc00193543074a",
+      "sha256": "ee46091f4d3be81eac6cb3808523e997d917591f87c5e1c7c19b0c19a7ca88ea",
       "size": 112048,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "b89daa73c75b056c529797a696dbf729963c1fb1ceab5b7c92545b15c73a7ca8",
+      "sha256": "db3acb55e56bc2d8a3957bf2024df74d20329539fd6a3094ff07a5f5524fd043",
       "size": 24235,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
@@ -2191,8 +2191,8 @@
     },
     {
       "path": "scripts/audit_readme.py",
-      "sha256": "7bf41406234312304e6598c4fe3bfa536c026919b5c5ab48b620796682491a46",
-      "size": 11083,
+      "sha256": "4d9ff48f7918d6bcb30fe59f44b26930bd26b0b7d59abe2e1295e10c8b88b41b",
+      "size": 18703,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2254,8 +2254,8 @@
     },
     {
       "path": "scripts/etat_depot.py",
-      "sha256": "c934e35305df55461c0767aaf80b5b23ea37e18c530330e75e0ce5829bb96703",
-      "size": 16582,
+      "sha256": "29a88555512aab8a90fd5c75f5c5571ac8c84a9e1441bada2efd6da5138b10d2",
+      "size": 21237,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2275,8 +2275,15 @@
     },
     {
       "path": "scripts/go_live_gate.py",
-      "sha256": "00e469c3bd66035089791b7b520e59c7c344cf57862ece296b09f0581814e7f0",
-      "size": 13087,
+      "sha256": "c1b7b762f3979eedc2894bc8fda09ddf55505573842daec18161b523ae8fe973",
+      "size": 15419,
+      "category": "SOURCE",
+      "role": "moteur : validation, composition, release, packs"
+    },
+    {
+      "path": "scripts/go_live_readiness.py",
+      "sha256": "64e02080c23ae1658334ee161b8063225d3fdc78558c66c31fc34dadecb4dcaf",
+      "size": 12035,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2429,8 +2436,8 @@
     },
     {
       "path": "tests/test_audit_readme.py",
-      "sha256": "387184018b295dd8845456cf1b21a61a8bfc584e0291716f8c53023e6e57375c",
-      "size": 6713,
+      "sha256": "89a8355465a1a599e9c5d23aaf9c4bc8d385171a69e698b3ab1c804752549f7d",
+      "size": 11264,
       "category": "TEST",
       "role": "test de non-régression"
     },
@@ -2576,8 +2583,15 @@
     },
     {
       "path": "tests/test_go_live_gate.py",
-      "sha256": "a750017b31ed04a45aeffc8bcb05ae5154a9988a1a50d1bef6322f638ab71ab8",
-      "size": 4795,
+      "sha256": "9800c66b085a832d14f744ae8df265246923f9cb85292ebc52ec2ea16b5ee376",
+      "size": 6220,
+      "category": "TEST",
+      "role": "test de non-régression"
+    },
+    {
+      "path": "tests/test_gouvernance_documents.py",
+      "sha256": "3af699ab938cd0f45a6c5d39911ff52a00391bad70c42e60aeb95a5d70406f56",
+      "size": 7886,
       "category": "TEST",
       "role": "test de non-régression"
     },
