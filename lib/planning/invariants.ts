@@ -46,6 +46,7 @@
  */
 
 import type { Prisma, SessionStatus } from '@prisma/client';
+import { getOrganizationTimezone, zonedWallClockToUtcInstant } from '../timezone';
 import {
   loadPlanningIdentitySnapshot,
   verifyPlanningIdentities,
@@ -94,6 +95,27 @@ export function combineDateAndTime(date: Date, time: string): Date {
   return new Date(
     Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), hours, minutes),
   );
+}
+
+/**
+ * Combine une date calendaire et une heure murale organisation `"HH:MM"` en
+ * l'INSTANT UTC réel qu'elle représente — contrairement à
+ * `combineDateAndTime` (pseudo-UTC : l'heure murale est encodée directement
+ * dans les accesseurs UTC, valable uniquement pour des comparaisons
+ * internes entre valeurs de même convention), le résultat ici est un vrai
+ * instant, comparable directement à `Date.now()` / `new Date()`.
+ *
+ * Le fuseau et le décalage sont résolus dynamiquement via
+ * `lib/timezone.ts` (seule autorité, partagée avec `lib/planning/series.ts`
+ * et — via celui-ci — la planification des ateliers ARIA) plutôt que codés
+ * en dur, avec une politique explicite et testée pour les heures murales
+ * AMBIGUËS ou INEXISTANTES près d'une transition DST (voir
+ * `zonedWallClockToUtcInstant` — jamais une simple soustraction d'un seul
+ * décalage non vérifié).
+ */
+export function tunisWallClockToUtcInstant(date: Date, time: string): Date {
+  const pseudoUtc = combineDateAndTime(date, time);
+  return zonedWallClockToUtcInstant(getOrganizationTimezone(), pseudoUtc).instant;
 }
 
 /** Statuts `SessionBooking` considérés actifs — même ensemble que les

@@ -61,6 +61,7 @@
 
 import { Prisma, type SessionModality, type SessionType, type Subject } from '@prisma/client';
 import { getCourse } from '@/lib/curriculum/catalog';
+import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
 import {
   verifyPlanningInvariants,
   ACTIVE_BOOKING_STATUSES,
@@ -191,20 +192,27 @@ function addUTCDays(date: Date, days: number): Date {
 }
 
 /**
- * Instant courant décalé de +1h (Africa/Tunis, décalage FIXE UTC+1, aucun
- * DST depuis 2009) — SANS troncature au jour, heures et minutes conservées.
+ * Instant courant décalé du fuseau Africa/Tunis — SANS troncature au jour,
+ * heures et minutes conservées.
  *
  * C'est le seul instant comparable directement à une valeur produite par
  * `combineDateAndTime` (lib/planning/invariants.ts) : celle-ci encode
  * l'heure murale Tunis directement comme des accesseurs UTC ("pseudo-UTC"),
- * donc son instant réel est toujours `valeur - 1h`. Comparer un `Date.now()`
- * réel à une valeur pseudo-UTC sans ce décalage introduit un biais d'1h
- * (fix dashboards nextSession, Tâche 13) — cette fonction est la contrepartie
- * « instant » de `tunisTodayUtcMidnight` (contrepartie « jour »), même
- * bascule +1h.
+ * donc son instant réel est toujours `valeur - décalage`. Comparer un
+ * `Date.now()` réel à une valeur pseudo-UTC sans ce décalage introduit un
+ * biais (fix dashboards nextSession, Tâche 13) — cette fonction est la
+ * contrepartie « instant » de `tunisTodayUtcMidnight` (contrepartie « jour »).
+ *
+ * Le décalage est calculé dynamiquement via `lib/timezone.ts` (seule
+ * autorité, dérivée de l'IANA tzdata via `Intl`) plutôt que codé en dur —
+ * ce même calcul alimente aussi, transitivement, la planification des
+ * ateliers ARIA (`lib/aria/application/workshop/queue-due-workshop-
+ * reminders.ts`, qui appelle cette fonction).
  */
 export function tunisNowAsPretendUtc(): Date {
-  return new Date(Date.now() + 60 * 60 * 1000);
+  const now = Date.now();
+  const offsetHours = getOrganizationUtcOffsetHours(new Date(now));
+  return new Date(now + offsetHours * 60 * 60 * 1000);
 }
 
 /**

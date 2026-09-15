@@ -566,6 +566,7 @@ jobs:
             __tests__/integration/family-registration.real.test.ts \
             __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/integration/assignment-concurrency.real.test.ts \
+            __tests__/integration/session-video-join-state-race.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure
@@ -788,6 +789,12 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # `NEXT_PUBLIC_*` vars are inlined into the client bundle at build
+          # time, so lib/jitsi.ts's fail-closed check (baked in as
+          # NODE_ENV==='production' for this bundle regardless of the
+          # runner's ambient env) needs this set HERE, not only where
+          # JITSI_ROOM_SECRET (a server-only var, checked at runtime) lives.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           # "next build"'s own type-check pass (not the separate, fast
           # `tsc --noEmit` typecheck job) OOMs on the runner's default V8
           # heap ceiling (~2GB) once the type surface grows past a point --
@@ -819,6 +826,18 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          # Same lib/env-validation.ts fail-fast reason, for the Jitsi
+          # room-identity secret (lib/jitsi-server.ts) and server URL
+          # (lib/jitsi.ts) — both REQUIRED/prodOnly, and this build always
+          # runs as a production build (NODE_ENV is baked to 'production'
+          # for both the Node server and the client bundle regardless of
+          # the runner's ambient env), so both fail closed without these.
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler
           # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler):
           # EMAIL_OUTBOX_WORKER_CONFIGURATION_REQUIRED in production unless
@@ -1076,6 +1095,9 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the other job's build step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build:e2e
 
@@ -1093,6 +1115,12 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e-auth
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
           SMTP_HOST: 127.0.0.1
@@ -1350,6 +1378,9 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the other job's build step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build:e2e
 
@@ -1367,6 +1398,12 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e-auth
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
           SMTP_HOST: 127.0.0.1
@@ -1704,6 +1741,10 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the E2E job's "Build Next.js for
+          # E2E" step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           # See the matching comment on the E2E job's "Build Next.js for
           # E2E" step -- same OOM, same fix, same reasoning.
           NODE_OPTIONS: --max-old-space-size=4096
@@ -1738,6 +1779,9 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-build-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler -- see the
           # matching comment on the E2E job's "Start Next.js server in
           # background" step.

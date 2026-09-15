@@ -149,6 +149,9 @@ services:
 
       # Jitsi Video Conferencing
       NEXT_PUBLIC_JITSI_SERVER_URL: ${NEXT_PUBLIC_JITSI_SERVER_URL:-https://meet.jit.si}
+      # Dedicated room-identity secret (lib/jitsi-server.ts) — required,
+      # never NEXTAUTH_SECRET. Same pattern as RATE_LIMIT_KEY_SECRET above.
+      JITSI_ROOM_SECRET: ${JITSI_ROOM_SECRET:?JITSI_ROOM_SECRET is required}
 
       # Rate Limiting
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}

@@ -18,6 +18,12 @@ interface SessionData {
   scheduledAt: string;
   duration: number;
   status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  // Computed server-side, deterministically, from the sessionId alone —
+  // every participant who fetches this endpoint for the same session
+  // gets this exact same value. Never compute a room name client-side
+  // (the previous `session-${sessionId}-${Date.now()}` meant the coach
+  // and the student never landed in the same room).
+  roomName: string;
 }
 
 function SessionVideoCallContent() {
@@ -46,7 +52,10 @@ function SessionVideoCallContent() {
 
     const fetchSessionData = async () => {
       try {
-        const res = await fetch(`/api/sessions/${sessionId}`);
+        // POST, not GET: loading this page IS the act of joining the
+        // session — the server transitions SCHEDULED→IN_PROGRESS here.
+        // GET alone never mutates (see app/api/sessions/[sessionId]/route.ts).
+        const res = await fetch(`/api/sessions/${sessionId}`, { method: 'POST' });
         if (!res.ok) {
           setError(`Session introuvable (${res.status})`);
           setLoading(false);
@@ -110,7 +119,6 @@ function SessionVideoCallContent() {
   }
 
   const isHost = session?.user.role === 'COACH';
-  const roomName = `session-${sessionId}-${Date.now()}`;
 
   return (
     <div className="min-h-screen bg-surface-darker">
@@ -191,7 +199,7 @@ function SessionVideoCallContent() {
           sessionId={sessionData.id}
           studentName={sessionData.studentName}
           coachName={sessionData.coachName}
-          roomName={roomName}
+          roomName={sessionData.roomName}
           isHost={isHost}
           onLeave={handleLeaveSession}
         />

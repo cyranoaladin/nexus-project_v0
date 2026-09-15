@@ -58,12 +58,22 @@ export default defineConfig({
     // dette.
     {
       name: 'firefox-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
+      testMatch: [
+        'planning-studio-smoke.spec.ts',
+        'core-golden-family.spec.ts',
+        'auth-client-lifecycle.spec.ts',
+        'session-video-join.spec.ts',
+      ],
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit-smoke',
-      testMatch: ['planning-studio-smoke.spec.ts', 'core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
+      testMatch: [
+        'planning-studio-smoke.spec.ts',
+        'core-golden-family.spec.ts',
+        'auth-client-lifecycle.spec.ts',
+        'session-video-join.spec.ts',
+      ],
       use: { ...devices['Desktop Safari'] },
     },
     // Tâche 17 : le scénario famille dorée doit aussi tenir sur un viewport
