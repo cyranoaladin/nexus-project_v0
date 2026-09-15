@@ -207,8 +207,37 @@ export async function waitForAuthenticatedSession(page: Page, expectedEmail: str
  * makes this the only way to clear cookies under e2e/.
  */
 export async function resetBrowserSession(page: Page): Promise<void> {
+    // Dispose the previous document FIRST. Auth.js re-issues the JWT cookie on
+    // the client-side /api/auth/session refresh, so a refresh still in flight
+    // can land its Set-Cookie AFTER clearCookies() and resurrect the session;
+    // the next `/auth/signin` render (`await auth()`) then redirects to that
+    // role's dashboard instead of serving the form, and the sign-in textbox
+    // never appears.
     await page.goto('about:blank');
-    await page.context().clearCookies();
+
+    // about:blank stops NEW refreshes being issued, but it cannot recall one
+    // already on the wire. So clear, then ask the server what it still sees
+    // through this same cookie jar: the request is made after the clear, so a
+    // resolved session can only mean a straggler landed in between. Clearing
+    // again then converges, because no document remains to issue another.
+    const context = page.context();
+    let lastObserved = '';
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+        await context.clearCookies();
+
+        const response = await page.request.get('/api/auth/session');
+        const session = await response.json().catch(() => null);
+        if (!session?.user) return;
+
+        lastObserved = session.user.email ?? session.user.id ?? 'unknown identity';
+    }
+
+    throw new Error(
+        `resetBrowserSession: the session cookie was re-issued on every one of 5 clears ` +
+        `(the server still resolves ${lastObserved}). A client-side session refresh is ` +
+        `outliving the document that issued it.`
+    );
 }
 
 /**
