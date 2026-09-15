@@ -177,8 +177,15 @@ test('the real session provider still observes revocation on focus after recover
     await recovery;
     await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite' })).toBeVisible();
 
-    // Detach barrier so revocation and focus run against the real unmodified network path
-    await barrier.detach();
+    // Close the barrier through its single shutdown authority so revocation and
+    // focus run against the real unmodified network path. closeAndDrain proves
+    // every intercepted session request reached a terminal state, tears down the
+    // interceptor before the accounting listeners, and re-checks quiescence
+    // afterwards — so no session response can land after the revoke below.
+    const shutdown = await barrier.closeAndDrain();
+    expect(shutdown.state).toBe('CLOSED');
+    expect(shutdown.outstanding).toBe(0);
+    expect(shutdown.started).toBe(shutdown.finished + shutdown.failed);
 
     // Assert pre-revocation state: UI boundary is AUTHENTICATED
     const boundary = page.locator('[data-session-observation]');
@@ -267,14 +274,19 @@ test(`ten seconds of unavailable verification preserve the modal draft through $
     if (new URL(request.url()).pathname === '/api/assistante/coaches/manage' && request.method() !== 'GET') mutations.push(request.method());
   });
   let unavailable = true;
-  let firstRefresh = true;
   const barrier = await ControlledSessionRouteBarrier.install(page, {
-    shouldAbort: () => unavailable && (recovery === 'explicit retry' || firstRefresh),
+    // The first intercepted refresh must fail outright so the boundary reaches
+    // UNAVAILABLE immediately. Identifying it by record id rather than by a flag
+    // the test flips is what makes that deterministic: requestProviderRefresh
+    // only posts a BroadcastChannel message, so the request it provokes arrives
+    // after this function returns, and any flag cleared on the next line races
+    // the interceptor. A merely held first refresh leaves the boundary
+    // AUTHENTICATED until a client timeout that outlasts this assertion.
+    shouldAbort: record => unavailable && (recovery === 'explicit retry' || record.id === 1),
     shouldHold: () => unavailable,
   });
   try {
     await requestProviderRefresh(page);
-    firstRefresh = false;
     await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'UNAVAILABLE', { timeout: 15_000 });
     expect(page.url()).toBe(original);
     // Recovery controls must remain reachable inside the focus-trapped dialog.
