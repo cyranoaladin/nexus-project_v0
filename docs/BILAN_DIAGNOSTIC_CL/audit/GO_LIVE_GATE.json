@@ -5,12 +5,11 @@
   "avertissement": "NON NORMATIF — information de génération. Ne constitue pas l'identité du gel : celle-ci est portée par le tag annoté de mise en service, qui désigne le couple final sans qu'aucun fichier ait à nommer le commit auquel il appartient.",
   "produit_le": "2026-09-15",
   "branche": "feat/diagnostics-v2-audit",
-  "head_au_moment_de_la_generation": "caf124b99f19a8a7ecf1a37fe1747a09ac48f6d1",
-  "parent": "9f0e33684167817731d94c7f20d423c07fbd7b20",
+  "head_au_moment_de_la_generation": "3bb8d734aa30262e5b9c69ea3b580195e583119b",
+  "parent": "caf124b99f19a8a7ecf1a37fe1747a09ac48f6d1",
   "arbre_de_travail_courant_propre": false,
   "chemins_en_cours_de_modification": [
-   "M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py",
-   " M docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
+   "M docs/BILAN_DIAGNOSTIC_CL/audit/CLEAN_CLONE_ACCEPTANCE.json"
   ],
   "manifeste_source_git_head_au_moment_de_la_generation": "bd8117689856289273407f4da0eb1a4cadf32014"
  },
@@ -57,7 +56,7 @@
    "status": "PASS",
    "preuves": {
     "pytest_echecs": 0,
-    "pytest_passes": 14140,
+    "pytest_passes": 14183,
     "byte_reproducible": "YES",
     "fichiers_compares": 173
    }

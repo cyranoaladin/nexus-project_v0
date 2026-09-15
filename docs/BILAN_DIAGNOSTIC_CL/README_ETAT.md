@@ -57,7 +57,7 @@ que deux documents de gouvernance donnent deux valeurs à la même famille de fa
 | Fichiers de release | 171 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
 | États candidats valides | 12915 | `audit/AUDIT_CANDIDATE_STATE_SPACE.json` |
 | Classes de sélection | 5952 | `release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json` |
-| Suite complète en clone propre | 14140 passés, 0 échec, 2 ignorés motivés | `audit/CLEAN_CLONE_ACCEPTANCE.json` |
+| Suite complète en clone propre | 14183 passés, 0 échec, 2 ignorés motivés | `audit/CLEAN_CLONE_ACCEPTANCE.json` |
 <!-- ETAT-CALCULE etat_courant fin : produit par scripts/etat_depot.py, ne pas éditer -->
 
 **Ce que le dispositif ne couvre pas.** Langue vivante A, langue vivante B et éducation

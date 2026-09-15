@@ -89,7 +89,7 @@ cotaient un point une configuration qu'aucune permutation ne réalise.
 
 | Contrôle | Résultat |
 |---|---|
-| Suite de tests complète, en clone propre | **14 140 passés, 0 échec**, 2 ignorés motivés |
+| Suite de tests complète, en clone propre | **14 183 passés, 0 échec**, 2 ignorés motivés |
 | Questions relues une par une | **561 relectures**, 0 en échec |
 | Assemblages | **31**, 0 erreur, toutes les durées dans leur fenêtre |
 | Documents promis par un énoncé | **0 manquant** sur 891 renvois contrôlés |
