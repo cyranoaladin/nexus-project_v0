@@ -60,7 +60,7 @@ def test_somme_egale_total_pour_les_autres_profils(tmp_path, profil, mode, eaf):
     assert lignes and sum(m for _, m in lignes) == total
 
 
-def test_mariem_412_min_et_duree_reelle_du_dossier_personnalise():
+def test_le_total_du_bordereau_est_la_somme_des_durees_annoncees():
     if not (RELEASE / "01_LIVRETS_CANDIDAT").exists():
         pytest.skip("release v2 non construite")
     fitz = pytest.importorskip("fitz")
@@ -69,12 +69,24 @@ def test_mariem_412_min_et_duree_reelle_du_dossier_personnalise():
         out = PC.create_candidate_pack(**FACTS, candidat_nom=NAME, output_dir=Path(t), assemble_pdf=False)
         texte = (out / "A_ENVOYER/BORDEREAU_ENVOI.txt").read_text(encoding="utf-8")
         lignes, total = lignes_et_total(texte)
-        assert sum(m for _, m in lignes) == total == 412
-        assert "Temps total diagnostique estimé : 412 min (soit 6 h 52 min)" in texte
-        assert dict(lignes) == {
-            PC.LIBELLE_DOSSIER_ENTREE: 25, "Philosophie": 60, "Enseignement scientifique": 40,
-            "Grand oral": 42, "Histoire-géographie": 45, "Enseignement moral et civique": 20,
-            "Spécialité Mathématiques": 90, "Spécialité Numérique et Sciences Informatiques": 90}
+        # Le total n'est pas recopié : il se dérive des durées que chaque livret annonce.
+        # Le porter en dur en avait fait un chiffre faux le jour où la dispense de partie
+        # pratique a raccourci le livret de NSI de trente minutes, sans que rien ne bouge
+        # ici.
+        attendu = {PC.LIBELLE_DOSSIER_ENTREE: 25, "Philosophie": 60,
+                   "Enseignement scientifique": 40, "Grand oral": 42,
+                   "Histoire-géographie": 45, "Enseignement moral et civique": 20,
+                   "Spécialité Mathématiques":
+                       LI.duree_livret("EDS-MATH", "NT", 90),
+                   "Spécialité Numérique et Sciences Informatiques":
+                       LI.duree_livret("EDS-NSI", "NT", 90)}
+        somme = sum(attendu.values())
+        assert sum(m for _, m in lignes) == total == somme
+        h, mn = divmod(somme, 60)
+        assert f"Temps total diagnostique estimé : {somme} min (soit {h} h {mn:02d} min)" in texte
+        assert dict(lignes) == attendu
+        # La dispense de partie pratique raccourcit bien le livret de NSI.
+        assert attendu["Spécialité Numérique et Sciences Informatiques"] < 90
         # La durée de la ligne est celle que la couverture du dossier personnalisé annonce.
         with fitz.open(out / "A_ENVOYER/livrets/DOSSIER_D_ENTREE_NEXUS.pdf") as d:
             cover = " ".join(d[0].get_text().split())

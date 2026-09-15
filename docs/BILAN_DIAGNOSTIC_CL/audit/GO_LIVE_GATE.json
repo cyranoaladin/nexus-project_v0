@@ -1,0 +1,189 @@
+{
+ "schema": "go_live/gate/1.0",
+ "date": "2026-09-15",
+ "branche": "feat/diagnostics-v2-audit",
+ "GO_LIVE_READY": "NO",
+ "gates_en_echec": [
+  "GATE 01",
+  "GATE 02"
+ ],
+ "findings": {
+  "total": 26,
+  "ouverts": 0,
+  "par_severite_ouverts": {
+   "BLOCKER": 0,
+   "CRITICAL": 0,
+   "MAJOR": 0,
+   "MINOR": 0,
+   "INFO": 0
+  }
+ },
+ "compteurs": {
+  "ITEMS_AUDITED": 561,
+  "ITEMS_FAILED": 0,
+  "ASSEMBLIES_AUDITED": 31,
+  "ASSEMBLY_ERRORS": 0,
+  "MISSING_SUPPORTS": 0,
+  "PDF_RENDER_ERRORS": 0,
+  "PII_IN_PUBLIC_REPO": 0,
+  "SECRETS_IN_PUBLIC_REPO": 0,
+  "CANDIDATE_COACH_LEAKS": 0,
+  "BYTE_REPRODUCIBLE": "YES",
+  "COMPETENCES_A_ITEM_UNIQUE": 1
+ },
+ "gates": [
+  {
+   "gate": "GATE 01",
+   "titre": "Git / source de vérité",
+   "status": "FAIL",
+   "preuves": {
+    "arbre_de_travail_propre": false,
+    "chemins_sales": [
+     "M docs/BILAN_DIAGNOSTIC_CL/DISTRIBUTION_MATRIX.csv",
+     " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.md",
+     " M docs/BILAN_DIAGNOSTIC_CL/README_ETAT.md",
+     " M docs/BILAN_DIAGNOSTIC_CL/STUDENT_PACK_MATRIX.csv",
+     " M docs/BILAN_DIAGNOSTIC_CL/STUDENT_PACK_MATRIX.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_CANDIDATE_STATE_SPACE.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_INSTRUMENT_COVERAGE.json",
+     " M docs/BILAN_DIAGNOSTIC_CL/audit/golden_packs/P1_fin_cycle.json"
+    ],
+    "branche": "feat/diagnostics-v2-audit",
+    "head": "c113bea10a61cfec8fa98baf14ab472f065900f6"
+   }
+  },
+  {
+   "gate": "GATE 02",
+   "titre": "Clone propre / reproductibilité",
+   "status": "FAIL",
+   "preuves": {
+    "clean_clone": "non exécuté",
+    "byte_reproducible": "YES",
+    "fichiers_compares": 173
+   }
+  },
+  {
+   "gate": "GATE 03",
+   "titre": "Réglementation",
+   "status": "PASS",
+   "preuves": {
+    "textes_verifies": 14,
+    "affirmations_non_etayees": 0,
+    "incertitudes_declarees": [
+     "Modalité de l'évaluation ponctuelle d'EMC pour l'année scolaire 2026-2027"
+    ]
+   }
+  },
+  {
+   "gate": "GATE 04",
+   "titre": "Domaine candidat",
+   "status": "PASS",
+   "preuves": {
+    "etats_candidats": 12915,
+    "etats_enumeres": 12915,
+    "signatures_de_selection": 10206,
+    "classes_de_selection": 5952,
+    "familles_de_faits_refusees": 0,
+    "classes_d_equivalence": 0
+   }
+  },
+  {
+   "gate": "GATE 05",
+   "titre": "Couverture des instruments",
+   "status": "PASS",
+   "preuves": {
+    "instruments": 20,
+    "variantes": 39,
+    "items_uniques": 553,
+    "instruments_sans_livret": [],
+    "versions_en_reserve_declaree": [
+     "FR-EAF/ecrit_2028",
+     "FR-EAF/oral_2028"
+    ]
+   }
+  },
+  {
+   "gate": "GATE 06",
+   "titre": "Validité disciplinaire des items",
+   "status": "PASS",
+   "preuves": {
+    "items_audites": 561,
+    "items_en_banque": 553,
+    "items_en_echec": [],
+    "corriges": 62
+   }
+  },
+  {
+   "gate": "GATE 07",
+   "titre": "Corrigés / barèmes",
+   "status": "PASS",
+   "preuves": {
+    "cles_fausses_restantes": 0,
+    "baremes_faux_restants": 0,
+    "cles_corrigees": 12,
+    "baremes_corriges": 14
+   }
+  },
+  {
+   "gate": "GATE 08",
+   "titre": "Assemblages / durées",
+   "status": "PASS",
+   "preuves": {
+    "assemblages": 31,
+    "erreurs": 0,
+    "hors_fenetre_de_duree": [],
+    "supports_manquants": 0
+   }
+  },
+  {
+   "gate": "GATE 09",
+   "titre": "PDF / rendu visuel",
+   "status": "PASS",
+   "preuves": {
+    "pdf_controles": 154,
+    "pages": 3848,
+    "preflight_en_echec": 0,
+    "pages_rendues": 3848,
+    "documents_a_regarder": 0
+   }
+  },
+  {
+   "gate": "GATE 10",
+   "titre": "Packs candidats / distribution",
+   "status": "PASS",
+   "preuves": {
+    "packs_temoins": 11,
+    "livrets_candidat": 69,
+    "corrections_coach": 66,
+    "packs_impression": 15
+   }
+  },
+  {
+   "gate": "GATE 11",
+   "titre": "Sécurité / confidentialité / PII",
+   "status": "PASS",
+   "preuves": {
+    "PII_IN_PUBLIC_REPO": 0,
+    "SECRETS_IN_PUBLIC_REPO": 0,
+    "CANDIDATE_COACH_LEAKS": 0,
+    "exports_nominatifs_suivis": 0,
+    "source_privee_suivie": false
+   }
+  },
+  {
+   "gate": "GATE 12",
+   "titre": "Release / provenance finale",
+   "status": "PASS",
+   "preuves": {
+    "manifeste_source_git_head": "c113bea10a61cfec8fa98baf14ab472f065900f6",
+    "head": "c113bea10a61cfec8fa98baf14ab472f065900f6",
+    "parent": "bbc9ebf162165e400d54eb134394c6ee678ff8b0",
+    "fichiers_de_release": 171,
+    "blockers_ouverts": 0,
+    "majors_ouverts": 0
+   }
+  }
+ ]
+}

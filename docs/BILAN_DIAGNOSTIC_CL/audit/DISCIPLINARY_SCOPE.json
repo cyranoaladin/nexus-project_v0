@@ -1,0 +1,1495 @@
+{
+ "schema": "go_live/disciplinary_scope/1.0",
+ "derive_de": [
+  "referentiels/catalogue_instruments.json",
+  "instruments/",
+  "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json"
+ ],
+ "instruments_derives": 20,
+ "variantes_derivees": 39,
+ "dossiers_instruments": [
+  "EDS-HGGSP",
+  "EDS-HLP",
+  "EDS-MATH",
+  "EDS-NSI",
+  "EDS-PC",
+  "EDS-SES",
+  "EDS-SVT",
+  "FR-EAF",
+  "FR-EAF-ORAL",
+  "FR-MAI",
+  "FR-POS",
+  "FR-POS-ORAL",
+  "GO",
+  "MATH-EA",
+  "MET",
+  "PHI",
+  "QP",
+  "TC-EMC",
+  "TC-ES",
+  "TC-HG"
+ ],
+ "codes_du_catalogue": [
+  "EDS-HGGSP",
+  "EDS-HLP",
+  "EDS-MATH",
+  "EDS-NSI",
+  "EDS-PC",
+  "EDS-SES",
+  "EDS-SVT",
+  "FR-EAF",
+  "FR-EAF-ORAL",
+  "FR-MAI",
+  "FR-POS",
+  "FR-POS-ORAL",
+  "GO",
+  "MATH-EA",
+  "MET",
+  "PHI",
+  "QP",
+  "TC-EMC",
+  "TC-ES",
+  "TC-HG"
+ ],
+ "codes_sans_dossier": [],
+ "dossiers_hors_catalogue": [],
+ "items_uniques_de_banque": 553,
+ "instruments": [
+  {
+   "instrument_id": "QP/standard",
+   "code": "QP",
+   "version": "standard",
+   "libelle": "Questionnaire de parcours et contraintes",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "distance",
+   "materiel": "aucun",
+   "duree_cible_min": 20,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+   ],
+   "coach_pdf_paths": [],
+   "official_exam_sources": [],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/standard",
+   "code": "FR-EAF",
+   "version": "standard",
+   "libelle": "Diagnostic français — les deux épreuves anticipées",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2027
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/standard.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 42,
+   "item_count_by_block": {
+    "A": 12,
+    "B": 27,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/standard_2028",
+   "code": "FR-EAF",
+   "version": "standard_2028",
+   "libelle": "Diagnostic français — les deux épreuves anticipées — session 2028",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2028
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/standard_2028.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 42,
+   "item_count_by_block": {
+    "A": 12,
+    "B": 27,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/ecrit",
+   "code": "FR-EAF",
+   "version": "ecrit",
+   "libelle": "Diagnostic français — épreuve écrite seule",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2027
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 80,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/ecrit.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 34,
+   "item_count_by_block": {
+    "A": 12,
+    "B": 19,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/ecrit_2028",
+   "code": "FR-EAF",
+   "version": "ecrit_2028",
+   "libelle": "Diagnostic français — épreuve écrite seule — session 2028",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2028
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 80,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/ecrit_2028.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 34,
+   "item_count_by_block": {
+    "A": 12,
+    "B": 19,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [],
+   "coach_pdf_paths": [],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/oral",
+   "code": "FR-EAF",
+   "version": "oral",
+   "libelle": "Diagnostic français — épreuve orale seule",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2027
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 50,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/oral.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 29,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 23
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF/oral_2028",
+   "code": "FR-EAF",
+   "version": "oral_2028",
+   "libelle": "Diagnostic français — épreuve orale seule — session 2028",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": [
+    2028
+   ],
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 50,
+   "porte_items": true,
+   "bank_path": "instruments/FR-EAF/banque.json",
+   "assembly_path": "instruments/FR-EAF/assemblages/oral_2028.json",
+   "item_count_bank": 52,
+   "item_count_by_assembly": 29,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 23
+   },
+   "candidate_pdf_paths": [],
+   "coach_pdf_paths": [],
+   "official_exam_sources": [
+    "FR-EAF"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-EAF-ORAL/standard",
+   "code": "FR-EAF-ORAL",
+   "version": "standard",
+   "libelle": "Épreuve orale anticipée de français — grille coach",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 20,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf"
+   ],
+   "official_exam_sources": [],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-MAI/standard",
+   "code": "FR-MAI",
+   "version": "standard",
+   "libelle": "Diagnostic de maîtrise du français (outil de travail)",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 60,
+   "porte_items": true,
+   "bank_path": "instruments/FR-MAI/banque.json",
+   "assembly_path": "instruments/FR-MAI/assemblages/standard.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 18,
+   "item_count_by_block": {
+    "A": 7,
+    "B": 7,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-MAI"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "PHI/standard",
+   "code": "PHI",
+   "version": "standard",
+   "libelle": "Diagnostic philosophie",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 60,
+   "porte_items": true,
+   "bank_path": "instruments/PHI/banque.json",
+   "assembly_path": "instruments/PHI/assemblages/standard.json",
+   "item_count_bank": 36,
+   "item_count_by_assembly": 23,
+   "item_count_by_block": {
+    "A": 8,
+    "B": 11,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf"
+   ],
+   "official_exam_sources": [
+    "PHI"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-ES/1RE",
+   "code": "TC-ES",
+   "version": "1RE",
+   "libelle": "Tronc commun — enseignement scientifique, programme de Première",
+   "profils": [
+    "P1"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 40,
+   "porte_items": true,
+   "bank_path": "instruments/TC-ES/banque.json",
+   "assembly_path": "instruments/TC-ES/assemblages/1RE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 20,
+   "item_count_by_block": {
+    "A": 4,
+    "B": 14,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-ES"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-ES/TLE",
+   "code": "TC-ES",
+   "version": "TLE",
+   "libelle": "Tronc commun — enseignement scientifique, programme de Terminale",
+   "profils": [
+    "P2"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 40,
+   "porte_items": true,
+   "bank_path": "instruments/TC-ES/banque.json",
+   "assembly_path": "instruments/TC-ES/assemblages/TLE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 20,
+   "item_count_by_block": {
+    "A": 4,
+    "B": 14,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-ES"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-ES/ETENDUE",
+   "code": "TC-ES",
+   "version": "ETENDUE",
+   "libelle": "Tronc commun — enseignement scientifique, version étendue",
+   "profils": [
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 55,
+   "porte_items": true,
+   "bank_path": "instruments/TC-ES/banque.json",
+   "assembly_path": "instruments/TC-ES/assemblages/ETENDUE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 30,
+   "item_count_by_block": {
+    "A": 4,
+    "B": 24,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-ES"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "MET/standard",
+   "code": "MET",
+   "version": "standard",
+   "libelle": "Méthodes de travail, organisation, autonomie",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "distance",
+   "materiel": "aucun",
+   "duree_cible_min": 20,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf"
+   ],
+   "coach_pdf_paths": [],
+   "official_exam_sources": [],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "GO/standard",
+   "code": "GO",
+   "version": "standard",
+   "libelle": "Grille d'entretien Grand oral — coach",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 15,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf"
+   ],
+   "official_exam_sources": [],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-MATH/N1",
+   "code": "EDS-MATH",
+   "version": "N1",
+   "libelle": "Spécialité mathématiques — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "calculatrice_bloc_c",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-MATH/banque.json",
+   "assembly_path": "instruments/EDS-MATH/assemblages/N1.json",
+   "item_count_bank": 66,
+   "item_count_by_assembly": 33,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 24,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-MATH"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-MATH/NT",
+   "code": "EDS-MATH",
+   "version": "NT",
+   "libelle": "Spécialité mathématiques — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "calculatrice_bloc_c",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-MATH/banque.json",
+   "assembly_path": "instruments/EDS-MATH/assemblages/NT.json",
+   "item_count_bank": 66,
+   "item_count_by_assembly": 44,
+   "item_count_by_block": {
+    "A": 24,
+    "B": 17,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-MATH"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-PC/N1",
+   "code": "EDS-PC",
+   "version": "N1",
+   "libelle": "Spécialité physique-chimie — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "calculatrice_bloc_c",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-PC/banque.json",
+   "assembly_path": "instruments/EDS-PC/assemblages/N1.json",
+   "item_count_bank": 44,
+   "item_count_by_assembly": 28,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 20,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-PC"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-PC/NT",
+   "code": "EDS-PC",
+   "version": "NT",
+   "libelle": "Spécialité physique-chimie — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "calculatrice_bloc_c",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-PC/banque.json",
+   "assembly_path": "instruments/EDS-PC/assemblages/NT.json",
+   "item_count_bank": 44,
+   "item_count_by_assembly": 32,
+   "item_count_by_block": {
+    "A": 14,
+    "B": 16,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-PC"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-NSI/N1",
+   "code": "EDS-NSI",
+   "version": "N1",
+   "libelle": "Spécialité numérique et sciences informatiques — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier_et_machine",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-NSI/banque.json",
+   "assembly_path": "instruments/EDS-NSI/assemblages/N1.json",
+   "item_count_bank": 49,
+   "item_count_by_assembly": 30,
+   "item_count_by_block": {
+    "A": 7,
+    "B": 21,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-NSI"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-NSI/NT",
+   "code": "EDS-NSI",
+   "version": "NT",
+   "libelle": "Spécialité numérique et sciences informatiques — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier_et_machine",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-NSI/banque.json",
+   "assembly_path": "instruments/EDS-NSI/assemblages/NT.json",
+   "item_count_bank": 49,
+   "item_count_by_assembly": 33,
+   "item_count_by_block": {
+    "A": 11,
+    "B": 20,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-NSI"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-SVT/N1",
+   "code": "EDS-SVT",
+   "version": "N1",
+   "libelle": "Spécialité sciences de la vie et de la Terre — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-SVT/banque.json",
+   "assembly_path": "instruments/EDS-SVT/assemblages/N1.json",
+   "item_count_bank": 40,
+   "item_count_by_assembly": 29,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 21,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-SVT"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-SVT/NT",
+   "code": "EDS-SVT",
+   "version": "NT",
+   "libelle": "Spécialité sciences de la vie et de la Terre — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-SVT/banque.json",
+   "assembly_path": "instruments/EDS-SVT/assemblages/NT.json",
+   "item_count_bank": 40,
+   "item_count_by_assembly": 33,
+   "item_count_by_block": {
+    "A": 13,
+    "B": 18,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-SVT"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-SES/N1",
+   "code": "EDS-SES",
+   "version": "N1",
+   "libelle": "Spécialité sciences économiques et sociales — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-SES/banque.json",
+   "assembly_path": "instruments/EDS-SES/assemblages/N1.json",
+   "item_count_bank": 35,
+   "item_count_by_assembly": 25,
+   "item_count_by_block": {
+    "A": 6,
+    "B": 16,
+    "C": 1,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-SES"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-SES/NT",
+   "code": "EDS-SES",
+   "version": "NT",
+   "libelle": "Spécialité sciences économiques et sociales — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-SES/banque.json",
+   "assembly_path": "instruments/EDS-SES/assemblages/NT.json",
+   "item_count_bank": 35,
+   "item_count_by_assembly": 26,
+   "item_count_by_block": {
+    "A": 12,
+    "B": 10,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-SES"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-HGGSP/N1",
+   "code": "EDS-HGGSP",
+   "version": "N1",
+   "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-HGGSP/banque.json",
+   "assembly_path": "instruments/EDS-HGGSP/assemblages/N1.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 24,
+   "item_count_by_block": {
+    "A": 7,
+    "B": 15,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-HGGSP"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-HGGSP/NT",
+   "code": "EDS-HGGSP",
+   "version": "NT",
+   "libelle": "Spécialité histoire-géographie, géopolitique et sciences politiques — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-HGGSP/banque.json",
+   "assembly_path": "instruments/EDS-HGGSP/assemblages/NT.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 31,
+   "item_count_by_block": {
+    "A": 13,
+    "B": 16,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-HGGSP"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-HLP/N1",
+   "code": "EDS-HLP",
+   "version": "N1",
+   "libelle": "Spécialité humanités, littérature et philosophie — version Première",
+   "profils": [
+    "P1",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-HLP/banque.json",
+   "assembly_path": "instruments/EDS-HLP/assemblages/N1.json",
+   "item_count_bank": 28,
+   "item_count_by_assembly": 21,
+   "item_count_by_block": {
+    "A": 3,
+    "B": 14,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-HLP"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "EDS-HLP/NT",
+   "code": "EDS-HLP",
+   "version": "NT",
+   "libelle": "Spécialité humanités, littérature et philosophie — version Terminale",
+   "profils": [
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 90,
+   "porte_items": true,
+   "bank_path": "instruments/EDS-HLP/banque.json",
+   "assembly_path": "instruments/EDS-HLP/assemblages/NT.json",
+   "item_count_bank": 28,
+   "item_count_by_assembly": 28,
+   "item_count_by_block": {
+    "A": 7,
+    "B": 17,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf"
+   ],
+   "official_exam_sources": [
+    "EDS-HLP"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "MATH-EA/SPE",
+   "code": "MATH-EA",
+   "version": "SPE",
+   "libelle": "Épreuve anticipée de mathématiques — parcours enseignement de spécialité",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/MATH-EA/banque.json",
+   "assembly_path": "instruments/MATH-EA/assemblages/SPE.json",
+   "item_count_bank": 44,
+   "item_count_by_assembly": 35,
+   "item_count_by_block": {
+    "A": 4,
+    "B": 27,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf"
+   ],
+   "official_exam_sources": [
+    "MATH-EA"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "MATH-EA/SPECIFIQUES",
+   "code": "MATH-EA",
+   "version": "SPECIFIQUES",
+   "libelle": "Épreuve anticipée de mathématiques — parcours mathématiques de l'enseignement scientifique",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 75,
+   "porte_items": true,
+   "bank_path": "instruments/MATH-EA/banque.json",
+   "assembly_path": "instruments/MATH-EA/assemblages/SPECIFIQUES.json",
+   "item_count_bank": 44,
+   "item_count_by_assembly": 36,
+   "item_count_by_block": {
+    "A": 4,
+    "B": 28,
+    "C": 2,
+    "D": 2
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf"
+   ],
+   "official_exam_sources": [
+    "MATH-EA"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-HG/1RE",
+   "code": "TC-HG",
+   "version": "1RE",
+   "libelle": "Tronc commun — histoire-géographie, programme de Première",
+   "profils": [
+    "P1"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 45,
+   "porte_items": true,
+   "bank_path": "instruments/TC-HG/banque.json",
+   "assembly_path": "instruments/TC-HG/assemblages/1RE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 18,
+   "item_count_by_block": {
+    "A": 3,
+    "B": 13,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-HG"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-HG/TLE",
+   "code": "TC-HG",
+   "version": "TLE",
+   "libelle": "Tronc commun — histoire-géographie, programme de Terminale",
+   "profils": [
+    "P2"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 45,
+   "porte_items": true,
+   "bank_path": "instruments/TC-HG/banque.json",
+   "assembly_path": "instruments/TC-HG/assemblages/TLE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 18,
+   "item_count_by_block": {
+    "A": 3,
+    "B": 13,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-HG"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-HG/ETENDUE",
+   "code": "TC-HG",
+   "version": "ETENDUE",
+   "libelle": "Tronc commun — histoire-géographie, version étendue cycle terminal",
+   "profils": [
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 60,
+   "porte_items": true,
+   "bank_path": "instruments/TC-HG/banque.json",
+   "assembly_path": "instruments/TC-HG/assemblages/ETENDUE.json",
+   "item_count_bank": 34,
+   "item_count_by_assembly": 23,
+   "item_count_by_block": {
+    "A": 3,
+    "B": 18,
+    "C": 1,
+    "D": 1
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-HG"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-EMC/1RE",
+   "code": "TC-EMC",
+   "version": "1RE",
+   "libelle": "Tronc commun — enseignement moral et civique, programme de Première",
+   "profils": [
+    "P1"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 20,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-EMC"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-EMC/TLE",
+   "code": "TC-EMC",
+   "version": "TLE",
+   "libelle": "Tronc commun — enseignement moral et civique, programme de Terminale",
+   "profils": [
+    "P2"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 20,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-EMC"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "TC-EMC/ETENDUE",
+   "code": "TC-EMC",
+   "version": "ETENDUE",
+   "libelle": "Tronc commun — enseignement moral et civique, version étendue cycle terminal",
+   "profils": [
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 25,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf"
+   ],
+   "official_exam_sources": [
+    "TC-EMC"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-POS/standard",
+   "code": "FR-POS",
+   "version": "standard",
+   "libelle": "Positionnement en français scolaire — écrit",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "papier",
+   "materiel": "aucun",
+   "duree_cible_min": 45,
+   "porte_items": true,
+   "bank_path": "instruments/FR-POS/banque.json",
+   "assembly_path": "instruments/FR-POS/assemblages/standard.json",
+   "item_count_bank": 23,
+   "item_count_by_assembly": 23,
+   "item_count_by_block": {
+    "A": 9,
+    "B": 9,
+    "C": 5
+   },
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+   ],
+   "official_exam_sources": [
+    "FR-POS"
+   ],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  },
+  {
+   "instrument_id": "FR-POS-ORAL/standard",
+   "code": "FR-POS-ORAL",
+   "version": "standard",
+   "libelle": "Positionnement en français scolaire — entretien oral coach",
+   "profils": [
+    "P1",
+    "P2",
+    "P3"
+   ],
+   "sessions": "toutes",
+   "support": "grille_coach",
+   "materiel": "aucun",
+   "duree_cible_min": 10,
+   "porte_items": false,
+   "bank_path": null,
+   "assembly_path": null,
+   "item_count_bank": 0,
+   "item_count_by_assembly": 0,
+   "item_count_by_block": {},
+   "candidate_pdf_paths": [
+    "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+   ],
+   "coach_pdf_paths": [
+    "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf"
+   ],
+   "official_exam_sources": [],
+   "official_program_sources": null,
+   "audit_status": "PENDING"
+  }
+ ]
+}

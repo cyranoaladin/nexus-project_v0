@@ -1,0 +1,18 @@
+{
+ "schema": "go_live/security_scan/1.0",
+ "fichiers_suivis_scannes": 243,
+ "pdf_scannes": 154,
+ "pii_in_public_repo": [],
+ "pii_in_release_pdf": [],
+ "secrets_in_public_repo": [],
+ "candidate_coach_leaks": [],
+ "exports_candidats_suivis": [],
+ "source_privee_frpos_suivie": false,
+ "pdf_dans_04_INTERNE": [],
+ "coach_dans_01_LIVRETS_CANDIDAT": [],
+ "compteurs": {
+  "PII_IN_PUBLIC_REPO": 0,
+  "SECRETS_IN_PUBLIC_REPO": 0,
+  "CANDIDATE_COACH_LEAKS": 0
+ }
+}

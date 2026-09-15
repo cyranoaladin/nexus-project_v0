@@ -155,10 +155,10 @@
     },
     {
       "libelle": "Spécialité Numérique et Sciences Informatiques",
-      "minutes": 90
+      "minutes": 60
     }
   ],
-  "total_diagnostic_duration_min": 427,
+  "total_diagnostic_duration_min": 397,
   "tests_proving_independent": [
     "tests/test_go_duree.py::test_bordereau_inclut_preparation_et_total_correct",
     "tests/test_espace_candidats.py::test_etat_valide[P2_annuelle_MATH-PC-NSI_tle-MATH-NSI_EAF-none]"

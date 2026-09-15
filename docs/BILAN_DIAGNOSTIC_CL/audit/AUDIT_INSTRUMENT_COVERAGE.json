@@ -133,6 +133,7 @@
       ],
       "tests_covering": [
         "tests/test_audit_readme.py",
+        "tests/test_bareme_atteignable_et_supports.py",
         "tests/test_diffusabilite.py",
         "tests/test_etat_depot.py",
         "tests/test_intitules_versionnes.py",
@@ -210,6 +211,7 @@
       ],
       "tests_covering": [
         "tests/test_bilan.py",
+        "tests/test_bordereau_durees.py",
         "tests/test_calculatrice_coherence.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",
@@ -290,6 +292,8 @@
         "instruments/EDS-NSI/assemblages/NT.json"
       ],
       "tests_covering": [
+        "tests/test_bordereau_durees.py",
+        "tests/test_go_duree.py",
         "tests/test_intitules_versionnes.py",
         "tests/test_maquette.py",
         "tests/test_nsi_harnais.py",
@@ -509,6 +513,7 @@
         "instruments/EDS-SVT/assemblages/NT.json"
       ],
       "tests_covering": [
+        "tests/test_bareme_atteignable_et_supports.py",
         "tests/test_intitules_versionnes.py",
         "tests/test_maquette.py",
         "tests/test_profil_p1.py",
@@ -1110,6 +1115,7 @@
         "instruments/PHI/assemblages/standard.json"
       ],
       "tests_covering": [
+        "tests/test_bareme_atteignable_et_supports.py",
         "tests/test_dates_anterieures.py",
         "tests/test_diffusabilite.py",
         "tests/test_distribution.py",

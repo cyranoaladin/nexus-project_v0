@@ -69,7 +69,7 @@
             {
               "auteur": "Balzac",
               "oeuvre": "La Peau de chagrin",
-              "parcours": "les romans de l'énergie, création et destruction"
+              "parcours": "les romans de l'énergie : création et destruction"
             },
             {
               "auteur": "Colette",
@@ -175,7 +175,7 @@
             {
               "auteur": "Balzac",
               "oeuvre": "La Peau de chagrin",
-              "parcours": "les romans de l'énergie, création et destruction",
+              "parcours": "les romans de l'énergie : création et destruction",
               "statut": "maintenue",
               "confiance": "haute"
             },
@@ -252,7 +252,7 @@
             {
               "auteur": "Simone Schwarz-Bart",
               "oeuvre": "Pluie et vent sur Télumée Miracle",
-              "parcours": "tisser des mémoires, habiter le monde",
+              "parcours": "tisser les mémoires, habiter le monde",
               "statut": "renouvelee",
               "confiance": "haute"
             }
@@ -776,7 +776,7 @@
       "objet_etude": "roman_recit",
       "auteur": "Balzac",
       "oeuvre": "La Peau de chagrin",
-      "parcours": "les romans de l'énergie, création et destruction",
+      "parcours": "les romans de l'énergie : création et destruction",
       "decision": "Décision de la direction pédagogique du 2026-09-10, contre-expertise de clôture, point 3.",
       "motifs": [
         "au programme de la session 2027 en voie générale",

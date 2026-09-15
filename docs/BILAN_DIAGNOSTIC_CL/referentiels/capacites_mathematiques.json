@@ -2,8 +2,15 @@
   "objet": "Capacités attendues et contenus des deux programmes de mathématiques de première applicables à l'épreuve anticipée de la session 2027 et suivantes, pour une passation de l'année scolaire 2026-2027. Chaque item de MATH-EA renvoie à un code de ce référentiel : un renvoi générique au programme ne suffit pas à établir qu'un item évalue une capacité exigible.",
   "source": {
     "publication": "Bulletin officiel de l'éducation nationale, de la jeunesse et des sports n° 14 du 2 avril 2026",
-    "lecture": "Annexes des deux arrêtés lues dans le PDF officiel du Bulletin officiel n° 14, le 2026-09-11. Les libellés ci-dessous sont la transcription littérale des lignes « Capacités attendues » et, lorsque la nature le précise, des lignes « Contenus ».",
-    "confiance": "haute"
+    "lecture": "Annexes des trois arrêtés du 26 février 2026 lues dans le PDF officiel du Bulletin officiel n° 14, le 2026-09-11. Les libellés ci-dessous sont la transcription littérale des lignes « Capacités attendues » et, lorsque la nature le précise, des lignes « Contenus ».",
+    "confiance": "haute",
+    "arretes": {
+      "MENE2602917A": "spécialité mathématiques, première générale — parcours SPE",
+      "MENE2602916A": "mathématiques intégrées à l'enseignement scientifique, première générale — parcours SPECIFIQUES",
+      "MENE2602914A": "mathématiques, seconde générale et technologique — les prérequis auxquels renvoient les automatismes de première, et non un programme sur lequel l'épreuve anticipée fait composer"
+    },
+    "entree_en_vigueur": "rentrée scolaire 2026-2027",
+    "verifie_le": "2026-09-15"
   },
   "natures": {
     "capacite_attendue": "Ligne figurant sous l'intitulé « Capacités attendues » de l'annexe : exigible du candidat.",

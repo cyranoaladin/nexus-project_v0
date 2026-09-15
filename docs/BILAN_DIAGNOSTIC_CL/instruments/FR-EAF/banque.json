@@ -14,15 +14,15 @@
       "enonce": "Dans quelle phrase l'accord du participe passé est-il correct ?",
       "supports": [],
       "propositions": {
-        "A": "Les lettres qu'il a écrit sont perdues.",
-        "B": "Les lettres qu'il a écrites sont perdues.",
+        "A": "Les lettres qu'il a écrites sont perdues.",
+        "B": "Les lettres qu'il a écrit sont perdues.",
         "C": "Les lettres qu'il a écrit sont perdue.",
         "D": "Les lettres qu'il a écrit son perdues."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "accord avec le COD antéposé non réalisé",
+          "B": "accord avec le COD antéposé non réalisé",
           "C": "accord manqué sur le participe et sur l'attribut",
           "D": "confusion entre « son » et « sont »"
         }
@@ -47,22 +47,22 @@
       "propositions": {
         "A": "Le poète, qui observe la nature y trouve un refuge.",
         "B": "Le poète qui observe la nature, y trouve un refuge.",
-        "C": "Le poète, qui observe la nature, y trouve un refuge.",
-        "D": "Le poète qui, observe la nature y trouve un refuge."
+        "C": "Le poète qui, observe la nature y trouve un refuge.",
+        "D": "Le poète, qui observe la nature, y trouve un refuge."
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "relative explicative ouverte mais non fermée",
           "B": "virgule fermante sans virgule ouvrante",
-          "D": "virgule insérée entre le sujet et son verbe"
+          "C": "virgule insérée entre le sujet et son verbe"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Encadrement de la relative explicative. Le distracteur D isole la faute la plus lourde à l'écrit, la séparation du sujet et du verbe."
+      "notes_conception": "Encadrement de la relative explicative. Le distracteur C isole la faute la plus lourde à l'écrit, la séparation du sujet et du verbe."
     },
     {
       "item_id": "FR-EAF-LANG-03",
@@ -73,18 +73,18 @@
       "bloc": "A",
       "score_max": 1,
       "duree_min": 1,
-      "enonce": "Quelle forme complète correctement la phrase : « Ce sont les images … le poète emploie » ?",
+      "enonce": "Quelle forme complète correctement la phrase : « Ce sont les images … emploie le poète » ?",
       "supports": [],
       "propositions": {
-        "A": "qu'",
-        "B": "que",
+        "A": "que",
         "C": "qui",
+        "B": "qu'",
         "D": "dont"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "élision non faite devant voyelle",
+          "A": "élision non faite devant voyelle",
           "C": "pronom sujet employé pour un complément d'objet",
           "D": "pronom introduisant un complément indirect, non attendu ici"
         }
@@ -93,7 +93,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Choix du relatif selon la fonction. Le distracteur C mesure la confusion qui/que, le D une construction indirecte fautive."
+      "notes_conception": "Choix du relatif selon la fonction, et élision. L'inversion du sujet place une voyelle après le relatif : « qu'emploie le poète ». Sans elle — « … le poète emploie » — l'élision devenait impossible et la clé « qu' » fausse, tandis que le libellé du distracteur A, « élision non faite devant voyelle », n'avait plus d'objet. Le distracteur C mesure la confusion qui/que, le D une construction indirecte fautive."
     },
     {
       "item_id": "FR-EAF-LANG-04",
@@ -107,16 +107,16 @@
       "enonce": "Quelle phrase ne comporte pas d'erreur d'orthographe grammaticale ?",
       "supports": [],
       "propositions": {
+        "C": "Ces vers-là sont célèbres.",
         "A": "Ses vers là sont célèbres.",
-        "B": "Ces vers-là sont célèbres.",
-        "C": "C'est vers-là sont célèbres.",
+        "B": "C'est vers-là sont célèbres.",
         "D": "Ses vers-la sont célèbres."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "possessif employé pour un démonstratif, trait d'union omis",
-          "C": "confusion entre « c'est » et « ces »",
+          "B": "confusion entre « c'est » et « ces »",
           "D": "possessif employé pour un démonstratif, accent omis"
         }
       },
@@ -139,17 +139,17 @@
       "enonce": "Quel est le registre de langue de la phrase : « Ce passage, il est vachement bien fait » ?",
       "supports": [],
       "propositions": {
+        "D": "familier",
         "A": "soutenu",
         "B": "courant",
-        "C": "familier",
-        "D": "littéraire"
+        "C": "littéraire"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "registre confondu avec la présence d'un vocabulaire abstrait",
           "B": "dislocation et adverbe familier non repérés",
-          "D": "registre confondu avec l'objet du propos"
+          "C": "registre confondu avec l'objet du propos"
         }
       },
       "grille": null,
@@ -171,15 +171,15 @@
       "enonce": "Quelle réécriture corrige la phrase : « Le poète décrit la nature, il y trouve une consolation, cette consolation est fragile » ?",
       "supports": [],
       "propositions": {
-        "A": "Le poète décrit la nature, il y trouve une consolation fragile.",
-        "B": "Le poète décrit la nature où il trouve une consolation, mais celle-ci reste fragile.",
+        "B": "Le poète décrit la nature, il y trouve une consolation fragile.",
         "C": "Le poète décrit la nature et il y trouve une consolation et cette consolation est fragile.",
+        "A": "Le poète décrit la nature où il trouve une consolation, mais celle-ci reste fragile.",
         "D": "Le poète décrit la nature ; il y trouve une consolation ; cette consolation est fragile."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "nuance de la troisième proposition supprimée au lieu d'être subordonnée",
+          "B": "nuance de la troisième proposition supprimée au lieu d'être subordonnée",
           "C": "juxtaposition remplacée par une coordination répétée, sans hiérarchie",
           "D": "ponctuation modifiée sans que le lien logique soit explicité"
         }
@@ -202,16 +202,16 @@
       "enonce": "Dans la phrase « Ce poème, dont l'auteur y exprime sa révolte, est célèbre », quelle est l'erreur ?",
       "supports": [],
       "propositions": {
-        "A": "un pronom est répété alors que « dont » suffit",
-        "B": "le verbe n'est pas accordé avec son sujet",
-        "C": "la relative devrait être introduite par « que »",
+        "A": "le verbe n'est pas accordé avec son sujet",
+        "C": "un pronom est répété alors que « dont » suffit",
+        "B": "la relative devrait être introduite par « que »",
         "D": "il manque une virgule après « Ce poème »"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "erreur cherchée du côté de l'accord alors que la construction est en cause",
-          "C": "choix du relatif mis en cause à tort, « dont » est ici correct",
+          "A": "erreur cherchée du côté de l'accord alors que la construction est en cause",
+          "B": "choix du relatif mis en cause à tort, « dont » est ici correct",
           "D": "erreur cherchée du côté de la ponctuation, qui est correcte"
         }
       },
@@ -233,15 +233,15 @@
       "enonce": "Quelle phrase emploie correctement le subjonctif ?",
       "supports": [],
       "propositions": {
-        "A": "Bien que le poème est court, il est dense.",
-        "B": "Bien que le poème soit court, il est dense.",
+        "B": "Bien que le poème est court, il est dense.",
         "C": "Bien que le poème serait court, il est dense.",
-        "D": "Bien que le poème sera court, il est dense."
+        "D": "Bien que le poème sera court, il est dense.",
+        "A": "Bien que le poème soit court, il est dense."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "indicatif employé après une conjonction qui appelle le subjonctif",
+          "B": "indicatif employé après une conjonction qui appelle le subjonctif",
           "C": "conditionnel employé pour le subjonctif",
           "D": "futur employé pour le subjonctif"
         }
@@ -264,9 +264,9 @@
       "enonce": "Quelle phrase respecte la concordance des temps ?",
       "supports": [],
       "propositions": {
-        "A": "Il affirmait que la nature le consolait.",
         "B": "Il affirmait que la nature le console.",
         "C": "Il affirmait que la nature le consolera.",
+        "A": "Il affirmait que la nature le consolait.",
         "D": "Il affirmait que la nature l'a consolé."
       },
       "cle": {
@@ -296,15 +296,15 @@
       "enonce": "Quelle phrase est correcte du point de vue de la reprise pronominale ?",
       "supports": [],
       "propositions": {
-        "A": "Le poète évoque la ville et la campagne ; il la préfère.",
-        "B": "Le poète évoque la ville et la campagne ; il préfère cette dernière.",
+        "B": "Le poète évoque la ville et la campagne ; il la préfère.",
+        "A": "Le poète évoque la ville et la campagne ; il préfère cette dernière.",
         "C": "Le poète évoque la ville et la campagne ; il les préfère.",
         "D": "Le poète évoque la ville et la campagne ; il leur préfère."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "pronom ambigu : deux antécédents féminins possibles",
+          "B": "pronom ambigu : deux antécédents féminins possibles",
           "C": "pluriel employé alors qu'un seul des deux termes est visé",
           "D": "construction indirecte sans complément second"
         }
@@ -313,7 +313,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Ambiguïté de la reprise pronominale, source majeure d'illisibilité dans les copies. Item de transfert : il faut percevoir que la phrase A est grammaticale mais obscure. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
+      "notes_conception": "Ambiguïté de la reprise pronominale, source majeure d'illisibilité dans les copies. Item de transfert : il faut percevoir que la phrase B est grammaticale mais obscure. Retiré de l'assemblage standard par la décision Q-16 du 2026-09-10 pour tenir la fenêtre de durée ; conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2), qui reprend les mêmes codes d'items pour permettre la comparaison.",
       "reserve_intermediaire": true
     },
     {
@@ -328,16 +328,16 @@
       "enonce": "À quel objet d'étude du programme de première le recueil « Cahier de Douai » de Rimbaud est-il rattaché ?",
       "supports": [],
       "propositions": {
-        "A": "La poésie du XIXe au XXIe siècle",
-        "B": "La littérature d'idées du XVIe au XVIIIe siècle",
-        "C": "Le roman et le récit du Moyen Âge au XXIe siècle",
-        "D": "Le théâtre du XVIIe au XXIe siècle"
+        "A": "La littérature d'idées du XVIe au XVIIIe siècle",
+        "B": "Le roman et le récit du Moyen Âge au XXIe siècle",
+        "D": "Le théâtre du XVIIe au XXIe siècle",
+        "C": "La poésie du XIXe au XXIe siècle"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "objet d'étude confondu avec celui des textes argumentatifs",
-          "C": "objet d'étude confondu avec celui des récits",
+          "A": "objet d'étude confondu avec celui des textes argumentatifs",
+          "B": "objet d'étude confondu avec celui des récits",
           "D": "objet d'étude confondu avec celui du texte de spectacle"
         }
       },
@@ -359,8 +359,8 @@
       "enonce": "Quel parcours associé accompagne « Le Menteur » de Corneille ?",
       "supports": [],
       "propositions": {
-        "A": "Les jeux du cœur et de la parole",
         "B": "Mensonge et comédie",
+        "A": "Les jeux du cœur et de la parole",
         "C": "Théâtre et dispute",
         "D": "Émancipations créatrices"
       },
@@ -390,15 +390,15 @@
       "enonce": "À quel siècle appartient « Discours de la servitude volontaire » de La Boétie ?",
       "supports": [],
       "propositions": {
-        "A": "XVe siècle",
-        "B": "XVIe siècle",
+        "B": "XVe siècle",
         "C": "XVIIe siècle",
+        "A": "XVIe siècle",
         "D": "XVIIIe siècle"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "siècle antérieur, avant l'humanisme",
+          "B": "siècle antérieur, avant l'humanisme",
           "C": "confusion avec le classicisme",
           "D": "confusion avec les Lumières, période du même objet d'étude"
         }
@@ -425,15 +425,15 @@
       "supports": [],
       "propositions": {
         "A": "« Entretiens sur la pluralité des mondes » de Fontenelle",
-        "B": "« Manon Lescaut » de l'abbé Prévost",
-        "C": "« On ne badine pas avec l'amour » de Musset",
+        "B": "« On ne badine pas avec l'amour » de Musset",
+        "C": "« Manon Lescaut » de l'abbé Prévost",
         "D": "« Mes forêts » d'Hélène Dorion"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "dialogue de vulgarisation classé en littérature d'idées",
-          "C": "pièce de théâtre classée dans l'objet d'étude du théâtre",
+          "B": "pièce de théâtre classée dans l'objet d'étude du théâtre",
           "D": "recueil poétique classé dans l'objet d'étude de la poésie"
         }
       },
@@ -490,8 +490,8 @@
       "supports": [],
       "propositions": {
         "A": "le romantisme",
-        "B": "le réalisme",
         "C": "le naturalisme",
+        "B": "le réalisme",
         "D": "le symbolisme"
       },
       "cle": {
@@ -527,23 +527,23 @@
       "supports": [],
       "propositions": {
         "A": "« Lettres d'une Péruvienne » de Graffigny",
-        "B": "« Entretiens sur la pluralité des mondes » de Fontenelle",
-        "C": "« Discours de la servitude volontaire » de La Boétie",
-        "D": "« Sido suivi de Les Vrilles de la vigne » de Colette"
+        "D": "« Entretiens sur la pluralité des mondes » de Fontenelle",
+        "B": "« Discours de la servitude volontaire » de La Boétie",
+        "C": "« Sido suivi de Les Vrilles de la vigne » de Colette"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "autre œuvre du même objet d'étude, parcours différent",
-          "C": "autre œuvre du même objet d'étude, parcours sur la liberté",
-          "D": "œuvre relevant de l'objet d'étude du roman et du récit"
+          "B": "autre œuvre du même objet d'étude, parcours sur la liberté",
+          "C": "œuvre relevant de l'objet d'étude du roman et du récit"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Association parcours / œuvre à l'intérieur d'un même objet d'étude : les distracteurs A et C sont les deux autres œuvres de la littérature d'idées, ce qui exige de connaître les trois parcours et non un seul. Le distracteur D était « Le Chevalier de la charrette » jusqu'au 2026-09-10 : cette œuvre relève du programme 2026-2027, donc de la session 2028, et n'avait rien à faire dans une question portant sur la session 2027."
+      "notes_conception": "Association parcours / œuvre à l'intérieur d'un même objet d'étude : les distracteurs A et B sont les deux autres œuvres de la littérature d'idées, ce qui exige de connaître les trois parcours et non un seul. Le distracteur C était « Le Chevalier de la charrette » jusqu'au 2026-09-10 : cette œuvre relève du programme 2026-2027, donc de la session 2028, et n'avait rien à faire dans une question portant sur la session 2027."
     },
     {
       "item_id": "FR-EAF-CULT-07",
@@ -561,9 +561,9 @@
       "supports": [],
       "propositions": {
         "A": "« Entretiens sur la pluralité des mondes » de Fontenelle",
-        "B": "« Pluie et vent sur Télumée Miracle » de Simone Schwarz-Bart",
         "C": "« Pour un oui ou pour un non » de Nathalie Sarraute",
-        "D": "« La rage de l'expression » de Francis Ponge"
+        "D": "« La rage de l'expression » de Francis Ponge",
+        "B": "« Pluie et vent sur Télumée Miracle » de Simone Schwarz-Bart"
       },
       "cle": {
         "reponse": "B",
@@ -595,9 +595,9 @@
       "supports": [],
       "propositions": {
         "A": "« Lettres d'une Péruvienne » de Graffigny",
-        "B": "« Entretiens sur la pluralité des mondes » de Fontenelle",
         "C": "« Discours de la servitude volontaire » de La Boétie",
-        "D": "« Le Chevalier de la charrette » de Chrétien de Troyes"
+        "D": "« Le Chevalier de la charrette » de Chrétien de Troyes",
+        "B": "« Entretiens sur la pluralité des mondes » de Fontenelle"
       },
       "cle": {
         "reponse": "B",
@@ -626,23 +626,23 @@
       "supports": [],
       "propositions": {
         "A": "Le tyran doit sa puissance à une force qui lui est propre.",
-        "B": "Le tyran ne tient son pouvoir que de ceux qui le lui abandonnent.",
-        "C": "Les peuples sont faits pour obéir à un maître.",
-        "D": "La guerre est la principale cause de la ruine des peuples."
+        "B": "Les peuples sont faits pour obéir à un maître.",
+        "C": "La guerre est la principale cause de la ruine des peuples.",
+        "D": "Le tyran ne tient son pouvoir que de ceux qui le lui abandonnent."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "contresens : le texte dit au contraire que le tyran « n'a autre chose que ce qu'a le moindre homme »",
-          "C": "thèse inverse de celle du passage, que l'apostrophe initiale pourrait faire croire",
-          "D": "détail du texte — la guerre — pris pour la position défendue"
+          "B": "thèse inverse de celle du passage, que l'apostrophe initiale pourrait faire croire",
+          "C": "détail du texte — la guerre — pris pour la position défendue"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. La thèse est énoncée par le cœur du passage : le maître n'a que ce que ses sujets lui donnent. Le distracteur A est le contresens exact, formulé dans les termes que le texte réfute ; le distracteur C exploite la violence de l'apostrophe initiale, qui peut faire croire à un mépris des peuples."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. La thèse est énoncée par le cœur du passage : le maître n'a que ce que ses sujets lui donnent. Le distracteur A est le contresens exact, formulé dans les termes que le texte réfute ; le distracteur B exploite la violence de l'apostrophe initiale, qui peut faire croire à un mépris des peuples."
     },
     {
       "item_id": "FR-EAF-COMP-02",
@@ -657,16 +657,16 @@
       "supports": [],
       "propositions": {
         "A": "aux cités que le maître foule",
-        "B": "aux pieds dont il foule les cités",
-        "C": "à ceux à qui l'auteur s'adresse",
-        "D": "aux ennemis évoqués plus haut"
+        "B": "à ceux à qui l'auteur s'adresse",
+        "D": "aux pieds dont il foule les cités",
+        "C": "aux ennemis évoqués plus haut"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "reprise cherchée par proximité : « cités » est le nom le plus proche",
-          "C": "pronom de reprise confondu avec le « vous » d'adresse",
-          "D": "reprise rattachée à un groupe éloigné et étranger à la phrase"
+          "B": "pronom de reprise confondu avec le « vous » d'adresse",
+          "C": "reprise rattachée à un groupe éloigné et étranger à la phrase"
         }
       },
       "grille": null,
@@ -687,24 +687,24 @@
       "enonce": "Quel est le mouvement d'ensemble du passage ?",
       "supports": [],
       "propositions": {
+        "D": "une apostrophe au peuple, une série de questions, puis une injonction",
         "A": "une description, puis un récit, puis une morale",
-        "B": "une apostrophe au peuple, une série de questions, puis une injonction",
-        "C": "une définition reprise sous trois formes différentes",
-        "D": "une suite d'exemples sans progression"
+        "B": "une définition reprise sous trois formes différentes",
+        "C": "une suite d'exemples sans progression"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "structure narrative projetée sur un texte d'idées",
-          "C": "reformulations prises pour des idées distinctes",
-          "D": "progression du passage non perçue, lecture ramenée à une liste"
+          "B": "reformulations prises pour des idées distinctes",
+          "C": "progression du passage non perçue, lecture ramenée à une liste"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. Le passage se lit en trois temps que le candidat doit distinguer : l'apostrophe (« Pauvres et misérables peuples insensés »), la série de questions qui fait admettre le mécanisme, et l'injonction finale. Le distracteur D vise le candidat qui ne voit que l'accumulation des « vous semez… vous nourrissez… »."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. Le passage se lit en trois temps que le candidat doit distinguer : l'apostrophe (« Pauvres et misérables peuples insensés »), la série de questions qui fait admettre le mécanisme, et l'injonction finale. Le distracteur C vise le candidat qui ne voit que l'accumulation des « vous semez… vous nourrissez… »."
     },
     {
       "item_id": "FR-EAF-COMP-04",
@@ -719,15 +719,15 @@
       "supports": [],
       "propositions": {
         "A": "informer ses lecteurs de l'état politique du royaume",
-        "B": "obtenir de ceux à qui il parle qu'ils cessent d'agir comme ils agissent",
-        "C": "raconter comment un tyran est parvenu au pouvoir",
+        "C": "obtenir de ceux à qui il parle qu'ils cessent d'agir comme ils agissent",
+        "B": "raconter comment un tyran est parvenu au pouvoir",
         "D": "émouvoir en décrivant les souffrances d'un peuple"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "visée argumentative non perçue sous l'apparente constatation",
-          "C": "texte pris pour un récit",
+          "B": "texte pris pour un récit",
           "D": "l'apostrophe initiale est pathétique, mais elle sert l'injonction finale : confondre le moyen et la fin"
         }
       },
@@ -750,17 +750,17 @@
       "enonce": "Quel est le rôle de la série de questions « D'où a-t-il pris tant d'yeux… ? Comment a-t-il tant de mains… ? » ?",
       "supports": [],
       "propositions": {
-        "A": "amener le lecteur à reconnaître lui-même que le maître ne tient rien que de lui",
-        "B": "demander une information que l'auteur ne possède pas",
-        "C": "réfuter une objection que le lecteur aurait formulée",
-        "D": "conclure le raisonnement engagé plus haut"
+        "A": "demander une information que l'auteur ne possède pas",
+        "D": "amener le lecteur à reconnaître lui-même que le maître ne tient rien que de lui",
+        "B": "réfuter une objection que le lecteur aurait formulée",
+        "C": "conclure le raisonnement engagé plus haut"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "question rhétorique prise pour une vraie demande d'information",
-          "C": "fonction d'interrogation oratoire confondue avec une réfutation",
-          "D": "position dans le passage confondue avec fonction dans le raisonnement"
+          "A": "question rhétorique prise pour une vraie demande d'information",
+          "B": "fonction d'interrogation oratoire confondue avec une réfutation",
+          "C": "position dans le passage confondue avec fonction dans le raisonnement"
         }
       },
       "grille": null,
@@ -782,15 +782,15 @@
       "supports": [],
       "propositions": {
         "A": "que le maître est plus nombreux qu'il ne paraît",
-        "B": "que les peuples ignorent ce qui leur arrive",
-        "C": "que ceux qui obéissent pourraient cesser de le faire",
+        "C": "que les peuples ignorent ce qui leur arrive",
+        "B": "que ceux qui obéissent pourraient cesser de le faire",
         "D": "que la liberté est un bien dont personne ne veut"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "B",
         "distracteurs": {
           "A": "contresens sur « n'a que deux yeux, n'a que deux mains »",
-          "B": "le texte reproche aux peuples non d'ignorer, mais de consentir",
+          "C": "le texte reproche aux peuples non d'ignorer, mais de consentir",
           "D": "idée du passage renversée : le texte affirme que la liberté est à portée"
         }
       },
@@ -798,7 +798,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'implicite est la prémisse du raisonnement entier : si la domination vient de ce que les sujets donnent, alors ils peuvent le retirer. L'injonction finale en tire la conséquence, mais la prémisse n'est jamais formulée pour elle-même. Le distracteur B est le contresens le plus fréquent : confondre aveuglement et consentement."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'implicite est la prémisse du raisonnement entier : si la domination vient de ce que les sujets donnent, alors ils peuvent le retirer. L'injonction finale en tire la conséquence, mais la prémisse n'est jamais formulée pour elle-même. Le distracteur C est le contresens le plus fréquent : confondre aveuglement et consentement."
     },
     {
       "item_id": "FR-EAF-COMP-07",
@@ -812,15 +812,15 @@
       "enonce": "Quelle reformulation rend compte de « Celui qui vous maîtrise tant n'a que deux yeux, n'a que deux mains, n'a qu'un corps » sans en déformer le sens ?",
       "supports": [],
       "propositions": {
-        "A": "Le maître est un homme ordinaire : il ne possède rien de plus que le dernier de ses sujets.",
-        "B": "Le maître est un homme comme les autres, il est donc sans danger.",
+        "A": "Le maître est un homme comme les autres, il est donc sans danger.",
         "C": "Le maître a deux yeux et deux mains, comme le moindre homme des villes.",
-        "D": "Le maître doit sa force à la nature, qui l'a fait plus puissant."
+        "D": "Le maître doit sa force à la nature, qui l'a fait plus puissant.",
+        "B": "Le maître est un homme ordinaire : il ne possède rien de plus que le dernier de ses sujets."
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "conséquence ajoutée que le texte ne tire pas : il dit d'où vient le pouvoir, non qu'il serait nul",
+          "A": "conséquence ajoutée que le texte ne tire pas : il dit d'où vient le pouvoir, non qu'il serait nul",
           "C": "paraphrase : les mots sont repris dans le même ordre, rien n'est reformulé",
           "D": "contresens exact sur la phrase citée"
         }
@@ -829,7 +829,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'item distingue trois erreurs différentes : durcir la thèse (B), paraphraser au lieu de reformuler (C), et la contredire (D)."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait auparavant sur un texte argumentatif abstrait — « le pronom souligné au premier paragraphe », « l'exemple du deuxième paragraphe » — que le support ne contient pas. L'item distingue trois erreurs différentes : durcir la thèse (A), paraphraser au lieu de reformuler (C), et la contredire (D)."
     },
     {
       "item_id": "FR-EAF-COMP-08",
@@ -844,16 +844,16 @@
       "supports": [],
       "propositions": {
         "A": "il concède un point à ses adversaires avant de maintenir sa position",
-        "B": "il écarte l'explication attendue pour lui en substituer une autre",
-        "C": "il désigne deux adversaires également responsables",
-        "D": "il annonce l'exemple qui va suivre"
+        "B": "il désigne deux adversaires également responsables",
+        "D": "il écarte l'explication attendue pour lui en substituer une autre",
+        "C": "il annonce l'exemple qui va suivre"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "la construction « non pas… mais » est prise pour une concession, alors qu'elle corrige",
-          "C": "le passage du pluriel au singulier n'est pas vu : « les ennemis » et « l'ennemi » ne désignent pas les mêmes",
-          "D": "valeur d'annonce supposée"
+          "B": "le passage du pluriel au singulier n'est pas vu : « les ennemis » et « l'ennemi » ne désignent pas les mêmes",
+          "C": "valeur d'annonce supposée"
         }
       },
       "grille": null,
@@ -961,15 +961,15 @@
       "supports": [],
       "propositions": {
         "A": "subordonnée relative",
-        "B": "subordonnée conjonctive complétive",
-        "C": "subordonnée circonstancielle de cause",
-        "D": "subordonnée interrogative indirecte"
+        "B": "subordonnée circonstancielle de cause",
+        "D": "subordonnée interrogative indirecte",
+        "C": "subordonnée conjonctive complétive"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "« que » pris pour un pronom relatif",
-          "C": "circonstancielle supposée sans rapport de cause exprimé",
+          "B": "circonstancielle supposée sans rapport de cause exprimé",
           "D": "complétive confondue avec l'interrogative indirecte"
         }
       },
@@ -991,15 +991,15 @@
       "enonce": "Dans « Le livre que je lis me plaît », quelle est la fonction du pronom relatif « que » ?",
       "supports": [],
       "propositions": {
-        "A": "sujet",
-        "B": "complément d'objet direct",
+        "A": "complément d'objet direct",
+        "B": "sujet",
         "C": "complément circonstanciel",
         "D": "attribut du sujet"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "fonction sujet attribuée par défaut au relatif",
+          "B": "fonction sujet attribuée par défaut au relatif",
           "C": "fonction circonstancielle supposée",
           "D": "fonction attribut supposée"
         }
@@ -1022,15 +1022,15 @@
       "enonce": "Quelle phrase contient une négation totale ?",
       "supports": [],
       "propositions": {
-        "A": "Il ne lit que des poèmes.",
-        "B": "Il ne lit pas de poèmes.",
+        "A": "Il ne lit pas de poèmes.",
+        "B": "Il ne lit que des poèmes.",
         "C": "Il lit peu de poèmes.",
         "D": "Il ne lit guère de poèmes."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "restriction « ne … que » prise pour une négation",
+          "B": "restriction « ne … que » prise pour une négation",
           "C": "adverbe de quantité pris pour une négation",
           "D": "négation partielle prise pour une négation totale"
         }
@@ -1039,7 +1039,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Négation totale, partielle et restriction. Le distracteur A est le piège classique : « ne … que » n'est pas une négation, c'est une restriction."
+      "notes_conception": "Négation totale, partielle et restriction. Le distracteur B est le piège classique : « ne … que » n'est pas une négation, c'est une restriction."
     },
     {
       "item_id": "FR-EAF-GRAM-04",
@@ -1053,8 +1053,8 @@
       "enonce": "Dans « Je me demande si ce poème est célèbre », quelle est la nature de la subordonnée ?",
       "supports": [],
       "propositions": {
-        "A": "subordonnée conjonctive complétive",
         "B": "subordonnée interrogative indirecte",
+        "A": "subordonnée conjonctive complétive",
         "C": "subordonnée circonstancielle de condition",
         "D": "subordonnée relative"
       },
@@ -1084,15 +1084,15 @@
       "enonce": "Quelle transformation fait passer « Viendra-t-il ? » à l'interrogation indirecte ?",
       "supports": [],
       "propositions": {
-        "A": "Je demande viendra-t-il.",
-        "B": "Je demande s'il viendra.",
+        "A": "Je demande s'il viendra.",
+        "B": "Je demande viendra-t-il.",
         "C": "Je demande est-ce qu'il viendra.",
         "D": "Je demande qu'il viendra."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "inversion du sujet conservée dans l'interrogation indirecte",
+          "B": "inversion du sujet conservée dans l'interrogation indirecte",
           "C": "tour « est-ce que » conservé à l'indirect",
           "D": "interrogative transformée en complétive"
         }
@@ -1116,15 +1116,15 @@
       "supports": [],
       "propositions": {
         "A": "relative, rapport de détermination",
-        "B": "circonstancielle de temps, rapport de simultanéité",
-        "C": "circonstancielle de cause, rapport de causalité",
-        "D": "complétive, rapport de complémentation"
+        "B": "circonstancielle de cause, rapport de causalité",
+        "D": "complétive, rapport de complémentation",
+        "C": "circonstancielle de temps, rapport de simultanéité"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "« quand » pris pour un relatif",
-          "C": "simultanéité interprétée comme causalité",
+          "B": "simultanéité interprétée comme causalité",
           "D": "circonstancielle prise pour une complétive"
         }
       },
@@ -1132,7 +1132,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Circonstancielle de temps, seule subsistance de « l'expression du temps » du § 7.1 après l'amendement A5. Le distracteur C mesure la confusion entre succession et cause, qui se retrouve en histoire et en SES."
+      "notes_conception": "Circonstancielle de temps, seule subsistance de « l'expression du temps » du § 7.1 après l'amendement A5. Le distracteur B mesure la confusion entre succession et cause, qui se retrouve en histoire et en SES."
     },
     {
       "item_id": "FR-EAF-GRAM-07",
@@ -1370,8 +1370,8 @@
       "supports": [],
       "propositions": {
         "A": "allonger le paragraphe",
-        "B": "prouver l'affirmation avancée par un appui sur le texte",
         "C": "remplacer l'analyse",
+        "B": "prouver l'affirmation avancée par un appui sur le texte",
         "D": "montrer que le texte a été lu"
       },
       "cle": {
@@ -1643,7 +1643,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : idée directrice (1), citation (2), analyse du procédé (3), conclusion partielle (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "FR-ERR-CITATION",

@@ -15,9 +15,9 @@
       "supports": [],
       "propositions": {
         "A": "le joule",
-        "B": "le watt",
         "C": "le newton",
-        "D": "le pascal"
+        "D": "le pascal",
+        "B": "le watt"
       },
       "cle": {
         "reponse": "B",
@@ -45,16 +45,16 @@
       "enonce": "Combien vaut $250\\ \\mathrm{mL}$ en litres ?",
       "supports": [],
       "propositions": {
-        "A": "$0{,}25\\ \\mathrm{L}$",
-        "B": "$2{,}5\\ \\mathrm{L}$",
-        "C": "$25\\ \\mathrm{L}$",
+        "A": "$2{,}5\\ \\mathrm{L}$",
+        "B": "$25\\ \\mathrm{L}$",
+        "C": "$0{,}25\\ \\mathrm{L}$",
         "D": "$0{,}025\\ \\mathrm{L}$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "facteur 100 au lieu de 1000",
-          "C": "facteur 10 au lieu de 1000",
+          "A": "facteur 100 au lieu de 1000",
+          "B": "facteur 10 au lieu de 1000",
           "D": "division par 10 000"
         }
       },
@@ -76,15 +76,15 @@
       "enonce": "Le résultat d'un calcul mené à partir des valeurs $2{,}5$ et $1{,}3$ doit être écrit avec :",
       "supports": [],
       "propositions": {
-        "A": "autant de chiffres que la calculatrice en affiche",
-        "B": "deux chiffres significatifs",
+        "B": "autant de chiffres que la calculatrice en affiche",
         "C": "un seul chiffre",
-        "D": "quatre chiffres significatifs"
+        "D": "quatre chiffres significatifs",
+        "A": "deux chiffres significatifs"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "chiffres significatifs ignorés",
+          "B": "chiffres significatifs ignorés",
           "C": "arrondi excessif",
           "D": "chiffres ajoutés sans justification"
         }
@@ -93,7 +93,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Chiffres significatifs. Le distracteur A est la conduite spontanée et suit le code PC-ERR-CHIFFRES."
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Chiffres significatifs. Le distracteur B est la conduite spontanée et suit le code PC-ERR-CHIFFRES."
     },
     {
       "item_id": "PC-2-QUANT-04",
@@ -107,16 +107,16 @@
       "enonce": "Une grandeur double quand une autre double. Ces deux grandeurs sont :",
       "supports": [],
       "propositions": {
-        "A": "proportionnelles",
-        "B": "inversement proportionnelles",
-        "C": "indépendantes",
-        "D": "égales"
+        "A": "inversement proportionnelles",
+        "B": "indépendantes",
+        "D": "égales",
+        "C": "proportionnelles"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "relation inverse supposée",
-          "C": "absence de relation supposée",
+          "A": "relation inverse supposée",
+          "B": "absence de relation supposée",
           "D": "proportionnalité confondue avec égalité"
         }
       },
@@ -139,9 +139,9 @@
       "supports": [],
       "propositions": {
         "A": "l'ordonnée à l'origine",
-        "B": "le rapport constant entre l'ordonnée et l'abscisse",
         "C": "la valeur maximale atteinte",
-        "D": "l'aire sous la droite"
+        "D": "l'aire sous la droite",
+        "B": "le rapport constant entre l'ordonnée et l'abscisse"
       },
       "cle": {
         "reponse": "B",
@@ -155,7 +155,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Exploitation d'un graphique linéaire, opération de base de toute modélisation."
+      "notes_conception": "Programme de physique-chimie, classe de seconde (arrêté du 17 janvier 2019). Exploitation d'un graphique linéaire, opération de base de toute modélisation, mobilisée par la spécialité de première."
     },
     {
       "item_id": "PC-2-QUANT-06",
@@ -170,16 +170,16 @@
       "supports": [],
       "propositions": {
         "A": "$10^{-3}\\ \\mathrm{kg}$",
-        "B": "$10^{-1}\\ \\mathrm{kg}$",
-        "C": "$10\\ \\mathrm{kg}$",
-        "D": "$10^{3}\\ \\mathrm{kg}$"
+        "D": "$10^{-1}\\ \\mathrm{kg}$",
+        "B": "$10\\ \\mathrm{kg}$",
+        "C": "$10^{3}\\ \\mathrm{kg}$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "ordre de grandeur du gramme",
-          "C": "ordre de grandeur d'un sac",
-          "D": "ordre de grandeur d'une tonne"
+          "B": "ordre de grandeur d'un sac",
+          "C": "ordre de grandeur d'une tonne"
         }
       },
       "grille": null,
@@ -204,23 +204,23 @@
       "supports": [],
       "propositions": {
         "A": "$\\mathrm{mol}$",
-        "B": "$\\mathrm{mol\\cdot L^{-1}}$",
-        "C": "$\\mathrm{g\\cdot L^{-1}}$",
-        "D": "$\\mathrm{L\\cdot mol^{-1}}$"
+        "B": "$\\mathrm{g\\cdot L^{-1}}$",
+        "C": "$\\mathrm{L\\cdot mol^{-1}}$",
+        "D": "$\\mathrm{mol\\cdot L^{-1}}$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "unité de quantité de matière",
-          "C": "concentration massique",
-          "D": "unité inversée"
+          "B": "concentration massique",
+          "C": "unité inversée"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Unité de la concentration. Le distracteur C isole la confusion entre concentration massique et molaire, qui fausse tout calcul de dosage."
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Unité de la concentration. Le distracteur B isole la confusion entre concentration massique et molaire, qui fausse tout calcul de dosage."
     },
     {
       "item_id": "PC-1-MAT-02",
@@ -237,15 +237,15 @@
       "enonce": "Dans un tableau d'avancement, le réactif limitant est celui qui :",
       "supports": [],
       "propositions": {
-        "A": "est présent en plus grande quantité",
-        "B": "s'épuise le premier",
+        "B": "est présent en plus grande quantité",
         "C": "a la plus grande masse molaire",
-        "D": "est écrit en premier dans l'équation"
+        "D": "est écrit en premier dans l'équation",
+        "A": "s'épuise le premier"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "réactif en excès pris pour le limitant",
+          "B": "réactif en excès pris pour le limitant",
           "C": "critère de masse molaire employé",
           "D": "critère d'écriture employé"
         }
@@ -254,7 +254,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Réactif limitant, suivant le code PC-ERR-LIMITANT. Le distracteur A est l'erreur dominante.",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Réactif limitant, suivant le code PC-ERR-LIMITANT. Le distracteur B est l'erreur dominante.",
       "reserve_intermediaire": true
     },
     {
@@ -273,16 +273,16 @@
       "supports": [],
       "propositions": {
         "A": "une réaction chimique totale entre deux solutions",
-        "B": "la comparaison d'une grandeur mesurée à une courbe établie avec des solutions de concentration connue",
-        "C": "une pesée précise du soluté",
-        "D": "le repérage d'un changement de couleur"
+        "B": "une pesée précise du soluté",
+        "D": "la comparaison d'une grandeur mesurée à une courbe établie avec des solutions de concentration connue",
+        "C": "le repérage d'un changement de couleur"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "dosage par titrage décrit à la place",
-          "C": "préparation d'une solution décrite",
-          "D": "indicateur coloré pris pour la méthode"
+          "B": "préparation d'une solution décrite",
+          "C": "indicateur coloré pris pour la méthode"
         }
       },
       "grille": null,
@@ -428,15 +428,15 @@
       "enonce": "D'après le principe d'inertie, un système soumis à des forces qui se compensent :",
       "supports": [],
       "propositions": {
-        "A": "est nécessairement immobile",
-        "B": "est immobile ou en mouvement rectiligne uniforme",
+        "A": "est immobile ou en mouvement rectiligne uniforme",
+        "B": "est nécessairement immobile",
         "C": "ralentit progressivement",
         "D": "accélère"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "repos pris pour seule conséquence",
+          "B": "repos pris pour seule conséquence",
           "C": "frottement supposé sans être mentionné",
           "D": "conséquence inversée"
         }
@@ -445,7 +445,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Principe d'inertie. Le distracteur A est l'intuition aristotélicienne, la plus tenace.",
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Principe d'inertie. Le distracteur B est l'intuition aristotélicienne, la plus tenace.",
       "reserve_intermediaire": true
     },
     {
@@ -465,8 +465,8 @@
       "propositions": {
         "A": "rester constant",
         "B": "varier en direction seulement",
-        "C": "varier en valeur, sa direction restant verticale",
-        "D": "varier en direction et changer de sens"
+        "D": "varier en direction et changer de sens",
+        "C": "varier en valeur, sa direction restant verticale"
       },
       "cle": {
         "reponse": "C",
@@ -526,17 +526,17 @@
       "enonce": "La deuxième loi de Newton relie la somme des forces à :",
       "supports": [],
       "propositions": {
+        "D": "l'accélération du système multipliée par sa masse",
         "A": "la vitesse du système",
-        "B": "l'accélération du système multipliée par sa masse",
-        "C": "la distance parcourue",
-        "D": "l'énergie cinétique"
+        "B": "la distance parcourue",
+        "C": "l'énergie cinétique"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "force reliée à la vitesse et non à sa variation",
-          "C": "force reliée à une longueur",
-          "D": "force confondue avec une énergie"
+          "B": "force reliée à une longueur",
+          "C": "force confondue avec une énergie"
         }
       },
       "grille": null,
@@ -586,16 +586,16 @@
       "enonce": "L'énergie cinétique d'un solide de masse $m$ et de vitesse $v$ vaut :",
       "supports": [],
       "propositions": {
+        "C": "$\\dfrac{1}{2}mv^2$",
         "A": "$mv$",
-        "B": "$\\dfrac{1}{2}mv^2$",
-        "C": "$\\dfrac{1}{2}mv$",
+        "B": "$\\dfrac{1}{2}mv$",
         "D": "$mv^2$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "expression de la quantité de mouvement",
-          "C": "carré de la vitesse omis",
+          "B": "carré de la vitesse omis",
           "D": "facteur un demi omis"
         }
       },
@@ -646,9 +646,9 @@
       "supports": [],
       "propositions": {
         "A": "se conserve",
-        "B": "diminue, une partie étant dissipée",
         "C": "augmente",
-        "D": "reste nulle"
+        "D": "reste nulle",
+        "B": "diminue, une partie étant dissipée"
       },
       "cle": {
         "reponse": "B",
@@ -705,24 +705,24 @@
       "enonce": "La longueur d'onde d'une onde périodique est reliée à sa célérité et à sa période par :",
       "supports": [],
       "propositions": {
-        "A": "$\\lambda = v \\times T$",
-        "B": "$\\lambda = \\dfrac{v}{T}$",
-        "C": "$\\lambda = \\dfrac{T}{v}$",
-        "D": "$\\lambda = v + T$"
+        "A": "$\\lambda = \\dfrac{v}{T}$",
+        "D": "$\\lambda = v \\times T$",
+        "B": "$\\lambda = \\dfrac{T}{v}$",
+        "C": "$\\lambda = v + T$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "division au lieu du produit",
-          "C": "rapport inversé",
-          "D": "somme de grandeurs de dimensions différentes"
+          "A": "division au lieu du produit",
+          "B": "rapport inversé",
+          "C": "somme de grandeurs de dimensions différentes"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Relation fondamentale des ondes. Le distracteur D repère un candidat qui n'effectue aucun contrôle dimensionnel."
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Relation fondamentale des ondes. Le distracteur C repère un candidat qui n'effectue aucun contrôle dimensionnel."
     },
     {
       "item_id": "PC-1-OND-02",
@@ -764,16 +764,16 @@
       "enonce": "Le phénomène de diffraction est d'autant plus marqué que :",
       "supports": [],
       "propositions": {
+        "C": "l'ouverture est du même ordre de grandeur que la longueur d'onde",
         "A": "l'ouverture est grande devant la longueur d'onde",
-        "B": "l'ouverture est du même ordre de grandeur que la longueur d'onde",
-        "C": "la source est intense",
+        "B": "la source est intense",
         "D": "la distance à l'écran est faible"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "condition inversée",
-          "C": "intensité confondue avec géométrie",
+          "B": "intensité confondue avec géométrie",
           "D": "distance confondue avec condition de diffraction"
         }
       },
@@ -781,7 +781,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Condition de diffraction. Le distracteur C mesure la confusion entre une grandeur énergétique et une condition géométrique."
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Condition de diffraction. Le distracteur B mesure la confusion entre une grandeur énergétique et une condition géométrique."
     },
     {
       "item_id": "PC-T-OND-04",
@@ -823,15 +823,15 @@
       "enonce": "Dans une série de mesures, l'incertitude-type traduit :",
       "supports": [],
       "propositions": {
-        "A": "une erreur de manipulation",
-        "B": "la dispersion des valeurs obtenues en répétant la mesure",
+        "B": "une erreur de manipulation",
         "C": "la différence avec la valeur exacte",
+        "A": "la dispersion des valeurs obtenues en répétant la mesure",
         "D": "le nombre de chiffres affichés par l'appareil"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "incertitude confondue avec faute",
+          "B": "incertitude confondue avec faute",
           "C": "incertitude confondue avec écart à une référence",
           "D": "incertitude confondue avec résolution"
         }
@@ -840,7 +840,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe de première générale. Nature de l'incertitude. Le distracteur A est l'erreur conceptuelle la plus répandue : croire qu'une mesure sans faute serait sans incertitude."
+      "notes_conception": "Spécialité physique-chimie, classe de première générale. Nature de l'incertitude. Le distracteur B est l'erreur conceptuelle la plus répandue : croire qu'une mesure sans faute serait sans incertitude."
     },
     {
       "item_id": "PC-1-EXP-02",
@@ -919,8 +919,8 @@
       "enonce": "Deux mesures valent $4{,}2$ et $4{,}5$, avec une incertitude-type de $0{,}4$ sur chacune. On peut conclure que :",
       "supports": [],
       "propositions": {
-        "A": "les deux valeurs sont différentes",
         "B": "l'écart n'est pas significatif au regard des incertitudes",
+        "A": "les deux valeurs sont différentes",
         "C": "une des deux mesures est fausse",
         "D": "il faut refaire les mesures"
       },
@@ -1106,7 +1106,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : identifier et choisir une relation (1), mener le calcul (2), vérifier l'ordre de grandeur (3), conclure (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "PC-ERR-CONCL"
@@ -1219,15 +1219,15 @@
       "enonce": "Un objet est soulevé lentement d'une hauteur $h$. L'énergie potentielle de pesanteur du système :",
       "supports": [],
       "propositions": {
-        "A": "diminue",
-        "B": "augmente de $mgh$",
+        "B": "diminue",
         "C": "reste constante",
-        "D": "devient nulle"
+        "D": "devient nulle",
+        "A": "augmente de $mgh$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "variation de sens inversé",
+          "B": "variation de sens inversé",
           "C": "variation niée",
           "D": "valeur particulière supposée"
         }
@@ -1279,9 +1279,9 @@
       "supports": [],
       "propositions": {
         "A": "émet de la lumière rouge",
-        "B": "absorbe toutes les radiations sauf le rouge, qu'il diffuse",
         "C": "absorbe le rouge",
-        "D": "transmet le rouge uniquement"
+        "D": "transmet le rouge uniquement",
+        "B": "absorbe toutes les radiations sauf le rouge, qu'il diffuse"
       },
       "cle": {
         "reponse": "B",
@@ -1309,9 +1309,9 @@
       "enonce": "Une onde sonore se propage à $340\\ \\mathrm{m\\cdot s^{-1}}$. Un écho revient après $2{,}0\\ \\mathrm{s}$. À quelle distance se trouve l'obstacle ?",
       "supports": [],
       "cle": {
-        "reponse_2pts": "$170\\ \\mathrm{m}$ : le son a parcouru l'aller et le retour, soit $680\\ \\mathrm{m}$ au total.",
+        "reponse_2pts": "$340\\ \\mathrm{m}$ : le son a parcouru l'aller et le retour, soit $680\\ \\mathrm{m}$ au total ; l'obstacle est à la moitié.",
         "reponses_1pt": [
-          "Le résultat $340\\ \\mathrm{m}$ est donné, l'aller-retour n'ayant pas été pris en compte.",
+          "Le résultat $680\\ \\mathrm{m}$ est donné, l'aller-retour n'ayant pas été pris en compte.",
           "Le raisonnement sur l'aller-retour est exposé sans résultat numérique."
         ],
         "codes_erreur": [
@@ -1337,15 +1337,15 @@
       "enonce": "Le premier principe de la thermodynamique exprime que la variation d'énergie interne d'un système est due :",
       "supports": [],
       "propositions": {
-        "A": "au seul travail reçu",
-        "B": "à la somme du travail et du transfert thermique reçus",
+        "B": "au seul travail reçu",
         "C": "au seul transfert thermique",
+        "A": "à la somme du travail et du transfert thermique reçus",
         "D": "à la variation de température seule"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "transfert thermique omis",
+          "B": "transfert thermique omis",
           "C": "travail omis",
           "D": "cause confondue avec un indicateur"
         }
@@ -1354,7 +1354,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Énoncé du premier principe. Les distracteurs A et C isolent chacun un terme omis."
+      "notes_conception": "Spécialité physique-chimie, classe terminale générale (arrêté du 19 juillet 2019). Énoncé du premier principe. Les distracteurs B et C isolent chacun un terme omis."
     },
     {
       "item_id": "PC-T-ENER-06",
@@ -1397,15 +1397,15 @@
       "supports": [],
       "propositions": {
         "A": "une onde rencontre un obstacle de petite taille",
-        "B": "deux ondes de même fréquence se superposent",
-        "C": "une source se déplace par rapport à un observateur",
+        "C": "deux ondes de même fréquence se superposent",
+        "B": "une source se déplace par rapport à un observateur",
         "D": "une onde change de milieu"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "description de la diffraction",
-          "C": "description de l'effet Doppler",
+          "B": "description de l'effet Doppler",
           "D": "description de la réfraction"
         }
       },

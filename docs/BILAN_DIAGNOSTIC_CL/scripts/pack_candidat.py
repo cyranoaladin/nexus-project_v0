@@ -416,7 +416,7 @@ def lignes_diagnostics_famille(effective: list, cat: dict, duree_dossier: int) -
             continue
         if not inst:
             continue
-        minutes = LI.duree_livret_candidat(code, inst["duree_cible_min"])
+        minutes = LI.duree_livret(code, ver, inst["duree_cible_min"])
         if code in ("FR-EAF-ORAL", "FR-POS-ORAL"):
             lignes.append(("Diagnostic oral réalisé avec l’enseignant", minutes))
         elif code == "FR-EAF":
@@ -748,7 +748,7 @@ FR-MAI requis             : {'OUI' if qp['reponses']['fr_mai_requis'] else 'NON'
     if dues:
         for code, ver in dues:
             inst = next((it for it in cat["instruments"] if it["code"] == code and it["version"] == ver), None)
-            duree_txt = f"{LI.duree_livret_candidat(code, inst['duree_cible_min'])} min" if inst else "durée n.c."
+            duree_txt = f"{LI.duree_livret(code, ver, inst['duree_cible_min'])} min" if inst else "durée n.c."
             titre = (inst.get("libelle") or inst.get("nom") or code) if inst else code
             if code == "GO":
                 titre = f"Grand oral — livret complet, entretien de {inst['duree_cible_min']} min inclus"
@@ -775,7 +775,7 @@ FR-MAI requis             : {'OUI' if qp['reponses']['fr_mai_requis'] else 'NON'
 """
     for code, ver in effective:
         inst = next((it for it in cat["instruments"] if it["code"] == code and it["version"] == ver), None)
-        duree_txt = f"{LI.duree_livret_candidat(code, inst['duree_cible_min'])} min" if inst else "durée n.c."
+        duree_txt = f"{LI.duree_livret(code, ver, inst['duree_cible_min'])} min" if inst else "durée n.c."
         titre = (inst.get("libelle") or inst.get("nom") or code) if inst else code
         if code == "GO":
             titre = f"Grand oral — livret complet, entretien de {inst['duree_cible_min']} min inclus"

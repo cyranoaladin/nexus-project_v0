@@ -51,11 +51,61 @@ def test_bordereau_inclut_preparation_et_total_correct(tmp_path):
     assert all("42 min" in l and "entretien de 15 min inclus" in l for l in lignes_go)
 
 
-def test_durees_des_autres_instruments_inchangees():
+def test_la_duree_annoncee_est_celle_de_ce_que_le_livret_imprime():
+    """Deux écarts seulement séparent la couverture de la durée du catalogue.
+
+    Le Grand oral en annonce **plus** : le livret ajoute deux tâches écrites à
+    l'entretien. Les instruments dont une partie relève d'une épreuve pratique dispensée
+    en annoncent **moins** : ces items ne sont pas imprimés, et la couverture de NSI
+    portait « 1 h 15 » au-dessus de parties qui totalisaient quarante-sept minutes.
+
+    Partout ailleurs, la durée annoncée est celle du catalogue. Le test dérive l'écart
+    des référentiels au lieu de le recopier : il resterait juste si un autre instrument
+    se voyait dispensé demain.
+    """
     catalogue = json.loads((ROOT / "referentiels/catalogue_instruments.json").read_text())
+    exclus = LI.items_hors_livret()
     for it in catalogue["instruments"]:
-        if it["code"] != "GO":
-            assert LI.duree_livret_candidat(it["code"], it["duree_cible_min"]) == it["duree_cible_min"]
+        code, version = it["code"], it["version"]
+        if code == "GO":
+            continue
+        banque = ROOT / "instruments" / code / "banque.json"
+        assemblage = ROOT / "instruments" / code / "assemblages" / f"{version}.json"
+        retire = 0
+        if banque.exists() and assemblage.exists():
+            duree_de = {i["item_id"]: i["duree_min"]
+                        for i in json.loads(banque.read_text())["items"]}
+            a = json.loads(assemblage.read_text())
+            retire = sum(duree_de[i] for bloc in a.get("blocs", [])
+                         for i in bloc.get("items", []) if i in exclus and i in duree_de)
+        attendu = it["duree_cible_min"] - retire
+        assert LI.duree_livret(code, version, it["duree_cible_min"]) == attendu, \
+            f"{code}/{version} : durée annoncée qui n'est pas celle du livret composé"
+
+
+def test_la_couverture_nsi_annonce_la_duree_reellement_imprimee():
+    """NSI est le seul instrument dont le livret retire une partie : le cas est tenu ici.
+
+    `NSI-1-PROG-01` et `NSI-T-PROG-02` relèvent de la partie pratique dont le candidat
+    individuel est dispensé. Les retirer du livret sans les retirer de la durée annoncée
+    faisait cohabiter sur la même page « 1 h 15 » et des parties totalisant 47 min.
+    """
+    catalogue = json.loads((ROOT / "referentiels/catalogue_instruments.json").read_text())
+    banque = json.loads((ROOT / "instruments/EDS-NSI/banque.json").read_text())
+    duree_de = {i["item_id"]: i["duree_min"] for i in banque["items"]}
+    exclus = LI.items_hors_livret()
+    for version in ("N1", "NT"):
+        cible = next(i["duree_cible_min"] for i in catalogue["instruments"]
+                     if i["code"] == "EDS-NSI" and i["version"] == version)
+        a = json.loads((ROOT / f"instruments/EDS-NSI/assemblages/{version}.json").read_text())
+        imprime = (a.get("bloc_0", {}).get("duree_min", 0)
+                   + sum(duree_de[i] for bloc in a["blocs"] for i in bloc["items"]
+                         if i not in exclus))
+        annonce = LI.duree_livret("EDS-NSI", version, cible)
+        assert annonce < cible, f"EDS-NSI/{version} : la dispense ne raccourcit rien"
+        # La fenêtre du catalogue vaut pour le livret composé comme pour l'assemblage.
+        assert 0.9 * annonce <= imprime <= annonce, \
+            f"EDS-NSI/{version} : {imprime} min imprimées pour {annonce} min annoncées"
 
 
 @pytest.mark.parametrize("profil", ["PROFIL_B_DEUXIEME_PARTIE", "PROFIL_C_BAC_EN_UNE_SESSION"])

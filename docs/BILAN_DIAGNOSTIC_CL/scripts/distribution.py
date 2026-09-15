@@ -633,19 +633,51 @@ def texte_en_pdf(texte: str, cible: Path, titre: str) -> None:
     from reportlab.lib.pagesizes import A4
     from reportlab.pdfgen import canvas
     from reportlab.lib.units import cm
+    # Déterminisme : reportlab horodate chaque PDF et lui donne un identifiant tiré au
+    # sort. Deux constructions de la même release rendaient donc quatre PDF différents
+    # pour un contenu identique, et le manifeste qui porte leurs empreintes avec eux —
+    # six fichiers sur cent soixante-treize. `invariant` fige l'horodatage et
+    # l'identifiant ; la release redevient reproductible octet à octet.
+    from reportlab import rl_config
+    rl_config.invariant = 1
     cible.parent.mkdir(parents=True, exist_ok=True)
-    c = canvas.Canvas(str(cible), pagesize=A4)
+    c = canvas.Canvas(str(cible), pagesize=A4, invariant=1)
     c.setTitle(titre)
     largeur, hauteur = A4
-    y = hauteur - 2.5 * cm
-    for ligne in texte.split("\n"):
-        if y < 2 * cm:
+    haut, bas = hauteur - 2.5 * cm, 2 * cm
+
+    # Pagination calculée d'abord, puis rééquilibrée : une page qui ne porte qu'une
+    # ligne orpheline se lit comme une page oubliée. Le guide de l'opérateur en avait
+    # une — « 2026-2027 reste à confirmer dès publication d'un texte ministériel. »,
+    # seule sur sa page trois.
+    lignes = texte.split("\n")
+    hauteurs = [0.55 * cm if l.strip() else 0.35 * cm for l in lignes]
+    pages, courante, y = [], [], haut
+    for ligne, h in zip(lignes, hauteurs):
+        if y < bas:
+            pages.append(courante)
+            courante, y = [], haut
+        courante.append(ligne)
+        y -= h
+    if courante:
+        pages.append(courante)
+    # Une dernière page trop maigre rapatrie ses lignes sur la précédente : le bas de
+    # page dispose de la marge nécessaire, et le guide tient sur ses deux pages.
+    ORPHELINES = 3
+    while (len(pages) > 1
+           and sum(1 for l in pages[-1] if l.strip()) <= ORPHELINES):
+        derniere = pages.pop()
+        pages[-1].extend(derniere)
+
+    for n, page in enumerate(pages):
+        if n:
             c.showPage()
-            y = hauteur - 2.5 * cm
-        gras = ligne.isupper() and ligne.strip()
-        c.setFont("Helvetica-Bold" if gras else "Helvetica", 12 if gras else 10)
-        c.drawString(2 * cm, y, ligne[:105])
-        y -= 0.55 * cm if ligne.strip() else 0.35 * cm
+        y = haut
+        for ligne in page:
+            gras = ligne.isupper() and ligne.strip()
+            c.setFont("Helvetica-Bold" if gras else "Helvetica", 12 if gras else 10)
+            c.drawString(2 * cm, y, ligne[:105])
+            y -= 0.55 * cm if ligne.strip() else 0.35 * cm
     c.save()
 
 

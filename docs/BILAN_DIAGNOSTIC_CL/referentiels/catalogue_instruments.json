@@ -211,7 +211,8 @@
           "source": "referentiels/modalites_epreuves.json → epreuves_terminales.GO"
         }
       ]
-    }
+    },
+    "blocs_attendus": "Les blocs d'items qu'un assemblage de cet instrument peut servir. Le bloc 0 — l'auto-positionnement, qui ne porte aucun item et ne compte dans aucun score — n'y figure pas : il est déclaré par l'assemblage, sous la clé bloc_0. Trente-six fiches l'y portaient et trois non, sans qu'aucun contrôle ne lise cette lettre ; le champ ne désigne désormais qu'une chose (audit du 2026-09-15)."
   },
   "instruments": [
     {
@@ -248,7 +249,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -275,7 +275,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -302,7 +301,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -329,7 +327,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -338,7 +335,9 @@
       "porte_items": true,
       "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26) ; assemblage de session créé par Q-27",
       "configuration_francais": "ecrit",
-      "epreuve_anticipee": true
+      "epreuve_anticipee": true,
+      "statut_de_service": "reserve_campagne_suivante",
+      "motif_de_reserve": "Aucun candidat de la campagne en cours ne peut sélectionner cette version. Le suffixe « 2028 » désigne la session finale d'un élève de première en 2026-2027, donc un profil P1 ; or un candidat de première présente toujours les deux parties de l'épreuve anticipée de français — `faits_candidat.EAF_ADMIS` n'admet « ecrit » et « oral » que pour le profil P2, qui repasse une partie après un échec, et dont la session finale est 2027. La version est donc tenue en réserve pour la campagne où la promotion de première d'aujourd'hui sera en terminale, et la release ne compose aucun livret pour elle : en composer un serait fabriquer un document que personne ne reçoit."
     },
     {
       "code": "FR-EAF",
@@ -356,7 +355,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -383,7 +381,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -392,7 +389,9 @@
       "porte_items": true,
       "source_cahier": "§ 3.1, § 7.1 ; assemblage créé par Q-21 (EC-26) ; assemblage de session créé par Q-27",
       "configuration_francais": "oral",
-      "epreuve_anticipee": true
+      "epreuve_anticipee": true,
+      "statut_de_service": "reserve_campagne_suivante",
+      "motif_de_reserve": "Aucun candidat de la campagne en cours ne peut sélectionner cette version. Le suffixe « 2028 » désigne la session finale d'un élève de première en 2026-2027, donc un profil P1 ; or un candidat de première présente toujours les deux parties de l'épreuve anticipée de français — `faits_candidat.EAF_ADMIS` n'admet « ecrit » et « oral » que pour le profil P2, qui repasse une partie après un échec, et dont la session finale est 2027. La version est donc tenue en réserve pour la campagne où la promotion de première d'aujourd'hui sera en terminale, et la release ne compose aucun livret pour elle : en composer un serait fabriquer un document que personne ne reçoit."
     },
     {
       "code": "FR-EAF-ORAL",
@@ -432,7 +431,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -455,7 +453,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -477,7 +474,6 @@
       "materiel": "aucun",
       "correction": "cle",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "D"
@@ -498,7 +494,6 @@
       "materiel": "aucun",
       "correction": "cle",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "D"
@@ -519,7 +514,6 @@
       "materiel": "aucun",
       "correction": "cle",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "D"
@@ -578,7 +572,6 @@
       "materiel": "calculatrice_bloc_c",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -601,7 +594,6 @@
       "materiel": "calculatrice_bloc_c",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -624,7 +616,6 @@
       "materiel": "calculatrice_bloc_c",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -647,7 +638,6 @@
       "materiel": "calculatrice_bloc_c",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -670,7 +660,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -693,7 +682,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -716,7 +704,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -739,7 +726,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -762,7 +748,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -785,7 +770,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -808,7 +792,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -831,7 +814,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -854,7 +836,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -877,7 +858,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -949,7 +929,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -971,7 +950,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",
@@ -993,7 +971,6 @@
       "materiel": "aucun",
       "correction": "cle_et_grille",
       "blocs_attendus": [
-        "0",
         "A",
         "B",
         "C",

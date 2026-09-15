@@ -22,7 +22,7 @@
       "cle": {
         "reponse": "A",
         "distracteurs": {
-          "B": "produit des termes constants ajouté aux termes en x",
+          "B": "signe de $-3$ non appliqué au double produit : $5x + 3x$ au lieu de $5x - 3x$",
           "C": "signe du double produit inversé",
           "D": "signe du produit des constantes non traité"
         }
@@ -46,16 +46,16 @@
       "supports": [],
       "propositions": {
         "A": "$x = -3$",
-        "B": "$x = 3$",
-        "C": "$x = 5/3$",
-        "D": "$x = 9$"
+        "B": "$x = 5/3$",
+        "C": "$x = 9$",
+        "D": "$x = 3$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
-          "A": "signe non changé lors du passage du terme constant",
-          "C": "constante ajoutée après la division au lieu d'avant",
-          "D": "division par 3 omise"
+          "A": "terme constant passé sans changer de signe des deux côtés : $3x = -(7+2)$",
+          "B": "terme constant retranché au lieu d'être ajouté : $3x = 7 - 2$",
+          "C": "division par 3 omise"
         }
       },
       "grille": null,
@@ -76,16 +76,16 @@
       "enonce": "Simplifier l'écriture $\\dfrac{2^3 \\times 2^5}{2^4}$.",
       "supports": [],
       "propositions": {
-        "A": "$2^4$",
-        "B": "$2^2$",
-        "C": "$2^{15}$",
-        "D": "$2^6$"
+        "C": "$2^4$",
+        "A": "$2^2$",
+        "B": "$2^{15}$",
+        "D": "$2^{12}$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "exposants soustraits au lieu d'être additionnés au numérateur",
-          "C": "exposants multipliés lors du produit",
+          "A": "exposant du numérateur divisé par celui du dénominateur au lieu d'en être retranché : $(3+5)/4$",
+          "B": "exposants multipliés au numérateur et dénominateur ignoré : $3 \\times 5$",
           "D": "exposant du dénominateur ajouté au lieu d'être retranché"
         }
       },
@@ -107,15 +107,15 @@
       "enonce": "Pour quelles valeurs de $x$ l'expression $\\dfrac{x-2}{x+1}$ n'est-elle pas définie ?",
       "supports": [],
       "propositions": {
-        "A": "$x = 2$",
-        "B": "$x = -1$",
+        "A": "$x = -1$",
+        "B": "$x = 2$",
         "C": "$x = 1$",
         "D": "$x = 2$ et $x = -1$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "valeur annulant le numérateur prise pour valeur interdite",
+          "B": "valeur annulant le numérateur prise pour valeur interdite",
           "C": "signe de la valeur interdite non traité",
           "D": "numérateur et dénominateur traités ensemble"
         }
@@ -138,15 +138,15 @@
       "enonce": "Résoudre l'inéquation $-2x + 4 > 0$.",
       "supports": [],
       "propositions": {
-        "A": "$x > 2$",
-        "B": "$x < 2$",
+        "B": "$x > 2$",
         "C": "$x > -2$",
-        "D": "$x < -2$"
+        "D": "$x < -2$",
+        "A": "$x < 2$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "sens de l'inégalité non changé lors de la division par un négatif",
+          "B": "sens de l'inégalité non changé lors de la division par un négatif",
           "C": "signe du quotient et sens de l'inégalité tous deux erronés",
           "D": "signe du quotient erroné"
         }
@@ -155,7 +155,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Automatismes de Seconde évalués en bloc A : ils conditionnent tout le programme visé. Division par un nombre négatif dans une inéquation. Le distracteur A est l'erreur la plus fréquente et la plus coûteuse : elle se reproduit dans toutes les études de signe du programme de Première."
+      "notes_conception": "Automatismes de Seconde évalués en bloc A : ils conditionnent tout le programme visé. Division par un nombre négatif dans une inéquation. Le distracteur B est l'erreur la plus fréquente et la plus coûteuse : elle se reproduit dans toutes les études de signe du programme de Première."
     },
     {
       "item_id": "MATH-2-CALC-06",
@@ -170,23 +170,23 @@
       "supports": [],
       "propositions": {
         "A": "$25\\sqrt{2}$",
-        "B": "$5\\sqrt{2}$",
-        "C": "$10\\sqrt{2}$",
-        "D": "$\\sqrt{25} \\times \\sqrt{2}$"
+        "B": "$10\\sqrt{2}$",
+        "C": "$\\sqrt{25} \\times \\sqrt{2}$",
+        "D": "$5\\sqrt{2}$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "racine du facteur carré non prise",
-          "C": "facteur extrait par division au lieu de racine",
-          "D": "forme non simplifiée, extraction non achevée"
+          "B": "facteur extrait par division au lieu de racine",
+          "C": "forme non simplifiée, extraction non achevée"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Automatismes de Seconde évalués en bloc A : ils conditionnent tout le programme visé. Simplification d'un radical. Le distracteur D repère le candidat qui décompose correctement mais n'achève pas : la remédiation porte alors sur l'automatisme, pas sur la compréhension."
+      "notes_conception": "Automatismes de Seconde évalués en bloc A : ils conditionnent tout le programme visé. Simplification d'un radical. Le distracteur C repère le candidat qui décompose correctement mais n'achève pas : la remédiation porte alors sur l'automatisme, pas sur la compréhension."
     },
     {
       "item_id": "MATH-1-FONC-01",
@@ -203,17 +203,17 @@
       "enonce": "Quel est le discriminant de $x^2 - 5x + 6$ ?",
       "supports": [],
       "propositions": {
-        "A": "1",
-        "B": "49",
+        "A": "49",
         "C": "−1",
-        "D": "13"
+        "D": "13",
+        "B": "1"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "signe de b non traité dans $b^2$",
+          "A": "signe de $-4ac$ non appliqué : $25 + 24$ au lieu de $25 - 24$",
           "C": "soustraction inversée dans $b^2 - 4ac$",
-          "D": "produit 4ac calculé avec le mauvais signe"
+          "D": "facteur 4 réduit à 2 dans $4ac$ : $25 - 12$"
         }
       },
       "grille": null,
@@ -237,15 +237,15 @@
       "enonce": "La parabole d'équation $y = 2x^2 - 4x + 1$ est tournée :",
       "supports": [],
       "propositions": {
-        "A": "vers le haut, car $a > 0$",
-        "B": "vers le bas, car $a > 0$",
+        "A": "vers le bas, car $a > 0$",
         "C": "vers le haut, car $c > 0$",
-        "D": "vers le bas, car $b < 0$"
+        "D": "vers le bas, car $b < 0$",
+        "B": "vers le haut, car $a > 0$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "sens de l'ouverture inversé",
+          "A": "sens de l'ouverture inversé",
           "C": "ouverture rattachée au terme constant",
           "D": "ouverture rattachée au coefficient de x"
         }
@@ -271,16 +271,16 @@
       "enonce": "Quelle est la dérivée de $f(x) = 3x^2 + 5x - 2$ ?",
       "supports": [],
       "propositions": {
-        "A": "$6x + 5$",
-        "B": "$3x + 5$",
-        "C": "$6x + 5x$",
-        "D": "$6x^2 + 5$"
+        "A": "$3x + 5$",
+        "B": "$6x + 5x$",
+        "D": "$6x^2 + 5$",
+        "C": "$6x + 5$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "coefficient non multiplié par l'exposant",
-          "C": "terme en x non dérivé",
+          "A": "coefficient non multiplié par l'exposant",
+          "B": "terme en x non dérivé",
           "D": "exposant non abaissé"
         }
       },
@@ -306,23 +306,23 @@
       "supports": [],
       "propositions": {
         "A": "croissante",
-        "B": "décroissante",
-        "C": "négative",
-        "D": "constante"
+        "B": "négative",
+        "C": "constante",
+        "D": "décroissante"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "lien signe de la dérivée / sens de variation inversé",
-          "C": "signe de la dérivée confondu avec le signe de la fonction",
-          "D": "cas de la dérivée nulle appliqué à tort"
+          "B": "signe de la dérivée confondu avec le signe de la fonction",
+          "C": "cas de la dérivée nulle appliqué à tort"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de Première : second degré, dérivation, variations, exponentielle. En version NT ces items forment le bloc A, prérequis de Première pour un candidat de Terminale ; en N1 ils relèvent du bloc B. Le distracteur C est le plus discriminant : confondre le signe de f′ et celui de f est l'erreur qui rend toute étude de fonction inexploitable."
+      "notes_conception": "Programme de Première : second degré, dérivation, variations, exponentielle. En version NT ces items forment le bloc A, prérequis de Première pour un candidat de Terminale ; en N1 ils relèvent du bloc B. Le distracteur B est le plus discriminant : confondre le signe de f′ et celui de f est l'erreur qui rend toute étude de fonction inexploitable."
     },
     {
       "item_id": "MATH-1-FONC-05",
@@ -339,15 +339,15 @@
       "enonce": "Quelle égalité est vraie pour tout réel $x$ ?",
       "supports": [],
       "propositions": {
-        "A": "$e^x \\times e^{-x} = 1$",
-        "B": "$e^x + e^{-x} = 1$",
+        "A": "$e^x + e^{-x} = 1$",
         "C": "$e^x \\times e^{-x} = 0$",
-        "D": "$(e^x)^2 = e^{x^2}$"
+        "D": "$(e^x)^2 = e^{x^2}$",
+        "B": "$e^x \\times e^{-x} = 1$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "relation fonctionnelle appliquée à une somme",
+          "A": "relation fonctionnelle appliquée à une somme",
           "C": "produit d'exponentielles annoncé nul, alors que l'exponentielle ne s'annule jamais",
           "D": "exposant d'une puissance multiplié au lieu d'être doublé"
         }
@@ -373,15 +373,15 @@
       "enonce": "L'équation de la tangente à la courbe de $f$ au point d'abscisse $a$ s'écrit :",
       "supports": [],
       "propositions": {
-        "A": "$y = f'(a)(x-a) + f(a)$",
-        "B": "$y = f(a)(x-a) + f'(a)$",
+        "A": "$y = f(a)(x-a) + f'(a)$",
         "C": "$y = f'(a)\\,x + f(a)$",
+        "B": "$y = f'(a)(x-a) + f(a)$",
         "D": "$y = f'(a)(x+a) + f(a)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "rôles de $f(a)$ et $f'(a)$ intervertis",
+          "A": "rôles de $f(a)$ et $f'(a)$ intervertis",
           "C": "translation en $a$ omise",
           "D": "signe de $a$ inversé dans le facteur"
         }
@@ -390,7 +390,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de Première : second degré, dérivation, variations, exponentielle. En version NT ces items forment le bloc A, prérequis de Première pour un candidat de Terminale ; en N1 ils relèvent du bloc B. Équation de la tangente. Le distracteur B est celui d'un candidat qui a mémorisé les deux quantités sans comprendre laquelle est la pente."
+      "notes_conception": "Programme de Première : second degré, dérivation, variations, exponentielle. En version NT ces items forment le bloc A, prérequis de Première pour un candidat de Terminale ; en N1 ils relèvent du bloc B. Équation de la tangente. Le distracteur A est celui d'un candidat qui a mémorisé les deux quantités sans comprendre laquelle est la pente."
     },
     {
       "item_id": "MATH-1-FONC-07",
@@ -470,15 +470,15 @@
       "enonce": "Une suite est définie par $u_0 = 5$ et, pour tout entier naturel $n$, $u_{n+1} = u_n + 3$. Quelle est sa nature ?",
       "supports": [],
       "propositions": {
-        "A": "arithmétique de raison 3",
-        "B": "géométrique de raison 3",
+        "A": "géométrique de raison 3",
         "C": "arithmétique de raison 5",
-        "D": "géométrique de raison 5"
+        "D": "géométrique de raison 5",
+        "B": "arithmétique de raison 3"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "addition prise pour une multiplication",
+          "A": "addition prise pour une multiplication",
           "C": "premier terme pris pour la raison",
           "D": "nature et raison toutes deux erronées"
         }
@@ -487,7 +487,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Reconnaissance de la nature d'une suite. Le distracteur B correspond au code MATH-ERR-RAISON et signale une confusion de structure, pas de calcul."
+      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Reconnaissance de la nature d'une suite. Le distracteur A correspond au code MATH-ERR-RAISON et signale une confusion de structure, pas de calcul."
     },
     {
       "item_id": "MATH-1-SUIT-02",
@@ -505,16 +505,16 @@
       "supports": [],
       "propositions": {
         "A": "6",
-        "B": "18",
-        "C": "8",
-        "D": "12"
+        "C": "18",
+        "B": "8",
+        "D": "54"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "un seul facteur appliqué au lieu de deux",
-          "C": "raison ajoutée au lieu d'être multipliée",
-          "D": "indice décalé, $v_1$ calculé pour $v_2$"
+          "B": "raison ajoutée au lieu d'être multipliée",
+          "D": "indice décalé : $v_3$ calculé au lieu de $v_2$"
         }
       },
       "grille": null,
@@ -538,24 +538,24 @@
       "enonce": "Pour une suite arithmétique de premier terme $u_0$ et de raison $r$, le terme de rang $n$ vaut :",
       "supports": [],
       "propositions": {
-        "A": "$u_0 + nr$",
-        "B": "$u_0 \\times r^n$",
-        "C": "$u_0 + (n-1)r$",
-        "D": "$u_0 \\times n + r$"
+        "A": "$u_0 \\times r^n$",
+        "D": "$u_0 + nr$",
+        "B": "$u_0 + (n-1)r$",
+        "C": "$u_0 \\times n + r$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "formule de la suite géométrique appliquée",
-          "C": "formule valable pour une suite commençant à l'indice 1",
-          "D": "produit et somme mélangés"
+          "A": "formule de la suite géométrique appliquée",
+          "B": "formule valable pour une suite commençant à l'indice 1",
+          "C": "produit et somme mélangés"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Terme général. Le distracteur C est le plus fréquent chez les candidats venus d'un autre système, où l'indexation commence souvent à 1."
+      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Terme général. Le distracteur B est le plus fréquent chez les candidats venus d'un autre système, où l'indexation commence souvent à 1."
     },
     {
       "item_id": "MATH-1-SUIT-04",
@@ -573,16 +573,16 @@
       "supports": [],
       "propositions": {
         "A": "croissante",
-        "B": "décroissante",
-        "C": "constante",
-        "D": "alternée"
+        "D": "décroissante",
+        "B": "constante",
+        "C": "alternée"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "sens de variation inversé pour une raison entre 0 et 1",
-          "C": "cas q = 1 appliqué à tort",
-          "D": "cas d'une raison négative appliqué à tort"
+          "B": "cas q = 1 appliqué à tort",
+          "C": "cas d'une raison négative appliqué à tort"
         }
       },
       "grille": null,
@@ -640,24 +640,24 @@
       "enonce": "La somme $1 + q + q^2 + \\dots + q^n$, pour $q \\ne 1$, vaut :",
       "supports": [],
       "propositions": {
-        "A": "$\\dfrac{1-q^{n+1}}{1-q}$",
-        "B": "$\\dfrac{1-q^{n}}{1-q}$",
-        "C": "$\\dfrac{1-q^{n+1}}{1+q}$",
-        "D": "$\\dfrac{n(1+q)}{2}$"
+        "D": "$\\dfrac{1-q^{n+1}}{1-q}$",
+        "A": "$\\dfrac{1-q^{n}}{1-q}$",
+        "B": "$\\dfrac{1-q^{n+1}}{1+q}$",
+        "C": "$\\dfrac{n(1+q)}{2}$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "nombre de termes compté à n au lieu de n + 1",
-          "C": "signe du dénominateur erroné",
-          "D": "formule de la somme arithmétique appliquée"
+          "A": "nombre de termes compté à n au lieu de n + 1",
+          "B": "signe du dénominateur erroné",
+          "C": "formule de la somme arithmétique appliquée"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Somme des termes d'une suite géométrique. Le distracteur B mesure le décompte des termes, source d'erreur indépendante de la connaissance de la formule."
+      "notes_conception": "Programme de Première : suites arithmétiques et géométriques. Ces items forment le bloc A de la version NT — c'est le point capital du § 3.3 : un candidat P3 poursuivant la spécialité est évalué sur des fondamentaux de Première qu'il n'a jamais suivis. Somme des termes d'une suite géométrique. Le distracteur A mesure le décompte des termes, source d'erreur indépendante de la connaissance de la formule."
     },
     {
       "item_id": "MATH-1-SUIT-07",
@@ -733,15 +733,15 @@
       "enonce": "Pour démontrer par récurrence qu'une propriété $P(n)$ est vraie pour tout entier naturel $n$, il faut :",
       "supports": [],
       "propositions": {
-        "A": "vérifier $P(0)$, puis montrer que $P(n)$ implique $P(n+1)$",
-        "B": "vérifier $P(0)$ et $P(1)$, ce qui suffit",
+        "B": "vérifier $P(0)$, puis montrer que $P(n)$ implique $P(n+1)$",
+        "A": "vérifier $P(0)$ et $P(1)$, ce qui suffit",
         "C": "montrer que $P(n)$ est vraie pour un n quelconque",
         "D": "vérifier $P(0)$, puis que $P(n+1)$ implique $P(n)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "initialisation répétée à la place de l'hérédité",
+          "A": "initialisation répétée à la place de l'hérédité",
           "C": "hérédité remplacée par une vérification isolée",
           "D": "sens de l'implication inversé"
         }
@@ -850,17 +850,17 @@
       "enonce": "Combien vaut $\\pi/3$ en degrés ?",
       "supports": [],
       "propositions": {
-        "A": "30°",
-        "B": "60°",
+        "B": "30°",
         "C": "90°",
-        "D": "120°"
+        "D": "120°",
+        "A": "60°"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "conversion faite avec $\\pi/6$",
+          "B": "conversion faite avec $\\pi/6$",
           "C": "conversion faite avec $\\pi/2$",
-          "D": "dénominateur employé comme multiplicateur"
+          "D": "tour complet employé au lieu de l'angle plat : $360/3$"
         }
       },
       "grille": null,
@@ -882,15 +882,15 @@
       "supports": [],
       "propositions": {
         "A": "positif",
-        "B": "négatif",
-        "C": "nul",
+        "B": "nul",
+        "C": "négatif",
         "D": "on ne peut pas le savoir"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "point placé dans le premier quadrant au lieu du deuxième",
-          "C": "confusion avec la valeur en $\\pi/2$",
+          "B": "confusion avec la valeur en $\\pi/2$",
           "D": "lecture du cercle non maîtrisée"
         }
       },
@@ -968,15 +968,15 @@
       "enonce": "Dans un repère, $A(1\\,;\\,2)$ et $B(4\\,;\\,6)$. Quelles sont les coordonnées du vecteur AB ?",
       "supports": [],
       "propositions": {
-        "A": "$(3\\,;\\,4)$",
-        "B": "$(-3\\,;\\,-4)$",
+        "A": "$(-3\\,;\\,-4)$",
+        "B": "$(3\\,;\\,4)$",
         "C": "$(5\\,;\\,8)$",
         "D": "$(4\\,;\\,6)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "soustraction faite dans l'ordre inverse",
+          "A": "soustraction faite dans l'ordre inverse",
           "C": "coordonnées additionnées au lieu d'être soustraites",
           "D": "coordonnées du point B prises pour celles du vecteur"
         }
@@ -985,7 +985,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Géométrie repérée et produit scalaire, programme de Première. Coordonnées d'un vecteur, prérequis de tout le chapitre. Le distracteur B suit le code MATH-ERR-VECTEUR."
+      "notes_conception": "Géométrie repérée et produit scalaire, programme de Première. Coordonnées d'un vecteur, prérequis de tout le chapitre. Le distracteur A suit le code MATH-ERR-VECTEUR."
     },
     {
       "item_id": "MATH-1-GEO-02",
@@ -999,9 +999,9 @@
       "enonce": "Deux vecteurs non nuls sont orthogonaux si et seulement si :",
       "supports": [],
       "propositions": {
-        "A": "leur produit scalaire est nul",
         "B": "leur produit scalaire vaut 1",
         "C": "leurs coordonnées sont proportionnelles",
+        "A": "leur produit scalaire est nul",
         "D": "leur somme est nulle"
       },
       "cle": {
@@ -1119,16 +1119,16 @@
       "enonce": "Un vecteur normal à un plan d'équation $2x - y + 3z + 5 = 0$ est :",
       "supports": [],
       "propositions": {
-        "A": "$(2\\,;\\,-1\\,;\\,3)$",
-        "B": "$(2\\,;\\,1\\,;\\,3)$",
-        "C": "$(5\\,;\\,5\\,;\\,5)$",
+        "C": "$(2\\,;\\,-1\\,;\\,3)$",
+        "A": "$(2\\,;\\,1\\,;\\,3)$",
+        "B": "$(5\\,;\\,5\\,;\\,5)$",
         "D": "$(-2\\,;\\,1\\,;\\,-3) + (5\\,;\\,0\\,;\\,0)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "signe du coefficient de y non repris",
-          "C": "terme constant pris pour les coordonnées",
+          "A": "signe du coefficient de y non repris",
+          "B": "terme constant pris pour les coordonnées",
           "D": "vecteur combiné avec le terme constant"
         }
       },
@@ -1179,10 +1179,10 @@
       "enonce": "Donner une représentation paramétrique de la droite passant par $A(1\\,;\\,0\\,;\\,2)$ et de vecteur directeur $\\vec{u}(2\\,;\\,-1\\,;\\,3)$.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "$x = 1$ + 2t, y = −t, z = 2 + 3t, avec t décrivant $\\mathbb{R}$.",
+        "reponse_2pts": "$x = 1 + 2t$, $y = -t$, $z = 2 + 3t$, avec $t$ décrivant $\\mathbb{R}$.",
         "reponses_1pt": [
-          "Le système est correct mais l'ensemble décrit par t n'est pas précisé.",
-          "Les coordonnées de A et celles de u sont interverties dans le système."
+          "Le système est correct mais l'ensemble décrit par $t$ n'est pas précisé.",
+          "Les coordonnées de $A$ et celles de $\\vec{u}$ sont interverties dans le système."
         ],
         "codes_erreur": [
           "MATH-ERR-VECTEUR",
@@ -1210,16 +1210,16 @@
       "enonce": "Deux événements $A$ et $B$ sont indépendants si et seulement si :",
       "supports": [],
       "propositions": {
-        "A": "$P(A \\cap B) = P(A) \\times P(B)$",
-        "B": "$P(A \\cap B) = P(A) + P(B)$",
-        "C": "$P(A \\cap B) = 0$",
+        "A": "$P(A \\cap B) = P(A) + P(B)$",
+        "C": "$P(A \\cap B) = P(A) \\times P(B)$",
+        "B": "$P(A \\cap B) = 0$",
         "D": "$P(A) = P(B)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "somme employée pour l'intersection",
-          "C": "indépendance confondue avec incompatibilité",
+          "A": "somme employée pour l'intersection",
+          "B": "indépendance confondue avec incompatibilité",
           "D": "indépendance confondue avec égalité des probabilités"
         }
       },
@@ -1227,7 +1227,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Le distracteur C est le plus coûteux : confondre indépendance et incompatibilité fausse tout arbre pondéré et toute loi binomiale ensuite."
+      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Le distracteur B est le plus coûteux : confondre indépendance et incompatibilité fausse tout arbre pondéré et toute loi binomiale ensuite."
     },
     {
       "item_id": "MATH-1-PROB-02",
@@ -1244,15 +1244,15 @@
       "enonce": "Dans un arbre pondéré, la probabilité inscrite sur une branche de deuxième niveau est :",
       "supports": [],
       "propositions": {
-        "A": "une probabilité conditionnelle",
-        "B": "une probabilité d'intersection",
+        "A": "une probabilité d'intersection",
         "C": "la somme des probabilités du niveau précédent",
+        "B": "une probabilité conditionnelle",
         "D": "toujours égale à 0,5"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "branche lue comme un chemin complet",
+          "A": "branche lue comme un chemin complet",
           "C": "règle de somme appliquée à la lecture d'une branche",
           "D": "valeur supposée par défaut"
         }
@@ -1261,7 +1261,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Lecture d'un arbre. Le distracteur B correspond au code MATH-ERR-PROBA-COND et signale l'erreur qui rend la formule des probabilités totales inutilisable."
+      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Lecture d'un arbre. Le distracteur A correspond au code MATH-ERR-PROBA-COND et signale l'erreur qui rend la formule des probabilités totales inutilisable."
     },
     {
       "item_id": "MATH-1-PROB-03",
@@ -1278,15 +1278,15 @@
       "enonce": "Une variable aléatoire $X$ prend la valeur 0 avec la probabilité 0,8 et la valeur 10 avec la probabilité 0,2. Que vaut $E(X)$ ?",
       "supports": [],
       "propositions": {
-        "A": "0,2",
-        "B": "2",
+        "A": "2",
+        "B": "0,2",
         "C": "5",
         "D": "10"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "probabilité prise pour l'espérance",
+          "B": "probabilité prise pour l'espérance",
           "C": "moyenne des valeurs prises sans pondération",
           "D": "valeur la plus grande prise pour l'espérance"
         }
@@ -1295,7 +1295,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Espérance d'une variable aléatoire. Le distracteur A suit le code MATH-ERR-ESPERANCE, le C désigne un candidat qui ignore la pondération."
+      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Espérance d'une variable aléatoire. Le distracteur B suit le code MATH-ERR-ESPERANCE, le C désigne un candidat qui ignore la pondération."
     },
     {
       "item_id": "MATH-1-PROB-04",
@@ -1346,16 +1346,16 @@
       "enonce": "La formule des probabilités totales, avec $A$ et son contraire, s'écrit :",
       "supports": [],
       "propositions": {
-        "A": "$P(B) = P(A \\cap B) + P(\\bar{A} \\cap B)$",
-        "B": "$P(B) = P(A) + P(B)$",
-        "C": "$P(B) = P(B \\mid A) \\times P(B \\mid \\bar{A})$",
+        "C": "$P(B) = P(A \\cap B) + P(\\bar{A} \\cap B)$",
+        "A": "$P(B) = P(A) + P(B)$",
+        "B": "$P(B) = P(B \\mid A) \\times P(B \\mid \\bar{A})$",
         "D": "$P(B) = P(A \\cap B) \\times P(\\bar{A} \\cap B)$"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "partition non prise en compte",
-          "C": "conditionnelles multipliées sans pondération",
+          "A": "partition non prise en compte",
+          "B": "conditionnelles multipliées sans pondération",
           "D": "produit employé à la place de la somme"
         }
       },
@@ -1363,7 +1363,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Décomposition selon une partition. Le distracteur C désigne un candidat qui mémorise des symboles sans la structure de l'arbre."
+      "notes_conception": "Probabilités conditionnelles et variables aléatoires, programme de Première. Ces items forment le bloc A de la version NT, comme prérequis de Première. Décomposition selon une partition. Le distracteur B désigne un candidat qui mémorise des symboles sans la structure de l'arbre."
     },
     {
       "item_id": "MATH-1-PROB-06",
@@ -1380,15 +1380,15 @@
       "enonce": "Une variable aléatoire suit une loi telle que $E(X) = 3$. On pose $Y = 2X + 1$. Que vaut $E(Y)$ ?",
       "supports": [],
       "propositions": {
-        "A": "6",
-        "B": "7",
+        "B": "6",
         "C": "4",
+        "A": "7",
         "D": "3"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "constante non ajoutée",
+          "B": "constante non ajoutée",
           "C": "coefficient non appliqué",
           "D": "linéarité de l'espérance ignorée"
         }
@@ -1473,24 +1473,24 @@
       "enonce": "$X$ suit la loi binomiale de paramètres $n = 10$ et $p = 0{,}3$. Que vaut $E(X)$ ?",
       "supports": [],
       "propositions": {
+        "D": "3",
         "A": "0,3",
-        "B": "3",
-        "C": "10",
-        "D": "2,1"
+        "B": "10",
+        "C": "2,1"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "paramètre p pris pour l'espérance",
-          "C": "paramètre n pris pour l'espérance",
-          "D": "variance calculée à la place de l'espérance"
+          "B": "paramètre n pris pour l'espérance",
+          "C": "variance calculée à la place de l'espérance"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Loi binomiale et dénombrement, programme de Terminale. Espérance de la loi binomiale. Le distracteur D repère un candidat qui connaît les deux formules mais les intervertit. Retiré de l'assemblage NT par la reprise R1 du 2026-09-10, pour porter le bloc C à 25 minutes sans toucher au bloc A. PROB conserve 5 points au palier D1 sans lui. Conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "notes_conception": "Loi binomiale et dénombrement, programme de Terminale. Espérance de la loi binomiale. Le distracteur C repère un candidat qui connaît les deux formules mais les intervertit. Retiré de l'assemblage NT par la reprise R1 du 2026-09-10, pour porter le bloc C à 25 minutes sans toucher au bloc A. PROB conserve 5 points au palier D1 sans lui. Conservé en banque et réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -1532,17 +1532,17 @@
       "enonce": "Une épreuve de Bernoulli répétée 20 fois de façon indépendante, avec la même probabilité de succès, est modélisée par :",
       "supports": [],
       "propositions": {
-        "A": "une loi binomiale",
-        "B": "une loi uniforme",
-        "C": "une somme de variables non identiques",
-        "D": "une loi normale"
+        "D": "une loi binomiale",
+        "A": "une loi uniforme",
+        "B": "une somme de variables non identiques",
+        "C": "une loi normale"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "équiprobabilité supposée entre les issues",
-          "C": "condition d'indépendance et d'identité non reconnue",
-          "D": "modèle continu appliqué à un dénombrement"
+          "A": "équiprobabilité supposée entre les issues",
+          "B": "condition d'indépendance et d'identité non reconnue",
+          "C": "modèle continu appliqué à un dénombrement"
         }
       },
       "grille": null,
@@ -1592,16 +1592,16 @@
       "enonce": "Que vaut $\\ln(1)$ ?",
       "supports": [],
       "propositions": {
-        "A": "0",
-        "B": "1",
-        "C": "e",
+        "A": "1",
+        "C": "0",
+        "B": "e",
         "D": "non défini"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "valeur en e prise pour valeur en 1",
-          "C": "fonction confondue avec son réciproque",
+          "A": "valeur en e prise pour valeur en 1",
+          "B": "fonction confondue avec son réciproque",
           "D": "domaine de définition mal situé"
         }
       },
@@ -1623,9 +1623,9 @@
       "enonce": "Une fonction est convexe sur un intervalle si, sur cet intervalle :",
       "supports": [],
       "propositions": {
-        "A": "sa dérivée seconde est positive",
         "B": "sa dérivée seconde est négative",
         "C": "sa dérivée première est positive",
+        "A": "sa dérivée seconde est positive",
         "D": "elle est positive"
       },
       "cle": {
@@ -1710,16 +1710,16 @@
       "enonce": "Que renvoie la fonction suivante pour $n = 4$ ?\n\n```\ndef f(n):\n    s = 0\n    for i in range(n):\n        s = s + i\n    return s\n```",
       "supports": [],
       "propositions": {
-        "A": "6",
-        "B": "10",
-        "C": "4",
+        "C": "6",
+        "A": "10",
+        "B": "4",
         "D": "0"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "borne supérieure incluse dans le parcours",
-          "C": "valeur de n renvoyée au lieu de la somme",
+          "A": "borne supérieure incluse dans le parcours",
+          "B": "valeur de n renvoyée au lieu de la somme",
           "D": "accumulateur non mis à jour"
         }
       },
@@ -1727,7 +1727,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Prédiction de sortie d'une boucle bornée. Le distracteur B correspond au code MATH-ERR-PYTHON : range(n) parcourt 0 à n−1, erreur d'indice la plus fréquente."
+      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Prédiction de sortie d'une boucle bornée. Le distracteur A correspond au code MATH-ERR-PYTHON : range(n) parcourt 0 à n−1, erreur d'indice la plus fréquente."
     },
     {
       "item_id": "MATH-1-ALGO-02",
@@ -1741,10 +1741,9 @@
       "enonce": "Compléter la ligne manquante pour que la fonction renvoie le maximum de la liste `L` :\n\n```\ndef maxi(L):\n    m = L[0]\n    for x in L:\n        if ______:\n            m = x\n    return m\n```",
       "supports": [],
       "cle": {
-        "reponse_2pts": "x > m",
+        "reponse_2pts": "x > m — la variante « x >= m » renvoie le même maximum et vaut les deux points.",
         "reponses_1pt": [
-          "m > x",
-          "x >= m"
+          "m > x"
         ],
         "codes_erreur": [
           "MATH-ERR-PYTHON",
@@ -1755,7 +1754,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Complétion de code. La réponse « m > x », cotée un point, désigne un candidat qui a compris la structure mais inverse la comparaison ; « x >= m » est fonctionnelle mais non canonique, d'où la même cotation partielle."
+      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Complétion de code. La réponse « m > x », cotée un point, désigne un candidat qui a compris la structure mais inverse la comparaison. « x >= m » est cotée pleinement : l'énoncé demande que la fonction renvoie le maximum, ce qu'elle fait — la préférence pour l'inégalité stricte est une convention d'écriture, pas une exigence de l'énoncé."
     },
     {
       "item_id": "MATH-T-ALGO-03",
@@ -1800,9 +1799,9 @@
       "enonce": "Cette fonction calcule les termes successifs d'une suite. Indiquer la valeur renvoyée pour $n = 3$ et la relation de récurrence qu'elle traduit.\n\n```\ndef u(n):\n    v = 2\n    for i in range(n):\n        v = 3 * v + 1\n    return v\n```",
       "supports": [],
       "cle": {
-        "reponse_2pts": "La valeur renvoyée est $85$ et la relation est $u_{n+1} = 3u_n + 1$ pour tout entier naturel $n$, avec $u_0 = 2$.",
+        "reponse_2pts": "La valeur renvoyée est $67$ et la relation est $u_{n+1} = 3u_n + 1$ pour tout entier naturel $n$, avec $u_0 = 2$.",
         "reponses_1pt": [
-          "La valeur 85 est exacte mais la relation n'est pas écrite.",
+          "La valeur 67 est exacte mais la relation n'est pas écrite.",
           "La relation est exacte mais la valeur numérique est erronée."
         ],
         "codes_erreur": [
@@ -1894,7 +1893,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : identifier et mettre en équation (1), résoudre (2), vérifier (3), conclure (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "MATH-ERR-JUSTIF"
@@ -1918,10 +1917,10 @@
       "enonce": "Un candidat écrit : « $x^2 = 16$ donc $x = 4$ ». Indiquez ce qui manque à cette résolution et donnez la réponse complète.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Il manque la seconde solution : x = 4 ou $x = -4$.",
+        "reponse_2pts": "Il manque la seconde solution : $x = 4$ ou $x = -4$.",
         "reponses_1pt": [
           "La réponse signale qu'une solution manque sans donner laquelle.",
-          "La réponse donne −4 sans reprendre les deux solutions ensemble."
+          "La réponse donne $-4$ sans reprendre les deux solutions ensemble."
         ],
         "codes_erreur": [
           "MATH-ERR-SIGNE",
@@ -2006,7 +2005,7 @@
       "bloc": "D",
       "score_max": 2,
       "duree_min": 3,
-      "enonce": "Dans une démonstration par récurrence, associez chaque étape à son nom : (a) on vérifie la propriété au premier rang ; (b) on suppose la propriété vraie au rang $n$ ; (c) on la démontre au rang $n+1$ ; (d) on conclut pour tout n.",
+      "enonce": "Dans une démonstration par récurrence, associez chaque étape à son nom : (a) on vérifie la propriété au premier rang ; (b) on suppose la propriété vraie au rang $n$ ; (c) on la démontre au rang $n+1$ ; (d) on conclut pour tout $n$.",
       "supports": [],
       "cle": {
         "reponse_2pts": "(a) initialisation, (b) hypothèse de récurrence, (c) hérédité, (d) conclusion.",
@@ -2064,24 +2063,24 @@
       "enonce": "Que renvoie cette fonction pour `L = [3, 1, 4, 1, 5]` ?\n\n```\ndef f(L):\n    c = 0\n    for x in L:\n        if x > 2:\n            c = c + 1\n    return c\n```",
       "supports": [],
       "propositions": {
-        "A": "3",
-        "B": "5",
-        "C": "2",
-        "D": "13"
+        "A": "5",
+        "D": "3",
+        "B": "2",
+        "C": "14"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "longueur de la liste renvoyée, condition ignorée",
-          "C": "éléments égaux à 2 exclus à tort du décompte",
-          "D": "somme des éléments calculée au lieu de leur nombre"
+          "A": "longueur de la liste renvoyée, condition ignorée",
+          "B": "condition lue « x > 3 » au lieu de « x > 2 »",
+          "C": "somme des éléments calculée au lieu de leur nombre"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Comptage sous condition. Le distracteur D distingue le candidat qui confond compteur et accumulateur, confusion qui se reporte sur tous les algorithmes de parcours."
+      "notes_conception": "Python : lire, compléter, prédire la sortie d'un programme court, sans exécution (§ 7.6). Comptage sous condition. Le distracteur C distingue le candidat qui confond compteur et accumulateur, confusion qui se reporte sur tous les algorithmes de parcours."
     },
     {
       "item_id": "MATH-1-ALGO-06",

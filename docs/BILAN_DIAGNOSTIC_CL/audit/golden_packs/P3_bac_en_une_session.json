@@ -181,10 +181,10 @@
     },
     {
       "libelle": "Spécialité Numérique et Sciences Informatiques",
-      "minutes": 75
+      "minutes": 50
     }
   ],
-  "total_diagnostic_duration_min": 722,
+  "total_diagnostic_duration_min": 697,
   "tests_proving_independent": [
     "tests/test_faits_candidat.py::test_p3_normalise_le_mode_fin_de_cycle",
     "tests/test_pack_candidat.py::test_philosophie_derivation_automatique",

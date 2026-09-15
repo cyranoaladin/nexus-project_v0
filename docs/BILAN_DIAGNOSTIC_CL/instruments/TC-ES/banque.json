@@ -18,15 +18,15 @@
       "enonce": "Sur un graphique, l'axe des abscisses porte :",
       "supports": [],
       "propositions": {
-        "A": "la grandeur mesurée",
-        "B": "la grandeur que l'on fait varier",
+        "B": "la grandeur mesurée",
+        "A": "la grandeur que l'on fait varier",
         "C": "toujours le temps",
         "D": "l'unité de mesure"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "axes intervertis",
+          "B": "axes intervertis",
           "C": "cas particulier généralisé",
           "D": "grandeur confondue avec son unité"
         }
@@ -53,17 +53,17 @@
       "enonce": "Dans une expérience, la variable testée est celle que l'on :",
       "supports": [],
       "propositions": {
+        "D": "fait varier volontairement",
         "A": "mesure",
-        "B": "fait varier volontairement",
-        "C": "maintient constante",
-        "D": "calcule ensuite"
+        "B": "maintient constante",
+        "C": "calcule ensuite"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "variable mesurée prise pour la variable testée",
-          "C": "facteur contrôlé pris pour la variable testée",
-          "D": "résultat pris pour la variable"
+          "B": "facteur contrôlé pris pour la variable testée",
+          "C": "résultat pris pour la variable"
         }
       },
       "grille": null,
@@ -212,24 +212,24 @@
       "enonce": "Un cristal se caractérise par :",
       "supports": [],
       "propositions": {
+        "D": "un empilement ordonné et périodique d'atomes ou d'ions",
         "A": "une couleur uniforme",
-        "B": "un empilement ordonné et périodique d'atomes ou d'ions",
-        "C": "une grande dureté",
-        "D": "une origine minérale"
+        "B": "une grande dureté",
+        "C": "une origine minérale"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "critère visuel",
-          "C": "propriété non définitoire",
-          "D": "origine confondue avec structure"
+          "B": "propriété non définitoire",
+          "C": "origine confondue avec structure"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Définition du cristal. Le distracteur C est le plus fréquent : la dureté est une conséquence possible, non le critère."
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Définition du cristal. Le distracteur B est le plus fréquent : la dureté est une conséquence possible, non le critère."
     },
     {
       "item_id": "TC-1-MAT-02",
@@ -248,9 +248,9 @@
       "supports": [],
       "propositions": {
         "A": "n'existent que dans le vivant",
-        "B": "sont les mêmes que dans le monde minéral, en proportions différentes",
         "C": "sont créés par les cellules",
-        "D": "sont au nombre de quatre"
+        "D": "sont au nombre de quatre",
+        "B": "sont les mêmes que dans le monde minéral, en proportions différentes"
       },
       "cle": {
         "reponse": "B",
@@ -347,9 +347,9 @@
       "supports": [],
       "propositions": {
         "A": "à son intensité",
-        "B": "à sa fréquence",
         "C": "à sa durée",
-        "D": "à son timbre"
+        "D": "à son timbre",
+        "B": "à sa fréquence"
       },
       "cle": {
         "reponse": "B",
@@ -382,23 +382,23 @@
       "supports": [],
       "propositions": {
         "A": "de la seule distance au Soleil",
-        "B": "de l'angle d'incidence des rayons et de la distance",
-        "C": "de la température de l'air",
-        "D": "de la couleur du sol seulement"
+        "D": "de l'angle d'incidence des rayons et de la distance",
+        "B": "de la température de l'air",
+        "C": "de la couleur du sol seulement"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "facteur unique retenu",
-          "C": "conséquence prise pour cause",
-          "D": "facteur secondaire généralisé"
+          "B": "conséquence prise pour cause",
+          "C": "facteur secondaire généralisé"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Bilan radiatif. Le distracteur C inverse le rapport : c'est le rayonnement qui détermine la température, non l'inverse."
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Bilan radiatif. Le distracteur B inverse le rapport : c'est le rayonnement qui détermine la température, non l'inverse."
     },
     {
       "item_id": "TC-1-SON-03",
@@ -478,16 +478,16 @@
       "enonce": "L'observation qui a permis à Ératosthène d'estimer la circonférence de la Terre repose sur :",
       "supports": [],
       "propositions": {
-        "A": "la mesure d'ombres en deux lieux différents à la même date",
-        "B": "un voyage autour de la Terre",
-        "C": "l'observation d'une éclipse",
+        "C": "la mesure d'ombres en deux lieux différents à la même date",
+        "A": "un voyage autour de la Terre",
+        "B": "l'observation d'une éclipse",
         "D": "la mesure de la distance à la Lune"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "méthode confondue avec une circumnavigation",
-          "C": "phénomène sans rapport avec la mesure",
+          "A": "méthode confondue avec une circumnavigation",
+          "B": "phénomène sans rapport avec la mesure",
           "D": "objet de mesure erroné"
         }
       },
@@ -513,24 +513,24 @@
       "enonce": "L'âge de la Terre, estimé à environ 4,5 milliards d'années, a été établi principalement par :",
       "supports": [],
       "propositions": {
+        "D": "la datation radiochronologique de roches et de météorites",
         "A": "l'étude des textes anciens",
-        "B": "la datation radiochronologique de roches et de météorites",
-        "C": "le comptage des couches sédimentaires",
-        "D": "l'observation des fossiles"
+        "B": "le comptage des couches sédimentaires",
+        "C": "l'observation des fossiles"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "source non scientifique",
-          "C": "méthode donnant des durées bien plus courtes",
-          "D": "méthode relative et non absolue"
+          "B": "méthode donnant des durées bien plus courtes",
+          "C": "méthode relative et non absolue"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Sous-thème « L'histoire de l'âge de la Terre ». Les distracteurs C et D désignent des méthodes réelles mais qui ne donnent pas un âge absolu de cet ordre."
+      "notes_conception": "Enseignement scientifique, classe de première générale (arrêté du 17 janvier 2019). Sous-thème « L'histoire de l'âge de la Terre ». Les distracteurs B et C désignent des méthodes réelles mais qui ne donnent pas un âge absolu de cet ordre."
     },
     {
       "item_id": "TC-1-ASTR-03",
@@ -611,15 +611,15 @@
       "enonce": "L'effet de serre naturel a pour conséquence :",
       "supports": [],
       "propositions": {
-        "A": "de refroidir la surface terrestre",
-        "B": "de maintenir la surface terrestre à une température plus élevée qu'en son absence",
+        "B": "de refroidir la surface terrestre",
         "C": "de bloquer le rayonnement solaire entrant",
-        "D": "de créer de l'énergie"
+        "D": "de créer de l'énergie",
+        "A": "de maintenir la surface terrestre à une température plus élevée qu'en son absence"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "effet inversé",
+          "B": "effet inversé",
           "C": "rayonnement entrant confondu avec rayonnement réémis",
           "D": "conservation de l'énergie ignorée"
         }
@@ -646,16 +646,16 @@
       "enonce": "Un modèle climatique fournit :",
       "supports": [],
       "propositions": {
+        "C": "des projections conditionnées par des hypothèses d'émissions",
         "A": "une prédiction certaine du climat futur",
-        "B": "des projections conditionnées par des hypothèses d'émissions",
-        "C": "une mesure du climat passé",
+        "B": "une mesure du climat passé",
         "D": "une opinion d'experts"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "projection confondue avec prédiction",
-          "C": "modèle confondu avec relevé",
+          "B": "modèle confondu avec relevé",
           "D": "modèle confondu avec avis"
         }
       },
@@ -743,8 +743,8 @@
       "enonce": "L'électricité est un vecteur d'énergie, ce qui signifie qu'elle :",
       "supports": [],
       "propositions": {
-        "A": "est une source d'énergie primaire",
         "B": "transporte de l'énergie produite ailleurs",
+        "A": "est une source d'énergie primaire",
         "C": "se stocke facilement en grande quantité",
         "D": "ne se transforme pas"
       },
@@ -779,15 +779,15 @@
       "supports": [],
       "propositions": {
         "A": "augmenter la puissance transportée",
-        "B": "réduire les pertes par effet Joule dans les lignes",
-        "C": "protéger les usagers",
-        "D": "accélérer le transport"
+        "B": "protéger les usagers",
+        "D": "accélérer le transport",
+        "C": "réduire les pertes par effet Joule dans les lignes"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "tension confondue avec puissance",
-          "C": "conséquence sans rapport",
+          "B": "conséquence sans rapport",
           "D": "vitesse de propagation supposée modifiable"
         }
       },
@@ -875,15 +875,15 @@
       "enonce": "La biodiversité désigne :",
       "supports": [],
       "propositions": {
-        "A": "le nombre d'espèces animales",
-        "B": "la diversité du vivant à plusieurs niveaux, des gènes aux écosystèmes",
+        "B": "le nombre d'espèces animales",
+        "A": "la diversité du vivant à plusieurs niveaux, des gènes aux écosystèmes",
         "C": "les espèces protégées",
         "D": "la diversité des paysages"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "réduction au nombre d'espèces animales",
+          "B": "réduction au nombre d'espèces animales",
           "C": "réduction aux espèces menacées",
           "D": "confusion avec la diversité des milieux"
         }
@@ -892,7 +892,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Définition de la biodiversité. Le distracteur A est la conception spontanée : elle omet les niveaux génétique et écosystémique."
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Définition de la biodiversité. Le distracteur B est la conception spontanée : elle omet les niveaux génétique et écosystémique."
     },
     {
       "item_id": "TC-T-INFO-02",
@@ -911,15 +911,15 @@
       "supports": [],
       "propositions": {
         "A": "linéaire",
-        "B": "exponentielle",
-        "C": "périodique",
+        "B": "périodique",
+        "C": "exponentielle",
         "D": "stationnaire"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "croissance constante en valeur supposée",
-          "C": "modèle sans rapport",
+          "B": "modèle sans rapport",
           "D": "absence de croissance supposée"
         }
       },
@@ -1040,15 +1040,15 @@
       "enonce": "L'unité astronomique correspond approximativement :",
       "supports": [],
       "propositions": {
-        "A": "à la distance Terre-Lune",
-        "B": "à la distance Terre-Soleil",
+        "B": "à la distance Terre-Lune",
         "C": "au rayon de la Terre",
+        "A": "à la distance Terre-Soleil",
         "D": "à une année-lumière"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "ordre de grandeur bien plus petit",
+          "B": "ordre de grandeur bien plus petit",
           "C": "ordre de grandeur bien plus petit",
           "D": "ordre de grandeur bien plus grand"
         }
@@ -1107,15 +1107,15 @@
       "enonce": "L'évolution humaine est reconstituée principalement à partir :",
       "supports": [],
       "propositions": {
-        "A": "des seuls fossiles",
-        "B": "des fossiles et de la comparaison des génomes",
+        "B": "des seuls fossiles",
         "C": "des récits historiques",
-        "D": "de la seule anatomie comparée"
+        "D": "de la seule anatomie comparée",
+        "A": "des fossiles et de la comparaison des génomes"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "source unique retenue",
+          "B": "source unique retenue",
           "C": "source non scientifique pour ces échelles de temps",
           "D": "source unique retenue"
         }
@@ -1124,7 +1124,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Item propre à la version TLE. Les distracteurs A et D désignent des sources réelles mais partielles : c'est le croisement des méthodes que le thème met en avant."
+      "notes_conception": "Enseignement scientifique, classe terminale générale (arrêté du 19 juillet 2019). Item propre à la version TLE. Les distracteurs B et D désignent des sources réelles mais partielles : c'est le croisement des méthodes que le thème met en avant."
     }
   ]
 }

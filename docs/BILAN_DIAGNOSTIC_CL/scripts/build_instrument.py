@@ -118,6 +118,43 @@ def rendre_tableau(t: dict) -> list[str]:
     return L + ["", ligne_source(t), ""]
 
 
+def rendre_texte(sup: dict) -> list[str]:
+    """Un support textuel porté par un item : titre, texte, provenance.
+
+    Les supports textuels de bloc passaient déjà par ce gabarit ; ceux d'un item
+    tombaient dans une branche qui imprimait le dictionnaire Python lui-même.
+    """
+    return [f"**{sup['titre']}**", "", sup["texte"], "", f"*{sup['reference']}*", ""]
+
+
+#: L'énoncé annonce lui-même où le document se trouve. On lui obéit — même règle, même
+#: expression que `scripts/livret.py`, pour que les deux rendus d'un item se lisent pareil.
+APRES = re.compile(r"ci-dessous|ci-après|ci-contre", re.I)
+
+
+def supports_places(it: dict, vus_bloc: set[str], c: dict) -> tuple[list[str], list[str]]:
+    """Les documents de l'item, répartis entre « avant l'énoncé » et « après l'énoncé »."""
+    avant: list[str] = []
+    apres: list[str] = []
+    suit = bool(APRES.search(it.get("enonce") or ""))
+    for sup in it.get("supports", []):
+        if not isinstance(sup, dict):
+            apres += [f"> {sup}", ""]
+            continue
+        if sup.get("code") in vus_bloc:
+            apres += [f"*Voir « {sup['titre']} » ci-dessus.*", ""]
+            continue
+        vus_bloc.add(sup.get("code"))
+        if sup.get("type") == "tableau":
+            rendu = rendre_tableau(sup)
+        elif sup.get("type") == "figure":
+            rendu = rendre_figure(sup, c["figures"] / f"{sup['code']}.pdf")
+        else:
+            rendu = rendre_texte(sup)
+        (apres if suit else avant).extend(rendu)
+    return avant, apres
+
+
 def rendre_figure(f: dict, cible: Path) -> list[str]:
     """Trace la figure depuis les données de la banque. Aucune image externe n'est insérée.
 
@@ -300,22 +337,19 @@ def sujet_candidat(c: dict) -> str:
                          for x in it.get("supports", []))
             if groupe:
                 L += ["\\filbreak", ""]
+            # Un document neuf s'imprime **avant** la question, comme dans un sujet
+            # d'examen — sauf si l'énoncé annonce lui-même « ci-dessous », auquel cas il
+            # la suit. Le livret de la release applique déjà cette règle
+            # (scripts/livret.py, APRES) ; l'appliquer aussi ici évite que les deux
+            # rendus d'un même item se lisent différemment, et qu'un énoncé disant
+            # « d'après le tableau ci-dessus » soit imprimé au-dessus de son tableau.
+            avant, apres = supports_places(it, vus_bloc, c)
+            L += avant
             L += [f"**{it['item_id']}** · {it['score_max']} pt"
                   + ("s" if it["score_max"] > 1 else "")
                   + f" · {minutes(it['duree_min'])} min", "",
                   it["enonce"], ""]
-            for sup in it.get("supports", []):
-                if isinstance(sup, dict) and sup.get("code") in vus_bloc:
-                    L += [f"*Voir « {sup['titre']} » ci-dessus.*", ""]
-                    continue
-                if isinstance(sup, dict) and sup.get("type") == "tableau":
-                    vus_bloc.add(sup["code"])
-                    L += rendre_tableau(sup)
-                elif isinstance(sup, dict) and sup.get("type") == "figure":
-                    vus_bloc.add(sup["code"])
-                    L += rendre_figure(sup, c["figures"] / f"{sup['code']}.pdf")
-                else:
-                    L += [f"> {sup}", ""]
+            L += apres
             if it["type"] == "A":
                 for lettre, texte in sorted(it["propositions"].items()):
                     L.append(f"- ☐ **{lettre}.** {texte}")

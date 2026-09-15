@@ -14,16 +14,16 @@
       "enonce": "Quelle formulation définit la conscience plutôt qu'elle ne l'illustre ?",
       "supports": [],
       "propositions": {
+        "C": "c'est le rapport par lequel un sujet se sait présent à lui-même et au monde",
         "A": "c'est ce qui fait qu'on se réveille le matin",
-        "B": "c'est le rapport par lequel un sujet se sait présent à lui-même et au monde",
-        "C": "c'est quand on a mauvaise conscience après une faute",
+        "B": "c'est quand on a mauvaise conscience après une faute",
         "D": "c'est le contraire du sommeil"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "définition remplacée par un phénomène observable",
-          "C": "notion morale prise pour la notion psychologique",
+          "B": "notion morale prise pour la notion psychologique",
           "D": "définition par opposition à un état, sans contenu propre"
         }
       },
@@ -31,7 +31,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Distinguer définir et illustrer, opération préalable à toute dissertation. Le distracteur C isole la confusion entre conscience psychologique et conscience morale, la plus répandue."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Distinguer définir et illustrer, opération préalable à toute dissertation. Le distracteur B isole la confusion entre conscience psychologique et conscience morale, la plus répandue."
     },
     {
       "item_id": "PHI-T-NOT-02",
@@ -45,16 +45,16 @@
       "enonce": "Croire et savoir se distinguent en ce que :",
       "supports": [],
       "propositions": {
-        "A": "savoir suppose des raisons que l'on peut donner, croire n'en suppose pas nécessairement",
-        "B": "croire est toujours faux et savoir toujours vrai",
-        "C": "savoir concerne les sciences, croire concerne la religion",
+        "C": "savoir suppose des raisons que l'on peut donner, croire n'en suppose pas nécessairement",
+        "A": "croire est toujours faux et savoir toujours vrai",
+        "B": "savoir concerne les sciences, croire concerne la religion",
         "D": "croire est individuel, savoir est collectif"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "distinction ramenée à une opposition vrai/faux",
-          "C": "distinction ramenée à des domaines d'objets",
+          "A": "distinction ramenée à une opposition vrai/faux",
+          "B": "distinction ramenée à des domaines d'objets",
           "D": "distinction ramenée au nombre de sujets"
         }
       },
@@ -78,8 +78,8 @@
       "supports": [],
       "propositions": {
         "A": "nécessairement juste",
-        "B": "conforme à la loi en vigueur",
         "C": "conforme à la morale",
+        "B": "conforme à la loi en vigueur",
         "D": "conforme à ce que chacun estime juste"
       },
       "cle": {
@@ -110,16 +110,16 @@
       "supports": [],
       "propositions": {
         "A": "est toujours pénible",
+        "D": "transforme la nature en vue d'une fin et s'inscrit dans un rapport social",
         "B": "est rémunéré",
-        "C": "transforme la nature en vue d'une fin et s'inscrit dans un rapport social",
-        "D": "demande de la force physique"
+        "C": "demande de la force physique"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "notion ramenée à une expérience subjective",
           "B": "notion ramenée à sa forme salariée contemporaine",
-          "D": "notion ramenée à une modalité physique"
+          "C": "notion ramenée à une modalité physique"
         }
       },
       "grille": null,
@@ -141,17 +141,17 @@
       "enonce": "Dans « il est libre de partir », le mot liberté désigne :",
       "supports": [],
       "propositions": {
-        "A": "l'absence d'obstacle extérieur à l'action",
-        "B": "l'autonomie de la volonté",
-        "C": "le libre arbitre",
-        "D": "l'indépendance économique"
+        "A": "l'autonomie de la volonté",
+        "B": "le libre arbitre",
+        "D": "l'absence d'obstacle extérieur à l'action",
+        "C": "l'indépendance économique"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "sens moral employé pour un sens physique",
-          "C": "sens métaphysique employé pour un sens pratique",
-          "D": "sens économique employé pour un sens juridique"
+          "A": "sens moral employé pour un sens physique",
+          "B": "sens métaphysique employé pour un sens pratique",
+          "C": "sens économique employé pour un sens juridique"
         }
       },
       "grille": null,
@@ -172,16 +172,16 @@
       "enonce": "Une explication et une compréhension se distinguent en ce que :",
       "supports": [],
       "propositions": {
-        "A": "expliquer relie à des causes, comprendre saisit un sens",
-        "B": "expliquer est long, comprendre est immédiat",
-        "C": "expliquer concerne les autres, comprendre concerne soi",
+        "A": "expliquer est long, comprendre est immédiat",
+        "C": "expliquer relie à des causes, comprendre saisit un sens",
+        "B": "expliquer concerne les autres, comprendre concerne soi",
         "D": "il n'y a aucune différence"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "distinction ramenée à une durée",
-          "C": "distinction ramenée aux personnes concernées",
+          "A": "distinction ramenée à une durée",
+          "B": "distinction ramenée aux personnes concernées",
           "D": "distinction niée"
         }
       },
@@ -204,15 +204,15 @@
       "enonce": "Dire d'une œuvre qu'elle est belle relève d'un jugement :",
       "supports": [],
       "propositions": {
-        "A": "de connaissance, vérifiable par l'expérience",
-        "B": "de goût, qui prétend pourtant à une valeur partagée",
+        "A": "de goût, qui prétend pourtant à une valeur partagée",
+        "B": "de connaissance, vérifiable par l'expérience",
         "C": "purement privé, dont on ne peut pas discuter",
         "D": "moral, portant sur l'intention de l'auteur"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "jugement esthétique assimilé à un énoncé de fait",
+          "B": "jugement esthétique assimilé à un énoncé de fait",
           "C": "jugement esthétique réduit à la préférence, sans prétention au partage",
           "D": "jugement esthétique confondu avec un jugement moral"
         }
@@ -236,15 +236,15 @@
       "enonce": "Une thèse est dite universelle lorsqu'elle :",
       "supports": [],
       "propositions": {
-        "A": "est admise par tous",
-        "B": "vaut pour tous les cas de son domaine",
+        "B": "est admise par tous",
         "C": "est ancienne",
+        "A": "vaut pour tous les cas de son domaine",
         "D": "est enseignée partout"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "universalité confondue avec unanimité",
+          "B": "universalité confondue avec unanimité",
           "C": "universalité confondue avec ancienneté",
           "D": "universalité confondue avec diffusion"
         }
@@ -253,7 +253,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère universel/général. Le distracteur A est l'erreur qui conduit à réfuter une thèse universelle en citant un désaccord. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Repère universel/général. Le distracteur B est l'erreur qui conduit à réfuter une thèse universelle en citant un désaccord. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.3 dépasse la durée catalogue de 60 minutes (EC-12). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -383,24 +383,24 @@
       "enonce": "À quel auteur attribue-t-on la thèse selon laquelle les hommes, à l'état de nature, sont dans une guerre de tous contre tous, ce qui rend nécessaire un pouvoir souverain ?",
       "supports": [],
       "propositions": {
-        "A": "Hobbes",
-        "B": "Rousseau",
-        "C": "Aristote",
-        "D": "Épicure"
+        "A": "Rousseau",
+        "D": "Hobbes",
+        "B": "Aristote",
+        "C": "Épicure"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "auteur dont l'état de nature est au contraire pacifique",
-          "C": "auteur pour qui l'homme est naturellement politique",
-          "D": "auteur dont la philosophie porte sur le plaisir et l'ataraxie"
+          "A": "auteur dont l'état de nature est au contraire pacifique",
+          "B": "auteur pour qui l'homme est naturellement politique",
+          "C": "auteur dont la philosophie porte sur le plaisir et l'ataraxie"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Attribution d'une thèse à son auteur, vérifiable dans le « Léviathan ». Le distracteur B est l'erreur la plus fréquente : les deux auteurs sont associés au contrat, mais avec des états de nature opposés."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Attribution d'une thèse à son auteur, vérifiable dans le « Léviathan ». Le distracteur A est l'erreur la plus fréquente : les deux auteurs sont associés au contrat, mais avec des états de nature opposés."
     },
     {
       "item_id": "PHI-T-REP-02",
@@ -414,17 +414,17 @@
       "enonce": "Le doute méthodique, par lequel on tient provisoirement pour faux tout ce qui peut être mis en doute, est la démarche de :",
       "supports": [],
       "propositions": {
-        "A": "Descartes",
-        "B": "Platon",
-        "C": "Kant",
-        "D": "Nietzsche"
+        "D": "Descartes",
+        "A": "Platon",
+        "B": "Kant",
+        "C": "Nietzsche"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "auteur associé à la dialectique et au monde des Idées",
-          "C": "auteur associé à la critique des conditions de la connaissance",
-          "D": "auteur associé à la généalogie et au soupçon"
+          "A": "auteur associé à la dialectique et au monde des Idées",
+          "B": "auteur associé à la critique des conditions de la connaissance",
+          "C": "auteur associé à la généalogie et au soupçon"
         }
       },
       "grille": null,
@@ -445,15 +445,15 @@
       "enonce": "Quel repère oppose ce qui est établi par une règle à ce qui est fondé en raison ?",
       "supports": [],
       "propositions": {
-        "A": "légal / légitime",
-        "B": "objectif / subjectif",
+        "A": "objectif / subjectif",
         "C": "en acte / en puissance",
-        "D": "cause / fin"
+        "D": "cause / fin",
+        "B": "légal / légitime"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "repère portant sur le rapport au sujet",
+          "A": "repère portant sur le rapport au sujet",
           "C": "repère portant sur la réalisation d'une possibilité",
           "D": "repère portant sur les types d'explication"
         }
@@ -476,16 +476,16 @@
       "enonce": "Un candidat écrit : « comme le disait Kant, l'homme est un loup pour l'homme ». L'erreur est :",
       "supports": [],
       "propositions": {
-        "A": "la formule vient de Plaute et a notamment été reprise par Hobbes ; elle n'est pas de Kant",
-        "B": "la formule n'existe pas",
-        "C": "Kant n'a jamais traité de la nature humaine",
+        "C": "la formule vient de Plaute et a notamment été reprise par Hobbes ; elle n'est pas de Kant",
+        "A": "la formule n'existe pas",
+        "B": "Kant n'a jamais traité de la nature humaine",
         "D": "l'attribution à Kant est exacte"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "existence de la formule niée",
-          "C": "affirmation démesurée sur l'œuvre d'un auteur",
+          "A": "existence de la formule niée",
+          "B": "affirmation démesurée sur l'œuvre d'un auteur",
           "D": "attribution fautive non repérée"
         }
       },
@@ -507,24 +507,24 @@
       "enonce": "Situer le courant selon lequel la valeur d'une action se mesure à ses conséquences, en particulier au bonheur qu'elle produit pour le plus grand nombre :",
       "supports": [],
       "propositions": {
-        "A": "l'utilitarisme",
-        "B": "le stoïcisme",
-        "C": "le scepticisme",
-        "D": "le rationalisme"
+        "D": "l'utilitarisme",
+        "A": "le stoïcisme",
+        "B": "le scepticisme",
+        "C": "le rationalisme"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "doctrine du consentement à l'ordre du monde",
-          "C": "doctrine de la suspension du jugement",
-          "D": "position sur l'origine de la connaissance, non sur la morale"
+          "A": "doctrine du consentement à l'ordre du monde",
+          "B": "doctrine de la suspension du jugement",
+          "C": "position sur l'origine de la connaissance, non sur la morale"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Situer un courant à partir de son critère moral. Le distracteur D mesure la confusion entre une position morale et une position épistémologique."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Situer un courant à partir de son critère moral. Le distracteur C mesure la confusion entre une position morale et une position épistémologique."
     },
     {
       "item_id": "PHI-T-REP-06",
@@ -538,16 +538,16 @@
       "enonce": "Quel repère permet de distinguer une preuve d'une simple persuasion ?",
       "supports": [],
       "propositions": {
-        "A": "persuader / convaincre",
-        "B": "idéal / réel",
-        "C": "genre / espèce",
+        "A": "idéal / réel",
+        "C": "persuader / convaincre",
+        "B": "genre / espèce",
         "D": "médiat / immédiat"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "repère portant sur le rapport entre modèle et existence",
-          "C": "repère portant sur la classification",
+          "A": "repère portant sur le rapport entre modèle et existence",
+          "B": "repère portant sur la classification",
           "D": "repère portant sur le mode d'accès à une connaissance"
         }
       },
@@ -569,8 +569,8 @@
       "enonce": "Dans un raisonnement, une prémisse est :",
       "supports": [],
       "propositions": {
-        "A": "la proposition que l'on cherche à établir",
         "B": "une proposition admise à partir de laquelle on raisonne",
+        "A": "la proposition que l'on cherche à établir",
         "C": "un exemple qui illustre la thèse",
         "D": "une objection que l'on réfute"
       },
@@ -600,8 +600,8 @@
       "enonce": "Un raisonnement est valide lorsque :",
       "supports": [],
       "propositions": {
-        "A": "ses prémisses sont vraies",
         "B": "sa conclusion découle nécessairement de ses prémisses",
+        "A": "ses prémisses sont vraies",
         "C": "sa conclusion est vraie",
         "D": "il convainc l'auditoire"
       },
@@ -632,15 +632,15 @@
       "enonce": "« Tous les hommes sont mortels ; or Socrate est mortel ; donc Socrate est un homme. » Ce raisonnement est :",
       "supports": [],
       "propositions": {
-        "A": "valide",
-        "B": "invalide, car la conclusion ne découle pas des prémisses",
+        "B": "valide",
+        "A": "invalide, car la conclusion ne découle pas des prémisses",
         "C": "invalide, car une prémisse est fausse",
         "D": "valide mais inutile"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "invalidité non repérée, la conclusion étant vraie par ailleurs",
+          "B": "invalidité non repérée, la conclusion étant vraie par ailleurs",
           "C": "invalidité attribuée au contenu et non à la forme",
           "D": "jugement porté sur l'utilité et non sur la validité"
         }
@@ -649,7 +649,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de transfert : la conclusion est vraie mais le raisonnement invalide. C'est exactement ce qui distingue la logique de l'opinion, et le distracteur A mesure combien un candidat se laisse conduire par la vérité de la conclusion."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de transfert : la conclusion est vraie mais le raisonnement invalide. C'est exactement ce qui distingue la logique de l'opinion, et le distracteur B mesure combien un candidat se laisse conduire par la vérité de la conclusion."
     },
     {
       "item_id": "PHI-T-ARGU-04",
@@ -663,15 +663,15 @@
       "enonce": "Objecter à une thèse, c'est :",
       "supports": [],
       "propositions": {
-        "A": "affirmer le contraire",
-        "B": "produire une raison qui met en difficulté l'argument qui la soutient",
+        "B": "affirmer le contraire",
         "C": "citer un auteur d'avis contraire",
+        "A": "produire une raison qui met en difficulté l'argument qui la soutient",
         "D": "changer de sujet"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "objection réduite à une négation",
+          "B": "objection réduite à une négation",
           "C": "objection réduite à un argument d'autorité",
           "D": "objection confondue avec une diversion"
         }
@@ -892,7 +892,7 @@
       "bloc": "C",
       "score_max": 9,
       "duree_min": 12,
-      "enonce": "Expliquez l'extrait du bloc C en une vingtaine de lignes. Dégagez la thèse que l'auteur y soutient et les étapes par lesquelles il l'établit. Vous n'avez pas à rédiger d'introduction ni de conclusion.",
+      "enonce": "Expliquez l'extrait du bloc C en une dizaine de lignes. Dégagez la thèse que l'auteur y soutient et les étapes par lesquelles il l'établit. Vous n'avez pas à rédiger d'introduction ni de conclusion.",
       "supports": [],
       "cle": null,
       "grille": [
@@ -933,7 +933,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Explication de texte réduite, second sujet au choix de l'épreuve écrite (§ 7.3). Trois critères, dont deux appartiennent à TEXT : la règle de production est satisfaite sans que le critère de langue soit imputé à l'explication.\nCorrigé complété le 2026-09-11, à l'insertion du texte réel. La note antérieure affirmait que l'énoncé « fonctionne avec tout texte argumentatif, de sorte que le choix du passage ne modifie aucun item » : c'est vrai de l'énoncé, faux du corrigé. Une grille de niveaux sans thèse ni étapes nommées n'est pas opposable, et deux correcteurs ne noteraient pas la même copie de la même façon. La thèse, les cinq étapes, les articulations, les réponses partiellement exactes et les codes d'erreur sont désormais ceux de ce passage et d'aucun autre.",
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Explication de texte réduite, second sujet au choix de l'épreuve écrite (§ 7.3). Trois critères, dont deux appartiennent à TEXT : la règle de production est satisfaite sans que le critère de langue soit imputé à l'explication.\nCorrigé complété le 2026-09-11, à l'insertion du texte réel. La note antérieure affirmait que l'énoncé « fonctionne avec tout texte argumentatif, de sorte que le choix du passage ne modifie aucun item » : c'est vrai de l'énoncé, faux du corrigé. Une grille de niveaux sans thèse ni étapes nommées n'est pas opposable, et deux correcteurs ne noteraient pas la même copie de la même façon. La thèse, les cinq étapes, les articulations, les réponses partiellement exactes et les codes d'erreur sont désormais ceux de ce passage et d'aucun autre. Le volume demandé est passé d'une vingtaine à une dizaine de lignes : douze minutes pour vingt lignes rédigées, thèse et étapes dégagées, n'en laissaient aucune pour lire l'extrait et le comprendre. Le rythme retenu est celui des deux productions comparables de la collection, HLP-1-INTER-01 et HLP-1-ESSAI-01 — dix à douze lignes en quinze minutes. La hauteur de la zone de réponse suit, puisque le livret la dimensionne sur ce que l'énoncé demande d'écrire.",
       "elements_attendus": [
         "**Thèse.** La raison — que l'auteur identifie au bon sens — est également répartie entre tous les hommes ; la diversité des opinions ne vient donc pas d'une inégalité des esprits mais de la diversité des voies par lesquelles chacun conduit sa pensée. Il suit que ce qui importe n'est pas d'avoir l'esprit bon, mais de l'appliquer bien.",
         "**Étape 1** — l'affirmation initiale et son indice : chacun se croit assez pourvu de bon sens et n'en désire pas davantage. L'universalité de ce contentement est présentée comme un signe, non comme une preuve de vanité : la copie qui y lit seulement de l'ironie a manqué l'argument.",
@@ -965,8 +965,16 @@
       "bloc": "D",
       "score_max": 2,
       "duree_min": 3,
-      "enonce": "Voici l'explication d'un texte rédigée par un autre candidat. Elle reformule le texte sans l'expliquer. Indiquez à quel endroit une explication devrait intervenir et ce qu'elle devrait porter.",
-      "supports": [],
+      "enonce": "L'explication ci-dessus, rédigée par un autre candidat, reformule le texte du bloc C sans l'expliquer. Indiquez à quel endroit une explication devrait intervenir et ce qu'elle devrait porter.",
+      "supports": [
+        {
+          "type": "texte",
+          "code": "PHI-T-TEXT-02-PROD",
+          "titre": "Explication rédigée par un autre candidat",
+          "texte": "Descartes commence par dire que le bon sens est la chose du monde la mieux partagée. Il explique que chacun pense en être si bien pourvu que personne n'en désire davantage, et que cela montre que la puissance de bien juger est naturellement égale chez tous les hommes. Il ajoute ensuite que la diversité de nos opinions ne vient pas de ce que certains sont plus raisonnables que d'autres, mais de ce que nous conduisons nos pensées par des voies diverses et que nous ne considérons pas les mêmes choses. Il termine en disant que ce n'est pas assez d'avoir l'esprit bon et que le principal est de l'appliquer bien.",
+          "reference": "Production fictive rédigée pour ce diagnostic. Elle ne reproduit aucune copie réelle de candidat."
+        }
+      ],
       "cle": {
         "reponse_2pts": "La réponse désigne un terme ou une articulation du texte laissés sans explicitation, et indique qu'il faudrait en définir le sens ou en justifier le rôle dans la démonstration.",
         "reponses_1pt": [
@@ -982,7 +990,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de bloc D de TEXT, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu, et le mesurer hors de la tâche permet de savoir si le candidat le reconnaît sans parvenir à l'éviter, ou ne le reconnaît pas."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Item de bloc D de TEXT, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu, et le mesurer hors de la tâche permet de savoir si le candidat le reconnaît sans parvenir à l'éviter, ou ne le reconnaît pas. La production commentée est jointe à l'item : sans elle, la question demandait au candidat de critiquer un texte qui ne lui était pas remis."
     },
     {
       "item_id": "PHI-T-DISS-01",
@@ -1061,7 +1069,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : entrée en matière (1), définition des termes (2), formulation du problème (3), annonce du plan (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "PHI-ERR-INTRO"
@@ -1085,15 +1093,15 @@
       "enonce": "Problématiser un sujet, c'est :",
       "supports": [],
       "propositions": {
-        "A": "annoncer les deux parties du devoir",
-        "B": "faire apparaître pourquoi deux réponses opposées sont également défendables",
+        "B": "annoncer les deux parties du devoir",
         "C": "reformuler la question du sujet avec d'autres mots",
-        "D": "choisir la réponse que l'on va défendre"
+        "D": "choisir la réponse que l'on va défendre",
+        "A": "faire apparaître pourquoi deux réponses opposées sont également défendables"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "problématique confondue avec l'annonce de plan",
+          "B": "problématique confondue avec l'annonce de plan",
           "C": "problématique confondue avec une reformulation",
           "D": "problématique confondue avec une prise de position"
         }
@@ -1102,7 +1110,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Définition opératoire de la problématisation. Le distracteur A est l'erreur dominante et fait le pendant de l'item PHI-T-PROB-04, qui la fait repérer dans une production : la lecture croisée des deux dit si le candidat connaît la distinction sans savoir l'appliquer."
+      "notes_conception": "Programme de philosophie de terminale, arrêté du 19 juillet 2019. Définition opératoire de la problématisation. Le distracteur B est l'erreur dominante et fait le pendant de l'item PHI-T-PROB-04, qui la fait repérer dans une production : la lecture croisée des deux dit si le candidat connaît la distinction sans savoir l'appliquer."
     },
     {
       "item_id": "PHI-T-PROB-06",
@@ -1147,15 +1155,15 @@
       "enonce": "Parmi ces quatre formulations, laquelle énonce un problème et non une question ?",
       "supports": [],
       "propositions": {
-        "A": "L'art est-il utile ?",
-        "B": "Si l'art était utile, il servirait une fin qui lui est extérieure ; s'il ne l'est pas, on ne voit pas ce qui justifierait qu'on lui consacre des ressources.",
+        "B": "L'art est-il utile ?",
+        "A": "Si l'art était utile, il servirait une fin qui lui est extérieure ; s'il ne l'est pas, on ne voit pas ce qui justifierait qu'on lui consacre des ressources.",
         "C": "Nous étudierons d'abord l'utilité de l'art, puis son inutilité.",
         "D": "L'art, selon de nombreux auteurs, n'est pas utile."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "question du sujet, reprise telle quelle",
+          "B": "question du sujet, reprise telle quelle",
           "C": "annonce de plan prise pour un problème",
           "D": "thèse assortie d'un argument d'autorité"
         }

@@ -1,0 +1,27 @@
+{
+ "schema": "go_live/release_reproducibility/1.0",
+ "objet": "Deux constructions successives de la release, depuis les mêmes sources, comparées fichier par fichier.",
+ "date": "2026-09-15",
+ "methode": "python3 scripts/release_v2.py, empreinte SHA-256 de chacun des fichiers de release/diagnostics-v2, puis reconstruction complète et nouvelle empreinte.",
+ "fichiers_compares": 173,
+ "chemins_identiques": true,
+ "fichiers_differents": [],
+ "PATH_REPRODUCIBLE": "YES",
+ "TEXT_REPRODUCIBLE": "YES",
+ "PAGE_REPRODUCIBLE": "YES",
+ "BYTE_REPRODUCIBLE": "YES",
+ "correction_appliquee": {
+  "constat": "Avant correction, six fichiers sur cent soixante-treize changeaient d'une construction à l'autre : les quatre PDF composés par reportlab — le guide de l'opérateur, la couverture réglementaire et les deux matrices — et le manifeste qui porte leurs empreintes.",
+  "cause": "reportlab horodate chaque document et lui attribue un identifiant tiré au sort. Le contenu était identique ; les octets ne l'étaient pas.",
+  "correctif": "canvas.Canvas(..., invariant=1) dans scripts/distribution.py (texte_en_pdf) et scripts/release_v2.py (tableau_en_pdf). Les rendus LaTeX étaient déjà déterministes par SOURCE_DATE_EPOCH et FORCE_SOURCE_DATE.",
+  "fichiers_autrefois_instables": [
+   "./00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
+   "./00_GUIDE/GUIDE_OPERATEUR.pdf",
+   "./00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
+   "./00_GUIDE/MATRICE_PROFILS.pdf",
+   "./04_INTERNE/MANIFESTE_V2.json",
+   "./04_INTERNE/MANIFESTE_V2.md"
+  ]
+ },
+ "reserve": null
+}

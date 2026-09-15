@@ -81,13 +81,18 @@
       "confiance": "haute"
     },
     "emc": {
-      "titre": "Modalités de l'évaluation ponctuelle d'EMC — note transitoire MENE2531481N (session 2026), statut 2026-2027 a_confirmer_reglementairement",
+      "titre": "Évaluations ponctuelles d'enseignement moral et civique pour l'année scolaire 2025-2026",
       "nor": "MENE2531481N",
-      "date_texte": "2025-11-20",
-      "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-modalites-evaluationconsolideepdf-73581.pdf",
-      "consulte_le": "2026-09-11",
+      "date_texte": "2025-12-10",
+      "url": "https://www.education.gouv.fr/bo/2025/Hebdo48/MENE2531481N",
+      "consulte_le": "2026-09-15",
       "statut_reglementaire_2026_2027": "a_confirmer_reglementairement",
-      "confiance": "haute"
+      "confiance": "haute",
+      "publication": "Bulletin officiel n° 48 du 18 décembre 2025",
+      "champ_d_application": "« pour la seule année scolaire 2025-2026 au titre des sessions 2026 et 2027 des baccalauréats général et technologique du fait de la mise en œuvre progressive du nouveau programme d'enseignement moral et civique »",
+      "abroge": "Note de service du 28 juillet 2021 modifiée, relative aux évaluations ponctuelles d'EMC à compter de la session 2022.",
+      "motif_du_statut": "La note ne couvre que les évaluations passées pendant l'année scolaire 2025-2026, et elle abroge celle de 2021. Aucun texte n'a été publié pour l'année scolaire 2026-2027 : les Bulletins officiels de 2026 ont été balayés jusqu'au n° 34 du 10 septembre 2026, dernier paru à la date de l'audit. Un candidat individuel évalué en EMC pendant 2026-2027 n'a donc aucune modalité publiée opposable. Ce n'est pas une incertitude documentaire : c'est une absence de texte, à réévaluer à chaque Bulletin officiel.",
+      "verifie_le": "2026-09-15"
     }
   },
   "statut_candidat": {
@@ -168,7 +173,10 @@
         "coefficient_total": 6,
         "couvert_par_nexus": null,
         "confiance": "haute",
-        "note": "Évaluation physique sur trois activités relevant de trois champs d'apprentissage distincts. Aucun diagnostic sur document ne peut en tenir lieu."
+        "note": "Les candidats individuels et ceux du Cned sont évalués lors d'un examen ponctuel terminal, et non par une évaluation ponctuelle du contrôle continu : ils choisissent deux épreuves relevant de deux champs d'apprentissage différents, chacune notée sur 20, et la note retenue est la moyenne des deux. Cet examen ne fait l'objet d'aucune épreuve de remplacement. Aucun diagnostic sur document ne peut en tenir lieu.",
+        "modalite_candidat_individuel": "examen ponctuel terminal",
+        "source_modalite": "Note de service du 20 février 2026, NOR MENE2531948N, Bulletin officiel n° 9 du 26 février 2026, prise pour l'arrêté du 21 décembre 2011 modifié.",
+        "verifie_le": "2026-09-15"
       },
       {
         "code": "EMC",
@@ -180,7 +188,11 @@
         "confiance": "haute",
         "nature": "orale",
         "statut_modalite_2026_2027": "a_confirmer_reglementairement",
-        "candidat_individuel": "Évaluation ponctuelle au titre du contrôle continu (coef. 2). Note MENE2531481N transitoire pour 2025-2026 ; modalité exacte 2026-2027 à confirmer réglementairement."
+        "candidat_individuel": "Évaluation ponctuelle orale au titre du contrôle continu. La note MENE2531481N du 10 décembre 2025 la définit pour la seule année scolaire 2025-2026, au titre des sessions 2026 et 2027 ; aucune modalité n'est publiée pour 2026-2027.",
+        "duree_officielle_min": 30,
+        "preparation_min": 30,
+        "structure": "Le candidat présente une liste de contenus d'enseignement étudiés ; l'examinateur en choisit un. Après 30 minutes de préparation, le candidat expose une situation ou un débat s'y rattachant — dix minutes au plus —, identifie les valeurs et principes en jeu, puis dialogue avec l'examinateur.",
+        "coefficient_regle": "1 lorsque l'évaluation porte sur le programme d'une seule année, 2 lorsqu'elle porte sur les deux années du cycle terminal."
       }
     ],
     "total_coefficients": 40

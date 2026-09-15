@@ -289,15 +289,20 @@ VERDICTS PRODUIT OFFICIELS
   Le périmètre soutenu par Nexus est rigoureusement couvert, testé et documenté.
 
   READY_FOR_FULL_REGULATORY_BAC_COVERAGE = NO
-  Le dispositif ne couvre ni les langues vivantes (LVA/LVB) ni l'EPS, et la définition
-  réglementaire précise de l'épreuve ponctuelle EMC 2026-2027 reste sous réserve ministérielle.
+  Le dispositif ne couvre ni les langues vivantes (LVA/LVB) ni l'EPS, et aucune
+  modalité d'évaluation ponctuelle d'EMC n'est publiée pour l'année 2026-2027.
 
 RÉSERVE OFFICIELLE EMC
 
   Le diagnostic EMC Nexus évalue les contenus et compétences du programme en vigueur.
-  Sa durée de 20/25 minutes est une durée diagnostique interne. La définition
-  réglementaire de l'évaluation ponctuelle applicable aux passations de l'année scolaire
-  2026-2027 reste à confirmer dès publication d'un texte ministériel.
+  Sa durée de 20/25 minutes est une durée diagnostique interne, et le livret ne
+  décrit aucune forme d'épreuve officielle.
+  La note de service du 10 décembre 2025 (NOR MENE2531481N, BO n° 48 du 18 décembre
+  2025) définit l'évaluation ponctuelle d'EMC — orale, 30 minutes, 30 minutes de
+  préparation — pour la seule année scolaire 2025-2026, au titre des sessions 2026 et
+  2027. Elle abroge la note de 2021. Aucun texte n'a été publié pour l'année scolaire
+  2026-2027 : ce n'est pas une incertitude de documentation, c'est une absence de
+  texte, à réévaluer à chaque Bulletin officiel.
 """
 
 
@@ -312,6 +317,14 @@ def tableau_en_pdf(titre: str, sous_titre: str, colonnes: list[str],
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.lib.units import cm
     from reportlab.pdfgen import canvas
+    # Déterminisme : reportlab horodate chaque PDF et lui donne un identifiant tiré au
+    # sort. Deux constructions de la même release rendaient donc quatre PDF différents
+    # pour un contenu identique, et le manifeste qui porte leurs empreintes avec eux —
+    # six fichiers sur cent soixante-treize. `invariant` fige l'horodatage et
+    # l'identifiant ; la release redevient reproductible octet à octet.
+    from reportlab import rl_config
+    rl_config.invariant = 1
+
 
     largeurs = [max(len(c), *(len(str(l[i])) for l in lignes)) if lignes else len(c)
                 for i, c in enumerate(colonnes)]
@@ -328,7 +341,7 @@ def tableau_en_pdf(titre: str, sous_titre: str, colonnes: list[str],
                           for i, v in enumerate(vals))
 
     cible.parent.mkdir(parents=True, exist_ok=True)
-    c = canvas.Canvas(str(cible), pagesize=landscape(A4))
+    c = canvas.Canvas(str(cible), pagesize=landscape(A4), invariant=1)
     c.setTitle(titre)
     L, H = landscape(A4)
 

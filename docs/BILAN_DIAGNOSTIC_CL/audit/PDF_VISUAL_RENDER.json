@@ -1,0 +1,1549 @@
+{
+ "schema": "go_live/pdf_visual_render/1.0",
+ "dossier_des_planches": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches",
+ "documents": 154,
+ "pages_rendues": 3848,
+ "documents_a_regarder": 0,
+ "rendus": [
+  {
+   "path": "release/diagnostics-v2/00_GUIDE/COUVERTURE_REGLEMENTAIRE.pdf",
+   "pages_rendues": 1,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/00_GUIDE__COUVERTURE_REGLEMENTAIRE.png",
+   "encre_min": 0.0088,
+   "encre_max": 0.0088,
+   "bande_max_zone_de_composition": 0.0357,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/00_GUIDE/GUIDE_OPERATEUR.pdf",
+   "pages_rendues": 3,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/00_GUIDE__GUIDE_OPERATEUR.png",
+   "encre_min": 0.0126,
+   "encre_max": 0.0769,
+   "bande_max_zone_de_composition": 0.1599,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/00_GUIDE/MATRICE_EPREUVES_OFFICIELLES.pdf",
+   "pages_rendues": 1,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/00_GUIDE__MATRICE_EPREUVES_OFFICIELLES.png",
+   "encre_min": 0.0202,
+   "encre_max": 0.0202,
+   "bande_max_zone_de_composition": 0.0997,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/00_GUIDE/MATRICE_PROFILS.pdf",
+   "pages_rendues": 2,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/00_GUIDE__MATRICE_PROFILS.png",
+   "encre_min": 0.0418,
+   "encre_max": 0.0606,
+   "bande_max_zone_de_composition": 0.1115,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__00_COMMUN__POSITIONNEMENT_FRANCAIS.png",
+   "encre_min": 0.0046,
+   "encre_max": 0.2384,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__00_DOSSIER_ENTREE__DOSSIER_D_ENTREE_NEXUS.png",
+   "encre_min": 0.0176,
+   "encre_max": 0.2362,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.008,
+   "encre_max": 0.2342,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_ANTICIPEE_SPE.png",
+   "encre_min": 0.0109,
+   "encre_max": 0.2347,
+   "bande_max_zone_de_composition": 0.8154,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.0031,
+   "encre_max": 0.2354,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0085,
+   "encre_max": 0.2347,
+   "bande_max_zone_de_composition": 0.8154,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 2,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0597,
+   "encre_max": 0.2388,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 6,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.0116,
+   "encre_max": 0.2381,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 7,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.0282,
+   "encre_max": 0.2367,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0196,
+   "encre_max": 0.2368,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0069,
+   "encre_max": 0.2354,
+   "bande_max_zone_de_composition": 0.8281,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2362,
+   "bande_max_zone_de_composition": 0.8285,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0142,
+   "encre_max": 0.2382,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0142,
+   "encre_max": 0.2361,
+   "bande_max_zone_de_composition": 0.828,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.017,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__00_DOSSIER_ENTREE__DOSSIER_D_ENTREE_NEXUS.png",
+   "encre_min": 0.0177,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 2,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0597,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 2,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.png",
+   "encre_min": 0.0603,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 6,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.0134,
+   "encre_max": 0.2377,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.png",
+   "encre_min": 0.004,
+   "encre_max": 0.2377,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 7,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.0204,
+   "encre_max": 0.2364,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.png",
+   "encre_min": 0.0204,
+   "encre_max": 0.2364,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+   "pages_rendues": 4,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__03_EPREUVES_TERMINALES__GRAND_ORAL.png",
+   "encre_min": 0.0667,
+   "encre_max": 0.234,
+   "bande_max_zone_de_composition": 0.8282,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__03_EPREUVES_TERMINALES__PHILOSOPHIE.png",
+   "encre_min": 0.0082,
+   "encre_max": 0.2338,
+   "bande_max_zone_de_composition": 0.8229,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2346,
+   "bande_max_zone_de_composition": 0.8215,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2347,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+   "pages_rendues": 25,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.235,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_NON_POURSUIVIE.png",
+   "encre_min": 0.0079,
+   "encre_max": 0.2345,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0112,
+   "encre_max": 0.2365,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP_NON_POURSUIVIE.png",
+   "encre_min": 0.0196,
+   "encre_max": 0.2376,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0088,
+   "encre_max": 0.2351,
+   "bande_max_zone_de_composition": 0.828,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HLP_NON_POURSUIVIE.png",
+   "encre_min": 0.0069,
+   "encre_max": 0.2361,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_NSI_NON_POURSUIVIE.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2361,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0061,
+   "encre_max": 0.2379,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.png",
+   "encre_min": 0.0142,
+   "encre_max": 0.239,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0106,
+   "encre_max": 0.2358,
+   "bande_max_zone_de_composition": 0.8281,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SES_NON_POURSUIVIE.png",
+   "encre_min": 0.0189,
+   "encre_max": 0.236,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 12,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.0127,
+   "encre_max": 0.2356,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SVT_NON_POURSUIVIE.png",
+   "encre_min": 0.017,
+   "encre_max": 0.2358,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+   "pages_rendues": 7,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__05_DIAGNOSTICS_NEXUS__MAITRISE_DU_FRANCAIS.png",
+   "encre_min": 0.0174,
+   "encre_max": 0.2363,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.009,
+   "encre_max": 0.2338,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ECRIT_SEUL.png",
+   "encre_min": 0.0251,
+   "encre_max": 0.2338,
+   "bande_max_zone_de_composition": 0.8273,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ORAL_SEUL.png",
+   "encre_min": 0.0211,
+   "encre_max": 0.2338,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__MATHEMATIQUES_ANTICIPEE_SPE.png",
+   "encre_min": 0.0109,
+   "encre_max": 0.2343,
+   "bande_max_zone_de_composition": 0.8154,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0085,
+   "encre_max": 0.2343,
+   "bande_max_zone_de_composition": 0.8154,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/00_DOSSIER_ENTREE/DOSSIER_D_ENTREE_NEXUS.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__00_DOSSIER_ENTREE__DOSSIER_D_ENTREE_NEXUS.png",
+   "encre_min": 0.0177,
+   "encre_max": 0.236,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.009,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2346,
+   "bande_max_zone_de_composition": 0.8215,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 25,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2351,
+   "bande_max_zone_de_composition": 0.8258,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0086,
+   "encre_max": 0.2344,
+   "bande_max_zone_de_composition": 0.8154,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 2,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0603,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.004,
+   "encre_max": 0.2378,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.0204,
+   "encre_max": 0.2364,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+   "pages_rendues": 4,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__03_EPREUVES_TERMINALES__GRAND_ORAL.png",
+   "encre_min": 0.0667,
+   "encre_max": 0.2341,
+   "bande_max_zone_de_composition": 0.8282,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__03_EPREUVES_TERMINALES__PHILOSOPHIE.png",
+   "encre_min": 0.0082,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.8229,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0112,
+   "encre_max": 0.2366,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HGGSP_NON_POURSUIVIE.png",
+   "encre_min": 0.0196,
+   "encre_max": 0.2377,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0089,
+   "encre_max": 0.2352,
+   "bande_max_zone_de_composition": 0.828,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HLP_NON_POURSUIVIE.png",
+   "encre_min": 0.0069,
+   "encre_max": 0.2362,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_NSI_NON_POURSUIVIE.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2361,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0061,
+   "encre_max": 0.238,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.png",
+   "encre_min": 0.0142,
+   "encre_max": 0.2391,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 9,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0107,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.8281,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 8,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SES_NON_POURSUIVIE.png",
+   "encre_min": 0.019,
+   "encre_max": 0.2361,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 12,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.0128,
+   "encre_max": 0.2357,
+   "bande_max_zone_de_composition": 0.7956,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SVT_NON_POURSUIVIE.png",
+   "encre_min": 0.017,
+   "encre_max": 0.2359,
+   "bande_max_zone_de_composition": 0.8263,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/01_LIVRETS_CANDIDAT/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+   "pages_rendues": 7,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/01_LIVRETS_CANDIDAT__PROFIL_C_BAC_EN_UNE_SESSION__05_DIAGNOSTICS_NEXUS__MAITRISE_DU_FRANCAIS.png",
+   "encre_min": 0.0175,
+   "encre_max": 0.2364,
+   "bande_max_zone_de_composition": 0.8275,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/00_COMMUN/POSITIONNEMENT_FRANCAIS.pdf",
+   "pages_rendues": 16,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__00_COMMUN__POSITIONNEMENT_FRANCAIS.png",
+   "encre_min": 0.0232,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.2278,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 25,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.0031,
+   "encre_max": 0.2303,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 22,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_ANTICIPEE_SPE.png",
+   "encre_min": 0.0099,
+   "encre_max": 0.2305,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 40,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.0077,
+   "encre_max": 0.2314,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0099,
+   "encre_max": 0.2306,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 5,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0103,
+   "encre_max": 0.2346,
+   "bande_max_zone_de_composition": 0.2719,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.027,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.2416,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 12,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.015,
+   "encre_max": 0.2325,
+   "bande_max_zone_de_composition": 0.2131,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0114,
+   "encre_max": 0.2327,
+   "bande_max_zone_de_composition": 0.2305,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0182,
+   "encre_max": 0.2313,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 15,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2321,
+   "bande_max_zone_de_composition": 0.1729,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0079,
+   "encre_max": 0.234,
+   "bande_max_zone_de_composition": 0.2425,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0189,
+   "encre_max": 0.2319,
+   "bande_max_zone_de_composition": 0.3614,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_A_PREMIERE_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_A_PREMIERE_PARTIE__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.0093,
+   "encre_max": 0.2317,
+   "bande_max_zone_de_composition": 0.3024,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 5,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0104,
+   "encre_max": 0.2347,
+   "bande_max_zone_de_composition": 0.2719,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 5,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE_FIN_DE_CYCLE.png",
+   "encre_min": 0.0104,
+   "encre_max": 0.2347,
+   "bande_max_zone_de_composition": 0.2719,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 10,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.0284,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.2416,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE_FIN_DE_CYCLE.png",
+   "encre_min": 0.0281,
+   "encre_max": 0.234,
+   "bande_max_zone_de_composition": 0.2416,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 12,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.015,
+   "encre_max": 0.2326,
+   "bande_max_zone_de_composition": 0.2367,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE_FIN_DE_CYCLE.png",
+   "encre_min": 0.015,
+   "encre_max": 0.2326,
+   "bande_max_zone_de_composition": 0.2321,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+   "pages_rendues": 4,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__03_EPREUVES_TERMINALES__GRAND_ORAL.png",
+   "encre_min": 0.0198,
+   "encre_max": 0.2303,
+   "bande_max_zone_de_composition": 0.1164,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+   "pages_rendues": 15,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__03_EPREUVES_TERMINALES__PHILOSOPHIE.png",
+   "encre_min": 0.0165,
+   "encre_max": 0.2301,
+   "bande_max_zone_de_composition": 0.201,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 40,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0078,
+   "encre_max": 0.231,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 22,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.008,
+   "encre_max": 0.231,
+   "bande_max_zone_de_composition": 0.156,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+   "pages_rendues": 43,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_AVEC_SPECIALITE_ET_ANTICIPEE.png",
+   "encre_min": 0.008,
+   "encre_max": 0.2315,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/MATHEMATIQUES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 19,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__MATHEMATIQUES_NON_POURSUIVIE.png",
+   "encre_min": 0.0077,
+   "encre_max": 0.2308,
+   "bande_max_zone_de_composition": 0.1556,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 18,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0114,
+   "encre_max": 0.2328,
+   "bande_max_zone_de_composition": 0.2115,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HGGSP_NON_POURSUIVIE.png",
+   "encre_min": 0.0114,
+   "encre_max": 0.2339,
+   "bande_max_zone_de_composition": 0.2305,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0183,
+   "encre_max": 0.2314,
+   "bande_max_zone_de_composition": 0.2064,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_HLP_NON_POURSUIVIE.png",
+   "encre_min": 0.0182,
+   "encre_max": 0.2324,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 16,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0145,
+   "encre_max": 0.2322,
+   "bande_max_zone_de_composition": 0.2014,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+   "pages_rendues": 15,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_NSI_NON_POURSUIVIE.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2323,
+   "bande_max_zone_de_composition": 0.1729,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 18,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0122,
+   "encre_max": 0.2342,
+   "bande_max_zone_de_composition": 0.2425,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.png",
+   "encre_min": 0.0079,
+   "encre_max": 0.2353,
+   "bande_max_zone_de_composition": 0.2425,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 16,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0037,
+   "encre_max": 0.2321,
+   "bande_max_zone_de_composition": 0.3614,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SES_NON_POURSUIVIE.png",
+   "encre_min": 0.0189,
+   "encre_max": 0.2323,
+   "bande_max_zone_de_composition": 0.3614,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 19,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.0093,
+   "encre_max": 0.2318,
+   "bande_max_zone_de_composition": 0.3024,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__04_SPECIALITES__SPECIALITE_SVT_NON_POURSUIVIE.png",
+   "encre_min": 0.0093,
+   "encre_max": 0.2321,
+   "bande_max_zone_de_composition": 0.3024,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__05_DIAGNOSTICS_NEXUS__MAITRISE_DU_FRANCAIS.png",
+   "encre_min": 0.0076,
+   "encre_max": 0.2326,
+   "bande_max_zone_de_composition": 0.2069,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 25,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.0031,
+   "encre_max": 0.2303,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ECRIT_SEUL.pdf",
+   "pages_rendues": 19,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ECRIT_SEUL.png",
+   "encre_min": 0.0138,
+   "encre_max": 0.2301,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/EAF/FRANCAIS_ORAL_SEUL.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__EAF__FRANCAIS_ORAL_SEUL.png",
+   "encre_min": 0.0138,
+   "encre_max": 0.2303,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 22,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__MATHEMATIQUES_ANTICIPEE_SPE.png",
+   "encre_min": 0.0099,
+   "encre_max": 0.2306,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_B_DEUXIEME_PARTIE/90_CAS_PARTICULIERS/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_B_DEUXIEME_PARTIE__90_CAS_PARTICULIERS__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0099,
+   "encre_max": 0.2307,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/FRANCAIS_ECRIT_ET_ORAL.pdf",
+   "pages_rendues": 25,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__FRANCAIS_ECRIT_ET_ORAL.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2304,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 40,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0078,
+   "encre_max": 0.231,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 43,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_AVEC_SPECIALITE.png",
+   "encre_min": 0.008,
+   "encre_max": 0.2315,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/01_EPREUVES_ANTICIPEES/MATHEMATIQUES_SANS_SPECIALITE.pdf",
+   "pages_rendues": 23,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__01_EPREUVES_ANTICIPEES__MATHEMATIQUES_SANS_SPECIALITE.png",
+   "encre_min": 0.0099,
+   "encre_max": 0.2308,
+   "bande_max_zone_de_composition": 0.2358,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_MORAL_ET_CIVIQUE.pdf",
+   "pages_rendues": 5,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_MORAL_ET_CIVIQUE.png",
+   "encre_min": 0.0104,
+   "encre_max": 0.2348,
+   "bande_max_zone_de_composition": 0.2719,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/ENSEIGNEMENT_SCIENTIFIQUE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__ENSEIGNEMENT_SCIENTIFIQUE.png",
+   "encre_min": 0.0281,
+   "encre_max": 0.234,
+   "bande_max_zone_de_composition": 0.2416,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/02_EVALUATIONS_PONCTUELLES/HISTOIRE-GEOGRAPHIE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__02_EVALUATIONS_PONCTUELLES__HISTOIRE-GEOGRAPHIE.png",
+   "encre_min": 0.015,
+   "encre_max": 0.2327,
+   "bande_max_zone_de_composition": 0.2321,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/GRAND_ORAL.pdf",
+   "pages_rendues": 4,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__03_EPREUVES_TERMINALES__GRAND_ORAL.png",
+   "encre_min": 0.0198,
+   "encre_max": 0.2304,
+   "bande_max_zone_de_composition": 0.1164,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/03_EPREUVES_TERMINALES/PHILOSOPHIE.pdf",
+   "pages_rendues": 15,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__03_EPREUVES_TERMINALES__PHILOSOPHIE.png",
+   "encre_min": 0.0166,
+   "encre_max": 0.2302,
+   "bande_max_zone_de_composition": 0.201,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP.pdf",
+   "pages_rendues": 18,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HGGSP.png",
+   "encre_min": 0.0114,
+   "encre_max": 0.2329,
+   "bande_max_zone_de_composition": 0.2115,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HGGSP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HGGSP_NON_POURSUIVIE.png",
+   "encre_min": 0.0114,
+   "encre_max": 0.234,
+   "bande_max_zone_de_composition": 0.2305,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HLP.png",
+   "encre_min": 0.0183,
+   "encre_max": 0.2315,
+   "bande_max_zone_de_composition": 0.2064,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_HLP_NON_POURSUIVIE.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_HLP_NON_POURSUIVIE.png",
+   "encre_min": 0.0183,
+   "encre_max": 0.2324,
+   "bande_max_zone_de_composition": 0.2025,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI.pdf",
+   "pages_rendues": 16,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_NSI.png",
+   "encre_min": 0.0145,
+   "encre_max": 0.2322,
+   "bande_max_zone_de_composition": 0.2014,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_NSI_NON_POURSUIVIE.pdf",
+   "pages_rendues": 15,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_NSI_NON_POURSUIVIE.png",
+   "encre_min": 0.0092,
+   "encre_max": 0.2324,
+   "bande_max_zone_de_composition": 0.1729,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE.pdf",
+   "pages_rendues": 18,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE.png",
+   "encre_min": 0.0122,
+   "encre_max": 0.2342,
+   "bande_max_zone_de_composition": 0.2425,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_PHYSIQUE-CHIMIE_NON_POURSUIVIE.png",
+   "encre_min": 0.0079,
+   "encre_max": 0.2353,
+   "bande_max_zone_de_composition": 0.2425,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES.pdf",
+   "pages_rendues": 16,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SES.png",
+   "encre_min": 0.0037,
+   "encre_max": 0.2321,
+   "bande_max_zone_de_composition": 0.3614,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SES_NON_POURSUIVIE.pdf",
+   "pages_rendues": 14,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SES_NON_POURSUIVIE.png",
+   "encre_min": 0.019,
+   "encre_max": 0.2323,
+   "bande_max_zone_de_composition": 0.3614,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT.pdf",
+   "pages_rendues": 19,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SVT.png",
+   "encre_min": 0.0093,
+   "encre_max": 0.2319,
+   "bande_max_zone_de_composition": 0.3024,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/04_SPECIALITES/SPECIALITE_SVT_NON_POURSUIVIE.pdf",
+   "pages_rendues": 17,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__04_SPECIALITES__SPECIALITE_SVT_NON_POURSUIVIE.png",
+   "encre_min": 0.0093,
+   "encre_max": 0.2321,
+   "bande_max_zone_de_composition": 0.3024,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/02_CORRECTIONS_COACH/PROFIL_C_BAC_EN_UNE_SESSION/05_DIAGNOSTICS_NEXUS/MAITRISE_DU_FRANCAIS.pdf",
+   "pages_rendues": 13,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/02_CORRECTIONS_COACH__PROFIL_C_BAC_EN_UNE_SESSION__05_DIAGNOSTICS_NEXUS__MAITRISE_DU_FRANCAIS.png",
+   "encre_min": 0.0077,
+   "encre_max": 0.2327,
+   "bande_max_zone_de_composition": 0.2069,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 114,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_A_PREMIERE_PARTIE__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE.png",
+   "encre_min": 0.0053,
+   "encre_max": 0.2388,
+   "bande_max_zone_de_composition": 0.8285,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 124,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_A_PREMIERE_PARTIE__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.png",
+   "encre_min": 0.0031,
+   "encre_max": 0.2388,
+   "bande_max_zone_de_composition": 0.8285,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_A_PREMIERE_PARTIE/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+   "pages_rendues": 115,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_A_PREMIERE_PARTIE__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.png",
+   "encre_min": 0.0053,
+   "encre_max": 0.2388,
+   "bande_max_zone_de_composition": 0.8285,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_ANTICIPEE_SPE.pdf",
+   "pages_rendues": 128,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_ANTICIPEE_SPE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 128,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+   "pages_rendues": 140,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_AVEC_SPECIALITE_ET_ANTICIPEE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 141,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 131,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_ET_ANTICIPEE.pdf",
+   "pages_rendues": 143,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_AVEC_SPECIALITE_ET_ANTICIPEE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 128,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_NON_POURSUIVIE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_SANS_SPECIALITE.pdf",
+   "pages_rendues": 132,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_FIN_DE_CYCLE_SANS_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_B_DEUXIEME_PARTIE/CATALOGUE_RECUEIL_COMPLET_SANS_SPECIALITE.pdf",
+   "pages_rendues": 129,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_B_DEUXIEME_PARTIE__CATALOGUE_RECUEIL_COMPLET_SANS_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE.pdf",
+   "pages_rendues": 155,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_C_BAC_EN_UNE_SESSION__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_ANTICIPEE_SPE_NON_POURSUIVIE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.pdf",
+   "pages_rendues": 157,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_C_BAC_EN_UNE_SESSION__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_AVEC_SPECIALITE.png",
+   "encre_min": 0.0032,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  },
+  {
+   "path": "release/diagnostics-v2/03_IMPRESSION/PROFIL_C_BAC_EN_UNE_SESSION/CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.pdf",
+   "pages_rendues": 146,
+   "planche": "/tmp/claude-1000/-home-alaeddine-Bureau-nexus-project-v0-docs-BILAN-DIAGNOSTIC-CL/fb230237-cd10-4974-86a8-519c4107e8ed/scratchpad/planches/03_IMPRESSION__PROFIL_C_BAC_EN_UNE_SESSION__CATALOGUE_RECUEIL_COMPLET_ECRIT_ET_ORAL_SANS_SPECIALITE.png",
+   "encre_min": 0.0038,
+   "encre_max": 0.2385,
+   "bande_max_zone_de_composition": 0.8283,
+   "pages_a_regarder": [],
+   "status": "PASS"
+  }
+ ]
+}

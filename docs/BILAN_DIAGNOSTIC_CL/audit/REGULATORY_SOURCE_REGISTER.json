@@ -1,0 +1,195 @@
+{
+ "schema": "go_live/regulatory_source_register/1.0",
+ "objet": "Chaque affirmation réglementaire portée par la collection, et le texte qui la fonde. Les entrées sont vérifiées sur le Bulletin officiel ou Légifrance, jamais restituées de mémoire ni recopiées d'un résumé.",
+ "date_de_verification": "2026-09-15",
+ "sessions_couvertes": [
+  2027,
+  2028
+ ],
+ "voie": "générale",
+ "hierarchie_appliquee": [
+  "Bulletin officiel de l'Éducation nationale",
+  "Légifrance",
+  "Éduscol et documents institutionnels"
+ ],
+ "textes": [
+  {
+   "id": "memento-2025",
+   "titre": "Évaluer les élèves en cycle terminal en LEGT — cadre réglementaire et systèmes d'information",
+   "editeur": "MENSER / DGESCO",
+   "date_texte": "2025-09",
+   "nor": null,
+   "url": "https://eduscol.education.gouv.fr/sites/default/files/document/2025-memento-cadrereglementaire-evaluationsbacpdf-113592.pdf",
+   "champ_concerne": "Répartition 60/40, tableau des coefficients des épreuves terminales et du contrôle continu, statut du candidat individuel.",
+   "verifie": "Tableau des coefficients lu dans le PDF officiel : Grand oral voie générale coefficient 10 jusqu'à la session 2026, 8 à compter de la session 2027 ; épreuve anticipée de mathématiques coefficient 2, durée 2 h, « à compter de 2026 au titre de la session 2027 ».",
+   "consulte_le": "2026-09-14",
+   "confiance": "haute"
+  },
+  {
+   "id": "go-consolide-2024",
+   "titre": "Épreuve orale terminale dite « Grand oral » — version consolidée juin 2024",
+   "editeur": "MENJS",
+   "date_texte": "2024-06",
+   "nor": "MENE2121378N, modifiée par MENE2323117N (26-9-2023)",
+   "url": "https://eduscol.education.gouv.fr/sites/default/files/document/voie-ggrand-oraldoc-consolidepdf-102120.pdf",
+   "champ_concerne": "Structure et durée du Grand oral, dispositions pour les candidats individuels.",
+   "verifie": "« L'épreuve, d'une durée totale de 20 minutes, se déroule en deux temps : Premier temps : présentation d'une question (10 minutes) […] Deuxième temps : échange avec le candidat (10 minutes) ». L'échange de cinq minutes sur le projet d'orientation, troisième temps des notes de 2020 (MENE2002780N) et de 2021, a été supprimé par la note modificative du 26 septembre 2023 : il n'existe plus depuis la session 2024.",
+   "consulte_le": "2026-09-14",
+   "confiance": "haute"
+  },
+  {
+   "id": "math-ea-definition",
+   "titre": "Définition de l'épreuve anticipée de mathématiques",
+   "editeur": "MENJS",
+   "date_texte": "2025-06-10",
+   "nor": "MENE2515469N",
+   "url": "https://www.education.gouv.fr/bo/2025/Hebdo24",
+   "champ_concerne": "Durée, coefficient, structure et matériel de l'épreuve anticipée de mathématiques ; sujets distincts selon le parcours suivi.",
+   "verifie": "2 h, coefficient 2, questionnaire d'automatismes sur 6 points puis deux ou trois exercices sur 14 points, calculatrice interdite sur toute l'épreuve. Trois sujets, dont deux pour la voie générale : l'un pour les candidats ayant suivi la spécialité mathématiques en première, l'autre pour ceux qui ont suivi les mathématiques du tronc commun.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "math-ea-dispenses",
+   "titre": "Arrêté relatif aux épreuves anticipées — dispenses et dispositions transitoires",
+   "editeur": "MENJS",
+   "date_texte": "2025-06-10",
+   "nor": "MENE2508110A",
+   "url": "https://www.legifrance.gouv.fr/",
+   "champ_concerne": "Article 17 : dispenses de l'épreuve anticipée de mathématiques.",
+   "verifie": "Échec à la session 2026 : dispense au titre de 2027. Force majeure et résidence à l'étranger : dispense étendue jusqu'à 2028. Titulaires d'un baccalauréat obtenu à compter de la session 2027 : dispensés.",
+   "consulte_le": "2026-09-15",
+   "confiance": "moyenne",
+   "reserve": "NOR lu sur Légifrance, non recoupé sur un fac-similé du Journal officiel. Le titre, la date et les articles 15 à 19 sont solides."
+  },
+  {
+   "id": "prog-maths-1re-spe",
+   "titre": "Programme d'enseignement de spécialité de mathématiques, classe de première de la voie générale",
+   "editeur": "MENJS",
+   "date_texte": "2026-02-26",
+   "nor": "MENE2602917A",
+   "url": "https://www.education.gouv.fr/bo/2026/Hebdo14",
+   "champ_concerne": "Programme sur lequel compose le candidat MATH-EA/SPE.",
+   "verifie": "Publié au Journal officiel du 27 mars 2026 et au Bulletin officiel n° 14 du 2 avril 2026 ; entrée en application à la rentrée 2026-2027.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "prog-maths-1re-tronc-commun",
+   "titre": "Programme de mathématiques intégré à l'enseignement scientifique, classe de première générale",
+   "editeur": "MENJS",
+   "date_texte": "2026-02-26",
+   "nor": "MENE2602916A",
+   "url": "https://www.education.gouv.fr/bo/2026/Hebdo14",
+   "champ_concerne": "Programme sur lequel compose le candidat MATH-EA/SPECIFIQUES.",
+   "verifie": "Même publication et même entrée en application que le précédent.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "prog-maths-2de",
+   "titre": "Programme d'enseignement de mathématiques, classe de seconde générale et technologique",
+   "editeur": "MENJS",
+   "date_texte": "2026-02-26",
+   "nor": "MENE2602914A",
+   "url": "https://www.education.gouv.fr/bo/2026/Hebdo14",
+   "champ_concerne": "Prérequis auxquels renvoient les automatismes de première. Ce n'est pas un programme sur lequel l'épreuve anticipée fait composer : le confondre avec le programme de première serait évaluer un candidat sur la mauvaise classe.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "emc-2025-2026",
+   "titre": "Évaluations ponctuelles d'enseignement moral et civique pour l'année scolaire 2025-2026",
+   "editeur": "MEN — DGESCO",
+   "date_texte": "2025-12-10",
+   "nor": "MENE2531481N",
+   "url": "https://www.education.gouv.fr/bo/2025/Hebdo48/MENE2531481N",
+   "champ_concerne": "Modalités de l'évaluation ponctuelle d'EMC du candidat individuel.",
+   "verifie": "« pour la seule année scolaire 2025-2026 au titre des sessions 2026 et 2027 des baccalauréats général et technologique du fait de la mise en œuvre progressive du nouveau programme d'enseignement moral et civique »",
+   "reserve": "La note ne couvre que les évaluations passées pendant l'année scolaire 2025-2026, et elle abroge celle de 2021. Aucun texte n'a été publié pour l'année scolaire 2026-2027 : les Bulletins officiels de 2026 ont été balayés jusqu'au n° 34 du 10 septembre 2026, dernier paru à la date de l'audit. Un candidat individuel évalué en EMC pendant 2026-2027 n'a donc aucune modalité publiée opposable. Ce n'est pas une incertitude documentaire : c'est une absence de texte, à réévaluer à chaque Bulletin officiel.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "eps-2026",
+   "titre": "Évaluation de l'éducation physique et sportive aux baccalauréats général et technologique",
+   "editeur": "MEN — DGESCO",
+   "date_texte": "2026-02-20",
+   "nor": "MENE2531948N",
+   "url": "https://www.education.gouv.fr/bo/2026/Hebdo9/MENE2531948N",
+   "champ_concerne": "Modalité d'évaluation de l'EPS pour le candidat individuel.",
+   "verifie": "« Les candidats inscrits au baccalauréat sous statut individuel et les candidats scolarisés au Cned sont évalués lors d'un examen ponctuel terminal. » Deux épreuves de deux champs d'apprentissage différents, chacune sur 20, moyenne des deux, sans épreuve de remplacement.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "modalites-consolidees",
+   "titre": "Modalités d'évaluation des candidats au baccalauréat — version consolidée février 2025",
+   "editeur": "MENJS",
+   "date_texte": "2021-07-28",
+   "nor": "MENE2121270N",
+   "url": "https://eduscol.education.gouv.fr/sites/default/files/document/nds-modalites-evaluationconsolideepdf-73581.pdf",
+   "champ_concerne": "Évaluations ponctuelles du contrôle continu : enseignements, coefficients, choix entre passation annuelle et fin de cycle.",
+   "verifie": "Spécialité de première 8 ; histoire-géographie, LVA, LVB et enseignement scientifique 6 chacun ; EPS 6 ; EMC 2 — total 40. Le choix est formulé à l'inscription et définitif à la clôture de celle-ci.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "enseignement-scientifique-2026",
+   "titre": "Évaluation ponctuelle d'enseignement scientifique",
+   "editeur": "MEN — DGESCO",
+   "date_texte": "2025-12-23",
+   "nor": "MENE2534911N",
+   "url": "https://www.education.gouv.fr/bo/2026/Hebdo3",
+   "champ_concerne": "Durée et structure de l'évaluation ponctuelle d'enseignement scientifique.",
+   "verifie": "2 h, écrit, exercices interdisciplinaires, noté sur 20. Le texte de 2025 n'a modifié que les modalités de correction.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "situations-particulieres",
+   "titre": "Situations particulières d'inscription au baccalauréat",
+   "editeur": "MEN — DGESCO",
+   "date_texte": "2025-08-25",
+   "nor": "MENE2523745N",
+   "url": "https://www.education.gouv.fr/bo/2025/Hebdo32",
+   "champ_concerne": "Candidat présentant la totalité des épreuves à la même session (profil P3) ; conservation des notes après échec.",
+   "verifie": "Onze situations énumérées. Un élève ordinaire de moins de vingt ans, non redoublant et scolarisé en France n'y entre pas. Aucune note de rentrée 2026-2027 ne remplace ce texte à la date de l'audit.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "fr-oeuvres-2027",
+   "titre": "Œuvres au programme de français, session 2027",
+   "editeur": "MENJS",
+   "date_texte": "2024-07-11",
+   "nor": "MENE2418442N",
+   "url": "https://www.education.gouv.fr/bo/2024/Hebdo30",
+   "champ_concerne": "Objets d'étude et œuvres de l'épreuve anticipée de français, assemblages FR-EAF courants.",
+   "verifie": "Objet d'étude renouvelé : littérature d'idées. Quatre objets d'étude, douze œuvres et parcours, voie générale.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  },
+  {
+   "id": "fr-oeuvres-2028",
+   "titre": "Œuvres au programme de français, session 2028",
+   "editeur": "MENJS",
+   "date_texte": "2025-07-04",
+   "nor": "MENE2518792N",
+   "url": "https://www.education.gouv.fr/bo/2025/Hebdo30",
+   "champ_concerne": "Objets d'étude et œuvres des assemblages FR-EAF « _2028 ».",
+   "verifie": "Objet d'étude renouvelé : roman et récit. Seul cet objet change entre les deux sessions, ce que les assemblages reflètent.",
+   "consulte_le": "2026-09-15",
+   "confiance": "haute"
+  }
+ ],
+ "affirmations_non_etayees": [],
+ "incertitudes_declarees": [
+  {
+   "champ": "Modalité de l'évaluation ponctuelle d'EMC pour l'année scolaire 2026-2027",
+   "etat": "aucun texte publié",
+   "consequence_produit": "Aucun document remis au candidat n'énonce de modalité d'EMC. Le livret TC-EMC est un entretien de diagnostic Nexus et se présente comme tel ; sa couverture porte « Évaluation ponctuelle » et le coefficient du contrôle continu, tous deux établis, et rien de la forme de l'épreuve.",
+   "a_reevaluer": "à chaque Bulletin officiel hebdomadaire"
+  }
+ ]
+}

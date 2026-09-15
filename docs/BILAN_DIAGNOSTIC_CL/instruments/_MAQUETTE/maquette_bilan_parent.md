@@ -204,7 +204,7 @@ Deux points d'application. Pondération par le nombre d'items, non par les point
 
 **Somme des rythmes : 16 h par semaine.** Heures déclarées : 18 h. Comptée par périmètre plutôt que par matière de travail, elle vaudrait 18 h : c'est l'erreur que EC-28 corrige.
 
-*Ni la grille d'entretien Grand oral ni celle de l'oral de français n'ajoutent d'heures à la somme des rythmes. Instruments concernés : GO, FR-EAF-ORAL, MET, QP.*
+*Ni la grille d'entretien Grand oral ni celle de l'oral de français n'ajoutent d'heures à la somme des rythmes. Instruments concernés : GO, FR-EAF-ORAL, MET, QP, TC-HG, TC-EMC, FR-POS, FR-POS-ORAL.*
 
 ---
 

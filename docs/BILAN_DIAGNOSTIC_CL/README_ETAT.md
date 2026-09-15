@@ -133,7 +133,7 @@ cesse d'être un état dès la porte suivante.
 | `QP` | grille ou formulaire | — | — | standard 20 | diffusable |
 | `TC-EMC` | grille ou formulaire | — | — | 1RE 20 · TLE 20 · ETENDUE 25 | diffusable |
 | `TC-ES` | banque + assemblages | 34 | 1RE (20) · ETENDUE (30) · TLE (20) | 1RE 40 · TLE 40 · ETENDUE 55 | diffusable |
-| `TC-HG` | banque + assemblages | 39 | 1RE (18) · ETENDUE (23) · TLE (18) | 1RE 45 · TLE 45 · ETENDUE 60 | diffusable |
+| `TC-HG` | banque + assemblages | 34 | 1RE (18) · ETENDUE (23) · TLE (18) | 1RE 45 · TLE 45 · ETENDUE 60 | diffusable |
 
 **Instruments non diffusables à ce jour : 0**. Le statut est calculé par `scripts/diffusabilite.py` et vérifié par `V-Instruments` à chaque rendu de bilan : un instrument dont la source porte un emplacement réservé, un support sans édition ou une erreur de validation ne peut pas être imprimé, et un bilan de production qui s'en nourrit reste en attente.
 <!-- ETAT-CALCULE instruments fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -158,6 +158,7 @@ cesse d'être un état dès la porte suivante.
 |---|---|
 | `tests/test_audit_inventory.py` | 14 |
 | `tests/test_audit_readme.py` | 15 |
+| `tests/test_bareme_atteignable_et_supports.py` | 5 |
 | `tests/test_bilan.py` | 34 |
 | `tests/test_bordereau_durees.py` | 3 |
 | `tests/test_build_instrument.py` | 36 |
@@ -176,8 +177,8 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_faits_candidat.py` | 8 |
 | `tests/test_francais.py` | 15 |
 | `tests/test_gate_profil.py` | 12 |
-| `tests/test_go_duree.py` | 5 |
-| `tests/test_hg_tle_documents.py` | 6 |
+| `tests/test_go_duree.py` | 6 |
+| `tests/test_hg_tle_documents.py` | 8 |
 | `tests/test_intitules_versionnes.py` | 7 |
 | `tests/test_maquette.py` | 36 |
 | `tests/test_math_ea.py` | 21 |
@@ -190,18 +191,20 @@ cesse d'être un état dès la porte suivante.
 | `tests/test_passation.py` | 10 |
 | `tests/test_passation_cas.py` | 6 |
 | `tests/test_phi_attribution.py` | 3 |
+| `tests/test_position_des_reponses.py` | 5 |
 | `tests/test_print_canonicalization.py` | 12 |
 | `tests/test_profil_p1.py` | 14 |
 | `tests/test_provenance.py` | 12 |
 | `tests/test_regles_bilan.py` | 32 |
 | `tests/test_release.py` | 11 |
 | `tests/test_rendu_code.py` | 7 |
+| `tests/test_reproductibilite_octet.py` | 3 |
 | `tests/test_sessions_fr_eaf.py` | 21 |
 | `tests/test_textes_sources.py` | 21 |
 | `tests/test_tronc_commun_et_positionnement.py` | 8 |
 | `tests/test_validate_instrument.py` | 62 |
 | `tests/test_validate_referentiel.py` | 30 |
-| **total** | **791** |
+| **total** | **807** |
 
 Le nombre de cas exécutés est supérieur : les fonctions paramétrées comptent pour plusieurs.
 <!-- ETAT-CALCULE tests fin : produit par scripts/etat_depot.py, ne pas éditer -->
@@ -226,13 +229,13 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_design.py:78` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_design.py:211` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_design.py:225` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
-| `pytest.skip` | `tests/test_design.py:391` | release non construite | contrôle d'unicité de la release sous `release/` | non — le contrôle porte sur le rangement, pas sur un instrument | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:407` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:437` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:470` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:490` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:574` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_design.py:584` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:409` | release non construite | contrôle d'unicité de la release sous `release/` | non — le contrôle porte sur le rangement, pas sur un instrument | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:425` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:455` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:488` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:508` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:592` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_design.py:602` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_distribution.py:134` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_distribution.py:145` | outils PDF absents | rendus PDF de build_instrument.py (arbitrage A-04) | oui — les sujets sont imprimés depuis ces PDF | bloquant si les outils manquent ; pandoc et xelatex sont présents sur ce poste, ces tests s'exécutent |
 | `pytest.skip` | `tests/test_dossier_entree_personnalise.py:59` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
@@ -244,7 +247,7 @@ Le nombre de cas exécutés est supérieur : les fonctions paramétrées compten
 | `pytest.skip` | `tests/test_pack_candidat.py:711` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_personnalisation.py:41` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_pack_personnalisation.py:53` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
-| `pytest.skip` | `tests/test_phi_attribution.py:46` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
+| `pytest.skip` | `tests/test_phi_attribution.py:56` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_print_canonicalization.py:51` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_print_canonicalization.py:90` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |
 | `pytest.skip` | `tests/test_print_canonicalization.py:122` | release v2 non construite | contrôles de la collection sur les PDF de `release/diagnostics-v2/` | oui — ce sont les documents remis au candidat | sans effet ; le test s'exécute dès que `python3 scripts/release_v2.py` a tourné |

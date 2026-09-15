@@ -230,14 +230,32 @@ def test_les_deux_facades_ne_se_melangent_pas():
 # ─────────────────────────────── ce que le livret doit dire
 
 def test_un_livret_de_specialite_a_partie_pratique_le_dit(candidats):
-    """Le candidat individuel en est dispensé : le lui cacher serait lui faire perdre du temps."""
-    vus = 0
+    """Le candidat individuel en est dispensé : le lui cacher serait lui faire perdre du temps.
+
+    La dispense ne vaut que pour les livrets qui préparent l'épreuve terminale. Le livret
+    d'une spécialité suivie en seule classe de première — « NON POURSUIVIE » — ne prépare
+    pas cette épreuve du tout : il prépare une évaluation ponctuelle écrite, qui n'a pas
+    de partie pratique. Y annoncer une dispense parlerait d'une épreuve que ce candidat
+    ne présentera jamais.
+    """
+    vus = pratiques = 0
     for p in candidats:
-        if "NSI" in p.name or "PHYSIQUE" in p.name or "SVT" in p.name:
-            t = _plat(_texte(p, 2))
-            assert "dispensé" in t, f"{p.name} : la dispense de pratique n'est pas dite"
+        if not ("NSI" in p.name or "PHYSIQUE" in p.name or "SVT" in p.name):
+            continue
+        t = _plat(_texte(p, 2))
+        if "NON_POURSUIVIE" in p.name:
+            assert "dispensé" not in t, \
+                f"{p.name} : une dispense de partie pratique est annoncée à un candidat "\
+                f"qui ne présente pas l'épreuve terminale"
+            assert "évaluation ponctuelle" in t.lower(), \
+                f"{p.name} : l'évaluation réellement présentée n'est pas nommée"
             vus += 1
-    assert vus >= 3, "aucun livret à partie pratique trouvé"
+            continue
+        assert "dispensé" in t, f"{p.name} : la dispense de pratique n'est pas dite"
+        vus += 1
+        pratiques += 1
+    assert pratiques >= 3, "aucun livret d'épreuve terminale à partie pratique trouvé"
+    assert vus >= 6, "les livrets de spécialité non poursuivie n'ont pas été contrôlés"
 
 
 def test_chaque_livret_dit_ce_que_le_candidat_passera(candidats):

@@ -1,0 +1,10107 @@
+{
+ "schema": "go_live/content_coverage_matrix/1.0",
+ "avertissement": "Validité de contenu et couverture programme. Aucune statistique psychométrique n'est produite : aucune passation réelle n'a été collectée, une fidélité chiffrée serait inventée.",
+ "referentiel_competences": "/home/alaeddine/Bureau/nexus-project_v0/docs/BILAN_DIAGNOSTIC_CL/referentiels/competences.json",
+ "competences_declarees": [],
+ "matrices": [
+  {
+   "instrument": "EDS-HGGSP",
+   "version": "N1",
+   "competences_evaluees": [
+    "CONN",
+    "DISS",
+    "DOC",
+    "INFO",
+    "REP"
+   ],
+   "items_par_competence": {
+    "CONN": 6,
+    "DISS": 2,
+    "DOC": 4,
+    "INFO": 5,
+    "REP": 7
+   },
+   "score_par_competence": {
+    "CONN": 10,
+    "DISS": 14,
+    "DOC": 6,
+    "INFO": 8,
+    "REP": 8
+   },
+   "paliers_par_competence": {
+    "CONN": [
+     "D1",
+     "D2"
+    ],
+    "DISS": [
+     "D1",
+     "D3"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "INFO": [
+     "D1",
+     "D2"
+    ],
+    "REP": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CONN": [
+     "A",
+     "B"
+    ],
+    "DISS": [
+     "B",
+     "C"
+    ],
+    "DOC": [
+     "A",
+     "B"
+    ],
+    "INFO": [
+     "A",
+     "B"
+    ],
+    "REP": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 24,
+   "score_total": 46,
+   "competences_a_item_unique": [],
+   "detail": {
+    "REP": [
+     {
+      "item_id": "HGGSP-2-REP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "CONN": [
+     {
+      "item_id": "HGGSP-1-CONN-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-09",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-12",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "INFO": [
+     {
+      "item_id": "HGGSP-1-INFO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "HGGSP-1-DOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-DOC-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-DOC-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-DOC-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "DISS": [
+     {
+      "item_id": "HGGSP-1-DISS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HGGSP-1-DISS-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-HGGSP",
+   "version": "NT",
+   "competences_evaluees": [
+    "CONN",
+    "DISS",
+    "DOC",
+    "INFO",
+    "REP"
+   ],
+   "items_par_competence": {
+    "CONN": 12,
+    "DISS": 2,
+    "DOC": 5,
+    "INFO": 5,
+    "REP": 7
+   },
+   "score_par_competence": {
+    "CONN": 19,
+    "DISS": 14,
+    "DOC": 8,
+    "INFO": 8,
+    "REP": 8
+   },
+   "paliers_par_competence": {
+    "CONN": [
+     "D1",
+     "D2"
+    ],
+    "DISS": [
+     "D2",
+     "D3"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "INFO": [
+     "D1",
+     "D2"
+    ],
+    "REP": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CONN": [
+     "A",
+     "B"
+    ],
+    "DISS": [
+     "B",
+     "C"
+    ],
+    "DOC": [
+     "A",
+     "B"
+    ],
+    "INFO": [
+     "A",
+     "B"
+    ],
+    "REP": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 31,
+   "score_total": 57,
+   "competences_a_item_unique": [],
+   "detail": {
+    "REP": [
+     {
+      "item_id": "HGGSP-2-REP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-2-REP-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "CONN": [
+     {
+      "item_id": "HGGSP-1-CONN-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-09",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-1-CONN-12",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-10",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-CONN-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "INFO": [
+     {
+      "item_id": "HGGSP-1-INFO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-INFO-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "HGGSP-1-DOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-DOC-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-DOC-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-T-DOC-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HGGSP-1-DOC-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "DISS": [
+     {
+      "item_id": "HGGSP-T-DISS-02",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HGGSP-T-DISS-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-HLP",
+   "version": "N1",
+   "competences_evaluees": [
+    "CULT",
+    "ESSAI",
+    "INTER",
+    "LECT",
+    "THEM"
+   ],
+   "items_par_competence": {
+    "CULT": 5,
+    "ESSAI": 2,
+    "INTER": 2,
+    "LECT": 8,
+    "THEM": 4
+   },
+   "score_par_competence": {
+    "CULT": 7,
+    "ESSAI": 14,
+    "INTER": 11,
+    "LECT": 12,
+    "THEM": 6
+   },
+   "paliers_par_competence": {
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "ESSAI": [
+     "D1",
+     "D3"
+    ],
+    "INTER": [
+     "D2",
+     "D3"
+    ],
+    "LECT": [
+     "D1",
+     "D2"
+    ],
+    "THEM": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CULT": [
+     "A",
+     "B"
+    ],
+    "ESSAI": [
+     "B",
+     "C"
+    ],
+    "INTER": [
+     "B",
+     "C"
+    ],
+    "LECT": [
+     "A",
+     "B"
+    ],
+    "THEM": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 21,
+   "score_total": 50,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LECT": [
+     {
+      "item_id": "HLP-2-LECT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-2-LECT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-2-LECT-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-1-LECT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-08",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "THEM": [
+     {
+      "item_id": "HLP-1-THEM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-THEM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-THEM-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-THEM-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "HLP-1-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "INTER": [
+     {
+      "item_id": "HLP-1-INTER-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HLP-1-INTER-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "ESSAI": [
+     {
+      "item_id": "HLP-1-ESSAI-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HLP-1-ESSAI-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-HLP",
+   "version": "NT",
+   "competences_evaluees": [
+    "CULT",
+    "ESSAI",
+    "INTER",
+    "LECT",
+    "THEM"
+   ],
+   "items_par_competence": {
+    "CULT": 7,
+    "ESSAI": 2,
+    "INTER": 2,
+    "LECT": 9,
+    "THEM": 8
+   },
+   "score_par_competence": {
+    "CULT": 10,
+    "ESSAI": 14,
+    "INTER": 11,
+    "LECT": 14,
+    "THEM": 12
+   },
+   "paliers_par_competence": {
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "ESSAI": [
+     "D1",
+     "D3"
+    ],
+    "INTER": [
+     "D2",
+     "D3"
+    ],
+    "LECT": [
+     "D1",
+     "D2"
+    ],
+    "THEM": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CULT": [
+     "A",
+     "B"
+    ],
+    "ESSAI": [
+     "B",
+     "C"
+    ],
+    "INTER": [
+     "B",
+     "C"
+    ],
+    "LECT": [
+     "A",
+     "B"
+    ],
+    "THEM": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 28,
+   "score_total": 61,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LECT": [
+     {
+      "item_id": "HLP-2-LECT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-2-LECT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-2-LECT-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-1-LECT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-LECT-08",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-LECT-09",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "THEM": [
+     {
+      "item_id": "HLP-1-THEM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-1-THEM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-1-THEM-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-1-THEM-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HLP-T-THEM-04",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-THEM-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-THEM-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-THEM-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "HLP-1-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-1-CULT-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-CULT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HLP-T-CULT-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "INTER": [
+     {
+      "item_id": "HLP-1-INTER-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HLP-1-INTER-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "ESSAI": [
+     {
+      "item_id": "HLP-1-ESSAI-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HLP-1-ESSAI-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-MATH",
+   "version": "N1",
+   "competences_evaluees": [
+    "ALGO",
+    "CALC",
+    "FONC",
+    "GEO",
+    "PROB",
+    "RAIS",
+    "SUIT",
+    "TRIG"
+   ],
+   "items_par_competence": {
+    "ALGO": 4,
+    "CALC": 6,
+    "FONC": 4,
+    "GEO": 4,
+    "PROB": 4,
+    "RAIS": 3,
+    "SUIT": 4,
+    "TRIG": 4
+   },
+   "score_par_competence": {
+    "ALGO": 6,
+    "CALC": 6,
+    "FONC": 6,
+    "GEO": 6,
+    "PROB": 6,
+    "RAIS": 16,
+    "SUIT": 6,
+    "TRIG": 6
+   },
+   "paliers_par_competence": {
+    "ALGO": [
+     "D1",
+     "D2"
+    ],
+    "CALC": [
+     "D1",
+     "D2"
+    ],
+    "FONC": [
+     "D1",
+     "D2"
+    ],
+    "GEO": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "SUIT": [
+     "D1",
+     "D2"
+    ],
+    "TRIG": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ALGO": [
+     "A",
+     "B"
+    ],
+    "CALC": [
+     "A"
+    ],
+    "FONC": [
+     "A",
+     "B"
+    ],
+    "GEO": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "A",
+     "B"
+    ],
+    "RAIS": [
+     "B",
+     "C"
+    ],
+    "SUIT": [
+     "A",
+     "B"
+    ],
+    "TRIG": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 33,
+   "score_total": 58,
+   "competences_a_item_unique": [],
+   "detail": {
+    "CALC": [
+     {
+      "item_id": "MATH-2-CALC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "FONC": [
+     {
+      "item_id": "MATH-1-FONC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-FONC-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-FONC-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-FONC-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SUIT": [
+     {
+      "item_id": "MATH-1-SUIT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-SUIT-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-SUIT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-SUIT-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "TRIG": [
+     {
+      "item_id": "MATH-1-TRIG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-TRIG-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-TRIG-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-TRIG-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEO": [
+     {
+      "item_id": "MATH-1-GEO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-GEO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-GEO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-GEO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "MATH-1-PROB-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-PROB-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-PROB-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-PROB-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ALGO": [
+     {
+      "item_id": "MATH-1-ALGO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-ALGO-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-ALGO-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-ALGO-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "MATH-1-RAIS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MATH-1-RAIS-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "MATH-1-RAIS-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-MATH",
+   "version": "NT",
+   "competences_evaluees": [
+    "ALGO",
+    "ANA",
+    "CALC",
+    "FONC",
+    "GEO",
+    "PROB",
+    "RAIS",
+    "SUIT"
+   ],
+   "items_par_competence": {
+    "ALGO": 4,
+    "ANA": 4,
+    "CALC": 6,
+    "FONC": 6,
+    "GEO": 4,
+    "PROB": 8,
+    "RAIS": 3,
+    "SUIT": 9
+   },
+   "score_par_competence": {
+    "ALGO": 6,
+    "ANA": 6,
+    "CALC": 6,
+    "FONC": 6,
+    "GEO": 6,
+    "PROB": 10,
+    "RAIS": 16,
+    "SUIT": 11
+   },
+   "paliers_par_competence": {
+    "ALGO": [
+     "D1",
+     "D2"
+    ],
+    "ANA": [
+     "D1",
+     "D2"
+    ],
+    "CALC": [
+     "D1",
+     "D2"
+    ],
+    "FONC": [
+     "D1",
+     "D2"
+    ],
+    "GEO": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "SUIT": [
+     "D1",
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ALGO": [
+     "A",
+     "B"
+    ],
+    "ANA": [
+     "A",
+     "B"
+    ],
+    "CALC": [
+     "A"
+    ],
+    "FONC": [
+     "A"
+    ],
+    "GEO": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "A",
+     "B"
+    ],
+    "RAIS": [
+     "B",
+     "C"
+    ],
+    "SUIT": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 44,
+   "score_total": 67,
+   "competences_a_item_unique": [],
+   "detail": {
+    "CALC": [
+     {
+      "item_id": "MATH-2-CALC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-2-CALC-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "FONC": [
+     {
+      "item_id": "MATH-1-FONC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-FONC-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-FONC-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-FONC-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-FONC-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-FONC-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "SUIT": [
+     {
+      "item_id": "MATH-1-SUIT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-SUIT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-SUIT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-SUIT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-SUIT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-SUIT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-T-SUIT-09",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-SUIT-11",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-SUIT-12",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "MATH-1-PROB-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-PROB-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-PROB-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-PROB-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-PROB-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-1-PROB-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MATH-T-PROB-10",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-PROB-12",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEO": [
+     {
+      "item_id": "MATH-T-GEO-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-GEO-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-GEO-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-GEO-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANA": [
+     {
+      "item_id": "MATH-T-ANA-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-ANA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-ANA-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-ANA-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ALGO": [
+     {
+      "item_id": "MATH-1-ALGO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-1-ALGO-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-ALGO-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MATH-T-ALGO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "MATH-T-RAIS-04",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MATH-T-RAIS-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "MATH-T-RAIS-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-NSI",
+   "version": "N1",
+   "competences_evaluees": [
+    "ALGO",
+    "ARCH",
+    "PROG",
+    "PYTH",
+    "REPR",
+    "TYPE",
+    "WEB"
+   ],
+   "items_par_competence": {
+    "ALGO": 5,
+    "ARCH": 4,
+    "PROG": 2,
+    "PYTH": 6,
+    "REPR": 5,
+    "TYPE": 4,
+    "WEB": 4
+   },
+   "score_par_competence": {
+    "ALGO": 7,
+    "ARCH": 6,
+    "PROG": 11,
+    "PYTH": 6,
+    "REPR": 7,
+    "TYPE": 6,
+    "WEB": 6
+   },
+   "paliers_par_competence": {
+    "ALGO": [
+     "D1",
+     "D2"
+    ],
+    "ARCH": [
+     "D1",
+     "D2"
+    ],
+    "PROG": [
+     "D1",
+     "D3"
+    ],
+    "PYTH": [
+     "D1",
+     "D2"
+    ],
+    "REPR": [
+     "D1",
+     "D2"
+    ],
+    "TYPE": [
+     "D1",
+     "D2"
+    ],
+    "WEB": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ALGO": [
+     "A",
+     "B"
+    ],
+    "ARCH": [
+     "A",
+     "B"
+    ],
+    "PROG": [
+     "B",
+     "C"
+    ],
+    "PYTH": [
+     "A"
+    ],
+    "REPR": [
+     "A",
+     "B"
+    ],
+    "TYPE": [
+     "A",
+     "B"
+    ],
+    "WEB": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 30,
+   "score_total": 49,
+   "competences_a_item_unique": [],
+   "detail": {
+    "PYTH": [
+     {
+      "item_id": "NSI-2-PYTH-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "REPR": [
+     {
+      "item_id": "NSI-2-REPR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-1-REPR-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-REPR-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-REPR-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-REPR-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "TYPE": [
+     {
+      "item_id": "NSI-1-TYPE-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-TYPE-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-TYPE-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-TYPE-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ALGO": [
+     {
+      "item_id": "NSI-1-ALGO-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ALGO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ALGO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ALGO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ALGO-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARCH": [
+     {
+      "item_id": "NSI-1-ARCH-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ARCH-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ARCH-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ARCH-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "WEB": [
+     {
+      "item_id": "NSI-1-WEB-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-WEB-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-WEB-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-WEB-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROG": [
+     {
+      "item_id": "NSI-1-PROG-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "NSI-1-PROG-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-NSI",
+   "version": "NT",
+   "competences_evaluees": [
+    "ALGO",
+    "ARCH",
+    "POO",
+    "PROG",
+    "PYTH",
+    "REPR",
+    "TYPE",
+    "WEB"
+   ],
+   "items_par_competence": {
+    "ALGO": 4,
+    "ARCH": 4,
+    "POO": 4,
+    "PROG": 2,
+    "PYTH": 6,
+    "REPR": 5,
+    "TYPE": 4,
+    "WEB": 4
+   },
+   "score_par_competence": {
+    "ALGO": 6,
+    "ARCH": 6,
+    "POO": 6,
+    "PROG": 11,
+    "PYTH": 6,
+    "REPR": 7,
+    "TYPE": 7,
+    "WEB": 6
+   },
+   "paliers_par_competence": {
+    "ALGO": [
+     "D1",
+     "D2"
+    ],
+    "ARCH": [
+     "D1",
+     "D2"
+    ],
+    "POO": [
+     "D1",
+     "D2"
+    ],
+    "PROG": [
+     "D2",
+     "D3"
+    ],
+    "PYTH": [
+     "D1",
+     "D2"
+    ],
+    "REPR": [
+     "D1",
+     "D2"
+    ],
+    "TYPE": [
+     "D1",
+     "D2"
+    ],
+    "WEB": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ALGO": [
+     "A",
+     "B"
+    ],
+    "ARCH": [
+     "A",
+     "B"
+    ],
+    "POO": [
+     "A",
+     "B"
+    ],
+    "PROG": [
+     "B",
+     "C"
+    ],
+    "PYTH": [
+     "A"
+    ],
+    "REPR": [
+     "A",
+     "B"
+    ],
+    "TYPE": [
+     "A",
+     "B"
+    ],
+    "WEB": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 33,
+   "score_total": 55,
+   "competences_a_item_unique": [],
+   "detail": {
+    "PYTH": [
+     {
+      "item_id": "NSI-2-PYTH-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-2-PYTH-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "REPR": [
+     {
+      "item_id": "NSI-2-REPR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-1-REPR-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-1-REPR-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-1-REPR-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "NSI-1-REPR-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "TYPE": [
+     {
+      "item_id": "NSI-1-TYPE-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-TYPE-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-TYPE-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-TYPE-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ALGO": [
+     {
+      "item_id": "NSI-T-ALGO-06",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-1-ALGO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-ALGO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-ALGO-08",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARCH": [
+     {
+      "item_id": "NSI-T-ARCH-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-ARCH-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-ARCH-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-ARCH-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "WEB": [
+     {
+      "item_id": "NSI-T-WEB-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-WEB-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-WEB-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-WEB-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "POO": [
+     {
+      "item_id": "NSI-T-POO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-POO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-POO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "NSI-T-POO-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "PROG": [
+     {
+      "item_id": "NSI-T-PROG-02",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "NSI-T-PROG-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-PC",
+   "version": "N1",
+   "competences_evaluees": [
+    "ENER",
+    "EXP",
+    "MAT",
+    "MOUV",
+    "OND",
+    "QUANT",
+    "RES"
+   ],
+   "items_par_competence": {
+    "ENER": 4,
+    "EXP": 4,
+    "MAT": 4,
+    "MOUV": 4,
+    "OND": 4,
+    "QUANT": 6,
+    "RES": 2
+   },
+   "score_par_competence": {
+    "ENER": 6,
+    "EXP": 6,
+    "MAT": 6,
+    "MOUV": 6,
+    "OND": 6,
+    "QUANT": 6,
+    "RES": 14
+   },
+   "paliers_par_competence": {
+    "ENER": [
+     "D1",
+     "D2"
+    ],
+    "EXP": [
+     "D1",
+     "D2"
+    ],
+    "MAT": [
+     "D1",
+     "D2"
+    ],
+    "MOUV": [
+     "D1",
+     "D2"
+    ],
+    "OND": [
+     "D1",
+     "D2"
+    ],
+    "QUANT": [
+     "D1",
+     "D2"
+    ],
+    "RES": [
+     "D1",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ENER": [
+     "A",
+     "B"
+    ],
+    "EXP": [
+     "A",
+     "B"
+    ],
+    "MAT": [
+     "A",
+     "B"
+    ],
+    "MOUV": [
+     "A",
+     "B"
+    ],
+    "OND": [
+     "A",
+     "B"
+    ],
+    "QUANT": [
+     "A"
+    ],
+    "RES": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 28,
+   "score_total": 50,
+   "competences_a_item_unique": [],
+   "detail": {
+    "QUANT": [
+     {
+      "item_id": "PC-2-QUANT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "MAT": [
+     {
+      "item_id": "PC-1-MAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MAT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MAT-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "MOUV": [
+     {
+      "item_id": "PC-1-MOUV-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MOUV-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MOUV-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-MOUV-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ENER": [
+     {
+      "item_id": "PC-1-ENER-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-ENER-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-ENER-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-ENER-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "OND": [
+     {
+      "item_id": "PC-1-OND-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-OND-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-OND-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-OND-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "EXP": [
+     {
+      "item_id": "PC-1-EXP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RES": [
+     {
+      "item_id": "PC-1-RES-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "PC-1-RES-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-PC",
+   "version": "NT",
+   "competences_evaluees": [
+    "ENER",
+    "EXP",
+    "MAT",
+    "MOUV",
+    "OND",
+    "QUANT",
+    "RES"
+   ],
+   "items_par_competence": {
+    "ENER": 4,
+    "EXP": 4,
+    "MAT": 6,
+    "MOUV": 6,
+    "OND": 4,
+    "QUANT": 6,
+    "RES": 2
+   },
+   "score_par_competence": {
+    "ENER": 6,
+    "EXP": 6,
+    "MAT": 10,
+    "MOUV": 9,
+    "OND": 6,
+    "QUANT": 6,
+    "RES": 14
+   },
+   "paliers_par_competence": {
+    "ENER": [
+     "D1",
+     "D2"
+    ],
+    "EXP": [
+     "D1",
+     "D2"
+    ],
+    "MAT": [
+     "D1",
+     "D2"
+    ],
+    "MOUV": [
+     "D1",
+     "D2"
+    ],
+    "OND": [
+     "D1",
+     "D2"
+    ],
+    "QUANT": [
+     "D1",
+     "D2"
+    ],
+    "RES": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ENER": [
+     "A",
+     "B"
+    ],
+    "EXP": [
+     "A",
+     "B"
+    ],
+    "MAT": [
+     "A",
+     "B"
+    ],
+    "MOUV": [
+     "A",
+     "B"
+    ],
+    "OND": [
+     "A",
+     "B"
+    ],
+    "QUANT": [
+     "A"
+    ],
+    "RES": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 32,
+   "score_total": 57,
+   "competences_a_item_unique": [],
+   "detail": {
+    "QUANT": [
+     {
+      "item_id": "PC-2-QUANT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-2-QUANT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "MAT": [
+     {
+      "item_id": "PC-1-MAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MAT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MAT-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-T-MAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-MAT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "MOUV": [
+     {
+      "item_id": "PC-1-MOUV-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MOUV-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MOUV-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-1-MOUV-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PC-T-MOUV-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-MOUV-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ENER": [
+     {
+      "item_id": "PC-T-ENER-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-ENER-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-ENER-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-ENER-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "OND": [
+     {
+      "item_id": "PC-T-OND-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-OND-06",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-OND-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-T-OND-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "EXP": [
+     {
+      "item_id": "PC-1-EXP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PC-1-EXP-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RES": [
+     {
+      "item_id": "PC-T-RES-02",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "PC-T-RES-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-SES",
+   "version": "N1",
+   "competences_evaluees": [
+    "DOCU",
+    "ECO",
+    "MOB",
+    "POL",
+    "RAIS",
+    "SOC",
+    "STAT"
+   ],
+   "items_par_competence": {
+    "DOCU": 2,
+    "ECO": 4,
+    "MOB": 4,
+    "POL": 4,
+    "RAIS": 1,
+    "SOC": 4,
+    "STAT": 6
+   },
+   "score_par_competence": {
+    "DOCU": 17,
+    "ECO": 6,
+    "MOB": 6,
+    "POL": 6,
+    "RAIS": 2,
+    "SOC": 6,
+    "STAT": 8
+   },
+   "paliers_par_competence": {
+    "DOCU": [
+     "D1",
+     "D3"
+    ],
+    "ECO": [
+     "D1",
+     "D2"
+    ],
+    "MOB": [
+     "D1",
+     "D2"
+    ],
+    "POL": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D1"
+    ],
+    "SOC": [
+     "D1",
+     "D2"
+    ],
+    "STAT": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "DOCU": [
+     "B",
+     "C"
+    ],
+    "ECO": [
+     "A",
+     "B"
+    ],
+    "MOB": [
+     "A",
+     "B"
+    ],
+    "POL": [
+     "A",
+     "B"
+    ],
+    "RAIS": [
+     "B"
+    ],
+    "SOC": [
+     "A",
+     "B"
+    ],
+    "STAT": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 25,
+   "score_total": 51,
+   "competences_a_item_unique": [
+    "RAIS"
+   ],
+   "detail": {
+    "STAT": [
+     {
+      "item_id": "SES-2-STAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "ECO": [
+     {
+      "item_id": "SES-1-ECO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-ECO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-ECO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-ECO-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SOC": [
+     {
+      "item_id": "SES-1-SOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-SOC-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-SOC-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-SOC-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "POL": [
+     {
+      "item_id": "SES-1-POL-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-POL-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-POL-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-POL-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "MOB": [
+     {
+      "item_id": "SES-1-MOB-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOCU": [
+     {
+      "item_id": "SES-1-DOCU-05",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 15,
+      "bloc": "C"
+     },
+     {
+      "item_id": "SES-1-DOCU-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "SES-1-RAIS-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-SES",
+   "version": "NT",
+   "competences_evaluees": [
+    "DOCU",
+    "ECO",
+    "MOB",
+    "POL",
+    "RAIS",
+    "SOC",
+    "STAT"
+   ],
+   "items_par_competence": {
+    "DOCU": 2,
+    "ECO": 4,
+    "MOB": 4,
+    "POL": 4,
+    "RAIS": 2,
+    "SOC": 4,
+    "STAT": 6
+   },
+   "score_par_competence": {
+    "DOCU": 14,
+    "ECO": 6,
+    "MOB": 6,
+    "POL": 6,
+    "RAIS": 14,
+    "SOC": 6,
+    "STAT": 8
+   },
+   "paliers_par_competence": {
+    "DOCU": [
+     "D2",
+     "D3"
+    ],
+    "ECO": [
+     "D1",
+     "D2"
+    ],
+    "MOB": [
+     "D1",
+     "D2"
+    ],
+    "POL": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D2",
+     "D3"
+    ],
+    "SOC": [
+     "D1",
+     "D2"
+    ],
+    "STAT": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "DOCU": [
+     "B",
+     "C"
+    ],
+    "ECO": [
+     "A",
+     "B"
+    ],
+    "MOB": [
+     "A",
+     "B"
+    ],
+    "POL": [
+     "A",
+     "B"
+    ],
+    "RAIS": [
+     "B",
+     "C"
+    ],
+    "SOC": [
+     "A",
+     "B"
+    ],
+    "STAT": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 26,
+   "score_total": 60,
+   "competences_a_item_unique": [],
+   "detail": {
+    "STAT": [
+     {
+      "item_id": "SES-2-STAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-2-STAT-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "ECO": [
+     {
+      "item_id": "SES-1-ECO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-1-ECO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-1-ECO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-T-ECO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SOC": [
+     {
+      "item_id": "SES-1-SOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-1-SOC-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-1-SOC-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SES-T-SOC-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "POL": [
+     {
+      "item_id": "SES-T-POL-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-POL-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-POL-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-T-POL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "MOB": [
+     {
+      "item_id": "SES-1-MOB-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SES-1-MOB-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOCU": [
+     {
+      "item_id": "SES-T-DOCU-02",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "SES-T-DOCU-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "SES-T-RAIS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "SES-T-RAIS-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-SVT",
+   "version": "N1",
+   "competences_evaluees": [
+    "CORP",
+    "DOC",
+    "ECO",
+    "GEN",
+    "REDA",
+    "SCI",
+    "TERR"
+   ],
+   "items_par_competence": {
+    "CORP": 4,
+    "DOC": 5,
+    "ECO": 4,
+    "GEN": 4,
+    "REDA": 2,
+    "SCI": 6,
+    "TERR": 4
+   },
+   "score_par_competence": {
+    "CORP": 6,
+    "DOC": 7,
+    "ECO": 6,
+    "GEN": 6,
+    "REDA": 14,
+    "SCI": 6,
+    "TERR": 6
+   },
+   "paliers_par_competence": {
+    "CORP": [
+     "D1",
+     "D2"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "ECO": [
+     "D1",
+     "D2"
+    ],
+    "GEN": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D1",
+     "D3"
+    ],
+    "SCI": [
+     "D1",
+     "D2"
+    ],
+    "TERR": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CORP": [
+     "A",
+     "B"
+    ],
+    "DOC": [
+     "A",
+     "B"
+    ],
+    "ECO": [
+     "A",
+     "B"
+    ],
+    "GEN": [
+     "A",
+     "B"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ],
+    "SCI": [
+     "A"
+    ],
+    "TERR": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 29,
+   "score_total": 51,
+   "competences_a_item_unique": [],
+   "detail": {
+    "SCI": [
+     {
+      "item_id": "SVT-2-SCI-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "GEN": [
+     {
+      "item_id": "SVT-1-GEN-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-GEN-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-GEN-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-GEN-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "TERR": [
+     {
+      "item_id": "SVT-1-TERR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-TERR-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-TERR-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-TERR-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ECO": [
+     {
+      "item_id": "SVT-1-ECO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CORP": [
+     {
+      "item_id": "SVT-1-CORP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-CORP-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-CORP-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-CORP-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "SVT-1-DOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-04",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "SVT-1-REDA-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "SVT-1-REDA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "EDS-SVT",
+   "version": "NT",
+   "competences_evaluees": [
+    "CORP",
+    "DOC",
+    "ECO",
+    "GEN",
+    "REDA",
+    "SCI",
+    "TERR"
+   ],
+   "items_par_competence": {
+    "CORP": 4,
+    "DOC": 6,
+    "ECO": 5,
+    "GEN": 6,
+    "REDA": 2,
+    "SCI": 6,
+    "TERR": 4
+   },
+   "score_par_competence": {
+    "CORP": 6,
+    "DOC": 9,
+    "ECO": 8,
+    "GEN": 9,
+    "REDA": 14,
+    "SCI": 6,
+    "TERR": 7
+   },
+   "paliers_par_competence": {
+    "CORP": [
+     "D1",
+     "D2"
+    ],
+    "DOC": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "ECO": [
+     "D1",
+     "D2"
+    ],
+    "GEN": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D2",
+     "D3"
+    ],
+    "SCI": [
+     "D1",
+     "D2"
+    ],
+    "TERR": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CORP": [
+     "A",
+     "B"
+    ],
+    "DOC": [
+     "A",
+     "B"
+    ],
+    "ECO": [
+     "A",
+     "B"
+    ],
+    "GEN": [
+     "A",
+     "B"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ],
+    "SCI": [
+     "A"
+    ],
+    "TERR": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 33,
+   "score_total": 59,
+   "competences_a_item_unique": [],
+   "detail": {
+    "SCI": [
+     {
+      "item_id": "SVT-2-SCI-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-2-SCI-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "GEN": [
+     {
+      "item_id": "SVT-1-GEN-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-1-GEN-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-1-GEN-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-1-GEN-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-T-GEN-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-T-GEN-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "TERR": [
+     {
+      "item_id": "SVT-1-TERR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-1-TERR-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-1-TERR-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "SVT-T-TERR-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ECO": [
+     {
+      "item_id": "SVT-T-ECO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-T-ECO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-ECO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "CORP": [
+     {
+      "item_id": "SVT-T-CORP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-CORP-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-CORP-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-T-CORP-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "SVT-1-DOC-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-04",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-T-DOC-03",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "SVT-1-DOC-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "SVT-T-REDA-02",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "SVT-T-REDA-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "ecrit",
+   "competences_evaluees": [
+    "ANAL",
+    "ARGU",
+    "COMP",
+    "CULT",
+    "LANG",
+    "REDA"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "ARGU": 4,
+    "COMP": 9,
+    "CULT": 6,
+    "LANG": 6,
+    "REDA": 3
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "ARGU": 7,
+    "COMP": 12,
+    "CULT": 6,
+    "LANG": 6,
+    "REDA": 16
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "ARGU": [
+     "D1",
+     "D2"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D1",
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "ARGU": [
+     "A",
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "LANG": [
+     "A"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 34,
+   "score_total": 59,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FR-EAF-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "FR-EAF-ARGU-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "FR-EAF-REDA-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-EAF-REDA-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "FR-EAF-REDA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "ecrit_2028",
+   "competences_evaluees": [
+    "ANAL",
+    "ARGU",
+    "COMP",
+    "CULT",
+    "LANG",
+    "REDA"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "ARGU": 4,
+    "COMP": 9,
+    "CULT": 6,
+    "LANG": 6,
+    "REDA": 3
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "ARGU": 7,
+    "COMP": 12,
+    "CULT": 6,
+    "LANG": 6,
+    "REDA": 16
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "ARGU": [
+     "D1",
+     "D2"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D1",
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "ARGU": [
+     "A",
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "LANG": [
+     "A"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 34,
+   "score_total": 59,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FR-EAF-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-09",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "FR-EAF-ARGU-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "FR-EAF-REDA-04",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-EAF-REDA-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "FR-EAF-REDA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "oral",
+   "competences_evaluees": [
+    "ANAL",
+    "COMP",
+    "CULT",
+    "GRAM"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "COMP": 9,
+    "CULT": 6,
+    "GRAM": 8
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "COMP": 12,
+    "CULT": 6,
+    "GRAM": 10
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "GRAM": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "GRAM": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 29,
+   "score_total": 40,
+   "competences_a_item_unique": [],
+   "detail": {
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GRAM": [
+     {
+      "item_id": "FR-EAF-GRAM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "oral_2028",
+   "competences_evaluees": [
+    "ANAL",
+    "COMP",
+    "CULT",
+    "GRAM"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "COMP": 9,
+    "CULT": 6,
+    "GRAM": 8
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "COMP": 12,
+    "CULT": 6,
+    "GRAM": 10
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "GRAM": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "GRAM": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 29,
+   "score_total": 40,
+   "competences_a_item_unique": [],
+   "detail": {
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-09",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GRAM": [
+     {
+      "item_id": "FR-EAF-GRAM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "standard",
+   "competences_evaluees": [
+    "ANAL",
+    "ARGU",
+    "COMP",
+    "CULT",
+    "GRAM",
+    "LANG",
+    "REDA"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "ARGU": 4,
+    "COMP": 9,
+    "CULT": 6,
+    "GRAM": 8,
+    "LANG": 6,
+    "REDA": 3
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "ARGU": 7,
+    "COMP": 12,
+    "CULT": 6,
+    "GRAM": 10,
+    "LANG": 6,
+    "REDA": 16
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "ARGU": [
+     "D1",
+     "D2"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "GRAM": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D1",
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "ARGU": [
+     "A",
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "GRAM": [
+     "A",
+     "B"
+    ],
+    "LANG": [
+     "A"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 42,
+   "score_total": 69,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FR-EAF-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GRAM": [
+     {
+      "item_id": "FR-EAF-GRAM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "FR-EAF-ARGU-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "FR-EAF-REDA-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-EAF-REDA-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "FR-EAF-REDA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-EAF",
+   "version": "standard_2028",
+   "competences_evaluees": [
+    "ANAL",
+    "ARGU",
+    "COMP",
+    "CULT",
+    "GRAM",
+    "LANG",
+    "REDA"
+   ],
+   "items_par_competence": {
+    "ANAL": 6,
+    "ARGU": 4,
+    "COMP": 9,
+    "CULT": 6,
+    "GRAM": 8,
+    "LANG": 6,
+    "REDA": 3
+   },
+   "score_par_competence": {
+    "ANAL": 12,
+    "ARGU": 7,
+    "COMP": 12,
+    "CULT": 6,
+    "GRAM": 10,
+    "LANG": 6,
+    "REDA": 16
+   },
+   "paliers_par_competence": {
+    "ANAL": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "ARGU": [
+     "D1",
+     "D2"
+    ],
+    "COMP": [
+     "D1",
+     "D2",
+     "D3"
+    ],
+    "CULT": [
+     "D1",
+     "D2"
+    ],
+    "GRAM": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "REDA": [
+     "D1",
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ANAL": [
+     "B"
+    ],
+    "ARGU": [
+     "A",
+     "B"
+    ],
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "CULT": [
+     "A"
+    ],
+    "GRAM": [
+     "A",
+     "B"
+    ],
+    "LANG": [
+     "A"
+    ],
+    "REDA": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 42,
+   "score_total": 69,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FR-EAF-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-LANG-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "CULT": [
+     {
+      "item_id": "FR-EAF-CULT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-09",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-EAF-CULT-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FR-EAF-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-07",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-09",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-10",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-COMP-11",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GRAM": [
+     {
+      "item_id": "FR-EAF-GRAM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-GRAM-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ANAL": [
+     {
+      "item_id": "FR-EAF-ANAL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-05",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ANAL-06",
+      "type": "B",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "FR-EAF-ARGU-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-EAF-ARGU-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "REDA": [
+     {
+      "item_id": "FR-EAF-REDA-04",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "EAF",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-EAF-REDA-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "FR-EAF-REDA-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "EAF",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-MAI",
+   "version": "standard",
+   "competences_evaluees": [
+    "ARGU",
+    "COMPA",
+    "LANG",
+    "LEXA",
+    "SYNT"
+   ],
+   "items_par_competence": {
+    "ARGU": 2,
+    "COMPA": 4,
+    "LANG": 6,
+    "LEXA": 4,
+    "SYNT": 2
+   },
+   "score_par_competence": {
+    "ARGU": 14,
+    "COMPA": 6,
+    "LANG": 6,
+    "LEXA": 6,
+    "SYNT": 11
+   },
+   "paliers_par_competence": {
+    "ARGU": [
+     "D1",
+     "D3"
+    ],
+    "COMPA": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "LEXA": [
+     "D1",
+     "D2"
+    ],
+    "SYNT": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ARGU": [
+     "B",
+     "C"
+    ],
+    "COMPA": [
+     "A",
+     "B"
+    ],
+    "LANG": [
+     "A"
+    ],
+    "LEXA": [
+     "A",
+     "B"
+    ],
+    "SYNT": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 18,
+   "score_total": 43,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FR-MAI-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LANG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LANG-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LANG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LANG-08",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "LEXA": [
+     {
+      "item_id": "FR-MAI-LEXA-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FR-MAI-LEXA-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-MAI-LEXA-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-MAI-LEXA-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "COMPA": [
+     {
+      "item_id": "FR-MAI-COMPA-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-MAI-COMPA-07",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-MAI-COMPA-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FR-MAI-COMPA-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SYNT": [
+     {
+      "item_id": "FR-MAI-SYNT-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "MAI",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-MAI-SYNT-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "FR-MAI-ARGU-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "MAI",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FR-MAI-ARGU-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "MAI",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "FR-POS",
+   "version": "standard",
+   "competences_evaluees": [
+    "COMP",
+    "LANG",
+    "PROD"
+   ],
+   "items_par_competence": {
+    "COMP": 9,
+    "LANG": 9,
+    "PROD": 5
+   },
+   "score_par_competence": {
+    "COMP": 15,
+    "LANG": 15,
+    "PROD": 10
+   },
+   "paliers_par_competence": {
+    "COMP": [
+     "D1",
+     "D2"
+    ],
+    "LANG": [
+     "D1",
+     "D2"
+    ],
+    "PROD": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "COMP": [
+     "A",
+     "B"
+    ],
+    "LANG": [
+     "A",
+     "B"
+    ],
+    "PROD": [
+     "B"
+    ]
+   },
+   "items_total": 23,
+   "score_total": 40,
+   "competences_a_item_unique": [],
+   "detail": {
+    "LANG": [
+     {
+      "item_id": "FRP-2-LANG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "FRP-2-LANG-09",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     }
+    ],
+    "COMP": [
+     {
+      "item_id": "FRP-2-COMP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-07",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-08",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "FRP-2-COMP-09",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "PROD": [
+     {
+      "item_id": "FRP-1-PROD-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FRP-1-PROD-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FRP-1-PROD-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FRP-1-PROD-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "C"
+     },
+     {
+      "item_id": "FRP-1-PROD-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "C"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "MATH-EA",
+   "version": "SPE",
+   "competences_evaluees": [
+    "ALGAN",
+    "AUTO",
+    "AUTOG",
+    "EXACT",
+    "GEOM",
+    "PROBA",
+    "RAIS"
+   ],
+   "items_par_competence": {
+    "ALGAN": 4,
+    "AUTO": 8,
+    "AUTOG": 7,
+    "EXACT": 4,
+    "GEOM": 4,
+    "PROBA": 4,
+    "RAIS": 4
+   },
+   "score_par_competence": {
+    "ALGAN": 8,
+    "AUTO": 8,
+    "AUTOG": 7,
+    "EXACT": 8,
+    "GEOM": 8,
+    "PROBA": 8,
+    "RAIS": 22
+   },
+   "paliers_par_competence": {
+    "ALGAN": [
+     "D1",
+     "D2"
+    ],
+    "AUTO": [
+     "D1",
+     "D2"
+    ],
+    "AUTOG": [
+     "D1",
+     "D2"
+    ],
+    "EXACT": [
+     "D1",
+     "D2"
+    ],
+    "GEOM": [
+     "D1",
+     "D2"
+    ],
+    "PROBA": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ALGAN": [
+     "B"
+    ],
+    "AUTO": [
+     "A"
+    ],
+    "AUTOG": [
+     "A"
+    ],
+    "EXACT": [
+     "B"
+    ],
+    "GEOM": [
+     "B"
+    ],
+    "PROBA": [
+     "B"
+    ],
+    "RAIS": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 35,
+   "score_total": 69,
+   "competences_a_item_unique": [],
+   "detail": {
+    "AUTO": [
+     {
+      "item_id": "MEA-1-AUTO-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-AUTO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-08",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "AUTOG": [
+     {
+      "item_id": "MEA-1-AUTOG-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "EXACT": [
+     {
+      "item_id": "MEA-1-EXACT-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-EXACT-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-EXACT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EXACT-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROBA": [
+     {
+      "item_id": "MEA-1-PROBA-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ALGAN": [
+     {
+      "item_id": "MEA-1-ALGAN-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-ALGAN-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-ALGAN-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-ALGAN-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEOM": [
+     {
+      "item_id": "MEA-1-GEOM-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-GEOM-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-GEOM-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-GEOM-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "MEA-1-RAIS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MEA-1-RAIS-04",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MEA-1-RAIS-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "MEA-1-RAIS-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "MATH-EA",
+   "version": "SPECIFIQUES",
+   "competences_evaluees": [
+    "AUTO",
+    "AUTOG",
+    "EVOL",
+    "EXACT",
+    "INFO",
+    "PROBA",
+    "RAIS"
+   ],
+   "items_par_competence": {
+    "AUTO": 8,
+    "AUTOG": 7,
+    "EVOL": 5,
+    "EXACT": 4,
+    "INFO": 4,
+    "PROBA": 4,
+    "RAIS": 4
+   },
+   "score_par_competence": {
+    "AUTO": 8,
+    "AUTOG": 7,
+    "EVOL": 10,
+    "EXACT": 8,
+    "INFO": 8,
+    "PROBA": 8,
+    "RAIS": 22
+   },
+   "paliers_par_competence": {
+    "AUTO": [
+     "D1",
+     "D2"
+    ],
+    "AUTOG": [
+     "D1",
+     "D2"
+    ],
+    "EVOL": [
+     "D1",
+     "D2"
+    ],
+    "EXACT": [
+     "D1",
+     "D2"
+    ],
+    "INFO": [
+     "D1",
+     "D2"
+    ],
+    "PROBA": [
+     "D1",
+     "D2"
+    ],
+    "RAIS": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "AUTO": [
+     "A"
+    ],
+    "AUTOG": [
+     "A"
+    ],
+    "EVOL": [
+     "B"
+    ],
+    "EXACT": [
+     "B"
+    ],
+    "INFO": [
+     "B"
+    ],
+    "PROBA": [
+     "B"
+    ],
+    "RAIS": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 36,
+   "score_total": 71,
+   "competences_a_item_unique": [],
+   "detail": {
+    "AUTO": [
+     {
+      "item_id": "MEA-1-AUTO-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-AUTO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTO-08",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "AUTOG": [
+     {
+      "item_id": "MEA-1-AUTOG-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-AUTOG-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ],
+    "EXACT": [
+     {
+      "item_id": "MEA-1-EXACT-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-EXACT-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "MEA-1-EXACT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EXACT-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROBA": [
+     {
+      "item_id": "MEA-1-PROBA-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-PROBA-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "EVOL": [
+     {
+      "item_id": "MEA-1-EVOL-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EVOL-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EVOL-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EVOL-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-EVOL-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "INFO": [
+     {
+      "item_id": "MEA-1-INFO-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-INFO-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-INFO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "MEA-1-INFO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "RAIS": [
+     {
+      "item_id": "MEA-1-RAIS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MEA-1-RAIS-04",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "MEA-1-RAIS-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "MEA-1-RAIS-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "PHI",
+   "version": "standard",
+   "competences_evaluees": [
+    "ARGU",
+    "DISS",
+    "NOT",
+    "PROB",
+    "REP",
+    "TEXT"
+   ],
+   "items_par_competence": {
+    "ARGU": 4,
+    "DISS": 2,
+    "NOT": 4,
+    "PROB": 5,
+    "REP": 6,
+    "TEXT": 2
+   },
+   "score_par_competence": {
+    "ARGU": 6,
+    "DISS": 14,
+    "NOT": 6,
+    "PROB": 7,
+    "REP": 6,
+    "TEXT": 11
+   },
+   "paliers_par_competence": {
+    "ARGU": [
+     "D1",
+     "D2"
+    ],
+    "DISS": [
+     "D1",
+     "D3"
+    ],
+    "NOT": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D1",
+     "D2"
+    ],
+    "REP": [
+     "D1",
+     "D2"
+    ],
+    "TEXT": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "ARGU": [
+     "A",
+     "B"
+    ],
+    "DISS": [
+     "B",
+     "C"
+    ],
+    "NOT": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "A",
+     "B"
+    ],
+    "REP": [
+     "A"
+    ],
+    "TEXT": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 23,
+   "score_total": 50,
+   "competences_a_item_unique": [],
+   "detail": {
+    "REP": [
+     {
+      "item_id": "PHI-T-REP-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-REP-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-REP-03",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-REP-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-REP-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-REP-06",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     }
+    ],
+    "NOT": [
+     {
+      "item_id": "PHI-T-NOT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-NOT-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "PHI-T-NOT-09",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-NOT-10",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ARGU": [
+     {
+      "item_id": "PHI-T-ARGU-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-ARGU-05",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-ARGU-03",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-ARGU-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "PHI-T-PROB-05",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-PROB-06",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-PROB-07",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-PROB-01",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "PHI-T-PROB-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "TEXT": [
+     {
+      "item_id": "PHI-T-TEXT-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "PHI-T-TEXT-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "DISS": [
+     {
+      "item_id": "PHI-T-DISS-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 12,
+      "bloc": "C"
+     },
+     {
+      "item_id": "PHI-T-DISS-02",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-ES",
+   "version": "1RE",
+   "competences_evaluees": [
+    "ASTR",
+    "DEM",
+    "MAT",
+    "SON"
+   ],
+   "items_par_competence": {
+    "ASTR": 5,
+    "DEM": 6,
+    "MAT": 5,
+    "SON": 4
+   },
+   "score_par_competence": {
+    "ASTR": 7,
+    "DEM": 9,
+    "MAT": 8,
+    "SON": 6
+   },
+   "paliers_par_competence": {
+    "ASTR": [
+     "D1",
+     "D2"
+    ],
+    "DEM": [
+     "D1",
+     "D2"
+    ],
+    "MAT": [
+     "D1",
+     "D2"
+    ],
+    "SON": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ASTR": [
+     "A",
+     "B"
+    ],
+    "DEM": [
+     "A",
+     "B"
+    ],
+    "MAT": [
+     "A",
+     "B"
+    ],
+    "SON": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 20,
+   "score_total": 30,
+   "competences_a_item_unique": [],
+   "detail": {
+    "DEM": [
+     {
+      "item_id": "TC-2-DEM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "TC-2-DEM-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "MAT": [
+     {
+      "item_id": "TC-1-MAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SON": [
+     {
+      "item_id": "TC-1-SON-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ASTR": [
+     {
+      "item_id": "TC-1-ASTR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-ES",
+   "version": "ETENDUE",
+   "competences_evaluees": [
+    "ASTR",
+    "CLIM",
+    "DEM",
+    "ENER",
+    "INFO",
+    "MAT",
+    "SON"
+   ],
+   "items_par_competence": {
+    "ASTR": 4,
+    "CLIM": 4,
+    "DEM": 6,
+    "ENER": 4,
+    "INFO": 4,
+    "MAT": 4,
+    "SON": 4
+   },
+   "score_par_competence": {
+    "ASTR": 6,
+    "CLIM": 6,
+    "DEM": 9,
+    "ENER": 6,
+    "INFO": 6,
+    "MAT": 6,
+    "SON": 6
+   },
+   "paliers_par_competence": {
+    "ASTR": [
+     "D1",
+     "D2"
+    ],
+    "CLIM": [
+     "D1",
+     "D2"
+    ],
+    "DEM": [
+     "D1",
+     "D2"
+    ],
+    "ENER": [
+     "D1",
+     "D2"
+    ],
+    "INFO": [
+     "D1",
+     "D2"
+    ],
+    "MAT": [
+     "D1",
+     "D2"
+    ],
+    "SON": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "ASTR": [
+     "A",
+     "B"
+    ],
+    "CLIM": [
+     "A",
+     "B"
+    ],
+    "DEM": [
+     "A",
+     "B"
+    ],
+    "ENER": [
+     "A",
+     "B"
+    ],
+    "INFO": [
+     "A",
+     "B"
+    ],
+    "MAT": [
+     "A",
+     "B"
+    ],
+    "SON": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 30,
+   "score_total": 45,
+   "competences_a_item_unique": [],
+   "detail": {
+    "DEM": [
+     {
+      "item_id": "TC-2-DEM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "TC-2-DEM-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "MAT": [
+     {
+      "item_id": "TC-1-MAT-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-MAT-04",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "SON": [
+     {
+      "item_id": "TC-1-SON-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-SON-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ASTR": [
+     {
+      "item_id": "TC-1-ASTR-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-1-ASTR-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CLIM": [
+     {
+      "item_id": "TC-T-CLIM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ENER": [
+     {
+      "item_id": "TC-T-ENER-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "INFO": [
+     {
+      "item_id": "TC-T-INFO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-ES",
+   "version": "TLE",
+   "competences_evaluees": [
+    "CLIM",
+    "DEM",
+    "ENER",
+    "INFO"
+   ],
+   "items_par_competence": {
+    "CLIM": 5,
+    "DEM": 6,
+    "ENER": 4,
+    "INFO": 5
+   },
+   "score_par_competence": {
+    "CLIM": 8,
+    "DEM": 9,
+    "ENER": 6,
+    "INFO": 7
+   },
+   "paliers_par_competence": {
+    "CLIM": [
+     "D1",
+     "D2"
+    ],
+    "DEM": [
+     "D1",
+     "D2"
+    ],
+    "ENER": [
+     "D1",
+     "D2"
+    ],
+    "INFO": [
+     "D1",
+     "D2"
+    ]
+   },
+   "types_par_competence": {
+    "CLIM": [
+     "A",
+     "B"
+    ],
+    "DEM": [
+     "A",
+     "B"
+    ],
+    "ENER": [
+     "A",
+     "B"
+    ],
+    "INFO": [
+     "A",
+     "B"
+    ]
+   },
+   "items_total": 20,
+   "score_total": 30,
+   "competences_a_item_unique": [],
+   "detail": {
+    "DEM": [
+     {
+      "item_id": "TC-2-DEM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-02",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-04",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "TC-2-DEM-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     },
+     {
+      "item_id": "TC-2-DEM-06",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "2",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ],
+    "CLIM": [
+     {
+      "item_id": "TC-T-CLIM-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-CLIM-05",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "ENER": [
+     {
+      "item_id": "TC-T-ENER-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-ENER-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "INFO": [
+     {
+      "item_id": "TC-T-INFO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-02",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-03",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-04",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "TC-T-INFO-05",
+      "type": "A",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 1,
+      "bloc": "B"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-HG",
+   "version": "1RE",
+   "competences_evaluees": [
+    "CART",
+    "DOC",
+    "GEO",
+    "HIST",
+    "PROB"
+   ],
+   "items_par_competence": {
+    "CART": 4,
+    "DOC": 4,
+    "GEO": 4,
+    "HIST": 4,
+    "PROB": 2
+   },
+   "score_par_competence": {
+    "CART": 7,
+    "DOC": 8,
+    "GEO": 7,
+    "HIST": 7,
+    "PROB": 11
+   },
+   "paliers_par_competence": {
+    "CART": [
+     "D1",
+     "D2"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "GEO": [
+     "D1",
+     "D2"
+    ],
+    "HIST": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "CART": [
+     "A",
+     "B"
+    ],
+    "DOC": [
+     "B"
+    ],
+    "GEO": [
+     "A",
+     "B"
+    ],
+    "HIST": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 18,
+   "score_total": 40,
+   "competences_a_item_unique": [],
+   "detail": {
+    "HIST": [
+     {
+      "item_id": "HG-2-HIST-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-HIST-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-HIST-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-HIST-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEO": [
+     {
+      "item_id": "HG-2-GEO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-GEO-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-GEO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-GEO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CART": [
+     {
+      "item_id": "HG-2-CART-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-CART-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-CART-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-CART-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "HG-1-DOC-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-DOC-12",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-DOC-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-DOC-14",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "HG-1-PROB-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "1",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HG-1-PROB-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-HG",
+   "version": "ETENDUE",
+   "competences_evaluees": [
+    "CART",
+    "DOC",
+    "GEO",
+    "HIST",
+    "PROB"
+   ],
+   "items_par_competence": {
+    "CART": 6,
+    "DOC": 5,
+    "GEO": 5,
+    "HIST": 5,
+    "PROB": 2
+   },
+   "score_par_competence": {
+    "CART": 11,
+    "DOC": 10,
+    "GEO": 9,
+    "HIST": 9,
+    "PROB": 11
+   },
+   "paliers_par_competence": {
+    "CART": [
+     "D1",
+     "D2"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "GEO": [
+     "D1",
+     "D2"
+    ],
+    "HIST": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "CART": [
+     "A",
+     "B"
+    ],
+    "DOC": [
+     "B"
+    ],
+    "GEO": [
+     "A",
+     "B"
+    ],
+    "HIST": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 23,
+   "score_total": 50,
+   "competences_a_item_unique": [],
+   "detail": {
+    "HIST": [
+     {
+      "item_id": "HG-2-HIST-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-HIST-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-HIST-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-HIST-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-HIST-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEO": [
+     {
+      "item_id": "HG-2-GEO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-GEO-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-GEO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-GEO-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-GEO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CART": [
+     {
+      "item_id": "HG-2-CART-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-1-CART-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-CART-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-CART-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-CART-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-CART-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "HG-1-DOC-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-1-DOC-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-11",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-14",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "HG-T-PROB-03",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HG-1-PROB-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "1",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  },
+  {
+   "instrument": "TC-HG",
+   "version": "TLE",
+   "competences_evaluees": [
+    "CART",
+    "DOC",
+    "GEO",
+    "HIST",
+    "PROB"
+   ],
+   "items_par_competence": {
+    "CART": 4,
+    "DOC": 4,
+    "GEO": 4,
+    "HIST": 4,
+    "PROB": 2
+   },
+   "score_par_competence": {
+    "CART": 7,
+    "DOC": 8,
+    "GEO": 7,
+    "HIST": 7,
+    "PROB": 11
+   },
+   "paliers_par_competence": {
+    "CART": [
+     "D1",
+     "D2"
+    ],
+    "DOC": [
+     "D1",
+     "D2"
+    ],
+    "GEO": [
+     "D1",
+     "D2"
+    ],
+    "HIST": [
+     "D1",
+     "D2"
+    ],
+    "PROB": [
+     "D2",
+     "D3"
+    ]
+   },
+   "types_par_competence": {
+    "CART": [
+     "A",
+     "B"
+    ],
+    "DOC": [
+     "B"
+    ],
+    "GEO": [
+     "A",
+     "B"
+    ],
+    "HIST": [
+     "A",
+     "B"
+    ],
+    "PROB": [
+     "B",
+     "C"
+    ]
+   },
+   "items_total": 18,
+   "score_total": 40,
+   "competences_a_item_unique": [],
+   "detail": {
+    "HIST": [
+     {
+      "item_id": "HG-2-HIST-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-T-HIST-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-HIST-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-HIST-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "GEO": [
+     {
+      "item_id": "HG-2-GEO-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-T-GEO-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-GEO-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-GEO-03",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "CART": [
+     {
+      "item_id": "HG-2-CART-01",
+      "type": "A",
+      "palier": "D1",
+      "niveau": "2",
+      "score_max": 1,
+      "bloc": "A"
+     },
+     {
+      "item_id": "HG-T-CART-01",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-CART-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-CART-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "DOC": [
+     {
+      "item_id": "HG-T-DOC-11",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-12",
+      "type": "B",
+      "palier": "D1",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-13",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     },
+     {
+      "item_id": "HG-T-DOC-14",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "B"
+     }
+    ],
+    "PROB": [
+     {
+      "item_id": "HG-T-PROB-01",
+      "type": "C",
+      "palier": "D3",
+      "niveau": "T",
+      "score_max": 9,
+      "bloc": "C"
+     },
+     {
+      "item_id": "HG-T-PROB-02",
+      "type": "B",
+      "palier": "D2",
+      "niveau": "T",
+      "score_max": 2,
+      "bloc": "D"
+     }
+    ]
+   }
+  }
+ ]
+}

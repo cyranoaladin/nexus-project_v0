@@ -15,15 +15,15 @@
       "supports": [],
       "propositions": {
         "A": "la première phrase du texte",
-        "B": "la position qu'il soutient et cherche à faire admettre",
-        "C": "l'exemple le plus long",
-        "D": "la position qu'il réfute"
+        "B": "l'exemple le plus long",
+        "D": "la position qu'il réfute",
+        "C": "la position qu'il soutient et cherche à faire admettre"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "position dans le texte prise pour fonction",
-          "C": "illustration prise pour l'idée",
+          "B": "illustration prise pour l'idée",
           "D": "thèse adverse prise pour celle de l'auteur"
         }
       },
@@ -46,23 +46,23 @@
       "supports": [],
       "propositions": {
         "A": "son rythme sonore",
-        "B": "la progression de son propos d'une étape à l'autre",
-        "C": "le déplacement des personnages",
-        "D": "sa longueur"
+        "D": "la progression de son propos d'une étape à l'autre",
+        "B": "le déplacement des personnages",
+        "C": "sa longueur"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "mouvement confondu avec rythme",
-          "C": "mouvement confondu avec action narrative",
-          "D": "mouvement confondu avec ampleur"
+          "B": "mouvement confondu avec action narrative",
+          "C": "mouvement confondu avec ampleur"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de français, classe de seconde générale et technologique. Notion de mouvement du texte, centrale en HLP et en philosophie. Le distracteur C est le plus fréquent chez un candidat habitué au récit."
+      "notes_conception": "Programme de français, classe de seconde générale et technologique. Notion de mouvement du texte, centrale en HLP et en philosophie. Le distracteur B est le plus fréquent chez un candidat habitué au récit."
     },
     {
       "item_id": "HLP-2-LECT-03",
@@ -77,15 +77,15 @@
       "supports": [],
       "propositions": {
         "A": "répète son idée",
-        "B": "introduit une idée qui contrarie ce qui précède",
-        "C": "donne un exemple",
+        "C": "introduit une idée qui contrarie ce qui précède",
+        "B": "donne un exemple",
         "D": "conclut"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "reformulation supposée",
-          "C": "illustration supposée",
+          "B": "illustration supposée",
           "D": "clôture supposée"
         }
       },
@@ -108,9 +108,9 @@
       "supports": [],
       "propositions": {
         "A": "une idée fausse",
-        "B": "une idée que le texte suppose sans l'énoncer",
         "C": "une idée mal écrite",
-        "D": "une citation d'un autre auteur"
+        "D": "une citation d'un autre auteur",
+        "B": "une idée que le texte suppose sans l'énoncer"
       },
       "cle": {
         "reponse": "B",
@@ -197,17 +197,17 @@
       "enonce": "Le thème « Les pouvoirs de la parole » interroge notamment :",
       "supports": [],
       "propositions": {
+        "D": "la capacité de la parole à convaincre, à séduire et à faire autorité",
         "A": "la grammaire de la phrase",
-        "B": "la capacité de la parole à convaincre, à séduire et à faire autorité",
-        "C": "l'histoire de l'écriture",
-        "D": "les techniques de mémorisation"
+        "B": "l'histoire de l'écriture",
+        "C": "les techniques de mémorisation"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "objet linguistique substitué à l'objet du thème",
-          "C": "objet historique substitué",
-          "D": "objet technique substitué"
+          "B": "objet historique substitué",
+          "C": "objet technique substitué"
         }
       },
       "grille": null,
@@ -231,15 +231,15 @@
       "enonce": "Le thème « Les représentations du monde » porte notamment sur :",
       "supports": [],
       "propositions": {
-        "A": "la découverte de l'autre et la pluralité des cultures",
-        "B": "la géographie physique",
+        "A": "la géographie physique",
+        "B": "la découverte de l'autre et la pluralité des cultures",
         "C": "les techniques de la peinture",
         "D": "l'histoire des sciences seule"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "objet substitué à l'objet du thème",
+          "A": "objet substitué à l'objet du thème",
           "C": "objet technique substitué",
           "D": "objet réduit à une discipline"
         }
@@ -292,10 +292,10 @@
       "enonce": "Le thème « La recherche de soi » interroge notamment :",
       "supports": [],
       "propositions": {
-        "A": "l'éducation, la sensibilité et les métamorphoses du moi",
         "B": "la biologie du cerveau",
         "C": "la généalogie familiale",
-        "D": "les tests de personnalité"
+        "D": "les tests de personnalité",
+        "A": "l'éducation, la sensibilité et les métamorphoses du moi"
       },
       "cle": {
         "reponse": "A",
@@ -351,15 +351,15 @@
       "enonce": "L'art oratoire antique, qui codifie les moyens de persuader un auditoire, se nomme :",
       "supports": [],
       "propositions": {
-        "A": "la rhétorique",
-        "B": "la poétique",
+        "A": "la poétique",
         "C": "la dialectique",
-        "D": "la grammaire"
+        "D": "la grammaire",
+        "B": "la rhétorique"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "art de la composition des œuvres",
+          "A": "art de la composition des œuvres",
           "C": "art de la discussion réglée",
           "D": "étude des règles de la langue"
         }
@@ -382,15 +382,15 @@
       "enonce": "Un texte qui décrit un peuple lointain pour critiquer les mœurs de son propre pays relève :",
       "supports": [],
       "propositions": {
-        "A": "du récit de voyage informatif",
-        "B": "du regard éloigné, procédé de la littérature d'idées",
+        "A": "du regard éloigné, procédé de la littérature d'idées",
+        "B": "du récit de voyage informatif",
         "C": "de l'autobiographie",
         "D": "de la poésie lyrique"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "visée argumentative non perçue",
+          "B": "visée argumentative non perçue",
           "C": "genre substitué",
           "D": "genre substitué"
         }
@@ -399,7 +399,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Mise en relation d'un procédé et d'un thème. Le distracteur A est le plus discriminant : c'est la visée, non le sujet, qui classe le texte."
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Mise en relation d'un procédé et d'un thème. Le distracteur B est le plus discriminant : c'est la visée, non le sujet, qui classe le texte."
     },
     {
       "item_id": "HLP-1-CULT-03",
@@ -566,8 +566,16 @@
       "bloc": "D",
       "score_max": 2,
       "duree_min": 3,
-      "enonce": "Voici la réponse d'un autre candidat à une question d'interprétation. Elle résume le texte au lieu de l'interpréter. Indiquez à quel endroit une interprétation devrait intervenir et ce qu'elle devrait apporter.",
-      "supports": [],
+      "enonce": "La réponse ci-dessus, rédigée par un autre candidat à une question d'interprétation sur le texte du bloc C, résume le texte au lieu de l'interpréter. Indiquez à quel endroit une interprétation devrait intervenir et ce qu'elle devrait apporter.",
+      "supports": [
+        {
+          "type": "texte",
+          "code": "HLP-1-INTER-02-PROD",
+          "titre": "Réponse rédigée par un autre candidat",
+          "texte": "Montaigne raconte d'abord qu'un homme a parlé de belles et magnifiques paroles, comme s'il traitait du gouvernement d'un empire. Il rappelle ensuite que les Grecs louèrent l'ordre du festin de Paul Émile, puis il précise qu'il ne parle pas des effets mais des mots. Il dit qu'en entendant les architectes employer les mots de pilastres, d'architraves et de corniches, il imagine le palais d'Apollidon, alors qu'il s'agit des pièces de la porte de sa cuisine. Il termine en disant qu'on appelle les offices de notre État par les titres superbes des Romains.",
+          "reference": "Production fictive rédigée pour ce diagnostic. Elle ne reproduit aucune copie réelle de candidat."
+        }
+      ],
       "cle": {
         "reponse_2pts": "L'endroit est désigné et la réponse indique qu'il faudrait énoncer ce que le passage donne à penser, au-delà de ce qu'il dit.",
         "reponses_1pt": [
@@ -583,7 +591,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Item de bloc D d'INTER, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu de l'exercice."
+      "notes_conception": "Spécialité humanités, littérature et philosophie, classe de première générale. Item de bloc D d'INTER, palier D2 : repérer la paraphrase dans une production fournie. C'est l'écart le plus fréquent entre une copie et l'attendu de l'exercice. La production commentée est jointe à l'item : sans elle, la question demandait au candidat de critiquer un texte qui ne lui était pas remis."
     },
     {
       "item_id": "HLP-1-ESSAI-02",
@@ -599,7 +607,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : prendre position (1), développer un argument (2), mobiliser une référence (3), envisager une objection (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "HLP-ERR-POSITION",
@@ -683,17 +691,17 @@
       "enonce": "Un texte qui met en scène un dialogue pour faire progresser une idée relève d'une forme :",
       "supports": [],
       "propositions": {
+        "D": "dialogique, employée par la littérature d'idées",
         "A": "narrative",
-        "B": "dialogique, employée par la littérature d'idées",
-        "C": "lyrique",
-        "D": "descriptive"
+        "B": "lyrique",
+        "C": "descriptive"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "forme confondue avec le récit",
-          "C": "forme confondue avec l'expression des sentiments",
-          "D": "forme confondue avec la description"
+          "B": "forme confondue avec l'expression des sentiments",
+          "C": "forme confondue avec la description"
         }
       },
       "grille": null,
@@ -742,10 +750,10 @@
       "enonce": "Le thème « L'Humanité en question » interroge notamment :",
       "supports": [],
       "propositions": {
-        "A": "les limites de l'humain et les ruptures de l'histoire",
         "B": "la démographie mondiale",
         "C": "le droit international",
-        "D": "l'histoire des religions seule"
+        "D": "l'histoire des religions seule",
+        "A": "les limites de l'humain et les ruptures de l'histoire"
       },
       "cle": {
         "reponse": "A",
@@ -857,15 +865,15 @@
       "supports": [],
       "propositions": {
         "A": "« La recherche de soi »",
-        "B": "« L'Humanité en question »",
-        "C": "« Les pouvoirs de la parole »",
+        "B": "« Les pouvoirs de la parole »",
+        "C": "« L'Humanité en question »",
         "D": "« Les représentations du monde »"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "thème voisin de Terminale",
-          "C": "thème de Première",
+          "B": "thème de Première",
           "D": "thème de Première"
         }
       },

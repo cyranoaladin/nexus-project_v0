@@ -14,15 +14,15 @@
       "enonce": "Dans une expérience, le lot témoin sert à :",
       "supports": [],
       "propositions": {
-        "A": "obtenir un résultat positif",
-        "B": "disposer d'une référence où le facteur testé est absent",
+        "A": "disposer d'une référence où le facteur testé est absent",
+        "B": "obtenir un résultat positif",
         "C": "vérifier le matériel",
         "D": "doubler les mesures"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "témoin confondu avec un résultat attendu",
+          "B": "témoin confondu avec un résultat attendu",
           "C": "témoin confondu avec un étalonnage",
           "D": "témoin confondu avec une répétition"
         }
@@ -45,15 +45,15 @@
       "enonce": "Une hypothèse scientifique doit être :",
       "supports": [],
       "propositions": {
-        "A": "vraie",
-        "B": "testable par une expérience ou une observation",
+        "B": "vraie",
         "C": "acceptée par tous",
+        "A": "testable par une expérience ou une observation",
         "D": "formulée par un chercheur"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "hypothèse confondue avec conclusion",
+          "B": "hypothèse confondue avec conclusion",
           "C": "critère de consensus employé",
           "D": "critère d'autorité employé"
         }
@@ -62,7 +62,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Nature d'une hypothèse. Le distracteur A est l'erreur de fond : croire qu'une hypothèse est déjà un savoir."
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Nature d'une hypothèse. Le distracteur B est l'erreur de fond : croire qu'une hypothèse est déjà un savoir."
     },
     {
       "item_id": "SVT-2-SCI-03",
@@ -76,15 +76,15 @@
       "enonce": "Dans une expérience testant l'effet de la lumière sur la croissance, la variable testée est :",
       "supports": [],
       "propositions": {
-        "A": "la croissance mesurée",
-        "B": "l'éclairement",
+        "B": "la croissance mesurée",
+        "A": "l'éclairement",
         "C": "la température",
         "D": "l'espèce végétale"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "variable mesurée prise pour la variable testée",
+          "B": "variable mesurée prise pour la variable testée",
           "C": "facteur à maintenir constant",
           "D": "facteur à maintenir constant"
         }
@@ -107,15 +107,15 @@
       "enonce": "Deux grandeurs varient ensemble dans une série de mesures. On peut en conclure :",
       "supports": [],
       "propositions": {
-        "A": "que l'une cause l'autre",
-        "B": "qu'elles sont corrélées, sans que le lien de cause soit établi",
+        "B": "que l'une cause l'autre",
+        "A": "qu'elles sont corrélées, sans que le lien de cause soit établi",
         "C": "qu'elles sont indépendantes",
         "D": "que la mesure est fausse"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "corrélation prise pour causalité",
+          "B": "corrélation prise pour causalité",
           "C": "corrélation niée",
           "D": "résultat imputé à une faute"
         }
@@ -124,7 +124,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Corrélation et causalité, suivant le code SVT-ERR-CAUSE. Le distracteur A est la conduite spontanée et invalide toute conclusion."
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Corrélation et causalité, suivant le code SVT-ERR-CAUSE. Le distracteur B est la conduite spontanée et invalide toute conclusion."
     },
     {
       "item_id": "SVT-2-SCI-05",
@@ -138,24 +138,24 @@
       "enonce": "Pour qu'une expérience soit interprétable, il faut que :",
       "supports": [],
       "propositions": {
-        "A": "un seul facteur varie à la fois",
-        "B": "tous les facteurs varient simultanément",
-        "C": "le résultat confirme l'hypothèse",
-        "D": "l'expérience soit rapide"
+        "A": "tous les facteurs varient simultanément",
+        "D": "un seul facteur varie à la fois",
+        "B": "le résultat confirme l'hypothèse",
+        "C": "l'expérience soit rapide"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "principe de variation unique inversé",
-          "C": "interprétabilité confondue avec confirmation",
-          "D": "critère pratique employé"
+          "A": "principe de variation unique inversé",
+          "B": "interprétabilité confondue avec confirmation",
+          "C": "critère pratique employé"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Principe de la variation unique. Le distracteur C repère un candidat pour qui une expérience qui infirme serait ratée."
+      "notes_conception": "Programme de sciences de la vie et de la Terre, classe de seconde. Principe de la variation unique. Le distracteur B repère un candidat pour qui une expérience qui infirme serait ratée."
     },
     {
       "item_id": "SVT-2-SCI-06",
@@ -170,9 +170,9 @@
       "supports": [],
       "propositions": {
         "A": "doit être écarté",
-        "B": "conduit à réexaminer l'hypothèse",
         "C": "prouve une erreur de manipulation",
-        "D": "n'a aucune valeur"
+        "D": "n'a aucune valeur",
+        "B": "conduit à réexaminer l'hypothèse"
       },
       "cle": {
         "reponse": "B",
@@ -203,16 +203,16 @@
       "enonce": "La mitose produit :",
       "supports": [],
       "propositions": {
-        "A": "deux cellules génétiquement identiques à la cellule mère",
-        "B": "quatre cellules à n chromosomes",
-        "C": "deux cellules différentes",
+        "A": "quatre cellules à n chromosomes",
+        "C": "deux cellules génétiquement identiques à la cellule mère",
+        "B": "deux cellules différentes",
         "D": "une cellule à 2n chromosomes"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "description de la méiose",
-          "C": "conséquence génétique inversée",
+          "A": "description de la méiose",
+          "B": "conséquence génétique inversée",
           "D": "nombre de cellules erroné"
         }
       },
@@ -220,7 +220,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Résultat de la mitose. Le distracteur B suit le code SVT-ERR-DIVISION : confondre les deux divisions rend inintelligible toute la génétique."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Résultat de la mitose. Le distracteur A suit le code SVT-ERR-DIVISION : confondre les deux divisions rend inintelligible toute la génétique."
     },
     {
       "item_id": "SVT-1-GEN-02",
@@ -237,16 +237,16 @@
       "enonce": "Une mutation est :",
       "supports": [],
       "propositions": {
-        "A": "une modification de la séquence de l'ADN",
-        "B": "un changement de l'apparence d'un individu",
-        "C": "une maladie héréditaire",
-        "D": "une adaptation à l'environnement"
+        "A": "un changement de l'apparence d'un individu",
+        "B": "une maladie héréditaire",
+        "D": "une adaptation à l'environnement",
+        "C": "une modification de la séquence de l'ADN"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "génotype confondu avec phénotype",
-          "C": "mutation confondue avec ses conséquences",
+          "A": "génotype confondu avec phénotype",
+          "B": "mutation confondue avec ses conséquences",
           "D": "mutation présentée comme dirigée"
         }
       },
@@ -272,15 +272,15 @@
       "enonce": "Deux allèles d'un même gène :",
       "supports": [],
       "propositions": {
-        "A": "occupent le même locus sur des chromosomes homologues",
-        "B": "sont situés sur des chromosomes différents",
+        "B": "occupent le même locus sur des chromosomes homologues",
+        "A": "sont situés sur des chromosomes différents",
         "C": "codent des protéines sans rapport",
         "D": "sont toujours identiques"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "locus confondu avec chromosome",
+          "A": "locus confondu avec chromosome",
           "C": "lien au même gène nié",
           "D": "variation entre allèles niée"
         }
@@ -335,23 +335,23 @@
       "supports": [],
       "propositions": {
         "A": "lors de la mitose",
-        "B": "lors de la métaphase de première division de méiose",
-        "C": "au moment de la fécondation",
-        "D": "lors de la réplication"
+        "B": "au moment de la fécondation",
+        "C": "lors de la réplication",
+        "D": "lors de la métaphase de première division de méiose"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "brassage attribué à la mitose",
-          "C": "brassage méiotique confondu avec le brassage de la fécondation",
-          "D": "brassage confondu avec la réplication"
+          "B": "brassage méiotique confondu avec le brassage de la fécondation",
+          "C": "brassage confondu avec la réplication"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Localisation du brassage interchromosomique. Le distracteur C est le plus fin : la fécondation produit bien un brassage, mais d'une autre nature."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Localisation du brassage interchromosomique. Le distracteur B est le plus fin : la fécondation produit bien un brassage, mais d'une autre nature."
     },
     {
       "item_id": "SVT-T-GEN-06",
@@ -396,15 +396,15 @@
       "enonce": "Au niveau d'une dorsale océanique :",
       "supports": [],
       "propositions": {
-        "A": "la lithosphère océanique se forme",
-        "B": "la lithosphère plonge dans le manteau",
+        "A": "la lithosphère plonge dans le manteau",
         "C": "deux plaques coulissent",
+        "B": "la lithosphère océanique se forme",
         "D": "une chaîne de montagnes se soulève"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "description d'une zone de subduction",
+          "A": "description d'une zone de subduction",
           "C": "description d'une faille transformante",
           "D": "description d'une collision"
         }
@@ -430,16 +430,16 @@
       "enonce": "La croûte océanique est plus dense que la croûte continentale, ce qui explique :",
       "supports": [],
       "propositions": {
-        "A": "qu'elle plonge en subduction",
-        "B": "qu'elle soit plus épaisse",
-        "C": "qu'elle soit plus ancienne",
+        "C": "qu'elle plonge en subduction",
+        "A": "qu'elle soit plus épaisse",
+        "B": "qu'elle soit plus ancienne",
         "D": "qu'elle porte des volcans"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "densité confondue avec épaisseur",
-          "C": "densité reliée à l'âge",
+          "A": "densité confondue avec épaisseur",
+          "B": "densité reliée à l'âge",
           "D": "conséquence sans rapport avec la densité"
         }
       },
@@ -447,7 +447,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Lien densité–subduction. Le distracteur C est contre-intuitif et instructif : la croûte océanique est au contraire la plus jeune."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Lien densité–subduction. Le distracteur B est contre-intuitif et instructif : la croûte océanique est au contraire la plus jeune."
     },
     {
       "item_id": "SVT-1-TERR-03",
@@ -519,15 +519,15 @@
       "enonce": "Un service écosystémique désigne :",
       "supports": [],
       "propositions": {
-        "A": "un bénéfice que les sociétés humaines tirent du fonctionnement d'un écosystème",
-        "B": "une action de protection de la nature",
+        "A": "une action de protection de la nature",
         "C": "une espèce protégée",
+        "B": "un bénéfice que les sociétés humaines tirent du fonctionnement d'un écosystème",
         "D": "un espace naturel classé"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "service confondu avec mesure de protection",
+          "A": "service confondu avec mesure de protection",
           "C": "service confondu avec un objet de protection",
           "D": "service confondu avec un statut foncier"
         }
@@ -536,7 +536,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Notion de service écosystémique. Le distracteur B est le plus fréquent : il inverse le sens du rapport entre société et écosystème."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Notion de service écosystémique. Le distracteur A est le plus fréquent : il inverse le sens du rapport entre société et écosystème."
     },
     {
       "item_id": "SVT-1-ECO-02",
@@ -551,23 +551,23 @@
       "supports": [],
       "propositions": {
         "A": "aucun changement",
-        "B": "une modification en cascade des populations d'autres espèces",
-        "C": "la disparition immédiate de tout l'écosystème",
-        "D": "une augmentation de la biodiversité"
+        "B": "la disparition immédiate de tout l'écosystème",
+        "C": "une augmentation de la biodiversité",
+        "D": "une modification en cascade des populations d'autres espèces"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "interdépendance niée",
-          "C": "conséquence démesurée",
-          "D": "conséquence inversée"
+          "B": "conséquence démesurée",
+          "C": "conséquence inversée"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Interdépendance des populations. Les distracteurs A et C encadrent la bonne réponse par les deux excès symétriques."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe de première générale. Interdépendance des populations. Les distracteurs A et B encadrent la bonne réponse par les deux excès symétriques."
     },
     {
       "item_id": "SVT-T-ECO-03",
@@ -699,17 +699,17 @@
       "enonce": "La réaction immunitaire innée se caractérise par :",
       "supports": [],
       "propositions": {
-        "A": "une réponse rapide et non spécifique de l'agent infectieux",
-        "B": "la production d'anticorps spécifiques",
-        "C": "une mémoire immunitaire",
-        "D": "une action retardée de plusieurs jours"
+        "A": "la production d'anticorps spécifiques",
+        "B": "une mémoire immunitaire",
+        "D": "une réponse rapide et non spécifique de l'agent infectieux",
+        "C": "une action retardée de plusieurs jours"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "description de la réponse adaptative",
-          "C": "propriété de la réponse adaptative",
-          "D": "délai de la réponse adaptative"
+          "A": "description de la réponse adaptative",
+          "B": "propriété de la réponse adaptative",
+          "C": "délai de la réponse adaptative"
         }
       },
       "grille": null,
@@ -731,8 +731,8 @@
       "supports": [],
       "propositions": {
         "A": "toute cellule étrangère",
-        "B": "un antigène déterminé",
         "C": "les virus uniquement",
+        "B": "un antigène déterminé",
         "D": "les cellules infectées"
       },
       "cle": {
@@ -762,15 +762,15 @@
       "supports": [],
       "propositions": {
         "A": "augmente la glycémie",
-        "B": "abaisse la glycémie",
-        "C": "n'agit pas sur la glycémie",
-        "D": "est produite par le foie"
+        "B": "n'agit pas sur la glycémie",
+        "D": "est produite par le foie",
+        "C": "abaisse la glycémie"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "rôle inversé, celui du glucagon",
-          "C": "rôle nié",
+          "B": "rôle nié",
           "D": "organe producteur erroné"
         }
       },
@@ -820,15 +820,15 @@
       "enonce": "Extraire une information d'un document, c'est :",
       "supports": [],
       "propositions": {
-        "A": "recopier le titre",
-        "B": "relever une donnée précise et l'énoncer avec son unité",
+        "B": "recopier le titre",
+        "A": "relever une donnée précise et l'énoncer avec son unité",
         "C": "donner son avis sur le document",
         "D": "résumer le document en entier"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "extraction confondue avec identification",
+          "B": "extraction confondue avec identification",
           "C": "extraction confondue avec appréciation",
           "D": "extraction confondue avec résumé"
         }
@@ -1286,7 +1286,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : extraire (1), mettre en relation (2), mobiliser une connaissance (3), conclure (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "SVT-ERR-DOC-MOBIL",
@@ -1308,8 +1308,16 @@
       "bloc": "D",
       "score_max": 2,
       "duree_min": 3,
-      "enonce": "Voici la réponse d'un autre candidat à un exercice documentaire. Elle décrit les deux documents l'un après l'autre puis conclut. Indiquez l'étape qui manque et ce qu'elle aurait dû apporter.",
-      "supports": [],
+      "enonce": "La réponse ci-dessus, rédigée par un autre candidat à un exercice documentaire, décrit les deux documents l'un après l'autre puis conclut. Indiquez l'étape qui manque et ce qu'elle aurait dû apporter.",
+      "supports": [
+        {
+          "type": "texte",
+          "code": "SVT-T-REDA-04-PROD",
+          "titre": "Réponse rédigée par un autre candidat",
+          "texte": "Le document 1 montre que la concentration de dioxyde de carbone dans l'atmosphère augmente régulièrement depuis 1960. Les valeurs passent de environ 317 ppm à plus de 420 ppm. Le document 2 montre que la température moyenne de surface augmente elle aussi sur la même période, avec une hausse d'environ 1 °C. On peut donc conclure que le climat se réchauffe et que l'activité humaine en est responsable.",
+          "reference": "Production fictive rédigée pour ce diagnostic. Elle ne reproduit aucune copie réelle de candidat."
+        }
+      ],
       "cle": {
         "reponse_2pts": "Il manque la mise en relation : il fallait montrer comment une donnée du premier document éclaire une donnée du second, ce qui seul permet de conclure.",
         "reponses_1pt": [
@@ -1325,7 +1333,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Item de bloc D de REDA, palier D2 : repérer l'étape manquante dans une production fournie. C'est exactement ce que le critère RELATION de la grille mesure dans la tâche, mesuré ici hors de la production."
+      "notes_conception": "Spécialité sciences de la vie et de la Terre, classe terminale générale. Item de bloc D de REDA, palier D2 : repérer l'étape manquante dans une production fournie. C'est exactement ce que le critère RELATION de la grille mesure dans la tâche, mesuré ici hors de la production. La production commentée est jointe à l'item : sans elle, la question demandait au candidat de critiquer un texte qui ne lui était pas remis."
     },
     {
       "item_id": "SVT-1-GEN-07",
@@ -1512,17 +1520,17 @@
       "enonce": "Dans une réponse à un exercice documentaire, une donnée citée doit être accompagnée :",
       "supports": [],
       "propositions": {
-        "A": "de son unité et de sa provenance",
-        "B": "d'un commentaire personnel",
-        "C": "du titre du document seul",
-        "D": "d'aucune précision"
+        "D": "de son unité et de sa provenance",
+        "A": "d'un commentaire personnel",
+        "B": "du titre du document seul",
+        "C": "d'aucune précision"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "citation confondue avec appréciation",
-          "C": "provenance réduite au titre",
-          "D": "exigence de précision niée"
+          "A": "citation confondue avec appréciation",
+          "B": "provenance réduite au titre",
+          "C": "exigence de précision niée"
         }
       },
       "grille": null,
@@ -1609,15 +1617,15 @@
       "supports": [],
       "propositions": {
         "A": "il ne comporte pas de chiffres",
-        "B": "les données qu'il contient ne portent pas sur la question posée",
-        "C": "il est ancien",
+        "B": "il est ancien",
+        "C": "les données qu'il contient ne portent pas sur la question posée",
         "D": "il est court"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "absence de chiffres prise pour absence de données",
-          "C": "critère d'ancienneté employé",
+          "B": "critère d'ancienneté employé",
           "D": "critère de longueur employé"
         }
       },

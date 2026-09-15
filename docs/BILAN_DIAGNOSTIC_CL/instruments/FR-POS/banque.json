@@ -15,15 +15,15 @@
       "enonce": "Quel est le thème principal du texte ?",
       "propositions": {
         "A": "Les dangers d’Internet pour les adultes.",
-        "B": "Les avantages et les limites des réseaux sociaux pour les adolescents.",
-        "C": "Les nouvelles applications utilisées par les adolescents.",
-        "D": "Le travail scolaire sur Internet."
+        "B": "Les nouvelles applications utilisées par les adolescents.",
+        "D": "Le travail scolaire sur Internet.",
+        "C": "Les avantages et les limites des réseaux sociaux pour les adolescents."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "Le texte est centré sur les adolescents et non sur les adultes.",
-          "C": "Les applications ne sont citées qu’en exemple introductif.",
+          "B": "Les applications ne sont citées qu’en exemple introductif.",
           "D": "Le travail scolaire n’est qu’un aspect parmi d’autres abordé au paragraphe 2."
         }
       },
@@ -43,15 +43,15 @@
       "propositions": {
         "A": "un récit.",
         "B": "une description.",
-        "C": "une réflexion argumentée.",
-        "D": "une histoire personnelle."
+        "D": "une réflexion argumentée.",
+        "C": "une histoire personnelle."
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "Il n’y a pas de trame narrative ni de succession chronologique d’événements.",
           "B": "Le texte ne se borne pas à décrire un objet mais examine des arguments pour et contre.",
-          "D": "L’auteur n’emploie pas la première personne et ne raconte pas sa propre vie."
+          "C": "L’auteur n’emploie pas la première personne et ne raconte pas sa propre vie."
         }
       },
       "grille": null,
@@ -206,16 +206,16 @@
       "bloc": "B",
       "enonce": "Dans le texte, que signifie une utilisation « équilibrée » ?",
       "propositions": {
-        "A": "très importante",
-        "B": "excessive",
-        "C": "raisonnable et contrôlée",
+        "A": "raisonnable et contrôlée",
+        "B": "très importante",
+        "C": "excessive",
         "D": "difficile"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "A",
         "distracteurs": {
-          "A": "L’importance quantitative n’implique pas l’équilibre.",
-          "B": "Excessif est l’antonyme d’équilibré.",
+          "B": "L’importance quantitative n’implique pas l’équilibre.",
+          "C": "Excessif est l’antonyme d’équilibré.",
           "D": "Une pratique équilibrée vise la régulation, pas la difficulté."
         }
       },
@@ -233,15 +233,15 @@
       "bloc": "A",
       "enonce": "Choisissez le mot qui convient pour compléter la phrase : « Beaucoup d’adolescents utilisent les réseaux sociaux pour _____ avec leurs amis. »",
       "propositions": {
-        "A": "communiquer",
-        "B": "isoler",
+        "A": "isoler",
+        "B": "communiquer",
         "C": "déconnecter",
         "D": "surveiller"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "Isoler contredit la relation d’amitié énoncée.",
+          "A": "Isoler contredit la relation d’amitié énoncée.",
           "C": "Déconnecter ne correspond pas à l’usage actif du réseau.",
           "D": "Surveiller introduit une nuance inappropriée et péjorative."
         }
@@ -260,15 +260,15 @@
       "bloc": "A",
       "enonce": "Choisissez la forme verbale correcte pour compléter : « Hier, je/j’ _____ deux heures sur mon téléphone. »",
       "propositions": {
-        "A": "passais",
-        "B": "ai passé",
+        "B": "passais",
         "C": "passerai",
+        "A": "ai passé",
         "D": "passerais"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "L’imparfait ne convient pas pour une action ponctuelle et achevée délimitée par « Hier ».",
+          "B": "L’imparfait ne convient pas pour une action ponctuelle et achevée délimitée par « Hier ».",
           "C": "Le futur simple contredit l’adverbe temporel « Hier ».",
           "D": "Le conditionnel présent ne convient pas pour un fait passé attesté."
         }
@@ -335,15 +335,15 @@
       "bloc": "A",
       "enonce": "Quel connecteur logique convient pour relier ces deux propositions : « Les réseaux sociaux sont utiles ; _____, ils peuvent présenter des risques. » ?",
       "propositions": {
-        "A": "cependant",
-        "B": "donc",
+        "A": "donc",
+        "B": "cependant",
         "C": "parce que",
         "D": "afin de"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "Donc exprime la conséquence et non l’opposition.",
+          "A": "Donc exprime la conséquence et non l’opposition.",
           "C": "Parce que introduit une cause et non une restriction.",
           "D": "Afin de introduit un but et requiert un infinitif."
         }

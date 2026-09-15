@@ -14,15 +14,15 @@
       "enonce": "Quelle phrase est correcte ?",
       "supports": [],
       "propositions": {
-        "A": "Les analyses qu'il a menée sont convaincantes.",
-        "B": "Les analyses qu'il a menées sont convaincantes.",
+        "B": "Les analyses qu'il a menée sont convaincantes.",
         "C": "Les analyses qu'il a mené sont convaincantes.",
-        "D": "Les analyses qu'il a menés sont convaincantes."
+        "D": "Les analyses qu'il a menés sont convaincantes.",
+        "A": "Les analyses qu'il a menées sont convaincantes."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "accord partiel avec le complément antéposé",
+          "B": "accord partiel avec le complément antéposé",
           "C": "accord non réalisé",
           "D": "accord en genre erroné"
         }
@@ -45,15 +45,15 @@
       "enonce": "Quelle phrase ne comporte pas d'erreur ?",
       "supports": [],
       "propositions": {
-        "A": "Ce phénomène s'explique par plusieurs facteurs qu'il convient d'analyser.",
-        "B": "Ce phénomène s'expliquent par plusieurs facteurs.",
+        "A": "Ce phénomène s'expliquent par plusieurs facteurs.",
         "C": "Ce phénomène s'explique par plusieurs facteur.",
+        "B": "Ce phénomène s'explique par plusieurs facteurs qu'il convient d'analyser.",
         "D": "Ces phénomène s'explique par plusieurs facteurs."
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "verbe accordé avec le complément et non avec le sujet",
+          "A": "verbe accordé avec le complément et non avec le sujet",
           "C": "accord du nom au pluriel omis",
           "D": "accord du démonstratif et du nom discordants"
         }
@@ -76,15 +76,15 @@
       "enonce": "Quelle formulation relève d'une rédaction académique ?",
       "supports": [],
       "propositions": {
-        "A": "On voit bien que c'est pas vrai.",
-        "B": "Il apparaît que cette affirmation ne se vérifie pas.",
+        "B": "On voit bien que c'est pas vrai.",
         "C": "Franchement, ça marche pas.",
+        "A": "Il apparaît que cette affirmation ne se vérifie pas.",
         "D": "Du coup, c'est faux."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "négation incomplète et tour oral",
+          "B": "négation incomplète et tour oral",
           "C": "interjection et négation incomplète",
           "D": "connecteur oral employé pour une conséquence"
         }
@@ -107,15 +107,15 @@
       "enonce": "Où placer la virgule dans : « Selon cet auteur la croissance ralentit » ?",
       "supports": [],
       "propositions": {
-        "A": "après « Selon »",
-        "B": "après « auteur »",
+        "B": "après « Selon »",
+        "A": "après « auteur »",
         "C": "après « croissance »",
         "D": "aucune virgule n'est nécessaire"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "virgule coupant la préposition de son complément",
+          "B": "virgule coupant la préposition de son complément",
           "C": "virgule séparant le sujet du verbe",
           "D": "complément circonstanciel antéposé non détaché"
         }
@@ -139,17 +139,17 @@
       "enonce": "Quelle phrase évite l'ambiguïté ?",
       "supports": [],
       "propositions": {
+        "D": "L'auteur critique le sociologue, estimant que ce dernier se trompe.",
         "A": "L'auteur critique le sociologue car il se trompe.",
-        "B": "L'auteur critique le sociologue, estimant que ce dernier se trompe.",
-        "C": "L'auteur critique le sociologue et il se trompe.",
-        "D": "Le sociologue critiqué, il se trompe."
+        "B": "L'auteur critique le sociologue et il se trompe.",
+        "C": "Le sociologue critiqué, il se trompe."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "pronom à deux antécédents possibles",
-          "C": "même ambiguïté, coordonnée",
-          "D": "construction disloquée, référent indéterminé"
+          "B": "même ambiguïté, coordonnée",
+          "C": "construction disloquée, référent indéterminé"
         }
       },
       "grille": null,
@@ -170,15 +170,15 @@
       "enonce": "Quelle phrase emploie correctement le subjonctif ?",
       "supports": [],
       "propositions": {
-        "A": "Bien que ce résultat est surprenant, il est confirmé.",
-        "B": "Bien que ce résultat soit surprenant, il est confirmé.",
+        "B": "Bien que ce résultat est surprenant, il est confirmé.",
         "C": "Bien que ce résultat serait surprenant, il est confirmé.",
+        "A": "Bien que ce résultat soit surprenant, il est confirmé.",
         "D": "Bien que ce résultat sera surprenant, il est confirmé."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "indicatif après une conjonction appelant le subjonctif",
+          "B": "indicatif après une conjonction appelant le subjonctif",
           "C": "conditionnel employé pour le subjonctif",
           "D": "futur employé pour le subjonctif"
         }
@@ -202,9 +202,9 @@
       "supports": [],
       "propositions": {
         "A": "Cette politique a des effets ; ces effets sont contestés.",
-        "B": "Cette politique a des effets, lesquels sont contestés.",
         "C": "Cette politique a des effets et des effets contestés.",
-        "D": "Cette politique, ses effets sont contestés."
+        "D": "Cette politique, ses effets sont contestés.",
+        "B": "Cette politique a des effets, lesquels sont contestés."
       },
       "cle": {
         "reponse": "B",
@@ -265,15 +265,15 @@
       "supports": [],
       "propositions": {
         "A": "C'est de cela dont il s'agit.",
-        "B": "C'est de cela qu'il s'agit.",
-        "C": "C'est de cela que il s'agit.",
+        "C": "C'est de cela qu'il s'agit.",
+        "B": "C'est de cela que il s'agit.",
         "D": "C'est cela dont il s'agit."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "double marque du complément indirect",
-          "C": "élision non faite",
+          "B": "élision non faite",
           "D": "préposition omise avant le pronom"
         }
       },
@@ -297,16 +297,16 @@
       "supports": [],
       "propositions": {
         "A": "en effet",
-        "B": "par conséquent",
-        "C": "en revanche",
-        "D": "certes"
+        "D": "par conséquent",
+        "B": "en revanche",
+        "C": "certes"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "connecteur d'explication",
-          "C": "connecteur d'opposition",
-          "D": "connecteur de concession"
+          "B": "connecteur d'opposition",
+          "C": "connecteur de concession"
         }
       },
       "grille": null,
@@ -329,23 +329,23 @@
       "supports": [],
       "propositions": {
         "A": "La réalisation de l'analyse de la situation a été effectuée.",
-        "B": "La situation a été analysée.",
-        "C": "Il a été procédé à la réalisation d'une analyse.",
-        "D": "L'effectuation de l'analyse a eu lieu."
+        "D": "La situation a été analysée.",
+        "B": "Il a été procédé à la réalisation d'une analyse.",
+        "C": "L'effectuation de l'analyse a eu lieu."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "trois noms enchaînés pour une seule action",
-          "C": "tour impersonnel alourdi",
-          "D": "nom inexistant construit sur le verbe"
+          "B": "tour impersonnel alourdi",
+          "C": "nom inexistant construit sur le verbe"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Lisibilité d'une phrase académique. Le distracteur D repère un candidat qui forge un nom plutôt que d'employer un verbe. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Lisibilité d'une phrase académique. Le distracteur C repère un candidat qui forge un nom plutôt que d'employer un verbe. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -361,15 +361,15 @@
       "supports": [],
       "propositions": {
         "A": "Il leurs a répondu.",
-        "B": "Il leur a répondu.",
-        "C": "Il leur ont répondu.",
+        "C": "Il leur a répondu.",
+        "B": "Il leur ont répondu.",
         "D": "Il leurs ont répondu."
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "pronom accordé comme un déterminant",
-          "C": "verbe accordé avec le pronom complément",
+          "B": "verbe accordé avec le pronom complément",
           "D": "les deux erreurs cumulées"
         }
       },
@@ -377,7 +377,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Le pronom « leur » est invariable. Le distracteur C isole l'accord du verbe avec le complément, erreur distincte. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "notes_conception": "Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Les notes déclarées à l'EAF ne sont jamais employées comme indicateur de niveau. Le pronom « leur » est invariable. Le distracteur B isole l'accord du verbe avec le complément, erreur distincte. Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -423,8 +423,8 @@
       "enonce": "Un « paradoxe » désigne :",
       "supports": [],
       "propositions": {
-        "A": "une contradiction dans les termes",
         "B": "une proposition contraire à l'opinion commune, mais défendable",
+        "A": "une contradiction dans les termes",
         "C": "une erreur de raisonnement",
         "D": "une opinion majoritaire"
       },
@@ -456,16 +456,16 @@
       "supports": [],
       "propositions": {
         "A": "démontrer",
-        "B": "poser comme point de départ sans le démontrer",
-        "C": "réfuter",
-        "D": "illustrer"
+        "D": "poser comme point de départ sans le démontrer",
+        "B": "réfuter",
+        "C": "illustrer"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "sens inversé",
-          "C": "confusion avec « objecter »",
-          "D": "confusion avec « exemplifier »"
+          "B": "confusion avec « objecter »",
+          "C": "confusion avec « exemplifier »"
         }
       },
       "grille": null,
@@ -487,15 +487,15 @@
       "enonce": "Dans « cette mesure est prescriptive », l'adjectif signifie :",
       "supports": [],
       "propositions": {
-        "A": "qui décrit ce qui est",
-        "B": "qui énonce ce qui doit être",
+        "B": "qui décrit ce qui est",
         "C": "qui est obligatoire par la loi",
+        "A": "qui énonce ce qui doit être",
         "D": "qui est ancien"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "prescriptif confondu avec descriptif",
+          "B": "prescriptif confondu avec descriptif",
           "C": "prescriptif confondu avec contraignant",
           "D": "confusion avec « prescrit »"
         }
@@ -519,15 +519,15 @@
       "supports": [],
       "propositions": {
         "A": "démontrer",
-        "B": "suggérer",
-        "C": "établir",
+        "B": "établir",
+        "C": "suggérer",
         "D": "prouver"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "verbe de preuve forte",
-          "C": "verbe de preuve forte",
+          "B": "verbe de preuve forte",
           "D": "verbe de preuve forte"
         }
       },
@@ -551,9 +551,9 @@
       "supports": [],
       "propositions": {
         "A": "en toutes circonstances",
-        "B": "toutes choses égales par ailleurs",
         "C": "par conséquent",
-        "D": "en moyenne"
+        "D": "en moyenne",
+        "B": "toutes choses égales par ailleurs"
       },
       "cle": {
         "reponse": "B",
@@ -664,24 +664,24 @@
       "enonce": "Quelle formulation énonce la thèse du texte du bloc B ?",
       "supports": [],
       "propositions": {
-        "A": "L'instruction publique est un devoir de la société envers les citoyens.",
-        "B": "L'instruction publique doit rendre tous les hommes égaux en talents.",
-        "C": "L'instruction publique est utile à ceux qui en ont les moyens.",
-        "D": "L'inégalité naturelle des esprits interdit toute égalité des droits."
+        "A": "L'instruction publique doit rendre tous les hommes égaux en talents.",
+        "D": "L'instruction publique est un devoir de la société envers les citoyens.",
+        "B": "L'instruction publique est utile à ceux qui en ont les moyens.",
+        "C": "L'inégalité naturelle des esprits interdit toute égalité des droits."
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "but du texte durci : il demande que l'inégalité n'entraîne pas de dépendance, non qu'elle disparaisse",
-          "C": "condition restrictive absente du texte, qui parle d'un devoir envers tous",
-          "D": "prémisse que le texte combat, prise pour sa conclusion"
+          "A": "but du texte durci : il demande que l'inégalité n'entraîne pas de dépendance, non qu'elle disparaisse",
+          "B": "condition restrictive absente du texte, qui parle d'un devoir envers tous",
+          "C": "prémisse que le texte combat, prise pour sa conclusion"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. La thèse est la première phrase du passage, mais les trois distracteurs obligent à la lire jusqu'au bout : le texte ne promet pas l'égalité des talents, il exige que la supériorité n'entraîne pas de dépendance, et c'est cette nuance que le distracteur B supprime."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. La thèse est la première phrase du passage, mais les trois distracteurs obligent à la lire jusqu'au bout : le texte ne promet pas l'égalité des talents, il exige que la supériorité n'entraîne pas de dépendance, et c'est cette nuance que le distracteur A supprime."
     },
     {
       "item_id": "FR-MAI-COMPA-02",
@@ -695,16 +695,16 @@
       "enonce": "Le premier paragraphe du texte a pour fonction de :",
       "supports": [],
       "propositions": {
-        "A": "énoncer la thèse que la suite du texte doit établir",
-        "B": "poser une question à laquelle le texte va répondre",
-        "C": "rappeler un fait que personne ne conteste, avant d'en tirer une objection",
+        "C": "énoncer la thèse que la suite du texte doit établir",
+        "A": "poser une question à laquelle le texte va répondre",
+        "B": "rappeler un fait que personne ne conteste, avant d'en tirer une objection",
         "D": "annoncer les étapes du développement"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "thèse confondue avec problématique : le paragraphe affirme, il n'interroge pas",
-          "C": "affirmation initiale prise pour un préalable consensuel",
+          "A": "thèse confondue avec problématique : le paragraphe affirme, il n'interroge pas",
+          "B": "affirmation initiale prise pour un préalable consensuel",
           "D": "fonction d'annonce supposée là où aucun plan n'est annoncé"
         }
       },
@@ -712,7 +712,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. La clé disait « poser le problème traité » : le premier paragraphe du passage retenu n'énonce aucun problème, il affirme un devoir — « L'instruction publique est un devoir de la société à l'égard des citoyens. » L'item était faux sur son propre support. Le distracteur B garde la confusion que l'item visait, entre la thèse et la question qui l'appelle. Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. La clé disait « poser le problème traité » : le premier paragraphe du passage retenu n'énonce aucun problème, il affirme un devoir — « L'instruction publique est un devoir de la société à l'égard des citoyens. » L'item était faux sur son propre support. Le distracteur A garde la confusion que l'item visait, entre la thèse et la question qui l'appelle. Le français est ici mesuré comme outil de travail, non comme objet littéraire (§ 7.2). Conservé en banque hors de l'assemblage standard : la volumétrie du § 7.2 dépasse la durée catalogue de 60 minutes (EC-13). Réservé à l'évaluation intermédiaire à quatre semaines (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -759,16 +759,16 @@
       "enonce": "Quelle affirmation le texte tient-il pour acquise sans jamais la justifier ?",
       "supports": [],
       "propositions": {
-        "A": "que l'égalité des droits est un bien qu'il faut rendre réel",
-        "B": "que les hommes naissent égaux en facultés",
-        "C": "que l'enseignement des sciences doit précéder celui des lois",
+        "A": "que les hommes naissent égaux en facultés",
+        "B": "que l'enseignement des sciences doit précéder celui des lois",
+        "C": "que l'égalité des droits est un bien qu'il faut rendre réel",
         "D": "que la société est plus ancienne que les droits qu'elle reconnaît"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "le texte affirme l'inverse : il parle de « l'inégalité naturelle » et de « la différence des esprits »",
-          "C": "ordre d'enseignement absent du passage",
+          "A": "le texte affirme l'inverse : il parle de « l'inégalité naturelle » et de « la différence des esprits »",
+          "B": "ordre d'enseignement absent du passage",
           "D": "thèse historique étrangère au raisonnement"
         }
       },
@@ -776,7 +776,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. Le présupposé est la valeur que le texte ne discute jamais : il démontre que l'instruction rend l'égalité des droits réelle, il ne démontre pas qu'elle doive l'être. Le distracteur B est le contresens que la lecture rapide produit, puisque le mot « égalité » revient partout."
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel : il portait des propositions métalinguistiques — « la position que l'auteur défend » — qui décrivaient une catégorie au lieu d'exiger une lecture. Le présupposé est la valeur que le texte ne discute jamais : il démontre que l'instruction rend l'égalité des droits réelle, il ne démontre pas qu'elle doive l'être. Le distracteur A est le contresens que la lecture rapide produit, puisque le mot « égalité » revient partout."
     },
     {
       "item_id": "FR-MAI-COMPA-05",
@@ -791,15 +791,15 @@
       "supports": [],
       "propositions": {
         "A": "il ne concède rien : il affirme d'un bout à l'autre",
-        "B": "il admet qu'une instruction même égale accroîtra la supériorité des mieux doués, avant de montrer que cela ne menace pas l'égalité des droits",
-        "C": "il admet que l'instruction publique n'est pas réellement un devoir de la société",
+        "B": "il admet que l'instruction publique n'est pas réellement un devoir de la société",
+        "C": "il admet qu'une instruction même égale accroîtra la supériorité des mieux doués, avant de montrer que cela ne menace pas l'égalité des droits",
         "D": "il admet que ses exemples sont mal choisis"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "concession non repérée : le paragraphe « Il est impossible qu'une instruction même égale… » est lu comme une affirmation de plus",
-          "C": "concession prise pour un renoncement à la thèse",
+          "B": "concession prise pour un renoncement à la thèse",
           "D": "concession cherchée du côté de la forme"
         }
       },
@@ -823,23 +823,23 @@
       "supports": [],
       "propositions": {
         "A": "à un lecteur déjà convaincu, qu'il s'agit seulement d'informer",
-        "B": "à ceux qui font la loi, et que le texte veut obliger",
-        "C": "aux savants, seuls capables de suivre le raisonnement",
-        "D": "à personne en particulier : le texte n'a pas de destinataire"
+        "B": "aux savants, seuls capables de suivre le raisonnement",
+        "D": "à ceux qui font la loi, et que le texte veut obliger",
+        "C": "à personne en particulier : le texte n'a pas de destinataire"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "visée argumentative non perçue",
-          "C": "destinataire déduit du seul vocabulaire, alors que le texte parle des savants à la troisième personne",
-          "D": "situation d'énonciation ignorée"
+          "B": "destinataire déduit du seul vocabulaire, alors que le texte parle des savants à la troisième personne",
+          "C": "situation d'énonciation ignorée"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-11",
       "source_version": "1.0",
-      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. Le texte ne s'adresse pas à un lecteur quelconque : il énonce ce que « la société doit » et ce que « les lois » auraient en vain respecté. Le destinataire est celui qui déclare les droits et fait la loi. Le distracteur C reste vraisemblable parce que le passage parle du savant et du jurisconsulte — mais il en parle, il ne leur parle pas. Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
+      "notes_conception": "Item récrit le 2026-09-11, à l'insertion du texte réel. Le texte ne s'adresse pas à un lecteur quelconque : il énonce ce que « la société doit » et ce que « les lois » auraient en vain respecté. Le destinataire est celui qui déclare les droits et fait la loi. Le distracteur B reste vraisemblable parce que le passage parle du savant et du jurisconsulte — mais il en parle, il ne leur parle pas. Le français est ici mesuré comme outil de travail (§ 7.2). Conservé en banque hors de l'assemblage standard (EC-13) ; réservé à l'évaluation intermédiaire (§ 8.2).",
       "reserve_intermediaire": true
     },
     {
@@ -1097,7 +1097,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : position (1), argument (2), exemple (3), nuance (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "FR-ERR-CONNECT",

@@ -14,15 +14,15 @@
       "enonce": "La souveraineté d'un État désigne :",
       "supports": [],
       "propositions": {
-        "A": "sa puissance militaire",
-        "B": "l'autorité suprême qu'il exerce sur son territoire et sa population",
+        "B": "sa puissance militaire",
         "C": "son indépendance économique",
-        "D": "sa reconnaissance par l'ONU"
+        "D": "sa reconnaissance par l'ONU",
+        "A": "l'autorité suprême qu'il exerce sur son territoire et sa population"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "souveraineté confondue avec puissance",
+          "B": "souveraineté confondue avec puissance",
           "C": "souveraineté confondue avec autonomie économique",
           "D": "souveraineté confondue avec sa reconnaissance"
         }
@@ -31,7 +31,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Notion fondatrice du thème sur la démocratie et de celui sur les frontières. Le distracteur D est le plus fin : la reconnaissance est une conséquence, non la définition."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Notion fondatrice du thème sur la démocratie et de celui sur les frontières. Le distracteur D est le plus fin : la reconnaissance est une conséquence, non la définition."
     },
     {
       "item_id": "HGGSP-2-REP-02",
@@ -45,16 +45,16 @@
       "enonce": "Les traités de Westphalie, qui posent les bases de l'ordre européen des États, datent de :",
       "supports": [],
       "propositions": {
-        "A": "1648",
-        "B": "1789",
-        "C": "1815",
+        "C": "1648",
+        "A": "1789",
+        "B": "1815",
         "D": "1919"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "date de la Révolution française",
-          "C": "date du congrès de Vienne",
+          "A": "date de la Révolution française",
+          "B": "date du congrès de Vienne",
           "D": "date du traité de Versailles"
         }
       },
@@ -62,7 +62,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Repère chronologique. Les trois distracteurs sont des dates réelles de recomposition européenne, ce qui mesure la connaissance et non l'élimination."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Repère chronologique. Les trois distracteurs sont des dates réelles de recomposition européenne, ce qui mesure la connaissance et non l'élimination."
     },
     {
       "item_id": "HGGSP-2-REP-03",
@@ -93,7 +93,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Vocabulaire des frontières. Le distracteur A est l'erreur qui empêche de comprendre qu'une frontière ouverte reste une limite juridique."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Vocabulaire des frontières. Le distracteur A est l'erreur qui empêche de comprendre qu'une frontière ouverte reste une limite juridique."
     },
     {
       "item_id": "HGGSP-2-REP-04",
@@ -108,23 +108,23 @@
       "supports": [],
       "propositions": {
         "A": "l'interdiction des religions dans l'espace public",
-        "B": "la neutralité de l'État et la liberté de conscience",
-        "C": "l'absence de croyants dans l'administration",
-        "D": "la reconnaissance officielle des cultes"
+        "D": "la neutralité de l'État et la liberté de conscience",
+        "B": "l'absence de croyants dans l'administration",
+        "C": "la reconnaissance officielle des cultes"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "laïcité confondue avec effacement du religieux",
-          "C": "neutralité de l'État étendue aux personnes",
-          "D": "laïcité confondue avec le régime concordataire"
+          "B": "neutralité de l'État étendue aux personnes",
+          "C": "laïcité confondue avec le régime concordataire"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Notion du thème États et religions. Le distracteur A est la lecture la plus répandue et la plus fautive."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Notion du thème États et religions. Le distracteur A est la lecture la plus répandue et la plus fautive."
     },
     {
       "item_id": "HGGSP-2-REP-05",
@@ -138,15 +138,15 @@
       "enonce": "Le régime parlementaire se caractérise par :",
       "supports": [],
       "propositions": {
-        "A": "l'élection du chef de l'État au suffrage universel",
-        "B": "la responsabilité du gouvernement devant le parlement",
+        "B": "l'élection du chef de l'État au suffrage universel",
         "C": "l'absence de partis politiques",
-        "D": "le vote obligatoire"
+        "D": "le vote obligatoire",
+        "A": "la responsabilité du gouvernement devant le parlement"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "critère du régime présidentiel",
+          "B": "critère du régime présidentiel",
           "C": "critère sans rapport",
           "D": "modalité électorale prise pour un critère de régime"
         }
@@ -155,7 +155,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Typologie des régimes politiques. Le distracteur A désigne un critère réel mais d'un autre régime, ce que le programme demande de distinguer."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Typologie des régimes politiques. Le distracteur B désigne un critère réel mais d'un autre régime, ce que le programme demande de distinguer."
     },
     {
       "item_id": "HGGSP-2-REP-06",
@@ -169,15 +169,15 @@
       "enonce": "Le terme « géopolitique » désigne l'étude :",
       "supports": [],
       "propositions": {
-        "A": "des reliefs et des climats",
-        "B": "des rivalités de pouvoir sur des territoires",
+        "B": "des reliefs et des climats",
+        "A": "des rivalités de pouvoir sur des territoires",
         "C": "des échanges commerciaux",
         "D": "des systèmes électoraux"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "géopolitique confondue avec géographie physique",
+          "B": "géopolitique confondue avec géographie physique",
           "C": "géopolitique confondue avec économie",
           "D": "géopolitique confondue avec science politique interne"
         }
@@ -186,7 +186,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Définition de la discipline. Le distracteur A est l'erreur d'entrée dans la spécialité."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Définition de la discipline. Le distracteur B est l'erreur d'entrée dans la spécialité."
     },
     {
       "item_id": "HGGSP-1-CONN-01",
@@ -203,15 +203,15 @@
       "enonce": "La démocratie athénienne se distingue des démocraties contemporaines en ce qu'elle était :",
       "supports": [],
       "propositions": {
-        "A": "représentative",
-        "B": "directe et réservée à une minorité de citoyens",
+        "B": "représentative",
         "C": "universelle",
+        "A": "directe et réservée à une minorité de citoyens",
         "D": "fédérale"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "caractère représentatif attribué à tort",
+          "B": "caractère représentatif attribué à tort",
           "C": "extension du corps civique surestimée",
           "D": "organisation territoriale supposée"
         }
@@ -238,9 +238,9 @@
       "supports": [],
       "propositions": {
         "A": "imposer sa volonté par la force",
-        "B": "influencer par l'attractivité de sa culture et de ses valeurs",
         "C": "contrôler ses frontières",
-        "D": "financer son armée"
+        "D": "financer son armée",
+        "B": "influencer par l'attractivité de sa culture et de ses valeurs"
       },
       "cle": {
         "reponse": "B",
@@ -330,23 +330,23 @@
       "supports": [],
       "propositions": {
         "A": "de financer la restauration des monuments",
-        "B": "d'identifier et de protéger des biens jugés d'intérêt universel",
-        "C": "de classer les pays selon leur richesse culturelle",
-        "D": "d'organiser le tourisme"
+        "B": "de classer les pays selon leur richesse culturelle",
+        "C": "d'organiser le tourisme",
+        "D": "d'identifier et de protéger des biens jugés d'intérêt universel"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "finalité réduite au financement",
-          "C": "classement des biens confondu avec classement des États",
-          "D": "conséquence prise pour finalité"
+          "B": "classement des biens confondu avec classement des États",
+          "C": "conséquence prise pour finalité"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème « Identifier, protéger et valoriser le patrimoine ». Le distracteur D confond une finalité et un effet."
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème « Identifier, protéger et valoriser le patrimoine ». Le distracteur C confond une finalité et un effet."
     },
     {
       "item_id": "HGGSP-T-CONN-06",
@@ -388,16 +388,16 @@
       "enonce": "La conquête spatiale constitue un enjeu géopolitique parce qu'elle :",
       "supports": [],
       "propositions": {
+        "C": "met en jeu des rivalités de puissance sur un espace non approprié",
         "A": "n'intéresse que les scientifiques",
-        "B": "met en jeu des rivalités de puissance sur un espace non approprié",
-        "C": "relève du seul droit privé",
+        "B": "relève du seul droit privé",
         "D": "concerne uniquement les télécommunications"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "dimension politique niée",
-          "C": "régime juridique erroné",
+          "B": "régime juridique erroné",
           "D": "enjeu réduit à un usage technique"
         }
       },
@@ -534,16 +534,16 @@
       "supports": [],
       "propositions": {
         "A": "son idée principale",
-        "B": "sa nature, son auteur ou sa source, et sa date",
-        "C": "son intérêt pour le sujet",
-        "D": "ses limites"
+        "B": "son intérêt pour le sujet",
+        "D": "sa nature, son auteur ou sa source, et sa date",
+        "C": "ses limites"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "analyse anticipée sur l'identification",
-          "C": "portée anticipée sur l'identification",
-          "D": "critique anticipée sur l'identification"
+          "B": "portée anticipée sur l'identification",
+          "C": "critique anticipée sur l'identification"
         }
       },
       "grille": null,
@@ -904,7 +904,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : analyser les termes (1), formuler la problématique (2), bâtir le plan (3), rédiger les paragraphes (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "HGGSP-ERR-PROBLEM",
@@ -1025,9 +1025,9 @@
       "supports": [],
       "propositions": {
         "A": "est nécessairement objectif",
-        "B": "repose sur des définitions et un périmètre qu'il faut connaître",
         "C": "n'a aucune valeur scientifique",
-        "D": "reflète l'opinion de son auteur"
+        "D": "reflète l'opinion de son auteur",
+        "B": "repose sur des définitions et un périmètre qu'il faut connaître"
       },
       "cle": {
         "reponse": "B",
@@ -1127,7 +1127,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité histoire-géographie, géopolitique et sciences politiques, classe de première générale. Distinction fondatrice des thèmes sur la démocratie et sur les frontières. Sa méconnaissance rend inintelligible toute question sur les États-nations."
+      "notes_conception": "Prérequis de la classe de seconde — histoire-géographie et enseignement moral et civique —, mobilisé par la spécialité histoire-géographie, géopolitique et sciences politiques de première. Distinction fondatrice des thèmes sur la démocratie et sur les frontières. Sa méconnaissance rend inintelligible toute question sur les États-nations."
     },
     {
       "item_id": "HGGSP-T-CONN-10",
@@ -1142,15 +1142,15 @@
       "supports": [],
       "propositions": {
         "A": "les monuments non classés",
-        "B": "les pratiques, savoir-faire et expressions transmis au sein d'un groupe",
-        "C": "les archives numériques",
+        "B": "les archives numériques",
+        "C": "les pratiques, savoir-faire et expressions transmis au sein d'un groupe",
         "D": "les biens privés"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "patrimoine matériel non protégé",
-          "C": "support technique confondu avec l'objet",
+          "B": "support technique confondu avec l'objet",
           "D": "critère de propriété employé"
         }
       },
@@ -1158,7 +1158,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème du patrimoine. Le distracteur C est fréquent : le numérique est un support, non une catégorie patrimoniale."
+      "notes_conception": "Spécialité HGGSP, classe terminale générale. Thème du patrimoine. Le distracteur B est fréquent : le numérique est un support, non une catégorie patrimoniale."
     },
     {
       "item_id": "HGGSP-T-CONN-11",
@@ -1298,15 +1298,15 @@
       "supports": [],
       "propositions": {
         "A": "la republier",
-        "B": "vérifier qu'une source indépendante la rapporte également",
-        "C": "la résumer",
+        "B": "la résumer",
+        "C": "vérifier qu'une source indépendante la rapporte également",
         "D": "en citer l'auteur"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "diffusion confondue avec vérification",
-          "C": "reformulation confondue avec vérification",
+          "B": "reformulation confondue avec vérification",
           "D": "attribution confondue avec vérification"
         }
       },

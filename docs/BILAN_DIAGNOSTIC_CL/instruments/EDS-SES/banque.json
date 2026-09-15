@@ -15,16 +15,16 @@
       "supports": [],
       "propositions": {
         "A": "$+50\\ \\%$",
-        "B": "$+25\\ \\%$",
-        "C": "$+20\\ \\%$",
-        "D": "$+2{,}5\\ \\%$"
+        "D": "$+25\\ \\%$",
+        "B": "$+20\\ \\%$",
+        "C": "$+2{,}5\\ \\%$"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "écart absolu annoncé comme un pourcentage",
-          "C": "rapport calculé sur la valeur d'arrivée",
-          "D": "erreur de virgule"
+          "B": "rapport calculé sur la valeur d'arrivée",
+          "C": "erreur de virgule"
         }
       },
       "grille": null,
@@ -46,15 +46,15 @@
       "supports": [],
       "propositions": {
         "A": "augmenté de 120 %",
-        "B": "augmenté de 20 %",
-        "C": "été multipliée par 120",
+        "B": "été multipliée par 120",
+        "C": "augmenté de 20 %",
         "D": "atteint 120 euros"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "valeur de l'indice prise pour le taux de variation",
-          "C": "indice pris pour un coefficient",
+          "B": "indice pris pour un coefficient",
           "D": "indice pris pour une grandeur monétaire"
         }
       },
@@ -78,8 +78,8 @@
       "propositions": {
         "A": "$10$",
         "B": "$0{,}10$",
-        "C": "$1{,}10$",
-        "D": "$1{,}010$"
+        "D": "$1{,}010$",
+        "C": "$1{,}10$"
       },
       "cle": {
         "reponse": "C",
@@ -104,19 +104,19 @@
       "bloc": "A",
       "score_max": 1,
       "duree_min": 1,
-      "enonce": "Le taux de chômage passe de 8 % à 10 %. On peut dire qu'il a augmenté de :",
+      "enonce": "Le taux de chômage passe de 8 % à 10 %. Quelle formulation décrit cette évolution de manière à la fois exacte et complète ?",
       "supports": [],
       "propositions": {
+        "D": "2 points de pourcentage, soit 25 %",
         "A": "2 %",
         "B": "2 points de pourcentage",
-        "C": "20 %",
-        "D": "2 points de pourcentage, soit 25 %"
+        "C": "20 %"
       },
       "cle": {
         "reponse": "D",
         "distracteurs": {
           "A": "points confondus avec pourcentage",
-          "B": "réponse exacte mais incomplète, la variation relative n'étant pas donnée",
+          "B": "exacte mais incomplète : la variation relative n'est pas donnée",
           "C": "variation relative erronée"
         }
       },
@@ -124,7 +124,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Points de pourcentage et variation relative, suivant le code SES-ERR-POINT-PCT. Le distracteur B n'est pas faux : il est incomplet, ce qui est précisément la nuance mesurée."
+      "notes_conception": "Savoir-faire quantitatifs applicables du programme de sciences économiques et sociales. Points de pourcentage et variation relative, suivant le code SES-ERR-POINT-PCT. Le distracteur B n'est pas faux : il est incomplet, ce qui est précisément la nuance mesurée. L'énoncé demande la formulation exacte **et complète** : sans ce mot, la proposition B — exacte mais partielle — était une seconde bonne réponse, et le candidat ne pouvait pas savoir laquelle cocher."
     },
     {
       "item_id": "SES-2-STAT-05",
@@ -263,15 +263,15 @@
       "enonce": "Sur un marché concurrentiel, le prix d'équilibre est celui pour lequel :",
       "supports": [],
       "propositions": {
-        "A": "le profit des producteurs est maximal",
-        "B": "la quantité offerte égale la quantité demandée",
+        "B": "le profit des producteurs est maximal",
         "C": "le prix est le plus bas possible",
-        "D": "tous les consommateurs sont satisfaits"
+        "D": "tous les consommateurs sont satisfaits",
+        "A": "la quantité offerte égale la quantité demandée"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "équilibre confondu avec optimum du producteur",
+          "B": "équilibre confondu avec optimum du producteur",
           "C": "équilibre confondu avec prix minimal",
           "D": "équilibre confondu avec satisfaction générale"
         }
@@ -280,7 +280,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Définition de l'équilibre. Le distracteur A est le plus fréquent : il attribue au marché une finalité qu'il n'a pas."
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Définition de l'équilibre. Le distracteur B est le plus fréquent : il attribue au marché une finalité qu'il n'a pas."
     },
     {
       "item_id": "SES-1-ECO-02",
@@ -297,8 +297,8 @@
       "enonce": "Une externalité négative désigne :",
       "supports": [],
       "propositions": {
-        "A": "une perte subie par une entreprise",
         "B": "un coût supporté par un tiers sans compensation",
+        "A": "une perte subie par une entreprise",
         "C": "une hausse des prix",
         "D": "une baisse de la demande"
       },
@@ -390,9 +390,9 @@
       "enonce": "La socialisation primaire désigne :",
       "supports": [],
       "propositions": {
-        "A": "l'apprentissage des normes et valeurs durant l'enfance",
         "B": "l'intégration au monde du travail",
         "C": "la première rencontre avec un groupe",
+        "A": "l'apprentissage des normes et valeurs durant l'enfance",
         "D": "l'éducation scolaire uniquement"
       },
       "cle": {
@@ -425,16 +425,16 @@
       "supports": [],
       "propositions": {
         "A": "illégal",
-        "B": "qui s'écarte des normes en vigueur dans un groupe donné",
-        "C": "minoritaire",
-        "D": "nuisible à autrui"
+        "D": "qui s'écarte des normes en vigueur dans un groupe donné",
+        "B": "minoritaire",
+        "C": "nuisible à autrui"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "D",
         "distracteurs": {
           "A": "déviance confondue avec délinquance",
-          "C": "déviance confondue avec rareté",
-          "D": "déviance confondue avec nuisance"
+          "B": "déviance confondue avec rareté",
+          "C": "déviance confondue avec nuisance"
         }
       },
       "grille": null,
@@ -514,15 +514,15 @@
       "enonce": "L'abstention électorale s'explique notamment par :",
       "supports": [],
       "propositions": {
-        "A": "le seul désintérêt individuel",
-        "B": "des facteurs sociaux comme le niveau de diplôme et l'intégration sociale",
+        "B": "le seul désintérêt individuel",
+        "A": "des facteurs sociaux comme le niveau de diplôme et l'intégration sociale",
         "C": "la complexité des bulletins",
         "D": "le hasard"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "explication réduite à une disposition individuelle",
+          "B": "explication réduite à une disposition individuelle",
           "C": "explication technique",
           "D": "explication par le hasard"
         }
@@ -531,7 +531,7 @@
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Déterminants sociaux du vote. Le distracteur A est la conception spontanée que le programme vise précisément à déplacer."
+      "notes_conception": "Spécialité sciences économiques et sociales, classe de première générale. Déterminants sociaux du vote. Le distracteur B est la conception spontanée que le programme vise précisément à déplacer."
     },
     {
       "item_id": "SES-1-POL-02",
@@ -573,9 +573,9 @@
       "enonce": "L'action publique en matière d'environnement mobilise notamment :",
       "supports": [],
       "propositions": {
-        "A": "la réglementation, la taxation et les marchés de quotas",
         "B": "la seule réglementation",
         "C": "la seule information des consommateurs",
+        "A": "la réglementation, la taxation et les marchés de quotas",
         "D": "aucun instrument spécifique"
       },
       "cle": {
@@ -688,15 +688,15 @@
       "enonce": "Dans l'exercice de mobilisation des connaissances, il est attendu :",
       "supports": [],
       "propositions": {
-        "A": "une réponse structurée définissant la notion puis exposant le mécanisme",
-        "B": "un plan en deux parties",
+        "B": "une réponse structurée définissant la notion puis exposant le mécanisme",
+        "A": "un plan en deux parties",
         "C": "une étude de document",
         "D": "une prise de position argumentée"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "format de la dissertation employé",
+          "A": "format de la dissertation employé",
           "C": "format de l'exercice 2 employé",
           "D": "format de l'exercice 3 employé"
         }
@@ -939,7 +939,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : annoncer la problématique (1), énoncer un argument (2), illustrer par une donnée (3), conclure (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "SES-ERR-THEORIE",
@@ -1083,15 +1083,15 @@
       "supports": [],
       "propositions": {
         "A": "que le candidat est majoritaire",
-        "B": "que le résultat se situe probablement entre 49 % et 55 %",
-        "C": "que le sondage est faux",
-        "D": "que la majorité est certaine"
+        "B": "que le sondage est faux",
+        "D": "que la majorité est certaine",
+        "C": "que le résultat se situe probablement entre 49 % et 55 %"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "marge d'erreur ignorée",
-          "C": "incertitude confondue avec erreur",
+          "B": "incertitude confondue avec erreur",
           "D": "conclusion affirmée malgré l'incertitude"
         }
       },
@@ -1114,8 +1114,8 @@
       "supports": [],
       "propositions": {
         "A": "une cause et une conséquence",
-        "B": "une cause, les étapes intermédiaires et la conséquence",
         "C": "une définition et un exemple",
+        "B": "une cause, les étapes intermédiaires et la conséquence",
         "D": "une donnée chiffrée"
       },
       "cle": {
@@ -1145,9 +1145,9 @@
       "supports": [],
       "propositions": {
         "A": "que tous les individus sont identiques",
-        "B": "que les autres facteurs sont maintenus constants",
         "C": "que le résultat est certain",
-        "D": "que la relation est valable partout"
+        "D": "que la relation est valable partout",
+        "B": "que les autres facteurs sont maintenus constants"
       },
       "cle": {
         "reponse": "B",
@@ -1177,7 +1177,7 @@
       "cle": {
         "reponse_2pts": "L'ordre est : présenter (1), citer des données (2), mettre en relation (3), conclure (4).",
         "reponses_1pt": [
-          "Trois étapes sur quatre sont à leur place."
+          "Deux étapes sont interverties ; les deux autres sont à leur place."
         ],
         "codes_erreur": [
           "SES-ERR-DOC-PRES",

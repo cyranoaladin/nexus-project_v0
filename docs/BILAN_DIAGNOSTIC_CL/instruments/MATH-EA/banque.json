@@ -18,17 +18,17 @@
       "enonce": "Un article coûte 80 €. Son prix augmente de 25 %. Quel est le nouveau prix ?",
       "supports": [],
       "propositions": {
-        "A": "100 €",
-        "B": "96 €",
-        "C": "105 €",
-        "D": "82 €"
+        "D": "100 €",
+        "A": "96 €",
+        "B": "105 €",
+        "C": "82 €"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "D",
         "distracteurs": {
-          "B": "augmentation de 20 % appliquée au lieu de 25 %",
-          "C": "coefficient 1,25 appliqué à 84 au lieu de 80",
-          "D": "25 % lus comme 2,5 %"
+          "A": "augmentation de 20 % appliquée au lieu de 25 %",
+          "B": "coefficient 1,25 appliqué à 84 au lieu de 80",
+          "C": "25 % lus comme 2,5 %"
         }
       },
       "grille": null,
@@ -62,15 +62,15 @@
       "enonce": "Un prix baisse de 20 %, puis augmente de 20 %. Quelle est l'évolution globale ?",
       "supports": [],
       "propositions": {
-        "A": "aucune évolution",
-        "B": "une baisse de 4 %",
+        "B": "aucune évolution",
         "C": "une hausse de 4 %",
-        "D": "une baisse de 40 %"
+        "D": "une baisse de 40 %",
+        "A": "une baisse de 4 %"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "taux additionnés au lieu des coefficients multipliés",
+          "B": "taux additionnés au lieu des coefficients multipliés",
           "C": "sens de l'évolution globale inversé",
           "D": "taux successifs additionnés en valeur absolue"
         }
@@ -107,17 +107,17 @@
       "enonce": "Quelles sont les solutions de l'équation $(x - 3)(x + 5) = 0$ ?",
       "supports": [],
       "propositions": {
+        "D": "3 et −5",
         "A": "3 et 5",
         "B": "−3 et 5",
-        "C": "3 et −5",
-        "D": "−3 et −5"
+        "C": "−3 et −5"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "signe du second facteur non traité",
           "B": "signes des deux racines inversés",
-          "D": "signe du premier facteur non traité"
+          "C": "signe du premier facteur non traité"
         }
       },
       "grille": null,
@@ -152,16 +152,16 @@
       "supports": [],
       "propositions": {
         "A": "−25 %",
-        "B": "−30 %",
-        "C": "−12,5 %",
-        "D": "−20 %"
+        "C": "−30 %",
+        "B": "−20 %",
+        "D": "−12,5 %"
       },
       "cle": {
-        "reponse": "D",
+        "reponse": "B",
         "distracteurs": {
           "A": "taux réciproque confondu avec l'opposé du taux appliqué",
-          "B": "valeur approchée sans calcul du coefficient réciproque",
-          "C": "taux divisé par deux"
+          "C": "valeur approchée sans calcul du coefficient réciproque",
+          "D": "taux divisé par deux"
         }
       },
       "grille": null,
@@ -240,15 +240,15 @@
       "enonce": "Quel est le signe de $(x - 2)(x + 1)$ pour x strictement compris entre −1 et 2 ?",
       "supports": [],
       "propositions": {
-        "A": "positif",
-        "B": "négatif",
+        "B": "positif",
         "C": "nul",
-        "D": "il change de signe sur cet intervalle"
+        "D": "il change de signe sur cet intervalle",
+        "A": "négatif"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "produit de deux facteurs de signes contraires déclaré positif",
+          "B": "produit de deux facteurs de signes contraires déclaré positif",
           "C": "confusion entre racine et signe",
           "D": "racines placées à l'intérieur de l'intervalle"
         }
@@ -286,15 +286,15 @@
       "enonce": "Une quantité augmente de 8 %. Par quel nombre faut-il la multiplier ?",
       "supports": [],
       "propositions": {
-        "A": "1,08",
-        "B": "0,92",
+        "A": "0,92",
         "C": "8",
-        "D": "1,8"
+        "D": "1,8",
+        "B": "1,08"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "B",
         "distracteurs": {
-          "B": "coefficient de la baisse de 8 % au lieu de la hausse",
+          "A": "coefficient de la baisse de 8 % au lieu de la hausse",
           "C": "taux lu comme un facteur",
           "D": "virgule placée sur le chiffre du taux plutôt que sur le centième"
         }
@@ -332,8 +332,8 @@
       "propositions": {
         "A": "$(x - 3)^2$",
         "B": "$(x - 9)(x + 1)$",
-        "C": "$(x - 3)(x + 3)$",
-        "D": "$x(x - 9)$"
+        "D": "$x(x - 9)$",
+        "C": "$(x - 3)(x + 3)$"
       },
       "cle": {
         "reponse": "C",
@@ -408,17 +408,17 @@
         }
       ],
       "propositions": {
+        "D": "$y = -2x + 3$",
         "A": "$y = 3x - 2$",
         "B": "$y = -2x - 3$",
-        "C": "$y = -2x + 3$",
-        "D": "$y = 2x + 3$"
+        "C": "$y = 2x + 3$"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "D",
         "distracteurs": {
           "A": "coefficient directeur et ordonnée à l'origine intervertis",
           "B": "signe de l'ordonnée à l'origine inversé",
-          "D": "signe du coefficient directeur inversé"
+          "C": "signe du coefficient directeur inversé"
         }
       },
       "grille": null,
@@ -453,16 +453,16 @@
       "enonce": "Une droite passe par A(1 ; 2) et B(4 ; 11). Quel est son coefficient directeur ?",
       "supports": [],
       "propositions": {
-        "A": "3",
-        "B": "1/3",
-        "C": "9",
-        "D": "13/5"
+        "A": "1/3",
+        "B": "9",
+        "D": "13/5",
+        "C": "3"
       },
       "cle": {
-        "reponse": "A",
+        "reponse": "C",
         "distracteurs": {
-          "B": "rapport des accroissements inversé",
-          "C": "différence des ordonnées sans division",
+          "A": "rapport des accroissements inversé",
+          "B": "différence des ordonnées sans division",
           "D": "somme des coordonnées utilisée"
         }
       },
@@ -527,23 +527,23 @@
       ],
       "propositions": {
         "A": "12",
-        "B": "20",
-        "C": "16",
-        "D": "15"
+        "B": "15",
+        "C": "20",
+        "D": "16"
       },
       "cle": {
-        "reponse": "D",
+        "reponse": "B",
         "distracteurs": {
           "A": "premier quartile lu comme médiane",
-          "B": "troisième quartile lu comme médiane",
-          "C": "milieu de la boite calculé à la place de la lecture du trait intérieur"
+          "C": "troisième quartile lu comme médiane",
+          "D": "milieu de la boite calculé à la place de la lecture du trait intérieur"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Capacité « Lire un graphique […] un diagramme en boite ». Le diagramme était décrit en toutes lettres : la lecture graphique, qui est la capacité visée, n'était alors pas mesurée. Le résumé porte des valeurs entières et une médiane qui n'est pas au milieu de la boite, pour que le distracteur C discrimine. La capacité « Passer du graphique aux données et vice-versa » est ajoutée le 2026-09-11 : lire la médiane sur le diagramme, c'est précisément extraire une donnée d'une représentation, et la figure rend cette lecture effective.",
+      "notes_conception": "Capacité « Lire un graphique […] un diagramme en boite ». Le diagramme était décrit en toutes lettres : la lecture graphique, qui est la capacité visée, n'était alors pas mesurée. Le résumé porte des valeurs entières et une médiane qui n'est pas au milieu de la boite, pour que le distracteur D discrimine. La capacité « Passer du graphique aux données et vice-versa » est ajoutée le 2026-09-11 : lire la médiane sur le diagramme, c'est précisément extraire une donnée d'une représentation, et la figure rend cette lecture effective.",
       "capacites_officielles": {
         "SPE": [
           "MENE2602917A.AUTO.STAT-1",
@@ -611,16 +611,16 @@
         }
       ],
       "propositions": {
-        "A": "aucune",
-        "B": "une",
-        "C": "deux",
+        "A": "deux",
+        "B": "aucune",
+        "C": "une",
         "D": "trois"
       },
       "cle": {
-        "reponse": "C",
+        "reponse": "A",
         "distracteurs": {
-          "A": "changement de signe non repéré",
-          "B": "une seule branche examinée",
+          "B": "changement de signe non repéré",
+          "C": "une seule branche examinée",
           "D": "nombre de variations confondu avec le nombre de solutions"
         }
       },
@@ -657,15 +657,15 @@
       "supports": [],
       "propositions": {
         "A": "6",
-        "B": "7",
-        "C": "7,5",
+        "B": "7,5",
+        "C": "7",
         "D": "8"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "médiane de la série donnée à la place de la moyenne ; c'est aussi son mode",
-          "C": "milieu de l'étendue calculé à la place de la moyenne",
+          "B": "milieu de l'étendue calculé à la place de la moyenne",
           "D": "troisième quartile lu à la place de la moyenne"
         }
       },
@@ -742,23 +742,23 @@
       ],
       "propositions": {
         "A": "positif sur tout l'intervalle",
-        "B": "on ne peut pas le déterminer à partir de ce graphique",
-        "C": "nul en au moins une valeur",
-        "D": "négatif sur tout l'intervalle"
+        "C": "on ne peut pas le déterminer à partir de ce graphique",
+        "B": "négatif sur tout l'intervalle",
+        "D": "nul en au moins une valeur"
       },
       "cle": {
-        "reponse": "D",
+        "reponse": "B",
         "distracteurs": {
           "A": "sens de lecture des ordonnées inversé",
-          "B": "lecture du signe tenue pour impossible alors que la courbe est entièrement sous l'axe sur l'intervalle demandé",
-          "C": "intersection avec l'axe des abscisses placée dans l'intervalle alors qu'elle lui est extérieure"
+          "C": "lecture du signe tenue pour impossible alors que la courbe est entièrement sous l'axe sur l'intervalle demandé",
+          "D": "intersection avec l'axe des abscisses placée dans l'intervalle alors qu'elle lui est extérieure"
         }
       },
       "grille": null,
       "auteur": "claude-opus",
       "date": "2026-09-10",
       "source_version": "1.0",
-      "notes_conception": "Capacité « Déterminer graphiquement le signe d'une fonction ou son tableau de variations ». L'item précédent citait cette capacité sans fournir de graphique, et il était faux : de « g croissante sur [0 ; 10] et g(4) = 0 » on déduit g(x) ≤ 0 avant 4, non g(x) < 0, une fonction croissante au sens français pouvant présenter un palier nul. La proposition « on ne peut pas conclure » était donc défendable, et l'item ne discriminait rien. La courbe tracée lève l'ambiguïté : elle est strictement sous l'axe sur tout [0 ; 4], son ordonnée passant de −4 à −0,6, et elle ne coupe l'axe qu'entre 4 et 5, hors de l'intervalle interrogé. Le distracteur C vise précisément le candidat qui place l'intersection à l'intérieur de l'intervalle.",
+      "notes_conception": "Capacité « Déterminer graphiquement le signe d'une fonction ou son tableau de variations ». L'item précédent citait cette capacité sans fournir de graphique, et il était faux : de « g croissante sur [0 ; 10] et g(4) = 0 » on déduit g(x) ≤ 0 avant 4, non g(x) < 0, une fonction croissante au sens français pouvant présenter un palier nul. La proposition « on ne peut pas conclure » était donc défendable, et l'item ne discriminait rien. La courbe tracée lève l'ambiguïté : elle est strictement sous l'axe sur tout [0 ; 4], son ordonnée passant de −4 à −0,6, et elle ne coupe l'axe qu'entre 4 et 5, hors de l'intervalle interrogé. Le distracteur D vise précisément le candidat qui place l'intersection à l'intérieur de l'intervalle.",
       "capacites_officielles": {
         "SPE": [
           "MENE2602917A.AUTO.FONC-2"
@@ -786,16 +786,16 @@
       "enonce": "Sur la courbe représentative d'une fonction $f$, on lit que le point de coordonnées $(3\\,;5)$ appartient à la courbe. Que vaut $f(3)$ ?",
       "supports": [],
       "propositions": {
+        "C": "5",
         "A": "3",
-        "B": "5",
-        "C": "8",
+        "B": "8",
         "D": "on ne peut pas le savoir"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "abscisse rendue à la place de l'image",
-          "C": "coordonnées additionnées",
+          "B": "coordonnées additionnées",
           "D": "appartenance d'un point à la courbe non reliée à l'image"
         }
       },
@@ -959,10 +959,10 @@
       "bloc": "B",
       "score_max": 2,
       "duree_min": 2,
-      "enonce": "Deux évènements A et B vérifient P(A) = 0,4, P(B) = 0,5 et P(A inter B) = 0,2. Les évènements A et B sont-ils indépendants ? Justifiez.",
+      "enonce": "Deux évènements $A$ et $B$ vérifient $P(A) = 0{,}4$, $P(B) = 0{,}5$ et $P(A \\cap B) = 0{,}2$. Les évènements $A$ et $B$ sont-ils indépendants ? Justifiez.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Oui : P(A) × P(B) = 0,4 × 0,5 = 0,2 = P(A inter B), donc A et B sont indépendants.",
+        "reponse_2pts": "Oui : $P(A) \\times P(B) = 0{,}4 \\times 0{,}5 = 0{,}2 = P(A \\cap B)$, donc $A$ et $B$ sont indépendants.",
         "reponses_1pt": [
           "La conclusion est juste mais le critère n'est pas écrit.",
           "Le critère est écrit correctement mais le produit est mal calculé."
@@ -1220,10 +1220,10 @@
       "bloc": "B",
       "score_max": 2,
       "duree_min": 2,
-      "enonce": "Soit f(x) = $(x - 1)(x + 4)$. Donnez les racines de f puis le signe de f(x) sur $\\mathbb{R}$.",
+      "enonce": "Soit $f(x) = (x - 1)(x + 4)$. Donnez les racines de $f$ puis le signe de $f(x)$ sur $\\mathbb{R}$.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Les racines sont 1 et −4 ; f(x) est négatif entre −4 et 1, positif à l'extérieur.",
+        "reponse_2pts": "Les racines sont $1$ et $-4$ ; $f(x)$ est négatif entre $-4$ et $1$, positif à l'extérieur.",
         "reponses_1pt": [
           "Les racines sont justes mais le signe est inversé.",
           "Le signe est correct mais une seule racine est donnée."
@@ -1258,10 +1258,10 @@
       "bloc": "B",
       "score_max": 2,
       "duree_min": 2,
-      "enonce": "Soit $f(x) = x^2 - 4x + 1$. Calculez $f'(x)$, puis donnez le sens de variation de f sur $\\mathbb{R}$.",
+      "enonce": "Soit $f(x) = x^2 - 4x + 1$. Calculez $f'(x)$, puis donnez le sens de variation de $f$ sur $\\mathbb{R}$.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "$f'(x) = 2x - 4$ ; f décroît sur ]−∞ ; 2] et croît sur [2 ; +∞[, la dérivée s'annulant en 2.",
+        "reponse_2pts": "$f'(x) = 2x - 4$ ; $f$ décroît sur $]-\\infty\\,;\\,2]$ et croît sur $[2\\,;\\,+\\infty[$, la dérivée s'annulant en $2$.",
         "reponses_1pt": [
           "La dérivée est juste mais les variations ne sont pas données.",
           "Les variations sont justes mais la dérivée est fausse d'un terme."
@@ -1336,10 +1336,10 @@
       "bloc": "B",
       "score_max": 2,
       "duree_min": 2,
-      "enonce": "Dans un repère orthonormé, u a pour coordonnées (3 ; −1) et v a pour coordonnées (2 ; 4). Calculez le produit scalaire u·v.",
+      "enonce": "Dans un repère orthonormé, $\\vec{u}$ a pour coordonnées $(3\\,;\\,-1)$ et $\\vec{v}$ a pour coordonnées $(2\\,;\\,4)$. Calculez le produit scalaire $\\vec{u} \\cdot \\vec{v}$.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "u·v = 3 × 2 + (−1) × 4 = 2.",
+        "reponse_2pts": "$\\vec{u} \\cdot \\vec{v} = 3 \\times 2 + (-1) \\times 4 = 2$.",
         "reponses_1pt": [
           "La formule est écrite mais un signe est perdu.",
           "Le calcul est mené sur les normes au lieu des coordonnées."
@@ -2229,10 +2229,10 @@
       "bloc": "D",
       "score_max": 2,
       "duree_min": 2,
-      "enonce": "Une copie donne : « f(x) = $(x - 2)(x + 3)$, donc f est positive. » Quelle étape manque-t-il pour que cette conclusion soit justifiée ?",
+      "enonce": "Une copie donne : « $f(x) = (x - 2)(x + 3)$, donc $f$ est positive. » Quelle étape manque-t-il pour que cette conclusion soit justifiée ?",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Il manque l'étude du signe de chaque facteur et le tableau de signes du produit : f n'est positive qu'en dehors de l'intervalle des racines.",
+        "reponse_2pts": "Il manque l'étude du signe de chaque facteur et le tableau de signes du produit : $f$ n'est positive qu'en dehors de l'intervalle des racines.",
         "reponses_1pt": [
           "Le manque est signalé sans dire ce qu'il faudrait écrire.",
           "Le tableau de signes est évoqué mais la conclusion reste fausse."

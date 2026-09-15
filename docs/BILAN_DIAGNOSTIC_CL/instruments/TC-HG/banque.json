@@ -18,15 +18,15 @@
       "enonce": "L'année 1789 constitue une rupture majeure dans l'histoire politique française car elle marque :",
       "supports": [],
       "propositions": {
-        "A": "la proclamation de la Première République",
-        "B": "la fin de la monarchie absolue de droit divin et la souveraineté nationale",
+        "B": "la proclamation de la Première République",
         "C": "la promulgation du Code civil des Français",
+        "A": "la fin de la monarchie absolue de droit divin et la souveraineté nationale",
         "D": "l'abolition définitive de la royauté en Europe"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "A",
         "distracteurs": {
-          "A": "confusion chronologique avec septembre 1792",
+          "B": "confusion chronologique avec septembre 1792",
           "C": "confusion chronologique avec 1804 sous le Consulat",
           "D": "généralisation abusive à l'ensemble du continent européen"
         }
@@ -53,16 +53,16 @@
       "enonce": "En géographie, changer d'échelle d'analyse permet principalement de :",
       "supports": [],
       "propositions": {
+        "C": "mettre en évidence des logiques et des dynamiques spatiales différentes",
         "A": "modifier les réalités observées sans lien avec le terrain",
-        "B": "mettre en évidence des logiques et des dynamiques spatiales différentes",
-        "C": "remplacer systématiquement l'analyse locale par l'échelle mondiale",
+        "B": "remplacer systématiquement l'analyse locale par l'échelle mondiale",
         "D": "éliminer les contrastes spatiaux au profit d'une moyenne générale"
       },
       "cle": {
-        "reponse": "B",
+        "reponse": "C",
         "distracteurs": {
           "A": "conception erronée de la démarche géographique",
-          "C": "hiérarchisation injustifiée des échelles",
+          "B": "hiérarchisation injustifiée des échelles",
           "D": "méconnaissance de l'intérêt de la variation multi-scalaire"
         }
       },
@@ -88,8 +88,8 @@
       "enonce": "Sur un croquis cartographique, pour représenter un phénomène continu et étendu dans l'espace (comme un espace agricole ou une zone dense), on utilise :",
       "supports": [],
       "propositions": {
-        "A": "un figuré ponctuel géométrique",
         "B": "un figuré de surface (aplat de couleur ou hachures)",
+        "A": "un figuré ponctuel géométrique",
         "C": "une flèche orientée à largeur variable",
         "D": "un symbole pictographique isolé"
       },
@@ -332,25 +332,24 @@
       "notes_conception": "Capacités méthodologiques : identification critique des sources."
     },
     {
-      "item_id": "HG-1-DOC-02",
+      "item_id": "HG-1-DOC-12",
       "competence": "DOC",
       "niveau": "1",
       "palier": "D1",
       "type": "B",
       "bloc": {
         "1RE": "B",
-        "TLE": "B",
         "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 1.5,
-      "enonce": "Relevez dans ce discours de Lamartine l'argument utilisé pour défendre le maintien du drapeau tricolore face aux partisans du drapeau rouge.",
+      "enonce": "Document pédagogique Nexus — texte de travail, et non extrait d'un discours d'époque : « Au lendemain du 24 février 1848, une partie des ouvriers parisiens réclame que la République adopte le drapeau rouge. Au sein du gouvernement provisoire, Lamartine s'y oppose et plaide pour le maintien du drapeau tricolore : celui-ci, dit-il, est le drapeau de la Nation tout entière et celui sous lequel la France a porté la liberté au-delà de ses frontières, tandis que le drapeau rouge reste attaché, dans la mémoire collective, aux journées sanglantes de la Révolution. »\n\nRelevez l'argument par lequel le maintien du drapeau tricolore est défendu, et dites sur quoi il s'appuie.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Lamartine rappelle que le drapeau tricolore symbolise l'unité de la Nation et a porté la liberté à travers le monde, tandis que le drapeau rouge est associé à la violence civile du Champ-de-Mars en 1791.",
+        "reponse_2pts": "L'argument est celui de l'unité : le drapeau tricolore est présenté comme celui de la Nation entière et comme le symbole d'une liberté portée au-delà des frontières, quand le drapeau rouge est renvoyé au souvenir de la violence révolutionnaire.",
         "reponses_1pt": [
-          "La citation est faite sans contextualisation ni explication de la portée symbolique.",
-          "L'argument est compris mais rapporté de façon incomplète."
+          "L'argument est relevé sans que son appui symbolique soit explicité.",
+          "Le texte est recopié sans que l'argument en soit dégagé."
         ],
         "codes_erreur": [
           "HG-ERR-PARAPHRASE",
@@ -358,31 +357,30 @@
         ]
       },
       "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
+      "auteur": "claude-opus-5",
+      "date": "2026-09-15",
       "source_version": "1.0",
-      "notes_conception": "Analyse documentaire : contextualisation et portée symbolique."
+      "notes_conception": "Variante autonome : le document est transcrit dans l'énoncé. La question antérieure renvoyait à un discours, à une carte ou à une affiche que le livret n'imprimait pas — le candidat devait analyser une source absente. Le document est un texte de travail rédigé par Nexus, et non une citation historique : aucune source d'époque n'est reconstituée de mémoire."
     },
     {
-      "item_id": "HG-1-DOC-03",
+      "item_id": "HG-1-DOC-13",
       "competence": "DOC",
       "niveau": "1",
       "palier": "D2",
       "type": "B",
       "bloc": {
         "1RE": "B",
-        "TLE": "B",
         "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 2.0,
-      "enonce": "Portez un regard critique sur ce texte : en quoi reflète-t-il les divisions idéologiques entre républicains modérés et partisans de réformes sociales plus radicales en 1848 ?",
+      "enonce": "Document pédagogique Nexus — texte de travail : « Le gouvernement provisoire de février 1848 réunit des républicains modérés, attachés à l'ordre et à l'unité nationale, et des républicains favorables à des réformes sociales, portés par les ouvriers parisiens qui réclament la reconnaissance du droit au travail. »\n\nEn quoi ce texte rend-il compte des divisions idéologiques de la République de 1848 ? Portez un regard critique sur ce qu'il laisse de côté.",
       "supports": [],
       "cle": {
-        "reponse_2pts": "L'analyse montre que le texte de Lamartine illustre la position des républicains libéraux attachés à l'ordre et à l'unité nationale, face aux ouvriers et républicains socialistes qui revendiquent le droit au travail et une république sociale.",
+        "reponse_2pts": "Le texte oppose des républicains libéraux, attachés à l'ordre et à l'unité, à des républicains sociaux portés par la revendication ouvrière du droit au travail ; il rend compte du clivage politique mais ne dit rien de la situation économique parisienne — chômage et misère — qui lui donne sa force.",
         "reponses_1pt": [
-          "Le clivage politique est mentionné mais sans mise en relation avec la situation sociale parisienne.",
-          "La réponse se borne à répéter les propos de l'auteur sans distance critique."
+          "Le clivage politique est décrit sans être mis en relation avec la situation sociale parisienne.",
+          "La réponse se borne à reformuler le texte sans distance critique."
         ],
         "codes_erreur": [
           "HG-ERR-PARAPHRASE",
@@ -390,31 +388,30 @@
         ]
       },
       "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
+      "auteur": "claude-opus-5",
+      "date": "2026-09-15",
       "source_version": "1.0",
-      "notes_conception": "Analyse critique : mise en perspective historique et confrontation de points de vue."
+      "notes_conception": "Variante autonome : le document est transcrit dans l'énoncé. La question antérieure renvoyait à un discours, à une carte ou à une affiche que le livret n'imprimait pas — le candidat devait analyser une source absente. Le document est un texte de travail rédigé par Nexus, et non une citation historique : aucune source d'époque n'est reconstituée de mémoire."
     },
     {
-      "item_id": "HG-1-DOC-04",
+      "item_id": "HG-1-DOC-14",
       "competence": "DOC",
       "niveau": "1",
       "palier": "D2",
       "type": "B",
       "bloc": {
         "1RE": "B",
-        "TLE": "B",
         "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 2.5,
-      "enonce": "Confrontez ce document à un extrait de programme des ateliers nationaux : comment ces deux sources révèlent-elles l'échec de la conciliation républicaine avant les journées de juin 1848 ?",
+      "enonce": "Document pédagogique Nexus — deux textes de travail. Texte 1 : « En février 1848, le gouvernement provisoire promet l'unité de la Nation et reconnaît le droit au travail ; les ateliers nationaux sont ouverts pour employer les chômeurs. » Texte 2 : « En juin 1848, l'Assemblée décide la fermeture des ateliers nationaux. Les ouvriers parisiens se soulèvent ; l'insurrection est réprimée par l'armée. »\n\nConfrontez ces deux textes : comment rendent-ils compte de l'échec de la conciliation républicaine avant les journées de juin 1848 ?",
       "supports": [],
       "cle": {
-        "reponse_2pts": "Le candidat montre que la promesse politique d'unité formulée en février se heurte à la fermeture des ateliers nationaux en juin, transformant l'espoir socialiste en insurrection ouvrière réprimée par la République bourgeoise.",
+        "reponse_2pts": "La promesse politique de février — unité nationale et droit au travail — se heurte à la fermeture des ateliers nationaux en juin : l'espoir social se retourne en insurrection ouvrière, que la République réprime, ce qui marque la rupture entre les deux composantes de février.",
         "reponses_1pt": [
-          "La fermeture des ateliers nationaux est mentionnée sans analyse de la rupture de confiance avec le peuple.",
-          "L'analyse juxtapose les deux faits sans établir de confrontation causale."
+          "La fermeture des ateliers nationaux est mentionnée sans analyse de la rupture de confiance qu'elle produit.",
+          "Les deux textes sont juxtaposés sans confrontation causale."
         ],
         "codes_erreur": [
           "HG-ERR-PARAPHRASE",
@@ -422,10 +419,10 @@
         ]
       },
       "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
+      "auteur": "claude-opus-5",
+      "date": "2026-09-15",
       "source_version": "1.0",
-      "notes_conception": "Confrontation de sources historiques contradictoires."
+      "notes_conception": "Variante autonome : le document est transcrit dans l'énoncé. La question antérieure renvoyait à un discours, à une carte ou à une affiche que le livret n'imprimait pas — le candidat devait analyser une source absente. Le document est un texte de travail rédigé par Nexus, et non une citation historique : aucune source d'époque n'est reconstituée de mémoire."
     },
     {
       "item_id": "HG-1-CART-01",
@@ -809,134 +806,6 @@
       "notes_conception": "Programme de Terminale : la protection des milieux marins."
     },
     {
-      "item_id": "HG-T-DOC-01",
-      "competence": "DOC",
-      "niveau": "T",
-      "palier": "D1",
-      "type": "B",
-      "bloc": {
-        "1RE": "B",
-        "TLE": "B",
-        "ETENDUE": "B"
-      },
-      "score_max": 2,
-      "duree_min": 1.5,
-      "enonce": "À partir de la légende d'une carte thématique mondiale des flux conteneurisés, identifiez l'unité de mesure utilisée et le sens des figurés de flux.",
-      "supports": [],
-      "cle": {
-        "reponse_2pts": "Unité : EVP (Équivalent Vingt Pieds) ou millions d'EVP ; les figurés linéaires proportionnels indiquent l'intensité des échanges et les flèches en précisent le sens dominant.",
-        "reponses_1pt": [
-          "L'unité est comprise mais le sens des figurés n'est pas explicité.",
-          "Les flux sont décrits de manière globale sans repérer l'unité de la légende."
-        ],
-        "codes_erreur": [
-          "HG-ERR-SOURCE",
-          "HG-ERR-FIGURE"
-        ]
-      },
-      "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
-      "source_version": "1.0",
-      "notes_conception": "Lecture et analyse critique d'un document cartographique."
-    },
-    {
-      "item_id": "HG-T-DOC-02",
-      "competence": "DOC",
-      "niveau": "T",
-      "palier": "D1",
-      "type": "B",
-      "bloc": {
-        "1RE": "B",
-        "TLE": "B",
-        "ETENDUE": "B"
-      },
-      "score_max": 2,
-      "duree_min": 1.5,
-      "enonce": "Relevez sur cette carte les trois façades maritimes majeures qui concentrent l'essentiel du trafic conteneurisé mondial.",
-      "supports": [],
-      "cle": {
-        "reponse_2pts": "Les trois façades majeures : façade est-asiatique (Chine, Japon, Corée), rangée nord-européenne (Northern Range), et façade nord-américaine (façades atlantique et pacifique).",
-        "reponses_1pt": [
-          "Deux façades sur trois sont correctement identifiées.",
-          "Des pays isolés sont cités à la place de façades régionales maritimes."
-        ],
-        "codes_erreur": [
-          "HG-ERR-LOCALISATION",
-          "HG-ERR-ECHELLE"
-        ]
-      },
-      "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
-      "source_version": "1.0",
-      "notes_conception": "Analyse spatiale à partir d'une carte thématique."
-    },
-    {
-      "item_id": "HG-T-DOC-03",
-      "competence": "DOC",
-      "niveau": "T",
-      "palier": "D2",
-      "type": "B",
-      "bloc": {
-        "1RE": "B",
-        "TLE": "B",
-        "ETENDUE": "B"
-      },
-      "score_max": 2,
-      "duree_min": 2.0,
-      "enonce": "Confrontez cette carte à vos connaissances : quelles limites environnementales et stratégiques le document omet-il d'illustrer quant à l'intensification des routes maritimes ?",
-      "supports": [],
-      "cle": {
-        "reponse_2pts": "Le candidat montre que la carte privilégie les volumes économiques mais ne figure ni la pollution marine (rejets d'hydrocarbures, émissions de soufre/CO2), ni la surpêche, ni la vulnérabilité des goulets d'étranglement (risques de piraterie ou de blocus géopolitique).",
-        "reponses_1pt": [
-          "Un seul angle critique (environnemental ou sécuritaire) est développé.",
-          "Les limites sont évoquées sans lien direct avec les réalités de la navigation maritime."
-        ],
-        "codes_erreur": [
-          "HG-ERR-SOURCE",
-          "HG-ERR-PARAPHRASE"
-        ]
-      },
-      "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
-      "source_version": "1.0",
-      "notes_conception": "Regard critique et confrontation de documents en Terminale."
-    },
-    {
-      "item_id": "HG-T-DOC-04",
-      "competence": "DOC",
-      "niveau": "T",
-      "palier": "D2",
-      "type": "B",
-      "bloc": {
-        "1RE": "B",
-        "TLE": "B",
-        "ETENDUE": "B"
-      },
-      "score_max": 2,
-      "duree_min": 2.5,
-      "enonce": "Analysez une affiche de propagande totalitaire soviétique des années 1930 : comment le graphisme et les slogans construisent-ils le culte de la personnalité de Staline ?",
-      "supports": [],
-      "cle": {
-        "reponse_2pts": "L'analyse met en valeur la composition pyramidale centrant le regard sur le chef bienveillant et infaillible, guidant les ouvriers et paysans vers un avenir radieux, avec des slogans célébrant le bâtisseur du socialisme.",
-        "reponses_1pt": [
-          "L'affiche est décrite sans décoder les ressorts idéologiques de la mise en scène.",
-          "La réponse mentionne la propagande sans analyser le graphisme spécifique."
-        ],
-        "codes_erreur": [
-          "HG-ERR-SOURCE",
-          "HG-ERR-PARAPHRASE"
-        ]
-      },
-      "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
-      "source_version": "1.0",
-      "notes_conception": "Décodage de l'image de propagande en Terminale."
-    },
-    {
       "item_id": "HG-T-CART-01",
       "competence": "CART",
       "niveau": "T",
@@ -999,38 +868,6 @@
       "date": "2026-09-12",
       "source_version": "1.0",
       "notes_conception": "Conception d'une légende organisée en Terminale."
-    },
-    {
-      "item_id": "HG-T-CART-03",
-      "competence": "CART",
-      "niveau": "T",
-      "palier": "D2",
-      "type": "B",
-      "bloc": {
-        "1RE": "B",
-        "TLE": "B",
-        "ETENDUE": "B"
-      },
-      "score_max": 2,
-      "duree_min": 2.0,
-      "enonce": "Sur un fond de carte de l'Asie orientale, identifiez deux détroits stratégiques de la région et indiquez le figuré cartographique approprié pour les signaler.",
-      "supports": [],
-      "cle": {
-        "reponse_2pts": "Détroits de Malacca, de Formose/Taïwan ou de la Sonde ; représentés par un figuré ponctuel ou linéaire contrasté (triangle ou trait rouge barrant le passage ou flèche resserrée).",
-        "reponses_1pt": [
-          "Un seul détroit correctement localisé avec son figuré.",
-          "Les détroits sont nommés mais sans proposition de figuré cartographique."
-        ],
-        "codes_erreur": [
-          "HG-ERR-FIGURE",
-          "HG-ERR-LOCALISATION"
-        ]
-      },
-      "grille": null,
-      "auteur": "Nexus Direction Pédagogique",
-      "date": "2026-09-12",
-      "source_version": "1.0",
-      "notes_conception": "Repérage cartographique de points de passage stratégiques."
     },
     {
       "item_id": "HG-T-PROB-01",
@@ -1183,7 +1020,8 @@
       "palier": "D1",
       "type": "B",
       "bloc": {
-        "TLE": "B"
+        "TLE": "B",
+        "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 1.5,
@@ -1204,7 +1042,7 @@
       "auteur": "Nexus Direction Pédagogique",
       "date": "2026-09-13",
       "source_version": "1.1",
-      "notes_conception": "Variante autonome réservée à TLE / Profil B. Lecture d'une légende intégralement transcrite, sans carte absente ni données de trafic présentées comme réelles."
+      "notes_conception": "Variante autonome servie en TLE et en version étendue. Lecture d'une légende intégralement transcrite, sans carte absente ni données de trafic présentées comme réelles."
     },
     {
       "item_id": "HG-T-DOC-12",
@@ -1213,7 +1051,8 @@
       "palier": "D1",
       "type": "B",
       "bloc": {
-        "TLE": "B"
+        "TLE": "B",
+        "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 1.5,
@@ -1234,7 +1073,7 @@
       "auteur": "Nexus Direction Pédagogique",
       "date": "2026-09-13",
       "source_version": "1.1",
-      "notes_conception": "Variante autonome réservée à TLE / Profil B. Analyse spatiale d'un relevé textuel pédagogique ; aucun classement statistique ni carte non fournie n'est présupposé."
+      "notes_conception": "Variante autonome servie en TLE et en version étendue. Analyse spatiale d'un relevé textuel pédagogique ; aucun classement statistique ni carte non fournie n'est présupposé."
     },
     {
       "item_id": "HG-T-DOC-13",
@@ -1243,7 +1082,8 @@
       "palier": "D2",
       "type": "B",
       "bloc": {
-        "TLE": "B"
+        "TLE": "B",
+        "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 2.0,
@@ -1264,7 +1104,7 @@
       "auteur": "Nexus Direction Pédagogique",
       "date": "2026-09-13",
       "source_version": "1.1",
-      "notes_conception": "Variante autonome réservée à TLE / Profil B. Critique du périmètre d'un document à partir d'une notice explicite, sans supposer le contenu d'une carte inexistante."
+      "notes_conception": "Variante autonome servie en TLE et en version étendue. Critique du périmètre d'un document à partir d'une notice explicite, sans supposer le contenu d'une carte inexistante."
     },
     {
       "item_id": "HG-T-DOC-14",
@@ -1273,7 +1113,8 @@
       "palier": "D2",
       "type": "B",
       "bloc": {
-        "TLE": "B"
+        "TLE": "B",
+        "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 2.5,
@@ -1294,7 +1135,7 @@
       "auteur": "Nexus Direction Pédagogique",
       "date": "2026-09-13",
       "source_version": "1.1",
-      "notes_conception": "Variante autonome réservée à TLE / Profil B. Analyse d'un texte pédagogique original sur les mécanismes de propagande ; aucune affiche, citation de propagande ou source historique n'est inventée."
+      "notes_conception": "Variante autonome servie en TLE et en version étendue. Analyse d'un texte pédagogique original sur les mécanismes de propagande ; aucune affiche, citation de propagande ou source historique n'est inventée."
     },
     {
       "item_id": "HG-T-CART-13",
@@ -1303,7 +1144,8 @@
       "palier": "D2",
       "type": "B",
       "bloc": {
-        "TLE": "B"
+        "TLE": "B",
+        "ETENDUE": "B"
       },
       "score_max": 2,
       "duree_min": 2.0,
@@ -1324,7 +1166,7 @@
       "auteur": "Nexus Direction Pédagogique",
       "date": "2026-09-13",
       "source_version": "1.1",
-      "notes_conception": "Variante autonome réservée à TLE / Profil B. Choix et justification de conventions cartographiques en noir et blanc à partir de repères fournis ; aucune carte à compléter n'est nécessaire."
+      "notes_conception": "Variante autonome servie en TLE et en version étendue. Choix et justification de conventions cartographiques en noir et blanc à partir de repères fournis ; aucune carte à compléter n'est nécessaire."
     }
   ]
 }

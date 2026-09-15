@@ -110,6 +110,27 @@ EPREUVE_DE = {
     "EDS-SES": ["EDS-SES"], "EDS-HGGSP": ["EDS-HGGSP"], "EDS-HLP": ["EDS-HLP"],
 }
 
+def enseignements_continus(code: str, version: str | None, m: dict,
+                           abandonnee: bool = False) -> list[dict]:
+    """Les enseignements du contrôle continu que cet instrument diagnostique.
+
+    Le rattachement est lu dans `modalites_epreuves.json` — champ `couvert_par_nexus` —
+    et jamais écrit ici : c'est le référentiel qui sait que TC-HG adosse l'histoire-
+    géographie et que EDS-<x>/N1 adosse la spécialité suivie en seule classe de première.
+    """
+    out = []
+    for e in m.get("evaluations_ponctuelles", {}).get("enseignements", []):
+        couvert = e.get("couvert_par_nexus")
+        if not couvert:
+            continue
+        if couvert == code:
+            out.append(e)
+        elif (couvert == "EDS-<x>/N1" and abandonnee
+              and code.startswith("EDS-") and version == "N1"):
+            out.append(e)
+    return out
+
+
 #: Hauteur de repli de la zone de réponse, en lignes. Une justification courte tient en
 #: trois lignes ; une production longue se mesure sur ce que l'énoncé demande d'écrire.
 LIGNES_REPONSE = {"A": 0, "B": 3, "C": 6}
@@ -292,8 +313,14 @@ def duree(minutes: int) -> str:
 
 
 def _minutes_item(it: dict) -> str:
-    v = it["duree_min"]
-    return f"{v} min" if float(v) == int(v) else f"{str(v).replace('.', ',')} min"
+    """« 2 min » et « 2,5 min » — jamais « 2.0 min ».
+
+    Une durée entière stockée en flottant s'imprimait avec son zéro décimal et un point
+    anglais, à côté d'une durée fractionnaire imprimée avec une virgule française : deux
+    conventions sur la même page. Le format « g » retire le zéro inutile, et la virgule
+    est posée ensuite. Trente-trois items de TC-HG et FR-POS étaient concernés.
+    """
+    return f"{it['duree_min']:g}".replace(".", ",") + " min"
 
 
 # ─────────────────────────────────────────────── la couverture
@@ -316,14 +343,27 @@ def couverture(matiere: str, profil: str, parties: list[dict], m: dict,
     })
     # Les cartouches réglementaires sont lus, jamais saisis : durée officielle,
     # coefficient, calculatrice viennent de referentiels/modalites_epreuves.json.
-    officiels = [m["epreuves_terminales"][c] for x in parties
-                 for c in EPREUVE_DE.get(x["code"], []) if c in m["epreuves_terminales"]]
+    # Une spécialité suivie en seule classe de première n'est pas présentée à l'épreuve
+    # terminale : elle est évaluée par une évaluation ponctuelle, coefficient 8. Les
+    # livrets « NON POURSUIVIE » — la version N1 servie à un candidat de profil P2 ou P3,
+    # qui a donc déjà arrêté cette spécialité — annonçaient « 3 h 30, coef. 16 » :
+    # l'épreuve qu'il ne passera pas, et un coefficient qui n'est pas le sien.
+    abandonnee = [x for x in parties
+                  if x["code"].startswith("EDS-") and x.get("version") == "N1"
+                  and profil in ("P2", "P3")]
+    if abandonnee and soustitre:
+        soustitre = (soustitre.split("—")[0].strip()
+                     + " — spécialité suivie en première, évaluation ponctuelle")
+    officiels = [] if abandonnee else [
+        m["epreuves_terminales"][c] for x in parties
+        for c in EPREUVE_DE.get(x["code"], []) if c in m["epreuves_terminales"]]
     vus, epreuves = set(), []
     for e in officiels:
         if e["intitule_officiel"] not in vus:
             vus.add(e["intitule_officiel"])
             epreuves.append(e)
     duree_diag = sum(x["duree_min"] for x in parties) or 40
+    libelle_off = "Épreuve officielle"
     if epreuves:
         off = " + ".join(f"{duree(e['duree_min'])}, coef. {e['coefficient']}"
                          for e in epreuves)
@@ -331,8 +371,35 @@ def couverture(matiere: str, profil: str, parties: list[dict], m: dict,
             else ("Selon le sujet" if any(e["calculatrice"] == "selon le sujet"
                                           for e in epreuves) else "Interdite")
     else:
-        off = "Contrôle continu"
-        calc = "Interdite"
+        # Aucune épreuve terminale derrière cet instrument. Restait alors « Contrôle
+        # continu » sous le titre « Épreuve officielle » — faux deux fois. D'abord parce
+        # qu'un candidat individuel ne présente pas de contrôle continu au sens de
+        # moyennes annuelles : il présente des évaluations ponctuelles organisées par le
+        # recteur (mémento DGESCO 2025, « Les autres candidats au baccalauréat sont dits
+        # individuels. Au titre du contrôle continu, ils présentent des évaluations
+        # ponctuelles »). Ensuite parce que le questionnaire de parcours, le
+        # positionnement et la maîtrise du français ne correspondent à AUCUNE évaluation
+        # du baccalauréat : leur annoncer une épreuve officielle, c'est leur faire croire
+        # qu'ils composent pour l'examen.
+        ponctuelles = [e for x in parties
+                       for e in enseignements_continus(x["code"], x.get("version"), m,
+                                                       abandonnee=bool(abandonnee))]
+        if ponctuelles:
+            libelle_off = "Évaluation ponctuelle"
+            off = " + ".join(f"coef. {e['coefficient_total']}" for e in ponctuelles)
+            calc = "Interdite"
+        elif matiere == "DOSSIER-ENTREE":
+            # Le dossier d'entrée n'est pas une épreuve : c'est un questionnaire, et rien
+            # n'y est noté. La couverture nominative le disait déjà ; la couverture
+            # canonique annonçait « Épreuve officielle / Contrôle continu ».
+            libelle_off, off, calc = "Nature du document", "Questionnaire Nexus", \
+                "Non nécessaire"
+        else:
+            # Un cartouche tient en trois mots : « non noté pour l'examen » déborde de
+            # sa boite. La phrase entière est déjà sous le titre du livret.
+            libelle_off = "Nature du document"
+            off = "Diagnostic Nexus"
+            calc = "Interdite"
     if regle_calc:
         # Une partie se traite avec calculatrice : la couverture le dit, plutôt que de
         # renvoyer au sujet de l'épreuve pendant que la Partie 3 l'autorise.
@@ -376,7 +443,7 @@ def couverture(matiere: str, profil: str, parties: list[dict], m: dict,
     cart = [("Profil", p["long"]),
             ("Session finale", str(session) if session else "selon le dossier"),
             ("Durée du diagnostic", duree(duree_diag)),
-            ("Épreuve officielle", off), ("Calculatrice", calc),
+            (libelle_off, off), ("Calculatrice", calc),
             ("Matériel", objets_autorises(epreuves))]
     if surcharges:
         cart = [surcharges.get(a, (a, b)) for a, b in cart]
@@ -454,19 +521,42 @@ def materiel(epreuves: list[dict], regle_calc: tuple[str, str] | None = None) ->
     return phrase
 
 
+def specialite_arretee(parties: list[dict], profil: str) -> bool:
+    """Ce livret sert-il une spécialité que le candidat a déjà cessé de suivre ?
+
+    La version N1 remise à un candidat de deuxième partie — ou qui présente tout en une
+    session — est celle de la spécialité suivie en seule classe de première. Il ne la
+    présentera pas à l'épreuve terminale : elle est évaluée par une évaluation ponctuelle
+    du contrôle continu, coefficient 8.
+    """
+    return profil in ("P2", "P3") and any(
+        x["code"].startswith("EDS-") and x.get("version") == "N1" for x in parties)
+
+
 def avant_de_commencer(matiere: str, parties: list[dict], m: dict,
-                       zones: bool = True, regle_calc: tuple[str, str] | None = None) -> str:
+                       zones: bool = True, regle_calc: tuple[str, str] | None = None,
+                       profil: str = "") -> str:
     titre = MATIERES[matiere][0]
     total = sum(x["duree_min"] for x in parties)
     epreuves, vus = [], set()
+    arretee = specialite_arretee(parties, profil)
     for x in parties:
-        for c in EPREUVE_DE.get(x["code"], []):
+        for c in (() if arretee else EPREUVE_DE.get(x["code"], [])):
             e = m["epreuves_terminales"].get(c)
             if e and e["intitule_officiel"] not in vus:
                 vus.add(e["intitule_officiel"])
                 epreuves.append(e)
     L = [r"{\Large\bfseries\color{navy}Avant de commencer\par}", r"\vspace{2mm}",
          r"\begin{avantdecommencer}"]
+    if arretee:
+        cc = next((e for e in m.get("evaluations_ponctuelles", {}).get("enseignements", [])
+                   if e.get("couvert_par_nexus") == "EDS-<x>/N1"), None)
+        L.append(r"{\bfseries Ce que vous passerez à l'examen.} Vous ne présenterez pas "
+                 "l'épreuve terminale de cette spécialité : vous ne l'avez suivie qu'en "
+                 "classe de première. Elle est évaluée au titre du contrôle continu, par "
+                 "une évaluation ponctuelle organisée par votre académie"
+                 + (f", coefficient {cc['coefficient_total']}." if cc else ".")
+                 + " Elle porte sur le programme de première.")
     if epreuves:
         L.append(r"{\bfseries Ce que vous passerez à l'examen.} " + " ".join(
             f"{tex(e['intitule_officiel'])} : {duree(e['duree_min'])}, "
@@ -486,9 +576,16 @@ def avant_de_commencer(matiere: str, parties: list[dict], m: dict,
                          "d'un diagnostic Nexus complémentaire sur machine ; celui-ci ne "
                          "correspond pas à une épreuve pratique obligatoire pour le "
                          "candidat individuel.")
-    L += [r"{\bfseries Ce que ce diagnostic mesure.} Il n'a pas la durée de l'épreuve : "
-          f"il en échantillonne les tâches en {duree(total)}, pour situer ce qui est "
-          "acquis et ce qui demande du travail.",
+    # « Il n'a pas la durée de l'épreuve » n'a de sens que s'il y a une épreuve. Pour le
+    # positionnement et la maîtrise du français, il n'y en a aucune : la phrase y laissait
+    # entendre qu'une épreuve officielle leur correspondait.
+    mesure = (f"Il n'a pas la durée de l'épreuve : il en échantillonne les tâches en "
+              f"{duree(total)}, pour situer ce qui est acquis et ce qui demande du travail."
+              if epreuves else
+              f"Ce diagnostic ne prépare aucune épreuve de l'examen : en {duree(total)}, "
+              f"il situe ce qui est acquis et ce qui demande du travail, pour construire "
+              f"le plan.")
+    L += [r"{\bfseries Ce que ce diagnostic mesure.} " + mesure,
           r"{\bfseries Durée.} " + duree(total) + r". {\bfseries Matériel.} "
           + tex(materiel(epreuves, regle_calc)),
           (r"{\bfseries Comment répondre.} Écrivez directement dans les cadres prévus : "
@@ -795,14 +892,43 @@ def codes_erreur(codes: list[str], c: dict) -> list[str]:
     return L
 
 
-def duree_livret_candidat(code: str, duree_reference: int) -> int:
-    """Le GO ajoute deux tâches écrites à la durée catalogue de l'entretien."""
-    if code != "GO":
+def duree_livret(code: str, version: str, duree_reference: int,
+                 coach: bool = False) -> int:
+    """La durée qu'annonce la couverture : celle de ce que le livret imprime réellement.
+
+    Deux écarts séparent la durée du catalogue de celle du document composé.
+
+    Le GO ajoute deux tâches écrites à la durée catalogue de l'entretien : le livret
+    dure plus longtemps que la grille.
+
+    Les instruments dont une partie relève d'une épreuve pratique dispensée impriment
+    **moins** que l'assemblage : `items_hors_livret()` retire ces items, du livret du
+    candidat comme de la correction du coach. Annoncer malgré tout la durée catalogue
+    faisait porter à la couverture de NSI « 1 h 15 » au-dessus de parties qui totalisaient
+    quarante-sept minutes — le chiffre et sa contradiction sur la même page.
+    """
+    if code == "GO":
+        # La correction du coach ne porte que le déroulé de l'entretien : les deux tâches
+        # écrites sont dans le livret du candidat, pas dans sa grille.
+        if coach:
+            return duree_reference
+        d = json.loads((RACINE / "instruments/GO/definition.json").read_text(encoding="utf-8"))
+        prep = d["preparation_livret"]
+        return (prep["questions_min"] + prep["preparation_min"]
+                + sum(p["duree_min"] for p in d["deroule"]))
+    exclus = items_hors_livret()
+    if not exclus:
         return duree_reference
-    d = json.loads((RACINE / "instruments/GO/definition.json").read_text(encoding="utf-8"))
-    prep = d["preparation_livret"]
-    return (prep["questions_min"] + prep["preparation_min"]
-            + sum(p["duree_min"] for p in d["deroule"]))
+    banque = RACINE / "instruments" / code / "banque.json"
+    assemblage = RACINE / "instruments" / code / "assemblages" / f"{version}.json"
+    if not banque.exists() or not assemblage.exists():
+        return duree_reference
+    duree_de = {i["item_id"]: i["duree_min"]
+                for i in json.loads(banque.read_text(encoding="utf-8"))["items"]}
+    a = json.loads(assemblage.read_text(encoding="utf-8"))
+    retire = sum(duree_de[i] for bloc in a.get("blocs", [])
+                 for i in bloc.get("items", []) if i in exclus and i in duree_de)
+    return duree_reference - retire
 
 
 def grand_oral_candidat(d: dict, numero: list[int], m: dict) -> list[str]:
@@ -1131,9 +1257,11 @@ def formulaire_entree(profil: str, cible: Path, situation: dict | None = None) -
     formulaires = formulaires_entree()
     plan = plan_formulaire_entree(formulaires, situation) if situation else None
     if plan:
-        surcharges = {"Épreuve officielle": ("Nature du document", "Questionnaire Nexus"),
-                      "Calculatrice": ("Calculatrice", "Non nécessaire"),
-                      "Durée du diagnostic": ("Durée du diagnostic", duree(plan["duree_min"]))}
+        # La nature du document et la calculatrice sont désormais justes sur les deux
+        # couvertures : seule la durée reste propre à l'export nominatif, qui la
+        # recalcule sur les questions réellement posées à ce candidat.
+        surcharges = {"Durée du diagnostic": ("Durée du diagnostic",
+                                              duree(plan["duree_min"]))}
         corps = [couverture("DOSSIER-ENTREE", profil, [], modalites(), situation["session"],
                             False, surcharges=surcharges, candidat=situation["nom"])]
     else:
@@ -1345,8 +1473,8 @@ def composer(matiere: str, profil: str, versions: list[tuple[str, str]],
         cat = next(i for i in VI.charger_referentiels(None)["catalogue"]["instruments"]
                    if i["code"] == code and i["version"] == version)
         parties.append({"code": code, "version": version,
-                        "duree_min": (cat["duree_cible_min"] if coach else
-                                      duree_livret_candidat(code, cat["duree_cible_min"])),
+                        "duree_min": duree_livret(code, version, cat["duree_cible_min"],
+                                                  coach),
                         "intitule": cat.get("intitule")})
         contextes.append((code, version, d))
 
@@ -1384,7 +1512,8 @@ def composer(matiere: str, profil: str, versions: list[tuple[str, str]],
     regle_calc = regle_calculatrice(parties_calc, parties_vues)
     corps = [couverture(matiere, profil, parties, m, session, coach, regle_calc=regle_calc)]
     if not coach:
-        corps.append(avant_de_commencer(matiere, parties, m, zones, regle_calc))
+        corps.append(avant_de_commencer(matiere, parties, m, zones, regle_calc,
+                                        profil))
     corps += corps_body
 
     doc = (_habiller(GABARIT.read_text(encoding="utf-8"), MATIERES[matiere][0], profil,
