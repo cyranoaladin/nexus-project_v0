@@ -195,7 +195,7 @@ describe('DATABASE_TARGET_SAFETY_TESTS — CORE_V2_IDENTITY_VALIDATION', () => {
     const client = await requireCoreV2Client();
     const marker = await client.coreV2DatabaseIdentity.findUnique({ where: { id: 1 } });
     expect(marker?.schemaIdentity).toBe('nexus-core-v2');
-    expect(marker?.schemaGeneration).toBe(2);
+    expect(marker?.schemaGeneration).toBe(3);
   });
 
   test('missing marker: Core v2 tables exist but the identity row was deleted is refused', async () => {
