@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from '@prisma/client';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 
 export function databaseUrlWithApplicationName(
   databaseUrl: string,
@@ -78,6 +79,11 @@ export async function cleanupNpcRealFixture(
   prisma: PrismaClient,
   prefix: string,
 ) {
+  // These two reach the fixture only through SET NULL references
+  // (ai_processing_jobs.copySubmissionId, npc_audit_logs.reportId), so they are
+  // not owned by the account graph and the canonical cleanup will not remove
+  // them — which is correct: an audit log outliving the row it describes is the
+  // retention behaviour, not a leak. They are cleared explicitly, by prefix.
   await prisma.aiProcessingJob.deleteMany({
     where: { id: { startsWith: prefix } },
   });
@@ -89,9 +95,19 @@ export async function cleanupNpcRealFixture(
       ],
     },
   });
-  await prisma.user.deleteMany({
+
+  // The accounts and everything owned below them — students, copy submissions,
+  // pedagogical reports — go through the canonical cleanup, which derives the
+  // order from the live schema rather than assuming a cascade that #273 removed.
+  const fixtureUsers = await prisma.user.findMany({
     where: { id: { startsWith: prefix } },
+    select: { id: true },
   });
+  if (fixtureUsers.length > 0) {
+    await cleanupDisposableTestFixture(prisma, {
+      userIds: fixtureUsers.map((user) => user.id),
+    });
+  }
 }
 
 export function deferred<T = void>() {

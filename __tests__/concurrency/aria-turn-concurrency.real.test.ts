@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import {
   buildAriaConversationContext,
   cancelAriaConversationTurn,
@@ -91,8 +92,11 @@ describe('ARIA Turn idempotency and concurrency on PostgreSQL', () => {
          )`,
       [ids.student],
     );
-    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
-    await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
+    // Deletion order comes from the live schema via the canonical fixture
+    // cleanup, so this teardown no longer tracks which relations are RESTRICT.
+    await cleanupDisposableTestFixture(pool, {
+      userIds: [ids.studentUser, ids.parentUser],
+    });
     await pool.end();
   });
 

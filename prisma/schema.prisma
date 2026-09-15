@@ -378,7 +378,14 @@ model ParentProfile {
 model Student {
   id       String        @id @default(cuid())
   parentId String
-  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: a ParentProfile delete must never silently take
+  // a real Student row (and everything CASCADE-linked off it — credit
+  // history, sessions, reports, progression) with it. The only legitimate
+  // path that deletes both is lib/auth/pending-account-lifecycle.ts's
+  // purgeGraph(), which already deletes the Student rows explicitly before
+  // the ParentProfile — Restrict is a no-op there, since none of the
+  // parent's students still exist by that point.
+  parent   ParentProfile @relation(fields: [parentId], references: [id], onDelete: Restrict)
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -565,7 +572,8 @@ enum AcademicEnrollmentSource {
 model StudentAcademicEnrollment {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): academic enrollment history must never be silently destroyed by an account delete.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   courseKey         String
   kind              AcademicEnrollmentKind
@@ -654,7 +662,8 @@ model CoachProfile {
 model Subscription {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): billing/subscription history must never be silently destroyed by an account delete.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Détails de l'abonnement
   planName        String // ACCES_PLATEFORME, HYBRIDE, IMMERSION
@@ -761,7 +770,7 @@ enum AriaDataMigrationClassification {
 model CreditTransaction {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Détails de la transaction
   type        String // MONTHLY_ALLOCATION, PURCHASE, USAGE, REFUND, EXPIRATION
@@ -787,7 +796,7 @@ model CreditTransaction {
 model Session {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Preserve session history even if coach account removed
@@ -887,7 +896,8 @@ model AriaCockpitProfile {
 model LearningEvidence {
   id                String                 @id @default(cuid())
   studentId         String
-  student           Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): assessment evidence must never be silently destroyed by an account delete.
+  student           Student                @relation(fields: [studentId], references: [id], onDelete: Restrict)
   courseKey         String
   skillId           String?
   curriculumVersion String
@@ -1052,7 +1062,8 @@ model ActivityResult {
 model AriaConversation {
   id                    String                       @id @default(cuid())
   studentId             String
-  student               Student                      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): ARIA conversation history must never be silently destroyed by an account delete.
+  student               Student                      @relation(fields: [studentId], references: [id], onDelete: Restrict)
   courseKey             String?
   skillId               String?
   resourceId            String?
@@ -1358,7 +1369,7 @@ model StudentBadge {
 model StudentReport {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull) // Educational records outlive coach employment
@@ -1492,7 +1503,7 @@ model SubscriptionRequest {
   updatedAt        DateTime  @updatedAt
 
   // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   @@map("subscription_requests")
 }
@@ -1551,9 +1562,11 @@ model SessionBooking {
 
   // Participants historiques (User.id), conservés pendant la migration.
   studentId String
-  student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): see the coach FK below for the shared rationale.
+  student   User    @relation("StudentSessions", fields: [studentId], references: [id], onDelete: Restrict)
   coachId   String
-  coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a legacy identity FK on the same row as the canonical, safely-SetNull studentProfile/coachProfile/assignment FKs declared just below — Cascade here previously defeated their safety by hard-deleting the whole booking row regardless.
+  coach     User    @relation("CoachSessions", fields: [coachId], references: [id], onDelete: Restrict)
   parentId  String?
   parent    User?   @relation("ParentSessions", fields: [parentId], references: [id], onDelete: SetNull)
 
@@ -1651,9 +1664,14 @@ model SessionReport {
 
   // Participants (duplicated for quick access)
   studentId String
-  student   Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: this row holds real pedagogical write-up content
+  // (summary, progressNotes, recommendations) independent of the
+  // SessionBooking it's tied to via `session` above — deleting the Student
+  // or CoachProfile directly (the `session` Cascade only fires if the
+  // *booking* itself is deleted) must not silently destroy it.
+  student   Student      @relation(fields: [studentId], references: [id], onDelete: Restrict)
   coachId   String
-  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach     CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   // Report Content
   summary           String // General session summary
@@ -1993,7 +2011,7 @@ model StageBilan {
   stageId        String
   stage          Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
   studentId      String
-  student        Student      @relation("StudentStageBilans", fields: [studentId], references: [id], onDelete: Cascade)
+  student        Student      @relation("StudentStageBilans", fields: [studentId], references: [id], onDelete: Restrict)
   coachId        String
   coach          CoachProfile @relation("CoachStageBilans", fields: [coachId], references: [id], onDelete: Restrict)
   contentEleve   String       @db.Text
@@ -3242,7 +3260,7 @@ model SkillScore {
 model ProgressionHistory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   ssn  Float // SSN value at this point in time (0-100)
   date DateTime @default(now())
@@ -3255,7 +3273,7 @@ model ProgressionHistory {
 model ProjectionHistory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   ssnProjected    Float // Predicted SSN at horizon (0-100)
   confidenceIndex Float // Prediction confidence (0-100)
@@ -3413,7 +3431,7 @@ enum TrajectoryStatus {
 model Trajectory {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   // Objective
   title       String // e.g. "Préparer le Bac Maths"
@@ -3445,7 +3463,7 @@ model Trajectory {
 model Entitlement {
   id                   String                 @id @default(cuid())
   userId               String
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Restrict)
   productCode          String // e.g. STAGE_MATHS_P1, PREMIUM_LITE, CREDIT_PACK_10
   label                String // Human-readable label (snapshot from invoice item)
   // Formule ARIA (AriaTier), pertinente uniquement quand productCode='ARIA_ACCESS'.
@@ -3526,7 +3544,8 @@ model UserDocument {
 
   // Relations
   userId String
-  user   User   @relation("UserDocuments", fields: [userId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): uploaded documents must never be silently destroyed by an account delete.
+  user   User   @relation("UserDocuments", fields: [userId], references: [id], onDelete: Restrict)
 
   uploadedById String?
   uploadedBy   User?   @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
@@ -3550,7 +3569,7 @@ enum MathsLevel {
 model MathsProgress {
   id     String        @id @default(cuid())
   userId String
-  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Restrict)
   level  MathsLevel // PREMIERE or TERMINALE — prevents collision between levels
   track  AcademicTrack @default(EDS_GENERALE)
 
@@ -3599,7 +3618,7 @@ model MathsProgress {
 model EamProgress {
   id        String   @id @default(dbgenerated("(gen_random_uuid())::text"))
   userId    String   @unique @map("user_id")
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   checks    Json     @default("{}")
   quiz      Json     @default("{}")
   createdAt DateTime @default(now()) @map("created_at")
@@ -3613,7 +3632,7 @@ model EamProgress {
 model NsiPracticeProgress {
   id        String   @id @default(cuid())
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
   data      Json // Full NsiProgress object (same structure as localStorage)
   version   Int      @default(1)
   createdAt DateTime @default(now())
@@ -3632,11 +3651,13 @@ model CoachNote {
 
   // Subject of the note (the student, by User.id)
   studentId String
-  student   User   @relation("CoachNoteSubject", fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): notes about a student must never be silently destroyed by deleting the student's account.
+  student   User   @relation("CoachNoteSubject", fields: [studentId], references: [id], onDelete: Restrict)
 
   // Author of the note (the coach, by User.id)
   coachId String
-  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a coach's authored notes must never be silently destroyed by deleting the coach's account.
+  coach   User   @relation("CoachNoteAuthor", fields: [coachId], references: [id], onDelete: Restrict)
 
   body   String  @db.Text
   pinned Boolean @default(false)
@@ -3659,10 +3680,12 @@ model CoachStudentAssignment {
   id String @id @default(cuid())
 
   coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): same rationale as the student side below.
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  /// Restrict (not Cascade): a routine coach/admin delete of a User must never silently destroy academic assignment history. See docs/audits — DELETE-1/DELETE-2.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   assignedById String?
   assignedBy   User?   @relation("CoachStudentAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
@@ -3696,7 +3719,7 @@ model CoachStudentAssignment {
 model SurvivalProgress {
   id        String  @id @default(cuid())
   studentId String  @unique
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   startedAt DateTime @default(now())
   examDate  DateTime
@@ -3739,10 +3762,15 @@ model SurvivalAttempt {
 model EafPreparationReport {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  // Restrict, not Cascade: real pedagogical rubric content (strengths,
+  // areasToImprove, coachFreeComment, ...) authored about/by this
+  // student/coach — reachable today via `DELETE
+  // /api/assistante/coaches/manage/[id]`'s direct `coachProfile.delete()`,
+  // which does not go through any SessionBooking cascade.
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String
-  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  coach   CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)
 
   // EAF rubrics (text fields, max 5000 chars each)
   linearReading    String? @db.Text
@@ -3884,7 +3912,7 @@ model CopySubmission {
   updatedAt DateTime @updatedAt
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4032,7 +4060,7 @@ model PedagogicalReport {
   copySubmission   CopySubmission? @relation(fields: [copySubmissionId], references: [id], onDelete: SetNull)
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4186,7 +4214,7 @@ model GeneratedPedagogicalReport {
   updatedAt DateTime @updatedAt
 
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   coachId String?
   coach   CoachProfile? @relation(fields: [coachId], references: [id], onDelete: SetNull)
@@ -4317,7 +4345,7 @@ model CandidateDiagnostic {
   targetSession     Int
   status            CandidateDiagnosticStatus     @default(DRAFT)
   studentId         String
-  student           Student                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student           Student                       @relation(fields: [studentId], references: [id], onDelete: Restrict)
   createdById       String
   createdBy         User                          @relation("CandidateDiagnosticCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
   /// Dernière interaction **réelle** de l'étudiant avec son dossier :
@@ -4392,7 +4420,7 @@ model CandidateDiagnosticItemValidation {
 model CandidateDiagnosticConsent {
   id        String  @id @default(cuid())
   studentId String
-  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
   /// Parent rattaché au dossier. Conservé pour la structure et le
   /// provisionnement ; il ne consent plus à la place de l'étudiant majeur, et

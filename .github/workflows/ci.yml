@@ -544,6 +544,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
         run: npx prisma migrate deploy
 
+      - name: Check #273 account-deletion FK manifest against real pg_constraint
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
+        run: npm run db:check-account-deletion-fk-manifest
+
       - name: Run non-Bilan real database suites
         env:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test

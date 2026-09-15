@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { Pool, type QueryResult } from 'pg';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import {
   backfillAriaEntitlements,
   rollbackAriaEntitlementBackfill,
@@ -240,7 +241,13 @@ describe('ARIA entitlement backfill on PostgreSQL', () => {
   });
 
   afterAll(async () => {
-    await pool.query('DELETE FROM users WHERE id = $1', [ids.parentUser]);
+    // Order is derived from the live schema by the canonical fixture cleanup,
+    // so this teardown no longer has to track which relations are RESTRICT.
+    // It previously listed subscriptions and student_academic_enrollments by
+    // hand and still missed entitlements.
+    await cleanupDisposableTestFixture(pool, {
+      userIds: [ids.parentUser, ids.studentUser, ids.stmgUser],
+    });
     await pool.end();
   });
 

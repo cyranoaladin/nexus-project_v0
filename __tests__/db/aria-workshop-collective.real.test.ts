@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { scheduleAriaWorkshopSession } from '@/lib/aria/application/workshop/schedule-workshop';
@@ -58,7 +59,7 @@ describe('ARIA Collective Workshops (P7d) on PostgreSQL', () => {
   afterAll(async () => {
     await cleanupWorkshops(pool, [REAL_COURSE_KEY]);
     await cleanupAriaRealDbFixture(pool, child);
-    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await cleanupDisposableTestFixture(pool, { userIds: [staffUserId] });
     await pool.end();
   });
 
@@ -391,7 +392,7 @@ describe('ARIA workshop registration — real parent notification (P7c)', () => 
     );
     await cleanupWorkshops(pool, [REAL_COURSE_KEY]);
     await cleanupAriaRealDbFixture(pool, family);
-    await pool.query('DELETE FROM users WHERE id = $1', [staffUserId]);
+    await cleanupDisposableTestFixture(pool, { userIds: [staffUserId] });
     await pool.end();
   });
 
