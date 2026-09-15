@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { buildAriaConversationContext } from '@/lib/aria/application/conversation/public';
 
 jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
@@ -108,14 +109,11 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
   });
 
   afterAll(async () => {
-    // aria_conversations and student_academic_enrollments are now
-    // `ON DELETE RESTRICT` on studentId (DELETE-1/DELETE-2) — deleting
-    // the parent user below no longer cascades through parent_profiles
-    // -> students to clean these up automatically for either student.
-    const studentIds = [ids.student, ids.otherStudent];
-    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = ANY($1::text[])', [studentIds]);
-    await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = ANY($1::text[])', [studentIds]);
-    await pool.query('DELETE FROM users WHERE id = $1', [ids.parentUser]);
+    // Deletion order comes from the live schema via the canonical fixture
+    // cleanup, so this teardown no longer tracks which relations are RESTRICT.
+    await cleanupDisposableTestFixture(pool, {
+      userIds: [ids.studentUser, ids.otherStudentUser, ids.parentUser],
+    });
     await pool.end();
   });
 

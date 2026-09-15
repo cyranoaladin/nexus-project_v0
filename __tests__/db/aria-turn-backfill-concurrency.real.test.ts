@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { Pool, type PoolClient } from 'pg';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import {
   backfillConversationTurns,
   type ConversationTurnBackfillReport,
@@ -220,8 +221,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(apply ? [apply] : []);
       locker?.release();
       worker?.release();
-      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
-      await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
+      await cleanupDisposableTestFixture(pool, { userIds: [parentUserId, studentUserId] });
     }
   });
 
@@ -356,8 +356,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(apply ? [apply] : []);
       locker?.release();
       worker?.release();
-      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
-      await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
+      await cleanupDisposableTestFixture(pool, { userIds: [parentUserId, studentUserId] });
     }
   });
 
@@ -507,8 +506,7 @@ describe('ARIA conversation-turn backfill concurrency on PostgreSQL', () => {
       await Promise.allSettled(rollback ? [rollback] : []);
       b2Worker?.release();
       b1Worker?.release();
-      await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [studentId]);
-      await pool.query('DELETE FROM users WHERE id = $1', [parentUserId]);
+      await cleanupDisposableTestFixture(pool, { userIds: [parentUserId, studentUserId] });
     }
   });
 });

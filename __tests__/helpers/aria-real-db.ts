@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
+import { cleanupDisposableTestFixture } from './real-db-fixture-cleanup';
 
 export interface AriaRealDbFixtureIds {
   readonly parentUser: string;
@@ -58,6 +59,11 @@ export async function cleanupAriaRealDbFixture(
   pool: Pool,
   ids: AriaRealDbFixtureIds,
 ): Promise<void> {
+  // canonical_job_outbox carries no foreign key at all: it is addressed by
+  // `aggregateId`, a plain text column. No edge leads to it from an account
+  // root, so the canonical helper cannot see it and never will. This is the one
+  // row this fixture owns outside the foreign-key graph, and the only reason a
+  // hand-written statement survives in this file.
   await pool.query(
     `DELETE FROM canonical_job_outbox
      WHERE "jobType"='RECOVER_ARIA_TURN'
@@ -66,11 +72,15 @@ export async function cleanupAriaRealDbFixture(
        )`,
     [ids.student],
   );
-  await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
-  // student_academic_enrollments.studentId is now `ON DELETE RESTRICT`
-  // (DELETE-1/DELETE-2), not CASCADE — seedAriaRealDbFixture creates one
-  // for `ids.student`, and deleting the users below would otherwise fail
-  // trying to cascade-delete the Student row through it.
-  await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = $1', [ids.student]);
-  await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
+
+  // Everything else this fixture created — conversations, turns, the academic
+  // enrolment, the entitlement and its scopes, the student, the parent profile
+  // and both users — is reachable from the two account roots, so the order is
+  // derived from the live schema instead of being maintained here. That is the
+  // whole point: the hand-written list above this line used to be four
+  // statements long and still missed `entitlements`, which is what turned the
+  // ARIA lanes red.
+  await cleanupDisposableTestFixture(pool, {
+    userIds: [ids.studentUser, ids.parentUser],
+  });
 }
