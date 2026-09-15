@@ -351,6 +351,8 @@ export async function cleanupDisposableTestFixture(
   const databaseUrl =
     options.databaseUrl ?? process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? '';
   // Fail closed: destructive by design, so identity must be proven, not assumed.
+  // The guard throws a plain Error rather than asserting through a test runner,
+  // because this helper is also called from Playwright specs.
   assertDisposablePostgresUrl(databaseUrl);
 
   const seeds = Object.entries(ROOT_TABLE_BY_SCOPE_KEY)

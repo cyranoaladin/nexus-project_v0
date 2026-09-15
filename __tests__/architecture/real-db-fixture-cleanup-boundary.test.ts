@@ -60,6 +60,19 @@ describe('real-db fixture cleanup boundary', () => {
     expect(source).not.toMatch(/NODE_ENV\s*===\s*['"]test['"]/);
   });
 
+  it('reaches its disposable-database guard without a test runner', () => {
+    // The helper is called from Playwright specs as well as jest suites. An
+    // earlier guard asserted through jest's `expect`, which threw
+    // `ReferenceError: expect is not defined` the first time an E2E spec
+    // reached it — a guard that cannot run protects nothing.
+    const guard = readFileSync(path.join(REPO_ROOT, '__tests__/helpers/disposable-postgres.ts'), 'utf8');
+    expect(guard).not.toMatch(/\bexpect\s*\(/);
+    expect(guard).toMatch(/throw new Error\(/);
+
+    const helper = readFileSync(path.join(REPO_ROOT, HELPER), 'utf8');
+    expect(helper).not.toMatch(/\bexpect\s*\(/);
+  });
+
   it('never performs an unscoped delete', () => {
     const source = readFileSync(path.join(REPO_ROOT, HELPER), 'utf8');
     expect(source).not.toMatch(/TRUNCATE/i);
