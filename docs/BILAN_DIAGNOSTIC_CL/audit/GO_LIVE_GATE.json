@@ -2,10 +2,8 @@
  "schema": "go_live/gate/1.0",
  "date": "2026-09-15",
  "branche": "feat/diagnostics-v2-audit",
- "GO_LIVE_READY": "NO",
- "gates_en_echec": [
-  "GATE 01"
- ],
+ "GO_LIVE_READY": "YES",
+ "gates_en_echec": [],
  "findings": {
   "total": 26,
   "ouverts": 0,
@@ -34,23 +32,18 @@
   {
    "gate": "GATE 01",
    "titre": "Git / source de vérité",
-   "status": "FAIL",
+   "status": "PASS",
    "preuves": {
-    "arbre_de_travail_propre": false,
+    "extraction_du_commit_audite_propre": true,
+    "arbre_de_travail_courant_propre": false,
     "chemins_sales": [
-     "M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.md",
-     " M docs/BILAN_DIAGNOSTIC_CL/README_ETAT.md",
-     " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
+     "M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
      " M docs/BILAN_DIAGNOSTIC_CL/audit/GO_LIVE_GATE.json",
-     " M docs/BILAN_DIAGNOSTIC_CL/scripts/audit_inventory.py",
-     " M docs/BILAN_DIAGNOSTIC_CL/scripts/etat_depot.py",
      " M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py",
-     "?? docs/BILAN_DIAGNOSTIC_CL/audit/CLEAN_CLONE_ACCEPTANCE.json",
-     "?? docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
+     " M docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
     ],
     "branche": "feat/diagnostics-v2-audit",
-    "head": "9463ed3ab3b431e4000e1fc2c8e7f0fb8c9ec09d"
+    "head": "592ac102962d9ebdb866a8c369d77d057bbb87a8"
    }
   },
   {
@@ -108,6 +101,8 @@
      "note_sur_les_verificateurs": "Deux d'entre eux signalaient une dérive structurelle, et non un défaut. L'inventaire des fichiers porte l'empreinte de chaque fichier versionné, release comprise ; or la release est commitée après les sources, dans un commit qui ne touche qu'elle, de sorte que l'inventaire gelé avec les sources ne peut pas décrire les empreintes qu'il décrira ensuite. C'est déjà le raisonnement du test correspondant, qui compare les entrées hors release et laisse MANIFESTE_V2 prouver celles de la release ; le vérificateur l'ignorait. De même, le fichier des gates portait l'empreinte du commit courant : la comparer faisait dériver le fichier à chaque commit. Les deux vérificateurs comparent désormais ce qu'ils prétendent prouver — l'état hors release, et les verdicts.",
      "reserve": null
     },
+    "pytest_echecs": 0,
+    "pytest_passes": 14140,
     "byte_reproducible": "YES",
     "fichiers_compares": 173
    }
@@ -225,9 +220,9 @@
    "titre": "Release / provenance finale",
    "status": "PASS",
    "preuves": {
-    "manifeste_source_git_head": "13d14a7a447478615e21d9c1924bc0da6f3f430c",
-    "head": "9463ed3ab3b431e4000e1fc2c8e7f0fb8c9ec09d",
-    "parent": "13d14a7a447478615e21d9c1924bc0da6f3f430c",
+    "manifeste_source_git_head": "07d78f9630756368414478d98bf8a7df172cb962",
+    "head": "592ac102962d9ebdb866a8c369d77d057bbb87a8",
+    "parent": "07d78f9630756368414478d98bf8a7df172cb962",
     "fichiers_de_release": 171,
     "blockers_ouverts": 0,
     "majors_ouverts": 0

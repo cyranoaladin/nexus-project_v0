@@ -20,10 +20,10 @@ import go_live_gate as GLG  # noqa: E402
 
 AUDIT = RACINE / "audit"
 
-#: Les gates qui dépendent de l'état de l'arbre de travail, et non du contenu du dépôt :
-#: elles sont rouges tant qu'un fichier est en cours de modification, ce qui est le cas
-#: normal pendant qu'on travaille. Le clone propre, lui, les voit vertes.
-TRIBUTAIRES_DE_L_ARBRE = {"GATE 01"}
+#: Plus aucune gate ne dépend de l'endroit où on l'exécute : la propreté de l'arbre de
+#: travail courant est jointe comme observation, et la gate porte sur l'extraction propre
+#: du commit audité, que `audit/CLEAN_CLONE_ACCEPTANCE.json` établit.
+TRIBUTAIRES_DE_L_ARBRE: set[str] = set()
 
 
 @pytest.fixture(scope="module")

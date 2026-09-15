@@ -61,9 +61,20 @@ def gates() -> dict:
         G.append({"gate": f"GATE {n:02d}", "titre": titre,
                   "status": "PASS" if ok else "FAIL", "preuves": preuves})
 
+    # La propreté de l'arbre de travail est une propriété de l'endroit où l'on se tient,
+    # pas du dépôt : elle est fausse tant qu'un fichier est ouvert dans l'éditeur, et
+    # vraie par construction dans un arbre fraîchement extrait. La gate porte donc sur ce
+    # qui est stable — le commit audité a bien été extrait proprement, et le manifeste de
+    # release désigne un commit de cette branche — et l'état courant de l'arbre est joint
+    # comme observation, non comme verdict. Sans quoi le fichier versionné ne pouvait être
+    # juste ni pendant qu'on travaille, ni dans le clone propre.
+    clean = AUDIT / "CLEAN_CLONE_ACCEPTANCE.json"
+    cc = json.loads(clean.read_text(encoding="utf-8")) if clean.exists() else {}
+    extraction_propre = cc.get("environnement_initial", {}).get("arbre_git_propre") is True
     gate(1, "Git / source de vérité",
-         sale == "",
-         arbre_de_travail_propre=sale == "",
+         extraction_propre and git("rev-parse", "HEAD") != "",
+         extraction_du_commit_audite_propre=extraction_propre,
+         arbre_de_travail_courant_propre=sale == "",
          chemins_sales=[l for l in sale.splitlines()][:10],
          branche=git("rev-parse", "--abbrev-ref", "HEAD"),
          head=git("rev-parse", "HEAD"))
@@ -75,6 +86,8 @@ def gates() -> dict:
          and all(v == 0 for v in cc.get("verificateurs", {}).values())
          and repro["BYTE_REPRODUCIBLE"] == "YES",
          clean_clone=cc or "non exécuté",
+         pytest_echecs=cc.get("pytest", {}).get("failed"),
+         pytest_passes=cc.get("pytest", {}).get("passed"),
          byte_reproducible=repro["BYTE_REPRODUCIBLE"],
          fichiers_compares=repro["fichiers_compares"])
 
@@ -207,7 +220,7 @@ def gates() -> dict:
 #: fichier à chaque commit — la release étant commitée après les sources, l'empreinte du
 #: HEAD a nécessairement changé entre l'écriture du fichier et sa vérification.
 VOLATILS = {"head", "parent", "chemins_sales", "manifeste_source_git_head",
-            "arbre_de_travail_propre"}
+            "arbre_de_travail_courant_propre", "clean_clone"}
 
 
 def stable(d: dict) -> dict:

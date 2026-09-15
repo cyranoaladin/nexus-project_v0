@@ -2149,14 +2149,14 @@
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.json",
-      "sha256": "9a6b01a025fb1d7034fc0d8964cc73a9857f131f276ada511859e5003d44e39a",
+      "sha256": "baedbb3248e51f8c82862f25f0404718bebd46b8a076d3980a89dfc4550dd286",
       "size": 112048,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
     },
     {
       "path": "release/diagnostics-v2/04_INTERNE/MANIFESTE_V2.md",
-      "sha256": "1419022dee318a080bdb5a84bd4a916b7e2fc754987997fc52d09663470432e6",
+      "sha256": "d4c26bf2804598a95d8c50655aadffadddf7217408de3cf539de2017df30e573",
       "size": 24235,
       "category": "MANIFEST",
       "role": "manifeste de la release : empreintes et commit source"
@@ -2275,8 +2275,8 @@
     },
     {
       "path": "scripts/go_live_gate.py",
-      "sha256": "c5c6462cbdb8629b18ed2ee1fadeec89aa70c06f165e3462105399f59daf1da0",
-      "size": 11785,
+      "sha256": "f2775ada818003959629d3b01a320b3f8242c6ceaced6f2976884454a260ff2c",
+      "size": 12882,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2576,8 +2576,8 @@
     },
     {
       "path": "tests/test_go_live_gate.py",
-      "sha256": "7e84878e97ee91effc140ed515701abffeca8219c8b360bf36124ab2f434c736",
-      "size": 4793,
+      "sha256": "a750017b31ed04a45aeffc8bcb05ae5154a9988a1a50d1bef6322f638ab71ab8",
+      "size": 4795,
       "category": "TEST",
       "role": "test de non-régression"
     },
