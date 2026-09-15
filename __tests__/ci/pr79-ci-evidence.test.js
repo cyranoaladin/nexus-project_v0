@@ -6,6 +6,26 @@ const workflowPath = path.join(process.cwd(), '.github/workflows/ci.yml');
 const workflowSource = fs.readFileSync(workflowPath, 'utf8');
 const workflow = yaml.load(workflowSource);
 
+// The database image is pinned by digest and owned by the container image
+// registry. Asserting a literal tag here would both fail and re-create a second
+// place that decides which image CI runs.
+const containerImages = JSON.parse(
+  fs.readFileSync(
+    path.join(process.cwd(), '.github/governance/container-images.json'),
+    'utf8',
+  ),
+);
+
+function registeredImage(logicalName) {
+  const image = containerImages.images.find(
+    (candidate) => candidate.logicalName === logicalName,
+  );
+  if (!image) throw new Error(`Unregistered container image: ${logicalName}`);
+  return `${image.repository}@${image.digest}`;
+}
+
+const POSTGRES_PG16 = registeredImage('ci-postgres-pgvector-pg16');
+
 const independentEvidenceJobs = [
   'lint',
   'typecheck',
@@ -196,7 +216,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       .map((step) => step.run)
       .join('\n');
 
-    expect(realDb.services.postgres.image).toBe('pgvector/pgvector:pg16');
+    expect(realDb.services.postgres.image).toBe(POSTGRES_PG16);
     expect(realDb.services.postgres.env.POSTGRES_PASSWORD).toBe(
       '${{ github.run_id }}',
     );
@@ -232,7 +252,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       "--testPathIgnorePatterns='/__tests__/lib/bilan-runtime/'",
     );
     expect(commands).not.toContain('npm run test:db-integration');
-    expect(bilanRuntime.services.postgres.image).toBe('pgvector/pgvector:pg16');
+    expect(bilanRuntime.services.postgres.image).toBe(POSTGRES_PG16);
     expect(bilanRuntimeCommands).toContain('npx prisma migrate deploy');
     expect(bilanRuntimeCommands).toContain(
       '__tests__/lib/bilan-runtime/bilan-schema.real.test.ts',
