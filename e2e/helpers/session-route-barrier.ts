@@ -317,6 +317,30 @@ export class ControlledSessionRouteBarrier {
     }
   }
 
+  /**
+   * Hand the route back to Playwright, tolerating a route Playwright has
+   * already taken over. Removing a route handler makes its pending requests
+   * fall through to the network, so a handler unwinding during teardown can
+   * find its route already handled. That is teardown racing itself, not a
+   * failure worth surfacing as a test error.
+   */
+  private async _releaseRoute(route: Route, action: 'continue' | 'abort'): Promise<void> {
+    try {
+      if (action === 'abort') {
+        await route.abort('failed');
+      } else {
+        await route.continue();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const teardown =
+        /already handled/i.test(message) ||
+        /Target (page|browser|context).*closed/i.test(message) ||
+        /Test ended/i.test(message);
+      if (!teardown) throw error;
+    }
+  }
+
   private async _handleRoute(route: Route): Promise<void> {
     const request = route.request();
 
@@ -333,7 +357,7 @@ export class ControlledSessionRouteBarrier {
         if (customAbort === undefined) {
           this._abortRemaining--;
         }
-        await route.abort('failed');
+        await this._releaseRoute(route, 'abort');
         return;
       }
 
@@ -361,7 +385,7 @@ export class ControlledSessionRouteBarrier {
       record.state = 'RELEASED';
       this._notifyChange();
 
-      await route.continue();
+      await this._releaseRoute(route, 'continue');
     } finally {
       this._activeHandlers--;
       this._notifyChange();
@@ -589,8 +613,10 @@ export class ControlledSessionRouteBarrier {
     if (this._state === 'CLOSED') return;
 
     this._state = 'CLOSING';
-    this.release();
 
+    // Stop intake first, then wake the held handlers. Releasing them before the
+    // unroute has them racing Playwright for routes it takes over as the
+    // handler is removed.
     if (!this._unrouted) {
       this._unrouted = true;
       try {
@@ -599,6 +625,8 @@ export class ControlledSessionRouteBarrier {
         // The page or context may already be closed.
       }
     }
+
+    this.release();
 
     this._page.off('request', this._requestIssuedHandler);
     this._page.off('requestfinished', this._requestFinishedHandler);
