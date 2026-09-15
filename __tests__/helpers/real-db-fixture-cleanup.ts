@@ -47,7 +47,8 @@
  * to it from a fixture root.
  */
 import type { Pool } from 'pg';
-import { assertDisposablePostgresUrl } from './disposable-postgres';
+import { checkDisposableE2eDatabase } from '../../e2e/helpers/disposable-database';
+import { checkDisposablePostgresUrl } from './disposable-postgres';
 
 /**
  * Most real-database suites hold a Prisma client; the ARIA lanes hold a `pg`
@@ -351,9 +352,22 @@ export async function cleanupDisposableTestFixture(
   const databaseUrl =
     options.databaseUrl ?? process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? '';
   // Fail closed: destructive by design, so identity must be proven, not assumed.
-  // The guard throws a plain Error rather than asserting through a test runner,
-  // because this helper is also called from Playwright specs.
-  assertDisposablePostgresUrl(databaseUrl);
+  //
+  // There are two disposable contracts in this repository and this helper is
+  // reachable from both harnesses: the jest lanes prove disposability with
+  // NEXUS_DISPOSABLE_POSTGRES and a nexus_disposable_..._test database, while
+  // the Playwright stack proves it with E2E_DISPOSABLE_STACK and nexus_e2e.
+  // Either positive proof is accepted; neither is inferred. If both refuse,
+  // the reasons are reported together rather than leaving the caller to guess
+  // which contract it was supposed to satisfy.
+  const jestContract = checkDisposablePostgresUrl(databaseUrl);
+  const e2eContract = checkDisposableE2eDatabase(databaseUrl);
+  if (!jestContract.ok && !e2eContract.ok) {
+    throw new Error(
+      `REAL_DB_FIXTURE_CLEANUP_NOT_DISPOSABLE: refused by both disposable contracts ` +
+        `(jest: ${jestContract.reason}; e2e: ${e2eContract.reason})`,
+    );
+  }
 
   const seeds = Object.entries(ROOT_TABLE_BY_SCOPE_KEY)
     .map(([key, table]) => ({ table, ids: scope[key as keyof DisposableFixtureScope] ?? [] }))

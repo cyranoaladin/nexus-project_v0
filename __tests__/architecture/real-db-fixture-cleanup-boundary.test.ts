@@ -54,8 +54,11 @@ describe('real-db fixture cleanup boundary', () => {
 
   it('refuses to run without proving the database is disposable', () => {
     const source = readFileSync(path.join(REPO_ROOT, HELPER), 'utf8');
-    // The guard must be called, not merely imported.
-    expect(source).toMatch(/assertDisposablePostgresUrl\s*\(/);
+    // Both disposable contracts must be consulted, not merely imported, and a
+    // refusal must throw rather than warn.
+    expect(source).toMatch(/checkDisposablePostgresUrl\s*\(/);
+    expect(source).toMatch(/checkDisposableE2eDatabase\s*\(/);
+    expect(source).toMatch(/REAL_DB_FIXTURE_CLEANUP_NOT_DISPOSABLE/);
     // And it must never grow its own weaker identity check.
     expect(source).not.toMatch(/NODE_ENV\s*===\s*['"]test['"]/);
   });
@@ -71,6 +74,53 @@ describe('real-db fixture cleanup boundary', () => {
 
     const helper = readFileSync(path.join(REPO_ROOT, HELPER), 'utf8');
     expect(helper).not.toMatch(/\bexpect\s*\(/);
+  });
+
+  describe('disposable-database proof', () => {
+    const markers = ['NEXUS_DISPOSABLE_POSTGRES', 'E2E_DISPOSABLE_STACK'] as const;
+    const saved: Record<string, string | undefined> = {};
+
+    beforeEach(() => {
+      for (const key of markers) { saved[key] = process.env[key]; delete process.env[key]; }
+    });
+    afterEach(() => {
+      for (const key of markers) {
+        if (saved[key] === undefined) delete process.env[key];
+        else process.env[key] = saved[key];
+      }
+    });
+
+    const cleanup = async (url: string) => {
+      const { cleanupDisposableTestFixture } = await import('../helpers/real-db-fixture-cleanup');
+      const db = { $transaction: async () => { throw new Error('REACHED_DATABASE'); } };
+      return cleanupDisposableTestFixture(db as never, { userIds: ['u1'] }, { databaseUrl: url });
+    };
+
+    it('accepts the jest disposable contract', async () => {
+      process.env.NEXUS_DISPOSABLE_POSTGRES = '1';
+      await expect(cleanup('postgresql://127.0.0.1:5432/nexus_disposable_aria_test'))
+        .rejects.toThrow('REACHED_DATABASE');
+    });
+
+    it('accepts the E2E disposable contract', async () => {
+      process.env.E2E_DISPOSABLE_STACK = '1';
+      await expect(cleanup('postgresql://localhost:5433/nexus_e2e'))
+        .rejects.toThrow('REACHED_DATABASE');
+    });
+
+    it('refuses when neither contract is proven, naming both reasons', async () => {
+      await expect(cleanup('postgresql://localhost:5433/nexus_e2e'))
+        .rejects.toThrow(/NOT_DISPOSABLE[\s\S]*MISSING_DISPOSABLE_MARKER[\s\S]*MISSING_E2E_DISPOSABLE_STACK/);
+    });
+
+    it('refuses a production database even when both markers are set', async () => {
+      // A marker says "this process is a test run". It does not say "this URL
+      // is safe to delete from", and the two must both hold.
+      process.env.NEXUS_DISPOSABLE_POSTGRES = '1';
+      process.env.E2E_DISPOSABLE_STACK = '1';
+      await expect(cleanup('postgresql://db.prod.internal:5432/nexus_production'))
+        .rejects.toThrow(/NOT_DISPOSABLE[\s\S]*NON_LOCAL_HOST/);
+    });
   });
 
   it('never performs an unscoped delete', () => {
