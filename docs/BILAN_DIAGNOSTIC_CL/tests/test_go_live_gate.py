@@ -112,8 +112,8 @@ def test_le_snapshot_de_generation_ne_se_presente_pas_comme_une_preuve(versionne
 
 def test_la_gate_de_provenance_porte_des_proprietes_de_forme(versionne):
     g = next(x for x in versionne["gates"] if x["gate"] == "GATE 12")
-    assert g["preuves"]["release_manifest_references_source_commit"] is True
-    assert g["preuves"]["release_commit_modifies_release_only"] is True
+    assert g["preuves"]["release_manifest_references_commit_in_history"] is True
+    assert g["preuves"]["last_release_commit_modifies_release_only"] is True
 
 
 def test_le_clone_propre_a_ete_accepte():

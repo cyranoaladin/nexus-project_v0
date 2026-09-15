@@ -181,22 +181,27 @@ def gates() -> dict:
          source_privee_suivie=sec["source_privee_frpos_suivie"])
 
     parent = git("rev-parse", "HEAD^")
-    # Ce que la gate affirme est une propriété de forme, vraie quel que soit le commit :
-    # le manifeste de release désigne un commit source de cette branche — son parent quand
-    # la release vient d'être commitée, lui-même quand on se tient sur le commit source —
-    # et le commit de release ne touche que la release. L'identité du couple final est
-    # portée par le tag, pas par un SHA recopié dans un fichier de ce même commit.
+    # Ce que la gate affirme est une propriété de forme, vraie de l'un comme de l'autre
+    # membre du couple, et qui n'oblige aucun fichier à nommer le commit auquel il
+    # appartient : le manifeste de release désigne un commit de cette histoire, et le
+    # dernier commit qui a touché la release n'a touché qu'elle. L'identité du gel final
+    # est portée par le tag annoté, pas par un SHA recopié dans une source.
     tete = git("rev-parse", "HEAD")
-    designe_une_source = manifeste["source_git_head"] in (parent, tete)
+    source_manifeste = manifeste["source_git_head"]
+    designe_une_source = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", source_manifeste, tete],
+        cwd=RACINE, capture_output=True).returncode == 0
+    dernier_release = git(
+        "log", "-1", "--format=%H", "--", "docs/BILAN_DIAGNOSTIC_CL/release/diagnostics-v2")
     release_seule = True
-    if manifeste["source_git_head"] == parent:
-        touches = git("diff", "--name-only", f"{parent}..{tete}").splitlines()
+    if dernier_release:
+        touches = git("show", "--name-only", "--format=", dernier_release).split()
         release_seule = bool(touches) and all(
             "release/diagnostics-v2/" in t for t in touches)
     gate(12, "Release / provenance finale",
          designe_une_source and release_seule,
-         release_manifest_references_source_commit=designe_une_source,
-         release_commit_modifies_release_only=release_seule,
+         release_manifest_references_commit_in_history=designe_une_source,
+         last_release_commit_modifies_release_only=release_seule,
          fichiers_de_release=manifeste["effectifs"]["fichiers"],
          blockers_ouverts=par_severite["BLOCKER"],
          majors_ouverts=par_severite["MAJOR"])

@@ -2275,8 +2275,8 @@
     },
     {
       "path": "scripts/go_live_gate.py",
-      "sha256": "c1b7b762f3979eedc2894bc8fda09ddf55505573842daec18161b523ae8fe973",
-      "size": 15419,
+      "sha256": "3c8a8324f12aeb86e34e507e4dc71464cb98ce045ea3506ac1bf90f9fc6c43a8",
+      "size": 15657,
       "category": "SOURCE",
       "role": "moteur : validation, composition, release, packs"
     },
@@ -2583,8 +2583,8 @@
     },
     {
       "path": "tests/test_go_live_gate.py",
-      "sha256": "9800c66b085a832d14f744ae8df265246923f9cb85292ebc52ec2ea16b5ee376",
-      "size": 6220,
+      "sha256": "93421192e04cbc25828ae193445ec8b3ada5ff8129a6b5071460f0ced36e6974",
+      "size": 6229,
       "category": "TEST",
       "role": "test de non-régression"
     },

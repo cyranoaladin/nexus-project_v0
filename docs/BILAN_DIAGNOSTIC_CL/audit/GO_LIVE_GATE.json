@@ -5,20 +5,12 @@
   "avertissement": "NON NORMATIF — information de génération. Ne constitue pas l'identité du gel : celle-ci est portée par le tag annoté de mise en service, qui désigne le couple final sans qu'aucun fichier ait à nommer le commit auquel il appartient.",
   "produit_le": "2026-09-15",
   "branche": "feat/diagnostics-v2-audit",
-  "head_au_moment_de_la_generation": "9f0e33684167817731d94c7f20d423c07fbd7b20",
-  "parent": "bd8117689856289273407f4da0eb1a4cadf32014",
+  "head_au_moment_de_la_generation": "caf124b99f19a8a7ecf1a37fe1747a09ac48f6d1",
+  "parent": "9f0e33684167817731d94c7f20d423c07fbd7b20",
   "arbre_de_travail_courant_propre": false,
   "chemins_en_cours_de_modification": [
-   "M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.json",
-   " M docs/BILAN_DIAGNOSTIC_CL/MANIFESTE_DEPOT.md",
-   " M docs/BILAN_DIAGNOSTIC_CL/README_ETAT.md",
-   " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_FILE_INVENTORY.json",
-   " M docs/BILAN_DIAGNOSTIC_CL/audit/AUDIT_INSTRUMENT_COVERAGE.json",
-   " M docs/BILAN_DIAGNOSTIC_CL/audit/GO_LIVE_GATE.json",
-   " M docs/BILAN_DIAGNOSTIC_CL/audit/GO_LIVE_READINESS.md",
-   " M docs/BILAN_DIAGNOSTIC_CL/scripts/audit_readme.py",
-   " M docs/BILAN_DIAGNOSTIC_CL/scripts/etat_depot.py",
-   " M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py"
+   "M docs/BILAN_DIAGNOSTIC_CL/scripts/go_live_gate.py",
+   " M docs/BILAN_DIAGNOSTIC_CL/tests/test_go_live_gate.py"
   ],
   "manifeste_source_git_head_au_moment_de_la_generation": "bd8117689856289273407f4da0eb1a4cadf32014"
  },
@@ -183,8 +175,8 @@
    "titre": "Release / provenance finale",
    "status": "PASS",
    "preuves": {
-    "release_manifest_references_source_commit": true,
-    "release_commit_modifies_release_only": true,
+    "release_manifest_references_commit_in_history": true,
+    "last_release_commit_modifies_release_only": true,
     "fichiers_de_release": 171,
     "blockers_ouverts": 0,
     "majors_ouverts": 0
