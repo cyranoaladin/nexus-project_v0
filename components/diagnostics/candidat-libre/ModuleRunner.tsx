@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useProtectedFetch, useSessionRecoveryController } from '@/components/auth/SessionRecoveryProvider';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, Loader2, Save, ShieldCheck, X } from 'lucide-react';
 import type { DiagnosticAnswer, DiagnosticModuleDefinition } from '@/lib/diagnostics/candidat-libre/types';
@@ -39,6 +40,8 @@ function formatDuration(ms: number) {
 }
 
 export function ModuleRunner({ diagnosticId, moduleKey, parentMode, onClose, onUpdated }: Props) {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
   const endpoint = parentMode
     ? `/api/diagnostics/candidat-libre/${diagnosticId}/parent`
     : `/api/diagnostics/candidat-libre/${diagnosticId}/modules/${moduleKey}`;
@@ -46,6 +49,8 @@ export function ModuleRunner({ diagnosticId, moduleKey, parentMode, onClose, onU
   const [answers, setAnswers] = useState<Record<string, DiagnosticAnswer>>({});
   const [index, setIndex] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const latestElapsedMs = useRef(elapsedMs);
+  latestElapsedMs.current = elapsedMs;
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
@@ -63,7 +68,7 @@ export function ModuleRunner({ diagnosticId, moduleKey, parentMode, onClose, onU
     setIndex(Math.min(data.module.currentQuestionIndex ?? 0, Math.max(0, data.definition.questions.length - 1)));
     setElapsedMs(data.module.elapsedMs ?? 0);
     startedAt.current = Date.now();
-  }, [endpoint]);
+  }, [endpoint, fetch]);
 
   useEffect(() => { void load().catch((reason) => setError(reason instanceof Error ? reason.message : 'Erreur de chargement.')); }, [load]);
 
@@ -86,18 +91,19 @@ export function ModuleRunner({ diagnosticId, moduleKey, parentMode, onClose, onU
 
   const save = useCallback(async (action: 'draft' | 'submit') => {
     if (!payload || payload.module.submittedAt) return true;
-    action === 'submit' ? setIsSubmitting(true) : setIsSaving(true);
+    if (action === 'submit') setIsSubmitting(true); else setIsSaving(true);
     setError(null);
+    try {
     const body = parentMode
       ? { answers, consent: action === 'submit', clientMutationId: mutationId() }
-      : { answers, currentQuestionIndex: index, elapsedMs, integrity: integrity.current, clientMutationId: mutationId() };
+      : { answers, currentQuestionIndex: index, elapsedMs: latestElapsedMs.current, integrity: integrity.current, clientMutationId: mutationId() };
     const response = await fetch(endpoint, {
       method: action === 'submit' ? 'POST' : 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     const data = await response.json().catch(() => ({}));
-    action === 'submit' ? setIsSubmitting(false) : setIsSaving(false);
+    if (action === 'submit') setIsSubmitting(false); else setIsSaving(false);
     if (!response.ok) {
       const suffix = data.missingQuestionIds?.length ? ` Questions manquantes : ${data.missingQuestionIds.join(', ')}.` : '';
       setError(`${data.reason ?? data.message ?? data.error ?? 'Enregistrement impossible.'}${suffix}`);
@@ -110,13 +116,20 @@ export function ModuleRunner({ diagnosticId, moduleKey, parentMode, onClose, onU
       onClose();
     }
     return true;
-  }, [answers, elapsedMs, endpoint, index, onClose, onUpdated, parentMode, payload]);
+    } catch {
+      setError('Enregistrement suspendu ou indisponible. Vos réponses sont conservées.');
+      return false;
+    } finally {
+      setIsSubmitting(false);
+      setIsSaving(false);
+    }
+  }, [answers, endpoint, index, onClose, onUpdated, parentMode, payload, fetch]);
 
   useEffect(() => {
     if (!dirty || !payload || payload.module.submittedAt) return;
-    const timer = window.setTimeout(() => void save('draft'), 1800);
+    const timer = window.setTimeout(recovery.bindDeferredMutation(() => void save('draft')), 1800);
     return () => window.clearTimeout(timer);
-  }, [answers, index, dirty, payload, save]);
+  }, [answers, index, dirty, payload, save, recovery]);
 
   const handleClose = useCallback(async () => {
     if (dirty && payload && !payload.module.submittedAt) {

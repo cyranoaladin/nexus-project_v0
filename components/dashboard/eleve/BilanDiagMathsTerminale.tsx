@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from '@/components/ui/button';
 import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { CHAPTERS,DOMAINS,QUESTIONS_OPEN,QUESTIONS_QCM } from '@/lib/diagnostic/maths-terminale/data';
@@ -734,6 +735,7 @@ function SavingIndicator({ saving }: { saving: boolean }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function BilanDiagMathsTerminale() {
+  const fetch = useProtectedFetch();
   type DiagnosticStep = 'loading' | 'intro' | 'progress' | 'qcm' | 'open' | 'results';
   type StudentDiagnosticSource = {
     progress?: Record<string, ChapterProgress>;
@@ -788,7 +790,7 @@ export function BilanDiagMathsTerminale() {
       }
     }
     void loadBilan();
-  }, []);
+  }, [fetch]);
 
   const saveToDb = useCallback(async (
     p: Record<string, ChapterProgress>,
@@ -805,7 +807,7 @@ export function BilanDiagMathsTerminale() {
       });
     } catch { /* silent */ }
     finally { setSaving(false); }
-  }, []);
+  }, [fetch]);
 
   const goToStep = async (newStep: typeof step, p = progress, q = qcmAnswers, o = openAnswers) => {
     setStep(newStep);

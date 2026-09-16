@@ -122,12 +122,12 @@ export function StudentReportList({ submissions, showStatus = false }: StudentRe
                   )}
 
                   {fullReport && (
-                    <Link href={`/dashboard/eleve/npc/reports/${fullReport.id}`}>
-                      <Button size="sm">
+                    <Button size="sm" asChild>
+                      <Link href={`/dashboard/eleve/npc/reports/${fullReport.id}`}>
                         <Eye className="h-4 w-4 mr-2" />
                         Voir mon diagnostic
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   )}
                 </div>
               </div>

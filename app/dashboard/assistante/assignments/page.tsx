@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,7 +38,7 @@ Plus,
 Search,
 X
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter,useSearchParams } from 'next/navigation';
 import { useCallback,useEffect,useState } from 'react';
 import { toast } from 'sonner';
@@ -112,6 +113,7 @@ interface StudentApiRecord {
 }
 
 export default function AssistanteAssignmentsPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -212,7 +214,7 @@ export default function AssistanteAssignmentsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [studentIdFilter]);
+  }, [studentIdFilter, fetch]);
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -277,7 +279,7 @@ export default function AssistanteAssignmentsPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedCoachId, selectedStudentIds, coaches]);
+  }, [selectedCoachId, selectedStudentIds, coaches, fetch]);
 
   // Une sélection devenue hors périmètre (changement de coach/élèves) est retirée.
   useEffect(() => {

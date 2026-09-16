@@ -17,6 +17,7 @@
 jest.unmock('@/lib/prisma');
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { GET } from '@/app/api/parent/dashboard/route';
 import { auth } from '@/auth';
@@ -176,10 +177,15 @@ beforeAll(async () => {
 afterAll(async () => {
   if (!verified) return;
   await prisma.sessionBooking.deleteMany({ where: { id: { in: [bookingAId, bookingBId].filter(Boolean) } } });
-  await prisma.coachProfile.deleteMany({ where: { id: { in: [coachAId, coachBId].filter(Boolean) } } });
-  await prisma.student.deleteMany({ where: { id: { in: [studentAId, studentBId].filter(Boolean) } } });
-  await prisma.parentProfile.deleteMany({ where: { id: { in: [parent1Id, parent2Id].filter(Boolean) } } });
-  await prisma.user.deleteMany({ where: { lastName: prefix } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { lastName: prefix },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
   await prisma.$disconnect();
 });
 

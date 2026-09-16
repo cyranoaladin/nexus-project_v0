@@ -72,12 +72,12 @@ export default async function UploadPage({ params }: UploadPageProps) {
     return (
       <div className="container mx-auto max-w-4xl px-4 py-8">
         <div className="mb-6">
-          <Link href="/dashboard/coach/npc">
-            <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/dashboard/coach/npc">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour aux copies
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
         <h1 className="text-3xl font-bold text-gray-900">{submission.title}</h1>
         <Card className="mt-6 border-red-200 bg-red-50">
@@ -101,12 +101,12 @@ export default async function UploadPage({ params }: UploadPageProps) {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-6">
-        <Link href="/dashboard/coach/npc">
-          <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/dashboard/coach/npc">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour aux copies
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <div className="mb-8">
@@ -165,12 +165,12 @@ export default async function UploadPage({ params }: UploadPageProps) {
             <div className="flex items-center gap-2">
               <Badge variant="outline">{submission.status}</Badge>
               {submission.status === CopySubmissionStatus.COMPLETED && submission.report && (
-                <Link href={`/dashboard/coach/npc/reports/${submission.report.id}`}>
-                  <Button size="sm">
+                <Button size="sm" asChild>
+                  <Link href={`/dashboard/coach/npc/reports/${submission.report.id}`}>
                     <FileText className="h-4 w-4 mr-2" />
                     Voir le rapport
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               )}
               {(submission.status === CopySubmissionStatus.QUEUED_FOR_ANALYSIS ||
                 submission.status === CopySubmissionStatus.ANALYZING) && (

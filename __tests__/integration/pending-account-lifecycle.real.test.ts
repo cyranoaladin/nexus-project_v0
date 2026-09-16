@@ -91,6 +91,15 @@ async function cleanup() {
     await tx.canonicalAssessmentAttempt.deleteMany({ where: { studentId: { in: studentIds } } })
     await tx.parentStudentLink.deleteMany({ where: { OR: [{ parentUserId: { in: ids } }, { studentId: { in: studentIds } }] } })
     await tx.student.deleteMany({ where: { id: { in: studentIds } } })
+    // ALLOWLISTED ad-hoc teardown. This cleanup runs inside an interactive
+    // Prisma transaction and operates on the callback's `tx` client, so it
+    // cannot delegate to __tests__/helpers/real-db-fixture-cleanup: that helper
+    // owns its own transaction, because the fixture scope lives in a TEMP TABLE
+    // that must span every statement of its plan, and Prisma cannot nest one.
+    // Widening the helper to be sometimes-non-transactional would remove the
+    // all-or-nothing property every other suite relies on. Deletion order here
+    // is therefore maintained by hand, and must be revisited whenever an
+    // account-adjacent ON DELETE action changes.
     await tx.parentProfile.deleteMany({ where: { userId: { in: ids } } })
     await tx.user.deleteMany({ where: { id: { in: ids } } })
   })

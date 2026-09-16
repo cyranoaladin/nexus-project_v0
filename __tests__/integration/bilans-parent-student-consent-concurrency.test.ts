@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { prisma } from '@/lib/prisma';
 import { withParentStudentConsentTransaction } from '@/lib/bilans/parent-student-consent';
 
@@ -30,13 +31,13 @@ describe('parent-student consent concurrency — PostgreSQL réel isolé', () =>
   afterAll(async () => {
     if (studentId !== undefined) {
       await prisma.parentStudentLink.deleteMany({ where: { studentId } });
-      await prisma.student.deleteMany({ where: { id: studentId } });
     }
-    if (parentUserId !== undefined) {
-      await prisma.parentProfile.deleteMany({ where: { userId: parentUserId } });
-    }
+    // Order comes from the live schema via the canonical fixture cleanup, so
+    // this teardown no longer hand-maintains which relations are RESTRICT.
     const userIds = [parentUserId, studentUserId].filter((id): id is string => id !== undefined);
-    if (userIds.length > 0) await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    if (userIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds });
+    }
     await prisma.$disconnect();
   });
 

@@ -1,0 +1,841 @@
+[
+  {
+    "conname": "aria_activity_attempts_studentId_fkey",
+    "childTable": "aria_activity_attempts",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None beyond the student's active use of the platform.",
+      "whyCascadeIsSafe": "Informal ARIA practice-exercise attempts (gamified reps), distinct from this codebase's formally graded/reported assessment tracks (assessments, canonical_assessment_attempts, bilans), which are already HISTORICAL_RESTRICT. No independent audit, financial, or reporting value once separated from those formal tracks."
+    }
+  },
+  {
+    "conname": "aria_cockpit_profiles_studentId_fkey",
+    "childTable": "aria_cockpit_profiles",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": true,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None.",
+      "whyCascadeIsSafe": "Pure UI preference/onboarding state (target session, weekly goal, pinned courses) — no history value, fully re-derivable."
+    }
+  },
+  {
+    "conname": "aria_conversation_turns_actorUserId_fkey",
+    "childTable": "aria_conversation_turns",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "aria_conversation_turns_cancellationActor_fkey",
+    "childTable": "aria_conversation_turns",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "aria_conversation_turns_subjectStudentId_fkey",
+    "childTable": "aria_conversation_turns",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "aria_conversations_studentId_fkey",
+    "childTable": "aria_conversations",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "aria_feedbacks_studentId_fkey",
+    "childTable": "aria_feedbacks",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None.",
+      "whyCascadeIsSafe": "A secondary thumbs-up/down quality signal on an ARIA message; the underlying conversation itself is already protected (aria_conversations_studentId_fkey: HISTORICAL_RESTRICT). Losing the feedback signal loses no pedagogical record."
+    }
+  },
+  {
+    "conname": "aria_learning_evidence_studentId_fkey",
+    "childTable": "aria_learning_evidence",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "aria_learning_profiles_studentId_fkey",
+    "childTable": "aria_learning_profiles",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": true,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None.",
+      "whyCascadeIsSafe": "Pure UI preference state (selected/pinned course keys, ordering, citation-display toggle) — no history value, fully re-derivable from the student re-configuring the cockpit."
+    }
+  },
+  {
+    "conname": "aria_workshop_attendees_attendanceMarkedById_fkey",
+    "childTable": "aria_workshop_attendees",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "aria_workshop_attendees_studentId_fkey",
+    "childTable": "aria_workshop_attendees",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "aria_workshop_sessions_coachProfileId_fkey",
+    "childTable": "aria_workshop_sessions",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "aria_workshop_sessions_createdById_fkey",
+    "childTable": "aria_workshop_sessions",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "assessments_studentId_fkey",
+    "childTable": "assessments",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "bilans_coachId_fkey",
+    "childTable": "bilans",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "bilans_reviewedById_fkey",
+    "childTable": "bilans",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "bilans_studentId_fkey",
+    "childTable": "bilans",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "candidate_diagnostic_audit_logs_actorId_fkey",
+    "childTable": "candidate_diagnostic_audit_logs",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "candidate_diagnostic_consents_parentUserId_fkey",
+    "childTable": "candidate_diagnostic_consents",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "candidate_diagnostic_consents_studentId_fkey",
+    "childTable": "candidate_diagnostic_consents",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "candidate_diagnostic_documents_uploadedById_fkey",
+    "childTable": "candidate_diagnostic_documents",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "candidate_diagnostics_createdById_fkey",
+    "childTable": "candidate_diagnostics",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "candidate_diagnostics_studentId_fkey",
+    "childTable": "candidate_diagnostics",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_assessment_attempts_enteredById_fkey",
+    "childTable": "canonical_assessment_attempts",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_assessment_attempts_studentId_fkey",
+    "childTable": "canonical_assessment_attempts",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_notification_outbox_recipientUserId_fkey",
+    "childTable": "canonical_notification_outbox",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_parent_student_links_parentUserId_fkey",
+    "childTable": "canonical_parent_student_links",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_parent_student_links_studentId_fkey",
+    "childTable": "canonical_parent_student_links",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_report_artifacts_studentId_fkey",
+    "childTable": "canonical_report_artifacts",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_report_regenerations_requestedById_fkey",
+    "childTable": "canonical_report_regenerations",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_report_reviews_coachId_fkey",
+    "childTable": "canonical_report_reviews",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "canonical_report_reviews_reviewerId_fkey",
+    "childTable": "canonical_report_reviews",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_report_share_links_createdById_fkey",
+    "childTable": "canonical_report_share_links",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_report_share_links_recipientUserId_fkey",
+    "childTable": "canonical_report_share_links",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_report_transmissions_confirmedById_fkey",
+    "childTable": "canonical_report_transmissions",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_report_transmissions_recipientUserId_fkey",
+    "childTable": "canonical_report_transmissions",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_teacher_brief_annotations_authorId_fkey",
+    "childTable": "canonical_teacher_brief_annotations",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_teacher_briefs_createdById_fkey",
+    "childTable": "canonical_teacher_briefs",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "canonical_teacher_briefs_reviewedById_fkey",
+    "childTable": "canonical_teacher_briefs",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "clictopay_transactions_userId_fkey",
+    "childTable": "clictopay_transactions",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "coach_notes_coachId_fkey",
+    "childTable": "coach_notes",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "coach_notes_studentId_fkey",
+    "childTable": "coach_notes",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "coach_profiles_userId_fkey",
+    "childTable": "coach_profiles",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "coach_student_assignments_assignedById_fkey",
+    "childTable": "coach_student_assignments",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "coach_student_assignments_coachId_fkey",
+    "childTable": "coach_student_assignments",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "coach_student_assignments_studentId_fkey",
+    "childTable": "coach_student_assignments",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "CoachAvailability_coachId_fkey",
+    "childTable": "CoachAvailability",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "copy_submissions_coachId_fkey",
+    "childTable": "copy_submissions",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "copy_submissions_studentId_fkey",
+    "childTable": "copy_submissions",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "credit_transactions_studentId_fkey",
+    "childTable": "credit_transactions",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "eaf_preparation_reports_coachId_fkey",
+    "childTable": "eaf_preparation_reports",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "eaf_preparation_reports_studentId_fkey",
+    "childTable": "eaf_preparation_reports",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "eam_progress_user_id_fkey",
+    "childTable": "eam_progress",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Same reasoning as maths_progress_userId_fkey, for the EAF practice track. Never explicitly reviewed before #273.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "entitlements_userId_fkey",
+    "childTable": "entitlements",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": true,
+      "retentionRequirement": "Record of every product/tier ever granted or revoked for this user, linked to its source invoice/subscription — needed for billing-dispute and support history.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "family_requests_processedById_fkey",
+    "childTable": "family_requests",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "family_requests_requestingParentProfileId_fkey",
+    "childTable": "family_requests",
+    "parentTable": "parent_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "generated_pedagogical_reports_coachId_fkey",
+    "childTable": "generated_pedagogical_reports",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "generated_pedagogical_reports_studentId_fkey",
+    "childTable": "generated_pedagogical_reports",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "maths_progress_userId_fkey",
+    "childTable": "maths_progress",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "The student's actual practice record: completed/mastered chapters, XP, quiz scores, streaks, diagnostic results, error tags. Not a cache — it IS the record of what this minor did on the platform. Never explicitly reviewed before #273.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "messages_receiverId_fkey",
+    "childTable": "messages",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "messages_senderId_fkey",
+    "childTable": "messages",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "nsi_practice_progress_userId_fkey",
+    "childTable": "nsi_practice_progress",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Same reasoning as maths_progress_userId_fkey, for the NSI practice track. Never explicitly reviewed before #273.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "parent_phone_challenges_userId_fkey",
+    "childTable": "parent_phone_challenges",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "parent_profiles_userId_fkey",
+    "childTable": "parent_profiles",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "payments_userId_fkey",
+    "childTable": "payments",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "pedagogical_reports_coachId_fkey",
+    "childTable": "pedagogical_reports",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "pedagogical_reports_studentId_fkey",
+    "childTable": "pedagogical_reports",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "planning_override_audits_actorId_fkey",
+    "childTable": "planning_override_audits",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "planning_series_coachProfileId_fkey",
+    "childTable": "planning_series",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "planning_series_createdById_fkey",
+    "childTable": "planning_series",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "planning_series_studentProfileId_fkey",
+    "childTable": "planning_series",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "planning_studio_documents_updatedById_fkey",
+    "childTable": "planning_studio_documents",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "planning_studio_revisions_createdById_fkey",
+    "childTable": "planning_studio_revisions",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "profils_candidats_studentId_fkey",
+    "childTable": "profils_candidats",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "progression_history_studentId_fkey",
+    "childTable": "progression_history",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "projection_history_studentId_fkey",
+    "childTable": "projection_history",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "A time series of SSN-score predictions (ssnProjected/confidenceIndex/modelVersion) — the table's own name and purpose IS the trend it preserves. inputSnapshot (the one field that could make a row re-derivable) is nullable and often absent, so \"re-derivable\" does not generally hold. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "quotes_studentId_fkey",
+    "childTable": "quotes",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "session_reports_coachId_fkey",
+    "childTable": "session_reports",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "session_reports_studentId_fkey",
+    "childTable": "session_reports",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_coachId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_coachProfileId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_parentId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_studentId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_studentProfileId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionNotification_userId_fkey",
+    "childTable": "SessionNotification",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "sessions_coachId_fkey",
+    "childTable": "sessions",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "sessions_studentId_fkey",
+    "childTable": "sessions",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "stage_bilans_coachId_fkey",
+    "childTable": "stage_bilans",
+    "parentTable": "coach_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "stage_bilans_studentId_fkey",
+    "childTable": "stage_bilans",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "stage_coaches_coachId_fkey",
+    "childTable": "stage_coaches",
+    "parentTable": "coach_profiles",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "stage_documents_uploadedById_fkey",
+    "childTable": "stage_documents",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "stage_reservations_studentId_fkey",
+    "childTable": "stage_reservations",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "stage_sessions_coachId_fkey",
+    "childTable": "stage_sessions",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "student_academic_enrollments_studentId_fkey",
+    "childTable": "student_academic_enrollments",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "student_academic_enrollments_verifiedById_fkey",
+    "childTable": "student_academic_enrollments",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "student_badges_studentId_fkey",
+    "childTable": "student_badges",
+    "parentTable": "students",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "student_reports_coachId_fkey",
+    "childTable": "student_reports",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "student_reports_studentId_fkey",
+    "childTable": "student_reports",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "students_parentId_fkey",
+    "childTable": "students",
+    "parentTable": "parent_profiles",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "students_userId_fkey",
+    "childTable": "students",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "subscription_requests_studentId_fkey",
+    "childTable": "subscription_requests",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "subscriptions_studentId_fkey",
+    "childTable": "subscriptions",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
+    "conname": "survival_progress_studentId_fkey",
+    "childTable": "survival_progress",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Structurally the same category of data as maths_progress (gamified exam-prep progress: reflexes/phrases/qcm state, a predicted grade notePotentielle) — being gamified is not itself a reason to treat it as disposable once maths_progress (the same shape of data) is treated as real pedagogical history. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
+      "whyCascadeIsSafe": null
+    }
+  },
+  {
+    "conname": "trajectories_studentId_fkey",
+    "childTable": "trajectories",
+    "parentTable": "students",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "user_documents_uploadedById_fkey",
+    "childTable": "user_documents",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "user_documents_userId_fkey",
+    "childTable": "user_documents",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "users_mergedIntoUserId_fkey",
+    "childTable": "users",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  }
+]

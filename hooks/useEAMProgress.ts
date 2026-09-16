@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession, useSessionRecoveryController, useSessionRecoveryState } from '@/components/auth/SessionRecoveryProvider';
 import { MODULES } from "@/components/EAMPrep/data";
 import {
   calculateProgressPercent,
@@ -39,6 +39,9 @@ function writeLocalProgress(key: string, data: EAMProgressData) {
 
 export function useEAMProgress() {
   const { data: session } = useSession();
+  const recovery = useSessionRecoveryController();
+  const { canMutate } = useSessionRecoveryState();
+  const hydratedOwner = useRef<string | null>(null);
   const userId = session?.user?.id;
   const storageKey = useMemo(() => getStorageKey(userId), [userId]);
   const [state, setState] = useState<EAMProgressData>(() => createEmptyEAMProgress());
@@ -55,6 +58,8 @@ export function useEAMProgress() {
   const pct = calculateProgressPercent(totalChecked, totalItems);
 
   const syncToAPI = useCallback((next: EAMProgressData) => {
+    let stillCurrent: () => void;
+    try { stillCurrent = recovery.captureMutation(); } catch { return; }
     pendingSyncRef.current = next;
 
     if (syncTimerRef.current) {
@@ -66,6 +71,7 @@ export function useEAMProgress() {
       pendingSyncRef.current = null;
       syncTimerRef.current = null;
       if (!payload) return;
+      try { stillCurrent(); } catch { return; }
 
       void fetch("/api/eam/progress", {
         method: "POST",
@@ -74,7 +80,7 @@ export function useEAMProgress() {
         keepalive: true,
       }).catch(() => undefined);
     }, 600);
-  }, []);
+  }, [recovery]);
 
   const persist = useCallback(
     (next: EAMProgressData) => {
@@ -93,18 +99,26 @@ export function useEAMProgress() {
   }, []);
 
   useEffect(() => {
+    // A new route may mount before its canonical verification completes. Only
+    // unfinished initial hydration resumes; later recovery retains local work.
+    if (!canMutate || !userId || hydratedOwner.current === userId) return;
     mountedRef.current = false;
     const local = readLocalProgress(storageKey);
     setState(local ?? createEmptyEAMProgress());
+
+    let stillCurrent: () => void;
+    try { stillCurrent = recovery.captureMutation(); } catch { return; }
 
     let cancelled = false;
     fetch("/api/eam/progress")
       .then((response) => (response.ok ? response.json() : null))
       .then((payload: unknown) => {
         if (cancelled) return;
+        stillCurrent();
         const remoteRaw = payload && typeof payload === "object" && "data" in payload ? (payload as { data: unknown }).data : null;
         const remote = remoteRaw ? normalizeProgress(remoteRaw) : null;
-        const merged = mergeProgressByLastUpdated(local, remote);
+        const merged = mergeProgressByLastUpdated(readLocalProgress(storageKey), remote);
+        hydratedOwner.current = userId;
         setState(merged);
         writeLocalProgress(storageKey, merged);
       })
@@ -116,7 +130,7 @@ export function useEAMProgress() {
     return () => {
       cancelled = true;
     };
-  }, [storageKey]);
+  }, [storageKey, recovery, canMutate, userId]);
 
   const commit = useCallback(
     (updater: (current: EAMProgressData) => EAMProgressData) => {
@@ -168,8 +182,8 @@ export function useEAMProgress() {
 
   const getModuleProgress = useCallback(
     (modId: string) => {
-      const module = MODULES.find((item) => item.id === modId);
-      const total = module?.checklist.length ?? 0;
+      const eamModule = MODULES.find((item) => item.id === modId);
+      const total = eamModule?.checklist.length ?? 0;
       const checked = Object.entries(state.checks).filter(([key, value]) => key.startsWith(`${modId}_`) && value).length;
       return { checked, total, pct: calculateProgressPercent(checked, total) };
     },

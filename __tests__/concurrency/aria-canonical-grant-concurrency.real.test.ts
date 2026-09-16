@@ -31,6 +31,7 @@
  * mocked `@/lib/prisma` could never produce.
  */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
@@ -97,7 +98,7 @@ describe('Canonical ARIA_ACCESS grant — concurrent activation on PostgreSQL', 
     await pool.query('DELETE FROM student_academic_enrollments WHERE "studentId" = $1', [ids.student]);
     await pool.query('DELETE FROM students WHERE id = $1', [ids.student]);
     await pool.query('DELETE FROM parent_profiles WHERE id = $1', [ids.parent]);
-    await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
+    await cleanupDisposableTestFixture(pool, { userIds: [ids.studentUser, ids.parentUser] });
     await pool.end();
     await prisma.$disconnect();
   });

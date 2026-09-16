@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getSpecialPackCatalog } from "@/lib/operational-catalog";
 import { AnnualParcoursCard } from "@/components/dashboard/parent/AnnualParcoursCard";
 import { ArrowLeft, Check, CreditCard, Users, AlertCircle, Loader2 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CorporateFooter } from "@/components/layout/CorporateFooter";
 import InvoiceDetailsDialog from "../invoice-details-dialog";
 
@@ -36,6 +37,7 @@ interface Child {
 const SPECIAL_PACK_CATALOG = getSpecialPackCatalog();
 
 export default function AbonnementsPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [selectedChild, setSelectedChild] = useState<string>("");
@@ -43,18 +45,7 @@ export default function AbonnementsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchSubscriptions();
-  }, [session, status, router]);
-
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -76,7 +67,13 @@ export default function AbonnementsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetch]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'PARENT') { router.push('/auth/signin'); return; }
+    void fetchSubscriptions();
+  }, [session, status, router, fetchSubscriptions]);
 
   const currentChild = parentData?.children.find((child) => child.id === selectedChild);
 
@@ -144,10 +141,10 @@ export default function AbonnementsPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <div className="flex items-center">
               <Users className="w-5 h-5 text-neutral-400 flex-shrink-0" />
-              <span className="text-sm font-medium text-neutral-200 ml-2">Enfant :</span>
+              <label htmlFor="abonnements-child" className="text-sm font-medium text-neutral-200 ml-2">Enfant :</label>
             </div>
             <Select value={selectedChild} onValueChange={setSelectedChild}>
-              <SelectTrigger className="w-full sm:w-48">
+              <SelectTrigger id="abonnements-child" className="w-full sm:w-48">
                 <SelectValue placeholder="Sélectionner un enfant" />
               </SelectTrigger>
               <SelectContent>

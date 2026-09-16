@@ -321,18 +321,18 @@ export function DiagnosticForm({ className, referenceDate }: DiagnosticFormProps
                   </div>
 
                   <div className="flex flex-wrap gap-3 mt-6" role="group" aria-label="Liens de recommandation">
-                    <Link href={recommendation.parcoursLink} aria-label="Découvrir ce parcours">
-                      <Button size="lg" className="bg-gradient-to-r from-or-stellaire to-or-stellaire-dark hover:from-or-stellaire-dark hover:to-or-stellaire text-bleu-nuit font-bold transition-all duration-300 hover:scale-105">
+                    <Button size="lg" className="bg-gradient-to-r from-or-stellaire to-or-stellaire-dark hover:from-or-stellaire-dark hover:to-or-stellaire text-bleu-nuit font-bold transition-all duration-300 hover:scale-105" asChild>
+                      <Link href={recommendation.parcoursLink} aria-label="Découvrir ce parcours">
                         Découvrir ce parcours
                         <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                    </Link>
-                    {recommendation.stageLink && (
-                      <Link href={recommendation.stageLink} aria-label="Voir ce stage">
-                        <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300">
-                          Voir ce stage
-                        </Button>
                       </Link>
+                    </Button>
+                    {recommendation.stageLink && (
+                      <Button size="lg" variant="outline" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300" asChild>
+                        <Link href={recommendation.stageLink} aria-label="Voir ce stage">
+                          Voir ce stage
+                        </Link>
+                      </Button>
                     )}
                   </div>
 

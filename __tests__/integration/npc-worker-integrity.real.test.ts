@@ -299,6 +299,11 @@ describe('NPC worker integrity gate on PostgreSQL 15', () => {
         await tx.copyPage.delete({ where: { id: `${prefix}-page` } });
       }),
     );
+    // Handled at creation: this can settle during the awaits below, before
+    // `expect(...).rejects` attaches, and an unhandled rejection in that
+    // window fails the run. Same idiom already used in
+    // __tests__/auth/session-recovery-controller.test.ts.
+    void deletion.catch(() => {});
     await waitForBlockedPostgresClient(firstClient, 'npc-worker-third');
     releaseJobBlocker.resolve();
 

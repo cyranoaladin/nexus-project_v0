@@ -4,6 +4,8 @@ process.env.NODE_ENV = 'development';
 // Production rejects this backend and requires Redis.
 process.env.RATE_LIMIT_BACKEND = 'memory';
 process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-jest-only-secret-32-bytes-minimum';
+process.env.JITSI_ROOM_SECRET = 'jitsi-jest-only-room-secret-32-bytes-minimum';
+process.env.NEXT_PUBLIC_JITSI_SERVER_URL = process.env.NEXT_PUBLIC_JITSI_SERVER_URL || 'https://meet.jit.si';
 process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test';
 
 // Load test environment variables
@@ -137,6 +139,24 @@ jest.mock('next-auth/react', () => ({
   signOut: jest.fn(),
   getSession: jest.fn(),
   SessionProvider: ({ children }) => children,
+}));
+
+// Isolated page/component tests inject a display projection, not a live auth
+// transport. The auth recovery suites explicitly unmock this boundary and test
+// the real coordinator/provider/HTTP protocol, including uncertainty and logout.
+jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
+  ...jest.requireActual('@/components/auth/SessionRecoveryProvider'),
+  useCanonicalSession: () => require('next-auth/react').useSession(),
+  useCanonicalSignOut: () => require('next-auth/react').signOut,
+  useProtectedFetch: () => global.fetch,
+  useSessionMutationSuspended: () => false,
+  useSessionRecoveryController: () => ({
+    captureMutation: () => () => {},
+    bindDeferredMutation: task => task,
+    retry: jest.fn(),
+    getSnapshot: () => ({ canMutate: true, identityEpoch: 0 }),
+    subscribe: () => () => {},
+  }),
 }));
 
 // Mock auth.ts to prevent ESM import chain (next-auth → @auth/core)

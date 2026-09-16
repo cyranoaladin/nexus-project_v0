@@ -125,6 +125,11 @@ describe('canonical ARIA RAG /search/v2 client', () => {
       config: invalidConfig,
       fetchImpl,
     });
+    // Handled at creation: this can settle during the awaits below, before
+    // `expect(...).rejects` attaches, and an unhandled rejection in that
+    // window fails the run. Same idiom already used in
+    // __tests__/auth/session-recovery-controller.test.ts.
+    void operation.catch(() => {});
     await expect(operation).rejects.toBeInstanceOf(AriaRagEngineClientError);
     await expect(operation).rejects.toMatchObject({ code: 'CONFIGURATION_INVALID' });
     expect(fetchImpl).not.toHaveBeenCalled();

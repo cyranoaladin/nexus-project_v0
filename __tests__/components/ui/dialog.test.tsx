@@ -290,8 +290,10 @@ describe('Dialog', () => {
       expect(dialog).toHaveClass('fixed');
       expect(dialog).toHaveClass('left-[50%]');
       expect(dialog).toHaveClass('top-[50%]');
-      expect(dialog).toHaveClass('translate-x-[-50%]');
-      expect(dialog).toHaveClass('translate-y-[-50%]');
+      // Motion owns translation; stacking Tailwind 4's individual translate
+      // moves the modal above the viewport (covered by the real recovery E2E).
+      expect(dialog).not.toHaveClass('translate-x-[-50%]');
+      expect(dialog).not.toHaveClass('translate-y-[-50%]');
     });
 
     it('has proper z-index for layering', () => {

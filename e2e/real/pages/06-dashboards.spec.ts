@@ -1,20 +1,67 @@
 import { test, expect, Page } from '@playwright/test';
 import { CREDS } from '@/e2e/helpers/credentials';
+import { resetDisposableE2ERateLimits } from '@/e2e/helpers/rate-limit';
 
 /**
  * REAL AUDIT — Dashboard pages (authenticated).
  * Tests real login → dashboard load → key elements → console/network errors.
  */
 
-/** Helper: login via UI and navigate to dashboard */
-async function loginAndGo(page: Page, email: string, password: string, expectedUrl: string) {
+type DashboardPath = '/dashboard/admin' | '/dashboard/parent' | '/dashboard/eleve' | '/dashboard/coach';
+
+function dashboardContent(page: Page, path: DashboardPath) {
+  return {
+    '/dashboard/admin': page.getByRole('heading', { name: 'Administration Nexus Réussite', exact: true }),
+    '/dashboard/parent': page.getByRole('heading', { name: 'Espace Famille', exact: true }),
+    '/dashboard/eleve': page.getByText('Espace Élève', { exact: true }),
+    '/dashboard/coach': page.getByRole('heading', { name: /^Coach — / }),
+  }[path];
+}
+
+/** URL/load events can precede canonical verification and dashboard data. */
+async function loginAndGo(page: Page, email: string, password: string, expectedUrl: DashboardPath) {
+  // Independent page audits must not consume previous scenarios' login quota.
+  // This helper refuses every target except the explicitly disposable Redis.
+  await resetDisposableE2ERateLimits();
   await page.goto('/auth/signin', { waitUntil: 'load' });
   await page.getByTestId('input-email').fill(email);
   await page.getByTestId('input-password').fill(password);
   await page.getByTestId('btn-signin').click();
   await page.waitForLoadState('load');
   await page.waitForURL(`**${expectedUrl}**`, { timeout: 30000 });
+  await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+  await expect(dashboardContent(page, expectedUrl)).toBeVisible();
 }
+
+test('Dashboard readiness waits for delayed canonical verification, not only the URL', async ({ page }) => {
+  let release!: () => void;
+  let observed!: () => void;
+  const released = new Promise<void>(resolve => { release = resolve; });
+  const held = new Promise<void>(resolve => { observed = resolve; });
+  await page.route('**/api/auth/session', async route => {
+    if (new URL(page.url()).pathname === '/dashboard/admin') {
+      observed();
+      await released;
+    }
+    await route.continue();
+  });
+  let ready = false;
+  const login = loginAndGo(page, CREDS.admin.email, CREDS.admin.password, '/dashboard/admin')
+    .then(() => { ready = true; });
+  const outcome = login.then(() => null, (error: Error) => error);
+  try {
+    await held;
+    await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'LOADING');
+    expect(ready, 'URL arrival alone must not declare the dashboard ready').toBe(false);
+    release();
+    expect(await outcome).toBeNull();
+    await expect(page.getByRole('heading', { name: 'Administration Nexus Réussite', exact: true })).toBeVisible();
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: 'wait' });
+    await outcome;
+  }
+});
 
 // ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────────
 
@@ -30,19 +77,11 @@ test.describe('DASHBOARD — Admin (/dashboard/admin)', () => {
   });
 
   test('Page charge et affiche contenu admin', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    const bodyText = (await page.textContent('body')) || '';
-    const hasAdminContent = /admin|tableau|dashboard|utilisateur|gestion/i.test(bodyText);
-    expect(hasAdminContent, 'Aucun contenu admin visible').toBe(true);
+    await expect(dashboardContent(page, '/dashboard/admin')).toBeVisible();
   });
 
   test('Navigation sidebar/header présente', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    // Check for navigation elements (sidebar or header nav)
-    const navElements = page.locator('nav, aside, [role="navigation"]');
-    const count = await navElements.count();
-    console.log(`Admin nav elements: ${count}`);
-    expect(count, 'Aucun élément de navigation trouvé').toBeGreaterThan(0);
+    await expect(page.getByRole('navigation', { name: 'Navigation principale', exact: true })).toBeVisible();
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
@@ -75,19 +114,11 @@ test.describe('DASHBOARD — Parent (/dashboard/parent)', () => {
   });
 
   test('Page charge et affiche contenu parent', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    const bodyText = (await page.textContent('body')) || '';
-    const hasParentContent = /parent|enfant|tableau|dashboard|session|abonnement|crédit/i.test(bodyText);
-    expect(hasParentContent, 'Aucun contenu parent visible').toBe(true);
+    await expect(dashboardContent(page, '/dashboard/parent')).toBeVisible();
   });
 
   test('BilanGratuitBanner ou contenu principal visible', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    // Either the bilan banner or the main dashboard content should be visible
-    const hasBanner = await page.locator('[data-testid="bilan-banner"]').isVisible().catch(() => false);
-    const hasMainContent = await page.locator('h1, h2, [role="tablist"]').first().isVisible().catch(() => false);
-    console.log(`Bilan banner: ${hasBanner}, Main content: ${hasMainContent}`);
-    expect(hasBanner || hasMainContent, 'Ni banner ni contenu principal visible').toBe(true);
+    await expect(dashboardContent(page, '/dashboard/parent')).toBeVisible();
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
@@ -120,10 +151,7 @@ test.describe('DASHBOARD — Élève (/dashboard/eleve)', () => {
   });
 
   test('Page charge et affiche contenu élève', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    const bodyText = (await page.textContent('body')) || '';
-    const hasStudentContent = /élève|session|crédit|cours|progression|dashboard/i.test(bodyText);
-    expect(hasStudentContent, 'Aucun contenu élève visible').toBe(true);
+    await expect(dashboardContent(page, '/dashboard/eleve')).toBeVisible();
   });
 
   test('Zéro erreur console critique', async ({ page }) => {
@@ -156,10 +184,7 @@ test.describe('DASHBOARD — Coach (/dashboard/coach)', () => {
   });
 
   test('Page charge et affiche contenu coach', async ({ page }) => {
-    await page.waitForLoadState('domcontentloaded');
-    const bodyText = (await page.textContent('body')) || '';
-    const hasCoachContent = /coach|session|disponibilité|planning|dashboard/i.test(bodyText);
-    expect(hasCoachContent, 'Aucun contenu coach visible').toBe(true);
+    await expect(dashboardContent(page, '/dashboard/coach')).toBeVisible();
   });
 
   test('Zéro erreur console critique', async ({ page }) => {

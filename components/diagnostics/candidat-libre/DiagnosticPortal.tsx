@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ArrowRight, BookOpenCheck, CheckCircle2, ClipboardList, Clock3, FileLock2, FileText, GraduationCap, Loader2, LockKeyhole, RefreshCw, ShieldCheck, Sparkles, UploadCloud, Users } from 'lucide-react';
@@ -29,6 +30,7 @@ const statusMeta: Record<string, { label: string; className: string }> = {
 };
 
 export function DiagnosticPortal() {
+  const fetch = useProtectedFetch();
   const [diagnostic, setDiagnostic] = useState<DiagnosticCampaignView | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -43,7 +45,7 @@ export function DiagnosticPortal() {
     setLoading(false);
     if (!response.ok) { setError(data.message ?? data.error ?? 'Impossible de charger le diagnostic.'); return; }
     setDiagnostic(data.diagnostic ?? null);
-  }, []);
+  }, [fetch]);
   useEffect(() => { void refresh(); }, [refresh]);
 
   async function createDiagnostic() {

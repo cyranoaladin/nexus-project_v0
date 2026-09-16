@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
 import type { DashboardRole } from './DashboardPilotage';
@@ -105,6 +106,7 @@ function getAdminMessage(): { message: string; tone: string } {
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function SynthesisCard({ studentId, role = 'ELEVE' }: SynthesisCardProps) {
+  const fetch = useProtectedFetch();
   const [studentData, setStudentData] = useState<StudentSynthesisData | null>(null);
   const [coachData, setCoachData] = useState<CoachSynthesisData | null>(null);
   const [assistanteData, setAssistanteData] = useState<AssistanteSynthesisData | null>(null);
@@ -153,7 +155,7 @@ export function SynthesisCard({ studentId, role = 'ELEVE' }: SynthesisCardProps)
 
     fetchData();
     return () => { cancelled = true; };
-  }, [studentId, role, isStudentRole]);
+  }, [studentId, role, isStudentRole, fetch]);
 
   if (loading) {
     return (

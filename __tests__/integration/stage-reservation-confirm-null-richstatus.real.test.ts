@@ -14,6 +14,7 @@
  * de SQL) — ce test doit tourner contre un vrai Postgres.
  */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 assertDisposablePostgresUrl(process.env.DATABASE_URL ?? '');
@@ -47,9 +48,15 @@ function params(stageSlug: string, reservationId: string) {
 async function cleanup() {
   await prisma.stageReservation.deleteMany({ where: { academyId: `${PREFIX}-academy` } });
   await prisma.stage.deleteMany({ where: { slug: { startsWith: PREFIX } } });
-  await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-  await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-  await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { email: { startsWith: PREFIX } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL réel)', () => {

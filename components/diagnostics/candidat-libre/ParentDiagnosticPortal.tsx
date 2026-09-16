@@ -1,11 +1,13 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowRight, CheckCircle2, ClipboardList, EyeOff, FileText, Loader2, ShieldCheck, Users } from 'lucide-react';
 import type { DiagnosticCampaignView } from '@/lib/diagnostics/candidat-libre/types';
 import { ModuleRunner } from './ModuleRunner';
 
 export function ParentDiagnosticPortal({ studentId }: { studentId: string }) {
+  const fetch = useProtectedFetch();
   const [diagnostic, setDiagnostic] = useState<DiagnosticCampaignView | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -19,7 +21,7 @@ export function ParentDiagnosticPortal({ studentId }: { studentId: string }) {
     setLoading(false);
     if (!response.ok) { setError(data.message ?? data.error ?? 'Chargement impossible.'); return; }
     setDiagnostic(data.diagnostic ?? null);
-  }, [studentId]);
+  }, [studentId, fetch]);
   useEffect(() => { void refresh(); }, [refresh]);
 
   async function create() {
