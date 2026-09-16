@@ -37,6 +37,16 @@ on:
         required: true
         default: '30'
 
+# Same pins as ci.yml. Without them `env.NODE_VERSION` / `env.NPM_VERSION`
+# resolve to empty strings: `npm install -g npm@` then installs npm latest and
+# `npm ci` dies with EBADENGINE against package.json's `npm >=10.9.8 <11`
+# (observed on the harness's first real invocation, run 35108561487).
+env:
+  NODE_VERSION: '22.23.1'
+  NPM_VERSION: '10.9.8'
+  CI: true
+  FORCE_COLOR: 1
+
 concurrency:
   group: flake-qualification-${{ github.ref }}-${{ inputs.project }}
   cancel-in-progress: false
@@ -53,7 +63,12 @@ jobs:
     # worker bilan en process (BILAN_WORKER_ENABLED) et Mailpit pour les
     # e-mails d'activation. Requis via l'agrégat CI Success.
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Measured 2026-09-16: chromium x20 = 18.8 min of test time, firefox x20 =
+    # 19.2 min, so the documented WebKit x30 contract needs ~29 min, plus 6-7
+    # min of setup. At 30 the default invocation (webkit-smoke x30) was
+    # cancelled mid-run at 420 tests (run 35149918271) — the harness could not
+    # complete the contract printed in its own input description.
+    timeout-minutes: 60
     env:
       E2E_DISPOSABLE_STACK: '1'
 
