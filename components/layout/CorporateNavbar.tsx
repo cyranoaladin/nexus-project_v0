@@ -85,12 +85,33 @@ export function CorporateNavbar() {
     if (!isOpen) return;
     const menuTrigger = menuTriggerRef.current;
 
-    // Focus the close button on open (after transition starts)
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        document.getElementById('close-menu')?.focus();
-      });
-    });
+    // Move focus into the dialog on open.
+    //
+    // This used to sit inside a double requestAnimationFrame, which made focus
+    // depend on the compositor producing frames: rAF does not fire while a page
+    // is not being rendered, so a throttled or backgrounded tab could open the
+    // menu and never receive focus. That is an accessibility defect, and it
+    // turned `main` red (run 35104958189).
+    //
+    // Focusing once in this effect is NOT sufficient either: the overlay is
+    // mid-transition and the button does not take focus yet, so the call is
+    // silently dropped and the click's focus stays on the trigger. That was
+    // measured, not assumed — run 35110014640 failed with `#close-menu`
+    // "inactive" and the trigger still `[active]` in the page snapshot.
+    //
+    // So drive it by the OUTCOME: try, and keep trying on the task queue until
+    // focus actually lands or the transition window has elapsed. Bounded, and
+    // independent of whether any frame is ever produced.
+    let focusTimer: ReturnType<typeof setTimeout> | undefined;
+    const FOCUS_DEADLINE = Date.now() + 1000; // > the 500ms overlay transition
+    const focusCloseButton = () => {
+      const closeButton = document.getElementById('close-menu');
+      closeButton?.focus();
+      if (closeButton !== null && document.activeElement === closeButton) return;
+      if (Date.now() >= FOCUS_DEADLINE) return;
+      focusTimer = setTimeout(focusCloseButton, 16);
+    };
+    focusCloseButton();
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -119,6 +140,7 @@ export function CorporateNavbar() {
     document.body.style.overflow = 'hidden';
 
     return () => {
+      if (focusTimer !== undefined) clearTimeout(focusTimer);
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = '';
       // Restore focus to trigger
