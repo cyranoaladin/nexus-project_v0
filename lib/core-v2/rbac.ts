@@ -66,6 +66,11 @@ export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return CAPABILITIES.filter((c) => roleHasCapability(role, c));
 }
 
+/** What the UI may offer this actor — the only sanctioned way to read an actor's grants outside this file. */
+export function capabilitiesForActor(actor: Actor): readonly Capability[] {
+  return capabilitiesForRole(actor.role);
+}
+
 export function assertCapability(actor: Actor, capability: Capability): void {
   if (!roleHasCapability(actor.role, capability)) {
     throw new ForbiddenError(`Capability ${capability} is not granted to this actor.`, { capability });

@@ -54,6 +54,12 @@ The foundation is now completed by the operational domain — still **not** wire
 
 Run the operational-domain suites exactly like the foundation ones (step 5 above) with the two configuration variables set; CI's `core-v2-foundation` job does.
 
+## HTTP surface and staff UI (`app/api/v2/**`, `components/dashboard/core-v2/**`)
+
+- `app/api/v2/staff/**` is the **only** live-runtime location allowed to bind Core v2 (guard `CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME`). Every route goes through `lib/core-v2/http/staff-route.ts`: correlation id, CSRF, session, Core v2 client (**503 `CORE_V2_UNAVAILABLE`** when `CORE_V2_DATABASE_URL` is unset — no v1 fallback), explicit session→actor mapping (the Core v2 `users` row with the same id is the role/state authority), one error envelope. `POST /api/v2/auth/activate` is the public, rate-limited activation endpoint.
+- The staff workspace lives at `/dashboard/assistante/familles` and `/dashboard/admin/familles` (+ `/annees`). It talks only to `/api/v2` (never imports Core v2 code), offers each action only when `/api/v2/staff/me` grants the capability, checks duplicates before creating a person, paginates and searches server-side, announces every outcome inline (`role="status"` / `role="alert"`), and reports success only on a 2xx envelope.
+- On a deployment without `CORE_V2_DATABASE_URL`, these pages render the 503 explanation — they never show mock data.
+
 ## Related
 
 - `docs/architecture/adr/0001-core-v2-single-source-of-truth.md` — the decision record.
