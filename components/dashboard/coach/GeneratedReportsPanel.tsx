@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from '@/components/ui/button';
 import { Card,CardContent,CardHeader,CardTitle } from '@/components/ui/card';
 import { AlertCircle,Download,FileText,RefreshCw } from 'lucide-react';
@@ -32,6 +33,7 @@ interface GeneratedReportsPanelProps {
 }
 
 export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps) {
+  const fetch = useProtectedFetch();
   const [reports, setReports] = useState<Report[]>([]);
   const [readiness, setReadiness] = useState<Readiness>({});
   const [loading, setLoading] = useState(false);
@@ -53,7 +55,7 @@ export function GeneratedReportsPanel({ studentId }: GeneratedReportsPanelProps)
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     void fetchReports();

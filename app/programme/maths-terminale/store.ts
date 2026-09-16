@@ -335,6 +335,7 @@ export const useMathsTerminaleStore = create<TerminaleLabState>()(
     }),
     {
       name: 'nexus-maths-terminale-lab-v1',
+      skipHydration: true,
       version: 1,
       partialize: (state) => ({
         completedChapters: state.completedChapters,

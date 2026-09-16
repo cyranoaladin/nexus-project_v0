@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { DEFAULT_ARIA_HISTORY_BUDGET, selectAriaPromptHistory } from '@/lib/aria/domain/conversation/history-budget';
@@ -79,7 +80,7 @@ describe('THREAD_HISTORY_NEWEST_MESSAGES', () => {
 
   afterAll(async () => {
     await pool.query('DELETE FROM aria_conversations WHERE id = $1', [ids.conversation]);
-    await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
+    await cleanupDisposableTestFixture(pool, { userIds: [ids.studentUser, ids.parentUser] });
     await pool.end();
   });
 

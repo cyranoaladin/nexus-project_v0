@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { CheckCircle2,FileText,Loader2,Save } from "lucide-react";
@@ -29,6 +30,7 @@ interface EafPreparationReportProps {
 }
 
 export function EafPreparationReport({ studentId, studentName }: EafPreparationReportProps) {
+  const fetch = useProtectedFetch();
   const [report, setReport] = useState<EafReportData>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,7 +54,7 @@ export function EafPreparationReport({ studentId, studentName }: EafPreparationR
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     setReport({});

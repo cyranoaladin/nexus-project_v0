@@ -12,7 +12,18 @@ describe('Security Headers', () => {
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(response.headers.get('X-XSS-Protection')).toBe('1; mode=block');
     expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
-    expect(response.headers.get('Permissions-Policy')).toBe('camera=(), microphone=(), geolocation=()');
+    // An empty allowlist would block camera/microphone for every context,
+    // including the Jitsi iframe CSP's frame-src explicitly trusts — the
+    // active Jitsi origin (default https://meet.jit.si when
+    // NEXT_PUBLIC_JITSI_SERVER_URL is unset) must be the sole exception.
+    expect(response.headers.get('Permissions-Policy')).toBe(
+      'camera=(self "https://meet.jit.si"), microphone=(self "https://meet.jit.si"), geolocation=()'
+    );
+    expect(response.headers.get('Content-Security-Policy')).toContain('frame-src \'self\' https://meet.jit.si');
+    // The external_api.js loader script (components/ui/video-conference.tsx)
+    // is fetched from the Jitsi origin, not just the frame it embeds —
+    // script-src without it silently blocked the loader itself.
+    expect(response.headers.get('Content-Security-Policy')).toContain('script-src \'self\' \'unsafe-inline\' \'unsafe-eval\' https://meet.jit.si');
   });
 
   it('applies CORS headers with default origin', () => {

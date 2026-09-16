@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { Prisma } from '@prisma/client';
 import { NextRequest } from 'next/server';
 
@@ -111,9 +112,15 @@ describe('A86 deterministic worker and internal review service', () => {
         "canonical_evidence_items", "canonical_score_snapshots", "canonical_job_outbox",
         "canonical_assessment_attempts", "canonical_parent_student_links" CASCADE
     `);
-    await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { email: { startsWith: PREFIX } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
     await prisma.$disconnect();
   });
 

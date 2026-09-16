@@ -4,6 +4,7 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardSensitiveRateLimit: jest.fn().mockResolvedValue(null),
 }))
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { NextRequest } from 'next/server'
 
 import { POST as canonicalActivation } from '@/app/api/auth/activate/route'
@@ -52,11 +53,15 @@ describe('P0-D activation domain separation on real PostgreSQL', () => {
   beforeAll(assertIsolatedDatabase)
 
   beforeEach(async () => {
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } })
+    const ids = (await prisma.user.findMany({ where: { email: { startsWith: PREFIX } }, select: { id: true } }))
+      .map((user) => user.id)
+    if (ids.length > 0) await cleanupDisposableTestFixture(prisma, { userIds: ids })
   })
 
   afterAll(async () => {
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } })
+    const ids = (await prisma.user.findMany({ where: { email: { startsWith: PREFIX } }, select: { id: true } }))
+      .map((user) => user.id)
+    if (ids.length > 0) await cleanupDisposableTestFixture(prisma, { userIds: ids })
     await prisma.$disconnect()
   })
 

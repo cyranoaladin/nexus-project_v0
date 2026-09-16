@@ -34,6 +34,29 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# 2026-09-13 main CI incident: `docker run` was left to perform its own
+# implicit pull of pgvector/pgvector:pg15, which failed once with a
+# transient Docker Hub registry reset ("read: connection reset by peer")
+# — a pure network flake, not a code or test regression (proven: the
+# exact same tree passed on the PR run moments earlier). `docker run`
+# itself has no retry option for the pull it performs internally, so
+# pull explicitly first, with retries, before `docker run` ever needs to.
+pull_image_with_retry() {
+  local image="$1"
+  local attempt
+  for attempt in 1 2 3; do
+    if docker pull "$image" >/dev/null 2>&1; then
+      return 0
+    fi
+    echo "docker pull ${image} failed (attempt ${attempt}/3)" >&2
+    if [[ "$attempt" -lt 3 ]]; then
+      sleep $((attempt * 5))
+    fi
+  done
+  echo "docker pull ${image} failed after 3 attempts" >&2
+  return 1
+}
+
 validate_disposable_database_url() {
   local value="${1:-}"
   local port=''
@@ -98,6 +121,12 @@ elif [[ "$lane" == 'backfills' ]]; then
   )
 fi
 
+# One reference feeds both the retry-wrapped pull and docker run. Pulling a
+# mutable tag and running a digest makes the retry useless: docker run would
+# fall back to its own implicit, unretried pull of a reference nothing warmed.
+ARIA_DISPOSABLE_DB_IMAGE="pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da" # pg15
+pull_image_with_retry "$ARIA_DISPOSABLE_DB_IMAGE"
+
 random_suffix="$(od -An -N8 -tx1 /dev/urandom | tr -d ' \n')"
 CONTAINER_NAME="nexus-aria-real-${random_suffix}"
 database_name="nexus_disposable_aria_${random_suffix}_test"
@@ -120,7 +149,7 @@ docker run --detach \
   --health-interval 1s \
   --health-timeout 3s \
   --health-retries 30 \
-  pgvector/pgvector:pg15 >/dev/null
+  "$ARIA_DISPOSABLE_DB_IMAGE" >/dev/null
 rm -f -- "$ENV_FILE"
 ENV_FILE=''
 

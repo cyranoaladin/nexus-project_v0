@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 
@@ -21,6 +22,7 @@ type CanonicalConsentCardProps = {
 };
 
 export function CanonicalConsentCard({ studentId, onVerified }: CanonicalConsentCardProps) {
+  const fetch = useProtectedFetch();
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<ConsentStatus>("LOADING");
 
@@ -66,7 +68,7 @@ export function CanonicalConsentCard({ studentId, onVerified }: CanonicalConsent
     return () => {
       active = false;
     };
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   async function confirmConsent() {
     if (!consent || status === "SUBMITTING" || status === "VERIFIED") {

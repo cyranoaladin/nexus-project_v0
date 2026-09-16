@@ -16,9 +16,9 @@ test.describe('Dashboard Coach — Audit Exhaustif', () => {
     test('contenu principal est visible', async ({ page }) => {
       await page.goto('/dashboard/coach');
       await page.waitForLoadState('domcontentloaded');
-      // Should display sessions or coach-related content
-      const body = await page.textContent('body');
-      expect(body).toBeTruthy();
+      await expect(page.getByRole('heading', { level: 1, name: /^Coach — / })).toBeVisible();
+      // Coaching does not grant the parent's/student's booking affordance.
+      await expect(page.getByRole('button', { name: /réserver une session|book a session/i })).toHaveCount(0);
     });
   });
 

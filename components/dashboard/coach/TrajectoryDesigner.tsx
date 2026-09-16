@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ interface TrajectoryDesignerProps {
 }
 
 export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProps) {
+  const fetch = useProtectedFetch();
   const [title, setTitle] = useState("");
   const [targetScore, setTargetScore] = useState(80);
   const [horizon, setHorizon] = useState("6_MONTHS");
@@ -108,4 +110,3 @@ export function TrajectoryDesigner({ studentId, onSave }: TrajectoryDesignerProp
     </Card>
   );
 }
-

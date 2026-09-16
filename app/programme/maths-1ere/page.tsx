@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import MathsRevisionClient from './components/MathsRevisionClient';
 import { auth } from '@/auth';
 import { UserRole } from '@prisma/client';
+import { ServerSessionShell } from '@/components/auth/SessionRecoveryProvider';
 
 /**
  * Spécialité Maths Première - Interactive Revision Page
@@ -60,6 +61,8 @@ export default async function MathsPremierePage() {
   const displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || 'Élève';
 
   return (
-    <MathsRevisionClient user={{ id: userId, name: displayName, role: sessionUser.role }} />
+    <ServerSessionShell serverSession={session!}>
+      <MathsRevisionClient user={{ id: userId, name: displayName, role: sessionUser.role }} />
+    </ServerSessionShell>
   );
 }

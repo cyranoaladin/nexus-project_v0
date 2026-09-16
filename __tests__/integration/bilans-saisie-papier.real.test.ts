@@ -15,6 +15,7 @@ jest.unmock('@/lib/prisma');
  *    pas ; celui-ci fait échouer les requêtes pour de vrai.
  */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { NextRequest } from 'next/server';
 
 import { createGetAttemptHandler } from '@/lib/bilans/api/get-attempt';
@@ -183,10 +184,15 @@ describe('Saisie papier — parité et provenance sur PostgreSQL réel', () => {
         "canonical_api_idempotency_keys", "canonical_assessment_attempts",
         "canonical_parent_student_links" CASCADE
     `);
-    await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.parentProfile.deleteMany({ where: { userId: parentUserId } });
-    await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { email: { startsWith: PREFIX } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
     await prisma.user.delete({ where: { id: parentUserId } });
     await prisma.$disconnect();
   });

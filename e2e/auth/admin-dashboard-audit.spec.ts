@@ -36,15 +36,33 @@ test.describe('Dashboard Admin — Audit Exhaustif', () => {
       expect(page.url()).toContain('/dashboard/admin');
     });
 
-    test('bouton Créer Utilisateur est visible', async ({ page }) => {
-      await page.goto('/dashboard/admin/users');
-      await page.waitForLoadState('domcontentloaded');
-      const createBtn = page.getByRole('button', { name: /créer|ajouter.*utilisateur|new user/i });
-      if (await createBtn.isVisible()) {
-        await createBtn.click();
-        // Dialog or form should appear
-        await expect(page.getByLabel(/email/i).first()).toBeVisible({ timeout: 5000 });
+    test('ouvre le formulaire utilisateur après vérification canonique différée', async ({ page }) => {
+      // A loading shell must not count as a successful creation-form audit.
+      let releaseSession!: () => void;
+      const sessionGate = new Promise<void>((resolve) => { releaseSession = resolve; });
+      let markSessionHeld!: () => void;
+      const sessionHeld = new Promise<void>((resolve) => { markSessionHeld = resolve; });
+      await page.route('**/api/auth/session', async (route) => {
+        markSessionHeld();
+        await sessionGate;
+        await route.continue();
+      });
+      try {
+        await page.goto('/dashboard/admin/users');
+        await sessionHeld;
+        await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'LOADING');
+      } finally {
+        releaseSession();
+        await page.unrouteAll({ behavior: 'wait' });
       }
+      await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+      const createButton = page.getByRole('button', { name: 'Ajouter Utilisateur', exact: true });
+      await expect(createButton).toBeVisible();
+      await createButton.click();
+      const dialog = page.getByRole('dialog', { name: 'Ajouter Utilisateur', exact: true });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByLabel('Email *', { exact: true })).toBeVisible();
+      await expect(dialog.getByRole('button', { name: 'Créer', exact: true })).toBeVisible();
     });
   });
 
