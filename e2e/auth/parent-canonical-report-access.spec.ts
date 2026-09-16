@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
-import { resetBrowserSession, waitForAuthenticatedSession } from '../helpers/auth';
+import { gotoSignInForm, resetBrowserSession, waitForAuthenticatedSession } from '../helpers/auth';
 import { convertBilanGratuitRequest } from '../helpers/canonical-family';
 
 import { SECONDE_ENTRY_RECIPE_FACT_SHEETS } from '../../__tests__/bilans/fixtures/recipe-fact-sheets';
@@ -30,7 +30,10 @@ async function signIn(page: import('@playwright/test').Page, email: string, pass
   // cookies before /auth/signin (which does `await auth()` and would otherwise
   // bounce a still-live student session to /dashboard/eleve — CI 2026-09-09).
   await resetBrowserSession(page);
-  await page.goto('/auth/signin');
+  // The clear above cannot be atomic with the navigation: an Auth.js refresh
+  // already on the wire can re-issue the cookie in between. gotoSignInForm
+  // observes the outcome and clears again rather than trusting the pre-check.
+  await gotoSignInForm(page);
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();
