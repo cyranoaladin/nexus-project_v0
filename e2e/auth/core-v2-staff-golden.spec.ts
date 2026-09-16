@@ -20,7 +20,10 @@ import { sameOriginHeaders } from '../helpers/same-origin';
 test.describe.configure({ mode: 'serial' });
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3002';
-const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? '';
+// Same default as the three sibling specs that read Mailpit
+// (pending-parent-lifecycle, parent-email-onboarding, session-revocation).
+// CI sets MAILPIT_API_URL explicitly; the default keeps a local run working.
+const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? 'http://127.0.0.1:8025';
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
 const startYear = 2050 + (nonce % 40);
@@ -31,7 +34,6 @@ let enrollmentId = '';
 let rawToken = '';
 
 async function findActivationToken(): Promise<string> {
-  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the invitation e-mail');
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${parentEmail}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
