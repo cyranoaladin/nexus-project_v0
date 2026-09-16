@@ -195,7 +195,11 @@ describe('Core v2 design-schema guards (active today — check the proposed sche
 });
 
 describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () => {
-  const CORE_V2_OWN_DIRS = ['lib/core-v2', 'core-v2', 'scripts/core-v2', '__tests__/core-v2'];
+  // app/api/v2 is the Core v2 HTTP surface (go-live §AD) — the one live-runtime
+  // location allowed to bind Core v2, and itself scanned by every Core v2
+  // runtime guard above. Everything else under app/, lib/, components/,
+  // scripts/ stays forbidden.
+  const CORE_V2_OWN_DIRS = ['lib/core-v2', 'core-v2', 'scripts/core-v2', '__tests__/core-v2', 'app/api/v2'];
   const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
   // Catches every real JS/TS module-reference shape, not just static
   // `import ... from '...'`: a side-effect import (`import '...'`, no
