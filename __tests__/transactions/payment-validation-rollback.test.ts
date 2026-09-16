@@ -361,6 +361,11 @@ describe('Payment Validation Transaction Rollback', () => {
           throw new Error('Rollback transaction');
         });
       })();
+      // Handled at creation: this can settle during the awaits below, before
+      // `expect(...).rejects` attaches, and an unhandled rejection in that
+      // window fails the run. Same idiom already used in
+      // __tests__/auth/session-recovery-controller.test.ts.
+      void transactionPromise.catch(() => {});
 
       // Wait for transaction to start
       await new Promise(resolve => setTimeout(resolve, 50));

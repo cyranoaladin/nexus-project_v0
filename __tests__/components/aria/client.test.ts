@@ -581,6 +581,11 @@ describe('ARIA browser client transport ownership', () => {
     const controller = new AbortController();
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new TypeError('network'));
     const promise = streamAriaConversation(request, {}, controller.signal);
+    // Handled at creation: this can settle during the awaits below, before
+    // `expect(...).rejects` attaches, and an unhandled rejection in that
+    // window fails the run. Same idiom already used in
+    // __tests__/auth/session-recovery-controller.test.ts.
+    void promise.catch(() => {});
     await Promise.resolve();
     await Promise.resolve();
     controller.abort();

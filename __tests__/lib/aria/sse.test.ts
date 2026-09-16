@@ -210,6 +210,11 @@ describe('canonical ARIA SSE protocol', () => {
       {},
       { signal: controller.signal },
     );
+    // Handled at creation: this can settle during the awaits below, before
+    // `expect(...).rejects` attaches, and an unhandled rejection in that
+    // window fails the run. Same idiom already used in
+    // __tests__/auth/session-recovery-controller.test.ts.
+    void parsing.catch(() => {});
     await Promise.resolve();
     controller.abort('student navigation');
     await expect(parsing).rejects.toMatchObject({ code: 'ABORTED' });

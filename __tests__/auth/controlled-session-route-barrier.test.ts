@@ -432,6 +432,36 @@ describe('ControlledSessionRouteBarrier', () => {
       await barrier.closeAndDrain();
     });
 
+    test('a request held across a navigation cannot hang the drain once released', async () => {
+      // The complement of the test above. Not stealing a held request is
+      // right, but the document it belonged to is gone: once the handler
+      // releases it, Playwright emits neither requestfinished nor
+      // requestfailed for it, so nothing ever settles it and the drain times
+      // out. Observed in CI on PR #288, E2E Auth -- Chromium, job
+      // 104760248968: "state=CLOSING, started=4, held=0, released=2,
+      // finished=2, failed=1, activeHandlers=0, outstanding=1".
+      const barrier = await install({ holdSubsequent: true });
+      const held = newRoute();
+      const handler = page.issue(held.route)!;
+      await flush();
+      expect(barrier.held).toBe(1);
+
+      page.navigate();
+      await flush();
+      expect(barrier.held).toBe(1); // not stolen while the handler owns it
+
+      barrier.release();
+      await handler;
+      await flush();
+
+      // Released into a document that no longer exists: it can never settle.
+      expect(barrier.outstanding).toBe(0);
+      expect(barrier.records[0].error).toBe('CANCELLED_BY_NAVIGATION');
+
+      await barrier.closeAndDrain();
+      expect(barrier.state).toBe('CLOSED');
+    });
+
     test('a request issued after unroute is still accounted before CLOSED', async () => {
       const barrier = await install({ holdSubsequent: false });
 
