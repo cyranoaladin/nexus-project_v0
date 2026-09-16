@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser, logoutUser } from '../helpers/auth';
+import { loginAsUser } from '../helpers/auth';
 
 const ROLE_PATHS = {
   admin: [
@@ -46,7 +46,7 @@ const ROLE_PATHS = {
 } as const;
 
 const FORBIDDEN_PROBES = {
-  admin: [],
+  admin: ['/dashboard/parent'],
   parent: ['/dashboard/admin', '/dashboard/coach', '/dashboard/eleve'],
   coach: ['/dashboard/admin', '/dashboard/parent', '/dashboard/eleve'],
   student: ['/dashboard/admin', '/dashboard/parent', '/dashboard/coach'],
@@ -75,37 +75,51 @@ test.describe('RBAC dashboards - contrat', () => {
       await loginAsUser(page, role);
 
       for (const forbiddenRoute of FORBIDDEN_PROBES[role]) {
-        await page.goto(forbiddenRoute, { waitUntil: 'domcontentloaded' }).catch(() => undefined);
-
-        const pathname = new URL(page.url()).pathname;
-        const blocked = !pathname.startsWith(forbiddenRoute);
-        expect(blocked).toBeTruthy();
+        await page.goto(forbiddenRoute, { waitUntil: 'domcontentloaded' });
+        await expect(page).toHaveURL(new RegExp(`${ROLE_PATHS[role][0]}(?:[/?#]|$)`));
       }
     });
   }
 
-  test('logout redirige vers /auth/signin', async ({ page }) => {
+  test('logout UI après vérification différée ferme la session et refuse le dashboard', async ({ page }) => {
     await loginAsUser(page, 'parent');
-    await page.goto('/dashboard/parent');
-
-    const candidates = [
-      page.getByTestId('logout-button').first(),
-      page.getByRole('button', { name: /déconnexion|logout/i }).first(),
-      page.getByRole('link', { name: /déconnexion|logout/i }).first(),
-      page.locator('[data-testid="btn-logout"], [data-testid="btn-signout"]').first(),
-    ];
-
-    let clicked = false;
-    for (const candidate of candidates) {
-      if (await candidate.isVisible().catch(() => false)) {
-        await candidate.click();
-        clicked = true;
-        break;
-      }
+    // Hold a real canonical request: reaching the URL is not rendered readiness.
+    let releaseSession!: () => void;
+    const sessionGate = new Promise<void>((resolve) => { releaseSession = resolve; });
+    let markSessionHeld!: () => void;
+    const sessionHeld = new Promise<void>((resolve) => { markSessionHeld = resolve; });
+    await page.route('**/api/auth/session', async (route) => {
+      markSessionHeld();
+      await sessionGate;
+      await route.continue();
+    });
+    try {
+      await page.goto('/dashboard/parent');
+      await sessionHeld;
+      await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'LOADING');
+    } finally {
+      releaseSession();
+      await page.unrouteAll({ behavior: 'wait' });
     }
-    expect(clicked).toBeTruthy();
+    await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+    await expect(page.getByRole('heading', { name: 'Espace Famille', exact: true })).toBeVisible();
 
-    await logoutUser(page);
+    let signOutRequests = 0;
+    page.on('request', (request) => {
+      if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/auth/signout') {
+        signOutRequests += 1;
+      }
+    });
+    const signOutResponse = page.waitForResponse((response) =>
+      response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/auth/signout'
+    );
+    await page.getByRole('button', { name: 'Déconnexion', exact: true }).click();
+    expect((await signOutResponse).ok()).toBeTruthy();
+    // Product logout returns home. No helper POST or cookie deletion may mask it.
+    await expect(page).toHaveURL(new URL('/', page.url()).href);
+    const sessionResponse = await page.request.get('/api/auth/session');
+    expect(sessionResponse.ok()).toBeTruthy();
+    expect(await sessionResponse.json()).toBeNull();
 
     const dashboardRes = await page.request.get('/dashboard/parent', {
       failOnStatusCode: false,
@@ -114,5 +128,8 @@ test.describe('RBAC dashboards - contrat', () => {
     const location = dashboardRes.headers()['location'] || '';
     expect([302, 303, 307, 308]).toContain(dashboardRes.status());
     expect(location).toContain('/auth/signin');
+    await page.goto('/dashboard/parent');
+    await expect(page).toHaveURL(/\/auth\/signin(?:[/?#]|$)/);
+    expect(signOutRequests).toBe(1);
   });
 });

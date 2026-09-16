@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 
 test.describe('coach-stage-bilans - IDOR & Access Control', () => {
   test.beforeEach(async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('coach-stage-bilans - IDOR & Access Control', () => {
 
   test('séparation de rôle : élève tente d\'accéder à la surface coach stage → bloqué', async ({ page, context }) => {
     // Déconnexion coach et connexion élève
-    await context.clearCookies();
+    await resetBrowserSession(page);
     await loginAsUser(page, 'student');
     
     const res = await page.goto('/dashboard/coach/stages', { waitUntil: 'domcontentloaded' }).catch(() => null);

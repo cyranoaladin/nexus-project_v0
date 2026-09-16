@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from 'react';
 import { User } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -31,6 +32,7 @@ interface StudentSelectorProps {
 const STORAGE_KEY = 'nexus-selected-child';
 
 export function StudentSelector({ onSelect, selectedId }: StudentSelectorProps) {
+  const fetch = useProtectedFetch();
   const [children, setChildren] = useState<ChildInfo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,7 +83,7 @@ export function StudentSelector({ onSelect, selectedId }: StudentSelectorProps) 
 
     fetchChildren();
     return () => { cancelled = true; };
-  }, [selectedId, handleSelect]);
+  }, [selectedId, handleSelect, fetch]);
 
   // Single child or loading: don't show selector
   if (loading || children.length <= 1) return null;

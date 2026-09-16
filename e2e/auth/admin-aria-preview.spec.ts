@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { loginAsUser, type UserType } from '../helpers/auth';
+import { loginAsUser, type UserType, resetBrowserSession } from '../helpers/auth';
 import { listCourses, getMaxSpecialties, listCoursesFor } from '@/lib/curriculum/catalog';
 
 // Intentionally NOT importing @/lib/aria-preview/coverage-matrix (or
@@ -55,7 +55,7 @@ test.describe('ARIA Preview (admin-only) — RBAC', () => {
   }
 
   test('anonymous → REFUSED', async ({ page }) => {
-    await page.context().clearCookies();
+    await resetBrowserSession(page);
     await gotoPreview(page);
     await page.waitForLoadState('domcontentloaded');
     expect(isOnPreviewPage(page)).toBe(false);

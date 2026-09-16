@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -80,6 +81,7 @@ const subjectLabels: Partial<Record<Subject, string>> = {
 };
 
 export default function StudentDocuments({ studentId, studentName }: StudentDocumentsProps) {
+  const fetch = useProtectedFetch();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,7 +114,7 @@ export default function StudentDocuments({ studentId, studentName }: StudentDocu
     if (studentId) {
       fetchDocuments();
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   const handleOpenDocument = (doc: Document) => {
     if (doc.url) {

@@ -1,5 +1,6 @@
 /** @jest-environment node */
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { recordAriaFeedbackForActor } from '@/lib/aria/application/feedback/public';
@@ -80,7 +81,7 @@ describe('ARIA feedback concurrency on PostgreSQL', () => {
 
   afterAll(async () => {
     await pool.query('DELETE FROM aria_conversations WHERE id = $1', [ids.conversation]);
-    await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [[ids.studentUser, ids.parentUser]]);
+    await cleanupDisposableTestFixture(pool, { userIds: [ids.studentUser, ids.parentUser] });
     await pool.end();
   });
 

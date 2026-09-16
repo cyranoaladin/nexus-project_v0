@@ -2,16 +2,25 @@ import { test, expect } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
 import {
-  ensureInactiveSubscriptionForStudentEmail,
   getLatestInvoiceAndUserDocumentByEmail,
   disconnectPrisma,
 } from '../helpers/db';
 import { CGV_VERSION } from '../../lib/cgv-policy';
 import { resolvePaymentCatalogItem } from '../../lib/security/payment-catalog';
 
+// Ce parcours vérifie le pipeline paiement -> facture -> PDF -> coffre-fort,
+// pas une offre en particulier. Il ciblait à l'origine un abonnement
+// (subscription/HYBRIDE), mais la vente de tout abonnement est désormais
+// fermée en dur (lib/commerce/sale-suspension.ts, P0-ARIA-03 : ARIA ne
+// délivre aucune matière en production) -- /api/payments/bank-transfer/confirm
+// ET /api/payments/validate refusent tous deux 409 SALE_SUSPENDED pour un
+// abonnement, y compris un virement déjà en attente. Cette fermeture est
+// volontaire et n'est pas le bug à corriger ici : ce test bascule sur un
+// pack toujours en vente (coaching Grand Oral, hors périmètre ARIA) pour
+// continuer à exercer réellement le même pipeline de validation.
 test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', () => {
-  const catalogItem = resolvePaymentCatalogItem('subscription', 'HYBRIDE');
-  if (!catalogItem) throw new Error('HYBRIDE is absent from the canonical payment catalog');
+  const catalogItem = resolvePaymentCatalogItem('pack', 'GRAND_ORAL');
+  if (!catalogItem) throw new Error('GRAND_ORAL is absent from the canonical payment catalog');
   const { description, amount } = catalogItem;
   let paymentId = '';
 
@@ -20,14 +29,12 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
   });
 
   test('parent déclare un virement + pending détecté', async ({ page }) => {
-    const studentId = await ensureInactiveSubscriptionForStudentEmail(CREDS.student.email, 'HYBRIDE', 8);
     await loginAsUser(page, 'parent');
 
     const confirm = await page.request.post('/api/payments/bank-transfer/confirm', {
       data: {
-        type: 'subscription',
-        key: 'HYBRIDE',
-        studentId,
+        type: 'pack',
+        key: 'GRAND_ORAL',
         amount,
         description,
         termsAccepted: true,

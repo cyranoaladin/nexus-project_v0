@@ -87,4 +87,45 @@ describe('AriaMasteryCard', () => {
     await waitFor(() => expect(screen.getByTestId('aria-mastery-card')).toBeInTheDocument());
     expect(screen.getByText(/aucun exercice réalisé pour le moment/)).toBeInTheDocument();
   });
+
+  it('shows the real Next Best Action recommendation alongside mastery (P7a)', async () => {
+    mockFetchSequence([
+      ['/aria/courses', { courses: [{ courseKey: 'eds-maths-premiere', label: 'Mathématiques' }] }],
+      ['/aria/mastery', { skills: [] }],
+      ['/aria/next-best-action', { action: { courseKey: 'eds-maths-premiere', skillId: 'ALG_SUITE_ARITH', skillLabel: 'Suites arithmétiques', level: 'NOT_STARTED', activityId: 'activity-1' } }],
+      ['/aria/recent-activity', { activity: [] }],
+    ]);
+    render(<AriaMasteryCard studentId="student-1" />);
+    await waitFor(() => expect(screen.getByTestId('aria-parent-next-best-action')).toBeInTheDocument());
+    expect(screen.getByText('Suites arithmétiques')).toBeInTheDocument();
+  });
+
+  it('shows real recent activity outcomes alongside mastery (P7a), never the underlying attempt id or chat content', async () => {
+    mockFetchSequence([
+      ['/aria/courses', { courses: [{ courseKey: 'eds-maths-premiere', label: 'Mathématiques' }] }],
+      ['/aria/mastery', { skills: [] }],
+      ['/aria/next-best-action', { action: null }],
+      ['/aria/recent-activity', { activity: [
+        { skillId: 'ALG_SUITE_ARITH', skillLabel: 'Suites arithmétiques', outcome: 'CORRECT', observedAt: '2026-09-11T10:00:00.000Z' },
+        { skillId: 'ALG_SUITE_ARITH', skillLabel: 'Suites arithmétiques', outcome: 'INCORRECT', observedAt: '2026-09-10T10:00:00.000Z' },
+      ] }],
+    ]);
+    render(<AriaMasteryCard studentId="student-1" />);
+    await waitFor(() => expect(screen.getByTestId('aria-parent-recent-activity')).toBeInTheDocument());
+    expect(screen.getByText('Correct')).toBeInTheDocument();
+    expect(screen.getByText('À revoir')).toBeInTheDocument();
+  });
+
+  it('shows neither the recommendation nor the recent activity section when both are real-empty', async () => {
+    mockFetchSequence([
+      ['/aria/courses', { courses: [{ courseKey: 'eds-maths-premiere', label: 'Mathématiques' }] }],
+      ['/aria/mastery', { skills: [] }],
+      ['/aria/next-best-action', { action: null }],
+      ['/aria/recent-activity', { activity: [] }],
+    ]);
+    render(<AriaMasteryCard studentId="student-1" />);
+    await waitFor(() => expect(screen.getByTestId('aria-mastery-card')).toBeInTheDocument());
+    expect(screen.queryByTestId('aria-parent-next-best-action')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('aria-parent-recent-activity')).not.toBeInTheDocument();
+  });
 });

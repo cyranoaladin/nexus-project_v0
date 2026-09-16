@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { FamilyForm } from "@/components/dashboard/assistante/FamilyForm";
 import { AlertCircle, Loader2, LogOut, Search, Settings, Users } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -22,6 +23,8 @@ interface Student {
 }
 
 export default function StudentsManagement() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [students, setStudents] = useState<Student[]>([]);
@@ -67,7 +70,7 @@ export default function StudentsManagement() {
     } finally {
       if (requestId === latestRequest.current) setLoading(false);
     }
-  }, [page, searchQuery]);
+  }, [page, searchQuery, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -228,11 +231,11 @@ export default function StudentsManagement() {
                       <td className="p-3 text-sm text-neutral-300">{student.school}</td>
                       <td className="p-3">
                         <div className="flex space-x-2">
-                          <Link href={`/dashboard/assistante/students/${student.id}`}>
-                            <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white">
+                          <Button variant="outline" size="sm" className="text-neutral-200 hover:text-white" asChild>
+                            <Link href={`/dashboard/assistante/students/${student.id}`}>
                               Fiche
-                            </Button>
-                          </Link>
+                            </Link>
+                          </Button>
                         </div>
                       </td>
                     </tr>

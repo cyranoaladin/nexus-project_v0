@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +20,7 @@ import {
 import { ArrowLeft, Check, Clock, Copy, CreditCard, Landmark } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { LegalAcceptance } from "@/components/checkout/LegalAcceptance";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -39,6 +40,7 @@ interface OrderDetails {
 }
 
 function PaiementContent() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -111,7 +113,7 @@ function PaiementContent() {
         .finally(() => setPendingCheckDone(true));
     }
     // No redirect — show default payment overview when no params
-  }, [session, status, router, searchParams]);
+  }, [session, status, router, searchParams, fetch]);
 
   const handleCopyIban = useCallback(async () => {
     try {
@@ -161,7 +163,7 @@ function PaiementContent() {
     } finally {
       setConfirmingVirement(false);
     }
-  }, [orderDetails, router, immediateExecution]);
+  }, [orderDetails, router, immediateExecution, fetch]);
 
   if (status === "loading") {
     return <PaiementPageLoading />;

@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Edit, Loader2, LogOut, Plus, Search, Trash2, Users } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -42,6 +43,8 @@ interface UserFormData {
 }
 
 export default function UsersManagementPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
@@ -89,7 +92,7 @@ export default function UsersManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, roleFilter, searchTerm]);
+  }, [currentPage, roleFilter, searchTerm, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -199,7 +202,12 @@ export default function UsersManagementPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete user');
+        // `errorData.error` is a machine-readable code (e.g. "CONFLICT");
+        // `errorData.message` is the actual human-readable explanation —
+        // for a 409 from lib/security/account-deletion-guard.ts, this is
+        // the specific French reason the deletion was blocked (real
+        // history on the account), not a generic failure.
+        throw new Error(errorData.message || errorData.error || 'Échec de la suppression de l\'utilisateur');
       }
 
       const result = await response.json();
@@ -299,11 +307,11 @@ export default function UsersManagementPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+              <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/admin">
                   Retour au Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -398,7 +406,7 @@ export default function UsersManagementPage() {
                       rôles avec FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE.
                     */}
                     <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger id="role">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -492,7 +500,7 @@ export default function UsersManagementPage() {
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par rôle" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
@@ -562,6 +570,7 @@ export default function UsersManagementPage() {
                                   ? "Identité familiale : à gérer via l'espace famille dédié"
                                   : "Modifier"
                             }
+                            aria-label={`Modifier ${user.firstName} ${user.lastName}`}
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -571,6 +580,7 @@ export default function UsersManagementPage() {
                             onClick={() => handleDeleteUser(user.id)}
                             disabled={Boolean(user.mergedIntoUserId)}
                             title={user.mergedIntoUserId ? "Compte fusionné conservé pour audit" : "Supprimer"}
+                            aria-label={`Supprimer ${user.firstName} ${user.lastName}`}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>

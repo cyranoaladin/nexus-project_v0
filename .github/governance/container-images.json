@@ -1,0 +1,104 @@
+{
+  "$schema": "https://nexusreussite.academy/schemas/container-images.schema.json",
+  "schemaVersion": "1.0.0",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "description": "Canonical registry of every container image referenced by an executable file in this repository. Executable image references are projections of this registry: the governance test rewrites nothing, it fails when a reference drifts. Digests are multi-platform index digests, resolved from the upstream registry and verified to carry a linux/amd64 manifest.",
+  "images": [
+    {
+      "logicalName": "ci-postgres-pgvector-pg16",
+      "repository": "pgvector/pgvector",
+      "humanTag": "pg16",
+      "digest": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI",
+        "E2E"
+      ],
+      "rationale": "PostgreSQL 16 with pgvector, the database every required CI gate runs against."
+    },
+    {
+      "logicalName": "ci-postgres-pgvector-pg15",
+      "repository": "pgvector/pgvector",
+      "humanTag": "pg15",
+      "digest": "sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI",
+        "MIGRATION_REHEARSAL",
+        "LOCAL_DEV"
+      ],
+      "rationale": "PostgreSQL 15 with pgvector. Used by the Planning Studio gate, the disposable ARIA and NPC real-database suites, and the Core migration rehearsals, which must reproduce the production major version."
+    },
+    {
+      "logicalName": "ci-postgres-plain-pg16",
+      "repository": "postgres",
+      "humanTag": "16",
+      "digest": "sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI"
+      ],
+      "rationale": "Plain PostgreSQL 16, used by the gate that must prove the schema applies without the pgvector extension present."
+    },
+    {
+      "logicalName": "ci-redis-7-alpine",
+      "repository": "redis",
+      "humanTag": "7-alpine",
+      "digest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI",
+        "E2E"
+      ],
+      "rationale": "Redis 7, backing rate limiting and queue state in the E2E and integration gates."
+    },
+    {
+      "logicalName": "ci-mailpit",
+      "repository": "axllent/mailpit",
+      "humanTag": "v1.30.6",
+      "digest": "sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI",
+        "E2E"
+      ],
+      "rationale": "SMTP sink proving outbox delivery end to end without reaching a real mail provider."
+    },
+    {
+      "logicalName": "ci-nginx-sse-proxy",
+      "repository": "nginx",
+      "humanTag": "1.27-alpine",
+      "digest": "sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI"
+      ],
+      "rationale": "Real Nginx used by the SSE streaming gate to prove the repository's own proxy configuration streams incrementally, rather than only that it parses."
+    },
+    {
+      "logicalName": "reference-nginx-alpine",
+      "repository": "nginx",
+      "humanTag": "alpine",
+      "digest": "sha256:72ba65eb42c10344912a84ff42408db7d34f2feb642204570ab8fc5ffd29f1d3",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "PRODUCTION_REFERENCE"
+      ],
+      "rationale": "Reference only. Production terminates TLS on a host Nginx under PM2, not in a container; the compose service that named this image is commented out. Registered so the reference cannot silently become executable without review."
+    }
+  ]
+}

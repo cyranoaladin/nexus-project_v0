@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -49,6 +50,7 @@ function deriveProgress(series: SeriesItem[], attempts: AttemptItem[]): Automati
 }
 
 export function AutomatismesCockpitCard() {
+  const fetch = useProtectedFetch();
   const [progress, setProgress] = useState<AutomatismesProgress | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -75,7 +77,7 @@ export function AutomatismesCockpitCard() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [fetch]);
 
   if (!loaded) return null;
   if (!progress || !progress.hasStarted || progress.total === 0) return null;

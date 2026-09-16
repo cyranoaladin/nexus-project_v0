@@ -192,6 +192,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Ateliers ARIA',
+      href: '/dashboard/assistante/ateliers-aria',
+      icon: 'Calendar',
+      match: 'prefix'
+    },
+    {
       label: 'Assignations',
       href: '/dashboard/assistante/assignments',
       icon: 'ClipboardList',

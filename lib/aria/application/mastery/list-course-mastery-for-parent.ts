@@ -21,7 +21,7 @@ import type { PracticeAttemptOutcome } from '../../domain/evidence/outcome';
 import { computeMastery, type MasteryEvidencePoint } from '../../domain/mastery/mastery-level';
 import { prismaActivityRepository } from '../../infrastructure/prisma/activity-repository';
 import { prismaLearningEvidenceRepository } from '../../infrastructure/prisma/learning-evidence-repository';
-import { buildCanonicalAriaEntitlementContext } from '../../kernel/entitlements';
+import { buildCanonicalAriaEntitlementContext, resolveAriaCapabilities } from '../../kernel/entitlements';
 import { AriaError } from '../../kernel/errors';
 import { resolveInteractiveParentActor } from '../../kernel/parent-subject';
 import { loadChildForParent } from '../parent/load-child-for-parent';
@@ -51,6 +51,14 @@ export async function listAriaCourseMasteryForParent(input: {
   }
   if (!access.commerciallyEntitled) {
     throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours pour cet élève.');
+  }
+  // AUTONOMIE grants the student practice/chat but never parent reporting
+  // — the same real, empty-list-not-thrown-error pattern
+  // list-workshops-for-parent.ts already uses for its own tier gate: this
+  // is a browse path mounted unconditionally, and AUTONOMIE is the common
+  // case, not a misuse.
+  if (!resolveAriaCapabilities(entitlements.tier).parentReporting) {
+    return Object.freeze([]);
   }
 
   const graph = getSkillGraph(input.courseKey);

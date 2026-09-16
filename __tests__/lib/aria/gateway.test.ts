@@ -580,6 +580,11 @@ describe('ARIA provider-neutral model gateway', () => {
           { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
         )) void chunk;
       })();
+      // Handled at creation: this can settle during the awaits below, before
+      // `expect(...).rejects` attaches, and an unhandled rejection in that
+      // window fails the run. Same idiom already used in
+      // __tests__/auth/session-recovery-controller.test.ts.
+      void operation.catch(() => {});
       await Promise.resolve();
       const rejection = expect(operation).rejects.toMatchObject({
         code: 'USER_CANCELLED',
@@ -607,6 +612,11 @@ describe('ARIA provider-neutral model gateway', () => {
           { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
         )) void chunk;
       })();
+      // Handled at creation: this can settle during the awaits below, before
+      // `expect(...).rejects` attaches, and an unhandled rejection in that
+      // window fails the run. Same idiom already used in
+      // __tests__/auth/session-recovery-controller.test.ts.
+      void operation.catch(() => {});
       await Promise.resolve();
       const rejection = expect(operation).rejects.toMatchObject({
         code: 'MODEL_TIMEOUT',
@@ -636,6 +646,11 @@ describe('ARIA provider-neutral model gateway', () => {
             { signal: caller.signal, firstTokenTimeoutMs: 25, timeoutMs: 100 },
           )) void chunk;
         })();
+        // Handled at creation: this can settle during the awaits below, before
+        // `expect(...).rejects` attaches, and an unhandled rejection in that
+        // window fails the run. Same idiom already used in
+        // __tests__/auth/session-recovery-controller.test.ts.
+        void operation.catch(() => {});
         await Promise.resolve();
         const rejection = expect(operation).rejects.toMatchObject({
           code: 'INTERNAL_ERROR', internalDetails: { reasonCode: reason },

@@ -46,7 +46,10 @@ describe('JWT session revocation architecture boundary', () => {
 
   it('logs out through the Auth.js API outside the Edge middleware', () => {
     const button = read('components/navigation/LogoutButton.tsx')
-    expect(button).toContain("from 'next-auth/react'")
+    expect(button).toContain("useCanonicalSignOut")
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain("from 'next-auth/react'")
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain('signOut({ ...options, redirect: false })')
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain('await controller.runLogout(')
     expect(button).not.toContain('logout-action')
     expect(existsSync(resolve(process.cwd(), 'lib/auth/logout-action.ts'))).toBe(false)
   })

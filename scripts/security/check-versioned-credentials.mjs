@@ -179,6 +179,16 @@ const allowedAssignmentDigests = new Set([
   'bc68c5400a1e66baeebaaf7b6f25d4cd7e37609cc0d3717ead5703d92cf7e6bd', // studentBPassword
   '37011cc63002820030cb2106d62145d6b4702969cd9331fed88dc925ce1c0df2', // coach1Password
   'df82f260a2b299605cd973738cfc6701db94ce1c35acfb39f9e73f86ff0e7511', // coach2Password
+  // JITSI_ROOM_SECRET (lib/jitsi-server.ts) — same treatment as
+  // RATE_LIMIT_KEY_SECRET above: dev/CI/test-only placeholder values,
+  // never a real production secret.
+  '9e9181f2a9d21cb9cde60f2089cac97b2800c982234a45615f37e8521d8bf1cc', // .env.example
+  '1eee4bea27acc304b948f0761a646ce19fa0884631c8339819643f2794494594', // .github/workflows/ci.yml (e2e jobs)
+  'b7cd8db3d85b8353bf79c1aacff289ad1bd4ae96ecfb6ec927d4a6c534e4bd92', // .github/workflows/ci.yml (build job)
+  '1bf81546ce33b04d766a47b03614c9022a39bac914317da6f98dbe537c8c1c71', // __tests__/lib/jitsi-server.test.ts ('too-short')
+  '3f6e5355e6effc93a199d3db4e066c964e8c032b6f8a0a96a000053a7c0cad6e', // __tests__/lib/jitsi-server.test.ts (NEXTAUTH_SECRET fallback-rejection case)
+  '92ed4691115ad331a8e08684ab671e00a6430b18a8ba9950ce2ac09b5ae4f801', // docker-compose.e2e.yml
+  '766ca00aa0ff77211b2fbdc21c3122e0e00bc9727d7ed4a3a085a9c409a634d4', // jest.setup.js
 ]);
 const allowedDatabaseDigests = new Set([
   '48bc2617c350f2a1caae494ea38af3a2c258d1b1479334ff6b804030c0db1d9e',

@@ -50,7 +50,7 @@ docker run --detach \
   --health-interval 1s \
   --health-timeout 3s \
   --health-retries 30 \
-  pgvector/pgvector:pg15 >/dev/null
+  pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da >/dev/null
 rm -f -- "$ENV_FILE"
 ENV_FILE=''
 
