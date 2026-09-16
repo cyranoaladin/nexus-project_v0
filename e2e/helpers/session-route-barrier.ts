@@ -24,6 +24,13 @@ export interface SessionRouteRecord {
   status?: number;
   /** True when the request was seen by the route interceptor (not merely observed). */
   intercepted: boolean;
+  /**
+   * Set when a main-frame navigation happened while a route handler still owned
+   * this request. The document it belonged to is gone, so once the handler
+   * releases it the browser emits neither requestfinished nor requestfailed:
+   * it must be settled on release rather than waited for.
+   */
+  doomedByNavigation?: boolean;
 }
 
 export interface ControlledSessionRouteBarrierOptions {
@@ -389,6 +396,17 @@ export class ControlledSessionRouteBarrier {
       this._notifyChange();
 
       await this._releaseRoute(route, 'continue');
+
+      if (record.doomedByNavigation && record.state === 'RELEASED') {
+        // The main frame navigated away while this request was held. Nothing
+        // will ever report it as finished or failed, so account it here or the
+        // drain waits on it forever (CI: PR #288, job 104760248968).
+        record.state = 'FAILED';
+        record.endTime = Date.now();
+        record.error = 'CANCELLED_BY_NAVIGATION';
+        this._failed++;
+        this._notifyChange();
+      }
     } finally {
       this._activeHandlers--;
       this._notifyChange();
@@ -433,7 +451,13 @@ export class ControlledSessionRouteBarrier {
 
     for (const record of this._records) {
       if (record.state === 'FINISHED' || record.state === 'FAILED') continue;
-      if (record.state === 'HELD') continue; // still owned by a route handler
+      if (record.state === 'HELD') {
+        // Do not settle it behind its owner: the handler is still going to
+        // release it. But record that its document died here, so the release
+        // path settles it instead of waiting for events that can never come.
+        record.doomedByNavigation = true;
+        continue;
+      }
       record.state = 'FAILED';
       record.endTime = Date.now();
       record.error = 'CANCELLED_BY_NAVIGATION';
