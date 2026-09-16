@@ -22,7 +22,9 @@ import {
   cleanupAriaPeriodicBilans,
   cleanupAriaPracticeGoldenPath,
   completeAriaOnboardingByEmail,
+  getPendingEmailOutboxCountForUser,
   getStudentId,
+  getUserAndStudentIdsByEmail,
   upgradeAriaPersonaToSuiviTier,
 } from '../helpers/db';
 import { CREDS } from '../helpers/credentials';
@@ -123,6 +125,13 @@ test.describe.serial('ARIA-P7b real periodic bilan generation + review + publica
     expect(reviewed.reviewedAt).toBeTruthy();
     expect(reviewed.isPublished).toBe(false);
 
+    // Baseline BEFORE publishing — this shared persona's outbox is not
+    // otherwise isolated per spec (the already-merged P7d workshop golden
+    // path notifies this same real parent too), so the publish's own
+    // effect is measured as a delta, never an absolute count.
+    const { userId: parentUserId } = await getUserAndStudentIdsByEmail(CREDS.ariaPersonasParent.email);
+    const beforePublish = await getPendingEmailOutboxCountForUser(parentUserId);
+
     // Only now does publication succeed — because a real APPROVED review
     // is already persisted.
     const publishResponse = await page.request.put(`/api/bilans/${bilanId}`, {
@@ -132,6 +141,10 @@ test.describe.serial('ARIA-P7b real periodic bilan generation + review + publica
     const published = (await publishResponse.json()).data;
     expect(published.isPublished).toBe(true);
     expect(published.publishedAt).not.toBeNull();
+
+    // Real parent notification (P7c): exactly one real email intent queued
+    // on the real outbox for the real parent, fired by the publish above.
+    expect(await getPendingEmailOutboxCountForUser(parentUserId)).toBe(beforePublish + 1);
 
     // Real student, real session, real navigation: no page.goto built from
     // a staff-known id. The student opens their own cockpit, finds the
