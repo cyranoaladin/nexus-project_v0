@@ -160,6 +160,42 @@
       "MODULE_KIND": "NEXT_PAGE"
     },
     {
+      "PATH": "app/dashboard/admin/familles/[id]/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/familles/annees/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/familles/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
       "PATH": "app/dashboard/admin/page.tsx",
       "ROLE": [
         "ADMIN"
@@ -334,6 +370,42 @@
         "ASSISTANTE"
       ],
       "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/[id]/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/annees/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
       "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
       "MUTATING_ACTIONS_PRESENT": true,
       "DRAFT_STATE_PRESENT": true,
