@@ -49,7 +49,20 @@ generator client {
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
-// ── Identity (unchanged authority) ──────────────────────────────────────────
+// ── Identity / account lifecycle (operational domain) ───────────────────────
+//
+// `accountStatus` is THE account-state authority. `activatedAt` is a derived
+// audit timestamp (when the PENDING_ACTIVATION -> ACTIVE transition happened),
+// never read for an authorization or login decision. `sessionVersion` stays
+// the session-revocation mechanism: every transition that must invalidate
+// live sessions (suspend, disable, password change) increments it.
+//
+// `email` is stored in canonical normalized form (trim/NFC/lowercase, see
+// lib/core-v2/contact.ts) AND protected by a case-insensitive unique index
+// (users_email_ci_key, core-v2/prisma/migrations/0006_core_v2_operational_domain)
+// so a case-variant duplicate is refused at the DB level even if a writer
+// bypasses normalization. `phone` is stored normalized and is deliberately
+// NOT unique (several accounts of one household may share a phone).
 
 model User {
   id        String   @id @default(cuid())
@@ -60,6 +73,8 @@ model User {
   lastName  String?
   phone     String?
 
+  accountStatus AccountStatus @default(PENDING_ACTIVATION)
+
   activatedAt             DateTime?
   sessionVersion          Int       @default(0)
   registrationCompletedAt DateTime?
@@ -67,6 +82,7 @@ model User {
   householdParent HouseholdParent?
   student         Student?
   coachProfile    CoachProfile?
+  invitations     Invitation[]     @relation("InvitationUser")
 
   createdAt                      DateTime                        @default(now())
   updatedAt                      DateTime                        @updatedAt
@@ -74,8 +90,68 @@ model User {
   studentCourseEnrollments       StudentCourseEnrollment[]
   coachStudentCourseAssignments  CoachStudentCourseAssignment[]
   planningSeries                 PlanningSeries[]
+  issuedInvitations              Invitation[]                    @relation("InvitationIssuer")
 
   @@map("users")
+}
+
+enum AccountStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+// ── Invitation (own lifecycle, separate from account state) ─────────────────
+//
+// State is derived, never stored as a mutable enum:
+//   OPEN     = consumedAt IS NULL AND revokedAt IS NULL AND expiresAt > now
+//   EXPIRED  = consumedAt IS NULL AND revokedAt IS NULL AND expiresAt <= now
+//   CONSUMED = consumedAt IS NOT NULL
+//   REVOKED  = revokedAt IS NOT NULL
+// Only the token HASH is stored (sha256 of a 32-byte random token) — the raw
+// token exists only in the service return value handed to the mail layer.
+// At most one non-consumed, non-revoked invitation per user at any time —
+// race-safe via partial unique index invitations_open_user_key (migration
+// 0006); a resend revokes the prior open invitation in the same transaction.
+model Invitation {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation("InvitationUser", fields: [userId], references: [id], onDelete: Restrict)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  revokedAt  DateTime?
+  issuedById String?
+  issuedBy   User?     @relation("InvitationIssuer", fields: [issuedById], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@map("invitations")
+}
+
+// ── Immutable business audit ────────────────────────────────────────────────
+//
+// Append-only: a BEFORE UPDATE OR DELETE trigger (migration 0006) raises on
+// any row mutation, so no application path — Prisma or raw SQL — can rewrite
+// history. No relation to User for the actor on purpose: an audit row must
+// survive the actor account's deletion, and must never be cascaded/nulled by
+// it. `metadata` is minimal structured context (ids, before/after status),
+// never secrets, tokens, password hashes, or free-text PII.
+model AuditEvent {
+  id            String   @id @default(cuid())
+  actorUserId   String?
+  action        String
+  subjectType   String
+  subjectId     String
+  correlationId String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([subjectType, subjectId, createdAt])
+  @@index([correlationId])
+  @@index([actorUserId, createdAt])
+  @@map("audit_events")
 }
 
 enum UserRole {
@@ -108,6 +184,10 @@ model Household {
 // membership (a parent belongs to a household), never academic/financial
 // history. Losing it when the household or the user is deleted is expected
 // (deletion-policy audit: CASCADE_ALLOWED).
+//
+// `userId @unique` = one parent user belongs to at most one household.
+// At most one primary contact per household — race-safe via partial unique
+// index household_parents_primary_contact_key (migration 0006).
 model HouseholdParent {
   id               String    @id @default(cuid())
   householdId      String
@@ -164,11 +244,17 @@ model Student {
 // ("2026-2027") is DERIVED from `startYear`, never entered as free text
 // anywhere in the system.
 
+// `startsAt`/`endsAt` are CONFIGURED per year by the business at creation
+// (no hardcoded 1 September / 31 August anywhere in Core v2 — the dates are
+// input, validated against startYear, see lib/core-v2/services/academic-year.ts).
+// At most one CURRENT year at any time — race-safe via partial unique index
+// academic_years_single_current_key (migration 0006). Lifecycle:
+// UPCOMING -> CURRENT -> CLOSED, transitions only through the service layer.
 model AcademicYear {
   id        String             @id @default(cuid())
-  startYear Int                @unique // e.g. 2026 for "2026-2027" — the sole entered value
-  startsAt  DateTime // e.g. 2026-09-01T00:00:00Z — derived/fixed from startYear at creation
-  endsAt    DateTime // e.g. 2027-08-31T23:59:59Z
+  startYear Int                @unique // e.g. 2026 for "2026-2027" — the sole entered identity
+  startsAt  DateTime
+  endsAt    DateTime
   status    AcademicYearStatus @default(UPCOMING)
 
   enrollments StudentAcademicYearEnrollment[]
@@ -210,7 +296,11 @@ model StudentAcademicYearEnrollment {
   academicYearId String
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
 
-  status StudentAcademicYearEnrollmentStatus @default(ACTIVE)
+  // Creation != approval: a new enrollment is PENDING until an explicit
+  // approveEnrollment act (service layer, RBAC ENROLLMENT_APPROVE) moves it
+  // to ACTIVE. No direct arbitrary status update — transitions are
+  // compare-and-set on the expected previous status.
+  status StudentAcademicYearEnrollmentStatus @default(PENDING)
 
   schoolingStatus SchoolingStatus?
   gradeLevel      GradeLevel
@@ -237,14 +327,16 @@ model StudentAcademicYearEnrollment {
   @@map("student_academic_year_enrollments")
 }
 
-// Closed status set — final vocabulary to be confirmed by business audit
-// per the mission ("choisir le vocabulaire final après audit métier"); this
-// is the proposed starting set, not a unilateral final decision.
+// Closed status set (operational-domain contract §T):
+//   PENDING   — created, awaiting explicit approval (default)
+//   ACTIVE    — approved; the student is on the roster for that year
+//   COMPLETED — year finished normally
+//   WITHDRAWN — left during the year, or approval refused
 enum StudentAcademicYearEnrollmentStatus {
+  PENDING
   ACTIVE
   COMPLETED
   WITHDRAWN
-  ARCHIVED
 }
 
 // ── Course selection (Phase 4) — StudentAcademicEnrollment carried over,
@@ -425,7 +517,11 @@ model PlanningSeries {
   assignmentId String
   assignment   CoachStudentCourseAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
 
-  timezone       String   @default("Africa/Tunis")
+  // No schema default: the organization timezone is configuration
+  // (CORE_V2_ORGANIZATION_TIMEZONE, see lib/core-v2/config.ts), resolved by
+  // the service layer at creation and stored per series so a later config
+  // change never silently re-interprets existing local times.
+  timezone       String
   startDate      DateTime @db.Date
   localStartTime String
   localEndTime   String

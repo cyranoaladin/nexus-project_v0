@@ -29,6 +29,7 @@ import {
   listHouseholdParents,
 } from '@/lib/core-v2/repositories';
 import { resetCoreV2Database } from './helpers/reset-db';
+import { academicYearDates } from './helpers/fixtures';
 
 let client: PrismaClient;
 
@@ -60,7 +61,7 @@ describe('formatAcademicYearLabel — pure function, no DB', () => {
 
 describe('getAcademicYearByStartYear', () => {
   test('finds an existing year by its startYear', async () => {
-    const created = await createAcademicYear(client, { startYear: 2027 });
+    const created = await createAcademicYear(client, { startYear: 2027, ...academicYearDates(2027) });
     const found = await getAcademicYearByStartYear(client, 2027);
     expect(found?.id).toBe(created.id);
   });
@@ -107,7 +108,7 @@ describe('listHouseholdParents', () => {
 
 describe('endAssignment', () => {
   test('ending an assignment allows a new ACTIVE assignment for the same (coach, enrollment, courseKey) triple — proves the partial-unique-index comment\'s claim', async () => {
-    const academicYear = await createAcademicYear(client, { startYear: 2026 });
+    const academicYear = await createAcademicYear(client, { startYear: 2026, ...academicYearDates(2026) });
     const parentUser = await createUser(client, { role: 'PARENT' });
     const { household } = await createHouseholdWithParent(client, { parentUserId: parentUser.id });
     const studentUser = await createUser(client, { role: 'ELEVE' });
