@@ -89,6 +89,11 @@ class MockPage extends EventEmitter {
   /** Injection hook fired synchronously inside unroute(). */
   public onUnroute?: () => void | Promise<void>;
 
+  private readonly _mainFrame = { name: 'main' };
+  public mainFrame(): unknown { return this._mainFrame; }
+  /** Emit a main-frame navigation, as the browser does on every page.goto. */
+  public navigate(): void { this.emit('framenavigated', this._mainFrame); }
+
   public async route(pattern: string, handler: (route: Route) => Promise<void>): Promise<void> {
     this.routePattern = pattern;
     this.routeHandler = handler;
@@ -379,6 +384,54 @@ describe('ControlledSessionRouteBarrier', () => {
       expect(stats.outstanding).toBe(0);
     });
 
+    test('settles a request the browser cancelled by navigating away', async () => {
+      // Playwright does not always emit requestfailed for a request a
+      // navigation cancels. Since the barrier counts every matching request,
+      // such a request would otherwise leave outstanding stuck above zero and
+      // time the drain out — which is exactly what it did in CI.
+      const barrier = await install({ holdSubsequent: false });
+
+      const a = newRoute();
+      const gate = deferred();
+      a.route.continueGate = gate.promise;
+      const handler = page.issue(a.route)!;
+      gate.resolve();
+      await handler;
+      await flush();
+
+      expect(barrier.outstanding).toBe(1); // continued, never settled
+
+      page.navigate();
+      await flush();
+
+      expect(barrier.outstanding).toBe(0);
+      expect(barrier.failed).toBe(1);
+      expect(barrier.records[0].error).toBe('CANCELLED_BY_NAVIGATION');
+
+      await barrier.closeAndDrain();
+      expect(barrier.state).toBe('CLOSED');
+    });
+
+    test('a navigation does not steal a request a route handler still holds', async () => {
+      const barrier = await install({ holdSubsequent: true });
+      const held = newRoute();
+      const handler = page.issue(held.route)!;
+      await flush();
+      expect(barrier.held).toBe(1);
+
+      page.navigate();
+      await flush();
+
+      // Still owned by its route handler, so it must not be settled behind it.
+      expect(barrier.held).toBe(1);
+      expect(barrier.failed).toBe(0);
+
+      barrier.release();
+      await handler;
+      page.finish(held.request);
+      await barrier.closeAndDrain();
+    });
+
     test('a request issued after unroute is still accounted before CLOSED', async () => {
       const barrier = await install({ holdSubsequent: false });
 
@@ -413,6 +466,7 @@ describe('ControlledSessionRouteBarrier', () => {
 
       expect(page.teardownLog).toEqual([
         'unroute',
+        'off:framenavigated',
         'off:request',
         'off:requestfinished',
         'off:requestfailed',
@@ -480,6 +534,7 @@ describe('ControlledSessionRouteBarrier', () => {
       expect(barrier.state).toBe('CLOSED');
       expect(page.teardownLog).toEqual([
         'unroute',
+        'off:framenavigated',
         'off:request',
         'off:requestfinished',
         'off:requestfailed',
