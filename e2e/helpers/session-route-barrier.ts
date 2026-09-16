@@ -1,4 +1,4 @@
-import type { Page, Route, Request } from '@playwright/test';
+import type { Frame, Page, Route, Request } from '@playwright/test';
 
 export type SessionRouteLifecycleState =
   | 'STARTED'
@@ -159,6 +159,7 @@ export class ControlledSessionRouteBarrier {
 
   private readonly _routeHandler: (route: Route) => Promise<void>;
   private readonly _requestIssuedHandler: (request: Request) => void;
+  private readonly _frameNavigatedHandler: (frame: Frame) => void;
   private readonly _requestFinishedHandler: (request: Request) => void;
   private readonly _requestFailedHandler: (request: Request) => void;
 
@@ -172,6 +173,7 @@ export class ControlledSessionRouteBarrier {
 
     this._routeHandler = this._handleRoute.bind(this);
     this._requestIssuedHandler = this._handleRequestIssued.bind(this);
+    this._frameNavigatedHandler = this._handleFrameNavigated.bind(this);
     this._requestFinishedHandler = this._handleRequestFinished.bind(this);
     this._requestFailedHandler = this._handleRequestFailed.bind(this);
   }
@@ -190,6 +192,7 @@ export class ControlledSessionRouteBarrier {
 
   private async _attach(): Promise<void> {
     this._page.on('request', this._requestIssuedHandler);
+    this._page.on('framenavigated', this._frameNavigatedHandler);
     this._page.on('requestfinished', this._requestFinishedHandler);
     this._page.on('requestfailed', this._requestFailedHandler);
     await this._page.route(this._pattern, this._routeHandler);
@@ -410,6 +413,35 @@ export class ControlledSessionRouteBarrier {
     this._notifyChange();
   }
 
+  /**
+   * A main-frame navigation cancels the previous document's in-flight requests,
+   * and Playwright does not always emit `requestfailed` for them. Counting
+   * every matching request — which is what closes the R1 window — makes this
+   * barrier responsible for each one reaching a terminal state, so a request
+   * the browser silently dropped would leave `outstanding` stuck above zero and
+   * time the drain out:
+   *
+   *   closeAndDrain(post-unroute) timeout … started=4, finished=2, failed=1,
+   *   activeHandlers=0, outstanding=1
+   *
+   * Requests still in flight when the main frame navigates are therefore
+   * settled as CANCELLED here. This is not a tolerance: it records the real
+   * outcome the browser produced, which no lifecycle event reports.
+   */
+  private _handleFrameNavigated(frame: Frame): void {
+    if (frame !== this._page.mainFrame()) return;
+
+    for (const record of this._records) {
+      if (record.state === 'FINISHED' || record.state === 'FAILED') continue;
+      if (record.state === 'HELD') continue; // still owned by a route handler
+      record.state = 'FAILED';
+      record.endTime = Date.now();
+      record.error = 'CANCELLED_BY_NAVIGATION';
+      this._failed++;
+    }
+    this._notifyChange();
+  }
+
   private _handleRequestFinished(request: Request): void {
     if (!this._recordByRequest.has(request)) return;
 
@@ -567,7 +599,8 @@ export class ControlledSessionRouteBarrier {
       await this._waitForQuiescence(timeoutMs, 'closeAndDrain(post-unroute)');
       this.assertIdle();
 
-      this._page.off('request', this._requestIssuedHandler);
+      this._page.off('framenavigated', this._frameNavigatedHandler);
+    this._page.off('request', this._requestIssuedHandler);
       this._page.off('requestfinished', this._requestFinishedHandler);
       this._page.off('requestfailed', this._requestFailedHandler);
 
@@ -628,6 +661,7 @@ export class ControlledSessionRouteBarrier {
 
     this.release();
 
+    this._page.off('framenavigated', this._frameNavigatedHandler);
     this._page.off('request', this._requestIssuedHandler);
     this._page.off('requestfinished', this._requestFinishedHandler);
     this._page.off('requestfailed', this._requestFailedHandler);
