@@ -189,8 +189,20 @@ const allowedAssignmentDigests = new Set([
   '3f6e5355e6effc93a199d3db4e066c964e8c032b6f8a0a96a000053a7c0cad6e', // __tests__/lib/jitsi-server.test.ts (NEXTAUTH_SECRET fallback-rejection case)
   '92ed4691115ad331a8e08684ab671e00a6430b18a8ba9950ce2ac09b5ae4f801', // docker-compose.e2e.yml
   '766ca00aa0ff77211b2fbdc21c3122e0e00bc9727d7ed4a3a085a9c409a634d4', // jest.setup.js
+  // .github/workflows/flake-qualification.yml — the SAME CI-only literals
+  // already authorised above for ci.yml's e2e jobs. Digests are path-scoped
+  // (sha256(path\0name\0value)), so copying an approved value to a new file
+  // deliberately requires a fresh entry rather than inheriting the old one.
+  // No new secret is introduced here; only a second location for existing ones.
+  '751a96ec4eea4f35e56abf4da2e881bddec21f9c8044f17bd4513139fda9838b', // OPENAI_API_KEY (sk-test-mock-key-for-ci-build-only)
+  '5c654e95d14511d7b0bf531bf355da17954409ee450b0060a2cbe43b33c9241a', // RATE_LIMIT_KEY_SECRET
+  '357fb378835d06541e8629ab47945fef3b01c1f17245ad405680f3acdd548808', // JITSI_ROOM_SECRET
+  '92d813172a4333e5787330f200293f23ef8eedeb767b3a08aa9a8855f5d3970f', // EMAIL_OUTBOX_ENCRYPTION_KEY
 ]);
 const allowedDatabaseDigests = new Set([
+  // .github/workflows/flake-qualification.yml — the disposable E2E stack's
+  // own database URL, identical to ci.yml's e2e jobs; path-scoped digest.
+  'd9a6393ea1cd47479110986076580fa52dbde4956389d68a48fd452729173043',
   '48bc2617c350f2a1caae494ea38af3a2c258d1b1479334ff6b804030c0db1d9e',
   '5a13e858d4f6e224c31cfb093a14c09e675ff7fd4902207d699675a5f390622b',
   '8074d859e15119c0ed754cdfaea1198a93858a8556617fa8eb394e569cd05612',
