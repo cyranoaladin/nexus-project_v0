@@ -44,6 +44,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'session-cancel': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'admin-users-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'admin-users-create': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
+  'core-v2-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'student-credits': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'student-sessions': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'programme-rag-v2': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
