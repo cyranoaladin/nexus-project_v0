@@ -59,6 +59,12 @@ describe('§AB concurrency matrix', () => {
       await tx.academicYear.update({ where: { id: a.id }, data: { status: 'CURRENT' } });
     });
     const t2 = setCurrentAcademicYear(client, h.ctx(), b.id);
+    // Handled at creation: `t1.release()` below frees the lock, so `t2` can
+    // acquire it, hit the conflict and settle during that await — before
+    // `expect(t2).rejects` attaches. An unhandled rejection in that window
+    // fails the run (see
+    // __tests__/architecture/deferred-rejection-assertion-authority.test.ts).
+    void t2.catch(() => {});
     await waitForLockWaiter(client);
     await t1.release();
 
@@ -179,6 +185,12 @@ describe('§AB concurrency matrix', () => {
       await tx.invitation.create({ data: { userId: parent.id, tokenHash: 'held-open-hash', expiresAt: new Date(Date.now() + 3_600_000) } });
     });
     const t2 = resendInvitation(client, h.ctx(), parent.id);
+    // Handled at creation: `t1.release()` below frees the lock, so `t2` can
+    // acquire it, hit the conflict and settle during that await — before
+    // `expect(t2).rejects` attaches. An unhandled rejection in that window
+    // fails the run (see
+    // __tests__/architecture/deferred-rejection-assertion-authority.test.ts).
+    void t2.catch(() => {});
     await waitForLockWaiter(client);
     await t1.release();
 
