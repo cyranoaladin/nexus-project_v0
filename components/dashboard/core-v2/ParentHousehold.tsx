@@ -4,26 +4,8 @@ import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type ApiFail, type HouseholdDetail, describeFailure, displayName, v2 } from './api';
+import { ACCOUNT_LABEL, EnrollmentSection } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
-
-const ENROLLMENT_LABEL: Record<HouseholdDetail['students'][number]['enrollments'][number]['status'], string> = {
-  PENDING: 'En attente de validation',
-  ACTIVE: 'Inscription active',
-  COMPLETED: 'Année terminée',
-  WITHDRAWN: 'Inscription retirée',
-};
-const ACCOUNT_LABEL: Record<HouseholdDetail['parents'][number]['accountStatus'], string> = {
-  PENDING_ACTIVATION: 'à activer',
-  ACTIVE: 'actif',
-  SUSPENDED: 'suspendu',
-  DISABLED: 'désactivé',
-};
-const WEEKDAY: Record<string, string> = { MO: 'lundi', TU: 'mardi', WE: 'mercredi', TH: 'jeudi', FR: 'vendredi', SA: 'samedi', SU: 'dimanche' };
-
-function describeRule(rule: string): string {
-  const day = /BYDAY=([A-Z]{2})/.exec(rule)?.[1];
-  return day ? `chaque ${WEEKDAY[day] ?? day}` : 'chaque semaine';
-}
 
 /** Read-only view of the signed-in parent's own household (Core v2 authority). */
 export function ParentHousehold() {
@@ -78,38 +60,7 @@ export function ParentHousehold() {
           <CardContent className="space-y-4">
             {student.enrollments.length === 0 && <p role="status" className="text-sm text-neutral-400">Aucune inscription annuelle pour le moment.</p>}
             {student.enrollments.map((enrollment) => (
-              <section key={enrollment.id} aria-label={`Année ${enrollment.academicYear.startYear}-${enrollment.academicYear.startYear + 1}`} className="rounded-md border border-white/10 p-3">
-                <p className="font-medium text-neutral-100">
-                  {enrollment.academicYear.startYear}-{enrollment.academicYear.startYear + 1} · {ENROLLMENT_LABEL[enrollment.status]}
-                </p>
-                <p className="text-sm text-neutral-400">
-                  {enrollment.gradeLevel} · {enrollment.academicTrack}
-                  {enrollment.stmgPathway && ` · ${enrollment.stmgPathway}`}
-                </p>
-                <div className="mt-2 text-sm text-neutral-200">
-                  <span className="text-neutral-400">Cours : </span>
-                  {enrollment.courses.length === 0 ? 'aucun cours explicite' : enrollment.courses.map((c) => c.courseKey).join(', ')}
-                </div>
-                <ul className="mt-2 space-y-1 text-sm">
-                  {enrollment.assignments.filter((a) => a.status === 'ACTIVE').length === 0 && (
-                    <li className="text-neutral-400">Aucun coach affecté pour l’instant.</li>
-                  )}
-                  {enrollment.assignments
-                    .filter((a) => a.status === 'ACTIVE')
-                    .map((a) => (
-                      <li key={a.id} className="text-neutral-100">
-                        {a.courseKey} — {displayName(a.coach.user)}
-                        {a.planningSeries
-                          .filter((s) => s.status === 'ACTIVE')
-                          .map((s) => (
-                            <span key={s.id} className="block text-xs text-neutral-400">
-                              {describeRule(s.recurrenceRule)} {s.localStartTime}–{s.localEndTime} ({s.timezone})
-                            </span>
-                          ))}
-                      </li>
-                    ))}
-                </ul>
-              </section>
+              <EnrollmentSection key={enrollment.id} enrollment={enrollment} />
             ))}
           </CardContent>
         </Card>

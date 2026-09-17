@@ -10,6 +10,7 @@ import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { CohortTable,type StudentEAMSummary,type StudentRow } from "@/components/dashboard/coach/CohortTable";
+import { CoachAssignments } from "@/components/dashboard/core-v2/CoachAssignments";
 import { PriorityAlerts,type CoachAlert } from "@/components/dashboard/coach/PriorityAlerts";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import CoachAvailability from "@/components/ui/coach-availability";
@@ -109,6 +110,8 @@ export default function DashboardCoach() {
         <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
+              {/* §AJ: a coach whose identity is owned by Core v2 sees the assignments made there. Additive: the Core v1 cohort tooling below stays (§AK converges planning). */}
+              {session?.user.authority === 'CORE_V2' && <CoachAssignments />}
               {/* Rubriques Switcher */}
               <div className="mb-6 -mx-4 sm:mx-0">
                 <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">
