@@ -183,6 +183,11 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      // Explicit session revocation in Core v2, the mirror of the Core v2 read in
+      // validateSessionToken. A CORE_V2 token is never re-checked against Core v1,
+      // so revoking there alone left a migrated identity signed in while the API
+      // answered 200 (auth-client-lifecycle.spec.ts:211, all four browser projects).
+      'lib/core-v2/auth/authority.ts:update#1',
       // Core v2 account lifecycle (own `users` table, isolated client): activation sets
       // the password, status transitions revoke sessions, password change revokes sessions.
       'lib/core-v2/services/account.ts:updateMany#1',

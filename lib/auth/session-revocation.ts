@@ -1,6 +1,6 @@
 import type { JWT } from 'next-auth/jwt'
 import { isAccountActivationRequired } from '@/lib/auth/parent-activation'
-import { getAuthRolloutMode, isIdentityOwnedByCoreV2, validateCoreV2Session, type AuthRolloutMode } from '@/lib/core-v2/auth/authority'
+import { getAuthRolloutMode, isIdentityOwnedByCoreV2, revokeCoreV2UserSessions, validateCoreV2Session, type AuthRolloutMode } from '@/lib/core-v2/auth/authority'
 import { prisma } from '@/lib/prisma'
 import { recordSessionVerificationUnavailable } from '@/lib/auth/session-verification-outcome'
 
@@ -102,13 +102,38 @@ export async function validateSessionToken(
   }
 }
 
+/**
+ * Revoke every session for an identity, in EVERY store that can still
+ * validate one.
+ *
+ * `validateSessionToken` routes a CORE_V2 token to Core v2 and never consults
+ * Core v1. Bumping only Core v1 therefore left a migrated identity signed in
+ * while this function returned success — the API answered 200 and the operator
+ * believed the session was gone (`auth-client-lifecycle.spec.ts:211`, all four
+ * browser projects). Revocation must be at least as broad as validation.
+ *
+ * Core v1 is always bumped: a V1 token may exist regardless of who owns the
+ * identity now. Core v2 is bumped when it owns the identity, and a failure
+ * there propagates rather than being swallowed — reporting "revoked" for a
+ * session that is still live is the worse outcome.
+ */
 export async function revokeAllUserSessions(
   userId: string,
   database: SessionDatabase = prisma as unknown as SessionDatabase,
+  authority: {
+    ownedByCoreV2: typeof isIdentityOwnedByCoreV2
+    revokeCoreV2: typeof revokeCoreV2UserSessions
+  } = { ownedByCoreV2: isIdentityOwnedByCoreV2, revokeCoreV2: revokeCoreV2UserSessions },
 ): Promise<{ sessionVersion: number }> {
-  return database.user.update({
+  const revoked = await database.user.update({
     where: { id: userId },
     data: { sessionVersion: { increment: 1 } },
     select: { sessionVersion: true },
   })
+
+  if (await authority.ownedByCoreV2(userId)) {
+    await authority.revokeCoreV2(userId)
+  }
+
+  return revoked
 }

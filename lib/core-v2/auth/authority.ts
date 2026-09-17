@@ -127,6 +127,28 @@ export async function authenticateCoreV2ByPhone(rawPhone: string, password: stri
   return authenticateCoreV2ByUserId(userId, password);
 }
 
+/**
+ * Revoke every Core v2 session for an identity, by bumping the same
+ * `sessionVersion` that `validateCoreV2Session` reads.
+ *
+ * This exists because the read side alone is not a revocation story: a
+ * CORE_V2 token is validated here and never against Core v1, so bumping only
+ * Core v1 leaves the session alive while the API reports success. Revocation
+ * must be at least as broad as validation.
+ *
+ * Throws (via `coreV2ClientOrRefuse`) when Core v2 cannot be reached. That is
+ * deliberate: answering "revoked" for a session that is still live is worse
+ * than answering "failed". Same posture as assertNpcStorageReady,
+ * assertAuthRolloutStartup and verifyServerSession.
+ */
+export async function revokeCoreV2UserSessions(userId: string): Promise<void> {
+  const client = await coreV2ClientOrRefuse();
+  await client.user.update({
+    where: { id: userId },
+    data: { sessionVersion: { increment: 1 } },
+  });
+}
+
 /** Session-claim validity against Core v2 only (ACTIVE + same role + same session version). */
 export async function validateCoreV2Session(claims: { userId: string; role: VerifiedCredentials['role']; sessionVersion: number }): Promise<boolean> {
   const client = await coreV2ClientOrRefuse();
