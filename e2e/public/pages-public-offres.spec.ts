@@ -82,19 +82,34 @@ test.describe('/offres — Page Tarifs', () => {
     await expect(findFormula).toHaveAttribute('href', '/recommandation');
   });
 
-  test('les liens WhatsApp ouvrent un onglet neuf sans donner accès à la page', async ({ page }) => {
-    const whatsappLinks = page.locator('a[href*="wa.me"]');
-    await expect(whatsappLinks.first()).toBeAttached();
+  test('le lien WhatsApp du CTA final ouvre un onglet neuf', async ({ page }) => {
+    const finalCta = page
+      .locator('section')
+      .filter({ has: page.getByRole('heading', { name: /Besoin d.aide pour choisir/i }) })
+      .last();
+    const whatsapp = finalCta.getByRole('link', { name: /WhatsApp/i });
 
-    const count = await whatsappLinks.count();
+    await expect(whatsapp).toHaveCount(1);
+    await expect(whatsapp).toHaveAttribute('target', '_blank');
+    await expect(whatsapp).toHaveAttribute('rel', /noopener/);
+  });
+
+  test('tout lien qui ouvre un onglet neuf coupe la référence à cette page', async ({ page }) => {
+    // L'invariant porte sur `target="_blank"`, pas sur « tous les liens
+    // WhatsApp » : les CTA de carte (`Réserver ma place`, `Demander cette
+    // offre`) naviguent dans le même onglet et n'ont donc pas d'ouvrant à
+    // couper. Une première version de ce test exigeait `_blank` partout —
+    // une uniformité que la page ne promet pas, et qu'elle n'a jamais eue.
+    //
+    // Sans `noopener`, l'onglet ouvert garde une référence `window.opener`
+    // vers cette page et peut la rediriger. C'est cela qui doit tenir, et
+    // pour chaque lien concerné, pas seulement pour celui du CTA final.
+    const newTabLinks = page.locator('a[target="_blank"]');
+    const count = await newTabLinks.count();
     expect(count).toBeGreaterThan(0);
 
     for (let index = 0; index < count; index += 1) {
-      const link = whatsappLinks.nth(index);
-      await expect(link).toHaveAttribute('target', '_blank');
-      // Sans `noopener`, l'onglet ouvert garde une référence `window.opener`
-      // vers cette page et peut la rediriger.
-      await expect(link).toHaveAttribute('rel', /noopener/);
+      await expect(newTabLinks.nth(index)).toHaveAttribute('rel', /noopener/);
     }
   });
 });
