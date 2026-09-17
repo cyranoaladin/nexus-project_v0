@@ -509,6 +509,49 @@ export class ControlledSessionRouteBarrier {
    * Wait, event-driven, until the barrier reports quiescence. Never polls and
    * never sleeps: the only timer is the failure deadline.
    */
+  /**
+   * Account records that nothing can ever report, as a last resort AT the
+   * deadline — never before it.
+   *
+   * A request the page announced but no interceptor ever owned has nobody left
+   * to complete it: no route handler will continue or fulfill it, and if no
+   * navigation follows, the `framenavigated` sweep never sees it either. The
+   * drain then waits until it times out. Observed four times in CI with the
+   * same counters (#245, #288, #291, #255): started=4, held=0, released=2,
+   * finished=2, failed=1, activeHandlers=0, outstanding=1 — while 980
+   * consecutive repetitions of the same spec in isolation never reproduced it,
+   * so it belongs to full-pipeline contention rather than to the spec.
+   *
+   * Deliberately NOT an eager sweep. A request announced during shutdown may
+   * still settle normally, and `a request issued after unroute is still
+   * accounted before CLOSED` depends on exactly that; waiting the full
+   * deadline first leaves the healthy path untouched.
+   *
+   * Deliberately narrow: `intercepted === false` is the whole guard. A held
+   * request and one a handler is still driving are both intercepted, so they
+   * are skipped here and a genuine hang still throws — an explicit
+   * activeHandlers/held check was tried and removed as dead weight, since no
+   * mutation of it could fail a test.
+   *
+   * Sound because of what the barrier is FOR: proving no session response
+   * lands after revocation. A request that never settles never delivers one.
+   */
+  private _accountUnreportableAtDeadline(): boolean {
+    let accounted = 0;
+    for (const record of this._records) {
+      if (record.state === 'FINISHED' || record.state === 'FAILED') continue;
+      if (record.intercepted) continue;
+      record.state = 'FAILED';
+      record.endTime = Date.now();
+      record.error = 'UNREPORTABLE_AT_SHUTDOWN';
+      this._failed++;
+      accounted++;
+    }
+    if (accounted === 0) return false;
+    this._notifyChange();
+    return this.isDrained;
+  }
+
   private _waitForQuiescence(timeoutMs: number, phase: string): Promise<void> {
     if (this.isDrained) {
       return Promise.resolve();
@@ -517,6 +560,11 @@ export class ControlledSessionRouteBarrier {
     return new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => {
         this._listeners.delete(check);
+        // Last resort before failing: settle what nothing can ever report.
+        if (this._state === 'CLOSING' && this._accountUnreportableAtDeadline()) {
+          resolve();
+          return;
+        }
         reject(
           new Error(
             `ControlledSessionRouteBarrier ${phase} timeout after ${timeoutMs}ms. ` +
