@@ -273,9 +273,17 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
     const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
-    await expect(panel.getByText(`Yasmine Corev2-${nonce} — maths-premiere`)).toBeVisible();
-    await expect(panel.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
-    await expect(panel.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // Scope to THIS run's assignment row. The coach is a seeded actor shared by
+    // every browser project, and the cross-browser job runs firefox-smoke then
+    // webkit-smoke against the SAME server and database — so the coach
+    // accumulates one assignment per project, and a panel-wide match on the
+    // recurrence line ("chaque mardi 18:00–19:00", identical in each) resolves
+    // to several elements and trips Playwright strict mode. The student name
+    // carries the nonce, so the row does identify this run.
+    const row = panel.getByRole('listitem').filter({ hasText: `Yasmine Corev2-${nonce} — maths-premiere` });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
+    await expect(row.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });
