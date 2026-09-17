@@ -816,6 +816,9 @@ jobs:
 
       - name: Start Next.js server in background
         env:
+          # This job has no Core v2 database service, and the startup preflight
+          # refuses a mode it cannot honour. V1_ONLY is the truthful value here.
+          CORE_V2_AUTH_MODE: V1_ONLY
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
@@ -1450,6 +1453,9 @@ jobs:
 
       - name: Start Next.js server in background (worker bilan actif)
         env:
+          # This job provisions postgres-core-v2-e2e, so it exercises the same
+          # rollout mode as the Chromium lane rather than a weaker one.
+          CORE_V2_AUTH_MODE: HYBRID
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
@@ -1833,6 +1839,9 @@ jobs:
 
       - name: Smoke test standalone server
         env:
+          # No Core v2 database service in this job, and the startup preflight
+          # refuses a mode it cannot honour. V1_ONLY is the truthful value here.
+          CORE_V2_AUTH_MODE: V1_ONLY
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
@@ -1937,6 +1946,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Run canonical ARIA Jest lane
         run: npm run ${{ matrix.script }}
@@ -2001,6 +2018,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Run canonical ARIA PostgreSQL lane
         run: npm run ${{ matrix.script }}
@@ -2103,6 +2128,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Run canonical ARIA static gate
         env:
@@ -2156,6 +2189,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Generate canonical ARIA coverage
         run: npm run test:aria:coverage
@@ -2214,6 +2255,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Run canonical ARIA browser lane
         run: npm run ${{ matrix.script }}
@@ -2278,6 +2327,14 @@ jobs:
         run: |
           npm install -g npm@${{ env.NPM_VERSION }}
           npm ci
+      # `instrumentation.ts` now reaches lib/core-v2/client through the auth
+      # rollout preflight, and lib/core-v2/** is typechecked here, so these
+      # lanes need the generated Core v2 client even though they touch no
+      # Core v2 database. Ten other jobs already generate it; ARIA never did,
+      # because until now nothing here imported it.
+      - name: Generate Core v2 Prisma client
+        run: npx prisma generate --schema=core-v2/prisma/schema.prisma
+
 
       - name: Download exact-head browser evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
