@@ -28,7 +28,7 @@ import { relative, resolve } from 'node:path';
 // resterait détecté — ce n'est pas une allowlist de chemin exploitable.
 const FIXTURE_SYNTHETIQUE_AUTORISEE = new Map([
   ['__tests__/fixtures/diagnostic-demo/form.json',
-    'ddf768c8bbee5e79faccb53e0b1ba8510e5fb6c3a5b53bdfad6a05301790639a'],
+    '3389606896d9e3cf3042e396ecc5919d1d37741358b70d94d4bcabdfd891b541'],
 ]);
 
 const rootArg = process.argv.indexOf('--root');

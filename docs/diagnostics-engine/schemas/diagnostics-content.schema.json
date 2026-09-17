@@ -76,6 +76,8 @@
         },
         "correct_option_id": {"type": "string", "description": "QCM uniquement"},
         "lignes_reponse": {"type": "integer", "description": "REPONSE_COURTE/TACHE_OUVERTE : nombre de lignes de la zone de réponse"},
+        "solution_attendue": {"type": "string", "description": "REPONSE_COURTE/TACHE_OUVERTE uniquement : réponse ou raisonnement attendu. Jamais imprimé dans le PDF candidat, visible côté coach uniquement — même contrat que la clé QCM."},
+        "bareme": {"type": "string", "description": "REPONSE_COURTE/TACHE_OUVERTE uniquement : répartition des points. Jamais imprimé dans le PDF candidat, visible côté coach uniquement — même contrat que la clé QCM."},
         "grille_notation": {
           "type": "array",
           "description": "PRODUCTION uniquement : critères séparés, jamais un score global opaque",

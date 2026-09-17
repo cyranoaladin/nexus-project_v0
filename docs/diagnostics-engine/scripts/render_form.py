@@ -192,6 +192,10 @@ def rendre_item(item: dict, numero: int, coach: bool) -> str:
         L.append(r"\end{propositions}")
     elif item["type"] in ("REPONSE_COURTE", "TACHE_OUVERTE"):
         L.append(r"\cadreponse{" + str(item.get("lignes_reponse", 3)) + "}")
+        if coach and item.get("solution_attendue"):
+            L.append(r"{\bfseries\color{bordeaux}Réponse attendue :} " + tex(item["solution_attendue"]))
+        if coach and item.get("bareme"):
+            L.append(r"{\footnotesize\itshape\color{bordeaux}Barème : " + tex(item["bareme"]) + "}")
     elif item["type"] == "PRODUCTION":
         L.append(r"\cadreponse{" + str(item.get("lignes_reponse", 8)) + "}")
         if coach:

@@ -40,7 +40,9 @@
           "score_max": 1,
           "duree_min": 3,
           "enonce": "Un vaisseau fictif *Le Cormoran-de-Verre* transporte 120 caisses. À chaque escale, il en décharge un quart. Combien de caisses reste-t-il après deux escales ?",
-          "lignes_reponse": 3
+          "lignes_reponse": 3,
+          "solution_attendue": "Après la première escale : 120 - 30 = 90 caisses. Après la seconde : 90 - 22,5 = 67,5, soit 67 ou 68 caisses selon l'arrondi accepté.",
+          "bareme": "1 pt : les deux quarts successifs sont correctement calculés et soustraits."
         },
         {
           "item_id": "DEMO-OUVERT-01",

@@ -50,7 +50,8 @@ def test_candidat_ne_fuit_aucune_cle_ni_note(tmp_path):
     pdf = _construire(tmp_path, coach=False)
     texte = _texte(pdf)
     for marqueur in ("réponse attendue", "confond le nombre", "Note de conception",
-                     "opt-sept", "opt-huit", "DEMO-QCM-01", "DEMO-COURT-01"):
+                     "opt-sept", "opt-huit", "DEMO-QCM-01", "DEMO-COURT-01",
+                     "Réponse attendue", "Barème", "Après la première escale"):
         assert marqueur not in texte, f"fuite candidate : {marqueur!r} trouvé dans le PDF"
 
 
@@ -60,6 +61,18 @@ def test_coach_porte_la_cle_et_les_justifications(tmp_path):
     assert "réponse attendue" in texte
     assert "confond le nombre de brins" in texte
     assert "Note de conception" in texte
+
+
+def test_coach_porte_la_solution_reponse_courte(tmp_path):
+    """Bug réel trouvé pendant la construction du premier FORM_A complet : le moteur
+    savait révéler la clé d'un QCM et la grille d'une PRODUCTION au coach, mais
+    n'avait aucun champ pour la solution attendue d'un item REPONSE_COURTE/
+    TACHE_OUVERTE — rendant le PDF coach inutilisable pour corriger ces items."""
+    pdf = _construire(tmp_path, coach=True)
+    texte = _texte(pdf)
+    assert "Réponse attendue" in texte
+    assert "Après la première escale" in texte
+    assert "Barème" in texte
 
 
 def test_ordre_code_apres_enonce(tmp_path):
