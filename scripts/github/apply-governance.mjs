@@ -512,6 +512,14 @@ export function createClassicProtection(gh, repositoryId, restorePayload) {
  * Nothing here is reachable from `--apply`, and no step is skippable: the
  * order is select, authorize, audit, capture, validate, mutate, verify. The
  * mutation is the sixth of seven, never the first.
+ *
+ * The mutation itself is gated on the boolean flag `--execute`, following the
+ * repository's existing convention (`--apply`, `--live`). It was first written
+ * as `--dry-run=false`, which could never fire: `parseArguments` only accepts
+ * `--key value` pairs, so `--dry-run false` yields the *string* `"false"` and
+ * `!== false` stayed true forever. The failure was in the safe direction, but
+ * the documented invocation did not work and the execution path had no test —
+ * only the refusals did.
  */
 export function runDeleteClassicProtection({ root = repoRoot, gh = createGhClient(), args }) {
   const rule = requireExactNodeId(args, gh);
@@ -538,7 +546,7 @@ export function runDeleteClassicProtection({ root = repoRoot, gh = createGhClien
   // Deliberately NOT "RESTORE_PROVEN": nothing here has executed a restore.
   process.stdout.write('CLASSIC_BPR_RESTORE_PROVEN=NO\n');
 
-  if (args['dry-run'] !== false) {
+  if (args.execute !== true) {
     process.stdout.write('CLASSIC_BPR_DELETION=DRY_RUN\n');
     appendJournalEntry(
       join(root, '.artifacts', 'governance', 'journal.ndjson'),
@@ -593,7 +601,7 @@ export function runRestoreClassicProtection({ root = repoRoot, gh = createGhClie
     fail('CLASSIC_BPR_OWNER_AUTHORIZATION_MISSING', 'requires --owner-authorization=RESTORE_CLASSIC_BPR_ON_MAIN');
   }
 
-  if (args['dry-run'] !== false) {
+  if (args.execute !== true) {
     process.stdout.write(`CLASSIC_BPR_RESTORE=DRY_RUN from=${prestatePath}\n`);
     return { restored: false };
   }
