@@ -62,7 +62,15 @@ test.describe.serial('ARIA-B production standalone qualification smoke', () => {
     expect(new Set(academicCourseKeys).size).toBe(academicCourseKeys.length);
     await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     await page.getByTestId('aria-chat-trigger').click();
-    const courseKeys = await page.getByLabel('Cours ARIA').locator('option').evaluateAll((options) =>
+    // `evaluateAll` is a one-shot read and `expect(array).toEqual` does not
+    // retry, so reading straight after the click races the panel populating
+    // its course list — observed as `Received: []` against twelve expected
+    // keys while the API had already returned all twelve (PR #296, ARIA
+    // Browser (smoke), job 105178883056). Wait for the count with a retrying
+    // assertion first; the read is then deterministic.
+    const courseOptions = page.getByLabel('Cours ARIA').locator('option');
+    await expect(courseOptions).toHaveCount(academicCourseKeys.length);
+    const courseKeys = await courseOptions.evaluateAll((options) =>
       options.map((option) => (option as HTMLOptionElement).value).filter(Boolean));
     expect(courseKeys).toEqual(academicCourseKeys);
     const enabledCourseKeys = await page.getByLabel('Cours ARIA').locator('option:enabled').evaluateAll((options) =>
