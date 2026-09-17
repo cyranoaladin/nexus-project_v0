@@ -18,6 +18,7 @@ shouldShowStmgLivret,
 type EleveDashboardData
 } from "@/components/dashboard/eleve";
 import { AriaChatLauncher } from "@/components/aria/AriaChatLauncher";
+import { StudentEnrollments } from "@/components/dashboard/core-v2/StudentEnrollments";
 import { AutomatismesCockpitCard } from "@/components/dashboard/eleve/AutomatismesCockpitCard";
 import { BilanDiagMathsTerminale } from "@/components/dashboard/eleve/BilanDiagMathsTerminale";
 import { EafStageQuestionnaireCard } from "@/components/dashboard/eleve/EafStageQuestionnaireCard";
@@ -70,6 +71,13 @@ export default function DashboardEleve() {
       return;
     }
 
+    // A Core v2 identity has no Core v1 student profile: its enrollments are
+    // read from Core v2 (§AI), never through the Core v1 dashboard API.
+    if (session.user.authority === 'CORE_V2') {
+      setLoading(false);
+      return;
+    }
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
@@ -114,6 +122,14 @@ export default function DashboardEleve() {
     window.addEventListener('hashchange', scrollToHash);
     return () => window.removeEventListener('hashchange', scrollToHash);
   }, [dashboardData]);
+
+  if (status !== "loading" && session?.user.authority === 'CORE_V2') {
+    return (
+      <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 lg:p-6">
+        <StudentEnrollments />
+      </div>
+    );
+  }
 
   if (status === "loading" || loading) {
     return (
