@@ -66,6 +66,8 @@ COPY --from=builder /app/prisma ./prisma
 # Seed script needs these
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/lib ./lib
+# Core v2: migrations + isolated generated client for the runtime migrate/seed steps
+COPY --from=builder /app/core-v2 ./core-v2
 COPY --from=builder /app/data/aria ./data/aria
 RUN cp \
   ./data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json \

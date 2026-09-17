@@ -995,6 +995,22 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      # Core v2 (go-live): its own disposable server — the Core v2 client
+      # refuses a target that collides with DATABASE_URL.
+      postgres-core-v2-e2e:
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
+        env:
+          POSTGRES_USER: postgres
+          # Disposable job service: trust auth, no credential anywhere in the workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: core_v2_e2e
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d core_v2_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -1094,6 +1110,14 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
+      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+        run: |
+          npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
+
       - name: Install Playwright browsers (Chromium)
         run: npx playwright install --with-deps chromium
 
@@ -1114,6 +1138,9 @@ jobs:
       - name: Start Next.js server in background (worker bilan actif)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
+          CORE_V2_INVITATION_TTL_HOURS: '72'
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -1278,6 +1305,22 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      # Core v2 (go-live): its own disposable server — the Core v2 client
+      # refuses a target that collides with DATABASE_URL.
+      postgres-core-v2-e2e:
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
+        env:
+          POSTGRES_USER: postgres
+          # Disposable job service: trust auth, no credential anywhere in the workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: core_v2_e2e
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d core_v2_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -1369,6 +1412,7 @@ jobs:
       - name: Seed E2E test data
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
         run: |
           npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
           DROP SCHEMA IF EXISTS public CASCADE;
@@ -1377,12 +1421,21 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
+      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+        run: |
+          npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
+
       - name: Install Playwright browsers (Chromium + Firefox + WebKit smoke)
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Build Next.js for E2E
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -1397,6 +1450,9 @@ jobs:
       - name: Start Next.js server in background (worker bilan actif)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
+          CORE_V2_INVITATION_TTL_HOURS: '72'
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -1470,6 +1526,7 @@ jobs:
           AUTH_E2E_REPORT_LABEL: auth-cross-browser
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'

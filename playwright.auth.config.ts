@@ -11,11 +11,6 @@ if (!/^[a-z0-9-]+$/.test(reportLabel)) throw new Error('INVALID_AUTH_E2E_REPORT_
 
 export default defineConfig({
   testDir: './e2e/auth',
-  // Ownership is directory-based, not a manual filename list (PR #235):
-  // every *.spec.ts under e2e/auth/** (including subdirectories, e.g.
-  // e2e/auth/npc/) is collected. A spec that needs real authentication
-  // belongs under e2e/auth/ — that placement alone is its CI-lane
-  // membership. No exclusions currently apply.
   testMatch: ['**/*.spec.ts'],
   testIgnore: [],
   fullyParallel: false,
@@ -61,6 +56,7 @@ export default defineConfig({
       testMatch: [
         'planning-studio-smoke.spec.ts',
         'core-golden-family.spec.ts',
+        'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
         'session-video-join.spec.ts',
       ],
@@ -71,6 +67,7 @@ export default defineConfig({
       testMatch: [
         'planning-studio-smoke.spec.ts',
         'core-golden-family.spec.ts',
+        'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
         'session-video-join.spec.ts',
       ],
