@@ -77,12 +77,44 @@ describe('applySecurityHeaders', () => {
     expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
   });
 
-  it('should set Permissions-Policy', () => {
+  it('should set Permissions-Policy, scoping camera/microphone to the trusted Jitsi origin rather than blocking them everywhere', () => {
     applySecurityHeaders(response);
     const pp = response.headers.get('Permissions-Policy');
-    expect(pp).toContain('camera=()');
-    expect(pp).toContain('microphone=()');
+    // An empty allowlist (camera=()) would also block the Jitsi iframe
+    // CSP's frame-src explicitly trusts — that contradiction is the bug
+    // being fixed here, so this must NOT be an empty allowlist.
+    expect(pp).toContain('camera=(self "https://meet.jit.si")');
+    expect(pp).toContain('microphone=(self "https://meet.jit.si")');
     expect(pp).toContain('geolocation=()');
+  });
+
+  it('every origin the CSP frame-src trusts for camera/microphone use is also granted by Permissions-Policy — no contradiction between the two headers', () => {
+    applySecurityHeaders(response);
+    const csp = response.headers.get('Content-Security-Policy') ?? '';
+    const pp = response.headers.get('Permissions-Policy') ?? '';
+    const frameSrcMatch = csp.match(/frame-src ([^;]+)/);
+    expect(frameSrcMatch).not.toBeNull();
+    const jitsiOrigin = 'https://meet.jit.si';
+    expect(frameSrcMatch![1]).toContain(jitsiOrigin);
+    expect(pp).toContain(`camera=(self "${jitsiOrigin}")`);
+    expect(pp).toContain(`microphone=(self "${jitsiOrigin}")`);
+  });
+
+  it('honours NEXT_PUBLIC_JITSI_SERVER_URL for both frame-src and Permissions-Policy — no hardcoded domain that ignores configuration', () => {
+    const previous = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://visio.nexusreussite.academy';
+    try {
+      const configuredResponse = NextResponse.json({ ok: true });
+      applySecurityHeaders(configuredResponse);
+      const csp = configuredResponse.headers.get('Content-Security-Policy') ?? '';
+      const pp = configuredResponse.headers.get('Permissions-Policy') ?? '';
+      expect(csp).toContain('https://visio.nexusreussite.academy');
+      expect(csp).not.toContain('meet.jit.si');
+      expect(pp).toContain('camera=(self "https://visio.nexusreussite.academy")');
+    } finally {
+      if (previous === undefined) delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      else process.env.NEXT_PUBLIC_JITSI_SERVER_URL = previous;
+    }
   });
 
   it('should return the same response object', () => {

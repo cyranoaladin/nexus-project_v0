@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { SurvivalReflex, SurvivalState } from '@/lib/survival/types';
@@ -10,6 +11,7 @@ type ReflexPracticeWorkspaceProps = {
 };
 
 export function ReflexPracticeWorkspace({ reflex }: ReflexPracticeWorkspaceProps) {
+  const fetch = useProtectedFetch();
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState<Record<string, { correct: boolean; text: string }>>({});
   const [hadMistake, setHadMistake] = useState(false);

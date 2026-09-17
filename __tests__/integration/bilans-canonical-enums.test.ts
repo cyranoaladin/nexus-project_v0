@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { prisma } from '@/lib/prisma';
 
 const PREFIX = `a89-enums-${Date.now()}-`;
@@ -15,10 +16,10 @@ describe('A89 Canonical subject and grade enums', () => {
       await prisma.canonicalAssessmentAttempt.deleteMany({ where: { id: attemptId } });
     }
     if (studentId !== undefined) await prisma.student.deleteMany({ where: { id: studentId } });
-    if (parentUserId !== undefined) {
-      await prisma.user.deleteMany({ where: { id: parentUserId } });
+    const fixtureUserIds = [parentUserId, userId].filter((id): id is string => id !== undefined);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
     }
-    if (userId !== undefined) await prisma.user.deleteMany({ where: { id: userId } });
     await prisma.$disconnect();
   });
 

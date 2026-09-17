@@ -21,6 +21,7 @@
  * concurrente) est traité explicitement — jamais silencieusement ignoré.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -57,6 +58,7 @@ function isChoosable(view: CourseView): boolean {
 }
 
 export function StudentAcademicMap({ studentId }: StudentAcademicMapProps) {
+  const fetch = useProtectedFetch();
   const [data, setData] = useState<AcademicMapResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +95,7 @@ export function StudentAcademicMap({ studentId }: StudentAcademicMapProps) {
     } finally {
       setLoading(false);
     }
-  }, [studentId, applyMap]);
+  }, [studentId, applyMap, fetch]);
 
   useEffect(() => {
     fetchMap();

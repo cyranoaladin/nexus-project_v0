@@ -2,9 +2,10 @@
 
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { signOut } from 'next-auth/react';
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 
 export function LogoutButton() {
+  const signOut = useCanonicalSignOut();
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
   };

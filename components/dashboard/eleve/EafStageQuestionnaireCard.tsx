@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FileText, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
@@ -13,6 +14,7 @@ type QuestionnaireStatus = 'not_started' | 'draft' | 'submitted' | 'loading';
  * Visible only for Première students (guard applied by parent).
  */
 export function EafStageQuestionnaireCard() {
+  const fetch = useProtectedFetch();
   const [status, setStatus] = useState<QuestionnaireStatus>('loading');
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export function EafStageQuestionnaireCard() {
       }
     }
     void fetchStatus();
-  }, []);
+  }, [fetch]);
 
   const statusConfig: Record<Exclude<QuestionnaireStatus, 'loading'>, { label: string; color: string }> = {
     not_started: {
@@ -91,12 +93,12 @@ export function EafStageQuestionnaireCard() {
             </p>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <Link href="/dashboard/eleve/questionnaires/eaf-stage-printemps" className="w-full sm:w-fit">
-                <Button className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-8 shadow-lg shadow-cyan-600/20">
+              <Button className="w-full sm:w-auto bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-8 shadow-lg shadow-cyan-600/20" asChild>
+                <Link href="/dashboard/eleve/questionnaires/eaf-stage-printemps" className="w-full sm:w-fit">
                   {status === 'submitted' ? 'Voir mes réponses' : 'Compléter le questionnaire'}
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
 
               {status === 'loading' ? (
                 <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />

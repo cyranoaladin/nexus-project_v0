@@ -28,6 +28,7 @@
 
   async function request(path, options) {
     options = options || {};
+    const check = Nexus.SessionRecovery.captureMutation();
     let response;
     const isMutating = options.method && !['GET', 'HEAD', 'OPTIONS'].includes(options.method.toUpperCase());
     const headers = Object.assign(
@@ -44,12 +45,18 @@
         body: options.body ? JSON.stringify(options.body) : undefined
       });
     } catch (err) {
+      check();
       throw new SyncError(0, null, 'Serveur injoignable : vérifiez votre connexion.');
     }
     let body = null;
     const text = await response.text();
+    check();
     if (text) {
       try { body = JSON.parse(text); } catch (e) { body = null; }
+    }
+    if (response.status === 401) {
+      Nexus.SessionRecovery.retry();
+      throw new SyncError(0, null, 'Vérification de session en cours. Votre brouillon est conservé.');
     }
     if (!response.ok) throw new SyncError(response.status, body);
     return body;
@@ -69,21 +76,28 @@
      Brouillon local : filet de sécurité (fermeture accidentelle, panne
      réseau, conflit). Jamais appliqué silencieusement au démarrage.
      --------------------------------------------------------------- */
-  const DRAFT_KEY = Nexus.STORAGE_KEY + ':draft';
+  function draftKey() {
+    const owner = Nexus.SessionRecovery && Nexus.SessionRecovery.getView().data;
+    return owner && owner.user && owner.user.id ? Nexus.STORAGE_KEY + ':draft:owner:' + encodeURIComponent(owner.user.id) : null;
+  }
   const draft = {
     save(data, baseRevision) {
-      try { global.localStorage.setItem(DRAFT_KEY, JSON.stringify({ baseRevision: baseRevision, savedAt: new Date().toISOString(), data: data })); } catch (e) { /* ignore */ }
+      const key = draftKey();
+      if (!key) return;
+      try { global.localStorage.setItem(key, JSON.stringify({ baseRevision: baseRevision, savedAt: new Date().toISOString(), data: data })); } catch (e) { /* ignore */ }
     },
     load() {
       try {
-        const raw = global.localStorage.getItem(DRAFT_KEY);
+        const key = draftKey();
+        if (!key) return null;
+        const raw = global.localStorage.getItem(key);
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object' || !parsed.data || !Array.isArray(parsed.data.sessions)) return null;
         return parsed;
       } catch (e) { return null; }
     },
-    clear() { try { global.localStorage.removeItem(DRAFT_KEY); } catch (e) { /* ignore */ } }
+    clear() { const key = draftKey(); if (key) try { global.localStorage.removeItem(key); } catch (e) { /* ignore */ } }
   };
 
   const STATUS_LABELS = {

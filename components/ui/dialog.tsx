@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import { motion, useReducedMotion } from "framer-motion"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { SessionMutationBoundary, SessionRecoveryControls } from '@/components/auth/SessionRecoveryProvider'
 
 const Dialog = DialogPrimitive.Root
 
@@ -34,7 +35,7 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const dialogContentVariants = cva(
-  "fixed left-[50%] top-[50%] z-50 grid w-full translate-x-[-50%] translate-y-[-50%] gap-4 border border-lux-line/20 bg-lux-ink p-6 shadow-2xl sm:rounded-2xl",
+  "fixed left-[50%] top-[50%] z-50 grid max-h-[calc(100dvh-2rem)] w-full gap-4 overflow-y-auto overscroll-contain border border-lux-line/20 bg-lux-ink p-6 shadow-2xl sm:rounded-2xl",
   {
     variants: {
       size: {
@@ -67,6 +68,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content ref={ref} asChild {...props}>
         <motion.div
           className={cn(dialogContentVariants({ size, className }))}
+          style={{ x: "-50%" }}
           initial={
             prefersReducedMotion
               ? { opacity: 1, scale: 1, y: "-50%" }
@@ -80,7 +82,8 @@ const DialogContent = React.forwardRef<
           }
           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
         >
-          {children}
+          <SessionRecoveryControls />
+          <SessionMutationBoundary>{children}</SessionMutationBoundary>
           <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 text-lux-slate transition-colors hover:text-lux-ivory hover:bg-lux-ivory/10 focus:outline-none focus:ring-2 focus:ring-lux-gold focus:ring-offset-2 focus:ring-offset-lux-ink disabled:pointer-events-none">
             <X className="h-4 w-4" />
             <span className="sr-only">Fermer</span>

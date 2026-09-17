@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, CreditCard, Edit, Loader2, LogOut, Search } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -37,6 +38,8 @@ interface Subscription {
 }
 
 export default function SubscriptionsManagementPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -77,7 +80,7 @@ export default function SubscriptionsManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, statusFilter, searchTerm]);
+  }, [currentPage, statusFilter, searchTerm, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -198,11 +201,11 @@ export default function SubscriptionsManagementPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+              <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/admin">
                   Retour au Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -248,7 +251,7 @@ export default function SubscriptionsManagementPage() {
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par statut" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">
@@ -316,6 +319,7 @@ export default function SubscriptionsManagementPage() {
                           <Button
                             variant="outline"
                             size="sm"
+                            aria-label={`Modifier l'abonnement de ${subscription.student.firstName} ${subscription.student.lastName}`}
                             onClick={(event) => {
                               editDialogTriggerRef.current = event.currentTarget;
                               setSelectedSubscription(subscription);
@@ -392,7 +396,7 @@ export default function SubscriptionsManagementPage() {
                 <div>
                   <Label htmlFor="status">Statut</Label>
                   <Select name="status" defaultValue={selectedSubscription.status}>
-                    <SelectTrigger className="border-white/10 bg-surface-elevated text-neutral-100">
+                    <SelectTrigger id="status" className="border-white/10 bg-surface-elevated text-neutral-100">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">

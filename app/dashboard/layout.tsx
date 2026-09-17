@@ -3,6 +3,7 @@ import { Sidebar } from "@/components/navigation/Sidebar";
 import { Navbar } from "@/components/navigation/Navbar";
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
+import { ServerSessionShell } from '@/components/auth/SessionRecoveryProvider';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect('/auth/signin');
 
   return (
+    <ServerSessionShell serverSession={session}>
     <div className="dashboard-soft min-h-screen bg-surface-darker">
       <Sidebar user={session.user} />
       <Navbar user={session.user} />
@@ -28,5 +30,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </main>
     </div>
+    </ServerSessionShell>
   );
 }

@@ -1,4 +1,5 @@
 'use client';
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useRef, useState } from 'react';
 
 type Props = { parentUserId: string; accountActivated?: boolean };
@@ -7,6 +8,7 @@ export function ParentWhatsAppInvitation(props: Props) {
   return <InvitationForParent key={props.parentUserId} {...props} />;
 }
 function InvitationForParent({ parentUserId, accountActivated = false }: Props) {
+  const fetch = useProtectedFetch();
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [state, setState] = useState<'idle' | 'preparing' | 'ready' | 'expired' | 'error'>('idle');
   const live = useRef(true);

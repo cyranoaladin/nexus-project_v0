@@ -18,6 +18,7 @@ jest.mock('@/lib/guards', () => ({
   requireAnyRole: jest.fn(),
 }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { POST } from '@/app/api/assistante/sessions/route';
 import { requireAnyRole } from '@/lib/guards';
@@ -127,7 +128,15 @@ afterAll(async () => {
     await prisma.parentProfile.delete({ where: { id: parentId } });
     if (parent) await prisma.user.delete({ where: { id: parent.userId } }).catch(() => undefined);
   }
-  await prisma.user.deleteMany({ where: { lastName: prefix } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { lastName: prefix },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
   await prisma.$disconnect();
 });
 

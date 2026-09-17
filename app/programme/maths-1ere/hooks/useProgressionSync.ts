@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback,useEffect,useRef,useState } from 'react';
+import { useProtectedFetch, useSessionRecoveryController, useSessionRecoveryState } from '@/components/auth/SessionRecoveryProvider';
+import { bindPersistedStoreOwner, isPersistedStoreOwner } from '@/lib/auth/session-owned-store';
 import { type MathsLabState,useMathsLabStore } from '../store';
 
 const PROGRESS_API_ROUTE = '/api/programme/maths-1ere/progress';
@@ -44,7 +46,7 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, fallback: 
 }
 
 // Load progress from API route (Prisma source of truth)
-async function loadProgressFromApi(userId: string): Promise<
+async function loadProgressFromApi(fetch: typeof globalThis.fetch): Promise<
   | { status: 'ok'; data: ProgressPayload | null }
   | { status: 'error'; data: null; error: string }
 > {
@@ -99,7 +101,7 @@ function toProgressPayload(state: MathsLabState): ProgressPayload {
   };
 }
 
-async function saveProgressViaApi(payload: ProgressPayload, keepalive = false): Promise<boolean> {
+async function saveProgressViaApi(fetch: typeof globalThis.fetch, payload: ProgressPayload, keepalive = false): Promise<boolean> {
   try {
     const response = await fetch(PROGRESS_API_ROUTE, {
       method: 'POST',
@@ -116,56 +118,56 @@ async function saveProgressViaApi(payload: ProgressPayload, keepalive = false): 
   }
 }
 
-function saveProgressWithBeacon(payload: ProgressPayload): boolean {
-  if (typeof navigator === 'undefined' || typeof navigator.sendBeacon !== 'function') {
-    return false;
-  }
-  const body = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-  return navigator.sendBeacon(PROGRESS_API_ROUTE, body);
-}
-
 export function useProgressionSync(userId: string) {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
+  const { canMutate } = useSessionRecoveryState();
   const [isHydrating, setIsHydrating] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingPayloadRef = useRef<ProgressPayload | null>(null);
+  const hydratedOwner = useRef<string | null>(null);
+  const pendingSave = useRef<(() => void) | null>(null);
 
   const flushPayload = useCallback(
     async (payload: ProgressPayload, critical = false): Promise<boolean> => {
       const state = useMathsLabStore.getState();
-      if (!state.isHydrated || !state.canWriteRemote) {
+      if (!isPersistedStoreOwner(useMathsLabStore, userId) || !state.isHydrated || !state.canWriteRemote) {
         return false;
       }
 
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        pendingPayloadRef.current = payload;
-        setSyncError('Mode hors ligne: progression en attente de synchronisation.');
+        setSyncError('Mode hors ligne : votre progression locale est conservée, mais non sauvegardée sur le serveur.');
         return false;
       }
 
-      const viaApi = await saveProgressViaApi(payload, critical);
+      const viaApi = await saveProgressViaApi(fetch, payload, critical);
       if (viaApi) {
-        pendingPayloadRef.current = null;
         setSyncError(null);
         return true;
       }
 
       // API route is the only canonical persistence layer
       // localStorage (Zustand persist) remains as local cache only
-      pendingPayloadRef.current = payload;
-      setSyncError('Échec de sauvegarde. La progression sera réessayée automatiquement.');
+      setSyncError('Sauvegarde indisponible. Votre progression locale est conservée.');
       return false;
     },
-    []
+    [fetch, userId]
   );
 
   // Initial Hydration
   useEffect(() => {
+    if (!canMutate || hydratedOwner.current === userId) return;
     let active = true;
+    let check: () => void;
+    try { check = recovery.captureMutation(); } catch { return; }
     const TIMEOUT_MARKER = '__HYDRATION_TIMEOUT__';
 
     async function hydrate() {
       try {
+        setIsHydrating(true);
+        await bindPersistedStoreOwner(useMathsLabStore, userId);
+        if (!active) return;
+        check();
         useMathsLabStore.getState().setHydrationStatus({
           isHydrated: false,
           canWriteRemote: false,
@@ -173,12 +175,13 @@ export function useProgressionSync(userId: string) {
         });
 
         const remoteResult = await withTimeout(
-          loadProgressFromApi(userId),
+          loadProgressFromApi(fetch),
           2500,
           { status: 'error', data: null, error: TIMEOUT_MARKER } as const
         );
 
         if (!active) return;
+        check();
 
         if (remoteResult.status === 'error') {
           useMathsLabStore.getState().setHydrationStatus({
@@ -227,10 +230,11 @@ export function useProgressionSync(userId: string) {
           canWriteRemote: true,
           hydrationError: null,
         });
+        hydratedOwner.current = userId;
         useMathsLabStore.getState().recordActivity();
         useMathsLabStore.getState().evaluateBadges();
       } catch {
-        if (active) {
+        if (active && isPersistedStoreOwner(useMathsLabStore, userId)) {
           useMathsLabStore.getState().setHydrationStatus({
             isHydrated: false,
             canWriteRemote: false,
@@ -244,12 +248,12 @@ export function useProgressionSync(userId: string) {
 
     hydrate();
     return () => { active = false; };
-  }, [userId]);
+  }, [userId, canMutate, fetch, recovery]);
 
   // Sync Logic
   useEffect(() => {
     const unsub = useMathsLabStore.subscribe((state, prevState) => {
-      if (!state.isHydrated || !state.canWriteRemote) return;
+      if (!isPersistedStoreOwner(useMathsLabStore, userId) || !state.isHydrated || !state.canWriteRemote) return;
 
       // Deep compare relevant fields or just trigger on any relevant change
       const changed = 
@@ -263,26 +267,30 @@ export function useProgressionSync(userId: string) {
       if (!changed) return;
 
       if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
-      syncTimerRef.current = setTimeout(() => {
+      const save = recovery.bindDeferredMutation(() => {
+        pendingSave.current = null;
         const payload = toProgressPayload(state);
-        pendingPayloadRef.current = payload;
         void flushPayload(payload);
-      }, 800);
+      });
+      pendingSave.current = save;
+      syncTimerRef.current = setTimeout(save, 800);
     });
 
     return () => {
       unsub();
       if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+      pendingSave.current = null;
     };
-  }, [flushPayload]);
+  }, [flushPayload, userId, recovery]);
 
   // Flush on exit
   useEffect(() => {
     const flushOnExit = () => {
-      const state = useMathsLabStore.getState();
-      if (!state.isHydrated || !state.canWriteRemote) return;
-      const payload = toProgressPayload(state);
-      saveProgressWithBeacon(payload);
+      // Only an already-authorized pending operation may run. Never create a
+      // new beacon or replay an invalidated draft when the document exits.
+      if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
+      pendingSave.current?.();
+      pendingSave.current = null;
     };
 
     window.addEventListener('beforeunload', flushOnExit);

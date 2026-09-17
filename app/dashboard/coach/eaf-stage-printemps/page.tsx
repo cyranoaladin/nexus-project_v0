@@ -1,7 +1,8 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -80,6 +81,7 @@ function formatDate(iso?: string) {
 }
 
 export default function CoachEafStageListPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [students, setStudents] = useState<StudentRow[]>([]);
@@ -108,7 +110,7 @@ export default function CoachEafStageListPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetch]);
 
   useEffect(() => {
     if (status === 'authenticated') fetchStudents();

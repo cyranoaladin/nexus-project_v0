@@ -2,6 +2,7 @@ jest.unmock('@/lib/prisma');
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { packFeatureFlagName } from '@/lib/bilans/api/pack-access';
@@ -33,9 +34,15 @@ describe('Student pack selection is scoped to the student own grade level', () =
     for (const [flag, value] of Object.entries(originalFlags)) {
       if (value === undefined) delete process.env[flag]; else process.env[flag] = value;
     }
-    await prisma.student.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { email: { startsWith: PREFIX } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
     await prisma.$disconnect();
   });
 

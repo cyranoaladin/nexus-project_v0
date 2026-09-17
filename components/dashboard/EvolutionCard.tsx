@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { Calendar, CheckCircle, Activity, BarChart3 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ interface EvolutionData {
 }
 
 export function EvolutionCard({ studentId }: EvolutionCardProps) {
+  const fetch = useProtectedFetch();
   const [data, setData] = useState<EvolutionData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,7 +60,7 @@ export function EvolutionCard({ studentId }: EvolutionCardProps) {
 
     fetchEvolution();
     return () => { cancelled = true; };
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   if (loading) {
     return (

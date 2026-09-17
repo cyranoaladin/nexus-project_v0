@@ -1,21 +1,25 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { ParentCanonicalReports } from "@/components/bilans/ParentCanonicalReports";
 import { DashboardPilotage } from "@/components/dashboard/DashboardPilotage";
 import type { ParentDashboardChild } from "@/components/dashboard/parent/ChildCard";
 import { ProgressEvolutionChart } from "@/components/dashboard/parent/ProgressEvolutionChart";
 import { AriaMasteryCard } from "@/components/dashboard/parent/AriaMasteryCard";
+import { AriaBilansCard } from "@/components/dashboard/parent/AriaBilansCard";
+import { AriaWorkshopsCard } from "@/components/dashboard/parent/AriaWorkshopsCard";
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { ArrowLeft,Calendar,Loader2,MessageCircle,Shield } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useParams,useRouter } from "next/navigation";
 import { useEffect,useState } from "react";
 import { CanonicalConsentCard } from "./canonical-consent-card";
 
 export default function ChildDetailPage() {
+  const fetch = useProtectedFetch();
   const { status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -51,7 +55,7 @@ export default function ChildDetailPage() {
     if (status === "authenticated") {
       fetchChildData();
     }
-  }, [status, studentId, router]);
+  }, [status, studentId, router, fetch]);
 
   if (loading || status === "loading") {
     return (
@@ -66,12 +70,12 @@ export default function ChildDetailPage() {
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto">
-        <Link href="/dashboard/parent">
-          <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white">
+        <Button variant="ghost" className="mb-6 text-neutral-400 hover:text-white" asChild>
+          <Link href="/dashboard/parent">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour à la famille
-          </Button>
-        </Link>
+          </Link>
+        </Button>
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
@@ -91,6 +95,10 @@ export default function ChildDetailPage() {
               <ParentCanonicalReports studentId={studentId} refreshSignal={reportsRefreshSignal} />
 
               <AriaMasteryCard studentId={studentId} />
+
+              <AriaBilansCard studentId={studentId} />
+
+              <AriaWorkshopsCard studentId={studentId} />
 
               <ProgressEvolutionChart data={childData.progressionHistory ?? []} />
             </div>

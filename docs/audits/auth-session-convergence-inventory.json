@@ -1,0 +1,1257 @@
+{
+  "schemaVersion": 1,
+  "baseMain": "4ab66223dc9e822ffea1f0b550e91b8194b026e6",
+  "note": "Code adoption inventory, not browser/CI qualification. Roles document existing guards and do not grant permissions. Aliases inherit their target guard. Static Planning Studio is a separate document, not a Next page.",
+  "beforeLegend": {
+    "R": "Direct raw Auth.js absence/unauthenticated signin redirect",
+    "R_CHILD": "Imported page with raw client redirect",
+    "HIDE": "Raw Auth.js absence hides private UI",
+    "LV": "Local #235 recovery guard",
+    "N": "No client null decision; server layout/API authority",
+    "SR": "Server authentication redirect",
+    "SN": "Server authentication/role notFound",
+    "SG": "Server canonical role guard",
+    "A401": "API 401 signin redirect",
+    "ALIAS": "Server redirect alias"
+  },
+  "modules": [
+    {
+      "PATH": "app/admin/directeur/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/assessments/[id]/processing/page.tsx",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "ELEVE",
+        "PARENT",
+        "COACH"
+      ],
+      "ROLE_SOURCE": "lib/security/ownership.ts:buildAssessmentAccessWhere via app/api/assessments/[id]/status/route.ts; student ownership, parent relationship and active coach assignment remain required",
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/assessments/[id]/result/page.tsx",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "ELEVE",
+        "PARENT",
+        "COACH"
+      ],
+      "ROLE_SOURCE": "lib/security/ownership.ts:buildAssessmentAccessWhere via app/api/assessments/[id]/result/route.ts; student ownership, parent relationship and active coach assignment remain required",
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/bilan-gratuit/assessment/[id]/report/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/bilan-gratuit/assessment/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/bilan-pallier2-maths/dashboard/page.tsx",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/activities/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/analytics/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/aria-preview/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "SG",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/documents/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "SG",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/facturation/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/familles/[id]/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/familles/annees/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/familles/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "LV",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/stages/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/subscriptions/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/tests/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "HIDE",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/admin/users/page.tsx",
+      "ROLE": [
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/assignments/page.tsx",
+      "ROLE": [
+        "ASSISTANTE",
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/ateliers-aria/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/bilans/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/bilans/saisie-papier/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/coaches/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/credit-requests/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/credits/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/devis/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/docs/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/facturation/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/[id]/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/annees/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/familles/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/paiements/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/planning/page.tsx",
+      "ROLE": [
+        "ASSISTANTE",
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "R_CHILD",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/stages/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/stages/planning/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/students/[studentId]/candidat/page.tsx",
+      "ROLE": [
+        "ASSISTANTE",
+        "ADMIN"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/students/[studentId]/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/students/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/subscription-requests/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/assistante/subscriptions/page.tsx",
+      "ROLE": [
+        "ASSISTANTE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/availability/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/bilans/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/eaf-stage-printemps/[studentId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/eaf-stage-printemps/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/eleve/[studentId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/maths-premiere-stage-printemps/[studentId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/maths-premiere-stage-printemps/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/npc/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/npc/reports/[reportId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/npc/submissions/[submissionId]/upload/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/nsi-pratique-2026/[studentId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/nsi-pratique-2026/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/sessions/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/stages/[stageSlug]/bilan/[studentId]/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/stages/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/coach/students/page.tsx",
+      "ROLE": [
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/aria/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/aria/practice/[activityId]/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/automatismes/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/bilans/[publicShareId]/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "A401",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/diagnostic-candidat-libre/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/documents/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/eam/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/mes-bilans/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SN",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/npc/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/nsi-pratique-2026/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/programme/[subject]/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/programme/maths/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/questionnaires/eaf-stage-printemps/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/questionnaires/maths-premiere-stage-printemps/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/ressources/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/sessions/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/stage-eam-stmg/diagnostic/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/stage-eam-stmg/livret/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/stage-eam-stmg/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/eleve/stages/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/page.tsx",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH",
+        "PARENT",
+        "ELEVE"
+      ],
+      "ROLE_SOURCE": "app/dashboard/page.tsx:DashboardRedirect and lib/auth/role-destinations.ts:ROLE_DESTINATIONS",
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/abonnements/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/bilans/[id]/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "A401",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/children/[studentId]/diagnostic-candidat-libre/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/children/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/enfant/[studentId]/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/factures/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/inscription/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "LV",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/npc/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "LV",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/paiement/confirmation/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "N",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/paiement/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/ressources/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/stages/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/trajectoire/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "ROLE_SOURCE": "app/dashboard/trajectoire/page.tsx:TrajectoireRedirectPage redirects to /dashboard/eleve#trajectory; target middleware enforces ELEVE",
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/programme/maths-1ere-stmg/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "ROLE_SOURCE": "app/programme/maths-1ere-stmg/page.tsx:MathsPremiereStmgRedirectPage redirects to /dashboard/eleve/programme/maths; target middleware enforces ELEVE",
+      "BEFORE_CONVERGENCE": "ALIAS",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/programme/maths-1ere/page.tsx",
+      "ROLE": [
+        "PARENT",
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH"
+      ],
+      "ROLE_SOURCE": "app/programme/maths-1ere/page.tsx:MathsPremierePage.allowedRoles; ELEVE redirects to the separately inventoried /dashboard/eleve/programme/maths",
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/programme/maths-terminale/page.tsx",
+      "ROLE": [
+        "PARENT",
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH",
+        "ELEVE"
+      ],
+      "ROLE_SOURCE": "app/programme/maths-terminale/page.tsx:MathsTerminalePage.allowedRoles; ELEVE additionally requires student.grade === TERMINALE",
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/session/video/page.tsx",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH",
+        "PARENT",
+        "ELEVE"
+      ],
+      "ROLE_SOURCE": "app/session/video/page.tsx:SessionVideoCallContent checks authenticated session presence only; this inventory does not introduce a participant policy or change video behavior",
+      "BEFORE_CONVERGENCE": "R",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "public/planning/index.html",
+      "ROLE": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH"
+      ],
+      "BEFORE_CONVERGENCE": "A401",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": true,
+      "DRAFT_STATE_PRESENT": true,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "STATIC_DOCUMENT"
+    }
+  ]
+}

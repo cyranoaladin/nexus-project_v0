@@ -1,3 +1,4 @@
+import { gotoSignInForm, resetBrowserSession } from '../helpers/auth';
 import { expect, test } from '@playwright/test'
 import { PrismaClient } from '@prisma/client'
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database'
@@ -34,7 +35,13 @@ async function activationUrl(recipient: string) {
 }
 
 async function signIn(page: import('@playwright/test').Page, email: string, password: string) {
-  await page.goto('/auth/signin')
+  // Reached right after a revocation or a "Se déconnecter" click, so an Auth.js
+  // refresh still on the wire from the previous document can re-issue the cookie
+  // after it was cleared; `/auth/signin` (`await auth()`) would then bounce to
+  // that role's dashboard and the textbox below would never appear.
+  // gotoSignInForm observes the outcome and clears only if it was bounced, so
+  // the revoked cookie this spec asserts on is left untouched otherwise.
+  await gotoSignInForm(page)
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email)
   await page.getByLabel(/^mot de passe$/i).fill(password)
   await page.getByRole('button', { name: /accéder à mon espace/i }).click()
@@ -225,8 +232,7 @@ test.describe('legacy JWT transition', () => {
       const publicSession = await publicSessionResponse.json()
       expect(publicSession.user).not.toHaveProperty('sessionVersion')
 
-      await context.clearCookies()
-      await context.addCookies([{
+      await resetBrowserSession(page);await context.addCookies([{
         name: cookieName,
         value: legacyCookie,
         url: baseURL,

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useCanonicalSession, useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -23,13 +24,26 @@ interface SessionReportFormProps {
 const STORAGE_KEY_PREFIX = "session-report-draft-";
 
 export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionReportFormProps) {
+  const { data } = useCanonicalSession();
+  const owner = data?.user?.id;
+  if (!owner) return null;
+  const storageKey = `${STORAGE_KEY_PREFIX}${sessionId}:owner:${encodeURIComponent(owner)}`;
+  return <OwnedSessionReportForm key={storageKey} storageKey={storageKey} sessionId={sessionId} onSuccess={onSuccess} onCancel={onCancel} />;
+}
+
+function OwnedSessionReportForm({ sessionId, onSuccess, onCancel, storageKey }: SessionReportFormProps & { storageKey: string }) {
+  const fetch = useProtectedFetch();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const storageKey = `${STORAGE_KEY_PREFIX}${sessionId}`;
+  const draftTimer = useRef<ReturnType<typeof setTimeout>>();
+  const submitted = useRef(false);
+  const formRevision = useRef(0);
+  const active = useRef(true);
+  useEffect(() => { active.current = true; return () => { active.current = false; clearTimeout(draftTimer.current); }; }, []);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     setValue,
     watch,
     reset,
@@ -53,28 +67,30 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
   const attendance = watch("attendance");
 
   useEffect(() => {
-    const savedDraft = localStorage.getItem(storageKey);
-    if (savedDraft) {
-      try {
+    try {
+      const savedDraft = localStorage.getItem(storageKey);
+      if (savedDraft) {
         const draft = JSON.parse(savedDraft);
         Object.keys(draft).forEach((key) => {
           setValue(key as keyof SessionReportFormData, draft[key]);
         });
-      } catch (error) {
-        console.error("Failed to load draft:", error);
       }
-    }
+    } catch { /* Unavailable/corrupt local storage is not an authentication error. */ }
   }, [storageKey, setValue]);
 
   useEffect(() => {
+    if (!isDirty || submitted.current) return;
     const timeoutId = setTimeout(() => {
-      localStorage.setItem(storageKey, JSON.stringify(watchedFields));
+      if (!active.current || submitted.current) return;
+      try { localStorage.setItem(storageKey, JSON.stringify(watchedFields)); } catch { /* Keep the mounted form. */ }
     }, 500);
+    draftTimer.current = timeoutId;
 
     return () => clearTimeout(timeoutId);
-  }, [watchedFields, storageKey]);
+  }, [watchedFields, storageKey, isDirty]);
 
   const onSubmit = async (data: SessionReportFormData) => {
+    const submittingRevision = formRevision.current;
     setIsSubmitting(true);
 
     try {
@@ -92,10 +108,17 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
         throw new Error(result.error || "Échec de la soumission du rapport");
       }
 
-      localStorage.removeItem(storageKey);
+      if (!active.current) return;
+      if (formRevision.current !== submittingRevision) {
+        toast.success('Version envoyée enregistrée', { description: 'Vos modifications plus récentes restent dans le formulaire et ne sont pas encore envoyées.' });
+        return;
+      }
+      submitted.current = true;
+      clearTimeout(draftTimer.current);
+      try { localStorage.removeItem(storageKey); } catch { /* Server persistence is confirmed independently. */ }
       
       toast.success("Rapport envoyé", {
-        description: "Le rapport de session a été soumis avec succès. Le parent a été notifié.",
+        description: "Le rapport de session a été enregistré avec succès.",
       });
 
       reset();
@@ -103,18 +126,18 @@ export function SessionReportForm({ sessionId, onSuccess, onCancel }: SessionRep
       if (onSuccess) {
         onSuccess();
       }
-    } catch (error) {
-      console.error("Error submitting report:", error);
+    } catch {
+      if (!active.current) return;
       toast.error("Erreur", {
-        description: error instanceof Error ? error.message : "Une erreur est survenue lors de la soumission",
+        description: "L’enregistrement n’est pas confirmé. Votre brouillon est conservé ; vérifiez votre connexion et votre session.",
       });
     } finally {
-      setIsSubmitting(false);
+      if (active.current) setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} onChangeCapture={() => { submitted.current = false; formRevision.current++; }} className="space-y-6">
       <div>
         <Label htmlFor="summary" className="required">
           Résumé de la session *

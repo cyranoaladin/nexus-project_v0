@@ -399,6 +399,15 @@ export interface AriaAssessmentDTO {
   readonly state: 'A_FAIRE' | 'RECENT' | 'TERMINE';
   readonly date: string | null;
   readonly href?: string;
+  /**
+   * Real `BilanType`. Used by the cockpit UI to decide whether `href` is
+   * safe to render as a clickable link — today only `ARIA_PERIODIC` is
+   * guaranteed to resolve to its correct result page
+   * (`toBilan`'s `resultUrl` is otherwise hardcoded to the pallier2-maths
+   * diagnostic result page for every other pre-existing BilanType, a real
+   * but pre-existing gap out of this lot's scope).
+   */
+  readonly type: string;
   /** Score réel du bilan, ou `null`. Jamais de valeur de remplissage. */
   readonly globalScore: number | null;
 }

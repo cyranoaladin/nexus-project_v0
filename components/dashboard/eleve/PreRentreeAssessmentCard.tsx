@@ -17,12 +17,12 @@ export function PreRentreeAssessmentCard() {
             </p>
           </div>
         </div>
-        <Link href="/bilan-gratuit/assessment" className="shrink-0">
-          <Button className="w-full bg-brand-accent text-surface-darker sm:w-auto">
+        <Button className="w-full bg-brand-accent text-surface-darker sm:w-auto" asChild>
+          <Link href="/bilan-gratuit/assessment" className="shrink-0">
             Passer le bilan de pré-rentrée
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
