@@ -462,6 +462,66 @@ describe('ControlledSessionRouteBarrier', () => {
       expect(barrier.state).toBe('CLOSED');
     });
 
+    test('a request nothing can ever report is accounted at the deadline, not thrown', async () => {
+      // The CI shape, seen four times with identical counters (#245, #288,
+      // #291, #255): started=4, held=0, released=2, finished=2, failed=1,
+      // activeHandlers=0, outstanding=1. A request the page announced but no
+      // interceptor ever owned, which never settles and after which no
+      // navigation occurs — `framenavigated` never sweeps it, no route handler
+      // will complete it, and the drain waits until it times out.
+      //
+      // It must NOT be swept eagerly: a request announced during shutdown may
+      // still settle, and the test below depends on exactly that. So the
+      // barrier waits the full deadline first, and only then accounts what
+      // cannot be reported.
+      const barrier = await install({ holdSubsequent: false });
+
+      const settled = newRoute();
+      const handler = page.issue(settled.route);
+      if (handler) await handler;
+      page.finish(settled.request);
+      await flush();
+
+      const stranded = new MockRequest(SESSION_URL);
+      page.emit('request', stranded);
+      await flush();
+      expect(barrier.outstanding).toBe(1);
+
+      const stats = await barrier.closeAndDrain({ timeoutMs: 150 });
+
+      expect(stats.state).toBe('CLOSED');
+      expect(stats.outstanding).toBe(0);
+      expect(stats.started).toBe(stats.finished + stats.failed);
+      expect(barrier.records.find(r => r.state === 'FAILED')?.error).toBe('UNREPORTABLE_AT_SHUTDOWN');
+    });
+
+    test('an intercepted request still in flight is never accounted away at the deadline', async () => {
+      // The deadline accounting must not become a blanket "close anyway". A
+      // request a route handler continued is owned by the browser and may yet
+      // report; only requests no handler ever touched are unreportable.
+      const barrier = await install({ holdSubsequent: false });
+
+      const owned = newRoute();
+      const handler = page.issue(owned.route);
+      if (handler) await handler;
+      await flush();
+
+      expect(barrier.outstanding).toBe(1);
+      expect(barrier.records[0].intercepted).toBe(true);
+
+      await expect(barrier.closeAndDrain({ timeoutMs: 150 })).rejects.toThrow(/timeout after 150ms/);
+    });
+
+    test('a genuine hang still throws: a held request is never accounted away', async () => {
+      const barrier = await install({ holdSubsequent: true });
+      const held = newRoute();
+      page.issue(held.route);
+      await flush();
+      expect(barrier.held).toBe(1);
+
+      await expect(barrier.closeAndDrain({ timeoutMs: 150 })).rejects.toThrow(/timeout after 150ms/);
+    });
+
     test('a request issued after unroute is still accounted before CLOSED', async () => {
       const barrier = await install({ holdSubsequent: false });
 
