@@ -104,12 +104,12 @@ test.describe('/offres — Page Tarifs', () => {
     // Sans `noopener`, l'onglet ouvert garde une référence `window.opener`
     // vers cette page et peut la rediriger. C'est cela qui doit tenir, et
     // pour chaque lien concerné, pas seulement pour celui du CTA final.
-    const newTabLinks = page.locator('a[target="_blank"]');
-    const count = await newTabLinks.count();
-    expect(count).toBeGreaterThan(0);
-
-    for (let index = 0; index < count; index += 1) {
-      await expect(newTabLinks.nth(index)).toHaveAttribute('rel', /noopener/);
-    }
+    // Compter puis boucler sur `nth(index)` relit le DOM à chaque tour : entre
+    // le comptage et l'assertion, une section qui s'hydrate ou se re-rend fait
+    // disparaître l'index visé (`element(s) not found`, job 105218115798).
+    // L'invariant s'exprime en une seule assertion qui réessaie : aucun lien en
+    // onglet neuf ne doit être dépourvu de `noopener`.
+    await expect(page.locator('a[target="_blank"]').first()).toBeAttached();
+    await expect(page.locator('a[target="_blank"]:not([rel~="noopener"])')).toHaveCount(0);
   });
 });
