@@ -1,0 +1,7 @@
+{
+  "featureFlags": {
+    "newDashboard": true,
+    "betaBilans": false
+  },
+  "locale": "fr-TN"
+}

@@ -7,7 +7,7 @@ jest.mock('@/lib/core-v2/auth/authority', () => ({ validateCoreV2Session: jest.f
 jest.mock('@/lib/prisma', () => ({ prisma: {} }));
 
 import type { JWT } from 'next-auth/jwt';
-import { validateSessionToken, type SessionDatabase, type SessionValidators } from '@/lib/auth/session-revocation';
+import { revokeAllUserSessions, validateSessionToken, type SessionDatabase, type SessionValidators } from '@/lib/auth/session-revocation';
 
 function database(user: { id: string; role: string; activatedAt: Date | null; sessionVersion: number } | null) {
   const findUnique = jest.fn().mockResolvedValue(user);
@@ -106,4 +106,59 @@ test('legacy or malformed JWTs (no id, no role, no version) must reauthenticate'
   const { db } = database(live);
   expect(await validateSessionToken({ role: 'PARENT', sessionVersion: 1 } as JWT, db, v)).toBeNull();
   expect(await validateSessionToken({ id: 'u1', role: 'PARENT' } as JWT, db, v)).toBeNull();
+});
+
+/**
+ * Revocation must be at least as broad as validation.
+ *
+ * A CORE_V2 token is validated in Core v2 and never against Core v1, so
+ * bumping only Core v1 left a migrated identity signed in while the API
+ * answered 200. Observed on every browser project at
+ * `e2e/auth/auth-client-lifecycle.spec.ts:211`: expected /auth/signin,
+ * received /dashboard/admin.
+ */
+describe('revokeAllUserSessions — every store that can still validate', () => {
+  function revocationDb() {
+    const update = jest.fn().mockResolvedValue({ sessionVersion: 3 });
+    return { db: { user: { findUnique: jest.fn(), update } } as unknown as SessionDatabase, update };
+  }
+
+  test('a Core-v2-owned identity is revoked in Core v2 as well as Core v1', async () => {
+    const { db, update } = revocationDb();
+    const ownedByCoreV2 = jest.fn().mockResolvedValue(true);
+    const revokeCoreV2 = jest.fn().mockResolvedValue(undefined);
+
+    await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2, revokeCoreV2 })).resolves.toEqual({ sessionVersion: 3 });
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(revokeCoreV2).toHaveBeenCalledWith('u1');
+  });
+
+  test('an identity Core v2 does not own is revoked in Core v1 only', async () => {
+    const { db, update } = revocationDb();
+    const ownedByCoreV2 = jest.fn().mockResolvedValue(false);
+    const revokeCoreV2 = jest.fn();
+
+    await revokeAllUserSessions('u1', db, { ownedByCoreV2, revokeCoreV2 });
+
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(revokeCoreV2).not.toHaveBeenCalled();
+  });
+
+  test('a Core v2 failure propagates: never report "revoked" for a session that is still live', async () => {
+    const { db } = revocationDb();
+    const ownedByCoreV2 = jest.fn().mockResolvedValue(true);
+    const revokeCoreV2 = jest.fn().mockRejectedValue(new Error('CORE_V2_UNAVAILABLE'));
+
+    await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2, revokeCoreV2 })).rejects.toThrow('CORE_V2_UNAVAILABLE');
+  });
+
+  test('an ownership check failure propagates rather than silently revoking Core v1 alone', async () => {
+    const { db } = revocationDb();
+    const ownedByCoreV2 = jest.fn().mockRejectedValue(new Error('CORE_V2_UNAVAILABLE'));
+    const revokeCoreV2 = jest.fn();
+
+    await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2, revokeCoreV2 })).rejects.toThrow('CORE_V2_UNAVAILABLE');
+    expect(revokeCoreV2).not.toHaveBeenCalled();
+  });
 });

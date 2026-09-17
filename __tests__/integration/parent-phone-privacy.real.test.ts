@@ -1,4 +1,5 @@
 jest.unmock('@/lib/prisma');
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
@@ -37,7 +38,15 @@ const proposal = (userId: string) => buildProposal({ subjectRef: 'synthetic-subj
 async function cleanup() {
   await prisma.jobOutbox.deleteMany({ where: { aggregateId: { startsWith: PREFIX } } });
   await prisma.parentPhoneChallenge.deleteMany({ where: { userId: { startsWith: PREFIX } } });
-  await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { startsWith: PREFIX } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 beforeAll(() => {
   assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''); disposable = true;

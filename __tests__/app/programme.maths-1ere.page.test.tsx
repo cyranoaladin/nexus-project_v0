@@ -4,6 +4,13 @@ import MathsPremierePage from '@/app/programme/maths-1ere/page';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import { ServerSessionShell } from '@/components/auth/SessionRecoveryProvider';
+
+// This suite exercises the server access decision; the real client shell and
+// its identity concordance are covered with the actual shared provider.
+jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
+  ServerSessionShell: jest.fn(({ children }: { children: React.ReactNode }) => children),
+}));
 
 jest.mock('@/app/programme/maths-1ere/components/MathsRevisionClient', () => ({
   __esModule: true,
@@ -70,6 +77,8 @@ describe('MathsPremierePage access control', () => {
     });
 
     render(await MathsPremierePage());
+
+    expect((ServerSessionShell as jest.Mock).mock.calls[0][0].serverSession).toEqual(await mockAuth.mock.results[0].value);
 
     expect(screen.getByTestId('maths-revision-client')).toHaveTextContent(`${role.toLowerCase()}-1:Alex`);
     expect(mockPrismaStudentFindUnique).not.toHaveBeenCalled();

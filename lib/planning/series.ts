@@ -61,6 +61,7 @@
 
 import { Prisma, type SessionModality, type SessionType, type Subject } from '@prisma/client';
 import { getCourse } from '@/lib/curriculum/catalog';
+import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
 import {
   verifyPlanningInvariants,
   ACTIVE_BOOKING_STATUSES,
@@ -148,7 +149,17 @@ export function invariantFailuresIncludeConflict(failures: readonly PlanningInva
  */
 export function isPlanningConflictDatabaseError(error: unknown): boolean {
   if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034') return true;
-  if (error instanceof Error && /23P01/.test(error.message)) return true;
+  // Raw ConnectorError shapes (PrismaClientUnknownRequestError, no `.code`):
+  // 23P01 exclusion violation, plus the two SERIALIZABLE-race outcomes Prisma
+  // does not always translate to P2034 — 40001 serialization failure and
+  // 40P01 deadlock. CI observed the raw 40P01 form for two concurrent
+  // creations of the same slot (run 34529418191, 2026-09-10): the two
+  // transactions locked each other's range, Postgres aborted one with
+  // "deadlock detected", and the route answered 500 instead of the stable
+  // 409 the contract promises. Same class of legitimate loser as 23P01.
+  if (error instanceof Error && /23P01|40001|40P01|deadlock detected|could not serialize access/.test(error.message)) {
+    return true;
+  }
   return false;
 }
 
@@ -181,20 +192,27 @@ function addUTCDays(date: Date, days: number): Date {
 }
 
 /**
- * Instant courant décalé de +1h (Africa/Tunis, décalage FIXE UTC+1, aucun
- * DST depuis 2009) — SANS troncature au jour, heures et minutes conservées.
+ * Instant courant décalé du fuseau Africa/Tunis — SANS troncature au jour,
+ * heures et minutes conservées.
  *
  * C'est le seul instant comparable directement à une valeur produite par
  * `combineDateAndTime` (lib/planning/invariants.ts) : celle-ci encode
  * l'heure murale Tunis directement comme des accesseurs UTC ("pseudo-UTC"),
- * donc son instant réel est toujours `valeur - 1h`. Comparer un `Date.now()`
- * réel à une valeur pseudo-UTC sans ce décalage introduit un biais d'1h
- * (fix dashboards nextSession, Tâche 13) — cette fonction est la contrepartie
- * « instant » de `tunisTodayUtcMidnight` (contrepartie « jour »), même
- * bascule +1h.
+ * donc son instant réel est toujours `valeur - décalage`. Comparer un
+ * `Date.now()` réel à une valeur pseudo-UTC sans ce décalage introduit un
+ * biais (fix dashboards nextSession, Tâche 13) — cette fonction est la
+ * contrepartie « instant » de `tunisTodayUtcMidnight` (contrepartie « jour »).
+ *
+ * Le décalage est calculé dynamiquement via `lib/timezone.ts` (seule
+ * autorité, dérivée de l'IANA tzdata via `Intl`) plutôt que codé en dur —
+ * ce même calcul alimente aussi, transitivement, la planification des
+ * ateliers ARIA (`lib/aria/application/workshop/queue-due-workshop-
+ * reminders.ts`, qui appelle cette fonction).
  */
 export function tunisNowAsPretendUtc(): Date {
-  return new Date(Date.now() + 60 * 60 * 1000);
+  const now = Date.now();
+  const offsetHours = getOrganizationUtcOffsetHours(new Date(now));
+  return new Date(now + offsetHours * 60 * 60 * 1000);
 }
 
 /**

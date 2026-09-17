@@ -1,8 +1,9 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import { useNsiProgress } from '@/hooks/useNsiProgress';
 import { nsiSubjects } from '@/data/nsi-pratique-2026/subjects';
@@ -39,6 +40,7 @@ function hasNsiSpecialty(payload: DashboardAccessPayload) {
 }
 
 export default function NsiPratique2026Page() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [accessStatus, setAccessStatus] = useState<AccessStatus>('checking');
@@ -64,7 +66,7 @@ export default function NsiPratique2026Page() {
       });
 
     return () => controller.abort();
-  }, [session?.user, status]);
+  }, [session?.user, status, fetch]);
 
   // Auth guard
   if (status === 'loading') {

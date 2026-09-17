@@ -22,10 +22,19 @@ import { sameOriginHeaders } from '../helpers/same-origin';
 test.describe.configure({ mode: 'serial' });
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3002';
-const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? '';
+// Same default as the three sibling specs that read Mailpit
+// (pending-parent-lifecycle, parent-email-onboarding, session-revocation).
+// CI sets MAILPIT_API_URL explicitly; the default keeps a local run working.
+const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? 'http://127.0.0.1:8025';
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
 const studentEmail = `corev2-student-${nonce}@example.test`;
+// Unique per run, like the name and e-mail above. A fixed number collides
+// with itself: the cross-browser job runs firefox-smoke and webkit-smoke
+// against the SAME server and database, so the second project hits the
+// duplicate gate its predecessor created and the dialog waits, correctly,
+// for a human to confirm. +216 followed by 8 digits, mobile prefix 2.
+const parentPhone = `+216 2${String(nonce % 10_000_000).padStart(7, '0')}`;
 const startYear = 2050 + (nonce % 40);
 
 let householdId = '';
@@ -36,7 +45,6 @@ let rawToken = '';
 let studentToken = '';
 
 async function findActivationToken(recipient: string): Promise<string> {
-  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the invitation e-mail');
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
@@ -91,7 +99,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await dialog.getByLabel('Prénom', { exact: true }).fill('Amel');
     await dialog.getByLabel('Nom', { exact: true }).fill(`Corev2-${nonce}`);
     await dialog.getByLabel('E-mail', { exact: true }).fill(parentEmail);
-    await dialog.getByLabel('Téléphone (optionnel)').fill('+216 20 000 001');
+    await dialog.getByLabel('Téléphone (optionnel)').fill(parentPhone);
     await dialog.getByRole('button', { name: 'Vérifier et créer' }).click();
     await page.waitForURL(/\/dashboard\/assistante\/familles\/[A-Za-z0-9]+$/);
     householdId = page.url().split('/').pop()!;
@@ -265,9 +273,17 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
     const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
-    await expect(panel.getByText(`Yasmine Corev2-${nonce} — maths-premiere`)).toBeVisible();
-    await expect(panel.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
-    await expect(panel.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // Scope to THIS run's assignment row. The coach is a seeded actor shared by
+    // every browser project, and the cross-browser job runs firefox-smoke then
+    // webkit-smoke against the SAME server and database — so the coach
+    // accumulates one assignment per project, and a panel-wide match on the
+    // recurrence line ("chaque mardi 18:00–19:00", identical in each) resolves
+    // to several elements and trips Playwright strict mode. The student name
+    // carries the nonce, so the row does identify this run.
+    const row = panel.getByRole('listitem').filter({ hasText: `Yasmine Corev2-${nonce} — maths-premiere` });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
+    await expect(row.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });

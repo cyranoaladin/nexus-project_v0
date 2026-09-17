@@ -109,7 +109,6 @@ for (const manifestPath of manifests) {
   for (const reference of manifest.files) {
     referenceCount += 1;
     const resolved = path.resolve(path.dirname(manifestPath), reference);
-    const normalized = resolved.split(path.sep).join('/');
 
     // Check for absolute local paths in the raw reference (before resolution).
     // Resolved paths are always absolute (path.resolve), so only check the
@@ -127,7 +126,10 @@ for (const manifestPath of manifests) {
 
     // Check if reference is outside project root
     const relative = path.relative(projectRoot, resolved);
+    // The checkout may itself live in .worktrees. Audit traced content below
+    // that root, not its hosting directories; embedded worktrees stay forbidden.
     const isOutside = relative.startsWith('..');
+    const normalized = (isOutside ? resolved : relative).split(path.sep).join('/');
     if (isOutside) {
       outsideRoot.push({ manifest: relativeManifest, reference, resolved });
     }

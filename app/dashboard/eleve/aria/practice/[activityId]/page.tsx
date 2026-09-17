@@ -15,9 +15,10 @@
  * ever becomes a real cost at real course sizes.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle, ArrowLeft, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,6 +60,7 @@ const OUTCOME_TONE: Record<CorrectionFeedback['outcome'], string> = {
 type Stage = 'loading' | 'answering' | 'working' | 'result' | 'error';
 
 export default function AriaPracticeAttemptPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams<{ activityId: string }>();
@@ -92,7 +94,7 @@ export default function AriaPracticeAttemptPage() {
       setError(caught instanceof Error ? caught.message : 'Erreur inconnue');
       setStage('error');
     }
-  }, [courseKey, params.activityId]);
+  }, [courseKey, params.activityId, fetch]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -139,7 +141,7 @@ export default function AriaPracticeAttemptPage() {
       setError(caught instanceof Error ? caught.message : 'Erreur inconnue');
       setStage('answering');
     }
-  }, [activity, selectedOptionId, answerText]);
+  }, [activity, selectedOptionId, answerText, fetch]);
 
   const backHref = '/dashboard/eleve/aria';
 

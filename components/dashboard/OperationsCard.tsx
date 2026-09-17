@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { Users, CreditCard, Calendar, Inbox } from 'lucide-react';
 
@@ -18,6 +19,7 @@ interface OperationsMetrics {
 }
 
 export function OperationsCard() {
+  const fetch = useProtectedFetch();
   const [data, setData] = useState<OperationsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +48,7 @@ export function OperationsCard() {
 
     fetchMetrics();
     return () => { cancelled = true; };
-  }, []);
+  }, [fetch]);
 
   if (loading) {
     return (

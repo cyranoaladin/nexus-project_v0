@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -71,6 +72,7 @@ export function FileUploadZone({
   maxSizeMB = 20,
   existingDocuments = [],
 }: FileUploadZoneProps) {
+  const fetch = useProtectedFetch();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [uploadedDocuments, setUploadedDocuments] = useState<ExistingDocument[]>(existingDocuments);
   const [isDragging, setIsDragging] = useState(false);

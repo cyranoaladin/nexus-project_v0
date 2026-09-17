@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Compass, ArrowRight } from 'lucide-react';
@@ -30,6 +31,7 @@ interface CapActuelCardProps {
 }
 
 export function CapActuelCard({ studentId }: CapActuelCardProps) {
+  const fetch = useProtectedFetch();
   const [trajectory, setTrajectory] = useState<TrajectoryInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasData, setHasData] = useState(false);
@@ -63,7 +65,7 @@ export function CapActuelCard({ studentId }: CapActuelCardProps) {
 
     fetchTrajectory();
     return () => { cancelled = true; };
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   if (loading) {
     return (

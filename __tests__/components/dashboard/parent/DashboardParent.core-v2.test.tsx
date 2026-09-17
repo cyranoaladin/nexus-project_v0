@@ -39,7 +39,10 @@ describe('DashboardParent — authority routing (§AH)', () => {
     sessionState.status = 'authenticated';
     render(<DashboardParent />);
     expect(await screen.findByText('Espace Famille')).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledWith('/api/parent/dashboard');
+    // The URL is the assertion; the options are not. `main` gave this fetch an
+    // AbortController so an unmounted dashboard stops its in-flight request,
+    // and pinning the exact argument list would forbid that improvement.
+    expect(global.fetch).toHaveBeenCalledWith('/api/parent/dashboard', expect.anything());
     expect(screen.queryByText('Mon foyer (Core v2)')).not.toBeInTheDocument();
   });
 });

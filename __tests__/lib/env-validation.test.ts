@@ -20,6 +20,7 @@ describe('validateEnv', () => {
       process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-env-validation-secret-32-bytes';
       process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1';
       process.env.REDIS_URL = 'redis://127.0.0.1:6379';
+      process.env.NEXUS_ORGANIZATION_TIMEZONE = 'Africa/Tunis';
     }
   }
 

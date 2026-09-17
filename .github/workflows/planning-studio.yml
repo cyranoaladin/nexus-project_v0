@@ -83,7 +83,9 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma client
-        run: npx prisma generate
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
 
       - name: Planning canonical gate (data integrity, schema, conflicts, inventory)
         run: npm run planning:gate
@@ -109,7 +111,7 @@ jobs:
     timeout-minutes: 20
     services:
       postgres:
-        image: pgvector/pgvector:pg15
+        image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
