@@ -292,7 +292,13 @@ jobs:
         # Go-live §AU: the critical flows (planning-studio-smoke, core-golden-family,
         # core-v2-staff-golden) must behave the same outside Chromium. Same server,
         # same database, no retries.
-        timeout-minutes: 25
+        # The job ceiling raised by #293 is not the only one: this step carried
+        # its own 25, inherited from the ci.yml stack this harness was copied
+        # from, where a single pass takes minutes — a qualification run is N
+        # passes. webkit x30 is ~29 min of test time and died here at 25 (run
+        # 35157045168) with the job ceiling already at 60. Raising one ceiling
+        # without grepping for the next is what made that fix incomplete.
+        timeout-minutes: 50
         env:
           # Own label so a qualification run's report never collides with the
           # required gate's artifacts.
