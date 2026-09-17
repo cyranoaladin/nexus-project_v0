@@ -11,6 +11,7 @@ import {
 } from '../../lib/operational-catalog';
 import { assertDisposableE2eDatabase } from './disposable-database';
 import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
+import { resolveTunisBookingWindow } from './tunis-booking-window';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -719,47 +720,18 @@ export async function createSessionAtRealInstant(
     where: { parentProfile: { id: studentUser.student.parentId! } },
   });
 
-  // Africa/Tunis wall clock — same shared, IANA-aware primitive as
-  // lib/planning/invariants.ts' tunisWallClockToUtcInstant, inverted: shift
-  // the real instant by the organization's current UTC offset and read its
-  // UTC calendar/time fields to get the Tunis wall-clock values this
-  // booking's scheduledDate/startTime columns actually store.
-  const toTunisWallClock = (instant: Date) =>
-    new Date(instant.getTime() + getOrganizationUtcOffsetHours(instant) * 60 * 60 * 1000);
-  const startWallClock = toTunisWallClock(startInstant);
-  const endWallClock = toTunisWallClock(new Date(startInstant.getTime() + durationMinutes * 60 * 1000));
-  const pad = (n: number) => String(n).padStart(2, '0');
-
-  // `SessionBooking` has a single `scheduledDate` column — same-day only,
-  // exactly like `lib/planning/invariants.ts`' `combineDateAndTime`. A
-  // session whose wall-clock end crosses midnight (e.g. `startInstant`
-  // chosen relative to a dynamic `Date.now()` that happens to land close to
-  // the Tunis day boundary at CI run time) would otherwise store an
-  // `endTime` "before" `startTime` on the same `scheduledDate`, which the
-  // DB's exclusion-range constraint rejects with a raw
-  // `22000: range lower bound must be less than or equal to range upper
-  // bound` — a real, instant-dependent flake (observed on PR #271 CI),
-  // not browser nondeterminism. Nothing in this route or its tests reads
-  // `endTime` for logic (only `scheduledDate`+`startTime`, see
-  // app/api/sessions/[sessionId]/route.ts); `duration` remains the
-  // authoritative, unclamped real value. So when the wall-clock end would
-  // fall on a later calendar day than the start, clamp the stored
-  // `endTime` to the last minute of the start's day instead — always a
-  // valid, non-empty range, regardless of what real time of day this runs.
-  const crossesMidnight =
-    Date.UTC(endWallClock.getUTCFullYear(), endWallClock.getUTCMonth(), endWallClock.getUTCDate()) >
-    Date.UTC(startWallClock.getUTCFullYear(), startWallClock.getUTCMonth(), startWallClock.getUTCDate());
-  const startTime = `${pad(startWallClock.getUTCHours())}:${pad(startWallClock.getUTCMinutes())}`;
-  const endTime = crossesMidnight
-    ? '23:59'
-    : `${pad(endWallClock.getUTCHours())}:${pad(endWallClock.getUTCMinutes())}`;
-  if (endTime <= startTime) {
-    throw new Error(
-      `createSessionAtRealInstant: startInstant ${startInstant.toISOString()} is too close to the Tunis ` +
-        `day boundary to represent a ${durationMinutes}-minute session within SessionBooking's single-day ` +
-        'scheduledDate/startTime/endTime columns — pick a startInstant further from midnight.',
-    );
-  }
+  // The stored window is resolved by `resolveTunisBookingWindow`, which owns
+  // the single-Tunis-day constraint of `SessionBooking`'s
+  // scheduledDate/startTime/endTime columns — including the one minute a day
+  // on which a 60-minute session has nowhere to end, and which used to throw
+  // here. It is a pure function precisely so that constraint can be tested at
+  // every minute of the day without a database:
+  // `__tests__/e2e-helpers/tunis-booking-window.test.ts`.
+  const { scheduledDate, startTime, endTime } = resolveTunisBookingWindow(
+    startInstant,
+    durationMinutes,
+    getOrganizationUtcOffsetHours,
+  );
 
   const booking = await client.sessionBooking.create({
     data: {
@@ -768,9 +740,7 @@ export async function createSessionAtRealInstant(
       parentId: parentUser?.id ?? null,
       subject: 'MATHEMATIQUES',
       title: 'Session E2E — video join',
-      scheduledDate: new Date(Date.UTC(
-        startWallClock.getUTCFullYear(), startWallClock.getUTCMonth(), startWallClock.getUTCDate(),
-      )),
+      scheduledDate,
       startTime,
       endTime,
       duration: durationMinutes,
