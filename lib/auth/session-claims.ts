@@ -7,6 +7,7 @@ type SessionWithClaims = Omit<DefaultSession, 'user'> & {
     role: User['role']
     firstName?: string | null
     lastName?: string | null
+    authority: 'CORE_V2' | 'V1'
   }
 }
 
@@ -41,6 +42,8 @@ export function projectSessionClaims(session: DefaultSession, token: JWT): Sessi
       role: token.role,
       firstName: token.firstName,
       lastName: token.lastName,
+      // Not a secret: lets the dashboards render the Core v2 view for migrated identities.
+      authority: token.authority ?? 'V1',
     },
   }
 }

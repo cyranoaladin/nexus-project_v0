@@ -78,6 +78,18 @@ export function assertCapability(actor: Actor, capability: Capability): void {
 }
 
 /**
+ * Self-service scope (read side, see header): a "my own data" endpoint is
+ * reachable only by an actor of the role that owns such data (a PARENT reads
+ * their household). It grants nothing beyond the actor's own rows — the query
+ * must still scope by actor.userId. Lives here so routes never compare roles.
+ */
+export function assertSelfServiceRole(actor: Actor, expected: UserRole): void {
+  if (actor.role !== expected) {
+    throw new ForbiddenError(`This resource is only available to ${expected} accounts.`, { expectedRole: expected });
+  }
+}
+
+/**
  * Data-shape check, not an authorization decision: "the user being attached
  * as a parent must actually be a PARENT account". Lives here so it is the
  * single place in Core v2 that compares a role value (see CORE_V2_NO_INLINE_RBAC).
