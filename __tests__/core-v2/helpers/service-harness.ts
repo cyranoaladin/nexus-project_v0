@@ -15,6 +15,8 @@ import { resetCoreV2Database } from './reset-db';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= TEST_ORGANIZATION_TIMEZONE;
 process.env[INVITATION_TTL_ENV] ??= '72';
+// The Core v2 suites exercise the hybrid authority: Core v2 mandatory, Core v1 still allowed.
+process.env.CORE_V2_AUTH_MODE ??= 'HYBRID';
 
 export interface Harness {
   client: PrismaClient;

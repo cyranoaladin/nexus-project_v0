@@ -46,6 +46,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'JITSI_ROOM_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for deterministic Jitsi room names (≥32 chars, never NEXTAUTH_SECRET)', prodOnly: true },
   { name: 'NEXT_PUBLIC_JITSI_SERVER_URL', level: 'REQUIRED', description: 'Dedicated Jitsi deployment URL — must never fall back to the public meet.jit.si in production', prodOnly: true },
   { name: 'NEXUS_ORGANIZATION_TIMEZONE', level: 'REQUIRED', description: 'IANA timezone name the organization operates in (e.g. Africa/Tunis) — must be an explicit, validated config value, never a hardcoded assumption (see lib/timezone.ts)', prodOnly: true },
+  { name: 'CORE_V2_AUTH_MODE', level: 'REQUIRED', description: 'Auth rollout mode: V1_ONLY | HYBRID | V2_ONLY (no default; HYBRID/V2_ONLY require a verified Core v2 database)', prodOnly: true },
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },

@@ -11,7 +11,11 @@ function ActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get('token') ?? null;
-  const purpose = searchParams?.get('purpose') === 'parent' ? 'parent' : 'student';
+  const purposeParam = searchParams?.get('purpose');
+  // Core v2 invitations (go-live) activate through /api/v2/auth/activate; every
+  // other purpose keeps the Core v1 activation controller.
+  const isCoreV2 = purposeParam === 'core-v2';
+  const purpose = purposeParam === 'parent' ? 'parent' : 'student';
   const source = searchParams?.get('source') ?? null;
   const isStageSource = source === 'stage';
 
@@ -31,8 +35,14 @@ function ActivateForm() {
     }
 
     try {
-      const res = await fetch(`/api/auth/activate?purpose=${purpose}&token=${encodeURIComponent(token)}`);
-      const data = await res.json();
+      const res = isCoreV2
+        ? await fetch(`/api/v2/auth/activate?token=${encodeURIComponent(token)}`)
+        : await fetch(`/api/auth/activate?purpose=${purpose}&token=${encodeURIComponent(token)}`);
+      const raw = await res.json();
+      // Core v2 answers with the {ok, data} envelope; Core v1 answers flat.
+      const data = isCoreV2
+        ? { valid: raw?.ok === true && raw.data?.valid === true, studentName: raw?.data?.firstName, email: raw?.data?.email, accountRole: raw?.data?.role }
+        : raw;
 
       if (data.valid) {
         setStatus('valid');
@@ -47,7 +57,7 @@ function ActivateForm() {
       setStatus('invalid');
       setError('Erreur de connexion au serveur.');
     }
-  }, [purpose, token]);
+  }, [isCoreV2, purpose, token]);
 
   useEffect(() => {
     verifyToken();
@@ -70,13 +80,22 @@ function ActivateForm() {
     setStatus('submitting');
 
     try {
-      const res = await fetch('/api/auth/activate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password, purpose }),
-      });
+      const res = isCoreV2
+        ? await fetch('/api/v2/auth/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, password }),
+          })
+        : await fetch('/api/auth/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, password, purpose }),
+          });
 
-      const data = await res.json();
+      const raw = await res.json();
+      const data = isCoreV2
+        ? { success: raw?.ok === true, error: raw?.error?.message, redirectUrl: '/auth/signin?activated=true' }
+        : raw;
 
       if (data.success) {
         setStatus('success');
