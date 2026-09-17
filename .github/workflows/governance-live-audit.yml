@@ -1,0 +1,120 @@
+# =============================================================================
+# Governance Live Audit — read-only, never from a pull request
+# =============================================================================
+#
+# `npm run governance:audit` compares the governance-as-code files to each
+# other and to the workflows. It cannot see the running GitHub configuration,
+# so nothing in CI would notice `main-protection` being weakened. This workflow
+# is that missing half: it reads the live ruleset, the live branch protections
+# and the live collaborator permissions, and fails when any declared protection
+# no longer holds.
+#
+# It needs a token that can read repository administration, which the default
+# `GITHUB_TOKEN` cannot. `NEXUS_GOVERNANCE_READ_TOKEN` is a fine-grained,
+# READ-ONLY PAT scoped to this repository alone (Administration: read,
+# Metadata: read).
+#
+# A token that can read administration must never be handed to code that comes
+# from a pull request branch. Hence:
+#   - no `pull_request` trigger, and no `pull_request_target`, ever;
+#   - the audit job refuses to run on any ref other than `refs/heads/main`,
+#     which also covers a `workflow_dispatch` launched from another branch;
+#   - `permissions: contents: read` for the whole workflow;
+#   - the secret is mapped in the audit job only, never at workflow level.
+#
+# The audit performs GET requests exclusively and proves it: the gh client
+# counts its own write calls and `API_WRITE_CALLS=0` is asserted, fatally.
+# =============================================================================
+
+name: Governance Live Audit
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Daily, off-peak UTC. A weakening introduced outside a merge is caught
+    # within a day rather than at the next push to main.
+    - cron: '17 4 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: governance-live-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22.23.1'
+  NPM_VERSION: '10.9.8'
+
+jobs:
+  governance-live-audit:
+    name: Governance Live Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # Fail closed before the secret is read: `workflow_dispatch` can be
+      # launched from any branch, and this token must never reach code that
+      # does not come from `main`.
+      - name: Refuse any ref other than main
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          if [ "${REF}" != "refs/heads/main" ]; then
+            echo "GOVERNANCE_LIVE_AUDIT_REFUSED_REF=${REF}"
+            echo "This workflow reads repository administration and runs on main only."
+            exit 1
+          fi
+          echo "GOVERNANCE_LIVE_AUDIT_REF=${REF}"
+
+      - name: Checkout exact main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Presence only. The value is never echoed, never written to a file and
+      # never passed to anything but the audit step below.
+      - name: Assert the read-only governance token is provisioned
+        env:
+          GOVERNANCE_TOKEN: ${{ secrets.NEXUS_GOVERNANCE_READ_TOKEN }}
+        run: |
+          if [ -z "${GOVERNANCE_TOKEN}" ]; then
+            echo "NEXUS_GOVERNANCE_READ_TOKEN_MISSING"
+            exit 1
+          fi
+          echo "NEXUS_GOVERNANCE_READ_TOKEN_PRESENT=YES"
+
+      - name: Offline governance audit
+        run: npm run governance:audit
+
+      - name: Governance test suite
+        run: npm run test:governance
+
+      - name: Live governance audit (read-only)
+        env:
+          GH_TOKEN: ${{ secrets.NEXUS_GOVERNANCE_READ_TOKEN }}
+        run: npm run governance:audit:live | tee governance-live-audit.txt
+
+      - name: Upload the live audit evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: governance-live-audit-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: governance-live-audit.txt
+          retention-days: 90
+          if-no-files-found: error

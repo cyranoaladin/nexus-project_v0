@@ -71,7 +71,15 @@ test.describe('ARIA Preview (admin-only) — content and safety', () => {
     const requestsToForbiddenPaths: string[] = [];
     page.on('request', (request) => {
       const url = new URL(request.url());
-      if (/^\/api\/aria/.test(url.pathname) || /rag/i.test(url.pathname)) {
+      // `rag` is matched as a whole path token, never as a substring: a cuid
+      // in a route segment can contain those three letters and is not a RAG
+      // call. Same trap, same fix as `e2e/auth/core-rag-disabled.spec.ts`,
+      // which this spec's request-tracking convention is shared with.
+      const mentionsRag = url.pathname
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .includes('rag');
+      if (/^\/api\/aria/.test(url.pathname) || mentionsRag) {
         requestsToForbiddenPaths.push(url.pathname);
       }
     });

@@ -26,6 +26,16 @@ const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3002';
 // (pending-parent-lifecycle, parent-email-onboarding, session-revocation).
 // CI sets MAILPIT_API_URL explicitly; the default keeps a local run working.
 const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? 'http://127.0.0.1:8025';
+// `hasText` is a case-insensitive **substring** match, so a success message
+// that is a substring of an empty-state message is satisfied by the empty
+// state. `EnrollmentCard.tsx:174` renders `role="status"` with the text
+// "Aucun coach affecté.", which contains "Coach affecté." — the assertion at
+// the coach step matched both and failed on a strict-mode violation resolving
+// to 2 elements (PR #302, job 105252474170, firefox-smoke).
+//
+// Every `role="status"` assertion below is therefore anchored. The point is
+// not the one collision that fired: it is that a future "Aucun X" empty state
+// must never be able to satisfy an assertion that X happened.
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
 const studentEmail = `corev2-student-${nonce}@example.test`;
@@ -139,7 +149,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
     await expect(enrollment.getByText('En attente')).toBeVisible();
     await enrollment.getByRole('button', { name: 'Approuver' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Inscription approuvée.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Inscription approuvée\.$/ })).toBeVisible();
     await expect(enrollment.getByText('Active')).toBeVisible();
     const fiche = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await fiche.json()) as { data: { parents: Array<{ id: string }>; students: Array<{ user: { id: string }; enrollments: Array<{ id: string }> }> } };
@@ -154,7 +164,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await enrollment.getByLabel('Clé de cours').fill('maths-premiere');
     await enrollment.getByRole('button', { name: 'Ajouter' }).click();
     await enrollment.getByRole('button', { name: 'Enregistrer les cours' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Cours enregistrés.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Cours enregistrés\.$/ })).toBeVisible();
   });
 
   await test.step('grants the seeded coach the capability (staff API) and assigns them through the UI', async () => {
@@ -174,7 +184,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await enrollment.getByLabel('Cours', { exact: true }).selectOption('maths-premiere');
     await enrollment.getByLabel('Coach habilité').selectOption({ index: 1 });
     await enrollment.getByRole('button', { name: 'Affecter' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Coach affecté.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Coach affecté\.$/ })).toBeVisible();
   });
 
   await test.step('creates a weekly planning series', async () => {
@@ -200,7 +210,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
-    await expect(parents.getByRole('status').filter({ hasText: 'Invitation envoyée.' })).toBeVisible();
+    await expect(parents.getByRole('status').filter({ hasText: /^Invitation envoyée\.$/ })).toBeVisible();
 
     rawToken = await findActivationToken(parentEmail);
     // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
@@ -313,7 +323,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Suspendre' }).first().click();
-    await expect(page.getByRole('status').filter({ hasText: 'Compte suspendu' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: /^Compte suspendu\b/ })).toBeVisible();
     const after = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await after.json()) as { data: { parents: Array<{ accountStatus: string }> } };
     expect(detail.data.parents[0]!.accountStatus).toBe('SUSPENDED');

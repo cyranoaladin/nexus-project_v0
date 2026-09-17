@@ -155,6 +155,15 @@ jobs:
       - name: Reject hardcoded canonical values
         run: npm run check:no-hardcoded
 
+      # Même classe de défaut, même remède. Ce garde existe depuis l'incident
+      # d'exposition du 16/09/2026 et n'était appelé que par les crochets
+      # `pre-commit` et `pre-push` : un poste sans crochets installé, un
+      # `--no-verify`, ou une fusion créée depuis l'interface GitHub le
+      # contourne entièrement. Il s'exécute ici sur tout l'arbre suivi (mode
+      # sans argument), donc sur ce qui est réellement fusionné.
+      - name: Refuse any live diagnostic bank, answer key or coach correction
+        run: npm run security:assessment-confidentiality
+
       - name: Run ESLint
         run: npm run lint
 
@@ -499,7 +508,7 @@ jobs:
   real-db-integration:
     name: Real DB Integration
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     services:
       postgres:
@@ -573,6 +582,26 @@ jobs:
             __tests__/integration/assignment-concurrency.real.test.ts \
             __tests__/integration/session-video-join-state-race.real.test.ts \
             __tests__/security/idor-real.test.ts
+
+      # The `__tests__/{concurrency,database,db,transactions}` suites were
+      # collected by `jest.config.db.js` alone, and no workflow ever invoked
+      # that configuration: 18 suites and 279 assertions gated nothing. Among
+      # them are the three `*-delete-restrict.db.test.ts` guards that hold the
+      # "real account history must not disappear through a cascade delete"
+      # invariant. `jest.db-core.config.js` is that set minus the `aria-*`
+      # files, which the disposable ARIA harness lanes already run.
+      - name: Run core real database suites (concurrency, schema, transactions)
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
+          TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ github.sha }}
+          NODE_ENV: test
+          NEXUS_DISPOSABLE_POSTGRES: "1"
+        run: npm run test:db:core
+
+      - name: Prove every test lane is reachable from a workflow
+        run: npm run test:lanes:check
 
       - name: Upload real database logs on failure
         if: failure()

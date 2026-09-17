@@ -13,9 +13,22 @@ import {
 } from '../../lib/bilans/render/pdf';
 
 const databaseUrl = process.env.DATABASE_URL ?? '';
-assertDisposableE2eDatabase(databaseUrl);
 
-const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+let client: PrismaClient | null = null;
+
+/**
+ * Asserted on first use rather than at import, so enumerating the suite
+ * (`playwright test --list`) does not require a live disposable stack. Every
+ * database access in this spec goes through `prisma()`, so the guard still
+ * fails closed before a single row is touched.
+ */
+function prisma(): PrismaClient {
+  if (client === null) {
+    assertDisposableE2eDatabase(databaseUrl);
+    client = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+  }
+  return client;
+}
 const packSlug = 'entree-seconde-maths-v1';
 const parentMarker = '__PARENT_CHANNEL__';
 const forbiddenMarkers = [
@@ -41,14 +54,14 @@ async function signIn(page: import('@playwright/test').Page, email: string, pass
 }
 
 async function prepareReviewFixture(attemptId: string, studentId: string, nonce: number) {
-  const attempt = await prisma.canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptId } });
-  await prisma.canonicalAssessmentAttempt.update({
+  const attempt = await prisma().canonicalAssessmentAttempt.findUniqueOrThrow({ where: { id: attemptId } });
+  await prisma().canonicalAssessmentAttempt.update({
     where: { id: attemptId },
     data: { status: 'SUBMITTED', submittedAt: new Date() },
   });
 
   const factSheet = SECONDE_ENTRY_RECIPE_FACT_SHEETS[0];
-  const score = await prisma.scoreSnapshot.create({
+  const score = await prisma().scoreSnapshot.create({
     data: {
       assessmentAttemptId: attemptId,
       scoringPolicyId: attempt.scoringPolicyId,
@@ -58,12 +71,12 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
       result: JSON.parse(JSON.stringify(factSheet)),
     },
   });
-  await prisma.canonicalAssessmentAttempt.update({ where: { id: attemptId }, data: { status: 'SCORED' } });
+  await prisma().canonicalAssessmentAttempt.update({ where: { id: attemptId }, data: { status: 'SCORED' } });
 
-  const report = await prisma.reportArtifact.create({
+  const report = await prisma().reportArtifact.create({
     data: { studentId, assessmentAttemptId: attemptId, status: 'PENDING_REVIEW' },
   });
-  const revision = await prisma.reportRevision.create({
+  const revision = await prisma().reportRevision.create({
     data: {
       reportArtifactId: report.id,
       scoreSnapshotId: score.id,
@@ -90,12 +103,12 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
       },
     },
   });
-  await prisma.canonicalAssessmentAttempt.update({
+  await prisma().canonicalAssessmentAttempt.update({
     where: { id: attemptId },
     data: { status: 'REPORT_PENDING_REVIEW' },
   });
 
-  const assistante = await prisma.user.create({
+  const assistante = await prisma().user.create({
     data: {
       email: `p0c-assistante-${nonce}@example.test`,
       role: 'ASSISTANTE',
@@ -104,7 +117,7 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
       activatedAt: new Date(),
     },
   });
-  await prisma.reportReview.create({
+  await prisma().reportReview.create({
     data: {
       reportRevisionId: revision.id,
       reviewerId: assistante.id,
@@ -112,8 +125,8 @@ async function prepareReviewFixture(attemptId: string, studentId: string, nonce:
       motif: 'Fixture contrôlée de consultation Parent.',
     },
   });
-  await prisma.reportRevision.update({ where: { id: revision.id }, data: { status: 'COACH_VALIDATED' } });
-  await prisma.canonicalAssessmentAttempt.update({
+  await prisma().reportRevision.update({ where: { id: revision.id }, data: { status: 'COACH_VALIDATED' } });
+  await prisma().canonicalAssessmentAttempt.update({
     where: { id: attemptId },
     data: { status: 'COACH_VALIDATED' },
   });
@@ -124,7 +137,7 @@ async function publishFixture(revisionId: string, reviewerId: string): Promise<v
   const pdfSession = await createBilanPdfRendererSession();
   try {
     await publishReportRevision({
-      prisma,
+      prisma: prisma(),
       revisionId,
       reviewerId,
       publishedAt: new Date(),
@@ -149,7 +162,7 @@ async function publishFixture(revisionId: string, reviewerId: string): Promise<v
 }
 
 async function createLegacyPublishedBilan(studentId: string, studentEmail: string, nonce: number) {
-  return prisma.bilan.create({
+  return prisma().bilan.create({
     data: {
       type: 'DIAGNOSTIC_PRE_STAGE',
       subject: 'MATHEMATIQUES',
@@ -179,7 +192,7 @@ function expectPrivateNoStore(headers: Record<string, string>): void {
 
 test.describe('P0-C — consultation Parent sécurisée', () => {
   test.afterAll(async () => {
-    await prisma.$disconnect();
+    await prisma().$disconnect();
   });
 
   test('le Parent voit uniquement sa restitution publiée', async ({ page, browser }) => {
@@ -203,13 +216,13 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     // 7), never a User/Student directly — staff must qualify and convert it first.
     await convertBilanGratuitRequest(browser, parentEmail);
 
-    const parent = await prisma.user.findUniqueOrThrow({
+    const parent = await prisma().user.findUniqueOrThrow({
       where: { email: parentEmail },
       include: { parentProfile: { include: { children: { include: { user: true } } } } },
     });
     const child = parent.parentProfile?.children[0];
     expect(child).toBeDefined();
-    await prisma.user.update({
+    await prisma().user.update({
       where: { id: parent.id },
       data: {
         password: await bcrypt.hash(parentPassword, 12),
@@ -304,7 +317,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
 
     const parentBEmail = `p0c-parent-b-${nonce}@example.test`;
     const parentBPassword = 'ParentBSynthetic!2026';
-    await prisma.user.create({
+    await prisma().user.create({
       data: {
         email: parentBEmail,
         password: await bcrypt.hash(parentBPassword, 12),
@@ -335,7 +348,7 @@ test.describe('P0-C — consultation Parent sécurisée', () => {
     await expect(parentBPage.getByText('Élève A1 A Synthétique')).toHaveCount(0);
     await parentBContext.close();
 
-    await prisma.parentStudentLink.updateMany({
+    await prisma().parentStudentLink.updateMany({
       where: { parentUserId: parent.id, studentId: child!.id },
       data: { state: 'REVOKED', revokedAt: new Date(), revokedReason: 'P0C_E2E_REVOCATION' },
     });
