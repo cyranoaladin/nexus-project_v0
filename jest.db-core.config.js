@@ -20,14 +20,18 @@
 
 const baseConfigFactory = require('./jest.config.db.js');
 
-const ARIA_HARNESS_SUITES = '<rootDir>/__tests__/(concurrency|database|db)/aria-';
-
 module.exports = async () => {
   const base = await baseConfigFactory();
 
   return {
     ...base,
     displayName: 'db-core',
-    testPathIgnorePatterns: [...(base.testPathIgnorePatterns ?? []), ARIA_HARNESS_SUITES],
+    // Written out rather than hidden behind a constant: the zero-test-debt
+    // check reads this initializer as source text, and a guard that inspects
+    // an identifier instead of the pattern it stands for inspects nothing.
+    testPathIgnorePatterns: [
+      ...(base.testPathIgnorePatterns ?? []),
+      '<rootDir>/__tests__/(concurrency|database|db)/aria-',
+    ],
   };
 };
