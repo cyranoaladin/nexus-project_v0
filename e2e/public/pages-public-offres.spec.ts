@@ -65,4 +65,36 @@ test.describe('/offres — Page Tarifs', () => {
     const response = await page.request.get('/offres');
     expect(response.status()).toBeLessThan(500);
   });
+
+  // Reprises de `__tests__/e2e/offres-page.e2e.spec.tsx`, un spec Playwright
+  // posé hors de tout `testDir` : aucune configuration ne le collectait, donc
+  // rien ne l'exécutait. Ses autres assertions portaient sur une FAQ
+  // « Questions sur les tarifs » et une section « formats de stage » que la
+  // refonte de septembre 2026 a retirées ; ces deux-là décrivent la page
+  // telle qu'elle est aujourd'hui et n'étaient couvertes nulle part.
+  test('la section CTA finale oriente vers /recommandation', async ({ page }) => {
+    const heading = page.getByRole('heading', { name: /Besoin d.aide pour choisir/i });
+    await heading.scrollIntoViewIfNeeded();
+    await expect(heading).toBeVisible();
+
+    const findFormula = page.getByRole('link', { name: /Trouver ma formule/i });
+    await expect(findFormula).toBeVisible();
+    await expect(findFormula).toHaveAttribute('href', '/recommandation');
+  });
+
+  test('les liens WhatsApp ouvrent un onglet neuf sans donner accès à la page', async ({ page }) => {
+    const whatsappLinks = page.locator('a[href*="wa.me"]');
+    await expect(whatsappLinks.first()).toBeAttached();
+
+    const count = await whatsappLinks.count();
+    expect(count).toBeGreaterThan(0);
+
+    for (let index = 0; index < count; index += 1) {
+      const link = whatsappLinks.nth(index);
+      await expect(link).toHaveAttribute('target', '_blank');
+      // Sans `noopener`, l'onglet ouvert garde une référence `window.opener`
+      // vers cette page et peut la rediriger.
+      await expect(link).toHaveAttribute('rel', /noopener/);
+    }
+  });
 });

@@ -202,4 +202,22 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
       page.getByRole('heading', { name: 'Quatre piliers pour accompagner la réussite' }),
     ).toBeVisible();
   });
+
+  // Reprise de `__tests__/e2e/homepage-audit.spec.ts`, un spec Playwright posé
+  // hors de tout `testDir` : rien ne le collectait, donc rien ne l'exécutait.
+  // Ses autres assertions sont couvertes ici ou dans error-pages.spec.ts et
+  // navbar-mobile-a11y.spec.ts, en plus fort. Celle-ci ne l'était nulle part,
+  // et le 03/09/2026 un déploiement a mis en production un logo en 404 (un
+  // `cp -r` au lieu d'un build) : la visibilité seule ne l'aurait pas vu,
+  // `naturalWidth` si.
+  test('le logo du header est servi et non seulement présent dans le DOM', async ({ page }) => {
+    const logo = page.locator('header a[href="/"] img').first();
+    await expect(logo).toBeVisible();
+    await expect(logo).toHaveAttribute('alt', /\S/);
+
+    const rendered = await logo.evaluate(
+      (image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0,
+    );
+    expect(rendered).toBe(true);
+  });
 });

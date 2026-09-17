@@ -20,12 +20,22 @@ const DATABASE_URL =
   (process.env.DATABASE_URL?.includes('nexus_e2e') ? process.env.DATABASE_URL : undefined) ??
   DEFAULT_E2E_DB_URL;
 
-assertDisposableE2eDatabase(DATABASE_URL);
-
 let prisma: PrismaClient | null = null;
 
+/**
+ * The disposable contract is asserted on first client use, not on import.
+ *
+ * Importing this module is not a database access; enumerating the suite
+ * (`playwright test --list`, which
+ * `scripts/testing/check-ci-test-lane-coverage.mjs` relies on to prove no spec
+ * sits outside every lane) imports every spec without running one. Asserting
+ * at import made enumeration impossible without a live disposable stack, and
+ * protected nothing extra: nothing here can reach a database except through
+ * `getPrisma`.
+ */
 function getPrisma() {
   if (!prisma) {
+    assertDisposableE2eDatabase(DATABASE_URL);
     prisma = new PrismaClient({
       datasources: {
         db: { url: DATABASE_URL },
