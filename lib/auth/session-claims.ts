@@ -23,6 +23,8 @@ export function issueSessionToken(token: JWT, user: User): JWT {
     firstName: user.firstName,
     lastName: user.lastName,
     sessionVersion,
+    // Which store issued this identity; validateSessionToken re-checks only that store.
+    authority: user.authority ?? 'V1',
   }
 }
 
