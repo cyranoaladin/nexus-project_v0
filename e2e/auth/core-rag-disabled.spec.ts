@@ -32,18 +32,39 @@ import { loginAsUser } from '../helpers/auth';
 
 const GENERIC_ERROR_BOUNDARY_TEXT = 'Une erreur est survenue';
 
-/** Hosts/paths that would indicate a live RAG/model call escaped to the browser. */
-const RAG_REQUEST_PATTERN = /rag|ingestor|aria-rag-engine/i;
+/**
+ * Names that would indicate a live RAG/model call escaped to the browser.
+ *
+ * Matched as whole identifier tokens, never as a raw substring. A substring
+ * test on the pathname made this spec fail on a request that is not a RAG call
+ * at all: `/dashboard/assistante/students/cmu5k1drc001542ybrag1pvs4?_rsc=…`,
+ * a plain Next.js RSC prefetch whose cuid happens to contain the three letters
+ * `rag` (PR #258, job 105215226602). The same trap sits on the host side —
+ * `storage` contains `rag` too — so a bucket hostname would have been reported
+ * as a RAG leak.
+ *
+ * Splitting on non-alphanumerics keeps every real form: `/api/rag/search`,
+ * `/api/rag-engine/x` and `aria-rag-engine.internal` all yield a `rag` token,
+ * while `cmu5k1drc001542ybrag1pvs4` and `storage` yield none.
+ */
+const RAG_TOKENS = new Set(['rag', 'ingestor']);
 /** PR #214's retired `/search` HTTP fallback must never resurface. */
 const LEGACY_SEARCH_FALLBACK_PATTERN = /^\/search(?:$|\/|\?)/;
+
+function mentionsRag(value: string): boolean {
+  return value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .some((token) => RAG_TOKENS.has(token));
+}
 
 function trackForbiddenRequests(page: Page): string[] {
   const hits: string[] = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
     if (
-      RAG_REQUEST_PATTERN.test(url.hostname) ||
-      RAG_REQUEST_PATTERN.test(url.pathname) ||
+      mentionsRag(url.hostname) ||
+      mentionsRag(url.pathname) ||
       LEGACY_SEARCH_FALLBACK_PATTERN.test(url.pathname)
     ) {
       hits.push(url.toString());
