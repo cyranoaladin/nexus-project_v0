@@ -1,0 +1,103 @@
+{
+  "instrument": "DEMO-ENGINE",
+  "version": "fixture",
+  "form_id": "FORM_TEST",
+  "metadata": {
+    "target_duration_min": 12,
+    "score_total": 4,
+    "content_commit": "n/a — fixture synthétique, jamais un vrai commit de contenu",
+    "bank_version": "fixture-1.0"
+  },
+  "sections": [
+    {
+      "id": "section_demo",
+      "titre": "Section de démonstration",
+      "duree_conseillee_min": 12,
+      "items": [
+        {
+          "item_id": "DEMO-QCM-01",
+          "type": "QCM",
+          "score_max": 1,
+          "duree_min": 2,
+          "enonce": "Dans le royaume fictif de **Glarn**, la Guilde des Tisse-Nuages compte trois ateliers. Combien de fils de brume chaque apprenti tisse-t-il par cycle lunaire, d'après l'extrait ci-dessus ?",
+          "support": {
+            "type": "extrait_litteraire",
+            "titre": "Chronique fictive de Glarn (texte inventé pour cette fixture)",
+            "texte": "Dans les ateliers suspendus de la Guilde des Tisse-Nuages, chaque apprenti file sept brins de brume par cycle lunaire, pas un de plus : la huitième heure du cycle est réservée au repos des mains, sans quoi le fil casse et le ciel s'en souvient.",
+            "reference": "Fixture synthétique — aucune œuvre réelle, aucun auteur réel."
+          },
+          "options": [
+            {"id": "opt-sept", "text": "Sept brins.", "error_code": null},
+            {"id": "opt-huit", "text": "Huit brins.", "error_code": "confond le nombre de brins avec le numéro de l'heure de repos citée juste après"},
+            {"id": "opt-trois", "text": "Trois brins.", "error_code": "confond le nombre de brins avec le nombre d'ateliers mentionné en ouverture"},
+            {"id": "opt-zero", "text": "Le texte ne le précise pas.", "error_code": "n'a pas repéré l'information explicite du texte"}
+          ],
+          "correct_option_id": "opt-sept"
+        },
+        {
+          "item_id": "DEMO-COURT-01",
+          "type": "REPONSE_COURTE",
+          "score_max": 1,
+          "duree_min": 3,
+          "enonce": "Un vaisseau fictif *Le Cormoran-de-Verre* transporte 120 caisses. À chaque escale, il en décharge un quart. Combien de caisses reste-t-il après deux escales ?",
+          "lignes_reponse": 3
+        },
+        {
+          "item_id": "DEMO-OUVERT-01",
+          "type": "TACHE_OUVERTE",
+          "score_max": 1,
+          "duree_min": 3,
+          "enonce": "On considère l'affirmation fictive suivante : « Toute créature du marécage de Voss respire sous l'eau. » Proposez un contre-exemple imaginaire qui montrerait cette affirmation fausse, et justifiez en une phrase pourquoi c'en est un.",
+          "lignes_reponse": 4
+        },
+        {
+          "item_id": "DEMO-CODE-01",
+          "type": "REPONSE_COURTE",
+          "score_max": 1,
+          "duree_min": 2,
+          "enonce": "On exécute le programme fictif suivant, qui compte des lucioles imaginaires :",
+          "support": {
+            "type": "code",
+            "titre": "Programme de démonstration",
+            "code_lignes": [
+              "total = 0",
+              "for luciole in range(1, 5):",
+              "    if luciole % 2 == 1:",
+              "        total = total + luciole",
+              "print(total)"
+            ]
+          },
+          "lignes_reponse": 1
+        }
+      ]
+    },
+    {
+      "id": "section_production_demo",
+      "titre": "Production de démonstration",
+      "duree_conseillee_min": 0,
+      "items": [
+        {
+          "item_id": "DEMO-PRODUCTION-01",
+          "type": "PRODUCTION",
+          "score_max": 4,
+          "duree_min": 5,
+          "enonce": "En vous appuyant sur l'extrait de la Chronique de Glarn ci-dessus, rédigez un court paragraphe (5 à 8 lignes) expliquant pourquoi la règle des sept brins pourrait exister dans cet atelier imaginaire.",
+          "lignes_reponse": 8,
+          "grille_notation": [
+            {
+              "code": "ORG",
+              "intitule": "Organisation du paragraphe",
+              "descripteurs": {"0": "aucune structure repérable", "1": "ébauche de structure", "2": "structure claire", "3": "structure claire et fluide"}
+            },
+            {
+              "code": "EXPL",
+              "intitule": "Exploitation de l'extrait",
+              "descripteurs": {"0": "aucune référence au texte", "1": "référence vague", "2": "référence précise", "3": "référence précise et interprétée"}
+            }
+          ],
+          "notes_conception": "Item fictif de démonstration du rendu d'une grille de production à critères séparés — jamais un item réel."
+        }
+      ]
+    }
+  ]
+}

@@ -19,8 +19,17 @@
 // qui part réellement, pas l'état courant du poste.
 
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
+
+// Exception unique, adressée par contenu et non par chemin : le fichier renommé ou
+// modifié ne matcherait plus ce sha256, donc un vrai contenu glissé sous ce chemin
+// resterait détecté — ce n'est pas une allowlist de chemin exploitable.
+const FIXTURE_SYNTHETIQUE_AUTORISEE = new Map([
+  ['__tests__/fixtures/diagnostic-demo/form.json',
+    'ddf768c8bbee5e79faccb53e0b1ba8510e5fb6c3a5b53bdfad6a05301790639a'],
+]);
 
 const rootArg = process.argv.indexOf('--root');
 const customRoot = rootArg >= 0 ? resolve(process.argv[rootArg + 1] ?? '') : null;
@@ -89,6 +98,17 @@ function isLiveAnswerKeyStructure(value, depth = 0) {
     ) {
       return true;
     }
+    // Schéma V3 (options sémantiques) : un objet portant à la fois `options`
+    // (tableau d'entrées {id, text, ...}) et `correct_option_id` est un item vivant
+    // sous sa forme moderne, même si aucun champ ne s'appelle `cle`/`reponse`.
+    if (
+      Object.prototype.hasOwnProperty.call(value, 'options')
+      && Array.isArray(value.options)
+      && value.options.some((o) => o && typeof o === 'object' && 'id' in o && 'text' in o)
+      && Object.prototype.hasOwnProperty.call(value, 'correct_option_id')
+    ) {
+      return true;
+    }
   }
   const children = Array.isArray(value) ? value : Object.values(value);
   return children.some((child) => isLiveAnswerKeyStructure(child, depth + 1));
@@ -149,6 +169,15 @@ for (const { absolute, path } of trackedFiles()) {
       source = readFileSync(absolute, 'utf8');
     }
   } catch { continue; }
+
+  const pinAttendu = FIXTURE_SYNTHETIQUE_AUTORISEE.get(path);
+  if (pinAttendu) {
+    const empreinte = createHash('sha256').update(source, 'utf8').digest('hex');
+    if (empreinte === pinAttendu) continue; // contenu synthétique connu, inchangé
+    // Le chemin est celui de la fixture connue, mais le contenu a changé : ne
+    // JAMAIS laisser passer silencieusement — un vrai contenu glissé sous ce nom
+    // doit être détecté comme n'importe quel autre fichier.
+  }
   findings.push(...contentFindings(path, source));
 }
 
