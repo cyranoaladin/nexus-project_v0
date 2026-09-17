@@ -115,7 +115,16 @@ export function inspectTestDebtSource(file, text) {
             && ((file === 'jest.aria.unit.config.js'
               && serialized.includes('sse.test.ts') && serialized.includes('real'))
               || (file === 'jest.aria.integration.config.js'
-                && serialized.includes('real') && !serialized.includes('aria'))))
+                && serialized.includes('real') && !serialized.includes('aria'))
+              // `jest.db-core.config.js` is `jest.config.db.js` minus the
+              // `aria-*` files, which the disposable ARIA harness lanes
+              // (`test:aria:db`, `test:aria:concurrency`) own and run with a
+              // runtime a plain jest invocation cannot provide. Nothing is
+              // dropped: `inspectAriaQualificationCollection` below still
+              // requires every tracked ARIA qualification test to be collected
+              // by some lane, so this entry cannot hide one.
+              || (file === 'jest.db-core.config.js'
+                && serialized.includes('(concurrency|database|db)/aria-'))))
           || (file === 'playwright.config.ts'
             && name === 'testIgnore'
             && serialized.includes('**/aria/**'));
