@@ -182,7 +182,7 @@ describe('classic branch-protection operator — post-verification compares agai
   });
 });
 
-describe('classic branch-protection operator — nothing mutates without an explicit --dry-run=false', () => {
+describe('classic branch-protection operator — nothing mutates without an explicit --execute', () => {
   let mod;
   let exitSpy;
   let tmpRoot;
@@ -192,11 +192,52 @@ describe('classic branch-protection operator — nothing mutates without an expl
     exitSpy = installExitTrap();
     tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'bpr-operator-'));
     fs.mkdirSync(path.join(tmpRoot, '.artifacts', 'governance'), { recursive: true });
+    // The operator runs the live audit before mutating, and that reads the
+    // declared governance files. Copy them rather than pointing at the real
+    // repository root, so no test ever writes a prestate or a journal entry
+    // into the working tree.
+    fs.cpSync(path.join(REAL_ROOT, '.github', 'governance'), path.join(tmpRoot, '.github', 'governance'), {
+      recursive: true,
+    });
   });
   afterEach(() => {
     exitSpy.mockRestore();
     delete process.env.NEXUS_OWNER_MUTATION_AUTHORIZATION;
     fs.rmSync(tmpRoot, { recursive: true, force: true });
+  });
+
+  // The gate was first written as `--dry-run=false`. `parseArguments` only
+  // accepts `--key value` pairs, so that yielded the string "false" and the
+  // execution branch was unreachable: every refusal was tested, the success
+  // never was. These two tests are the ones that were missing.
+  test('the deletion is a dry run by default, and touches nothing', () => {
+    const gh = makeOperatorGh();
+    process.env.NEXUS_OWNER_MUTATION_AUTHORIZATION = RULE_ON_MAIN.id;
+    const result = mod.runDeleteClassicProtection({
+      root: tmpRoot,
+      gh,
+      args: { 'delete-classic-protection': true, 'node-id': RULE_ON_MAIN.id, 'owner-authorization': 'DELETE_CLASSIC_BPR_ON_MAIN' },
+    });
+    expect(result.deleted).toBe(false);
+    expect(gh.state.mutations).toHaveLength(0);
+  });
+
+  test('--execute reaches the mutation, and the seven post-checks hold', () => {
+    const gh = makeOperatorGh({ afterDelete: [] });
+    process.env.NEXUS_OWNER_MUTATION_AUTHORIZATION = RULE_ON_MAIN.id;
+    const result = mod.runDeleteClassicProtection({
+      root: tmpRoot,
+      gh,
+      args: {
+        'delete-classic-protection': true,
+        'node-id': RULE_ON_MAIN.id,
+        'owner-authorization': 'DELETE_CLASSIC_BPR_ON_MAIN',
+        execute: true,
+      },
+    });
+    expect(result.deleted).toBe(true);
+    expect(gh.state.mutations).toHaveLength(1);
+    expect(gh.state.mutations[0]).toContain('deleteBranchProtectionRule');
   });
 
   test('a restore refuses without its own explicit authorization', () => {
@@ -208,7 +249,7 @@ describe('classic branch-protection operator — nothing mutates without an expl
     expect(gh.state.mutations).toHaveLength(0);
   });
 
-  test('a restore is a dry run unless --dry-run=false, and claims nothing', () => {
+  test('a restore is a dry run unless --execute, and claims nothing', () => {
     const gh = makeOperatorGh();
     const prestatePath = path.join(tmpRoot, 'prestate.json');
     fs.writeFileSync(prestatePath, JSON.stringify({ classicRule: { id: RULE_ON_MAIN.id }, restorePayload: {} }));
