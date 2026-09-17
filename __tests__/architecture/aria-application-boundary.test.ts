@@ -93,7 +93,11 @@ describe('ARIA canonical application boundary', () => {
     const workflow = parseYaml(source('.github/workflows/ci.yml')) as WorkflowDocument;
     for (const [jobName, startupName] of [
       ['e2e', 'Start Next.js server in background'],
-      ['e2e-auth', 'Start Next.js server in background (worker bilan actif)'],
+      // e2e-auth was split into two parallel jobs (AUTH_E2E_JOB_TIME_BUDGET_EXCEEDED —
+      // the combined job outgrew its 30-minute budget), each running its own
+      // server startup; both must keep Turn recovery enabled.
+      ['e2e-auth-chromium', 'Start Next.js server in background (worker bilan actif)'],
+      ['e2e-auth-cross-browser', 'Start Next.js server in background (worker bilan actif)'],
       ['build', 'Smoke test standalone server'],
     ] as const) {
       const steps = workflow.jobs[jobName]?.steps ?? [];

@@ -12,9 +12,10 @@
  * pipeline `/api/aria/chat`, il se contente de le piloter en mode contrôlé.
  */
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AriaChatLauncher } from '@/components/aria/AriaChatLauncher';
@@ -34,6 +35,7 @@ type AriaProfileUpdatePayload = {
 };
 
 export default function AriaCockpitPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -57,7 +59,7 @@ export default function AriaCockpitPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetch]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -89,7 +91,7 @@ export default function AriaCockpitPage() {
         setSaving(false);
       }
     },
-    [loadCockpit],
+    [loadCockpit, fetch],
   );
 
   /** Ouvre le lanceur ARIA avec le cours présélectionné. */

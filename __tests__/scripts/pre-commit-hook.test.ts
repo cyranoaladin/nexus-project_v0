@@ -4,7 +4,8 @@ import { join, resolve } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 
 const hook = resolve(process.cwd(), 'scripts/pre-commit-hook.sh');
-const scanner = resolve(process.cwd(), 'scripts/security/check-versioned-credentials.mjs');
+const credentialScanner = resolve(process.cwd(), 'scripts/security/check-versioned-credentials.mjs');
+const confidentialityScanner = resolve(process.cwd(), 'scripts/security/check-assessment-confidentiality.mjs');
 
 function withRepository(run: (repository: string) => void): void {
   const repository = mkdtempSync(join(tmpdir(), 'nexus-pre-commit-'));
@@ -12,7 +13,8 @@ function withRepository(run: (repository: string) => void): void {
     execFileSync('git', ['init', '-q'], { cwd: repository });
     mkdirSync(join(repository, 'scripts/security'), { recursive: true });
     copyFileSync(hook, join(repository, 'scripts/pre-commit-hook.sh'));
-    copyFileSync(scanner, join(repository, 'scripts/security/check-versioned-credentials.mjs'));
+    copyFileSync(credentialScanner, join(repository, 'scripts/security/check-versioned-credentials.mjs'));
+    copyFileSync(confidentialityScanner, join(repository, 'scripts/security/check-assessment-confidentiality.mjs'));
     run(repository);
   } finally {
     rmSync(repository, { recursive: true, force: true });
@@ -35,6 +37,25 @@ describe('pre-commit credential gate', () => {
       expect(result.status).toBe(1);
       expect(output).toContain('SERVICE_SECRET_LITERAL rogue.ts:1');
       expect(output).not.toContain(credential);
+    });
+  });
+
+  it('blocks a staged live diagnostic answer-key bank', () => {
+    withRepository((repository) => {
+      mkdirSync(join(repository, 'instruments/EDS-MATH'), { recursive: true });
+      writeFileSync(
+        join(repository, 'instruments/EDS-MATH/banque.json'),
+        JSON.stringify({ items: [{ cle: { reponse: 'A' } }] }),
+      );
+      execFileSync('git', ['add', '.'], { cwd: repository });
+
+      const result = spawnSync('bash', ['scripts/pre-commit-hook.sh'], {
+        cwd: repository,
+        encoding: 'utf8',
+      });
+
+      expect(result.status).toBe(1);
+      expect(`${result.stdout}${result.stderr}`).toContain('DIAGNOSTIC_INSTRUMENT_BANK_PATH');
     });
   });
 

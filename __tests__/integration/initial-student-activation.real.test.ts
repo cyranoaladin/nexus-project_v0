@@ -22,6 +22,7 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
 jest.mock('@/lib/email', () => ({ sendWelcomeParentEmail: jest.fn().mockResolvedValue(undefined) }));
 jest.mock('@/lib/email/mailer', () => ({ sendMail: jest.fn().mockResolvedValue(undefined) }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { POST as registerBilan } from '@/app/api/bilan-gratuit/route';
 import { POST as createChild } from '@/app/api/parent/children/route';
 import { POST as convertFamilyRequest } from '@/app/api/assistante/family-requests/[requestId]/convert/route';
@@ -134,9 +135,15 @@ async function cleanup(): Promise<void> {
       ],
     },
   });
-  await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
-  await prisma.parentProfile.deleteMany({ where: { userId: { in: parentUserIds } } });
-  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 describe('P0 initial student activation — real PostgreSQL', () => {

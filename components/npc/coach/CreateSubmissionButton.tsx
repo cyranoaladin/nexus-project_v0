@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ interface CreateSubmissionButtonProps {
 }
 
 export function CreateSubmissionButton({ students }: CreateSubmissionButtonProps) {
+  const fetch = useProtectedFetch();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);

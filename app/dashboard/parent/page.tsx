@@ -1,10 +1,11 @@
 "use client";
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle,CreditCard,Loader2,LogOut,MessageCircle,Users } from "lucide-react";
-import { signOut,useSession } from "next-auth/react";
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useVerifiedSession } from '@/hooks/use-verified-session';
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
-import { useCallback,useEffect,useState } from "react";
+import { useCallback,useEffect,useRef,useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,8 +23,16 @@ interface ParentDashboardData {
 }
 
 export default function DashboardParent() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const verifiedSession = useVerifiedSession('PARENT');
+  return <ParentDashboardContent verifiedSession={verifiedSession} />;
+}
+
+function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
+  const { data: session, status } = verifiedSession;
+  const pendingRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => pendingRequest.current?.abort(), []);
   const [dashboardData, setDashboardData] = useState<ParentDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,6 +40,9 @@ export default function DashboardParent() {
   const [addChildOpen, setAddChildOpen] = useState(false);
 
   const refreshDashboardData = useCallback(async (options: { silent?: boolean } = {}) => {
+    pendingRequest.current?.abort();
+    const controller = new AbortController();
+    pendingRequest.current = controller;
     const silent = options.silent === true;
     try {
       if (!silent) {
@@ -38,28 +50,23 @@ export default function DashboardParent() {
         setError(null)
       }
 
-      const response = await fetch('/api/parent/dashboard')
+      const response = await fetch('/api/parent/dashboard', { signal: controller.signal })
 
       if (!response.ok) {
         throw new Error('Failed to fetch dashboard data')
       }
 
       const data = await response.json()
-      setDashboardData(data)
+      if (!controller.signal.aborted) setDashboardData(data)
     } catch (err) {
-      if (!silent) setError(err instanceof Error ? err.message : 'An error occurred')
+      if (!controller.signal.aborted && !silent) setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      if (!silent) setLoading(false)
+      if (!controller.signal.aborted && !silent) setLoading(false)
     }
-  }, [])
+  }, [fetch])
 
   useEffect(() => {
-    if (status === "loading") return
-
-    if (!session || session.user.role !== 'PARENT') {
-      router.push("/auth/signin")
-      return
-    }
+    if (status !== 'authenticated' || session?.user.role !== 'PARENT') return
 
     // A Core v2 identity has no Core v1 parent profile: its household is read
     // from Core v2 (§AH), never through the Core v1 dashboard API.
@@ -69,7 +76,7 @@ export default function DashboardParent() {
     }
 
     void refreshDashboardData()
-  }, [session, status, router, refreshDashboardData])
+  }, [session, status, refreshDashboardData])
 
   if (status !== "loading" && session?.user.authority === 'CORE_V2') {
     return (
@@ -79,7 +86,7 @@ export default function DashboardParent() {
     )
   }
 
-  if (status === "loading" || loading) {
+  if (status !== 'authenticated' || session?.user.role !== 'PARENT' || loading) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />

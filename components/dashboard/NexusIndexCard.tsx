@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
 import type { NexusIndexResult } from '@/lib/nexus-index';
@@ -70,6 +71,7 @@ function PillarBar({ label, score, maxScore = 100 }: { label: string; score: num
 }
 
 export function NexusIndexCard({ studentId }: NexusIndexCardProps) {
+  const fetch = useProtectedFetch();
   const [index, setIndex] = useState<NexusIndexResult | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -94,7 +96,7 @@ export function NexusIndexCard({ studentId }: NexusIndexCardProps) {
 
     fetchIndex();
     return () => { cancelled = true; };
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   if (loading) {
     return (

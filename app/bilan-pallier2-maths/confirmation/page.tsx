@@ -114,25 +114,25 @@ function ConfirmationContent() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             {bilanLinkId && (
-              <Link href={`/bilan-pallier2-maths/resultat/${bilanLinkId}`}>
-                <Button className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700">
+              <Button className="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700" asChild>
+                <Link href={`/bilan-pallier2-maths/resultat/${bilanLinkId}`}>
                   <TrendingUp className="w-5 h-5 mr-2" />
                   Consulter mon bilan
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             )}
-            <Link href="/offres?programme=hybride">
-              <Button className="w-full sm:w-auto px-8 py-3 bg-brand-accent hover:bg-brand-accent/90">
+            <Button className="w-full sm:w-auto px-8 py-3 bg-brand-accent hover:bg-brand-accent/90" asChild>
+              <Link href="/offres?programme=hybride">
                 <ArrowRight className="w-5 h-5 mr-2" />
                 Finaliser l&apos;inscription
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             
-            <Link href="/">
-              <Button variant="outline" className="w-full sm:w-auto px-8 py-3">
+            <Button variant="outline" className="w-full sm:w-auto px-8 py-3" asChild>
+              <Link href="/">
                 Retour à l&apos;accueil
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </motion.div>
 
           <motion.div

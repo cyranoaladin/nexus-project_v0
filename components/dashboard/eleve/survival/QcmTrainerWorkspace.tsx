@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { QCM_BANK } from '@/lib/survival/qcm-bank';
 import type { QcmChoiceLetter, QcmQuestion } from '@/lib/survival/types';
@@ -20,16 +21,23 @@ function selectQuestions(mode: TrainerMode, errorIds: string[]): QcmQuestion[] {
 }
 
 export function QcmTrainerWorkspace() {
+  const fetch = useProtectedFetch();
   const [mode, setMode] = useState<TrainerMode>('HELP');
   const [current, setCurrent] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState<{ correct: boolean; text: string } | null>(null);
   const [errorIds, setErrorIds] = useState<string[]>([]);
   const [secondsLeft, setSecondsLeft] = useState(90);
+  const [persistence, setPersistence] = useState({ pending: 0, confirmed: 0, failed: 0 });
+  const series = useRef(0);
+  const answered = useRef<string | null>(null);
   const questions = useMemo(() => selectQuestions(mode, errorIds), [mode, errorIds]);
   const question = questions[current];
 
   useEffect(() => {
+    series.current++;
+    answered.current = null;
+    setPersistence({ pending: 0, confirmed: 0, failed: 0 });
     setCurrent(0);
     setFeedback(null);
     setShowHint(false);
@@ -37,7 +45,11 @@ export function QcmTrainerWorkspace() {
   }, [mode]);
 
   const persistAttempt = useCallback(async (item: QcmQuestion, givenAnswer: string) => {
-    await fetch('/api/student/survival/qcm/attempt', {
+    const currentSeries = series.current;
+    setPersistence(value => ({ ...value, pending: value.pending + 1 }));
+    let confirmed = false;
+    try {
+      const response = await fetch('/api/student/survival/qcm/attempt', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -45,11 +57,20 @@ export function QcmTrainerWorkspace() {
         givenAnswer,
         timeSpentSec: mode === 'EXAM' ? 90 - secondsLeft : 30,
       }),
-    }).catch(() => undefined);
-  }, [mode, secondsLeft]);
+      });
+      const result = await response.json();
+      confirmed = response.ok && typeof result?.isCorrect === 'boolean';
+    } catch { /* An uncertain non-idempotent attempt is never replayed. */ }
+    if (series.current === currentSeries) setPersistence(value => ({
+      pending: value.pending - 1,
+      confirmed: value.confirmed + Number(confirmed),
+      failed: value.failed + Number(!confirmed),
+    }));
+  }, [mode, secondsLeft, fetch]);
 
   const answerQuestion = useCallback((choice: QcmChoiceLetter | 'TIMEOUT') => {
-    if (!question || feedback) return;
+    if (!question || feedback || answered.current === question.id) return;
+    answered.current = question.id;
     const correct = choice === question.correctAnswer;
     if (!correct) {
       setErrorIds((currentIds) => currentIds.includes(question.id) ? currentIds : [...currentIds, question.id]);
@@ -66,19 +87,17 @@ export function QcmTrainerWorkspace() {
   useEffect(() => {
     if (mode !== 'EXAM' || !question || feedback) return undefined;
     const timer = window.setInterval(() => {
-      setSecondsLeft((value) => {
-        if (value <= 1) {
-          window.clearInterval(timer);
-          answerQuestion('TIMEOUT');
-          return 0;
-        }
-        return value - 1;
-      });
+      setSecondsLeft(value => Math.max(0, value - 1));
     }, 1000);
     return () => window.clearInterval(timer);
   }, [answerQuestion, feedback, mode, question]);
 
+  useEffect(() => {
+    if (mode === 'EXAM' && secondsLeft === 0 && !feedback) answerQuestion('TIMEOUT');
+  }, [mode, secondsLeft, feedback, answerQuestion]);
+
   function goNext() {
+    answered.current = null;
     setCurrent((value) => value + 1);
     setFeedback(null);
     setShowHint(false);
@@ -88,7 +107,9 @@ export function QcmTrainerWorkspace() {
   if (!question) {
     return (
       <div className="rounded-lg border border-eaf-teal/30 bg-eaf-teal/10 p-4 text-sm text-eaf-text-primary">
-        Série terminée. Les réponses données sont enregistrées.
+        Série terminée. {persistence.pending > 0 ? 'Enregistrement en cours de vérification.'
+          : persistence.failed > 0 ? 'Certaines réponses ne sont pas confirmées comme enregistrées. Votre correction reste disponible.'
+          : persistence.confirmed > 0 ? 'Les réponses données sont enregistrées.' : 'Aucune réponse à enregistrer.'}
       </div>
     );
   }

@@ -34,7 +34,7 @@ cd "$REPO_ROOT"
 DUMP_PATH="${HISTORICAL_REHEARSAL_DUMP_PATH:-/home/alaeddine/nexus-convergence-backup-20260903/audit/conv-82a34dba/prod_20260903T1850.dump}"
 EXPECTED_DUMP_SHA256="e452d804abd269d821dea2ace70250f34ced2bb57bef6a1552647169394ffd8f"
 
-IMAGE="pgvector/pgvector:pg15"
+IMAGE="pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da"
 RUN_ID="$(date -u +%Y%m%dt%H%M%Sz)"
 NET="nexus-historical-chain-rehearsal-net-${RUN_ID}"
 C="nexus-historical-chain-rehearsal-${RUN_ID}"

@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import type {
 Analysis,
 AttendanceAndEngagement,
@@ -29,7 +30,7 @@ Loader2,
 Save,
 User
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useParams,useRouter } from 'next/navigation';
@@ -203,6 +204,7 @@ function AccordionSection({
 }
 
 export default function CoachMathsIndividualReportPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -300,7 +302,7 @@ export default function CoachMathsIndividualReportPage() {
     } finally {
       setLoading(false);
     }
-  }, [studentId, router]);
+  }, [studentId, router, fetch]);
 
   useEffect(() => {
     if (status === 'authenticated' && studentId) loadReport();
