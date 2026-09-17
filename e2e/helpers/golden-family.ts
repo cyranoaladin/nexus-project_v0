@@ -23,9 +23,26 @@ import { sameOriginHeaders } from './same-origin';
 
 const databaseUrl =
   process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-assertDisposableE2eDatabase(databaseUrl);
 
-export const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+let client: PrismaClient | null = null;
+
+/**
+ * The disposable contract is asserted on first client use, not on import — see
+ * the same note in `e2e/helpers/db.ts`. Every path to a database here goes
+ * through this function, so the guard still fails closed before any row is
+ * read or written; only enumeration is now possible without a live stack.
+ */
+function verifiedClient(): PrismaClient {
+  if (client === null) {
+    assertDisposableE2eDatabase(databaseUrl);
+    client = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+  }
+  return client;
+}
+
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get: (_target, property) => Reflect.get(verifiedClient(), property),
+});
 
 export const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 

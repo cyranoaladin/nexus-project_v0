@@ -65,4 +65,51 @@ test.describe('/offres — Page Tarifs', () => {
     const response = await page.request.get('/offres');
     expect(response.status()).toBeLessThan(500);
   });
+
+  // Reprises de `__tests__/e2e/offres-page.e2e.spec.tsx`, un spec Playwright
+  // posé hors de tout `testDir` : aucune configuration ne le collectait, donc
+  // rien ne l'exécutait. Ses autres assertions portaient sur une FAQ
+  // « Questions sur les tarifs » et une section « formats de stage » que la
+  // refonte de septembre 2026 a retirées ; ces deux-là décrivent la page
+  // telle qu'elle est aujourd'hui et n'étaient couvertes nulle part.
+  test('la section CTA finale oriente vers /recommandation', async ({ page }) => {
+    const heading = page.getByRole('heading', { name: /Besoin d.aide pour choisir/i });
+    await heading.scrollIntoViewIfNeeded();
+    await expect(heading).toBeVisible();
+
+    const findFormula = page.getByRole('link', { name: /Trouver ma formule/i });
+    await expect(findFormula).toBeVisible();
+    await expect(findFormula).toHaveAttribute('href', '/recommandation');
+  });
+
+  test('le lien WhatsApp du CTA final ouvre un onglet neuf', async ({ page }) => {
+    const finalCta = page
+      .locator('section')
+      .filter({ has: page.getByRole('heading', { name: /Besoin d.aide pour choisir/i }) })
+      .last();
+    const whatsapp = finalCta.getByRole('link', { name: /WhatsApp/i });
+
+    await expect(whatsapp).toHaveCount(1);
+    await expect(whatsapp).toHaveAttribute('target', '_blank');
+    await expect(whatsapp).toHaveAttribute('rel', /noopener/);
+  });
+
+  test('tout lien qui ouvre un onglet neuf coupe la référence à cette page', async ({ page }) => {
+    // L'invariant porte sur `target="_blank"`, pas sur « tous les liens
+    // WhatsApp » : les CTA de carte (`Réserver ma place`, `Demander cette
+    // offre`) naviguent dans le même onglet et n'ont donc pas d'ouvrant à
+    // couper. Une première version de ce test exigeait `_blank` partout —
+    // une uniformité que la page ne promet pas, et qu'elle n'a jamais eue.
+    //
+    // Sans `noopener`, l'onglet ouvert garde une référence `window.opener`
+    // vers cette page et peut la rediriger. C'est cela qui doit tenir, et
+    // pour chaque lien concerné, pas seulement pour celui du CTA final.
+    // Compter puis boucler sur `nth(index)` relit le DOM à chaque tour : entre
+    // le comptage et l'assertion, une section qui s'hydrate ou se re-rend fait
+    // disparaître l'index visé (`element(s) not found`, job 105218115798).
+    // L'invariant s'exprime en une seule assertion qui réessaie : aucun lien en
+    // onglet neuf ne doit être dépourvu de `noopener`.
+    await expect(page.locator('a[target="_blank"]').first()).toBeAttached();
+    await expect(page.locator('a[target="_blank"]:not([rel~="noopener"])')).toHaveCount(0);
+  });
 });

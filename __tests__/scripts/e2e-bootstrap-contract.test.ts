@@ -130,8 +130,14 @@ describe('ephemeral E2E bootstrap contract', () => {
   it('collects every hermetic E2E tree without quarantined external lanes', () => {
     const config = read('playwright.config.e2e.ts');
 
-    expect(config).toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(config).toContain("'e2e/**/*.spec.ts'");
+    // `__tests__/e2e/` was a second hermetic tree until its four specs were
+    // deleted: `playwright.config.e2e.ts` collected them, but no workflow
+    // invokes that configuration, so nothing in CI ever ran them. The
+    // contract now asserts the tree is gone rather than that it is collected,
+    // so the entry cannot come back without the directory.
+    expect(existsSync(join(root, '__tests__/e2e'))).toBe(false);
+    expect(config).not.toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(existsSync(join(root, 'e2e/candidate-diagnostic.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/real/coach-resource-student.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/QUARANTINE.md'))).toBe(false);
