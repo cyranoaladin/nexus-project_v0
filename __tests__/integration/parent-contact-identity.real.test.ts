@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 jest.mock('@/lib/guards', () => ({ requireRole: jest.fn(async () => ({ user: { id: 'identity-test-admin', role: 'ADMIN' } })), isErrorResponse: () => false }));
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -15,7 +16,20 @@ beforeAll(() => { assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || p
 async function cleanupFixtures() {
  await prisma.notification.deleteMany({ where: activationNotifications });
  await prisma.parentPhoneChallenge.deleteMany({ where: { userId: { startsWith: PREFIX } } });
- await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
+ // entitlements_userId_fkey is now onDelete: Restrict (#273 FK hardening,
+ // 20260914000000) — this fixture creates an Entitlement row (see the
+ // historical-fixture entitlement below), so it must be cleared before the
+ // owning users, or this deleteMany fails with P2003.
+ await prisma.entitlement.deleteMany({ where: { userId: { startsWith: PREFIX } } });
+ // Order comes from the live schema via the canonical fixture cleanup,
+ // so this teardown no longer hand-maintains which relations are RESTRICT.
+ const fixtureUserIds = (await prisma.user.findMany({
+   where: { id: { startsWith: PREFIX } },
+   select: { id: true },
+ })).map((user) => user.id);
+ if (fixtureUserIds.length > 0) {
+   await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+ }
 }
 const activationNotifications = { type: 'BILAN_PARENT_ACTIVATED', data: { path: ['parentUserId'], string_starts_with: PREFIX } };
 afterEach(async () => {

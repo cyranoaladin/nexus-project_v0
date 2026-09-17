@@ -114,7 +114,7 @@ export default async function InternalDocsPage({
           </div>
 
           {doc ? (
-            <pre className="max-h-[75vh] overflow-auto whitespace-pre-wrap rounded border border-white/10 bg-black/20 p-3 text-xs text-neutral-200">
+            <pre tabIndex={0} aria-label="Contenu du document" className="max-h-[75vh] overflow-auto whitespace-pre-wrap rounded border border-white/10 bg-black/20 p-3 text-xs text-neutral-200">
               {doc.content}
             </pre>
           ) : (

@@ -1,6 +1,7 @@
 import { isIP } from 'node:net'
 import { NextResponse } from 'next/server'
 
+import { registerProcessShutdownOnce } from '@/lib/runtime/process-shutdown-signals'
 import { deriveRateLimitKey } from './keys'
 import { MemoryStore } from './memory-store'
 import { RedisStore } from './redis-store'
@@ -33,7 +34,6 @@ export type RateLimitRuntimeMode = 'redis' | 'memory' | 'invalid'
 type GlobalRateLimitState = {
   store?: DistributedRateLimitStore
   mode?: RateLimitRuntimeMode
-  listenersRegistered?: boolean
 }
 
 const globalState = globalThis as typeof globalThis & {
@@ -86,14 +86,9 @@ function getStore(): DistributedRateLimitStore {
 }
 
 function registerShutdownHandlers(): void {
-  const current = state()
-  if (current.listenersRegistered) return
-  current.listenersRegistered = true
-  const close = () => {
+  registerProcessShutdownOnce('rate-limit-runtime', () => {
     void shutdownRateLimitRuntime()
-  }
-  process.once('SIGTERM', close)
-  process.once('SIGINT', close)
+  })
 }
 
 export async function shutdownRateLimitRuntime(): Promise<void> {

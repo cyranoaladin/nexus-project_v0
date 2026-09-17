@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const MAX_LEN = 4000;
  * sur ses élèves rattachés).
  */
 export function CoachNotesPanel({ studentId, initialNotes, className }: CoachNotesPanelProps) {
+  const fetch = useProtectedFetch();
   const [notes, setNotes] = useState<CoachNote[]>(initialNotes ?? []);
   const [loading, setLoading] = useState<boolean>(!initialNotes);
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +53,7 @@ export function CoachNotesPanel({ studentId, initialNotes, className }: CoachNot
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     if (initialNotes) return;

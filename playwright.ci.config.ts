@@ -3,20 +3,23 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * CI-specific Playwright Configuration
  *
- * Runs only the core "real/pages/" test suite (~185 tests) for fast,
- * reliable CI feedback. The full suite (606 tests) can be run locally
- * with the default playwright.config.ts.
+ * Runs the "real/pages/" test suite plus the "public/" no-auth lane
+ * (PR #235: directory-based ownership, not a filename list — any
+ * *.spec.ts under either directory is collected automatically).
  */
 const baseURL = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
 
 export default defineConfig({
-  testDir: './e2e/real/pages',
-  testMatch: ['**/*.spec.ts'],
+  testDir: './e2e',
+  testMatch: ['real/pages/**/*.spec.ts', 'public/**/*.spec.ts'],
   fullyParallel: false,
   forbidOnly: true,
   retries: 0,
   workers: 1,
-  reporter: [['html', { open: 'never' }]],
+  reporter: [
+    ['html', { open: 'never' }],
+    ['json', { outputFile: 'playwright-report/public/results.json' }],
+  ],
   timeout: 60_000,
   use: {
     baseURL,

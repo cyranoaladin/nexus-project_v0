@@ -2,6 +2,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import {
   buildAriaConversationContext,
   cancelAriaConversationTurn,
@@ -93,10 +94,14 @@ describe('ARIA Turn reservation transaction on PostgreSQL', () => {
          )`,
       [ids.student],
     );
-    await pool.query('DELETE FROM aria_conversations WHERE "studentId" = $1', [ids.student]);
-    await pool.query('DELETE FROM users WHERE id = ANY($1::text[])', [
-      [ids.studentUser, ids.foreignStudentUser, ids.parentUser],
-    ]);
+    // aria_conversations.studentId is `ON DELETE RESTRICT` — a conversation
+    // exists for `foreignStudent` too (the cross-student access case),
+    // not just `student`.
+    // Deletion order comes from the live schema via the canonical fixture
+    // cleanup, so this teardown no longer tracks which relations are RESTRICT.
+    await cleanupDisposableTestFixture(pool, {
+      userIds: [ids.studentUser, ids.foreignStudentUser, ids.parentUser],
+    });
     await pool.end();
   });
 

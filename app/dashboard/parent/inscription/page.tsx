@@ -1,30 +1,26 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useVerifiedSession } from '@/hooks/use-verified-session';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ParentRegistrationForm, type ParentRegistrationData, type ParentRegistrationInput } from '@/components/dashboard/parent/ParentRegistrationForm';
 
 export default function ParentRegistrationPage() {
-  const { data: session, status } = useSession();
-  return <ParentRegistrationContent key={`${status}:${session?.user.id ?? ''}`} role={session?.user.role} status={status} />;
+  const { data: session, status } = useVerifiedSession('PARENT', '/auth/signin?callbackUrl=%2Fdashboard%2Fparent%2Finscription');
+  return <ParentRegistrationContent role={session?.user.role} status={status} />;
 }
 
 function ParentRegistrationContent({ role, status }: { role?: string; status: 'loading' | 'authenticated' | 'unauthenticated' }) {
-  const router = useRouter();
+  const fetch = useProtectedFetch();
   const [data, setData] = useState<ParentRegistrationData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   useEffect(() => {
-    if (status === 'loading') return;
-    if (role !== 'PARENT') {
-      router.replace('/auth/signin?callbackUrl=%2Fdashboard%2Fparent%2Finscription');
-      return;
-    }
+    if (status !== 'authenticated' || role !== 'PARENT') return;
     const controller = new AbortController();
     setData(null); setError(null);
     fetch('/api/parent/registration', { signal: controller.signal, cache: 'no-store' })
@@ -34,7 +30,7 @@ function ParentRegistrationContent({ role, status }: { role?: string; status: 'l
         if (!controller.signal.aborted) setData(result);
       }).catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Le service est indisponible.'); });
     return () => controller.abort();
-  }, [status, role, router, reload]);
+  }, [status, role, reload, fetch]);
   async function submit(input: ParentRegistrationInput) {
     setNotice(null);
     const response = await fetch('/api/parent/registration', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(input) });

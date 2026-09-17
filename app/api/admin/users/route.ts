@@ -8,6 +8,7 @@ import { isErrorResponse,requireRole } from '@/lib/guards';
 import { createLogger } from '@/lib/middleware/logger';
 import { prisma } from '@/lib/prisma';
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
+import { mapAccountDeletionRestrictError } from '@/lib/security/account-deletion-guard';
 import { createUserSchema,listUsersSchema,updateUserSchema } from '@/lib/validation';
 import { AcademicTrack,GradeLevel,StmgPathway,UserRole } from '@/types/enums';
 import type { Prisma } from '@prisma/client';
@@ -479,10 +480,20 @@ export async function DELETE(request: NextRequest) {
       throw ApiError.badRequest('Cannot delete your own account');
     }
 
-    // Delete user (cascade will handle related records)
-    await prisma.user.delete({
-      where: { id }
-    });
+    // Delete user. Real history (billing, academic enrollment, ARIA
+    // conversations/evidence, session bookings, coach-student assignments,
+    // documents, coach notes) is now protected by ON DELETE RESTRICT
+    // foreign keys, so this throws P2003 instead of silently
+    // cascade-deleting that history — mapped to a clear 409 below.
+    try {
+      await prisma.user.delete({
+        where: { id }
+      });
+    } catch (deleteError) {
+      const restrictError = mapAccountDeletionRestrictError(deleteError);
+      if (restrictError) throw restrictError;
+      throw deleteError;
+    }
 
     return successResponse({
       success: true,

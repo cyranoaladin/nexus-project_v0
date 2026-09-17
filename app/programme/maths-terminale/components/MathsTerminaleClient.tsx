@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useProtectedFetch, useSessionRecoveryController, useSessionRecoveryState } from '@/components/auth/SessionRecoveryProvider';
+import { bindPersistedStoreOwner } from '@/lib/auth/session-owned-store';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { type LucideIcon, BarChart3, BookOpen, Dumbbell, Target, Wrench } from 'lucide-react';
@@ -84,6 +86,12 @@ export default function MathsTerminaleClient({
   userId: string;
   initialDisplayName: string;
 }) {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
+  const { canMutate } = useSessionRecoveryState();
+  const hydratedOwner = useRef<string | null>(null);
+  const [readyOwner, setReadyOwner] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const store = useMathsTerminaleStore();
   const [currentTab, setCurrentTab] = useState<TabName>('dashboard');
   const [focusBacMode, setFocusBacMode] = useState(false);
@@ -101,6 +109,45 @@ export default function MathsTerminaleClient({
   useMathJax([currentTab, selectedChapterId, focusBacMode, focusMode]);
 
   useEffect(() => {
+    if (!canMutate || hydratedOwner.current === userId) return;
+    let check: () => void;
+    try { check = recovery.captureMutation(); } catch { return; }
+    let active = true;
+    void (async () => {
+      try {
+        await bindPersistedStoreOwner(useMathsTerminaleStore, userId);
+        if (!active) return;
+        check();
+        const response = await fetch('/api/programme/maths-terminale/progress', { cache: 'no-store' });
+        if (!response.ok) throw new Error('PROGRESS_UNAVAILABLE');
+        const result = await response.json();
+        if (!active) return;
+        check();
+        if (!result.ok) throw new Error('PROGRESS_UNAVAILABLE');
+        if (result.data) {
+          const fields = {
+            completedChapters: 'completed_chapters', masteredChapters: 'mastered_chapters', totalXP: 'total_xp',
+            quizScore: 'quiz_score', comboCount: 'combo_count', bestCombo: 'best_combo', streak: 'streak',
+            streakFreezes: 'streak_freezes', lastActivityDate: 'last_activity_date', dailyChallenge: 'daily_challenge',
+            exerciseResults: 'exercise_results', hintUsage: 'hint_usage', badges: 'badges', srsQueue: 'srs_queue',
+            errorTags: 'error_tags', hintPenaltyXp: 'hint_penalty_xp', bacChecklistCompletions: 'bac_checklist_completions',
+          } as const;
+          useMathsTerminaleStore.setState(Object.fromEntries(Object.entries(fields)
+            .filter(([, remote]) => result.data[remote] !== undefined && result.data[remote] !== null)
+            .map(([local, remote]) => [local, result.data[remote]])));
+        }
+        hydratedOwner.current = userId;
+        setReadyOwner(userId);
+        setSyncError(null);
+      } catch {
+        if (active) setSyncError('Votre progression ne peut pas être vérifiée. Réessayez la vérification de session.');
+      }
+    })();
+    return () => { active = false; };
+  }, [canMutate, fetch, recovery, userId]);
+
+  useEffect(() => {
+    if (readyOwner !== userId) return;
     const payload = {
       completed_chapters: store.completedChapters,
       mastered_chapters: store.masteredChapters,
@@ -120,16 +167,19 @@ export default function MathsTerminaleClient({
       hint_penalty_xp: store.hintPenaltyXp,
       bac_checklist_completions: store.bacChecklistCompletions,
     };
-    const timer = setTimeout(() => {
+    const timer = setTimeout(recovery.bindDeferredMutation(() => {
       fetch('/api/programme/maths-terminale/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload),
+      }).then(response => {
+        if (!response.ok) throw new Error('PROGRESS_SAVE_UNAVAILABLE');
+        setSyncError(null);
       }).catch(() => {
-        // localStorage fallback from Zustand persist remains active.
+        setSyncError('Sauvegarde indisponible. Votre progression locale est conservée.');
       });
-    }, 500);
+    }), 500);
     return () => clearTimeout(timer);
   }, [
     store.completedChapters,
@@ -149,7 +199,7 @@ export default function MathsTerminaleClient({
     store.errorTags,
     store.hintPenaltyXp,
     store.bacChecklistCompletions,
-  ]);
+   fetch, readyOwner, userId, recovery]);
 
   const level = getLevelFromXp(store.totalXP);
   const progressPct = Math.min(100, ((store.totalXP - level.min) / (level.next - level.min)) * 100);
@@ -161,6 +211,10 @@ export default function MathsTerminaleClient({
     }
     return copy;
   }, [chapters, focusBacMode]);
+
+  if (readyOwner !== userId) return <div role="status">{syncError ?? 'Chargement de votre progression…'}
+    {syncError && <button type="button" onClick={recovery.retry}>Réessayer</button>}
+  </div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface-darker via-midnight-900 to-surface-dark text-white">
@@ -184,6 +238,7 @@ export default function MathsTerminaleClient({
       </header>
 
       <main className="mx-auto w-full max-w-7xl px-4 py-6">
+        {syncError && <p role="status">{syncError}</p>}
         <div className="mb-4 flex flex-wrap items-center gap-2">
           {tabItems.map(({ id, label, Icon }) => (
             <button

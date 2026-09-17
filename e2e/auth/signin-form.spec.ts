@@ -23,6 +23,24 @@ test.describe('Signin form', () => {
     await expect(submitBtn).toBeVisible({ timeout: 10000 });
   });
 
+  test('empty submission requires both identifiers before any authentication request', async ({ page }) => {
+    const email = page.locator('#email');
+    const password = page.locator('#password');
+    const submit = page.getByTestId('btn-signin');
+    await expect(submit).toBeEnabled();
+    await expect(email).toHaveAttribute('required', '');
+    await expect(password).toHaveAttribute('required', '');
+    const authenticationRequests: string[] = [];
+    page.on('request', request => {
+      if (new URL(request.url()).pathname === '/api/auth/callback/credentials') authenticationRequests.push(request.method());
+    });
+    await submit.click();
+    await expect(email).toBeFocused();
+    expect(await email.evaluate(element => (element as HTMLInputElement).validity.valueMissing)).toBe(true);
+    expect(authenticationRequests).toEqual([]);
+    await expect(page).toHaveURL(/\/auth\/signin(?:[?#]|$)/);
+  });
+
   test('shows error for invalid credentials', async ({ page }) => {
     const emailInput = page.locator('#email');
     const passwordInput = page.locator('#password');

@@ -48,6 +48,9 @@ async function stubCockpit(page: Page, override?: CockpitOverride) {
   await page.route('**/api/aria/next-best-action*', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ courseKey: '', action: null }) }),
   );
+  await page.route('**/api/aria/workshops*', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ courseKey: '', workshops: [] }) }),
+  );
 }
 
 /**

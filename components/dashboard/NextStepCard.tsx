@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -123,6 +124,7 @@ const CTA_LABELS: Record<string, string> = {
 };
 
 export function NextStepCard() {
+  const fetch = useProtectedFetch();
   const [step, setStep] = useState<NextStep | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -146,7 +148,7 @@ export function NextStepCard() {
 
     fetchStep();
     return () => { cancelled = true; };
-  }, []);
+  }, [fetch]);
 
   if (loading) {
     return (

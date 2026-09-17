@@ -51,12 +51,15 @@ export function StageEntryCard({ student }: { student: Record<string, unknown> }
               <p className="text-xs text-neutral-300">jours restants</p>
             </div>
           </div>
-          <Link href="/dashboard/eleve/stage-eam-stmg" className="mt-5 inline-flex w-full sm:w-auto">
-            <Button className="w-full bg-brand-accent font-bold text-surface-darker hover:bg-brand-accent/90 sm:w-auto">
+          <Button
+            asChild
+            className="mt-5 w-full bg-brand-accent font-bold text-surface-darker hover:bg-brand-accent/90 sm:w-auto"
+          >
+            <Link href="/dashboard/eleve/stage-eam-stmg">
               Ouvrir le stage
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

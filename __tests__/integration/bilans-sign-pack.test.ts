@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -53,8 +54,15 @@ describe('A89.7 real CoachProfile resolution', () => {
 
   afterAll(async () => {
     fs.rmSync(TEMP, { recursive: true, force: true });
-    await prisma.coachProfile.deleteMany({ where: { user: { email: { startsWith: PREFIX } } } });
-    await prisma.user.deleteMany({ where: { email: { startsWith: PREFIX } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { email: { startsWith: PREFIX } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
     await prisma.$disconnect();
   });
 

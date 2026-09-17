@@ -1,3 +1,4 @@
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { PrismaClient, UserRole } from '@prisma/client'
 
 import {
@@ -33,11 +34,15 @@ function token(user: { id: string; role: UserRole; sessionVersion: number }) {
 describe('session revocation on PostgreSQL 15', () => {
   beforeAll(async () => {
     assertIsolatedDatabase()
-    await prisma.user.deleteMany({ where: { id: { startsWith: prefix } } })
+    const ids = (await prisma.user.findMany({ where: { id: { startsWith: prefix } }, select: { id: true } }))
+      .map((user) => user.id)
+    if (ids.length > 0) await cleanupDisposableTestFixture(prisma, { userIds: ids })
   })
 
   afterAll(async () => {
-    await prisma.user.deleteMany({ where: { id: { startsWith: prefix } } })
+    const ids = (await prisma.user.findMany({ where: { id: { startsWith: prefix } }, select: { id: true } }))
+      .map((user) => user.id)
+    if (ids.length > 0) await cleanupDisposableTestFixture(prisma, { userIds: ids })
     await prisma.$disconnect()
   })
 

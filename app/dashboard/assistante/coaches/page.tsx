@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-import { useSession } from 'next-auth/react';
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useState, useEffect, useRef, useCallback, type Dispatch, type SetStateAction } from 'react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +75,7 @@ const SUBJECTS = [
 ];
 
 export default function CoachManagement() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [coaches, setCoaches] = useState<Coach[]>([]);
@@ -88,18 +90,7 @@ export default function CoachManagement() {
   // Form state
   const [formData, setFormData] = useState<CoachFormData>(INITIAL_FORM_DATA);
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session || session.user.role !== 'ASSISTANTE') {
-      router.push("/auth/signin");
-      return;
-    }
-
-    fetchCoaches();
-  }, [session, status, router]);
-
-  const fetchCoaches = async () => {
+  const fetchCoaches = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/assistante/coaches/manage');
@@ -115,7 +106,13 @@ export default function CoachManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetch]);
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'ASSISTANTE') { router.push('/auth/signin'); return; }
+    void fetchCoaches();
+  }, [session, status, router, fetchCoaches]);
 
   const resetForm = () => {
     setFormData({
@@ -199,7 +196,12 @@ export default function CoachManagement() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete coach');
+        // `errorData.error` is a machine-readable code (e.g. "CONFLICT");
+        // `errorData.message` is the actual human-readable explanation —
+        // for a 409 from lib/security/account-deletion-guard.ts, this is
+        // the specific French reason the deletion was blocked (real
+        // history on the coach's account), not a generic failure.
+        throw new Error(errorData.message || errorData.error || 'Échec de la suppression du coach');
       }
 
       await fetchCoaches();
@@ -245,12 +247,12 @@ export default function CoachManagement() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard/assistante">
-                <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard/assistante">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Retour
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold">Gestion des Coachs</h1>
                 <p className="text-sm text-neutral-400">Créer et gérer les coachs de la plateforme</p>
@@ -311,6 +313,7 @@ export default function CoachManagement() {
                       variant="outline"
                       size="sm"
                       className="text-neutral-200 hover:hover:border-brand-accent/40"
+                      aria-label={`Modifier ${coach.pseudonym}`}
                       onClick={(event) => {
                         editDialogTriggerRef.current = event.currentTarget;
                         openEditDialog(coach);
@@ -322,6 +325,7 @@ export default function CoachManagement() {
                       variant="outline"
                       size="sm"
                       className="text-neutral-200 hover:hover:border-rose-400/40"
+                      aria-label={`Supprimer ${coach.pseudonym}`}
                       onClick={() => handleDeleteCoach(coach.id)}
                     >
                       <Trash2 className="w-4 h-4" />

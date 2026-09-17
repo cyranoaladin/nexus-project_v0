@@ -6,6 +6,26 @@ const workflowPath = path.join(process.cwd(), '.github/workflows/ci.yml');
 const workflowSource = fs.readFileSync(workflowPath, 'utf8');
 const workflow = yaml.load(workflowSource);
 
+// The database image is pinned by digest and owned by the container image
+// registry. Asserting a literal tag here would both fail and re-create a second
+// place that decides which image CI runs.
+const containerImages = JSON.parse(
+  fs.readFileSync(
+    path.join(process.cwd(), '.github/governance/container-images.json'),
+    'utf8',
+  ),
+);
+
+function registeredImage(logicalName) {
+  const image = containerImages.images.find(
+    (candidate) => candidate.logicalName === logicalName,
+  );
+  if (!image) throw new Error(`Unregistered container image: ${logicalName}`);
+  return `${image.repository}@${image.digest}`;
+}
+
+const POSTGRES_PG16 = registeredImage('ci-postgres-pgvector-pg16');
+
 const independentEvidenceJobs = [
   'lint',
   'typecheck',
@@ -19,12 +39,19 @@ const independentEvidenceJobs = [
   'e2e',
   // Gate des parcours authentifiés (playwright.auth.config.ts) : requis
   // depuis #134 — c'est l'angle mort par lequel les défauts d'enchaînement
-  // passaient malgré des CI vertes.
-  'e2e-auth',
+  // passaient malgré des CI vertes. Split into two parallel jobs
+  // (AUTH_E2E_JOB_TIME_BUDGET_EXCEEDED — the combined job outgrew its
+  // 30-minute budget as e2e/auth gained coverage).
+  'e2e-auth-chromium',
+  'e2e-auth-cross-browser',
   'security',
   'build',
   'documents',
   'bilan-runtime-real-db',
+  // Real Nginx SSE streaming: proves the repository's own proxy configuration
+  // streams incrementally rather than only that it parses. `nginx -t` would
+  // have accepted the buffering regression this gate exists to catch.
+  'nginx-sse-streaming',
 ];
 const ariaQualificationJobs = [
   'aria-jest',
@@ -193,7 +220,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       .map((step) => step.run)
       .join('\n');
 
-    expect(realDb.services.postgres.image).toBe('pgvector/pgvector:pg16');
+    expect(realDb.services.postgres.image).toBe(POSTGRES_PG16);
     expect(realDb.services.postgres.env.POSTGRES_PASSWORD).toBe(
       '${{ github.run_id }}',
     );
@@ -229,7 +256,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       "--testPathIgnorePatterns='/__tests__/lib/bilan-runtime/'",
     );
     expect(commands).not.toContain('npm run test:db-integration');
-    expect(bilanRuntime.services.postgres.image).toBe('pgvector/pgvector:pg16');
+    expect(bilanRuntime.services.postgres.image).toBe(POSTGRES_PG16);
     expect(bilanRuntimeCommands).toContain('npx prisma migrate deploy');
     expect(bilanRuntimeCommands).toContain(
       '__tests__/lib/bilan-runtime/bilan-schema.real.test.ts',

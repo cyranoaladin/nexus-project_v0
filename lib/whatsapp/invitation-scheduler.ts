@@ -1,8 +1,9 @@
 import { drainWhatsAppInvitations } from './invitation-worker';
 import { assertWhatsAppOutboxEncryptionConfiguration } from './invitation-outbox';
 import { getMetaWhatsAppConfig } from './meta-provider';
+import { registerProcessShutdownOnce } from '@/lib/runtime/process-shutdown-signals';
 
-type SchedulerState = { timer?: NodeJS.Timeout; draining?: Promise<unknown>; signalsBound?: boolean };
+type SchedulerState = { timer?: NodeJS.Timeout; draining?: Promise<unknown> };
 const globals = globalThis as typeof globalThis & { __nexusWhatsAppOutboxScheduler?: SchedulerState };
 function state(): SchedulerState { return globals.__nexusWhatsAppOutboxScheduler ??= {}; }
 function intervalMs(): number {
@@ -44,9 +45,5 @@ export function startParentWhatsAppOutboxScheduler(): void {
     current.timer.unref?.();
     kickParentWhatsAppOutboxDrain();
   }
-  if (!current.signalsBound) {
-    current.signalsBound = true;
-    process.once('SIGTERM', () => { void stopParentWhatsAppOutboxScheduler(); });
-    process.once('SIGINT', () => { void stopParentWhatsAppOutboxScheduler(); });
-  }
+  registerProcessShutdownOnce('whatsapp-outbox-scheduler', () => { void stopParentWhatsAppOutboxScheduler(); });
 }

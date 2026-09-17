@@ -2,6 +2,7 @@ import type { JWT } from 'next-auth/jwt'
 import { isAccountActivationRequired } from '@/lib/auth/parent-activation'
 import { getAuthRolloutMode, isIdentityOwnedByCoreV2, validateCoreV2Session, type AuthRolloutMode } from '@/lib/core-v2/auth/authority'
 import { prisma } from '@/lib/prisma'
+import { recordSessionVerificationUnavailable } from '@/lib/auth/session-verification-outcome'
 
 type SessionUserState = {
   id: string
@@ -62,6 +63,7 @@ export async function validateSessionToken(
   try {
     mode = validators.mode()
   } catch {
+    recordSessionVerificationUnavailable()
     return null
   }
 
@@ -70,6 +72,7 @@ export async function validateSessionToken(
     try {
       return (await validators.coreV2({ userId, role: token.role, sessionVersion })) ? token : null
     } catch {
+      recordSessionVerificationUnavailable()
       return null
     }
   }
@@ -79,6 +82,7 @@ export async function validateSessionToken(
     try {
       if (await validators.ownedByCoreV2(userId)) return null
     } catch {
+      recordSessionVerificationUnavailable()
       return null
     }
   }
@@ -93,6 +97,7 @@ export async function validateSessionToken(
     if (isAccountActivationRequired(user.role, user.activatedAt)) return null
     return token
   } catch {
+    recordSessionVerificationUnavailable()
     return null
   }
 }

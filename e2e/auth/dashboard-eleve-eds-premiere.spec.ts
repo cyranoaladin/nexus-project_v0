@@ -17,7 +17,8 @@ import { loginAsUser } from '../helpers/auth';
 test.describe('Dashboard élève — EDS Première', () => {
   test.beforeEach(async ({ page }) => {
     await loginAsUser(page, 'student');
-    await page.waitForLoadState('domcontentloaded');
+    await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+    await expect(page.getByText('Espace Élève', { exact: true })).toBeVisible();
   });
 
   test('charge le dashboard sans erreur', async ({ page }) => {
@@ -27,13 +28,15 @@ test.describe('Dashboard élève — EDS Première', () => {
   });
 
   test('affiche les spécialités EDS (Mathématiques, NSI ou Physique-Chimie)', async ({ page }) => {
-    const mathVisible = await page.getByText(/Mathématiques/i).first().isVisible().catch(() => false);
-    const nsiVisible = await page.getByText(/NSI|Sciences du numérique/i).first().isVisible().catch(() => false);
-    const phyVisible = await page.getByText(/Physique/i).first().isVisible().catch(() => false);
-    expect(mathVisible || nsiVisible || phyVisible, 'Au moins une spécialité EDS doit être visible').toBe(true);
+    await page.getByRole('button', { name: 'Parcours', exact: true }).click();
+    const specialties = page.getByRole('region', { name: 'Mes spécialités', exact: true });
+    await expect(specialties).toBeVisible();
+    await expect(specialties.getByText(/MATHEMATIQUES|NSI|PHYSIQUE CHIMIE/).first()).toBeVisible();
   });
 
   test("n'affiche pas le mode survie STMG", async ({ page }) => {
+    await page.getByRole('button', { name: 'Parcours', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Mes spécialités', exact: true })).toBeVisible();
     await expect(page.getByLabel(/Mode Survie STMG/i)).not.toBeVisible();
     await expect(page.getByText(/Coffre des 7 réflexes/i)).not.toBeVisible();
     await expect(page.getByText(/8 phrases magiques/i)).not.toBeVisible();

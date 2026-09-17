@@ -296,7 +296,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -312,7 +312,7 @@ jobs:
       # their cleanup and concurrency fixtures cannot affect another lane.
       # Every URL is still checked by the shared fail-closed database guard.
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
         ports:
           - 1025:1025
           - 8025:8025
@@ -503,7 +503,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
@@ -544,6 +544,11 @@ jobs:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
         run: npx prisma migrate deploy
 
+      - name: Check #273 account-deletion FK manifest against real pg_constraint
+        env:
+          DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
+        run: npm run db:check-account-deletion-fk-manifest
+
       - name: Run non-Bilan real database suites
         env:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
@@ -566,6 +571,7 @@ jobs:
             __tests__/integration/family-registration.real.test.ts \
             __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/integration/assignment-concurrency.real.test.ts \
+            __tests__/integration/session-video-join-state-race.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure
@@ -593,7 +599,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
@@ -676,7 +682,7 @@ jobs:
 
     services:
       postgres-e2e:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -689,7 +695,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis-e2e:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6380:6379
         options: >-
@@ -701,6 +707,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -791,6 +799,12 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # `NEXT_PUBLIC_*` vars are inlined into the client bundle at build
+          # time, so lib/jitsi.ts's fail-closed check (baked in as
+          # NODE_ENV==='production' for this bundle regardless of the
+          # runner's ambient env) needs this set HERE, not only where
+          # JITSI_ROOM_SECRET (a server-only var, checked at runtime) lives.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           # "next build"'s own type-check pass (not the separate, fast
           # `tsc --noEmit` typecheck job) OOMs on the runner's default V8
           # heap ceiling (~2GB) once the type surface grows past a point --
@@ -822,6 +836,18 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          # Same lib/env-validation.ts fail-fast reason, for the Jitsi
+          # room-identity secret (lib/jitsi-server.ts) and server URL
+          # (lib/jitsi.ts) — both REQUIRED/prodOnly, and this build always
+          # runs as a production build (NODE_ENV is baked to 'production'
+          # for both the Node server and the client bundle regardless of
+          # the runner's ambient env), so both fail closed without these.
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler
           # (lib/email/outbox-scheduler.ts, startEmailOutboxScheduler):
           # EMAIL_OUTBOX_WORKER_CONFIGURATION_REQUIRED in production unless
@@ -852,6 +878,11 @@ jobs:
           curl -v http://localhost:3000/api/health 2>&1 || true
           exit 1
 
+      - name: Alias redis-e2e vers le service Redis jetable
+        # Public dashboard audits use the same fail-closed fixture cleanup as
+        # the auth lane; production quotas remain enabled and unchanged.
+        run: echo "127.0.0.1 redis-e2e" | sudo tee -a /etc/hosts
+
       - name: Run Playwright E2E tests
         timeout-minutes: 20
         env:
@@ -860,7 +891,21 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
           REUSE_EXISTING_SERVER: 'true'
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
         run: npx playwright test --config=playwright.ci.config.ts --project=chromium
+
+      - name: Seal public E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal public playwright-report/public/results.json e2e-execution/public.evidence.json
+
+      - name: Upload public E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-public-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
 
       - name: Stop Next.js server
         if: always()
@@ -902,8 +947,8 @@ jobs:
   # ===========================================================================
   # JOB 7: SECURITY SCANNING
   # ===========================================================================
-  e2e-auth:
-    name: E2E Parcours Authentifiés
+  e2e-auth-chromium:
+    name: E2E Auth — Chromium
     # Ferme l'angle mort structurel : les specs de e2e/auth (gate incrémental
     # playwright.auth.config.ts — golden-path bilan, RBAC, activation, cycle de
     # vie parent…) n'étaient invoqués par AUCUN job CI. Les deux défauts
@@ -919,7 +964,7 @@ jobs:
 
     services:
       postgres-e2e:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -932,7 +977,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       redis-e2e:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6380:6379
         options: >-
@@ -941,7 +986,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
       mailpit:
-        image: axllent/mailpit:v1.30.6
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
         ports:
           - 1025:1025
           - 8025:8025
@@ -953,7 +998,7 @@ jobs:
       # Core v2 (go-live): its own disposable server — the Core v2 client
       # refuses a target that collides with DATABASE_URL.
       postgres-core-v2-e2e:
-        image: postgres:16
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
         env:
           POSTGRES_USER: postgres
           # Disposable job service: trust auth, no credential anywhere in the workflow.
@@ -970,6 +1015,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -1015,6 +1062,25 @@ jobs:
           esac
           printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
 
+      - name: Prepare ARIA RAG E2E fixture manifest
+        # e2e/auth/student-dashboard.spec.ts exercises the ARIA chat UI, but
+        # until now no e2e-auth CI run ever reached it (this job wires
+        # e2e/auth into CI for the first time -- see the job header above).
+        # ARIA's own code correctly fails closed without this: getCourseCapabilities
+        # (lib/aria/curriculum.ts) only reports hasChat=true when BOTH the
+        # disposable E2E RAG identity env vars below are set AND a physical
+        # `<digest>.aria-rag-manifest` file exists at ARIA_RAG_SERVABLE_MANIFEST_ROOT
+        # (lib/aria/infrastructure/rag/manifest.ts). Dockerfile.e2e already
+        # does exactly this rename for its own (currently CI-unused) compose
+        # stack -- mirrored here for this job specifically, same source file,
+        # same digest.
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cp -- \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json" \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.aria-rag-manifest"
+
       - name: Wait for Postgres (E2E) to be ready
         run: |
           for i in {1..30}; do
@@ -1052,7 +1118,7 @@ jobs:
           npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
           npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
 
-      - name: Install Playwright browsers
+      - name: Install Playwright browsers (Chromium)
         run: npx playwright install --with-deps chromium
 
       - name: Build Next.js for E2E
@@ -1063,6 +1129,9 @@ jobs:
           AUTH_TRUST_HOST: 'true'
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the other job's build step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           NODE_OPTIONS: --max-old-space-size=4096
         run: npm run build:e2e
 
@@ -1084,6 +1153,12 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e-auth
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
           SMTP_HOST: 127.0.0.1
@@ -1096,6 +1171,18 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
           ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
           ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+          # Disposable E2E RAG identity (lib/aria/infrastructure/rag/disposable-academic-identity.ts)
+          # + servable-manifest config (lib/aria/infrastructure/rag/manifest.ts) --
+          # required for getCourseCapabilities() to report hasChat=true on any
+          # course. Values mirror docker-compose.e2e.yml's aria-fixture-e2e
+          # service; the manifest file itself is prepared by the step above.
+          NEXUS_INTERNAL_TOKEN_SECRET: change_ci_e2e_auth_rag_identity_secret_do_not_use_in_prod
+          ARIA_RAG_SERVABLE_MANIFEST_ROOT: ${{ github.workspace }}/data/aria/testing/rag
+          ARIA_RAG_ACTIVE_MANIFEST_SHA256: a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8
+          ARIA_E2E_RAG_CANDIDAT: scolarise
+          ARIA_E2E_RAG_AUDIENCE: aefe
+          ARIA_E2E_RAG_ZONE: aefe
+          ARIA_E2E_RAG_STATUS_DETAIL: aefe
         run: |
           cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
           cp -r public .next/standalone/public 2>/dev/null || true
@@ -1122,6 +1209,7 @@ jobs:
       - name: Run Playwright auth E2E gate
         timeout-minutes: 25
         env:
+          AUTH_E2E_REPORT_LABEL: auth-chromium
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           NEXTAUTH_URL: http://localhost:3000
@@ -1135,6 +1223,19 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=chromium
 
+      - name: Seal auth E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal auth-chromium playwright-report/auth-chromium/results.json e2e-execution/auth-chromium.evidence.json
+
+      - name: Upload auth E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-auth-chromium-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Stop Next.js server
         if: always()
         run: |
@@ -1147,9 +1248,331 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: playwright-auth-report
-          path: playwright-report/
+          name: playwright-auth-chromium-report
+          # test-results/ carries the retain-on-failure traces (trace.zip,
+          # error-context.md) — without it a cross-engine failure leaves no
+          # evidence to classify (flake registry A4 had none).
+          path: |
+            playwright-report/
+            test-results/
           retention-days: 7
+          if-no-files-found: error
+
+  e2e-auth-cross-browser:
+    name: E2E Auth — Cross-browser (Firefox/WebKit/Mobile)
+    # Ferme l'angle mort structurel : les specs de e2e/auth (gate incrémental
+    # playwright.auth.config.ts — golden-path bilan, RBAC, activation, cycle de
+    # vie parent…) n'étaient invoqués par AUCUN job CI. Les deux défauts
+    # historiques (bilan invisible après consentement, blocage anti-doublon) et
+    # le foyer sans e-mail invisible sont passés à travers des CI vertes pour
+    # cette raison. Ce job les exécute contre le vrai standalone, avec le
+    # worker bilan en process (BILAN_WORKER_ENABLED) et Mailpit pour les
+    # e-mails d'activation. Requis via l'agrégat CI Success.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      E2E_DISPOSABLE_STACK: '1'
+
+    services:
+      postgres-e2e:
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: nexus_e2e
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nexus_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      redis-e2e:
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
+        ports:
+          - 6380:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      mailpit:
+        image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
+        ports:
+          - 1025:1025
+          - 8025:8025
+        options: >-
+          --health-cmd "wget -qO- http://localhost:8025/api/v1/info || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      # Core v2 (go-live): its own disposable server — the Core v2 client
+      # refuses a target that collides with DATABASE_URL.
+      postgres-core-v2-e2e:
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
+        env:
+          POSTGRES_USER: postgres
+          # Disposable job service: trust auth, no credential anywhere in the workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: core_v2_e2e
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d core_v2_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare isolated NPC storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/npc-storage"
+          install -d -m 0700 -- "$npc_storage_root"
+          canonical_storage_root="$(realpath -- "$npc_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'NPC storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'NPC_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
+      - name: Prepare isolated document storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          document_storage_root="$RUNNER_TEMP/document-storage"
+          install -d -m 0700 -- "$document_storage_root"
+          canonical_storage_root="$(realpath -- "$document_storage_root")"
+          canonical_workspace="$(realpath -- "$GITHUB_WORKSPACE")"
+          case "$canonical_storage_root/" in
+            "$canonical_workspace/"*)
+              echo 'Document storage must remain outside the checked-out release.' >&2
+              exit 1
+              ;;
+          esac
+          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$canonical_storage_root" >> "$GITHUB_ENV"
+
+      - name: Prepare ARIA RAG E2E fixture manifest
+        # e2e/auth/student-dashboard.spec.ts exercises the ARIA chat UI, but
+        # until now no e2e-auth CI run ever reached it (this job wires
+        # e2e/auth into CI for the first time -- see the job header above).
+        # ARIA's own code correctly fails closed without this: getCourseCapabilities
+        # (lib/aria/curriculum.ts) only reports hasChat=true when BOTH the
+        # disposable E2E RAG identity env vars below are set AND a physical
+        # `<digest>.aria-rag-manifest` file exists at ARIA_RAG_SERVABLE_MANIFEST_ROOT
+        # (lib/aria/infrastructure/rag/manifest.ts). Dockerfile.e2e already
+        # does exactly this rename for its own (currently CI-unused) compose
+        # stack -- mirrored here for this job specifically, same source file,
+        # same digest.
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          cp -- \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.json" \
+            "$GITHUB_WORKSPACE/data/aria/testing/rag/a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8.aria-rag-manifest"
+
+      - name: Wait for Postgres (E2E) to be ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5433 -U postgres; then
+              echo "Postgres is ready"
+              exit 0
+            fi
+            echo "Waiting for Postgres... ($i/30)"
+            sleep 2
+          done
+          echo "Postgres did not become ready in time"
+          exit 1
+
+      - name: Generate Prisma Client
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
+
+      - name: Seed E2E test data
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+        run: |
+          npx prisma db execute --schema=prisma/schema.prisma --stdin <<SQL
+          DROP SCHEMA IF EXISTS public CASCADE;
+          CREATE SCHEMA public;
+          SQL
+          npx prisma migrate deploy
+          npx tsx scripts/seed-e2e-db.ts
+
+      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+        run: |
+          npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
+
+      - name: Install Playwright browsers (Chromium + Firefox + WebKit smoke)
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Build Next.js for E2E
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
+          OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
+          NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the other job's build step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run build:e2e
+
+      - name: Start Next.js server in background (worker bilan actif)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
+          CORE_V2_INVITATION_TTL_HOURS: '72'
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
+          OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
+          NODE_ENV: production
+          RATE_LIMIT_DISABLE: '1'
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6380
+          RATE_LIMIT_KEY_SECRET: ci-e2e-rate-limit-key-secret-placeholder-32chars
+          RATE_LIMIT_KEY_NAMESPACE: nexus-ci-e2e-auth
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-e2e-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Same lib/env-validation.ts fail-fast reason, for the
+          # organization timezone authority (lib/timezone.ts) — also
+          # REQUIRED/prodOnly.
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ci-e2e-outbox-encryption-key-0123456789
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-e2e-auth@example.test
+          # Le pipeline bilan (scoring + génération) tourne en process, comme
+          # en prod : sans lui, le golden-path et le parcours saisie papier ne
+          # peuvent pas avancer au-delà de la soumission.
+          BILAN_WORKER_ENABLED: 'true'
+          NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+          # Disposable E2E RAG identity (lib/aria/infrastructure/rag/disposable-academic-identity.ts)
+          # + servable-manifest config (lib/aria/infrastructure/rag/manifest.ts) --
+          # required for getCourseCapabilities() to report hasChat=true on any
+          # course. Values mirror docker-compose.e2e.yml's aria-fixture-e2e
+          # service; the manifest file itself is prepared by the step above.
+          NEXUS_INTERNAL_TOKEN_SECRET: change_ci_e2e_auth_rag_identity_secret_do_not_use_in_prod
+          ARIA_RAG_SERVABLE_MANIFEST_ROOT: ${{ github.workspace }}/data/aria/testing/rag
+          ARIA_RAG_ACTIVE_MANIFEST_SHA256: a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8
+          ARIA_E2E_RAG_CANDIDAT: scolarise
+          ARIA_E2E_RAG_AUDIENCE: aefe
+          ARIA_E2E_RAG_ZONE: aefe
+          ARIA_E2E_RAG_STATUS_DETAIL: aefe
+        run: |
+          cp -r .next/static .next/standalone/.next/static 2>/dev/null || true
+          cp -r public .next/standalone/public 2>/dev/null || true
+          node .next/standalone/server.js &
+          echo $! > .next-server.pid
+          for i in {1..30}; do
+            if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
+              echo "Server + Health API ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 2
+          done
+          echo "Server failed to start (health endpoint not responding)"
+          curl -v http://localhost:3000/api/health 2>&1 || true
+          exit 1
+
+      - name: Alias redis-e2e vers le service Redis jetable
+        # Le garde fail-closed de e2e/helpers/rate-limit.ts n'accepte QUE le
+        # hostname `redis-e2e` (le DNS du compose jetable) — on ne l'affaiblit
+        # pas : on donne au runner le même nom, pointé sur le service du job.
+        run: echo "127.0.0.1 redis-e2e" | sudo tee -a /etc/hosts
+
+      - name: Run Playwright auth E2E cross-browser smoke (Firefox + WebKit + mobile)
+        # Go-live §AU: the critical flows (planning-studio-smoke, core-golden-family,
+        # core-v2-staff-golden) must behave the same outside Chromium. Same server,
+        # same database, no retries.
+        timeout-minutes: 25
+        env:
+          AUTH_E2E_REPORT_LABEL: auth-cross-browser
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          AUTH_TRUST_HOST: 'true'
+          MAILPIT_API_URL: http://localhost:8025
+          # Le helper de remise à zéro du rate-limit (e2e/helpers/rate-limit.ts)
+          # exige cette URL dès que E2E_DISPOSABLE_STACK=1 — même Redis jetable
+          # que le serveur (alias /etc/hosts ci-dessus), base dédiée.
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+          NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
+        run: npx playwright test --config=playwright.auth.config.ts --project=firefox-smoke --project=webkit-smoke --project=mobile-smoke
+
+      - name: Seal auth E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal auth-cross-browser playwright-report/auth-cross-browser/results.json e2e-execution/auth-cross-browser.evidence.json
+
+      - name: Upload auth E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-auth-crossbrowser-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ -f .next-server.pid ]; then
+            kill $(cat .next-server.pid) || true
+            rm .next-server.pid
+          fi
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-auth-crossbrowser-report
+          # test-results/ carries the retain-on-failure traces (trace.zip,
+          # error-context.md) — without it a cross-engine failure leaves no
+          # evidence to classify (flake registry A4 had none).
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: error
 
   security:
     name: Security Scan
@@ -1297,7 +1720,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -1310,7 +1733,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
       redis:
-        image: redis:7-alpine
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
         ports:
           - 6379:6379
         options: >-
@@ -1386,6 +1809,10 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
+          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
+          # see the matching comment on the E2E job's "Build Next.js for
+          # E2E" step.
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           # See the matching comment on the E2E job's "Build Next.js for
           # E2E" step -- same OOM, same fix, same reasoning.
           NODE_OPTIONS: --max-old-space-size=4096
@@ -1420,6 +1847,9 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          JITSI_ROOM_SECRET: ci-build-jitsi-room-secret-placeholder-32chars
+          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler -- see the
           # matching comment on the E2E job's "Start Next.js server in
           # background" step.
@@ -1806,6 +2236,19 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: Seal ARIA E2E execution evidence
+        if: always()
+        run: node scripts/testing/e2e-execution-evidence.mjs seal aria-${{ matrix.lane }} .artifacts/aria/playwright/aria-${{ matrix.lane }}/report.json e2e-execution/aria-${{ matrix.lane }}.evidence.json
+
+      - name: Upload ARIA E2E execution evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-aria-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: e2e-execution/
+          retention-days: 30
+          if-no-files-found: error
+
   # ===========================================================================
   # ARIA-B QUALIFICATION: EXACT-HEAD REQUIREMENT EVIDENCE
   # ===========================================================================
@@ -1894,6 +2337,26 @@ jobs:
           test -z "$(git status --short)"
 
   # ===========================================================================
+  # JOB: NGINX SSE STREAMING (real Nginx, not just `nginx -t` syntax)
+  # ===========================================================================
+  nginx-sse-streaming:
+    name: Nginx SSE Streaming
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Verify /api/aria/chat actually streams through real Nginx
+        run: bash scripts/testing/verify-nginx-sse-streaming.sh
+
+  # ===========================================================================
   # JOB 10: STATUS CHECK (All jobs must pass)
   # ===========================================================================
   ci-success:
@@ -1908,10 +2371,12 @@ jobs:
       - real-db-integration
       - core-v2-foundation
       - e2e
-      - e2e-auth
+      - e2e-auth-chromium
+      - e2e-auth-cross-browser
       - security
       - build
       - documents
+      - nginx-sse-streaming
       - bilan-runtime-real-db
       - aria-jest
       - aria-postgres
@@ -1933,6 +2398,25 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Download exact-run E2E execution envelopes
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: e2e-execution-*-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/e2e-execution
+          merge-multiple: false
+
+      - name: Reconcile tracked collected and executed E2E specs
+        run: node scripts/testing/e2e-execution-evidence.mjs aggregate .artifacts/e2e-execution .artifacts/e2e-execution-summary.json
+
+      - name: Upload reconciled E2E execution summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-execution-summary-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/e2e-execution-summary.json
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Assert every direct dependency succeeded
         env:
           CI_NEEDS_JSON: ${{ toJSON(needs) }}
@@ -1948,7 +2432,7 @@ jobs:
 
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

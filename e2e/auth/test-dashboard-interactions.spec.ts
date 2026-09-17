@@ -70,32 +70,12 @@ test('ADMIN — créer user via dialog → existe en DB', async ({ page }) => {
   }
 })
 
-// ======================================================
-// PARENT — DIALOG AJOUTER ENFANT
-// ======================================================
-test('PARENT — dialog ajouter enfant fonctionne', async ({ page }) => {
-  test.setTimeout(60000)
-  await loginAs(page, 'parent')
-  await page.waitForTimeout(2000)
-
-  // Find "Ajouter un Enfant" button specifically
-  const btn = page.getByRole('button', { name: /ajouter un enfant/i })
-  await expect(btn).toBeVisible({ timeout: 5000 })
-  await btn.click()
-  await page.waitForTimeout(500)
-
-  const dialog = page.locator('[role="dialog"]')
-  await expect(dialog).toBeVisible({ timeout: 3000 })
-  console.log('✅ Dialog ajouter enfant s\'ouvre')
-
-  await page.screenshot({ path: '/tmp/parent-add-child-dialog.png' })
-
-  // Close with Escape
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(500)
-  await expect(dialog).not.toBeVisible({ timeout: 3000 })
-  console.log('✅ Dialog se ferme avec Escape')
-})
+// Note (PR #235 triage): a "PARENT — dialog ajouter enfant" test previously
+// lived here, asserting a parent-facing "Ajouter un Enfant" button/dialog.
+// No such UI exists on the current parent dashboard — household/child
+// creation is deliberately staff-initiated only (assistante-side). Removed
+// as an invalid assumption rather than carried forward as a permanently-red
+// test.
 
 // ======================================================
 // PARENT — BANNER BILAN UTILISE L'API (pas localStorage)

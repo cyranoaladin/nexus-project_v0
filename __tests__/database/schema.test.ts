@@ -97,8 +97,8 @@ describe('Schema Integrity Tests', () => {
       });
     });
 
-    describe('Student → Subscription cascade', () => {
-      it('should cascade delete Subscription when Student is deleted', async () => {
+    describe('Student → Subscription Restrict (formerly Cascade — migration 20260913200000, #273 DELETE-1/2)', () => {
+      it('should refuse to delete a Student with a real Subscription, and succeed once it is removed', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
         const { student } = await createTestStudent(parentProfile.id);
@@ -114,17 +114,15 @@ describe('Schema Integrity Tests', () => {
           }
         });
 
-        await prisma.student.delete({ where: { id: student.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).rejects.toThrow();
 
-        const subscriptionAfterDelete = await prisma.subscription.findUnique({
-          where: { id: subscription.id }
-        });
-        expect(subscriptionAfterDelete).toBeNull();
+        await prisma.subscription.delete({ where: { id: subscription.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).resolves.toBeDefined();
       });
     });
 
-    describe('Student → CreditTransaction cascade', () => {
-      it('should cascade delete CreditTransaction when Student is deleted', async () => {
+    describe('Student → CreditTransaction Restrict (formerly Cascade — migration 20260913230000, #273 DELETE-5)', () => {
+      it('should refuse to delete a Student with real credit history, and succeed once it is removed', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
         const { student } = await createTestStudent(parentProfile.id);
@@ -138,17 +136,15 @@ describe('Schema Integrity Tests', () => {
           }
         });
 
-        await prisma.student.delete({ where: { id: student.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).rejects.toThrow();
 
-        const transactionAfterDelete = await prisma.creditTransaction.findUnique({
-          where: { id: transaction.id }
-        });
-        expect(transactionAfterDelete).toBeNull();
+        await prisma.creditTransaction.delete({ where: { id: transaction.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).resolves.toBeDefined();
       });
     });
 
-    describe('Student → Session cascade', () => {
-      it('should cascade delete Session when Student is deleted', async () => {
+    describe('Student → Session Restrict (formerly Cascade — migration 20260913230000, #273 DELETE-5)', () => {
+      it('should refuse to delete a Student with a real session record, and succeed once it is removed', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
         const { student } = await createTestStudent(parentProfile.id);
@@ -168,17 +164,15 @@ describe('Schema Integrity Tests', () => {
           }
         });
 
-        await prisma.student.delete({ where: { id: student.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).rejects.toThrow();
 
-        const sessionAfterDelete = await prisma.session.findUnique({
-          where: { id: session.id }
-        });
-        expect(sessionAfterDelete).toBeNull();
+        await prisma.session.delete({ where: { id: session.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).resolves.toBeDefined();
       });
     });
 
-    describe('Student → AriaConversation cascade', () => {
-      it('should cascade delete AriaConversation when Student is deleted', async () => {
+    describe('Student → AriaConversation Restrict (formerly Cascade — migration 20260913200000, #273 DELETE-1/2)', () => {
+      it('should refuse to delete a Student with a real ARIA conversation, and succeed once it is removed', async () => {
         if (!dbAvailable) return;
         const { parentProfile } = await createTestParent();
         const { student } = await createTestStudent(parentProfile.id);
@@ -187,16 +181,15 @@ describe('Schema Integrity Tests', () => {
           data: {
             studentId: student.id,
             subject: 'MATHEMATIQUES',
-            title: 'Test Conversation'
+            title: 'Test Conversation',
+            courseKey: 'test-course-key'
           }
         });
 
-        await prisma.student.delete({ where: { id: student.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).rejects.toThrow();
 
-        const conversationAfterDelete = await prisma.ariaConversation.findUnique({
-          where: { id: conversation.id }
-        });
-        expect(conversationAfterDelete).toBeNull();
+        await prisma.ariaConversation.delete({ where: { id: conversation.id } });
+        await expect(prisma.student.delete({ where: { id: student.id } })).resolves.toBeDefined();
       });
     });
 

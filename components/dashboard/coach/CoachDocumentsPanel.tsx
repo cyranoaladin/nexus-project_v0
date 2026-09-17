@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ const VISIBILITY_SCOPES = [
 ] as const;
 
 export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPanelProps) {
+  const fetch = useProtectedFetch();
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState(false);
@@ -97,7 +99,7 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     void fetchData();

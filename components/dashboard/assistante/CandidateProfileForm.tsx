@@ -1,4 +1,5 @@
 'use client';
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState } from 'react';
 import Link from 'next/link';
 import { SPECIALITY_CODES } from '@/lib/exams/specialities';
@@ -16,6 +17,7 @@ const FIELDS = [
 ] as const;
 type Field = typeof FIELDS[number][0];
 export function CandidateProfileForm({ studentId, sessions, initialProfile }: { studentId: string; sessions: number[]; initialProfile?: ProfileFacts }) {
+  const fetch = useProtectedFetch();
   const [values, setValues] = useState<Record<Field, string>>(() => Object.fromEntries(FIELDS.map(([key]) => [key, initialProfile ? String(initialProfile[key]) : ''])) as Record<Field, string>);
   const [state, setState] = useState<'idle'|'saving'|'saved'|'error'|'uncertain'>('idle');
   const complete = FIELDS.every(([key]) => values[key] !== '') && values.specialite1 !== values.specialite2 && !(values.level === 'TERMINALE' && values.intentionCycleComplet === 'false');

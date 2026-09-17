@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch, useSessionRecoveryController } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from "@/components/ui/button";
 import { Card,CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -316,6 +317,8 @@ function Scale({
 }
 
 export default function QuestionnaireEAFStagePrintempsPage() {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -358,7 +361,7 @@ export default function QuestionnaireEAFStagePrintempsPage() {
       finally { setIsLoading(false); }
     }
     void loadDraft();
-  }, []);
+  }, [fetch]);
 
   // Save draft to API
   const saveDraft = useCallback(async (currentAnswers: Answers, currentStep: number) => {
@@ -373,16 +376,16 @@ export default function QuestionnaireEAFStagePrintempsPage() {
       if (res.ok) setLastSaved(new Date());
     } catch { /* silent save failure */ }
     finally { setIsSaving(false); }
-  }, [submitted]);
+  }, [submitted, fetch]);
 
   // Autosave with debounce
   useEffect(() => {
     if (isLoading || submitted) return;
-    const timer = setTimeout(() => {
+    const timer = setTimeout(recovery.bindDeferredMutation(() => {
       void saveDraft(answers, step);
-    }, 1500);
+    }), 1500);
     return () => clearTimeout(timer);
-  }, [answers, step, saveDraft, isLoading, submitted]);
+  }, [answers, step, saveDraft, isLoading, submitted, recovery]);
 
   function setValue(name: string, value: FieldValue) {
     setAnswers((current) => ({ ...current, [name]: value }));

@@ -18,6 +18,7 @@ jest.mock('@/lib/rate-limit/sensitive', () => ({
 }));
 jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn() }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { NextRequest } from 'next/server';
 
@@ -89,9 +90,15 @@ async function cleanup(): Promise<void> {
     await prisma.parentStudentLink.deleteMany({
       where: { OR: [{ parentUserId: { in: parentUserIds } }, { studentId: { in: studentIds } }] },
     });
-    await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
-    await prisma.parentProfile.deleteMany({ where: { userId: { in: parentUserIds } } });
-    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
   }
 }
 

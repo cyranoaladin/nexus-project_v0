@@ -100,12 +100,12 @@ export function CohortTable({ students, eamSummaries = {} }: CohortTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Link href={`/dashboard/coach/eleve/${student.id}`}>
-                    <Button variant="ghost" size="sm" className="hover:bg-brand-accent/10 hover:text-brand-accent">
+                  <Button variant="ghost" size="sm" className="hover:bg-brand-accent/10 hover:text-brand-accent" asChild>
+                    <Link href={`/dashboard/coach/eleve/${student.id}`}>
                       <Eye className="w-4 h-4 mr-2" />
                       Dossier
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </TableCell>
               </TableRow>
             );

@@ -14,6 +14,7 @@ jest.mock('@/lib/core/ml/predictSSN', () => ({
   predictSSNForStudent: jest.fn(),
 }));
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { POST } from '@/app/api/assessments/predict/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
@@ -60,10 +61,15 @@ async function cleanupPredictOwnershipFixtures() {
       ],
     },
   });
-  await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
-  await prisma.coachProfile.deleteMany({ where: { id: { in: coachIds } } });
-  await prisma.parentProfile.deleteMany({ where: { userId: { in: userIds } } });
-  await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 describe('IDOR BDD Réelle — Predict Ownership', () => {
