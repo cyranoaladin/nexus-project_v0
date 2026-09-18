@@ -100,7 +100,6 @@ let rawToken = '';
 let studentToken = '';
 
 async function findCoreV2Token(recipient: string, linkPath: '/auth/activate' | '/auth/reset-password'): Promise<string> {
-  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the e-mail');
   const pattern = new RegExp(`${linkPath.replace(/\//g, '\\/')}\\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})`);
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
