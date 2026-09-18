@@ -33,6 +33,17 @@ describe('LAUNCH_COMMUNICATION_STARTUP', () => {
     expect(compose).toMatch(/EMAIL_OUTBOX_ENCRYPTION_KEY: \$\{EMAIL_OUTBOX_ENCRYPTION_KEY:\?/);
   });
 
+  test('the canonical production contract carries the two variables the drain depends on', () => {
+    // `.env.production.example` documents them already; the contract is what
+    // REFUSES a production start without them, and it did not know them.
+    const contract = read('lib/env-validation.ts');
+    for (const name of ['EMAIL_OUTBOX_WORKER_ENABLED', 'EMAIL_OUTBOX_ENCRYPTION_KEY']) {
+      const entry = contract.slice(contract.indexOf(`name: '${name}'`));
+      expect(entry.slice(0, entry.indexOf('}'))).toMatch(/level: 'REQUIRED'[\s\S]*prodOnly: true/);
+    }
+    expect(contract).toMatch(/name: 'CORE_V2_PASSWORD_RESET_TTL_MINUTES'/);
+  });
+
   test('a Core-v2-capable startup proves the password-reset TTL before serving', () => {
     const startup = read('lib/auth/auth-rollout-startup.ts');
     expect(startup).toMatch(/getPasswordResetTtlMs/);
