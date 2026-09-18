@@ -62,6 +62,28 @@ function firstTuesdayOfRun(): string {
 }
 const seriesStart = firstTuesdayOfRun();
 const seriesSecond = new Date(Date.parse(`${seriesStart}T00:00:00Z`) + 7 * 86_400_000).toISOString().slice(0, 10);
+/**
+ * A time slot UNIQUE to the browser project. The coach is a seeded actor
+ * shared by every project, and the cross-browser job runs firefox-smoke then
+ * webkit-smoke against the SAME server and database: with the academic year
+ * anchored on today (needed by the upcoming-sessions window), one fixed
+ * Tuesday slot made the second project's series collide with the first one's
+ * on the coach, and the exclusion-backed double-booking guard (#258) rightly
+ * refused it. A nonce-derived hour left a 1-in-10 chance of the same
+ * collision; the project name leaves none. One-hour slot, set per test from
+ * `test.info().project.name`.
+ */
+const SLOT_HOUR_BY_PROJECT: Record<string, number> = { chromium: 9, 'firefox-smoke': 11, 'webkit-smoke': 13, 'mobile-smoke': 15 };
+let slotFrom = '';
+let slotTo = '';
+let slotLabel = '';
+function useProjectSlot(projectName: string): void {
+  const hour = SLOT_HOUR_BY_PROJECT[projectName] ?? 8 + (nonce % 10);
+  const hh = (h: number) => String(h).padStart(2, '0');
+  slotFrom = `${hh(hour)}:00`;
+  slotTo = `${hh(hour + 1)}:00`;
+  slotLabel = `${hh(hour)}h00–${hh(hour + 1)}h00`;
+}
 const ORGANIZATION_TIMEZONE = 'Africa/Tunis'; // the disposable stack's CORE_V2_ORGANIZATION_TIMEZONE
 const longDay = (iso: string) => new Intl.DateTimeFormat('fr-FR', { timeZone: ORGANIZATION_TIMEZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${iso}T12:00:00Z`));
 const mondayOf = (iso: string) => {
@@ -109,6 +131,7 @@ async function activateAndSignIn(page: import('@playwright/test').Page, token: s
 }
 
 test('golden staff workflow on Core v2: family → enrollment → coach → planning → invitation → activation → RBAC', async ({ page }) => {
+  useProjectSlot(test.info().project.name);
   await test.step('assistante opens Familles', async () => {
     await loginAsUser(page, 'assistante', { navigate: false });
     await page.goto('/dashboard/assistante/familles', { waitUntil: 'domcontentloaded' });
@@ -223,14 +246,16 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Première séance').fill(seriesStart);
     await dialog.getByLabel('Jour', { exact: true }).selectOption('TU');
+    await dialog.getByLabel('Début', { exact: true }).fill(slotFrom);
+    await dialog.getByLabel('Fin', { exact: true }).fill(slotTo);
     await dialog.getByRole('button', { name: 'Créer la série' }).click();
-    await expect(enrollment.getByText(/FREQ=WEEKLY;BYDAY=TU · 18:00–19:00/)).toBeVisible();
+    await expect(enrollment.getByText(`FREQ=WEEKLY;BYDAY=TU · ${slotFrom}–${slotTo}`)).toBeVisible();
   });
 
   await test.step('the staff week view shows the materialized occurrence; one occurrence is cancelled through the UI (§AK)', async () => {
     await page.goto(`/dashboard/assistante/familles/planning?semaine=${mondayOf(seriesStart)}`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Planning' })).toBeVisible();
-    const row = page.getByRole('listitem', { name: `18h00–19h00 Yasmine Corev2-${nonce} — maths-premiere` });
+    const row = page.getByRole('listitem', { name: `${slotLabel} Yasmine Corev2-${nonce} — maths-premiere` });
     await expect(row).toBeVisible();
     await expect(row.getByText('Planifiée')).toBeVisible();
     await row.getByRole('button', { name: 'Annuler la séance' }).click();
@@ -241,7 +266,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(row.getByRole('button', { name: 'Annuler la séance' })).toHaveCount(0);
     // The week after still has its live occurrence.
     await page.goto(`/dashboard/assistante/familles/planning?semaine=${mondayOf(seriesSecond)}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('listitem', { name: `18h00–19h00 Yasmine Corev2-${nonce} — maths-premiere` }).getByText('Planifiée')).toBeVisible();
+    await expect(page.getByRole('listitem', { name: `${slotLabel} Yasmine Corev2-${nonce} — maths-premiere` }).getByText('Planifiée')).toBeVisible();
     // Back to the household file for the invitation steps.
     await page.goto(`/dashboard/assistante/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /Foyer Amel Corev2/ })).toBeVisible();
@@ -300,11 +325,11 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: 'Mon foyer' })).toBeVisible();
     await expect(page.getByRole('heading', { name: `Yasmine Corev2-${nonce}` })).toBeVisible();
     await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
-    await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    await expect(page.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     // Upcoming sessions come from the materialized bookings: the cancelled first occurrence is absent, the second is listed.
     const upcoming = page.getByRole('region', { name: 'Prochaines séances' });
-    await expect(upcoming.getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
-    await expect(upcoming.getByText(`${longDay(seriesStart)} · 18h00–19h00`)).toHaveCount(0);
+    await expect(upcoming.getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
+    await expect(upcoming.getByText(`${longDay(seriesStart)} · ${slotLabel}`)).toHaveCount(0);
     // The Core v1 family dashboard is not rendered for a Core v2 identity.
     await expect(page.getByText('Espace Famille')).toHaveCount(0);
     // The staff API stays closed to the parent even though they are a Core v2 actor.
@@ -322,9 +347,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: 'Mon parcours' })).toBeVisible();
     await expect(page.getByText(`Yasmine Corev2-${nonce} · Parents : Amel Corev2-${nonce}`)).toBeVisible();
     await expect(page.getByText(`${startYear}-${startYear + 1} · Inscription active`)).toBeVisible();
-    await expect(page.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    await expect(page.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByText('Espace Élève')).toHaveCount(0);
-    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
     // Neither the family endpoint nor the staff API is open to a student.
     expect((await page.request.get(`${BASE_URL}/api/v2/parent/household`)).status()).toBe(403);
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
@@ -348,8 +373,8 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const row = panel.getByRole('listitem').filter({ hasText: `Yasmine Corev2-${nonce} — maths-premiere` });
     await expect(row).toHaveCount(1);
     await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
-    await expect(row.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
-    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
+    await expect(row.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });
