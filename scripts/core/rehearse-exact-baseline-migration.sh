@@ -40,7 +40,7 @@ EXPECTED_LAST_MIGRATION="20260906130000_parent_email_activation_invalidation"
 EXPECTED_DUMP_MIGRATION_COUNT="105"
 EXPECTED_BRANCH_ONLY_MIGRATION="20260906200000_core_family_academic_planning_expand"
 
-IMAGE="pgvector/pgvector:pg15"
+IMAGE="pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da"
 RUN_ID="$(date -u +%Y%m%dt%H%M%Sz)"
 NET="nexus-exact-baseline-rehearsal-net-${RUN_ID}"
 C="nexus-exact-baseline-rehearsal-${RUN_ID}"

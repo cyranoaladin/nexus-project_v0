@@ -15,6 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const source = path.join(repoRoot, 'tools', 'planning-studio');
@@ -41,8 +42,17 @@ let html = fs.readFileSync(path.join(source, 'index.html'), 'utf8');
 html = html.replace(/(href|src)="(assets|data)\//g, (m, attr, dir) => `${attr}="${PREFIX}${dir}/`);
 const marker = `<script src="${PREFIX}data/default-data.js"></script>`;
 if (!html.includes(marker)) throw new Error('index.html : script default-data.js introuvable');
-html = html.replace(marker, `<script src="${PREFIX}config.js"></script>\n  ${marker}`);
+html = html.replace(marker, `<script src="${PREFIX}config.js"></script>\n  <script src="${PREFIX}assets/session-recovery.js"></script>\n  ${marker}`);
 fs.writeFileSync(path.join(target, 'index.html'), html);
+
+// Compile the very same controller used by React, not a copied static policy.
+const modules = ['client-session-recovery', 'static-session-recovery'].map(name => {
+  const input = fs.readFileSync(path.join(repoRoot, 'lib/auth', `${name}.ts`), 'utf8');
+  const compiled = ts.transpileModule(input, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS } }).outputText;
+  return `${JSON.stringify(`./${name}`)}: function(exports, require) {\n${compiled}\n}`;
+});
+const bundle = `/* Generated from lib/auth: one canonical recovery controller. */\n(function(global) {\nconst modules = {${modules.join(',\n')}};\nconst cache = {};\nfunction require(id) { if (!cache[id]) { cache[id] = {}; modules[id](cache[id], require); } return cache[id]; }\nglobal.NexusSessionRecovery = require('./static-session-recovery');\n})(window);\n`;
+fs.writeFileSync(path.join(target, 'assets/session-recovery.js'), bundle);
 
 const config = [
   '/* Généré par scripts/planning/build-public.mjs — mode intégré Nexus. */',
@@ -56,5 +66,5 @@ const config = [
 ].join('\n');
 fs.writeFileSync(path.join(target, 'config.js'), config);
 
-const written = [...ASSETS.map((f) => `assets/${f}`), ...DATA.map((f) => `data/${f}`), 'index.html', 'config.js'];
+const written = [...ASSETS.map((f) => `assets/${f}`), ...DATA.map((f) => `data/${f}`), 'assets/session-recovery.js', 'index.html', 'config.js'];
 console.log(`public/planning généré depuis tools/planning-studio (${written.length} fichiers).`);

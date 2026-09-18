@@ -167,6 +167,7 @@ function buildAssessments(bilans: readonly EleveBilan[], now: Date): AriaAssessm
       state: isCompleted ? (isRecent ? 'RECENT' : 'TERMINE') : 'A_FAIRE',
       date: bilan.createdAt ?? null,
       href: bilan.resultUrl,
+      type: bilan.type,
       globalScore: bilan.globalScore,
     };
   });

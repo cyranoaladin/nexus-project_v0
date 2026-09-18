@@ -1,4 +1,5 @@
 jest.unmock('@/lib/prisma');
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { checkEnrollmentIntegrity } from '@/scripts/curriculum/verify-enrollment-integrity';
@@ -40,10 +41,24 @@ async function createStudent() {
 }
 
 async function cleanup() {
-  await prisma.studentAcademicEnrollment.deleteMany({ where: { studentId: { startsWith: PREFIX } } });
-  await prisma.student.deleteMany({ where: { userId: { startsWith: PREFIX } } });
-  await prisma.parentProfile.deleteMany({ where: { userId: { startsWith: PREFIX } } });
-  await prisma.user.deleteMany({ where: { id: { startsWith: PREFIX } } });
+  // `StudentAcademicEnrollment.studentId` references `Student.id` (an
+  // auto-generated cuid, never PREFIX-stamped) — filtering on that column
+  // directly here always matched zero rows. This previously went
+  // unnoticed because Student.user was `onDelete: Cascade`, so deleting
+  // the User row below silently cascade-deleted these enrollments anyway.
+  // Now that it's `Restrict` (DELETE-1/DELETE-2), that implicit cascade
+  // no longer happens, so this must reach the enrollment via the actual
+  // relation to the PREFIX-stamped User/Student instead.
+  await prisma.studentAcademicEnrollment.deleteMany({ where: { student: { userId: { startsWith: PREFIX } } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { startsWith: PREFIX } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 beforeAll(() => {

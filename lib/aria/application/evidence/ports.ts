@@ -31,6 +31,10 @@ export interface ListLearningEvidenceFilters {
   readonly source?: LearningEvidenceSource;
   readonly limit?: number;
   readonly cursor?: string;
+  /** Inclusive lower bound on `observedAt` (P7b: periodic bilan windowing). */
+  readonly since?: Date;
+  /** Inclusive upper bound on `observedAt` (P7b: periodic bilan windowing). */
+  readonly until?: Date;
 }
 
 /**

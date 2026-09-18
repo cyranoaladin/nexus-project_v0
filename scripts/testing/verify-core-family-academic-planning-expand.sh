@@ -4,7 +4,7 @@ set -euo pipefail
 repository_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 migration_name=20260906200000_core_family_academic_planning_expand
 migration_file="$repository_root/prisma/migrations/$migration_name/migration.sql"
-postgres_image=${NEXUS_CORE_TEST_POSTGRES_IMAGE:-pgvector/pgvector:pg15}
+postgres_image=${NEXUS_CORE_TEST_POSTGRES_IMAGE:-pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da} # pg15
 container_name="nexus-core-expand-$PPID-$$"
 temporary_root=$(mktemp -d /tmp/nexus-core-expand.XXXXXX)
 

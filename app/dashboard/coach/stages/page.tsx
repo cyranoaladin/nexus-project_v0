@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Users, CheckCircle, AlertCircle, RefreshCw, Pencil, ExternalLink } from 'lucide-react';
@@ -66,6 +67,7 @@ const EMPTY_FORM: Omit<BilanForm, 'studentId' | 'stageSlug' | 'studentName'> = {
 };
 
 export default function CoachStagesPage() {
+  const fetch = useProtectedFetch();
   const [assignments, setAssignments] = useState<StageAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [bilanForm, setBilanForm] = useState<BilanForm | null>(null);
@@ -88,7 +90,7 @@ export default function CoachStagesPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetch]);
 
   useEffect(() => { load(); }, [load]);
 

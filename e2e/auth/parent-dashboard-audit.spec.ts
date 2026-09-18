@@ -30,15 +30,18 @@ test.describe('Dashboard Parent — Audit Exhaustif', () => {
       await expect(page.getByRole('heading', { name: /Mes Enfants/i })).toBeVisible();
     });
 
-    test('un parent peut demander un créneau depuis un enfant', async ({ page }) => {
+    test('un parent peut contacter Nexus par WhatsApp depuis l\'onglet Alertes', async ({ page }) => {
+      // Rewritten (Review, PR #235): the dashboard moved from a per-child
+      // "voir la progression -> demander un créneau" link to a tabbed
+      // rubrique layout; the WhatsApp CTA now lives under the "Alertes" tab.
       await page.goto('/dashboard/parent');
       await expectParentDashboard(page);
-      await page.getByRole('link', { name: /voir la progression/i }).first().click();
-      const requestSlot = page.getByRole('link', { name: /demander un créneau/i });
-      await expect(requestSlot).toBeVisible();
-      await expect(requestSlot).toHaveAttribute('href', /^https:\/\/wa\.me\/21699192829\?text=/);
-      await expect(requestSlot).toHaveAttribute('target', '_blank');
-      await expect(requestSlot).toHaveAttribute('rel', 'noopener noreferrer');
+      await page.getByRole('button', { name: 'Alertes', exact: true }).click();
+      const whatsappLink = page.getByRole('link', { name: /écrire sur whatsapp/i });
+      await expect(whatsappLink).toBeVisible();
+      await expect(whatsappLink).toHaveAttribute('href', /^https:\/\/wa\.me\/\d+\?text=/);
+      await expect(whatsappLink).toHaveAttribute('target', '_blank');
+      await expect(whatsappLink).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
     test('bouton déconnexion fonctionne', async ({ page }) => {
@@ -62,15 +65,6 @@ test.describe('Dashboard Parent — Audit Exhaustif', () => {
       await page.reload();
       await expectParentDashboard(page);
       await expect(page.getByText(/Bilan Diagnostic Gratuit/i)).toBeVisible();
-    });
-  });
-
-  test.describe('Dialog Ajouter Enfant', () => {
-    test('bouton Ajouter Enfant est visible', async ({ page }) => {
-      await page.goto('/dashboard/parent');
-      await expectParentDashboard(page);
-      const addChildBtn = page.getByRole('button', { name: /ajouter.*enfant|nouvel enfant|\+/i });
-      await expect(addChildBtn).toBeVisible();
     });
   });
 

@@ -13,7 +13,14 @@ export const UPCOMING_WINDOW_DAYS = 120;
  * self-service planning endpoint of their role. Shows who the other party
  * is by name only; times in the planning zone of each series.
  */
-export function UpcomingSessions({ scope, now = () => new Date() }: { scope: 'parent' | 'student' | 'coach'; now?: () => Date }) {
+/**
+ * ONE stable reference. An inline default (`now = () => new Date()`) is a new
+ * function on every render; it sits in the effect's dependencies, so every
+ * response re-rendered, re-armed the effect and fetched again, without end.
+ */
+const wallClock = () => new Date();
+
+export function UpcomingSessions({ scope, now = wallClock }: { scope: 'parent' | 'student' | 'coach'; now?: () => Date }) {
   const [bookings, setBookings] = useState<BookingView[] | null>(null);
   const [failure, setFailure] = useState<ApiFail | null>(null);
 

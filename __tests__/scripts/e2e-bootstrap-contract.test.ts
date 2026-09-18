@@ -1,5 +1,8 @@
+/** @jest-environment node */
+
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { parse } from 'yaml';
 
 const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
@@ -83,6 +86,23 @@ describe('ephemeral E2E bootstrap contract', () => {
     expect(resetHelper).toContain('flushDb');
   });
 
+  it('gives public dashboard audits the same guarded disposable quota isolation as auth audits', () => {
+    const workflow = parse(read('.github/workflows/ci.yml')) as { jobs: { e2e: {
+      env: Record<string, string>;
+      services: Record<string, { ports: string[] }>;
+      steps: Array<{ name?: string; run?: string; env?: Record<string, string> }>;
+    } } };
+    const job = workflow.jobs.e2e;
+    const runIndex = job.steps.findIndex(step => step.name === 'Run Playwright E2E tests');
+    const aliasIndex = job.steps.findIndex(step => step.name === 'Alias redis-e2e vers le service Redis jetable');
+    expect(job.env.E2E_DISPOSABLE_STACK).toBe('1');
+    expect(job.services['redis-e2e'].ports).toContain('6380:6379');
+    expect(job.steps[runIndex].env?.E2E_DISPOSABLE_REDIS_URL).toBe('redis://redis-e2e:6380/0');
+    expect(aliasIndex).toBeGreaterThanOrEqual(0);
+    expect(aliasIndex).toBeLessThan(runIndex);
+    expect(job.steps[aliasIndex].run).toContain('127.0.0.1 redis-e2e');
+  });
+
   it('runs only allowlisted hermetic configs and projects without argument injection', () => {
     const entrypoint = read('scripts/playwright-entrypoint.sh');
     expect(entrypoint).toContain('PLAYWRIGHT_CONFIG="${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"');
@@ -110,8 +130,14 @@ describe('ephemeral E2E bootstrap contract', () => {
   it('collects every hermetic E2E tree without quarantined external lanes', () => {
     const config = read('playwright.config.e2e.ts');
 
-    expect(config).toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(config).toContain("'e2e/**/*.spec.ts'");
+    // `__tests__/e2e/` was a second hermetic tree until its four specs were
+    // deleted: `playwright.config.e2e.ts` collected them, but no workflow
+    // invokes that configuration, so nothing in CI ever ran them. The
+    // contract now asserts the tree is gone rather than that it is collected,
+    // so the entry cannot come back without the directory.
+    expect(existsSync(join(root, '__tests__/e2e'))).toBe(false);
+    expect(config).not.toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(existsSync(join(root, 'e2e/candidate-diagnostic.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/real/coach-resource-student.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/QUARANTINE.md'))).toBe(false);

@@ -131,7 +131,7 @@ if ! pg_check; then
     docker run -d --name nexus-e2e-pg \
       --env-file "$envfile" \
       -p 127.0.0.1:5435:5432 \
-      pgvector/pgvector:pg16 >/dev/null 2>&1
+      pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b >/dev/null 2>&1
     rm -f "$envfile"
     # Wait for PostgreSQL to be ready (30 attempts × 1s)
     retries=0

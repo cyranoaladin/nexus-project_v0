@@ -3,7 +3,7 @@
 services:
   postgres-db:
     profiles: ["legacy"]
-    image: pgvector/pgvector:pg15
+    image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
     container_name: nexus-postgres-db
     restart: always
     environment:

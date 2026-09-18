@@ -1,7 +1,8 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useMemo } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -37,6 +38,7 @@ function ProgressBar({ value, max, className = '' }: { value: number; max: numbe
 }
 
 export default function CoachNsiPratique2026Page() {
+  const fetch = useProtectedFetch();
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
   const role = (session?.user as { role?: string } | undefined)?.role;
@@ -68,7 +70,7 @@ export default function CoachNsiPratique2026Page() {
         setError(err.message);
         setLoading(false);
       });
-  }, [authStatus, role]);
+  }, [authStatus, role, fetch]);
 
   // Computed stats
   const stats = useMemo(() => {

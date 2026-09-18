@@ -35,7 +35,6 @@ COPY prisma ./prisma
 RUN npx prisma generate
 
 # Copy test files and configs
-COPY __tests__/e2e ./__tests__/e2e
 COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
 COPY e2e ./e2e
 COPY scripts/e2e ./scripts/e2e

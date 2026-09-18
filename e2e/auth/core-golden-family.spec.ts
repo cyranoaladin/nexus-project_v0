@@ -1,13 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { ensureCoachAvailabilityByEmail } from '../helpers/db';
 import {
   BASE_URL,
   cleanupGoldenFamily,
   createSyntheticCoach,
   disconnectGoldenFamilyPrisma,
-  gotoStable,
   mutationHeaders,
   prisma,
   signInAs,
@@ -150,8 +149,8 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
   });
 
   await test.step('parent sets a password via the phone-activation link', async () => {
-    await page.context().clearCookies();
-    await gotoStable(page, `/auth/parent-phone?token=${parentPhoneRawToken}`);
+    await resetBrowserSession(page);
+    await page.goto(`/auth/parent-phone?token=${parentPhoneRawToken}`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Activer mon espace parent' })).toBeVisible();
     await page.getByLabel('Nouveau mot de passe').fill(parent1Password);
     await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(parent1Password);
@@ -161,15 +160,21 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
 
   await test.step('parent logs in by phone', async () => {
     await signInAs(page, parent1Phone, parent1Password, ids.parent1UserId!);
-    await gotoStable(page, '/dashboard/parent');
+    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/\/dashboard\/parent/);
+    // Readiness, not just URL: the parent dashboard renders its header only once
+    // its own useSession() has resolved to an authenticated PARENT (otherwise
+    // its effect bounces to /auth/signin, which a live session turns into a
+    // /dashboard navigation). Leaving this document while that fetch is still
+    // in flight lets the bounce race the next page.goto on WebKit.
+    await expect(page.getByRole('heading', { name: 'Espace Famille' })).toBeVisible();
   });
 
   await test.step('parent confirms the household (registrationCompletedAt)', async () => {
     const before = await prisma.user.findUniqueOrThrow({ where: { id: ids.parent1UserId! } });
     expect(before.registrationCompletedAt).toBeNull();
 
-    await gotoStable(page, '/dashboard/parent/inscription');
+    await page.goto('/dashboard/parent/inscription', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Finaliser mon inscription' })).toBeVisible();
 
     await page.getByText(/Je confirme les informations de Alpha/).click();
@@ -185,10 +190,29 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
   });
 
   await test.step('accessibility spot-check (axe) on the confirmed parent dashboard', async () => {
-    await gotoStable(page, '/dashboard/parent');
+    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle');
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations, JSON.stringify(results.violations.map((v) => v.id))).toEqual([]);
+  });
+
+  await test.step('parent banner dismissal persists on the server across reload', async () => {
+    const before = await page.request.get('/api/bilan-gratuit/status');
+    expect(before.status()).toBe(200);
+    expect(await before.json()).toEqual({ completed: false, dismissed: false });
+    const banner = page.getByRole('heading', { name: 'Complétez le Bilan Diagnostic Gratuit' });
+    await expect(banner).toBeVisible();
+    const dismissed = page.waitForResponse(response => response.url().endsWith('/api/bilan-gratuit/dismiss') && response.request().method() === 'POST');
+    await page.getByRole('button', { name: 'Fermer la bannière' }).click();
+    const response = await dismissed;
+    expect(response.status()).toBe(200);
+    expect(await response.json()).toEqual({ dismissed: true });
+    await expect(banner).not.toBeVisible();
+    const status = page.waitForResponse(response => response.url().endsWith('/api/bilan-gratuit/status'));
+    await page.reload();
+    expect(await (await status).json()).toMatchObject({ dismissed: true });
+    await expect(banner).not.toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem('nexus_bilan_gratuit_dismissed'))).toBeNull();
   });
 
   // ── 3. Two academic-map writes (Task 6/7) ───────────────────────────────
@@ -386,8 +410,8 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const bodyA = await activationA.json() as { activation: { activationUrl: string; loginIdentifier: string } };
     childAIdentifier = bodyA.activation.loginIdentifier;
 
-    await page.context().clearCookies();
-    await gotoStable(page, bodyA.activation.activationUrl);
+    await resetBrowserSession(page);
+    await page.goto(bodyA.activation.activationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Activer votre espace élève' })).toBeVisible();
     await page.getByLabel(/^mot de passe$/i).fill(studentAPassword);
     await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(studentAPassword);
@@ -414,6 +438,60 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     expect(dashboardA.trackContent.specialties.map((s) => s.skillGraphRef)).toEqual(['maths-premiere-p2']);
   });
 
+  await test.step('canonical booking and cancellation preserve zero and historical balances; duplicate bookings fail and cancelled slots are reusable', async () => {
+    const readCredits = async () => (await prisma.student.findUniqueOrThrow({ where: { id: ids.childAStudentId! }, select: { credits: true } })).credits;
+    expect(await readCredits()).toBe(0);
+    const bookingInput = {
+      studentId: ids.childAStudentId, coachId: ids.coach1ProfileId,
+      assignmentId: ids.assignmentAId, academicCourseKey: 'eds-maths-premiere',
+      scheduledDate: nextWeekdayIso(45), startTime: '10:00', endTime: '10:45', duration: 45,
+      title: 'Golden family self-service', modality: 'ONLINE', type: 'INDIVIDUAL',
+    };
+    const book = async (expectedBalance = 0) => {
+      const response = await page.request.post('/api/sessions/book', { headers: mutationHeaders(), data: bookingInput });
+      expect(response.status(), await response.text()).toBe(201);
+      const body = await response.json() as { sessionId: string; session: { planningSeriesId: string; studentProfileId: string; coachProfileId: string; assignmentId: string; creditsUsed: number } };
+      ids.selfServiceSeriesIds = [...(ids.selfServiceSeriesIds ?? []), body.session.planningSeriesId];
+      expect(body.session).toMatchObject({ studentProfileId: ids.childAStudentId, coachProfileId: ids.coach1ProfileId, assignmentId: ids.assignmentAId, creditsUsed: 0 });
+      expect(await readCredits()).toBe(expectedBalance);
+      return body.sessionId;
+    };
+    await signInAs(page, parent1Phone, parent1Password, ids.parent1UserId!);
+    const parentBooking = await book();
+    await signInAs(page, childAIdentifier, studentAPassword, ids.childAUserId!);
+    const cancelled = await page.request.post('/api/sessions/cancel', { headers: mutationHeaders(), data: { sessionId: parentBooking, reason: 'Synthetic schedule change' } });
+    expect(cancelled.status(), await cancelled.text()).toBe(200);
+    const cancellation = await cancelled.json();
+    expect(cancellation.success).toBe(true);
+    expect(cancellation).not.toHaveProperty('refunded');
+    const persisted = await prisma.sessionBooking.findUniqueOrThrow({ where: { id: parentBooking } });
+    expect(persisted.status).toBe('CANCELLED');
+    expect(persisted.cancelledAt).not.toBeNull();
+    expect(await readCredits()).toBe(0);
+    const studentBooking = await book();
+    expect(studentBooking).not.toBe(parentBooking);
+
+    // A zero-only assertion would miss an accidental reset of historical
+    // balances. This fixture belongs only to this synthetic household.
+    await prisma.student.update({ where: { id: ids.childAStudentId! }, data: { credits: 3 } });
+    const duplicate = await page.request.post('/api/sessions/book', { headers: mutationHeaders(), data: bookingInput });
+    expect(duplicate.status(), await duplicate.text()).toBe(409);
+    expect(await readCredits()).toBe(3);
+    const cancelHistorical = async (sessionId: string) => {
+      const response = await page.request.post('/api/sessions/cancel', { headers: mutationHeaders(), data: { sessionId, reason: 'Synthetic historical-balance preservation' } });
+      expect(response.status(), await response.text()).toBe(200);
+      const body = await response.json();
+      expect(body.success).toBe(true);
+      expect(body).not.toHaveProperty('refunded');
+      expect((await prisma.sessionBooking.findUniqueOrThrow({ where: { id: sessionId } })).status).toBe('CANCELLED');
+      expect(await readCredits()).toBe(3);
+    };
+    await cancelHistorical(studentBooking);
+    const historicalBooking = await book(3);
+    expect(historicalBooking).not.toBe(studentBooking);
+    await cancelHistorical(historicalBooking);
+  });
+
   await test.step('student B activates and sees only his own schedule/academic map', async () => {
     await signInAs(page, parent1Phone, parent1Password, ids.parent1UserId!);
     const activationB = await page.request.post(
@@ -424,8 +502,8 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const bodyB = await activationB.json() as { activation: { activationUrl: string; loginIdentifier: string } };
     childBIdentifier = bodyB.activation.loginIdentifier;
 
-    await page.context().clearCookies();
-    await gotoStable(page, bodyB.activation.activationUrl);
+    await resetBrowserSession(page);
+    await page.goto(bodyB.activation.activationUrl, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Activer votre espace élève' })).toBeVisible();
     await page.getByLabel(/^mot de passe$/i).fill(studentBPassword);
     await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(studentBPassword);
@@ -491,8 +569,8 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     const messageText = new URL(invitationBody.whatsappUrl).searchParams.get('text') ?? '';
     const match = messageText.match(/https?:\/\/\S+\/auth\/parent-phone\?token=([A-Za-z0-9_-]+)/)!;
 
-    await page.context().clearCookies();
-    await gotoStable(page, `/auth/parent-phone?token=${match[1]}`);
+    await resetBrowserSession(page);
+    await page.goto(`/auth/parent-phone?token=${match[1]}`, { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Nouveau mot de passe').fill(parent2Password);
     await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(parent2Password);
     await page.getByRole('button', { name: /valider mon accès/i }).click();
@@ -551,9 +629,14 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
         assignmentId: ids.assignmentBId,
         // Student A's course — never in Student B's academic map or assignment B's scope.
         academicCourseKey: 'eds-maths-premiere',
-        scheduledDate: nextWeekdayIso(28),
-        startTime: '10:00',
-        endTime: '10:45',
+        // A slot no series occupies: series A and B both run 10:00–10:45, so
+        // 14:00 on a known-valid weekday can only fail on course scope (400),
+        // never on a schedule conflict (409). `nextWeekdayIso(28)` used to be
+        // here: on a Saturday/Sunday run its weekend roll-forward landed on the
+        // 2nd occurrence of series B (+29/+30) and the probe got 409 instead.
+        scheduledDate: seriesBDate,
+        startTime: '14:00',
+        endTime: '14:45',
         duration: 45,
         title: 'Golden Family — wrong course probe',
       },
@@ -631,7 +714,7 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     });
     expect(remainingAssignments).toBe(0);
     const remainingSeries = await prisma.planningSeries.count({
-      where: { id: { in: [ids.seriesAId!, ids.seriesBId!] } },
+      where: { id: { in: [ids.seriesAId!, ids.seriesBId!, ...(ids.selfServiceSeriesIds ?? [])] } },
     });
     expect(remainingSeries).toBe(0);
     // CanonicalApiIdempotencyKey has no FK relation to User (plain String

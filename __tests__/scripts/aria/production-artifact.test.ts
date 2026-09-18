@@ -290,13 +290,13 @@ describe('ARIA built standalone artifact gate', () => {
     );
   });
 
-  it('accepts exactly the nine traced routes and every immutable Registry version recursively', async () => {
+  it('accepts exactly the twenty-one traced routes and every immutable Registry version recursively', async () => {
     const root = createValidStandalone();
     write(root, '.next/standalone/programmes/unregistered/nested/evidence.pdf', '%PDF-extra');
 
     await expect(inspectAriaStandaloneArtifact(root)).resolves.toEqual({
       status: 'READY',
-      tracedAriaRoutes: 19,
+      tracedAriaRoutes: 22,
       resourceFiles: 6,
     });
   });
@@ -589,7 +589,7 @@ describe('ARIA built standalone artifact gate', () => {
     appPaths['/api/aria/extra/route'] = 'app/api/aria/extra/route.js';
     writeFileSync(manifestPath, JSON.stringify(appPaths));
     await expect(inspectAriaStandaloneArtifact(root)).rejects.toThrow(
-      'ARIA_STANDALONE_ROUTE_COUNT:20',
+      'ARIA_STANDALONE_ROUTE_COUNT:23',
     );
   });
 

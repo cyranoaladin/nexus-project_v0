@@ -1,7 +1,8 @@
 'use client';
 
+import { useProtectedFetch, useSessionRecoveryController } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -277,6 +278,8 @@ const EMPTY_FORM: CoachEafBilanFormData = {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function CoachEafBilanPage() {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -361,7 +364,7 @@ export default function CoachEafBilanPage() {
     } finally {
       setLoading(false);
     }
-  }, [studentId, router]);
+  }, [studentId, router, fetch]);
 
   useEffect(() => {
     if (status === 'authenticated') load();
@@ -394,16 +397,16 @@ export default function CoachEafBilanPage() {
     } finally {
       setSaving(false);
     }
-  }, [formData, studentId]);
+  }, [formData, studentId, fetch]);
 
   // Autosave with debounce (skip if VALIDATED)
   useEffect(() => {
     if (bilanStatus === 'VALIDATED') return;
     if (loading) return;
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    autosaveTimer.current = setTimeout(() => {
+    autosaveTimer.current = setTimeout(recovery.bindDeferredMutation(() => {
       save('draft');
-    }, 3000);
+    }), 3000);
     return () => {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     };
@@ -441,7 +444,7 @@ export default function CoachEafBilanPage() {
     } finally {
       setValidating(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   const regenerateBilan = useCallback(async () => {
     setRegenerating(true);
@@ -466,7 +469,7 @@ export default function CoachEafBilanPage() {
     } finally {
       setRegenerating(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   const isReadOnly = bilanStatus === 'VALIDATED';
 

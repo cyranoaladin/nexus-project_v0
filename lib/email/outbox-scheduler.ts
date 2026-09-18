@@ -1,9 +1,9 @@
 import { drainEmailOutbox, maintainEmailOutbox } from '@/lib/email/outbox-worker';
+import { registerProcessShutdownOnce } from '@/lib/runtime/process-shutdown-signals';
 
 type SchedulerState = {
   timer?: NodeJS.Timeout;
   draining?: Promise<unknown>;
-  signalsBound?: boolean;
   lastMaintenanceAt?: number;
 };
 const globalState = globalThis as typeof globalThis & { __nexusEmailOutboxScheduler?: SchedulerState };
@@ -83,12 +83,8 @@ export function startEmailOutboxScheduler(): void {
   const current = state();
   if (!current.timer) {
     current.timer = setInterval(kickEmailOutboxDrain, intervalMs());
-    current.timer.unref();
+    current.timer.unref?.();
     kickEmailOutboxDrain();
   }
-  if (!current.signalsBound) {
-    current.signalsBound = true;
-    process.once('SIGTERM', () => { void stopEmailOutboxScheduler(); });
-    process.once('SIGINT', () => { void stopEmailOutboxScheduler(); });
-  }
+  registerProcessShutdownOnce('email-outbox-scheduler', () => { void stopEmailOutboxScheduler(); });
 }

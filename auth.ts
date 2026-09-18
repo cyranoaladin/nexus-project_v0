@@ -5,8 +5,9 @@ import { authorizeCredentials, normalizeLoginIdentifier } from '@/lib/auth/crede
 import { guardSensitiveRateLimit } from '@/lib/rate-limit';
 import { issueSessionToken, projectSessionClaims } from '@/lib/auth/session-claims';
 import { validateSessionToken } from '@/lib/auth/session-revocation';
+import { verifyServerSession } from '@/lib/auth/session-verification-outcome';
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+const configuredAuth = NextAuth({
   ...authConfig,
   trustHost: true,
   // No adapter needed: Credentials-only auth with JWT strategy.
@@ -36,3 +37,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
 });
+
+export const { handlers, signIn, signOut } = configuredAuth;
+
+/** Node authority; Edge middleware deliberately retains its separate coarse JWT check. */
+export async function auth() {
+  return verifyServerSession(() => configuredAuth.auth());
+}

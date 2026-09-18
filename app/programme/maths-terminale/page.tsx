@@ -5,6 +5,7 @@ import { UserRole, MathsLevel } from '@prisma/client';
 import { MathJaxProvider } from '@/components/programme/shared/MathJaxProvider';
 import MathsTerminaleClient from './components/MathsTerminaleClient';
 import type { Metadata } from 'next';
+import { ServerSessionShell } from '@/components/auth/SessionRecoveryProvider';
 
 export const metadata: Metadata = {
   robots: {
@@ -57,8 +58,10 @@ export default async function MathsTerminalePage() {
   const displayName = sessionUser.firstName?.trim() || sessionUser.name?.split(' ')[0] || 'Élève';
 
   return (
+    <ServerSessionShell serverSession={session!}>
     <MathJaxProvider>
       <MathsTerminaleClient userId={userId} initialDisplayName={displayName} />
     </MathJaxProvider>
+    </ServerSessionShell>
   );
 }

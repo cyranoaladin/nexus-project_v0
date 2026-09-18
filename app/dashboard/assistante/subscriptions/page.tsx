@@ -1,8 +1,9 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
@@ -107,6 +108,8 @@ function normalizeAriaSubjects(value: unknown): string[] {
 }
 
 export default function AssistanteSubscriptionsPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -166,7 +169,7 @@ export default function AssistanteSubscriptionsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetch]);
 
   const fetchRequests = useCallback(async () => {
     try {
@@ -180,7 +183,7 @@ export default function AssistanteSubscriptionsPage() {
     } finally {
       setRequestsLoading(false);
     }
-  }, [requestsStatus]);
+  }, [requestsStatus, fetch]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -373,13 +376,13 @@ export default function AssistanteSubscriptionsPage() {
         <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
           <TabsList className="bg-surface-elevated text-neutral-300">
             <TabsTrigger value="pending" className="data-[state=active]:data-[state=active]:text-white">
-              Souscriptions <span className="ml-2 text-xs text-neutral-400">({pendingCount})</span>
+              Souscriptions <span className="ml-2 text-xs">({pendingCount})</span>
             </TabsTrigger>
             <TabsTrigger value="requests" className="data-[state=active]:data-[state=active]:text-white">
-              Demandes <span className="ml-2 text-xs text-neutral-400">({requestCount})</span>
+              Demandes <span className="ml-2 text-xs">({requestCount})</span>
             </TabsTrigger>
             <TabsTrigger value="active" className="data-[state=active]:data-[state=active]:text-white">
-              Actifs <span className="ml-2 text-xs text-neutral-400">({activeCount})</span>
+              Actifs <span className="ml-2 text-xs">({activeCount})</span>
             </TabsTrigger>
           </TabsList>
 
@@ -561,7 +564,7 @@ export default function AssistanteSubscriptionsPage() {
                   Statut
                 </Badge>
                 <Select value={requestsStatus} onValueChange={(v) => setRequestsStatus(v as typeof requestsStatus)}>
-                  <SelectTrigger className="w-[200px] bg-surface-elevated">
+                  <SelectTrigger aria-label="Filtrer les demandes par statut" className="w-[200px] bg-surface-elevated">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="text-lux-ivory">

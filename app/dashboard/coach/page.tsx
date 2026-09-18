@@ -1,12 +1,13 @@
 "use client";
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { BookOpen,FileText,Loader2,Users,Zap } from "lucide-react";
-import { signOut,useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation";
-import { useEffect,useState } from "react";
+import { useCallback,useEffect,useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
-import { Tabs,TabsList,TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { CohortTable,type StudentEAMSummary,type StudentRow } from "@/components/dashboard/coach/CohortTable";
 import { CoachAssignments } from "@/components/dashboard/core-v2/CoachAssignments";
@@ -30,6 +31,8 @@ interface CoachDashboardData {
 }
 
 export default function DashboardCoach() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [dashboardData, setDashboardData] = useState<CoachDashboardData | null>(null);
@@ -39,7 +42,7 @@ export default function DashboardCoach() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'availability'>('dashboard');
   const [activeRubrique, setActiveRubrique] = useState<'cohorte' | 'planning' | 'alertes' | 'bilans'>('cohorte');
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const [response, eamResponse] = await Promise.all([
@@ -61,7 +64,7 @@ export default function DashboardCoach() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetch]);
 
   useEffect(() => {
     if (status === "loading") return
@@ -70,12 +73,14 @@ export default function DashboardCoach() {
       return
     }
     fetchDashboardData()
-  }, [session, status, router])
+  }, [session, status, router, fetchDashboardData])
 
   if (loading) return <div className="min-h-screen bg-surface-darker flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand-accent" /></div>
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
+     {/* The Tabs root wraps header + main so each trigger's aria-controls points at a real panel. */}
+     <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="contents">
       <header className="bg-surface-card border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Row 1: user + logout */}
@@ -93,18 +98,16 @@ export default function DashboardCoach() {
           </div>
           {/* Row 2: tabs */}
           <div className="pb-2 -mx-1 overflow-x-auto scrollbar-none">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
-                <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
-                <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <TabsList className="bg-white/5 border-white/10 w-full sm:w-auto">
+              <TabsTrigger value="dashboard" className="flex-1 sm:flex-none text-xs sm:text-sm">Pilotage</TabsTrigger>
+              <TabsTrigger value="availability" className="flex-1 sm:flex-none text-xs sm:text-sm">Agenda</TabsTrigger>
+            </TabsList>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'dashboard' && (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
               {/* §AJ: a coach whose identity is owned by Core v2 sees the assignments made there. Additive: the Core v1 cohort tooling below stays (§AK converges planning). */}
@@ -124,7 +127,7 @@ export default function DashboardCoach() {
                       variant={activeRubrique === tab.id ? 'default' : 'ghost'}
                       className={`whitespace-nowrap rounded-lg transition-all text-xs sm:text-sm px-3 sm:px-4 shrink-0 sm:flex-1 ${
                         activeRubrique === tab.id
-                          ? 'bg-brand-accent text-white shadow-premium font-bold'
+                          ? 'bg-brand-accent text-neutral-950 shadow-premium font-bold'
                           : 'text-neutral-400 hover:text-white hover:bg-white/5'
                       }`}
                       size="sm"
@@ -240,12 +243,13 @@ export default function DashboardCoach() {
               )}
             </div>
           </DashboardPilotage>
-        )}
+        </TabsContent>
 
-        {activeTab === 'availability' && (
+        <TabsContent value="availability" className="mt-0">
           <CoachAvailability coachId={session?.user?.id ?? ''} onAvailabilityUpdated={fetchDashboardData} />
-        )}
-      </main>
+        </TabsContent>
+      </div>
+     </Tabs>
     </div>
   )
 }

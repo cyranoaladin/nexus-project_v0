@@ -1,11 +1,12 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertCircle, Activity, CreditCard, Loader2, LogOut, Search, Users } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
+import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -25,6 +26,8 @@ interface Activity {
 }
 
 export default function ActivitiesPage() {
+  const fetch = useProtectedFetch();
+  const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -61,7 +64,7 @@ export default function ActivitiesPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, typeFilter, searchTerm]);
+  }, [currentPage, typeFilter, searchTerm, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -158,11 +161,11 @@ export default function ActivitiesPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/dashboard/admin">
-                <Button variant="ghost" className="text-neutral-300 hover:text-white">
+              <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
+                <Link href="/dashboard/admin">
                   Retour au Dashboard
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut({ callbackUrl: '/' })}
@@ -208,7 +211,7 @@ export default function ActivitiesPage() {
             />
           </div>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
+            <SelectTrigger aria-label="Filtrer par type d'activité" className="w-full sm:w-48 border-white/10 bg-surface-elevated text-neutral-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-surface-card border border-white/10 text-neutral-100">

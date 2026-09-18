@@ -112,12 +112,25 @@ describe('NPC common submission lock on PostgreSQL 15', () => {
         }),
       );
 
+      // Capture the outcome NOW, before the lock is released below. The
+      // competing transaction is blocked on the lock; the moment the holder
+      // commits it acquires the lock, throws, and settles — which can happen
+      // while `await tombstone` is still running, i.e. BEFORE a later
+      // `expect(...).rejects` would attach a handler. Node then reports an
+      // unhandled rejection and the run fails even though the assertion would
+      // have passed (CI 2026-09-16, run 35082406437: "PromiseRejectionHandled
+      // Warning: rejection was handled asynchronously" immediately preceding).
+      // Attaching the handler at creation removes the window without weakening
+      // the assertion: a promise that does NOT reject yields null, which is not
+      // an instance of the expected error and still fails.
+      const competingOutcome = competing.then(() => null, (error: unknown) => error);
+
       await waitForBlockedPostgresClient(firstClient, 'npc-lock-second');
       expect(competingCallbackEntered).toBe(false);
       releaseTombstone.resolve();
 
       await tombstone;
-      await expect(competing).rejects.toBeInstanceOf(SubmissionUnavailableError);
+      expect(await competingOutcome).toBeInstanceOf(SubmissionUnavailableError);
 
       const finalSubmission = await firstClient.copySubmission.findUniqueOrThrow({
         where: { id: submissionId },
@@ -212,13 +225,24 @@ describe('NPC common submission lock on PostgreSQL 15', () => {
           await mutate(tx, submissionId);
         }),
       );
+      // Capture the outcome NOW, before the lock is released below. The
+      // competing transaction is blocked on the lock; the moment the holder
+      // commits it acquires the lock, throws, and settles — which can happen
+      // while `await queue` is still running, i.e. BEFORE a later
+      // `expect(...).rejects` would attach a handler. Node then reports an
+      // unhandled rejection and the run fails even though the assertion would
+      // have passed (CI 2026-09-16, run 35082406437: "PromiseRejectionHandled
+      // Warning: rejection was handled asynchronously" immediately preceding).
+      // Attaching the handler at creation removes the window without weakening
+      // the assertion: a promise that does NOT reject yields null, which is not
+      // an instance of the expected error and still fails.
+      const mutationOutcome = mutation.then(() => null, (error: unknown) => error);
+
       await waitForBlockedPostgresClient(firstClient, 'npc-lock-second');
       releaseQueue.resolve();
 
       await queue;
-      await expect(mutation).rejects.toBeInstanceOf(
-        SubmissionInventoryFrozenError,
-      );
+      expect(await mutationOutcome).toBeInstanceOf(SubmissionInventoryFrozenError);
       await expect(firstClient.copySubmission.findUniqueOrThrow({
         where: { id: submissionId },
         select: { status: true },
