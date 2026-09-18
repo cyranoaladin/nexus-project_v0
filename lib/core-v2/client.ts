@@ -33,7 +33,7 @@ export { CoreV2DatabaseUrlError };
 export class CoreV2DatabaseIdentityError extends Error {}
 
 const EXPECTED_SCHEMA_IDENTITY = 'nexus-core-v2';
-const EXPECTED_SCHEMA_GENERATION = 3;
+const EXPECTED_SCHEMA_GENERATION = 4;
 
 export function resolveCoreV2DatabaseUrl(
   env: Record<string, string | undefined> = process.env,

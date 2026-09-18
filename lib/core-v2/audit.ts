@@ -28,6 +28,10 @@ export const AUDIT_ACTIONS = [
   'coach.assignment_ended',
   'planning.series_created',
   'planning.series_changed',
+  'planning.series_cancelled',
+  'planning.occurrences_materialized',
+  'planning.occurrence_cancelled',
+  'planning.occurrence_rescheduled',
   'account.invited',
   'account.invitation_resent',
   'account.activated',
@@ -48,6 +52,7 @@ export type AuditSubjectType =
   | 'CoachProfile'
   | 'CoachStudentCourseAssignment'
   | 'PlanningSeries'
+  | 'SessionBooking'
   | 'Invitation';
 
 export interface AuditEventInput {

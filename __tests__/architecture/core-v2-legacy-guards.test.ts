@@ -185,12 +185,25 @@ describe('Core v2 design-schema guards (active today — check the proposed sche
     expect(studentBlock).not.toMatch(/parentId\s+String/);
   });
 
+  // The assignment is the identity authority of a booking. The planning
+  // engine (migration 0007) projects the coach / student PROFILE ids onto
+  // the row so the database exclusion constraints can range over them — a
+  // projection kept consistent by a trigger, never a User-id identity and
+  // never a parent. This guard states that shape exactly.
   test('CORE_V2_SESSIONBOOKING_HAS_NO_LEGACY_USER_ID_IDENTITY', () => {
     const block = modelBlock('SessionBooking');
-    expect(block).not.toMatch(/^\s*studentId\s+String\s*$/m);
-    expect(block).not.toMatch(/^\s*coachId\s+String\s*$/m);
-    expect(block).not.toMatch(/^\s*parentId\s+String/m);
     expect(block).toMatch(/assignmentId\s+String/);
+    expect(block).not.toMatch(/^\s*parentId\s+String/m);
+    // No field of this model may relate to User (legacy participant identity).
+    expect(block).not.toMatch(/^\s*\w+\s+User\??\s+@relation/m);
+    // coachId / studentId exist only as profile projections with an explicit relation.
+    expect(block).toMatch(/coach\s+CoachProfile\s+@relation\(fields: \[coachId\], references: \[id\], onDelete: Restrict\)/);
+    expect(block).toMatch(/student\s+Student\s+@relation\(fields: \[studentId\], references: \[id\], onDelete: Restrict\)/);
+    // And the database enforces the projection (trigger) and the no-overlap guarantee (exclusion constraints).
+    const migration = readFileSync(join(root, 'core-v2/prisma/migrations/0007_core_v2_planning_engine/migration.sql'), 'utf8');
+    expect(migration).toMatch(/CREATE TRIGGER core_v2_session_booking_participants/);
+    expect(migration).toMatch(/session_bookings_v2_coach_no_overlap_excl[\s\S]*EXCLUDE USING gist \("coachId" WITH =/);
+    expect(migration).toMatch(/session_bookings_v2_student_no_overlap_excl[\s\S]*EXCLUDE USING gist \("studentId" WITH =/);
   });
 });
 
