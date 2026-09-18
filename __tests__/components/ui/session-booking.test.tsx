@@ -30,7 +30,22 @@ function toISODate(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-const SLOT_DATE = toISODate(new Date(Date.now() + 24 * 60 * 60 * 1000));
+/**
+ * Le prochain JOUR OUVRÉ, pas simplement demain : le composant refuse le
+ * week-end (`getDay() === 0 || 6`, même règle que `validateBooking`). Avec
+ * « demain », le créneau était désactivé chaque vendredi et samedi, le clic
+ * restait inerte et l'étape 3 ne s'affichait jamais — le test échouait deux
+ * jours sur sept, sans qu'aucune ligne du dépôt ait changé.
+ */
+function nextWeekday(from: Date): Date {
+  const candidate = new Date(from.getTime() + 24 * 60 * 60 * 1000);
+  while (candidate.getDay() === 0 || candidate.getDay() === 6) {
+    candidate.setDate(candidate.getDate() + 1);
+  }
+  return candidate;
+}
+
+const SLOT_DATE = toISODate(nextWeekday(new Date()));
 
 /**
  * Le composant parse `slot.date` en minuit UTC puis le reformate en heure
