@@ -1,3 +1,4 @@
+import { cleanupDisposableTestFixture } from '../../__tests__/helpers/real-db-fixture-cleanup';
 import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
@@ -49,9 +50,15 @@ async function cleanupFamily(parentEmail: string): Promise<void> {
   await prisma.canonicalApiIdempotencyKey.deleteMany({ where: { userId: { in: childUserIds } } });
   await prisma.canonicalAssessmentAttempt.deleteMany({ where: { studentId: { in: studentIds } } });
   await prisma.parentStudentLink.deleteMany({ where: { OR: [{ parentUserId: parent.id }, { studentId: { in: studentIds } }] } });
-  await prisma.student.deleteMany({ where: { id: { in: studentIds } } });
-  await prisma.parentProfile.deleteMany({ where: { userId: parent.id } });
-  await prisma.user.deleteMany({ where: { id: { in: [...childUserIds, parent.id] } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { in: [...childUserIds, parent.id] } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 async function pollUntil<T>(fn: () => Promise<T | null>, timeoutMs: number, intervalMs: number): Promise<T> {

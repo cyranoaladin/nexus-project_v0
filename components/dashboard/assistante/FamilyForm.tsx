@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState } from 'react';
 import { LEGAL } from '@/lib/legal';
 import { useRouter } from 'next/navigation';
@@ -62,6 +63,7 @@ export function FamilyForm({
   mode?: 'PAPER_ENTRY' | 'WHATSAPP';
   onCreated?: () => void;
 }> = {}) {
+  const fetch = useProtectedFetch();
   const router = useRouter();
   const [parentEmail, setParentEmail] = useState(existingParent?.parentEmail ?? '');
   const [parentPhone, setParentPhone] = useState(existingParent?.parentPhone ?? '');

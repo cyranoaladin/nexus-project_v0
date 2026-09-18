@@ -27,7 +27,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$REPO_ROOT"
 
-IMAGE="pgvector/pgvector:pg15"
+IMAGE="pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da"
 RUN_ID="$(date -u +%Y%m%dt%H%M%Sz)"
 NET="nexus-core-migration-rehearsal-net-${RUN_ID}"
 

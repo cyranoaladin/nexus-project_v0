@@ -16,6 +16,45 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 /**
+ * Le composant refuse un créneau antérieur à aujourd'hui (`isDateInPast`) ou
+ * distant de plus de trois mois (`isDateTooFar`), et lit l'horloge réelle pour
+ * les deux. Une date calendaire figée dans le test ne tient donc que jusqu'au
+ * lendemain : le bouton du créneau devient désactivé, le clic reste sans
+ * effet, l'étape 3 n'est jamais rendue et `booking-title` est introuvable.
+ * Le créneau est donc dérivé de l'horloge, jamais écrit en dur.
+ */
+function toISODate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Le prochain JOUR OUVRÉ, pas simplement demain : le composant refuse le
+ * week-end (`getDay() === 0 || 6`, même règle que `validateBooking`). Avec
+ * « demain », le créneau était désactivé chaque vendredi et samedi, le clic
+ * restait inerte et l'étape 3 ne s'affichait jamais — le test échouait deux
+ * jours sur sept, sans qu'aucune ligne du dépôt ait changé.
+ */
+function nextWeekday(from: Date): Date {
+  const candidate = new Date(from.getTime() + 24 * 60 * 60 * 1000);
+  while (candidate.getDay() === 0 || candidate.getDay() === 6) {
+    candidate.setDate(candidate.getDate() + 1);
+  }
+  return candidate;
+}
+
+const SLOT_DATE = toISODate(nextWeekday(new Date()));
+
+/**
+ * Le composant parse `slot.date` en minuit UTC puis le reformate en heure
+ * locale. On dérive l'attendu de la même façon plutôt que de supposer que les
+ * deux coïncident, pour que l'assertion reste vraie hors UTC.
+ */
+const EXPECTED_SCHEDULED_DATE = toISODate(new Date(SLOT_DATE));
+
+/**
  * Radix Select n'expose pas de `combobox` sous jsdom (API pointeur absentes)
  * — remplacé par un `<select>` natif, même convention que
  * `__tests__/components/dashboard/parent/add-child-dialog.test.tsx`.
@@ -147,7 +186,7 @@ describe('SessionBooking', () => {
           jsonResponse({
             success: true,
             availableSlots: [
-              { date: '2026-09-14', startTime: '10:00', endTime: '11:00', duration: 60 },
+              { date: SLOT_DATE, startTime: '10:00', endTime: '11:00', duration: 60 },
             ],
           }),
         );
@@ -196,7 +235,7 @@ describe('SessionBooking', () => {
       coachId: COACH_PROFILE_ID,
       assignmentId: ASSIGNMENT_ID,
       academicCourseKey: COURSE_KEY,
-      scheduledDate: '2026-09-14',
+      scheduledDate: EXPECTED_SCHEDULED_DATE,
       startTime: '10:00',
       endTime: '11:00',
       duration: 60,

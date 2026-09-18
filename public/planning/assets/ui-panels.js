@@ -546,6 +546,8 @@
   }
 
   function deleteWithReassign(app, opts) {
+    const check = app.captureSessionOperation();
+    if (!check) return;
     // opts : { label, count, alternatives:[{value,label}], onConfirm(replacementId) }
     const sel = selectOf(opts.alternatives, '', { class: 'select' }, '— Laisser vide (avertissement) —');
     confirmDialog({
@@ -556,7 +558,7 @@
         h('p', null, opts.count ? plural(opts.count, 'séance') + ' font référence à cet élément (séances actives et inactives).' : 'Aucune séance ne fait référence à cet élément.'),
         opts.count ? field('Réaffecter ces séances à', sel) : null
       ])
-    }).then((ok) => { if (ok) opts.onConfirm(sel.value); });
+    }).then((ok) => { if (ok && app.sessionOperationCurrent(check)) opts.onConfirm(sel.value); });
   }
 
   /* ---- Enseignants ---- */
@@ -850,12 +852,15 @@
 
   /* ---- Historique des révisions (mode intégré, ADMIN) ---- */
   function renderHistoryConfig(body, app) {
+    const check = app.captureSessionOperation();
+    if (!check) return;
     body.appendChild(h('div', { class: 'panel-title' }, [
       h('div', null, [h('h3', null, 'Historique des révisions'), h('p', { class: 'help' }, 'Chaque enregistrement crée une révision. Restaurer une révision ancienne crée une nouvelle révision : rien n\'est jamais effacé.')])
     ]));
     const list = h('div', { class: 'history-list' }, h('p', { class: 'help' }, 'Chargement…'));
     body.appendChild(list);
     Nexus.Sync.listRevisions(60).then((res) => {
+      if (!app.sessionOperationCurrent(check) || !list.isConnected) return;
       clear(list);
       if (!res.revisions.length) { list.appendChild(h('p', { class: 'help' }, 'Aucune révision.')); return; }
       res.revisions.forEach((r) => {
@@ -873,6 +878,7 @@
         ]));
       });
     }).catch((err) => {
+      if (!app.sessionOperationCurrent(check) || !list.isConnected) return;
       clear(list);
       list.appendChild(h('div', { class: 'inline-danger' }, 'Historique indisponible : ' + (err && err.message ? err.message : 'erreur')));
     });
@@ -895,7 +901,12 @@
       footer: [
         h('button', { type: 'button', class: 'btn', onclick: () => app.exportDraft() }, 'Exporter mon brouillon'),
         h('button', { type: 'button', class: 'btn', onclick: () => closeModal() }, 'Fermer'),
-        h('button', { type: 'button', class: 'btn primary', onclick: () => { closeModal(); Nexus.Sync.draft.clear(); app.loadFromServer(); } }, 'Recharger la version actuelle')
+        h('button', { type: 'button', class: 'btn primary', onclick: async () => {
+          const check = app.captureSessionOperation();
+          if (!check) return;
+          const loaded = await app.loadFromServer();
+          if (loaded && app.sessionOperationCurrent(check)) { closeModal(); Nexus.Sync.draft.clear(); }
+        } }, 'Recharger la version actuelle')
       ]
     });
   }
@@ -923,7 +934,9 @@
   /* ---------------------------------------------------------------
      Import : contrôle + confirmation
      --------------------------------------------------------------- */
-  function openImportDialog(app, raw, inspection, fileName) {
+  function openImportDialog(app, raw, inspection, fileName, operation) {
+    const check = operation || app.captureSessionOperation();
+    if (!app.sessionOperationCurrent(check)) return;
     const body = h('div', { class: 'stack' });
     if (!inspection.ok) {
       body.appendChild(h('div', { class: 'inline-danger' }, [h('strong', null, 'Le fichier ne peut pas être importé.'), h('ul', { class: 'import-errors' }, inspection.errors.map((e) => h('li', null, e)))]));
@@ -942,7 +955,10 @@
       title: 'Importer un planning', narrow: true, body,
       footer: [
         h('button', { type: 'button', class: 'btn', onclick: () => closeModal() }, 'Annuler'),
-        h('button', { type: 'button', class: 'btn primary', onclick: () => { closeModal(); app.replaceData(raw, 'Import de ' + (fileName || 'planning'), 'Planning importé : ' + plural(s.sessions, 'séance') + '.'); } }, 'Remplacer le planning')
+        h('button', { type: 'button', class: 'btn primary', onclick: () => {
+          if (!app.sessionOperationCurrent(check)) return;
+          closeModal(); app.replaceData(raw, 'Import de ' + (fileName || 'planning'), 'Planning importé : ' + plural(s.sessions, 'séance') + '.');
+        } }, 'Remplacer le planning')
       ]
     });
   }

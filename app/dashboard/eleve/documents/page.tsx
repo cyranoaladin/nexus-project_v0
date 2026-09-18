@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,7 @@ Eye,
 FileText,
 Loader2
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from 'next/navigation';
 import { useEffect,useState } from 'react';
 import { toast } from 'sonner';
@@ -69,6 +70,7 @@ const subjectLabels: Partial<Record<Subject, string>> = {
 };
 
 export default function EleveDocumentsPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   
@@ -116,7 +118,7 @@ export default function EleveDocumentsPage() {
     };
 
     fetchDocuments();
-  }, [status, session]);
+  }, [status, session, fetch]);
 
   const handleOpenDocument = (doc: Document) => {
     if (doc.url) {

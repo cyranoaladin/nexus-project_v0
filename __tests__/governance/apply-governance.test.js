@@ -366,6 +366,11 @@ describe('apply-governance — classic BPR deletion gate', () => {
                   requiresConversationResolution: true,
                   allowsForcePushes: false,
                   allowsDeletions: false,
+                  // The selection filters on matchingRefs, never on `pattern`
+                  // and never on position: a glob's expansion is GitHub's
+                  // business, and `nodes[0]` is not an answer to "which rule
+                  // protects main?".
+                  matchingRefs: { totalCount: 1, nodes: [{ name: 'main', prefix: 'refs/heads/' }] },
                 },
               ],
             },
@@ -407,7 +412,19 @@ describe('apply-governance — classic BPR deletion is unreachable without flag 
   function fakeGhWithLiveId(liveId) {
     return {
       graphql: () => ({
-        data: { repository: { branchProtectionRules: { nodes: [{ id: liveId }] } } },
+        data: {
+          repository: {
+            branchProtectionRules: {
+              nodes: [
+                {
+                  id: liveId,
+                  pattern: 'main',
+                  matchingRefs: { totalCount: 1, nodes: [{ name: 'main', prefix: 'refs/heads/' }] },
+                },
+              ],
+            },
+          },
+        },
       }),
     };
   }
@@ -422,9 +439,15 @@ describe('apply-governance — classic BPR deletion is unreachable without flag 
     );
   });
 
-  test('the exact live node id succeeds (does not itself perform any deletion)', () => {
-    const id = requireExactNodeId({ 'node-id': 'BPR_real' }, fakeGhWithLiveId('BPR_real'));
-    expect(id).toBe('BPR_real');
+  test('the exact live node id resolves the rule, and resolving it deletes nothing', () => {
+    const rule = requireExactNodeId({ 'node-id': 'BPR_real' }, fakeGhWithLiveId('BPR_real'));
+    expect(rule.id).toBe('BPR_real');
+    // It now returns the whole rule rather than its id, because the caller
+    // needs the rule's own fields for the prestate and the restore payload —
+    // the previous code rebuilt those from `nodes[0]`, which could be another
+    // rule entirely. Matching the id is a gate, not an authorization: the
+    // owner-authorization gate is separate and checked next.
+    expect(rule.matchingRefs.nodes).toEqual([{ name: 'main', prefix: 'refs/heads/' }]);
   });
 
   test('bare --apply (no delete-classic-protection flag at all) never reaches deletion logic: runApply never issues a delete-shaped GraphQL mutation', async () => {

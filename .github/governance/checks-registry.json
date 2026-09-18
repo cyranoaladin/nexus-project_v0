@@ -137,14 +137,24 @@
       "note": "not directly required, but transitively enforced: job ci-success needs it and asserts .result == 'success'"
     },
     {
-      "context": "E2E Parcours Authentifiés",
+      "context": "E2E Auth — Chromium",
       "producer": {
         "kind": "GITHUB_ACTIONS_WORKFLOW",
         "workflowPath": ".github/workflows/ci.yml",
-        "jobKey": "e2e-auth",
-        "expectedContext": "E2E Parcours Authentifiés"
+        "jobKey": "e2e-auth-chromium",
+        "expectedContext": "E2E Auth — Chromium"
       },
-      "note": "transitively enforced via CI Success. Non-ASCII context name (contains 'é')."
+      "note": "transitively enforced via CI Success. Split from the single 'E2E Parcours Authentifiés' job (AUTH_E2E_JOB_TIME_BUDGET_EXCEEDED — the combined chromium+cross-browser job outgrew its 30-minute budget as e2e/auth gained coverage) so each half keeps a comfortable margin."
+    },
+    {
+      "context": "E2E Auth — Cross-browser (Firefox/WebKit/Mobile)",
+      "producer": {
+        "kind": "GITHUB_ACTIONS_WORKFLOW",
+        "workflowPath": ".github/workflows/ci.yml",
+        "jobKey": "e2e-auth-cross-browser",
+        "expectedContext": "E2E Auth — Cross-browser (Firefox/WebKit/Mobile)"
+      },
+      "note": "transitively enforced via CI Success. Split from the single 'E2E Parcours Authentifiés' job — see the sibling entry above."
     },
     {
       "context": "Bilan Runtime Real-DB Tests",

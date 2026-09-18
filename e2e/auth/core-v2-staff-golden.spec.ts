@@ -22,10 +22,29 @@ import { sameOriginHeaders } from '../helpers/same-origin';
 test.describe.configure({ mode: 'serial' });
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3002';
-const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? '';
+// Same default as the three sibling specs that read Mailpit
+// (pending-parent-lifecycle, parent-email-onboarding, session-revocation).
+// CI sets MAILPIT_API_URL explicitly; the default keeps a local run working.
+const MAILPIT_API_URL = process.env.MAILPIT_API_URL ?? 'http://127.0.0.1:8025';
+// `hasText` is a case-insensitive **substring** match, so a success message
+// that is a substring of an empty-state message is satisfied by the empty
+// state. `EnrollmentCard.tsx:174` renders `role="status"` with the text
+// "Aucun coach affecté.", which contains "Coach affecté." — the assertion at
+// the coach step matched both and failed on a strict-mode violation resolving
+// to 2 elements (PR #302, job 105252474170, firefox-smoke).
+//
+// Every `role="status"` assertion below is therefore anchored. The point is
+// not the one collision that fired: it is that a future "Aucun X" empty state
+// must never be able to satisfy an assertion that X happened.
 const nonce = Date.now();
 const parentEmail = `corev2-parent-${nonce}@example.test`;
 const studentEmail = `corev2-student-${nonce}@example.test`;
+// Unique per run, like the name and e-mail above. A fixed number collides
+// with itself: the cross-browser job runs firefox-smoke and webkit-smoke
+// against the SAME server and database, so the second project hits the
+// duplicate gate its predecessor created and the dialog waits, correctly,
+// for a human to confirm. +216 followed by 8 digits, mobile prefix 2.
+const parentPhone = `+216 2${String(nonce % 10_000_000).padStart(7, '0')}`;
 /**
  * The academic year of the run (Sept→mid-July around "now"), so that the
  * materialized sessions fall inside the families' "next sessions" window.
@@ -59,7 +78,6 @@ let rawToken = '';
 let studentToken = '';
 
 async function findActivationToken(recipient: string): Promise<string> {
-  test.skip(!MAILPIT_API_URL, 'MAILPIT_API_URL is required to capture the invitation e-mail');
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
@@ -121,7 +139,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await dialog.getByLabel('Prénom', { exact: true }).fill('Amel');
     await dialog.getByLabel('Nom', { exact: true }).fill(`Corev2-${nonce}`);
     await dialog.getByLabel('E-mail', { exact: true }).fill(parentEmail);
-    await dialog.getByLabel('Téléphone (optionnel)').fill('+216 20 000 001');
+    await dialog.getByLabel('Téléphone (optionnel)').fill(parentPhone);
     await dialog.getByRole('button', { name: 'Vérifier et créer' }).click();
     await page.waitForURL(/\/dashboard\/assistante\/familles\/[A-Za-z0-9]+$/);
     householdId = page.url().split('/').pop()!;
@@ -161,7 +179,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const enrollment = page.getByRole('article', { name: `Inscription ${startYear}-${startYear + 1}` });
     await expect(enrollment.getByText('En attente')).toBeVisible();
     await enrollment.getByRole('button', { name: 'Approuver' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Inscription approuvée.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Inscription approuvée\.$/ })).toBeVisible();
     await expect(enrollment.getByText('Active')).toBeVisible();
     const fiche = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await fiche.json()) as { data: { parents: Array<{ id: string }>; students: Array<{ user: { id: string }; enrollments: Array<{ id: string }> }> } };
@@ -176,7 +194,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await enrollment.getByLabel('Clé de cours').fill('maths-premiere');
     await enrollment.getByRole('button', { name: 'Ajouter' }).click();
     await enrollment.getByRole('button', { name: 'Enregistrer les cours' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Cours enregistrés.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Cours enregistrés\.$/ })).toBeVisible();
   });
 
   await test.step('grants the seeded coach the capability (staff API) and assigns them through the UI', async () => {
@@ -196,7 +214,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await enrollment.getByLabel('Cours', { exact: true }).selectOption('maths-premiere');
     await enrollment.getByLabel('Coach habilité').selectOption({ index: 1 });
     await enrollment.getByRole('button', { name: 'Affecter' }).click();
-    await expect(enrollment.getByRole('status').filter({ hasText: 'Coach affecté.' })).toBeVisible();
+    await expect(enrollment.getByRole('status').filter({ hasText: /^Coach affecté\.$/ })).toBeVisible();
   });
 
   await test.step('creates a weekly planning series', async () => {
@@ -242,7 +260,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
-    await expect(parents.getByRole('status').filter({ hasText: 'Invitation envoyée.' })).toBeVisible();
+    await expect(parents.getByRole('status').filter({ hasText: /^Invitation envoyée\.$/ })).toBeVisible();
 
     rawToken = await findActivationToken(parentEmail);
     // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
@@ -320,9 +338,17 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
     const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
-    await expect(panel.getByText(`Yasmine Corev2-${nonce} — maths-premiere`)).toBeVisible();
-    await expect(panel.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
-    await expect(panel.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
+    // Scope to THIS run's assignment row. The coach is a seeded actor shared by
+    // every browser project, and the cross-browser job runs firefox-smoke then
+    // webkit-smoke against the SAME server and database — so the coach
+    // accumulates one assignment per project, and a panel-wide match on the
+    // recurrence line ("chaque mardi 18:00–19:00", identical in each) resolves
+    // to several elements and trips Playwright strict mode. The student name
+    // carries the nonce, so the row does identify this run.
+    const row = panel.getByRole('listitem').filter({ hasText: `Yasmine Corev2-${nonce} — maths-premiere` });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
+    await expect(row.getByText(/chaque mardi 18:00–19:00/)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · 18h00–19h00`)).toBeVisible();
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
@@ -353,7 +379,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
 
     await page.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Suspendre' }).first().click();
-    await expect(page.getByRole('status').filter({ hasText: 'Compte suspendu' })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: /^Compte suspendu\b/ })).toBeVisible();
     const after = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await after.json()) as { data: { parents: Array<{ accountStatus: string }> } };
     expect(detail.data.parents[0]!.accountStatus).toBe('SUSPENDED');

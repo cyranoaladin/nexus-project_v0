@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState, useCallback } from 'react';
 import {
   Users, CheckCircle, Clock, AlertCircle, TrendingUp, Calendar,
@@ -56,6 +57,7 @@ interface Kpis {
 }
 
 export default function AssistanteStagesPage() {
+  const fetch = useProtectedFetch();
   const [stages, setStages] = useState<StageData[]>([]);
   const [kpis, setKpis] = useState<Kpis | null>(null);
   const [reservationsByStage, setReservationsByStage] = useState<Record<string, Reservation[]>>({});
@@ -81,7 +83,7 @@ export default function AssistanteStagesPage() {
     } finally {
       setLoadingStages(false);
     }
-  }, []);
+  }, [fetch]);
 
   const loadReservations = useCallback(async (slug: string) => {
     try {
@@ -91,7 +93,7 @@ export default function AssistanteStagesPage() {
     } catch {
       showToast('Erreur chargement réservations', 'error');
     }
-  }, []);
+  }, [fetch]);
 
   const handleToggleStage = (slug: string) => {
     if (expandedStage === slug) {

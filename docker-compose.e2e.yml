@@ -20,7 +20,7 @@
 services:
   # ─── 1. PostgreSQL (ephemeral, tmpfs) ─────────────────────────────────────
   postgres-e2e:
-    image: pgvector/pgvector:pg15
+    image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
     restart: "no"
     environment:
       POSTGRES_USER: postgres
@@ -41,7 +41,7 @@ services:
   # ─── 1b. PostgreSQL for Core v2 (ephemeral, separate server: the Core v2
   # client refuses a target that collides with DATABASE_URL) ────────────────
   postgres-core-v2-e2e:
-    image: postgres:16
+    image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
     restart: "no"
     environment:
       POSTGRES_USER: postgres
@@ -63,7 +63,7 @@ services:
 
   # ─── 2. Redis (ephemeral, rate-limit backend only) ────────────────────────
   redis-e2e:
-    image: redis:7-alpine
+    image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
     restart: "no"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -75,7 +75,7 @@ services:
       - e2e-network
 
   mailpit-e2e:
-    image: axllent/mailpit@sha256:d5ecbb067db3705fa953d79e1b7f81ef84038df67aba6c52825d8c02a1ea748a
+    image: axllent/mailpit@sha256:7f33095f80e901f6ad08028f06ca284aa58fe84942be5496008d041d3b9f4d4d # v1.30.6
     restart: "no"
     networks:
       - e2e-network
@@ -159,6 +159,14 @@ services:
       RATE_LIMIT_KEY_SECRET: e2e-compose-rate-limit-key-secret-please-rotate
       RATE_LIMIT_KEY_NAMESPACE: nexus-e2e-compose
       RATE_LIMIT_TRUST_PROXY_HOPS: "1"
+      # Same lib/env-validation.ts fail-fast reason, for the Jitsi
+      # room-identity secret (lib/jitsi-server.ts) and server URL
+      # (lib/jitsi.ts) — both REQUIRED/prodOnly.
+      JITSI_ROOM_SECRET: e2e-compose-jitsi-room-secret-please-rotate
+      NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-e2e-compose.nexus-e2e.test
+      # Same fail-fast reason for the organization timezone authority
+      # (lib/timezone.ts) — also REQUIRED/prodOnly.
+      NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
       # SMTP is captured by the disposable Mailpit service. No message leaves
       # the isolated Docker network.
       EMAIL_OUTBOX_WORKER_ENABLED: "true"
@@ -226,7 +234,6 @@ services:
       - e2e-shared:/app/e2e-shared
       - e2e-storage:/app/storage
       - ./e2e:/app/e2e
-      - ./__tests__/e2e:/app/__tests__/e2e
       - ./data:/app/data:ro
     environment:
       BASE_URL: http://app-e2e:3000
@@ -245,6 +252,11 @@ services:
       # resolveEnabledPack directly, reading THIS container's own env -- the
       # flag on app-e2e alone isn't enough.
       NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: "true"
+      # collective-workshops.spec.ts's P7c reminder test calls
+      # queueDueAriaWorkshopReminders in-process (the scan is deliberately
+      # not exposed as an HTTP route yet) -- same reasoning as above, this
+      # container's own env needs the outbox encryption key too.
+      EMAIL_OUTBOX_ENCRYPTION_KEY: e2e-compose-outbox-encryption-key-0123456789
     networks:
       - e2e-network
 

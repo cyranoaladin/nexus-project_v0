@@ -54,6 +54,10 @@ if ! node scripts/security/check-versioned-credentials.mjs --staged; then
   BLOCKED=true
 fi
 
+if ! node scripts/security/check-assessment-confidentiality.mjs --staged; then
+  BLOCKED=true
+fi
+
 for file in "${staged_files[@]}"; do
   if [[ "$file" =~ prod-tree.*\.txt$|arborescence.*\.txt$|(^|/)storage/ ]]; then
     echo -e "${YELLOW}[WARN]${NC} Fichier inhabituel stagé : $file"

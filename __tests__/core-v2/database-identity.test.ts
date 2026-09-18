@@ -129,6 +129,11 @@ describe('disconnectCoreV2Client does not leak a connection racing an in-flight 
     const dPromise = disconnectCoreV2Client(); // captures & detaches A
 
     process.env.CORE_V2_DATABASE_URL = validScratch.url;
+    // Handled at creation: this can settle during the awaits below, before
+    // `expect(...).rejects` attaches, and an unhandled rejection in that
+    // window fails the run. Same idiom already used in
+    // __tests__/auth/session-recovery-controller.test.ts.
+    void aPromise.catch(() => {});
     const bPromise = requireCoreV2Client(); // B: fresh, independent of A
 
     const clientB = await bPromise;

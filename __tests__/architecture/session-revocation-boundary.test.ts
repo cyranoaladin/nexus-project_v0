@@ -46,7 +46,10 @@ describe('JWT session revocation architecture boundary', () => {
 
   it('logs out through the Auth.js API outside the Edge middleware', () => {
     const button = read('components/navigation/LogoutButton.tsx')
-    expect(button).toContain("from 'next-auth/react'")
+    expect(button).toContain("useCanonicalSignOut")
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain("from 'next-auth/react'")
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain('signOut({ ...options, redirect: false })')
+    expect(read('components/auth/SessionRecoveryProvider.tsx')).toContain('await controller.runLogout(')
     expect(button).not.toContain('logout-action')
     expect(existsSync(resolve(process.cwd(), 'lib/auth/logout-action.ts'))).toBe(false)
   })
@@ -180,6 +183,11 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      // Explicit session revocation in Core v2, the mirror of the Core v2 read in
+      // validateSessionToken. A CORE_V2 token is never re-checked against Core v1,
+      // so revoking there alone left a migrated identity signed in while the API
+      // answered 200 (auth-client-lifecycle.spec.ts:211, all four browser projects).
+      'lib/core-v2/auth/authority.ts:update#1',
       // Core v2 account lifecycle (own `users` table, isolated client): activation sets
       // the password, status transitions revoke sessions, password change revokes sessions.
       'lib/core-v2/services/account.ts:updateMany#1',

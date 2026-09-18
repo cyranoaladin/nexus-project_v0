@@ -12,9 +12,11 @@ import { getSession,signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter,useSearchParams } from "next/navigation";
 import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function SignInForm() {
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => { setIsHydrated(true); }, []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -144,6 +146,7 @@ export function SignInForm() {
                   type="text"
                   autoComplete="username"
                   value={email}
+                  disabled={!isHydrated}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="+216 … ou votre email"
                   required
@@ -169,6 +172,7 @@ export function SignInForm() {
                     data-testid="input-password"
                     type={showPassword ? "text" : "password"}
                     value={password}
+                    disabled={!isHydrated}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Votre mot de passe"
                     required
@@ -177,6 +181,7 @@ export function SignInForm() {
                   <button
                     type="button"
                     data-testid="btn-toggle-password"
+                    disabled={!isHydrated}
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-1 top-1/2 -translate-y-1/2 p-2 text-lux-on-dark-muted hover:text-lux-ivory transition-colors"
                     aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
@@ -257,7 +262,7 @@ export function SignInForm() {
                 type="submit"
                 data-testid="btn-signin"
                 className="w-full h-12 font-semibold"
-                disabled={isLoading}
+                disabled={!isHydrated || isLoading}
               >
                 {isLoading ? (
                   <>

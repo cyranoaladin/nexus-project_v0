@@ -1,5 +1,6 @@
 "use client";
 
+import { useProtectedFetch, useSessionRecoveryController } from '@/components/auth/SessionRecoveryProvider';
 import { Button } from "@/components/ui/button";
 import { Card,CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
@@ -268,6 +269,8 @@ function Scale({
 }
 
 export default function QuestionnaireMathsPremiereStagePrintempsPage() {
+  const fetch = useProtectedFetch();
+  const recovery = useSessionRecoveryController();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -318,7 +321,7 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
       }
     }
     void loadDraft();
-  }, []);
+  }, [fetch]);
 
   const saveDraft = useCallback(async (currentAnswers: Answers, currentStep: number) => {
     if (submitted) return;
@@ -332,15 +335,15 @@ export default function QuestionnaireMathsPremiereStagePrintempsPage() {
       if (res.ok) setLastSaved(new Date());
     } catch { /* Ignored */ }
     finally { setIsSaving(false); }
-  }, [submitted]);
+  }, [submitted, fetch]);
 
   useEffect(() => {
     if (isLoading || submitted) return;
-    const timer = setTimeout(() => {
+    const timer = setTimeout(recovery.bindDeferredMutation(() => {
       void saveDraft(answers, step);
-    }, 1500);
+    }), 1500);
     return () => clearTimeout(timer);
-  }, [answers, step, saveDraft, isLoading, submitted]);
+  }, [answers, step, saveDraft, isLoading, submitted, recovery]);
 
   function setValue(name: string, value: FieldValue) {
     setAnswers((current) => ({ ...current, [name]: value }));

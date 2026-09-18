@@ -702,6 +702,7 @@ export const useMathsLabStore = create<MathsLabState>()(
     }),
     {
       name: 'nexus-maths-lab-v2',
+      skipHydration: true,
       version: 5,
     }
   )

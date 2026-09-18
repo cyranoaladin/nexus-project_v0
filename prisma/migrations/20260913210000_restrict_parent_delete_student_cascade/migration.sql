@@ -1,0 +1,55 @@
+-- Zero-debt go-live audit, finding DELETE-3 (found while building the
+-- exhaustive FK inventory for #273): migration 20260913200000 protected
+-- direct User/CoachProfile deletes, but a THIRD path bypassed it entirely —
+-- deleting a PARENT's User row cascades User->ParentProfile (Cascade) ->
+-- Student (Cascade), silently destroying the Student row itself and every
+-- CASCADE-linked table off it (credit_transactions, sessions,
+-- session_reports, progression_history, trajectories, pedagogical/EAF
+-- reports, candidate_diagnostics, ...) — none of which are covered by the
+-- 11 Restrict constraints added in 20260913200000, because none of them
+-- fire until a Student row is deleted directly, which this path never does
+-- (it is deleted as a cascade side-effect of the ParentProfile delete).
+--
+-- Proven empirically against a real disposable Postgres: before this
+-- migration, deleting a parent's user row with one real Student (who has a
+-- single credit_transactions row) silently deletes both the Student and the
+-- credit_transactions row. This migration changes students_parentId_fkey
+-- from ON DELETE CASCADE to ON DELETE RESTRICT, which fails that delete
+-- loudly instead (surfaced as a 409 by the existing
+-- lib/security/account-deletion-guard.ts mapping, extended below to
+-- recognize this constraint).
+--
+-- Does not affect the one legitimate path that deletes both: pending
+-- (never-activated) account purge in lib/auth/pending-account-lifecycle.ts's
+-- purgeGraph(), which already deletes Student rows explicitly before the
+-- ParentProfile row — by the time that DELETE runs, no Student references
+-- the ParentProfile, so Restrict is a no-op there.
+--
+-- Pure behavior-change migration: does not touch any existing row or
+-- column, only the ON DELETE action of an already-existing foreign key —
+-- safe to apply against any current data.
+--
+-- Operational lock impact (measured against a real disposable Postgres,
+-- 200k synthetic rows in a Restrict-protected child table): a plain
+-- `DROP CONSTRAINT` + `ADD CONSTRAINT ... FOREIGN KEY` (no NOT VALID) holds
+-- AccessExclusiveLock — confirmed via a concurrent pg_locks read while the
+-- ALTER was held open — for the full duration of ADD CONSTRAINT's
+-- existing-row validation scan (45ms at 200k rows; scales with table size,
+-- and `prisma migrate deploy` runs an entire migration.sql in one
+-- transaction, so splitting NOT VALID/VALIDATE across statements in the
+-- SAME file would not help — the lock is held for the whole transaction
+-- either way). ADD CONSTRAINT ... NOT VALID alone is near-instant (no scan)
+-- and needs only the same brief AccessExclusiveLock a DROP CONSTRAINT
+-- already takes; the expensive scan is deferred to a separate
+-- VALIDATE CONSTRAINT, which measured at 58ms for 200k rows under only
+-- ShareUpdateExclusiveLock (confirmed via pg_locks) — a lock that does NOT
+-- block concurrent reads or writes on this table. Deferring validation to
+-- migration 20260913210001 (a separate transaction) is what makes that
+-- weaker lock apply in production.
+
+-- DropForeignKey
+ALTER TABLE "students" DROP CONSTRAINT "students_parentId_fkey";
+
+-- AddForeignKey (NOT VALID: skip the existing-row scan here; validated by
+-- the following migration under a much weaker lock)
+ALTER TABLE "students" ADD CONSTRAINT "students_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "parent_profiles"("id") ON DELETE RESTRICT ON UPDATE CASCADE NOT VALID;

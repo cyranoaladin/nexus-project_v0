@@ -127,6 +127,7 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
   });
 
+
   it('falls back to the raw role string for a role absent from ROLE_LABELS', () => {
     render(
       <AriaCourseWorkspace
@@ -162,6 +163,59 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText('Fiche sans sous-titre')).toBeInTheDocument();
     expect(screen.getByText('Bilan sans date')).toBeInTheDocument();
     expect(screen.getByText('Date inconnue')).toBeInTheDocument();
+  });
+
+  it('renders a published ARIA_PERIODIC bilan as a real clickable link to its result page', () => {
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          assessments: [
+            {
+              id: 'aria-bilan-1',
+              title: 'Mathématiques',
+              subject: 'MATHEMATIQUES',
+              state: 'RECENT',
+              date: '2026-09-12T00:00:00.000Z',
+              href: '/dashboard/eleve/bilans/share-abc',
+              type: 'ARIA_PERIODIC',
+              globalScore: 80,
+            },
+          ],
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    const link = screen.getByTestId('aria-course-bilan-item');
+    expect(link.tagName).toBe('A');
+    expect(link).toHaveAttribute('href', '/dashboard/eleve/bilans/share-abc');
+  });
+
+  it('never renders a non-ARIA_PERIODIC bilan as a link (its resultUrl is not guaranteed correct)', () => {
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          assessments: [
+            {
+              id: 'stage-bilan-1',
+              title: 'Mathématiques',
+              subject: 'MATHEMATIQUES',
+              state: 'RECENT',
+              date: '2026-09-12T00:00:00.000Z',
+              href: '/bilan-pallier2-maths/resultat/share-xyz',
+              type: 'STAGE_POST',
+              globalScore: 80,
+            },
+          ],
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={jest.fn()}
+      />,
+    );
+    const item = screen.getByTestId('aria-course-bilan-item');
+    expect(item.tagName).toBe('LI');
   });
 
   it('shows a real mastery badge next to a competency once mastery data has loaded', () => {
