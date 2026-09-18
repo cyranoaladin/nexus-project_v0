@@ -10,12 +10,19 @@
  */
 import { requireCoreV2Client } from '@/lib/core-v2/client'
 import { coreV2AuthEnabled, getAuthRolloutMode, type AuthRolloutMode } from '@/lib/core-v2/auth/rollout'
+import { getPasswordResetTtlMs } from '@/lib/core-v2/config'
 
 export async function assertAuthRolloutStartup(): Promise<AuthRolloutMode> {
   const mode = getAuthRolloutMode()
   if (coreV2AuthEnabled(mode)) {
     // Throws CoreV2DatabaseUrlError / CoreV2DatabaseIdentityError / connection errors: all fatal here.
     await requireCoreV2Client()
+    // The reset TTL is fail-closed with no default, and the public route
+    // answers 202 whatever happens — so a missing value does not surface as an
+    // error to anyone: the parent is simply never sent a link. A mode that can
+    // open Core v2 must therefore prove the value AT STARTUP, where a human
+    // sees it, rather than at the first reset request, where nobody does.
+    getPasswordResetTtlMs()
   }
   return mode
 }
