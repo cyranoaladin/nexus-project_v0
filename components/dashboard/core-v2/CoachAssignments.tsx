@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type ApiFail, type CoachSelf, describeFailure, displayName, v2 } from './api';
 import { ActiveSeries, ENROLLMENT_LABEL, yearLabel } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
+import { UpcomingSessions } from './UpcomingSessions';
 
 /** Read-only view of the signed-in coach's own Core v2 assignments (§AJ). */
 export function CoachAssignments() {
@@ -27,6 +28,7 @@ export function CoachAssignments() {
   }, []);
 
   return (
+    <div className="space-y-4">
     <Card className="border-white/10 bg-surface-card" aria-labelledby="core-v2-coach-assignments">
       <CardHeader>
         <CardTitle id="core-v2-coach-assignments" className="text-lg text-white">Mes affectations</CardTitle>
@@ -67,5 +69,7 @@ export function CoachAssignments() {
         )}
       </CardContent>
     </Card>
+    <UpcomingSessions scope="coach" />
+    </div>
   );
 }

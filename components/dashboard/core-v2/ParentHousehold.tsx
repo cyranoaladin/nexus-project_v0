@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type ApiFail, type HouseholdDetail, describeFailure, displayName, v2 } from './api';
 import { ACCOUNT_LABEL, EnrollmentSection } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
+import { UpcomingSessions } from './UpcomingSessions';
 
 /** Read-only view of the signed-in parent's own household (Core v2 authority). */
 export function ParentHousehold() {
@@ -48,6 +49,8 @@ export function ParentHousehold() {
           Parents : {household.parents.map((p) => `${displayName(p)} (${ACCOUNT_LABEL[p.accountStatus]})`).join(', ')}
         </p>
       </header>
+
+      <UpcomingSessions scope="parent" />
 
       {household.students.length === 0 && <p role="status" className="text-neutral-400">Aucun enfant n’est encore enregistré dans votre foyer.</p>}
 

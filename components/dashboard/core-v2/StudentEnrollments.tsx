@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { type ApiFail, type StudentSelf, describeFailure, displayName, v2 } from './api';
 import { EnrollmentSection } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
+import { UpcomingSessions } from './UpcomingSessions';
 
 /** Read-only view of the signed-in student's own enrollments (Core v2 authority, §AI). */
 export function StudentEnrollments() {
@@ -48,6 +49,7 @@ export function StudentEnrollments() {
           {student.parents.length > 0 && ` · Parents : ${student.parents.map((p) => displayName(p)).join(', ')}`}
         </p>
       </header>
+      <UpcomingSessions scope="student" />
       {student.enrollments.length === 0 && <p role="status" className="text-neutral-400">Aucune inscription annuelle pour le moment.</p>}
       {student.enrollments.map((enrollment) => (
         <EnrollmentSection key={enrollment.id} enrollment={enrollment} />
