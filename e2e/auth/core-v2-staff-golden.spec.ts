@@ -99,8 +99,21 @@ let enrollmentId = '';
 let rawToken = '';
 let studentToken = '';
 
-async function findCoreV2Token(recipient: string, linkPath: '/auth/activate' | '/auth/reset-password'): Promise<string> {
-  const pattern = new RegExp(`${linkPath.replace(/\//g, '\\/')}\\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})`);
+/**
+ * One literal pattern per link, instead of building a regex from the path.
+ * Escaping `/` was both unnecessary (it carries no meaning inside a `RegExp`
+ * constructor) and incomplete (no other metacharacter was escaped) — CodeQL
+ * flags that shape as `js/incomplete-sanitization`, and it is right to: a
+ * path that later gains a `.` or a `+` would silently match too much. Literals
+ * cannot drift that way.
+ */
+const TOKEN_PATTERN = {
+  '/auth/activate': /\/auth\/activate\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
+  '/auth/reset-password': /\/auth\/reset-password\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
+} as const;
+
+async function findCoreV2Token(recipient: string, linkPath: keyof typeof TOKEN_PATTERN): Promise<string> {
+  const pattern = TOKEN_PATTERN[linkPath];
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
