@@ -36,6 +36,8 @@ export const AUDIT_ACTIONS = [
   'account.invitation_resent',
   'account.activated',
   'account.password_changed',
+  'account.password_reset_requested',
+  'account.password_reset',
   'account.suspended',
   'account.reactivated',
   'account.disabled',

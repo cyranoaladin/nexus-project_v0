@@ -71,6 +71,10 @@ describe('S3 final distributed rate-limit contract', () => {
     // Core v2 public activation (POST /api/v2/auth/activate): same posture as the other credential endpoints.
     expectedScopes.push('core-v2-activation');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-activation']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    // Core v2 password reset: request = e-mail posture (enumeration-safe), confirm = credential posture.
+    expectedScopes.push('core-v2-password-reset-request', 'core-v2-password-reset-confirm');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-request']).toEqual({ ipPreset: 'emailIp', identityPreset: 'emailIdentity' });
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-confirm']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',

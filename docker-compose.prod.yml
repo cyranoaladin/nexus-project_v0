@@ -87,6 +87,12 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       SMTP_FROM: ${SMTP_FROM}
       EMAIL_FROM: ${EMAIL_FROM}
+      # Drains canonical_job_outbox: every activation, password-reset and
+      # parent-report e-mail. Required rather than defaulted — the app refuses
+      # to start in production without it, and a default would let a silent
+      # misconfiguration disable all transactional mail.
+      EMAIL_OUTBOX_WORKER_ENABLED: ${EMAIL_OUTBOX_WORKER_ENABLED:?EMAIL_OUTBOX_WORKER_ENABLED is required}
+      EMAIL_OUTBOX_ENCRYPTION_KEY: ${EMAIL_OUTBOX_ENCRYPTION_KEY:?EMAIL_OUTBOX_ENCRYPTION_KEY is required}
       ARIA_TURN_RECOVERY_WORKER_ENABLED: ${ARIA_TURN_RECOVERY_WORKER_ENABLED:?ARIA_TURN_RECOVERY_WORKER_ENABLED is required}
       ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: ${ARIA_TURN_RECOVERY_POLL_INTERVAL_MS:-1000}
 

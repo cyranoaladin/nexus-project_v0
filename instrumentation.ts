@@ -67,7 +67,19 @@ export async function register() {
     }
 
     const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
-    startEmailOutboxScheduler();
+    try {
+      startEmailOutboxScheduler();
+    } catch (error) {
+      // This call throws in production when the worker is not configured. It
+      // was the only scheduler here without the boundary its neighbours have,
+      // and the omission was worse than a missing mailer: Next swallows the
+      // rejected hook, so the bilan and ARIA recovery schedulers below never
+      // started either — silently, on a process that kept serving traffic.
+      // Every transactional e-mail of the launch (activation, password reset,
+      // parent report) is drained by this worker.
+      console.error('EMAIL_OUTBOX_PREFLIGHT_FAILED', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
 
     const { startParentWhatsAppOutboxScheduler } = await import('./lib/whatsapp/invitation-scheduler');
     try {

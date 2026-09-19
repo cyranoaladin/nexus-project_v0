@@ -111,14 +111,18 @@ enum AccountStatus {
 //   REVOKED  = revokedAt IS NOT NULL
 // Only the token HASH is stored (sha256 of a 32-byte random token) — the raw
 // token exists only in the service return value handed to the mail layer.
-// At most one non-consumed, non-revoked invitation per user at any time —
-// race-safe via partial unique index invitations_open_user_key (migration
-// 0006); a resend revokes the prior open invitation in the same transaction.
+// One-time, hashed tokens with two purposes: ACTIVATION (set the first
+// password on a PENDING_ACTIVATION account) and PASSWORD_RESET (replace the
+// password of an ACTIVE account, revoking its sessions). At most one open
+// token per (user, purpose) at any time — race-safe via partial unique index
+// invitations_open_user_purpose_key (migration 0008); issuing a new one
+// revokes the prior open token of the same purpose in the same transaction.
 model Invitation {
-  id         String    @id @default(cuid())
+  id         String            @id @default(cuid())
   userId     String
-  user       User      @relation("InvitationUser", fields: [userId], references: [id], onDelete: Restrict)
-  tokenHash  String    @unique
+  user       User              @relation("InvitationUser", fields: [userId], references: [id], onDelete: Restrict)
+  purpose    InvitationPurpose @default(ACTIVATION)
+  tokenHash  String            @unique
   expiresAt  DateTime
   consumedAt DateTime?
   revokedAt  DateTime?
@@ -128,6 +132,11 @@ model Invitation {
 
   @@index([userId])
   @@map("invitations")
+}
+
+enum InvitationPurpose {
+  ACTIVATION
+  PASSWORD_RESET
 }
 
 // ── Immutable business audit ────────────────────────────────────────────────

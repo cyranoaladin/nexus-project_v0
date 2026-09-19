@@ -18,6 +18,18 @@ export function getInvitationTtlMs(env: Record<string, string | undefined> = pro
   return hours * 60 * 60 * 1000;
 }
 
+export const PASSWORD_RESET_TTL_ENV = 'CORE_V2_PASSWORD_RESET_TTL_MINUTES';
+
+/** Password-reset link validity in milliseconds; integer minutes between 5 and 1440 (24 h). */
+export function getPasswordResetTtlMs(env: Record<string, string | undefined> = process.env): number {
+  const raw = env[PASSWORD_RESET_TTL_ENV]?.trim();
+  const minutes = raw ? Number(raw) : Number.NaN;
+  if (!Number.isInteger(minutes) || minutes < 5 || minutes > 1440) {
+    throw new CoreV2ConfigError(`${PASSWORD_RESET_TTL_ENV} must be an integer number of minutes between 5 and 1440.`);
+  }
+  return minutes * 60 * 1000;
+}
+
 export function isValidIanaTimezone(value: string): boolean {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: value });
