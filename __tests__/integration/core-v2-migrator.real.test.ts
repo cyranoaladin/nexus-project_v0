@@ -87,7 +87,9 @@ function approval() {
   return parseApprovalFile({
     schoolYear: '2026-2027',
     academicYear: { startYear: 2026, startsAt: '2026-09-01', endsAt: '2027-07-15' },
-    // The ADMIN actor is not a student; they enter the plan through… nothing. So the plan must carry the actor explicitly:
+    // L'acteur ADMIN n'est pas un eleve et n'a pas a l'etre : c'est une
+    // identite de plan de controle, provisionnee dans Core v2 avant la
+    // migration. Le roster ne porte que des eleves.
     approvedStudentIds: [ids.studentA, ids.studentB],
     approvedBy: 'owner-synthetic',
     approvedAt: '2026-09-12T00:00:00.000Z',
@@ -97,16 +99,17 @@ function approval() {
 async function run(execute: boolean) {
   const snapshot = await readSourceSnapshot(v1, approval());
   const plan = buildTargetPlan(snapshot, approval(), migratedAt);
-  // The migrating actor must exist in the target: the plan carries roster users only, so the
-  // rehearsal mirrors the ADMIN first exactly as the e2e staff seed does (same id).
+  // L'acteur est provisionne dans Core v2 AVANT la migration, comme le fait
+  // le parcours canonique. Le plan n'a plus a le porter : `applyPlan` le
+  // verifie dans la cible (present, role ADMIN) et le tolere comme unique
+  // utilisateur cible preexistant.
   const admin = await v1.user.findUniqueOrThrow({ where: { id: ids.admin } });
   await v2.user.upsert({
     where: { id: admin.id },
     create: { id: admin.id, email: admin.email!.toLowerCase(), role: 'ADMIN', password: admin.password, accountStatus: 'ACTIVE', activatedAt: admin.activatedAt, firstName: admin.firstName, lastName: admin.lastName },
     update: {},
   });
-  const planWithActor = { ...plan, users: [...plan.users, { id: admin.id, email: admin.email!.toLowerCase(), password: admin.password, role: 'ADMIN' as const, firstName: admin.firstName, lastName: admin.lastName, phone: admin.phone, accountStatus: 'ACTIVE' as const, activatedAt: admin.activatedAt, sessionVersion: admin.sessionVersion }] };
-  const manifest = await applyPlan(v2, planWithActor, {
+  const manifest = await applyPlan(v2, plan, {
     execute,
     actorUserId: ids.admin,
     migratedAt,
@@ -116,6 +119,21 @@ async function run(execute: boolean) {
     correlationId: `migration-test:${prefix}`,
   });
   return { snapshot, plan, manifest };
+}
+
+/** Même exécution, avec un acteur imposé : sert les épreuves de refus. */
+async function runWithActor(execute: boolean, actorUserId: string) {
+  const snapshot = await readSourceSnapshot(v1, approval());
+  const plan = buildTargetPlan(snapshot, approval(), migratedAt);
+  return applyPlan(v2, plan, {
+    execute,
+    actorUserId,
+    migratedAt,
+    approvalDigest: approvalDigest(approval()),
+    sourceFingerprint: snapshot.fingerprint,
+    transformVersion: TRANSFORM_VERSION,
+    correlationId: `migration-test-actor:${prefix}`,
+  });
 }
 
 const results = (m: Awaited<ReturnType<typeof run>>['manifest'], entity?: string) =>
@@ -200,4 +218,15 @@ test('6. a target that holds rows outside the plan is refused before any write',
   await v2.user.create({ data: { id: `${prefix}-foreign`, role: 'PARENT', email: `${prefix}-foreign@synthetic.test`, accountStatus: 'ACTIVE' } });
   await expect(run(true)).rejects.toThrow(/TARGET_HAS_FOREIGN_ROWS/);
   await v2.user.delete({ where: { id: `${prefix}-foreign` } });
+
+  // Un SECOND administrateur ne passe pas davantage : la tolerance porte sur
+  // l'acteur DECLARE, pas sur le role.
+  await v2.user.create({ data: { id: `${prefix}-admin2`, role: 'ADMIN', email: `${prefix}-admin2@synthetic.test`, accountStatus: 'ACTIVE' } });
+  await expect(run(true)).rejects.toThrow(/TARGET_HAS_FOREIGN_ROWS/);
+  await v2.user.delete({ where: { id: `${prefix}-admin2` } });
+
+  // Un acteur absent de la cible est refuse avant toute ecriture.
+  await expect(runWithActor(true, `${prefix}-nobody`)).rejects.toThrow(/MIGRATION_ACTOR_ABSENT_FROM_TARGET/);
+  // Un acteur present mais qui n'est pas ADMIN l'est aussi.
+  await expect(runWithActor(true, ids.parent)).rejects.toThrow(/MIGRATION_ACTOR_NOT_ADMIN/);
 });

@@ -3,7 +3,7 @@
  *
  *   DATABASE_URL=<core v1, read only> CORE_V2_DATABASE_URL=<core v2 target> \
  *   npx tsx scripts/core-v2/migrate-to-core-v2.ts \
- *     --approval=<owner approval .json> --actor=<ADMIN user id present in the plan> \
+ *     --approval=<owner approval .json> --actor=<ADMIN user id already provisioned in Core v2> \
  *     --migrated-at=<ISO instant> --out=<manifest .json> [--execute]
  *
  * Exit codes: 0 = manifest written, reconciliation clean; 2 = anomalies
@@ -48,10 +48,6 @@ async function main(): Promise<number> {
   const v2 = await requireCoreV2Client();
   const snapshot = await readSourceSnapshot(coreV1, approval);
   const plan = buildTargetPlan(snapshot, approval, migratedAt);
-  if (!plan.users.some((u) => u.id === actorUserId && u.role === 'ADMIN')) {
-    console.error(`--actor ${actorUserId} is not an ADMIN user of this plan; the migrating actor must exist in Core v2.`);
-    return 1;
-  }
   const manifest = await applyPlan(v2, plan, {
     execute,
     actorUserId,

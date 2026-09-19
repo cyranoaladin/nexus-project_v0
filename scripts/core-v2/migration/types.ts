@@ -83,6 +83,13 @@ export interface MigrationManifest {
   readonly approvedStudentCount: number;
   readonly sourceFingerprint: string;
   readonly targetFingerprint: string;
+  /**
+   * L'acteur de migration : une dependance de PLAN DE CONTROLE, jamais un
+   * membre du roster. Identifiant et role seulement — ni adresse, ni nom, ni
+   * telephone, ni justificatif. Il n'entre pas dans `approvedStudentCount`.
+   */
+  readonly migrationActorUserId: string;
+  readonly migrationActorRole: 'ADMIN';
   readonly counts: Record<MigrationEntity, Record<ObjectResult, number>>;
   readonly objects: readonly ObjectManifestEntry[];
   readonly reconciliation: Reconciliation;

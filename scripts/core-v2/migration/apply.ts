@@ -41,12 +41,21 @@ function decide(existingHash: string | null, plannedHash: string, execute: boole
  * migrating INTO a populated Core v2 (an e2e seed, another roster) would mix
  * authorities. A rerun over the same plan is fine (every existing id is ours).
  */
-async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan): Promise<string> {
+async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan, actorUserId: string): Promise<string> {
+  // L'acteur de migration est une identite de plan de controle : il existe
+  // dans Core v2 AVANT la migration et n'appartient pas au graphe des eleves.
+  // C'est donc le seul utilisateur cible preexistant tolere — tout autre
+  // (compte de demonstration, reliquat E2E, second administrateur, autre
+  // roster) fait refuser la migration avant la moindre ecriture.
+  const actor = await client.user.findUnique({ where: { id: actorUserId }, select: { id: true, role: true } });
+  if (!actor) throw new Error(`MIGRATION_ACTOR_ABSENT_FROM_TARGET: ${actorUserId} does not exist in the Core v2 database.`);
+  if (actor.role !== 'ADMIN') throw new Error(`MIGRATION_ACTOR_NOT_ADMIN: ${actorUserId} has role ${actor.role}.`);
+
   const plannedUserIds = new Set(plan.users.map((u) => u.id));
   const users = await client.user.findMany({ select: { id: true } });
-  const foreign = users.filter((u) => !plannedUserIds.has(u.id)).map((u) => u.id);
+  const foreign = users.filter((u) => !plannedUserIds.has(u.id) && u.id !== actorUserId).map((u) => u.id);
   if (foreign.length > 0) {
-    throw new Error(`TARGET_HAS_FOREIGN_ROWS: ${foreign.length} users in the Core v2 database are not part of this plan (first: ${foreign.slice(0, 3).join(', ')}).`);
+    throw new Error(`TARGET_HAS_FOREIGN_ROWS: ${foreign.length} users in the Core v2 database are neither part of this plan nor the declared migration actor (first: ${foreign.slice(0, 3).join(', ')}).`);
   }
   const marker = await client.coreV2DatabaseIdentity.findUnique({ where: { id: 1 } });
   return `v2:${marker?.schemaIdentity ?? '?'}#${marker?.schemaGeneration ?? '?'};users=${users.length}`;
@@ -54,7 +63,7 @@ async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan): P
 
 export async function applyPlan(client: PrismaClient, plan: TargetPlan, options: ApplyOptions): Promise<MigrationManifest> {
   const startedAt = new Date();
-  const targetFingerprint = await assertTargetCompatible(client, plan);
+  const targetFingerprint = await assertTargetCompatible(client, plan, options.actorUserId);
   const outcomes = new Map<string, Outcome>(); // `${entity}:${targetId}` → outcome
   const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason });
 
@@ -249,6 +258,8 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     approvedStudentCount: plan.students.length + plan.entries.filter((e) => e.entity === 'Student' && e.result !== 'PLANNED').length,
     sourceFingerprint: options.sourceFingerprint,
     targetFingerprint,
+    migrationActorUserId: options.actorUserId,
+    migrationActorRole: 'ADMIN',
     counts,
     objects,
     reconciliation,
