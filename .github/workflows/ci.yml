@@ -438,6 +438,7 @@ jobs:
           --testPathIgnorePatterns='session-revocation\.real\.test\.ts'
           --testPathIgnorePatterns='pending-account-lifecycle\.real\.test\.ts'
           --testPathIgnorePatterns='activation-domain-separation\.real\.test\.ts'
+          --testPathIgnorePatterns='core-v2-migrator\.real\.test\.ts'
           --testPathIgnorePatterns='parent-registration-atomicity\.real\.test\.ts'
           --testPathIgnorePatterns='parent-email-onboarding\.real\.test\.ts'
           --testPathIgnorePatterns='npc-.*\.real\.test\.ts'
