@@ -32,6 +32,7 @@ import * as coachCapabilities from '@/app/api/v2/staff/coaches/[id]/capabilities
 import * as assignments from '@/app/api/v2/staff/assignments/route';
 import * as planningSeries from '@/app/api/v2/staff/planning/series/route';
 import * as accountInvite from '@/app/api/v2/staff/accounts/[id]/invite/route';
+import * as staffAccounts from '@/app/api/v2/staff/staff-accounts/route';
 import * as accountSuspend from '@/app/api/v2/staff/accounts/[id]/suspend/route';
 import * as duplicates from '@/app/api/v2/staff/duplicates/route';
 import * as audit from '@/app/api/v2/staff/audit/route';
@@ -246,5 +247,38 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect(byPhone.body.data.items[0].parents[0].email).toBe('nour1@example.com');
     const tooBig = await json(await households.GET(req('GET', '/api/v2/staff/households?limit=1000'), NO_PARAMS));
     expect(tooBig.status).toBe(400);
+  });
+});
+
+describe('staff account creation at the boundary (POST /api/v2/staff/staff-accounts)', () => {
+  const body = { role: 'COACH', firstName: 'Karim', lastName: 'Nexus', email: 'boundary-coach@example.com' };
+
+  test('ADMIN creates a COACH with its profile; the response never carries a password', async () => {
+    const r = await json(await staffAccounts.POST(req('POST', '/api/v2/staff/staff-accounts', body), NO_PARAMS));
+    expect(r.status).toBe(201);
+    expect(r.body.data.user).toMatchObject({ role: 'COACH', accountStatus: 'PENDING_ACTIVATION' });
+    expect(r.body.data.coachProfile).not.toBeNull();
+    expect(JSON.stringify(r.body)).not.toMatch(/password/i);
+  });
+
+  test('ASSISTANTE is refused at the boundary — she may invite, not create a colleague', async () => {
+    signInAs({ id: h.assistante.userId, role: 'ASSISTANTE' });
+    const r = await json(await staffAccounts.POST(req('POST', '/api/v2/staff/staff-accounts', body), NO_PARAMS));
+    expect(r.status).toBe(403);
+    expect(r.body.error.code).toBe('FORBIDDEN');
+    expect(await h.client.user.count({ where: { email: body.email } })).toBe(0);
+  });
+
+  test('ADMIN is not a creatable role through this route', async () => {
+    const r = await json(await staffAccounts.POST(req('POST', '/api/v2/staff/staff-accounts', { ...body, role: 'ADMIN' }), NO_PARAMS));
+    expect(r.status).toBe(400);
+    expect(r.body.error.code).toBe('VALIDATION');
+  });
+
+  test('a duplicate e-mail maps to 409, not a 500', async () => {
+    await staffAccounts.POST(req('POST', '/api/v2/staff/staff-accounts', body), NO_PARAMS);
+    const again = await json(await staffAccounts.POST(req('POST', '/api/v2/staff/staff-accounts', { ...body, role: 'ASSISTANTE' }), NO_PARAMS));
+    expect(again.status).toBe(409);
+    expect(again.body.error.code).toBe('CONFLICT');
   });
 });

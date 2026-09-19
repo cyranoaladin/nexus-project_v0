@@ -24,7 +24,22 @@ The actor is the identity the migration is **performed by**, never an identity t
 - it is excluded from the roster accounting on purpose: it is not in `approvedStudentIds`, not in `plan.users`, and not in `approvedStudentCount`;
 - the manifest records `migrationActorUserId` and `migrationActorRole` only — identifier and role, no contact data (§AQ).
 
-Core v2 has no account-creation service for staff roles (`createHousehold`/`createParent` hardcode `PARENT`, `createStudent` hardcodes `ELEVE`, and `inviteAccount` needs an actor that already holds `ACCOUNT_INVITE`), so the **first** ADMIN cannot be invited by anybody: it is a bootstrap, and it is an owner decision, not an operator one. Bootstrapping it means creating the row with `role = 'ADMIN'` and the owner's own identity, then driving the normal lifecycle (`inviteAccount` → `deliverCoreV2Invitation` → `activateAccount`) so the credential is set by the owner through the sanctioned path and never written by a script. A legacy Core v1 admin is **not** a substitute: it is not owner-verified, and reusing it would make the control plane depend on an account the owner has not recognised.
+The **first** ADMIN cannot be invited by anybody — every account-creating service pins its role, and `inviteAccount` asserts `ACCOUNT_INVITE` on its actor. That circle is broken exactly once, by `scripts/core-v2/bootstrap-admin.ts`:
+
+```
+CORE_V2_DATABASE_URL=<core v2> npx tsx scripts/core-v2/bootstrap-admin.ts \
+  --email=<owner mailbox> --first-name=<given> --last-name=<family> --execute
+```
+
+`NEXTAUTH_URL` must already be the production HTTPS origin: the activation link is built from it, and the script validates it **before writing anything** — discovering it afterwards would leave an ADMIN row whose invitation was never queued, unable to sign in to resend it, with the bootstrap already closed because an ADMIN now exists.
+
+Two concurrent runs cannot both succeed: creation takes a transaction-scoped PostgreSQL advisory lock before it counts administrators. An in-transaction re-check alone is not enough — under READ COMMITTED two connections both read zero and both insert, which was measured, and the test that proves the lock fails three times out of three when the lock is removed. The lock constrains the OPERATION, not the data: Nexus may still have several administrators later, created by an authorized service.
+
+If the first administrator never receives its e-mail, `--resend-invitation` re-invites **the same account** through the ordinary service: one ADMIN still, the previous link revoked, no password imposed, no token printed. It refuses once that account is ACTIVE — from then on the ordinary password-reset path is the way in.
+
+It refuses if any ADMIN already exists (so it cannot be replayed — `BOOTSTRAP_ADMIN_DISABLED_FOREVER` holds from the first successful run, not merely from the first activation), refuses to write without `--execute`, and refuses `--execute` outside a disposable database unless `OWNER_PRODUCTION_GO` is set. It accepts no password: the account is born `PENDING_ACTIVATION` and gets its credential from `activateAccount`, i.e. canonical bcrypt with the canonical `sessionVersion` bump. The raw activation token goes to the e-mail outbox and is never printed or logged.
+
+Every later staff account comes from `POST /api/v2/staff/staff-accounts` (ADMIN-only capability `STAFF_ACCOUNT_CREATE`), which creates one ASSISTANTE or COACH — and, for a COACH, its `CoachProfile` in the same transaction, since a coach without a profile can be neither granted a capability nor assigned. A legacy Core v1 admin is **not** a substitute for the bootstrap: it is not owner-verified, and reusing it would make the control plane depend on an account the owner has not recognised.
 
 ## What migrates / what does not
 
