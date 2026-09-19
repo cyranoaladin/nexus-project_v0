@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { type ApiFail, type HouseholdDetail, describeFailure, displayName, v2 } from './api';
 import { ACCOUNT_LABEL, EnrollmentSection } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
@@ -42,7 +42,7 @@ export function ParentHousehold() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="core-v2 space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-white">Mon foyer</h1>
         <p className="text-sm text-neutral-400">
@@ -57,7 +57,7 @@ export function ParentHousehold() {
       {household.students.map((student) => (
         <Card key={student.id} className="border-white/10 bg-surface-card">
           <CardHeader>
-            <CardTitle className="text-lg text-white">{displayName(student.user)}</CardTitle>
+            <h2 className="text-lg font-semibold text-white">{displayName(student.user)}</h2>
             <p className="text-xs text-neutral-400">Compte élève : {ACCOUNT_LABEL[student.user.accountStatus]}</p>
           </CardHeader>
           <CardContent className="space-y-4">

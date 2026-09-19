@@ -15,6 +15,7 @@
  * mirrored coach (§AJ) sees the assignment made to them.
  */
 import { expect, test, type Cookie } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { gotoSignInForm, loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
@@ -129,6 +130,15 @@ async function findCoreV2Token(recipient: string, linkPath: keyof typeof TOKEN_P
 }
 const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
 
+/** §AU accessibility: no axe violation on a Core v2 screen (optionally scoped to the Core v2 region of a mixed page). */
+async function expectAccessible(page: import('@playwright/test').Page, include?: string): Promise<void> {
+  const builder = new AxeBuilder({ page });
+  const results = await (include ? builder.include(include) : builder).analyze();
+  expect(
+    results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => `${n.target.join(' ')} ${JSON.stringify(n.any[0]?.data ?? null)}`).join(' | ')}`),
+  ).toEqual([]);
+}
+
 /** The session's user, or null — Auth.js answers `null` (not `{}`) once the JWT is revoked. */
 async function sessionUser(page: import('@playwright/test').Page): Promise<{ id?: string; role?: string; authority?: string } | null> {
   const body = (await (await page.request.get(`${BASE_URL}/api/auth/session`)).json()) as { user?: { id?: string; role?: string; authority?: string } } | null;
@@ -189,6 +199,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     householdId = page.url().split('/').pop()!;
     await expect(page.getByRole('heading', { name: /Foyer Amel Corev2/ })).toBeVisible();
     await expect(page.getByText(parentEmail)).toBeVisible();
+    await expectAccessible(page);
   });
 
   await test.step('creating the same e-mail again is blocked by the hard conflict', async () => {
@@ -279,6 +290,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const row = page.getByRole('listitem', { name: `${slotLabel} Yasmine Corev2-${nonce} — maths-premiere` });
     await expect(row).toBeVisible();
     await expect(row.getByText('Planifiée')).toBeVisible();
+    await expectAccessible(page);
     await row.getByRole('button', { name: 'Annuler la séance' }).click();
     const dialog = page.getByRole('dialog');
     await dialog.getByLabel('Motif').fill('Coach indisponible (E2E)');
@@ -355,6 +367,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(upcoming.getByText(`${longDay(seriesStart)} · ${slotLabel}`)).toHaveCount(0);
     // The Core v1 family dashboard is not rendered for a Core v2 identity.
     await expect(page.getByText('Espace Famille')).toHaveCount(0);
+    await expectAccessible(page);
     // The staff API stays closed to the parent even though they are a Core v2 actor.
     const staff = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     expect(staff.status()).toBe(403);
@@ -412,6 +425,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByText('Espace Élève')).toHaveCount(0);
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
+    await expectAccessible(page);
     // Neither the family endpoint nor the staff API is open to a student.
     expect((await page.request.get(`${BASE_URL}/api/v2/parent/household`)).status()).toBe(403);
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
@@ -437,6 +451,9 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
     await expect(row.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
+    // The coach page mixes Core v1 pilotage and the Core v2 panels: the Core v2 regions must be clean on their own.
+    await expectAccessible(page, '[aria-labelledby="core-v2-coach-assignments"]');
+    await expectAccessible(page, '[aria-labelledby="core-v2-upcoming-sessions"]');
     // A coach is not staff: the back-office surface stays closed.
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });

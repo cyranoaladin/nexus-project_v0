@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -72,7 +72,7 @@ export function HouseholdDetail({ householdId, basePath }: { householdId: string
   }
 
   return (
-    <div className="space-y-6">
+    <div className="core-v2 space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Foyer {household.parents.map(displayName).join(' & ') || household.id}</h1>
@@ -95,7 +95,7 @@ function ParentsSection({ household, can, refresh }: { household: HouseholdDetai
   return (
     <Card className="border-white/10 bg-surface-dark">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <CardTitle className="text-white">Parents</CardTitle>
+        <h2 className="text-base font-semibold text-white">Parents</h2>
         {(can('PARENT_CREATE') || can('PARENT_ATTACH')) && <AddParentDialog householdId={household.id} can={can} onDone={refresh} />}
       </CardHeader>
       <CardContent className="space-y-4">

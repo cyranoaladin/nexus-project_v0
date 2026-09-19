@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,7 @@ export function StudentsSection({ household, years, coaches, can, refresh }: { h
   return (
     <Card className="border-white/10 bg-surface-dark">
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
-        <CardTitle className="text-white">Élèves</CardTitle>
+        <h2 className="text-base font-semibold text-white">Élèves</h2>
         {can('STUDENT_CREATE') && <CreateStudentDialog householdId={household.id} onDone={refresh} />}
       </CardHeader>
       <CardContent className="space-y-6">

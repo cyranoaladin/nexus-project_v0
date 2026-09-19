@@ -41,6 +41,7 @@ export const AUDIT_ACTIONS = [
   'account.suspended',
   'account.reactivated',
   'account.disabled',
+  'migration.run_completed',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -55,7 +56,8 @@ export type AuditSubjectType =
   | 'CoachStudentCourseAssignment'
   | 'PlanningSeries'
   | 'SessionBooking'
-  | 'Invitation';
+  | 'Invitation'
+  | 'MigrationRun';
 
 export interface AuditEventInput {
   readonly actorUserId: string | null;

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,7 +62,7 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
   }, [load]);
 
   return (
-    <div className="space-y-6">
+    <div className="core-v2 space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Familles</h1>
@@ -83,11 +83,11 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
 
       <Card className="border-white/10 bg-surface-dark">
         <CardHeader>
-          <CardTitle className="text-white">
+          <h2 className="text-base font-semibold text-white">
             <label htmlFor="household-search" className="flex items-center gap-2 text-base font-medium">
               <Search className="h-4 w-4" aria-hidden="true" /> Rechercher une famille
             </label>
-          </CardTitle>
+          </h2>
           <Input
             id="household-search"
             placeholder="Nom, e-mail ou téléphone"

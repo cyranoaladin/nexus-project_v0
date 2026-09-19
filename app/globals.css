@@ -1198,6 +1198,30 @@ html {
   color: rgb(var(--color-neutral-100)) !important;
 }
 
+/* Core v2 screens (components/dashboard/core-v2): WCAG AA on the dark shell.
+   The shared outline/ghost button variants paint brand-primary (#2563EB) on
+   the dark dashboard background — 3.7:1, below AA for text. Inside a Core v2
+   root the same variants use the accent/neutral scale; every Core v2 screen
+   asserts this with axe (e2e/auth/core-v2-staff-golden.spec.ts). Unlayered on
+   purpose so it wins over the utilities layer; scoped so other dashboards keep
+   their current look. */
+.core-v2 .text-brand-primary {
+  color: rgb(var(--color-brand-accent));
+}
+
+.core-v2 .border-brand-primary {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.core-v2 .hover\:bg-brand-primary:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: rgb(var(--color-neutral-50));
+}
+
+.core-v2 .hover\:bg-brand-primary\/10:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
 .breadcrumb-on-dark .text-gray-600 {
   color: rgb(var(--color-neutral-300)) !important;
 }
