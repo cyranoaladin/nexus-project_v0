@@ -26,7 +26,7 @@ interface EnvVar {
  * ENV contract for Nexus Réussite.
  *
  * REQUIRED (prod fail-fast):
- *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL
+ *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_JITSI_SERVER_URL
  *
  * RECOMMENDED (graceful degradation):
  *   OLLAMA_URL, RAG_API_BASE_URL, RAG_BFF_SERVICE_TOKEN,
@@ -43,7 +43,12 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RATE_LIMIT_BACKEND', level: 'REQUIRED', description: 'Distributed rate-limit backend (redis)', prodOnly: true },
   { name: 'RATE_LIMIT_KEY_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for opaque rate-limit keys', prodOnly: true },
   { name: 'RATE_LIMIT_TRUST_PROXY_HOPS', level: 'REQUIRED', description: 'Exact trusted reverse-proxy hop count', prodOnly: true },
+  { name: 'JITSI_ROOM_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for deterministic Jitsi room names (≥32 chars, never NEXTAUTH_SECRET)', prodOnly: true },
+  { name: 'NEXT_PUBLIC_JITSI_SERVER_URL', level: 'REQUIRED', description: 'Dedicated Jitsi deployment URL — must never fall back to the public meet.jit.si in production', prodOnly: true },
+  { name: 'NEXUS_ORGANIZATION_TIMEZONE', level: 'REQUIRED', description: 'IANA timezone name the organization operates in (e.g. Africa/Tunis) — must be an explicit, validated config value, never a hardcoded assumption (see lib/timezone.ts)', prodOnly: true },
   { name: 'CORE_V2_AUTH_MODE', level: 'REQUIRED', description: 'Auth rollout mode: V1_ONLY | HYBRID | V2_ONLY (no default; HYBRID/V2_ONLY require a verified Core v2 database)', prodOnly: true },
+  { name: 'EMAIL_OUTBOX_WORKER_ENABLED', level: 'REQUIRED', description: 'Drains canonical_job_outbox: every activation, password-reset and parent-report e-mail. No default — an unset value disables all transactional mail, and the queue then grows silently', prodOnly: true },
+  { name: 'EMAIL_OUTBOX_ENCRYPTION_KEY', level: 'REQUIRED', description: 'Dedicated key the outbox worker needs to read queued message content (≥32 chars); without it the worker refuses to start', prodOnly: true },
 
   // ─── RECOMMENDED (graceful degradation) ────────────────────────────
   { name: 'OLLAMA_URL', level: 'RECOMMENDED', description: 'Ollama LLM service URL (fallback: Docker service name in prod)' },
@@ -57,6 +62,12 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'NEXUS_SSO_AUDIENCE', level: 'RECOMMENDED', description: 'Audience for the nested Nexus academic identity' },
   { name: 'SMTP_HOST', level: 'RECOMMENDED', description: 'SMTP server for transactional emails' },
   { name: 'SMTP_FROM', level: 'RECOMMENDED', description: 'Sender email address for transactional emails' },
+  // REQUIRED in fact, but only when CORE_V2_AUTH_MODE can open Core v2 — a
+  // V1_ONLY deployment never reaches the reset service and must not be made to
+  // declare a value it cannot honour. The fatal check therefore lives in the
+  // rollout preflight (lib/auth/auth-rollout-startup.ts), which knows the mode;
+  // listing it here keeps it visible in the one canonical contract.
+  { name: 'CORE_V2_PASSWORD_RESET_TTL_MINUTES', level: 'RECOMMENDED', description: 'Password-reset link validity, 5..1440 minutes. No default: REQUIRED whenever CORE_V2_AUTH_MODE is HYBRID or V2_ONLY, and proven at startup by assertAuthRolloutStartup — without it the public reset route still answers 202 and no mail is ever sent', prodOnly: true },
   { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
   // ─── OPTIONAL (silent if missing) ──────────────────────────────────
   { name: 'LLM_MODE', level: 'OPTIONAL', description: 'LLM behavior: live (default) | stub | off' },
@@ -101,6 +112,20 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   const secret = process.env.NEXTAUTH_SECRET;
   if (isProd && secret && secret.length < 32) {
     warnings.push(`NEXTAUTH_SECRET is ${secret.length} chars — recommended ≥32 for production security`);
+  }
+
+  // NEXUS_ORGANIZATION_TIMEZONE validity check — a typo'd or non-IANA value
+  // would otherwise only surface the first time lib/timezone.ts is actually
+  // invoked (a booking read, a workshop reminder), not at boot.
+  const organizationTimezone = process.env.NEXUS_ORGANIZATION_TIMEZONE;
+  if (isProd && organizationTimezone) {
+    try {
+      new Intl.DateTimeFormat('en-US', { timeZone: organizationTimezone });
+    } catch {
+      missing.push(
+        `NEXUS_ORGANIZATION_TIMEZONE — "${organizationTimezone}" is not a valid IANA timezone name`,
+      );
+    }
   }
 
   if (isProd) {

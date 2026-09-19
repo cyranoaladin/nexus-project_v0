@@ -12,14 +12,40 @@
 describe('validateEnv', () => {
   const originalEnv = { ...process.env };
 
+  /**
+   * Every REQUIRED variable of the contract, with a test-only value.
+   *
+   * These tests used to set three variables and inherit the rest from the
+   * shell that happened to run them: "all REQUIRED vars are present" was true
+   * only by accident of the environment, and adding a REQUIRED entry to the
+   * contract turned four of them red without any product defect. The baseline
+   * is explicit so the suite states its own preconditions.
+   *
+   * A test that wants a variable ABSENT deletes it after calling this.
+   */
+  const PRODUCTION_BASELINE: Readonly<Record<string, string>> = {
+    DATABASE_URL: 'postgresql://prod',
+    NEXTAUTH_SECRET: 'a'.repeat(32),
+    NEXTAUTH_URL: 'https://nexusreussite.academy',
+    RATE_LIMIT_BACKEND: 'redis',
+    RATE_LIMIT_KEY_SECRET: 'rate-limit-env-validation-secret-32-bytes',
+    RATE_LIMIT_TRUST_PROXY_HOPS: '1',
+    REDIS_URL: 'redis://127.0.0.1:6379',
+    NEXUS_ORGANIZATION_TIMEZONE: 'Africa/Tunis',
+    JITSI_ROOM_SECRET: 'change_me_jitsi_room_test_only_32_bytes_min',
+    NEXT_PUBLIC_JITSI_SERVER_URL: 'https://meet.nexusreussite.academy',
+    CORE_V2_AUTH_MODE: 'V1_ONLY',
+    EMAIL_OUTBOX_WORKER_ENABLED: 'true',
+    EMAIL_OUTBOX_ENCRYPTION_KEY: 'change_me_email_outbox_test_only_32_bytes',
+  };
+
   /** Helper to set NODE_ENV without TS readonly complaint */
   function setNodeEnv(val: string) {
     (process.env as Record<string, string | undefined>).NODE_ENV = val;
     if (val === 'production') {
-      process.env.RATE_LIMIT_BACKEND = 'redis';
-      process.env.RATE_LIMIT_KEY_SECRET = 'rate-limit-env-validation-secret-32-bytes';
-      process.env.RATE_LIMIT_TRUST_PROXY_HOPS = '1';
-      process.env.REDIS_URL = 'redis://127.0.0.1:6379';
+      for (const [name, value] of Object.entries(PRODUCTION_BASELINE)) {
+        process.env[name] = value;
+      }
     }
   }
 
@@ -42,6 +68,24 @@ describe('validateEnv', () => {
       warnings: string[];
     };
   }
+
+  describe('the production baseline', () => {
+    it('covers every REQUIRED variable the contract declares', () => {
+      // Sans cette garde, ajouter une entrée REQUIRED au contrat rend rouges
+      // quatre tests sans rapport, et le message n'indique pas la cause. Ici
+      // l'échec nomme exactement la variable à ajouter à la baseline.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const source: string = require('node:fs').readFileSync(
+        require('node:path').join(process.cwd(), 'lib/env-validation.ts'),
+        'utf8',
+      );
+      const required = [...source.matchAll(/\{\s*name:\s*'([A-Z0-9_]+)'\s*,\s*level:\s*'REQUIRED'/g)]
+        .map((match) => match[1]!);
+      expect(required.length).toBeGreaterThan(5);
+      const uncovered = required.filter((name) => !(name in PRODUCTION_BASELINE));
+      expect(uncovered).toEqual([]);
+    });
+  });
 
   describe('in development/test mode', () => {
     it('does not throw even if REQUIRED vars are missing', () => {

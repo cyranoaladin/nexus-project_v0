@@ -24,8 +24,15 @@ test('Sécurité: mauvais password → reste sur signin', async ({ page }) => {
   await page.goto(`${BASE}/auth/signin`)
   await page.locator('#email').fill(CREDS.admin.email)
   await page.locator('#password').fill('MAUVAIS_XYZ_999')
-  await page.getByTestId('btn-signin').click()
+  await Promise.all([
+    page.waitForResponse(response => new URL(response.url()).pathname === '/api/auth/callback/credentials' && response.request().method() === 'POST'),
+    page.getByTestId('btn-signin').click(),
+  ])
+  await expect(page.getByRole('alert').filter({ hasText: 'Identifiant ou mot de passe incorrect' })).toBeVisible()
   await expect(page).toHaveURL(/\/auth\/signin(?:[?#]|$)/)
+  const session = await page.request.get('/api/auth/session')
+  expect(session.status()).toBe(200)
+  expect(await session.json()).toBeNull()
 })
 
 test('Sécurité: parent ne peut pas accéder dashboard élève', async ({ page }) => {

@@ -2,6 +2,7 @@ jest.unmock('@/lib/prisma');
 jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn() }));
 jest.mock('@/lib/whatsapp/invitation-scheduler', () => ({ kickParentWhatsAppOutboxDrain: jest.fn() }));
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { randomUUID } from 'node:crypto';
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
@@ -22,9 +23,15 @@ afterAll(async () => {
   const users = await prisma.user.findMany({where:{lastName:prefix}, select:{id:true}}); const ids=users.map(user=>user.id);
   await prisma.canonicalApiIdempotencyKey.deleteMany({where:{userId:staffId}});
   await prisma.parentStudentLink.deleteMany({where:{parentUserId:{in:ids}}});
-  await prisma.student.deleteMany({where:{userId:{in:ids}}});
-  await prisma.parentProfile.deleteMany({where:{userId:{in:ids}}});
-  await prisma.user.deleteMany({where:{id:{in:ids}}}); await prisma.$disconnect();
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: {id:{in:ids}},
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  } await prisma.$disconnect();
  }
  if(oldOrigin===undefined)delete process.env.NEXTAUTH_URL;else process.env.NEXTAUTH_URL=oldOrigin;
  if(oldMode===undefined)delete process.env.WHATSAPP_SEND_ENABLED;else process.env.WHATSAPP_SEND_ENABLED=oldMode;

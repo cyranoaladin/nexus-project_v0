@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { Target } from 'lucide-react';
 import { TrajectoireTimeline } from './TrajectoireTimeline';
@@ -66,6 +67,7 @@ function dataPropToTimeline(data: TrajectoireDataProp): TimelineTrajectory | nul
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function TrajectoireCard(props: TrajectoireCardProps) {
+  const fetch = useProtectedFetch();
   const role = props.role ?? 'ELEVE';
   const isDataMode = 'data' in props && props.data !== undefined;
   const dataProp = isDataMode ? (props as TrajectoireCardPropsWithData).data : undefined;
@@ -114,7 +116,7 @@ export function TrajectoireCard(props: TrajectoireCardProps) {
     fetchTrajectory();
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDataMode, props.studentId, dataProp]);
+  }, [isDataMode, props.studentId, dataProp, fetch]);
 
   // In data mode, loading is false from the start
   const isLoading = isDataMode ? false : loading;

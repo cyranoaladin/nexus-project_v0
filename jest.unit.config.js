@@ -14,8 +14,8 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: '<rootDir>/jest-environment-jsdom-with-fetch.js',
   transformIgnorePatterns: [
-    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)/)',
-    '/node_modules/.pnpm/(?!(next-auth|@auth|framer-motion|geist|lucide-react|@react-pdf|react-pdf)@)',
+    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|jose|oauth4webapi|framer-motion|geist|lucide-react|@react-pdf|react-pdf)/)',
+    '/node_modules/.pnpm/(?!(next-auth|@auth|jose|oauth4webapi|framer-motion|geist|lucide-react|@react-pdf|react-pdf)@)',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   moduleNameMapper: {
@@ -54,4 +54,11 @@ const customJestConfig = {
   ],
 };
 
-module.exports = createJestConfig(customJestConfig);
+const resolveJestConfig = createJestConfig(customJestConfig);
+module.exports = async () => ({
+  ...await resolveJestConfig(),
+  // next/jest prepends its own node_modules ignore patterns. Appending our
+  // ESM allowlist cannot override those, so unmocked SessionProvider tests
+  // otherwise fail to load the very dependency whose lifecycle they verify.
+  transformIgnorePatterns: customJestConfig.transformIgnorePatterns,
+});

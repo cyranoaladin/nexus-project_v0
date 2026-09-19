@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -22,6 +23,7 @@ const TYPE_LABELS: Record<string, string> = {
   DIAGNOSTIC_PRE_STAGE: 'Bilan diagnostic',
   ASSESSMENT_QCM: 'Bilan QCM',
   CONTINUOUS: 'Bilan continu',
+  ARIA_PERIODIC: 'Bilan ARIA',
 };
 
 interface BilanData {
@@ -40,6 +42,7 @@ interface BilanData {
 }
 
 export default function StudentBilanPage() {
+  const fetch = useProtectedFetch();
   const params = useParams();
   const router = useRouter();
   const publicShareId = params.publicShareId as string;
@@ -53,7 +56,6 @@ export default function StudentBilanPage() {
 
     fetch(`/api/student/bilans/${publicShareId}`)
       .then((res) => {
-        if (res.status === 401) { router.push('/auth/signin'); return null; }
         if (res.status === 404) throw new Error('Ce bilan est introuvable ou n\'est pas encore disponible.');
         if (!res.ok) throw new Error('Erreur lors du chargement du bilan.');
         return res.json();
@@ -61,7 +63,7 @@ export default function StudentBilanPage() {
       .then((data) => { if (data) setBilan(data.bilan); })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [publicShareId, router]);
+  }, [publicShareId, router, fetch]);
 
   if (loading) {
     return (

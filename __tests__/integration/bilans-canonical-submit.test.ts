@@ -1,5 +1,6 @@
 jest.unmock('@/lib/prisma');
 
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { NextRequest } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
@@ -125,9 +126,15 @@ describe('POST /api/bilans/attempts/[id]/submit — PostgreSQL réel isolé', ()
     // database is disposable and test-only, so TRUNCATE is the isolation
     // boundary that removes synthetic append-only rows between suites.
     await prisma.$executeRawUnsafe('TRUNCATE TABLE "canonical_assessment_attempts" CASCADE');
-    await prisma.student.deleteMany({ where: { userId } });
-    await prisma.parentProfile.deleteMany({ where: { user: { email: { startsWith: TEST_PREFIX } } } });
-    await prisma.user.deleteMany({ where: { email: { startsWith: TEST_PREFIX } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { email: { startsWith: TEST_PREFIX } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
     await prisma.$disconnect();
   });
 

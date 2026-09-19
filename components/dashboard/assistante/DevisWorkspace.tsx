@@ -1,7 +1,8 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import type { Subject } from '@prisma/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,7 @@ function formatDateShort(value: string): string {
 }
 
 export function DevisWorkspace() {
+  const fetch = useProtectedFetch();
   const { data: session } = useSession();
   const [level, setLevel] = useState<'premiere' | 'terminale'>('terminale');
   const [eds1, setEds1] = useState<Subject>('MATHEMATIQUES');
@@ -145,7 +147,7 @@ export function DevisWorkspace() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [leadQuery, useManualLeadId]);
+  }, [leadQuery, useManualLeadId, fetch]);
 
   function handleSelectLead(lead: ContactLeadSearchResult) {
     setSelectedLead(lead);

@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { Subject } from '@/types/enums';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { mapAccountDeletionRestrictError } from '@/lib/security/account-deletion-guard';
 
 // Validation schema for coach update
 const coachUpdateSchema = z.object({
@@ -206,19 +207,14 @@ export async function DELETE(
       );
     }
 
-    // Check if coach has any sessions
-    const sessionsCount = await prisma.sessionBooking.count({
-      where: { coachId: coachId }
-    });
-
-    if (sessionsCount > 0) {
-      return NextResponse.json(
-        { error: 'Impossible de supprimer un coach qui a des sessions programmées' },
-        { status: 400 }
-      );
-    }
-
-    // Delete coach profile and user in a transaction
+    // Delete coach profile and user in a transaction. Only SessionBooking
+    // used to have a pre-flight count check here; the other 7 relations
+    // that ON DELETE RESTRICT now protects (CoachStudentAssignment,
+    // CoachNote, UserDocument, ...) were not covered by any guard and
+    // would previously cascade-delete silently. Rather than adding a
+    // count check per relation, let Postgres be the single source of
+    // truth: attempt the delete, and if it fails on any of the 11
+    // Restrict constraints, map that to one clear 409 below.
     await prisma.$transaction(async (tx) => {
       // Delete coach profile first (due to foreign key constraints)
       await tx.coachProfile.delete({
@@ -237,6 +233,11 @@ export async function DELETE(
     });
 
   } catch (error) {
+    const restrictError = mapAccountDeletionRestrictError(error);
+    if (restrictError) {
+      return restrictError.toResponse();
+    }
+
     console.error('Error deleting coach:', serializeError(error));
     return NextResponse.json(
       {

@@ -1,6 +1,8 @@
+import { cleanupDisposableTestFixture } from '../../__tests__/helpers/real-db-fixture-cleanup';
 import type { Page } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { gotoSignInForm, resetBrowserSession } from './auth';
 import { assertDisposableE2eDatabase } from './disposable-database';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 import { sameOriginHeaders } from './same-origin';
@@ -21,9 +23,26 @@ import { sameOriginHeaders } from './same-origin';
 
 const databaseUrl =
   process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
-assertDisposableE2eDatabase(databaseUrl);
 
-export const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+let client: PrismaClient | null = null;
+
+/**
+ * The disposable contract is asserted on first client use, not on import — see
+ * the same note in `e2e/helpers/db.ts`. Every path to a database here goes
+ * through this function, so the guard still fails closed before any row is
+ * read or written; only enumeration is now possible without a live stack.
+ */
+function verifiedClient(): PrismaClient {
+  if (client === null) {
+    assertDisposableE2eDatabase(databaseUrl);
+    client = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
+  }
+  return client;
+}
+
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get: (_target, property) => Reflect.get(verifiedClient(), property),
+});
 
 export const BASE_URL = process.env.BASE_URL || 'http://localhost:3002';
 
@@ -51,6 +70,7 @@ export interface GoldenFamilyIds {
   assignmentBId?: string;
   seriesAId?: string;
   seriesBId?: string;
+  selfServiceSeriesIds?: string[];
   idempotencyOwners?: string[]; // userIds whose idempotency keys must be purged
 }
 
@@ -97,7 +117,7 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
   const coachUserIds = compact([ids.coach1UserId, ids.coach2UserId]);
   const parentUserIds = compact([ids.parent1UserId, ids.parent2UserId]);
   const assignmentIds = compact([ids.assignmentAId, ids.assignmentBId]);
-  const seriesIds = compact([ids.seriesAId, ids.seriesBId]);
+  const seriesIds = compact([ids.seriesAId, ids.seriesBId, ...(ids.selfServiceSeriesIds ?? [])]);
 
   if (studentIds.length > 0 || coachUserIds.length > 0) {
     await prisma.sessionBooking.deleteMany({
@@ -149,7 +169,15 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
   }
   const allUserIds = [...childUserIds, ...parentUserIds, ...coachUserIds];
   if (allUserIds.length > 0) {
-    await prisma.user.deleteMany({ where: { id: { in: allUserIds } } });
+    // Order comes from the live schema via the canonical fixture cleanup,
+    // so this teardown no longer hand-maintains which relations are RESTRICT.
+    const fixtureUserIds = (await prisma.user.findMany({
+      where: { id: { in: allUserIds } },
+      select: { id: true },
+    })).map((user) => user.id);
+    if (fixtureUserIds.length > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+    }
   }
 }
 
@@ -184,12 +212,9 @@ export async function waitForSessionUserId(page: Page, expectedUserId: string, a
  */
 export async function signInAs(page: Page, identifier: string, password: string, expectedUserId: string): Promise<void> {
   await resetDisposableE2ERateLimits();
-  // Dispose the previous dashboard document before clearing its session.
-  // Otherwise its session refresh/router can restore cookies or interrupt
-  // the sign-in navigation (observed with WebKit during a real role switch).
-  await page.goto('about:blank');
-  await page.context().clearCookies();
-  await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+  await resetBrowserSession(page);
+  // Observe the outcome rather than trusting the pre-check: see gotoSignInForm.
+  await gotoSignInForm(page);
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(identifier);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();
@@ -200,26 +225,22 @@ export async function signInAs(page: Page, identifier: string, password: string,
   // another navigation" / NS_BINDING_ABORTED on Firefox/WebKit, which are
   // stricter about in-flight navigations. Wait it out here, once, so every
   // caller's subsequent `page.goto` is race-free on every engine.
-  await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+  try {
+    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+  } catch (cause) {
+    // Say WHY the form did not leave /auth/signin: a rejected credential (rate
+    // limit, inactive account) renders role="alert"; a silent stall does not.
+    const alert = await page.getByRole('alert').allInnerTexts().catch(() => [] as string[]);
+    const sessionProbe = await page.request.get(`${BASE_URL}/api/auth/session`, { failOnStatusCode: false }).then(async (r) => {
+      const session = await r.json().catch(() => null) as { user?: unknown } | null;
+      return { status: r.status(), authenticated: Boolean(session?.user) };
+    }).catch(() => ({ status: 'unavailable', authenticated: false }));
+    throw new Error(
+      `GOLDEN_FAMILY_SIGNIN_STALLED url=${page.url()} alert=${JSON.stringify(alert)} session=${JSON.stringify(sessionProbe)} cause=${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`,
+    );
+  }
   await page.waitForLoadState('domcontentloaded');
   await waitForSessionUserId(page, expectedUserId);
-}
-
-/**
- * WebKit is occasionally stricter about a `page.goto` fired right after
- * `clearCookies()`/a prior navigation than Chromium/Firefox, and aborts with
- * "Frame load interrupted" / `NS_BINDING_ABORTED` even though the target URL
- * is otherwise fine — a real, observed cross-engine flake in this scenario's
- * many role-switch navigations, not a product bug. One retry absorbs it
- * without weakening what's actually asserted after the navigation.
- */
-export async function gotoStable(page: Page, url: string): Promise<void> {
-  try {
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-  } catch {
-    await page.waitForTimeout(300);
-    await page.goto(url, { waitUntil: 'domcontentloaded' });
-  }
 }
 
 export async function disconnectGoldenFamilyPrisma(): Promise<void> {

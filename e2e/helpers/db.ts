@@ -10,6 +10,8 @@ import {
   type SubscriptionPlanKey,
 } from '../../lib/operational-catalog';
 import { assertDisposableE2eDatabase } from './disposable-database';
+import { getOrganizationUtcOffsetHours } from '@/lib/timezone';
+import { resolveTunisBookingWindow } from './tunis-booking-window';
 
 const DEFAULT_E2E_DB_URL = 'postgresql://postgres:postgres@localhost:5435/nexus_e2e?schema=public';
 
@@ -19,12 +21,22 @@ const DATABASE_URL =
   (process.env.DATABASE_URL?.includes('nexus_e2e') ? process.env.DATABASE_URL : undefined) ??
   DEFAULT_E2E_DB_URL;
 
-assertDisposableE2eDatabase(DATABASE_URL);
-
 let prisma: PrismaClient | null = null;
 
+/**
+ * The disposable contract is asserted on first client use, not on import.
+ *
+ * Importing this module is not a database access; enumerating the suite
+ * (`playwright test --list`, which
+ * `scripts/testing/check-ci-test-lane-coverage.mjs` relies on to prove no spec
+ * sits outside every lane) imports every spec without running one. Asserting
+ * at import made enumeration impossible without a live disposable stack, and
+ * protected nothing extra: nothing here can reach a database except through
+ * `getPrisma`.
+ */
 function getPrisma() {
   if (!prisma) {
+    assertDisposableE2eDatabase(DATABASE_URL);
     prisma = new PrismaClient({
       datasources: {
         db: { url: DATABASE_URL },
@@ -691,6 +703,80 @@ export async function createScheduledSession(studentEmail: string, coachEmail: s
   return booking.id;
 }
 
+/**
+ * Same booking shape as `createScheduledSession`, but at a caller-chosen
+ * real UTC instant instead of a fixed "48h from now" — needed to seed a
+ * session that is actually inside (or deliberately outside) the join
+ * window tested by app/api/sessions/[sessionId]/route.ts
+ * (e2e/sessions/video-join.spec.ts).
+ */
+export async function createSessionAtRealInstant(
+  studentEmail: string,
+  coachEmail: string,
+  startInstant: Date,
+  durationMinutes = 60,
+): Promise<string> {
+  const client = getPrisma();
+  const studentUser = await client.user.findUnique({
+    where: { email: studentEmail },
+    include: { student: { include: { parent: true } } },
+  });
+  const coachUser = await client.user.findUnique({ where: { email: coachEmail } });
+  if (!studentUser?.student || !coachUser) {
+    throw new Error(`Missing student or coach for ${studentEmail} / ${coachEmail}`);
+  }
+
+  const parentUser = await client.user.findFirst({
+    where: { parentProfile: { id: studentUser.student.parentId! } },
+  });
+
+  // The stored window is resolved by `resolveTunisBookingWindow`, which owns
+  // the single-Tunis-day constraint of `SessionBooking`'s
+  // scheduledDate/startTime/endTime columns — including the one minute a day
+  // on which a 60-minute session has nowhere to end, and which used to throw
+  // here. It is a pure function precisely so that constraint can be tested at
+  // every minute of the day without a database:
+  // `__tests__/e2e-helpers/tunis-booking-window.test.ts`.
+  const { scheduledDate, startTime, endTime } = resolveTunisBookingWindow(
+    startInstant,
+    durationMinutes,
+    getOrganizationUtcOffsetHours,
+  );
+
+  const booking = await client.sessionBooking.create({
+    data: {
+      studentId: studentUser.id,
+      coachId: coachUser.id,
+      parentId: parentUser?.id ?? null,
+      subject: 'MATHEMATIQUES',
+      title: 'Session E2E — video join',
+      scheduledDate,
+      startTime,
+      endTime,
+      duration: durationMinutes,
+      status: 'SCHEDULED',
+      type: 'INDIVIDUAL',
+      modality: 'ONLINE',
+      meetingUrl: `https://meet.jit.si/nexus-${Date.now()}`,
+      creditsUsed: 1,
+    },
+  });
+  return booking.id;
+}
+
+/**
+ * Directly forces a `SessionBooking`'s lifecycle status — bypasses the
+ * real state-machine transitions entirely. Only for constructing a fixture
+ * the video-join API's own eligibility checks must reject regardless of
+ * how it got there (e.g. an already-COMPLETED booking), not for exercising
+ * the transition logic itself (use the real POST /api/sessions/[sessionId]
+ * flow for that).
+ */
+export async function setSessionBookingStatus(sessionId: string, status: 'COMPLETED' | 'CANCELLED'): Promise<void> {
+  const client = getPrisma();
+  await client.sessionBooking.update({ where: { id: sessionId }, data: { status } });
+}
+
 export async function createSessionNotification(userEmail: string, message: string): Promise<void> {
   const client = getPrisma();
   const user = await client.user.findUnique({ where: { email: userEmail } });
@@ -991,6 +1077,24 @@ export async function completeAriaOnboardingByEmail(email: string): Promise<void
 }
 
 /**
+ * Upgrades a real ARIA E2E persona's real entitlement to the SUIVI tier
+ * (P7d golden path). All 7 ARIA E2E personas are seeded with `ariaTier:
+ * null` (AUTONOMIE by default) — collective workshops require SUIVI+, so
+ * this real, direct upgrade is the E2E-appropriate way to reach that real
+ * state, the same class of shortcut as `completeAriaOnboardingByEmail`.
+ */
+export async function upgradeAriaPersonaToSuiviTier(email: string): Promise<void> {
+  const client = getPrisma();
+  const user = await client.user.findUnique({ where: { email }, include: { entitlements: true } });
+  const entitlement = user?.entitlements[0];
+  if (!entitlement) throw new Error(`No entitlement found for email ${email}`);
+  await client.entitlement.update({
+    where: { id: entitlement.id },
+    data: { ariaTier: 'ARIA_SUIVI' },
+  });
+}
+
+/**
  * Authors a real ARIA Practice Activity + its active Version directly via
  * Prisma (P6c golden E2E). `authorAriaActivity` (lib/aria/application/
  * practice/author.ts) has no HTTP route by design — it's an internal-only
@@ -1054,9 +1158,33 @@ export async function cleanupAriaPracticeGoldenPath(courseKey: string): Promise<
   await client.$executeRaw`DELETE FROM aria_activities WHERE "courseKey" = ${courseKey}`;
 }
 
+/** Cleans up any ARIA_PERIODIC `Bilan` rows a P7b test run created for a student. */
+export async function cleanupAriaPeriodicBilans(studentEmail: string): Promise<void> {
+  const client = getPrisma();
+  await client.bilan.deleteMany({ where: { studentEmail, type: 'ARIA_PERIODIC' } });
+}
+
+/** Same real-table cleanup shape as cleanupAriaPracticeGoldenPath, for P7d's collective workshops. */
+export async function cleanupAriaWorkshops(courseKey: string): Promise<void> {
+  const client = getPrisma();
+  await client.$executeRaw`
+    DELETE FROM aria_workshop_attendees WHERE "sessionId" IN (
+      SELECT id FROM aria_workshop_sessions WHERE "courseKey" = ${courseKey}
+    )`;
+  await client.$executeRaw`DELETE FROM aria_workshop_sessions WHERE "courseKey" = ${courseKey}`;
+}
+
 export async function disconnectPrisma() {
   if (prisma) {
     await prisma.$disconnect();
     prisma = null;
   }
+}
+
+/** Real outbox count for a given user, for asserting P7c notifications were genuinely queued (or not). */
+export async function getPendingEmailOutboxCountForUser(userId: string): Promise<number> {
+  const client = getPrisma();
+  return client.jobOutbox.count({
+    where: { aggregateId: userId, jobType: CanonicalJobType.SEND_EMAIL },
+  });
 }

@@ -1,9 +1,10 @@
 "use client";
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Mail, RefreshCcw } from "lucide-react";
 
@@ -93,6 +94,7 @@ const INVITATION_LABELS: Record<string, string> = {
 };
 
 export default function AssistanteStudentProfilePage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -117,7 +119,7 @@ export default function AssistanteStudentProfilePage() {
     } finally {
       setLoading(false);
     }
-  }, [studentId]);
+  }, [studentId, fetch]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -180,12 +182,12 @@ export default function AssistanteStudentProfilePage() {
           <CardContent className="space-y-3">
             <p className="text-sm text-rose-200">{error || "Élève introuvable"}</p>
             <div className="flex gap-2">
-              <Link href="/dashboard/assistante/students">
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+              <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" asChild>
+                <Link href="/dashboard/assistante/students">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Retour
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button onClick={fetchOverview} className="btn-primary">
                 <RefreshCcw className="w-4 h-4 mr-2" />
                 Réessayer
@@ -205,12 +207,12 @@ export default function AssistanteStudentProfilePage() {
     <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 sm:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/dashboard/assistante/students">
-            <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+          <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" asChild>
+            <Link href="/dashboard/assistante/students">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Liste élèves
-            </Button>
-          </Link>
+            </Link>
+          </Button>
           <Button onClick={fetchOverview} variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
             <RefreshCcw className="w-4 h-4 mr-2" />
             Actualiser
@@ -234,21 +236,21 @@ export default function AssistanteStudentProfilePage() {
               </Badge>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-              <Link href={`/dashboard/assistante/assignments?studentId=${data.student.id}`}>
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+              <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" asChild>
+                <Link href={`/dashboard/assistante/assignments?studentId=${data.student.id}`}>
                   Voir assignations
-                </Button>
-              </Link>
-              <Link href="/dashboard/assistante/planning">
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+                </Link>
+              </Button>
+              <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" asChild>
+                <Link href="/dashboard/assistante/planning">
                   Voir planning
-                </Button>
-              </Link>
-              <Link href={`/dashboard/assistante/subscriptions?tab=active&studentId=${data.student.id}`}>
-                <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white">
+                </Link>
+              </Button>
+              <Button variant="outline" className="border-white/10 text-neutral-200 hover:text-white" asChild>
+                <Link href={`/dashboard/assistante/subscriptions?tab=active&studentId=${data.student.id}`}>
                   Voir abonnements
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               {data.student.schoolingStatus === 'INDIVIDUAL' && <Link href={`/dashboard/assistante/students/${encodeURIComponent(data.student.id)}/candidat`} className="text-brand-accent hover:underline">Compléter le dossier candidat</Link>}
               {!studentActivated && (
                 <Button

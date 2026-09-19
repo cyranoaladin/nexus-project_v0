@@ -1,8 +1,9 @@
+import { cleanupDisposableTestFixture } from '../../__tests__/helpers/real-db-fixture-cleanup';
 import { expect, test } from '@playwright/test';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { assertDisposableE2eDatabase } from '../helpers/disposable-database';
-import { loginAsUser, waitForAuthenticatedSession } from '../helpers/auth';
+import { loginAsUser, waitForAuthenticatedSession, resetBrowserSession } from '../helpers/auth';
 import { BASE_URL, mutationHeaders } from '../helpers/golden-family';
 
 const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '';
@@ -38,7 +39,15 @@ async function cleanupFamily(parentEmail: string): Promise<void> {
   // /auth/parent-phone) leaves a ParentPhoneChallenge row referencing the parent —
   // same cleanup e2e/helpers/golden-family.ts's cleanupGoldenFamily already does.
   await prisma.parentPhoneChallenge.deleteMany({ where: { userId: parent.id } });
-  await prisma.user.deleteMany({ where: { id: { in: [...childUserIds, parent.id] } } });
+  // Order comes from the live schema via the canonical fixture cleanup,
+  // so this teardown no longer hand-maintains which relations are RESTRICT.
+  const fixtureUserIds = (await prisma.user.findMany({
+    where: { id: { in: [...childUserIds, parent.id] } },
+    select: { id: true },
+  })).map((user) => user.id);
+  if (fixtureUserIds.length > 0) {
+    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  }
 }
 
 test.describe('P0 initial student identity', () => {
@@ -139,7 +148,7 @@ test.describe('P0 initial student identity', () => {
       expect(match, messageText).not.toBeNull();
       const parentPhoneRawToken = match![1]!;
 
-      await page.context().clearCookies();
+      await resetBrowserSession(page);
       await page.goto(`/auth/parent-phone?token=${parentPhoneRawToken}`);
       await page.getByLabel('Nouveau mot de passe').fill(parentPassword);
       await page.getByLabel('Confirmer le mot de passe', { exact: true }).fill(parentPassword);

@@ -6,6 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { motion, useReducedMotion } from "framer-motion"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSessionMutationSuspended } from '@/components/auth/SessionRecoveryProvider'
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -43,7 +44,8 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }, ref) => {
     const prefersReducedMotion = useReducedMotion()
-    const isDisabled = disabled || loading
+    const suspended = useSessionMutationSuspended()
+    const isDisabled = disabled || loading || suspended
 
     if (asChild) {
       return (
@@ -51,9 +53,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           className={cn(buttonVariants({ variant, size, className }))}
           ref={ref}
           aria-busy={loading}
+          aria-disabled={isDisabled || undefined}
+          tabIndex={isDisabled ? -1 : undefined}
           {...props}
         >
-          {children}
+          {isDisabled && React.isValidElement(children)
+            ? React.cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+              onClick: (event: React.SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); },
+              onClickCapture: (event: React.SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); },
+              onKeyDownCapture: (event: React.SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); },
+              onPointerDownCapture: (event: React.SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); },
+            }) : children}
         </Slot>
       )
     }

@@ -12,30 +12,63 @@
  * - 'unsafe-eval' on script-src: required for WebAssembly (some client libs).
  * - 'unsafe-inline' on style-src: required by Next.js inline styles, Radix UI,
  *   and TailwindCSS v4 runtime. Cannot be removed without breaking the UI.
- * - Jitsi frame-src: required for video conferencing embeds.
+ * - Jitsi frame-src AND script-src: the iframe embed AND the
+ *   external_api.js loader script (components/ui/video-conference.tsx)
+ *   both come from the Jitsi origin — script-src without it left the
+ *   loader script itself blocked by CSP, so the video-conference feature
+ *   never actually started in a browser that enforces CSP even after the
+ *   script tag was added.
  * - wss: on connect-src: required for WebSocket connections (Jitsi, real-time).
  */
 
 import { NextResponse } from 'next/server';
 
 /**
+ * Deliberately NOT imported from lib/jitsi.ts: this module is loaded by
+ * middleware.ts, which runs on the Edge runtime by default (no explicit
+ * `export const runtime = 'nodejs'`). The HMAC room-seed helper needing
+ * `node:crypto` now lives exclusively in lib/jitsi-server.ts, but keeping
+ * this a narrow, read-only, crypto-free duplicate of lib/jitsi.ts's
+ * `getJitsiServerUrl()`/`getJitsiDomain()` avoids any future coupling risk
+ * if that module ever re-acquires a Node-only dependency. Kept in sync by
+ * reading the exact same `NEXT_PUBLIC_JITSI_SERVER_URL` variable and
+ * mirroring the same fail-closed production behavior.
+ */
+function getJitsiOriginForCsp(): string {
+    const configured = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    if (!configured && process.env.NODE_ENV === 'production') {
+        throw new Error(
+            'NEXT_PUBLIC_JITSI_SERVER_URL is not configured. Production must never fall back to the public meet.jit.si server.',
+        );
+    }
+    const raw = configured || 'https://meet.jit.si';
+    try {
+        return new URL(raw).origin;
+    } catch {
+        return 'https://meet.jit.si';
+    }
+}
+
+/**
  * Apply security headers to response
  */
 export function applySecurityHeaders(response: NextResponse): NextResponse {
+    const jitsiOrigin = getJitsiOriginForCsp();
+
     // Content Security Policy — application-level (authoritative)
     const csp = [
         "default-src 'self'",
         // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need
         // custom Document + middleware per-request nonce — tracked as future improvement.
         // 'unsafe-eval' is required for WebAssembly (used by some client-side libraries).
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${jitsiOrigin} https://cdn.jsdelivr.net https://www.googletagmanager.com`,
         // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
         "connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com wss: data:",
         "worker-src 'self' blob: https://cdn.jsdelivr.net",
-        "frame-src 'self' https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
+        `frame-src 'self' ${jitsiOrigin} https://*.jitsi.net https://www.google.com https://maps.google.com`,
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -62,10 +95,15 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
     // Referrer-Policy
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    // Permissions-Policy
+    // Permissions-Policy — must stay consistent with frame-src above: an
+    // empty allowlist here blocks camera/microphone for EVERY context,
+    // including an iframe CSP explicitly allows (a real, previously
+    // unnoticed contradiction — the Jitsi iframe could never get camera/
+    // mic access no matter what CSP said). Delegate camera/microphone to
+    // the exact same Jitsi origin frame-src trusts, nothing else.
     response.headers.set(
         'Permissions-Policy',
-        'camera=(), microphone=(), geolocation=()'
+        `camera=(self "${jitsiOrigin}"), microphone=(self "${jitsiOrigin}"), geolocation=()`
     );
 
     return response;

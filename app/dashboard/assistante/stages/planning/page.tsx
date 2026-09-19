@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import {
 ArrowLeft,
 CalendarDays,
@@ -12,7 +13,7 @@ RefreshCw,
 Users,
 Video,
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback,useEffect,useState } from 'react';
@@ -135,6 +136,7 @@ function durationMinutes(startTime: string, endTime: string): number {
 }
 
 export default function AssistantePlanningPage() {
+  const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -202,7 +204,7 @@ export default function AssistantePlanningPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentWeek, showStages, showSessions]);
+  }, [currentWeek, showStages, showSessions, fetch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -231,7 +233,7 @@ export default function AssistantePlanningPage() {
       }
     }, 250);
     return () => { ignore = true; clearTimeout(t); };
-  }, [studentSearch]);
+  }, [studentSearch, fetch]);
 
   useEffect(() => {
     let ignore = false;
@@ -259,7 +261,7 @@ export default function AssistantePlanningPage() {
       }
     }, 250);
     return () => { ignore = true; clearTimeout(t); };
-  }, [coachSearch]);
+  }, [coachSearch, fetch]);
 
   // Assignation active élève/coach : source unique de l'autorisation
   // pédagogique (assignmentId + academicCourseKeys) pour la Tâche 11 — voir
@@ -299,7 +301,7 @@ export default function AssistantePlanningPage() {
       }
     })();
     return () => { ignore = true; };
-  }, [selectedStudent, selectedCoach]);
+  }, [selectedStudent, selectedCoach, fetch]);
 
   const openCreate = () => {
     setCreateError(null);

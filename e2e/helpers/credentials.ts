@@ -42,6 +42,26 @@ export interface Credential {
 
 export type CredentialsMap = Record<CredRole, Credential>;
 
+const REQUIRED_ROLES: readonly CredRole[] = [
+  'parent',
+  'student',
+  'student2',
+  'studentSurvival',
+  'coach',
+  'coach2',
+  'admin',
+  'assistante',
+  'zenon',
+  'ariaPersonasParent',
+  'ariaTerminaleMaths',
+  'ariaPremiereMaths',
+  'ariaNsi',
+  'ariaNsiPeer',
+  'ariaStmgNoChat',
+  'ariaIncompleteProfile',
+  'ariaNotEntitled',
+];
+
 function loadCredentials(): CredentialsMap {
   const credentialsPath = path.resolve(
     process.env.E2E_CREDENTIALS_PATH ?? path.join(process.cwd(), 'e2e/.credentials.json')
@@ -59,26 +79,7 @@ function loadCredentials(): CredentialsMap {
   const parsed = JSON.parse(raw) as Record<string, Credential>;
 
   // Validate required roles exist
-  const required: CredRole[] = [
-    'parent',
-    'student',
-    'student2',
-    'studentSurvival',
-    'coach',
-    'coach2',
-    'admin',
-    'assistante',
-    'zenon',
-    'ariaPersonasParent',
-    'ariaTerminaleMaths',
-    'ariaPremiereMaths',
-    'ariaNsi',
-    'ariaNsiPeer',
-    'ariaStmgNoChat',
-    'ariaIncompleteProfile',
-    'ariaNotEntitled',
-  ];
-  for (const role of required) {
+  for (const role of REQUIRED_ROLES) {
     if (!parsed[role]?.email || !parsed[role]?.password) {
       throw new Error(
         `[E2E] e2e/.credentials.json is missing or incomplete for role "${role}".\n` +
@@ -90,8 +91,31 @@ function loadCredentials(): CredentialsMap {
   return parsed as CredentialsMap;
 }
 
-/** Loaded credentials — singleton, evaluated once at import time */
-export const CREDS: CredentialsMap = loadCredentials();
+let loaded: CredentialsMap | null = null;
+
+function credentials(): CredentialsMap {
+  if (loaded === null) loaded = loadCredentials();
+  return loaded;
+}
+
+/**
+ * Loaded credentials — read once, on first access rather than on import.
+ *
+ * Importing a spec is not the same act as running it: `playwright test --list`
+ * imports every spec to enumerate them, and an import-time read made listing
+ * impossible without a seeded database. Enumerating the suite is exactly what
+ * `scripts/testing/check-ci-test-lane-coverage.mjs` must do to prove no spec
+ * sits outside every lane, so listing must not require secrets.
+ *
+ * The guard itself is unchanged: the first property read still fails closed
+ * when the seed has not written `e2e/.credentials.json`.
+ */
+export const CREDS: CredentialsMap = Object.defineProperties(
+  {} as CredentialsMap,
+  Object.fromEntries(
+    REQUIRED_ROLES.map((role) => [role, { enumerable: true, get: () => credentials()[role] }]),
+  ),
+);
 
 /** Convenience getter */
 export function getCred(role: CredRole): Credential {

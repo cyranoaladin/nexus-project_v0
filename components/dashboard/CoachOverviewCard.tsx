@@ -1,5 +1,6 @@
 'use client';
 
+import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useEffect, useState } from 'react';
 import { Calendar, Users, FileText, Clock } from 'lucide-react';
 
@@ -18,6 +19,7 @@ interface CoachMetrics {
 }
 
 export function CoachOverviewCard() {
+  const fetch = useProtectedFetch();
   const [data, setData] = useState<CoachMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,7 +50,7 @@ export function CoachOverviewCard() {
 
     fetchMetrics();
     return () => { cancelled = true; };
-  }, []);
+  }, [fetch]);
 
   if (loading) {
     return (

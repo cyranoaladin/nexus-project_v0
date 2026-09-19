@@ -10,7 +10,7 @@ services:
   # PostgreSQL Database
   # ========================================
   postgres:
-    image: pgvector/pgvector:pg15
+    image: pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da # pg15
     container_name: nexus-postgres-prod
     restart: unless-stopped
     environment:
@@ -87,6 +87,12 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       SMTP_FROM: ${SMTP_FROM}
       EMAIL_FROM: ${EMAIL_FROM}
+      # Drains canonical_job_outbox: every activation, password-reset and
+      # parent-report e-mail. Required rather than defaulted — the app refuses
+      # to start in production without it, and a default would let a silent
+      # misconfiguration disable all transactional mail.
+      EMAIL_OUTBOX_WORKER_ENABLED: ${EMAIL_OUTBOX_WORKER_ENABLED:?EMAIL_OUTBOX_WORKER_ENABLED is required}
+      EMAIL_OUTBOX_ENCRYPTION_KEY: ${EMAIL_OUTBOX_ENCRYPTION_KEY:?EMAIL_OUTBOX_ENCRYPTION_KEY is required}
       ARIA_TURN_RECOVERY_WORKER_ENABLED: ${ARIA_TURN_RECOVERY_WORKER_ENABLED:?ARIA_TURN_RECOVERY_WORKER_ENABLED is required}
       ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: ${ARIA_TURN_RECOVERY_POLL_INTERVAL_MS:-1000}
 
@@ -149,6 +155,9 @@ services:
 
       # Jitsi Video Conferencing
       NEXT_PUBLIC_JITSI_SERVER_URL: ${NEXT_PUBLIC_JITSI_SERVER_URL:-https://meet.jit.si}
+      # Dedicated room-identity secret (lib/jitsi-server.ts) — required,
+      # never NEXTAUTH_SECRET. Same pattern as RATE_LIMIT_KEY_SECRET above.
+      JITSI_ROOM_SECRET: ${JITSI_ROOM_SECRET:?JITSI_ROOM_SECRET is required}
 
       # Rate Limiting
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}

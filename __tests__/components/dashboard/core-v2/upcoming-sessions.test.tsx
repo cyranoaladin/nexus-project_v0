@@ -60,3 +60,20 @@ describe('UpcomingSessions', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Le référentiel Core v2 n’est pas configuré sur ce déploiement.');
   });
 });
+
+describe('UpcomingSessions — mounted as the dashboards mount it (no `now` prop)', () => {
+  it('fetches exactly once and settles; the default clock must not re-arm the effect on every render', async () => {
+    // Regression: `now = () => new Date()` as a default parameter is a NEW
+    // function on every render and sits in the effect's dependencies, so each
+    // response re-rendered, re-ran the effect and fetched again — forever. The
+    // coach dashboard never reached `networkidle` in the auth E2E gate
+    // (#259 run 35335915817: admin-aria-preview coach → REFUSED,
+    // auth-client-lifecycle coach refresh), and production would hammer the API.
+    mockApi(200, { ok: true, data: [booking('b1', 'SCHEDULED', '2099-01-05T17:00:00Z', '2099-01-05T18:00:00Z')] });
+    render(<UpcomingSessions scope="coach" />);
+    await screen.findByText(/Élève Yasmine Synthetic/);
+    // Let any re-arming effect fire: several macrotasks after the response.
+    for (let i = 0; i < 5; i += 1) await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(calls).toHaveLength(1);
+  });
+});

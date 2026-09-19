@@ -40,4 +40,37 @@ describe('AUTH_ROLLOUT_MODE_NO_DOWNGRADE', () => {
     expect(read('.env.example')).toMatch(/CORE_V2_AUTH_MODE=/);
     expect(read('jest.setup.js')).toMatch(/CORE_V2_AUTH_MODE/);
   });
+
+  /**
+   * Same rule, applied to the other Core v2 variable that is fail-closed with
+   * no default. A lane that can OPEN Core v2 (HYBRID or V2_ONLY) can be asked
+   * for a Core v2 password reset, so it must declare the TTL. When the
+   * cross-browser lane did not, the request threw, the route still answered
+   * 202 (no enumeration) and no mail was ever sent — a silent hole only a
+   * browser lane could see, and only one of the two did.
+   *
+   * A V1_ONLY lane is deliberately excluded: it has no Core v2 database and
+   * never reaches that code, so declaring the variable there would state
+   * something the lane cannot honour.
+   */
+  test('every CI step that can open Core v2 declares the password-reset TTL', () => {
+    const steps = read('.github/workflows/ci.yml')
+      .split(/\n {6}- name: /)
+      .filter((step) => /^Start Next\.js server in background/.test(step))
+      .map((step) => step.slice(0, step.indexOf('\n        run:')));
+    expect(steps.length).toBeGreaterThanOrEqual(3);
+
+    const coreV2Capable = steps.filter((env) => /CORE_V2_AUTH_MODE:\s*(HYBRID|V2_ONLY)/.test(env));
+    expect(coreV2Capable.length).toBeGreaterThanOrEqual(2);
+    for (const env of coreV2Capable) {
+      expect(env).toMatch(/CORE_V2_PASSWORD_RESET_TTL_MINUTES:/);
+    }
+
+    const v1Only = steps.filter((env) => /CORE_V2_AUTH_MODE:\s*V1_ONLY/.test(env));
+    for (const env of v1Only) {
+      expect(env).not.toMatch(/CORE_V2_PASSWORD_RESET_TTL_MINUTES:/);
+    }
+
+    expect(read('docker-compose.e2e.yml')).toMatch(/CORE_V2_PASSWORD_RESET_TTL_MINUTES:/);
+  });
 });

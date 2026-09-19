@@ -2,6 +2,7 @@ import { PUT, DELETE } from '@/app/api/assistante/coaches/manage/[id]/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
@@ -15,7 +16,6 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     coachProfile: { findUnique: jest.fn(), update: jest.fn(), delete: jest.fn() },
     user: { findUnique: jest.fn(), update: jest.fn(), delete: jest.fn() },
-    sessionBooking: { count: jest.fn() },
     $transaction: jest.fn(),
   },
 }));
@@ -144,6 +144,13 @@ describe('assistant coaches id', () => {
   });
 
   it('DELETE blocks when coach has sessions', async () => {
+    // The route no longer pre-flight-counts SessionBooking itself (that
+    // guard only ever covered this one relation, missing the other 7 the
+    // ON DELETE RESTRICT migration protects — see DELETE-1/DELETE-2).
+    // Postgres is now the single source of truth: simulate the real
+    // foreign-key violation it raises, shaped exactly like Prisma's
+    // actual P2002/P2003 error (verified against a real disposable
+    // Postgres for lib/security/account-deletion-guard.ts).
     (auth as jest.Mock).mockResolvedValue({
       user: { id: 'assistant-1', role: 'ASSISTANTE' },
     });
@@ -151,13 +158,27 @@ describe('assistant coaches id', () => {
       userId: 'coach-1',
       user: {},
     });
-    (prisma.sessionBooking.count as jest.Mock).mockResolvedValue(2);
+    (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
+      const tx = {
+        coachProfile: { delete: jest.fn().mockResolvedValue({}) },
+        user: {
+          delete: jest.fn().mockRejectedValue(
+            new Prisma.PrismaClientKnownRequestError('Foreign key constraint violated', {
+              code: 'P2003',
+              clientVersion: '6.19.3',
+              meta: { modelName: 'User', constraint: 'SessionBooking_coachId_fkey' },
+            }),
+          ),
+        },
+      };
+      return cb(tx);
+    });
 
     const response = await DELETE(makeRequest(), { params: Promise.resolve({ id: 'coach-1' }) });
     const body = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(body.error).toContain('Impossible de supprimer');
+    expect(response.status).toBe(409);
+    expect(body.message).toContain('Impossible de supprimer');
   });
 
   it('DELETE removes coach when no sessions', async () => {
@@ -168,7 +189,6 @@ describe('assistant coaches id', () => {
       userId: 'coach-1',
       user: {},
     });
-    (prisma.sessionBooking.count as jest.Mock).mockResolvedValue(0);
     (prisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
       const tx = {
         coachProfile: { delete: jest.fn().mockResolvedValue({}) },
