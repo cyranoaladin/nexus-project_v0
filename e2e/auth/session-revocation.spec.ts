@@ -64,7 +64,14 @@ async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').P
   expect((await response.headersArray()).some(({ name, value }) =>
     name.toLowerCase() === 'set-cookie' && /authjs\.session-token=;/.test(value)
   )).toBe(true)
-  await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname))
+  // `waitUntil: 'commit'` and not the default `'load'`: signing out lands on
+  // /auth/signin either by a full document navigation or by an App Router
+  // client-side push, and only the first fires a fresh `load`. Waiting for a
+  // load therefore hung for the full 60 s timeout whenever the client-side
+  // path won the race — observed on main at 0bdad4fc, 510 passed / 1 failed,
+  // while the very same spec passed on other runs. What this assertion means
+  // is "the URL changed", so that is what it should wait for.
+  await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname), { waitUntil: 'commit' })
   await expect.poll(async () =>
     (await page.context().cookies()).some(({ name }) => name === 'authjs.session-token')
   ).toBe(false)

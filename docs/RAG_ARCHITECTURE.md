@@ -179,3 +179,67 @@ client, pas la disponibilité du staging externe.
 - `docs/architecture/ARIA_V1.md`
 - `docs/roadmaps/RAG_PLATFORM_ROADMAP.md`
 - `DEPLOY_RUNBOOK.md`
+
+---
+
+## Passation de qualification pour la mise en service (19 septembre 2026)
+
+Section destinée à l'orchestrateur RAG. Nexus ne modifie ni le dépôt RAG ni ses
+artefacts d'autorité ; ce qui suit est ce que le côté application a établi, ce
+qu'il consomme, et ce qu'il attend en retour.
+
+### Versions concernées
+
+| Côté | Référence observée |
+|---|---|
+| Application | `main` = `0bdad4fc94a65419b40d3437e7d7aa19772659a7` (fusion de #262) |
+| Contrats importés | révision producteur `dd0ae3d9490703c0c180b12a7fce11f5c222427d`, paquet `0.17.0`, verrouillé dans `data/aria/rag/contracts.lock.json` |
+| RAG | `HEAD` = `b0749c354a0a09cf20395fd083af1cac747cd695` ; l'état de disponibilité publié épingle `470c4b991a4234428d3f1960881d45e9bebf3dfa`, soit **4 commits d'écart** |
+
+### Verdict RAG lu, non interprété
+
+`docs/reports/go_live/go_live_readiness_state.json` : `go_live_ready = false`,
+`blocking_reasons = ["go_live_qualification_blockers"]`, `production_searchable
+= false`, 10 bloqueurs fermés / 3 ouverts. L'artefact se déclare lui-même non
+opérationnel (`snapshot_is_operational_current = false`,
+`state_freshness_kind = "COMMITTED_SNAPSHOT"`).
+
+Un instantané versionné n'est pas une autorisation. Le seul verdict opposable
+est une exécution en direct de `scripts/go_live/check_go_live_readiness.py
+--assert-ready` ; `--check-only` et `--verify-snapshot` n'en sont pas.
+
+### Correction d'un constat antérieur
+
+Un rapport précédent de Nexus indiquait que la compatibilité du manifeste,
+l'entitlement de cours et l'ARIA bout en bout étaient « absents ». **C'est faux
+pour l'emplacement** : ces trois contrôles ont une implémentation côté
+application. Ce qui manque n'est pas le contrôle, c'est son exécution contre le
+moteur RAG réel.
+
+| Dimension | Où elle vit réellement | Ce qui est prouvé | Ce qui ne l'est pas |
+|---|---|---|---|
+| **A. Compatibilité manifeste ↔ runtime** | `lib/aria/infrastructure/rag/manifest.ts`, variables `ARIA_RAG_ACTIVE_MANIFEST_SHA256`, `ARIA_RAG_EXPECTED_SHA`, erreurs `ARIA_RAG_INDEX_DIGEST_MISMATCH`, `ARIA_RAG_CONTRACT_BYTES_DRIFT` | le mécanisme de détection de dérive existe et est exercé en CI contre un manifeste de test (`data/aria/testing/rag/…​.aria-rag-manifest`) | jamais exercé contre le manifeste de la release RAG réelle |
+| **B. Droits d'accès et portées sous concurrence** | `lib/aria/access.ts`, `lib/aria/infrastructure/rag/production-academic-identity.ts` ; refus `SCOPE_INVALID`, `SCOPE_MISMATCH`, `SCOPE_BINDING_MISMATCH`. Côté RAG, bloqueur C5 fermé avec 15 refus vérifiés | les refus négatifs existent des deux côtés | aucun test conjoint, et aucun test sous **changement concurrent** de portée — ni positif ni négatif |
+| **C. ARIA bout en bout** | `e2e/aria/` (9 spécifications Playwright) + voies CI `ARIA Browser (smoke/a11y/mobile)`, `ARIA Jest`, `ARIA PostgreSQL`, `ARIA Static` | traverse les vraies frontières de l'application : `/api/aria/chat`, `/api/aria/practice/attempts/`, `/api/aria/bilans/periodic`, `/api/aria/workshops` | **la frontière RAG est une doublure** : `aria-fixture-e2e` (`scripts/e2e/aria-fixture-provider.ts`), pas le moteur réel |
+
+Nommage exact, comme demandé : ce qui existe est un **test de contrat avec
+doublure**, utile et vert, et **non** une preuve d'intégration réelle.
+Aucun banc ne fait tourner l'application et le moteur RAG ensemble aujourd'hui.
+
+### Demandes à l'orchestrateur RAG
+
+1. Qualifier la **cause** des trois bloqueurs ouverts et produire les preuves attendues, sans fermer un statut déclaratif : `STAGING_EXTERNE` (la preuve est `runbook_only`, la condition exige un staging externe réellement ingéré et qualifié), `CONCURRENCE` (`BUDGET_FAILED`), `MANIFESTE_PRODUCTION` (aucun vérificateur — « ne pas savoir n'est pas fermer »).
+2. Republier un état de disponibilité **frais**, lié au commit, aux entrées, aux artefacts, à l'environnement et aux paramètres effectivement qualifiés.
+3. Nommer précisément les accès, ressources ou autorisations qui lui manquent, le cas échéant.
+
+### Ce que Nexus fournira en retour
+
+Un banc conjoint pour les dimensions A, B et C dès qu'un point d'accès RAG
+qualifié est disponible : Nexus tient déjà le client, les contrats verrouillés,
+les scénarios de refus et les spécifications bout en bout ; il lui manque une
+cible réelle à interroger.
+
+### Ce qui n'est pas une solution
+
+Désactiver ARIA ou RAG pour obtenir un feu vert. La fonctionnalité est promise
+aux familles ; la retirer change le produit, pas son niveau de preuve.

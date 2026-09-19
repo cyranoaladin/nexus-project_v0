@@ -1,4 +1,4 @@
-import { CAPABILITIES, assertCapability, capabilitiesForRole, roleHasCapability } from '@/lib/core-v2/rbac';
+import { ADMIN_ONLY_CAPABILITIES, CAPABILITIES, assertCapability, capabilitiesForRole, roleHasCapability } from '@/lib/core-v2/rbac';
 import { ForbiddenError } from '@/lib/core-v2/errors';
 
 describe('Core v2 RBAC capability matrix (§Y)', () => {
@@ -8,10 +8,13 @@ describe('Core v2 RBAC capability matrix (§Y)', () => {
 
   test('ASSISTANTE holds every capability except the explicit ADMIN-only set', () => {
     const assistante = new Set(capabilitiesForRole('ASSISTANTE'));
-    expect(assistante.has('ACCOUNT_SUSPEND')).toBe(false);
-    expect(assistante.has('ACCOUNT_REACTIVATE')).toBe(false);
-    expect(assistante.has('AUDIT_READ')).toBe(false);
-    expect(assistante.size).toBe(CAPABILITIES.length - 3);
+    // Derived from the ADMIN-only set itself: a hand-counted length silently
+    // stops meaning anything the next time a capability is added.
+    for (const c of ADMIN_ONLY_CAPABILITIES) expect(assistante.has(c)).toBe(false);
+    expect(assistante.size).toBe(CAPABILITIES.length - ADMIN_ONLY_CAPABILITIES.length);
+    expect([...ADMIN_ONLY_CAPABILITIES].sort()).toEqual(
+      ['ACCOUNT_REACTIVATE', 'ACCOUNT_SUSPEND', 'AUDIT_READ', 'STAFF_ACCOUNT_CREATE'].sort(),
+    );
     for (const c of ['HOUSEHOLD_CREATE', 'STUDENT_CREATE', 'ENROLLMENT_APPROVE', 'COACH_ASSIGN', 'PLANNING_MANAGE', 'ACCOUNT_INVITE'] as const) {
       expect(assistante.has(c)).toBe(true);
     }

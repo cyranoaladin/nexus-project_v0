@@ -10,6 +10,7 @@
  * policy map in lib/rbac.ts: ASSISTANTE has READ-only on USER, no admin.*
  * policy, no CONFIG/REPORT management):
  *   - account lifecycle beyond inviting (suspend / reactivate) is ADMIN-only
+ *   - creating a staff account (ASSISTANTE / COACH) is ADMIN-only
  *   - reading the audit trail is ADMIN-only
  *   - everything else in the daily staff workflow is shared.
  * COACH / PARENT / ELEVE hold no back-office capability at all; what they may
@@ -36,6 +37,7 @@ export const CAPABILITIES = [
   'ACCOUNT_INVITE',
   'ACCOUNT_SUSPEND',
   'ACCOUNT_REACTIVATE',
+  'STAFF_ACCOUNT_CREATE',
   'AUDIT_READ',
 ] as const;
 
@@ -46,9 +48,22 @@ export interface Actor {
   readonly role: UserRole;
 }
 
-const ADMIN_ONLY: readonly Capability[] = ['ACCOUNT_SUSPEND', 'ACCOUNT_REACTIVATE', 'AUDIT_READ'];
+/**
+ * Exported so tests can assert "ASSISTANTE = everything except this set"
+ * against the set itself rather than a hand-counted number that silently
+ * drifts the next time a capability is added.
+ */
+export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
+  'ACCOUNT_SUSPEND',
+  'ACCOUNT_REACTIVATE',
+  // Creating a colleague is a different act from inviting one: it decides who
+  // exists at all in the back office. An ASSISTANTE may invite an account
+  // someone else created; she may not bring a new staff member into being.
+  'STAFF_ACCOUNT_CREATE',
+  'AUDIT_READ',
+];
 
-const STAFF_SHARED: readonly Capability[] = CAPABILITIES.filter((c) => !ADMIN_ONLY.includes(c));
+const STAFF_SHARED: readonly Capability[] = CAPABILITIES.filter((c) => !ADMIN_ONLY_CAPABILITIES.includes(c));
 
 const CAPABILITY_MATRIX: Readonly<Record<UserRole, ReadonlySet<Capability>>> = {
   ADMIN: new Set<Capability>(CAPABILITIES),
