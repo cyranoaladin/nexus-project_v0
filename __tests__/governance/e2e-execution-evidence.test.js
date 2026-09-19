@@ -1,7 +1,12 @@
 /** @jest-environment node */
-let auditExecutionEvidence, sealReport, INVOCATIONS;
+let auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow;
+let mkdtempSync, mkdirSync, writeFileSync, rmSync, tmpdir, path;
 beforeAll(async () => {
-  ({ auditExecutionEvidence, sealReport, INVOCATIONS } = await import('../../scripts/testing/e2e-execution-evidence.mjs'));
+  ({ auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow } =
+    await import('../../scripts/testing/e2e-execution-evidence.mjs'));
+  ({ mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs'));
+  ({ tmpdir } = await import('node:os'));
+  ({ default: path } = await import('node:path'));
 });
 
 const identity = { sourceSha: 'a'.repeat(40), runId: '123', runAttempt: '1' };
@@ -146,4 +151,41 @@ test('rejects untracked paths, path escapes, missing projects and absent tracked
   f.tracked.push('e2e/auth/unexecuted.spec.ts');
   expect(auditExecutionEvidence(f.tracked, f.evidence, identity).orphans).toContain('e2e/auth/unexecuted.spec.ts');
   expect(auditExecutionEvidence(f.tracked, f.evidence, identity).problems).toContain('INVALID_PATH:public');
+});
+
+describe('readEvidenceDirectoryOrThrow — partial-rerun attempt mismatch (observed live on run 35469048701)', () => {
+  let dir;
+  afterEach(() => { if (dir) rmSync(dir, { recursive: true, force: true }); });
+
+  test('refuses with a specific message when the directory was never created (producers stayed on a stale attempt)', () => {
+    dir = path.join(mkdtempSync(path.join(tmpdir(), 'e2e-evidence-')), 'never-created');
+    expect(() => readEvidenceDirectoryOrThrow(dir)).toThrow(/EVIDENCE_DIRECTORY_MISSING/);
+    expect(() => readEvidenceDirectoryOrThrow(dir)).toThrow(/rerun the WHOLE workflow/);
+  });
+
+  test('refuses with a specific message when the directory exists but nothing was downloaded into it', () => {
+    dir = mkdtempSync(path.join(tmpdir(), 'e2e-evidence-'));
+    expect(() => readEvidenceDirectoryOrThrow(dir)).toThrow(/EVIDENCE_DIRECTORY_EMPTY/);
+    expect(() => readEvidenceDirectoryOrThrow(dir)).toThrow(/rerun the whole workflow/);
+  });
+
+  test('does not swallow an unrelated filesystem error behind the same message', () => {
+    // A file where a directory is expected raises ENOTDIR, not ENOENT — must not be
+    // relabelled as the missing-attempt case, which would hide a different bug.
+    dir = mkdtempSync(path.join(tmpdir(), 'e2e-evidence-'));
+    const notADirectory = path.join(dir, 'this-is-a-file');
+    writeFileSync(notADirectory, 'x');
+    expect(() => readEvidenceDirectoryOrThrow(notADirectory)).toThrow();
+    expect(() => readEvidenceDirectoryOrThrow(notADirectory)).not.toThrow(/EVIDENCE_DIRECTORY_MISSING/);
+  });
+
+  test('succeeds normally on a complete, coherent attempt — no behaviour change on the happy path', () => {
+    dir = mkdtempSync(path.join(tmpdir(), 'e2e-evidence-'));
+    const nested = path.join(dir, 'auth-chromium');
+    mkdirSync(nested);
+    const sealed = sealReport('auth-chromium', { config: { rootDir: '/isolated/e2e/auth', projects: [] }, errors: [], suites: [] }, identity);
+    writeFileSync(path.join(nested, 'auth-chromium.evidence.json'), JSON.stringify(sealed));
+    const result = readEvidenceDirectoryOrThrow(dir);
+    expect(result).toEqual([sealed]);
+  });
 });

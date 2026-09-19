@@ -55,8 +55,14 @@ export async function resetTestDatabase() {
 /**
  * Check if the test database is reachable.
  * Returns true if connected, false otherwise.
- * Use this in beforeAll to skip tests when no DB is available.
  * Includes a 3-second timeout to prevent hanging.
+ *
+ * Do not use this to decide whether to skip a mandatory real-database suite:
+ * every caller in the `db-core` lane is given a database by the CI workflow
+ * itself, so "unreachable" there is never a legitimate reason to no-op —
+ * it means the environment is broken and the suite must fail loudly. Use
+ * `assertTestDbAvailable` for that. This function remains for callers that
+ * have an actual optional/local-dev skip use case.
  */
 export async function canConnectToTestDb(): Promise<boolean> {
   try {
@@ -67,6 +73,48 @@ export async function canConnectToTestDb(): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Fail loudly if the test database is not reachable.
+ *
+ * Every suite in the mandatory `db-core` CI lane is handed a live disposable
+ * Postgres by the workflow before it runs (see `.github/workflows/ci.yml`,
+ * job "Real DB Integration"). An unreachable database there is an
+ * environment failure, not a reason to skip: the previous pattern
+ * (`canConnectToTestDb` → `false` → `console.warn` → `return`) let every
+ * `it()` in the file no-op and Jest reported the suite as fully PASSED —
+ * demonstrated: with the database stopped, the unfixed
+ * `credit-debit-idempotency.test.ts` exits 0 reporting "10 passed, 10 total"
+ * in 0.6s while doing nothing. Throwing here makes Jest fail every test in
+ * the `describe` block instead.
+ *
+ * Uses a dedicated, short-lived client for the probe rather than the shared
+ * `testPrisma`: `Promise.race` does not cancel the losing promise, so a
+ * probe against the shared client can leave a query in flight that later
+ * competes with the real test for a connection slot. `$disconnect()` in
+ * `finally` closes this client's pool immediately, which drops that
+ * in-flight probe query at the transport level — Prisma has no query-level
+ * cancellation, so this is the closest available guarantee.
+ */
+export async function assertTestDbAvailable(): Promise<void> {
+  const probe = new PrismaClient({ datasources: { db: { url: testDbUrl } } });
+  try {
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('DB connection timeout')), 3000)
+    );
+    await Promise.race([probe.$queryRaw`SELECT 1`, timeout]);
+  } catch (cause) {
+    throw new Error(
+      'DB_UNAVAILABLE_IN_MANDATORY_LANE: the disposable test database that ' +
+      'this CI job provisions was not reachable within 3s. This lane never ' +
+      'skips on a missing database — treat this as an environment failure ' +
+      'and fix the database/connection, not the test.',
+      { cause }
+    );
+  } finally {
+    await probe.$disconnect().catch(() => { /* best-effort */ });
   }
 }
 

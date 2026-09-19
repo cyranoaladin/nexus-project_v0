@@ -15,7 +15,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
-import { testPrisma, setupTestDatabase, createTestParent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, createTestParent, canConnectToTestDb, assertTestDbAvailable } from '../setup/test-database';
 import { upsertPaymentByExternalId } from '@/lib/payments';
 
 const prisma = testPrisma;
@@ -31,11 +31,8 @@ describe('Payment Idempotency - Concurrency', () => {
   }
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping payment idempotency tests: test database not available');
-      return;
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
     await setupTestDatabase();
     await createUser();
   }, 10000);

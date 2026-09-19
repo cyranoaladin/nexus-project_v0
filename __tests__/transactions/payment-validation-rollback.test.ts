@@ -15,7 +15,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
-import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, assertTestDbAvailable } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -27,11 +27,8 @@ describe('Payment Validation Transaction Rollback', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping payment rollback tests: test database not available');
-      return;
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
     await setupTestDatabase();
   }, 10000);
 

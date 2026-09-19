@@ -15,7 +15,7 @@
  */
 
 import { CANONICAL_DOMAINS_MATHS, backfillCanonicalDomains } from '@/lib/assessments/core/config';
-import { testPrisma, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, assertTestDbAvailable } from '../setup/test-database';
 
 // Use testPrisma for real DB tests (not the mocked prisma from jest.setup.js)
 const prisma = testPrisma;
@@ -41,18 +41,8 @@ describe('Assessment Pipeline — Real DB', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping assessment pipeline tests: test database not available');
-      return;
-    }
-    // Verify DB connection
-    try {
-      await prisma.$queryRawUnsafe('SELECT 1');
-    } catch (error) {
-      console.error('DB connection failed. Is docker-compose.test.yml running?');
-      dbAvailable = false;
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
   }, 10000);
 
   beforeEach(async () => {
