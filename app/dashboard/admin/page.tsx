@@ -175,8 +175,12 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
             <CardHeader>
               <CardTitle className="flex items-center text-sm md:text-base text-white">
                 <Users className="w-4 h-4 md:w-5 md:h-5 mr-2 text-brand-accent" aria-hidden="true" />
-                Statistiques Utilisateurs
+                Statistiques Utilisateurs (Core v1 historique)
               </CardTitle>
+              <p className="text-xs text-neutral-400 mt-1">
+                Ne compte pas les comptes Core v2 (personnel et familles migrés) —
+                une vue Core v2 dédiée n'est pas encore livrée.
+              </p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
