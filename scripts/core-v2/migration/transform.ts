@@ -80,7 +80,23 @@ export interface TargetPlan {
 export const ALLOWED_COURSE_SOURCES = new Set(['ADMIN', 'ASSISTANTE', 'SEED']);
 export const VERIFIED_SCOPE_STATES = new Set(['STAFF_VERIFIED', 'BACKFILL_AUTO']);
 
-/** Stable JSON (sorted keys, Dates as ISO) → sha256. */
+/**
+ * Stable JSON (sorted keys, Dates as ISO) → sha256.
+ *
+ * This is a MANIFEST INTEGRITY fingerprint, not a credential derivation.
+ * CodeQL reports `js/insufficient-password-hash` here because one field of
+ * the payload it digests is `TargetUser.password`. That field is a bcrypt
+ * hash that ALREADY exists in Core v1 and is carried across unchanged, so
+ * families keep their password through the migration; nothing is hashed for
+ * authentication anywhere in this file, and `bcrypt` remains the only
+ * password hasher (lib/core-v2/services/account.ts, cost 12).
+ *
+ * Excluding the field would be worse, not safer: the fingerprint is what
+ * makes a rerun report UNCHANGED versus UPDATED, so a credential rotated in
+ * the source has to move the digest — `migration-transform.test.ts` holds
+ * exactly that, next to a guard proving no manifest entry ever carries a
+ * password field or a bcrypt value. Only the one-way digest is written.
+ */
 export function objectHash(payload: unknown): string {
   return createHash('sha256').update(canonicalJson(payload)).digest('hex');
 }

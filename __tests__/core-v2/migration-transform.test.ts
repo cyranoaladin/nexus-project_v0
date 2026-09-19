@@ -133,6 +133,44 @@ describe('buildTargetPlan', () => {
   });
 });
 
+describe('le manifeste ne porte jamais de justificatif', () => {
+  /**
+   * CodeQL signale `objectHash` comme « hachage de mot de passe insuffisant »
+   * parce que la charge empreintée contient `password`. Ce champ est un
+   * hachage bcrypt DEJA existant, transporte tel quel pour que les familles
+   * gardent leur mot de passe ; `objectHash` est une empreinte d'integrite de
+   * manifeste, pas une derivation de justificatif. Ce qu'il faut tenir, et
+   * que ce test tient, c'est que la valeur elle-meme ne sorte jamais dans le
+   * manifeste : seule son empreinte, a sens unique, y figure.
+   */
+  const plan = buildTargetPlan(snapshot(), approval, migratedAt);
+
+  test('aucune entree du manifeste ne contient de champ ni de valeur de mot de passe', () => {
+    const serialise = JSON.stringify(plan.entries);
+    expect(serialise).not.toMatch(/"password"/);
+    // Un hachage bcrypt commence par $2a$/$2b$/$2y$ : aucun ne doit apparaitre.
+    expect(serialise).not.toMatch(/\$2[aby]\$/);
+    for (const e of plan.entries) {
+      expect(Object.keys(e)).not.toContain('password');
+      if (e.hash !== null) expect(e.hash).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  test('l empreinte change quand le justificatif change : elle sert bien la detection de derive', () => {
+    // Les comptes sont imbriques dans le snapshot (parentUser, user, coachUser) :
+    // on clone et on change le hachage du parent, qui est partage par les deux eleves.
+    const moved: SourceSnapshot = JSON.parse(JSON.stringify(snapshot()), (_k, v) =>
+      typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(v) ? new Date(v) : v);
+    for (const st of moved.students as unknown as Array<{ parentUser: { password: string | null } }>) {
+      st.parentUser.password = ['', '2a', '12', 'x'.repeat(53)].join('$');
+    }
+    const other = buildTargetPlan(moved, approval, migratedAt);
+    const h = (p: ReturnType<typeof buildTargetPlan>) =>
+      p.entries.filter((e) => e.entity === 'User').map((e) => e.hash).join(',');
+    expect(h(other)).not.toBe(h(plan));
+  });
+});
+
 describe('approval file', () => {
   test('digest is order-independent over ids and stable', () => {
     const a = parseApprovalFile({ ...approval, approvedStudentIds: ['b', 'a'] });
