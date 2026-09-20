@@ -266,6 +266,166 @@ export async function listAcademicYears(client: PrismaClient, ctx: ServiceContex
   return client.academicYear.findMany({ orderBy: { startYear: 'desc' } });
 }
 
+/**
+ * A page plus the exact total over the WHOLE matching set (never derived
+ * from the loaded page) — the operational indicators (§Jalon B) need a
+ * counter and a list that can never disagree, so both are computed from the
+ * same `where` in the same round trip.
+ */
+export interface IndicatorPage<T> extends Page<T> {
+  readonly totalCount: number;
+}
+
+/**
+ * Indicator A — pedagogical enrollments pending validation (go-live mission,
+ * Jalon B). Counted object: StudentAcademicYearEnrollment. Status: PENDING
+ * only (ACTIVE/COMPLETED/WITHDRAWN are excluded — nothing to act on).
+ * Period: the CURRENT academic year only — a PENDING row in an UPCOMING or
+ * CLOSED year is not part of today's operational queue. Rights: HOUSEHOLD_READ,
+ * same as every other staff list (the action itself asserts ENROLLMENT_APPROVE
+ * separately, in services/enrollment.ts).
+ */
+const pendingEnrollmentWhere = {
+  status: 'PENDING',
+  academicYear: { status: 'CURRENT' },
+} satisfies Prisma.StudentAcademicYearEnrollmentWhereInput;
+
+export interface PendingEnrollmentSummary {
+  readonly id: string;
+  readonly createdAt: Date;
+  readonly gradeLevel: string;
+  readonly academicTrack: string | null;
+  readonly academicYear: { id: string; startYear: number; status: string };
+  readonly student: { id: string; householdId: string; user: PublicUser };
+}
+
+export async function listPendingEnrollments(
+  client: PrismaClient,
+  ctx: ServiceContext,
+  query: PageQuery,
+): Promise<IndicatorPage<PendingEnrollmentSummary>> {
+  assertCapability(ctx.actor, 'HOUSEHOLD_READ');
+  const [rows, totalCount] = await Promise.all([
+    client.studentAcademicYearEnrollment.findMany({
+      where: pendingEnrollmentWhere,
+      ...pageArgs(query),
+      include: {
+        academicYear: { select: { id: true, startYear: true, status: true } },
+        student: { select: { id: true, householdId: true, user: { select: userSelect } } },
+      },
+    }),
+    client.studentAcademicYearEnrollment.count({ where: pendingEnrollmentWhere }),
+  ]);
+  const page = toPage(rows, query.limit);
+  return {
+    totalCount,
+    nextCursor: page.nextCursor,
+    items: page.items.map((e) => ({
+      id: e.id,
+      createdAt: e.createdAt,
+      gradeLevel: e.gradeLevel,
+      academicTrack: e.academicTrack,
+      academicYear: e.academicYear,
+      student: { id: e.student.id, householdId: e.student.householdId, user: e.student.user as PublicUser },
+    })),
+  };
+}
+
+/**
+ * Indicator B — course enrollments needing a coach assignment (go-live
+ * mission, Jalon B). This deliberately does NOT assume every course
+ * enrollment needs a coach: `lib/core-v2/repositories/coach-student-course-
+ * assignment.ts` documents that Core v2 has no versioned curriculum catalog
+ * yet, so the only rule this foundation actually enforces is "an explicit
+ * StudentCourseEnrollment row is required before a coach can be assigned to
+ * it" — it never claims every such row must eventually get one. This
+ * indicator surfaces the objective gap (an assignable course with no ACTIVE
+ * assignment covering it) for a human to judge, not a normative "must-have".
+ *
+ * Counted object: StudentCourseEnrollment. Status/exclusion: its parent
+ * enrollment must be ACTIVE (a PENDING/WITHDRAWN/COMPLETED enrollment is not
+ * on this year's live roster) in the CURRENT academic year; the course
+ * enrollment itself is excluded once a CoachStudentCourseAssignment with
+ * status ACTIVE exists for the same (academicYearEnrollmentId, courseKey)
+ * pair. Rights: HOUSEHOLD_READ (the action asserts COACH_ASSIGN separately,
+ * in services/coach.ts).
+ *
+ * No curriculum catalog exists to push this "NOT EXISTS" down into an SQL
+ * join without duplicating that catalog's absence as a second query
+ * concept, so this computes the gap in application code over the bounded
+ * "ACTIVE enrollment in the CURRENT year" cohort — small by construction (one
+ * school's live roster), not the whole history. If that cohort ever outgrows
+ * an in-process scan, revisit with a real measurement, not preemptively.
+ */
+const activeCurrentYearEnrollmentArgs = {
+  where: { status: 'ACTIVE', academicYear: { status: 'CURRENT' } },
+  include: {
+    academicYear: { select: { id: true, startYear: true, status: true } },
+    student: { select: { id: true, householdId: true, user: { select: userSelect } } },
+    courseEnrollments: true,
+    assignments: { where: { status: 'ACTIVE' }, select: { courseKey: true } },
+  },
+} satisfies Prisma.StudentAcademicYearEnrollmentFindManyArgs;
+
+export interface UnassignedCourseEnrollment {
+  readonly id: string;
+  readonly courseKey: string;
+  readonly kind: 'SPECIALTY' | 'OPTION';
+  readonly createdAt: Date;
+  readonly enrollment: {
+    readonly id: string;
+    readonly gradeLevel: string;
+    readonly academicTrack: string | null;
+    readonly academicYear: { id: string; startYear: number; status: string };
+  };
+  readonly student: { id: string; householdId: string; user: PublicUser };
+}
+
+async function computeUnassignedCourseEnrollments(client: PrismaClient): Promise<UnassignedCourseEnrollment[]> {
+  const enrollments = await client.studentAcademicYearEnrollment.findMany(activeCurrentYearEnrollmentArgs);
+  const items: UnassignedCourseEnrollment[] = [];
+  for (const e of enrollments) {
+    const assignedCourseKeys = new Set(e.assignments.map((a) => a.courseKey));
+    for (const c of e.courseEnrollments) {
+      if (assignedCourseKeys.has(c.courseKey)) continue;
+      items.push({
+        id: c.id,
+        courseKey: c.courseKey,
+        kind: c.kind,
+        createdAt: c.createdAt,
+        enrollment: { id: e.id, gradeLevel: e.gradeLevel, academicTrack: e.academicTrack, academicYear: e.academicYear },
+        student: { id: e.student.id, householdId: e.student.householdId, user: e.student.user as PublicUser },
+      });
+    }
+  }
+  // Same deterministic order as every other staff list (newest first, id tiebreak) —
+  // the list and the "load more" cursor below both walk this one order.
+  items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime() || (a.id < b.id ? 1 : a.id > b.id ? -1 : 0));
+  return items;
+}
+
+export async function listUnassignedCourseEnrollments(
+  client: PrismaClient,
+  ctx: ServiceContext,
+  query: PageQuery,
+): Promise<IndicatorPage<UnassignedCourseEnrollment>> {
+  assertCapability(ctx.actor, 'HOUSEHOLD_READ');
+  const all = await computeUnassignedCourseEnrollments(client);
+  // A cursor that no longer matches (the row got assigned or its enrollment
+  // changed between two page loads) restarts from the top rather than
+  // erroring — a stale decision here costs a re-read, never a wrong count.
+  const cursorIndex = query.cursor ? all.findIndex((item) => item.id === query.cursor) : -1;
+  const startIndex = cursorIndex >= 0 ? cursorIndex + 1 : 0;
+  const slice = all.slice(startIndex, startIndex + query.limit + 1);
+  const hasMore = slice.length > query.limit;
+  const items = hasMore ? slice.slice(0, query.limit) : slice;
+  return {
+    totalCount: all.length,
+    items,
+    nextCursor: hasMore ? (items[items.length - 1]?.id ?? null) : null,
+  };
+}
+
 export const auditQuerySchema = pageQuerySchema.extend({
   subjectType: z.string().trim().min(1).max(64).optional(),
   subjectId: idSchema.optional(),
