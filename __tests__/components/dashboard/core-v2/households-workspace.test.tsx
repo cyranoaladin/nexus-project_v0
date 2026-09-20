@@ -55,7 +55,12 @@ describe('HouseholdsWorkspace', () => {
     await userEvent.type(screen.getByLabelText(/Rechercher une famille/), 'nour');
     expect(await screen.findByText('Nour1 Synthetic')).toBeInTheDocument();
     expect(screen.getByText('Nour2 Synthetic')).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Ouvrir la fiche' })[0]).toHaveAttribute('href', '/dashboard/assistante/familles/h1');
+    // Go-live mission Lot 1B: identical accessible names on every row's
+    // "Ouvrir la fiche" link were indistinguishable out of context (a
+    // screen-reader user browsing by link list). Each link's accessible
+    // name now names its own household's contact.
+    expect(screen.getByRole('link', { name: 'Ouvrir la fiche de Nour1 Synthetic' })).toHaveAttribute('href', '/dashboard/assistante/familles/h1');
+    expect(screen.getByRole('link', { name: 'Ouvrir la fiche de Nour2 Synthetic' })).toHaveAttribute('href', '/dashboard/assistante/familles/h2');
 
     await userEvent.click(screen.getByRole('button', { name: 'Afficher plus' }));
     expect(await screen.findByText('Nour3 Synthetic')).toBeInTheDocument();
@@ -127,6 +132,57 @@ describe('HouseholdsWorkspace', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Vérifier et créer' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(/already exists/);
     expect(push).not.toHaveBeenCalled();
+  });
+
+  test('account status is shown next to each named person, not as an unlabeled stack (go-live mission Lot 1B)', async () => {
+    const createdAt = '2026-09-01T00:00:00Z';
+    const expectedDays = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)));
+    const activeStudent = {
+      id: 's-1', role: 'ELEVE', firstName: 'Yanis', lastName: 'Synthetic', email: 'yanis@example.com', phone: null,
+      accountStatus: 'ACTIVE', activatedAt: '2026-09-05T00:00:00Z', createdAt, updatedAt: createdAt,
+    };
+    const suspendedParent = { ...parent('p-h4', 'Nadia', 'nadia@example.com'), accountStatus: 'SUSPENDED' };
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      {
+        url: /\/staff\/households\?limit=20$/,
+        body: ok({
+          items: [{ id: 'h4', createdAt, parents: [suspendedParent], students: [{ id: 'e-1', user: activeStudent }] }],
+          nextCursor: null,
+        }),
+      },
+    ]);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    await screen.findByText('Nadia Synthetic');
+
+    // No separate "Comptes" column stacking unlabeled statuses.
+    expect(screen.queryByText('Comptes')).not.toBeInTheDocument();
+
+    // Each status sits right next to the person it belongs to.
+    expect(screen.getByText('Suspendu')).toBeInTheDocument();
+    expect(screen.getByText('Actif')).toBeInTheDocument();
+    expect(screen.getByText('Yanis Synthetic')).toBeInTheDocument();
+
+    // A pending account states what it's waiting for and since when — the
+    // parent fixture defaults to PENDING_ACTIVATION.
+    const anotherHousehold = household('h5', 'Karim');
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      { url: /\/staff\/households\?limit=20$/, body: ok({ items: [anotherHousehold], nextCursor: null }) },
+    ]);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    await screen.findByText('Karim Synthetic');
+    expect(screen.getByText('En attente d’activation')).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`depuis (aujourd.hui|${expectedDays} j)`))).toBeInTheDocument();
+  });
+
+  test('a household with no student shows an explicit, readable empty state', async () => {
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      { url: /\/staff\/households\?limit=20$/, body: ok({ items: [household('h6', 'Solo')], nextCursor: null }) },
+    ]);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    expect(await screen.findByText('Aucun élève')).toBeInTheDocument();
   });
 
   test('without HOUSEHOLD_CREATE the create control is not offered', async () => {

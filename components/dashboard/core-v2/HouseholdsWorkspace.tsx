@@ -4,6 +4,7 @@ import { Loader2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -15,11 +16,44 @@ import { StatusMessage } from './StatusMessage';
 import { useStaffActor } from './useStaffActor';
 
 const ACCOUNT_LABEL: Record<PublicUser['accountStatus'], string> = {
-  PENDING_ACTIVATION: 'À activer',
+  PENDING_ACTIVATION: 'En attente d’activation',
   ACTIVE: 'Actif',
   SUSPENDED: 'Suspendu',
   DISABLED: 'Désactivé',
 };
+
+const ACCOUNT_BADGE_VARIANT: Record<PublicUser['accountStatus'], BadgeProps['variant']> = {
+  PENDING_ACTIVATION: 'warning',
+  ACTIVE: 'success',
+  SUSPENDED: 'destructive',
+  DISABLED: 'outline',
+};
+
+/**
+ * The API exposes only the four PublicUser.accountStatus values — no
+ * invitation-sent/expired timestamp. "Invitation non encore émise" and
+ * "invitation expirée" (go-live mission §3) are therefore not
+ * distinguishable from this data without a backend change; showing them
+ * as two different UI states here would invent information the API does
+ * not carry. What IS real and available: how long a PENDING_ACTIVATION
+ * account has been waiting, from its own createdAt — surfaced as the one
+ * actionable signal this data actually supports.
+ */
+function AccountStatusBadge({ user }: { user: PublicUser }) {
+  const waitingSince = user.accountStatus === 'PENDING_ACTIVATION'
+    ? Math.max(0, Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)))
+    : null;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Badge variant={ACCOUNT_BADGE_VARIANT[user.accountStatus]}>{ACCOUNT_LABEL[user.accountStatus]}</Badge>
+      {waitingSince !== null && (
+        <span className="text-xs text-neutral-400">
+          {waitingSince === 0 ? 'depuis aujourd’hui' : `depuis ${waitingSince} j`}
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
   const { can, failure: actorFailure, loading: actorLoading } = useStaffActor();
@@ -113,43 +147,57 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
                   <TableRow>
                     <TableHead>Parents</TableHead>
                     <TableHead>Élèves</TableHead>
-                    <TableHead>Comptes</TableHead>
                     <TableHead className="sr-only">Ouvrir</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((household) => (
-                    <TableRow key={household.id}>
-                      <TableCell>
-                        <ul className="space-y-1">
-                          {household.parents.map((parent) => (
-                            <li key={parent.id} className="text-neutral-100">
-                              {displayName(parent)}
-                              {parent.isPrimaryContact && <span className="ml-2 text-xs text-brand-accent">contact principal</span>}
-                              {parent.email && <span className="block text-xs text-neutral-400">{parent.email}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </TableCell>
-                      <TableCell>
-                        {household.students.length === 0 ? (
-                          <span className="text-neutral-500">Aucun élève</span>
-                        ) : (
-                          household.students.map((student) => <div key={student.id}>{displayName(student.user)}</div>)
-                        )}
-                      </TableCell>
-                      <TableCell className="text-xs text-neutral-300">
-                        {[...household.parents, ...household.students.map((s) => s.user)].map((user) => (
-                          <div key={user.id}>{ACCOUNT_LABEL[user.accountStatus]}</div>
-                        ))}
-                      </TableCell>
-                      <TableCell>
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`${basePath}/${household.id}`}>Ouvrir la fiche</Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {items.map((household) => {
+                    const primaryContact = household.parents.find((p) => p.isPrimaryContact) ?? household.parents[0];
+                    const ficheLabel = primaryContact
+                      ? `Ouvrir la fiche de ${displayName(primaryContact)}`
+                      : `Ouvrir la fiche du foyer ${household.id}`;
+                    return (
+                      <TableRow key={household.id}>
+                        <TableCell>
+                          <ul className="space-y-1.5">
+                            {household.parents.map((parent) => (
+                              <li key={parent.id} className="text-neutral-100">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span>{displayName(parent)}</span>
+                                  {parent.isPrimaryContact && <span className="text-xs text-brand-accent">contact principal</span>}
+                                </div>
+                                <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                                  <AccountStatusBadge user={parent} />
+                                  {parent.email && <span className="text-xs text-neutral-400">{parent.email}</span>}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                        <TableCell>
+                          {household.students.length === 0 ? (
+                            <span className="text-neutral-400">Aucun élève</span>
+                          ) : (
+                            <ul className="space-y-1.5">
+                              {household.students.map((student) => (
+                                <li key={student.id} className="text-neutral-100">
+                                  <div>{displayName(student.user)}</div>
+                                  <div className="mt-0.5">
+                                    <AccountStatusBadge user={student.user} />
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`${basePath}/${household.id}`} aria-label={ficheLabel}>Ouvrir la fiche</Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               {nextCursor && (
