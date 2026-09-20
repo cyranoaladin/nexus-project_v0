@@ -132,6 +132,12 @@ const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/
 
 /** §AU accessibility: no axe violation on a Core v2 screen (optionally scoped to the Core v2 region of a mixed page). */
 async function expectAccessible(page: import('@playwright/test').Page, include?: string): Promise<void> {
+  // A client-side navigation resolves the URL and content before React commits
+  // the <head> title update — axe's document-title rule can catch that gap and
+  // report "html null" even though the app's own metadata is correct and stable
+  // moments later (verified: title is present at every real page state). Wait
+  // for the actual invariant axe checks, not a fixed delay.
+  await page.waitForFunction(() => document.title.length > 0, undefined, { timeout: 5_000 });
   const builder = new AxeBuilder({ page });
   const results = await (include ? builder.include(include) : builder).analyze();
   expect(
