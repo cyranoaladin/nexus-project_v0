@@ -98,10 +98,19 @@ export async function canConnectToTestDb(): Promise<boolean> {
  * Uses a dedicated, short-lived client for the probe rather than the shared
  * `testPrisma`: `Promise.race` does not cancel the losing promise, so a
  * probe against the shared client can leave a query in flight that later
- * competes with the real test for a connection slot. `$disconnect()` in
- * `finally` closes this client's pool immediately, which drops that
- * in-flight probe query at the transport level — Prisma has no query-level
- * cancellation, so this is the closest available guarantee.
+ * competes with the real test for a connection slot. Three distinct,
+ * separately-scoped guarantees here, not one:
+ * - the 3s timer is explicitly cleared in `finally`, on every path
+ *   (demonstrated by a dedicated test — a fast, successful probe used to
+ *   leave it armed to fire, unawaited, 3s after this function returned);
+ * - `$disconnect()` in `finally` closes *this* client's own pool, so it
+ *   cannot outlive the probe and hold a connection slot open indefinitely;
+ * - whether that disconnect also cancels an in-flight query at the
+ *   transport level, rather than merely closing the pool around it, is
+ *   Prisma-internal behavior this code does not depend on and has not
+ *   verified — Prisma exposes no query-cancellation API, so no claim is
+ *   made about the query itself being aborted, only about the resources
+ *   this function itself is responsible for releasing.
  *
  * `url` defaults to the lane's real database and only exists so this
  * function's own failure behavior can be exercised in a test against a
