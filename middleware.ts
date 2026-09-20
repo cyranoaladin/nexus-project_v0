@@ -1,4 +1,5 @@
 import { getRoleDestination } from '@/lib/auth/role-destinations';
+import { isAdminSupervisionException } from '@/lib/auth/admin-supervision-exceptions';
 import NextAuth from 'next-auth';
 import {
   NextResponse,
@@ -69,32 +70,10 @@ const authenticatedMiddleware = auth((req) => {
         pathname !== '/dashboard' &&
         !pathname.startsWith('/dashboard/trajectoire')) {
       const expectedPrefix = getRoleDestination(role);
-      const isSharedCandidatePage = role === 'ADMIN'
-        && /^\/dashboard\/assistante\/students\/[^/]+\/candidat\/?$/.test(pathname);
-      // ADMIN supervise les mêmes services opérationnels (assignations,
-      // planning) que l'ASSISTANTE — les API sous-jacentes acceptent déjà
-      // ADMIN (`requireAnyRole(['ADMIN', 'ASSISTANTE'])`) et les pages
-      // elles-mêmes ont déjà une logique cliente consciente d'ADMIN
-      // (`isAdmin`) ; seul ce garde-fou de préfixe l'empêchait encore
-      // d'atteindre la page. Périmètre volontairement étroit : seules ces
-      // deux pages, pas l'ensemble de `/dashboard/assistante/*`.
-      const isSharedAssistanteOperationalPage = role === 'ADMIN'
-        && /^\/dashboard\/assistante\/(assignments|planning)\/?$/.test(pathname);
-      // Household/family operations (go-live mission §3, Lot 1A): the
-      // underlying API/service layer already authorizes ADMIN via the
-      // canonical capability matrix (every HOUSEHOLD_*/PARENT_*/STUDENT_*
-      // capability is granted to ADMIN — lib/core-v2/rbac.ts), so this is a
-      // routing gap, not a rights gap. Scoped to the families subtree only
-      // (list, detail, academic years, its own planning view) — never the
-      // whole `/dashboard/assistante/*` tree.
-      const isSharedHouseholdManagementPage = role === 'ADMIN'
-        && /^\/dashboard\/assistante\/familles(\/.*)?$/.test(pathname);
       if (
         expectedPrefix
         && !pathname.startsWith(expectedPrefix)
-        && !isSharedCandidatePage
-        && !isSharedAssistanteOperationalPage
-        && !isSharedHouseholdManagementPage
+        && !isAdminSupervisionException(role, pathname)
       ) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }
