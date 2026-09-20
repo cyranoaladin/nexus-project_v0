@@ -1,4 +1,5 @@
 import { getRoleDestination } from '@/lib/auth/role-destinations';
+import { isAdminSupervisionException } from '@/lib/auth/admin-supervision-exceptions';
 import NextAuth from 'next-auth';
 import {
   NextResponse,
@@ -69,22 +70,10 @@ const authenticatedMiddleware = auth((req) => {
         pathname !== '/dashboard' &&
         !pathname.startsWith('/dashboard/trajectoire')) {
       const expectedPrefix = getRoleDestination(role);
-      const isSharedCandidatePage = role === 'ADMIN'
-        && /^\/dashboard\/assistante\/students\/[^/]+\/candidat\/?$/.test(pathname);
-      // ADMIN supervise les mêmes services opérationnels (assignations,
-      // planning) que l'ASSISTANTE — les API sous-jacentes acceptent déjà
-      // ADMIN (`requireAnyRole(['ADMIN', 'ASSISTANTE'])`) et les pages
-      // elles-mêmes ont déjà une logique cliente consciente d'ADMIN
-      // (`isAdmin`) ; seul ce garde-fou de préfixe l'empêchait encore
-      // d'atteindre la page. Périmètre volontairement étroit : seules ces
-      // deux pages, pas l'ensemble de `/dashboard/assistante/*`.
-      const isSharedAssistanteOperationalPage = role === 'ADMIN'
-        && /^\/dashboard\/assistante\/(assignments|planning)\/?$/.test(pathname);
       if (
         expectedPrefix
         && !pathname.startsWith(expectedPrefix)
-        && !isSharedCandidatePage
-        && !isSharedAssistanteOperationalPage
+        && !isAdminSupervisionException(role, pathname)
       ) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }
