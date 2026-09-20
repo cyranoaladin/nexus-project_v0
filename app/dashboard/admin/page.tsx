@@ -175,8 +175,15 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
             <CardHeader>
               <CardTitle className="flex items-center text-sm md:text-base text-white">
                 <Users className="w-4 h-4 md:w-5 md:h-5 mr-2 text-brand-accent" aria-hidden="true" />
-                Statistiques Utilisateurs
+                Statistiques Utilisateurs (Core v1 historique)
               </CardTitle>
+              <p className="text-xs text-neutral-400 mt-1">
+                Ne compte pas les comptes Core v2 (personnel et familles migrés) —
+                cette synthèse ADMIN n&apos;a pas encore d&apos;équivalent Core v2.
+                L&apos;espace opérationnel des foyers Core v2 existe déjà pour
+                l&apos;ASSISTANTE (Familles → gestion des foyers) ; il n&apos;est
+                pas ouvert à l&apos;ADMIN aujourd&apos;hui.
+              </p>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -241,7 +248,7 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
                 {adminData?.stats?.activeSubscriptions || 0}
               </div>
               <p className="text-xs text-neutral-300 mt-1">
-                Taux de rétention: 94%
+                Taux de rétention : non disponible (aucune définition métier validée)
               </p>
             </CardContent>
           </Card>
