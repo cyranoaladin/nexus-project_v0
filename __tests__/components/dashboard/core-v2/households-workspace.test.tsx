@@ -215,7 +215,10 @@ describe('HouseholdsWorkspace', () => {
     ]);
     render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     const malikItem = (await screen.findByText('Malik Synthetic')).closest('li');
-    expect(within(malikItem!).getByText('Compte créé le date de création inconnue')).toBeInTheDocument();
+    // A standalone anomaly sentence — not glued onto "Compte créé le",
+    // which would misleadingly assert a creation date exists.
+    expect(within(malikItem!).getByText('Date de création inconnue')).toBeInTheDocument();
+    expect(within(malikItem!).queryByText(/Compte créé le/)).not.toBeInTheDocument();
     expect(within(malikItem!).queryByText(/NaN/)).not.toBeInTheDocument();
     expect(within(malikItem!).queryByText(/aujourd.hui/)).not.toBeInTheDocument();
   });

@@ -49,9 +49,11 @@ const ACCOUNT_BADGE_VARIANT: Record<PublicUser['accountStatus'], BadgeProps['var
  * timezone — never the viewer's browser zone, which review also verified
  * this used to silently depend on.
  */
-function formatAccountCreatedAt(createdAt: string, organizationTimezone: string): string {
+/** `null` return means the date is missing/invalid — the caller renders a
+ * standalone anomaly sentence instead of gluing it onto "Compte créé le". */
+function formatAccountCreatedAt(createdAt: string, organizationTimezone: string): string | null {
   const date = new Date(createdAt);
-  if (Number.isNaN(date.getTime())) return 'date de création inconnue';
+  if (Number.isNaN(date.getTime())) return null;
   return new Intl.DateTimeFormat('fr-FR', {
     day: '2-digit',
     month: '2-digit',
@@ -61,12 +63,15 @@ function formatAccountCreatedAt(createdAt: string, organizationTimezone: string)
 }
 
 function AccountStatusBadge({ user, organizationTimezone }: { user: PublicUser; organizationTimezone: string }) {
+  const createdAtLabel = user.accountStatus === 'PENDING_ACTIVATION'
+    ? formatAccountCreatedAt(user.createdAt, organizationTimezone)
+    : null;
   return (
     <span className="inline-flex items-center gap-1.5">
       <Badge variant={ACCOUNT_BADGE_VARIANT[user.accountStatus]}>{ACCOUNT_LABEL[user.accountStatus]}</Badge>
       {user.accountStatus === 'PENDING_ACTIVATION' && (
         <span className="text-xs text-neutral-400">
-          Compte créé le {formatAccountCreatedAt(user.createdAt, organizationTimezone)}
+          {createdAtLabel ? `Compte créé le ${createdAtLabel}` : 'Date de création inconnue'}
         </span>
       )}
     </span>
