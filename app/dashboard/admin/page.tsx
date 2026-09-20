@@ -179,7 +179,10 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
               </CardTitle>
               <p className="text-xs text-neutral-400 mt-1">
                 Ne compte pas les comptes Core v2 (personnel et familles migrés) —
-                une vue Core v2 dédiée n'est pas encore livrée.
+                cette synthèse ADMIN n&apos;a pas encore d&apos;équivalent Core v2.
+                L&apos;espace opérationnel des foyers Core v2 existe déjà pour
+                l&apos;ASSISTANTE (Familles → gestion des foyers) ; il n&apos;est
+                pas ouvert à l&apos;ADMIN aujourd&apos;hui.
               </p>
             </CardHeader>
             <CardContent>
@@ -245,7 +248,7 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
                 {adminData?.stats?.activeSubscriptions || 0}
               </div>
               <p className="text-xs text-neutral-300 mt-1">
-                Taux de rétention: 94%
+                Taux de rétention : non disponible (aucune définition métier validée)
               </p>
             </CardContent>
           </Card>
