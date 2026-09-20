@@ -80,11 +80,21 @@ const authenticatedMiddleware = auth((req) => {
       // deux pages, pas l'ensemble de `/dashboard/assistante/*`.
       const isSharedAssistanteOperationalPage = role === 'ADMIN'
         && /^\/dashboard\/assistante\/(assignments|planning)\/?$/.test(pathname);
+      // Household/family operations (go-live mission §3, Lot 1A): the
+      // underlying API/service layer already authorizes ADMIN via the
+      // canonical capability matrix (every HOUSEHOLD_*/PARENT_*/STUDENT_*
+      // capability is granted to ADMIN — lib/core-v2/rbac.ts), so this is a
+      // routing gap, not a rights gap. Scoped to the families subtree only
+      // (list, detail, academic years, its own planning view) — never the
+      // whole `/dashboard/assistante/*` tree.
+      const isSharedHouseholdManagementPage = role === 'ADMIN'
+        && /^\/dashboard\/assistante\/familles(\/.*)?$/.test(pathname);
       if (
         expectedPrefix
         && !pathname.startsWith(expectedPrefix)
         && !isSharedCandidatePage
         && !isSharedAssistanteOperationalPage
+        && !isSharedHouseholdManagementPage
       ) {
         return NextResponse.redirect(new URL(expectedPrefix, req.nextUrl));
       }

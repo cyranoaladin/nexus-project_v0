@@ -63,11 +63,64 @@ export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
   'AUDIT_READ',
 ];
 
-const STAFF_SHARED: readonly Capability[] = CAPABILITIES.filter((c) => !ADMIN_ONLY_CAPABILITIES.includes(c));
+/**
+ * Positive, exhaustive classification of every non-ADMIN-only capability —
+ * replaces a previous derivation ("every capability except the ADMIN-only
+ * set") that silently granted ASSISTANTE any capability added to
+ * `CAPABILITIES` without a matching decision. A capability now reaches
+ * ASSISTANTE only by being named here; one merely added to `CAPABILITIES`
+ * and forgotten in both lists is denied by default (see
+ * `roleHasCapability`) and fails `assertCapabilityClassificationIsExhaustive`
+ * (enforced at module load and by a dedicated test) instead of leaking.
+ */
+export const ASSISTANTE_CAPABILITIES: readonly Capability[] = [
+  'HOUSEHOLD_READ',
+  'HOUSEHOLD_CREATE',
+  'HOUSEHOLD_EDIT',
+  'PARENT_CREATE',
+  'PARENT_ATTACH',
+  'STUDENT_CREATE',
+  'STUDENT_EDIT',
+  'ENROLLMENT_CREATE',
+  'ENROLLMENT_APPROVE',
+  'ENROLLMENT_WITHDRAW',
+  'COURSE_MANAGE',
+  'COACH_CAPABILITY_MANAGE',
+  'COACH_ASSIGN',
+  'PLANNING_MANAGE',
+  'ACCOUNT_INVITE',
+];
+
+/**
+ * Fails loudly — at import time, so no server boots and no test suite
+ * passes on a drift — if a capability is classified in both lists, or in
+ * neither. This is the completeness guard the classification exists for;
+ * a dedicated test also asserts it directly so CI names the failure
+ * without needing the module to be imported first.
+ */
+export function assertCapabilityClassificationIsExhaustive(): void {
+  const overlap = ADMIN_ONLY_CAPABILITIES.filter((c) => ASSISTANTE_CAPABILITIES.includes(c));
+  if (overlap.length > 0) {
+    throw new Error(
+      `CORE_V2_RBAC_CAPABILITY_DOUBLE_CLASSIFIED: ${overlap.join(', ')} listed in both ` +
+      'ADMIN_ONLY_CAPABILITIES and ASSISTANTE_CAPABILITIES.',
+    );
+  }
+  const classified = new Set<Capability>([...ADMIN_ONLY_CAPABILITIES, ...ASSISTANTE_CAPABILITIES]);
+  const unclassified = CAPABILITIES.filter((c) => !classified.has(c));
+  if (unclassified.length > 0) {
+    throw new Error(
+      `CORE_V2_RBAC_UNCLASSIFIED_CAPABILITY: ${unclassified.join(', ')} must be added to ` +
+      'ADMIN_ONLY_CAPABILITIES or ASSISTANTE_CAPABILITIES — a new capability is denied to ' +
+      'ASSISTANTE by default, not granted by omission.',
+    );
+  }
+}
+assertCapabilityClassificationIsExhaustive();
 
 const CAPABILITY_MATRIX: Readonly<Record<UserRole, ReadonlySet<Capability>>> = {
   ADMIN: new Set<Capability>(CAPABILITIES),
-  ASSISTANTE: new Set<Capability>(STAFF_SHARED),
+  ASSISTANTE: new Set<Capability>(ASSISTANTE_CAPABILITIES),
   COACH: new Set<Capability>(),
   PARENT: new Set<Capability>(),
   ELEVE: new Set<Capability>(),
