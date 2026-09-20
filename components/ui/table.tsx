@@ -70,7 +70,7 @@ const TableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      "border-t bg-neutral-50 font-medium [&>tr]:last:border-b-0",
+      "border-t border-white/10 bg-surface-elevated font-medium text-neutral-100 [&>tr]:last:border-b-0",
       className
     )}
     {...props}
@@ -85,7 +85,14 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-neutral-200 transition-colors hover:bg-neutral-50 data-[state=selected]:bg-neutral-100",
+      // Every real consumer (HouseholdsWorkspace, AcademicYearsPanel, the
+      // stages and assignments tables) renders on the app's dark surface
+      // system (Card's default `bg-surface-card`) — there is no light-theme
+      // consumer to preserve. hover/selected reuse the tokens this repo
+      // documents for exactly this (app/globals.css's contrast guide):
+      // surface-hover and surface-elevated are both measured AAA with the
+      // neutral-100/200 text these rows already use.
+      "border-b border-white/10 transition-colors hover:bg-surface-hover focus-within:bg-surface-hover data-[state=selected]:bg-surface-elevated",
       className
     )}
     {...props}
@@ -100,7 +107,10 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-semibold text-neutral-900 [&:has([role=checkbox])]:pr-0",
+      // neutral-900 (near-black) on this app's dark surfaces was measured
+      // near-invisible — neutral-200 is this repo's own documented AAA
+      // choice for header-weight text on surface-dark/surface-card alike.
+      "h-12 px-4 text-left align-middle font-semibold text-neutral-200 [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -114,7 +124,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    className={cn("p-4 align-middle text-neutral-100 [&:has([role=checkbox])]:pr-0", className)}
     {...props}
   />
 ))
@@ -126,7 +136,9 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-4 text-sm text-neutral-500", className)}
+    // neutral-500 on a dark surface is this repo's own documented "avoid"
+    // entry; neutral-400 is the nearest AAA-compliant secondary-text choice.
+    className={cn("mt-4 text-sm text-neutral-400", className)}
     {...props}
   />
 ))
