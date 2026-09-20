@@ -39,23 +39,41 @@ const ACCOUNT_BADGE_VARIANT: Record<PublicUser['accountStatus'], BadgeProps['var
  * account has been waiting, from its own createdAt — surfaced as the one
  * actionable signal this data actually supports.
  */
-function AccountStatusBadge({ user }: { user: PublicUser }) {
-  const waitingSince = user.accountStatus === 'PENDING_ACTIVATION'
-    ? Math.max(0, Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24)))
-    : null;
+/**
+ * `createdAt` is when the account row was created, not proof an invitation
+ * was sent — and "depuis N j" derived from it invents a delay that may not
+ * exist (review, correctly: a duration under 24h can straddle midnight and
+ * read as "hier" one minute and "aujourd'hui" the next, in whichever
+ * timezone happens to be ambient). Replaced with the one fact this field
+ * actually is: the date the account was created, in the organization's own
+ * timezone — never the viewer's browser zone, which review also verified
+ * this used to silently depend on.
+ */
+function formatAccountCreatedAt(createdAt: string, organizationTimezone: string): string {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return 'date de création inconnue';
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: organizationTimezone,
+  }).format(date);
+}
+
+function AccountStatusBadge({ user, organizationTimezone }: { user: PublicUser; organizationTimezone: string }) {
   return (
     <span className="inline-flex items-center gap-1.5">
       <Badge variant={ACCOUNT_BADGE_VARIANT[user.accountStatus]}>{ACCOUNT_LABEL[user.accountStatus]}</Badge>
-      {waitingSince !== null && (
+      {user.accountStatus === 'PENDING_ACTIVATION' && (
         <span className="text-xs text-neutral-400">
-          {waitingSince === 0 ? 'depuis aujourd’hui' : `depuis ${waitingSince} j`}
+          Compte créé le {formatAccountCreatedAt(user.createdAt, organizationTimezone)}
         </span>
       )}
     </span>
   );
 }
 
-export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
+export function HouseholdsWorkspace({ basePath, organizationTimezone }: { basePath: string; organizationTimezone: string }) {
   const { can, failure: actorFailure, loading: actorLoading } = useStaffActor();
   const [term, setTerm] = useState('');
   const [query, setQuery] = useState('');
@@ -102,11 +120,21 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
           <h1 className="text-2xl font-bold text-white">Familles</h1>
           <p className="text-sm text-neutral-400">Foyers, contacts parents, élèves et inscriptions — recherchez une famille ou ouvrez sa fiche.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
+        {/*
+          Was a plain `flex` row with no wrap: on a narrow viewport (measured
+          at 390px CSS width) the third button ("Nouvelle famille") ran past
+          the visible edge — the outer header's own flex-wrap only lets this
+          whole block drop below the title, it does nothing for overflow
+          inside the block itself. flex-wrap here lets the 3 actions break
+          onto their own line(s) instead of overflowing; w-full sm:w-auto
+          keeps each button a full-width, easily-tappable target on the
+          narrowest screens rather than three cramped fragments.
+        */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={`${basePath}/annees`}>Années scolaires</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={`${basePath}/planning`}>Planning</Link>
           </Button>
           {can('HOUSEHOLD_CREATE') && <CreateHouseholdDialog basePath={basePath} onCreated={() => void load(null)} />}
@@ -167,7 +195,7 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
                                   {parent.isPrimaryContact && <span className="text-xs text-brand-accent">contact principal</span>}
                                 </div>
                                 <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
-                                  <AccountStatusBadge user={parent} />
+                                  <AccountStatusBadge user={parent} organizationTimezone={organizationTimezone} />
                                   {parent.email && <span className="text-xs text-neutral-400">{parent.email}</span>}
                                 </div>
                               </li>
@@ -183,7 +211,7 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
                                 <li key={student.id} className="text-neutral-100">
                                   <div>{displayName(student.user)}</div>
                                   <div className="mt-0.5">
-                                    <AccountStatusBadge user={student.user} />
+                                    <AccountStatusBadge user={student.user} organizationTimezone={organizationTimezone} />
                                   </div>
                                 </li>
                               ))}
@@ -276,7 +304,7 @@ function CreateHouseholdDialog({ basePath, onCreated }: { basePath: string; onCr
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button">Nouvelle famille</Button>
+        <Button type="button" className="w-full sm:w-auto">Nouvelle famille</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

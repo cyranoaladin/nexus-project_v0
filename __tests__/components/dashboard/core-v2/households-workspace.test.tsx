@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { HouseholdsWorkspace } from '@/components/dashboard/core-v2/HouseholdsWorkspace';
@@ -49,7 +49,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/households\?limit=20&q=nour$/, body: ok({ items: [household('h1', 'Nour1'), household('h2', 'Nour2')], nextCursor: 'h2' }) },
       { url: /\/staff\/households\?limit=20&q=nour&cursor=h2$/, body: ok({ items: [household('h3', 'Nour3')], nextCursor: null }) },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     expect(await screen.findByText(/Aucune famille enregistrée/)).toBeInTheDocument();
 
     await userEvent.type(screen.getByLabelText(/Rechercher une famille/), 'nour');
@@ -73,7 +73,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/me$/, body: me },
       { url: /\/staff\/households/, status: 503, body: fail('CORE_V2_UNAVAILABLE', 'Core v2 is not configured on this deployment.') },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent(/Core v2 n’est pas configuré/);
     expect(screen.queryByText(/Aucune famille/)).not.toBeInTheDocument();
@@ -87,7 +87,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/duplicates\?.*email=new%40example.com/, body: ok({ hardConflict: null, possibleMatches: [{ ...parent('p-y', 'Amel', 'amel@example.com'), householdId: 'h-y', reason: 'NAME' }] }) },
       { method: 'POST', url: /\/staff\/households$/, status: 201, body: ok({ household: { id: 'h-new' }, parent: parent('p-new', 'Amel', 'new@example.com'), membership: {} }) },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     await screen.findByText(/Aucune famille enregistrée/);
     await userEvent.click(screen.getByRole('button', { name: 'Nouvelle famille' }));
     const dialog = await screen.findByRole('dialog');
@@ -122,7 +122,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/duplicates/, body: ok({ hardConflict: null, possibleMatches: [] }) },
       { method: 'POST', url: /\/staff\/households$/, status: 409, body: fail('CONFLICT', 'An account with this email already exists.') },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     await screen.findByText(/Aucune famille enregistrée/);
     await userEvent.click(screen.getByRole('button', { name: 'Nouvelle famille' }));
     await screen.findByLabelText('Prénom');
@@ -134,9 +134,8 @@ describe('HouseholdsWorkspace', () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  test('account status is shown next to each named person, not as an unlabeled stack (go-live mission Lot 1B)', async () => {
+  test('account status is shown inside each named person\'s own row, not as an unlabeled stack (go-live mission Lot 1B)', async () => {
     const createdAt = '2026-09-01T00:00:00Z';
-    const expectedDays = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)));
     const activeStudent = {
       id: 's-1', role: 'ELEVE', firstName: 'Yanis', lastName: 'Synthetic', email: 'yanis@example.com', phone: null,
       accountStatus: 'ACTIVE', activatedAt: '2026-09-05T00:00:00Z', createdAt, updatedAt: createdAt,
@@ -152,28 +151,73 @@ describe('HouseholdsWorkspace', () => {
         }),
       },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     await screen.findByText('Nadia Synthetic');
 
     // No separate "Comptes" column stacking unlabeled statuses.
     expect(screen.queryByText('Comptes')).not.toBeInTheDocument();
 
-    // Each status sits right next to the person it belongs to.
-    expect(screen.getByText('Suspendu')).toBeInTheDocument();
-    expect(screen.getByText('Actif')).toBeInTheDocument();
-    expect(screen.getByText('Yanis Synthetic')).toBeInTheDocument();
+    // Not just "Suspendu" and "Actif" exist somewhere on the page — each
+    // sits inside the specific person's own list item, not a sibling's.
+    const nadiaItem = screen.getByText('Nadia Synthetic').closest('li');
+    const yanisItem = screen.getByText('Yanis Synthetic').closest('li');
+    expect(nadiaItem).not.toBeNull();
+    expect(yanisItem).not.toBeNull();
+    expect(within(nadiaItem!).getByText('Suspendu')).toBeInTheDocument();
+    expect(within(nadiaItem!).queryByText('Actif')).not.toBeInTheDocument();
+    expect(within(yanisItem!).getByText('Actif')).toBeInTheDocument();
+    expect(within(yanisItem!).queryByText('Suspendu')).not.toBeInTheDocument();
+  });
 
-    // A pending account states what it's waiting for and since when — the
-    // parent fixture defaults to PENDING_ACTIVATION.
-    const anotherHousehold = household('h5', 'Karim');
+  test('a pending account shows a factual creation date, not an invented waiting duration', async () => {
+    const anotherHousehold = household('h5', 'Karim'); // defaults to PENDING_ACTIVATION, createdAt 2026-09-01T00:00:00Z
     mockApi([
       { url: /\/staff\/me$/, body: me },
       { url: /\/staff\/households\?limit=20$/, body: ok({ items: [anotherHousehold], nextCursor: null }) },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
-    await screen.findByText('Karim Synthetic');
-    expect(screen.getByText('En attente d’activation')).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(`depuis (aujourd.hui|${expectedDays} j)`))).toBeInTheDocument();
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
+    const karimItem = (await screen.findByText('Karim Synthetic')).closest('li');
+    expect(within(karimItem!).getByText('En attente d’activation')).toBeInTheDocument();
+    // Africa/Tunis is UTC+1 year-round (no DST) — 2026-09-01T00:00:00Z is
+    // already 01/09/2026 01:00 there, same calendar day either way here,
+    // but the assertion is on the exact factual string, not a duration.
+    expect(within(karimItem!).getByText('Compte créé le 01/09/2026')).toBeInTheDocument();
+    expect(within(karimItem!).queryByText(/depuis/)).not.toBeInTheDocument();
+  });
+
+  test('the displayed date reflects the organization\'s timezone, not the ambient runtime one — proven across a UTC midnight boundary', async () => {
+    // 23:30 UTC on 2026-09-30 is already 00:30 on 2026-10-01 in Africa/Tunis
+    // (UTC+1). If the component ever fell back to the runtime's local zone
+    // (as the previous "depuis N j" version implicitly did), this exact
+    // case is where that bug would show as the wrong calendar day.
+    const createdAt = '2026-09-30T23:30:00Z';
+    const pendingParent = { ...parent('p-h6', 'Sonia', 'sonia@example.com'), createdAt };
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      {
+        url: /\/staff\/households\?limit=20$/,
+        body: ok({ items: [{ id: 'h6', createdAt, parents: [pendingParent], students: [] }], nextCursor: null }),
+      },
+    ]);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
+    const soniaItem = (await screen.findByText('Sonia Synthetic')).closest('li');
+    expect(within(soniaItem!).getByText('Compte créé le 01/10/2026')).toBeInTheDocument();
+  });
+
+  test('an invalid or missing creation date is shown as an explicit anomaly, never "aujourd\'hui" or NaN', async () => {
+    const brokenDateParent = { ...parent('p-h7', 'Malik', 'malik@example.com'), createdAt: 'not-a-real-date' };
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      {
+        url: /\/staff\/households\?limit=20$/,
+        body: ok({ items: [{ id: 'h7', createdAt: 'not-a-real-date', parents: [brokenDateParent], students: [] }], nextCursor: null }),
+      },
+    ]);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
+    const malikItem = (await screen.findByText('Malik Synthetic')).closest('li');
+    expect(within(malikItem!).getByText('Compte créé le date de création inconnue')).toBeInTheDocument();
+    expect(within(malikItem!).queryByText(/NaN/)).not.toBeInTheDocument();
+    expect(within(malikItem!).queryByText(/aujourd.hui/)).not.toBeInTheDocument();
   });
 
   test('a household with no student shows an explicit, readable empty state', async () => {
@@ -181,7 +225,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/me$/, body: me },
       { url: /\/staff\/households\?limit=20$/, body: ok({ items: [household('h6', 'Solo')], nextCursor: null }) },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     expect(await screen.findByText('Aucun élève')).toBeInTheDocument();
   });
 
@@ -190,7 +234,7 @@ describe('HouseholdsWorkspace', () => {
       { url: /\/staff\/me$/, body: ok({ actor: { userId: 'c', role: 'COACH' }, capabilities: [] }) },
       { url: /\/staff\/households\?limit=20$/, body: ok({ items: [], nextCursor: null }) },
     ]);
-    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" />);
+    render(<HouseholdsWorkspace basePath="/dashboard/assistante/familles" organizationTimezone="Africa/Tunis" />);
     await screen.findByText(/Aucune famille enregistrée/);
     expect(screen.queryByRole('button', { name: 'Nouvelle famille' })).not.toBeInTheDocument();
   });
