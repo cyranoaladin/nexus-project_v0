@@ -197,6 +197,51 @@ export interface StaffActor {
   capabilities: string[];
 }
 
+// ── Jalon B operational indicators (mirror lib/core-v2/queries/staff.ts) ───
+
+export interface IndicatorPage<T> extends Page<T> {
+  totalCount: number;
+}
+
+/** Enough to identify which family a row belongs to — never email/phone/accountStatus in a summary list. */
+export interface HouseholdIdentity {
+  id: string;
+  primaryContactName: string | null;
+}
+
+/** "Inscriptions à valider" — PENDING pedagogical enrollments of the CURRENT academic year. */
+export interface PendingEnrollmentSummary {
+  id: string;
+  createdAt: string;
+  gradeLevel: string;
+  academicTrack: string | null;
+  academicYear: { id: string; startYear: number; status: AcademicYear['status'] };
+  student: { id: string; user: PublicUser };
+  household: HouseholdIdentity;
+}
+
+/**
+ * "Inscriptions à un cours sans enseignant affecté" — a coverage observation
+ * (no ACTIVE CoachStudentCourseAssignment for this exact course), never a
+ * claim that this course requires one, that the assigned coach's account is
+ * active, that they still have the capability, or that a planning slot is
+ * available. One student can contribute several rows here (one per course).
+ */
+export interface UnassignedCourseEnrollment {
+  id: string;
+  courseKey: string;
+  kind: 'SPECIALTY' | 'OPTION';
+  createdAt: string;
+  enrollment: {
+    id: string;
+    gradeLevel: string;
+    academicTrack: string | null;
+    academicYear: { id: string; startYear: number; status: AcademicYear['status'] };
+  };
+  student: { id: string; user: PublicUser };
+  household: HouseholdIdentity;
+}
+
 export function displayName(user: { firstName: string | null; lastName: string | null; email?: string | null }): string {
   const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
   return name || user.email || '—';

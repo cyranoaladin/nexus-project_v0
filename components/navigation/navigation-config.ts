@@ -192,6 +192,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Pilotage',
+      href: '/dashboard/assistante/pilotage',
+      icon: 'ListChecks',
+      match: 'prefix'
+    },
+    {
       label: 'Planning',
       href: '/dashboard/assistante/planning',
       icon: 'Calendar',
@@ -275,6 +281,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       label: 'Familles',
       href: '/dashboard/admin/familles',
       icon: 'Users',
+      match: 'prefix'
+    },
+    {
+      label: 'Pilotage',
+      href: '/dashboard/admin/pilotage',
+      icon: 'ListChecks',
       match: 'prefix'
     },
     {

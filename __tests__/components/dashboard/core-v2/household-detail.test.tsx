@@ -132,12 +132,20 @@ describe('HouseholdDetail', () => {
     expect(within(enrollment).queryByRole('button', { name: 'Approuver' })).not.toBeInTheDocument();
     expect(calls.filter((c) => c.method === 'GET' && /households\/h1$/.test(c.url)).length).toBe(2);
 
+    const getCountBefore = calls.filter((c) => c.method === 'GET' && /households\/h1$/.test(c.url)).length;
     await userEvent.click(within(enrollment).getByRole('button', { name: 'Terminer la série' }));
     const alert = await within(enrollment).findByRole('alert');
     expect(alert).toHaveTextContent(/modified by someone else/);
     expect(alert).toHaveTextContent(/rechargé/);
     const patch = calls.find((c) => c.method === 'PATCH');
     expect(patch?.body).toEqual({ expectedRevision: 0, changes: { status: 'ENDED' } });
+    // The message claims a reload happened — it must actually have happened,
+    // not just been printed (go-live mission: a stale conflict is "explained
+    // AND refreshed", never a claim that isn't backed by a real re-read).
+    await waitFor(() => {
+      const getCountAfter = calls.filter((c) => c.method === 'GET' && /households\/h1$/.test(c.url)).length;
+      expect(getCountAfter).toBe(getCountBefore + 1);
+    });
   });
 
   test('invitation success comes only from a 201 and the button is disabled while pending', async () => {

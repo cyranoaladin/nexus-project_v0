@@ -81,6 +81,9 @@ describe('Indicator A — pedagogical enrollments pending validation', () => {
     expect(page.totalCount).toBe(1);
     expect(page.items.map((i) => i.id)).toEqual([pending.id]);
     expect(page.items[0]!.student.id).toBe(pendingStudent.id);
+    // The row identifies which family it belongs to (staff triage need), never
+    // the parent's email/phone/accountStatus — only a display name and the id.
+    expect(page.items[0]!.household).toEqual({ id: pendingStudent.householdId, primaryContactName: 'Ppending Synthetic' });
   });
 
   test('the counter and the list never disagree across pages, and the cursor terminates', async () => {
@@ -179,7 +182,7 @@ describe('Indicator B — course enrollments needing a coach assignment', () => 
     const { coachId } = await seedCoach(client, 'coach-b1@synthetic.test');
     await setCoachCapability(client, ctx, { coachId, courseKey: 'maths-premiere', granted: true });
 
-    const { enrollment } = await seedActiveEnrollmentWithCourses(client, ctx, year.id, 'covered-and-not', [
+    const { enrollment, student } = await seedActiveEnrollmentWithCourses(client, ctx, year.id, 'covered-and-not', [
       { courseKey: 'maths-premiere', kind: 'SPECIALTY' },
       { courseKey: 'anglais-premiere', kind: 'OPTION' },
     ]);
@@ -190,6 +193,7 @@ describe('Indicator B — course enrollments needing a coach assignment', () => 
     expect(page.items).toHaveLength(1);
     expect(page.items[0]!.courseKey).toBe('anglais-premiere');
     expect(page.items[0]!.enrollment.id).toBe(enrollment.id);
+    expect(page.items[0]!.household).toEqual({ id: student.householdId, primaryContactName: 'Pcovered-and-not Synthetic' });
   });
 
   test('excludes a course enrollment whose parent enrollment is PENDING (not yet on the live roster)', async () => {

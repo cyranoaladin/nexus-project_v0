@@ -30,6 +30,7 @@ import {
   ClipboardCheck,
   Calculator,
   LayoutGrid,
+  ListChecks,
   type LucideIcon
 } from 'lucide-react';
 
@@ -37,7 +38,7 @@ const iconMap: Record<string, LucideIcon> = {
   Home, Calendar, Users, BookOpen, CreditCard, DollarSign,
   Clock, UserCheck, AlertCircle, BarChart, Activity, TestTube,
   GraduationCap, FileText, Receipt, Coins, ClipboardList, FolderOpen,
-  Code2, MessageSquare, ClipboardCheck, Calculator, LayoutGrid,
+  Code2, MessageSquare, ClipboardCheck, Calculator, LayoutGrid, ListChecks,
 };
 
 const navigationItemVariants = cva(

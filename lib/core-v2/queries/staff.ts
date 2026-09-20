@@ -290,13 +290,39 @@ const pendingEnrollmentWhere = {
   academicYear: { status: 'CURRENT' },
 } satisfies Prisma.StudentAcademicYearEnrollmentWhereInput;
 
+/** Just enough to identify which family a row belongs to — never email/phone/accountStatus in a summary list. */
+export interface HouseholdIdentity {
+  readonly id: string;
+  readonly primaryContactName: string | null;
+}
+
+const householdIdentitySelect = {
+  householdId: true,
+  household: {
+    select: {
+      parents: {
+        where: { isPrimaryContact: true },
+        select: { user: { select: { firstName: true, lastName: true } } },
+        take: 1,
+      },
+    },
+  },
+} satisfies Prisma.StudentSelect;
+
+function householdIdentityFrom(student: { householdId: string; household: { parents: Array<{ user: { firstName: string | null; lastName: string | null } }> } }): HouseholdIdentity {
+  const contact = student.household.parents[0]?.user;
+  const name = contact ? [contact.firstName, contact.lastName].filter(Boolean).join(' ') : '';
+  return { id: student.householdId, primaryContactName: name || null };
+}
+
 export interface PendingEnrollmentSummary {
   readonly id: string;
   readonly createdAt: Date;
   readonly gradeLevel: string;
   readonly academicTrack: string | null;
   readonly academicYear: { id: string; startYear: number; status: string };
-  readonly student: { id: string; householdId: string; user: PublicUser };
+  readonly student: { id: string; user: PublicUser };
+  readonly household: HouseholdIdentity;
 }
 
 export async function listPendingEnrollments(
@@ -311,7 +337,7 @@ export async function listPendingEnrollments(
       ...pageArgs(query),
       include: {
         academicYear: { select: { id: true, startYear: true, status: true } },
-        student: { select: { id: true, householdId: true, user: { select: userSelect } } },
+        student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
       },
     }),
     client.studentAcademicYearEnrollment.count({ where: pendingEnrollmentWhere }),
@@ -326,7 +352,8 @@ export async function listPendingEnrollments(
       gradeLevel: e.gradeLevel,
       academicTrack: e.academicTrack,
       academicYear: e.academicYear,
-      student: { id: e.student.id, householdId: e.student.householdId, user: e.student.user as PublicUser },
+      student: { id: e.student.id, user: e.student.user as PublicUser },
+      household: householdIdentityFrom(e.student),
     })),
   };
 }
@@ -361,7 +388,7 @@ const activeCurrentYearEnrollmentArgs = {
   where: { status: 'ACTIVE', academicYear: { status: 'CURRENT' } },
   include: {
     academicYear: { select: { id: true, startYear: true, status: true } },
-    student: { select: { id: true, householdId: true, user: { select: userSelect } } },
+    student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
     courseEnrollments: true,
     assignments: { where: { status: 'ACTIVE' }, select: { courseKey: true } },
   },
@@ -378,7 +405,8 @@ export interface UnassignedCourseEnrollment {
     readonly academicTrack: string | null;
     readonly academicYear: { id: string; startYear: number; status: string };
   };
-  readonly student: { id: string; householdId: string; user: PublicUser };
+  readonly student: { id: string; user: PublicUser };
+  readonly household: HouseholdIdentity;
 }
 
 async function computeUnassignedCourseEnrollments(client: PrismaClient): Promise<UnassignedCourseEnrollment[]> {
@@ -394,7 +422,8 @@ async function computeUnassignedCourseEnrollments(client: PrismaClient): Promise
         kind: c.kind,
         createdAt: c.createdAt,
         enrollment: { id: e.id, gradeLevel: e.gradeLevel, academicTrack: e.academicTrack, academicYear: e.academicYear },
-        student: { id: e.student.id, householdId: e.student.householdId, user: e.student.user as PublicUser },
+        student: { id: e.student.id, user: e.student.user as PublicUser },
+        household: householdIdentityFrom(e.student),
       });
     }
   }
