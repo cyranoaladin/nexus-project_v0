@@ -4,7 +4,8 @@
  * query asserts one. No legacy table is ever read here.
  */
 import { z } from 'zod';
-import { Prisma, type PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
+import { Prisma } from '../client';
 import { normalizeEmail, normalizePhone } from '../contact';
 import { assertCapability } from '../rbac';
 import type { ServiceContext } from '../services/context';
