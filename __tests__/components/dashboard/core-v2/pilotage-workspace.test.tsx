@@ -132,16 +132,16 @@ describe('PilotageWorkspace', () => {
     expect(screen.getByRole('heading', { name: /Inscriptions à valider/ })).not.toHaveTextContent(/\(\d+\)/);
   });
 
-  test('pagination appends rows through the cursor without truncating the already-loaded ones', async () => {
+  test('pagination appends rows through the cursor without truncating the already-loaded ones, pinning the academic year the first page resolved', async () => {
     const secondItem = { ...pendingItem, id: 'enr-3', student: { id: 's3', user: user('u-s3', 'ELEVE', 'Zied') }, household: { id: 'h3', primaryContactName: null } };
-    mockApi([
+    const calls = mockApi([
       { url: /\/staff\/me$/, body: me },
       { url: /\/staff\/academic-years$/, body: ok([currentYear]) },
       {
         url: /\/staff\/enrollments\/pending/,
-        body: () => ok({ items: [pendingItem], nextCursor: 'enr-1', totalCount: 2 }),
+        body: () => ok({ items: [pendingItem], nextCursor: 'enr-1', totalCount: 2, academicYearId: 'y1', listChanged: false }),
       },
-      { url: /\/staff\/assignments\/needed/, body: ok({ items: [], nextCursor: null, totalCount: 0 }) },
+      { url: /\/staff\/assignments\/needed/, body: ok({ items: [], nextCursor: null, totalCount: 0, academicYearId: 'y1', listChanged: false }) },
       { url: /\/staff\/coaches/, body: noCoaches },
     ]);
     // Override the pending route to branch on the cursor param (mockApi's simple
@@ -149,8 +149,10 @@ describe('PilotageWorkspace', () => {
     const original = global.fetch;
     global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input.toString();
+      const method = (init?.method ?? 'GET').toUpperCase();
       if (/\/staff\/enrollments\/pending/.test(url) && /cursor=enr-1/.test(url)) {
-        return { ok: true, status: 200, json: async () => ok({ items: [secondItem], nextCursor: null, totalCount: 2 }) } as unknown as Response;
+        calls.push({ method, url, body: undefined });
+        return { ok: true, status: 200, json: async () => ok({ items: [secondItem], nextCursor: null, totalCount: 2, academicYearId: 'y1', listChanged: false }) } as unknown as Response;
       }
       return original(input, init);
     }) as typeof fetch;
@@ -163,5 +165,39 @@ describe('PilotageWorkspace', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Afficher plus' }));
     expect(await screen.findByText('Zied Synthetic')).toBeInTheDocument();
     expect(screen.getByText('Yasmine Synthetic')).toBeInTheDocument();
+    const loadMoreCall = calls.find((c) => /cursor=enr-1/.test(c.url));
+    expect(loadMoreCall?.url).toMatch(/academicYearId=y1/);
+  });
+
+  test('a listChanged response replaces the already-loaded list instead of appending to it', async () => {
+    const staleFollowUp = { ...pendingItem, id: 'enr-9', student: { id: 's9', user: user('u-s9', 'ELEVE', 'Nouveau') }, household: { id: 'h9', primaryContactName: null } };
+    mockApi([
+      { url: /\/staff\/me$/, body: me },
+      { url: /\/staff\/academic-years$/, body: ok([currentYear]) },
+      {
+        url: /\/staff\/enrollments\/pending/,
+        body: () => ok({ items: [pendingItem], nextCursor: 'enr-1', totalCount: 2, academicYearId: 'y1', listChanged: false }),
+      },
+      { url: /\/staff\/assignments\/needed/, body: ok({ items: [], nextCursor: null, totalCount: 0, academicYearId: 'y1', listChanged: false }) },
+      { url: /\/staff\/coaches/, body: noCoaches },
+    ]);
+    const original = global.fetch;
+    global.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (/\/staff\/enrollments\/pending/.test(url) && /cursor=enr-1/.test(url)) {
+        // The row the cursor pointed at was processed elsewhere between the two page loads.
+        return { ok: true, status: 200, json: async () => ok({ items: [staleFollowUp], nextCursor: null, totalCount: 1, academicYearId: 'y1', listChanged: true }) } as unknown as Response;
+      }
+      return original(input, init);
+    }) as typeof fetch;
+
+    render(<PilotageWorkspace basePath="/dashboard/assistante/familles" />);
+    await screen.findByText('Yasmine Synthetic');
+    await userEvent.click(screen.getByRole('button', { name: 'Afficher plus' }));
+
+    expect(await screen.findByText('Nouveau Synthetic')).toBeInTheDocument();
+    // Replaced, not appended: the first page's row is gone from the DOM, not duplicated alongside the new one.
+    expect(screen.queryByText('Yasmine Synthetic')).not.toBeInTheDocument();
+    expect(await screen.findByText(/La liste a changé/)).toBeInTheDocument();
   });
 });

@@ -4,7 +4,7 @@
  * query asserts one. No legacy table is ever read here.
  */
 import { z } from 'zod';
-import type { PrismaClient, Prisma } from '@/core-v2/generated/client';
+import { Prisma, type PrismaClient } from '@/core-v2/generated/client';
 import { normalizeEmail, normalizePhone } from '../contact';
 import { assertCapability } from '../rbac';
 import type { ServiceContext } from '../services/context';
@@ -270,25 +270,61 @@ export async function listAcademicYears(client: PrismaClient, ctx: ServiceContex
  * A page plus the exact total over the WHOLE matching set (never derived
  * from the loaded page) — the operational indicators (§Jalon B) need a
  * counter and a list that can never disagree, so both are computed from the
- * same `where` in the same round trip.
+ * same database snapshot (see listPendingEnrollments's REPEATABLE READ
+ * transaction) in the same round trip.
  */
 export interface IndicatorPage<T> extends Page<T> {
   readonly totalCount: number;
+  /**
+   * The exact academic year this response is scoped to (null only when no
+   * year could be resolved at all). The caller pins this on every
+   * subsequent "load more" call — a later change of WHICH year is CURRENT
+   * must never silently mix two years' rows into one paginated list.
+   */
+  readonly academicYearId: string | null;
+  /**
+   * True when a supplied cursor no longer matches the current set (the row
+   * it pointed to left the set between two page loads): `items` restarts
+   * from the top of the set and MUST replace the caller's already-loaded
+   * list, never be appended to it.
+   */
+  readonly listChanged: boolean;
+}
+
+export const indicatorQuerySchema = pageQuerySchema.extend({
+  /** Pins the query to a specific academic year across a whole pagination sequence — see IndicatorPage.academicYearId. */
+  academicYearId: idSchema.optional(),
+});
+export type IndicatorQuery = z.infer<typeof indicatorQuerySchema>;
+
+/**
+ * Resolves once per pagination sequence: the caller's first call has no
+ * `requested` id, so this returns whichever year is CURRENT *today*; every
+ * later call in that sequence passes back the id this returned, so it keeps
+ * scoping to that same year even if a different year becomes CURRENT while
+ * the operator is still browsing. A requested id that no longer exists
+ * resolves to null — the caller then shows an explicit "reconfigure" state,
+ * never a silent fallback to a different year.
+ */
+async function resolveAcademicYearId(client: PrismaClient, requested: string | undefined): Promise<string | null> {
+  if (requested) {
+    const year = await client.academicYear.findUnique({ where: { id: requested }, select: { id: true } });
+    return year?.id ?? null;
+  }
+  const current = await client.academicYear.findFirst({ where: { status: 'CURRENT' }, select: { id: true } });
+  return current?.id ?? null;
 }
 
 /**
  * Indicator A — pedagogical enrollments pending validation (go-live mission,
  * Jalon B). Counted object: StudentAcademicYearEnrollment. Status: PENDING
  * only (ACTIVE/COMPLETED/WITHDRAWN are excluded — nothing to act on).
- * Period: the CURRENT academic year only — a PENDING row in an UPCOMING or
- * CLOSED year is not part of today's operational queue. Rights: HOUSEHOLD_READ,
- * same as every other staff list (the action itself asserts ENROLLMENT_APPROVE
- * separately, in services/enrollment.ts).
+ * Period: one resolved academic year (see resolveAcademicYearId) — a
+ * PENDING row in an UPCOMING or CLOSED year is not part of today's
+ * operational queue. Rights: HOUSEHOLD_READ, same as every other staff list
+ * (the action itself asserts ENROLLMENT_APPROVE separately, in
+ * services/enrollment.ts).
  */
-const pendingEnrollmentWhere = {
-  status: 'PENDING',
-  academicYear: { status: 'CURRENT' },
-} satisfies Prisma.StudentAcademicYearEnrollmentWhereInput;
 
 /** Just enough to identify which family a row belongs to — never email/phone/accountStatus in a summary list. */
 export interface HouseholdIdentity {
@@ -328,24 +364,43 @@ export interface PendingEnrollmentSummary {
 export async function listPendingEnrollments(
   client: PrismaClient,
   ctx: ServiceContext,
-  query: PageQuery,
+  query: IndicatorQuery,
 ): Promise<IndicatorPage<PendingEnrollmentSummary>> {
   assertCapability(ctx.actor, 'HOUSEHOLD_READ');
-  const [rows, totalCount] = await Promise.all([
-    client.studentAcademicYearEnrollment.findMany({
-      where: pendingEnrollmentWhere,
-      ...pageArgs(query),
-      include: {
-        academicYear: { select: { id: true, startYear: true, status: true } },
-        student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
-      },
-    }),
-    client.studentAcademicYearEnrollment.count({ where: pendingEnrollmentWhere }),
-  ]);
+  const academicYearId = await resolveAcademicYearId(client, query.academicYearId);
+  if (!academicYearId) {
+    return { totalCount: 0, items: [], nextCursor: null, academicYearId: null, listChanged: false };
+  }
+  const where = { status: 'PENDING', academicYearId } satisfies Prisma.StudentAcademicYearEnrollmentWhereInput;
+  // The list and the total must reflect the exact same database state. Postgres's
+  // default READ COMMITTED lets each statement in a transaction take its own
+  // fresh snapshot, so a commit landing between these two round trips could
+  // make them silently disagree (proven by the race counter-proof in
+  // staff-indicators.test.ts). REPEATABLE READ fixes one snapshot for every
+  // statement in this transaction — a real database guarantee, not a lock
+  // held over the browsing session: it costs one transaction per request,
+  // nothing else is blocked.
+  const [rows, totalCount] = await client.$transaction(
+    (tx) =>
+      Promise.all([
+        tx.studentAcademicYearEnrollment.findMany({
+          where,
+          ...pageArgs(query),
+          include: {
+            academicYear: { select: { id: true, startYear: true, status: true } },
+            student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
+          },
+        }),
+        tx.studentAcademicYearEnrollment.count({ where }),
+      ]),
+    { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+  );
   const page = toPage(rows, query.limit);
   return {
     totalCount,
     nextCursor: page.nextCursor,
+    academicYearId,
+    listChanged: false,
     items: page.items.map((e) => ({
       id: e.id,
       createdAt: e.createdAt,
@@ -384,16 +439,6 @@ export async function listPendingEnrollments(
  * school's live roster), not the whole history. If that cohort ever outgrows
  * an in-process scan, revisit with a real measurement, not preemptively.
  */
-const activeCurrentYearEnrollmentArgs = {
-  where: { status: 'ACTIVE', academicYear: { status: 'CURRENT' } },
-  include: {
-    academicYear: { select: { id: true, startYear: true, status: true } },
-    student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
-    courseEnrollments: true,
-    assignments: { where: { status: 'ACTIVE' }, select: { courseKey: true } },
-  },
-} satisfies Prisma.StudentAcademicYearEnrollmentFindManyArgs;
-
 export interface UnassignedCourseEnrollment {
   readonly id: string;
   readonly courseKey: string;
@@ -409,8 +454,16 @@ export interface UnassignedCourseEnrollment {
   readonly household: HouseholdIdentity;
 }
 
-async function computeUnassignedCourseEnrollments(client: PrismaClient): Promise<UnassignedCourseEnrollment[]> {
-  const enrollments = await client.studentAcademicYearEnrollment.findMany(activeCurrentYearEnrollmentArgs);
+async function computeUnassignedCourseEnrollments(client: PrismaClient, academicYearId: string): Promise<UnassignedCourseEnrollment[]> {
+  const enrollments = await client.studentAcademicYearEnrollment.findMany({
+    where: { status: 'ACTIVE', academicYearId },
+    include: {
+      academicYear: { select: { id: true, startYear: true, status: true } },
+      student: { select: { id: true, user: { select: userSelect }, ...householdIdentitySelect } },
+      courseEnrollments: true,
+      assignments: { where: { status: 'ACTIVE' }, select: { courseKey: true } },
+    },
+  });
   const items: UnassignedCourseEnrollment[] = [];
   for (const e of enrollments) {
     const assignedCourseKeys = new Set(e.assignments.map((a) => a.courseKey));
@@ -436,20 +489,30 @@ async function computeUnassignedCourseEnrollments(client: PrismaClient): Promise
 export async function listUnassignedCourseEnrollments(
   client: PrismaClient,
   ctx: ServiceContext,
-  query: PageQuery,
+  query: IndicatorQuery,
 ): Promise<IndicatorPage<UnassignedCourseEnrollment>> {
   assertCapability(ctx.actor, 'HOUSEHOLD_READ');
-  const all = await computeUnassignedCourseEnrollments(client);
-  // A cursor that no longer matches (the row got assigned or its enrollment
-  // changed between two page loads) restarts from the top rather than
-  // erroring — a stale decision here costs a re-read, never a wrong count.
-  const cursorIndex = query.cursor ? all.findIndex((item) => item.id === query.cursor) : -1;
-  const startIndex = cursorIndex >= 0 ? cursorIndex + 1 : 0;
+  const academicYearId = await resolveAcademicYearId(client, query.academicYearId);
+  if (!academicYearId) {
+    return { totalCount: 0, items: [], nextCursor: null, academicYearId: null, listChanged: false };
+  }
+  const all = await computeUnassignedCourseEnrollments(client, academicYearId);
+  const hasCursor = query.cursor !== undefined;
+  const cursorIndex = hasCursor ? all.findIndex((item) => item.id === query.cursor) : -1;
+  // A cursor that no longer matches (its row got assigned, or its enrollment
+  // changed) between two page loads is a real "the set moved under you"
+  // event — the response says so explicitly and restarts from the top; it
+  // is the CALLER's job to REPLACE its list with `items`, never append them
+  // (appending would duplicate whatever the first page already showed).
+  const listChanged = hasCursor && cursorIndex === -1;
+  const startIndex = hasCursor && !listChanged ? cursorIndex + 1 : 0;
   const slice = all.slice(startIndex, startIndex + query.limit + 1);
   const hasMore = slice.length > query.limit;
   const items = hasMore ? slice.slice(0, query.limit) : slice;
   return {
     totalCount: all.length,
+    academicYearId,
+    listChanged,
     items,
     nextCursor: hasMore ? (items[items.length - 1]?.id ?? null) : null,
   };

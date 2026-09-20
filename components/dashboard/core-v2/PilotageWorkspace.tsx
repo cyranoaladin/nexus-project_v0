@@ -21,15 +21,26 @@ import { yearLabel } from './EnrollmentSummary';
 import { StatusMessage } from './StatusMessage';
 import { useStaffActor } from './useStaffActor';
 
-/** Cursor-paginated indicator: counter and list come from one server round trip, never disagree. */
+/**
+ * Cursor-paginated indicator: counter and list come from one server round
+ * trip, never disagree (see the REPEATABLE READ transaction behind
+ * listPendingEnrollments). `academicYearId` is captured from the first
+ * response and pinned on every later "load more" call, so a later change of
+ * WHICH year is CURRENT never mixes two years' rows into one paginated
+ * sequence. `listChanged: true` on a response means the cursor that was
+ * asked for no longer matches — its items REPLACE the loaded list rather
+ * than extend it, never a silent duplicate of an already-shown row.
+ */
 function useIndicator<T>(endpoint: string) {
   const [items, setItems] = useState<T[]>([]);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [listChangedNotice, setListChangedNotice] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [failure, setFailure] = useState<ApiFail | null>(null);
   const latest = useRef(0);
+  const pinnedYearId = useRef<string | null>(null);
 
   const load = useCallback(
     async (cursor: string | null) => {
@@ -39,10 +50,14 @@ function useIndicator<T>(endpoint: string) {
       setFailure(null);
       const params = new URLSearchParams({ limit: '20' });
       if (cursor) params.set('cursor', cursor);
+      if (pinnedYearId.current) params.set('academicYearId', pinnedYearId.current);
       const result = await v2<IndicatorPage<T>>(`${endpoint}?${params.toString()}`);
       if (requestId !== latest.current) return;
       if (result.ok) {
-        setItems((prev) => (cursor ? [...prev, ...result.data.items] : result.data.items));
+        pinnedYearId.current = result.data.academicYearId;
+        const replace = !cursor || result.data.listChanged;
+        setItems((prev) => (replace ? result.data.items : [...prev, ...result.data.items]));
+        setListChangedNotice(Boolean(cursor) && result.data.listChanged);
         setNextCursor(result.data.nextCursor);
         setTotalCount(result.data.totalCount);
       } else {
@@ -62,10 +77,14 @@ function useIndicator<T>(endpoint: string) {
     items,
     totalCount,
     nextCursor,
+    listChangedNotice,
     loading,
     loadingMore,
     failure,
-    reload: () => load(null),
+    reload: () => {
+      pinnedYearId.current = null; // an explicit refresh re-resolves today's CURRENT year from scratch
+      void load(null);
+    },
     loadMore: () => {
       if (nextCursor) void load(nextCursor);
     },
@@ -105,7 +124,7 @@ export function PilotageWorkspace({ basePath }: { basePath: string }) {
   return (
     <div className="core-v2 space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-white">Pilotage</h1>
+        <h1 className="text-2xl font-bold text-white">Suivi opérationnel</h1>
         <p className="text-sm text-neutral-400">Indicateurs opérationnels — inscriptions et affectations à traiter.</p>
       </header>
 
@@ -168,6 +187,11 @@ function PendingEnrollmentsSection({ basePath }: { basePath: string }) {
         </Button>
       </CardHeader>
       <CardContent>
+        {indicator.listChangedNotice && (
+          <div className="mb-3">
+            <StatusMessage kind="info">La liste a changé depuis votre dernière page — elle a été réactualisée depuis le début.</StatusMessage>
+          </div>
+        )}
         {indicator.failure ? (
           <StatusMessage kind="error">{describeFailure(indicator.failure)}</StatusMessage>
         ) : indicator.loading ? (
@@ -238,6 +262,11 @@ function UnassignedCoursesSection({ basePath }: { basePath: string }) {
         </Button>
       </CardHeader>
       <CardContent>
+        {indicator.listChangedNotice && (
+          <div className="mb-3">
+            <StatusMessage kind="info">La liste a changé depuis votre dernière page — elle a été réactualisée depuis le début.</StatusMessage>
+          </div>
+        )}
         {indicator.failure ? (
           <StatusMessage kind="error">{describeFailure(indicator.failure)}</StatusMessage>
         ) : indicator.loading ? (

@@ -7,7 +7,7 @@
  * it through the canonical service, and the item disappears from a
  * server-re-read list/counter — never an optimistic client-side removal.
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import { Prisma, type PrismaClient } from '@/core-v2/generated/client';
 import { CoreV2DomainError } from '@/lib/core-v2/errors';
 import {
   approveEnrollment,
@@ -158,6 +158,89 @@ describe('Indicator A — pedagogical enrollments pending validation', () => {
     await expect(listPendingEnrollments(client, ctx, { limit: 20 })).rejects.toBeInstanceOf(CoreV2DomainError);
     await expect(listPendingEnrollments(client, ctx, { limit: 20 })).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
+
+  test('counter/list consistency counter-proof: a REPEATABLE READ snapshot keeps the list and the total agreeing even when an enrollment is approved in the exact gap between the two statements', async () => {
+    const { client } = h;
+    const ctx = h.ctx();
+    const year = await seedAcademicYear(client, 2026, 'CURRENT');
+    const { student: s1 } = await seedStudent(client, ctx, 'race-a');
+    const e1 = await createAnnualEnrollment(client, ctx, { studentId: s1.id, academicYearId: year.id, academicMap: { gradeLevel: 'SECONDE' } });
+    const { student: s2 } = await seedStudent(client, ctx, 'race-b');
+    const e2 = await createAnnualEnrollment(client, ctx, { studentId: s2.id, academicYearId: year.id, academicMap: { gradeLevel: 'SECONDE' } });
+
+    const where = { status: 'PENDING' as const, academicYearId: year.id };
+    let releaseReader!: () => void;
+    const released = new Promise<void>((resolve) => {
+      releaseReader = resolve;
+    });
+    let signalReady!: () => void;
+    const ready = new Promise<void>((resolve) => {
+      signalReady = resolve;
+    });
+
+    // Reproduces the exact mechanism listPendingEnrollments uses (same
+    // where-predicate, same isolation level) with a manually-controlled gap
+    // between its two statements — a real, independent connection commits a
+    // write INTO that gap deterministically, rather than hoping a
+    // probabilistic race lands there (a loop of retries would not be a
+    // reproducible counter-proof).
+    const readerPromise = client.$transaction(
+      async (tx) => {
+        const firstCount = await tx.studentAcademicYearEnrollment.count({ where });
+        signalReady();
+        await released;
+        const secondCount = await tx.studentAcademicYearEnrollment.count({ where });
+        const rows = await tx.studentAcademicYearEnrollment.findMany({ where, orderBy: { id: 'asc' } });
+        return { firstCount, secondCount, rows };
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
+    );
+
+    await ready;
+    await approveEnrollment(client, ctx, e1.id); // separate connection, commits while the reader transaction is still open
+    releaseReader();
+    const result = await readerPromise;
+
+    expect(result.firstCount).toBe(2);
+    expect(result.secondCount).toBe(2); // must NOT drop to 1 despite the concurrent commit landing in the gap
+    expect(result.rows.map((r) => r.id).sort()).toEqual([e1.id, e2.id].sort());
+
+    // Outside that frozen snapshot, the real state has moved on — a fresh call sees it.
+    const after = await listPendingEnrollments(client, ctx, { limit: 20 });
+    expect(after.totalCount).toBe(1);
+  });
+
+  test('pins pagination to one academic year: a later change of which year is CURRENT never mixes two years into one paginated sequence', async () => {
+    const { client } = h;
+    const ctx = h.ctx();
+    const yearA = await seedAcademicYear(client, 2026, 'CURRENT');
+    const { student: sA1 } = await seedStudent(client, ctx, 'pin-a1');
+    await createAnnualEnrollment(client, ctx, { studentId: sA1.id, academicYearId: yearA.id, academicMap: { gradeLevel: 'SECONDE' } });
+    const { student: sA2 } = await seedStudent(client, ctx, 'pin-a2');
+    await createAnnualEnrollment(client, ctx, { studentId: sA2.id, academicYearId: yearA.id, academicMap: { gradeLevel: 'SECONDE' } });
+
+    const first = await listPendingEnrollments(client, ctx, { limit: 1 });
+    expect(first.academicYearId).toBe(yearA.id);
+    expect(first.totalCount).toBe(2);
+    expect(first.nextCursor).toBeTruthy();
+
+    // A different year becomes CURRENT while this operator is still paginating — a new PENDING row is even created in it.
+    const yearB = await seedAcademicYear(client, 2027, 'UPCOMING');
+    await client.academicYear.update({ where: { id: yearA.id }, data: { status: 'CLOSED' } });
+    await client.academicYear.update({ where: { id: yearB.id }, data: { status: 'CURRENT' } });
+    const { student: sB1 } = await seedStudent(client, ctx, 'pin-b1');
+    await createAnnualEnrollment(client, ctx, { studentId: sB1.id, academicYearId: yearB.id, academicMap: { gradeLevel: 'SECONDE' } });
+
+    const second = await listPendingEnrollments(client, ctx, { limit: 1, cursor: first.nextCursor!, academicYearId: first.academicYearId! });
+    expect(second.academicYearId).toBe(yearA.id); // pinned — never silently switches to yearB
+    expect(second.totalCount).toBe(2); // still yearA's total, not yearA+yearB mixed
+    expect(second.items.every((i) => i.academicYear.id === yearA.id)).toBe(true);
+
+    // A caller who deliberately asks for the NEW current year (no pin) gets that year's own, uncontaminated view.
+    const freshView = await listPendingEnrollments(client, ctx, { limit: 20 });
+    expect(freshView.academicYearId).toBe(yearB.id);
+    expect(freshView.totalCount).toBe(1);
+  });
 });
 
 describe('Indicator B — course enrollments needing a coach assignment', () => {
@@ -298,5 +381,68 @@ describe('Indicator B — course enrollments needing a coach assignment', () => 
     const user = await client.user.create({ data: { role, email: `${role.toLowerCase()}-indicator-b@synthetic.test`, accountStatus: 'ACTIVE' } });
     const ctx = h.ctx({ userId: user.id, role });
     await expect(listUnassignedCourseEnrollments(client, ctx, { limit: 20 })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+
+  test('stale-cursor counter-proof: a row assigned by another actor between two page loads reports listChanged and restarts from the current top — never a silent duplicate, omission or loop', async () => {
+    const { client } = h;
+    const ctx = h.ctx();
+    const year = await seedAcademicYear(client, 2026, 'CURRENT');
+    const { coachId } = await seedCoach(client, 'coach-stale-cursor@synthetic.test');
+    await setCoachCapability(client, ctx, { coachId, courseKey: 'maths-premiere', granted: true });
+
+    for (const label of ['sc1', 'sc2', 'sc3']) {
+      await seedActiveEnrollmentWithCourses(client, ctx, year.id, label, [{ courseKey: 'maths-premiere', kind: 'SPECIALTY' }]);
+    }
+
+    const firstPage = await listUnassignedCourseEnrollments(client, ctx, { limit: 1 });
+    expect(firstPage.listChanged).toBe(false);
+    expect(firstPage.totalCount).toBe(3);
+    const cursorFromFirstPage = firstPage.nextCursor!;
+    const keptItemId = firstPage.items[0]!.id;
+
+    // A concurrent actor — another browser tab, modeled here through the
+    // same canonical service, never a direct table write — assigns the
+    // exact row this cursor points at.
+    const pointedAtRow = (await listUnassignedCourseEnrollments(client, ctx, { limit: 20 })).items.find((i) => i.id === cursorFromFirstPage)!;
+    await assignCoach(client, ctx, { coachId, enrollmentId: pointedAtRow.enrollment.id, courseKey: pointedAtRow.courseKey });
+
+    const secondPage = await listUnassignedCourseEnrollments(client, ctx, { limit: 20, cursor: cursorFromFirstPage });
+    expect(secondPage.listChanged).toBe(true);
+    expect(secondPage.totalCount).toBe(2);
+    expect(secondPage.items).toHaveLength(2);
+    expect(secondPage.items.map((i) => i.id)).not.toContain(cursorFromFirstPage);
+    // The row page 1 already showed is untouched and distinct from every row page 2 (post-listChanged) returns — no overlap, no omission.
+    expect(secondPage.items.map((i) => i.id)).not.toContain(keptItemId);
+
+    // Asking again with the SAME now-stale cursor is stable — a bounded reset, never an ever-shifting loop.
+    const repeated = await listUnassignedCourseEnrollments(client, ctx, { limit: 20, cursor: cursorFromFirstPage });
+    expect(repeated.listChanged).toBe(true);
+    expect(repeated.items.map((i) => i.id).sort()).toEqual(secondPage.items.map((i) => i.id).sort());
+  });
+
+  test('pins pagination to one academic year: a later change of which year is CURRENT never mixes two years into one paginated sequence', async () => {
+    const { client } = h;
+    const ctx = h.ctx();
+    const yearA = await seedAcademicYear(client, 2026, 'CURRENT');
+    await seedActiveEnrollmentWithCourses(client, ctx, yearA.id, 'pinB-a1', [{ courseKey: 'cours-a1', kind: 'OPTION' }]);
+    await seedActiveEnrollmentWithCourses(client, ctx, yearA.id, 'pinB-a2', [{ courseKey: 'cours-a2', kind: 'OPTION' }]);
+
+    const first = await listUnassignedCourseEnrollments(client, ctx, { limit: 1 });
+    expect(first.academicYearId).toBe(yearA.id);
+    expect(first.totalCount).toBe(2);
+
+    const yearB = await seedAcademicYear(client, 2027, 'UPCOMING');
+    await client.academicYear.update({ where: { id: yearA.id }, data: { status: 'CLOSED' } });
+    await client.academicYear.update({ where: { id: yearB.id }, data: { status: 'CURRENT' } });
+    await seedActiveEnrollmentWithCourses(client, ctx, yearB.id, 'pinB-b1', [{ courseKey: 'cours-b1', kind: 'OPTION' }]);
+
+    const second = await listUnassignedCourseEnrollments(client, ctx, { limit: 20, cursor: first.nextCursor ?? undefined, academicYearId: first.academicYearId! });
+    expect(second.academicYearId).toBe(yearA.id);
+    expect(second.totalCount).toBe(2);
+    expect(second.items.every((i) => i.enrollment.academicYear.id === yearA.id)).toBe(true);
+
+    const freshView = await listUnassignedCourseEnrollments(client, ctx, { limit: 20 });
+    expect(freshView.academicYearId).toBe(yearB.id);
+    expect(freshView.totalCount).toBe(1);
   });
 });

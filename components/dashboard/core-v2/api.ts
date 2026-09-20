@@ -201,6 +201,10 @@ export interface StaffActor {
 
 export interface IndicatorPage<T> extends Page<T> {
   totalCount: number;
+  /** The academic year this response is scoped to — pin it on the next "load more" call. */
+  academicYearId: string | null;
+  /** True when the requested cursor no longer matched: `items` replaces the loaded list, it never extends it. */
+  listChanged: boolean;
 }
 
 /** Enough to identify which family a row belongs to — never email/phone/accountStatus in a summary list. */
