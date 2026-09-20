@@ -21,6 +21,16 @@ describe('admin dashboard — user-stats widget scope', () => {
     expect(source).not.toMatch(/Core v2[^.]*n['’]est pas encore livré/i);
   });
 
+  it('never claims the households space is closed to ADMIN — #311 opened it', () => {
+    // A prior version of this caption said "il n'est pas ouvert à l'ADMIN
+    // aujourd'hui", true only until PR #311's middleware/auth.config.ts fix.
+    // Freezing that sentence in a test would have been exactly the mistake
+    // the go-live mission warned against — the test must track the current
+    // capability/route grant, not an old limitation.
+    expect(source).not.toMatch(/pas ouvert[^.]*ADMIN/i);
+    expect(source).not.toMatch(/ADMIN[^.]*pas ouvert/i);
+  });
+
   it('never hardcodes a synthetic retention percentage', () => {
     expect(source).not.toMatch(/Taux de rétention[^\n]*\d/);
     expect(source).toMatch(/Taux de rétention[^\n]*non disponible/);

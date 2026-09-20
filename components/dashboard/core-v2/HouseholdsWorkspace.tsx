@@ -100,7 +100,7 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Familles</h1>
-          <p className="text-sm text-neutral-400">Référentiel Core v2 — foyers, parents, élèves, inscriptions.</p>
+          <p className="text-sm text-neutral-400">Foyers, contacts parents, élèves et inscriptions — recherchez une famille ou ouvrez sa fiche.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline">
