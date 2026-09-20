@@ -65,14 +65,19 @@ export async function resetTestDatabase() {
  * have an actual optional/local-dev skip use case.
  */
 export async function canConnectToTestDb(): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('DB connection timeout')), 3000)
-    );
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('DB connection timeout')), 3000);
+    });
     await Promise.race([testPrisma.$queryRaw`SELECT 1`, timeout]);
     return true;
   } catch {
     return false;
+  } finally {
+    // Clear on the winning path too — otherwise a fast query still leaves
+    // the losing timer armed, firing a reject() nothing awaits 3s later.
+    clearTimeout(timer);
   }
 }
 
@@ -97,13 +102,19 @@ export async function canConnectToTestDb(): Promise<boolean> {
  * `finally` closes this client's pool immediately, which drops that
  * in-flight probe query at the transport level — Prisma has no query-level
  * cancellation, so this is the closest available guarantee.
+ *
+ * `url` defaults to the lane's real database and only exists so this
+ * function's own failure behavior can be exercised in a test against a
+ * genuinely unreachable target, without touching the shared disposable
+ * Postgres every other suite in the job depends on.
  */
-export async function assertTestDbAvailable(): Promise<void> {
-  const probe = new PrismaClient({ datasources: { db: { url: testDbUrl } } });
+export async function assertTestDbAvailable(url: string = testDbUrl): Promise<void> {
+  const probe = new PrismaClient({ datasources: { db: { url } } });
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('DB connection timeout')), 3000)
-    );
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('DB connection timeout')), 3000);
+    });
     await Promise.race([probe.$queryRaw`SELECT 1`, timeout]);
   } catch (cause) {
     throw new Error(
@@ -114,6 +125,9 @@ export async function assertTestDbAvailable(): Promise<void> {
       { cause }
     );
   } finally {
+    // Clear on the winning (fast query) path too, or the losing timer stays
+    // armed and rejects 3s later with nothing left awaiting it.
+    clearTimeout(timer);
     await probe.$disconnect().catch(() => { /* best-effort */ });
   }
 }
