@@ -12,7 +12,7 @@ import {
   setupTestDatabase,
   createTestParent,
   createTestStudent,
-  canConnectToTestDb,
+  assertTestDbAvailable,
 } from '../setup/test-database';
 import {
   createQuote,
@@ -61,8 +61,8 @@ describe('Quote persistence', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) console.warn('Skipping quote persistence tests: test database not available');
+    await assertTestDbAvailable();
+    dbAvailable = true;
   }, 10000);
 
   beforeEach(async () => {

@@ -14,7 +14,7 @@ jest.mock('@/lib/prisma', () => {
   return { prisma: testPrisma };
 });
 
-import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, createTestCoach, createTestSessionBooking, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, createTestCoach, createTestSessionBooking, assertTestDbAvailable } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -22,10 +22,8 @@ describe('Schema Integrity Tests', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping schema integrity tests: test database not available');
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
   }, 10000);
 
   beforeEach(async () => {

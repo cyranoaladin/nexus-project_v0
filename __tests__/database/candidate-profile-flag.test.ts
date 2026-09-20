@@ -9,7 +9,7 @@ jest.mock('@/lib/prisma', () => {
   return { prisma: testPrisma };
 });
 
-import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, canConnectToTestDb, assertTestDbAvailable } from '../setup/test-database';
 import {
   getCandidateProfileWorkflowStatus,
   CANDIDATE_PROFILE_FLAG_NAMESPACE,
@@ -22,8 +22,9 @@ describe('getCandidateProfileWorkflowStatus', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (dbAvailable) await setupTestDatabase();
+    await assertTestDbAvailable();
+    dbAvailable = true;
+    await setupTestDatabase();
   });
 
   afterEach(async () => {

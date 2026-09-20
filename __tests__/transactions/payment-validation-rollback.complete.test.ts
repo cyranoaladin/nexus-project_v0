@@ -18,7 +18,7 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
-import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, assertTestDbAvailable } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -59,11 +59,8 @@ describe('Payment Validation Transaction Atomicity', () => {
   }
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping payment-validation-rollback tests: test database not available');
-      return;
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
     await setupTestDatabase();
     await createTestUsersForPayment();
   }, 15000);

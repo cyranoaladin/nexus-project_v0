@@ -149,6 +149,56 @@ function evidenceFiles(directory) {
     return entry.isDirectory() ? evidenceFiles(file) : entry.isFile() && entry.name.endsWith('.evidence.json') ? [file] : [];
   });
 }
+
+/**
+ * Read every sealed evidence file under `directory`, or refuse clearly.
+ *
+ * Observed live on 2026-09-19 (run 35469048701): a `gh run rerun --failed`
+ * reruns only the failed jobs, which bumps the whole run to a new
+ * `GITHUB_RUN_ATTEMPT`. The producer jobs that had already succeeded are
+ * NOT rerun, so their `actions/upload-artifact` names stay tagged with the
+ * previous attempt. The aggregator job's `download-artifact` step filters
+ * by a pattern naming *its own* (new) attempt, matches nothing, and
+ * `actions/download-artifact` then never creates `directory` at all —
+ * `readdirSync` throws a bare `ENOENT: ... scandir '.artifacts/e2e-execution'`,
+ * which explains nothing to whoever reads the log.
+ *
+ * This is a provenance question, not a filesystem one: partial reruns are
+ * legitimate for diagnosis, but a *qualification* aggregation is only valid
+ * when every producer and the aggregator share one attempt. So this refuses
+ * loudly and says what to do, rather than let a stale-attempt mismatch
+ * surface as an unexplained I/O error — and it never falls back to scanning
+ * a different attempt's evidence, which would silently launder exactly the
+ * mismatch it exists to catch.
+ */
+export function readEvidenceDirectoryOrThrow(directory) {
+  let files;
+  try {
+    files = evidenceFiles(directory);
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      throw new Error(
+        `EVIDENCE_DIRECTORY_MISSING: no artifacts were downloaded into '${directory}'. ` +
+        'This happens when a partial rerun ("rerun failed jobs") leaves producer ' +
+        "jobs on a previous GITHUB_RUN_ATTEMPT while this aggregator runs on a new " +
+        'one, so no evidence artifact matches this attempt. A partial rerun is fine ' +
+        'for diagnosing a single job, but a final qualification needs one complete, ' +
+        'coherent attempt: rerun the WHOLE workflow (`gh run rerun <runId>`, without ' +
+        '`--failed`), not just the failed jobs.',
+        { cause: error },
+      );
+    }
+    throw error;
+  }
+  if (!files.length) {
+    throw new Error(
+      `EVIDENCE_DIRECTORY_EMPTY: '${directory}' exists but contains no ` +
+      '*.evidence.json files. Same cause and remedy as EVIDENCE_DIRECTORY_MISSING: ' +
+      'rerun the whole workflow, not just the failed jobs.',
+    );
+  }
+  return files.map(file => JSON.parse(readFileSync(file, 'utf8')));
+}
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const [mode, first, second, third] = process.argv.slice(2);
@@ -157,7 +207,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       writeJson(third, sealReport(first, JSON.parse(readFileSync(second, 'utf8')), identity));
     } else if (mode === 'aggregate') {
       const tracked = execFileSync('git', ['ls-files', 'e2e'], { encoding: 'utf8' }).split('\n').filter(file => file.endsWith('.spec.ts')).sort();
-      const evidence = evidenceFiles(first).map(file => JSON.parse(readFileSync(file, 'utf8')));
+      const evidence = readEvidenceDirectoryOrThrow(first);
       const result = auditExecutionEvidence(tracked, evidence, identity);
       writeJson(second, result);
       console.log(JSON.stringify(result, null, 2));

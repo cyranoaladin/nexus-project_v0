@@ -14,7 +14,7 @@ jest.mock('@/lib/prisma', () => {
   return { prisma: testPrisma };
 });
 
-import { testPrisma, setupTestDatabase, createTestStudent, createTestParent, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, createTestStudent, createTestParent, canConnectToTestDb, assertTestDbAvailable } from '../setup/test-database';
 
 const prisma = testPrisma;
 
@@ -45,11 +45,8 @@ describe('Credit Debit Race Condition', () => {
   }
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (!dbAvailable) {
-      console.warn('⚠️  Skipping credit-race tests: test database not available');
-      return;
-    }
+    await assertTestDbAvailable();
+    dbAvailable = true;
     await setupTestDatabase();
   }, 10000);
 

@@ -8,7 +8,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { randomUUID } from 'crypto';
-import { testPrisma, setupTestDatabase, canConnectToTestDb } from '../setup/test-database';
+import { testPrisma, setupTestDatabase, canConnectToTestDb, assertTestDbAvailable } from '../setup/test-database';
 import {
   createProfilCandidat,
   getProfilCandidatById,
@@ -32,8 +32,9 @@ describe('candidate-profile-persistence.server', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
-    dbAvailable = await canConnectToTestDb();
-    if (dbAvailable) await setupTestDatabase();
+    await assertTestDbAvailable();
+    dbAvailable = true;
+    await setupTestDatabase();
   });
 
   afterEach(async () => {

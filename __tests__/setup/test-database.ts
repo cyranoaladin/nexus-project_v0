@@ -55,18 +55,89 @@ export async function resetTestDatabase() {
 /**
  * Check if the test database is reachable.
  * Returns true if connected, false otherwise.
- * Use this in beforeAll to skip tests when no DB is available.
  * Includes a 3-second timeout to prevent hanging.
+ *
+ * Do not use this to decide whether to skip a mandatory real-database suite:
+ * every caller in the `db-core` lane is given a database by the CI workflow
+ * itself, so "unreachable" there is never a legitimate reason to no-op —
+ * it means the environment is broken and the suite must fail loudly. Use
+ * `assertTestDbAvailable` for that. This function remains for callers that
+ * have an actual optional/local-dev skip use case.
  */
 export async function canConnectToTestDb(): Promise<boolean> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('DB connection timeout')), 3000)
-    );
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('DB connection timeout')), 3000);
+    });
     await Promise.race([testPrisma.$queryRaw`SELECT 1`, timeout]);
     return true;
   } catch {
     return false;
+  } finally {
+    // Clear on the winning path too — otherwise a fast query still leaves
+    // the losing timer armed, firing a reject() nothing awaits 3s later.
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Fail loudly if the test database is not reachable.
+ *
+ * Every suite in the mandatory `db-core` CI lane is handed a live disposable
+ * Postgres by the workflow before it runs (see `.github/workflows/ci.yml`,
+ * job "Real DB Integration"). An unreachable database there is an
+ * environment failure, not a reason to skip: the previous pattern
+ * (`canConnectToTestDb` → `false` → `console.warn` → `return`) let every
+ * `it()` in the file no-op and Jest reported the suite as fully PASSED —
+ * demonstrated: with the database stopped, the unfixed
+ * `credit-debit-idempotency.test.ts` exits 0 reporting "10 passed, 10 total"
+ * in 0.6s while doing nothing. Throwing here makes Jest fail every test in
+ * the `describe` block instead.
+ *
+ * Uses a dedicated, short-lived client for the probe rather than the shared
+ * `testPrisma`: `Promise.race` does not cancel the losing promise, so a
+ * probe against the shared client can leave a query in flight that later
+ * competes with the real test for a connection slot. Three distinct,
+ * separately-scoped guarantees here, not one:
+ * - the 3s timer is explicitly cleared in `finally`, on every path
+ *   (demonstrated by a dedicated test — a fast, successful probe used to
+ *   leave it armed to fire, unawaited, 3s after this function returned);
+ * - `$disconnect()` in `finally` closes *this* client's own pool, so it
+ *   cannot outlive the probe and hold a connection slot open indefinitely;
+ * - whether that disconnect also cancels an in-flight query at the
+ *   transport level, rather than merely closing the pool around it, is
+ *   Prisma-internal behavior this code does not depend on and has not
+ *   verified — Prisma exposes no query-cancellation API, so no claim is
+ *   made about the query itself being aborted, only about the resources
+ *   this function itself is responsible for releasing.
+ *
+ * `url` defaults to the lane's real database and only exists so this
+ * function's own failure behavior can be exercised in a test against a
+ * genuinely unreachable target, without touching the shared disposable
+ * Postgres every other suite in the job depends on.
+ */
+export async function assertTestDbAvailable(url: string = testDbUrl): Promise<void> {
+  const probe = new PrismaClient({ datasources: { db: { url } } });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('DB connection timeout')), 3000);
+    });
+    await Promise.race([probe.$queryRaw`SELECT 1`, timeout]);
+  } catch (cause) {
+    throw new Error(
+      'DB_UNAVAILABLE_IN_MANDATORY_LANE: the disposable test database that ' +
+      'this CI job provisions was not reachable within 3s. This lane never ' +
+      'skips on a missing database — treat this as an environment failure ' +
+      'and fix the database/connection, not the test.',
+      { cause }
+    );
+  } finally {
+    // Clear on the winning (fast query) path too, or the losing timer stays
+    // armed and rejects 3s later with nothing left awaiting it.
+    clearTimeout(timer);
+    await probe.$disconnect().catch(() => { /* best-effort */ });
   }
 }
 
