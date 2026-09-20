@@ -180,9 +180,8 @@ function AdminDashboardContent({ verifiedSession }: { verifiedSession: ReturnTyp
               <p className="text-xs text-neutral-400 mt-1">
                 Ne compte pas les comptes Core v2 (personnel et familles migrés) —
                 cette synthèse ADMIN n&apos;a pas encore d&apos;équivalent Core v2.
-                L&apos;espace opérationnel des foyers Core v2 existe déjà pour
-                l&apos;ASSISTANTE (Familles → gestion des foyers) ; il n&apos;est
-                pas ouvert à l&apos;ADMIN aujourd&apos;hui.
+                L&apos;espace opérationnel des foyers Core v2 est accessible
+                depuis Familles, dans le menu de gauche.
               </p>
             </CardHeader>
             <CardContent>

@@ -4,6 +4,7 @@ import { Loader2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -15,13 +16,69 @@ import { StatusMessage } from './StatusMessage';
 import { useStaffActor } from './useStaffActor';
 
 const ACCOUNT_LABEL: Record<PublicUser['accountStatus'], string> = {
-  PENDING_ACTIVATION: 'À activer',
+  PENDING_ACTIVATION: 'En attente d’activation',
   ACTIVE: 'Actif',
   SUSPENDED: 'Suspendu',
   DISABLED: 'Désactivé',
 };
 
-export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
+const ACCOUNT_BADGE_VARIANT: Record<PublicUser['accountStatus'], BadgeProps['variant']> = {
+  PENDING_ACTIVATION: 'warning',
+  ACTIVE: 'success',
+  SUSPENDED: 'destructive',
+  DISABLED: 'outline',
+};
+
+/**
+ * The API exposes only the four PublicUser.accountStatus values — no
+ * invitation-sent/expired timestamp. "Invitation non encore émise" and
+ * "invitation expirée" (go-live mission §3) are therefore not
+ * distinguishable from this data without a backend change; showing them
+ * as two different UI states here would invent information the API does
+ * not carry. What IS real and available: how long a PENDING_ACTIVATION
+ * account has been waiting, from its own createdAt — surfaced as the one
+ * actionable signal this data actually supports.
+ */
+/**
+ * `createdAt` is when the account row was created, not proof an invitation
+ * was sent — and "depuis N j" derived from it invents a delay that may not
+ * exist (review, correctly: a duration under 24h can straddle midnight and
+ * read as "hier" one minute and "aujourd'hui" the next, in whichever
+ * timezone happens to be ambient). Replaced with the one fact this field
+ * actually is: the date the account was created, in the organization's own
+ * timezone — never the viewer's browser zone, which review also verified
+ * this used to silently depend on.
+ */
+/** `null` return means the date is missing/invalid — the caller renders a
+ * standalone anomaly sentence instead of gluing it onto "Compte créé le". */
+function formatAccountCreatedAt(createdAt: string, organizationTimezone: string): string | null {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: organizationTimezone,
+  }).format(date);
+}
+
+function AccountStatusBadge({ user, organizationTimezone }: { user: PublicUser; organizationTimezone: string }) {
+  const createdAtLabel = user.accountStatus === 'PENDING_ACTIVATION'
+    ? formatAccountCreatedAt(user.createdAt, organizationTimezone)
+    : null;
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Badge variant={ACCOUNT_BADGE_VARIANT[user.accountStatus]}>{ACCOUNT_LABEL[user.accountStatus]}</Badge>
+      {user.accountStatus === 'PENDING_ACTIVATION' && (
+        <span className="text-xs text-neutral-400">
+          {createdAtLabel ? `Compte créé le ${createdAtLabel}` : 'Date de création inconnue'}
+        </span>
+      )}
+    </span>
+  );
+}
+
+export function HouseholdsWorkspace({ basePath, organizationTimezone }: { basePath: string; organizationTimezone: string }) {
   const { can, failure: actorFailure, loading: actorLoading } = useStaffActor();
   const [term, setTerm] = useState('');
   const [query, setQuery] = useState('');
@@ -66,13 +123,23 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">Familles</h1>
-          <p className="text-sm text-neutral-400">Référentiel Core v2 — foyers, parents, élèves, inscriptions.</p>
+          <p className="text-sm text-neutral-400">Foyers, contacts parents, élèves et inscriptions — recherchez une famille ou ouvrez sa fiche.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline">
+        {/*
+          Was a plain `flex` row with no wrap: on a narrow viewport (measured
+          at 390px CSS width) the third button ("Nouvelle famille") ran past
+          the visible edge — the outer header's own flex-wrap only lets this
+          whole block drop below the title, it does nothing for overflow
+          inside the block itself. flex-wrap here lets the 3 actions break
+          onto their own line(s) instead of overflowing; w-full sm:w-auto
+          keeps each button a full-width, easily-tappable target on the
+          narrowest screens rather than three cramped fragments.
+        */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={`${basePath}/annees`}>Années scolaires</Link>
           </Button>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link href={`${basePath}/planning`}>Planning</Link>
           </Button>
           {can('HOUSEHOLD_CREATE') && <CreateHouseholdDialog basePath={basePath} onCreated={() => void load(null)} />}
@@ -113,43 +180,57 @@ export function HouseholdsWorkspace({ basePath }: { basePath: string }) {
                   <TableRow>
                     <TableHead>Parents</TableHead>
                     <TableHead>Élèves</TableHead>
-                    <TableHead>Comptes</TableHead>
                     <TableHead className="sr-only">Ouvrir</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {items.map((household) => (
-                    <TableRow key={household.id}>
-                      <TableCell>
-                        <ul className="space-y-1">
-                          {household.parents.map((parent) => (
-                            <li key={parent.id} className="text-neutral-100">
-                              {displayName(parent)}
-                              {parent.isPrimaryContact && <span className="ml-2 text-xs text-brand-accent">contact principal</span>}
-                              {parent.email && <span className="block text-xs text-neutral-400">{parent.email}</span>}
-                            </li>
-                          ))}
-                        </ul>
-                      </TableCell>
-                      <TableCell>
-                        {household.students.length === 0 ? (
-                          <span className="text-neutral-500">Aucun élève</span>
-                        ) : (
-                          household.students.map((student) => <div key={student.id}>{displayName(student.user)}</div>)
-                        )}
-                      </TableCell>
-                      <TableCell className="text-xs text-neutral-300">
-                        {[...household.parents, ...household.students.map((s) => s.user)].map((user) => (
-                          <div key={user.id}>{ACCOUNT_LABEL[user.accountStatus]}</div>
-                        ))}
-                      </TableCell>
-                      <TableCell>
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`${basePath}/${household.id}`}>Ouvrir la fiche</Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {items.map((household) => {
+                    const primaryContact = household.parents.find((p) => p.isPrimaryContact) ?? household.parents[0];
+                    const ficheLabel = primaryContact
+                      ? `Ouvrir la fiche de ${displayName(primaryContact)}`
+                      : `Ouvrir la fiche du foyer ${household.id}`;
+                    return (
+                      <TableRow key={household.id}>
+                        <TableCell>
+                          <ul className="space-y-1.5">
+                            {household.parents.map((parent) => (
+                              <li key={parent.id} className="text-neutral-100">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span>{displayName(parent)}</span>
+                                  {parent.isPrimaryContact && <span className="text-xs text-brand-accent">contact principal</span>}
+                                </div>
+                                <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                                  <AccountStatusBadge user={parent} organizationTimezone={organizationTimezone} />
+                                  {parent.email && <span className="text-xs text-neutral-400">{parent.email}</span>}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        </TableCell>
+                        <TableCell>
+                          {household.students.length === 0 ? (
+                            <span className="text-neutral-400">Aucun élève</span>
+                          ) : (
+                            <ul className="space-y-1.5">
+                              {household.students.map((student) => (
+                                <li key={student.id} className="text-neutral-100">
+                                  <div>{displayName(student.user)}</div>
+                                  <div className="mt-0.5">
+                                    <AccountStatusBadge user={student.user} organizationTimezone={organizationTimezone} />
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`${basePath}/${household.id}`} aria-label={ficheLabel}>Ouvrir la fiche</Link>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
               {nextCursor && (
@@ -228,7 +309,7 @@ function CreateHouseholdDialog({ basePath, onCreated }: { basePath: string; onCr
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button type="button">Nouvelle famille</Button>
+        <Button type="button" className="w-full sm:w-auto">Nouvelle famille</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
