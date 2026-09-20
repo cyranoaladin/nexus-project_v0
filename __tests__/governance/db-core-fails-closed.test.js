@@ -49,6 +49,14 @@ function runDbCoreSuite(databaseUrl) {
         NEXUS_DISPOSABLE_POSTGRES: '1',
         DATABASE_URL: databaseUrl,
         TEST_DATABASE_URL: databaseUrl,
+        // The parent CI job sets FORCE_COLOR=1, which the child inherits via
+        // `...process.env` and injects ANSI codes between words in its own
+        // output (e.g. "passed\x1b[22m, \x1b[1m\x1b[32m10 total") — enough to
+        // break a plain-text match on "Tests: N passed, N total" even though
+        // the real content is exactly that. Force it off here so the
+        // assertion checks content, not whether the parent happens to be
+        // a color terminal.
+        FORCE_COLOR: '0',
       },
     },
   );
