@@ -85,6 +85,7 @@ async function seedInstrument(client: PrismaClient, label: string) {
       catalogStatus: 'DEMO_FIXTURE',
       manifestChecksum: createHash('sha256').update(instrumentKey).digest('hex'),
       manifestVersion: 'test/1.0',
+      subjectSha256: createHash('sha256').update(`subject-${instrumentKey}`).digest('hex'),
     },
   });
 }
@@ -302,21 +303,31 @@ describe('createOwnDiagnosticSubmission — real concurrent DB race on the versi
 
     // T2 (the real, unmodified function) independently computes the same
     // "next version" under READ COMMITTED (T1 hasn't committed) and blocks
-    // on the same unique index entry when it tries to insert.
-    const t2 = createOwnDiagnosticSubmission(client, h.ctx(eleveActor(user.id)), {
+    // on the same unique index entry when it tries to insert. Attach the
+    // outcome handler at creation (no window between creation and the
+    // intervening awaits below) rather than asserting `.rejects` on a
+    // promise created earlier — see deferred-rejection-assertion-authority.
+    const t2Outcome = createOwnDiagnosticSubmission(client, h.ctx(eleveActor(user.id)), {
       assignmentId: assignment.id,
       originalFilename: 'racer.pdf',
       mimeType: 'application/pdf',
       sizeBytes: 2,
       sha256: 'f'.repeat(64),
       storageKey: 'racer.pdf',
-    });
+    }).then(
+      (value) => ({ ok: true as const, value }),
+      (error: unknown) => ({ ok: false as const, error }),
+    );
 
     await waitForLockWaiter(client);
     await t1.release();
 
-    await expect(t2).rejects.toBeInstanceOf(CoreV2DomainError);
-    await expect(t2).rejects.toMatchObject({ code: 'CONFLICT' });
+    const t2Result = await t2Outcome;
+    expect(t2Result.ok).toBe(false);
+    if (!t2Result.ok) {
+      expect(t2Result.error).toBeInstanceOf(CoreV2DomainError);
+      expect(t2Result.error).toMatchObject({ code: 'CONFLICT' });
+    }
 
     const rows = await client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
     expect(rows).toHaveLength(1);

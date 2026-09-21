@@ -1,4 +1,4 @@
-import type { CatalogStatus } from '@/core-v2/generated/client';
+import type { CatalogStatus, DiagnosticInstrumentRef, PrismaClient } from '@/core-v2/generated/client';
 import { InvalidStateError } from '../errors';
 
 /**
@@ -24,4 +24,58 @@ export function assertAttributable(instrument: { readonly id: string; readonly c
       { instrumentRefId: instrument.id, catalogStatus: instrument.catalogStatus },
     );
   }
+}
+
+export interface CatalogFixtureContent {
+  readonly instrumentKey: string;
+  readonly version: string;
+  readonly title: string;
+  readonly subject: string;
+  readonly level: string;
+  readonly targetSession: string;
+  readonly form: string;
+  readonly durationMinutes: number;
+  readonly modalities: string;
+  readonly catalogStatus: CatalogStatus;
+  readonly manifestChecksum: string;
+  readonly manifestVersion: string;
+  readonly sourceCommit?: string | null;
+  readonly subjectSha256: string;
+  readonly baremeReference?: string | null;
+  readonly attributionConditions?: string | null;
+}
+
+/**
+ * Publishes a fixture/catalog-mirror row without ever silently replacing
+ * an existing version's content (mission §5): re-publishing the exact same
+ * `subjectSha256` for an existing (instrumentKey, version) is a no-op;
+ * publishing DIFFERENT content under a version already on record is
+ * refused outright — bump the version to publish new content instead.
+ */
+export async function publishCatalogFixture(
+  client: PrismaClient,
+  content: CatalogFixtureContent,
+): Promise<{ instrument: DiagnosticInstrumentRef; created: boolean }> {
+  const existing = await client.diagnosticInstrumentRef.findUnique({
+    where: { instrumentKey_version: { instrumentKey: content.instrumentKey, version: content.version } },
+  });
+
+  if (existing) {
+    if (existing.subjectSha256 !== content.subjectSha256) {
+      throw new InvalidStateError(
+        `${content.instrumentKey}@${content.version} already exists with a different subject fingerprint — ` +
+          'a version already in use is never silently replaced; publish new content under a new version.',
+        {
+          instrumentKey: content.instrumentKey,
+          version: content.version,
+          existingSubjectSha256Prefix: existing.subjectSha256.slice(0, 12),
+          newSubjectSha256Prefix: content.subjectSha256.slice(0, 12),
+        },
+      );
+    }
+    return { instrument: existing, created: false };
+  }
+
+  const instrument = await client.diagnosticInstrumentRef.create({ data: { ...content } });
+  return { instrument, created: true };
 }

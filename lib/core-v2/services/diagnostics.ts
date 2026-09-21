@@ -97,6 +97,8 @@ export async function attributeDiagnostic(
           instrumentVersionSnapshot: instrument.version,
           formSnapshot: instrument.form,
           manifestChecksumSnapshot: instrument.manifestChecksum,
+          subjectSha256Snapshot: instrument.subjectSha256,
+          baremeReferenceSnapshot: instrument.baremeReference,
           conditionsSnapshot: instrument.attributionConditions,
           studentProfileSnapshot,
           dueAt: input.dueAt,

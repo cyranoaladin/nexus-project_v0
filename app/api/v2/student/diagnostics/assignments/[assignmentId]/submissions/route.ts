@@ -9,6 +9,7 @@ import { correlationIdFrom, type RouteContext } from '@/lib/core-v2/http/staff-r
 import { ok, failFromError } from '@/lib/core-v2/http/respond';
 import { ValidationError } from '@/lib/core-v2/errors';
 import { createServiceContext } from '@/lib/core-v2/services/context';
+import { getOwnDiagnosticAssignmentForSubjectAccess } from '@/lib/core-v2/services/diagnostics';
 import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submission-pipeline';
 
 const ACCEPTED_MIME_TYPES = new Set(['application/pdf']);
@@ -38,6 +39,14 @@ export async function POST(request: NextRequest, context: RouteContext): Promise
     const ctx = createServiceContext(actor, { correlationId });
 
     const { assignmentId } = await context.params;
+
+    // Ownership + not-revoked is checked BEFORE any input validation of the
+    // uploaded file: a cross-candidate attempt must get the same 404
+    // regardless of what file it sends, never a different status code
+    // depending on whether the file happens to look like a real PDF
+    // (which would let a caller distinguish "wrong assignment" from
+    // "wrong assignment AND wrong format" — a needless signal to leak).
+    await getOwnDiagnosticAssignmentForSubjectAccess(client, ctx, assignmentId);
 
     const formData = await request.formData();
     const file = formData.get('file');

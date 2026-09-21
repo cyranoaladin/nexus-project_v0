@@ -764,9 +764,25 @@ model DiagnosticInstrumentRef {
 
   catalogStatus CatalogStatus @default(UNAVAILABLE)
 
+  // manifestChecksum identifies the CATALOG ENTRY (a checksum of the
+  // manifest metadata itself, e.g. "key@version") — it is NOT the
+  // checksum of the subject PDF's actual bytes. subjectSha256 is: the
+  // real fingerprint of the file served at
+  // diagnosticInstrumentSubjectRelativePath(id), verified against at
+  // serve time (see getOwnDiagnosticAssignmentForSubjectAccess's caller
+  // in the subject route) so a silently-altered or wrong file is refused
+  // rather than served (mission §5).
   manifestChecksum String
   manifestVersion  String
   sourceCommit     String?
+  subjectSha256    String
+
+  // A private-catalog reference identifying the exact barème/grille this
+  // version uses — never the barème content itself (that stays in the
+  // private repo). Distinct from manifestChecksum: two instrument
+  // versions could share a manifest shape while using different scoring
+  // criteria, or vice versa.
+  baremeReference String?
 
   attributionConditions String?
 
@@ -813,6 +829,8 @@ model DiagnosticAssignment {
   instrumentVersionSnapshot String
   formSnapshot              String
   manifestChecksumSnapshot  String
+  subjectSha256Snapshot     String
+  baremeReferenceSnapshot   String?
   conditionsSnapshot        String?
   studentProfileSnapshot    Json
 
