@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ACADEMIC_TRACKS, GRADE_LEVELS, STMG_PATHWAYS, type AcademicYear, type CoachSummary, type HouseholdDetail, type PublicUser, describeFailure, displayName, v2 } from './api';
 import { AccountActions } from './AccountActions';
 import { useAction } from './actions';
+import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { EnrollmentCard } from './EnrollmentCard';
 import { StatusMessage } from './StatusMessage';
 
@@ -58,6 +59,7 @@ function StudentBlock({ student, years, coaches, can, refresh }: { student: Stud
           student.enrollments.map((enrollment) => <EnrollmentCard key={enrollment.id} enrollment={enrollment} coaches={coaches} can={can} refresh={refresh} />)
         )}
       </div>
+      {(can('DIAGNOSTIC_CATALOG_READ') || can('DIAGNOSTIC_ASSIGN')) && <DiagnosticsPanel studentId={student.id} />}
     </section>
   );
 }

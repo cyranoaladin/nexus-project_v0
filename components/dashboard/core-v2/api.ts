@@ -254,3 +254,63 @@ export function displayName(user: { firstName: string | null; lastName: string |
 export const GRADE_LEVELS = ['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE', 'POSTBAC', 'AUTRE'] as const;
 export const ACADEMIC_TRACKS = ['COLLEGE', 'EDS_GENERALE', 'STMG', 'STI2D', 'ST2S', 'STL', 'STD2A', 'STMG_NON_LYCEEN'] as const;
 export const STMG_PATHWAYS = ['RHC', 'MERCATIQUE', 'GF', 'SIG', 'INDETERMINE'] as const;
+
+// ── Diagnostics candidats libres (Jalon C — C1) ─────────────────────────────
+
+export type CatalogStatus = 'AUTHORIZED' | 'IN_REVIEW' | 'UNAVAILABLE' | 'ARCHIVED' | 'COMPROMISED' | 'DEMO_FIXTURE';
+
+export const CATALOG_STATUS_LABELS: Record<CatalogStatus, string> = {
+  AUTHORIZED: 'Autorisé',
+  IN_REVIEW: 'En revue',
+  UNAVAILABLE: 'Indisponible',
+  ARCHIVED: 'Archivé',
+  COMPROMISED: 'Version compromise',
+  DEMO_FIXTURE: 'Fixture de démonstration',
+};
+
+/** Only these two are ever attributable — mirrors lib/core-v2/diagnostics/catalog.ts. */
+export function isAttributableCatalogStatus(status: CatalogStatus): boolean {
+  return status === 'AUTHORIZED' || status === 'DEMO_FIXTURE';
+}
+
+export interface DiagnosticInstrumentRef {
+  id: string;
+  instrumentKey: string;
+  version: string;
+  title: string;
+  subject: string;
+  level: string;
+  targetSession: string;
+  form: string;
+  durationMinutes: number;
+  modalities: string;
+  catalogStatus: CatalogStatus;
+  attributionConditions: string | null;
+}
+
+export type DiagnosticAssignmentStatus = 'ASSIGNED' | 'SUBMITTED' | 'REVOKED';
+export type DiagnosticSubmissionStatus = 'RECEIVED' | 'READABLE' | 'ANALYZED' | 'REJECTED';
+
+export interface DiagnosticSubmission {
+  id: string;
+  version: number;
+  originalFilename: string;
+  sizeBytes: number;
+  sha256: string;
+  status: DiagnosticSubmissionStatus;
+  createdAt: string;
+}
+
+export interface DiagnosticAssignment {
+  id: string;
+  status: DiagnosticAssignmentStatus;
+  instrumentKeySnapshot: string;
+  instrumentVersionSnapshot: string;
+  formSnapshot: string;
+  conditionsSnapshot: string | null;
+  dueAt: string | null;
+  modalities: string | null;
+  createdAt: string;
+  instrumentRef: DiagnosticInstrumentRef;
+  submissions: DiagnosticSubmission[];
+}

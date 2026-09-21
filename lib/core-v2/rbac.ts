@@ -39,6 +39,10 @@ export const CAPABILITIES = [
   'ACCOUNT_REACTIVATE',
   'STAFF_ACCOUNT_CREATE',
   'AUDIT_READ',
+  'DIAGNOSTIC_CATALOG_READ',
+  'DIAGNOSTIC_ASSIGN',
+  'DIAGNOSTIC_SUBMISSION_TRACK',
+  'DIAGNOSTIC_SUBMISSION_CONTENT_READ',
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -61,6 +65,12 @@ export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
   // someone else created; she may not bring a new staff member into being.
   'STAFF_ACCOUNT_CREATE',
   'AUDIT_READ',
+  // The deposited file is the candidate's academic answer content. ASSISTANTE
+  // may track that a submission was received and its processing status (see
+  // DIAGNOSTIC_SUBMISSION_TRACK below); reading the file itself is reserved —
+  // mission constraint: "ASSISTANTE... n'acquiert pas automatiquement le
+  // droit de lire les réponses académiques."
+  'DIAGNOSTIC_SUBMISSION_CONTENT_READ',
 ];
 
 /**
@@ -89,6 +99,9 @@ export const ASSISTANTE_CAPABILITIES: readonly Capability[] = [
   'COACH_ASSIGN',
   'PLANNING_MANAGE',
   'ACCOUNT_INVITE',
+  'DIAGNOSTIC_CATALOG_READ',
+  'DIAGNOSTIC_ASSIGN',
+  'DIAGNOSTIC_SUBMISSION_TRACK',
 ];
 
 /**

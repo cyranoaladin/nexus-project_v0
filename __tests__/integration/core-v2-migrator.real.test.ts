@@ -75,7 +75,7 @@ beforeAll(async () => {
     },
   });
   Object.assign(ids, { admin: admin.id, parent: parentUser.id, parentProfile: parentProfile.id, studentA: studentA.id, studentB: studentB.id, coachUser: coachUser.id, coachProfile: coachProfile.id, assignment: assignment.id, series: series.id });
-});
+}, 30_000); // `prisma migrate deploy` grows with every migration added (9 as of the candidat-libre diagnostics migration); the 5s Jest default no longer covers deploy + reset + fixture creation.
 
 afterAll(async () => {
   await v1.user.deleteMany({ where: { lastName: prefix } }).catch(() => undefined);
