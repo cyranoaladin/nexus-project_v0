@@ -6,6 +6,7 @@
  */
 import { NextResponse } from 'next/server';
 import type { User } from '@/core-v2/generated/client';
+import { logger } from '@/lib/logger';
 import { CoreV2DatabaseIdentityError, CoreV2DatabaseUrlError } from '../client';
 import { CoreV2ConfigError } from '../config';
 import { CoreV2DomainError, type CoreV2ErrorCode } from '../errors';
@@ -52,6 +53,10 @@ export function failFromError(error: unknown, correlationId: string): NextRespon
   if (error instanceof CoreV2ConfigError) {
     return fail(correlationId, 503, 'CORE_V2_MISCONFIGURED', error.message);
   }
+  // A non-domain error means an operator needs to see the real cause — the
+  // client only ever gets "Unexpected error", so without this the failure
+  // is unobservable server-side too.
+  logger.error({ correlationId, err: error }, '[core-v2] unexpected error in route handler');
   return fail(correlationId, 500, 'INTERNAL_ERROR', 'Unexpected error.');
 }
 

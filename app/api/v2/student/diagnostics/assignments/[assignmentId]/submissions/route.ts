@@ -1,6 +1,11 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+// The global `File` exists under `next dev` but is not injected into the
+// standalone production route-handler sandbox — reproduced against a real
+// standalone build (`ReferenceError: File is not defined`), fixed by
+// importing it explicitly rather than relying on the ambient global.
+import { File } from 'node:buffer';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
 import { requireAuth, isErrorResponse } from '@/lib/guards';
 import { requireCoreV2Client } from '@/lib/core-v2/client';
