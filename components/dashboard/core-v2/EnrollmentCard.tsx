@@ -13,10 +13,14 @@ import { AcademicMapFields } from './StudentsSection';
 const ENROLLMENT_LABEL: Record<EnrollmentDetail['status'], string> = { PENDING: 'En attente', ACTIVE: 'Active', COMPLETED: 'Terminée', WITHDRAWN: 'Retirée' };
 
 export function EnrollmentCard({ enrollment, coaches, can, refresh }: { enrollment: EnrollmentDetail; coaches: CoachSummary[]; can: (c: string) => boolean; refresh: () => Promise<void> }) {
-  const action = useAction(refresh);
+  const action = useAction(refresh, refresh);
   const editable = enrollment.status === 'PENDING' || enrollment.status === 'ACTIVE';
   return (
-    <article aria-label={`Inscription ${enrollment.academicYear.startYear}-${enrollment.academicYear.startYear + 1}`} className="rounded-md border border-white/10 bg-surface-darker p-3">
+    <article
+      id={`core-v2-enrollment-${enrollment.id}`}
+      aria-label={`Inscription ${enrollment.academicYear.startYear}-${enrollment.academicYear.startYear + 1}`}
+      className="scroll-mt-24 rounded-md border border-white/10 bg-surface-darker p-3"
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <p className="font-medium text-neutral-100">
@@ -103,7 +107,7 @@ function CoursesEditor({ enrollment, editable, onDone }: { enrollment: Enrollmen
   const [draft, setDraft] = useState(enrollment.courses.map((c) => ({ courseKey: c.courseKey, kind: c.kind })));
   const [newKey, setNewKey] = useState('');
   const [newKind, setNewKind] = useState<'SPECIALTY' | 'OPTION'>('SPECIALTY');
-  const action = useAction(onDone);
+  const action = useAction(onDone, onDone);
   const dirty = JSON.stringify(draft) !== JSON.stringify(enrollment.courses.map((c) => ({ courseKey: c.courseKey, kind: c.kind })));
 
   return (
@@ -161,7 +165,7 @@ function CoursesEditor({ enrollment, editable, onDone }: { enrollment: Enrollmen
 }
 
 function AssignmentsPanel({ enrollment, coaches, can, refresh }: { enrollment: EnrollmentDetail; coaches: CoachSummary[]; can: (c: string) => boolean; refresh: () => Promise<void> }) {
-  const action = useAction(refresh);
+  const action = useAction(refresh, refresh);
   const [courseKey, setCourseKey] = useState(enrollment.courses[0]?.courseKey ?? '');
   const [coachId, setCoachId] = useState('');
   const eligibleCoaches = coaches.filter((c) => c.capabilities.includes(courseKey));
@@ -215,7 +219,7 @@ function AssignmentsPanel({ enrollment, coaches, can, refresh }: { enrollment: E
 }
 
 function AssignmentRow({ assignment, can, refresh }: { assignment: AssignmentDetail; can: (c: string) => boolean; refresh: () => Promise<void> }) {
-  const action = useAction(refresh);
+  const action = useAction(refresh, refresh);
   const openSeries = assignment.planningSeries.filter((s) => s.status === 'ACTIVE' || s.status === 'PAUSED');
   return (
     <div className="rounded border border-white/10 p-2">

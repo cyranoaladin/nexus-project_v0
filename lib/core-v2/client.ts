@@ -25,10 +25,22 @@
  * __tests__/architecture/core-v2-legacy-guards.test.ts
  * (CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME).
  */
-import { PrismaClient as CoreV2PrismaClient } from '@/core-v2/generated/client';
+import { Prisma, PrismaClient as CoreV2PrismaClient } from '@/core-v2/generated/client';
 import { assertNoCoreV1V2TargetCollision, CoreV2DatabaseUrlError } from './database-target';
 
 export { CoreV2DatabaseUrlError };
+
+/**
+ * The sanctioned way for the rest of lib/core-v2/** to reach the generated
+ * `Prisma` namespace (transaction isolation levels, `Prisma.sql`, etc.)
+ * without holding their own value reference to `@/core-v2/generated/client`
+ * — that is exactly what CORE_V2_ONLY_CLIENT_TS_MAY_CONSTRUCT_A_CLIENT
+ * forbids (__tests__/architecture/core-v2-legacy-guards.test.ts). Callers
+ * still write `Prisma.SomeWhereInput` etc. in type position from this same
+ * re-exported binding — that TypeScript namespace merges its value exports
+ * (enums, `Prisma.sql`) with its type exports.
+ */
+export { Prisma };
 
 export class CoreV2DatabaseIdentityError extends Error {}
 
