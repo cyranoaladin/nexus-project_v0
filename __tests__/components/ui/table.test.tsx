@@ -141,16 +141,24 @@ describe('Table', () => {
       expect(table).toHaveClass('caption-bottom');
     });
 
-    it('applies hover styles to rows', () => {
+    it('applies hover styles to rows using a dark-surface token, not a light one', () => {
+      // Every real consumer (HouseholdsWorkspace, AcademicYearsPanel, the
+      // stages/assignments tables) renders on this app's dark surface
+      // system (Card's default bg-surface-card) — hover:bg-neutral-50 (a
+      // near-white fill) made a light-text row briefly illegible on hover.
+      // surface-hover is this repo's own documented AAA-compliant choice
+      // for exactly this state (app/globals.css's contrast guide).
       const { container } = renderBasicTable();
 
       const rows = container.querySelectorAll('tbody tr');
+      expect(rows.length).toBeGreaterThan(0);
       rows.forEach(row => {
-        expect(row).toHaveClass('hover:bg-neutral-50');
+        expect(row).toHaveClass('hover:bg-surface-hover');
+        expect(row.className).not.toMatch(/hover:bg-neutral-(50|100|200)\b/);
       });
     });
 
-    it('applies footer background', () => {
+    it('applies a dark-surface footer background, not a light one', () => {
       const { container } = render(
         <Table>
           <TableFooter>
@@ -162,7 +170,9 @@ describe('Table', () => {
       );
 
       const footer = container.querySelector('tfoot');
-      expect(footer).toHaveClass('bg-neutral-50');
+      expect(footer).toHaveClass('bg-surface-elevated');
+      expect(footer).toHaveClass('text-neutral-100');
+      expect(footer?.className).not.toMatch(/bg-neutral-(50|100|200)\b/);
     });
 
     it('supports custom className on table', () => {
@@ -326,7 +336,36 @@ describe('Table', () => {
 
       const row = container.querySelector('[data-state="selected"]');
       expect(row).toBeInTheDocument();
-      expect(row).toHaveClass('data-[state=selected]:bg-neutral-100');
+      expect(row).toHaveClass('data-[state=selected]:bg-surface-elevated');
+      expect(row?.className).not.toMatch(/data-\[state=selected\]:bg-neutral-(50|100|200)\b/);
+    });
+  });
+
+  describe('Contrast (go-live mission Lot 1B — TableHead measured near-invisible on this app\'s dark surfaces before this fix)', () => {
+    it('never emits the near-black header text that was illegible on every real (dark) consumer', () => {
+      const { container } = renderBasicTable();
+      const headers = container.querySelectorAll('th');
+      expect(headers.length).toBeGreaterThan(0);
+      headers.forEach((header) => {
+        expect(header.className).not.toMatch(/text-neutral-900\b/);
+        expect(header).toHaveClass('text-neutral-200');
+      });
+    });
+
+    it('never emits the caption color this repo\'s own contrast guide lists as "avoid" on dark surfaces', () => {
+      const { container } = renderBasicTable();
+      const caption = container.querySelector('caption');
+      expect(caption?.className).not.toMatch(/text-neutral-500\b/);
+      expect(caption).toHaveClass('text-neutral-400');
+    });
+
+    it('cell and row borders use the app\'s dark-surface border convention, not a light-grey one', () => {
+      const { container } = renderBasicTable();
+      const rows = container.querySelectorAll('tbody tr');
+      rows.forEach((row) => {
+        expect(row.className).not.toMatch(/border-neutral-200\b/);
+        expect(row).toHaveClass('border-white/10');
+      });
     });
   });
 

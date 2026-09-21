@@ -168,7 +168,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
   ],
   [UserRole.ASSISTANTE]: [
     {
-      label: 'Dashboard',
+      label: 'Tableau de bord',
       href: '/dashboard/assistante',
       icon: 'Home',
       match: 'exact'
@@ -180,7 +180,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
-      label: 'Étudiants',
+      label: 'Élèves',
       href: '/dashboard/assistante/students',
       icon: 'Users',
       match: 'prefix'
@@ -210,7 +210,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
-      label: 'Assignations',
+      label: 'Affectations',
       href: '/dashboard/assistante/assignments',
       icon: 'ClipboardList',
       match: 'prefix'
@@ -266,7 +266,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
   ],
   [UserRole.ADMIN]: [
     {
-      label: 'Dashboard',
+      label: 'Tableau de bord',
       href: '/dashboard/admin',
       icon: 'Home',
       match: 'exact'
@@ -290,7 +290,7 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
-      label: 'Analytics',
+      label: 'Pilotage',
       href: '/dashboard/admin/analytics',
       icon: 'BarChart',
       match: 'prefix'
