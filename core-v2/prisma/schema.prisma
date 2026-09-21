@@ -895,6 +895,8 @@ model DiagnosticSubmission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  processing DiagnosticSubmissionProcessing?
+
   @@unique([assignmentId, version])
   @@index([assignmentId, status])
   @@map("diagnostic_submissions")
@@ -905,4 +907,83 @@ enum DiagnosticSubmissionStatus {
   READABLE
   ANALYZED
   REJECTED
+}
+
+// C2, first increment (mission §9): bounded, versioned processing of one
+// DiagnosticSubmission — text extraction only for now (no deterministic
+// correction, no AI, no publication: those stay unbuilt until the AI
+// budget/provider prerequisite is confirmed by the owner — see
+// docs/core-v2/candidat-libre-diagnostics-c2-plan.md). One row per
+// submission (never recreated — a NEW submission gets its OWN processing
+// row, never a reused one). Every frozen field below is copied at enqueue
+// time and never re-read from a mutable source afterwards, so a later
+// change to the submission or the catalog can never silently retarget an
+// already-enqueued processing.
+model DiagnosticSubmissionProcessing {
+  id String @id @default(cuid())
+
+  submissionId String               @unique
+  submission   DiagnosticSubmission @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+
+  submissionSha256Snapshot  String
+  submissionVersionSnapshot Int
+  subjectVersionSnapshot    String
+
+  status DiagnosticSubmissionProcessingStatus @default(QUEUED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  extractions DiagnosticSubmissionExtraction[]
+
+  @@index([status])
+  @@map("diagnostic_submission_processings")
+}
+
+enum DiagnosticSubmissionProcessingStatus {
+  QUEUED
+  EXTRACTING
+  EXTRACTED
+  NO_EXTRACTABLE_TEXT
+  EXTRACTION_FAILED
+}
+
+// Append-only, one row per attempt (never updated in place): preserves the
+// original submission and every extraction attempt as an identifiable,
+// ordered revision — a retry after failure creates revision N+1, it never
+// overwrites revision N (mission §9: "une nouvelle extraction crée une
+// révision identifiable").
+model DiagnosticSubmissionExtraction {
+  id String @id @default(cuid())
+
+  processingId String
+  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  revision Int
+
+  status DiagnosticSubmissionExtractionStatus
+
+  // Populated only for SUCCEEDED; NO_EXTRACTABLE_TEXT and FAILED never
+  // fabricate a text value — the absence itself is the recorded state.
+  extractedText  String?
+  characterCount Int?
+  durationMs     Int?
+  errorMessage   String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([processingId, revision])
+  @@map("diagnostic_submission_extractions")
+}
+
+// Three distinct outcomes, never merged (mission §9): SUCCEEDED (real,
+// non-empty extracted text), EMPTY (extraction ran to completion but found
+// no exploitable text — e.g. a scanned image PDF; explicitly NOT a success,
+// a candidate for different processing such as OCR later), FAILED (the
+// extraction itself could not run to completion — corrupt/encrypted/
+// unreadable file, or a bounded timeout).
+enum DiagnosticSubmissionExtractionStatus {
+  SUCCEEDED
+  EMPTY
+  FAILED
 }

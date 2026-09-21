@@ -48,6 +48,8 @@ export const AUDIT_ACTIONS = [
   'diagnostic.assigned',
   'diagnostic.revoked',
   'diagnostic.submission.deposited',
+  'diagnostic.submission.processing.enqueued',
+  'diagnostic.submission.extraction.completed',
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -65,7 +67,8 @@ export type AuditSubjectType =
   | 'Invitation'
   | 'MigrationRun'
   | 'DiagnosticAssignment'
-  | 'DiagnosticSubmission';
+  | 'DiagnosticSubmission'
+  | 'DiagnosticSubmissionProcessing';
 
 export interface AuditEventInput {
   readonly actorUserId: string | null;
