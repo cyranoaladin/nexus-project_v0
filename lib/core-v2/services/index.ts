@@ -7,3 +7,4 @@ export * from './coach';
 export * from './planning';
 export * from './account';
 export * from './staff-account';
+export * from './diagnostics';

@@ -23,7 +23,10 @@ export async function resetCoreV2Database(client: PrismaClient): Promise<void> {
       "household_parents",
       "households",
       "academic_years",
-      "users"
+      "users",
+      "diagnostic_submissions",
+      "diagnostic_assignments",
+      "diagnostic_instrument_refs"
     RESTART IDENTITY CASCADE;
   `);
 }

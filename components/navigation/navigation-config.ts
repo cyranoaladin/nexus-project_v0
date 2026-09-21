@@ -69,6 +69,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       href: '/dashboard/eleve/documents',
       icon: 'FileText',
       match: 'prefix'
+    },
+    {
+      label: 'Diagnostics libres',
+      href: '/dashboard/eleve/diagnostics-libres',
+      icon: 'FileCheck2',
+      match: 'prefix'
     }
   ],
   [UserRole.PARENT]: [

@@ -91,6 +91,9 @@ model User {
   coachStudentCourseAssignments  CoachStudentCourseAssignment[]
   planningSeries                 PlanningSeries[]
   issuedInvitations              Invitation[]                    @relation("InvitationIssuer")
+  diagnosticAssignmentsReviewed  DiagnosticAssignment[]           @relation("DiagnosticAssignmentReviewer")
+  diagnosticAssignmentsCreated   DiagnosticAssignment[]           @relation("DiagnosticAssignmentAssignedBy")
+  diagnosticSubmissions          DiagnosticSubmission[]
 
   @@map("users")
 }
@@ -236,6 +239,7 @@ model Student {
 
   academicYearEnrollments StudentAcademicYearEnrollment[]
   sessionBookings         SessionBooking[]
+  diagnosticAssignments   DiagnosticAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -729,3 +733,158 @@ enum SessionStatus {
 // — only worth adding if a future business audit confirms plans are
 // intrinsically tied to a single school year (current data suggests they
 // are, but this is an open question for the owner, not decided in this PR).
+
+// ── Diagnostics candidats libres (Jalon C — C1) ─────────────────────────────
+//
+// DiagnosticInstrumentRef is a READ-ONLY mirror of the private instrument
+// catalog (nexus-diagnostics-private) at a pinned snapshot. Rows are written
+// only by the ingestion script (scripts/core-v2/ingest-diagnostic-catalog.ts),
+// never by an API route — the presence of a row, or a filename, is never
+// itself an authorization signal (see assertAttributable in
+// lib/core-v2/diagnostics/catalog.ts). As of this migration, the private
+// catalog's V3 pilot has zero AUTHORIZED instruments (both pilot instruments
+// remain at lifecycle status METHOD_PILOT_SAMPLE — see
+// nexus-diagnostics-private/V3_PILOT_REVIEW.md, read 2026-09-21) — the only
+// seeded row for this increment is DEMO_FIXTURE, entirely fictional and
+// invented for this feature's own tests/demo, never derived from real bank
+// content.
+model DiagnosticInstrumentRef {
+  id String @id @default(cuid())
+
+  instrumentKey String
+  version       String
+
+  title           String
+  subject         String
+  level           String
+  targetSession   String
+  form            String
+  durationMinutes Int
+  modalities      String
+
+  catalogStatus CatalogStatus @default(UNAVAILABLE)
+
+  manifestChecksum String
+  manifestVersion  String
+  sourceCommit     String?
+
+  attributionConditions String?
+
+  assignments DiagnosticAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([instrumentKey, version])
+  @@index([catalogStatus])
+  @@map("diagnostic_instrument_refs")
+}
+
+enum CatalogStatus {
+  AUTHORIZED
+  IN_REVIEW
+  UNAVAILABLE
+  ARCHIVED
+  COMPROMISED
+  DEMO_FIXTURE
+}
+
+// Deletion policy: `instrumentRef` and `student` are Restrict — an
+// attribution is a business/pedagogical record in its own right (who was
+// assigned what, under which frozen conditions, reviewed by whom). Neither
+// a catalog row nor a student may be deleted while attribution history
+// still references them.
+//
+// The *Snapshot fields freeze the instrument's meaning at attribution time
+// so a later catalog update never silently changes an attribution already
+// handed to a candidate (mission constraint: "une évolution ultérieure du
+// catalogue ne doit pas modifier silencieusement une attribution
+// commencée").
+model DiagnosticAssignment {
+  id String @id @default(cuid())
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  instrumentRefId String
+  instrumentRef   DiagnosticInstrumentRef @relation(fields: [instrumentRefId], references: [id], onDelete: Restrict)
+
+  instrumentKeySnapshot     String
+  instrumentVersionSnapshot String
+  formSnapshot              String
+  manifestChecksumSnapshot  String
+  conditionsSnapshot        String?
+  studentProfileSnapshot    Json
+
+  dueAt      DateTime?
+  modalities String?
+
+  reviewerId String?
+  reviewer   User?   @relation("DiagnosticAssignmentReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  status DiagnosticAssignmentStatus @default(ASSIGNED)
+
+  assignedById String?
+  assignedBy   User?   @relation("DiagnosticAssignmentAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  submissions DiagnosticSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Anti-double-click / anti-duplicate-attribution guard: one non-REVOKED
+  // attribution per (student, instrument). Partial unique index, applied
+  // via raw-SQL migration (same pattern as coach_student_course_assignments):
+  // @@unique([studentId, instrumentRefId]) WHERE status != 'REVOKED'
+  @@index([studentId, status])
+  @@index([instrumentRefId, status])
+  @@map("diagnostic_assignments")
+}
+
+enum DiagnosticAssignmentStatus {
+  ASSIGNED
+  SUBMITTED
+  REVOKED
+}
+
+// Append-only per assignment: a new deposit is a NEW row with an
+// incremented `version`, never an update to a prior row's file (mission
+// constraint: "un second dépôt ne doit pas écraser silencieusement une
+// soumission déjà utilisée pour un bilan"). The "current" submission for an
+// assignment is the MAX(version) row, computed at query time — never a
+// separate boolean flag, to avoid a second source of truth.
+model DiagnosticSubmission {
+  id String @id @default(cuid())
+
+  assignmentId String
+  assignment   DiagnosticAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+
+  version Int
+
+  storageKey       String
+  originalFilename String
+  mimeType         String
+  sizeBytes        Int
+  sha256           String
+
+  status DiagnosticSubmissionStatus @default(RECEIVED)
+
+  submittedById String
+  submittedBy   User   @relation(fields: [submittedById], references: [id], onDelete: Restrict)
+
+  reviewNote String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, version])
+  @@index([assignmentId, status])
+  @@map("diagnostic_submissions")
+}
+
+enum DiagnosticSubmissionStatus {
+  RECEIVED
+  READABLE
+  ANALYZED
+  REJECTED
+}
