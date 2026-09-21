@@ -320,4 +320,33 @@ describe('candidate self-service: assignments, subject, deposit', () => {
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId } });
     expect(rows).toHaveLength(0);
   });
+
+  test('a cross-candidate deposit attempt with a MALFORMED file still gets 404, never a 400 that would leak "the assignment exists, only your file is wrong" (found via browser rehearsal, mission §4/§5)', async () => {
+    const { student } = await seedStudentWithAccount('I');
+    const { eleveUser: otherUser } = await seedStudentWithAccount('J');
+    allowDemoFixtureFor(student.id);
+    const instrument = await seedInstrument('DEPOSIT-CROSS-MALFORMED-1');
+    signInAs({ id: h.assistante.userId, role: 'ASSISTANTE' });
+    const attributed = await postJson(
+      studentDiagnosticsRoute.POST,
+      `/api/v2/staff/students/${student.id}/diagnostics`,
+      { instrumentRefId: instrument.id },
+      { id: student.id },
+    );
+    const assignmentId = attributed.body.data.id;
+
+    signInAs({ id: otherUser.id, role: 'ELEVE' });
+    const formData = new FormData();
+    formData.set('file', new File([new Uint8Array([1, 2, 3])], 'x.pdf', { type: 'application/pdf' }));
+    const request = new NextRequest(`http://localhost:3000/api/v2/student/diagnostics/assignments/${assignmentId}/submissions`, {
+      method: 'POST',
+      headers: { origin: 'http://localhost:3000' },
+      body: formData,
+    });
+    const response = await submissionsRoute.POST(request, paramsOf({ assignmentId }));
+    expect(response.status).toBe(404);
+
+    const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId } });
+    expect(rows).toHaveLength(0);
+  });
 });
