@@ -146,6 +146,24 @@ export async function processDiagnosticSubmission(
   });
 }
 
+export type DiagnosticSubmissionExtractionLogisticsView = Omit<DiagnosticSubmissionExtraction, 'extractedText'>;
+
+/**
+ * Strips the academic content itself from an extraction row, keeping only
+ * logistics fields (status, revision, timing, error code). Triggering or
+ * tracking a processing run only ever needs DIAGNOSTIC_SUBMISSION_TRACK
+ * (ASSISTANTE has it); the right to trigger/track a run is not the right
+ * to read what it produced — that stays behind
+ * getLatestDiagnosticSubmissionExtraction's own DIAGNOSTIC_SUBMISSION_CONTENT_READ
+ * check, on its own dedicated route, never incidentally returned by this
+ * one. A caller that needs the text calls that route separately.
+ */
+export function toExtractionLogisticsView(extraction: DiagnosticSubmissionExtraction): DiagnosticSubmissionExtractionLogisticsView {
+  const { extractedText, ...logistics } = extraction;
+  void extractedText;
+  return logistics;
+}
+
 /** Staff logistics view: status/revision count only — never the extracted text (see content-read below). */
 export async function getDiagnosticSubmissionProcessingStatus(
   client: PrismaClient,

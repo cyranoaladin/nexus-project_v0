@@ -4,13 +4,15 @@ import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import {
   getDiagnosticSubmissionProcessingStatus,
   processDiagnosticSubmission,
+  toExtractionLogisticsView,
 } from '@/lib/core-v2/services/diagnostic-processing';
 import { NotFoundError } from '@/lib/core-v2/errors';
 
 /**
  * C2, first increment — logistics view only (status/revision count, never
  * the extracted text: see the sibling `content` route for that, reserved
- * to ADMIN).
+ * to ADMIN). getDiagnosticSubmissionProcessingStatus's own return type has
+ * no extractedText field at all, so there is nothing to strip here.
  */
 export const GET = defineStaffRoute({
   handler: async ({ client, ctx, params }) => {
@@ -20,10 +22,16 @@ export const GET = defineStaffRoute({
   },
 });
 
-/** Triggers (or retries, after a failure) bounded text extraction for this submission. */
+/**
+ * Triggers (or retries, after a failure) bounded text extraction for this
+ * submission. This route requires only DIAGNOSTIC_SUBMISSION_TRACK
+ * (ASSISTANTE has it) — the extraction's own `extractedText` must never
+ * ride along in this response even though the underlying service result
+ * carries it for direct/internal callers; see toExtractionLogisticsView.
+ */
 export const POST = defineStaffRoute({
   handler: async ({ client, ctx, params }) => {
     const result = await processDiagnosticSubmission(client, ctx, params.submissionId);
-    return { status: 202, data: result };
+    return { status: 202, data: { processing: result.processing, extraction: toExtractionLogisticsView(result.extraction) } };
   },
 });
