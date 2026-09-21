@@ -84,6 +84,10 @@ async function seedStudentWithAccount(label: string) {
 
 async function seedInstrument(label: string, catalogStatus: 'DEMO_FIXTURE' | 'IN_REVIEW' | 'COMPROMISED' = 'DEMO_FIXTURE') {
   const instrumentKey = `HTTP-TEST-${label}`;
+  // subjectSha256 must be the fingerprint of the EXACT bytes written to the
+  // fixture file below — the subject route now verifies this at serve
+  // time (mission §5); a mismatched fixture is a test bug, not a route bug.
+  const subjectBytes = Buffer.from(`%PDF-1.0\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n${instrumentKey}\n`);
   const instrument = await h.client.diagnosticInstrumentRef.create({
     data: {
       instrumentKey,
@@ -98,12 +102,10 @@ async function seedInstrument(label: string, catalogStatus: 'DEMO_FIXTURE' | 'IN
       catalogStatus,
       manifestChecksum: createHash('sha256').update(instrumentKey).digest('hex'),
       manifestVersion: 'test/1.0',
+      subjectSha256: createHash('sha256').update(subjectBytes).digest('hex'),
     },
   });
-  await writeDiagnosticStorageFixture(
-    diagnosticInstrumentSubjectRelativePath(instrument.id),
-    Buffer.from('%PDF-1.0\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n'),
-  );
+  await writeDiagnosticStorageFixture(diagnosticInstrumentSubjectRelativePath(instrument.id), subjectBytes);
   return instrument;
 }
 
@@ -348,5 +350,40 @@ describe('candidate self-service: assignments, subject, deposit', () => {
 
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId } });
     expect(rows).toHaveLength(0);
+  });
+
+  test('mission §5 counter-proof: an altered subject file is refused (integrity mismatch); a later, unrelated authorized version never silently absorbs the old attribution', async () => {
+    const { student, eleveUser } = await seedStudentWithAccount('K');
+    allowDemoFixtureFor(student.id);
+    const instrumentV1 = await seedInstrument('INTEGRITY-1');
+    signInAs({ id: h.assistante.userId, role: 'ASSISTANTE' });
+    const attributed = await postJson(
+      studentDiagnosticsRoute.POST,
+      `/api/v2/staff/students/${student.id}/diagnostics`,
+      { instrumentRefId: instrumentV1.id },
+      { id: student.id },
+    );
+    const assignmentId = attributed.body.data.id;
+
+    // Alter the fixture file on disk directly (a disposable test target —
+    // never done against the real preview storage).
+    const relativePath = diagnosticInstrumentSubjectRelativePath(instrumentV1.id);
+    await writeDiagnosticStorageFixture(relativePath, Buffer.from('this is not the file that was attributed'));
+
+    signInAs({ id: eleveUser.id, role: 'ELEVE' });
+    const tampered = await getRaw(subjectRoute.GET, `/api/v2/student/diagnostics/assignments/${assignmentId}/subject`, { assignmentId });
+    expect(tampered.status).toBe(409);
+    const tamperedBody = await tampered.response.json();
+    expect(tamperedBody.error.code).toBe('INVALID_STATE');
+    // No private storage path leaked in the response.
+    expect(JSON.stringify(tamperedBody)).not.toMatch(/candidat-libre-diagnostics|_instruments/);
+
+    // Publish an entirely separate, new, unrelated demo-authorized version —
+    // the OLD attribution (still pointing at instrumentV1's frozen
+    // snapshot) must not pick it up.
+    const instrumentV2 = await seedInstrument('INTEGRITY-2');
+    void instrumentV2;
+    const stillTampered = await getRaw(subjectRoute.GET, `/api/v2/student/diagnostics/assignments/${assignmentId}/subject`, { assignmentId });
+    expect(stillTampered.status).toBe(409); // unchanged — never silently switched to the new version's bytes
   });
 });

@@ -70,6 +70,7 @@ async function seedDemoInstrument(client: PrismaClient, overrides: Partial<{ cat
       catalogStatus: (overrides.catalogStatus as never) ?? 'DEMO_FIXTURE',
       manifestChecksum: createHash('sha256').update(instrumentKey).digest('hex'),
       manifestVersion: 'test/1.0',
+      subjectSha256: createHash('sha256').update(`subject-${instrumentKey}`).digest('hex'),
     },
   });
 }
