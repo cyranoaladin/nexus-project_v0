@@ -1,10 +1,15 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-// The global `File` exists under `next dev` but is not injected into the
-// standalone production route-handler sandbox — reproduced against a real
-// standalone build (`ReferenceError: File is not defined`), fixed by
-// importing it explicitly rather than relying on the ambient global.
+// `File` is a Node global only from Node 20 onward (via undici). This is
+// NOT a Next.js standalone-build behavior — the build tooling here runs
+// under Node 22 (this repo's own package.json#engines requires >=22.13.0),
+// and the bug reproduced specifically when a systemd deployment's PATH
+// resolved `/usr/bin/env node` to a distro-packaged Node 18.19.1 (no nvm
+// entry in that service's env), which predates the global entirely.
+// `node:buffer` exports `File` explicitly since Node 19/20 and works
+// correctly on both — importing it explicitly removes the dependency on
+// which Node major version happens to be first on PATH at runtime.
 import { File } from 'node:buffer';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
 import { requireAuth, isErrorResponse } from '@/lib/guards';
