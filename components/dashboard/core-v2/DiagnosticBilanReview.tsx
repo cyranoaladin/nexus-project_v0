@@ -207,6 +207,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
           <p className="text-sm text-neutral-300">Aucun traitement n’a encore été lancé pour ce dépôt.</p>
           <Button
             type="button"
+            data-testid="btn-start-processing"
             disabled={startAction.pending !== null}
             onClick={() =>
               void startAction.run(
@@ -245,6 +246,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
             <p className="text-sm text-neutral-300">Aucun bilan n’a encore été généré pour ce dépôt.</p>
             <Button
               type="button"
+              data-testid="btn-generate-bilan"
               disabled={generateAction.pending !== null}
               onClick={() =>
                 void generateAction.run(
@@ -334,6 +336,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                           </label>
                           <Textarea
                             id={`correction-${item.itemId}`}
+                            data-testid={`item-correction-${item.itemId}`}
                             value={itemCorrections[item.itemId] ?? ''}
                             onChange={(e) => setItemCorrections((prev) => ({ ...prev, [item.itemId]: e.target.value }))}
                             className="mt-1"
@@ -369,6 +372,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                   <Button
                     type="button"
                     variant="outline"
+                    data-testid="btn-save-correction"
                     disabled={correctAction.pending !== null}
                     onClick={() =>
                       void correctAction.run(
@@ -393,11 +397,12 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                   >
                     {correctAction.pending ? 'Enregistrement…' : 'Enregistrer la correction'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowPreview((v) => !v)}>
+                  <Button type="button" variant="outline" data-testid="btn-toggle-preview" onClick={() => setShowPreview((v) => !v)}>
                     {showPreview ? 'Masquer l’aperçu candidat' : 'Aperçu candidat'}
                   </Button>
                   <Button
                     type="button"
+                    data-testid="btn-validate-bilan"
                     disabled={validateAction.pending !== null || isDirty}
                     title={isDirty ? 'Enregistrez la correction avant de valider — des modifications non enregistrées sont en cours.' : undefined}
                     onClick={() =>
@@ -446,17 +451,18 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                   La publication rend ce bilan lisible par le candidat lui-même (audience « own-student »). Elle reste une action explicite,
                   jamais automatique.
                 </p>
-                <Button type="button" variant="outline" onClick={() => setShowPreview((v) => !v)}>
+                <Button type="button" variant="outline" data-testid="btn-toggle-preview" onClick={() => setShowPreview((v) => !v)}>
                   {showPreview ? 'Masquer l’aperçu candidat' : 'Aperçu candidat'}
                 </Button>
                 {showPreview && (
-                  <div className="rounded border border-white/10 p-3">
+                  <div data-testid="bilan-preview" className="rounded border border-white/10 p-3">
                     <p className="mb-2 text-xs uppercase tracking-wide text-neutral-500">Aperçu — ce que verrait le candidat</p>
                     <PublishedBilanContentView content={buildLocalPreview(draft, itemCorrections)} truncated={draft.extractionTruncatedSnapshot} />
                   </div>
                 )}
                 <Button
                   type="button"
+                  data-testid="btn-publish-bilan"
                   disabled={publishAction.pending !== null}
                   onClick={() =>
                     void publishAction.run(

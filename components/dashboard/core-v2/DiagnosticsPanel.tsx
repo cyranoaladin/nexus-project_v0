@@ -107,7 +107,11 @@ export function DiagnosticsPanel({ studentId }: { studentId: string }) {
                       {can('DIAGNOSTIC_BILAN_REVIEW') && (
                         <>
                           {' · '}
-                          <Link href={`/dashboard/admin/diagnostics-candidat-libre/${currentSubmission.id}`} className="underline">
+                          <Link
+                            href={`/dashboard/admin/diagnostics-candidat-libre/${currentSubmission.id}`}
+                            className="underline"
+                            data-testid="link-view-bilan-review"
+                          >
                             Voir le traitement / bilan
                           </Link>
                         </>

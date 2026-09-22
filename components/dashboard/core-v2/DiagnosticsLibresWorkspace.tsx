@@ -171,7 +171,7 @@ function OwnBilanSection({ submissionId }: { submissionId: string }) {
     );
   }
   return (
-    <div className="space-y-2 border-t border-white/10 pt-4">
+    <div className="space-y-2 border-t border-white/10 pt-4" data-testid="own-bilan-section">
       <h3 className="text-sm font-semibold text-white">Votre bilan (révision {state.revision})</h3>
       <PublishedBilanContentView content={state.content} truncated={state.extractionTruncatedSnapshot} />
     </div>

@@ -1197,6 +1197,21 @@ jobs:
           CORE_V2_INVITATION_TTL_HOURS: '72'
           CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
           CORE_V2_AUTH_MODE: HYBRID
+          # Real-browser bilan journey proof tier only
+          # (e2e/auth/diagnostics-candidat-libre-bilan-journey.spec.ts): a
+          # single, fixed, well-known Student.id this one spec always tears
+          # down and recreates deterministically — never a wildcard, never
+          # derived from NODE_ENV, matching demo-scope.ts's own explicit-
+          # allowlist model exactly.
+          DIAGNOSTIC_DEMO_MODE: 'true'
+          DIAGNOSTIC_DEMO_STUDENT_IDS: e2e-bilan-journey-fixed-student-001
+          # The bilan journey spec drives the real "Démarrer le traitement"
+          # button, which only does anything if this scheduled drain is
+          # actually running in this server process (mission §7: no second,
+          # competing trigger — the spec never calls the drain function
+          # directly).
+          DIAGNOSTIC_PROCESSING_WORKER_ENABLED: 'true'
+          DIAGNOSTIC_PROCESSING_WORKER_POLL_INTERVAL_MS: '1000'
           # HTTP-boundary proof tier only (e2e/auth/diagnostics-candidat-libre-deposit.spec.ts):
           # this disables the real antivirus engine for this job's server, which has none
           # available. The real-engine proof is the separate, manually-run rehearsal against
