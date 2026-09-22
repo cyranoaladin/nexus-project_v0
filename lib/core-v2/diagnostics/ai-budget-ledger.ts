@@ -8,7 +8,8 @@
  * stays RESERVED — counted, never silently dropped — until an explicit
  * reconciliation confirms no cost was incurred.
  */
-import { Prisma, type DiagnosticAiBudgetLedger, type PrismaClient } from '@/core-v2/generated/client';
+import type { DiagnosticAiBudgetLedger, PrismaClient } from '@/core-v2/generated/client';
+import { Prisma } from '../client';
 import { ConflictError } from '../errors';
 
 /** Any client this module can read/write through: the top-level PrismaClient, or a transaction client already inside reserveAiBudget's own transaction. */

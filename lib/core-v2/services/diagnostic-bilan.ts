@@ -13,7 +13,8 @@
  * the published revision.
  */
 import { z } from 'zod';
-import { Prisma, type DiagnosticBilanDraft, type PrismaClient } from '@/core-v2/generated/client';
+import type { DiagnosticBilanDraft, PrismaClient } from '@/core-v2/generated/client';
+import { Prisma } from '../client';
 import { appendAuditEvent } from '../audit';
 import { runBoundedBilanGeneration } from '../diagnostics/bilan-ai-generation';
 import { MAX_OUTPUT_TOKENS } from '../diagnostics/ai-budget-ledger';

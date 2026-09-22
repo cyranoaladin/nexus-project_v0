@@ -26,7 +26,7 @@ import type {
   DiagnosticSubmissionProcessing,
   PrismaClient,
 } from '@/core-v2/generated/client';
-import { Prisma } from '@/core-v2/generated/client';
+import { Prisma } from '../client';
 import { appendAuditEvent } from '../audit';
 import { extractSubmissionTextBounded } from '../diagnostics/text-extraction';
 import { readDiagnosticStorageFile } from '../diagnostics/storage';
