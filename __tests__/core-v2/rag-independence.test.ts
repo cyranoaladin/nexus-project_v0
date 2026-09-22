@@ -3,6 +3,13 @@
  * bootstrap and run its Golden Empty DB flow with RAG env absent and no RAG
  * service reachable — there must be zero dependency on the RAG stack for
  * any of this to work.
+ *
+ * One later, narrow, owner-authorized exception (mission "RÉGULARISER C1 ET
+ * LIVRER UN PREMIER BILAN C2 EXAMINABLE", 2026-09-22): the C2 AI pilot's own
+ * dedicated OpenRouter integration IS a real network/AI-client call, and is
+ * explicitly carved out of the general "no network primitive" check below
+ * — it must never depend on the Core v1 RAG/ARIA stack, which the other
+ * check still enforces without exception.
  */
 import { readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -27,6 +34,23 @@ const CORE_V2_SOURCE_EXTENSIONS = ['.ts', '.tsx', '.prisma'];
 const CORE_V2_NO_RAG_PATTERN =
   /\bARIA_RAG_|process\.env\.ARIA\b|from ['"].*\/rag[/'"-]|ragClient|RagService|\bfetch\s*\(|\baxios\b|https?\.request\s*\(|\bopenai\b|\bOpenAI\b|\bembedding(s)?\b|vectorSearch/i;
 
+// The RAG/ARIA-stack-specific half of the pattern above (never a
+// legitimate reference, in ANY Core v2 file, under any circumstance).
+const CORE_V2_NO_RAG_STACK_PATTERN = /\bARIA_RAG_|process\.env\.ARIA\b|from ['"].*\/rag[/'"-]|ragClient|RagService/i;
+
+// Owner-authorized exception (mission "RÉGULARISER C1 ET LIVRER UN PREMIER
+// BILAN C2 EXAMINABLE", 2026-09-22, §2/§3): the C2 AI pilot's own,
+// dedicated, budget-and-preflight-gated OpenRouter integration is the ONE
+// place Core v2 is allowed a real network/AI-client call — a narrow,
+// explicit carve-out, never a general loosening of the invariant below.
+// Every OTHER Core v2 file, including every other diagnostics file, is
+// still held to "zero network/AI-client primitive, ever."
+const CORE_V2_AI_PILOT_FILES = [
+  join(root, 'lib/core-v2/diagnostics/openrouter-preflight.ts'),
+  join(root, 'lib/core-v2/diagnostics/bilan-ai-generation.ts'),
+  join(root, 'lib/core-v2/diagnostics/bilan-ai-schema.ts'),
+];
+
 describe('CORE_V2_NO_RAG_REFERENCE pattern — verified directly, not just via an empty scan', () => {
   test.each([
     ["process.env.ARIA_RAG_SERVABLE_MANIFEST_ROOT", true],
@@ -42,8 +66,17 @@ describe('CORE_V2_NO_RAG_REFERENCE pattern — verified directly, not just via a
   });
 });
 
-test('CORE_V2_NO_RAG_REFERENCE — no Core v2 source file mentions RAG/ARIA env vars, imports, clients, or any network/AI-client primitive', () => {
+test('CORE_V2_NO_RAG_STACK_REFERENCE — no Core v2 source file, including the AI pilot itself, ever mentions the Core v1 RAG/ARIA stack', () => {
   const files = CORE_V2_SOURCE_DIRS.flatMap((dir) => listFilesRecursive(dir, CORE_V2_SOURCE_EXTENSIONS));
+  expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
+  const offenders = files.filter((file) => CORE_V2_NO_RAG_STACK_PATTERN.test(readFileSync(file, 'utf8')));
+  expect(offenders).toEqual([]);
+});
+
+test('CORE_V2_NO_RAG_REFERENCE — no network/AI-client primitive outside the explicitly authorized AI pilot module', () => {
+  const files = CORE_V2_SOURCE_DIRS.flatMap((dir) => listFilesRecursive(dir, CORE_V2_SOURCE_EXTENSIONS)).filter(
+    (file) => !CORE_V2_AI_PILOT_FILES.includes(file),
+  );
   expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
   const offenders = files.filter((file) => CORE_V2_NO_RAG_PATTERN.test(readFileSync(file, 'utf8')));
   expect(offenders).toEqual([]);

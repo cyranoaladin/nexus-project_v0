@@ -94,6 +94,8 @@ model User {
   diagnosticAssignmentsReviewed  DiagnosticAssignment[]           @relation("DiagnosticAssignmentReviewer")
   diagnosticAssignmentsCreated   DiagnosticAssignment[]           @relation("DiagnosticAssignmentAssignedBy")
   diagnosticSubmissions          DiagnosticSubmission[]
+  diagnosticBilanDraftsValidated DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
+  diagnosticBilanDraftsPublished DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
 
   @@map("users")
 }
@@ -951,6 +953,7 @@ model DiagnosticSubmissionProcessing {
 
   extractions DiagnosticSubmissionExtraction[]
   aiBudgetLedgerEntries DiagnosticAiBudgetLedger[]
+  bilanDrafts DiagnosticBilanDraft[]
 
   @@index([status])
   @@map("diagnostic_submission_processings")
@@ -995,6 +998,8 @@ model DiagnosticSubmissionExtraction {
   totalCharacterCount Int?
 
   createdAt DateTime @default(now())
+
+  bilanDrafts DiagnosticBilanDraft[]
 
   @@unique([processingId, revision])
   @@map("diagnostic_submission_extractions")
@@ -1066,4 +1071,79 @@ enum DiagnosticAiBudgetEntryStatus {
   RESERVED
   COMMITTED
   RELEASED
+}
+
+// One row per generation attempt on a given (processingId, extraction
+// revision) pair — append-only, same discipline as
+// DiagnosticSubmissionExtraction (mission §6: "une réponse tardive d'une
+// ancienne tentative ne doit pas écraser le projet courant ou un bilan
+// validé"). The "current" draft for a processing is MAX(revision), computed
+// at query time, never a separate boolean flag. Once PUBLISHED a draft is
+// immutable; a later submission/extraction/generation creates a NEW
+// revision, it never mutates a published one.
+//
+// Four buckets, deliberately never merged into one JSON blob (mission §6):
+// deterministicResults (fixed, computed without any AI call),
+// aiProposal+aiProvenance (present only when a real provider call
+// succeeded — absence stays visible, never backfilled with a guess),
+// humanReview (a staff member's corrections/notes, always distinct from
+// what the model proposed), and the publish fields (who/when/for which
+// audience — never inferred from "a parent account exists").
+model DiagnosticBilanDraft {
+  id String @id @default(cuid())
+
+  processingId String
+  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  revision Int
+
+  extractionId               String
+  extraction                 DiagnosticSubmissionExtraction @relation(fields: [extractionId], references: [id], onDelete: Restrict)
+  extractionRevisionSnapshot Int
+  extractionTruncatedSnapshot Boolean
+
+  // Computed once, at creation, from deterministic-correction.ts — never
+  // re-derived implicitly by a reader; a re-run creates a new revision.
+  deterministicResults Json
+
+  // Null until a real, successful AI call completes for this revision.
+  // aiProvenance links back to the exact ledger entry, model, endpoint,
+  // prompt/schema version and reported cost/tokens — never just "an AI
+  // wrote this" with no traceable source.
+  aiProposal   Json?
+  aiProvenance Json?
+
+  // A staff member's pedagogical corrections layered on top of the
+  // deterministic result and the AI proposal — never merged into either.
+  // Optimistic-concurrency guard: every write must supply the editVersion
+  // it read; a stale write is refused, never silently applied over a
+  // concurrent edit.
+  humanReview Json?
+  editVersion Int  @default(1)
+
+  status DiagnosticBilanDraftStatus @default(DRAFT)
+
+  validatedById String?
+  validatedBy   User?     @relation("DiagnosticBilanDraftValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+  validatedAt   DateTime?
+
+  publishedById          String?
+  publishedBy            User?     @relation("DiagnosticBilanDraftPublishedBy", fields: [publishedById], references: [id], onDelete: SetNull)
+  publishedAt            DateTime?
+  // The real audience matrix decision, never "a parent account exists":
+  // which specific self-service audience this revision was published to.
+  publishedAudienceScope String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([processingId, revision])
+  @@index([processingId, status])
+  @@map("diagnostic_bilan_drafts")
+}
+
+enum DiagnosticBilanDraftStatus {
+  DRAFT
+  VALIDATED
+  PUBLISHED
 }

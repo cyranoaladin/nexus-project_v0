@@ -29,13 +29,10 @@ export interface CompliantEndpoint {
   readonly completionUsdPerToken: number;
 }
 
-export interface OpenRouterPreflightResult {
-  readonly ok: boolean;
-  /** Present only when ok is false — never throws for an ordinary "not currently available" outcome. */
-  readonly reason?: string;
-  readonly compliantEndpoints: readonly CompliantEndpoint[];
-  readonly worstCaseCostUsd: number | null;
-}
+/** A true discriminated union — narrowing on `ok` also narrows `worstCaseCostUsd`/`compliantEndpoints`, no non-null assertion ever needed at the call site. */
+export type OpenRouterPreflightResult =
+  | Readonly<{ ok: true; compliantEndpoints: readonly CompliantEndpoint[]; worstCaseCostUsd: number }>
+  | Readonly<{ ok: false; reason: string; compliantEndpoints: readonly []; worstCaseCostUsd: null }>;
 
 interface ZdrEndpointRow {
   readonly model_id?: string;
@@ -105,28 +102,50 @@ export async function runOpenRouterPreflight(input: RunOpenRouterPreflightInput)
     return notOk('NO_ZDR_ENDPOINT_SUPPORTS_STRUCTURED_OUTPUT_FOR_THIS_MODEL');
   }
 
-  const cheapest = compliantEndpoints.reduce((best, endpoint) =>
-    endpoint.completionUsdPerToken < best.completionUsdPerToken ? endpoint : best,
-  );
-  const worstCaseCostUsd =
-    input.estimatedPromptTokens * cheapest.promptUsdPerToken + input.maxOutputTokens * cheapest.completionUsdPerToken;
+  const worstCaseCostUsd = computeWorstCaseCostUsd(compliantEndpoints, input.estimatedPromptTokens, input.maxOutputTokens);
 
   return { ok: true, compliantEndpoints, worstCaseCostUsd };
 }
 
 /**
- * The exact `provider` block the real completion call must send, restricted
- * to whichever compliant endpoint the preflight selected — never a looser
- * fallback. `only` pins the provider so a mid-flight OpenRouter routing
- * change can never silently substitute a non-ZDR or non-structured-output
- * endpoint for this call.
+ * The conservative reservation cost: a provider NAME (e.g. "Amazon Bedrock")
+ * can cover several distinct region/tag variants at DIFFERENT prices (mission
+ * §4 — this is exactly what "un identifiant de fournisseur générique peut
+ * couvrir plusieurs variantes" warns about: `only` below pins a provider
+ * name, not a specific tag, so OpenRouter's own routing may land on ANY
+ * compliant tag under it). Reserving from the cheapest tag would silently
+ * under-provision if a pricier tag is the one actually used — so this takes
+ * the MAXIMUM prompt rate and the MAXIMUM completion rate independently
+ * across every compliant endpoint, never an average or a single row's pair.
  */
-export function buildCompliantProviderPreferences(endpoint: CompliantEndpoint) {
+export function computeWorstCaseCostUsd(
+  endpoints: readonly CompliantEndpoint[],
+  promptTokens: number,
+  maxOutputTokens: number,
+): number {
+  const maxPromptRate = Math.max(...endpoints.map((e) => e.promptUsdPerToken));
+  const maxCompletionRate = Math.max(...endpoints.map((e) => e.completionUsdPerToken));
+  const rawCost = promptTokens * maxPromptRate + maxOutputTokens * maxCompletionRate;
+  // Round UP at the ledger's own precision (Decimal(10,6)) — a reservation
+  // must never be quietly floored below what it actually reserves.
+  return Math.ceil(rawCost * 1_000_000) / 1_000_000;
+}
+
+/**
+ * The exact `provider` block the real completion call must send, restricted
+ * to the compliant provider set the preflight found — never a looser
+ * fallback. `only` lists every provider NAME still qualified (deduplicated:
+ * several rows can share one provider name across region tags), so
+ * OpenRouter's own routing can never silently substitute a non-ZDR or
+ * non-structured-output endpoint for this call.
+ */
+export function buildCompliantProviderPreferences(endpoints: readonly CompliantEndpoint[]) {
+  const providerNames = Array.from(new Set(endpoints.map((e) => e.providerName)));
   return {
     zdr: true,
     data_collection: 'deny' as const,
     require_parameters: true,
     allow_fallbacks: false,
-    only: [endpoint.providerName],
+    only: providerNames,
   };
 }

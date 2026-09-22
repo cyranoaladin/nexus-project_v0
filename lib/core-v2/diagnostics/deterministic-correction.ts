@@ -1,4 +1,4 @@
-import type { DiagnosticMcqAnswerKey } from './demo-answer-key';
+import { DEMO_FIXTURE_ANSWER_KEY, type DiagnosticMcqAnswerKey } from './demo-answer-key';
 
 export type DeterministicCorrectionResult =
   | Readonly<{ itemId: string; kind: 'MCQ'; status: 'MATCHED'; selectedOption: string; correct: boolean }>
@@ -22,4 +22,14 @@ export function correctDeterministicMcqItem(extractedText: string, key: Diagnost
   if (!match) return { itemId: key.itemId, kind: 'MCQ', status: 'NO_MATCH' };
   const selectedOption = match[1].toUpperCase();
   return { itemId: key.itemId, kind: 'MCQ', status: 'MATCHED', selectedOption, correct: selectedOption === key.correctOption };
+}
+
+/**
+ * Every deterministically-correctable item for the DEMO_FIXTURE instrument
+ * (currently just item 1). Items 2 and 3 are open-ended and deliberately
+ * absent here — they are never corrected by textual equality; only a
+ * human, optionally assisted by a validated AI proposal, reviews them.
+ */
+export function correctDemoFixtureDeterministically(extractedText: string): readonly DeterministicCorrectionResult[] {
+  return DEMO_FIXTURE_ANSWER_KEY.map((key) => correctDeterministicMcqItem(extractedText, key));
 }
