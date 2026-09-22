@@ -432,6 +432,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                     <PublishedBilanContentView content={buildLocalPreview(draft, itemCorrections)} truncated={draft.extractionTruncatedSnapshot} />
                   </div>
                 )}
+                {correctAction.success && <StatusMessage kind="success">{correctAction.success}</StatusMessage>}
                 {correctAction.failure && (
                   <StatusMessage kind="error">
                     {isStaleConflict(correctAction.failure) ? 'Ce bilan a été modifié depuis son ouverture — la vue a été rechargée.' : describeFailure(correctAction.failure)}

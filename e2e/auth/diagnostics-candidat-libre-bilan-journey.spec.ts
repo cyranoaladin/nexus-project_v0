@@ -295,14 +295,18 @@ test('ADMIN corrects one item, previews, validates the exact draft, and publishe
   await expect(page.getByTestId('bilan-preview').getByText('SIMULATED_FIXTURE — constat de démonstration.')).toHaveCount(1); // item-3, uncorrected, still AI text
 
   await page.getByTestId('btn-validate-bilan').click();
-  await expect(page.getByText('Bilan validé.')).toBeVisible({ timeout: 10_000 });
+  // The validate action moves draft.status to VALIDATED, which unmounts the
+  // DRAFT-only card carrying the transient success state before it can be
+  // observed reliably — same root cause as the earlier "Traitement démarré."
+  // toast. Assert on the real, stable resulting state instead.
+  await expect(page.getByText(/^Validé le /)).toBeVisible({ timeout: 10_000 });
 
   await expect(page.getByTestId('btn-publish-bilan')).toBeVisible();
   await page.getByTestId('btn-toggle-preview').click();
   await expect(page.getByTestId('bilan-preview')).toBeVisible();
 
   await page.getByTestId('btn-publish-bilan').click();
-  await expect(page.getByText('Bilan publié.')).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByText(/^Publié le /)).toBeVisible({ timeout: 10_000 });
 
   const published = await prisma.diagnosticBilanDraft.findUniqueOrThrow({ where: { id: draftId } });
   expect(published.status).toBe('PUBLISHED');
