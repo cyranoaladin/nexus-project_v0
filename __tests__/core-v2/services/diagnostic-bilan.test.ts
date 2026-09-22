@@ -101,8 +101,10 @@ const REAL_ZDR_ROWS = [
     supported_parameters: ['max_tokens', 'response_format', 'structured_outputs'],
   },
 ];
+// A genuine substring of the REAL extracted DEMO_ANSWER_HTML text — a
+// real citation, never a paraphrase (mission §4).
 const VALID_PROPOSAL = {
-  items: [{ itemId: 'item-2', constat: 'Réponse cohérente.', preuve: 'Extrait pertinent.', incertitude: false }],
+  items: [{ itemId: 'item-2', constat: 'Réponse cohérente.', preuve: 'Ce document sert uniquement à vérifier que l', incertitude: false }],
   pointsAppui: ['Clarté'],
   difficultesObservees: [],
   prioritesTravail: [],
@@ -117,13 +119,14 @@ function fakeGeneratingFetch(): typeof fetch {
   return jest.fn(async (url: string) => {
     if (url.endsWith('/auth/key')) return jsonResponse(200, { data: {} });
     if (url.endsWith('/endpoints/zdr')) return jsonResponse(200, { data: REAL_ZDR_ROWS });
-    if (url.endsWith('/chat/completions')) {
+    if (url.includes('/chat/completions')) {
       return jsonResponse(200, {
         id: 'gen-fixture',
         choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(VALID_PROPOSAL) } }],
         usage: { prompt_tokens: 400, completion_tokens: 80, cost: 0.0032 },
       });
     }
+    if (url.includes('/generation')) return jsonResponse(200, { data: { provider_name: 'Amazon Bedrock' } });
     throw new Error(`unexpected url ${url}`);
   }) as unknown as typeof fetch;
 }
@@ -183,32 +186,81 @@ describe('the DRAFT -> VALIDATED -> PUBLISHED lifecycle, with optimistic concurr
     const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
 
     const corrected = await applyHumanBilanCorrection(h.client, ctx, processingId, {
+      draftId: draft.id,
       editVersion: draft.editVersion,
       humanReview: { note: 'Vérifié par un enseignant.' },
     });
     expect(corrected.editVersion).toBe(draft.editVersion + 1);
 
-    const validated = await validateBilanDraft(h.client, ctx, processingId, { editVersion: corrected.editVersion });
+    const validated = await validateBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: corrected.editVersion });
     expect(validated.status).toBe('VALIDATED');
     expect(validated.validatedById).toBe(ctx.actor.userId);
+    expect(validated.publishedContent).not.toBeNull();
 
-    const published = await publishBilanDraft(h.client, ctx, processingId, { editVersion: validated.editVersion, audienceScope: 'own-student' });
+    const published = await publishBilanDraft(h.client, ctx, processingId, {
+      draftId: draft.id,
+      editVersion: validated.editVersion,
+      audienceScope: 'own-student',
+    });
     expect(published.status).toBe('PUBLISHED');
 
     const ownView = await getOwnPublishedBilan(h.client, h.ctx(eleveActor(user.id)), processingId);
     expect(ownView.revision).toBe(1);
-    expect(ownView.aiProposal).toEqual(VALID_PROPOSAL);
+    expect(ownView.content.items).toEqual([
+      { itemId: 'item-2', constat: VALID_PROPOSAL.items[0].constat, preuve: VALID_PROPOSAL.items[0].preuve, incertitude: false, source: 'AI' },
+    ]);
+    // Not the raw internal blobs — the candidate view has no such fields at all.
+    expect(ownView).not.toHaveProperty('aiProposal');
+    expect(ownView).not.toHaveProperty('humanReview');
   });
 
-  test('a stale editVersion is refused, never silently applied over a concurrent edit', async () => {
+  test('a human per-item correction REPLACES that item\'s AI constat in the published content — the candidate never sees the superseded AI text or the internal note', async () => {
+    const ctx = h.ctx();
+    const { processingId, user } = await seedExtractedProcessing(h.client, ctx, `CORRECT-${randomUUID()}`);
+    const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+
+    const corrected = await applyHumanBilanCorrection(h.client, ctx, processingId, {
+      draftId: draft.id,
+      editVersion: draft.editVersion,
+      humanReview: {
+        note: 'Note interne : à ne jamais publier telle quelle.',
+        itemCorrections: [{ itemId: 'item-2', correctedConstat: 'Constat corrigé par l’enseignant.' }],
+      },
+    });
+    const validated = await validateBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: corrected.editVersion });
+    await publishBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: validated.editVersion, audienceScope: 'own-student' });
+
+    const ownView = await getOwnPublishedBilan(h.client, h.ctx(eleveActor(user.id)), processingId);
+    expect(ownView.content.items).toEqual([
+      { itemId: 'item-2', constat: 'Constat corrigé par l’enseignant.', preuve: null, incertitude: false, source: 'HUMAN_CORRECTED' },
+    ]);
+    expect(JSON.stringify(ownView)).not.toContain('Note interne');
+    expect(JSON.stringify(ownView)).not.toContain(VALID_PROPOSAL.items[0].constat); // the superseded AI constat never reaches the candidate
+  });
+
+  test('a correction targeting an itemId absent from the current AI proposal is refused', async () => {
+    const ctx = h.ctx();
+    const { processingId } = await seedExtractedProcessing(h.client, ctx, `BADITEM-${randomUUID()}`);
+    const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+
+    await expect(
+      applyHumanBilanCorrection(h.client, ctx, processingId, {
+        draftId: draft.id,
+        editVersion: draft.editVersion,
+        humanReview: { itemCorrections: [{ itemId: 'item-does-not-exist', correctedConstat: 'x' }] },
+      }),
+    ).rejects.toMatchObject({ code: 'VALIDATION' });
+  });
+
+  test('a stale editVersion on the SAME (current) draft is refused, never silently applied over a concurrent edit', async () => {
     const ctx = h.ctx();
     const { processingId } = await seedExtractedProcessing(h.client, ctx, `STALE-${randomUUID()}`);
     const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
 
-    await applyHumanBilanCorrection(h.client, ctx, processingId, { editVersion: draft.editVersion, humanReview: { note: 'premier' } });
+    await applyHumanBilanCorrection(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion, humanReview: { note: 'premier' } });
 
     await expect(
-      applyHumanBilanCorrection(h.client, ctx, processingId, { editVersion: draft.editVersion, humanReview: { note: 'stale second write' } }),
+      applyHumanBilanCorrection(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion, humanReview: { note: 'stale second write' } }),
     ).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 
@@ -217,7 +269,7 @@ describe('the DRAFT -> VALIDATED -> PUBLISHED lifecycle, with optimistic concurr
     const { processingId } = await seedExtractedProcessing(h.client, ctx, `NOVAL-${randomUUID()}`);
     const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
     await expect(
-      publishBilanDraft(h.client, ctx, processingId, { editVersion: draft.editVersion, audienceScope: 'own-student' }),
+      publishBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion, audienceScope: 'own-student' }),
     ).rejects.toMatchObject({ code: 'INVALID_STATE' });
   });
 
@@ -225,8 +277,12 @@ describe('the DRAFT -> VALIDATED -> PUBLISHED lifecycle, with optimistic concurr
     const ctx = h.ctx();
     const { processingId } = await seedExtractedProcessing(h.client, ctx, `AFTERPUB-${randomUUID()}`);
     const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
-    const validated = await validateBilanDraft(h.client, ctx, processingId, { editVersion: draft.editVersion });
-    const published = await publishBilanDraft(h.client, ctx, processingId, { editVersion: validated.editVersion, audienceScope: 'own-student' });
+    const validated = await validateBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion });
+    const published = await publishBilanDraft(h.client, ctx, processingId, {
+      draftId: draft.id,
+      editVersion: validated.editVersion,
+      audienceScope: 'own-student',
+    });
 
     const revision2 = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
     expect(revision2.revision).toBe(2);
@@ -238,6 +294,43 @@ describe('the DRAFT -> VALIDATED -> PUBLISHED lifecycle, with optimistic concurr
 
     const current = await getCurrentBilanDraftForReview(h.client, ctx, processingId);
     expect(current?.revision).toBe(2); // the review screen shows the CURRENT revision, not the published one
+  });
+
+  test('mission §2 counter-proof: validating a STALE revision-1 VIEW is refused outright — it never silently validates revision 2, even though both revisions share the same editVersion', async () => {
+    const ctx = h.ctx();
+    const { processingId } = await seedExtractedProcessing(h.client, ctx, `REVBIND-${randomUUID()}`);
+
+    // Open revision 1 (as a reviewer would): read it, note its id/editVersion.
+    const revision1 = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+    expect(revision1.revision).toBe(1);
+    expect(revision1.editVersion).toBe(1);
+
+    // A second generation creates revision 2 — a FRESH row, whose editVersion
+    // ALSO starts at 1. The two revisions now share the same editVersion.
+    const revision2 = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+    expect(revision2.revision).toBe(2);
+    expect(revision2.editVersion).toBe(1);
+    expect(revision2.id).not.toBe(revision1.id);
+
+    // Send a validation request bound to the STALE revision-1 view (its own
+    // id + its own editVersion — a value that, coincidentally, also matches
+    // revision 2's current editVersion). This must be refused outright.
+    await expect(
+      validateBilanDraft(h.client, ctx, processingId, { draftId: revision1.id, editVersion: revision1.editVersion }),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+
+    // Revision 2 must NOT have been silently validated by that request.
+    const stillCurrent = await getCurrentBilanDraftForReview(h.client, ctx, processingId);
+    expect(stillCurrent?.id).toBe(revision2.id);
+    expect(stillCurrent?.status).toBe('DRAFT');
+
+    // The same binding protects correction and publish, not just validate.
+    await expect(
+      applyHumanBilanCorrection(h.client, ctx, processingId, { draftId: revision1.id, editVersion: revision1.editVersion, humanReview: { note: 'x' } }),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+    await expect(
+      publishBilanDraft(h.client, ctx, processingId, { draftId: revision1.id, editVersion: revision1.editVersion, audienceScope: 'own-student' }),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 });
 
@@ -254,8 +347,8 @@ describe('getOwnPublishedBilan — the real audience matrix', () => {
     const ctx = h.ctx();
     const { processingId } = await seedExtractedProcessing(h.client, ctx, `OWNER-${randomUUID()}`);
     const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
-    const validated = await validateBilanDraft(h.client, ctx, processingId, { editVersion: draft.editVersion });
-    await publishBilanDraft(h.client, ctx, processingId, { editVersion: validated.editVersion, audienceScope: 'own-student' });
+    const validated = await validateBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion });
+    await publishBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: validated.editVersion, audienceScope: 'own-student' });
 
     const { user: otherUser } = await seedExtractedProcessing(h.client, ctx, `OTHER-${randomUUID()}`);
     await expect(getOwnPublishedBilan(h.client, h.ctx(eleveActor(otherUser.id)), processingId)).rejects.toMatchObject({ code: 'NOT_FOUND' });

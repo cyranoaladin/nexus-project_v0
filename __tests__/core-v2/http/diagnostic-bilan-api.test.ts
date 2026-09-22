@@ -124,7 +124,7 @@ describe('ASSISTANTE is refused on every bilan-review route — never a partial 
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/correct`,
       { processingId },
-      { editVersion: 1, humanReview: {} },
+      { draftId: 'fake-draft-id', editVersion: 1, humanReview: {} },
     );
     expect(correctResult.status).toBe(403);
 
@@ -133,7 +133,7 @@ describe('ASSISTANTE is refused on every bilan-review route — never a partial 
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/validate`,
       { processingId },
-      { editVersion: 1 },
+      { draftId: 'fake-draft-id', editVersion: 1 },
     );
     expect(validateResult.status).toBe(403);
 
@@ -142,7 +142,7 @@ describe('ASSISTANTE is refused on every bilan-review route — never a partial 
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/publish`,
       { processingId },
-      { editVersion: 1, audienceScope: 'own-student' },
+      { draftId: 'fake-draft-id', editVersion: 1, audienceScope: 'own-student' },
     );
     expect(publishResult.status).toBe(403);
   });
@@ -157,6 +157,7 @@ describe('ADMIN — full lifecycle through the real route handlers', () => {
     expect(generated.status).toBe(201);
     expect(generated.body.data.status).toBe('DRAFT');
     expect(generated.body.data.aiProvenance.outcome).toBe('PREFLIGHT_BLOCKED'); // no OPENROUTER_API_KEY in this suite — by design
+    const draftId = generated.body.data.id as string;
     const editVersion0 = generated.body.data.editVersion as number;
 
     const corrected = await callJson(
@@ -164,7 +165,7 @@ describe('ADMIN — full lifecycle through the real route handlers', () => {
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/correct`,
       { processingId },
-      { editVersion: editVersion0, humanReview: { note: 'Vérifié.' } },
+      { draftId, editVersion: editVersion0, humanReview: { note: 'Vérifié.' } },
     );
     expect(corrected.status).toBe(200);
 
@@ -173,7 +174,7 @@ describe('ADMIN — full lifecycle through the real route handlers', () => {
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/validate`,
       { processingId },
-      { editVersion: corrected.body.data.editVersion },
+      { draftId, editVersion: corrected.body.data.editVersion },
     );
     expect(validated.status).toBe(200);
     expect(validated.body.data.status).toBe('VALIDATED');
@@ -183,7 +184,7 @@ describe('ADMIN — full lifecycle through the real route handlers', () => {
       'POST',
       `/api/v2/staff/diagnostics/processing/${processingId}/bilan/publish`,
       { processingId },
-      { editVersion: validated.body.data.editVersion, audienceScope: 'own-student' },
+      { draftId, editVersion: validated.body.data.editVersion, audienceScope: 'own-student' },
     );
     expect(published.status).toBe(200);
     expect(published.body.data.status).toBe('PUBLISHED');

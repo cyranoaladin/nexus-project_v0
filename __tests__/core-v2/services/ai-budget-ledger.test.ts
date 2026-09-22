@@ -291,3 +291,135 @@ describe('reconciliation safety — an unknown-status (still RESERVED) spend sta
     expect(snapshot.perAudienceUsd).toBeCloseTo(0.041, 6); // the real cost, not the worst-case estimate
   });
 });
+
+describe('reserveAiBudget — atomic under real concurrency (mission §5)', () => {
+  test('two concurrent reservations near the PILOT-WIDE cap, on two different bilans: exactly one succeeds', async () => {
+    const ctx = h.ctx();
+    // Spread the $1.80 filler across 3 bilans x 2 audiences ($0.30 each) so
+    // no single per-bilan (0.75) or per-audience (0.30) cap is tripped —
+    // only the cross-cutting pilot-wide cap is being probed here.
+    for (let i = 0; i < 3; i += 1) {
+      const fillerProcessingId = await seedProcessing(h.client, ctx, `CONC-PILOT-FILL-${i}-${randomUUID()}`);
+      for (const audienceScope of ['a', 'b']) {
+        const entry = await reserveAiBudget(h.client, {
+          processingId: fillerProcessingId,
+          audienceScope,
+          estimatedCostUsd: 0.3,
+          provider: 'openrouter',
+          model: 'anthropic/claude-sonnet-4.5',
+        });
+        await commitAiBudgetEntry(h.client, entry.id, { actualCostUsd: 0.3 });
+      }
+    }
+    // Pilot-wide spend is now 1.80; headroom to the 2.00 cap is exactly 0.20.
+
+    const processingA = await seedProcessing(h.client, ctx, `CONC-PILOT-A-${randomUUID()}`);
+    const processingB = await seedProcessing(h.client, ctx, `CONC-PILOT-B-${randomUUID()}`);
+    // Each request alone (0.15) fits the 0.20 headroom; both together (0.30) do not.
+    // A read-then-insert race would let both pass their own (stale) check.
+    const results = await Promise.allSettled([
+      reserveAiBudget(h.client, { processingId: processingA, audienceScope: 'a', estimatedCostUsd: 0.15, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+      reserveAiBudget(h.client, { processingId: processingB, audienceScope: 'a', estimatedCostUsd: 0.15, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+    ]);
+    const fulfilled = results.filter((r) => r.status === 'fulfilled');
+    const rejected = results.filter((r) => r.status === 'rejected');
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason).toMatchObject({ code: 'CONFLICT' });
+
+    const finalSnapshot = await readAiBudgetSnapshot(h.client, { processingId: processingA });
+    expect(finalSnapshot.pilotTotalUsd).toBeLessThanOrEqual(PILOT_TOTAL_CAP_USD);
+  });
+
+  test('two concurrent reservations near the PER-BILAN cap, on two different audiences of the SAME bilan: exactly one succeeds', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `CONC-BILAN-${randomUUID()}`);
+    for (const audienceScope of ['a', 'b']) {
+      const entry = await reserveAiBudget(h.client, { processingId, audienceScope, estimatedCostUsd: 0.3, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+      await commitAiBudgetEntry(h.client, entry.id, { actualCostUsd: 0.3 });
+    }
+    // Per-bilan spend is now 0.60; headroom to the 0.75 cap is 0.15.
+    const results = await Promise.allSettled([
+      reserveAiBudget(h.client, { processingId, audienceScope: 'c', estimatedCostUsd: 0.1, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+      reserveAiBudget(h.client, { processingId, audienceScope: 'd', estimatedCostUsd: 0.1, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+    ]);
+    const fulfilled = results.filter((r) => r.status === 'fulfilled');
+    expect(fulfilled).toHaveLength(1);
+
+    const finalSnapshot = await readAiBudgetSnapshot(h.client, { processingId });
+    expect(finalSnapshot.perBilanUsd).toBeLessThanOrEqual(PER_BILAN_CAP_USD);
+  });
+
+  test('two concurrent reservations near the PER-AUDIENCE cap, same (processingId, audienceScope): exactly one succeeds', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `CONC-AUD-${randomUUID()}`);
+    const first = await reserveAiBudget(h.client, { processingId, audienceScope: 'x', estimatedCostUsd: 0.2, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+    await commitAiBudgetEntry(h.client, first.id, { actualCostUsd: 0.2 }); // headroom to 0.30 is 0.10
+
+    const results = await Promise.allSettled([
+      reserveAiBudget(h.client, { processingId, audienceScope: 'x', estimatedCostUsd: 0.08, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+      reserveAiBudget(h.client, { processingId, audienceScope: 'x', estimatedCostUsd: 0.08, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+    ]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+
+    const finalSnapshot = await readAiBudgetSnapshot(h.client, { processingId, audienceScope: 'x' });
+    expect(finalSnapshot.perAudienceUsd).toBeLessThanOrEqual(PER_AUDIENCE_CAP_USD);
+  });
+
+  test('two concurrent reservations for the 3rd attempt of the same unit: exactly one succeeds, the attempt cap is never exceeded', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `CONC-ATTEMPTS-${randomUUID()}`);
+    for (let i = 0; i < MAX_ATTEMPTS_PER_UNIT - 1; i += 1) {
+      await reserveAiBudget(h.client, { processingId, audienceScope: 'y', estimatedCostUsd: 0.01, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+    }
+    const results = await Promise.allSettled([
+      reserveAiBudget(h.client, { processingId, audienceScope: 'y', estimatedCostUsd: 0.01, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+      reserveAiBudget(h.client, { processingId, audienceScope: 'y', estimatedCostUsd: 0.01, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' }),
+    ]);
+    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+
+    const finalSnapshot = await readAiBudgetSnapshot(h.client, { processingId, audienceScope: 'y' });
+    expect(finalSnapshot.attemptsForUnit).toBe(MAX_ATTEMPTS_PER_UNIT);
+  });
+});
+
+describe('release/reconciliation — idempotent, never double-counted', () => {
+  test('releasing the same entry twice is idempotent and never frees headroom twice', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `RECON-${randomUUID()}`);
+    const entry = await reserveAiBudget(h.client, { processingId, audienceScope: 'z', estimatedCostUsd: 0.2, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+
+    await releaseAiBudgetEntry(h.client, entry.id);
+    await releaseAiBudgetEntry(h.client, entry.id); // repeated reconciliation — must not error, must not double-free anything
+
+    const snapshot = await readAiBudgetSnapshot(h.client, { processingId, audienceScope: 'z' });
+    expect(snapshot.perAudienceUsd).toBeCloseTo(0, 6);
+  });
+
+  test('a late reconciliation attempt can never un-commit a real, already-billed spend', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `RECON-COMMITTED-${randomUUID()}`);
+    const entry = await reserveAiBudget(h.client, { processingId, audienceScope: 'z', estimatedCostUsd: 0.2, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+    await commitAiBudgetEntry(h.client, entry.id, { actualCostUsd: 0.05, providerRequestId: 'gen-real' });
+
+    // A stray/duplicate release call arriving after the real cost is already
+    // known must never erase that fact from the ledger.
+    await releaseAiBudgetEntry(h.client, entry.id);
+    const row = await h.client.diagnosticAiBudgetLedger.findUniqueOrThrow({ where: { id: entry.id } });
+    expect(row.status).toBe('COMMITTED');
+    expect(Number(row.actualCostUsd)).toBe(0.05);
+  });
+
+  test('a repeated commit call for the same entry is idempotent and never overwrites the real cost with a second value', async () => {
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `RECON-DOUBLECOMMIT-${randomUUID()}`);
+    const entry = await reserveAiBudget(h.client, { processingId, audienceScope: 'z', estimatedCostUsd: 0.2, provider: 'openrouter', model: 'anthropic/claude-sonnet-4.5' });
+
+    await commitAiBudgetEntry(h.client, entry.id, { actualCostUsd: 0.05, providerRequestId: 'gen-real' });
+    await commitAiBudgetEntry(h.client, entry.id, { actualCostUsd: 0.19, providerRequestId: 'gen-different' }); // a late/duplicate call reporting a different cost
+
+    const row = await h.client.diagnosticAiBudgetLedger.findUniqueOrThrow({ where: { id: entry.id } });
+    expect(Number(row.actualCostUsd)).toBe(0.05); // the FIRST real commit wins, never silently overwritten
+    expect(row.providerRequestId).toBe('gen-real');
+  });
+});
