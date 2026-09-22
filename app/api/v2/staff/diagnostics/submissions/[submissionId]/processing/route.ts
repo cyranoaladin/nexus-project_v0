@@ -2,9 +2,8 @@ export const dynamic = 'force-dynamic';
 
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import {
+  enqueueDiagnosticSubmissionProcessing,
   getDiagnosticSubmissionProcessingStatus,
-  processDiagnosticSubmission,
-  toExtractionLogisticsView,
 } from '@/lib/core-v2/services/diagnostic-processing';
 import { NotFoundError } from '@/lib/core-v2/errors';
 
@@ -23,15 +22,17 @@ export const GET = defineStaffRoute({
 });
 
 /**
- * Triggers (or retries, after a failure) bounded text extraction for this
- * submission. This route requires only DIAGNOSTIC_SUBMISSION_TRACK
- * (ASSISTANTE has it) — the extraction's own `extractedText` must never
- * ride along in this response even though the underlying service result
- * carries it for direct/internal callers; see toExtractionLogisticsView.
+ * Registers (or finds) the job and hands back control — it does NOT run
+ * the extraction inline (mission §5: a 202 here must not secretly mean
+ * "already finished"). The actual work happens in the scheduled drain
+ * (lib/core-v2/diagnostics/processing-scheduler.ts); this route requires
+ * only DIAGNOSTIC_SUBMISSION_TRACK (ASSISTANTE has it) — since no
+ * extraction result exists yet at this point, there is nothing academic
+ * to leak through this response either way.
  */
 export const POST = defineStaffRoute({
   handler: async ({ client, ctx, params }) => {
-    const result = await processDiagnosticSubmission(client, ctx, params.submissionId);
-    return { status: 202, data: { processing: result.processing, extraction: toExtractionLogisticsView(result.extraction) } };
+    const processing = await enqueueDiagnosticSubmissionProcessing(client, ctx, params.submissionId);
+    return { status: 202, data: processing };
   },
 });

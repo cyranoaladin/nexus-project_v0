@@ -25,6 +25,7 @@ import { attributeDiagnostic } from '@/lib/core-v2/services/diagnostics';
 import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submission-pipeline';
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import { extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
+import { drainDiagnosticSubmissionProcessingQueue } from '@/lib/core-v2/services/diagnostic-processing';
 import * as processingRoute from '@/app/api/v2/staff/diagnostics/submissions/[submissionId]/processing/route';
 import * as contentRoute from '@/app/api/v2/staff/diagnostics/submissions/[submissionId]/processing/content/route';
 
@@ -118,14 +119,16 @@ describe('processing routes — ASSISTANTE never sees the academic content', () 
       submissionId: submission.id,
     });
     expect(posted.status).toBe(202);
-    expect(posted.body.data.extraction.status).toBe('SUCCEEDED');
-    expect(posted.body.data.extraction.extractedText).toBeUndefined();
+    expect(posted.body.data.extractedText).toBeUndefined();
     assertNoSentinel(posted.text, sentinel);
+
+    await drainDiagnosticSubmissionProcessingQueue(h.client);
 
     const status = await callJson(processingRoute.GET, 'GET', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, {
       submissionId: submission.id,
     });
     expect(status.status).toBe(200);
+    expect(status.body.data.status).toBe('EXTRACTED');
     assertNoSentinel(status.text, sentinel);
 
     signInAs(h.admin);
@@ -163,15 +166,25 @@ describe('processing routes — ASSISTANTE never sees the academic content', () 
       submissionId: submission.id,
     });
     expect(first.status).toBe(202);
-    expect(first.body.data.extraction.status).toBe('FAILED');
     assertNoSentinel(first.text, sentinel);
+    await drainDiagnosticSubmissionProcessingQueue(h.client);
+    const afterFirst = await callJson(processingRoute.GET, 'GET', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, {
+      submissionId: submission.id,
+    });
+    expect(afterFirst.body.data.status).toBe('EXTRACTION_FAILED');
+    assertNoSentinel(afterFirst.text, sentinel);
 
     const retry = await callJson(processingRoute.POST, 'POST', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, {
       submissionId: submission.id,
     });
     expect(retry.status).toBe(202);
-    expect(retry.body.data.extraction.status).toBe('SUCCEEDED');
     assertNoSentinel(retry.text, sentinel);
+    await drainDiagnosticSubmissionProcessingQueue(h.client);
+    const afterRetry = await callJson(processingRoute.GET, 'GET', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, {
+      submissionId: submission.id,
+    });
+    expect(afterRetry.body.data.status).toBe('EXTRACTED');
+    assertNoSentinel(afterRetry.text, sentinel);
 
     signInAs(h.admin);
     const content = await callJson(contentRoute.GET, 'GET', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing/content`, {

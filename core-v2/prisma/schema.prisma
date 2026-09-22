@@ -931,6 +931,21 @@ model DiagnosticSubmissionProcessing {
 
   status DiagnosticSubmissionProcessingStatus @default(QUEUED)
 
+  // Lease-based claim (same pattern as canonical_job_outbox /
+  // lib/bilans/worker/drain-outbox.ts, mission §5): EXTRACTING is a
+  // LEASED state, not a permanent one. `leaseOwner` identifies which
+  // drain cycle currently holds it; `leaseExpiresAt` bounds how long that
+  // hold is honoured — a worker that dies mid-extraction (process crash,
+  // not just an in-process exception) leaves a lease that simply expires,
+  // making the row reclaimable by the next drain cycle without any
+  // separate crash-detection mechanism. `attemptCount` is the same
+  // quarantine guard as MAX_JOB_ATTEMPTS elsewhere: a deterministically
+  // failing submission stops being reclaimed after too many attempts
+  // instead of looping forever.
+  leaseOwner     String?
+  leaseExpiresAt DateTime?
+  attemptCount   Int       @default(0)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
