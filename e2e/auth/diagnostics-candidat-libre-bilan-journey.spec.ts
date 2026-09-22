@@ -210,7 +210,14 @@ test('ADMIN starts the treatment, follows it to EXTRACTED, and generates the bil
   await expect(page).toHaveURL(new RegExp(`/dashboard/admin/diagnostics-candidat-libre/${submissionId}$`));
 
   await page.getByTestId('btn-start-processing').click();
-  await expect(page.getByText('Traitement démarré.')).toBeVisible({ timeout: 10_000 });
+  // The component re-fetches and re-renders immediately on success — by
+  // design it shows the new QUEUED/EXTRACTING status right away rather
+  // than a transient toast that would then be replaced a moment later.
+  // Real, actually-rendered evidence the click worked: the "none" card
+  // (with its own start button) is gone, replaced by the pending-status
+  // view with its "Actualiser" button.
+  await expect(page.getByTestId('btn-start-processing')).toHaveCount(0, { timeout: 10_000 });
+  await expect(page.getByRole('button', { name: 'Actualiser' })).toBeVisible({ timeout: 10_000 });
 
   // Bounded polling via the real "Actualiser" button — never an
   // indefinite loop: at most 20 tries, ~1s apart, matching the worker's

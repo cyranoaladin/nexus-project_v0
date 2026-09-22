@@ -645,7 +645,7 @@ jobs:
   core-v2-foundation:
     name: Core v2 Foundation
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -693,6 +693,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Several __tests__/core-v2/** suites render a REAL PDF via
+      # lib/bilans/render/pdf.ts (Playwright/Chromium) for genuine
+      # extraction fidelity rather than a fake stub buffer — this job
+      # never installed a browser before, which this exact job run
+      # exposed for the first time (mission "TERMINER #316" §1: a real,
+      # diagnosed CI failure, not a guess).
+      - name: Install Playwright browsers (Chromium)
+        run: npx playwright install --with-deps chromium
 
       - name: Generate Core v2 Prisma Client
         run: npx prisma generate --schema=core-v2/prisma/schema.prisma
