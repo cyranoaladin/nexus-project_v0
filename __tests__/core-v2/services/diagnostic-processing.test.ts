@@ -116,6 +116,7 @@ describe('enqueue + drain — synthetic textual answer → real extraction', () 
     expect(extraction.status).toBe('SUCCEEDED');
     expect(extraction.extractedText).toContain('capitale de la France');
     expect(extraction.characterCount).toBeGreaterThan(0);
+    expect(extraction.truncated).toBe(false); // mission §6: a real, complete answer is explicitly marked as such, not just left ambiguous.
   });
 });
 
@@ -356,5 +357,28 @@ describe('mission §5 — a real extraction timeout surfaces as an explicit term
     const retried = await enqueueAndDrainOnce(submission.id);
     expect(retried.processing.status).toBe('EXTRACTED');
     expect(retried.extraction.revision).toBe(2);
+  });
+});
+
+describe('mission §6 — a truncated extraction is persisted as an explicit, distinguishable fact', () => {
+  test('truncated=true and the real pre-cap length survive into the stored row — never disguised as a complete answer', async () => {
+    const ctx = h.ctx();
+    const pdf = await renderHtmlToPdf('<html><body><p>Peu importe le contenu réel ici — le résultat de troncature est simulé.</p></body></html>');
+    const { submission } = await seedDepositedSubmission(h.client, ctx, `TRUNCATED-${randomUUID()}`, pdf);
+
+    mockedExtract.mockResolvedValueOnce({
+      status: 'SUCCEEDED',
+      text: 'x'.repeat(50),
+      characterCount: 50,
+      truncated: true,
+      totalCharacterCount: 12_345,
+    });
+
+    const { processing, extraction } = await enqueueAndDrainOnce(submission.id);
+    expect(processing.status).toBe('EXTRACTED'); // still a success — a bounded, explicit one, not a failure
+    expect(extraction.status).toBe('SUCCEEDED');
+    expect(extraction.truncated).toBe(true);
+    expect(extraction.characterCount).toBe(50);
+    expect(extraction.totalCharacterCount).toBe(12_345); // the real, un-truncated length — never lost
   });
 });

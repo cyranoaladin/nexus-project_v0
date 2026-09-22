@@ -985,6 +985,14 @@ model DiagnosticSubmissionExtraction {
   durationMs     Int?
   errorMessage   String?
 
+  // Mission §6: a resource cap must stay visible as a fact, never a
+  // silent edit. `characterCount` is the length actually stored above
+  // (post-cap); `totalCharacterCount` is the real pre-cap length. A
+  // future correction/review step must check `truncated` before ever
+  // treating `extractedText` as the whole answer.
+  truncated           Boolean @default(false)
+  totalCharacterCount Int?
+
   createdAt DateTime @default(now())
 
   @@unique([processingId, revision])

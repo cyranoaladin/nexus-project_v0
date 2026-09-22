@@ -216,6 +216,8 @@ export async function runOneDiagnosticProcessingJob(client: PrismaClient, proces
         status: result.status,
         extractedText: result.status === 'SUCCEEDED' ? result.text : null,
         characterCount: result.status === 'SUCCEEDED' ? result.characterCount : null,
+        truncated: result.status === 'SUCCEEDED' ? result.truncated : false,
+        totalCharacterCount: result.status === 'SUCCEEDED' ? result.totalCharacterCount : null,
         durationMs,
         errorMessage: result.status === 'FAILED' ? result.errorMessage : null,
       },
