@@ -1272,6 +1272,11 @@ jobs:
           AUTH_E2E_REPORT_LABEL: auth-chromium
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          # diagnostics-candidat-libre-deposit.spec.ts opens its own Core v2
+          # Prisma connection for fixture setup/teardown — same value as the
+          # server-start step above, this job's own service, not shared with
+          # any other job.
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'

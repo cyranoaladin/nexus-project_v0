@@ -34,8 +34,11 @@ import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
 test.describe.configure({ mode: 'serial' });
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
-const coreV2DatabaseUrl = process.env.CORE_V2_DATABASE_URL;
-if (!coreV2DatabaseUrl) throw new Error('CORE_V2_DATABASE_URL is required for this spec.');
+// `|| ''` (not a top-level throw), same convention as session-revocation.spec.ts:
+// `npx playwright test --list` (used by scripts/testing/check-ci-test-lane-coverage.mjs
+// to enumerate this suite) loads every spec file's module scope without any env set —
+// a throw here breaks listing for the WHOLE suite, not just this file.
+const coreV2DatabaseUrl = process.env.CORE_V2_DATABASE_URL || '';
 const prisma = new PrismaClient({ datasources: { db: { url: coreV2DatabaseUrl } } });
 
 const nonce = Date.now();
