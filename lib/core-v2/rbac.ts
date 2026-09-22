@@ -43,6 +43,7 @@ export const CAPABILITIES = [
   'DIAGNOSTIC_ASSIGN',
   'DIAGNOSTIC_SUBMISSION_TRACK',
   'DIAGNOSTIC_SUBMISSION_CONTENT_READ',
+  'DIAGNOSTIC_BILAN_REVIEW',
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -71,6 +72,11 @@ export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
   // mission constraint: "ASSISTANTE... n'acquiert pas automatiquement le
   // droit de lire les réponses académiques."
   'DIAGNOSTIC_SUBMISSION_CONTENT_READ',
+  // Correcting an appreciation, validating, and publishing a bilan all
+  // require reading the academic content this capability already reserves
+  // to ADMIN above — a pedagogical-review capability that ASSISTANTE held
+  // would be a content-read path in disguise.
+  'DIAGNOSTIC_BILAN_REVIEW',
 ];
 
 /**

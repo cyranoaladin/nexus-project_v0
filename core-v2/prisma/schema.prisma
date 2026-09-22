@@ -94,6 +94,8 @@ model User {
   diagnosticAssignmentsReviewed  DiagnosticAssignment[]           @relation("DiagnosticAssignmentReviewer")
   diagnosticAssignmentsCreated   DiagnosticAssignment[]           @relation("DiagnosticAssignmentAssignedBy")
   diagnosticSubmissions          DiagnosticSubmission[]
+  diagnosticBilanDraftsValidated DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
+  diagnosticBilanDraftsPublished DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
 
   @@map("users")
 }
@@ -895,6 +897,8 @@ model DiagnosticSubmission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  processing DiagnosticSubmissionProcessing?
+
   @@unique([assignmentId, version])
   @@index([assignmentId, status])
   @@map("diagnostic_submissions")
@@ -905,4 +909,257 @@ enum DiagnosticSubmissionStatus {
   READABLE
   ANALYZED
   REJECTED
+}
+
+// C2, first increment (mission §9): bounded, versioned processing of one
+// DiagnosticSubmission — text extraction only for now (no deterministic
+// correction, no AI, no publication: those stay unbuilt until the AI
+// budget/provider prerequisite is confirmed by the owner — see
+// docs/core-v2/candidat-libre-diagnostics-c2-plan.md). One row per
+// submission (never recreated — a NEW submission gets its OWN processing
+// row, never a reused one). Every frozen field below is copied at enqueue
+// time and never re-read from a mutable source afterwards, so a later
+// change to the submission or the catalog can never silently retarget an
+// already-enqueued processing.
+model DiagnosticSubmissionProcessing {
+  id String @id @default(cuid())
+
+  submissionId String               @unique
+  submission   DiagnosticSubmission @relation(fields: [submissionId], references: [id], onDelete: Restrict)
+
+  submissionSha256Snapshot  String
+  submissionVersionSnapshot Int
+  subjectVersionSnapshot    String
+
+  status DiagnosticSubmissionProcessingStatus @default(QUEUED)
+
+  // Lease-based claim (same pattern as canonical_job_outbox /
+  // lib/bilans/worker/drain-outbox.ts, mission §5): EXTRACTING is a
+  // LEASED state, not a permanent one. `leaseOwner` identifies which
+  // drain cycle currently holds it; `leaseExpiresAt` bounds how long that
+  // hold is honoured — a worker that dies mid-extraction (process crash,
+  // not just an in-process exception) leaves a lease that simply expires,
+  // making the row reclaimable by the next drain cycle without any
+  // separate crash-detection mechanism. `attemptCount` is the same
+  // quarantine guard as MAX_JOB_ATTEMPTS elsewhere: a deterministically
+  // failing submission stops being reclaimed after too many attempts
+  // instead of looping forever.
+  leaseOwner     String?
+  leaseExpiresAt DateTime?
+  attemptCount   Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  extractions DiagnosticSubmissionExtraction[]
+  aiBudgetLedgerEntries DiagnosticAiBudgetLedger[]
+  bilanDrafts DiagnosticBilanDraft[]
+
+  @@index([status])
+  @@map("diagnostic_submission_processings")
+}
+
+enum DiagnosticSubmissionProcessingStatus {
+  QUEUED
+  EXTRACTING
+  EXTRACTED
+  NO_EXTRACTABLE_TEXT
+  EXTRACTION_FAILED
+}
+
+// Append-only, one row per attempt (never updated in place): preserves the
+// original submission and every extraction attempt as an identifiable,
+// ordered revision — a retry after failure creates revision N+1, it never
+// overwrites revision N (mission §9: "une nouvelle extraction crée une
+// révision identifiable").
+model DiagnosticSubmissionExtraction {
+  id String @id @default(cuid())
+
+  processingId String
+  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  revision Int
+
+  status DiagnosticSubmissionExtractionStatus
+
+  // Populated only for SUCCEEDED; NO_EXTRACTABLE_TEXT and FAILED never
+  // fabricate a text value — the absence itself is the recorded state.
+  extractedText  String?
+  characterCount Int?
+  durationMs     Int?
+  errorMessage   String?
+
+  // Mission §6: a resource cap must stay visible as a fact, never a
+  // silent edit. `characterCount` is the length actually stored above
+  // (post-cap); `totalCharacterCount` is the real pre-cap length. A
+  // future correction/review step must check `truncated` before ever
+  // treating `extractedText` as the whole answer.
+  truncated           Boolean @default(false)
+  totalCharacterCount Int?
+
+  createdAt DateTime @default(now())
+
+  bilanDrafts DiagnosticBilanDraft[]
+
+  @@unique([processingId, revision])
+  @@map("diagnostic_submission_extractions")
+}
+
+// Three distinct outcomes, never merged (mission §9): SUCCEEDED (real,
+// non-empty extracted text), EMPTY (extraction ran to completion but found
+// no exploitable text — e.g. a scanned image PDF; explicitly NOT a success,
+// a candidate for different processing such as OCR later), FAILED (the
+// extraction itself could not run to completion — corrupt/encrypted/
+// unreadable file, or a bounded timeout).
+enum DiagnosticSubmissionExtractionStatus {
+  SUCCEEDED
+  EMPTY
+  FAILED
+}
+
+// Persistent, reconciliation-safe budget accounting for the C2 AI pilot
+// (owner decision, 2026-09-22): never an in-memory counter that resets on
+// restart. Every reservation is written BEFORE the provider call it
+// covers, so a crash between reservation and the call still counts
+// against the budget; a request of unknown outcome (timeout, ambiguous
+// network failure) stays RESERVED — never silently dropped — until an
+// explicit reconciliation step marks it RELEASED (only when the provider
+// definitively confirms no cost was incurred, e.g. rejected at routing
+// before any generation).
+model DiagnosticAiBudgetLedger {
+  id String @id @default(cuid())
+
+  // Fixed constant scoping this exact pilot (AI_PILOT_KEY) — never
+  // shared with TeacherBrief or any other AI consumer's own budget.
+  pilotKey String
+
+  // Null ONLY for a carry-over/reconciliation entry (mission "TERMINER LA
+  // LIVRAISON DE #316", 2026-09-22, §3): a real spend already incurred in
+  // a DIFFERENT database (e.g. the disposable dev DB used for the first
+  // real pilot call) has no real DiagnosticSubmissionProcessing row to
+  // reference in THIS database — and one must never be fabricated just to
+  // satisfy this foreign key (mission's own explicit prohibition). A
+  // null-processingId row still counts fully toward the pilot-wide cap
+  // (readAiBudgetSnapshot's pilot-wide query has no processingId filter);
+  // it never counts toward any specific bilan's or audience's own caps.
+  processingId String?
+  processing   DiagnosticSubmissionProcessing? @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  // Which audience-facing generation this reservation covers — null when
+  // not yet audience-specific (e.g. a single shared generation reused
+  // across audiences). Caps are enforced per (processingId, audienceScope)
+  // as well as per processingId alone and pilot-wide.
+  audienceScope String?
+  attempt       Int     @default(1)
+
+  status DiagnosticAiBudgetEntryStatus @default(RESERVED)
+
+  // The worst-case cost committed to BEFORE the call (input tokens at the
+  // request's own bound, output tokens at MAX_OUTPUT_TOKENS) — this is
+  // what counts against the cap while status=RESERVED.
+  reservedCostUsd Decimal @db.Decimal(10, 6)
+  // The provider-reported real cost, once known. Replaces the reserved
+  // estimate for accounting once status=COMMITTED (the real number is
+  // always used when present, never inflated by a stale estimate).
+  actualCostUsd Decimal? @db.Decimal(10, 6)
+
+  provider          String?
+  model             String?
+  endpointTag       String?
+  providerRequestId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pilotKey, status])
+  @@index([processingId, audienceScope])
+  @@index([pilotKey, providerRequestId])
+  @@map("diagnostic_ai_budget_ledger")
+}
+
+enum DiagnosticAiBudgetEntryStatus {
+  RESERVED
+  COMMITTED
+  RELEASED
+}
+
+// One row per generation attempt on a given (processingId, extraction
+// revision) pair — append-only, same discipline as
+// DiagnosticSubmissionExtraction (mission §6: "une réponse tardive d'une
+// ancienne tentative ne doit pas écraser le projet courant ou un bilan
+// validé"). The "current" draft for a processing is MAX(revision), computed
+// at query time, never a separate boolean flag. Once PUBLISHED a draft is
+// immutable; a later submission/extraction/generation creates a NEW
+// revision, it never mutates a published one.
+//
+// Four buckets, deliberately never merged into one JSON blob (mission §6):
+// deterministicResults (fixed, computed without any AI call),
+// aiProposal+aiProvenance (present only when a real provider call
+// succeeded — absence stays visible, never backfilled with a guess),
+// humanReview (a staff member's corrections/notes, always distinct from
+// what the model proposed), and the publish fields (who/when/for which
+// audience — never inferred from "a parent account exists").
+model DiagnosticBilanDraft {
+  id String @id @default(cuid())
+
+  processingId String
+  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  revision Int
+
+  extractionId               String
+  extraction                 DiagnosticSubmissionExtraction @relation(fields: [extractionId], references: [id], onDelete: Restrict)
+  extractionRevisionSnapshot Int
+  extractionTruncatedSnapshot Boolean
+
+  // Computed once, at creation, from deterministic-correction.ts — never
+  // re-derived implicitly by a reader; a re-run creates a new revision.
+  deterministicResults Json
+
+  // Null until a real, successful AI call completes for this revision.
+  // aiProvenance links back to the exact ledger entry, model, endpoint,
+  // prompt/schema version and reported cost/tokens — never just "an AI
+  // wrote this" with no traceable source.
+  aiProposal   Json?
+  aiProvenance Json?
+
+  // A staff member's pedagogical corrections layered on top of the
+  // deterministic result and the AI proposal — never merged into either.
+  // Optimistic-concurrency guard: every write must supply the editVersion
+  // it read; a stale write is refused, never silently applied over a
+  // concurrent edit.
+  humanReview Json?
+  editVersion Int  @default(1)
+
+  // Frozen at VALIDATED time from deterministicResults + aiProposal +
+  // humanReview.itemCorrections (mission §3) — the ONLY thing the
+  // candidate's own read path ever serves. Never the raw humanReview note,
+  // never an uncorrected AI item once a human correction replaced it.
+  publishedContent Json?
+
+  status DiagnosticBilanDraftStatus @default(DRAFT)
+
+  validatedById String?
+  validatedBy   User?     @relation("DiagnosticBilanDraftValidatedBy", fields: [validatedById], references: [id], onDelete: SetNull)
+  validatedAt   DateTime?
+
+  publishedById          String?
+  publishedBy            User?     @relation("DiagnosticBilanDraftPublishedBy", fields: [publishedById], references: [id], onDelete: SetNull)
+  publishedAt            DateTime?
+  // The real audience matrix decision, never "a parent account exists":
+  // which specific self-service audience this revision was published to.
+  publishedAudienceScope String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([processingId, revision])
+  @@index([processingId, status])
+  @@map("diagnostic_bilan_drafts")
+}
+
+enum DiagnosticBilanDraftStatus {
+  DRAFT
+  VALIDATED
+  PUBLISHED
 }

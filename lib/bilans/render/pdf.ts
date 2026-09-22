@@ -198,7 +198,10 @@ export function normalizePdfForComparison(pdf: Buffer): Buffer {
   return Buffer.from(binary, 'latin1');
 }
 
-export async function extractPdfText(pdf: Buffer): Promise<string> {
+const DEFAULT_PDF_TEXT_EXTRACTION_TIMEOUT_MS = 60_000;
+
+export async function extractPdfText(pdf: Buffer, options: { timeoutMs?: number } = {}): Promise<string> {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_PDF_TEXT_EXTRACTION_TIMEOUT_MS;
   const script = `
     import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
     const chunks = [];
@@ -219,10 +222,25 @@ export async function extractPdfText(pdf: Buffer): Promise<string> {
     });
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill('SIGKILL');
+      reject(new Error('BILAN_PDF_TEXT_EXTRACTION_TIMEOUT'));
+    }, timeoutMs);
     child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
     child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk));
-    child.on('error', reject);
+    child.on('error', (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
     child.on('close', (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
       if (code === 0) resolve(Buffer.concat(stdout).toString('utf8'));
       else reject(new Error(`BILAN_PDF_TEXT_EXTRACTION_FAILED:${code}:${Buffer.concat(stderr).toString('utf8').slice(0, 200)}`));
     });

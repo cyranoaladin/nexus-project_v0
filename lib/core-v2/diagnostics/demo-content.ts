@@ -68,6 +68,18 @@ export const DEMO_SUBJECT_HTML = `<!doctype html>
 </body>
 </html>`;
 
+/**
+ * The two OPEN items above, described for the C2 AI pilot's prompt (mission
+ * §5/§6): item 1 is a closed MCQ, corrected deterministically
+ * (deterministic-correction.ts) and never sent to the model. Only items 2
+ * and 3 — which a textual-equality check cannot meaningfully grade — are
+ * ever included in an AI proposal request.
+ */
+export const DEMO_FIXTURE_AI_REVIEW_ITEMS = [
+  { itemId: 'item-2', kind: 'réponse courte', prompt: 'En une phrase : pourquoi ce document est-il une démonstration technique et non un diagnostic réel ?' },
+  { itemId: 'item-3', kind: 'courte production rédigée', prompt: 'Décrivez, en trois à cinq lignes, les étapes que vous venez de suivre pour accéder à ce document.' },
+] as const;
+
 /** A plausible, complete synthetic answer to the three items above — for C1's own deposit rehearsal and for C2's extraction fixtures. */
 export const DEMO_ANSWER_HTML = `<!doctype html>
 <html lang="fr">

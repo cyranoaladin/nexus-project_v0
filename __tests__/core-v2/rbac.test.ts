@@ -21,7 +21,7 @@ describe('Core v2 RBAC capability matrix (§Y)', () => {
     for (const c of ADMIN_ONLY_CAPABILITIES) expect(assistante.has(c)).toBe(false);
     expect(assistante.size).toBe(CAPABILITIES.length - ADMIN_ONLY_CAPABILITIES.length);
     expect([...ADMIN_ONLY_CAPABILITIES].sort()).toEqual(
-      ['ACCOUNT_REACTIVATE', 'ACCOUNT_SUSPEND', 'AUDIT_READ', 'STAFF_ACCOUNT_CREATE', 'DIAGNOSTIC_SUBMISSION_CONTENT_READ'].sort(),
+      ['ACCOUNT_REACTIVATE', 'ACCOUNT_SUSPEND', 'AUDIT_READ', 'STAFF_ACCOUNT_CREATE', 'DIAGNOSTIC_SUBMISSION_CONTENT_READ', 'DIAGNOSTIC_BILAN_REVIEW'].sort(),
     );
     for (const c of [
       'HOUSEHOLD_CREATE',

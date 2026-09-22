@@ -94,6 +94,13 @@ export async function register() {
     const { startBilanWorkerScheduler } = await import('./lib/bilans/worker/scheduler');
     startBilanWorkerScheduler();
 
+    // Candidat-libre diagnostics C2 (mission §5): the real consumer of
+    // DiagnosticSubmissionProcessing — opt-in via DIAGNOSTIC_PROCESSING_WORKER_ENABLED,
+    // no-op otherwise. Same shape as the bilan worker above: never fail-closes
+    // startup, since this feature is not yet live anywhere.
+    const { startDiagnosticProcessingScheduler } = await import('./lib/core-v2/diagnostics/processing-scheduler');
+    startDiagnosticProcessingScheduler();
+
     const { startAriaTurnRecoveryScheduler } = await import(
       './lib/aria/infrastructure/jobs/recovery-scheduler'
     );
