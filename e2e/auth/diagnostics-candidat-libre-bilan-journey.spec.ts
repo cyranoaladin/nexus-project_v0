@@ -302,7 +302,9 @@ test('ADMIN corrects one item, previews, validates the exact draft, and publishe
   await expect(page.getByText(/^Validé le /)).toBeVisible({ timeout: 10_000 });
 
   await expect(page.getByTestId('btn-publish-bilan')).toBeVisible();
-  await page.getByTestId('btn-toggle-preview').click();
+  // showPreview is component state that survives the DRAFT -> VALIDATED
+  // transition (same component instance) — it is still open from above, so
+  // clicking the toggle again would CLOSE it, not open it.
   await expect(page.getByTestId('bilan-preview')).toBeVisible();
 
   await page.getByTestId('btn-publish-bilan').click();
