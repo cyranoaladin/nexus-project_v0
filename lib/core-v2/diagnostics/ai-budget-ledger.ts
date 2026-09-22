@@ -62,7 +62,7 @@ export interface AiBudgetSnapshot {
 
 export async function readAiBudgetSnapshot(
   client: QueryableClient,
-  input: { readonly processingId: string; readonly audienceScope?: string | null },
+  input: { readonly processingId?: string | null; readonly audienceScope?: string | null },
 ): Promise<AiBudgetSnapshot> {
   const pilotRows = await client.diagnosticAiBudgetLedger.findMany({
     where: { pilotKey: AI_PILOT_KEY, status: { in: ['RESERVED', 'COMMITTED'] } },
@@ -70,10 +70,12 @@ export async function readAiBudgetSnapshot(
   });
   const pilotTotalMicroUsd = pilotRows.reduce((sum, row) => sum + activeCostMicroUsd(row), 0);
 
-  const bilanRows = await client.diagnosticAiBudgetLedger.findMany({
-    where: { pilotKey: AI_PILOT_KEY, processingId: input.processingId, status: { in: ['RESERVED', 'COMMITTED'] } },
-    select: { status: true, reservedCostUsd: true, actualCostUsd: true },
-  });
+  const bilanRows = input.processingId
+    ? await client.diagnosticAiBudgetLedger.findMany({
+        where: { pilotKey: AI_PILOT_KEY, processingId: input.processingId, status: { in: ['RESERVED', 'COMMITTED'] } },
+        select: { status: true, reservedCostUsd: true, actualCostUsd: true },
+      })
+    : [];
   const perBilanMicroUsd = bilanRows.reduce((sum, row) => sum + activeCostMicroUsd(row), 0);
 
   let perAudienceMicroUsd: number | null = null;
@@ -185,6 +187,60 @@ export async function reserveAiBudget(client: PrismaClient, input: ReserveAiBudg
         provider: input.provider,
         model: input.model,
         endpointTag: input.endpointTag ?? null,
+      },
+    });
+  });
+}
+
+export interface CarryOverCommittedSpendInput {
+  /** The real provider generation id this spend already has — the idempotency key. Never absent: a carry-over with no traceable identifier is not accepted. */
+  readonly providerRequestId: string;
+  readonly actualCostUsd: number;
+  readonly provider: string;
+  readonly model: string;
+}
+
+/**
+ * Records a spend that was ALREADY really incurred (billed and confirmed
+ * by the provider) in a different database/environment, so THIS
+ * database's own cap-checking authority counts it before any new
+ * reservation is allowed here (mission "TERMINER LA LIVRAISON DE #316"
+ * §3: "avant tout nouvel appel réel, le service qui réserve le budget
+ * doit effectivement compter cette dépense"). Never fabricates a
+ * processing row to satisfy the foreign key — `processingId` stays null,
+ * which the pilot-wide sum already counts (it has no processingId
+ * filter) and no per-bilan/per-audience sum ever does.
+ *
+ * Idempotent and atomic, same advisory-lock transaction as
+ * reserveAiBudget: a second call with the same providerRequestId is a
+ * no-op that returns the existing row untouched — the amount is counted
+ * exactly once no matter how many times this runs (a redeploy, a retried
+ * migration step, a second operator running the same reconciliation).
+ */
+export async function recordCarryOverCommittedSpend(
+  client: PrismaClient,
+  input: CarryOverCommittedSpendInput,
+): Promise<DiagnosticAiBudgetLedger> {
+  return client.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('core_v2_ai_budget_ledger'), hashtext(${AI_PILOT_KEY}))`;
+
+    const existing = await tx.diagnosticAiBudgetLedger.findFirst({
+      where: { pilotKey: AI_PILOT_KEY, providerRequestId: input.providerRequestId },
+    });
+    if (existing) return existing;
+
+    return tx.diagnosticAiBudgetLedger.create({
+      data: {
+        pilotKey: AI_PILOT_KEY,
+        processingId: null,
+        audienceScope: null,
+        attempt: 1,
+        status: 'COMMITTED',
+        reservedCostUsd: input.actualCostUsd,
+        actualCostUsd: input.actualCostUsd,
+        provider: input.provider,
+        model: input.model,
+        providerRequestId: input.providerRequestId,
       },
     });
   });

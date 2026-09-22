@@ -1033,8 +1033,17 @@ model DiagnosticAiBudgetLedger {
   // shared with TeacherBrief or any other AI consumer's own budget.
   pilotKey String
 
-  processingId String
-  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+  // Null ONLY for a carry-over/reconciliation entry (mission "TERMINER LA
+  // LIVRAISON DE #316", 2026-09-22, §3): a real spend already incurred in
+  // a DIFFERENT database (e.g. the disposable dev DB used for the first
+  // real pilot call) has no real DiagnosticSubmissionProcessing row to
+  // reference in THIS database — and one must never be fabricated just to
+  // satisfy this foreign key (mission's own explicit prohibition). A
+  // null-processingId row still counts fully toward the pilot-wide cap
+  // (readAiBudgetSnapshot's pilot-wide query has no processingId filter);
+  // it never counts toward any specific bilan's or audience's own caps.
+  processingId String?
+  processing   DiagnosticSubmissionProcessing? @relation(fields: [processingId], references: [id], onDelete: Restrict)
 
   // Which audience-facing generation this reservation covers — null when
   // not yet audience-specific (e.g. a single shared generation reused
@@ -1064,6 +1073,7 @@ model DiagnosticAiBudgetLedger {
 
   @@index([pilotKey, status])
   @@index([processingId, audienceScope])
+  @@index([pilotKey, providerRequestId])
   @@map("diagnostic_ai_budget_ledger")
 }
 

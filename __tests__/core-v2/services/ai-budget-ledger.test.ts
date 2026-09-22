@@ -23,6 +23,7 @@ import {
   PILOT_TOTAL_CAP_USD,
   commitAiBudgetEntry,
   readAiBudgetSnapshot,
+  recordCarryOverCommittedSpend,
   releaseAiBudgetEntry,
   reserveAiBudget,
 } from '@/lib/core-v2/diagnostics/ai-budget-ledger';
@@ -421,5 +422,84 @@ describe('release/reconciliation — idempotent, never double-counted', () => {
     const row = await h.client.diagnosticAiBudgetLedger.findUniqueOrThrow({ where: { id: entry.id } });
     expect(Number(row.actualCostUsd)).toBe(0.05); // the FIRST real commit wins, never silently overwritten
     expect(row.providerRequestId).toBe('gen-real');
+  });
+});
+
+describe('recordCarryOverCommittedSpend — mission "TERMINER LA LIVRAISON DE #316" §3', () => {
+  test('carries a real, already-billed spend into this database with no processing row — counted pilot-wide, never per-bilan or per-audience', async () => {
+    const carried = await recordCarryOverCommittedSpend(h.client, {
+      providerRequestId: 'gen-carryover-test-1',
+      actualCostUsd: 0.010464,
+      provider: 'openrouter',
+      model: 'anthropic/claude-sonnet-4.5',
+    });
+    expect(carried.status).toBe('COMMITTED');
+    expect(carried.processingId).toBeNull();
+    expect(Number(carried.actualCostUsd)).toBe(0.010464);
+
+    const pilotWide = await readAiBudgetSnapshot(h.client, {});
+    expect(pilotWide.pilotTotalUsd).toBeCloseTo(0.010464, 6);
+
+    // A real bilan's own per-bilan/per-audience headroom is entirely
+    // unaffected by a carry-over that belongs to no specific processing.
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `CARRYOVER-UNAFFECTED-${randomUUID()}`);
+    const scopedSnapshot = await readAiBudgetSnapshot(h.client, { processingId, audienceScope: 'x' });
+    expect(scopedSnapshot.perBilanUsd).toBe(0);
+    expect(scopedSnapshot.perAudienceUsd).toBe(0);
+  });
+
+  test('a second call with the SAME providerRequestId is a no-op — the amount is counted exactly once, never doubled', async () => {
+    const first = await recordCarryOverCommittedSpend(h.client, {
+      providerRequestId: 'gen-carryover-test-2',
+      actualCostUsd: 0.02,
+      provider: 'openrouter',
+      model: 'anthropic/claude-sonnet-4.5',
+    });
+    const second = await recordCarryOverCommittedSpend(h.client, {
+      providerRequestId: 'gen-carryover-test-2',
+      actualCostUsd: 0.02,
+      provider: 'openrouter',
+      model: 'anthropic/claude-sonnet-4.5',
+    });
+    expect(second.id).toBe(first.id);
+
+    const count = await h.client.diagnosticAiBudgetLedger.count({ where: { providerRequestId: 'gen-carryover-test-2' } });
+    expect(count).toBe(1);
+    const pilotWide = await readAiBudgetSnapshot(h.client, {});
+    expect(pilotWide.pilotTotalUsd).toBeCloseTo(0.02, 6); // not 0.04
+  });
+
+  test('after carry-over, a NEW reservation is capped with the historical spend already counted — the total cap is never silently reset', async () => {
+    await recordCarryOverCommittedSpend(h.client, {
+      providerRequestId: 'gen-carryover-test-3',
+      actualCostUsd: 1.99,
+      provider: 'openrouter',
+      model: 'anthropic/claude-sonnet-4.5',
+    });
+
+    const ctx = h.ctx();
+    const processingId = await seedProcessing(h.client, ctx, `CARRYOVER-CAP-${randomUUID()}`);
+    // Headroom is now only 0.01 (2.00 - 1.99) — a request for 0.02 must be refused.
+    await expect(
+      reserveAiBudget(h.client, {
+        processingId,
+        audienceScope: 'x',
+        estimatedCostUsd: 0.02,
+        provider: 'openrouter',
+        model: 'anthropic/claude-sonnet-4.5',
+      }),
+    ).rejects.toMatchObject({ code: 'CONFLICT' });
+
+    // A request that fits the remaining 0.01 headroom exactly still succeeds.
+    await expect(
+      reserveAiBudget(h.client, {
+        processingId,
+        audienceScope: 'y',
+        estimatedCostUsd: 0.01,
+        provider: 'openrouter',
+        model: 'anthropic/claude-sonnet-4.5',
+      }),
+    ).resolves.toMatchObject({ status: 'RESERVED' });
   });
 });
