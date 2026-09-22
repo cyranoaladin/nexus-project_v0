@@ -30,6 +30,7 @@ import { PrismaClient } from '@/core-v2/generated/client';
 import { diagnosticInstrumentSubjectRelativePath, writeDiagnosticStorageFixture } from '@/lib/core-v2/diagnostics/storage';
 import { gotoSignInForm, logoutUser } from '../helpers/auth';
 import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
+import { sameOriginHeaders } from '../helpers/same-origin';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -142,6 +143,7 @@ test('real multipart deposit against the real standalone route succeeds and pers
   const bytes = SYNTHETIC_PDF('e2e-deposit-answer');
   const response = await page.request.post(`${BASE_URL}/api/v2/student/diagnostics/assignments/${assignmentId}/submissions`, {
     multipart: { file: { name: 'reponse.pdf', mimeType: 'application/pdf', buffer: bytes } },
+    headers: sameOriginHeaders(BASE_URL),
   });
   const envelope = await response.json();
   expect(response.status(), JSON.stringify(envelope)).toBe(201);
