@@ -1121,6 +1121,12 @@ model DiagnosticBilanDraft {
   humanReview Json?
   editVersion Int  @default(1)
 
+  // Frozen at VALIDATED time from deterministicResults + aiProposal +
+  // humanReview.itemCorrections (mission §3) — the ONLY thing the
+  // candidate's own read path ever serves. Never the raw humanReview note,
+  // never an uncorrected AI item once a human correction replaced it.
+  publishedContent Json?
+
   status DiagnosticBilanDraftStatus @default(DRAFT)
 
   validatedById String?
