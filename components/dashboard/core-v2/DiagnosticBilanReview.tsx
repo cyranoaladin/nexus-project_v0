@@ -367,6 +367,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Note interne (optionnelle)"
                   aria-label="Note interne de revue"
+                  data-testid="internal-note"
                 />
                 <div className="flex flex-wrap items-center gap-2">
                   <Button

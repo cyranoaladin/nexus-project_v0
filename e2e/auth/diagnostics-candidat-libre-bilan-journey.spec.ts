@@ -24,6 +24,19 @@
  * exercise — every subsequent step (correct, preview, validate, publish,
  * candidate read) is then driven by real UI interaction only.
  *
+ * That injection is confined to this isolated test file (mission
+ * "TERMINER LA LIVRAISON DE #316" §2): it exists nowhere in application
+ * source — no endpoint accepts it, no option in the review screen
+ * activates it — and it never writes to DiagnosticAiBudgetLedger, so it
+ * can never inflate or otherwise touch the pilot's real spend/cap
+ * accounting. It requires no provider key at all, in this file or in CI.
+ *
+ * Confidentiality is checked with a genuine, unique sentinel string
+ * written into the real internal-note field and saved through the real
+ * "Enregistrer la correction" button — never by checking for the absence
+ * of the generic label "Note interne", which would prove nothing about
+ * whether the actual content leaked.
+ *
  * Uses this job's own DEMO_FIXTURE demo-mode allowlist (ci.yml), fixed to
  * one well-known Student.id this spec always tears down and recreates —
  * never a wildcard, never derived from NODE_ENV.
@@ -37,12 +50,19 @@ import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import { DEMO_ANSWER_HTML, DEMO_SUBJECT_HTML } from '@/lib/core-v2/diagnostics/demo-content';
 import { gotoSignInForm, loginViaSigninForm, logoutUser } from '../helpers/auth';
 import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
+import { sameOriginHeaders } from '../helpers/same-origin';
 
 test.describe.configure({ mode: 'serial' });
 
 const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
 const coreV2DatabaseUrl = process.env.CORE_V2_DATABASE_URL || '';
 const prisma = new PrismaClient({ datasources: { db: { url: coreV2DatabaseUrl } } });
+
+// A genuine sentinel, unique per run — never a generic label like "Note
+// interne" (mission §2: the label's absence proves nothing about the
+// CONTENT; this exact string is what gets checked, both on the rendered
+// candidate page and in the raw API response body).
+const INTERNAL_NOTE_SENTINEL = `SENTINEL-INTERNAL-NOTE-${Date.now()}-do-not-leak`;
 
 // Fixed, well-known values (mirroring ci.yml's DIAGNOSTIC_DEMO_STUDENT_IDS) —
 // never a nonce, since the demo-mode allowlist is static per server process.
@@ -251,9 +271,14 @@ test('ADMIN corrects one item, previews, validates the exact draft, and publishe
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('btn-validate-bilan')).toBeVisible();
 
-  // Correct item-2's constat through the real per-item textarea.
+  // Correct item-2's constat through the real per-item textarea, AND fill a
+  // genuine sentinel internal note (mission §2: absence of the LABEL "Note
+  // interne" does not prove the CONTENT is confidential — the sentinel
+  // string itself is checked below, on the candidate's page and on the raw
+  // API response body).
   const correctionField = page.getByTestId('item-correction-item-2');
   await correctionField.fill('Constat corrigé par l’enseignant — E2E.');
+  await page.getByTestId('internal-note').fill(INTERNAL_NOTE_SENTINEL);
   await page.getByTestId('btn-save-correction').click();
   await expect(page.getByText('Correction enregistrée.')).toBeVisible({ timeout: 10_000 });
 
@@ -279,15 +304,28 @@ test('ADMIN corrects one item, previews, validates the exact draft, and publishe
   await logoutUser(page);
 });
 
-test('the candidate opens the published bilan from their own Diagnostics libres screen — never the draft or the internal note', async ({ page }) => {
+test('the candidate opens the published bilan from their own Diagnostics libres screen — the sentinel internal note is absent from both the page and the raw API response', async ({ page }) => {
   await loginAsCandidate(page);
   await page.goto(`${BASE_URL}/dashboard/eleve/diagnostics-libres`, { waitUntil: 'domcontentloaded' });
 
   const bilanSection = page.getByTestId('own-bilan-section');
   await expect(bilanSection).toBeVisible({ timeout: 15_000 });
   await expect(bilanSection.getByText('Constat corrigé par l’enseignant — E2E.')).toBeVisible();
-  // The candidate never sees the raw internal humanReview note text.
-  await expect(page.getByText('Note interne')).toHaveCount(0);
+
+  // The rendered page never shows the sentinel — not just the generic label "Note interne".
+  await expect(page.getByText(INTERNAL_NOTE_SENTINEL)).toHaveCount(0);
+
+  // Stronger check: the sentinel is absent from the RAW response body of
+  // the exact API route the candidate's page itself calls — proves the
+  // server never serializes it into this response at all, not merely that
+  // the current UI happens not to render a field that holds it.
+  const rawResponse = await page.request.get(`${BASE_URL}/api/v2/student/diagnostics/submissions/${submissionId}/bilan`, {
+    headers: sameOriginHeaders(BASE_URL),
+  });
+  expect(rawResponse.status()).toBe(200);
+  const rawBody = await rawResponse.text();
+  expect(rawBody).not.toContain(INTERNAL_NOTE_SENTINEL);
+  expect(rawBody).not.toContain('humanReview');
 
   await logoutUser(page);
 });
