@@ -448,6 +448,22 @@ export interface AriaStudentDTO {
   readonly academicTrack: AcademicTrack | null;
 }
 
+/**
+ * Capacités du cockpit qui n'ont, à ce jour, aucune source de données pour
+ * certaines identités (ex. Core v2 — PR "core-v2-aria-foundation") :
+ * `false` signifie « non encore porté », jamais « l'élève n'a rien fait ».
+ * Le frontend doit distinguer les deux : un tableau/valeur vide avec
+ * `true` est un état normal ; `false` doit s'afficher explicitement comme
+ * une limite temporaire, jamais comme une absence de données.
+ */
+export interface AriaCockpitCapabilitiesDTO {
+  readonly trajectory: boolean;
+  readonly assessments: boolean;
+  readonly resources: boolean;
+  readonly nextSession: boolean;
+  readonly conversationHistory: boolean;
+}
+
 /** Payload complet du cockpit. */
 export interface AriaCockpitDTO {
   readonly student: AriaStudentDTO;
@@ -461,6 +477,7 @@ export interface AriaCockpitDTO {
   readonly aria: AriaStatsDTO;
   readonly nextSession: AriaNextSessionDTO | null;
   readonly examContext: AriaExamContextDTO | null;
+  readonly capabilities: AriaCockpitCapabilitiesDTO;
   /**
    * Graphes de compétences des seuls cours présents dans la carte de l'élève
    * (au plus quelques-uns). Bornés volontairement : le payload ne transporte

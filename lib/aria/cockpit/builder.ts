@@ -254,6 +254,14 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     },
     nextSession: buildNextSession(payload),
     examContext: buildAriaExamContext(profile.targetSession),
+    // Identité V1 historique : toutes les capacités sont réellement disponibles, sans exception.
+    capabilities: {
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     // Bornés aux cours réellement présents dans la carte de l'élève.
     skillGraphs: curriculum.courses
       .filter((view) => view.course.hasSkillGraph)

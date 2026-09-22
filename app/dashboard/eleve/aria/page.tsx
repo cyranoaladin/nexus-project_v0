@@ -25,6 +25,8 @@ import {
   type AriaSetupSubmission,
 } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO, AriaLearningGoal } from '@/lib/aria/cockpit/contracts';
+import { resolveAriaApiBase } from '@/lib/aria/client/api-base';
+import { extractAriaErrorMessage, unwrapAriaResponseData } from '@/lib/aria/client/response';
 
 /** Champs que le cockpit est autorisé à écrire (miroir du schéma serveur). */
 type AriaProfileUpdatePayload = {
@@ -47,19 +49,22 @@ export default function AriaCockpitPage() {
   const [chatCourseKey, setChatCourseKey] = useState<string | undefined>(undefined);
   const [chatOpen, setChatOpen] = useState(false);
 
+  const apiBase = resolveAriaApiBase(session?.user.authority);
+
   const loadCockpit = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/aria/cockpit');
-      if (!response.ok) throw new Error('Chargement du cockpit impossible');
-      setCockpit((await response.json()) as AriaCockpitDTO);
+      const response = await fetch(`${apiBase}/cockpit`);
+      const body: unknown = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(extractAriaErrorMessage(body, 'Chargement du cockpit impossible'));
+      setCockpit(unwrapAriaResponseData<AriaCockpitDTO>(body));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Erreur inconnue');
     } finally {
       setLoading(false);
     }
-  }, [fetch]);
+  }, [fetch, apiBase]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -75,15 +80,13 @@ export default function AriaCockpitPage() {
       setSaving(true);
       setSaveError(null);
       try {
-        const response = await fetch('/api/aria/cockpit/profile', {
+        const response = await fetch(`${apiBase}/cockpit/profile`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (!response.ok) {
-          const body = (await response.json().catch(() => null)) as { error?: string } | null;
-          throw new Error(body?.error ?? 'Enregistrement impossible');
-        }
+        const body: unknown = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(extractAriaErrorMessage(body, 'Enregistrement impossible'));
         await loadCockpit();
       } catch (caught) {
         setSaveError(caught instanceof Error ? caught.message : 'Erreur inconnue');
@@ -91,7 +94,7 @@ export default function AriaCockpitPage() {
         setSaving(false);
       }
     },
-    [loadCockpit, fetch],
+    [loadCockpit, fetch, apiBase],
   );
 
   /** Ouvre le lanceur ARIA avec le cours présélectionné. */

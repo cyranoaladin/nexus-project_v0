@@ -122,3 +122,26 @@ export function resolveLegacyChoice(
   );
   return entry ? { courseKey: entry.courseKey!, kind: entry.kind! } : null;
 }
+
+/**
+ * Sens inverse de `resolveLegacyChoice` : depuis un `courseKey` Core v2 de
+ * type SPECIALTY, retrouve le `Subject` historique qu'il représente pour un
+ * niveau donné (nécessaire à `resolveAriaCurriculum`, dont l'entrée
+ * `specialties: Subject[]` est antérieure à Core v2). Vérifié sans
+ * ambiguïté à la source (chaque paire (gradeLevel, courseKey) ne correspond
+ * qu'à un seul `legacySubject` dans `legacy-specialties-migration.json`).
+ * Toute clé absente de cette correspondance renvoie `null` — fail-closed,
+ * jamais une devinette.
+ */
+export function resolveLegacySubjectForCourse(
+  courseKey: string,
+  gradeLevel: string,
+): string | null {
+  const entry = mapping.entries.find(
+    (candidate) =>
+      candidate.gradeLevel === gradeLevel &&
+      candidate.classification === 'MIGRATED_CHOICE' &&
+      candidate.courseKey === courseKey,
+  );
+  return entry ? entry.legacySubject : null;
+}
