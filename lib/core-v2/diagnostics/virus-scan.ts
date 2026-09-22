@@ -43,8 +43,19 @@ const MAX_INSTREAM_CHUNK_BYTES = 64 * 1024;
 export async function scanDiagnosticSubmissionFile(relativePath: string): Promise<{ clean: true; engine: string }> {
   const mode = process.env.DIAGNOSTIC_AV_MODE ?? (process.env.NODE_ENV === 'production' ? 'required' : 'disabled');
   if (mode === 'disabled') {
-    if (process.env.NODE_ENV === 'production') throw new Error('AV_NOT_CONFIGURED');
-    return { clean: true, engine: 'disabled-development' };
+    // `disabled` in a NODE_ENV=production context is refused UNLESS this
+    // is explicitly a disposable rehearsal stack, never inferred from
+    // NODE_ENV alone (same discipline as the demo-scope allowlist) — a
+    // real production deployment never sets E2E_DISPOSABLE_STACK, so this
+    // cannot become an accidental way to silently skip AV there. Some CI
+    // jobs deliberately build and run with NODE_ENV=production (a real
+    // production-shaped artifact) while having no clamd of their own
+    // available; that HTTP-boundary proof tier is legitimate as long as
+    // it is explicit and separate from the real-engine proof (mission §3).
+    if (process.env.NODE_ENV === 'production' && process.env.E2E_DISPOSABLE_STACK !== '1') {
+      throw new Error('AV_NOT_CONFIGURED');
+    }
+    return { clean: true, engine: process.env.NODE_ENV === 'production' ? 'disabled-e2e-disposable' : 'disabled-development' };
   }
   if (mode !== 'clamdscan') throw new Error('AV_NOT_CONFIGURED');
 
