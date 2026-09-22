@@ -25,11 +25,26 @@
  * this pilot to reconcile.
  */
 import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { recordCarryOverCommittedSpend, readAiBudgetSnapshot, PILOT_TOTAL_CAP_USD } from '@/lib/core-v2/diagnostics/ai-budget-ledger';
 
-const EVIDENCE_DIR = join(process.cwd(), 'docs/core-v2/evidence');
+// Resolved relative to THIS FILE, never process.cwd() (mission "TERMINER
+// #316" §2: a release checkout may be invoked from any working directory
+// — a cwd-relative path would silently read the wrong, or no, evidence
+// directory). scripts/core-v2/<this file> -> repo root is two levels up.
+const EVIDENCE_DIR = join(dirname(fileURLToPath(import.meta.url)), '../../docs/core-v2/evidence');
+
+/** Never prints the credential portion — only enough to confirm which physical target this run is about to write to. */
+function describeTargetSafely(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.hostname}:${parsed.port || '5432'}${parsed.pathname}`;
+  } catch {
+    return '(unparseable CORE_V2_DATABASE_URL)';
+  }
+}
 
 interface EvidenceLedgerRow {
   readonly providerRequestId: string;
@@ -57,6 +72,13 @@ function loadEvidenceEntries(): readonly EvidenceLedgerRow[] {
 }
 
 async function main(): Promise<void> {
+  const targetUrl = process.env.CORE_V2_DATABASE_URL;
+  if (!targetUrl) {
+    throw new Error('RECONCILE_REFUSED: CORE_V2_DATABASE_URL is not set — the target database must be explicit, never a silent default.');
+  }
+  console.log(`[reconcile-ai-pilot-carry-over] target database: ${describeTargetSafely(targetUrl)}`);
+  console.log(`[reconcile-ai-pilot-carry-over] evidence directory: ${EVIDENCE_DIR}`);
+
   const entries = loadEvidenceEntries();
   if (entries.length === 0) {
     console.log('[reconcile-ai-pilot-carry-over] no evidence entries found — nothing to carry over.');
