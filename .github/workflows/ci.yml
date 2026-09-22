@@ -1197,6 +1197,11 @@ jobs:
           CORE_V2_INVITATION_TTL_HOURS: '72'
           CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
           CORE_V2_AUTH_MODE: HYBRID
+          # HTTP-boundary proof tier only (e2e/auth/diagnostics-candidat-libre-deposit.spec.ts):
+          # this disables the real antivirus engine for this job's server, which has none
+          # available. The real-engine proof is the separate, manually-run rehearsal against
+          # the actual preview with a real ClamAV daemon — never merge these two proof tiers.
+          DIAGNOSTIC_AV_MODE: disabled
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -1267,6 +1272,11 @@ jobs:
           AUTH_E2E_REPORT_LABEL: auth-chromium
           BASE_URL: http://localhost:3000
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          # diagnostics-candidat-libre-deposit.spec.ts opens its own Core v2
+          # Prisma connection for fixture setup/teardown — same value as the
+          # server-start step above, this job's own service, not shared with
+          # any other job.
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
