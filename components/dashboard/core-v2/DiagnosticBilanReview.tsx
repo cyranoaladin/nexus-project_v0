@@ -427,7 +427,7 @@ export function DiagnosticBilanReview({ submissionId }: { submissionId: string }
                   </StatusMessage>
                 )}
                 {showPreview && (
-                  <div className="rounded border border-white/10 p-3">
+                  <div data-testid="bilan-preview" className="rounded border border-white/10 p-3">
                     <p className="mb-2 text-xs uppercase tracking-wide text-neutral-500">Aperçu — ce que verrait le candidat</p>
                     <PublishedBilanContentView content={buildLocalPreview(draft, itemCorrections)} truncated={draft.extractionTruncatedSnapshot} />
                   </div>
