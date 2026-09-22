@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -14,6 +15,7 @@ import {
   v2,
 } from './api';
 import { useAction } from './actions';
+import { useStaffActor } from './useStaffActor';
 import { StatusMessage } from './StatusMessage';
 
 /**
@@ -22,6 +24,7 @@ import { StatusMessage } from './StatusMessage';
  * au contenu académique (celui-ci reste réservé à ADMIN côté API).
  */
 export function DiagnosticsPanel({ studentId }: { studentId: string }) {
+  const { can } = useStaffActor();
   const [catalog, setCatalog] = useState<DiagnosticInstrumentRef[] | null>(null);
   const [assignments, setAssignments] = useState<DiagnosticAssignment[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,6 +104,14 @@ export function DiagnosticsPanel({ studentId }: { studentId: string }) {
                   {currentSubmission ? (
                     <p className="text-xs text-neutral-400">
                       Dépôt v{currentSubmission.version} reçu ({currentSubmission.status}) — {currentSubmission.originalFilename}
+                      {can('DIAGNOSTIC_BILAN_REVIEW') && (
+                        <>
+                          {' · '}
+                          <Link href={`/dashboard/admin/diagnostics-candidat-libre/${currentSubmission.id}`} className="underline">
+                            Voir le traitement / bilan
+                          </Link>
+                        </>
+                      )}
                     </p>
                   ) : (
                     <p className="text-xs text-neutral-500">Aucun dépôt reçu pour l’instant.</p>
