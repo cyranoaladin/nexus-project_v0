@@ -950,6 +950,7 @@ model DiagnosticSubmissionProcessing {
   updatedAt DateTime @updatedAt
 
   extractions DiagnosticSubmissionExtraction[]
+  aiBudgetLedgerEntries DiagnosticAiBudgetLedger[]
 
   @@index([status])
   @@map("diagnostic_submission_processings")
@@ -1009,4 +1010,60 @@ enum DiagnosticSubmissionExtractionStatus {
   SUCCEEDED
   EMPTY
   FAILED
+}
+
+// Persistent, reconciliation-safe budget accounting for the C2 AI pilot
+// (owner decision, 2026-09-22): never an in-memory counter that resets on
+// restart. Every reservation is written BEFORE the provider call it
+// covers, so a crash between reservation and the call still counts
+// against the budget; a request of unknown outcome (timeout, ambiguous
+// network failure) stays RESERVED — never silently dropped — until an
+// explicit reconciliation step marks it RELEASED (only when the provider
+// definitively confirms no cost was incurred, e.g. rejected at routing
+// before any generation).
+model DiagnosticAiBudgetLedger {
+  id String @id @default(cuid())
+
+  // Fixed constant scoping this exact pilot (AI_PILOT_KEY) — never
+  // shared with TeacherBrief or any other AI consumer's own budget.
+  pilotKey String
+
+  processingId String
+  processing   DiagnosticSubmissionProcessing @relation(fields: [processingId], references: [id], onDelete: Restrict)
+
+  // Which audience-facing generation this reservation covers — null when
+  // not yet audience-specific (e.g. a single shared generation reused
+  // across audiences). Caps are enforced per (processingId, audienceScope)
+  // as well as per processingId alone and pilot-wide.
+  audienceScope String?
+  attempt       Int     @default(1)
+
+  status DiagnosticAiBudgetEntryStatus @default(RESERVED)
+
+  // The worst-case cost committed to BEFORE the call (input tokens at the
+  // request's own bound, output tokens at MAX_OUTPUT_TOKENS) — this is
+  // what counts against the cap while status=RESERVED.
+  reservedCostUsd Decimal @db.Decimal(10, 6)
+  // The provider-reported real cost, once known. Replaces the reserved
+  // estimate for accounting once status=COMMITTED (the real number is
+  // always used when present, never inflated by a stale estimate).
+  actualCostUsd Decimal? @db.Decimal(10, 6)
+
+  provider          String?
+  model             String?
+  endpointTag       String?
+  providerRequestId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pilotKey, status])
+  @@index([processingId, audienceScope])
+  @@map("diagnostic_ai_budget_ledger")
+}
+
+enum DiagnosticAiBudgetEntryStatus {
+  RESERVED
+  COMMITTED
+  RELEASED
 }
