@@ -24,6 +24,7 @@ import {
   generateBilanDraft,
   getCurrentBilanDraftForReview,
   getOwnPublishedBilan,
+  getOwnPublishedBilanForSubmission,
   publishBilanDraft,
   validateBilanDraft,
 } from '@/lib/core-v2/services/diagnostic-bilan';
@@ -89,7 +90,7 @@ async function seedExtractedProcessing(
   });
   const processing = await enqueueDiagnosticSubmissionProcessing(client, ctx, submission.id);
   await drainDiagnosticSubmissionProcessingQueue(client);
-  return { processingId: processing.id, student, user };
+  return { processingId: processing.id, submissionId: submission.id, student, user };
 }
 
 const REAL_ZDR_ROWS = [
@@ -358,5 +359,28 @@ describe('getOwnPublishedBilan — the real audience matrix', () => {
     const ctx = h.ctx();
     const { processingId } = await seedExtractedProcessing(h.client, ctx, `ROLE-${randomUUID()}`);
     await expect(getOwnPublishedBilan(h.client, h.ctx(h.assistante), processingId)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+  });
+});
+
+describe('getOwnPublishedBilanForSubmission — the candidate\'s own vocabulary (submissionId, not processingId)', () => {
+  test('resolves the same published content as getOwnPublishedBilan, keyed by submissionId', async () => {
+    const ctx = h.ctx();
+    const { processingId, submissionId, user } = await seedExtractedProcessing(h.client, ctx, `BYSUB-${randomUUID()}`);
+    const draft = await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+    const validated = await validateBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: draft.editVersion });
+    await publishBilanDraft(h.client, ctx, processingId, { draftId: draft.id, editVersion: validated.editVersion, audienceScope: 'own-student' });
+
+    const bySubmission = await getOwnPublishedBilanForSubmission(h.client, h.ctx(eleveActor(user.id)), submissionId);
+    expect(bySubmission.revision).toBe(1);
+    expect(bySubmission.content.items).toEqual([
+      { itemId: 'item-2', constat: VALID_PROPOSAL.items[0].constat, preuve: VALID_PROPOSAL.items[0].preuve, incertitude: false, source: 'AI' },
+    ]);
+  });
+
+  test('a not-yet-published bilan is a 404 by this path too', async () => {
+    const ctx = h.ctx();
+    const { processingId, submissionId, user } = await seedExtractedProcessing(h.client, ctx, `BYSUB-NONE-${randomUUID()}`);
+    await generateBilanDraft(h.client, ctx, processingId, { fetchImpl: fakeGeneratingFetch() });
+    await expect(getOwnPublishedBilanForSubmission(h.client, h.ctx(eleveActor(user.id)), submissionId)).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });

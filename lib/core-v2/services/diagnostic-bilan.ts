@@ -411,3 +411,22 @@ export async function getOwnPublishedBilan(client: PrismaClient, ctx: ServiceCon
   };
 }
 
+/**
+ * Same self-service read, keyed by the candidate's own submissionId
+ * instead of the internal processingId — the vocabulary the candidate's
+ * own "Diagnostics libres" screen already uses (mission §7: "le candidat
+ * doit pouvoir retrouver le bilan depuis son attribution ou sa copie").
+ * Delegates to getOwnPublishedBilan for the actual ownership/audience
+ * check — this wrapper only resolves the id, it adds no new logic.
+ */
+export async function getOwnPublishedBilanForSubmission(
+  client: PrismaClient,
+  ctx: ServiceContext,
+  rawSubmissionId: string,
+): Promise<OwnPublishedBilanView> {
+  const submissionId = parseInput(idSchema, rawSubmissionId);
+  const processing = await client.diagnosticSubmissionProcessing.findUnique({ where: { submissionId } });
+  if (!processing) throw new NotFoundError('No published bilan available yet.', { submissionId });
+  return getOwnPublishedBilan(client, ctx, processing.id);
+}
+

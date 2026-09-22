@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { type ApiFail, type DiagnosticAssignment, describeFailure, v2 } from './api';
+import { PublishedBilanContentView, type PublishedBilanContent } from './PublishedBilanContentView';
 import { StatusMessage } from './StatusMessage';
 
 /**
@@ -120,10 +121,60 @@ function AssignmentCard({ assignment, onDeposited }: { assignment: DiagnosticAss
             )}
 
             <DepositForm assignmentId={assignment.id} onDeposited={onDeposited} />
+            {currentSubmission && <OwnBilanSection submissionId={currentSubmission.id} />}
           </>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Self-service bilan read (mission §7): fetched once on mount, never
+ * polled in a loop — a manual "Actualiser" is offered instead. A 404
+ * (nothing published yet) is not an error: it is simply not shown here at
+ * all, the same as if the feature did not exist for this deposit yet.
+ */
+function OwnBilanSection({ submissionId }: { submissionId: string }) {
+  const [state, setState] = useState<
+    | { kind: 'loading' }
+    | { kind: 'none' }
+    | { kind: 'error'; failure: ApiFail }
+    | { kind: 'ready'; revision: number; publishedAt: string | null; extractionTruncatedSnapshot: boolean; content: PublishedBilanContent }
+  >({ kind: 'loading' });
+
+  const load = useCallback(async () => {
+    setState({ kind: 'loading' });
+    const result = await v2<{ revision: number; publishedAt: string | null; extractionTruncatedSnapshot: boolean; content: PublishedBilanContent }>(
+      `/student/diagnostics/submissions/${submissionId}/bilan`,
+    );
+    if (result.ok) {
+      setState({ kind: 'ready', ...result.data });
+    } else if (result.status === 404) {
+      setState({ kind: 'none' });
+    } else {
+      setState({ kind: 'error', failure: result });
+    }
+  }, [submissionId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  if (state.kind === 'loading' || state.kind === 'none') return null;
+  if (state.kind === 'error') {
+    return (
+      <div className="space-y-1">
+        <StatusMessage kind="error">{describeFailure(state.failure)}</StatusMessage>
+        <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Réessayer</Button>
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-2 border-t border-white/10 pt-4">
+      <h3 className="text-sm font-semibold text-white">Votre bilan (révision {state.revision})</h3>
+      <PublishedBilanContentView content={state.content} truncated={state.extractionTruncatedSnapshot} />
+    </div>
   );
 }
 
