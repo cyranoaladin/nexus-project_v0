@@ -30,7 +30,7 @@ async function seedConversationGraph() {
   const conversationB = await h.client.ariaConversationCoreV2.create({
     data: { studentId: studentA.id, courseKey: 'philosophie-terminale' },
   });
-  return { userA, studentA, studentB, conversationA, conversationB };
+  return { userA, userB, studentA, studentB, conversationA, conversationB };
 }
 
 function pendingTurnData(input: { conversationId: string; subjectStudentId: string; actorUserId: string; clientRequestId: string; sequence: number }) {
@@ -61,6 +61,20 @@ describe('Core v2 conversation database invariants', () => {
     })).rejects.toMatchObject({ code: 'P2003' });
   });
 
+  test('rejects a self-scoped turn whose actor does not own the subject student', async () => {
+    const { userB, studentA, conversationA } = await seedConversationGraph();
+
+    await expect(h.client.ariaConversationTurnCoreV2.create({
+      data: pendingTurnData({
+        conversationId: conversationA.id,
+        subjectStudentId: studentA.id,
+        actorUserId: userB.id,
+        clientRequestId: 'foreign-actor',
+        sequence: 1,
+      }),
+    })).rejects.toMatchObject({ code: 'P2003' });
+  });
+
   test('rejects a message whose turn belongs to another conversation', async () => {
     const { userA, studentA, conversationA, conversationB } = await seedConversationGraph();
     const turn = await h.client.ariaConversationTurnCoreV2.create({
@@ -78,7 +92,6 @@ describe('Core v2 conversation database invariants', () => {
         conversationId: conversationB.id,
         turnId: turn.id,
         role: 'USER',
-        turnRole: 'USER',
         content: 'cross conversation',
       },
     })).rejects.toMatchObject({ code: 'P2003' });
@@ -147,7 +160,7 @@ describe('Core v2 conversation database invariants', () => {
   });
 
   test('audits cancellation actor and rejects a partial cancellation pair', async () => {
-    const { userA, studentA, conversationA } = await seedConversationGraph();
+    const { userA, userB, studentA, conversationA } = await seedConversationGraph();
     await expect(h.client.ariaConversationTurnCoreV2.create({
       data: {
         ...pendingTurnData({ conversationId: conversationA.id, subjectStudentId: studentA.id, actorUserId: userA.id, clientRequestId: 'partial-cancel', sequence: 1 }),
@@ -165,6 +178,15 @@ describe('Core v2 conversation database invariants', () => {
       },
     });
     expect(cancelled.cancellationRequestedByActorId).toBe(userA.id);
+    await expect(h.client.ariaConversationTurnCoreV2.create({
+      data: {
+        ...pendingTurnData({ conversationId: conversationA.id, subjectStudentId: studentA.id, actorUserId: userA.id, clientRequestId: 'foreign-cancel', sequence: 2 }),
+        status: 'CANCELLED',
+        completedAt: new Date('2026-09-23T12:00:00.000Z'),
+        cancellationRequestedAt: new Date('2026-09-23T12:00:00.000Z'),
+        cancellationRequestedByActorId: userB.id,
+      },
+    })).rejects.toThrow();
   });
 
   test('keeps message semantics and citation provenance atomic', async () => {
@@ -173,16 +195,12 @@ describe('Core v2 conversation database invariants', () => {
       data: pendingTurnData({ conversationId: conversationA.id, subjectStudentId: studentA.id, actorUserId: userA.id, clientRequestId: 'message-semantics', sequence: 1 }),
     });
 
-    await expect(h.client.ariaMessageCoreV2.create({
-      data: { conversationId: conversationA.id, turnId: turn.id, role: 'USER', content: 'missing role' },
-    })).rejects.toThrow();
-    await expect(h.client.ariaMessageCoreV2.create({
-      data: { conversationId: conversationA.id, turnId: turn.id, role: 'ASSISTANT', turnRole: 'USER', content: 'wrong role' },
-    })).rejects.toThrow();
-
     const message = await h.client.ariaMessageCoreV2.create({
-      data: { conversationId: conversationA.id, turnId: turn.id, role: 'USER', turnRole: 'USER', content: 'valid user message' },
+      data: { conversationId: conversationA.id, turnId: turn.id, role: 'USER', content: 'valid user message' },
     });
+    await expect(h.client.ariaMessageCoreV2.create({
+      data: { conversationId: conversationA.id, turnId: turn.id, role: 'USER', content: 'duplicate user message' },
+    })).rejects.toThrow();
     await expect(h.client.ariaMessageCitationCoreV2.create({
       data: {
         messageId: message.id,

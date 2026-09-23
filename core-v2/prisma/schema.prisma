@@ -97,7 +97,6 @@ model User {
   diagnosticBilanDraftsValidated   DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
   diagnosticBilanDraftsPublished   DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
   ariaAccessGrantsGranted          AriaAccessGrant[]
-  ariaConversationTurnsActorCoreV2 AriaConversationTurnCoreV2[]    @relation("AriaConversationTurnActorCoreV2")
   ariaConversationTurnsCancellationActorCoreV2 AriaConversationTurnCoreV2[] @relation("AriaConversationTurnCancellationActorCoreV2")
 
   @@map("users")
@@ -253,6 +252,8 @@ model Student {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([id, userId])
 
   @@map("students_v2")
 }
@@ -1288,9 +1289,8 @@ model AriaConversationTurnCoreV2 {
   conversationId   String
   conversation     AriaConversationCoreV2 @relation(fields: [conversationId, subjectStudentId], references: [id, studentId], onDelete: Restrict)
   subjectStudentId String
-  subjectStudent   Student                @relation("AriaConversationTurnSubjectCoreV2", fields: [subjectStudentId], references: [id], onDelete: Restrict)
+  subjectStudent   Student                @relation("AriaConversationTurnSubjectCoreV2", fields: [subjectStudentId, actorUserId], references: [id, userId], onDelete: Restrict)
   actorUserId      String
-  actorUser        User                   @relation("AriaConversationTurnActorCoreV2", fields: [actorUserId], references: [id], onDelete: Restrict)
   cancellationRequestedByActorId String?
   cancellationRequestedByActor User? @relation("AriaConversationTurnCancellationActorCoreV2", fields: [cancellationRequestedByActorId], references: [id], onDelete: Restrict)
 
@@ -1334,17 +1334,16 @@ model AriaMessageCoreV2 {
   id             String                           @id @default(cuid())
   conversationId String
   conversation   AriaConversationCoreV2           @relation(fields: [conversationId], references: [id], onDelete: Restrict)
-  turnId         String?
-  turn           AriaConversationTurnCoreV2?      @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Restrict)
+  turnId         String
+  turn           AriaConversationTurnCoreV2       @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Restrict)
   role           AriaConversationMessageRole
   content        String
   metadata       Json?
-  turnRole       AriaConversationTurnMessageRole?
   citations      AriaMessageCitationCoreV2[]
   feedbacks      AriaFeedbackCoreV2[]
   createdAt      DateTime                         @default(now())
 
-  @@unique([turnId, turnRole])
+  @@unique([turnId, role])
   @@index([conversationId, createdAt])
   @@map("aria_messages_core_v2")
 }
@@ -1408,11 +1407,6 @@ enum AriaVisibility {
 }
 
 enum AriaConversationMessageRole {
-  USER
-  ASSISTANT
-}
-
-enum AriaConversationTurnMessageRole {
   USER
   ASSISTANT
 }

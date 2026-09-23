@@ -3,7 +3,6 @@ CREATE TYPE "AriaConversationTurnStatus" AS ENUM ('PENDING', 'RUNNING', 'COMPLET
 CREATE TYPE "AriaConversationTurnUseCase" AS ENUM ('CONVERSATION');
 CREATE TYPE "AriaVisibility" AS ENUM ('STUDENT_PRIVATE', 'COACH_VISIBLE', 'PARENT_VISIBLE', 'SYSTEM_ONLY');
 CREATE TYPE "AriaConversationMessageRole" AS ENUM ('USER', 'ASSISTANT');
-CREATE TYPE "AriaConversationTurnMessageRole" AS ENUM ('USER', 'ASSISTANT');
 
 CREATE TABLE "aria_conversations_core_v2" (
   "id" TEXT NOT NULL,
@@ -53,11 +52,10 @@ CREATE TABLE "aria_conversation_turns_core_v2" (
 CREATE TABLE "aria_messages_core_v2" (
   "id" TEXT NOT NULL,
   "conversationId" TEXT NOT NULL,
-  "turnId" TEXT,
+  "turnId" TEXT NOT NULL,
   "role" "AriaConversationMessageRole" NOT NULL,
   "content" TEXT NOT NULL,
   "metadata" JSONB,
-  "turnRole" "AriaConversationTurnMessageRole",
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT "aria_messages_core_v2_pkey" PRIMARY KEY ("id")
 );
@@ -97,7 +95,7 @@ CREATE UNIQUE INDEX "aria_conversations_core_v2_id_studentId_key" ON "aria_conve
 CREATE UNIQUE INDEX "aria_conversation_turns_core_v2_id_conversationId_key" ON "aria_conversation_turns_core_v2" ("id", "conversationId");
 CREATE UNIQUE INDEX "aria_conversation_turns_core_v2_actorUserId_subjectStudentI_key" ON "aria_conversation_turns_core_v2" ("actorUserId", "subjectStudentId", "useCase", "clientRequestId");
 CREATE UNIQUE INDEX "aria_conversation_turns_core_v2_conversationId_sequence_key" ON "aria_conversation_turns_core_v2" ("conversationId", "sequence");
-CREATE UNIQUE INDEX "aria_messages_core_v2_turnId_turnRole_key" ON "aria_messages_core_v2" ("turnId", "turnRole");
+CREATE UNIQUE INDEX "aria_messages_core_v2_turnId_role_key" ON "aria_messages_core_v2" ("turnId", "role");
 CREATE UNIQUE INDEX "aria_feedback_core_v2_messageId_studentId_key" ON "aria_feedback_core_v2" ("messageId", "studentId");
 CREATE UNIQUE INDEX "aria_conversation_turns_core_v2_one_active_per_conversation" ON "aria_conversation_turns_core_v2" ("conversationId") WHERE "status" IN ('PENDING', 'RUNNING');
 CREATE INDEX "aria_conversations_core_v2_studentId_updatedAt_idx" ON "aria_conversations_core_v2" ("studentId", "updatedAt");
@@ -118,6 +116,8 @@ ALTER TABLE "aria_conversation_turns_core_v2"
     CHECK (jsonb_typeof("academicSnapshot") = 'object'),
   ADD CONSTRAINT "aria_conversation_turns_core_v2_cancellation_pair_check"
     CHECK (("cancellationRequestedAt" IS NULL) = ("cancellationRequestedByActorId" IS NULL)),
+  ADD CONSTRAINT "aria_conversation_turns_core_v2_cancellation_actor_check"
+    CHECK ("cancellationRequestedByActorId" IS NULL OR "cancellationRequestedByActorId" = "actorUserId"),
   ADD CONSTRAINT "aria_conversation_turns_core_v2_runtime_state_check"
     CHECK (
       ("status" = 'PENDING' AND "executionToken" IS NULL AND "heartbeatAt" IS NULL
@@ -127,16 +127,6 @@ ALTER TABLE "aria_conversation_turns_core_v2"
         AND "leaseExpiresAt" > "heartbeatAt" AND "startedAt" IS NOT NULL AND "completedAt" IS NULL)
       OR
       ("status" IN ('COMPLETED', 'CANCELLED', 'ERROR') AND "completedAt" IS NOT NULL)
-    );
-
-ALTER TABLE "aria_messages_core_v2"
-  ADD CONSTRAINT "aria_messages_core_v2_turn_pair_check"
-    CHECK (("turnId" IS NULL) = ("turnRole" IS NULL)),
-  ADD CONSTRAINT "aria_messages_core_v2_turn_role_semantics_check"
-    CHECK (
-      "turnRole" IS NULL
-      OR ("turnRole" = 'USER' AND "role" = 'USER')
-      OR ("turnRole" = 'ASSISTANT' AND "role" = 'ASSISTANT')
     );
 
 ALTER TABLE "aria_message_citations_core_v2"
@@ -180,8 +170,8 @@ FOR EACH ROW EXECUTE FUNCTION aria_core_v2_turn_status_transition_guard();
 
 ALTER TABLE "aria_conversations_core_v2" ADD CONSTRAINT "aria_conversations_core_v2_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "students_v2"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "aria_conversation_turns_core_v2" ADD CONSTRAINT "aria_conversation_turns_core_v2_conversationId_subjectStud_fkey" FOREIGN KEY ("conversationId", "subjectStudentId") REFERENCES "aria_conversations_core_v2"("id", "studentId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "aria_conversation_turns_core_v2" ADD CONSTRAINT "aria_conversation_turns_core_v2_subjectStudentId_fkey" FOREIGN KEY ("subjectStudentId") REFERENCES "students_v2"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "aria_conversation_turns_core_v2" ADD CONSTRAINT "aria_conversation_turns_core_v2_actorUserId_fkey" FOREIGN KEY ("actorUserId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+CREATE UNIQUE INDEX "students_v2_id_userId_key" ON "students_v2" ("id", "userId");
+ALTER TABLE "aria_conversation_turns_core_v2" ADD CONSTRAINT "aria_conversation_turns_core_v2_subjectStudentId_actorUser_fkey" FOREIGN KEY ("subjectStudentId", "actorUserId") REFERENCES "students_v2"("id", "userId") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "aria_conversation_turns_core_v2" ADD CONSTRAINT "aria_conversation_turns_core_v2_cancellationRequestedByAct_fkey" FOREIGN KEY ("cancellationRequestedByActorId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "aria_messages_core_v2" ADD CONSTRAINT "aria_messages_core_v2_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "aria_conversations_core_v2"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "aria_messages_core_v2" ADD CONSTRAINT "aria_messages_core_v2_turnId_conversationId_fkey" FOREIGN KEY ("turnId", "conversationId") REFERENCES "aria_conversation_turns_core_v2"("id", "conversationId") ON DELETE RESTRICT ON UPDATE CASCADE;
