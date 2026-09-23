@@ -296,6 +296,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Diagnostics candidats libres',
+      href: '/dashboard/admin/diagnostics-candidat-libre',
+      icon: 'ClipboardCheck',
+      match: 'prefix'
+    },
+    {
       label: 'Pilotage',
       href: '/dashboard/admin/analytics',
       icon: 'BarChart',

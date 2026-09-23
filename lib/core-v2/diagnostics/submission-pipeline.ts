@@ -12,6 +12,7 @@ import type { DiagnosticSubmission, PrismaClient } from '@/core-v2/generated/cli
 import { InvalidStateError } from '../errors';
 import { createOwnDiagnosticSubmission, getOwnDiagnosticAssignmentForSubjectAccess } from '../services/diagnostics';
 import type { ServiceContext } from '../services/context';
+import { CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES } from '@/lib/diagnostics/current-submission';
 import {
   deleteDiagnosticStagingFile,
   diagnosticQuarantineRelativePath,
@@ -52,7 +53,7 @@ export async function depositOwnDiagnosticSubmission(
   // deposit: identical bytes as the current, non-rejected latest version
   // is a replay — return it as-is, write nothing, create nothing.
   const latest = await client.diagnosticSubmission.findFirst({
-    where: { assignmentId: assignment.id, status: { not: 'REJECTED' } },
+    where: { assignmentId: assignment.id, status: { in: [...CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES] } },
     orderBy: { version: 'desc' },
   });
   if (latest && latest.sha256 === sha256) {

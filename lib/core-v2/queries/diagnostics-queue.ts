@@ -1,0 +1,483 @@
+/**
+ * ADMIN/ASSISTANTE diagnostics queue (candidat-libre) — lets staff discover
+ * submissions needing attention without knowing a submission's id in
+ * advance. Read-only, logistics-only: never selects `extractedText`,
+ * `aiProposal`, `humanReview` or any evidentiary/academic content — the
+ * detail route (gated separately by DIAGNOSTIC_SUBMISSION_CONTENT_READ /
+ * DIAGNOSTIC_BILAN_REVIEW) is the only place that content is ever served.
+ *
+ * `projectDiagnosticQueueState` is the canonical executable state contract.
+ * The bounded SQL projection below is generated from the same status buckets
+ * and rank map, with real-DB parity tests guarding every branch. A future
+ * dashboard counter must reuse that SQL fragment in this repository.
+ */
+import type { Prisma as PrismaTypes, PrismaClient } from '@/core-v2/generated/client';
+import { z } from 'zod';
+import { Prisma } from '../client';
+import { assertCapability } from '../rbac';
+import type { ServiceContext } from '../services/context';
+import { idSchema } from '../services/validation';
+import type { Page } from './staff';
+import {
+  CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES,
+  type CurrentDiagnosticSubmissionStatus,
+} from '@/lib/diagnostics/current-submission';
+
+const DIAGNOSTIC_QUEUE_STATES = [
+  'NOT_PROCESSED',
+  'PROCESSING',
+  'READY_FOR_REVIEW',
+  'VALIDATED_UNPUBLISHED',
+  'PUBLISHED',
+  'FAILED',
+] as const;
+export type DiagnosticQueueState = (typeof DIAGNOSTIC_QUEUE_STATES)[number];
+
+const DIAGNOSTIC_PROCESSING_STATUSES = [
+  'QUEUED',
+  'EXTRACTING',
+  'EXTRACTED',
+  'NO_EXTRACTABLE_TEXT',
+  'EXTRACTION_FAILED',
+] as const;
+const DIAGNOSTIC_DRAFT_STATUSES = ['DRAFT', 'VALIDATED', 'PUBLISHED'] as const;
+
+export const DIAGNOSTIC_QUEUE_FILTERS = [
+  'ACTION_REQUIRED',
+  'NOT_PROCESSED',
+  'PROCESSING',
+  'READY_FOR_REVIEW',
+  'VALIDATED_UNPUBLISHED',
+  'PUBLISHED',
+  'FAILED',
+  'ALL',
+] as const;
+export type DiagnosticQueueFilter = (typeof DIAGNOSTIC_QUEUE_FILTERS)[number];
+
+export interface DiagnosticQueueStatusInput {
+  readonly submissionStatus: CurrentDiagnosticSubmissionStatus;
+  readonly processingStatus: (typeof DIAGNOSTIC_PROCESSING_STATUSES)[number] | null;
+  readonly draftStatus: (typeof DIAGNOSTIC_DRAFT_STATUSES)[number] | null;
+}
+
+const PROCESSING_QUEUE_STATUSES = ['QUEUED', 'EXTRACTING'] as const;
+const FAILED_QUEUE_STATUSES = ['EXTRACTION_FAILED', 'NO_EXTRACTABLE_TEXT'] as const;
+const DRAFT_QUEUE_STATE = {
+  PUBLISHED: 'PUBLISHED',
+  VALIDATED: 'VALIDATED_UNPUBLISHED',
+} as const satisfies Partial<
+  Record<NonNullable<DiagnosticQueueStatusInput['draftStatus']>, DiagnosticQueueState>
+>;
+
+/**
+ * The one state-projection function (mission "GO-LIVE ARIA/queue" §I):
+ * pure, exhaustive over the real enum combinations, never re-derived by the
+ * route or the client.
+ */
+export function projectDiagnosticQueueState(input: DiagnosticQueueStatusInput): DiagnosticQueueState {
+  if (!input.processingStatus) return 'NOT_PROCESSED';
+  if (PROCESSING_QUEUE_STATUSES.some((status) => status === input.processingStatus)) return 'PROCESSING';
+  if (FAILED_QUEUE_STATUSES.some((status) => status === input.processingStatus)) return 'FAILED';
+  // processingStatus === 'EXTRACTED' from here on.
+  const draftState = input.draftStatus ? DRAFT_QUEUE_STATE[input.draftStatus as keyof typeof DRAFT_QUEUE_STATE] : null;
+  if (draftState) return draftState;
+  return 'READY_FOR_REVIEW'; // no draft yet, or draft still DRAFT
+}
+
+const ACTION_REQUIRED_STATE_VALUES = [
+  'NOT_PROCESSED',
+  'READY_FOR_REVIEW',
+  'VALIDATED_UNPUBLISHED',
+  'FAILED',
+] as const satisfies readonly DiagnosticQueueState[];
+const ACTION_REQUIRED_STATES: ReadonlySet<DiagnosticQueueState> = new Set(ACTION_REQUIRED_STATE_VALUES);
+
+/** Staleness matters for a queue: these are handled/inert, everything else needs a human. */
+export function isActionRequiredState(state: DiagnosticQueueState): boolean {
+  return ACTION_REQUIRED_STATES.has(state);
+}
+
+/** Deterministic priority for the default sort: action-required states first, in a stable order. */
+const STATE_SORT_RANK: Readonly<Record<DiagnosticQueueState, number>> = {
+  NOT_PROCESSED: 0,
+  READY_FOR_REVIEW: 1,
+  VALIDATED_UNPUBLISHED: 2,
+  FAILED: 3,
+  PROCESSING: 4,
+  PUBLISHED: 5,
+};
+
+const diagnosticQueueCursorSchema = z
+  .object({
+    v: z.literal(1),
+    filter: z.enum(DIAGNOSTIC_QUEUE_FILTERS),
+    stateRank: z.number().int().nonnegative(),
+    lastActivityAt: z.string().datetime({ offset: true }),
+    submissionId: idSchema,
+  })
+  .strict();
+
+export type DiagnosticQueueCursor = z.infer<typeof diagnosticQueueCursorSchema>;
+
+function encodeDiagnosticQueueCursor(cursor: DiagnosticQueueCursor): string {
+  return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
+function decodeCanonicalBase64url(value: string): Buffer {
+  if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length % 4 === 1) {
+    throw new Error('NON_CANONICAL_BASE64URL');
+  }
+  const decoded = Buffer.from(value, 'base64url');
+  if (decoded.toString('base64url') !== value) {
+    throw new Error('NON_CANONICAL_BASE64URL');
+  }
+  return decoded;
+}
+
+const diagnosticQueueCursorParamSchema = z
+  .string()
+  .min(1)
+  .max(1024)
+  .transform((value, ctx): DiagnosticQueueCursor => {
+    try {
+      const parsedJson = JSON.parse(decodeCanonicalBase64url(value).toString('utf8')) as unknown;
+      const parsedCursor = diagnosticQueueCursorSchema.safeParse(parsedJson);
+      if (parsedCursor.success) return parsedCursor.data;
+    } catch {
+      // Report one stable validation issue below; never expose parser detail.
+    }
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid diagnostics queue cursor.' });
+    return z.NEVER;
+  });
+
+export const diagnosticQueueQuerySchema = z.object({
+  status: z.enum(DIAGNOSTIC_QUEUE_FILTERS).default('ACTION_REQUIRED'),
+  cursor: diagnosticQueueCursorParamSchema.optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type DiagnosticQueueQuery = z.infer<typeof diagnosticQueueQuerySchema>;
+
+export interface DiagnosticQueueRow {
+  readonly submissionId: string;
+  readonly state: DiagnosticQueueState;
+  readonly candidate: { readonly id: string; readonly firstName: string | null; readonly lastName: string | null };
+  readonly instrument: { readonly instrumentKey: string; readonly version: string; readonly title: string };
+  readonly submission: {
+    readonly version: number;
+    readonly status: DiagnosticQueueStatusInput['submissionStatus'];
+    readonly createdAt: Date;
+  };
+  readonly processingStatus: DiagnosticQueueStatusInput['processingStatus'];
+  readonly draftStatus: DiagnosticQueueStatusInput['draftStatus'];
+  readonly lastActivityAt: Date;
+}
+
+export const queueCandidateSelect = {
+  id: true,
+  user: { select: { firstName: true, lastName: true } },
+} satisfies PrismaTypes.StudentSelect;
+
+function queueStateSql(processingStatus: Prisma.Sql, draftStatus: Prisma.Sql): Prisma.Sql {
+  return Prisma.sql`CASE
+    WHEN ${processingStatus} IS NULL THEN 'NOT_PROCESSED'
+    WHEN ${processingStatus} IN (${Prisma.join([...PROCESSING_QUEUE_STATUSES])}) THEN 'PROCESSING'
+    WHEN ${processingStatus} IN (${Prisma.join([...FAILED_QUEUE_STATUSES])}) THEN 'FAILED'
+    ${Prisma.join(
+      Object.entries(DRAFT_QUEUE_STATE).map(
+        ([status, state]) => Prisma.sql`WHEN ${draftStatus} = ${status} THEN ${state}`,
+      ),
+      ' ',
+    )}
+    ELSE 'READY_FOR_REVIEW'
+  END`;
+}
+
+const QUEUE_STATE_SQL = queueStateSql(
+  Prisma.raw('p."status"::text'),
+  Prisma.raw('d."draftStatus"'),
+);
+
+const QUEUE_STATE_RANK_SQL = Prisma.sql`CASE "state"
+  ${Prisma.join(
+    Object.entries(STATE_SORT_RANK).map(([state, rank]) => Prisma.sql`WHEN ${state} THEN ${rank}`),
+    ' ',
+  )}
+  ELSE 999
+END`;
+
+function queueFilterSql(filter: DiagnosticQueueFilter): Prisma.Sql {
+  if (filter === 'ALL') return Prisma.sql`TRUE`;
+  if (filter === 'ACTION_REQUIRED') {
+    return Prisma.sql`"state" IN (${Prisma.join([...ACTION_REQUIRED_STATE_VALUES])})`;
+  }
+  return Prisma.sql`"state" = ${filter}`;
+}
+
+function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
+  const cursorPredicate = query.cursor
+    ? Prisma.sql`(
+          q."stateRank" > (SELECT "stateRank" FROM "anchor")
+          OR (
+            q."stateRank" = (SELECT "stateRank" FROM "anchor")
+            AND q."lastActivityAt" > (SELECT "lastActivityAt" FROM "anchor")
+          )
+          OR (
+            q."stateRank" = (SELECT "stateRank" FROM "anchor")
+            AND q."lastActivityAt" = (SELECT "lastActivityAt" FROM "anchor")
+            AND q."submissionId" > (SELECT "submissionId" FROM "anchor")
+          )
+        )`
+    : Prisma.sql`TRUE`;
+
+  const cursorValidity = query.cursor
+    ? Prisma.sql`EXISTS (
+        SELECT 1
+        FROM "anchor"
+        WHERE "stateRank" = ${query.cursor.stateRank}
+          AND "lastActivityAt" = ${new Date(query.cursor.lastActivityAt)}
+          AND "submissionId" = ${query.cursor.submissionId}
+      )`
+    : Prisma.sql`TRUE`;
+
+  return Prisma.sql`
+    WITH "latestUsableSubmission" AS (
+      SELECT DISTINCT ON (s."assignmentId")
+        s."id" AS "submissionId",
+        s."assignmentId",
+        s."version" AS "submissionVersion",
+        s."status"::text AS "submissionStatus",
+        s."createdAt" AS "submissionCreatedAt",
+        s."updatedAt" AS "submissionUpdatedAt"
+      FROM "diagnostic_submissions" s
+      WHERE s."status"::text IN (${Prisma.join([...CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES])})
+      ORDER BY s."assignmentId" ASC, s."version" DESC
+    ),
+    "latestDraft" AS (
+      SELECT DISTINCT ON (d."processingId")
+        d."processingId",
+        d."status"::text AS "draftStatus",
+        d."updatedAt" AS "draftUpdatedAt"
+      FROM "diagnostic_bilan_drafts" d
+      ORDER BY d."processingId" ASC, d."revision" DESC
+    ),
+    "stateProjected" AS (
+      SELECT
+        s."submissionId",
+        st."id" AS "candidateId",
+        u."firstName" AS "candidateFirstName",
+        u."lastName" AS "candidateLastName",
+        a."instrumentKeySnapshot" AS "instrumentKey",
+        a."instrumentVersionSnapshot" AS "instrumentVersion",
+        i."title" AS "instrumentTitle",
+        s."submissionVersion",
+        s."submissionStatus",
+        s."submissionCreatedAt",
+        p."status"::text AS "processingStatus",
+        d."draftStatus",
+        date_trunc('milliseconds', GREATEST(s."submissionUpdatedAt", p."updatedAt", d."draftUpdatedAt")) AS "lastActivityAt",
+        ${QUEUE_STATE_SQL} AS "state"
+      FROM "latestUsableSubmission" s
+      INNER JOIN "diagnostic_assignments" a ON a."id" = s."assignmentId"
+      INNER JOIN "students_v2" st ON st."id" = a."studentId"
+      INNER JOIN "users" u ON u."id" = st."userId"
+      INNER JOIN "diagnostic_instrument_refs" i ON i."id" = a."instrumentRefId"
+      LEFT JOIN "diagnostic_submission_processings" p ON p."submissionId" = s."submissionId"
+      LEFT JOIN "latestDraft" d ON d."processingId" = p."id"
+      WHERE a."status"::text <> 'REVOKED'
+    ),
+    "ranked" AS (
+      SELECT "stateProjected".*, (${QUEUE_STATE_RANK_SQL})::integer AS "stateRank"
+      FROM "stateProjected"
+    ),
+    "filtered" AS (
+      SELECT * FROM "ranked" WHERE ${queueFilterSql(query.status)}
+    ),
+    "anchor" AS (
+      SELECT "stateRank", "lastActivityAt", "submissionId"
+      FROM "filtered"
+      WHERE "submissionId" = ${query.cursor?.submissionId ?? ''}
+    ),
+    "cursorState" AS (
+      SELECT ${cursorValidity} AS "cursorValid"
+    ),
+    "page" AS (
+      SELECT
+        q."submissionId",
+        q."state",
+        q."stateRank",
+        q."candidateId",
+        q."candidateFirstName",
+        q."candidateLastName",
+        q."instrumentKey",
+        q."instrumentVersion",
+        q."instrumentTitle",
+        q."submissionVersion",
+        q."submissionStatus",
+        q."submissionCreatedAt",
+        q."processingStatus",
+        q."draftStatus",
+        q."lastActivityAt",
+        c."cursorValid",
+        FALSE AS "metadataOnly"
+      FROM "filtered" q
+      CROSS JOIN "cursorState" c
+      WHERE (NOT c."cursorValid" OR ${cursorPredicate})
+      ORDER BY q."stateRank" ASC, q."lastActivityAt" ASC, q."submissionId" ASC
+      LIMIT ${query.limit + 1}
+    )
+    SELECT
+      "submissionId", "state", "stateRank", "candidateId", "candidateFirstName", "candidateLastName",
+      "instrumentKey", "instrumentVersion", "instrumentTitle", "submissionVersion", "submissionStatus",
+      "submissionCreatedAt", "processingStatus", "draftStatus", "lastActivityAt", "cursorValid", "metadataOnly"
+    FROM "page"
+    UNION ALL
+    SELECT
+      NULL::text, NULL::text, NULL::integer, NULL::text, NULL::text, NULL::text,
+      NULL::text, NULL::text, NULL::text, NULL::integer, NULL::text,
+      NULL::timestamp(3), NULL::text, NULL::text, NULL::timestamp(3), c."cursorValid", TRUE
+    FROM "cursorState" c
+    WHERE NOT EXISTS (SELECT 1 FROM "page")
+    ORDER BY "metadataOnly" ASC, "stateRank" ASC NULLS LAST, "lastActivityAt" ASC NULLS LAST, "submissionId" ASC NULLS LAST
+  `;
+}
+
+const queueDateSchema = z
+  .union([z.date(), z.string().datetime({ offset: true })])
+  .transform((value) => (value instanceof Date ? value : new Date(value)));
+
+const diagnosticQueueRawRowSchema = z
+  .object({
+    submissionId: z.string().min(1),
+    state: z.enum(DIAGNOSTIC_QUEUE_STATES),
+    stateRank: z.number().int().nonnegative(),
+    candidateId: z.string().min(1),
+    candidateFirstName: z.string().nullable(),
+    candidateLastName: z.string().nullable(),
+    instrumentKey: z.string(),
+    instrumentVersion: z.string(),
+    instrumentTitle: z.string(),
+    submissionVersion: z.number().int().positive(),
+    submissionStatus: z.enum(CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES),
+    submissionCreatedAt: queueDateSchema,
+    processingStatus: z.enum(DIAGNOSTIC_PROCESSING_STATUSES).nullable(),
+    draftStatus: z.enum(DIAGNOSTIC_DRAFT_STATUSES).nullable(),
+    lastActivityAt: queueDateSchema,
+    cursorValid: z.boolean(),
+    metadataOnly: z.literal(false),
+  })
+  .strict();
+
+const diagnosticQueueMetadataRowSchema = z
+  .object({
+    submissionId: z.null(),
+    state: z.null(),
+    stateRank: z.null(),
+    candidateId: z.null(),
+    candidateFirstName: z.null(),
+    candidateLastName: z.null(),
+    instrumentKey: z.null(),
+    instrumentVersion: z.null(),
+    instrumentTitle: z.null(),
+    submissionVersion: z.null(),
+    submissionStatus: z.null(),
+    submissionCreatedAt: z.null(),
+    processingStatus: z.null(),
+    draftStatus: z.null(),
+    lastActivityAt: z.null(),
+    cursorValid: z.boolean(),
+    metadataOnly: z.literal(true),
+  })
+  .strict();
+
+const diagnosticQueueResultRowSchema = z.union([
+  diagnosticQueueRawRowSchema,
+  diagnosticQueueMetadataRowSchema,
+]);
+
+export type DiagnosticQueueRawRow = z.infer<typeof diagnosticQueueRawRowSchema>;
+
+export interface DiagnosticQueuePage extends Page<DiagnosticQueueRow> {
+  readonly listChanged: boolean;
+}
+
+export function mapDiagnosticQueueRawRow(raw: DiagnosticQueueRawRow): DiagnosticQueueRow {
+  return {
+    submissionId: raw.submissionId,
+    state: raw.state,
+    candidate: {
+      id: raw.candidateId,
+      firstName: raw.candidateFirstName,
+      lastName: raw.candidateLastName,
+    },
+    instrument: {
+      instrumentKey: raw.instrumentKey,
+      version: raw.instrumentVersion,
+      title: raw.instrumentTitle,
+    },
+    submission: {
+      version: raw.submissionVersion,
+      status: raw.submissionStatus,
+      createdAt: raw.submissionCreatedAt,
+    },
+    processingStatus: raw.processingStatus,
+    draftStatus: raw.draftStatus,
+    lastActivityAt: raw.lastActivityAt,
+  };
+}
+
+export function materializeDiagnosticQueuePage(
+  rawRows: readonly unknown[],
+  limit: number,
+  mapper: (raw: DiagnosticQueueRawRow) => DiagnosticQueueRow = mapDiagnosticQueueRawRow,
+  options: {
+    readonly filter?: DiagnosticQueueFilter;
+    readonly cursorRequested?: boolean;
+    readonly forceListChanged?: boolean;
+  } = {},
+): DiagnosticQueuePage {
+  const resultRows = rawRows.slice(0, limit + 1).map((raw) => diagnosticQueueResultRowSchema.parse(raw));
+  const boundedRows = resultRows.filter((row): row is DiagnosticQueueRawRow => !row.metadataOnly);
+  const metadataRow = resultRows.find((row) => row.metadataOnly);
+  const rows = boundedRows.map(mapper);
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  const cursorValid = metadataRow?.cursorValid ?? boundedRows[0]?.cursorValid;
+  const cursorInvalid = Boolean(options.cursorRequested) && cursorValid !== true;
+  const lastRawRow = hasMore ? boundedRows[limit - 1] : undefined;
+  return {
+    items,
+    nextCursor: lastRawRow
+      ? encodeDiagnosticQueueCursor({
+          v: 1,
+          filter: options.filter ?? 'ALL',
+          stateRank: lastRawRow.stateRank,
+          lastActivityAt: lastRawRow.lastActivityAt.toISOString(),
+          submissionId: lastRawRow.submissionId,
+        })
+      : null,
+    listChanged: Boolean(options.forceListChanged) || cursorInvalid,
+  };
+}
+
+/**
+ * Server-filtered, server-paginated queue. Everything is loaded with an
+ * explicit `select`/`include` allow-list (never a bare `include: true` on
+ * `processing`/`draft`) so `extractedText`/`aiProposal`/`humanReview` are
+ * structurally unreachable from this query, not merely omitted by
+ * discipline.
+ */
+export async function listDiagnosticSubmissionsQueue(
+  client: PrismaClient,
+  ctx: ServiceContext,
+  query: DiagnosticQueueQuery,
+): Promise<DiagnosticQueuePage> {
+  assertCapability(ctx.actor, 'DIAGNOSTIC_SUBMISSION_TRACK');
+  const filterChanged = Boolean(query.cursor && query.cursor.filter !== query.status);
+  const effectiveQuery = filterChanged ? { ...query, cursor: undefined } : query;
+  const rows = await client.$queryRaw<unknown[]>(buildDiagnosticQueuePageSql(effectiveQuery));
+  return materializeDiagnosticQueuePage(rows, query.limit, mapDiagnosticQueueRawRow, {
+    filter: query.status,
+    cursorRequested: Boolean(effectiveQuery.cursor),
+    forceListChanged: filterChanged,
+  });
+}

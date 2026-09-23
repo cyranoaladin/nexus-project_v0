@@ -148,4 +148,64 @@ describe('DiagnosticsPanel', () => {
 
     await waitFor(() => expect(screen.getAllByRole('button', { name: 'Révoquer' })).toHaveLength(1));
   });
+
+  test('shows the highest usable version as current when a later rejected audit version exists', async () => {
+    mockApi([
+      {
+        url: /\/staff\/me$/,
+        body: ok({
+          actor: { userId: 'admin-1', role: 'ADMIN' },
+          capabilities: ['DIAGNOSTIC_BILAN_REVIEW'],
+        }),
+      },
+      { url: /\/staff\/diagnostics\/catalog$/, body: ok(catalogFixture) },
+      {
+        url: /\/staff\/students\/s1\/diagnostics$/,
+        body: ok([
+          {
+            id: 'assign-current-contract',
+            status: 'SUBMITTED',
+            instrumentKeySnapshot: 'DEMO-FIXTURE-01',
+            instrumentVersionSnapshot: '1.0.0',
+            formSnapshot: 'FORM_DEMO',
+            conditionsSnapshot: null,
+            dueAt: null,
+            modalities: null,
+            createdAt: '2026-09-21T00:00:00Z',
+            instrumentRef: catalogFixture[0],
+            submissions: [
+              {
+                id: 'submission-v1-usable',
+                version: 1,
+                originalFilename: 'accepted.pdf',
+                sizeBytes: 100,
+                sha256: 'a'.repeat(64),
+                status: 'ANALYZED',
+                createdAt: '2026-09-21T09:00:00Z',
+              },
+              {
+                id: 'submission-v2-rejected',
+                version: 2,
+                originalFilename: 'rejected.pdf',
+                sizeBytes: 100,
+                sha256: 'b'.repeat(64),
+                status: 'REJECTED',
+                createdAt: '2026-09-21T10:00:00Z',
+              },
+            ],
+          },
+        ]),
+      },
+    ]);
+
+    render(<DiagnosticsPanel studentId="s1" />);
+
+    await waitFor(() => expect(screen.getByText(/Dépôt v1 reçu \(ANALYZED\) — accepted\.pdf/)).toBeInTheDocument());
+    expect(screen.getByText(/1 dépôt refusé/)).toBeInTheDocument();
+    expect(screen.queryByText(/Dépôt v2 reçu/)).not.toBeInTheDocument();
+    expect(screen.getByTestId('link-view-bilan-review')).toHaveAttribute(
+      'href',
+      '/dashboard/admin/diagnostics-candidat-libre/submission-v1-usable',
+    );
+  });
 });

@@ -17,6 +17,7 @@ import {
 import { useAction } from './actions';
 import { useStaffActor } from './useStaffActor';
 import { StatusMessage } from './StatusMessage';
+import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 
 /**
  * Dossier candidat — onglet "Diagnostics" (mission §6/§7). Attribution
@@ -82,11 +83,8 @@ export function DiagnosticsPanel({ studentId }: { studentId: string }) {
           // A REJECTED deposit (failed antivirus / write-verification) is
           // never presented as "the current submission" — it still exists
           // for audit, but never as something usable.
-          const usableSubmissions = assignment.submissions.filter((s) => s.status !== 'REJECTED');
-          const currentSubmission = usableSubmissions.length
-            ? usableSubmissions.reduce((max, s) => (s.version > max.version ? s : max))
-            : null;
-          const rejectedCount = assignment.submissions.length - usableSubmissions.length;
+          const currentSubmission = selectCurrentDiagnosticSubmission(assignment.submissions);
+          const rejectedCount = assignment.submissions.filter((submission) => submission.status === 'REJECTED').length;
           return (
             <li key={assignment.id} className="rounded border border-white/10 p-2">
               <div className="flex flex-wrap items-start justify-between gap-2">
