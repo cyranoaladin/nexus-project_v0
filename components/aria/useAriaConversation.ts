@@ -21,6 +21,36 @@ export type AriaConversationPhase =
   | 'LOADING' | 'READY' | 'STARTING' | 'PENDING' | 'RETRY_REQUIRED'
   | 'STREAMING' | 'STOPPING' | 'ERROR';
 
+function fetchLatestForAuthority(courseKey: string, signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchLatestAriaConversation(courseKey, signal, authority)
+    : fetchLatestAriaConversation(courseKey, signal);
+}
+
+function fetchHistoryForAuthority(conversationId: string, signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchAriaConversationHistory(conversationId, signal, authority)
+    : fetchAriaConversationHistory(conversationId, signal);
+}
+
+function fetchCurriculumForAuthority(signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchAriaCurriculum(signal, authority)
+    : fetchAriaCurriculum(signal);
+}
+
+function cancelForAuthority(turnId: string, clientRequestId: string, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? cancelAriaTurn(turnId, clientRequestId, authority)
+    : cancelAriaTurn(turnId, clientRequestId);
+}
+
+function feedbackForAuthority(messageId: string, useful: boolean, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? persistAriaFeedback(messageId, useful, authority)
+    : persistAriaFeedback(messageId, useful);
+}
+
 interface ActiveAriaTransport {
   generation: number;
   turnId: string | null;
@@ -251,11 +281,11 @@ export function useAriaConversation(input: Readonly<{
     clearError();
     setRagStatus(null);
     try {
-      const latest = await fetchLatestAriaConversation(courseKey, controller.signal, authority);
+      const latest = await fetchLatestForAuthority(courseKey, controller.signal, authority);
       if (token !== generation.current) return;
       setConversationId(latest);
       if (latest) {
-        const history = await fetchAriaConversationHistory(latest, controller.signal, authority);
+        const history = await fetchHistoryForAuthority(latest, controller.signal, authority);
         if (token !== generation.current) return;
         setMessages(history.messages);
         if (history.activeTurn) {
@@ -333,7 +363,7 @@ export function useAriaConversation(input: Readonly<{
     setRagStatus(null);
     setPhase('LOADING');
     setAnnouncement('Chargement des cours ARIA.');
-    void fetchAriaCurriculum(controller.signal, authority).then((curriculum) => {
+    void fetchCurriculumForAuthority(controller.signal, authority).then((curriculum) => {
       if (token !== generation.current) return;
       setCourses(curriculum.courses);
       setShowCitations(curriculum.profile.showCitations);
@@ -378,7 +408,12 @@ export function useAriaConversation(input: Readonly<{
   const send = useCallback(async () => {
     const content = composerInput.trim();
     if (!content || !selectedCourseKey || phase !== 'READY' || activeTurn.current) return;
-    const request = createAriaClientRequest({ courseKey: selectedCourseKey, content, conversationId, authority });
+    const request = createAriaClientRequest({
+      courseKey: selectedCourseKey,
+      content,
+      conversationId,
+      ...(authority === 'CORE_V2' ? { authority } : {}),
+    });
     detach();
     const token = generation.current;
     setComposerInput('');
@@ -425,7 +460,7 @@ export function useAriaConversation(input: Readonly<{
     clearError();
     setAnnouncement('Arrêt de la réponse ARIA.');
     try {
-      const result = await cancelAriaTurn(active.turnId, active.clientRequestId, authority);
+      const result = await cancelForAuthority(active.turnId, active.clientRequestId, authority);
       if (!isCurrentTurn()) return;
       if (result.turnId !== active.turnId
         || (active.conversationId && result.conversationId !== active.conversationId)) {
@@ -445,7 +480,7 @@ export function useAriaConversation(input: Readonly<{
       let history: readonly AriaClientMessage[];
       try {
         try {
-          const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal, authority);
+          const reloaded = await fetchHistoryForAuthority(result.conversationId, controller.signal, authority);
           const turnMessages = reloaded.messages.filter(
             ({ turnId }) => turnId === result.turnId,
           );
@@ -507,7 +542,7 @@ export function useAriaConversation(input: Readonly<{
     const perform = async () => {
       const revisionAtStart = errorRevision.current;
       try {
-        const persisted = await persistAriaFeedback(messageId, useful, authority);
+        const persisted = await feedbackForAuthority(messageId, useful, authority);
         setMessages((current) => current.map((message) =>
           message.id === messageId ? { ...message, feedback: persisted.useful } : message));
         if (revisionAtStart === errorRevision.current) {
