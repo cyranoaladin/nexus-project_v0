@@ -9,7 +9,7 @@ import {
   projectDiagnosticQueueState,
   queueCandidateSelect,
 } from '@/lib/core-v2/queries/diagnostics-queue';
-import { selectCurrentDiagnosticSubmission } from '@/lib/core-v2/diagnostics/current-submission';
+import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 import { createHousehold, createStudent } from '@/lib/core-v2/services';
 import { attributeDiagnostic } from '@/lib/core-v2/services/diagnostics';
 import { setupServiceHarness } from '../helpers/service-harness';

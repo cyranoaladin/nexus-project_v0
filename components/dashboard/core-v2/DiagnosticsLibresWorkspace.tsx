@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { type ApiFail, type DiagnosticAssignment, describeFailure, v2 } from './api';
 import { PublishedBilanContentView, type PublishedBilanContent } from './PublishedBilanContentView';
 import { StatusMessage } from './StatusMessage';
-import { selectCurrentDiagnosticSubmission } from '@/lib/core-v2/diagnostics/current-submission';
+import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 
 /**
  * Espace candidat — "Diagnostics libres" (mission §7). Le candidat retrouve

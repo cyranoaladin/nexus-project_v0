@@ -12,7 +12,7 @@ import type { DiagnosticSubmission, PrismaClient } from '@/core-v2/generated/cli
 import { InvalidStateError } from '../errors';
 import { createOwnDiagnosticSubmission, getOwnDiagnosticAssignmentForSubjectAccess } from '../services/diagnostics';
 import type { ServiceContext } from '../services/context';
-import { CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES } from './current-submission';
+import { CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES } from '@/lib/diagnostics/current-submission';
 import {
   deleteDiagnosticStagingFile,
   diagnosticQuarantineRelativePath,

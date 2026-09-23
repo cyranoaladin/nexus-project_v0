@@ -17,7 +17,7 @@ import {
 import { useAction } from './actions';
 import { useStaffActor } from './useStaffActor';
 import { StatusMessage } from './StatusMessage';
-import { selectCurrentDiagnosticSubmission } from '@/lib/core-v2/diagnostics/current-submission';
+import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 
 /**
  * Dossier candidat — onglet "Diagnostics" (mission §6/§7). Attribution

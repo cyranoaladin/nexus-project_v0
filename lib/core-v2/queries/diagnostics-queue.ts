@@ -21,7 +21,7 @@ import {
   CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES,
   isUsableDiagnosticSubmission,
   type CurrentDiagnosticSubmissionStatus,
-} from '../diagnostics/current-submission';
+} from '@/lib/diagnostics/current-submission';
 
 export type DiagnosticQueueState =
   | 'NOT_PROCESSED'
