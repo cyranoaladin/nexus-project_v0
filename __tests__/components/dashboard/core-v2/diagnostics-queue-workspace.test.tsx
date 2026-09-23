@@ -41,8 +41,8 @@ describe('DiagnosticsQueueWorkspace', () => {
   test('empty state for the default ACTION_REQUIRED filter, then switching filter re-fetches with the new status', async () => {
     mockApi([
       { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
-      { url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/, body: ok({ items: [], nextCursor: null }) },
-      { url: /\/staff\/diagnostics\/submissions\?status=PUBLISHED&limit=20$/, body: ok({ items: [row('s1', 'PUBLISHED', 'Léa')], nextCursor: null }) },
+      { url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/, body: ok({ items: [], nextCursor: null, listChanged: false }) },
+      { url: /\/staff\/diagnostics\/submissions\?status=PUBLISHED&limit=20$/, body: ok({ items: [row('s1', 'PUBLISHED', 'Léa')], nextCursor: null, listChanged: false }) },
     ]);
     render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
 
@@ -61,7 +61,7 @@ describe('DiagnosticsQueueWorkspace', () => {
       { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
       {
         url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/,
-        body: ok({ items: [row('s1', 'NOT_PROCESSED', 'Yanis'), row('s2', 'READY_FOR_REVIEW', 'Nora')], nextCursor: null }),
+        body: ok({ items: [row('s1', 'NOT_PROCESSED', 'Yanis'), row('s2', 'READY_FOR_REVIEW', 'Nora')], nextCursor: null, listChanged: false }),
       },
     ]);
     render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
@@ -90,5 +90,83 @@ describe('DiagnosticsQueueWorkspace', () => {
     render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
     expect(await screen.findByText(/n’avez pas les droits nécessaires/)).toBeInTheDocument();
     expect(screen.queryByText('Léa Synthetic')).not.toBeInTheDocument();
+  });
+
+  test('a listChanged load-more response replaces existing rows and announces the refresh', async () => {
+    mockApi([
+      { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/,
+        body: ok({ items: [row('old', 'NOT_PROCESSED', 'Ancienne')], nextCursor: 'cursor-1', listChanged: false }),
+      },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20&cursor=cursor-1$/,
+        body: ok({ items: [row('fresh', 'READY_FOR_REVIEW', 'Nouvelle')], nextCursor: null, listChanged: true }),
+      },
+    ]);
+    render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
+
+    expect(await screen.findByText('Ancienne Synthetic')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Afficher plus' }));
+
+    expect(await screen.findByText('Nouvelle Synthetic')).toBeInTheDocument();
+    expect(screen.queryByText('Ancienne Synthetic')).not.toBeInTheDocument();
+    expect(screen.getByText('Liste actualisée')).toBeInTheDocument();
+  });
+
+  test('overlapping pages render each submission once and preserve server order', async () => {
+    mockApi([
+      { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/,
+        body: ok({
+          items: [row('s1', 'NOT_PROCESSED', 'Première'), row('s2', 'READY_FOR_REVIEW', 'Deuxième')],
+          nextCursor: 'cursor-2',
+          listChanged: false,
+        }),
+      },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20&cursor=cursor-2$/,
+        body: ok({
+          items: [row('s2', 'READY_FOR_REVIEW', 'Deuxième'), row('s3', 'FAILED', 'Troisième')],
+          nextCursor: null,
+          listChanged: false,
+        }),
+      },
+    ]);
+    render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
+
+    expect(await screen.findByText('Première Synthetic')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Afficher plus' }));
+    expect(await screen.findByText('Troisième Synthetic')).toBeInTheDocument();
+
+    expect(screen.getAllByText('Deuxième Synthetic')).toHaveLength(1);
+    expect(within(screen.getByRole('table')).getAllByRole('link').map((link) => link.getAttribute('aria-label'))).toEqual([
+      'Ouvrir la copie de Première Synthetic',
+      'Ouvrir la copie de Deuxième Synthetic',
+      'Ouvrir la copie de Troisième Synthetic',
+    ]);
+  });
+
+  test('a new first page replaces rows from the previous filter', async () => {
+    mockApi([
+      { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/,
+        body: ok({ items: [row('action', 'NOT_PROCESSED', 'Action')], nextCursor: null, listChanged: false }),
+      },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=PUBLISHED&limit=20$/,
+        body: ok({ items: [row('published', 'PUBLISHED', 'Publiée')], nextCursor: null, listChanged: false }),
+      },
+    ]);
+    render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
+
+    expect(await screen.findByText('Action Synthetic')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Publié' }));
+
+    expect(await screen.findByText('Publiée Synthetic')).toBeInTheDocument();
+    expect(screen.queryByText('Action Synthetic')).not.toBeInTheDocument();
+    expect(screen.queryByText('Liste actualisée')).not.toBeInTheDocument();
   });
 });

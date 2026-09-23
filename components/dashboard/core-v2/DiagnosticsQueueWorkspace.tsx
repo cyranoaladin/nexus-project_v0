@@ -73,6 +73,25 @@ export interface DiagnosticQueueRow {
   readonly lastActivityAt: string;
 }
 
+interface DiagnosticQueuePage extends Page<DiagnosticQueueRow> {
+  readonly listChanged: boolean;
+}
+
+function reconcileDiagnosticQueueRows(
+  current: readonly DiagnosticQueueRow[],
+  incoming: readonly DiagnosticQueueRow[],
+  replace: boolean,
+): DiagnosticQueueRow[] {
+  const rows = replace ? [] : [...current];
+  const seen = new Set(rows.map((row) => row.submissionId));
+  for (const row of incoming) {
+    if (seen.has(row.submissionId)) continue;
+    seen.add(row.submissionId);
+    rows.push(row);
+  }
+  return rows;
+}
+
 function formatDate(iso: string, organizationTimezone: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '—';
@@ -100,6 +119,7 @@ export function DiagnosticsQueueWorkspace({
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [failure, setFailure] = useState<ApiFail | null>(null);
+  const [listRefreshed, setListRefreshed] = useState(false);
   const latest = useRef(0);
 
   const load = useCallback(
@@ -110,11 +130,12 @@ export function DiagnosticsQueueWorkspace({
       setFailure(null);
       const params = new URLSearchParams({ status: filter, limit: '20' });
       if (cursor) params.set('cursor', cursor);
-      const result = await v2<Page<DiagnosticQueueRow>>(`/staff/diagnostics/submissions?${params.toString()}`);
+      const result = await v2<DiagnosticQueuePage>(`/staff/diagnostics/submissions?${params.toString()}`);
       if (requestId !== latest.current) return;
       if (result.ok) {
-        setItems((prev) => (cursor ? [...prev, ...result.data.items] : result.data.items));
+        setItems((prev) => reconcileDiagnosticQueueRows(prev, result.data.items, !cursor || result.data.listChanged));
         setNextCursor(result.data.nextCursor);
+        setListRefreshed(Boolean(cursor && result.data.listChanged));
       } else {
         setFailure(result);
       }
@@ -170,6 +191,7 @@ export function DiagnosticsQueueWorkspace({
           ) : (
             <>
               {failure && <StatusMessage kind="error">{describeFailure(failure)}</StatusMessage>}
+              {listRefreshed && <p role="status" className="mb-4 text-sm text-neutral-400">Liste actualisée</p>}
               {loading || actorLoading ? (
                 <p role="status" className="flex items-center gap-2 text-neutral-300">
                   <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> Chargement…
