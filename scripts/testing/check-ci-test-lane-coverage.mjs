@@ -211,7 +211,20 @@ function listPlaywrightTests(config) {
   const output = execFileSync(
     'npx',
     ['playwright', 'test', '--config', config, '--list', '--reporter=list'],
-    { cwd: repoRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] },
+    {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      // Collection loads each spec module but never runs hooks or tests. Keep
+      // fail-closed E2E guards intact while giving collection the same exact
+      // disposable identity used by the auth CI lane.
+      env: {
+        ...process.env,
+        E2E_DISPOSABLE_STACK: '1',
+        CORE_V2_DATABASE_URL: 'postgresql://postgres@localhost:5435/core_v2_e2e',
+      },
+    },
   );
   const testDir = playwrightTestDir(config);
   const files = new Set();
