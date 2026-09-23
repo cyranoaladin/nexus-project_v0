@@ -169,4 +169,27 @@ describe('DiagnosticsQueueWorkspace', () => {
     expect(screen.queryByText('Action Synthetic')).not.toBeInTheDocument();
     expect(screen.queryByText('Liste actualisée')).not.toBeInTheDocument();
   });
+
+  test('a failed first-page request clears rows from the previous filter', async () => {
+    mockApi([
+      { url: /\/staff\/me$/, body: me(['DIAGNOSTIC_SUBMISSION_TRACK']) },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=ACTION_REQUIRED&limit=20$/,
+        body: ok({ items: [row('action', 'NOT_PROCESSED', 'Action')], nextCursor: null, listChanged: false }),
+      },
+      {
+        url: /\/staff\/diagnostics\/submissions\?status=PUBLISHED&limit=20$/,
+        status: 500,
+        body: fail('INTERNAL', 'Erreur serveur inattendue.'),
+      },
+    ]);
+    render(<DiagnosticsQueueWorkspace basePath="/dashboard/admin/diagnostics-candidat-libre" organizationTimezone="Africa/Tunis" />);
+
+    expect(await screen.findByText('Action Synthetic')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Publié' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Erreur serveur inattendue.');
+    expect(screen.queryByText('Action Synthetic')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Ouvrir la copie de Action Synthetic' })).not.toBeInTheDocument();
+  });
 });

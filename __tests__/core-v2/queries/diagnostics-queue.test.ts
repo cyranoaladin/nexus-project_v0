@@ -320,6 +320,45 @@ describe('listDiagnosticSubmissionsQueue — current usable submission contract'
     expect(page.items).toEqual([]);
   });
 
+  test('a revoked assignment never contributes an operational queue row', async () => {
+    const fixture = await seedAssignment(`REVOKED-${randomUUID()}`);
+    const submission = await createSubmission({
+      assignmentId: fixture.assignment.id,
+      submittedById: fixture.user.id,
+      version: 1,
+    });
+    await h.client.diagnosticAssignment.update({
+      where: { id: fixture.assignment.id },
+      data: { status: 'REVOKED' },
+    });
+
+    const page = await listDiagnosticSubmissionsQueue(h.client, h.ctx(), { status: 'ALL', limit: 20 });
+
+    expect(page.items.map((item) => item.submissionId)).not.toContain(submission.id);
+    expect(page.items).toEqual([]);
+  });
+
+  test('reports the frozen assignment instrument key and version after the catalog row evolves', async () => {
+    const fixture = await seedAssignment(`SNAPSHOT-${randomUUID()}`);
+    const submission = await createSubmission({
+      assignmentId: fixture.assignment.id,
+      submittedById: fixture.user.id,
+      version: 1,
+    });
+    await h.client.diagnosticInstrumentRef.update({
+      where: { id: fixture.assignment.instrumentRefId },
+      data: { instrumentKey: `CATALOG-EVOLVED-${randomUUID()}`, version: '9.9.9' },
+    });
+
+    const page = await listDiagnosticSubmissionsQueue(h.client, h.ctx(), { status: 'ALL', limit: 20 });
+    const queueRow = page.items.find((item) => item.submissionId === submission.id);
+
+    expect(queueRow?.instrument).toMatchObject({
+      instrumentKey: fixture.assignment.instrumentKeySnapshot,
+      version: fixture.assignment.instrumentVersionSnapshot,
+    });
+  });
+
   test('projects the exact flat candidate identity needed by the queue and no User PII', async () => {
     const label = `PII-${randomUUID()}`;
     const fixture = await seedAssignment(label);

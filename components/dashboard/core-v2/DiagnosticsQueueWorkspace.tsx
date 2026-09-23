@@ -137,6 +137,11 @@ export function DiagnosticsQueueWorkspace({
         setNextCursor(result.data.nextCursor);
         setListRefreshed(Boolean(cursor && result.data.listChanged));
       } else {
+        if (!cursor) {
+          setItems([]);
+          setNextCursor(null);
+          setListRefreshed(false);
+        }
         setFailure(result);
       }
       setLoading(false);

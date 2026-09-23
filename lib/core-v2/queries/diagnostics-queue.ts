@@ -266,8 +266,8 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
         st."id" AS "candidateId",
         u."firstName" AS "candidateFirstName",
         u."lastName" AS "candidateLastName",
-        i."instrumentKey",
-        i."version" AS "instrumentVersion",
+        a."instrumentKeySnapshot" AS "instrumentKey",
+        a."instrumentVersionSnapshot" AS "instrumentVersion",
         i."title" AS "instrumentTitle",
         s."submissionVersion",
         s."submissionStatus",
@@ -283,6 +283,7 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
       INNER JOIN "diagnostic_instrument_refs" i ON i."id" = a."instrumentRefId"
       LEFT JOIN "diagnostic_submission_processings" p ON p."submissionId" = s."submissionId"
       LEFT JOIN "latestDraft" d ON d."processingId" = p."id"
+      WHERE a."status"::text <> 'REVOKED'
     ),
     "ranked" AS (
       SELECT "stateProjected".*, (${QUEUE_STATE_RANK_SQL})::integer AS "stateRank"

@@ -27,6 +27,7 @@ Commits fonctionnels examinés :
 - La pagination par recherche de ligne puis découpage pouvait repartir silencieusement au début après mutation du jeu de données.
 - La file n'a besoin que de l'identité minimale du candidat ; les coordonnées, états de compte, métadonnées utilisateur et contenus académiques n'ont aucune raison d'en franchir la frontière.
 - La requête initiale chargeait l'historique avant de filtrer et découper côté Node.
+- La revue Codex fraîche du head `a569ba146` a relevé trois cas résiduels : une attribution révoquée restait opérationnelle, l'identité d'instrument provenait du catalogue vivant plutôt que du snapshot d'attribution, et une erreur de première page après changement de filtre laissait visibles les anciennes lignes.
 - Pendant les gates finaux, `npm run test:lanes:check` échouait en RED : la collecte Playwright chargeait le module du nouveau test sans fournir sa garde `E2E_DISPOSABLE_STACK=1`. La collecte injecte désormais uniquement l'identité exacte de la base jetable ; l'exécution réelle reste fail-closed.
 
 ## Décisions prises
@@ -35,6 +36,8 @@ Commits fonctionnels examinés :
 - Le repository Core v2 exécute une requête PostgreSQL paramétrée et bornée : soumission utilisable la plus récente par attribution, dernier brouillon, projection d'état, filtre, tri keyset, puis `LIMIT + 1`.
 - Le curseur opaque contient la version du contrat, le filtre et le triplet de tri `(stateRank, lastActivityAt, submissionId)`. Un ancrage absent ou modifié retourne `listChanged: true` ; le client remplace alors la liste au lieu d'ajouter une première page redémarrée.
 - Le client déduplique les lignes par `submissionId` en conservant l'ordre serveur.
+- Les attributions `REVOKED` sont exclues de la file opérationnelle, même si leur dernière soumission reste `RECEIVED` ; la file expose la clé et la version figées par l'attribution, jamais celles mutables du catalogue vivant.
+- Une erreur sur une nouvelle première page vide les lignes, le curseur et l'avis de rafraîchissement du filtre précédent. Une erreur de pagination conserve en revanche les lignes déjà chargées.
 - Le DTO candidat est strictement `{ id, firstName, lastName }`. Le SQL ne sélectionne aucun email, téléphone, statut/activation de compte, timestamp User, clé de stockage, nom de fichier, empreinte, texte extrait, proposition IA ou revue humaine.
 - Les lignes SQL brutes sont validées fail-closed par Zod avant mapping.
 - Le test E2E est auto-contenu côté données Core v2 et refuse de s'exécuter sans la garde jetable et l'URL PostgreSQL exacte `localhost:5435/core_v2_e2e`.
@@ -50,6 +53,8 @@ Commits fonctionnels examinés :
 ## Tests exécutés
 
 - RED fonctionnel initial documenté par les contre-exemples de supersession, rejet, projection PII, matérialisation non bornée et pagination périmée.
+- RED de revue fraîche reproduit exactement : 2 échecs Core v2 sur révocation/snapshots et 1 échec composant sur les lignes périmées après erreur de première page ; GREEN après les trois correctifs minimaux (30/30 Core v2 et 8/8 composant).
+- Gates post-correction : repository + route file (42/42), composants diagnostics (11/11), architecture Core v2 (58/58), typecheck vert et lint vert avec les mêmes 26 avertissements préexistants hors diff.
 - GREEN ciblé Core v2 : 3 suites, 51 tests passés.
 - GREEN ciblé composants : 2 suites, 10 tests passés.
 - GREEN suite Core v2 complète sur `nexus_pr317_test` jetable : 50 suites passées, 1 ignorée ; 466 tests passés, 3 ignorés.
@@ -70,7 +75,7 @@ Commits fonctionnels examinés :
 - La pagination est bornée en base, stable, explicite en cas de liste incompatible et défendue par une déduplication client.
 - La réponse de file respecte une allow-list logistique minimale ; les tests exacts et l'E2E vérifient l'absence de PII inutile et de la sentinelle académique confidentielle.
 - La revue du diff complet n'a relevé ni contenu académique sélectionné par la file, ni élargissement de droits, ni fichier produit accidentel.
-- La CI GitHub et la revue automatisée fraîche restent à rattacher au SHA final après push. Aucune revue humaine ni fusion ne doit être demandée avant leur conclusion verte/acceptable.
+- Le head `a569ba146` avait 49 checks GitHub terminaux acceptables, puis la [revue automatisée fraîche `5288570817`](https://github.com/cyranoaladin/nexus-project_v0/pull/317#pullrequestreview-5288570817) a produit les trois P2 ci-dessus. Un nouveau cycle CI et une nouvelle revue fraîche restent à rattacher au SHA de correction après push. Aucune revue humaine ni fusion ne doit être demandée avant leur conclusion verte/acceptable.
 
 ## Risques restants
 
