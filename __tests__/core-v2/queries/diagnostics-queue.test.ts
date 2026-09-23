@@ -195,6 +195,7 @@ describe('diagnostics queue repository boundary', () => {
       draftStatus: null,
       lastActivityAt: new Date('2026-09-23T08:00:00.000Z'),
       cursorValid: true,
+      metadataOnly: false,
       ...overrides,
     };
   }

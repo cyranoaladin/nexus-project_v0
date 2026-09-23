@@ -390,16 +390,26 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
   });
 
   test('malformed cursor is rejected explicitly with a sober 400 validation response', async () => {
+    for (let index = 0; index < 2; index += 1) {
+      await seedProjectedQueueState(`MALFORMED-${index}-${randomUUID()}`, { processingStatus: null, draftStatus: null });
+    }
     signInAs(h.admin);
-
-    const response = await callJson(
+    const firstPage = await callJson(
       queueRoute.GET,
       'GET',
-      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=2&cursor=not-a-valid-cursor',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
     );
+    const validCursor = firstPage.body.data.nextCursor as string;
 
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({ ok: false, error: { code: 'VALIDATION', message: 'Invalid input.' } });
+    for (const cursor of ['not-a-valid-cursor', `${validCursor}=`, `${validCursor}!`, `${validCursor}A`]) {
+      const response = await callJson(
+        queueRoute.GET,
+        'GET',
+        `/api/v2/staff/diagnostics/submissions?status=ALL&limit=1&cursor=${encodeURIComponent(cursor)}`,
+      );
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({ ok: false, error: { code: 'VALIDATION', message: 'Invalid input.' } });
+    }
   });
 
   test('filter mismatch returns the fresh first page with listChanged true, never an appended traversal', async () => {
@@ -523,5 +533,34 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
 
     expect(changed.body.data.listChanged).toBe(true);
     expect(changed.body.data.items).toEqual(fresh.body.data.items);
+  });
+
+  test('a valid anchor with no remaining successor returns an empty page without declaring the cursor stale', async () => {
+    for (let index = 0; index < 2; index += 1) {
+      await seedProjectedQueueState(`NO-SUCCESSOR-${index}-${randomUUID()}`, {
+        processingStatus: null,
+        draftStatus: null,
+      });
+    }
+    signInAs(h.admin);
+    const page1 = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+    const anchorId = page1.body.data.items[0].submissionId as string;
+    const successorId = (
+      await h.client.diagnosticSubmission.findFirstOrThrow({ where: { id: { not: anchorId } } })
+    ).id;
+    await h.client.diagnosticSubmission.update({ where: { id: successorId }, data: { status: 'REJECTED' } });
+
+    const finalPage = await callJson(
+      queueRoute.GET,
+      'GET',
+      `/api/v2/staff/diagnostics/submissions?status=ALL&limit=1&cursor=${page1.body.data.nextCursor}`,
+    );
+
+    expect(finalPage.status).toBe(200);
+    expect(finalPage.body.data).toMatchObject({ items: [], nextCursor: null, listChanged: false });
   });
 });

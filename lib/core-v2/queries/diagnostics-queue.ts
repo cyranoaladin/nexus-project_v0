@@ -123,6 +123,17 @@ function encodeDiagnosticQueueCursor(cursor: DiagnosticQueueCursor): string {
   return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
 }
 
+function decodeCanonicalBase64url(value: string): Buffer {
+  if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length % 4 === 1) {
+    throw new Error('NON_CANONICAL_BASE64URL');
+  }
+  const decoded = Buffer.from(value, 'base64url');
+  if (decoded.toString('base64url') !== value) {
+    throw new Error('NON_CANONICAL_BASE64URL');
+  }
+  return decoded;
+}
+
 const diagnosticQueueCursorParamSchema = z
   .string()
   .trim()
@@ -130,7 +141,7 @@ const diagnosticQueueCursorParamSchema = z
   .max(1024)
   .transform((value, ctx): DiagnosticQueueCursor => {
     try {
-      const parsedJson = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as unknown;
+      const parsedJson = JSON.parse(decodeCanonicalBase64url(value).toString('utf8')) as unknown;
       const parsedCursor = diagnosticQueueCursorSchema.safeParse(parsedJson);
       if (parsedCursor.success) return parsedCursor.data;
     } catch {
@@ -288,29 +299,45 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
     ),
     "cursorState" AS (
       SELECT ${cursorValidity} AS "cursorValid"
+    ),
+    "page" AS (
+      SELECT
+        q."submissionId",
+        q."state",
+        q."stateRank",
+        q."candidateId",
+        q."candidateFirstName",
+        q."candidateLastName",
+        q."instrumentKey",
+        q."instrumentVersion",
+        q."instrumentTitle",
+        q."submissionVersion",
+        q."submissionStatus",
+        q."submissionCreatedAt",
+        q."processingStatus",
+        q."draftStatus",
+        q."lastActivityAt",
+        c."cursorValid",
+        FALSE AS "metadataOnly"
+      FROM "filtered" q
+      CROSS JOIN "cursorState" c
+      WHERE (NOT c."cursorValid" OR ${cursorPredicate})
+      ORDER BY q."stateRank" ASC, q."lastActivityAt" ASC, q."submissionId" ASC
+      LIMIT ${query.limit + 1}
     )
     SELECT
-      q."submissionId",
-      q."state",
-      q."stateRank",
-      q."candidateId",
-      q."candidateFirstName",
-      q."candidateLastName",
-      q."instrumentKey",
-      q."instrumentVersion",
-      q."instrumentTitle",
-      q."submissionVersion",
-      q."submissionStatus",
-      q."submissionCreatedAt",
-      q."processingStatus",
-      q."draftStatus",
-      q."lastActivityAt",
-      c."cursorValid"
-    FROM "filtered" q
-    CROSS JOIN "cursorState" c
-    WHERE (NOT c."cursorValid" OR ${cursorPredicate})
-    ORDER BY q."stateRank" ASC, q."lastActivityAt" ASC, q."submissionId" ASC
-    LIMIT ${query.limit + 1}
+      "submissionId", "state", "stateRank", "candidateId", "candidateFirstName", "candidateLastName",
+      "instrumentKey", "instrumentVersion", "instrumentTitle", "submissionVersion", "submissionStatus",
+      "submissionCreatedAt", "processingStatus", "draftStatus", "lastActivityAt", "cursorValid", "metadataOnly"
+    FROM "page"
+    UNION ALL
+    SELECT
+      NULL::text, NULL::text, NULL::integer, NULL::text, NULL::text, NULL::text,
+      NULL::text, NULL::text, NULL::text, NULL::integer, NULL::text,
+      NULL::timestamptz, NULL::text, NULL::text, NULL::timestamptz, c."cursorValid", TRUE
+    FROM "cursorState" c
+    WHERE NOT EXISTS (SELECT 1 FROM "page")
+    ORDER BY "metadataOnly" ASC, "stateRank" ASC NULLS LAST, "lastActivityAt" ASC NULLS LAST, "submissionId" ASC NULLS LAST
   `;
 }
 
@@ -336,8 +363,36 @@ const diagnosticQueueRawRowSchema = z
     draftStatus: z.enum(DIAGNOSTIC_DRAFT_STATUSES).nullable(),
     lastActivityAt: queueDateSchema,
     cursorValid: z.boolean(),
+    metadataOnly: z.literal(false),
   })
   .strict();
+
+const diagnosticQueueMetadataRowSchema = z
+  .object({
+    submissionId: z.null(),
+    state: z.null(),
+    stateRank: z.null(),
+    candidateId: z.null(),
+    candidateFirstName: z.null(),
+    candidateLastName: z.null(),
+    instrumentKey: z.null(),
+    instrumentVersion: z.null(),
+    instrumentTitle: z.null(),
+    submissionVersion: z.null(),
+    submissionStatus: z.null(),
+    submissionCreatedAt: z.null(),
+    processingStatus: z.null(),
+    draftStatus: z.null(),
+    lastActivityAt: z.null(),
+    cursorValid: z.boolean(),
+    metadataOnly: z.literal(true),
+  })
+  .strict();
+
+const diagnosticQueueResultRowSchema = z.union([
+  diagnosticQueueRawRowSchema,
+  diagnosticQueueMetadataRowSchema,
+]);
 
 export type DiagnosticQueueRawRow = z.infer<typeof diagnosticQueueRawRowSchema>;
 
@@ -380,13 +435,14 @@ export function materializeDiagnosticQueuePage(
     readonly forceListChanged?: boolean;
   } = {},
 ): DiagnosticQueuePage {
-  const boundedRows = rawRows.slice(0, limit + 1).map((raw) => diagnosticQueueRawRowSchema.parse(raw));
+  const resultRows = rawRows.slice(0, limit + 1).map((raw) => diagnosticQueueResultRowSchema.parse(raw));
+  const boundedRows = resultRows.filter((row): row is DiagnosticQueueRawRow => !row.metadataOnly);
+  const metadataRow = resultRows.find((row) => row.metadataOnly);
   const rows = boundedRows.map(mapper);
   const hasMore = rows.length > limit;
   const items = hasMore ? rows.slice(0, limit) : rows;
-  const cursorInvalid = Boolean(options.cursorRequested) && (
-    boundedRows.length === 0 || boundedRows.some((row) => !row.cursorValid)
-  );
+  const cursorValid = metadataRow?.cursorValid ?? boundedRows[0]?.cursorValid;
+  const cursorInvalid = Boolean(options.cursorRequested) && cursorValid !== true;
   const lastRawRow = hasMore ? boundedRows[limit - 1] : undefined;
   return {
     items,
