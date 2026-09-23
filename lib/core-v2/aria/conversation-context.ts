@@ -14,6 +14,7 @@ import { listCoreV2AcademicallyRelevantCourseKeys } from './cockpit-profile';
 import type { CoreV2AriaStudentContext } from './student-context';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import type { ServiceContext } from '@/lib/core-v2/services/context';
+import { assertSelfServiceRole, type Actor } from '@/lib/core-v2/rbac';
 import { loadCoreV2AriaStudentContext } from './student-context';
 import { resolveCoreV2AriaEntitlements } from './access-grants';
 import { getAriaCourse } from '@/lib/aria/curriculum/catalog';
@@ -29,12 +30,17 @@ export interface CoreV2AriaConversationAuthorization {
 }
 
 export function buildCoreV2AriaConversationAuthorization(input: {
-  readonly actor: { readonly userId: string; readonly role: string };
+  readonly actor: Actor;
   readonly student: CoreV2AriaStudentContext;
   readonly courseKey: string;
   readonly entitlementContext: CanonicalAriaEntitlementContext;
 }): CoreV2AriaConversationAuthorization {
-  if (input.actor.role !== 'ELEVE' || input.actor.userId !== input.student.userId) {
+  try {
+    assertSelfServiceRole(input.actor, 'ELEVE');
+  } catch {
+    throw new AriaError('NOT_ENROLLED', 403, 'Le contexte élève ARIA est invalide.');
+  }
+  if (input.actor.userId !== input.student.userId) {
     throw new AriaError('NOT_ENROLLED', 403, 'Le contexte élève ARIA est invalide.');
   }
   if (!isKnownAriaCourseKey(input.courseKey)) {
@@ -88,7 +94,7 @@ export async function buildCoreV2AriaConversationContext(
   const student = await loadCoreV2AriaStudentContext(client, ctx);
   const entitlements = await resolveCoreV2AriaEntitlements(client, student.studentId, ctx.now());
   const authorization = buildCoreV2AriaConversationAuthorization({
-    actor: { userId: ctx.actor.userId, role: ctx.actor.role },
+    actor: ctx.actor,
     student,
     courseKey: input.courseKey,
     entitlementContext: entitlements.aggregate,

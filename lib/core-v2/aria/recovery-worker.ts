@@ -4,8 +4,8 @@ import {
   CoreV2JobStatus,
   CoreV2JobType,
   Prisma,
-  type PrismaClient,
-} from '@/core-v2/generated/client';
+} from '@/lib/core-v2/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import type { AriaTurnStatus } from '@/lib/aria/domain/conversation/turn-state';
 
 export const MAX_RECOVERY_ATTEMPTS = 20;

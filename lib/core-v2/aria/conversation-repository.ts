@@ -6,8 +6,8 @@ import {
   CoreV2JobStatus,
   CoreV2JobType,
   Prisma,
-  type PrismaClient,
-} from '@/core-v2/generated/client';
+} from '@/lib/core-v2/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import type {
   AriaConversationRepository,
   ClaimedTurnRecord,
