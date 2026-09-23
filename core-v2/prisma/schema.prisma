@@ -84,19 +84,20 @@ model User {
   coachProfile    CoachProfile?
   invitations     Invitation[]     @relation("InvitationUser")
 
-  createdAt                      DateTime                        @default(now())
-  updatedAt                      DateTime                        @updatedAt
-  studentAcademicYearEnrollments StudentAcademicYearEnrollment[]
-  studentCourseEnrollments       StudentCourseEnrollment[]
-  coachStudentCourseAssignments  CoachStudentCourseAssignment[]
-  planningSeries                 PlanningSeries[]
-  issuedInvitations              Invitation[]                    @relation("InvitationIssuer")
-  diagnosticAssignmentsReviewed  DiagnosticAssignment[]           @relation("DiagnosticAssignmentReviewer")
-  diagnosticAssignmentsCreated   DiagnosticAssignment[]           @relation("DiagnosticAssignmentAssignedBy")
-  diagnosticSubmissions          DiagnosticSubmission[]
-  diagnosticBilanDraftsValidated DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
-  diagnosticBilanDraftsPublished DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
-  ariaAccessGrantsGranted        AriaAccessGrant[]
+  createdAt                        DateTime                        @default(now())
+  updatedAt                        DateTime                        @updatedAt
+  studentAcademicYearEnrollments   StudentAcademicYearEnrollment[]
+  studentCourseEnrollments         StudentCourseEnrollment[]
+  coachStudentCourseAssignments    CoachStudentCourseAssignment[]
+  planningSeries                   PlanningSeries[]
+  issuedInvitations                Invitation[]                    @relation("InvitationIssuer")
+  diagnosticAssignmentsReviewed    DiagnosticAssignment[]          @relation("DiagnosticAssignmentReviewer")
+  diagnosticAssignmentsCreated     DiagnosticAssignment[]          @relation("DiagnosticAssignmentAssignedBy")
+  diagnosticSubmissions            DiagnosticSubmission[]
+  diagnosticBilanDraftsValidated   DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
+  diagnosticBilanDraftsPublished   DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
+  ariaAccessGrantsGranted          AriaAccessGrant[]
+  ariaConversationTurnsActorCoreV2 AriaConversationTurnCoreV2[]    @relation("AriaConversationTurnActorCoreV2")
 
   @@map("users")
 }
@@ -133,8 +134,8 @@ model Invitation {
   consumedAt DateTime?
   revokedAt  DateTime?
   issuedById String?
-  issuedBy   User?     @relation("InvitationIssuer", fields: [issuedById], references: [id], onDelete: SetNull)
-  createdAt  DateTime  @default(now())
+  issuedBy   User?             @relation("InvitationIssuer", fields: [issuedById], references: [id], onDelete: SetNull)
+  createdAt  DateTime          @default(now())
 
   @@index([userId])
   @@map("invitations")
@@ -240,11 +241,14 @@ model Student {
   user        User      @relation(fields: [userId], references: [id], onDelete: Restrict)
   birthDate   DateTime?
 
-  academicYearEnrollments StudentAcademicYearEnrollment[]
-  sessionBookings         SessionBooking[]
-  diagnosticAssignments   DiagnosticAssignment[]
-  ariaCockpitProfile      AriaCockpitProfileCoreV2?
-  ariaAccessGrants        AriaAccessGrant[]
+  academicYearEnrollments            StudentAcademicYearEnrollment[]
+  sessionBookings                    SessionBooking[]
+  diagnosticAssignments              DiagnosticAssignment[]
+  ariaCockpitProfile                 AriaCockpitProfileCoreV2?
+  ariaAccessGrants                   AriaAccessGrant[]
+  ariaConversationsCoreV2            AriaConversationCoreV2[]
+  ariaConversationTurnsSubjectCoreV2 AriaConversationTurnCoreV2[]    @relation("AriaConversationTurnSubjectCoreV2")
+  ariaFeedbacksCoreV2                AriaFeedbackCoreV2[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -956,9 +960,9 @@ model DiagnosticSubmissionProcessing {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  extractions DiagnosticSubmissionExtraction[]
+  extractions           DiagnosticSubmissionExtraction[]
   aiBudgetLedgerEntries DiagnosticAiBudgetLedger[]
-  bilanDrafts DiagnosticBilanDraft[]
+  bilanDrafts           DiagnosticBilanDraft[]
 
   @@index([status])
   @@map("diagnostic_submission_processings")
@@ -1062,11 +1066,11 @@ model DiagnosticAiBudgetLedger {
   // The worst-case cost committed to BEFORE the call (input tokens at the
   // request's own bound, output tokens at MAX_OUTPUT_TOKENS) — this is
   // what counts against the cap while status=RESERVED.
-  reservedCostUsd Decimal @db.Decimal(10, 6)
+  reservedCostUsd Decimal  @db.Decimal(10, 6)
   // The provider-reported real cost, once known. Replaces the reserved
   // estimate for accounting once status=COMMITTED (the real number is
   // always used when present, never inflated by a stale estimate).
-  actualCostUsd Decimal? @db.Decimal(10, 6)
+  actualCostUsd   Decimal? @db.Decimal(10, 6)
 
   provider          String?
   model             String?
@@ -1112,9 +1116,9 @@ model DiagnosticBilanDraft {
 
   revision Int
 
-  extractionId               String
-  extraction                 DiagnosticSubmissionExtraction @relation(fields: [extractionId], references: [id], onDelete: Restrict)
-  extractionRevisionSnapshot Int
+  extractionId                String
+  extraction                  DiagnosticSubmissionExtraction @relation(fields: [extractionId], references: [id], onDelete: Restrict)
+  extractionRevisionSnapshot  Int
   extractionTruncatedSnapshot Boolean
 
   // Computed once, at creation, from deterministic-correction.ts — never
@@ -1134,7 +1138,7 @@ model DiagnosticBilanDraft {
   // it read; a stale write is refused, never silently applied over a
   // concurrent edit.
   humanReview Json?
-  editVersion Int  @default(1)
+  editVersion Int   @default(1)
 
   // Frozen at VALIDATED time from deterministicResults + aiProposal +
   // humanReview.itemCorrections (mission §3) — the ONLY thing the
@@ -1249,4 +1253,167 @@ enum CoreV2AriaTier {
   ARIA_AUTONOMIE
   ARIA_SUIVI
   ARIA_ACCOMPAGNEE
+}
+
+// ── Native Core v2 conversation foundation (PR C) ─────────────────────────
+// These records are keyed only to Core v2 User/Student identities. They are
+// intentionally separate from the legacy AriaConversation graph: a CORE_V2
+// request can never create V1 conversation data as a side effect.
+
+model AriaConversationCoreV2 {
+  id         String  @id @default(cuid())
+  studentId  String
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  courseKey  String
+  skillId    String?
+  resourceId String?
+
+  contextVersion String                       @default("core-v2")
+  contextState   AriaConversationContextState @default(ACTIVE)
+  title          String?
+
+  messages  AriaMessageCoreV2[]
+  turns     AriaConversationTurnCoreV2[]
+  createdAt DateTime                     @default(now())
+  updatedAt DateTime                     @updatedAt
+
+  @@index([studentId, updatedAt])
+  @@index([studentId, courseKey, updatedAt])
+  @@map("aria_conversations_core_v2")
+}
+
+model AriaConversationTurnCoreV2 {
+  id               String                 @id @default(cuid())
+  conversationId   String
+  conversation     AriaConversationCoreV2 @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  subjectStudentId String
+  subjectStudent   Student                @relation("AriaConversationTurnSubjectCoreV2", fields: [subjectStudentId], references: [id], onDelete: Restrict)
+  actorUserId      String
+  actorUser        User                   @relation("AriaConversationTurnActorCoreV2", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  useCase                 AriaConversationTurnUseCase
+  clientRequestId         String
+  requestFingerprint      String
+  sequence                Int
+  status                  AriaConversationTurnStatus  @default(PENDING)
+  executionToken          String?
+  heartbeatAt             DateTime?
+  leaseExpiresAt          DateTime?
+  cancellationRequestedAt DateTime?
+
+  academicSnapshot  Json
+  pedagogicalMode   String
+  agentRole         String
+  visibility        AriaVisibility @default(STUDENT_PRIVATE)
+  retrievalPolicy   Json?
+  retrievalEvidence Json?
+  ragStatus         String?
+  policyVersion     String?
+  promptVersion     String?
+  modelPolicy       Json
+  executionMetadata Json?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime       @default(now())
+
+  messages AriaMessageCoreV2[]
+
+  @@unique([actorUserId, subjectStudentId, useCase, clientRequestId])
+  @@unique([conversationId, sequence])
+  @@index([conversationId, status])
+  @@index([status, leaseExpiresAt])
+  @@index([subjectStudentId, createdAt])
+  @@map("aria_conversation_turns_core_v2")
+}
+
+model AriaMessageCoreV2 {
+  id             String                           @id @default(cuid())
+  conversationId String
+  conversation   AriaConversationCoreV2           @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  turnId         String?
+  turn           AriaConversationTurnCoreV2?      @relation(fields: [turnId], references: [id], onDelete: Restrict)
+  role           AriaConversationMessageRole
+  content        String
+  status         String                           @default("COMPLETED")
+  metadata       Json?
+  turnRole       AriaConversationTurnMessageRole?
+  citations      AriaMessageCitationCoreV2[]
+  feedbacks      AriaFeedbackCoreV2[]
+  createdAt      DateTime                         @default(now())
+
+  @@unique([turnId, turnRole])
+  @@index([conversationId, createdAt])
+  @@map("aria_messages_core_v2")
+}
+
+model AriaMessageCitationCoreV2 {
+  id                String            @id @default(cuid())
+  messageId         String
+  message           AriaMessageCoreV2 @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sourceTitle       String
+  sourceDocument    String
+  sourceLocation    String?
+  courseKey         String
+  provenance        String
+  url               String?
+  resourceId        String?
+  resourceVersionId String?
+  contentSha256     String?
+  chunkId           String?
+  locator           Json?
+  corpusId          String?
+  corpusVersionId   String?
+  manifestSha256    String?
+
+  @@index([messageId])
+  @@map("aria_message_citations_core_v2")
+}
+
+model AriaFeedbackCoreV2 {
+  id        String            @id @default(cuid())
+  messageId String
+  message   AriaMessageCoreV2 @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  studentId String
+  student   Student           @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  useful    Boolean
+  reason    String?
+  createdAt DateTime          @default(now())
+
+  @@unique([messageId, studentId])
+  @@index([studentId, createdAt])
+  @@map("aria_feedback_core_v2")
+}
+
+enum AriaConversationContextState {
+  ACTIVE
+  LEGACY_CONTEXT_UNRESOLVED
+}
+
+enum AriaConversationTurnStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  CANCELLED
+  ERROR
+}
+
+enum AriaConversationTurnUseCase {
+  CONVERSATION
+}
+
+enum AriaVisibility {
+  STUDENT_PRIVATE
+  COACH_VISIBLE
+  PARENT_VISIBLE
+  SYSTEM_ONLY
+}
+
+enum AriaConversationMessageRole {
+  USER
+  ASSISTANT
+}
+
+enum AriaConversationTurnMessageRole {
+  USER
+  ASSISTANT
 }
