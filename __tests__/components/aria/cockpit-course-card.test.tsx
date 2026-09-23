@@ -39,11 +39,12 @@ describe('AriaCourseCard', () => {
     expect(onOpen).toHaveBeenCalledWith('eds-maths-terminale');
   });
 
-  it('shows the lock warning for a supported-but-not-entitled course, but still opens it outside selectable mode', () => {
+  it('preserves the V1 workspace action for an academically relevant course outside the commercial selection', () => {
     const onOpen = jest.fn();
     render(<AriaCourseCard view={view({ commerciallyEntitled: false })} onOpen={onOpen} />);
     expect(screen.getByText('Non inclus dans l’abonnement')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ouvrir' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir' }));
+    expect(onOpen).toHaveBeenCalledWith('eds-maths-terminale');
   });
 
   it('makes a locked course non-interactive in selectable mode', () => {
@@ -52,6 +53,31 @@ describe('AriaCourseCard', () => {
       <AriaCourseCard view={view({ commerciallyEntitled: false })} selectable onToggle={onToggle} />,
     );
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('never exposes Ouvrir or calls onOpen for an academically irrelevant course with a global commercial grant', () => {
+    const onOpen = jest.fn();
+    render(
+      <AriaCourseCard
+        view={view({ academicallyRelevant: false, commerciallyEntitled: true })}
+        onOpen={onOpen}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('never exposes Ajouter for an academically irrelevant course with a global commercial grant', () => {
+    const onToggle = jest.fn();
+    render(
+      <AriaCourseCard
+        view={view({ academicallyRelevant: false, commerciallyEntitled: true })}
+        selectable
+        onToggle={onToggle}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Ajouter à mon cockpit' })).not.toBeInTheDocument();
+    expect(onToggle).not.toHaveBeenCalled();
   });
 
   it('in selectable mode, toggles selection and reflects the selected state', () => {
@@ -71,11 +97,9 @@ describe('AriaCourseCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('does not throw when activated in selectable mode with no onToggle handler wired', () => {
+  it('does not expose an active control when no action handler is wired', () => {
     render(<AriaCourseCard view={view({ selectedForAria: false })} selectable />);
-    expect(() =>
-      fireEvent.click(screen.getByRole('button', { name: 'Ajouter à mon cockpit' })),
-    ).not.toThrow();
+    expect(screen.queryByRole('button', { name: 'Ajouter à mon cockpit' })).not.toBeInTheDocument();
   });
 
   it('shows a support note when provided', () => {

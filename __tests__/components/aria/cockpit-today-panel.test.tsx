@@ -10,6 +10,14 @@ function cockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO {
       plannedMinutes: null,
     },
     nextSession: null,
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     ...overrides,
   } as unknown as AriaCockpitDTO;
 }
@@ -19,6 +27,29 @@ describe('AriaTodayPanel', () => {
     render(<AriaTodayPanel cockpit={cockpit()} />);
     expect(screen.getByText('Rien de planifié pour l’instant')).toBeInTheDocument();
     expect(screen.getByText('Aucune séance programmée.')).toBeInTheDocument();
+  });
+
+  it('keeps the weekly goal but does not claim an empty plan when trajectory is unavailable', () => {
+    render(
+      <AriaTodayPanel
+        cockpit={cockpit({
+          capabilities: {
+            chat: false,
+            trajectory: false,
+            assessments: false,
+            resources: false,
+            nextSession: false,
+            conversationHistory: false,
+            courseWorkspace: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/180/)).toBeInTheDocument();
+    expect(screen.queryByText('Rien de planifié pour le moment')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rien de planifié pour l’instant')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Fonction non encore disponible pour ce profil')).toHaveLength(3);
   });
 
   it('lists pending and done items, and the next session when present', () => {
@@ -84,9 +115,7 @@ describe('AriaTodayPanel', () => {
       <AriaTodayPanel
         cockpit={cockpit({
           today: {
-            items: [
-              { id: 'a', title: 'Fait', done: true, origin: 'NEXT_STEP' },
-            ],
+            items: [{ id: 'a', title: 'Fait', done: true, origin: 'NEXT_STEP' }],
             weeklyGoalMinutes: 180,
             plannedMinutes: 0,
           },

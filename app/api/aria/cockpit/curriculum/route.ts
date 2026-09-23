@@ -47,7 +47,10 @@ export async function GET() {
       stmgPathway: student.stmgPathway,
       school: student.school,
       pinnedCourseKeys: profile.pinnedCourseKeys,
-      entitlements: entitlements.flatMap((entitlement) => entitlement.features),
+      access: {
+        kind: 'LEGACY_FEATURES',
+        featureKeys: entitlements.flatMap((entitlement) => entitlement.features),
+      },
     });
 
     // Résumés de graphes limités aux cours réellement présents dans la carte.

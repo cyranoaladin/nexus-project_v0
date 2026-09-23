@@ -39,7 +39,7 @@ const NAV: { panel: AriaCockpitPanel; label: string; icon: React.ElementType }[]
 
 interface AriaCockpitShellProps {
   cockpit: AriaCockpitDTO;
-  onOpenChat: (courseKey: string) => void;
+  onOpenChat?: (courseKey: string) => void;
   onToggleCourse: (courseKey: string) => void;
 }
 
@@ -57,7 +57,7 @@ export function AriaCockpitShell({
   const [nextBestAction, setNextBestAction] = useState<AriaNextBestAction | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!openCourseKey) {
+    if (!cockpit.capabilities.courseWorkspace || !openCourseKey) {
       setCourseMastery(undefined);
       setNextBestAction(undefined);
       return;
@@ -92,7 +92,7 @@ export function AriaCockpitShell({
     return () => {
       cancelled = true;
     };
-  }, [openCourseKey, fetch]);
+  }, [cockpit.capabilities.courseWorkspace, openCourseKey, fetch]);
 
   function goToPanel(next: AriaCockpitPanel) {
     setPanel(next);
@@ -143,19 +143,19 @@ export function AriaCockpitShell({
         {panel === 'TODAY' && <AriaTodayPanel cockpit={cockpit} />}
 
         {panel === 'CURRICULUM' &&
-          (openCourseKey ? (
+          (cockpit.capabilities.courseWorkspace && openCourseKey ? (
             <AriaCourseWorkspace
               cockpit={cockpit}
               courseKey={openCourseKey}
               onBack={() => setOpenCourseKey(null)}
-              onWorkWithAria={onOpenChat}
+              onWorkWithAria={cockpit.capabilities.chat ? onOpenChat : undefined}
               mastery={courseMastery}
               nextBestAction={nextBestAction}
             />
           ) : (
             <AriaCurriculumMap
               curriculum={cockpit.curriculum}
-              onOpen={setOpenCourseKey}
+              onOpen={cockpit.capabilities.courseWorkspace ? setOpenCourseKey : undefined}
               onToggle={onToggleCourse}
             />
           ))}
@@ -163,7 +163,12 @@ export function AriaCockpitShell({
         {panel === 'TRAJECTORY' && <AriaTrajectoryPanel cockpit={cockpit} />}
         {panel === 'RESOURCES' && <AriaResourcesPanel cockpit={cockpit} />}
         {panel === 'ASSESSMENTS' && <AriaAssessmentsPanel cockpit={cockpit} />}
-        {panel === 'ARIA' && <AriaAgentPanel cockpit={cockpit} onOpenChat={onOpenChat} />}
+        {panel === 'ARIA' && (
+          <AriaAgentPanel
+            cockpit={cockpit}
+            onOpenChat={cockpit.capabilities.chat ? onOpenChat : undefined}
+          />
+        )}
       </main>
     </div>
   );

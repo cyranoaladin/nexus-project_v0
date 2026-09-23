@@ -33,11 +33,14 @@ RUN npm ci
 # Generate Prisma client (needed by e2e/helpers/db.ts)
 COPY prisma ./prisma
 RUN npx prisma generate
+COPY core-v2/prisma ./core-v2/prisma
+RUN npx prisma generate --schema=core-v2/prisma/schema.prisma
 
 # Copy test files and configs
 COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
 COPY e2e ./e2e
 COPY scripts/e2e ./scripts/e2e
+COPY scripts/core-v2/aria-foundation-e2e-persona.ts scripts/core-v2/e2e-seed-target.ts ./scripts/core-v2/
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts
 COPY playwright.aria.config.ts ./playwright.aria.config.ts

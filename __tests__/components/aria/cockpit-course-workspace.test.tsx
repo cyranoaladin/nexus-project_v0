@@ -3,7 +3,17 @@ import { AriaCourseWorkspace } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO, AriaCourseView } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
-const baseCockpit = fixture as unknown as AriaCockpitDTO;
+const baseCockpit = {
+  ...fixture,
+  capabilities: {
+    chat: true,
+    trajectory: true,
+    assessments: true,
+    resources: true,
+    nextSession: true,
+    conversationHistory: true,
+  },
+} as unknown as AriaCockpitDTO;
 
 function minimalCourseView(overrides: Partial<AriaCourseView['course']> = {}, accessOverrides: Partial<AriaCourseView['access']> = {}): AriaCourseView {
   return {
@@ -28,6 +38,14 @@ function minimalCockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO
     skillGraphs: [],
     resources: [],
     assessments: [],
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     ...overrides,
   } as unknown as AriaCockpitDTO;
 }
@@ -125,6 +143,25 @@ describe('AriaCourseWorkspace', () => {
     );
     expect(screen.getByTestId('aria-work-with-aria')).toBeDisabled();
     expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
+  });
+
+  it('disables the work action for an academically irrelevant course despite commercial entitlement', () => {
+    const onWorkWithAria = jest.fn();
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          curriculum: {
+            courses: [minimalCourseView({}, { academicallyRelevant: false, commerciallyEntitled: true })],
+          },
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={onWorkWithAria}
+      />,
+    );
+    expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
+    expect(screen.getByText('Cours introuvable')).toBeInTheDocument();
+    expect(onWorkWithAria).not.toHaveBeenCalled();
   });
 
 

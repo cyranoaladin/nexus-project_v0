@@ -11,6 +11,22 @@ import {
   resolveAriaCurriculum,
   type ResolveAriaCurriculumInput,
 } from '@/lib/aria/curriculum/resolver';
+import type { AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
+import type { CanonicalAriaEntitlementContext } from '@/lib/aria/kernel/entitlements';
+
+function canonicalContext(
+  overrides: Partial<CanonicalAriaEntitlementContext> = {},
+): CanonicalAriaEntitlementContext {
+  return {
+    hasGenericAccess: true,
+    hasGlobalAccess: true,
+    courseKeys: [],
+    grantIds: ['grant-test'],
+    evaluatedAt: new Date('2026-09-23T12:00:00.000Z'),
+    tier: 'ARIA_AUTONOMIE',
+    ...overrides,
+  };
+}
 
 function input(overrides: Partial<ResolveAriaCurriculumInput> = {}): ResolveAriaCurriculumInput {
   return {
@@ -20,7 +36,7 @@ function input(overrides: Partial<ResolveAriaCurriculumInput> = {}): ResolveAria
     stmgPathway: null,
     school: null,
     pinnedCourseKeys: [],
-    entitlements: ['aria_maths'],
+    access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
     ...overrides,
   };
 }
@@ -68,7 +84,7 @@ describe('resolveAriaCurriculum', () => {
     const result = resolveAriaCurriculum(
       input({
         specialties: [Subject.MATHEMATIQUES, Subject.NSI],
-        entitlements: ['aria_maths'],
+        access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
       }),
     );
 
@@ -89,7 +105,7 @@ describe('resolveAriaCurriculum', () => {
       const withNsi = resolveAriaCurriculum(
         input({
           specialties: [Subject.MATHEMATIQUES, Subject.NSI],
-          entitlements: ['aria_maths', 'aria_nsi'],
+          access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths', 'aria_nsi'] },
         }),
       );
       expect(withNsi.availableCourseKeys).toContain('nsi-terminale-eds');
@@ -110,10 +126,12 @@ describe('resolveAriaCurriculum', () => {
       expect(result.unsupportedCourseKeys).toContain('emc-terminale');
     });
 
-    it("n'expose une option que si l'élève l'a explicitement retenue", () => {
+    it("n'expose une option V1 que si l'élève l'a explicitement retenue", () => {
       const sansOption = viewOf(result, 'maths-complementaires-terminale');
       expect(sansOption?.access.academicallyRelevant).toBe(false);
       expect(result.requiredCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
 
       const avecOption = resolveAriaCurriculum(
         input({
@@ -124,6 +142,7 @@ describe('resolveAriaCurriculum', () => {
       expect(
         viewOf(avecOption, 'maths-complementaires-terminale')?.access.academicallyRelevant,
       ).toBe(true);
+      expect(avecOption.availableCourseKeys).toContain('maths-complementaires-terminale');
     });
   });
 
@@ -196,9 +215,27 @@ describe('resolveAriaCurriculum', () => {
       expect(result.academicProfile.missingFields).toContain('academicTrack');
     });
 
-    it('signale des spécialités manquantes en Terminale générale', () => {
-      const result = resolveAriaCurriculum(input({ specialties: [] }));
+    it('signale des spécialités manquantes en Terminale générale sans inscription native', () => {
+      const result = resolveAriaCurriculum({
+        ...input({ specialties: [] }),
+        hasAcademicSpecialtyEnrollment: false,
+      });
       expect(result.academicProfile.missingFields).toContain('specialties');
+    });
+
+    it('considère la spécialité native déclarée même si sa projection Subject est volontairement vide', () => {
+      const result = resolveAriaCurriculum({
+        ...input({ specialties: [] }),
+        hasAcademicSpecialtyEnrollment: true,
+      });
+
+      expect(result.academicProfile.incomplete).toBe(false);
+      expect(result.academicProfile.missingFields).not.toContain('specialties');
+      // Completeness must not invent a legacy Subject or an ARIA specialty.
+      expect(result.academicProfile.specialties).toEqual([]);
+      expect(result.courses).not.toEqual(expect.arrayContaining([
+        expect.objectContaining({ course: expect.objectContaining({ role: 'SPECIALTY' }) }),
+      ]));
     });
 
     it('signale un parcours STMG manquant en Terminale STMG', () => {
@@ -234,12 +271,137 @@ describe('resolveAriaCurriculum', () => {
         input({
           specialties: [Subject.MATHEMATIQUES, Subject.NSI],
           pinnedCourseKeys: ['nsi-terminale-eds'],
-          entitlements: ['aria_maths'],
+          access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
         }),
       );
       const nsi = viewOf(result, 'nsi-terminale-eds');
       expect(nsi?.access.selectedForAria).toBe(true);
       expect(nsi?.access.commerciallyEntitled).toBe(false);
+    });
+  });
+
+  describe('droits canoniques Core v2 par feature et par cours', () => {
+    it('omet de la carte une option non enrollée même sous grant global', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([['aria_maths', canonicalContext()]]),
+          },
+          enrollmentBackedCourseKeys: ['maths-terminale-eds'],
+        }),
+      );
+
+      expect(viewOf(result, 'maths-complementaires-terminale')).toBeUndefined();
+      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
+    });
+
+    it('conserve une option enrollée mais non pinnée dans la carte et la verrouille sans grant', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: { kind: 'CANONICAL_BY_FEATURE', contexts: new Map() },
+          enrollmentBackedCourseKeys: [
+            'maths-terminale-eds',
+            'maths-complementaires-terminale',
+          ],
+        }),
+      );
+
+      const option = viewOf(result, 'maths-complementaires-terminale');
+      expect(option?.access).toMatchObject({
+        academicallyRelevant: true,
+        commerciallyEntitled: false,
+        selectedForAria: false,
+      });
+      expect(result.lockedCourseKeys).toContain('maths-complementaires-terminale');
+    });
+
+    it('un grant global ne déverrouille que les cours de sa feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          specialties: [Subject.MATHEMATIQUES, Subject.NSI],
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([['aria_maths', canonicalContext()]]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'nsi-terminale-eds')?.access.commerciallyEntitled).toBe(false);
+    });
+
+    it('un grant scoped laisse un autre cours pertinent de la même feature verrouillé', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_maths', canonicalContext({
+                hasGlobalAccess: false,
+                courseKeys: ['maths-terminale-eds'],
+              })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(false);
+      expect(result.lockedCourseKeys).toContain('philosophie-terminale');
+    });
+
+    it('fait l’union de deux grants scoped de la même feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_maths', canonicalContext({
+                hasGlobalAccess: false,
+                courseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
+                grantIds: ['grant-maths', 'grant-philosophie'],
+              })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(true);
+    });
+
+    it('ne déverrouille jamais un cours avec le contexte d’une autre feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_nsi', canonicalContext({ courseKeys: ['maths-terminale-eds'] })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(false);
+    });
+
+    it('ignore une projection legacy parasite lorsque le discriminant est Core v2', () => {
+      const access = {
+        kind: 'CANONICAL_BY_FEATURE' as const,
+        contexts: new Map<AriaFeatureKey, CanonicalAriaEntitlementContext>([
+          ['aria_maths', canonicalContext({
+            hasGlobalAccess: false,
+            courseKeys: ['maths-terminale-eds'],
+          })],
+        ]),
+        featureKeys: ['aria_maths'],
+      };
+      const result = resolveAriaCurriculum(input({ access }));
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(false);
     });
   });
 

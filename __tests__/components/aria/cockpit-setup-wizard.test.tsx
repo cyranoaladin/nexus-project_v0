@@ -88,6 +88,69 @@ describe('AriaSetupWizard', () => {
     );
   });
 
+  it('never offers Ajouter for a non-enrolled option even when a global grant makes it commercially entitled', () => {
+    render(<AriaSetupWizard cockpit={baseCockpit} saving={false} error={null} onSubmit={jest.fn()} />);
+    goToStep(2);
+
+    expect(
+      screen.queryByTestId('aria-wizard-course-maths-complementaires-terminale'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps an already pinned V1 option visible and removable', () => {
+    const onSubmit = jest.fn();
+    const option = baseCockpit.curriculum.courses.find(
+      (view) => view.course.key === 'maths-complementaires-terminale',
+    );
+    if (!option) throw new Error('fixture must contain maths complémentaires');
+    const legacyPinned = {
+      ...baseCockpit,
+      profile: {
+        ...baseCockpit.profile,
+        pinnedCourseKeys: [
+          ...baseCockpit.profile.pinnedCourseKeys,
+          'maths-complementaires-terminale',
+        ],
+      },
+      curriculum: {
+        ...baseCockpit.curriculum,
+        courses: [
+          ...baseCockpit.curriculum.courses.filter(
+            (view) => view.course.key !== 'maths-complementaires-terminale',
+          ),
+          {
+            ...option,
+            access: {
+              ...option.access,
+              academicallyRelevant: true,
+              commerciallyEntitled: true,
+              selectedForAria: true,
+            },
+          },
+        ],
+      },
+    } as AriaCockpitDTO;
+
+    render(
+      <AriaSetupWizard
+        cockpit={legacyPinned}
+        saving={false}
+        error={null}
+        onSubmit={onSubmit}
+      />,
+    );
+    goToStep(2);
+
+    const pinnedOption = screen.getByTestId('aria-wizard-course-maths-complementaires-terminale');
+    expect(pinnedOption).toBeEnabled();
+    fireEvent.click(pinnedOption);
+    goToStep(2);
+    fireEvent.click(screen.getByTestId('aria-wizard-submit'));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      pinnedCourseKeys: expect.not.arrayContaining(['maths-complementaires-terminale']),
+    }));
+  });
+
   it('can navigate back to a previous step', () => {
     render(<AriaSetupWizard cockpit={baseCockpit} saving={false} error={null} onSubmit={jest.fn()} />);
     goToStep(1);

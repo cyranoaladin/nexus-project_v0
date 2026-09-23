@@ -3,7 +3,17 @@ import { AriaResourcesPanel } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 
 function cockpit(resources: AriaCockpitDTO['resources']): AriaCockpitDTO {
-  return { resources } as unknown as AriaCockpitDTO;
+  return {
+    resources,
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
+  } as unknown as AriaCockpitDTO;
 }
 
 describe('AriaResourcesPanel', () => {
@@ -16,8 +26,19 @@ describe('AriaResourcesPanel', () => {
     render(
       <AriaResourcesPanel
         cockpit={cockpit([
-          { id: 'u1', title: 'Ma fiche', category: 'USER_DOCUMENT', href: null },
-          { id: 'p1', title: 'Programme officiel', subtitle: 'Édition 2026', category: 'OFFICIAL_PROGRAM', href: '/r/p1' },
+          {
+            id: 'u1',
+            title: 'Ma fiche',
+            category: 'USER_DOCUMENT',
+            href: null,
+          },
+          {
+            id: 'p1',
+            title: 'Programme officiel',
+            subtitle: 'Édition 2026',
+            category: 'OFFICIAL_PROGRAM',
+            href: '/r/p1',
+          },
         ] as unknown as AriaCockpitDTO['resources'])}
       />,
     );

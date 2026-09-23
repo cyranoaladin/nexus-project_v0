@@ -33,7 +33,8 @@ export type CredRole =
   | 'ariaNsiPeer'
   | 'ariaStmgNoChat'
   | 'ariaIncompleteProfile'
-  | 'ariaNotEntitled';
+  | 'ariaNotEntitled'
+  | 'coreV2AriaFoundation';
 
 export interface Credential {
   email: string;
@@ -60,6 +61,7 @@ const REQUIRED_ROLES: readonly CredRole[] = [
   'ariaStmgNoChat',
   'ariaIncompleteProfile',
   'ariaNotEntitled',
+  'coreV2AriaFoundation',
 ];
 
 function loadCredentials(): CredentialsMap {

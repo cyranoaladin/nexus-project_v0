@@ -18,7 +18,8 @@ export type UserType =
     | 'ariaNsiPeer'
     | 'ariaStmgNoChat'
     | 'ariaIncompleteProfile'
-    | 'ariaNotEntitled';
+    | 'ariaNotEntitled'
+    | 'coreV2AriaFoundation';
 
 interface LoginOptions {
     navigate?: boolean;
@@ -48,6 +49,7 @@ const ROLE_PATHS: Record<UserType, string> = {
     ariaStmgNoChat: '/dashboard/eleve',
     ariaIncompleteProfile: '/dashboard/eleve',
     ariaNotEntitled: '/dashboard/eleve',
+    coreV2AriaFoundation: '/dashboard/eleve',
 };
 
 function parseSetCookie(setCookieHeader?: string | string[]) {

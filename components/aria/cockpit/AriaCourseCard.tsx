@@ -20,14 +20,21 @@ interface AriaCourseCardProps {
 
 export function AriaCourseCard({ view, selectable = false, onToggle, onOpen }: AriaCourseCardProps) {
   const { course, access } = view;
-  const locked = access.productSupported && !access.commerciallyEntitled;
+  const locked = access.academicallyRelevant && !access.commerciallyEntitled;
   const unsupported = !access.productSupported;
 
-  const interactive = selectable ? !locked && !unsupported : !unsupported;
+  // The read-only workspace remains reachable for a real school subject even
+  // when it is outside the commercial selection (historical V1 behavior).
+  // Adding/removing a course still requires entitlement, and no academically
+  // irrelevant course ever exposes an action in either mode.
+  const hasAction = selectable ? onToggle !== undefined : onOpen !== undefined;
+  const interactive = hasAction
+    && access.academicallyRelevant
+    && !unsupported
+    && (!selectable || !locked);
 
-  // Reachable only via the button below, which itself only renders when
-  // `interactive` is true (see JSX) — no `!interactive` guard needed here.
   function handleActivate() {
+    if (!interactive) return;
     if (selectable) onToggle?.(course.key);
     else onOpen?.(course.key);
   }

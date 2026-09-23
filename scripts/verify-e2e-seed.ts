@@ -24,6 +24,7 @@ const expectedRoles = {
   ariaStmgNoChat: UserRole.ELEVE,
   ariaIncompleteProfile: UserRole.ELEVE,
   ariaNotEntitled: UserRole.ELEVE,
+  coreV2AriaFoundation: UserRole.ELEVE,
 } as const;
 
 async function main() {
@@ -50,13 +51,19 @@ async function main() {
 
       const user = await prisma.user.findUnique({
         where: { email: credential.email },
-        select: { role: true, password: true },
+        select: { id: true, role: true, password: true },
       });
       if (user?.role !== expectedRole) {
         throw new Error(`E2E seed verification failed: fixture ${fixtureName} has the wrong role`);
       }
       if (!user.password || !await bcrypt.compare(credential.password, user.password)) {
         throw new Error(`E2E seed verification failed: fixture ${fixtureName} password is out of sync`);
+      }
+      if (fixtureName === 'coreV2AriaFoundation') {
+        const legacyStudent = await prisma.student.findUnique({ where: { userId: user.id } });
+        if (legacyStudent) {
+          throw new Error('E2E seed verification failed: Core v2 ARIA identity has a legacy Student row');
+        }
       }
     }
 

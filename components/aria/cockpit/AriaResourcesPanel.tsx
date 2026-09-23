@@ -10,6 +10,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import { CapabilityUnavailable } from './CapabilityUnavailable';
 import { EmptyState } from './EmptyState';
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -54,7 +55,9 @@ export function AriaResourcesPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
         </p>
       </div>
 
-      {categories.length === 0 ? (
+      {!cockpit.capabilities.resources ? (
+        <CapabilityUnavailable />
+      ) : categories.length === 0 ? (
         <EmptyState
           title="Aucune ressource disponible"
           body="Les ressources apparaîtront ici dès que ton coach en déposera ou que tu accéderas à un programme interactif."
@@ -63,9 +66,7 @@ export function AriaResourcesPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
         categories.map((category) => (
           <Card key={category} className="border-white/10 bg-surface-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-neutral-200">
-                {CATEGORY_LABELS[category] ?? category}
-              </CardTitle>
+              <CardTitle className="text-sm text-neutral-200">{CATEGORY_LABELS[category] ?? category}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -76,9 +77,7 @@ export function AriaResourcesPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
                       className="block rounded-lg border border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-accent/40"
                     >
                       <span className="block text-sm text-neutral-100">{resource.title}</span>
-                      {resource.subtitle && (
-                        <span className="block text-xs text-neutral-500">{resource.subtitle}</span>
-                      )}
+                      {resource.subtitle && <span className="block text-xs text-neutral-500">{resource.subtitle}</span>}
                     </a>
                   </li>
                 ))}
@@ -88,10 +87,12 @@ export function AriaResourcesPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
         ))
       )}
 
-      <p className="text-xs text-neutral-500">
-        Les sources documentaires consultées par ARIA ne sont pas encore
-        enregistrées&nbsp;: cette rubrique restera vide tant que ce ne sera pas le cas.
-      </p>
+      {cockpit.capabilities.resources && (
+        <p className="text-xs text-neutral-500">
+          Les sources documentaires consultées par ARIA ne sont pas encore enregistrées&nbsp;: cette rubrique restera
+          vide tant que ce ne sera pas le cas.
+        </p>
+      )}
     </section>
   );
 }

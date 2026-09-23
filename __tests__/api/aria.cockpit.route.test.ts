@@ -215,6 +215,7 @@ describe('GET /api/aria/cockpit', () => {
       expect(body).toHaveProperty(key);
     }
     expect(body.setup.state).toBe('READY');
+    expect(body.capabilities.chat).toBe(true);
   });
 
   it("dérive les droits depuis le dashboard, sans seconde résolution d'entitlements", async () => {
@@ -222,6 +223,30 @@ describe('GET /api/aria/cockpit', () => {
     const body = await (await GET()).json();
     expect(body.curriculum.availableCourseKeys).toContain('maths-terminale-eds');
     expect(body.curriculum.lockedCourseKeys).toContain('nsi-terminale-eds');
+  });
+
+  it('garde une option V1 non pinnée hors des actions disponibles', async () => {
+    authenticate();
+    (getAriaCockpitProfile as jest.Mock).mockResolvedValue({
+      targetSession: null,
+      pinnedCourseKeys: [],
+      weeklyGoalMinutes: 180,
+      learningGoals: [],
+      preferences: {},
+      curriculumVersion: 'v1',
+      onboardingCompletedAt: null,
+    });
+
+    const body = await (await GET()).json();
+    const option = body.curriculum.courses.find(
+      (view: { course: { key: string } }) => view.course.key === 'maths-complementaires-terminale',
+    );
+    expect(option.access).toMatchObject({
+      academicallyRelevant: false,
+      commerciallyEntitled: true,
+      selectedForAria: false,
+    });
+    expect(body.curriculum.availableCourseKeys).not.toContain('maths-complementaires-terminale');
   });
 
   it('projette la feuille de route sans rien inventer', async () => {

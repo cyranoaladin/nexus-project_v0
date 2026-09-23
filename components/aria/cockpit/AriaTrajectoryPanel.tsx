@@ -11,6 +11,7 @@
 import { Flag, Milestone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import { CapabilityUnavailable } from './CapabilityUnavailable';
 import { EmptyState } from './EmptyState';
 
 export function AriaTrajectoryPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
@@ -22,61 +23,67 @@ export function AriaTrajectoryPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
         Mon parcours
       </h2>
 
-      <Card className="border-white/10 bg-surface-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-sm text-neutral-200">
-            <Flag className="h-4 w-4 text-brand-accent" aria-hidden="true" />
-            Trajectoire
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!trajectory ? (
-            <EmptyState
-              title="Aucune trajectoire active"
-              body="Une trajectoire est définie avec ton coach lors d’un point d’étape."
-            />
-          ) : (
-            <div className="space-y-3">
-              <p className="font-medium text-neutral-100">{trajectory.title}</p>
-              <div>
-                <div className="flex items-center justify-between text-xs text-neutral-400">
-                  <span>
-                    {trajectory.completedMilestoneCount}/{trajectory.milestoneCount} jalons
-                  </span>
-                  <span>{trajectory.progress}%</span>
-                </div>
-                <div
-                  className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10"
-                  role="progressbar"
-                  aria-valuenow={trajectory.progress}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label="Progression de la trajectoire"
-                >
+      {!cockpit.capabilities.trajectory ? (
+        <CapabilityUnavailable />
+      ) : (
+        <Card className="border-white/10 bg-surface-card">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm text-neutral-200">
+              <Flag className="h-4 w-4 text-brand-accent" aria-hidden="true" />
+              Trajectoire
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!trajectory ? (
+              <EmptyState
+                title="Aucune trajectoire active"
+                body="Une trajectoire est définie avec ton coach lors d’un point d’étape."
+              />
+            ) : (
+              <div className="space-y-3">
+                <p className="font-medium text-neutral-100">{trajectory.title}</p>
+                <div>
+                  <div className="flex items-center justify-between text-xs text-neutral-400">
+                    <span>
+                      {trajectory.completedMilestoneCount}/{trajectory.milestoneCount} jalons
+                    </span>
+                    <span>{trajectory.progress}%</span>
+                  </div>
                   <div
-                    className="h-full rounded-full bg-brand-accent"
-                    style={{ width: `${Math.min(100, Math.max(0, trajectory.progress))}%` }}
-                  />
+                    className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10"
+                    role="progressbar"
+                    aria-valuenow={trajectory.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Progression de la trajectoire"
+                  >
+                    <div
+                      className="h-full rounded-full bg-brand-accent"
+                      style={{
+                        width: `${Math.min(100, Math.max(0, trajectory.progress))}%`,
+                      }}
+                    />
+                  </div>
                 </div>
+                {trajectory.nextMilestone && (
+                  <p className="flex items-center gap-2 text-sm text-neutral-300">
+                    <Milestone className="h-4 w-4 text-brand-accent" aria-hidden="true" />
+                    Prochain jalon&nbsp;: {trajectory.nextMilestone.title}
+                    {trajectory.nextMilestone.targetDate
+                      ? ` (${new Date(trajectory.nextMilestone.targetDate).toLocaleDateString('fr-FR')})`
+                      : ''}
+                  </p>
+                )}
+                {trajectory.daysRemaining !== null && (
+                  <p className="text-xs text-neutral-500">
+                    {trajectory.daysRemaining} jours restants sur l’horizon défini.
+                  </p>
+                )}
               </div>
-              {trajectory.nextMilestone && (
-                <p className="flex items-center gap-2 text-sm text-neutral-300">
-                  <Milestone className="h-4 w-4 text-brand-accent" aria-hidden="true" />
-                  Prochain jalon&nbsp;: {trajectory.nextMilestone.title}
-                  {trajectory.nextMilestone.targetDate
-                    ? ` (${new Date(trajectory.nextMilestone.targetDate).toLocaleDateString('fr-FR')})`
-                    : ''}
-                </p>
-              )}
-              {trajectory.daysRemaining !== null && (
-                <p className="text-xs text-neutral-500">
-                  {trajectory.daysRemaining} jours restants sur l’horizon défini.
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {examContext && (
         <Card className="border-white/10 bg-surface-card">

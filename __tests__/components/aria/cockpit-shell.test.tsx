@@ -3,7 +3,25 @@ import { AriaCockpitShell } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
-const cockpit = fixture as unknown as AriaCockpitDTO;
+const cockpit = {
+  ...fixture,
+  capabilities: {
+    chat: true,
+    trajectory: true,
+    assessments: true,
+    resources: true,
+    nextSession: true,
+    conversationHistory: true,
+    courseWorkspace: true,
+  },
+} as unknown as AriaCockpitDTO;
+
+function withChatCapability(chat: boolean): AriaCockpitDTO {
+  return {
+    ...cockpit,
+    capabilities: { ...cockpit.capabilities, chat },
+  };
+}
 
 function openFirstCourseWorkspace(onOpenChat = jest.fn()) {
   render(<AriaCockpitShell cockpit={cockpit} onOpenChat={onOpenChat} onToggleCourse={jest.fn()} />);
@@ -61,6 +79,27 @@ describe('AriaCockpitShell', () => {
     expect(screen.getByText('Démarrer une conversation')).toBeInTheDocument();
   });
 
+  it('shows no active chat entry point when the deployment capability is false', () => {
+    const onOpenChat = jest.fn();
+    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    render(
+      <AriaCockpitShell
+        cockpit={withChatCapability(false)}
+        onOpenChat={onOpenChat}
+        onToggleCourse={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('aria-nav-ARIA'));
+    expect(screen.getByText('Le chat ARIA n’est pas encore disponible pour ce profil.')).toBeInTheDocument();
+    expect(screen.queryByText('Démarrer une conversation')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ouvrir' })[0]!);
+    expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
+    expect(onOpenChat).not.toHaveBeenCalled();
+  });
+
   it('opens a course workspace from the curriculum map and returns to the map on back', () => {
     const onOpenChat = jest.fn();
     render(<AriaCockpitShell cockpit={cockpit} onOpenChat={onOpenChat} onToggleCourse={jest.fn()} />);
@@ -73,6 +112,27 @@ describe('AriaCockpitShell', () => {
     const main = screen.getByRole('main');
     fireEvent.click(within(main).getByRole('button', { name: 'Ma carte scolaire' }));
     expect(screen.getByRole('heading', { name: 'Ma carte scolaire' })).toBeInTheDocument();
+  });
+
+  it('keeps Core v2 course workspaces unavailable without calling any legacy workspace API', () => {
+    const fetchSpy = jest.spyOn(global, 'fetch');
+    const coreV2Cockpit = {
+      ...cockpit,
+      capabilities: { ...cockpit.capabilities, courseWorkspace: false },
+    };
+
+    render(
+      <AriaCockpitShell
+        cockpit={coreV2Cockpit}
+        onToggleCourse={jest.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/aria\/(?:mastery\/course|next-best-action|workshops)/),
+    );
   });
 
   it('fetches real mastery and next-best-action data for the exact course opened, and renders them once loaded', async () => {

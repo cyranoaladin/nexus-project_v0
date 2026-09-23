@@ -450,6 +450,15 @@
     "coachName": "Helios"
   },
   "examContext": null,
+  "capabilities": {
+    "chat": true,
+    "courseWorkspace": true,
+    "trajectory": true,
+    "assessments": true,
+    "resources": true,
+    "nextSession": true,
+    "conversationHistory": true
+  },
   "skillGraphs": [
     {
       "courseKey": "maths-terminale-eds",

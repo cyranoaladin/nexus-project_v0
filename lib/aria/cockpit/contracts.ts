@@ -159,9 +159,11 @@ export type AriaRagSubject =
 /**
  * Feature keys d'entitlement existantes. P0 ne crée AUCUNE nouvelle feature key :
  * le mapping actuel (NSI → aria_nsi, tout le reste → aria_maths) est conservé
- * tel quel et documenté comme dette P1.
+ * tel quel et documenté comme dette P1. Cette constante est également la
+ * source runtime utilisée pour valider les clés persistées en fail-closed.
  */
-export type AriaFeatureKey = 'aria_maths' | 'aria_nsi';
+export const ARIA_FEATURE_KEYS = ['aria_maths', 'aria_nsi'] as const;
+export type AriaFeatureKey = (typeof ARIA_FEATURE_KEYS)[number];
 
 // ─── Accès ───────────────────────────────────────────────────────────────────
 
@@ -448,6 +450,26 @@ export interface AriaStudentDTO {
   readonly academicTrack: AcademicTrack | null;
 }
 
+/**
+ * Capacités du cockpit qui n'ont, à ce jour, aucune source de données pour
+ * certaines identités (ex. Core v2 — PR "core-v2-aria-foundation") :
+ * `false` signifie « non encore porté », jamais « l'élève n'a rien fait ».
+ * Le frontend doit distinguer les deux : un tableau/valeur vide avec
+ * `true` est un état normal ; `false` doit s'afficher explicitement comme
+ * une limite temporaire, jamais comme une absence de données.
+ */
+export interface AriaCockpitCapabilitiesDTO {
+  /** Chat runtime deployed for this authority (independent of commercial entitlement). */
+  readonly chat: boolean;
+  /** Course workspace runtime deployed for this authority, including mastery, recommendations and workshops. */
+  readonly courseWorkspace: boolean;
+  readonly trajectory: boolean;
+  readonly assessments: boolean;
+  readonly resources: boolean;
+  readonly nextSession: boolean;
+  readonly conversationHistory: boolean;
+}
+
 /** Payload complet du cockpit. */
 export interface AriaCockpitDTO {
   readonly student: AriaStudentDTO;
@@ -461,6 +483,7 @@ export interface AriaCockpitDTO {
   readonly aria: AriaStatsDTO;
   readonly nextSession: AriaNextSessionDTO | null;
   readonly examContext: AriaExamContextDTO | null;
+  readonly capabilities: AriaCockpitCapabilitiesDTO;
   /**
    * Graphes de compétences des seuls cours présents dans la carte de l'élève
    * (au plus quelques-uns). Bornés volontairement : le payload ne transporte

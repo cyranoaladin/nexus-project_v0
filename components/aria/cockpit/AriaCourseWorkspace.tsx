@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import type { AriaCourseSkillMastery } from '@/lib/aria/application/mastery/list-course-mastery';
 import type { AriaNextBestAction } from '@/lib/aria/application/mastery/get-next-best-action';
+import { CapabilityUnavailable } from './CapabilityUnavailable';
 import { EmptyState } from './EmptyState';
 import { SUPPORT_LABELS, SUPPORT_TONE, ROLE_LABELS } from './support-labels';
 import { AriaWorkshopsSection } from './AriaWorkshopsSection';
@@ -38,7 +39,7 @@ interface AriaCourseWorkspaceProps {
   cockpit: AriaCockpitDTO;
   courseKey: string;
   onBack: () => void;
-  onWorkWithAria: (courseKey: string) => void;
+  onWorkWithAria?: (courseKey: string) => void;
   /** `undefined` while still loading, `[]` once loaded with no mastery data yet. */
   mastery?: readonly AriaCourseSkillMastery[];
   /** `undefined` while still loading, `null` once loaded with nothing to recommend. */
@@ -54,7 +55,7 @@ export function AriaCourseWorkspace({
   nextBestAction,
 }: AriaCourseWorkspaceProps) {
   const view = cockpit.curriculum.courses.find((candidate) => candidate.course.key === courseKey);
-  if (!view) {
+  if (!view || !view.access.academicallyRelevant) {
     return (
       <EmptyState title="Cours introuvable" body="Ce cours ne fait pas partie de ta carte scolaire.">
         <Button onClick={onBack} variant="outline" size="sm">
@@ -70,7 +71,12 @@ export function AriaCourseWorkspace({
   const assessments = cockpit.assessments.filter(
     (assessment) => assessment.subject !== null && course.chatSubject === assessment.subject,
   );
-  const canChat = course.chatSubject !== null && access.commerciallyEntitled;
+  const canChat =
+    cockpit.capabilities.chat &&
+    access.academicallyRelevant &&
+    course.chatSubject !== null &&
+    access.commerciallyEntitled &&
+    onWorkWithAria !== undefined;
 
   return (
     <section aria-labelledby="aria-workspace-title" className="space-y-4">
@@ -95,9 +101,7 @@ export function AriaCourseWorkspace({
             <span className="rounded-micro bg-white/5 px-2 py-0.5 text-[11px] text-neutral-300">
               {course.gradeLevel}
             </span>
-            <span
-              className={`rounded-micro px-2 py-0.5 text-[11px] font-medium ${SUPPORT_TONE[course.support]}`}
-            >
+            <span className={`rounded-micro px-2 py-0.5 text-[11px] font-medium ${SUPPORT_TONE[course.support]}`}>
               {SUPPORT_LABELS[course.support]}
             </span>
           </div>
@@ -105,23 +109,29 @@ export function AriaCourseWorkspace({
         <CardContent className="space-y-3">
           {course.supportNote && <p className="text-sm text-neutral-400">{course.supportNote}</p>}
           <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              disabled={!canChat}
-              onClick={() => onWorkWithAria(courseKey)}
-              className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90"
-              data-testid="aria-work-with-aria"
-            >
-              <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
-              Travailler avec ARIA
-            </Button>
-            {!canChat && (
+            {cockpit.capabilities.chat && (
+              <Button
+                size="sm"
+                disabled={!canChat}
+                onClick={() => onWorkWithAria?.(courseKey)}
+                className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90"
+                data-testid="aria-work-with-aria"
+              >
+                <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                Travailler avec ARIA
+              </Button>
+            )}
+            {!cockpit.capabilities.chat ? (
+              <span className="self-center text-xs text-neutral-400">
+                Le chat ARIA n’est pas encore disponible pour ce profil.
+              </span>
+            ) : !canChat ? (
               <span className="self-center text-xs text-amber-200">
                 {course.chatSubject === null
                   ? 'ARIA ne prend pas encore en charge cette matière.'
-                  : "Cette matière n’est pas incluse dans ton abonnement."}
+                  : 'Cette matière n’est pas incluse dans ton abonnement.'}
               </span>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
@@ -131,8 +141,7 @@ export function AriaCourseWorkspace({
           <CardContent className="flex flex-wrap items-center justify-between gap-3 pt-4">
             <div>
               <p className="flex items-center gap-1.5 text-sm font-medium text-neutral-100">
-                <Target className="h-4 w-4 text-brand-accent" aria-hidden="true" />
-                À pratiquer maintenant
+                <Target className="h-4 w-4 text-brand-accent" aria-hidden="true" />À pratiquer maintenant
               </p>
               <p className="mt-1 text-xs text-neutral-400" data-testid="aria-next-best-action-skill-label">
                 {nextBestAction.skillLabel}
@@ -167,16 +176,13 @@ export function AriaCourseWorkspace({
           ) : (
             <div className="space-y-4">
               <p className="text-xs text-neutral-500">
-                {graph.domains.length} domaines · {graph.competencies.length} compétences ·
-                référentiel {graph.version}
+                {graph.domains.length} domaines · {graph.competencies.length} compétences · référentiel {graph.version}
               </p>
               {graph.domains.map((domain) => (
                 <div key={domain.id}>
                   <p className="text-sm font-medium text-neutral-100">
                     {domain.label}{' '}
-                    <span className="text-xs font-normal text-neutral-500">
-                      ({domain.competencyCount})
-                    </span>
+                    <span className="text-xs font-normal text-neutral-500">({domain.competencyCount})</span>
                   </p>
                   <ul className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                     {graph.competencies
@@ -223,7 +229,9 @@ export function AriaCourseWorkspace({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {resources.length === 0 ? (
+            {!cockpit.capabilities.resources ? (
+              <CapabilityUnavailable />
+            ) : resources.length === 0 ? (
               <EmptyState title="Aucune ressource rattachée" />
             ) : (
               <ul className="space-y-2">
@@ -234,9 +242,7 @@ export function AriaCourseWorkspace({
                       className="block rounded-lg border border-white/10 bg-white/5 p-3 transition-colors hover:border-brand-accent/40"
                     >
                       <span className="block text-sm text-neutral-100">{resource.title}</span>
-                      {resource.subtitle && (
-                        <span className="block text-xs text-neutral-500">{resource.subtitle}</span>
-                      )}
+                      {resource.subtitle && <span className="block text-xs text-neutral-500">{resource.subtitle}</span>}
                     </a>
                   </li>
                 ))}
@@ -250,7 +256,9 @@ export function AriaCourseWorkspace({
             <CardTitle className="text-sm text-neutral-200">Bilans de cette matière</CardTitle>
           </CardHeader>
           <CardContent>
-            {assessments.length === 0 ? (
+            {!cockpit.capabilities.assessments ? (
+              <CapabilityUnavailable />
+            ) : assessments.length === 0 ? (
               <EmptyState title="Aucun bilan pour cette matière" />
             ) : (
               <ul className="space-y-2">
@@ -265,9 +273,7 @@ export function AriaCourseWorkspace({
                     <>
                       <span className="block text-sm text-neutral-100">{assessment.title}</span>
                       <span className="block text-xs text-neutral-500">
-                        {assessment.date
-                          ? new Date(assessment.date).toLocaleDateString('fr-FR')
-                          : 'Date inconnue'}
+                        {assessment.date ? new Date(assessment.date).toLocaleDateString('fr-FR') : 'Date inconnue'}
                         {assessment.globalScore !== null ? ` · ${assessment.globalScore}/100` : ''}
                       </span>
                     </>

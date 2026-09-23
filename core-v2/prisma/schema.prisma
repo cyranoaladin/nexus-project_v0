@@ -96,6 +96,7 @@ model User {
   diagnosticSubmissions          DiagnosticSubmission[]
   diagnosticBilanDraftsValidated DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftValidatedBy")
   diagnosticBilanDraftsPublished DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
+  ariaAccessGrantsGranted        AriaAccessGrant[]
 
   @@map("users")
 }
@@ -242,6 +243,8 @@ model Student {
   academicYearEnrollments StudentAcademicYearEnrollment[]
   sessionBookings         SessionBooking[]
   diagnosticAssignments   DiagnosticAssignment[]
+  ariaCockpitProfile      AriaCockpitProfileCoreV2?
+  ariaAccessGrants        AriaAccessGrant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1164,4 +1167,86 @@ enum DiagnosticBilanDraftStatus {
   DRAFT
   VALIDATED
   PUBLISHED
+}
+
+// ── ARIA, Core v2 native surface (PR "core-v2-aria-foundation") ────────────
+//
+// V1 identities keep consuming the legacy ARIA persistence (legacy
+// database, FK'd to the legacy Student) through /api/aria/**, unchanged.
+// CORE_V2 identities are served exclusively by /api/v2/aria/** and the
+// models below — never a cross-database FK into the legacy tables, never a
+// synthetic legacy Student row created to satisfy one, never a dual write.
+// The two surfaces share pure ARIA domain code (catalogue, contracts, skill
+// graphs, curriculum resolution) — only the persistence adapter differs.
+
+model AriaCockpitProfileCoreV2 {
+  id        String  @id @default(cuid())
+  studentId String  @unique
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  targetSession     Int?
+  pinnedCourseKeys  String[] @default([])
+  weeklyGoalMinutes Int      @default(180)
+
+  learningGoals String[] @default([])
+  preferences   Json     @default("{}")
+
+  curriculumVersion     String    @default("v1")
+  onboardingCompletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("aria_cockpit_profiles_core_v2")
+}
+
+// A product-right authorization, NOT a second billing engine — Subscription
+// and Entitlement remain the legacy, V1-Student-keyed authority for
+// commercial rights (Phase 11, deliberately out of scope of the Core v2
+// redesign). "A Core v2 Student row exists" must never be read as "ARIA is
+// authorized" — this model is the explicit, auditable authorization record
+// that closes that gap for Core v2 identities. Granted/revoked through a
+// normal ADMIN operation (lib/core-v2/aria/access-grants.ts), never
+// hardcoded for a specific account.
+model AriaAccessGrant {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
+
+  // Mirrors the legacy `AriaFeatureKey` union ('aria_maths' | 'aria_nsi', …)
+  // — the same vocabulary, not a second one.
+  featureKey   String
+  ariaTier     CoreV2AriaTier @default(ARIA_AUTONOMIE)
+  // Empty = every course under this featureKey; non-empty narrows the grant
+  // to specific course keys (rare, e.g. a pilot limited to one course).
+  courseScopes String[]       @default([])
+
+  status   AriaAccessGrantStatus @default(ACTIVE)
+  startsAt DateTime              @default(now())
+  endsAt   DateTime?
+
+  grantedById String?
+  grantedBy   User?   @relation(fields: [grantedById], references: [id], onDelete: SetNull)
+  // Free-text operator note (e.g. "pilote qualification 2026-09"), never
+  // parsed for authorization — the status/dates/scopes above are the only
+  // fields a grant check reads.
+  source      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, featureKey, status])
+  @@map("aria_access_grants_core_v2")
+}
+
+enum AriaAccessGrantStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum CoreV2AriaTier {
+  ARIA_AUTONOMIE
+  ARIA_SUIVI
+  ARIA_ACCOMPAGNEE
 }
