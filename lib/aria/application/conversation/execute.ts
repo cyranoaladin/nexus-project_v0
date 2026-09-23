@@ -17,6 +17,7 @@ import { resolveProductionAriaRagIdentity } from '../../infrastructure/rag/produ
 import { streamChatCompletion } from '../../gateway';
 import { ariaConversationTelemetrySink } from '../../infrastructure/observability/telemetry';
 import { ariaConversationAdmissionPort } from '../../infrastructure/rate-limit/conversation-admission';
+import type { AriaConversationRepository } from './ports';
 
 export function streamCanonicalAriaModel(
   messages: Parameters<AriaConversationExecutionDependencies['streamModel']>[0],
@@ -86,8 +87,9 @@ export async function executeCanonicalRetrieval(
   };
 }
 
-export const executeAriaConversation = makeRunAriaConversation({
-  repository: prismaAriaConversationRepository,
+export function makeCanonicalAriaConversationExecutor(repository: AriaConversationRepository) {
+  return makeRunAriaConversation({
+  repository,
   admission: ariaConversationAdmissionPort,
   retrieve: executeCanonicalRetrieval,
   buildPrompt: (input) => buildAriaPromptEnvelope({
@@ -108,7 +110,10 @@ export const executeAriaConversation = makeRunAriaConversation({
   monotonicNow: () => performance.now(),
   modelPolicy: 'ARIA_CHAT_DEFAULT_V1',
   telemetry: ariaConversationTelemetrySink,
-});
+  });
+}
+
+export const executeAriaConversation = makeCanonicalAriaConversationExecutor(prismaAriaConversationRepository);
 
 export type {
   AriaConversationExecutionResult as AriaExecutionResult,
