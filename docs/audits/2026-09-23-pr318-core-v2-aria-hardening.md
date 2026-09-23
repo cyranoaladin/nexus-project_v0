@@ -24,6 +24,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le premier cycle CI du rapport a détecté que le second `User.upsert` ajouté au seeder E2E n'était pas classé dans l'inventaire exhaustif des mutations de sécurité.
 - Le cycle CI suivant a révélé une régression V1 dans la lane ARIA desktop : trois parcours historiques ne pouvaient plus ouvrir une matière académiquement suivie mais hors sélection commerciale.
 - La revue automatisée fraîche sur `f068596e39ebc0a1f7201b021aae0d90e8b9a0c4` a détecté un autre chemin legacy : ouvrir un workspace Core v2 déclenchait encore mastery, next-best-action et workshops sous `/api/aria/**`.
+- La première CI du correctif workspace a exposé deux événements distincts : un timeout de hook hors diff dans `double-booking.test.ts`, reproduit ensuite vert 6/6 sur base jetable isolée, et une vraie lacune de la nouvelle contre-épreuve V1, qui attendait le cockpit sans terminer d'abord son onboarding réel.
 
 ## Décisions prises
 
@@ -88,6 +89,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Correctif du finding CI : garde `session-revocation-boundary` 18/18, guards/persona de seed Core v2 14/14, `npm run typecheck` et ESLint ciblé passés.
 - Correctif de la régression navigateur : test composant de carte 9/9, dont l'ouverture V1 locked et l'absence d'actions pour les options Core v2 non pertinentes.
 - Correctif de la revue fraîche workspace : page/shell/carte 19/19, route Core v2 native 24/24, suite ARIA unitaire 2 070/2 070, architecture ARIA 62/62, `npm run typecheck`, ESLint ciblé, ownership et syntax E2E passés. Le test E2E bloque désormais toute requête legacy `/api/aria/**`, vérifie l'absence de `Ouvrir` en Core v2 et l'ouverture du workspace en V1.
+- Qualification CI du correctif workspace : `double-booking.test.ts` a dépassé les 10 s de son `beforeAll` sous charge de la lane Real DB, sans lien avec le diff ; le même fichier passe isolément 6/6 en 5,033 s sur une base jetable fraîche. La lane Chromium a, elle, fourni un RED produit-test utile : le persona V1 était encore dans le wizard. La contre-épreuve initialise désormais son profil V1 par le vrai endpoint authentifié, de façon idempotente et répétable, puis ouvre le workspace et le chat dans le navigateur ; les deux scénarios passent 2/2 sur une stack jetable réelle après ce correctif.
 
 ## Résultats
 

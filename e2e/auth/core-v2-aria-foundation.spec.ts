@@ -91,14 +91,30 @@ test.describe('Core v2 ARIA foundation', () => {
   });
 
   test('keeps the V1 launcher and conversation surface available', async ({ page }) => {
-    await loginAsUser(page, 'ariaTerminaleMaths', { targetPath: '/dashboard/eleve/aria' });
+    await loginAsUser(page, 'ariaTerminaleMaths', { navigate: false });
+
+    const profileResponse = await page.request.put('/api/aria/cockpit/profile', {
+      data: {
+        pinnedCourseKeys: ['maths-terminale-eds'],
+        weeklyGoalMinutes: 180,
+        learningGoals: ['ENTRAINEMENT_REGULIER'],
+        completeOnboarding: true,
+      },
+    });
+    expect(profileResponse.status()).toBe(200);
+    expect(await profileResponse.json()).toMatchObject({ setupState: 'READY' });
+
+    await page.goto('/dashboard/eleve/aria', { waitUntil: 'domcontentloaded' });
 
     const trigger = page.getByTestId('aria-chat-trigger');
     await expect(trigger).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Cockpit ARIA' })).toBeVisible();
 
     await page.getByTestId('aria-nav-CURRICULUM').click();
     await page.getByRole('button', { name: 'Ouvrir' }).first().click();
-    await expect(page.getByRole('button', { name: 'Ma carte scolaire' })).toBeVisible();
+    const courseMapButtons = page.getByRole('button', { name: 'Ma carte scolaire' });
+    await expect(courseMapButtons).toHaveCount(2);
+    await expect(courseMapButtons.nth(1)).toBeVisible();
 
     await page.getByTestId('aria-nav-ARIA').click();
     await trigger.click();
