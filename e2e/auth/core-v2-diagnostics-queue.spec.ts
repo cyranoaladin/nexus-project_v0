@@ -14,7 +14,12 @@
  * - a unique confidential sentinel in a real draft human-review field and
  *   extracted academic content. Neither may cross the queue boundary.
  */
-import { expect, test, type APIResponse, type Page } from "@playwright/test";
+import {
+  expect,
+  test,
+  type Page,
+  type Response as PlaywrightResponse,
+} from "@playwright/test";
 import { PrismaClient, Prisma } from "@/core-v2/generated/client";
 import { loginViaSigninForm } from "../helpers/auth";
 
@@ -95,13 +100,16 @@ async function cleanupFixture(): Promise<void> {
   });
 }
 
-async function waitForQueueResponse(page: Page): Promise<APIResponse> {
+async function waitForQueueResponse(
+  page: Page,
+  status: "ACTION_REQUIRED" | "ALL",
+): Promise<PlaywrightResponse> {
   return page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
       response.request().method() === "GET" &&
       url.pathname === "/api/v2/staff/diagnostics/submissions" &&
-      url.searchParams.get("status") === "ACTION_REQUIRED"
+      url.searchParams.get("status") === status
     );
   });
 }
@@ -316,12 +324,33 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
 }) => {
   await loginViaSigninForm(page, "admin");
 
-  const queueResponsePromise = waitForQueueResponse(page);
+  const initialQueueResponsePromise = waitForQueueResponse(
+    page,
+    "ACTION_REQUIRED",
+  );
   await page
     .getByRole("link", { name: "Diagnostics candidats libres", exact: true })
     .click();
+  const initialQueueResponse = await initialQueueResponsePromise;
+  expect(initialQueueResponse.status()).toBe(200);
+
+  const allResponsePromise = waitForQueueResponse(page, "ALL");
+  await page.getByRole("button", { name: "Tous", exact: true }).click();
+  const allResponse = await allResponsePromise;
+  expect(allResponse.status()).toBe(200);
+  await expect(
+    page.getByRole("button", { name: "Tous", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+
+  const actionRequired = page.getByRole("button", {
+    name: "Action requise",
+    exact: true,
+  });
+  const queueResponsePromise = waitForQueueResponse(page, "ACTION_REQUIRED");
+  await actionRequired.click();
   const queueResponse = await queueResponsePromise;
   expect(queueResponse.status()).toBe(200);
+  await expect(actionRequired).toHaveAttribute("aria-pressed", "true");
 
   const queueBody: unknown = await queueResponse.json();
   const items = asQueueItems(queueBody);
@@ -384,14 +413,6 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
       .soft(serializedQueue, `queue payload must omit ${forbiddenKey}`)
       .not.toContain(`"${forbiddenKey}"`);
   }
-
-  const actionRequired = page.getByRole("button", {
-    name: "Action requise",
-    exact: true,
-  });
-  await expect(actionRequired).toBeVisible();
-  await actionRequired.click();
-  await expect(actionRequired).toHaveAttribute("aria-pressed", "true");
 
   // The confidential sentinel belongs to the detail/draft only, never to
   // the operational list, and no historical/rejected version gets a link.
