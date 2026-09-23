@@ -243,6 +243,7 @@ services:
       PLAYWRIGHT_PROJECT: "${PLAYWRIGHT_PROJECT:-}"
       E2E_CREDENTIALS_PATH: /app/e2e-shared/.credentials.json
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
+      CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e
       MAILPIT_API_URL: http://mailpit-e2e:8025
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       E2E_DISPOSABLE_STACK: "1"

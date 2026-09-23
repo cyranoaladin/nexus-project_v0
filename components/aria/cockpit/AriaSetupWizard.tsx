@@ -55,7 +55,7 @@ export function AriaSetupWizard({ cockpit, saving, error, onSubmit }: AriaSetupW
   const [goals, setGoals] = useState<AriaLearningGoal[]>([...cockpit.profile.learningGoals]);
 
   const selectableCourses = cockpit.curriculum.courses.filter(
-    (view) => view.access.academicallyRelevant && view.access.productSupported,
+    (view) => view.access.academicallyRelevant,
   );
 
   function toggleCourse(key: string) {
@@ -181,7 +181,7 @@ export function AriaSetupWizard({ cockpit, saving, error, onSubmit }: AriaSetupW
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {selectableCourses.map((view) => {
-                const locked = !view.access.commerciallyEntitled;
+                const locked = !view.access.productSupported || !view.access.commerciallyEntitled;
                 const isSelected = selected.includes(view.course.key);
                 return (
                   <button

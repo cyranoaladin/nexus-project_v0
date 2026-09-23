@@ -14,13 +14,17 @@
 import { prisma as coreV1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { normalizeEmail } from '@/lib/core-v2/contact';
+import { assertCoreV2E2eSeedTarget } from './e2e-seed-target';
+import {
+  CORE_V2_ARIA_FOUNDATION_EMAIL,
+  resetCoreV2AriaFoundationProfile,
+} from './aria-foundation-e2e-persona';
 
 const MIRRORED_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
-const CORE_V2_ARIA_EMAIL = 'core-v2-aria-foundation@example.test';
 
 async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof requireCoreV2Client>>) {
   const legacyIdentity = await coreV1.user.findUnique({
-    where: { email: CORE_V2_ARIA_EMAIL },
+    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
     select: {
       id: true,
       email: true,
@@ -149,31 +153,13 @@ async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof
       endsAt: null,
     },
   });
-  await coreV2.ariaCockpitProfileCoreV2.upsert({
-    where: { studentId: student.id },
-    create: {
-      studentId: student.id,
-      pinnedCourseKeys: [],
-      weeklyGoalMinutes: 180,
-      learningGoals: [],
-      preferences: {},
-      onboardingCompletedAt: null,
-    },
-    update: {
-      targetSession: null,
-      pinnedCourseKeys: [],
-      weeklyGoalMinutes: 180,
-      learningGoals: [],
-      preferences: {},
-      onboardingCompletedAt: null,
-    },
-  });
+  await resetCoreV2AriaFoundationProfile(coreV2);
 }
 
 async function main(): Promise<void> {
-  if (process.env.E2E_DISPOSABLE_STACK !== '1' && process.env.NEXUS_DISPOSABLE_POSTGRES !== '1') {
-    throw new Error('SEED_E2E_STAFF_ACTORS_REFUSED: only for a disposable E2E stack (E2E_DISPOSABLE_STACK=1).');
-  }
+  // Must run before `requireCoreV2Client`: no connection or mutation is
+  // attempted until the actual parsed target, not only a marker, is proven.
+  assertCoreV2E2eSeedTarget(process.env);
   const coreV2 = await requireCoreV2Client();
   const staff = await coreV1.user.findMany({
     where: { role: { in: [...MIRRORED_ROLES] } },

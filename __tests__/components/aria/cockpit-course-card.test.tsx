@@ -39,11 +39,12 @@ describe('AriaCourseCard', () => {
     expect(onOpen).toHaveBeenCalledWith('eds-maths-terminale');
   });
 
-  it('shows the lock warning for a supported-but-not-entitled course, but still opens it outside selectable mode', () => {
+  it('shows the lock warning without exposing an action for a supported-but-not-entitled course', () => {
     const onOpen = jest.fn();
     render(<AriaCourseCard view={view({ commerciallyEntitled: false })} onOpen={onOpen} />);
     expect(screen.getByText('Non inclus dans l’abonnement')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ouvrir' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
+    expect(onOpen).not.toHaveBeenCalled();
   });
 
   it('makes a locked course non-interactive in selectable mode', () => {
