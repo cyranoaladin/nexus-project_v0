@@ -23,13 +23,24 @@ import {
   type CurrentDiagnosticSubmissionStatus,
 } from '@/lib/diagnostics/current-submission';
 
-export type DiagnosticQueueState =
-  | 'NOT_PROCESSED'
-  | 'PROCESSING'
-  | 'READY_FOR_REVIEW'
-  | 'VALIDATED_UNPUBLISHED'
-  | 'PUBLISHED'
-  | 'FAILED';
+const DIAGNOSTIC_QUEUE_STATES = [
+  'NOT_PROCESSED',
+  'PROCESSING',
+  'READY_FOR_REVIEW',
+  'VALIDATED_UNPUBLISHED',
+  'PUBLISHED',
+  'FAILED',
+] as const;
+export type DiagnosticQueueState = (typeof DIAGNOSTIC_QUEUE_STATES)[number];
+
+const DIAGNOSTIC_PROCESSING_STATUSES = [
+  'QUEUED',
+  'EXTRACTING',
+  'EXTRACTED',
+  'NO_EXTRACTABLE_TEXT',
+  'EXTRACTION_FAILED',
+] as const;
+const DIAGNOSTIC_DRAFT_STATUSES = ['DRAFT', 'VALIDATED', 'PUBLISHED'] as const;
 
 export const DIAGNOSTIC_QUEUE_FILTERS = [
   'ACTION_REQUIRED',
@@ -45,14 +56,8 @@ export type DiagnosticQueueFilter = (typeof DIAGNOSTIC_QUEUE_FILTERS)[number];
 
 export interface DiagnosticQueueStatusInput {
   readonly submissionStatus: CurrentDiagnosticSubmissionStatus;
-  readonly processingStatus:
-    | 'QUEUED'
-    | 'EXTRACTING'
-    | 'EXTRACTED'
-    | 'NO_EXTRACTABLE_TEXT'
-    | 'EXTRACTION_FAILED'
-    | null;
-  readonly draftStatus: 'DRAFT' | 'VALIDATED' | 'PUBLISHED' | null;
+  readonly processingStatus: (typeof DIAGNOSTIC_PROCESSING_STATUSES)[number] | null;
+  readonly draftStatus: (typeof DIAGNOSTIC_DRAFT_STATUSES)[number] | null;
 }
 
 const PROCESSING_QUEUE_STATUSES = ['QUEUED', 'EXTRACTING'] as const;
@@ -228,7 +233,7 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
       LEFT JOIN "latestDraft" d ON d."processingId" = p."id"
     ),
     "ranked" AS (
-      SELECT "stateProjected".*, ${QUEUE_STATE_RANK_SQL} AS "stateRank"
+      SELECT "stateProjected".*, (${QUEUE_STATE_RANK_SQL})::integer AS "stateRank"
       FROM "stateProjected"
     ),
     "filtered" AS (
@@ -262,27 +267,31 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
   `;
 }
 
-export interface DiagnosticQueueRawRow {
-  readonly submissionId: string;
-  readonly state: DiagnosticQueueState;
-  readonly stateRank: number;
-  readonly candidateId: string;
-  readonly candidateFirstName: string | null;
-  readonly candidateLastName: string | null;
-  readonly instrumentKey: string;
-  readonly instrumentVersion: string;
-  readonly instrumentTitle: string;
-  readonly submissionVersion: number;
-  readonly submissionStatus: CurrentDiagnosticSubmissionStatus;
-  readonly submissionCreatedAt: Date | string;
-  readonly processingStatus: DiagnosticQueueStatusInput['processingStatus'];
-  readonly draftStatus: DiagnosticQueueStatusInput['draftStatus'];
-  readonly lastActivityAt: Date | string;
-}
+const queueDateSchema = z
+  .union([z.date(), z.string().datetime({ offset: true })])
+  .transform((value) => (value instanceof Date ? value : new Date(value)));
 
-function asDate(value: Date | string): Date {
-  return value instanceof Date ? value : new Date(value);
-}
+const diagnosticQueueRawRowSchema = z
+  .object({
+    submissionId: z.string().min(1),
+    state: z.enum(DIAGNOSTIC_QUEUE_STATES),
+    stateRank: z.number().int().nonnegative(),
+    candidateId: z.string().min(1),
+    candidateFirstName: z.string().nullable(),
+    candidateLastName: z.string().nullable(),
+    instrumentKey: z.string(),
+    instrumentVersion: z.string(),
+    instrumentTitle: z.string(),
+    submissionVersion: z.number().int().positive(),
+    submissionStatus: z.enum(CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES),
+    submissionCreatedAt: queueDateSchema,
+    processingStatus: z.enum(DIAGNOSTIC_PROCESSING_STATUSES).nullable(),
+    draftStatus: z.enum(DIAGNOSTIC_DRAFT_STATUSES).nullable(),
+    lastActivityAt: queueDateSchema,
+  })
+  .strict();
+
+export type DiagnosticQueueRawRow = z.infer<typeof diagnosticQueueRawRowSchema>;
 
 export function mapDiagnosticQueueRawRow(raw: DiagnosticQueueRawRow): DiagnosticQueueRow {
   return {
@@ -299,22 +308,22 @@ export function mapDiagnosticQueueRawRow(raw: DiagnosticQueueRawRow): Diagnostic
       title: raw.instrumentTitle,
     },
     submission: {
-      version: Number(raw.submissionVersion),
+      version: raw.submissionVersion,
       status: raw.submissionStatus,
-      createdAt: asDate(raw.submissionCreatedAt),
+      createdAt: raw.submissionCreatedAt,
     },
     processingStatus: raw.processingStatus,
     draftStatus: raw.draftStatus,
-    lastActivityAt: asDate(raw.lastActivityAt),
+    lastActivityAt: raw.lastActivityAt,
   };
 }
 
 export function materializeDiagnosticQueuePage(
-  rawRows: readonly DiagnosticQueueRawRow[],
+  rawRows: readonly unknown[],
   limit: number,
   mapper: (raw: DiagnosticQueueRawRow) => DiagnosticQueueRow = mapDiagnosticQueueRawRow,
 ): Page<DiagnosticQueueRow> {
-  const boundedRows = rawRows.slice(0, limit + 1);
+  const boundedRows = rawRows.slice(0, limit + 1).map((raw) => diagnosticQueueRawRowSchema.parse(raw));
   const rows = boundedRows.map(mapper);
   const hasMore = rows.length > limit;
   const items = hasMore ? rows.slice(0, limit) : rows;
@@ -337,6 +346,6 @@ export async function listDiagnosticSubmissionsQueue(
   query: DiagnosticQueueQuery,
 ): Promise<Page<DiagnosticQueueRow>> {
   assertCapability(ctx.actor, 'DIAGNOSTIC_SUBMISSION_TRACK');
-  const rows = await client.$queryRaw<DiagnosticQueueRawRow[]>(buildDiagnosticQueuePageSql(query));
+  const rows = await client.$queryRaw<unknown[]>(buildDiagnosticQueuePageSql(query));
   return materializeDiagnosticQueuePage(rows, query.limit);
 }

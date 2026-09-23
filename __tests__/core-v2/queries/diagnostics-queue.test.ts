@@ -7,6 +7,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import {
   listDiagnosticSubmissionsQueue,
+  mapDiagnosticQueueRawRow,
   materializeDiagnosticQueuePage,
   projectDiagnosticQueueState,
   queueCandidateSelect,
@@ -176,6 +177,27 @@ describe('current diagnostic submission contract', () => {
 });
 
 describe('diagnostics queue repository boundary', () => {
+  function validRawRow(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+    return {
+      submissionId: 'submission-1',
+      state: 'NOT_PROCESSED',
+      stateRank: 0,
+      candidateId: 'student-1',
+      candidateFirstName: 'Ada',
+      candidateLastName: 'Lovelace',
+      instrumentKey: 'instrument-1',
+      instrumentVersion: '1.0.0',
+      instrumentTitle: 'Diagnostic synthétique',
+      submissionVersion: 1,
+      submissionStatus: 'RECEIVED',
+      submissionCreatedAt: new Date('2026-09-23T08:00:00.000Z'),
+      processingStatus: null,
+      draftStatus: null,
+      lastActivityAt: new Date('2026-09-23T08:00:00.000Z'),
+      ...overrides,
+    };
+  }
+
   test('uses one parameterized bounded raw query and never loads submission history with findMany', async () => {
     const findMany = jest.fn();
     const queryRaw = jest.fn().mockResolvedValue([]);
@@ -202,7 +224,9 @@ describe('diagnostics queue repository boundary', () => {
   });
 
   test('materializes at most limit + 1 database rows before trimming the public page', () => {
-    const rawRows = Array.from({ length: 8 }, (_, index) => ({ submissionId: `raw-${index}` })) as DiagnosticQueueRawRow[];
+    const rawRows = Array.from({ length: 8 }, (_, index) =>
+      validRawRow({ submissionId: `raw-${index}` }),
+    );
     const mapper = jest.fn(
       (raw: DiagnosticQueueRawRow) => ({ submissionId: raw.submissionId }) as DiagnosticQueueRow,
     );
@@ -212,6 +236,26 @@ describe('diagnostics queue repository boundary', () => {
     expect(mapper).toHaveBeenCalledTimes(3);
     expect(page.items).toHaveLength(2);
     expect(page.nextCursor).toBe('raw-1');
+  });
+
+  test.each([
+    ['unknown queue state', { state: 'STATE_DRIFT' }],
+    ['unknown submission status', { submissionStatus: 'REJECTED' }],
+    ['unknown processing status', { processingStatus: 'PROCESSING_DRIFT' }],
+    ['unknown draft status', { draftStatus: 'DRAFT_DRIFT' }],
+    ['fractional submission version', { submissionVersion: 1.5 }],
+    ['NaN submission version', { submissionVersion: Number.NaN }],
+    ['fractional state rank', { stateRank: 1.5 }],
+    ['NaN state rank', { stateRank: Number.NaN }],
+    ['non-string candidate id', { candidateId: 42 }],
+    ['non-string candidate name', { candidateFirstName: 42 }],
+    ['invalid submission date', { submissionCreatedAt: new Date(Number.NaN) }],
+    ['invalid activity date', { lastActivityAt: 'not-a-date' }],
+  ])('rejects %s before invoking the queue row mapper', (_label, override) => {
+    const mapper = jest.fn(mapDiagnosticQueueRawRow);
+
+    expect(() => materializeDiagnosticQueuePage([validRawRow(override)], 2, mapper)).toThrow();
+    expect(mapper).not.toHaveBeenCalled();
   });
 });
 

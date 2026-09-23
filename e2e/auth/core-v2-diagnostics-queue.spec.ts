@@ -152,7 +152,6 @@ const queuePageSchema = z
   .object({
     items: z.array(queueItemSchema),
     nextCursor: z.string().min(1).nullable(),
-    totalCount: z.number().int().nonnegative(),
     listChanged: z.boolean().optional(),
   })
   .strict();
