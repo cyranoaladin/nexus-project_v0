@@ -105,6 +105,53 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(r.body.data.curriculum.availableCourseKeys.length).toBeGreaterThan(0);
   });
 
+  test('ARIA access tiers default to AUTONOMIE and persist every explicit Core v2 tier', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-tiers@synthetic.test', accountStatus: 'ACTIVE' } });
+    const actor = { userId: admin.id, role: 'ADMIN' } as const;
+
+    const defaultGrant = await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      source: 'default-tier',
+    });
+    const autonomieGrant = await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      ariaTier: 'ARIA_AUTONOMIE',
+      source: 'autonomie-tier',
+    });
+    const suiviGrant = await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      ariaTier: 'ARIA_SUIVI',
+      source: 'suivi-tier',
+    });
+    const accompagneeGrant = await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      ariaTier: 'ARIA_ACCOMPAGNEE',
+      source: 'accompagnee-tier',
+    });
+
+    expect(defaultGrant.ariaTier).toBe('ARIA_AUTONOMIE');
+    expect(autonomieGrant.ariaTier).toBe('ARIA_AUTONOMIE');
+    expect(suiviGrant.ariaTier).toBe('ARIA_SUIVI');
+    expect(accompagneeGrant.ariaTier).toBe('ARIA_ACCOMPAGNEE');
+
+    const persisted = await h.client.ariaAccessGrant.findMany({
+      where: { id: { in: [defaultGrant.id, autonomieGrant.id, suiviGrant.id, accompagneeGrant.id] } },
+      orderBy: { source: 'asc' },
+      select: { source: true, ariaTier: true },
+    });
+    expect(persisted).toEqual([
+      { source: 'accompagnee-tier', ariaTier: 'ARIA_ACCOMPAGNEE' },
+      { source: 'autonomie-tier', ariaTier: 'ARIA_AUTONOMIE' },
+      { source: 'default-tier', ariaTier: 'ARIA_AUTONOMIE' },
+      { source: 'suivi-tier', ariaTier: 'ARIA_SUIVI' },
+    ]);
+  });
+
   test('a revoked grant no longer authorizes', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });

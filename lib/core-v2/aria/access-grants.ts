@@ -10,7 +10,7 @@
  * revoked only via `grantCoreV2AriaAccess`/`revokeCoreV2AriaAccess` (the
  * one normal operator mechanism — never a hardcoded account id).
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { CoreV2AriaTier, PrismaClient } from '@/core-v2/generated/client';
 import { assertCapability, type Actor } from '@/lib/core-v2/rbac';
 import type { AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
 
@@ -40,6 +40,7 @@ export async function resolveCoreV2AriaEntitlements(
 export interface GrantCoreV2AriaAccessInput {
   readonly studentId: string;
   readonly featureKey: AriaFeatureKey;
+  readonly ariaTier?: CoreV2AriaTier;
   readonly courseScopes?: readonly string[];
   readonly endsAt?: Date | null;
   readonly source?: string;
@@ -56,6 +57,7 @@ export async function grantCoreV2AriaAccess(
     data: {
       studentId: input.studentId,
       featureKey: input.featureKey,
+      ariaTier: input.ariaTier,
       courseScopes: [...(input.courseScopes ?? [])],
       endsAt: input.endsAt ?? null,
       grantedById: actor.userId,

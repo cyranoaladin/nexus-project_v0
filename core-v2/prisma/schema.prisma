@@ -1213,13 +1213,14 @@ model AriaAccessGrant {
 
   // Mirrors the legacy `AriaFeatureKey` union ('aria_maths' | 'aria_nsi', …)
   // — the same vocabulary, not a second one.
-  featureKey String
+  featureKey   String
+  ariaTier     CoreV2AriaTier @default(ARIA_AUTONOMIE)
   // Empty = every course under this featureKey; non-empty narrows the grant
   // to specific course keys (rare, e.g. a pilot limited to one course).
-  courseScopes String[] @default([])
+  courseScopes String[]       @default([])
 
-  status  AriaAccessGrantStatus @default(ACTIVE)
-  startsAt DateTime @default(now())
+  status   AriaAccessGrantStatus @default(ACTIVE)
+  startsAt DateTime              @default(now())
   endsAt   DateTime?
 
   grantedById String?
@@ -1240,4 +1241,10 @@ enum AriaAccessGrantStatus {
   ACTIVE
   REVOKED
   EXPIRED
+}
+
+enum CoreV2AriaTier {
+  ARIA_AUTONOMIE
+  ARIA_SUIVI
+  ARIA_ACCOMPAGNEE
 }

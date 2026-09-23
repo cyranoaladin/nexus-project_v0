@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "AriaAccessGrantStatus" AS ENUM ('ACTIVE', 'REVOKED', 'EXPIRED');
 
+-- CreateEnum
+CREATE TYPE "CoreV2AriaTier" AS ENUM ('ARIA_AUTONOMIE', 'ARIA_SUIVI', 'ARIA_ACCOMPAGNEE');
+
 -- CreateTable
 CREATE TABLE "aria_cockpit_profiles_core_v2" (
     "id" TEXT NOT NULL,
@@ -23,6 +26,7 @@ CREATE TABLE "aria_access_grants_core_v2" (
     "id" TEXT NOT NULL,
     "studentId" TEXT NOT NULL,
     "featureKey" TEXT NOT NULL,
+    "ariaTier" "CoreV2AriaTier" NOT NULL DEFAULT 'ARIA_AUTONOMIE',
     "courseScopes" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "status" "AriaAccessGrantStatus" NOT NULL DEFAULT 'ACTIVE',
     "startsAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
