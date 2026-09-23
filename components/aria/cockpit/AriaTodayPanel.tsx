@@ -10,6 +10,7 @@
 import { CalendarClock, CheckCircle2, Circle, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import { CapabilityUnavailable } from './CapabilityUnavailable';
 import { EmptyState } from './EmptyState';
 
 const ORIGIN_LABELS: Record<string, string> = {
@@ -52,7 +53,9 @@ export function AriaTodayPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {nextSession ? (
+            {!cockpit.capabilities.nextSession ? (
+              <CapabilityUnavailable />
+            ) : nextSession ? (
               <div>
                 <p className="font-medium text-neutral-100">{nextSession.title}</p>
                 <p className="mt-1 text-sm text-neutral-400">

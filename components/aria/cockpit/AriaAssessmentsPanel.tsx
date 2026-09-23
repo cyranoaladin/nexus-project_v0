@@ -9,6 +9,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { AriaAssessmentDTO, AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
+import { CapabilityUnavailable } from './CapabilityUnavailable';
 import { EmptyState } from './EmptyState';
 
 const STATE_LABELS: Record<AriaAssessmentDTO['state'], string> = {
@@ -41,12 +42,12 @@ export function AriaAssessmentsPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
         <h2 id="aria-assessments-title" className="text-lg font-semibold text-neutral-100">
           Évaluations &amp; bilans
         </h2>
-        <p className="mt-1 text-sm text-neutral-400">
-          Tes bilans Nexus réellement enregistrés.
-        </p>
+        <p className="mt-1 text-sm text-neutral-400">Tes bilans Nexus réellement enregistrés.</p>
       </div>
 
-      {sections.length === 0 ? (
+      {!cockpit.capabilities.assessments ? (
+        <CapabilityUnavailable />
+      ) : sections.length === 0 ? (
         <EmptyState
           title="Aucun bilan pour l’instant"
           body="Tes bilans apparaîtront ici dès qu’un diagnostic ou un stage aura été analysé."
@@ -71,12 +72,8 @@ export function AriaAssessmentsPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
                     >
                       <span className="text-sm text-neutral-100">{assessment.title}</span>
                       <span className="text-xs text-neutral-500">
-                        {assessment.date
-                          ? new Date(assessment.date).toLocaleDateString('fr-FR')
-                          : 'Date inconnue'}
-                        {assessment.globalScore !== null
-                          ? ` · score ${assessment.globalScore}/100`
-                          : ''}
+                        {assessment.date ? new Date(assessment.date).toLocaleDateString('fr-FR') : 'Date inconnue'}
+                        {assessment.globalScore !== null ? ` · score ${assessment.globalScore}/100` : ''}
                       </span>
                     </a>
                   </li>

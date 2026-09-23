@@ -3,7 +3,17 @@ import { AriaAssessmentsPanel } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 
 function cockpit(assessments: AriaCockpitDTO['assessments']): AriaCockpitDTO {
-  return { assessments } as unknown as AriaCockpitDTO;
+  return {
+    assessments,
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
+  } as unknown as AriaCockpitDTO;
 }
 
 describe('AriaAssessmentsPanel', () => {
@@ -17,12 +27,20 @@ describe('AriaAssessmentsPanel', () => {
       <AriaAssessmentsPanel
         cockpit={cockpit([
           {
-            id: 't1', title: 'Bilan terminé', state: 'TERMINE',
-            date: '2026-03-01T00:00:00.000Z', globalScore: 82, href: '/bilan/t1',
+            id: 't1',
+            title: 'Bilan terminé',
+            state: 'TERMINE',
+            date: '2026-03-01T00:00:00.000Z',
+            globalScore: 82,
+            href: '/bilan/t1',
           },
           {
-            id: 'a1', title: 'Bilan à faire', state: 'A_FAIRE',
-            date: null, globalScore: null, href: null,
+            id: 'a1',
+            title: 'Bilan à faire',
+            state: 'A_FAIRE',
+            date: null,
+            globalScore: null,
+            href: null,
           },
         ] as unknown as AriaCockpitDTO['assessments'])}
       />,

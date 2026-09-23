@@ -6,6 +6,14 @@ function cockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO {
   return {
     trajectory: null,
     examContext: null,
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     ...overrides,
   } as unknown as AriaCockpitDTO;
 }
@@ -26,7 +34,10 @@ describe('AriaTrajectoryPanel', () => {
             title: 'Cap Terminale',
             progress: 40,
             daysRemaining: 120,
-            nextMilestone: { title: 'Bac blanc', targetDate: '2026-12-01T00:00:00.000Z' },
+            nextMilestone: {
+              title: 'Bac blanc',
+              targetDate: '2026-12-01T00:00:00.000Z',
+            },
             milestoneCount: 5,
             completedMilestoneCount: 2,
           },
@@ -83,7 +94,12 @@ describe('AriaTrajectoryPanel', () => {
             supported: true,
             epreuves: [
               { id: 'e1', label: 'Philosophie', type: 'ECRIT', coefficient: 8 },
-              { id: 'e2', label: 'Grand oral', type: 'ORAL', coefficient: null },
+              {
+                id: 'e2',
+                label: 'Grand oral',
+                type: 'ORAL',
+                coefficient: null,
+              },
             ],
           },
         } as unknown as Partial<AriaCockpitDTO>)}

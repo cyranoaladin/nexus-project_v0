@@ -10,6 +10,14 @@ function cockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO {
       plannedMinutes: null,
     },
     nextSession: null,
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     ...overrides,
   } as unknown as AriaCockpitDTO;
 }
@@ -84,9 +92,7 @@ describe('AriaTodayPanel', () => {
       <AriaTodayPanel
         cockpit={cockpit({
           today: {
-            items: [
-              { id: 'a', title: 'Fait', done: true, origin: 'NEXT_STEP' },
-            ],
+            items: [{ id: 'a', title: 'Fait', done: true, origin: 'NEXT_STEP' }],
             weeklyGoalMinutes: 180,
             plannedMinutes: 0,
           },
