@@ -8,7 +8,7 @@
 
 La PR #318 introduit le cockpit ARIA natif Core v2 sans porter encore le moteur conversationnel natif. La qualification demandée ferme les findings précédents sur les droits, les scopes de cours, les options réellement suivies, l'honnêteté des capacités UI et l'absence d'appel au chat legacy depuis une session Core v2.
 
-Le head fonctionnel qualifié avant ajout du présent rapport est `2c5b2a68a3bea8f05f4a46035141e8f04870fca3`. Le SHA distant final est le commit qui contient ce rapport ; l'égalité local/distant doit être vérifiée au push et reportée dans le handoff.
+Ce rapport consigne les décisions et preuves locales de la branche. Le SHA qualifié est toujours celui observé sur la PR au moment du handoff, après vérification de l'égalité local/distant et terminaison des checks GitHub ; le document ne présume donc pas lui-même d'un head final.
 
 Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_V2`, tandis que V1 conserve son launcher et son chat. Le GO-LIVE ARIA reste bloqué par la PR C, qui devra réutiliser le moteur conversationnel existant avec persistance, routes, recovery et wiring Core v2 natifs. Aucun contournement legacy n'est autorisé entre-temps.
 
@@ -21,6 +21,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le cockpit Core v2 pouvait présenter le chat legacy et des états vides comme si les capacités avaient été réellement calculées.
 - Le harness E2E Core v2 ne protégeait pas assez strictement la cible de base jetable et n'était pas répétable sur une même stack.
 - La revue finale a détecté une sur-lecture de PII dans le contexte étudiant ARIA et un 404 qui exposait l'identifiant utilisateur interne.
+- Le premier cycle CI du rapport a détecté que le second `User.upsert` ajouté au seeder E2E n'était pas classé dans l'inventaire exhaustif des mutations de sécurité.
 
 ## Décisions prises
 
@@ -35,6 +36,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le seeder E2E refuse toute cible qui n'est pas exactement la base `core_v2_e2e` sur les hôtes/ports locaux ou compose autorisés, même si le marker jetable est présent. Les erreurs ne journalisent jamais l'URL ou les credentials.
 - Le contexte étudiant ARIA possède désormais une projection dédiée minimale : identifiants et noms nécessaires, au plus deux inscriptions `ACTIVE` de l'année `CURRENT`, champs scolaires utiles et clés/types de cours. Email, téléphone, date de naissance, household, parents, statut de compte et timestamps ne sont ni sélectionnés ni retournés.
 - Le 404 ARIA Core v2 est générique et ne sérialise ni `userId` ni `details` sensibles.
+- Les deux `User.upsert` du seeder E2E (persona ARIA et comptes staff/coach) sont inventoriés comme mutations sensibles. Un reseed qui réécrit leurs credentials incrémente `sessionVersion` et révoque ainsi toute session Core v2 existante.
 
 ## TDD et preuves RED/GREEN
 
@@ -44,6 +46,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - E2E hardening : RED sur guard de cible, reset absent et option hors scope non observable ; GREEN avec guard exact, reset transactionnel et option visible mais non actionnable.
 - IPv6 : RED 1/13, car `[::1]` était refusé ; GREEN 13/13 avec `[::1]` exact et `[::2]` toujours refusé.
 - PII/erreur : RED 2/2, car la requête passait par le read model étendu et le 404 exposait `userId`; GREEN 26/26 sur le test exact de projection/erreur et la route native Core v2.
+- Inventaire de révocation CI : RED 1/18 sur `session-revocation-boundary`, car `seed-e2e-staff-actors.ts:upsert#2` était absent de l'inventaire ; GREEN 18/18 après classification des deux upserts et ajout de l'incrément `sessionVersion` au reseed du persona ARIA.
 
 ## Fichiers modifiés
 
@@ -76,6 +79,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Gates ARIA statiques : passées (`typecheck:aria-scripts`, sécurité, manifest, performance, reachability, integrity, evaluation contract, source artifact).
 - `npm run build:base` : passé, 95 pages générées.
 - Playwright Chromium réel sur stack jetable : 2/2 passés, puis 2/2 passés une seconde fois sur la même stack sans reseed manuel. Le second passage prouve la répétabilité du reset transactionnel.
+- Correctif du finding CI : garde `session-revocation-boundary` 18/18, guards/persona de seed Core v2 14/14, `npm run typecheck` et ESLint ciblé passés.
 
 ## Résultats
 
@@ -98,8 +102,8 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 
 ## CI et revue fraîche
 
-- CI GitHub sur le head final : `PENDING` au moment de l'écriture de ce rapport.
-- Revue automatisée fraîche sur le head final : `NOT_REQUESTED`, conformément à la règle de ne poster `@codex review` qu'après toutes les checks requises vertes sur le SHA exact.
+- CI GitHub sur le SHA qualifié : `PENDING` au moment de cette mise à jour. Un cycle antérieur a échoué sur l'inventaire de révocation décrit ci-dessus ; le correctif a été poussé et exige un nouveau cycle complet.
+- Revue automatisée fraîche sur le SHA qualifié : `NOT_REQUESTED`, conformément à la règle de ne poster `@codex review` qu'après toutes les checks requises vertes sur le SHA exact.
 - Revue humaine : non demandée et non conservée avant fermeture de ces deux gates.
 
 ## Risques restants
