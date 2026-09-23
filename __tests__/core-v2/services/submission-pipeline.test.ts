@@ -276,6 +276,42 @@ describe('depositOwnDiagnosticSubmission — retry vs. distinct new deposit', ()
     expect(second.idempotentReplay).toBe(false);
     expect([first.submission.version, second.submission.version]).toEqual([1, 2]);
   });
+
+  test('a later rejected audit version never supplants the latest usable submission for replay detection', async () => {
+    const ctx = h.ctx();
+    const { user, assignment } = await seedAssignment(h.client, ctx, 'REJECTED-LATEST-RETRY');
+    const bytes = PDF('accepted-content');
+
+    const accepted = await depositOwnDiagnosticSubmission(h.client, h.ctx(eleveActor(user.id)), {
+      assignmentId: assignment.id,
+      originalFilename: 'accepted.pdf',
+      mimeType: 'application/pdf',
+      bytes,
+    });
+    await h.client.diagnosticSubmission.create({
+      data: {
+        assignmentId: assignment.id,
+        version: 2,
+        storageKey: '_quarantine/rejected-later.pdf',
+        originalFilename: 'rejected.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: bytes.length,
+        sha256: createHash('sha256').update(PDF('rejected-content')).digest('hex'),
+        status: 'REJECTED',
+        submittedById: user.id,
+      },
+    });
+
+    const replay = await depositOwnDiagnosticSubmission(h.client, h.ctx(eleveActor(user.id)), {
+      assignmentId: assignment.id,
+      originalFilename: 'accepted-retry.pdf',
+      mimeType: 'application/pdf',
+      bytes,
+    });
+
+    expect(replay).toMatchObject({ idempotentReplay: true, submission: { id: accepted.submission.id, version: 1 } });
+    expect(await h.client.diagnosticSubmission.count({ where: { assignmentId: assignment.id } })).toBe(2);
+  });
 });
 
 describe('createOwnDiagnosticSubmission — real concurrent DB race on the version sequence', () => {

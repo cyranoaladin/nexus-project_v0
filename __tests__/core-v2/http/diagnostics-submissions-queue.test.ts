@@ -181,16 +181,30 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
     const processingSubmission = await depositFor(processing.assignment.id, processing.user.id);
     await enqueueDiagnosticSubmissionProcessing(h.client, h.ctx(), processingSubmission.id);
 
-    // FAILED (submission REJECTED directly — AV/validation rejection)
+    // FAILED: a current usable submission whose extraction failed. A
+    // REJECTED/quarantined audit row is never an operational queue item.
     const failed = await seedCandidate(`FAILED-${randomUUID()}`);
     const failedSubmission = await depositFor(failed.assignment.id, failed.user.id);
-    await h.client.diagnosticSubmission.update({ where: { id: failedSubmission.id }, data: { status: 'REJECTED' } });
+    const failedProcessing = await enqueueDiagnosticSubmissionProcessing(h.client, h.ctx(), failedSubmission.id);
+    await h.client.diagnosticSubmissionProcessing.update({
+      where: { id: failedProcessing.id },
+      data: { status: 'EXTRACTION_FAILED' },
+    });
+
+    // An assignment whose entire history is rejected must be absent.
+    const rejectedOnly = await seedCandidate(`REJECTED-ONLY-${randomUUID()}`);
+    const rejectedOnlySubmission = await depositFor(rejectedOnly.assignment.id, rejectedOnly.user.id);
+    await h.client.diagnosticSubmission.update({
+      where: { id: rejectedOnlySubmission.id },
+      data: { status: 'REJECTED' },
+    });
 
     signInAs(h.admin);
     const actionRequired = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions');
     const ids = (actionRequired.body.data.items as { submissionId: string; state: string }[]).map((r) => r.submissionId);
     expect(ids).toEqual(expect.arrayContaining([notProcessedSubmission.id, readySubmission.id, failedSubmission.id]));
     expect(ids).not.toContain(processingSubmission.id);
+    expect(ids).not.toContain(rejectedOnlySubmission.id);
 
     const onlyProcessing = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions?status=PROCESSING');
     expect((onlyProcessing.body.data.items as { submissionId: string }[]).map((r) => r.submissionId)).toEqual([processingSubmission.id]);
@@ -200,6 +214,53 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
 
     const onlyNotProcessed = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions?status=NOT_PROCESSED');
     expect((onlyNotProcessed.body.data.items as { submissionId: string }[]).map((r) => r.submissionId)).toEqual([notProcessedSubmission.id]);
+  });
+
+  test('returns only the current usable version and an exact PII-minimal candidate payload', async () => {
+    const label = `CURRENT-${randomUUID()}`;
+    const fixture = await seedCandidate(label);
+    const v1 = await depositFor(fixture.assignment.id, fixture.user.id);
+
+    const pdf = await renderHtmlToPdf(`${DEMO_ANSWER_HTML}<p>corrected version</p>`);
+    const v2 = (
+      await depositOwnDiagnosticSubmission(h.client, h.ctx({ userId: fixture.user.id, role: 'ELEVE' }), {
+        assignmentId: fixture.assignment.id,
+        originalFilename: 'reponses-corrigees.pdf',
+        mimeType: 'application/pdf',
+        bytes: pdf,
+      })
+    ).submission;
+
+    const rejected = await h.client.diagnosticSubmission.create({
+      data: {
+        assignmentId: fixture.assignment.id,
+        submittedById: fixture.user.id,
+        version: 3,
+        storageKey: `queue-http/${randomUUID()}.pdf`,
+        originalFilename: 'refuse.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: 1,
+        sha256: createHash('sha256').update(randomUUID()).digest('hex'),
+        status: 'REJECTED',
+      },
+    });
+
+    signInAs(h.admin);
+    const list = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions?status=ALL');
+    expect(list.status).toBe(200);
+    const rows = list.body.data.items as Array<{ submissionId: string; candidate: unknown }>;
+
+    expect(rows.map((row) => row.submissionId)).toEqual([v2.id]);
+    expect(rows.map((row) => row.submissionId)).not.toEqual(expect.arrayContaining([v1.id, rejected.id]));
+    expect(rows[0]?.candidate).toEqual({
+      id: fixture.student.id,
+      firstName: `S${label}`,
+      lastName: 'Synthetic',
+    });
+    expect(Object.keys((rows[0]?.candidate ?? {}) as object).sort()).toEqual(['firstName', 'id', 'lastName']);
+    expect(JSON.stringify(rows[0]?.candidate)).not.toMatch(
+      /user|email|phone|accountStatus|activatedAt|createdAt|updatedAt/i,
+    );
   });
 
   test('pagination: limit + cursor walk the full ALL set without gaps or duplicates', async () => {

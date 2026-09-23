@@ -7,7 +7,7 @@ import { Badge, type BadgeProps } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { type ApiFail, type Page, type PublicUser, describeFailure, displayName, v2 } from './api';
+import { type ApiFail, type Page, describeFailure, displayName, v2 } from './api';
 import { StatusMessage } from './StatusMessage';
 import { useStaffActor } from './useStaffActor';
 
@@ -65,7 +65,7 @@ const STATE_BADGE_VARIANT: Record<DiagnosticQueueState, BadgeProps['variant']> =
 export interface DiagnosticQueueRow {
   readonly submissionId: string;
   readonly state: DiagnosticQueueState;
-  readonly candidate: { readonly id: string; readonly user: PublicUser };
+  readonly candidate: { readonly id: string; readonly firstName: string | null; readonly lastName: string | null };
   readonly instrument: { readonly instrumentKey: string; readonly version: string; readonly title: string };
   readonly submission: { readonly version: number; readonly status: string; readonly createdAt: string };
   readonly processingStatus: string | null;
@@ -195,7 +195,7 @@ export function DiagnosticsQueueWorkspace({
                       <TableBody>
                         {items.map((row) => (
                           <TableRow key={row.submissionId}>
-                            <TableCell className="text-neutral-100">{displayName(row.candidate.user)}</TableCell>
+                            <TableCell className="text-neutral-100">{displayName(row.candidate)}</TableCell>
                             <TableCell>
                               <div className="text-neutral-100">{row.instrument.title}</div>
                               <div className="text-xs text-neutral-400">
@@ -214,7 +214,7 @@ export function DiagnosticsQueueWorkspace({
                               <Button asChild size="sm" variant="outline">
                                 <Link
                                   href={`${basePath}/${row.submissionId}`}
-                                  aria-label={`Ouvrir la copie de ${displayName(row.candidate.user)}`}
+                                  aria-label={`Ouvrir la copie de ${displayName(row.candidate)}`}
                                 >
                                   Ouvrir
                                 </Link>

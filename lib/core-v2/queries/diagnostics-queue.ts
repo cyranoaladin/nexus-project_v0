@@ -11,14 +11,17 @@
  * call this same function — never a second, independently-drifting
  * definition of "what needs action".
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { Prisma, PrismaClient } from '@/core-v2/generated/client';
 import { z } from 'zod';
 import { assertCapability } from '../rbac';
 import type { ServiceContext } from '../services/context';
 import { idSchema } from '../services/validation';
-import type { PublicUser } from '../http/respond';
-import { publicUserSelect } from './staff';
 import type { Page } from './staff';
+import {
+  CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES,
+  isUsableDiagnosticSubmission,
+  type CurrentDiagnosticSubmissionStatus,
+} from '../diagnostics/current-submission';
 
 export type DiagnosticQueueState =
   | 'NOT_PROCESSED'
@@ -41,7 +44,7 @@ export const DIAGNOSTIC_QUEUE_FILTERS = [
 export type DiagnosticQueueFilter = (typeof DIAGNOSTIC_QUEUE_FILTERS)[number];
 
 export interface DiagnosticQueueStatusInput {
-  readonly submissionStatus: 'RECEIVED' | 'READABLE' | 'ANALYZED' | 'REJECTED';
+  readonly submissionStatus: CurrentDiagnosticSubmissionStatus;
   readonly processingStatus:
     | 'QUEUED'
     | 'EXTRACTING'
@@ -58,7 +61,6 @@ export interface DiagnosticQueueStatusInput {
  * route or the client.
  */
 export function projectDiagnosticQueueState(input: DiagnosticQueueStatusInput): DiagnosticQueueState {
-  if (input.submissionStatus === 'REJECTED') return 'FAILED';
   if (!input.processingStatus) return 'NOT_PROCESSED';
   if (input.processingStatus === 'QUEUED' || input.processingStatus === 'EXTRACTING') return 'PROCESSING';
   if (input.processingStatus === 'EXTRACTION_FAILED' || input.processingStatus === 'NO_EXTRACTABLE_TEXT') {
@@ -102,7 +104,7 @@ export type DiagnosticQueueQuery = z.infer<typeof diagnosticQueueQuerySchema>;
 export interface DiagnosticQueueRow {
   readonly submissionId: string;
   readonly state: DiagnosticQueueState;
-  readonly candidate: { readonly id: string; readonly user: PublicUser };
+  readonly candidate: { readonly id: string; readonly firstName: string | null; readonly lastName: string | null };
   readonly instrument: { readonly instrumentKey: string; readonly version: string; readonly title: string };
   readonly submission: {
     readonly version: number;
@@ -114,10 +116,15 @@ export interface DiagnosticQueueRow {
   readonly lastActivityAt: Date;
 }
 
+export const queueCandidateSelect = {
+  id: true,
+  user: { select: { firstName: true, lastName: true } },
+} satisfies Prisma.StudentSelect;
+
 const queueRowInclude = {
   assignment: {
     select: {
-      student: { select: { id: true, user: { select: publicUserSelect } } },
+      student: { select: queueCandidateSelect },
       instrumentRef: { select: { instrumentKey: true, version: true, title: true } },
     },
   },
@@ -150,7 +157,7 @@ function toRow(submission: {
   createdAt: Date;
   updatedAt: Date;
   assignment: {
-    student: { id: string; user: PublicUser };
+    student: { id: string; user: { firstName: string | null; lastName: string | null } };
     instrumentRef: { instrumentKey: string; version: string; title: string };
   };
   processing: { status: DiagnosticQueueStatusInput['processingStatus']; updatedAt: Date; bilanDrafts: readonly { status: 'DRAFT' | 'VALIDATED' | 'PUBLISHED'; updatedAt: Date }[] } | null;
@@ -165,7 +172,11 @@ function toRow(submission: {
   return {
     submissionId: submission.id,
     state,
-    candidate: submission.assignment.student,
+    candidate: {
+      id: submission.assignment.student.id,
+      firstName: submission.assignment.student.user.firstName,
+      lastName: submission.assignment.student.user.lastName,
+    },
     instrument: submission.assignment.instrumentRef,
     submission: { version: submission.version, status: submission.status, createdAt: submission.createdAt },
     processingStatus,
@@ -189,6 +200,7 @@ export async function listDiagnosticSubmissionsQueue(
   assertCapability(ctx.actor, 'DIAGNOSTIC_SUBMISSION_TRACK');
 
   const submissions = await client.diagnosticSubmission.findMany({
+    where: { status: { in: [...CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES] } },
     select: {
       id: true,
       version: true,
@@ -199,7 +211,7 @@ export async function listDiagnosticSubmissionsQueue(
     },
   });
 
-  const rows = submissions.map(toRow);
+  const rows = submissions.filter(isUsableDiagnosticSubmission).map(toRow);
 
   const filtered =
     query.status === 'ALL'

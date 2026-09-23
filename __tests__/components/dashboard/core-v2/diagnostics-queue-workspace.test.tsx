@@ -24,15 +24,10 @@ const ok = (data: unknown) => ({ ok: true, data });
 const fail = (code: string, message: string) => ({ ok: false, error: { code, message }, correlationId: 'c-1' });
 const me = (capabilities: string[]) => ok({ actor: { userId: 'staff-1', role: 'ADMIN' }, capabilities });
 
-const candidateUser = (id: string, first: string) => ({
-  id, role: 'ELEVE', firstName: first, lastName: 'Synthetic', email: `${first.toLowerCase()}@example.com`, phone: null,
-  accountStatus: 'ACTIVE', activatedAt: null, createdAt: '2026-09-01T00:00:00Z', updatedAt: '2026-09-01T00:00:00Z',
-});
-
 const row = (id: string, state: string, first: string) => ({
   submissionId: id,
   state,
-  candidate: { id: `student-${id}`, user: candidateUser(id, first) },
+  candidate: { id: `student-${id}`, firstName: first, lastName: 'Synthetic' },
   instrument: { instrumentKey: 'DEMO-FIXTURE-01', version: '2.0.0', title: 'Instrument démo' },
   submission: { version: 1, status: 'RECEIVED', createdAt: '2026-09-20T10:00:00Z' },
   processingStatus: null,
