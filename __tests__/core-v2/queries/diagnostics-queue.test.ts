@@ -194,6 +194,7 @@ describe('diagnostics queue repository boundary', () => {
       processingStatus: null,
       draftStatus: null,
       lastActivityAt: new Date('2026-09-23T08:00:00.000Z'),
+      cursorValid: true,
       ...overrides,
     };
   }
@@ -235,7 +236,9 @@ describe('diagnostics queue repository boundary', () => {
 
     expect(mapper).toHaveBeenCalledTimes(3);
     expect(page.items).toHaveLength(2);
-    expect(page.nextCursor).toBe('raw-1');
+    expect(page.nextCursor).not.toBe('raw-1');
+    expect(page.nextCursor).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(page.listChanged).toBe(false);
   });
 
   test.each([

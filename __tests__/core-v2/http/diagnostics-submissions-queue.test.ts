@@ -363,7 +363,7 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
     );
   });
 
-  test('pagination: limit + cursor walk the full ALL set without gaps or duplicates', async () => {
+  test('stable traversal: opaque keyset pages walk the full ALL set without gaps or duplicates', async () => {
     const created: string[] = [];
     for (let i = 0; i < 3; i += 1) {
       const c = await seedCandidate(`PAGE-${i}-${randomUUID()}`);
@@ -374,14 +374,154 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
     const page1 = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions?status=ALL&limit=2');
     expect(page1.body.data.items).toHaveLength(2);
     expect(page1.body.data.nextCursor).not.toBeNull();
+    expect(page1.body.data.listChanged).toBe(false);
+    expect(page1.body.data.nextCursor).not.toBe(page1.body.data.items[1].submissionId);
+    expect(page1.body.data.nextCursor).toMatch(/^[A-Za-z0-9_-]+$/);
 
     const page2 = await callJson(
       queueRoute.GET,
       'GET',
       `/api/v2/staff/diagnostics/submissions?status=ALL&limit=2&cursor=${page1.body.data.nextCursor}`,
     );
+    expect(page2.body.data.listChanged).toBe(false);
     const allSeen = [...page1.body.data.items, ...page2.body.data.items].map((r: { submissionId: string }) => r.submissionId);
     for (const id of created) expect(allSeen).toContain(id);
     expect(new Set(allSeen).size).toBe(allSeen.length); // no duplicates across pages
+  });
+
+  test('malformed cursor is rejected explicitly with a sober 400 validation response', async () => {
+    signInAs(h.admin);
+
+    const response = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=2&cursor=not-a-valid-cursor',
+    );
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ ok: false, error: { code: 'VALIDATION', message: 'Invalid input.' } });
+  });
+
+  test('filter mismatch returns the fresh first page with listChanged true, never an appended traversal', async () => {
+    await seedProjectedQueueState(`FILTER-BASE-${randomUUID()}`, { processingStatus: null, draftStatus: null });
+    const published = await seedProjectedQueueState(`FILTER-PUBLISHED-${randomUUID()}`, {
+      processingStatus: 'EXTRACTED',
+      draftStatus: 'PUBLISHED',
+    });
+    signInAs(h.admin);
+    const allPage = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+
+    const changed = await callJson(
+      queueRoute.GET,
+      'GET',
+      `/api/v2/staff/diagnostics/submissions?status=PUBLISHED&limit=1&cursor=${allPage.body.data.nextCursor}`,
+    );
+
+    expect(changed.status).toBe(200);
+    expect(changed.body.data.listChanged).toBe(true);
+    expect(changed.body.data.items.map((item: { submissionId: string }) => item.submissionId)).toEqual([published.id]);
+  });
+
+  test('anchor leaving the filtered set returns a fresh first page with listChanged true', async () => {
+    for (let index = 0; index < 3; index += 1) {
+      await seedProjectedQueueState(`ANCHOR-${index}-${randomUUID()}`, { processingStatus: null, draftStatus: null });
+    }
+    signInAs(h.admin);
+    const page1 = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+    const anchorId = page1.body.data.items[0].submissionId as string;
+    await h.client.diagnosticSubmission.update({ where: { id: anchorId }, data: { status: 'REJECTED' } });
+
+    const changed = await callJson(
+      queueRoute.GET,
+      'GET',
+      `/api/v2/staff/diagnostics/submissions?status=ALL&limit=1&cursor=${page1.body.data.nextCursor}`,
+    );
+    const fresh = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+
+    expect(changed.body.data.listChanged).toBe(true);
+    expect(changed.body.data.items).toEqual(fresh.body.data.items);
+  });
+
+  test('stateRank mutation under ALL invalidates the tuple and returns a fresh first page', async () => {
+    for (let index = 0; index < 3; index += 1) {
+      await seedProjectedQueueState(`RANK-${index}-${randomUUID()}`, { processingStatus: null, draftStatus: null });
+    }
+    signInAs(h.admin);
+    const page1 = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+    const anchorId = page1.body.data.items[0].submissionId as string;
+    const anchor = await h.client.diagnosticSubmission.findUniqueOrThrow({
+      where: { id: anchorId },
+      include: { assignment: { select: { instrumentVersionSnapshot: true } } },
+    });
+    await h.client.diagnosticSubmissionProcessing.create({
+      data: {
+        submissionId: anchor.id,
+        submissionSha256Snapshot: anchor.sha256,
+        submissionVersionSnapshot: anchor.version,
+        subjectVersionSnapshot: anchor.assignment.instrumentVersionSnapshot,
+        status: 'QUEUED',
+      },
+    });
+
+    const changed = await callJson(
+      queueRoute.GET,
+      'GET',
+      `/api/v2/staff/diagnostics/submissions?status=ALL&limit=1&cursor=${page1.body.data.nextCursor}`,
+    );
+    const fresh = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+
+    expect(changed.body.data.listChanged).toBe(true);
+    expect(changed.body.data.items).toEqual(fresh.body.data.items);
+  });
+
+  test('lastActivityAt mutation invalidates the tuple and returns a fresh first page', async () => {
+    for (let index = 0; index < 3; index += 1) {
+      await seedProjectedQueueState(`ACTIVITY-${index}-${randomUUID()}`, { processingStatus: null, draftStatus: null });
+    }
+    signInAs(h.admin);
+    const page1 = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+    const anchorId = page1.body.data.items[0].submissionId as string;
+    await h.client.diagnosticSubmission.update({
+      where: { id: anchorId },
+      data: { originalFilename: 'activity-mutated.pdf' },
+    });
+
+    const changed = await callJson(
+      queueRoute.GET,
+      'GET',
+      `/api/v2/staff/diagnostics/submissions?status=ALL&limit=1&cursor=${page1.body.data.nextCursor}`,
+    );
+    const fresh = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=1',
+    );
+
+    expect(changed.body.data.listChanged).toBe(true);
+    expect(changed.body.data.items).toEqual(fresh.body.data.items);
   });
 });

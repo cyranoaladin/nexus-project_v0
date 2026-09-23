@@ -107,9 +107,42 @@ const STATE_SORT_RANK: Readonly<Record<DiagnosticQueueState, number>> = {
   PUBLISHED: 5,
 };
 
+const diagnosticQueueCursorSchema = z
+  .object({
+    v: z.literal(1),
+    filter: z.enum(DIAGNOSTIC_QUEUE_FILTERS),
+    stateRank: z.number().int().nonnegative(),
+    lastActivityAt: z.string().datetime({ offset: true }),
+    submissionId: idSchema,
+  })
+  .strict();
+
+export type DiagnosticQueueCursor = z.infer<typeof diagnosticQueueCursorSchema>;
+
+function encodeDiagnosticQueueCursor(cursor: DiagnosticQueueCursor): string {
+  return Buffer.from(JSON.stringify(cursor), 'utf8').toString('base64url');
+}
+
+const diagnosticQueueCursorParamSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(1024)
+  .transform((value, ctx): DiagnosticQueueCursor => {
+    try {
+      const parsedJson = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as unknown;
+      const parsedCursor = diagnosticQueueCursorSchema.safeParse(parsedJson);
+      if (parsedCursor.success) return parsedCursor.data;
+    } catch {
+      // Report one stable validation issue below; never expose parser detail.
+    }
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid diagnostics queue cursor.' });
+    return z.NEVER;
+  });
+
 export const diagnosticQueueQuerySchema = z.object({
   status: z.enum(DIAGNOSTIC_QUEUE_FILTERS).default('ACTION_REQUIRED'),
-  cursor: idSchema.optional(),
+  cursor: diagnosticQueueCursorParamSchema.optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 export type DiagnosticQueueQuery = z.infer<typeof diagnosticQueueQuerySchema>;
@@ -172,8 +205,7 @@ function queueFilterSql(filter: DiagnosticQueueFilter): Prisma.Sql {
 
 function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
   const cursorPredicate = query.cursor
-    ? Prisma.sql`AND EXISTS (SELECT 1 FROM "anchor")
-        AND (
+    ? Prisma.sql`(
           q."stateRank" > (SELECT "stateRank" FROM "anchor")
           OR (
             q."stateRank" = (SELECT "stateRank" FROM "anchor")
@@ -185,7 +217,17 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
             AND q."submissionId" > (SELECT "submissionId" FROM "anchor")
           )
         )`
-    : Prisma.empty;
+    : Prisma.sql`TRUE`;
+
+  const cursorValidity = query.cursor
+    ? Prisma.sql`EXISTS (
+        SELECT 1
+        FROM "anchor"
+        WHERE "stateRank" = ${query.cursor.stateRank}
+          AND "lastActivityAt" = ${new Date(query.cursor.lastActivityAt)}
+          AND "submissionId" = ${query.cursor.submissionId}
+      )`
+    : Prisma.sql`TRUE`;
 
   return Prisma.sql`
     WITH "latestUsableSubmission" AS (
@@ -222,7 +264,7 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
         s."submissionCreatedAt",
         p."status"::text AS "processingStatus",
         d."draftStatus",
-        GREATEST(s."submissionUpdatedAt", p."updatedAt", d."draftUpdatedAt") AS "lastActivityAt",
+        date_trunc('milliseconds', GREATEST(s."submissionUpdatedAt", p."updatedAt", d."draftUpdatedAt")) AS "lastActivityAt",
         ${QUEUE_STATE_SQL} AS "state"
       FROM "latestUsableSubmission" s
       INNER JOIN "diagnostic_assignments" a ON a."id" = s."assignmentId"
@@ -242,7 +284,10 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
     "anchor" AS (
       SELECT "stateRank", "lastActivityAt", "submissionId"
       FROM "filtered"
-      WHERE "submissionId" = ${query.cursor ?? ''}
+      WHERE "submissionId" = ${query.cursor?.submissionId ?? ''}
+    ),
+    "cursorState" AS (
+      SELECT ${cursorValidity} AS "cursorValid"
     )
     SELECT
       q."submissionId",
@@ -259,9 +304,11 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
       q."submissionCreatedAt",
       q."processingStatus",
       q."draftStatus",
-      q."lastActivityAt"
+      q."lastActivityAt",
+      c."cursorValid"
     FROM "filtered" q
-    WHERE TRUE ${cursorPredicate}
+    CROSS JOIN "cursorState" c
+    WHERE (NOT c."cursorValid" OR ${cursorPredicate})
     ORDER BY q."stateRank" ASC, q."lastActivityAt" ASC, q."submissionId" ASC
     LIMIT ${query.limit + 1}
   `;
@@ -288,10 +335,15 @@ const diagnosticQueueRawRowSchema = z
     processingStatus: z.enum(DIAGNOSTIC_PROCESSING_STATUSES).nullable(),
     draftStatus: z.enum(DIAGNOSTIC_DRAFT_STATUSES).nullable(),
     lastActivityAt: queueDateSchema,
+    cursorValid: z.boolean(),
   })
   .strict();
 
 export type DiagnosticQueueRawRow = z.infer<typeof diagnosticQueueRawRowSchema>;
+
+export interface DiagnosticQueuePage extends Page<DiagnosticQueueRow> {
+  readonly listChanged: boolean;
+}
 
 export function mapDiagnosticQueueRawRow(raw: DiagnosticQueueRawRow): DiagnosticQueueRow {
   return {
@@ -322,14 +374,32 @@ export function materializeDiagnosticQueuePage(
   rawRows: readonly unknown[],
   limit: number,
   mapper: (raw: DiagnosticQueueRawRow) => DiagnosticQueueRow = mapDiagnosticQueueRawRow,
-): Page<DiagnosticQueueRow> {
+  options: {
+    readonly filter?: DiagnosticQueueFilter;
+    readonly cursorRequested?: boolean;
+    readonly forceListChanged?: boolean;
+  } = {},
+): DiagnosticQueuePage {
   const boundedRows = rawRows.slice(0, limit + 1).map((raw) => diagnosticQueueRawRowSchema.parse(raw));
   const rows = boundedRows.map(mapper);
   const hasMore = rows.length > limit;
   const items = hasMore ? rows.slice(0, limit) : rows;
+  const cursorInvalid = Boolean(options.cursorRequested) && (
+    boundedRows.length === 0 || boundedRows.some((row) => !row.cursorValid)
+  );
+  const lastRawRow = hasMore ? boundedRows[limit - 1] : undefined;
   return {
     items,
-    nextCursor: hasMore ? (items[items.length - 1]?.submissionId ?? null) : null,
+    nextCursor: lastRawRow
+      ? encodeDiagnosticQueueCursor({
+          v: 1,
+          filter: options.filter ?? 'ALL',
+          stateRank: lastRawRow.stateRank,
+          lastActivityAt: lastRawRow.lastActivityAt.toISOString(),
+          submissionId: lastRawRow.submissionId,
+        })
+      : null,
+    listChanged: Boolean(options.forceListChanged) || cursorInvalid,
   };
 }
 
@@ -344,8 +414,14 @@ export async function listDiagnosticSubmissionsQueue(
   client: PrismaClient,
   ctx: ServiceContext,
   query: DiagnosticQueueQuery,
-): Promise<Page<DiagnosticQueueRow>> {
+): Promise<DiagnosticQueuePage> {
   assertCapability(ctx.actor, 'DIAGNOSTIC_SUBMISSION_TRACK');
-  const rows = await client.$queryRaw<unknown[]>(buildDiagnosticQueuePageSql(query));
-  return materializeDiagnosticQueuePage(rows, query.limit);
+  const filterChanged = Boolean(query.cursor && query.cursor.filter !== query.status);
+  const effectiveQuery = filterChanged ? { ...query, cursor: undefined } : query;
+  const rows = await client.$queryRaw<unknown[]>(buildDiagnosticQueuePageSql(effectiveQuery));
+  return materializeDiagnosticQueuePage(rows, query.limit, mapDiagnosticQueueRawRow, {
+    filter: query.status,
+    cursorRequested: Boolean(effectiveQuery.cursor),
+    forceListChanged: filterChanged,
+  });
 }
