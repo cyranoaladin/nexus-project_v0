@@ -15,12 +15,32 @@
  * below is defense-in-depth against a future relaxation of either
  * constraint, not a reachable branch.
  */
-import type { AcademicTrack, GradeLevel, StmgPathway, Subject } from '@prisma/client';
-import { getOwnStudent } from '@/lib/core-v2/queries/student';
+import type { Subject } from '@prisma/client';
+import type { AcademicTrack, GradeLevel, Prisma, StmgPathway } from '@/core-v2/generated/client';
 import type { ServiceContext } from '@/lib/core-v2/services/context';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { resolveLegacySubjectForCourse } from '@/lib/curriculum/legacy-migration-map';
 import { NotFoundError } from '@/lib/core-v2/errors';
+import { assertSelfServiceRole } from '@/lib/core-v2/rbac';
+
+const coreV2AriaStudentSelect = {
+  id: true,
+  user: { select: { id: true, firstName: true, lastName: true } },
+  academicYearEnrollments: {
+    where: { status: 'ACTIVE', academicYear: { status: 'CURRENT' } },
+    take: 2,
+    select: {
+      status: true,
+      gradeLevel: true,
+      academicTrack: true,
+      stmgPathway: true,
+      schoolingStatus: true,
+      school: true,
+      academicYear: { select: { status: true } },
+      courseEnrollments: { select: { courseKey: true, kind: true } },
+    },
+  },
+} satisfies Prisma.StudentSelect;
 
 export interface CoreV2AriaAcademicEnrollment {
   readonly courseKey: string;
@@ -53,8 +73,8 @@ export interface CoreV2AriaStudentContext {
  * `AriaError('NOT_ENROLLED', 404, ...)`, never a generic 500.
  */
 export class CoreV2AriaStudentNotFoundError extends NotFoundError {
-  constructor(userId: string) {
-    super(`No Core v2 student with an ACTIVE enrollment in the CURRENT academic year for userId=${userId}.`, { userId });
+  constructor() {
+    super('No active Core v2 student enrollment was found.');
   }
 }
 
@@ -71,19 +91,21 @@ export async function loadCoreV2AriaStudentContext(
   client: PrismaClient,
   ctx: ServiceContext,
 ): Promise<CoreV2AriaStudentContext> {
-  const student = await getOwnStudent(client, ctx);
-  if (!student) throw new CoreV2AriaStudentNotFoundError(ctx.actor.userId);
+  assertSelfServiceRole(ctx.actor, 'ELEVE');
+  const student = await client.student.findUnique({
+    where: { userId: ctx.actor.userId },
+    select: coreV2AriaStudentSelect,
+  });
+  if (!student) throw new CoreV2AriaStudentNotFoundError();
 
-  const currentActive = student.enrollments.filter(
-    (e) => e.status === 'ACTIVE' && e.academicYear.status === 'CURRENT',
-  );
-  if (currentActive.length === 0) throw new CoreV2AriaStudentNotFoundError(ctx.actor.userId);
+  const currentActive = student.academicYearEnrollments;
+  if (currentActive.length === 0) throw new CoreV2AriaStudentNotFoundError();
   if (currentActive.length > 1) {
     throw new CoreV2AriaMultipleActiveEnrollmentsError(student.id, currentActive.length);
   }
   const enrollment = currentActive[0]!;
 
-  const academicEnrollments: CoreV2AriaAcademicEnrollment[] = enrollment.courses.map((course) => ({
+  const academicEnrollments: CoreV2AriaAcademicEnrollment[] = enrollment.courseEnrollments.map((course) => ({
     courseKey: course.courseKey,
     kind: course.kind,
   }));
