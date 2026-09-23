@@ -59,6 +59,8 @@ async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof
       password: legacyIdentity.password,
       firstName: legacyIdentity.firstName,
       lastName: legacyIdentity.lastName,
+      // Re-seeding rewrites credentials: revoke any existing Core v2 session.
+      sessionVersion: { increment: 1 },
       accountStatus: 'ACTIVE',
     },
   });
