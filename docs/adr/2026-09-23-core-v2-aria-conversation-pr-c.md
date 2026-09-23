@@ -19,13 +19,22 @@ PR C démarre depuis ce commit sur `feat/core-v2-aria-conversation`.
 - La vérification de scope de cours est centralisée dans
   `lib/aria/kernel/entitlements.ts`; aucun second classement de tiers n’est
   introduit.
+- La migration 0019 conserve les invariants V1 qui restent métier : FK
+  conversation/sujet et turn/message composites, un seul turn actif, forme
+  des snapshots/fingerprints, transitions terminales, audit d’annulation,
+  sémantique des messages et provenance atomique des citations.
+- `contextState=LEGACY_CONTEXT_UNRESOLVED` n’est pas porté : ce store est
+  natif et aucune migration de conversations V1 n’est dans le périmètre PR C.
+- Le statut mutable du message est retiré : l’état de génération est porté
+  par le Turn, afin d’éviter une seconde source de vérité.
 - Les routes et l’exécution Conversation Foundation seront branchées sur ces
   modèles dans les incréments suivants. Aucun appel réel provider ou
   déploiement n’est effectué à ce stade.
 
 ## Migration plan
 
-1. `0019_core_v2_aria_conversation` : tables et contraintes natives Core v2.
+1. `0019_core_v2_aria_conversation` : tables et contraintes natives Core v2,
+   validées sans drift contre une base disposable.
 2. Adapter repository Core v2 implémentant les ports Conversation Foundation.
 3. Routes `/api/v2/aria/**` : chat, historique, annulation et feedback.
 4. Recovery/watchdog et wiring RAG/provider, puis client authority-aware.
@@ -36,6 +45,8 @@ PR C démarre depuis ce commit sur `feat/core-v2-aria-conversation`.
 
 - `prisma validate` sur le schéma Core v2.
 - Test unitaire de l’adapter d’autorisation Core v2.
+- Contre-épreuves PostgreSQL des FK composites, de la concurrence et du
+  lifecycle de Turn.
 - Génération locale du client Prisma Core v2 (artefact gitignored).
 
 ## Risques restants

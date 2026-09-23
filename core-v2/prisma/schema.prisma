@@ -98,6 +98,7 @@ model User {
   diagnosticBilanDraftsPublished   DiagnosticBilanDraft[]          @relation("DiagnosticBilanDraftPublishedBy")
   ariaAccessGrantsGranted          AriaAccessGrant[]
   ariaConversationTurnsActorCoreV2 AriaConversationTurnCoreV2[]    @relation("AriaConversationTurnActorCoreV2")
+  ariaConversationTurnsCancellationActorCoreV2 AriaConversationTurnCoreV2[] @relation("AriaConversationTurnCancellationActorCoreV2")
 
   @@map("users")
 }
@@ -1268,8 +1269,7 @@ model AriaConversationCoreV2 {
   skillId    String?
   resourceId String?
 
-  contextVersion String                       @default("core-v2")
-  contextState   AriaConversationContextState @default(ACTIVE)
+  contextVersion String @default("core-v2")
   title          String?
 
   messages  AriaMessageCoreV2[]
@@ -1279,17 +1279,20 @@ model AriaConversationCoreV2 {
 
   @@index([studentId, updatedAt])
   @@index([studentId, courseKey, updatedAt])
+  @@unique([id, studentId])
   @@map("aria_conversations_core_v2")
 }
 
 model AriaConversationTurnCoreV2 {
   id               String                 @id @default(cuid())
   conversationId   String
-  conversation     AriaConversationCoreV2 @relation(fields: [conversationId], references: [id], onDelete: Restrict)
+  conversation     AriaConversationCoreV2 @relation(fields: [conversationId, subjectStudentId], references: [id, studentId], onDelete: Restrict)
   subjectStudentId String
   subjectStudent   Student                @relation("AriaConversationTurnSubjectCoreV2", fields: [subjectStudentId], references: [id], onDelete: Restrict)
   actorUserId      String
   actorUser        User                   @relation("AriaConversationTurnActorCoreV2", fields: [actorUserId], references: [id], onDelete: Restrict)
+  cancellationRequestedByActorId String?
+  cancellationRequestedByActor User? @relation("AriaConversationTurnCancellationActorCoreV2", fields: [cancellationRequestedByActorId], references: [id], onDelete: Restrict)
 
   useCase                 AriaConversationTurnUseCase
   clientRequestId         String
@@ -1319,6 +1322,7 @@ model AriaConversationTurnCoreV2 {
   messages AriaMessageCoreV2[]
 
   @@unique([actorUserId, subjectStudentId, useCase, clientRequestId])
+  @@unique([id, conversationId])
   @@unique([conversationId, sequence])
   @@index([conversationId, status])
   @@index([status, leaseExpiresAt])
@@ -1331,10 +1335,9 @@ model AriaMessageCoreV2 {
   conversationId String
   conversation   AriaConversationCoreV2           @relation(fields: [conversationId], references: [id], onDelete: Restrict)
   turnId         String?
-  turn           AriaConversationTurnCoreV2?      @relation(fields: [turnId], references: [id], onDelete: Restrict)
+  turn           AriaConversationTurnCoreV2?      @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Restrict)
   role           AriaConversationMessageRole
   content        String
-  status         String                           @default("COMPLETED")
   metadata       Json?
   turnRole       AriaConversationTurnMessageRole?
   citations      AriaMessageCitationCoreV2[]
@@ -1378,15 +1381,11 @@ model AriaFeedbackCoreV2 {
   useful    Boolean
   reason    String?
   createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
   @@unique([messageId, studentId])
   @@index([studentId, createdAt])
   @@map("aria_feedback_core_v2")
-}
-
-enum AriaConversationContextState {
-  ACTIVE
-  LEGACY_CONTEXT_UNRESOLVED
 }
 
 enum AriaConversationTurnStatus {
