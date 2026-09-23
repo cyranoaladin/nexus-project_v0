@@ -3,7 +3,7 @@ export type CoreV2E2eSeedEnvironment = Readonly<Record<string, string | undefine
 const ALLOWED_TARGETS: Readonly<Record<string, ReadonlySet<string>>> = Object.freeze({
   localhost: new Set(['5435']),
   '127.0.0.1': new Set(['5435']),
-  '::1': new Set(['5435']),
+  '[::1]': new Set(['5435']),
   'postgres-core-v2-e2e': new Set(['5432']),
 });
 

@@ -4,6 +4,7 @@ describe('Core v2 E2E seed target guard', () => {
   test.each([
     'postgresql://postgres@localhost:5435/core_v2_e2e',
     'postgres://postgres@127.0.0.1:5435/core_v2_e2e',
+    'postgresql://postgres@[::1]:5435/core_v2_e2e',
     'postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e',
   ])('accepts the exact disposable harness target %s', (url) => {
     expect(() => assertCoreV2E2eSeedTarget({
@@ -33,6 +34,7 @@ describe('Core v2 E2E seed target guard', () => {
     ['missing marker', 'postgresql://postgres@localhost:5435/core_v2_e2e', undefined],
     ['wrong database', 'postgresql://postgres@localhost:5435/nexus_prod', '1'],
     ['wrong local port', 'postgresql://postgres@localhost:5432/core_v2_e2e', '1'],
+    ['neighbor IPv6 host', 'postgresql://postgres@[::2]:5435/core_v2_e2e', '1'],
     ['wrong compose port', 'postgresql://postgres@postgres-core-v2-e2e:5435/core_v2_e2e', '1'],
     ['host query override', 'postgresql://postgres@localhost:5435/core_v2_e2e?host=/var/run/postgresql', '1'],
     ['wrong protocol', 'mysql://root@localhost:5435/core_v2_e2e', '1'],
