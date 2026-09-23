@@ -51,4 +51,19 @@ describe('AriaAgentPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: /Maths/ }));
     expect(onOpenChat).toHaveBeenCalledWith('eds-maths-terminale');
   });
+
+  it('does not offer chat for an academically irrelevant course even when commercially entitled', () => {
+    const onOpenChat = jest.fn();
+    const source = chattableCourse('maths-complementaires-terminale', 'Maths complémentaires');
+    const irrelevant = {
+      ...source,
+      access: { ...source.access, academicallyRelevant: false },
+    } as AriaCourseView;
+
+    render(<AriaAgentPanel cockpit={cockpit([irrelevant])} onOpenChat={onOpenChat} />);
+
+    expect(screen.getByText('Aucune matière ouverte pour ARIA')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Maths complémentaires/ })).not.toBeInTheDocument();
+    expect(onOpenChat).not.toHaveBeenCalled();
+  });
 });

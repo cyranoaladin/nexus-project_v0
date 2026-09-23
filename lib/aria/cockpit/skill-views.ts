@@ -13,9 +13,9 @@
  * `*.domains.json`. Le catalogue de cours du cockpit (`curriculum/catalog.ts`)
  * indexe ses cours par une clé produit différente (`maths-premiere-eds`,
  * `sgn-premiere-stmg`, …). Les deux clés désignent exactement le même cours
- * — la correspondance ci-dessous est une bijection 1:1 vérifiée contre les 8
- * entrées du registre canonique ; aucun cours du catalogue n'a besoin de
- * plus d'une définition de graphe de compétences.
+ * — l'adaptateur partagé `course-key-aliases.ts` porte cette bijection 1:1,
+ * vérifiée contre les 8 entrées du registre canonique ; aucun cours du
+ * catalogue n'a besoin de plus d'une définition de graphe de compétences.
  */
 
 import 'server-only';
@@ -23,6 +23,7 @@ import 'server-only';
 import {
   getSkillGraph as getCanonicalSkillGraph,
 } from '@/lib/aria/curriculum/skill-graph';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import { getAriaCourse } from '@/lib/aria/curriculum/catalog';
 import type {
   AriaCompetency,
@@ -31,17 +32,6 @@ import type {
   AriaSkillGraph,
   AriaSkillGraphSummary,
 } from '@/lib/aria/cockpit/contracts';
-
-const COURSE_KEY_TO_CANONICAL_REGISTRY_KEY: Readonly<Record<string, string>> = Object.freeze({
-  'maths-premiere-eds': 'eds-maths-premiere',
-  'maths-terminale-eds': 'eds-maths-terminale',
-  'nsi-premiere-eds': 'eds-nsi-premiere',
-  'nsi-terminale-eds': 'eds-nsi-terminale',
-  'maths-premiere-stmg': 'stmg-maths-premiere',
-  'sgn-premiere-stmg': 'stmg-sgn-premiere',
-  'management-premiere-stmg': 'stmg-management-premiere',
-  'droit-eco-premiere-stmg': 'stmg-droit-eco-premiere',
-});
 
 /**
  * `lookupCanonicalSkillGraph` defaults to the real canonical module and is
@@ -57,8 +47,8 @@ export function adaptSkillGraph(
   definitionKey: string,
   lookupCanonicalSkillGraph: typeof getCanonicalSkillGraph = getCanonicalSkillGraph,
 ): AriaSkillGraph | null {
-  const registryKey = COURSE_KEY_TO_CANONICAL_REGISTRY_KEY[courseKey];
-  if (!registryKey) return null;
+  const registryKey = toCanonicalAriaCourseKey(courseKey);
+  if (registryKey === courseKey) return null;
 
   const source = lookupCanonicalSkillGraph(registryKey);
   if (!source) return null;

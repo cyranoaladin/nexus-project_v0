@@ -54,6 +54,31 @@ describe('AriaCourseCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  it('never exposes Ouvrir or calls onOpen for an academically irrelevant course with a global commercial grant', () => {
+    const onOpen = jest.fn();
+    render(
+      <AriaCourseCard
+        view={view({ academicallyRelevant: false, commerciallyEntitled: true })}
+        onOpen={onOpen}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('never exposes Ajouter for an academically irrelevant course with a global commercial grant', () => {
+    const onToggle = jest.fn();
+    render(
+      <AriaCourseCard
+        view={view({ academicallyRelevant: false, commerciallyEntitled: true })}
+        selectable
+        onToggle={onToggle}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: 'Ajouter à mon cockpit' })).not.toBeInTheDocument();
+    expect(onToggle).not.toHaveBeenCalled();
+  });
+
   it('in selectable mode, toggles selection and reflects the selected state', () => {
     const onToggle = jest.fn();
     const { rerender } = render(

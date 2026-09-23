@@ -372,6 +372,10 @@ describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () =>
   test('a pin becomes stale when its StudentCourseEnrollment is removed and is filtered from profile and cockpit reads', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+    });
     const optionEnrollment = await h.client.studentCourseEnrollment.create({
       data: {
         academicYearEnrollmentId: f.enrollment.id,
@@ -401,7 +405,11 @@ describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () =>
     expect(cockpit.body.data.curriculum.courses).toEqual(expect.arrayContaining([
       expect.objectContaining({
         course: expect.objectContaining({ key: 'maths-expertes-terminale' }),
-        access: expect.objectContaining({ academicallyRelevant: false, selectedForAria: false }),
+        access: expect.objectContaining({
+          academicallyRelevant: false,
+          commerciallyEntitled: true,
+          selectedForAria: false,
+        }),
       }),
     ]));
   });

@@ -88,6 +88,15 @@ describe('AriaSetupWizard', () => {
     );
   });
 
+  it('never offers Ajouter for a non-enrolled option even when a global grant makes it commercially entitled', () => {
+    render(<AriaSetupWizard cockpit={baseCockpit} saving={false} error={null} onSubmit={jest.fn()} />);
+    goToStep(2);
+
+    expect(
+      screen.queryByTestId('aria-wizard-course-maths-complementaires-terminale'),
+    ).not.toBeInTheDocument();
+  });
+
   it('can navigate back to a previous step', () => {
     render(<AriaSetupWizard cockpit={baseCockpit} saving={false} error={null} onSubmit={jest.fn()} />);
     goToStep(1);

@@ -55,7 +55,7 @@ export function AriaSetupWizard({ cockpit, saving, error, onSubmit }: AriaSetupW
   const [goals, setGoals] = useState<AriaLearningGoal[]>([...cockpit.profile.learningGoals]);
 
   const selectableCourses = cockpit.curriculum.courses.filter(
-    (view) => view.access.productSupported,
+    (view) => view.access.academicallyRelevant && view.access.productSupported,
   );
 
   function toggleCourse(key: string) {

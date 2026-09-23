@@ -54,7 +54,7 @@ export function AriaCourseWorkspace({
   nextBestAction,
 }: AriaCourseWorkspaceProps) {
   const view = cockpit.curriculum.courses.find((candidate) => candidate.course.key === courseKey);
-  if (!view) {
+  if (!view || !view.access.academicallyRelevant) {
     return (
       <EmptyState title="Cours introuvable" body="Ce cours ne fait pas partie de ta carte scolaire.">
         <Button onClick={onBack} variant="outline" size="sm">
@@ -70,7 +70,9 @@ export function AriaCourseWorkspace({
   const assessments = cockpit.assessments.filter(
     (assessment) => assessment.subject !== null && course.chatSubject === assessment.subject,
   );
-  const canChat = course.chatSubject !== null && access.commerciallyEntitled;
+  const canChat = access.academicallyRelevant
+    && course.chatSubject !== null
+    && access.commerciallyEntitled;
 
   return (
     <section aria-labelledby="aria-workspace-title" className="space-y-4">

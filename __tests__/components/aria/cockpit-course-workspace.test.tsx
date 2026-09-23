@@ -127,6 +127,25 @@ describe('AriaCourseWorkspace', () => {
     expect(screen.getByText("Cette matière n’est pas incluse dans ton abonnement.")).toBeInTheDocument();
   });
 
+  it('disables the work action for an academically irrelevant course despite commercial entitlement', () => {
+    const onWorkWithAria = jest.fn();
+    render(
+      <AriaCourseWorkspace
+        cockpit={minimalCockpit({
+          curriculum: {
+            courses: [minimalCourseView({}, { academicallyRelevant: false, commerciallyEntitled: true })],
+          },
+        } as unknown as Partial<AriaCockpitDTO>)}
+        courseKey="eds-maths-terminale"
+        onBack={jest.fn()}
+        onWorkWithAria={onWorkWithAria}
+      />,
+    );
+    expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
+    expect(screen.getByText('Cours introuvable')).toBeInTheDocument();
+    expect(onWorkWithAria).not.toHaveBeenCalled();
+  });
+
 
   it('falls back to the raw role string for a role absent from ROLE_LABELS', () => {
     render(

@@ -27,6 +27,7 @@ import { listSelectableCourseKeys } from '@/lib/aria/curriculum/resolver';
 import { isSupportedExamSession } from '@/lib/aria/curriculum/exam-context';
 import { getCourse } from '@/lib/curriculum/catalog';
 import type { CoreV2AriaAcademicEnrollment } from '@/lib/core-v2/aria/student-context';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import {
   AriaProfileValidationError,
   defaultAriaCockpitProfile,
@@ -57,6 +58,7 @@ function enrollmentBacksAriaCourse(
   const ariaCourse = getAriaCourse(courseKey);
   if (!ariaCourse) return false;
   if (ariaCourse.role === 'CORE' || ariaCourse.role === 'TRACK_MODULE') return true;
+  const canonicalCourseKey = toCanonicalAriaCourseKey(ariaCourse.key);
 
   return academicContext.academicEnrollments.some((enrollment) => {
     if (enrollment.kind !== ariaCourse.role) return false;
@@ -67,14 +69,8 @@ function enrollmentBacksAriaCourse(
       && !canonicalCourse.tracks.includes(academicContext.academicTrack)
     ) return false;
 
-    if (ariaCourse.role === 'SPECIALTY') {
-      return canonicalCourse.kind === 'SPECIALTY'
-        && ariaCourse.specialty !== undefined
-        && canonicalCourse.legacySubject === ariaCourse.specialty;
-    }
-
-    return canonicalCourse.kind === 'OPTION'
-      && canonicalCourse.courseKey === `opt-${ariaCourse.key}`;
+    return canonicalCourse.kind === ariaCourse.role
+      && canonicalCourse.courseKey === canonicalCourseKey;
   });
 }
 

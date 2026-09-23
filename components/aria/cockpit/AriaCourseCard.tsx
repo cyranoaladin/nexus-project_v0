@@ -20,14 +20,15 @@ interface AriaCourseCardProps {
 
 export function AriaCourseCard({ view, selectable = false, onToggle, onOpen }: AriaCourseCardProps) {
   const { course, access } = view;
-  const locked = access.productSupported && !access.commerciallyEntitled;
+  const locked = access.academicallyRelevant && access.productSupported && !access.commerciallyEntitled;
   const unsupported = !access.productSupported;
 
-  const interactive = selectable ? !locked && !unsupported : !unsupported;
+  const interactive = access.academicallyRelevant
+    && !unsupported
+    && (!selectable || !locked);
 
-  // Reachable only via the button below, which itself only renders when
-  // `interactive` is true (see JSX) — no `!interactive` guard needed here.
   function handleActivate() {
+    if (!interactive) return;
     if (selectable) onToggle?.(course.key);
     else onOpen?.(course.key);
   }

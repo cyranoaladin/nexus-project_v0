@@ -22,7 +22,9 @@ interface AriaAgentPanelProps {
 
 export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
   const chattable = cockpit.curriculum.courses.filter(
-    (view) => view.course.chatSubject !== null && view.access.commerciallyEntitled,
+    (view) => view.access.academicallyRelevant
+      && view.course.chatSubject !== null
+      && view.access.commerciallyEntitled,
   );
 
   return (
