@@ -23,9 +23,13 @@ export function AriaCourseCard({ view, selectable = false, onToggle, onOpen }: A
   const locked = access.academicallyRelevant && !access.commerciallyEntitled;
   const unsupported = !access.productSupported;
 
+  // The read-only workspace remains reachable for a real school subject even
+  // when it is outside the commercial selection (historical V1 behavior).
+  // Adding/removing a course still requires entitlement, and no academically
+  // irrelevant course ever exposes an action in either mode.
   const interactive = access.academicallyRelevant
     && !unsupported
-    && !locked;
+    && (!selectable || !locked);
 
   function handleActivate() {
     if (!interactive) return;

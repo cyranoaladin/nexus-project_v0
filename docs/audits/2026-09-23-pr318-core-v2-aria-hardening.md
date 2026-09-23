@@ -22,6 +22,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le harness E2E Core v2 ne protégeait pas assez strictement la cible de base jetable et n'était pas répétable sur une même stack.
 - La revue finale a détecté une sur-lecture de PII dans le contexte étudiant ARIA et un 404 qui exposait l'identifiant utilisateur interne.
 - Le premier cycle CI du rapport a détecté que le second `User.upsert` ajouté au seeder E2E n'était pas classé dans l'inventaire exhaustif des mutations de sécurité.
+- Le cycle CI suivant a révélé une régression V1 dans la lane ARIA desktop : trois parcours historiques ne pouvaient plus ouvrir une matière académiquement suivie mais hors sélection commerciale.
 
 ## Décisions prises
 
@@ -37,6 +38,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le contexte étudiant ARIA possède désormais une projection dédiée minimale : identifiants et noms nécessaires, au plus deux inscriptions `ACTIVE` de l'année `CURRENT`, champs scolaires utiles et clés/types de cours. Email, téléphone, date de naissance, household, parents, statut de compte et timestamps ne sont ni sélectionnés ni retournés.
 - Le 404 ARIA Core v2 est générique et ne sérialise ni `userId` ni `details` sensibles.
 - Les deux `User.upsert` du seeder E2E (persona ARIA et comptes staff/coach) sont inventoriés comme mutations sensibles. Un reseed qui réécrit leurs credentials incrémente `sessionVersion` et révoque ainsi toute session Core v2 existante.
+- L'action de consultation `Ouvrir` reste disponible pour une matière académiquement pertinente et supportée, y compris hors sélection commerciale, conformément au comportement V1. Le mode sélection exige toujours le droit commercial, et aucune action `Ouvrir`/`Ajouter` n'est exposée pour une option Core v2 non enrollée ou hors scope.
 
 ## TDD et preuves RED/GREEN
 
@@ -47,6 +49,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - IPv6 : RED 1/13, car `[::1]` était refusé ; GREEN 13/13 avec `[::1]` exact et `[::2]` toujours refusé.
 - PII/erreur : RED 2/2, car la requête passait par le read model étendu et le 404 exposait `userId`; GREEN 26/26 sur le test exact de projection/erreur et la route native Core v2.
 - Inventaire de révocation CI : RED 1/18 sur `session-revocation-boundary`, car `seed-e2e-staff-actors.ts:upsert#2` était absent de l'inventaire ; GREEN 18/18 après classification des deux upserts et ajout de l'incrément `sessionVersion` au reseed du persona ARIA.
+- Actionnabilité V1/Core v2 : RED 1/9 sur la carte de cours, reproduisant l'absence de `Ouvrir` pour une matière V1 pertinente mais commercialement locked ; GREEN 9/9 après séparation des règles consultation/sélection, avec les contre-épreuves Core v2 non pertinentes toujours non actionnables.
 
 ## Fichiers modifiés
 
@@ -80,6 +83,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - `npm run build:base` : passé, 95 pages générées.
 - Playwright Chromium réel sur stack jetable : 2/2 passés, puis 2/2 passés une seconde fois sur la même stack sans reseed manuel. Le second passage prouve la répétabilité du reset transactionnel.
 - Correctif du finding CI : garde `session-revocation-boundary` 18/18, guards/persona de seed Core v2 14/14, `npm run typecheck` et ESLint ciblé passés.
+- Correctif de la régression navigateur : test composant de carte 9/9, dont l'ouverture V1 locked et l'absence d'actions pour les options Core v2 non pertinentes.
 
 ## Résultats
 
