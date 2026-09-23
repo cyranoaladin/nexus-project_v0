@@ -127,6 +127,51 @@ describe('Core v2 ARIA watchdog and recovery', () => {
     await expect(h.client.coreV2JobOutbox.update({ where: { id: bad.id }, data: { status: CoreV2JobStatus.PENDING } })).rejects.toThrow('CORE_V2_JOB_TERMINAL_IMMUTABLE');
   });
 
+  test('recovery and finalization racing on one Turn produce one terminal outcome', async () => {
+    const seeded = await seedTurn();
+    await seeded.repository.claimTurn({
+      turnId: seeded.reservation.turnId,
+      conversationId: seeded.reservation.conversationId,
+      actorUserId: seeded.user.id,
+      subjectStudentId: seeded.student.id,
+      executionToken: 'race-token',
+      now: new Date('2026-09-23T12:01:00.000Z'),
+      leaseExpiresAt: new Date('2026-09-23T12:01:30.000Z'),
+    });
+    await h.client.coreV2JobOutbox.update({
+      where: { idempotencyKey: `aria-turn-watchdog:${seeded.reservation.turnId}` },
+      data: { availableAt: new Date('2026-09-23T12:01:31.000Z') },
+    });
+    const evidence = { schemaVersion: 1 as const, hits: [] };
+    const outcomes = await Promise.allSettled([
+      drainCoreV2AriaRecoveryOutbox({ owner: 'worker-race', now: new Date('2026-09-23T12:02:00.000Z') }, h.client),
+      seeded.repository.finalizeTurn({
+        turnId: seeded.reservation.turnId,
+        conversationId: seeded.reservation.conversationId,
+        assistantMessageId: seeded.reservation.assistantMessageId,
+        executionToken: 'race-token',
+        status: 'COMPLETED',
+        content: 'completed exactly once',
+        ragStatus: 'NOT_CONFIGURED',
+        retrievalEvidence: evidence,
+        citations: [],
+        executionMetadata: {},
+        now: new Date('2026-09-23T12:02:00.000Z'),
+      }),
+    ]);
+    const turn = await h.client.ariaConversationTurnCoreV2.findUnique({
+      where: { id: seeded.reservation.turnId },
+      select: { status: true },
+    });
+    const watchdog = await h.client.coreV2JobOutbox.findUnique({
+      where: { idempotencyKey: `aria-turn-watchdog:${seeded.reservation.turnId}` },
+      select: { status: true },
+    });
+    expect(['COMPLETED', 'ERROR']).toContain(turn?.status);
+    expect(watchdog?.status).toBe('COMPLETED');
+    expect(outcomes.filter((outcome) => outcome.status === 'fulfilled')).toHaveLength(1);
+  });
+
   test('conversation enablement cannot run without the recovery worker', () => {
     expect(() => assertCoreV2AriaRecoveryConfiguration({ CORE_V2_ARIA_CONVERSATION_ENABLED: 'true', CORE_V2_ARIA_RECOVERY_WORKER_ENABLED: 'false' })).toThrow();
     expect(() => assertCoreV2AriaRecoveryConfiguration({ CORE_V2_ARIA_CONVERSATION_ENABLED: 'false', CORE_V2_ARIA_RECOVERY_WORKER_ENABLED: 'false' })).not.toThrow();
