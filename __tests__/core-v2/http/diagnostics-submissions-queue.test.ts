@@ -18,6 +18,10 @@ import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submis
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import { drainDiagnosticSubmissionProcessingQueue, enqueueDiagnosticSubmissionProcessing } from '@/lib/core-v2/services/diagnostic-processing';
 import { DEMO_ANSWER_HTML } from '@/lib/core-v2/diagnostics/demo-content';
+import {
+  projectDiagnosticQueueState,
+  type DiagnosticQueueStatusInput,
+} from '@/lib/core-v2/queries/diagnostics-queue';
 import * as queueRoute from '@/app/api/v2/staff/diagnostics/submissions/route';
 import * as bilanRoute from '@/app/api/v2/staff/diagnostics/processing/[processingId]/bilan/route';
 import * as validateRoute from '@/app/api/v2/staff/diagnostics/processing/[processingId]/bilan/validate/route';
@@ -103,6 +107,64 @@ async function depositFor(assignmentId: string, userId: string) {
     mimeType: 'application/pdf',
     bytes: pdf,
   });
+  return submission;
+}
+
+async function seedProjectedQueueState(
+  label: string,
+  input: Pick<DiagnosticQueueStatusInput, 'processingStatus' | 'draftStatus'>,
+) {
+  const fixture = await seedCandidate(label);
+  const submissionId = randomUUID();
+  const submission = await h.client.diagnosticSubmission.create({
+    data: {
+      id: submissionId,
+      assignmentId: fixture.assignment.id,
+      submittedById: fixture.user.id,
+      version: 1,
+      storageKey: `queue-state/${submissionId}.pdf`,
+      originalFilename: `${label}.pdf`,
+      mimeType: 'application/pdf',
+      sizeBytes: 123,
+      sha256: createHash('sha256').update(submissionId).digest('hex'),
+      status: 'RECEIVED',
+    },
+  });
+  if (input.processingStatus) {
+    const processing = await h.client.diagnosticSubmissionProcessing.create({
+      data: {
+        submissionId: submission.id,
+        submissionSha256Snapshot: submission.sha256,
+        submissionVersionSnapshot: submission.version,
+        subjectVersionSnapshot: fixture.instrument.version,
+        status: input.processingStatus,
+      },
+    });
+    if (input.draftStatus) {
+      const extraction = await h.client.diagnosticSubmissionExtraction.create({
+        data: {
+          processingId: processing.id,
+          revision: 1,
+          status: 'SUCCEEDED',
+          extractedText: 'Synthetic queue-state fixture.',
+          characterCount: 30,
+          totalCharacterCount: 30,
+          durationMs: 1,
+        },
+      });
+      await h.client.diagnosticBilanDraft.create({
+        data: {
+          processingId: processing.id,
+          revision: 1,
+          extractionId: extraction.id,
+          extractionRevisionSnapshot: extraction.revision,
+          extractionTruncatedSnapshot: extraction.truncated,
+          deterministicResults: { fixture: true },
+          status: input.draftStatus,
+        },
+      });
+    }
+  }
   return submission;
 }
 
@@ -214,6 +276,44 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
 
     const onlyNotProcessed = await callJson(queueRoute.GET, 'GET', '/api/v2/staff/diagnostics/submissions?status=NOT_PROCESSED');
     expect((onlyNotProcessed.body.data.items as { submissionId: string }[]).map((r) => r.submissionId)).toEqual([notProcessedSubmission.id]);
+  });
+
+  test('the SQL projection stays in parity with the canonical state function for every significant status branch', async () => {
+    const cases: Array<{
+      label: string;
+      processingStatus: DiagnosticQueueStatusInput['processingStatus'];
+      draftStatus: DiagnosticQueueStatusInput['draftStatus'];
+    }> = [
+      { label: 'NOT-PROCESSED', processingStatus: null, draftStatus: null },
+      { label: 'QUEUED', processingStatus: 'QUEUED', draftStatus: null },
+      { label: 'EXTRACTING', processingStatus: 'EXTRACTING', draftStatus: null },
+      { label: 'EXTRACTION-FAILED', processingStatus: 'EXTRACTION_FAILED', draftStatus: null },
+      { label: 'NO-TEXT', processingStatus: 'NO_EXTRACTABLE_TEXT', draftStatus: null },
+      { label: 'EXTRACTED-NO-DRAFT', processingStatus: 'EXTRACTED', draftStatus: null },
+      { label: 'DRAFT', processingStatus: 'EXTRACTED', draftStatus: 'DRAFT' },
+      { label: 'VALIDATED', processingStatus: 'EXTRACTED', draftStatus: 'VALIDATED' },
+      { label: 'PUBLISHED', processingStatus: 'EXTRACTED', draftStatus: 'PUBLISHED' },
+    ];
+    const expectedBySubmissionId = new Map<string, string>();
+    for (const input of cases) {
+      const submission = await seedProjectedQueueState(`PARITY-${input.label}-${randomUUID()}`, input);
+      expectedBySubmissionId.set(
+        submission.id,
+        projectDiagnosticQueueState({ submissionStatus: 'RECEIVED', ...input }),
+      );
+    }
+
+    signInAs(h.admin);
+    const list = await callJson(
+      queueRoute.GET,
+      'GET',
+      '/api/v2/staff/diagnostics/submissions?status=ALL&limit=20',
+    );
+    expect(list.status).toBe(200);
+    const rows = list.body.data.items as Array<{ submissionId: string; state: string }>;
+
+    expect(rows).toHaveLength(cases.length);
+    for (const row of rows) expect(row.state).toBe(expectedBySubmissionId.get(row.submissionId));
   });
 
   test('returns only the current usable version and an exact PII-minimal candidate payload', async () => {

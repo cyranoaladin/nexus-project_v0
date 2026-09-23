@@ -4,10 +4,14 @@
  * combinations (never re-derived differently by the API route or the UI).
  */
 import { createHash, randomUUID } from 'node:crypto';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import {
   listDiagnosticSubmissionsQueue,
+  materializeDiagnosticQueuePage,
   projectDiagnosticQueueState,
   queueCandidateSelect,
+  type DiagnosticQueueRawRow,
+  type DiagnosticQueueRow,
 } from '@/lib/core-v2/queries/diagnostics-queue';
 import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 import { createHousehold, createStudent } from '@/lib/core-v2/services';
@@ -168,6 +172,46 @@ describe('current diagnostic submission contract', () => {
       id: true,
       user: { select: { firstName: true, lastName: true } },
     });
+  });
+});
+
+describe('diagnostics queue repository boundary', () => {
+  test('uses one parameterized bounded raw query and never loads submission history with findMany', async () => {
+    const findMany = jest.fn();
+    const queryRaw = jest.fn().mockResolvedValue([]);
+    const client = {
+      diagnosticSubmission: { findMany },
+      $queryRaw: queryRaw,
+    } as unknown as PrismaClient;
+
+    const page = await listDiagnosticSubmissionsQueue(client, h.ctx(), { status: 'ALL', limit: 2 });
+
+    expect(findMany).not.toHaveBeenCalled();
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+    expect(page).not.toHaveProperty('totalCount');
+
+    const sql = queryRaw.mock.calls[0]?.[0] as { strings?: readonly string[]; values?: readonly unknown[] };
+    const strings = Array.from(sql.strings ?? []);
+    const values = Array.from(sql.values ?? []);
+    expect(strings.join(' ')).not.toMatch(
+      /extractedText|aiProposal|humanReview|deterministicResults|publishedContent|email|phone|accountStatus|activatedAt/i,
+    );
+    const limitParameterIndex = strings.findIndex((fragment) => /LIMIT\s*$/i.test(fragment));
+    expect(limitParameterIndex).toBeGreaterThanOrEqual(0);
+    expect(values[limitParameterIndex]).toBe(3);
+  });
+
+  test('materializes at most limit + 1 database rows before trimming the public page', () => {
+    const rawRows = Array.from({ length: 8 }, (_, index) => ({ submissionId: `raw-${index}` })) as DiagnosticQueueRawRow[];
+    const mapper = jest.fn(
+      (raw: DiagnosticQueueRawRow) => ({ submissionId: raw.submissionId }) as DiagnosticQueueRow,
+    );
+
+    const page = materializeDiagnosticQueuePage(rawRows, 2, mapper);
+
+    expect(mapper).toHaveBeenCalledTimes(3);
+    expect(page.items).toHaveLength(2);
+    expect(page.nextCursor).toBe('raw-1');
   });
 });
 

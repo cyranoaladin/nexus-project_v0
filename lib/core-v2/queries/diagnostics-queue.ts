@@ -6,20 +6,20 @@
  * detail route (gated separately by DIAGNOSTIC_SUBMISSION_CONTENT_READ /
  * DIAGNOSTIC_BILAN_REVIEW) is the only place that content is ever served.
  *
- * `projectDiagnosticQueueState` is the ONE state-projection function: the
- * list, its filters, its default sort and any future dashboard counter all
- * call this same function — never a second, independently-drifting
- * definition of "what needs action".
+ * `projectDiagnosticQueueState` is the canonical executable state contract.
+ * The bounded SQL projection below is generated from the same status buckets
+ * and rank map, with real-DB parity tests guarding every branch. A future
+ * dashboard counter must reuse that SQL fragment in this repository.
  */
-import type { Prisma, PrismaClient } from '@/core-v2/generated/client';
+import type { Prisma as PrismaTypes, PrismaClient } from '@/core-v2/generated/client';
 import { z } from 'zod';
+import { Prisma } from '../client';
 import { assertCapability } from '../rbac';
 import type { ServiceContext } from '../services/context';
 import { idSchema } from '../services/validation';
 import type { Page } from './staff';
 import {
   CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES,
-  isUsableDiagnosticSubmission,
   type CurrentDiagnosticSubmissionStatus,
 } from '@/lib/diagnostics/current-submission';
 
@@ -55,6 +55,15 @@ export interface DiagnosticQueueStatusInput {
   readonly draftStatus: 'DRAFT' | 'VALIDATED' | 'PUBLISHED' | null;
 }
 
+const PROCESSING_QUEUE_STATUSES = ['QUEUED', 'EXTRACTING'] as const;
+const FAILED_QUEUE_STATUSES = ['EXTRACTION_FAILED', 'NO_EXTRACTABLE_TEXT'] as const;
+const DRAFT_QUEUE_STATE = {
+  PUBLISHED: 'PUBLISHED',
+  VALIDATED: 'VALIDATED_UNPUBLISHED',
+} as const satisfies Partial<
+  Record<NonNullable<DiagnosticQueueStatusInput['draftStatus']>, DiagnosticQueueState>
+>;
+
 /**
  * The one state-projection function (mission "GO-LIVE ARIA/queue" §I):
  * pure, exhaustive over the real enum combinations, never re-derived by the
@@ -62,22 +71,21 @@ export interface DiagnosticQueueStatusInput {
  */
 export function projectDiagnosticQueueState(input: DiagnosticQueueStatusInput): DiagnosticQueueState {
   if (!input.processingStatus) return 'NOT_PROCESSED';
-  if (input.processingStatus === 'QUEUED' || input.processingStatus === 'EXTRACTING') return 'PROCESSING';
-  if (input.processingStatus === 'EXTRACTION_FAILED' || input.processingStatus === 'NO_EXTRACTABLE_TEXT') {
-    return 'FAILED';
-  }
+  if (PROCESSING_QUEUE_STATUSES.some((status) => status === input.processingStatus)) return 'PROCESSING';
+  if (FAILED_QUEUE_STATUSES.some((status) => status === input.processingStatus)) return 'FAILED';
   // processingStatus === 'EXTRACTED' from here on.
-  if (input.draftStatus === 'PUBLISHED') return 'PUBLISHED';
-  if (input.draftStatus === 'VALIDATED') return 'VALIDATED_UNPUBLISHED';
+  const draftState = input.draftStatus ? DRAFT_QUEUE_STATE[input.draftStatus as keyof typeof DRAFT_QUEUE_STATE] : null;
+  if (draftState) return draftState;
   return 'READY_FOR_REVIEW'; // no draft yet, or draft still DRAFT
 }
 
-const ACTION_REQUIRED_STATES: ReadonlySet<DiagnosticQueueState> = new Set([
+const ACTION_REQUIRED_STATE_VALUES = [
   'NOT_PROCESSED',
   'READY_FOR_REVIEW',
   'VALIDATED_UNPUBLISHED',
   'FAILED',
-]);
+] as const satisfies readonly DiagnosticQueueState[];
+const ACTION_REQUIRED_STATES: ReadonlySet<DiagnosticQueueState> = new Set(ACTION_REQUIRED_STATE_VALUES);
 
 /** Staleness matters for a queue: these are handled/inert, everything else needs a human. */
 export function isActionRequiredState(state: DiagnosticQueueState): boolean {
@@ -119,69 +127,200 @@ export interface DiagnosticQueueRow {
 export const queueCandidateSelect = {
   id: true,
   user: { select: { firstName: true, lastName: true } },
-} satisfies Prisma.StudentSelect;
+} satisfies PrismaTypes.StudentSelect;
 
-const queueRowInclude = {
-  assignment: {
-    select: {
-      student: { select: queueCandidateSelect },
-      instrumentRef: { select: { instrumentKey: true, version: true, title: true } },
-    },
-  },
-  processing: {
-    select: {
-      status: true,
-      updatedAt: true,
-      bilanDrafts: { select: { status: true, updatedAt: true }, orderBy: { revision: 'desc' as const }, take: 1 },
-    },
-  },
-} as const;
-
-function lastActivityOf(
-  submissionUpdatedAt: Date,
-  processing: { updatedAt: Date; bilanDrafts: readonly { updatedAt: Date }[] } | null,
-): Date {
-  let latest = submissionUpdatedAt;
-  if (processing) {
-    if (processing.updatedAt > latest) latest = processing.updatedAt;
-    const draft = processing.bilanDrafts[0];
-    if (draft && draft.updatedAt > latest) latest = draft.updatedAt;
-  }
-  return latest;
+function queueStateSql(processingStatus: Prisma.Sql, draftStatus: Prisma.Sql): Prisma.Sql {
+  return Prisma.sql`CASE
+    WHEN ${processingStatus} IS NULL THEN 'NOT_PROCESSED'
+    WHEN ${processingStatus} IN (${Prisma.join([...PROCESSING_QUEUE_STATUSES])}) THEN 'PROCESSING'
+    WHEN ${processingStatus} IN (${Prisma.join([...FAILED_QUEUE_STATUSES])}) THEN 'FAILED'
+    ${Prisma.join(
+      Object.entries(DRAFT_QUEUE_STATE).map(
+        ([status, state]) => Prisma.sql`WHEN ${draftStatus} = ${status} THEN ${state}`,
+      ),
+      ' ',
+    )}
+    ELSE 'READY_FOR_REVIEW'
+  END`;
 }
 
-function toRow(submission: {
-  id: string;
-  version: number;
-  status: DiagnosticQueueStatusInput['submissionStatus'];
-  createdAt: Date;
-  updatedAt: Date;
-  assignment: {
-    student: { id: string; user: { firstName: string | null; lastName: string | null } };
-    instrumentRef: { instrumentKey: string; version: string; title: string };
-  };
-  processing: { status: DiagnosticQueueStatusInput['processingStatus']; updatedAt: Date; bilanDrafts: readonly { status: 'DRAFT' | 'VALIDATED' | 'PUBLISHED'; updatedAt: Date }[] } | null;
-}): DiagnosticQueueRow {
-  const processingStatus = submission.processing?.status ?? null;
-  const draftStatus = submission.processing?.bilanDrafts[0]?.status ?? null;
-  const state = projectDiagnosticQueueState({
-    submissionStatus: submission.status,
-    processingStatus,
-    draftStatus,
-  });
+const QUEUE_STATE_SQL = queueStateSql(
+  Prisma.raw('p."status"::text'),
+  Prisma.raw('d."draftStatus"'),
+);
+
+const QUEUE_STATE_RANK_SQL = Prisma.sql`CASE "state"
+  ${Prisma.join(
+    Object.entries(STATE_SORT_RANK).map(([state, rank]) => Prisma.sql`WHEN ${state} THEN ${rank}`),
+    ' ',
+  )}
+  ELSE 999
+END`;
+
+function queueFilterSql(filter: DiagnosticQueueFilter): Prisma.Sql {
+  if (filter === 'ALL') return Prisma.sql`TRUE`;
+  if (filter === 'ACTION_REQUIRED') {
+    return Prisma.sql`"state" IN (${Prisma.join([...ACTION_REQUIRED_STATE_VALUES])})`;
+  }
+  return Prisma.sql`"state" = ${filter}`;
+}
+
+function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
+  const cursorPredicate = query.cursor
+    ? Prisma.sql`AND EXISTS (SELECT 1 FROM "anchor")
+        AND (
+          q."stateRank" > (SELECT "stateRank" FROM "anchor")
+          OR (
+            q."stateRank" = (SELECT "stateRank" FROM "anchor")
+            AND q."lastActivityAt" > (SELECT "lastActivityAt" FROM "anchor")
+          )
+          OR (
+            q."stateRank" = (SELECT "stateRank" FROM "anchor")
+            AND q."lastActivityAt" = (SELECT "lastActivityAt" FROM "anchor")
+            AND q."submissionId" > (SELECT "submissionId" FROM "anchor")
+          )
+        )`
+    : Prisma.empty;
+
+  return Prisma.sql`
+    WITH "latestUsableSubmission" AS (
+      SELECT DISTINCT ON (s."assignmentId")
+        s."id" AS "submissionId",
+        s."assignmentId",
+        s."version" AS "submissionVersion",
+        s."status"::text AS "submissionStatus",
+        s."createdAt" AS "submissionCreatedAt",
+        s."updatedAt" AS "submissionUpdatedAt"
+      FROM "diagnostic_submissions" s
+      WHERE s."status"::text IN (${Prisma.join([...CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES])})
+      ORDER BY s."assignmentId" ASC, s."version" DESC
+    ),
+    "latestDraft" AS (
+      SELECT DISTINCT ON (d."processingId")
+        d."processingId",
+        d."status"::text AS "draftStatus",
+        d."updatedAt" AS "draftUpdatedAt"
+      FROM "diagnostic_bilan_drafts" d
+      ORDER BY d."processingId" ASC, d."revision" DESC
+    ),
+    "stateProjected" AS (
+      SELECT
+        s."submissionId",
+        st."id" AS "candidateId",
+        u."firstName" AS "candidateFirstName",
+        u."lastName" AS "candidateLastName",
+        i."instrumentKey",
+        i."version" AS "instrumentVersion",
+        i."title" AS "instrumentTitle",
+        s."submissionVersion",
+        s."submissionStatus",
+        s."submissionCreatedAt",
+        p."status"::text AS "processingStatus",
+        d."draftStatus",
+        GREATEST(s."submissionUpdatedAt", p."updatedAt", d."draftUpdatedAt") AS "lastActivityAt",
+        ${QUEUE_STATE_SQL} AS "state"
+      FROM "latestUsableSubmission" s
+      INNER JOIN "diagnostic_assignments" a ON a."id" = s."assignmentId"
+      INNER JOIN "students_v2" st ON st."id" = a."studentId"
+      INNER JOIN "users" u ON u."id" = st."userId"
+      INNER JOIN "diagnostic_instrument_refs" i ON i."id" = a."instrumentRefId"
+      LEFT JOIN "diagnostic_submission_processings" p ON p."submissionId" = s."submissionId"
+      LEFT JOIN "latestDraft" d ON d."processingId" = p."id"
+    ),
+    "ranked" AS (
+      SELECT "stateProjected".*, ${QUEUE_STATE_RANK_SQL} AS "stateRank"
+      FROM "stateProjected"
+    ),
+    "filtered" AS (
+      SELECT * FROM "ranked" WHERE ${queueFilterSql(query.status)}
+    ),
+    "anchor" AS (
+      SELECT "stateRank", "lastActivityAt", "submissionId"
+      FROM "filtered"
+      WHERE "submissionId" = ${query.cursor ?? ''}
+    )
+    SELECT
+      q."submissionId",
+      q."state",
+      q."stateRank",
+      q."candidateId",
+      q."candidateFirstName",
+      q."candidateLastName",
+      q."instrumentKey",
+      q."instrumentVersion",
+      q."instrumentTitle",
+      q."submissionVersion",
+      q."submissionStatus",
+      q."submissionCreatedAt",
+      q."processingStatus",
+      q."draftStatus",
+      q."lastActivityAt"
+    FROM "filtered" q
+    WHERE TRUE ${cursorPredicate}
+    ORDER BY q."stateRank" ASC, q."lastActivityAt" ASC, q."submissionId" ASC
+    LIMIT ${query.limit + 1}
+  `;
+}
+
+export interface DiagnosticQueueRawRow {
+  readonly submissionId: string;
+  readonly state: DiagnosticQueueState;
+  readonly stateRank: number;
+  readonly candidateId: string;
+  readonly candidateFirstName: string | null;
+  readonly candidateLastName: string | null;
+  readonly instrumentKey: string;
+  readonly instrumentVersion: string;
+  readonly instrumentTitle: string;
+  readonly submissionVersion: number;
+  readonly submissionStatus: CurrentDiagnosticSubmissionStatus;
+  readonly submissionCreatedAt: Date | string;
+  readonly processingStatus: DiagnosticQueueStatusInput['processingStatus'];
+  readonly draftStatus: DiagnosticQueueStatusInput['draftStatus'];
+  readonly lastActivityAt: Date | string;
+}
+
+function asDate(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
+}
+
+export function mapDiagnosticQueueRawRow(raw: DiagnosticQueueRawRow): DiagnosticQueueRow {
   return {
-    submissionId: submission.id,
-    state,
+    submissionId: raw.submissionId,
+    state: raw.state,
     candidate: {
-      id: submission.assignment.student.id,
-      firstName: submission.assignment.student.user.firstName,
-      lastName: submission.assignment.student.user.lastName,
+      id: raw.candidateId,
+      firstName: raw.candidateFirstName,
+      lastName: raw.candidateLastName,
     },
-    instrument: submission.assignment.instrumentRef,
-    submission: { version: submission.version, status: submission.status, createdAt: submission.createdAt },
-    processingStatus,
-    draftStatus,
-    lastActivityAt: lastActivityOf(submission.updatedAt, submission.processing),
+    instrument: {
+      instrumentKey: raw.instrumentKey,
+      version: raw.instrumentVersion,
+      title: raw.instrumentTitle,
+    },
+    submission: {
+      version: Number(raw.submissionVersion),
+      status: raw.submissionStatus,
+      createdAt: asDate(raw.submissionCreatedAt),
+    },
+    processingStatus: raw.processingStatus,
+    draftStatus: raw.draftStatus,
+    lastActivityAt: asDate(raw.lastActivityAt),
+  };
+}
+
+export function materializeDiagnosticQueuePage(
+  rawRows: readonly DiagnosticQueueRawRow[],
+  limit: number,
+  mapper: (raw: DiagnosticQueueRawRow) => DiagnosticQueueRow = mapDiagnosticQueueRawRow,
+): Page<DiagnosticQueueRow> {
+  const boundedRows = rawRows.slice(0, limit + 1);
+  const rows = boundedRows.map(mapper);
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  return {
+    items,
+    nextCursor: hasMore ? (items[items.length - 1]?.submissionId ?? null) : null,
   };
 }
 
@@ -196,47 +335,8 @@ export async function listDiagnosticSubmissionsQueue(
   client: PrismaClient,
   ctx: ServiceContext,
   query: DiagnosticQueueQuery,
-): Promise<Page<DiagnosticQueueRow> & { readonly totalCount: number }> {
+): Promise<Page<DiagnosticQueueRow>> {
   assertCapability(ctx.actor, 'DIAGNOSTIC_SUBMISSION_TRACK');
-
-  const submissions = await client.diagnosticSubmission.findMany({
-    where: { status: { in: [...CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES] } },
-    select: {
-      id: true,
-      version: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-      ...queueRowInclude,
-    },
-  });
-
-  const rows = submissions.filter(isUsableDiagnosticSubmission).map(toRow);
-
-  const filtered =
-    query.status === 'ALL'
-      ? rows
-      : query.status === 'ACTION_REQUIRED'
-        ? rows.filter((r) => isActionRequiredState(r.state))
-        : rows.filter((r) => r.state === query.status);
-
-  filtered.sort((a, b) => {
-    const rankDiff = STATE_SORT_RANK[a.state] - STATE_SORT_RANK[b.state];
-    if (rankDiff !== 0) return rankDiff;
-    // Oldest first within a state: staleness matters for a queue.
-    return a.lastActivityAt.getTime() - b.lastActivityAt.getTime();
-  });
-
-  const hasCursor = query.cursor !== undefined;
-  const cursorIndex = hasCursor ? filtered.findIndex((r) => r.submissionId === query.cursor) : -1;
-  const startIndex = hasCursor && cursorIndex !== -1 ? cursorIndex + 1 : 0;
-  const slice = filtered.slice(startIndex, startIndex + query.limit + 1);
-  const hasMore = slice.length > query.limit;
-  const items = hasMore ? slice.slice(0, query.limit) : slice;
-
-  return {
-    totalCount: filtered.length,
-    items,
-    nextCursor: hasMore ? (items[items.length - 1]?.submissionId ?? null) : null,
-  };
+  const rows = await client.$queryRaw<DiagnosticQueueRawRow[]>(buildDiagnosticQueuePageSql(query));
+  return materializeDiagnosticQueuePage(rows, query.limit);
 }
