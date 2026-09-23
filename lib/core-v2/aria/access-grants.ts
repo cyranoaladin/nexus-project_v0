@@ -16,7 +16,7 @@ import type {
   PrismaClient,
 } from '@/core-v2/generated/client';
 import { assertCapability, type Actor } from '@/lib/core-v2/rbac';
-import type { AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
+import { ARIA_FEATURE_KEYS, type AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
 import {
   buildCanonicalAriaEntitlementContext,
   resolveAriaCapabilities,
@@ -35,16 +35,16 @@ export interface CoreV2AriaAccessGrantRecord {
   readonly ariaTier: CoreV2AriaTier;
 }
 
+const ARIA_FEATURE_KEY_SET: ReadonlySet<string> = new Set(ARIA_FEATURE_KEYS);
+
+function isAriaFeatureKey(value: string): value is AriaFeatureKey {
+  return ARIA_FEATURE_KEY_SET.has(value);
+}
+
 export interface CoreV2AriaEntitlements {
   readonly aggregate: CanonicalAriaEntitlementContext;
   readonly byFeatureKey: ReadonlyMap<AriaFeatureKey, CanonicalAriaEntitlementContext>;
   readonly capabilities: AriaCapabilities;
-  /**
-   * Temporary compatibility projection for the pre-scope cockpit resolver.
-   * Derived only from canonical per-feature contexts; Task 3 replaces it
-   * with `byFeatureKey` so a feature string can never flatten course scope.
-   */
-  readonly features: readonly AriaFeatureKey[];
 }
 
 /** Pure, lossless mapping into the shared ARIA entitlement kernel contract. */
@@ -94,16 +94,10 @@ export function buildCoreV2AriaEntitlements(
     byFeatureKey.set(featureKey, buildCanonicalAriaEntitlementContext(records, now));
   }
 
-  const features = [...byFeatureKey]
-    .filter(([, context]) => context.hasGenericAccess)
-    .map(([featureKey]) => featureKey)
-    .sort();
-
   return {
     aggregate,
     byFeatureKey,
     capabilities: resolveAriaCapabilities(aggregate.tier),
-    features,
   };
 }
 
@@ -127,7 +121,9 @@ export async function loadCoreV2AriaAccessGrants(
       ariaTier: true,
     },
   });
-  return rows.map((row) => ({ ...row, featureKey: row.featureKey as AriaFeatureKey }));
+  return rows.flatMap((row) => (
+    isAriaFeatureKey(row.featureKey) ? [{ ...row, featureKey: row.featureKey }] : []
+  ));
 }
 
 /** Resolve one student's grants exclusively through the shared canonical kernel. */

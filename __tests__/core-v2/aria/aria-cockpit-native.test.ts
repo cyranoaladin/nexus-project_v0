@@ -90,10 +90,17 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(cockpit.curriculum.availableCourseKeys).toEqual([]);
   });
 
-  test('a valid AriaAccessGrant makes the matching feature available', async () => {
+  test('a global grant unlocks enrolled courses only for its matching feature', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });
     const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-grant@synthetic.test', accountStatus: 'ACTIVE' } });
+    await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'eds-nsi-terminale',
+        kind: 'SPECIALTY',
+      },
+    });
     await grantCoreV2AriaAccess(h.client, { userId: admin.id, role: 'ADMIN' }, {
       studentId: f.student.id,
       featureKey: 'aria_maths',
@@ -102,7 +109,63 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
 
     const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
     expect(r.status).toBe(200);
-    expect(r.body.data.curriculum.availableCourseKeys.length).toBeGreaterThan(0);
+    expect(r.body.data.curriculum.availableCourseKeys).toContain('maths-terminale-eds');
+    expect(r.body.data.curriculum.lockedCourseKeys).toContain('nsi-terminale-eds');
+  });
+
+  test('a scoped grant never unlocks another academically relevant course of the same feature', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-scoped@synthetic.test', accountStatus: 'ACTIVE' } });
+    await grantCoreV2AriaAccess(h.client, { userId: admin.id, role: 'ADMIN' }, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      courseScopes: ['maths-terminale-eds'],
+    });
+
+    const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(r.status).toBe(200);
+    expect(r.body.data.curriculum.availableCourseKeys).toContain('maths-terminale-eds');
+    expect(r.body.data.curriculum.lockedCourseKeys).toContain('philosophie-terminale');
+  });
+
+  test('two scoped grants of the same feature contribute their union', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-union@synthetic.test', accountStatus: 'ACTIVE' } });
+    const actor = { userId: admin.id, role: 'ADMIN' } as const;
+    await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      courseScopes: ['maths-terminale-eds'],
+    });
+    await grantCoreV2AriaAccess(h.client, actor, {
+      studentId: f.student.id,
+      featureKey: 'aria_maths',
+      courseScopes: ['philosophie-terminale'],
+    });
+
+    const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(r.status).toBe(200);
+    expect(r.body.data.curriculum.availableCourseKeys).toEqual(
+      expect.arrayContaining(['maths-terminale-eds', 'philosophie-terminale']),
+    );
+    expect(r.body.data.curriculum.lockedCourseKeys).toContain('histoire-geo-terminale');
+  });
+
+  test('a scope carried by the wrong feature never unlocks the course', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-wrong-feature@synthetic.test', accountStatus: 'ACTIVE' } });
+    await grantCoreV2AriaAccess(h.client, { userId: admin.id, role: 'ADMIN' }, {
+      studentId: f.student.id,
+      featureKey: 'aria_nsi',
+      courseScopes: ['maths-terminale-eds'],
+    });
+
+    const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(r.status).toBe(200);
+    expect(r.body.data.curriculum.lockedCourseKeys).toContain('maths-terminale-eds');
   });
 
   test('ARIA access tiers default to AUTONOMIE and persist every explicit Core v2 tier', async () => {

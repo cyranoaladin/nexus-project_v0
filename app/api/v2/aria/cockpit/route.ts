@@ -56,7 +56,7 @@ export const GET = defineStaffRoute({
       stmgPathway: student.stmgPathway,
       school: student.school,
       pinnedCourseKeys: profile.pinnedCourseKeys,
-      entitlements: entitlements.features,
+      access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey },
     });
 
     const setup = buildSetup(

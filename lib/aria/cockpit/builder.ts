@@ -220,7 +220,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     stmgPathway: payload.student.stmgPathway,
     school: payload.student.school,
     pinnedCourseKeys: profile.pinnedCourseKeys,
-    entitlements: entitlementsFromPayload(payload),
+    access: { kind: 'LEGACY_FEATURES', featureKeys: entitlementsFromPayload(payload) },
   });
 
   const setup = buildSetup(

@@ -91,7 +91,6 @@ describe('Core v2 AriaAccessGrant canonical adapter (pure)', () => {
       tier: 'ARIA_AUTONOMIE',
     });
     expect(result.capabilities).toMatchObject({ chat: true, resources: true, practice: true, parentReporting: false });
-    expect(result.features).toEqual(['aria_maths']);
   });
 
   test('resolves global SUIVI access from the canonical capability matrix', () => {
@@ -142,24 +141,22 @@ describe('Core v2 AriaAccessGrant canonical adapter (pure)', () => {
     expect(result.byFeatureKey.get('aria_nsi')?.tier).toBe('ARIA_ACCOMPAGNEE');
   });
 
-  test('ignores a date-expired grant in aggregate, feature contexts and compatibility features', () => {
+  test('ignores a date-expired grant in aggregate and feature contexts', () => {
     const result = buildCoreV2AriaEntitlements([
       grant({ id: 'ended', endsAt: new Date('2026-09-23T11:59:59.000Z'), ariaTier: 'ARIA_ACCOMPAGNEE' }),
     ], NOW);
     expect(result.aggregate).toMatchObject({ hasGenericAccess: false, tier: null, grantIds: [] });
     expect(result.byFeatureKey.get('aria_maths')).toMatchObject({ hasGenericAccess: false, tier: null });
     expect(result.capabilities).toMatchObject({ chat: false, resources: false, personalizedCorrection: false });
-    expect(result.features).toEqual([]);
   });
 
-  test('ignores a revoked grant in aggregate, feature contexts and compatibility features', () => {
+  test('ignores a revoked grant in aggregate and feature contexts', () => {
     const result = buildCoreV2AriaEntitlements([
       grant({ id: 'revoked', status: 'REVOKED', ariaTier: 'ARIA_ACCOMPAGNEE' }),
     ], NOW);
     expect(result.aggregate).toMatchObject({ hasGenericAccess: false, tier: null, grantIds: [] });
     expect(result.byFeatureKey.get('aria_maths')).toMatchObject({ hasGenericAccess: false, tier: null });
     expect(result.capabilities).toMatchObject({ chat: false, resources: false, personalizedCorrection: false });
-    expect(result.features).toEqual([]);
   });
 
   test('no grant yields no commercial access or capability', () => {
@@ -173,7 +170,6 @@ describe('Core v2 AriaAccessGrant canonical adapter (pure)', () => {
     });
     expect([...result.byFeatureKey]).toEqual([]);
     expect(Object.values(result.capabilities).every((value) => value === false)).toBe(true);
-    expect(result.features).toEqual([]);
   });
 });
 
@@ -219,7 +215,27 @@ describe('Core v2 AriaAccessGrant repository', () => {
 
     const result = await resolveCoreV2AriaEntitlements(h.client, student.id, NOW);
     expect(result.aggregate).toMatchObject({ tier: 'ARIA_AUTONOMIE', grantIds: ['active-autonomie'] });
-    expect(result.features).toEqual(['aria_maths']);
     expect(result.capabilities).toMatchObject({ chat: true, parentReporting: false, liveSupport: false });
+  });
+
+  test('ignores a corrupt unknown database feature before aggregate capability resolution', async () => {
+    const student = await seedStudent();
+    await h.client.ariaAccessGrant.createMany({
+      data: [
+        { id: 'known-feature', studentId: student.id, featureKey: 'aria_maths', status: 'ACTIVE', startsAt: STARTED_AT, ariaTier: 'ARIA_AUTONOMIE' },
+        { id: 'unknown-feature', studentId: student.id, featureKey: 'aria_admin_bypass', status: 'ACTIVE', startsAt: STARTED_AT, ariaTier: 'ARIA_ACCOMPAGNEE' },
+      ],
+    });
+
+    const rows = await loadCoreV2AriaAccessGrants(h.client, student.id);
+    expect(rows.map(({ id }) => id)).toEqual(['known-feature']);
+
+    const result = await resolveCoreV2AriaEntitlements(h.client, student.id, NOW);
+    expect(result.aggregate).toMatchObject({
+      tier: 'ARIA_AUTONOMIE',
+      grantIds: ['known-feature'],
+    });
+    expect([...result.byFeatureKey.keys()]).toEqual(['aria_maths']);
+    expect(result.capabilities.personalizedCorrection).toBe(false);
   });
 });

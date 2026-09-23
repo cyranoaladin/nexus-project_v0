@@ -159,9 +159,11 @@ export type AriaRagSubject =
 /**
  * Feature keys d'entitlement existantes. P0 ne crée AUCUNE nouvelle feature key :
  * le mapping actuel (NSI → aria_nsi, tout le reste → aria_maths) est conservé
- * tel quel et documenté comme dette P1.
+ * tel quel et documenté comme dette P1. Cette constante est également la
+ * source runtime utilisée pour valider les clés persistées en fail-closed.
  */
-export type AriaFeatureKey = 'aria_maths' | 'aria_nsi';
+export const ARIA_FEATURE_KEYS = ['aria_maths', 'aria_nsi'] as const;
+export type AriaFeatureKey = (typeof ARIA_FEATURE_KEYS)[number];
 
 // ─── Accès ───────────────────────────────────────────────────────────────────
 

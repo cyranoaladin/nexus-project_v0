@@ -11,6 +11,22 @@ import {
   resolveAriaCurriculum,
   type ResolveAriaCurriculumInput,
 } from '@/lib/aria/curriculum/resolver';
+import type { AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
+import type { CanonicalAriaEntitlementContext } from '@/lib/aria/kernel/entitlements';
+
+function canonicalContext(
+  overrides: Partial<CanonicalAriaEntitlementContext> = {},
+): CanonicalAriaEntitlementContext {
+  return {
+    hasGenericAccess: true,
+    hasGlobalAccess: true,
+    courseKeys: [],
+    grantIds: ['grant-test'],
+    evaluatedAt: new Date('2026-09-23T12:00:00.000Z'),
+    tier: 'ARIA_AUTONOMIE',
+    ...overrides,
+  };
+}
 
 function input(overrides: Partial<ResolveAriaCurriculumInput> = {}): ResolveAriaCurriculumInput {
   return {
@@ -20,7 +36,7 @@ function input(overrides: Partial<ResolveAriaCurriculumInput> = {}): ResolveAria
     stmgPathway: null,
     school: null,
     pinnedCourseKeys: [],
-    entitlements: ['aria_maths'],
+    access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
     ...overrides,
   };
 }
@@ -68,7 +84,7 @@ describe('resolveAriaCurriculum', () => {
     const result = resolveAriaCurriculum(
       input({
         specialties: [Subject.MATHEMATIQUES, Subject.NSI],
-        entitlements: ['aria_maths'],
+        access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
       }),
     );
 
@@ -89,7 +105,7 @@ describe('resolveAriaCurriculum', () => {
       const withNsi = resolveAriaCurriculum(
         input({
           specialties: [Subject.MATHEMATIQUES, Subject.NSI],
-          entitlements: ['aria_maths', 'aria_nsi'],
+          access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths', 'aria_nsi'] },
         }),
       );
       expect(withNsi.availableCourseKeys).toContain('nsi-terminale-eds');
@@ -234,12 +250,101 @@ describe('resolveAriaCurriculum', () => {
         input({
           specialties: [Subject.MATHEMATIQUES, Subject.NSI],
           pinnedCourseKeys: ['nsi-terminale-eds'],
-          entitlements: ['aria_maths'],
+          access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
         }),
       );
       const nsi = viewOf(result, 'nsi-terminale-eds');
       expect(nsi?.access.selectedForAria).toBe(true);
       expect(nsi?.access.commerciallyEntitled).toBe(false);
+    });
+  });
+
+  describe('droits canoniques Core v2 par feature et par cours', () => {
+    it('un grant global ne déverrouille que les cours de sa feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          specialties: [Subject.MATHEMATIQUES, Subject.NSI],
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([['aria_maths', canonicalContext()]]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'nsi-terminale-eds')?.access.commerciallyEntitled).toBe(false);
+    });
+
+    it('un grant scoped laisse un autre cours pertinent de la même feature verrouillé', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_maths', canonicalContext({
+                hasGlobalAccess: false,
+                courseKeys: ['maths-terminale-eds'],
+              })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(false);
+      expect(result.lockedCourseKeys).toContain('philosophie-terminale');
+    });
+
+    it('fait l’union de deux grants scoped de la même feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_maths', canonicalContext({
+                hasGlobalAccess: false,
+                courseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
+                grantIds: ['grant-maths', 'grant-philosophie'],
+              })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(true);
+    });
+
+    it('ne déverrouille jamais un cours avec le contexte d’une autre feature', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([
+              ['aria_nsi', canonicalContext({ courseKeys: ['maths-terminale-eds'] })],
+            ]),
+          },
+        }),
+      );
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(false);
+    });
+
+    it('ignore une projection legacy parasite lorsque le discriminant est Core v2', () => {
+      const access = {
+        kind: 'CANONICAL_BY_FEATURE' as const,
+        contexts: new Map<AriaFeatureKey, CanonicalAriaEntitlementContext>([
+          ['aria_maths', canonicalContext({
+            hasGlobalAccess: false,
+            courseKeys: ['maths-terminale-eds'],
+          })],
+        ]),
+        featureKeys: ['aria_maths'],
+      };
+      const result = resolveAriaCurriculum(input({ access }));
+
+      expect(viewOf(result, 'maths-terminale-eds')?.access.commerciallyEntitled).toBe(true);
+      expect(viewOf(result, 'philosophie-terminale')?.access.commerciallyEntitled).toBe(false);
     });
   });
 

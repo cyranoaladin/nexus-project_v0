@@ -27,7 +27,7 @@ const curriculum = resolveAriaCurriculum({
   stmgPathway: null,
   school: 'Lycée Pierre Mendès France',
   pinnedCourseKeys: ['maths-terminale-eds', 'philosophie-terminale'],
-  entitlements: ['aria_maths'],
+  access: { kind: 'LEGACY_FEATURES', featureKeys: ['aria_maths'] },
 });
 
 const skillGraphs = curriculum.courses

@@ -18,9 +18,21 @@ import type {
   AriaCourseProjection,
   AriaCourseView,
   AriaCurriculumDTO,
+  AriaFeatureKey,
 } from '@/lib/aria/cockpit/contracts';
 import { ARIA_CURRICULUM_VERSION } from '@/lib/aria/cockpit/contracts';
+import type { CanonicalAriaEntitlementContext } from '@/lib/aria/kernel/entitlements';
 import { listCoursesForGradeAndTrack } from './catalog';
+
+export type AriaCurriculumAccess =
+  | {
+      readonly kind: 'LEGACY_FEATURES';
+      readonly featureKeys: readonly string[];
+    }
+  | {
+      readonly kind: 'CANONICAL_BY_FEATURE';
+      readonly contexts: ReadonlyMap<AriaFeatureKey, CanonicalAriaEntitlementContext>;
+    };
 
 export interface ResolveAriaCurriculumInput {
   readonly gradeLevel: GradeLevel | null;
@@ -30,8 +42,8 @@ export interface ResolveAriaCurriculumInput {
   readonly school?: string | null;
   /** Clés retenues par l'élève dans son cockpit (profil ARIA). */
   readonly pinnedCourseKeys: readonly AriaCourseKey[];
-  /** Feature keys d'entitlement ACTIVES de l'élève (ex. ['aria_maths']). */
-  readonly entitlements: readonly string[];
+  /** Autorité commerciale explicite : projection V1 ou contextes canoniques Core v2. */
+  readonly access: AriaCurriculumAccess;
 }
 
 /** Champs de `Student` indispensables pour dériver la carte. */
@@ -136,7 +148,9 @@ function isAcademicallyRelevant(
 export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCurriculumDTO {
   const academicProfile = buildAcademicProfile(input);
   const selected = new Set(input.pinnedCourseKeys);
-  const entitlements = new Set(input.entitlements);
+  const legacyFeatures = input.access.kind === 'LEGACY_FEATURES'
+    ? new Set(input.access.featureKeys)
+    : null;
 
   if (!input.gradeLevel || !input.academicTrack) {
     return {
@@ -173,7 +187,13 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
 
     const academicallyRelevant = isAcademicallyRelevant(course, input, selected);
     const productSupported = course.support.level !== 'COMING_SOON';
-    const commerciallyEntitled = entitlements.has(course.requiredFeature);
+    const canonicalContext = input.access.kind === 'CANONICAL_BY_FEATURE'
+      ? input.access.contexts.get(course.requiredFeature)
+      : null;
+    const commerciallyEntitled = legacyFeatures !== null
+      ? legacyFeatures.has(course.requiredFeature)
+      : canonicalContext?.hasGenericAccess === true
+        && (canonicalContext.hasGlobalAccess || canonicalContext.courseKeys.includes(course.key));
     const selectedForAria = selected.has(course.key);
 
     courses.push({
@@ -220,7 +240,7 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
  * demandé par un élève de Terminale générale).
  */
 export function listSelectableCourseKeys(
-  input: Omit<ResolveAriaCurriculumInput, 'pinnedCourseKeys' | 'entitlements'>,
+  input: Omit<ResolveAriaCurriculumInput, 'pinnedCourseKeys' | 'access'>,
 ): readonly AriaCourseKey[] {
   if (!input.gradeLevel || !input.academicTrack) return [];
 
