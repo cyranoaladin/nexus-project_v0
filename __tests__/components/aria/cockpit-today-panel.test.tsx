@@ -29,6 +29,28 @@ describe('AriaTodayPanel', () => {
     expect(screen.getByText('Aucune séance programmée.')).toBeInTheDocument();
   });
 
+  it('keeps the weekly goal but does not claim an empty plan when trajectory is unavailable', () => {
+    render(
+      <AriaTodayPanel
+        cockpit={cockpit({
+          capabilities: {
+            chat: false,
+            trajectory: false,
+            assessments: false,
+            resources: false,
+            nextSession: false,
+            conversationHistory: false,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/180/)).toBeInTheDocument();
+    expect(screen.queryByText('Rien de planifié pour le moment')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rien de planifié pour l’instant')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Fonction non encore disponible pour ce profil')).toHaveLength(3);
+  });
+
   it('lists pending and done items, and the next session when present', () => {
     render(
       <AriaTodayPanel

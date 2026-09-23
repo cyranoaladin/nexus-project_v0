@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
@@ -80,6 +80,15 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     expect(mockAriaChatLauncher).not.toHaveBeenCalled();
     expect(screen.queryByTestId('mock-aria-chat-launcher')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /ouvrir.*aria|démarrer.*chat/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('aria-nav-ARIA'));
+    expect(screen.queryByText('Démarrer une conversation')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Maths|NSI/ })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ouvrir' })[0]!);
+    expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
+    expect(mockAriaChatLauncher).not.toHaveBeenCalled();
 
     await waitFor(() => {
       const forbidden = requestedUrls().filter((url) =>

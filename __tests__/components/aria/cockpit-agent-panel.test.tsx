@@ -83,4 +83,12 @@ describe('AriaAgentPanel', () => {
     expect(screen.queryByRole('button', { name: /Maths/ })).not.toBeInTheDocument();
     expect(screen.queryByText(/abonnement/i)).not.toBeInTheDocument();
   });
+
+  it('fails closed without rendering an active course button when the chat callback is absent', () => {
+    render(<AriaAgentPanel cockpit={cockpit([chattableCourse('m', 'Maths')])} />);
+
+    expect(screen.getByText('Chat ARIA indisponible')).toBeInTheDocument();
+    expect(screen.queryByText('Démarrer une conversation')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Maths/ })).not.toBeInTheDocument();
+  });
 });

@@ -22,6 +22,7 @@ interface AriaAgentPanelProps {
 }
 
 export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
+  const canOpenChat = cockpit.capabilities.chat && onOpenChat !== undefined;
   const chattable = cockpit.curriculum.courses.filter(
     (view) => view.access.academicallyRelevant && view.course.chatSubject !== null && view.access.commerciallyEntitled,
   );
@@ -51,7 +52,7 @@ export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
         </div>
       )}
 
-      {cockpit.capabilities.chat && (
+      {canOpenChat && (
         <Card className="border-white/10 bg-surface-card">
           <CardContent className="py-4">
             <p className="text-xs text-neutral-400">Matières ouvertes</p>
@@ -60,7 +61,7 @@ export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
         </Card>
       )}
 
-      {!cockpit.capabilities.chat ? (
+      {!canOpenChat ? (
         <EmptyState title="Chat ARIA indisponible" body="Le chat ARIA n’est pas encore disponible pour ce profil." />
       ) : (
         <Card className="border-white/10 bg-surface-card">
@@ -96,7 +97,7 @@ export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
         </Card>
       )}
 
-      {cockpit.capabilities.chat && (
+      {canOpenChat && (
         <p className="text-xs text-neutral-500">
           ARIA travaille aujourd’hui à partir de la matière sélectionnée. Le contexte détaillé de ton cours et les
           sources citées arriveront dans une prochaine étape.

@@ -85,6 +85,32 @@ describe('AriaTrajectoryPanel', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the native exam context visible when only trajectory is unavailable', () => {
+    render(
+      <AriaTrajectoryPanel
+        cockpit={cockpit({
+          capabilities: {
+            chat: false,
+            trajectory: false,
+            assessments: false,
+            resources: false,
+            nextSession: false,
+            conversationHistory: false,
+          },
+          examContext: {
+            targetSession: 2027,
+            supported: true,
+            epreuves: [{ id: 'e1', label: 'Philosophie', type: 'ECRIT', coefficient: 8 }],
+          },
+        } as unknown as Partial<AriaCockpitDTO>)}
+      />,
+    );
+
+    expect(screen.getByText('Fonction non encore disponible pour ce profil')).toBeInTheDocument();
+    expect(screen.getByText(/Session d’examen visée/)).toBeInTheDocument();
+    expect(screen.getByText('Philosophie')).toBeInTheDocument();
+  });
+
   it('lists épreuves with and without a coefficient when the exam context is supported', () => {
     render(
       <AriaTrajectoryPanel

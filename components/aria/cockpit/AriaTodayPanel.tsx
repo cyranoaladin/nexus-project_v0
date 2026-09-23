@@ -37,11 +37,15 @@ export function AriaTodayPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
             <p className="text-2xl font-semibold text-neutral-100">
               {today.weeklyGoalMinutes} <span className="text-sm font-normal text-neutral-400">min / semaine</span>
             </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              {today.plannedMinutes !== null
-                ? `${today.plannedMinutes} min planifiées dans ta feuille de route`
-                : 'Rien de planifié pour le moment'}
-            </p>
+            {!cockpit.capabilities.trajectory ? (
+              <CapabilityUnavailable />
+            ) : (
+              <p className="mt-1 text-xs text-neutral-400">
+                {today.plannedMinutes !== null
+                  ? `${today.plannedMinutes} min planifiées dans ta feuille de route`
+                  : 'Rien de planifié pour le moment'}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -80,7 +84,9 @@ export function AriaTodayPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {today.items.length === 0 ? (
+          {!cockpit.capabilities.trajectory ? (
+            <CapabilityUnavailable />
+          ) : today.items.length === 0 ? (
             <EmptyState
               title="Rien de planifié pour l’instant"
               body="Ta feuille de route se remplit au fil de tes séances et de tes bilans."
@@ -114,7 +120,7 @@ export function AriaTodayPanel({ cockpit }: { cockpit: AriaCockpitDTO }) {
               ))}
             </ul>
           )}
-          {pending.length === 0 && today.items.length > 0 && (
+          {cockpit.capabilities.trajectory && pending.length === 0 && today.items.length > 0 && (
             <p className="mt-3 text-xs text-emerald-300">Tout est fait pour aujourd’hui.</p>
           )}
         </CardContent>
