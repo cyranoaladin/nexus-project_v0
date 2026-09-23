@@ -21,17 +21,64 @@ import {
   type Response as PlaywrightResponse,
 } from "@playwright/test";
 import { PrismaClient, Prisma } from "@/core-v2/generated/client";
+import { z } from "zod";
 import { loginViaSigninForm } from "../helpers/auth";
 
 test.describe.configure({ mode: "serial" });
 
-const coreV2DatabaseUrl = process.env.CORE_V2_DATABASE_URL || "";
+function requireDisposableCoreV2DatabaseUrl(): string {
+  if (process.env.E2E_DISPOSABLE_STACK !== "1") {
+    throw new Error(
+      "CORE_V2_QUEUE_E2E_REFUSED: E2E_DISPOSABLE_STACK=1 is required",
+    );
+  }
+
+  const rawUrl = process.env.CORE_V2_DATABASE_URL;
+  if (!rawUrl) {
+    throw new Error(
+      "CORE_V2_QUEUE_E2E_REFUSED: CORE_V2_DATABASE_URL is required",
+    );
+  }
+
+  let target: URL;
+  try {
+    target = new URL(rawUrl);
+  } catch {
+    throw new Error(
+      "CORE_V2_QUEUE_E2E_REFUSED: CORE_V2_DATABASE_URL must be a PostgreSQL URL",
+    );
+  }
+
+  if (
+    target.protocol !== "postgresql:" ||
+    target.hostname !== "localhost" ||
+    target.port !== "5435" ||
+    target.pathname !== "/core_v2_e2e"
+  ) {
+    throw new Error(
+      "CORE_V2_QUEUE_E2E_REFUSED: expected disposable postgresql://localhost:5435/core_v2_e2e target",
+    );
+  }
+
+  return rawUrl;
+}
+
+const coreV2DatabaseUrl = requireDisposableCoreV2DatabaseUrl();
 const prisma = new PrismaClient({
   datasources: { db: { url: coreV2DatabaseUrl } },
 });
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3002";
 const nonce = Date.now();
 const fixturePrefix = `e2e-diagnostics-queue-${nonce}`;
 const CONFIDENTIAL_SENTINEL = `CONFIDENTIAL-ACADEMIC-DRAFT-${nonce}-MUST-NOT-LEAK`;
+const FILLER_COUNT = 21;
+const fillerFixtures = Array.from({ length: FILLER_COUNT }, (_, index) => ({
+  userId: `${fixturePrefix}-filler-user-${index}`,
+  studentId: `${fixturePrefix}-filler-student-${index}`,
+  assignmentId: `${fixturePrefix}-filler-assignment-${index}`,
+  submissionId: `${fixturePrefix}-filler-submission-${index}`,
+  firstName: `QueueFiller${index}`,
+}));
 
 const fixture = {
   householdId: `${fixturePrefix}-household`,
@@ -51,20 +98,96 @@ const fixture = {
   rejectedV2Id: `${fixturePrefix}-rejected-v2`,
 } as const;
 
-type QueueItem = {
-  submissionId: string;
-  candidate: unknown;
-  submission: { version: number; status: string };
-};
+const queueCandidateSchema = z
+  .object({
+    id: z.string().min(1),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+  })
+  .strict();
 
-function asQueueItems(body: unknown): QueueItem[] {
-  const envelope = body as { ok?: unknown; data?: { items?: unknown } };
-  expect(envelope.ok).toBe(true);
-  expect(Array.isArray(envelope.data?.items)).toBe(true);
-  return envelope.data?.items as QueueItem[];
+type QueueCandidate = z.infer<typeof queueCandidateSchema>;
+
+const queueItemSchema = z
+  .object({
+    submissionId: z.string().min(1),
+    state: z.enum([
+      "NOT_PROCESSED",
+      "PROCESSING",
+      "READY_FOR_REVIEW",
+      "VALIDATED_UNPUBLISHED",
+      "PUBLISHED",
+      "FAILED",
+    ]),
+    candidate: queueCandidateSchema,
+    instrument: z
+      .object({
+        instrumentKey: z.string(),
+        version: z.string(),
+        title: z.string(),
+      })
+      .strict(),
+    submission: z
+      .object({
+        version: z.number().int().positive(),
+        status: z.enum(["RECEIVED", "READABLE", "ANALYZED", "REJECTED"]),
+        createdAt: z.string().datetime({ offset: true }),
+      })
+      .strict(),
+    processingStatus: z
+      .enum([
+        "QUEUED",
+        "EXTRACTING",
+        "EXTRACTED",
+        "NO_EXTRACTABLE_TEXT",
+        "EXTRACTION_FAILED",
+      ])
+      .nullable(),
+    draftStatus: z.enum(["DRAFT", "VALIDATED", "PUBLISHED"]).nullable(),
+    lastActivityAt: z.string().datetime({ offset: true }),
+  })
+  .strict();
+
+const queuePageSchema = z
+  .object({
+    items: z.array(queueItemSchema),
+    nextCursor: z.string().min(1).nullable(),
+    totalCount: z.number().int().nonnegative(),
+    listChanged: z.boolean().optional(),
+  })
+  .strict();
+
+const queueEnvelopeSchema = z
+  .object({
+    ok: z.literal(true),
+    data: queuePageSchema,
+  })
+  .strict();
+
+type QueueItem = z.infer<typeof queueItemSchema>;
+type QueuePage = z.infer<typeof queuePageSchema>;
+
+function parseQueuePage(body: unknown): QueuePage {
+  return queueEnvelopeSchema.parse(body).data;
 }
 
 async function cleanupFixture(): Promise<void> {
+  const assignmentIds = [
+    fixture.currentAssignmentId,
+    fixture.rejectedAssignmentId,
+    ...fillerFixtures.map((item) => item.assignmentId),
+  ];
+  const studentIds = [
+    fixture.currentStudentId,
+    fixture.rejectedStudentId,
+    ...fillerFixtures.map((item) => item.studentId),
+  ];
+  const userIds = [
+    fixture.currentUserId,
+    fixture.rejectedUserId,
+    ...fillerFixtures.map((item) => item.userId),
+  ];
+
   await prisma.diagnosticBilanDraft.deleteMany({
     where: { id: fixture.currentDraftId },
   });
@@ -75,24 +198,16 @@ async function cleanupFixture(): Promise<void> {
     where: { id: fixture.currentProcessingId },
   });
   await prisma.diagnosticSubmission.deleteMany({
-    where: {
-      assignmentId: {
-        in: [fixture.currentAssignmentId, fixture.rejectedAssignmentId],
-      },
-    },
+    where: { assignmentId: { in: assignmentIds } },
   });
   await prisma.diagnosticAssignment.deleteMany({
-    where: {
-      id: { in: [fixture.currentAssignmentId, fixture.rejectedAssignmentId] },
-    },
+    where: { id: { in: assignmentIds } },
   });
   await prisma.student.deleteMany({
-    where: {
-      id: { in: [fixture.currentStudentId, fixture.rejectedStudentId] },
-    },
+    where: { id: { in: studentIds } },
   });
   await prisma.user.deleteMany({
-    where: { id: { in: [fixture.currentUserId, fixture.rejectedUserId] } },
+    where: { id: { in: userIds } },
   });
   await prisma.household.deleteMany({ where: { id: fixture.householdId } });
   await prisma.diagnosticInstrumentRef.deleteMany({
@@ -103,24 +218,70 @@ async function cleanupFixture(): Promise<void> {
 async function waitForQueueResponse(
   page: Page,
   status: "ACTION_REQUIRED" | "ALL",
+  cursor: string | null = null,
 ): Promise<PlaywrightResponse> {
   return page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
       response.request().method() === "GET" &&
       url.pathname === "/api/v2/staff/diagnostics/submissions" &&
-      url.searchParams.get("status") === status
+      url.searchParams.get("status") === status &&
+      url.searchParams.get("cursor") === cursor
     );
   });
 }
 
-test.beforeAll(async () => {
-  if (!coreV2DatabaseUrl) {
-    throw new Error(
-      "CORE_V2_DATABASE_URL is required. Run this spec with the disposable two-database HYBRID auth harness.",
+async function parseSuccessfulQueueResponse(
+  response: PlaywrightResponse,
+): Promise<QueuePage> {
+  expect(response.status()).toBe(200);
+  return parseQueuePage(await response.json());
+}
+
+async function collectAllActionRequiredPages(
+  page: Page,
+  firstPage: QueuePage,
+): Promise<QueueItem[]> {
+  const items: QueueItem[] = [];
+  const seenIds = new Set<string>();
+  const seenCursors = new Set<string>();
+  let currentPage = firstPage;
+
+  for (;;) {
+    expect(currentPage.listChanged).not.toBe(true);
+    for (const item of currentPage.items) {
+      expect(
+        seenIds.has(item.submissionId),
+        `duplicate queue id across pages: ${item.submissionId}`,
+      ).toBe(false);
+      seenIds.add(item.submissionId);
+      items.push(item);
+    }
+
+    const cursor = currentPage.nextCursor;
+    if (!cursor) break;
+    expect(
+      seenCursors.has(cursor),
+      "queue pagination must not repeat a cursor",
+    ).toBe(false);
+    seenCursors.add(cursor);
+
+    const params = new URLSearchParams({
+      status: "ACTION_REQUIRED",
+      limit: "20",
+      cursor,
+    });
+    const response = await page.request.get(
+      `${BASE_URL}/api/v2/staff/diagnostics/submissions?${params.toString()}`,
     );
+    expect(response.status()).toBe(200);
+    currentPage = parseQueuePage(await response.json());
   }
 
+  return items;
+}
+
+test.beforeAll(async () => {
   await cleanupFixture();
 
   const v1CreatedAt = new Date("2026-09-23T08:00:00.000Z");
@@ -168,6 +329,16 @@ test.beforeAll(async () => {
         accountStatus: "ACTIVE",
         activatedAt: new Date("2026-09-01T10:00:00.000Z"),
       },
+      ...fillerFixtures.map((item, index) => ({
+        id: item.userId,
+        email: `queue-filler-${nonce}-${index}@confidential.example.test`,
+        phone: `+2160001${String(index).padStart(4, "0")}`,
+        role: "ELEVE" as const,
+        firstName: item.firstName,
+        lastName: "Candidate",
+        accountStatus: "ACTIVE" as const,
+        activatedAt: new Date("2026-09-01T10:00:00.000Z"),
+      })),
     ],
   });
   await prisma.student.createMany({
@@ -182,6 +353,11 @@ test.beforeAll(async () => {
         userId: fixture.rejectedUserId,
         householdId: fixture.householdId,
       },
+      ...fillerFixtures.map((item) => ({
+        id: item.studentId,
+        userId: item.userId,
+        householdId: fixture.householdId,
+      })),
     ],
   });
 
@@ -207,6 +383,11 @@ test.beforeAll(async () => {
         studentId: fixture.rejectedStudentId,
         ...assignmentSnapshot,
       },
+      ...fillerFixtures.map((item) => ({
+        id: item.assignmentId,
+        studentId: item.studentId,
+        ...assignmentSnapshot,
+      })),
     ],
   });
 
@@ -271,6 +452,23 @@ test.beforeAll(async () => {
         createdAt: v2CreatedAt,
         updatedAt: v2CreatedAt,
       },
+      ...fillerFixtures.map((item, index) => {
+        const createdAt = new Date(v1CreatedAt.getTime() + index * 60_000);
+        return {
+          id: item.submissionId,
+          assignmentId: item.assignmentId,
+          version: 1,
+          storageKey: `${fixturePrefix}/filler-${index}.pdf`,
+          originalFilename: `filler-${index}.pdf`,
+          mimeType: "application/pdf",
+          sizeBytes: 500 + index,
+          sha256: String((index % 9) + 1).repeat(64),
+          status: "RECEIVED" as const,
+          submittedById: item.userId,
+          createdAt,
+          updatedAt: createdAt,
+        };
+      }),
     ],
   });
 
@@ -315,8 +513,11 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await cleanupFixture().catch(() => undefined);
-  await prisma.$disconnect();
+  try {
+    await cleanupFixture();
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 test("ADMIN sees only each assignment current usable submission, with a PII-minimal queue payload, and opens the canonical detail", async ({
@@ -349,11 +550,20 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
   const queueResponsePromise = waitForQueueResponse(page, "ACTION_REQUIRED");
   await actionRequired.click();
   const queueResponse = await queueResponsePromise;
-  expect(queueResponse.status()).toBe(200);
   await expect(actionRequired).toHaveAttribute("aria-pressed", "true");
 
-  const queueBody: unknown = await queueResponse.json();
-  const items = asQueueItems(queueBody);
+  // Validate every field of every returned item. All nested objects are
+  // strict, so adding storage metadata, submitter ids, hashes, filenames or
+  // any other unapproved field fails this boundary proof immediately.
+  parseQueuePage(await initialQueueResponse.json());
+  parseQueuePage(await allResponse.json());
+  const firstActionRequiredPage = await parseSuccessfulQueueResponse(
+    queueResponse,
+  );
+  const items = await collectAllActionRequiredPages(
+    page,
+    firstActionRequiredPage,
+  );
   const submissionIds = items.map((item) => item.submissionId);
 
   // These assertions are deliberately soft so the initial RED captures the
@@ -371,11 +581,12 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
     "the current RECEIVED v2 must be the operational row",
   ).toBeDefined();
   if (!currentItem) throw new Error("CURRENT_V2_MISSING_FROM_QUEUE");
-  expect.soft(currentItem.candidate).toEqual({
+  const expectedCurrentCandidate: QueueCandidate = {
     id: fixture.currentStudentId,
     firstName: "QueueCurrent",
     lastName: "Candidate",
-  });
+  };
+  expect.soft(currentItem.candidate).toEqual(expectedCurrentCandidate);
 
   const rejectedFallbackItem = items.find(
     (item) => item.submissionId === fixture.rejectedFallbackV1Id,
@@ -386,13 +597,16 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
   ).toBeDefined();
   if (!rejectedFallbackItem)
     throw new Error("REJECTED_FALLBACK_V1_MISSING_FROM_QUEUE");
-  expect.soft(rejectedFallbackItem.candidate).toEqual({
+  const expectedRejectedFallbackCandidate: QueueCandidate = {
     id: fixture.rejectedStudentId,
     firstName: "QueueRejectedFallback",
     lastName: "Candidate",
-  });
+  };
+  expect
+    .soft(rejectedFallbackItem.candidate)
+    .toEqual(expectedRejectedFallbackCandidate);
 
-  const serializedQueue = JSON.stringify(queueBody);
+  const serializedQueue = JSON.stringify(items);
   expect.soft(serializedQueue).not.toContain(CONFIDENTIAL_SENTINEL);
   for (const forbiddenKey of [
     "reviewNote",
@@ -413,6 +627,50 @@ test("ADMIN sees only each assignment current usable submission, with a PII-mini
       .soft(serializedQueue, `queue payload must omit ${forbiddenKey}`)
       .not.toContain(`"${forbiddenKey}"`);
   }
+
+  // Exercise the client's own pagination too. The fixture has more than the
+  // UI page size, so at least one real "Afficher plus" request is mandatory.
+  let uiCursor = firstActionRequiredPage.nextCursor;
+  const seenUiCursors = new Set<string>();
+  let uiAdditionalPageCount = 0;
+  while (uiCursor) {
+    expect(
+      seenUiCursors.has(uiCursor),
+      "UI queue pagination must not repeat a cursor",
+    ).toBe(false);
+    seenUiCursors.add(uiCursor);
+
+    const loadMore = page.getByRole("button", {
+      name: "Afficher plus",
+      exact: true,
+    });
+    await expect(loadMore).toBeVisible();
+    const nextUiResponsePromise = waitForQueueResponse(
+      page,
+      "ACTION_REQUIRED",
+      uiCursor,
+    );
+    await loadMore.click();
+    const nextUiPage = await parseSuccessfulQueueResponse(
+      await nextUiResponsePromise,
+    );
+    expect(nextUiPage.listChanged).not.toBe(true);
+    uiCursor = nextUiPage.nextCursor;
+    uiAdditionalPageCount += 1;
+  }
+  expect(uiAdditionalPageCount).toBeGreaterThan(0);
+  await expect(
+    page.getByRole("button", { name: "Afficher plus", exact: true }),
+  ).toHaveCount(0);
+
+  const detailLinks = page.locator(
+    'a[href^="/dashboard/admin/diagnostics-candidat-libre/"]',
+  );
+  const uiSubmissionIds = (await detailLinks.evaluateAll((links) =>
+    links.map((link) => link.getAttribute("href")?.split("/").pop() ?? ""),
+  )).filter(Boolean);
+  expect(new Set(uiSubmissionIds).size).toBe(uiSubmissionIds.length);
+  expect([...uiSubmissionIds].sort()).toEqual([...submissionIds].sort());
 
   // The confidential sentinel belongs to the detail/draft only, never to
   // the operational list, and no historical/rejected version gets a link.
