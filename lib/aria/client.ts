@@ -230,9 +230,25 @@ export async function fetchAriaConversationHistory(
       const coreMessages = Array.isArray(body.messages) ? body.messages : [];
       const mapped = coreMessages.map((rawMessage) => {
         const message = object(rawMessage);
-        return { messageId: message.id, turnId: message.turnId, role: String(message.role).toLowerCase(), content: message.content, status: 'COMPLETED', citations: message.citations ?? [], feedback: null };
+        const role = String(message.role).toLowerCase();
+        if (typeof message.id !== 'string'
+          || !(message.turnId === null || typeof message.turnId === 'string')
+          || !['user', 'assistant', 'system'].includes(role)
+          || typeof message.content !== 'string'
+          || !Array.isArray(message.citations)) {
+          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        }
+        return {
+          id: message.id,
+          turnId: message.turnId,
+          role: role as AriaClientMessage['role'],
+          content: message.content,
+          status: 'COMPLETED' as const,
+          citations: message.citations as AriaClientMessage['citations'],
+          feedback: null,
+        };
       });
-      return { messages: mapped as AriaClientMessage[], activeTurn: null };
+      return { messages: mapped, activeTurn: null };
     }
     const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
     if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {

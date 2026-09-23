@@ -200,8 +200,8 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
         conversationId,
         userMessageId: userMessage.id,
         assistantMessageId: assistantMessage.id,
-        status: 'PENDING',
-        disposition: 'RESERVED',
+        status: 'PENDING' as const,
+        disposition: 'RESERVED' as const,
       };
     }).catch((error: unknown) => {
       if (error instanceof AriaError) throw error;

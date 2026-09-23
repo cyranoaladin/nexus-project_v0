@@ -8,6 +8,7 @@ import { CoreV2AriaConversationRepository } from '@/lib/core-v2/aria/conversatio
 import { buildCoreV2AriaConversationContext } from '@/lib/core-v2/aria/conversation-context';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { ConflictError, ForbiddenError, NotFoundError, ValidationError } from '@/lib/core-v2/errors';
+import { isCoreV2AriaConversationEnabled } from '@/lib/core-v2/aria/recovery-config';
 
 function mapConversationError(error: unknown): never {
   if (!(error instanceof AriaError)) throw error;
@@ -21,6 +22,9 @@ function mapConversationError(error: unknown): never {
 export const POST = defineStaffRoute({
   body: ariaChatRequestSchema,
   handler: async ({ client, ctx, body }) => {
+    if (!isCoreV2AriaConversationEnabled()) {
+      throw new ForbiddenError('Le chat ARIA Core v2 n’est pas encore disponible pour ce profil.');
+    }
     try {
       const context = await buildCoreV2AriaConversationContext(client, ctx, {
         courseKey: body!.courseKey,

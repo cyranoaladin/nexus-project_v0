@@ -45,7 +45,6 @@ export function buildCoreV2AriaConversationAuthorization(input: {
     academicTrack: input.student.academicTrack,
     stmgPathway: input.student.stmgPathway,
     specialties: input.student.specialties,
-    school: input.student.school,
     academicEnrollments: input.student.academicEnrollments,
   });
   if (!academicallyRelevantCourseKeys.includes(input.courseKey)) {

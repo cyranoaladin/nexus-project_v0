@@ -63,7 +63,7 @@ export function useAriaConversation(input: Readonly<{
   initialCourseKey?: string;
 }>) {
   const session = useCanonicalSession();
-  const authority = session?.user?.authority === 'CORE_V2' ? 'CORE_V2' as const : 'V1' as const;
+  const authority = session?.data?.user?.authority === 'CORE_V2' ? 'CORE_V2' as const : 'V1' as const;
   const [courses, setCourses] = useState<readonly AriaClientCourse[]>([]);
   const [selectedCourseKey, setSelectedCourseKey] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
