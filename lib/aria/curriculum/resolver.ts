@@ -211,7 +211,11 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
     }
     if (selectedForAria) pinnedCourseKeys.push(course.key);
 
-    if (!productSupported) {
+    if (!academicallyRelevant) {
+      // Catalogue candidates that the student does not actually follow (most
+      // notably unselected options) are neither available nor locked tasks.
+      // The independent access dimensions remain visible on the course view.
+    } else if (!productSupported) {
       unsupportedCourseKeys.push(course.key);
     } else if (commerciallyEntitled) {
       availableCourseKeys.push(course.key);

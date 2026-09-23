@@ -31,7 +31,13 @@ function deriveSetupState(
 export const GET = defineStaffRoute({
   handler: async ({ client, ctx }) => {
     const student = await loadCoreV2AriaStudentContext(client, ctx);
-    const ariaProfile = await getCoreV2AriaCockpitProfile(client, student.studentId);
+    const ariaProfile = await getCoreV2AriaCockpitProfile(client, student.studentId, {
+      gradeLevel: student.gradeLevel,
+      academicTrack: student.academicTrack,
+      specialties: student.specialties,
+      stmgPathway: student.stmgPathway,
+      academicEnrollments: student.academicEnrollments,
+    });
     const academicProfile = buildAcademicProfile({
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
@@ -66,6 +72,7 @@ export const PUT = defineStaffRoute({
         academicTrack: student.academicTrack,
         specialties: student.specialties,
         stmgPathway: student.stmgPathway,
+        academicEnrollments: student.academicEnrollments,
       });
     } catch (caught) {
       // Translated to a CoreV2DomainError so `defineStaffRoute`'s uniform

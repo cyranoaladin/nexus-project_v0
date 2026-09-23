@@ -22,9 +22,11 @@ import {
   type AriaLearningGoal,
   type AriaPreferencesDTO,
 } from '@/lib/aria/cockpit/contracts';
-import { isKnownAriaCourseKey } from '@/lib/aria/curriculum/catalog';
+import { getAriaCourse, isKnownAriaCourseKey } from '@/lib/aria/curriculum/catalog';
 import { listSelectableCourseKeys } from '@/lib/aria/curriculum/resolver';
 import { isSupportedExamSession } from '@/lib/aria/curriculum/exam-context';
+import { getCourse } from '@/lib/curriculum/catalog';
+import type { CoreV2AriaAcademicEnrollment } from '@/lib/core-v2/aria/student-context';
 import {
   AriaProfileValidationError,
   defaultAriaCockpitProfile,
@@ -44,10 +46,70 @@ interface ProfileRow {
   onboardingCompletedAt: Date | null;
 }
 
-function toDTO(row: ProfileRow): AriaCockpitProfileDTO {
+export interface CoreV2AriaProfileAcademicContext extends AriaProfileAcademicContext {
+  readonly academicEnrollments: readonly CoreV2AriaAcademicEnrollment[];
+}
+
+function enrollmentBacksAriaCourse(
+  courseKey: string,
+  academicContext: CoreV2AriaProfileAcademicContext,
+): boolean {
+  const ariaCourse = getAriaCourse(courseKey);
+  if (!ariaCourse) return false;
+  if (ariaCourse.role === 'CORE' || ariaCourse.role === 'TRACK_MODULE') return true;
+
+  return academicContext.academicEnrollments.some((enrollment) => {
+    if (enrollment.kind !== ariaCourse.role) return false;
+    const canonicalCourse = getCourse(enrollment.courseKey);
+    if (!canonicalCourse || canonicalCourse.gradeLevel !== ariaCourse.gradeLevel) return false;
+    if (
+      academicContext.academicTrack
+      && !canonicalCourse.tracks.includes(academicContext.academicTrack)
+    ) return false;
+
+    if (ariaCourse.role === 'SPECIALTY') {
+      return canonicalCourse.kind === 'SPECIALTY'
+        && ariaCourse.specialty !== undefined
+        && canonicalCourse.legacySubject === ariaCourse.specialty;
+    }
+
+    return canonicalCourse.kind === 'OPTION'
+      && canonicalCourse.courseKey === `opt-${ariaCourse.key}`;
+  });
+}
+
+/**
+ * Exact Core v2 pin set: catalogue applicability is necessary, while every
+ * SPECIALTY/OPTION additionally requires a real current-year enrollment.
+ * CORE/TRACK_MODULE courses remain legitimately derived from grade/track.
+ */
+export function listAllowedCoreV2PinnedCourseKeys(
+  academicContext: CoreV2AriaProfileAcademicContext,
+): readonly string[] {
+  return listSelectableCourseKeys({
+    gradeLevel: academicContext.gradeLevel,
+    academicTrack: academicContext.academicTrack,
+    specialties: academicContext.specialties,
+    stmgPathway: academicContext.stmgPathway,
+    school: null,
+  }).filter((courseKey) => enrollmentBacksAriaCourse(courseKey, academicContext));
+}
+
+export function filterCoreV2PinnedCourseKeys(
+  pinnedCourseKeys: readonly string[],
+  academicContext: CoreV2AriaProfileAcademicContext,
+): string[] {
+  const allowed = new Set(listAllowedCoreV2PinnedCourseKeys(academicContext));
+  return pinnedCourseKeys.filter((key) => isKnownAriaCourseKey(key) && allowed.has(key));
+}
+
+function toDTO(
+  row: ProfileRow,
+  academicContext: CoreV2AriaProfileAcademicContext,
+): AriaCockpitProfileDTO {
   return {
     targetSession: row.targetSession,
-    pinnedCourseKeys: row.pinnedCourseKeys.filter((key) => isKnownAriaCourseKey(key)),
+    pinnedCourseKeys: filterCoreV2PinnedCourseKeys(row.pinnedCourseKeys, academicContext),
     weeklyGoalMinutes: row.weeklyGoalMinutes,
     learningGoals: row.learningGoals as readonly AriaLearningGoal[],
     preferences: (row.preferences && typeof row.preferences === 'object' ? row.preferences : {}) as AriaPreferencesDTO,
@@ -59,6 +121,7 @@ function toDTO(row: ProfileRow): AriaCockpitProfileDTO {
 export async function getCoreV2AriaCockpitProfile(
   client: PrismaClient,
   studentId: string,
+  academicContext: CoreV2AriaProfileAcademicContext,
 ): Promise<AriaCockpitProfileDTO> {
   const row = await client.ariaCockpitProfileCoreV2.findUnique({
     where: { studentId },
@@ -72,7 +135,7 @@ export async function getCoreV2AriaCockpitProfile(
       onboardingCompletedAt: true,
     },
   });
-  return row ? toDTO(row as ProfileRow) : defaultAriaCockpitProfile();
+  return row ? toDTO(row as ProfileRow, academicContext) : defaultAriaCockpitProfile();
 }
 
 /** @throws {AriaProfileValidationError} if an input is inconsistent with the student's real schooling. */
@@ -80,7 +143,7 @@ export async function upsertCoreV2AriaCockpitProfile(
   client: PrismaClient,
   studentId: string,
   input: AriaProfileUpdateInput,
-  academicContext: AriaProfileAcademicContext,
+  academicContext: CoreV2AriaProfileAcademicContext,
 ): Promise<AriaCockpitProfileDTO> {
   const issues: string[] = [];
 
@@ -90,16 +153,8 @@ export async function upsertCoreV2AriaCockpitProfile(
     const unknown = unique.filter((key) => !isKnownAriaCourseKey(key));
     if (unknown.length > 0) issues.push(`cours inconnus du catalogue: ${unknown.join(', ')}`);
 
-    const selectable = new Set(
-      listSelectableCourseKeys({
-        gradeLevel: academicContext.gradeLevel,
-        academicTrack: academicContext.academicTrack,
-        specialties: academicContext.specialties,
-        stmgPathway: academicContext.stmgPathway,
-        school: null,
-      }),
-    );
-    const notApplicable = unique.filter((key) => isKnownAriaCourseKey(key) && !selectable.has(key));
+    const allowed = new Set(listAllowedCoreV2PinnedCourseKeys(academicContext));
+    const notApplicable = unique.filter((key) => isKnownAriaCourseKey(key) && !allowed.has(key));
     if (notApplicable.length > 0) issues.push(`cours hors de la scolarité de l'élève: ${notApplicable.join(', ')}`);
 
     pinnedCourseKeys = unique;
@@ -150,5 +205,5 @@ export async function upsertCoreV2AriaCockpitProfile(
     },
   });
 
-  return toDTO(row as ProfileRow);
+  return toDTO(row as ProfileRow, academicContext);
 }

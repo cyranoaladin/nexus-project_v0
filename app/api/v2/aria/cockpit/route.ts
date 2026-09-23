@@ -45,7 +45,13 @@ export const GET = defineStaffRoute({
   handler: async ({ client, ctx }) => {
     const student = await loadCoreV2AriaStudentContext(client, ctx);
     const [profile, entitlements] = await Promise.all([
-      getCoreV2AriaCockpitProfile(client, student.studentId),
+      getCoreV2AriaCockpitProfile(client, student.studentId, {
+        gradeLevel: student.gradeLevel,
+        academicTrack: student.academicTrack,
+        specialties: student.specialties,
+        stmgPathway: student.stmgPathway,
+        academicEnrollments: student.academicEnrollments,
+      }),
       resolveCoreV2AriaEntitlements(client, student.studentId),
     ]);
 

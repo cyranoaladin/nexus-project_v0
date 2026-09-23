@@ -130,6 +130,8 @@ describe('resolveAriaCurriculum', () => {
       const sansOption = viewOf(result, 'maths-complementaires-terminale');
       expect(sansOption?.access.academicallyRelevant).toBe(false);
       expect(result.requiredCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
 
       const avecOption = resolveAriaCurriculum(
         input({
@@ -140,6 +142,7 @@ describe('resolveAriaCurriculum', () => {
       expect(
         viewOf(avecOption, 'maths-complementaires-terminale')?.access.academicallyRelevant,
       ).toBe(true);
+      expect(avecOption.availableCourseKeys).toContain('maths-complementaires-terminale');
     });
   });
 

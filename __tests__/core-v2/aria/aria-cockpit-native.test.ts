@@ -90,7 +90,7 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(cockpit.curriculum.availableCourseKeys).toEqual([]);
   });
 
-  test('a global grant unlocks enrolled courses only for its matching feature', async () => {
+  test('a global grant unlocks the enrolled matching-feature course without making an unenrolled option actionable', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });
     const admin = await h.client.user.create({ data: { role: 'ADMIN', email: 'admin-grant@synthetic.test', accountStatus: 'ACTIVE' } });
@@ -111,6 +111,13 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(r.status).toBe(200);
     expect(r.body.data.curriculum.availableCourseKeys).toContain('maths-terminale-eds');
     expect(r.body.data.curriculum.lockedCourseKeys).toContain('nsi-terminale-eds');
+    expect(r.body.data.curriculum.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+    expect(r.body.data.curriculum.courses).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        course: expect.objectContaining({ key: 'maths-complementaires-terminale' }),
+        access: expect.objectContaining({ academicallyRelevant: false, selectedForAria: false }),
+      }),
+    ]));
   });
 
   test('a scoped grant never unlocks another academically relevant course of the same feature', async () => {
@@ -269,7 +276,7 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
 });
 
 describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () => {
-  test('default profile, update persists across reload, pinning validated against real schooling', async () => {
+  test('an actually enrolled specialty can be pinned and persists across reload', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });
 
@@ -296,6 +303,107 @@ describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () =>
     // nsi-terminale-eds is academically real, but this student has no NSI enrollment.
     const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', { pinnedCourseKeys: ['nsi-terminale-eds'] });
     expect(r.status).toBe(400);
+  });
+
+  test('unenrolled maths expertes cannot be pinned even though the catalogue allows it for Terminale', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['maths-expertes-terminale'],
+    });
+
+    expect(r.status).toBe(400);
+  });
+
+  test('unenrolled maths complémentaires cannot be pinned even though the catalogue allows it for Terminale', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['maths-complementaires-terminale'],
+    });
+
+    expect(r.status).toBe(400);
+  });
+
+  test('an actually enrolled option can be pinned', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'opt-maths-expertes-terminale',
+        kind: 'OPTION',
+      },
+    });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['maths-expertes-terminale'],
+    });
+
+    expect(r.status).toBe(200);
+    expect(r.body.data.ariaProfile.pinnedCourseKeys).toEqual(['maths-expertes-terminale']);
+  });
+
+  test('a valid core course can be pinned without inventing a StudentCourseEnrollment', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['philosophie-terminale'],
+    });
+
+    expect(r.status).toBe(200);
+    expect(r.body.data.ariaProfile.pinnedCourseKeys).toEqual(['philosophie-terminale']);
+  });
+
+  test('a course from another grade cannot be pinned', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['maths-premiere-eds'],
+    });
+
+    expect(r.status).toBe(400);
+  });
+
+  test('a pin becomes stale when its StudentCourseEnrollment is removed and is filtered from profile and cockpit reads', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    const optionEnrollment = await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'opt-maths-expertes-terminale',
+        kind: 'OPTION',
+      },
+    });
+    const saved = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['maths-expertes-terminale'],
+      completeOnboarding: true,
+    });
+    expect(saved.status).toBe(200);
+    expect(saved.body.data.ariaProfile.pinnedCourseKeys).toEqual(['maths-expertes-terminale']);
+
+    await h.client.studentCourseEnrollment.delete({ where: { id: optionEnrollment.id } });
+
+    const profile = await callGet(profileRoute, '/api/v2/aria/cockpit/profile');
+    expect(profile.status).toBe(200);
+    expect(profile.body.data.ariaProfile.pinnedCourseKeys).toEqual([]);
+    expect(profile.body.data.setupState).toBe('NO_COURSE_SELECTED');
+
+    const cockpit = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(cockpit.status).toBe(200);
+    expect(cockpit.body.data.profile.pinnedCourseKeys).toEqual([]);
+    expect(cockpit.body.data.curriculum.pinnedCourseKeys).toEqual([]);
+    expect(cockpit.body.data.curriculum.availableCourseKeys).not.toContain('maths-expertes-terminale');
+    expect(cockpit.body.data.curriculum.courses).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        course: expect.objectContaining({ key: 'maths-expertes-terminale' }),
+        access: expect.objectContaining({ academicallyRelevant: false, selectedForAria: false }),
+      }),
+    ]));
   });
 
   test('another Core v2 student cannot read or overwrite this profile', async () => {
