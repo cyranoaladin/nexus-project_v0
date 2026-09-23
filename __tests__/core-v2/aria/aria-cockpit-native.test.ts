@@ -45,6 +45,7 @@ async function seedCoreV2OnlyStudent(overrides: {
   year?: Awaited<ReturnType<typeof seedAcademicYear>>;
   firstName?: string;
   gradeLevel?: 'PREMIERE' | 'TERMINALE';
+  specialtyCourseKeys?: readonly string[];
 } = {}) {
   const year = overrides.year ?? (await seedAcademicYear(h.client, 2026, 'CURRENT'));
   const gradeLevel = overrides.gradeLevel ?? 'TERMINALE';
@@ -62,10 +63,14 @@ async function seedCoreV2OnlyStudent(overrides: {
   const enrollment = await h.client.studentAcademicYearEnrollment.create({
     data: { studentId: student.id, academicYearId: year.id, status: 'ACTIVE', gradeLevel, academicTrack: 'EDS_GENERALE' },
   });
-  const courseKey = gradeLevel === 'TERMINALE' ? 'eds-maths-terminale' : 'eds-maths-premiere';
-  await h.client.studentCourseEnrollment.create({
-    data: { academicYearEnrollmentId: enrollment.id, courseKey, kind: 'SPECIALTY' },
-  });
+  const specialtyCourseKeys = overrides.specialtyCourseKeys ?? [
+    gradeLevel === 'TERMINALE' ? 'eds-maths-terminale' : 'eds-maths-premiere',
+  ];
+  for (const courseKey of specialtyCourseKeys) {
+    await h.client.studentCourseEnrollment.create({
+      data: { academicYearEnrollmentId: enrollment.id, courseKey, kind: 'SPECIALTY' },
+    });
+  }
   return { year, user, household, student, enrollment };
 }
 
@@ -305,6 +310,35 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
 });
 
 describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () => {
+  test('unmapped native HGGSP/HLP enrollments keep the academic profile complete without inventing ARIA courses', async () => {
+    const f = await seedCoreV2OnlyStudent({
+      specialtyCourseKeys: ['eds-hggsp-terminale', 'eds-hlp-terminale'],
+    });
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+
+    const initial = await callGet(profileRoute, '/api/v2/aria/cockpit/profile');
+    expect(initial.status).toBe(200);
+    expect(initial.body.data.academicProfile.specialties).toEqual([]);
+    expect(initial.body.data.academicProfile.incomplete).toBe(false);
+    expect(initial.body.data.academicProfile.missingFields).not.toContain('specialties');
+    expect(initial.body.data.setupState).toBe('ONBOARDING_REQUIRED');
+
+    const update = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['philosophie-terminale'],
+      completeOnboarding: true,
+    });
+    expect(update.status).toBe(200);
+    expect(update.body.data.setupState).toBe('READY');
+
+    const cockpit = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(cockpit.status).toBe(200);
+    expect(cockpit.body.data.setup.state).toBe('READY');
+    expect(cockpit.body.data.curriculum.academicProfile.specialties).toEqual([]);
+    expect(cockpit.body.data.curriculum.courses).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ course: expect.objectContaining({ role: 'SPECIALTY' }) }),
+    ]));
+  });
+
   test('an actually enrolled specialty can be pinned and persists across reload', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });

@@ -25,6 +25,8 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Le cycle CI suivant a révélé une régression V1 dans la lane ARIA desktop : trois parcours historiques ne pouvaient plus ouvrir une matière académiquement suivie mais hors sélection commerciale.
 - La revue automatisée fraîche sur `f068596e39ebc0a1f7201b021aae0d90e8b9a0c4` a détecté un autre chemin legacy : ouvrir un workspace Core v2 déclenchait encore mastery, next-best-action et workshops sous `/api/aria/**`.
 - La première CI du correctif workspace a exposé deux événements distincts : un timeout de hook hors diff dans `double-booking.test.ts`, reproduit ensuite vert 6/6 sur base jetable isolée, et une vraie lacune de la nouvelle contre-épreuve V1, qui attendait le cockpit sans terminer d'abord son onboarding réel.
+- La revue automatisée fraîche sur `4eef6863f036e8050872ee1a75f63d6a74fb54d3` a relevé deux P1 : une inscription Core v2 HGGSP/HLP valide était confondue avec une spécialité scolaire absente parce que sa projection legacy `Subject` est volontairement vide ; et l'erreur de défense contre plusieurs inscriptions actives incluait le `studentId` stable du mineur dans un message journalisé.
+- L'audit du diff a aussi confirmé qu'une modification de cette branche avait altéré le contrat V1 du parent `7399c1d` : une option non pinnée était devenue académiquement pertinente et disponible, alors que V1 exige historiquement une sélection explicite.
 
 ## Décisions prises
 
@@ -33,13 +35,15 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - `featureKey`, `ariaTier` et `courseScopes` restent trois dimensions distinctes. Les contexts par feature gouvernent l'accès aux cours ; le contexte agrégé gouverne les capacités de formule.
 - Un scope vide signifie `GLOBAL`; un scope non vide reste limité aux cours explicitement listés.
 - Les pins Core v2 reposent sur les `StudentCourseEnrollment` réelles, plus les cours core/track obligatoires. Les pins devenues stale sont filtrées à la lecture.
-- Le bootstrap V1 reste inchangé : les options théoriquement sélectionnables restent proposées sous `LEGACY_FEATURES`. Cette décision produit explicite est couverte par les tests V1 ; elle ne rouvre pas le chemin Core v2, qui reste enrollment-backed.
+- Le comportement V1 du parent reste inchangé : sous `LEGACY_FEATURES`, une option n'est académiquement pertinente et disponible que si elle est déjà pinnée. Core v2 reste indépendamment fondé sur les `StudentCourseEnrollment` réelles.
 - `chat` est une capability de déploiement explicite : V1 `true`, Core v2 `false`. Aucune route `/api/aria/**` n'est appelée par la session Core v2.
 - `courseWorkspace` est également une capability de déploiement explicite : V1 `true`, Core v2 `false`. Quand elle est fausse, le cockpit ne transmet aucun callback d'ouverture, n'affiche aucun bouton `Ouvrir` et ne peut donc monter ni les effets mastery/NBA ni le composant workshops legacy. Les routes natives correspondantes restent volontairement hors périmètre jusqu'à la PR C.
 - Les capacités indisponibles rendent un état neutre unique, distinct de `AVAILABLE_EMPTY`.
 - Le seeder E2E refuse toute cible qui n'est pas exactement la base `core_v2_e2e` sur les hôtes/ports locaux ou compose autorisés, même si le marker jetable est présent. Les erreurs ne journalisent jamais l'URL ou les credentials.
 - Le contexte étudiant ARIA possède désormais une projection dédiée minimale : identifiants et noms nécessaires, au plus deux inscriptions `ACTIVE` de l'année `CURRENT`, champs scolaires utiles et clés/types de cours. Email, téléphone, date de naissance, household, parents, statut de compte et timestamps ne sont ni sélectionnés ni retournés.
 - Le 404 ARIA Core v2 est générique et ne sérialise ni `userId` ni `details` sensibles.
+- La complétude scolaire Core v2 distingue désormais l'existence d'une inscription `SPECIALTY` native de sa projection legacy `Subject`. HGGSP/HLP peuvent donc rendre le profil complet sans inventer de matière ARIA, de pin ou de mapping approximatif.
+- L'erreur d'intégrité « plusieurs inscriptions actives de l'année courante » utilise un message constant sans `studentId`, compte ni autre détail personnel ; la réponse publique reste le 500 générique corrélé.
 - Les deux `User.upsert` du seeder E2E (persona ARIA et comptes staff/coach) sont inventoriés comme mutations sensibles. Un reseed qui réécrit leurs credentials incrémente `sessionVersion` et révoque ainsi toute session Core v2 existante.
 - L'action de consultation `Ouvrir` reste disponible pour une matière académiquement pertinente et supportée, y compris hors sélection commerciale, conformément au comportement V1. Le mode sélection exige toujours le droit commercial, et aucune action `Ouvrir`/`Ajouter` n'est exposée pour une option Core v2 non enrollée ou hors scope.
 
@@ -54,6 +58,9 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Inventaire de révocation CI : RED 1/18 sur `session-revocation-boundary`, car `seed-e2e-staff-actors.ts:upsert#2` était absent de l'inventaire ; GREEN 18/18 après classification des deux upserts et ajout de l'incrément `sessionVersion` au reseed du persona ARIA.
 - Actionnabilité V1/Core v2 : RED 1/9 sur la carte de cours, reproduisant l'absence de `Ouvrir` pour une matière V1 pertinente mais commercialement locked ; GREEN 9/9 après séparation des règles consultation/sélection, avec les contre-épreuves Core v2 non pertinentes toujours non actionnables.
 - Workspace legacy Core v2 : RED sur les tests shell/page, qui trouvaient encore six boutons `Ouvrir`; GREEN après ajout de `courseWorkspace=false`, suppression des callbacks d'ouverture et extension de la denylist Core v2 à toute route `/api/aria/**`. La contre-épreuve V1 conserve le launcher et ouvre réellement le workspace.
+- Spécialités sans projection legacy : RED sur la complétude HGGSP/HLP (`ACADEMIC_PROFILE_INCOMPLETE` malgré deux enrollments natifs), puis GREEN sur GET/PUT profile et cockpit réels : onboarding `READY`, projection `specialties: []`, aucune spécialité ARIA inventée.
+- Journalisation d'intégrité : RED car le message contenait `minor-stable-id-must-not-be-logged`; GREEN avec message constant, log intercepté sans cet identifiant et enveloppe publique 500 exacte.
+- Options V1 : RED resolver/route car une option non pinnée était `academicallyRelevant=true` et disponible ; GREEN avec non pinnée non actionnable, pinnée pertinente/visible/retirable, tandis que les tests Core v2 enrollment-backed restent inchangés.
 
 ## Fichiers modifiés
 
@@ -69,11 +76,11 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Ciblés Tasks 2/4 : 2 suites, 37 tests passés.
 - Ciblés resolver/page/composants Tasks 5/6 : 5 suites, 61 tests passés.
 - Projection PII + routes natives après correction : 2 suites, 26 tests passés.
-- `npm run test:aria:unit` : 138 suites, 2 069 tests passés.
+- `npm run test:aria:unit` : 138 suites, 2 071 tests passés après les correctifs de revue.
 - `npm run test:aria:api` : 24 suites, 206 tests passés.
 - `npm run test:aria:integration` : 9 suites, 27 tests passés.
 - `npm run test:aria:sse` : 1 suite, 36 tests passés.
-- Suite Core v2 complète sur `nexus_pr318_test` : 52 suites passées, 476 tests passés, 3 tests explicitement skipped.
+- Suite Core v2 complète sur `nexus_pr318_test` : 53 suites passées, 480 tests passés, 3 tests explicitement skipped.
 - Architecture ARIA : 16 suites, 62 tests passés.
 - Guards Core v2 : 2 suites, 58 tests passés.
 - `npx prisma generate` et `prisma validate` sur le schéma Core v2 : passés.
@@ -90,17 +97,18 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Correctif de la régression navigateur : test composant de carte 9/9, dont l'ouverture V1 locked et l'absence d'actions pour les options Core v2 non pertinentes.
 - Correctif de la revue fraîche workspace : page/shell/carte 19/19, route Core v2 native 24/24, suite ARIA unitaire 2 070/2 070, architecture ARIA 62/62, `npm run typecheck`, ESLint ciblé, ownership et syntax E2E passés. Le test E2E bloque désormais toute requête legacy `/api/aria/**`, vérifie l'absence de `Ouvrir` en Core v2 et l'ouverture du workspace en V1.
 - Qualification CI du correctif workspace : `double-booking.test.ts` a dépassé les 10 s de son `beforeAll` sous charge de la lane Real DB, sans lien avec le diff ; le même fichier passe isolément 6/6 en 5,033 s sur une base jetable fraîche. La lane Chromium a, elle, fourni un RED produit-test utile : le persona V1 était encore dans le wizard. La contre-épreuve initialise désormais son profil V1 par le vrai endpoint authentifié, de façon idempotente et répétable, puis ouvre le workspace et le chat dans le navigateur ; les deux scénarios passent 2/2 sur une stack jetable réelle après ce correctif.
+- Correctifs de la revue sur `4eef6863` : resolver/wizard V1 40/40, route V1 18/18, contexte étudiant 3/3, contre-épreuve PostgreSQL HGGSP/HLP 1/1, architecture ARIA 16 suites/62 tests, `npm run typecheck` et ESLint ciblé passés.
 
 ## Résultats
 
 - Les semantics de tier, validité et capabilities commerciales restent centralisées dans le kernel canonique.
 - Les scopes de cours sont appliqués par feature sans grant global accidentel.
 - Une option Core v2 non enrollée ou hors scope n'est jamais pinnable ni actionnable.
-- Les surfaces V1 conservent le comportement de bootstrap et le launcher/chat existants.
+- Les surfaces V1 conservent le contrat du parent : launcher/chat et workspace existants, options pertinentes seulement après sélection explicite.
 - Core v2 n'affiche aucun contrôle chat ou workspace actif et la denylist réseau de toute la surface `/api/aria/**` reste vide.
 - Les capacités non déployées sont présentées comme indisponibles, jamais comme des résultats calculés vides.
 - La minimisation PII est vérifiée sur le `select` Prisma exact et le payload construit.
-- La revue indépendante du diff complet n'a trouvé aucun modèle/route conversationnelle de PR C. Son finding V1 a été rejeté car contraire à l'exigence explicite de préserver le bootstrap V1 ; ses deux findings PII ont été corrigés et testés.
+- La revue indépendante du diff complet n'a trouvé aucun modèle/route conversationnelle de PR C. Ses findings applicables sur la sémantique V1 et la minimisation PII ont été corrigés et testés.
 
 ## Écarts et avertissements non bloquants
 
@@ -112,8 +120,8 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 
 ## CI et revue fraîche
 
-- CI GitHub sur `f068596e39ebc0a1f7201b021aae0d90e8b9a0c4` : complète et verte, y compris `CI Success`, les quatre lanes ARIA Browser et les lanes E2E Auth.
-- Revue automatisée fraîche sur ce même SHA : terminée et applicable ; elle a produit le finding P1 workspace legacy décrit ci-dessus. Le correctif impose un nouveau SHA, une nouvelle CI complète verte puis une nouvelle revue automatisée applicable avant de déclarer la PR review-ready.
+- CI GitHub sur `4eef6863f036e8050872ee1a75f63d6a74fb54d3` : complète et verte (`CI Success`, quatre lanes ARIA Browser, E2E Auth, Real DB et Core v2).
+- Revue automatisée fraîche sur ce même SHA : terminée et applicable ; elle a produit les deux P1 HGGSP/HLP et journalisation d'intégrité décrits ci-dessus. Leur correctif, ainsi que celui de la régression V1 confirmée par l'audit du diff, impose un nouveau SHA, une nouvelle CI complète verte puis une nouvelle revue automatisée applicable avant de déclarer la PR review-ready.
 - Revue humaine : non demandée et non conservée avant fermeture de ces deux gates.
 
 ## Risques restants

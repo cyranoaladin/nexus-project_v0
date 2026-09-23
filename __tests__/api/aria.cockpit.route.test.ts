@@ -225,7 +225,7 @@ describe('GET /api/aria/cockpit', () => {
     expect(body.curriculum.lockedCourseKeys).toContain('nsi-terminale-eds');
   });
 
-  it('garde une option V1 non pinnée ajoutable pendant le bootstrap', async () => {
+  it('garde une option V1 non pinnée hors des actions disponibles', async () => {
     authenticate();
     (getAriaCockpitProfile as jest.Mock).mockResolvedValue({
       targetSession: null,
@@ -242,11 +242,11 @@ describe('GET /api/aria/cockpit', () => {
       (view: { course: { key: string } }) => view.course.key === 'maths-complementaires-terminale',
     );
     expect(option.access).toMatchObject({
-      academicallyRelevant: true,
+      academicallyRelevant: false,
       commerciallyEntitled: true,
       selectedForAria: false,
     });
-    expect(body.curriculum.availableCourseKeys).toContain('maths-complementaires-terminale');
+    expect(body.curriculum.availableCourseKeys).not.toContain('maths-complementaires-terminale');
   });
 
   it('projette la feuille de route sans rien inventer', async () => {

@@ -126,11 +126,11 @@ describe('resolveAriaCurriculum', () => {
       expect(result.unsupportedCourseKeys).toContain('emc-terminale');
     });
 
-    it("garde une option V1 non pinnée académiquement pertinente et sélectionnable", () => {
+    it("n'expose une option V1 que si l'élève l'a explicitement retenue", () => {
       const sansOption = viewOf(result, 'maths-complementaires-terminale');
-      expect(sansOption?.access.academicallyRelevant).toBe(true);
+      expect(sansOption?.access.academicallyRelevant).toBe(false);
       expect(result.requiredCourseKeys).not.toContain('maths-complementaires-terminale');
-      expect(result.availableCourseKeys).toContain('maths-complementaires-terminale');
+      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
       expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
 
       const avecOption = resolveAriaCurriculum(
@@ -215,9 +215,27 @@ describe('resolveAriaCurriculum', () => {
       expect(result.academicProfile.missingFields).toContain('academicTrack');
     });
 
-    it('signale des spécialités manquantes en Terminale générale', () => {
-      const result = resolveAriaCurriculum(input({ specialties: [] }));
+    it('signale des spécialités manquantes en Terminale générale sans inscription native', () => {
+      const result = resolveAriaCurriculum({
+        ...input({ specialties: [] }),
+        hasAcademicSpecialtyEnrollment: false,
+      });
       expect(result.academicProfile.missingFields).toContain('specialties');
+    });
+
+    it('considère la spécialité native déclarée même si sa projection Subject est volontairement vide', () => {
+      const result = resolveAriaCurriculum({
+        ...input({ specialties: [] }),
+        hasAcademicSpecialtyEnrollment: true,
+      });
+
+      expect(result.academicProfile.incomplete).toBe(false);
+      expect(result.academicProfile.missingFields).not.toContain('specialties');
+      // Completeness must not invent a legacy Subject or an ARIA specialty.
+      expect(result.academicProfile.specialties).toEqual([]);
+      expect(result.courses).not.toEqual(expect.arrayContaining([
+        expect.objectContaining({ course: expect.objectContaining({ role: 'SPECIALTY' }) }),
+      ]));
     });
 
     it('signale un parcours STMG manquant en Terminale STMG', () => {

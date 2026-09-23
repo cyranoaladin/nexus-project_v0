@@ -97,14 +97,21 @@ describe('AriaSetupWizard', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('offers Ajouter for an unpinned V1 option during bootstrap', () => {
+  it('keeps an already pinned V1 option visible and removable', () => {
     const onSubmit = jest.fn();
     const option = baseCockpit.curriculum.courses.find(
       (view) => view.course.key === 'maths-complementaires-terminale',
     );
     if (!option) throw new Error('fixture must contain maths complémentaires');
-    const legacyBootstrap = {
+    const legacyPinned = {
       ...baseCockpit,
+      profile: {
+        ...baseCockpit.profile,
+        pinnedCourseKeys: [
+          ...baseCockpit.profile.pinnedCourseKeys,
+          'maths-complementaires-terminale',
+        ],
+      },
       curriculum: {
         ...baseCockpit.curriculum,
         courses: [
@@ -117,7 +124,7 @@ describe('AriaSetupWizard', () => {
               ...option.access,
               academicallyRelevant: true,
               commerciallyEntitled: true,
-              selectedForAria: false,
+              selectedForAria: true,
             },
           },
         ],
@@ -126,7 +133,7 @@ describe('AriaSetupWizard', () => {
 
     render(
       <AriaSetupWizard
-        cockpit={legacyBootstrap}
+        cockpit={legacyPinned}
         saving={false}
         error={null}
         onSubmit={onSubmit}
@@ -134,13 +141,13 @@ describe('AriaSetupWizard', () => {
     );
     goToStep(2);
 
-    const addOption = screen.getByTestId('aria-wizard-course-maths-complementaires-terminale');
-    expect(addOption).toBeEnabled();
-    fireEvent.click(addOption);
+    const pinnedOption = screen.getByTestId('aria-wizard-course-maths-complementaires-terminale');
+    expect(pinnedOption).toBeEnabled();
+    fireEvent.click(pinnedOption);
     goToStep(2);
     fireEvent.click(screen.getByTestId('aria-wizard-submit'));
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
-      pinnedCourseKeys: expect.arrayContaining(['maths-complementaires-terminale']),
+      pinnedCourseKeys: expect.not.arrayContaining(['maths-complementaires-terminale']),
     }));
   });
 

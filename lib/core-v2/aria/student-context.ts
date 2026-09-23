@@ -64,6 +64,8 @@ export interface CoreV2AriaStudentContext {
    * correspondence is excluded, never guessed.
    */
   readonly specialties: readonly Subject[];
+  /** Native completeness evidence, independent from the lossy Subject projection. */
+  readonly hasAcademicSpecialtyEnrollment: boolean;
   readonly academicEnrollments: readonly CoreV2AriaAcademicEnrollment[];
 }
 
@@ -79,10 +81,8 @@ export class CoreV2AriaStudentNotFoundError extends NotFoundError {
 }
 
 export class CoreV2AriaMultipleActiveEnrollmentsError extends Error {
-  constructor(studentId: string, count: number) {
-    super(
-      `CORE_V2_MULTIPLE_ACTIVE_ENROLLMENTS: student ${studentId} has ${count} ACTIVE enrollments in the CURRENT academic year — data integrity issue, refusing to guess which one is canonical.`,
-    );
+  constructor() {
+    super('CORE_V2_MULTIPLE_ACTIVE_ENROLLMENTS: multiple ACTIVE enrollments exist in the CURRENT academic year; refusing to guess which one is canonical.');
     this.name = 'CoreV2AriaMultipleActiveEnrollmentsError';
   }
 }
@@ -101,7 +101,7 @@ export async function loadCoreV2AriaStudentContext(
   const currentActive = student.academicYearEnrollments;
   if (currentActive.length === 0) throw new CoreV2AriaStudentNotFoundError();
   if (currentActive.length > 1) {
-    throw new CoreV2AriaMultipleActiveEnrollmentsError(student.id, currentActive.length);
+    throw new CoreV2AriaMultipleActiveEnrollmentsError();
   }
   const enrollment = currentActive[0]!;
 
@@ -126,6 +126,9 @@ export async function loadCoreV2AriaStudentContext(
     schoolingStatus: enrollment.schoolingStatus ?? null,
     school: enrollment.school ?? null,
     specialties,
+    hasAcademicSpecialtyEnrollment: academicEnrollments.some(
+      (academicEnrollment) => academicEnrollment.kind === 'SPECIALTY',
+    ),
     academicEnrollments,
   };
 }

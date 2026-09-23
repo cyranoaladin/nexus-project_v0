@@ -38,6 +38,12 @@ export interface ResolveAriaCurriculumInput {
   readonly gradeLevel: GradeLevel | null;
   readonly academicTrack: AcademicTrack | null;
   readonly specialties: readonly Subject[];
+  /**
+   * Native schooling evidence that at least one specialty is declared even
+   * when the legacy `Subject` projection has no exact identity for it.
+   * Omitted by V1, whose `specialties` field remains its complete authority.
+   */
+  readonly hasAcademicSpecialtyEnrollment?: boolean;
   readonly stmgPathway: StmgPathway | null;
   readonly school?: string | null;
   /** Clés retenues par l'élève dans son cockpit (profil ARIA). */
@@ -76,7 +82,12 @@ export function projectCourse(course: AriaCourse): AriaCourseProjection {
 export function buildAcademicProfile(
   input: Pick<
     ResolveAriaCurriculumInput,
-    'gradeLevel' | 'academicTrack' | 'specialties' | 'stmgPathway' | 'school'
+    | 'gradeLevel'
+    | 'academicTrack'
+    | 'specialties'
+    | 'hasAcademicSpecialtyEnrollment'
+    | 'stmgPathway'
+    | 'school'
   >,
 ): AriaAcademicProfileDTO {
   const missingFields: string[] = [];
@@ -97,7 +108,9 @@ export function buildAcademicProfile(
   const isGeneraleLycee =
     input.academicTrack === 'EDS_GENERALE' &&
     (input.gradeLevel === 'PREMIERE' || input.gradeLevel === 'TERMINALE');
-  if (isGeneraleLycee && input.specialties.length === 0) {
+  const hasDeclaredSpecialty = input.specialties.length > 0
+    || input.hasAcademicSpecialtyEnrollment === true;
+  if (isGeneraleLycee && !hasDeclaredSpecialty) {
     missingFields.push('specialties');
   }
 
@@ -125,6 +138,7 @@ export function buildAcademicProfile(
 function isAcademicallyRelevant(
   course: AriaCourse,
   input: ResolveAriaCurriculumInput,
+  selectedKeys: ReadonlySet<AriaCourseKey>,
   enrollmentBackedCourseKeys: ReadonlySet<AriaCourseKey>,
 ): boolean {
   if (course.stmgPathways && course.stmgPathways.length > 0) {
@@ -137,7 +151,7 @@ function isAcademicallyRelevant(
       return course.specialty !== undefined && input.specialties.includes(course.specialty);
     case 'OPTION':
       return input.access.kind === 'LEGACY_FEATURES'
-        ? true
+        ? selectedKeys.has(course.key)
         : enrollmentBackedCourseKeys.has(course.key);
     case 'CORE':
     case 'TRACK_MODULE':
@@ -197,11 +211,12 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
     const academicallyRelevant = isAcademicallyRelevant(
       course,
       input,
+      selected,
       enrollmentBackedCourseKeys,
     );
     // Core v2 owns an exact enrollment model: a catalogue-only option is not
     // a school subject for this student and must not inflate the card/count.
-    // V1 keeps its historical catalogue bootstrap behavior above.
+    // V1 preserves its historical explicit pinned-selection behavior above.
     if (
       input.access.kind === 'CANONICAL_BY_FEATURE'
       && course.role === 'OPTION'

@@ -42,6 +42,7 @@ export const GET = defineStaffRoute({
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
       specialties: student.specialties,
+      hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
       stmgPathway: student.stmgPathway,
       school: student.school,
     });
@@ -89,6 +90,7 @@ export const PUT = defineStaffRoute({
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
       specialties: student.specialties,
+      hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
       stmgPathway: student.stmgPathway,
       school: student.school,
     });
