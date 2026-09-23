@@ -10,31 +10,134 @@
  * revoked only via `grantCoreV2AriaAccess`/`revokeCoreV2AriaAccess` (the
  * one normal operator mechanism — never a hardcoded account id).
  */
-import type { CoreV2AriaTier, PrismaClient } from '@/core-v2/generated/client';
+import type {
+  AriaAccessGrantStatus,
+  CoreV2AriaTier,
+  PrismaClient,
+} from '@/core-v2/generated/client';
 import { assertCapability, type Actor } from '@/lib/core-v2/rbac';
 import type { AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
+import {
+  buildCanonicalAriaEntitlementContext,
+  resolveAriaCapabilities,
+  type AriaCapabilities,
+  type AriaEntitlementRecord,
+  type CanonicalAriaEntitlementContext,
+} from '@/lib/aria/kernel/entitlements';
+
+export interface CoreV2AriaAccessGrantRecord {
+  readonly id: string;
+  readonly featureKey: AriaFeatureKey;
+  readonly courseScopes: readonly string[];
+  readonly status: AriaAccessGrantStatus;
+  readonly startsAt: Date;
+  readonly endsAt: Date | null;
+  readonly ariaTier: CoreV2AriaTier;
+}
 
 export interface CoreV2AriaEntitlements {
+  readonly aggregate: CanonicalAriaEntitlementContext;
+  readonly byFeatureKey: ReadonlyMap<AriaFeatureKey, CanonicalAriaEntitlementContext>;
+  readonly capabilities: AriaCapabilities;
+  /**
+   * Temporary compatibility projection for the pre-scope cockpit resolver.
+   * Derived only from canonical per-feature contexts; Task 3 replaces it
+   * with `byFeatureKey` so a feature string can never flatten course scope.
+   */
   readonly features: readonly AriaFeatureKey[];
 }
 
-/** Active grants for a student, at `now` — a grant past `endsAt` or `status !== ACTIVE` never counts. */
+/** Pure, lossless mapping into the shared ARIA entitlement kernel contract. */
+export function adaptCoreV2AriaAccessGrant(
+  grant: CoreV2AriaAccessGrantRecord,
+): AriaEntitlementRecord {
+  return {
+    id: grant.id,
+    productCode: 'ARIA_ACCESS',
+    status: grant.status,
+    startsAt: grant.startsAt,
+    endsAt: grant.endsAt,
+    ariaTier: grant.ariaTier,
+    ariaScopes: grant.courseScopes.length === 0
+      ? [{ kind: 'GLOBAL', courseKey: null }]
+      : grant.courseScopes.map((courseKey) => ({ kind: 'COURSE' as const, courseKey })),
+  };
+}
+
+/** Maps every row: status/date validity belongs exclusively to the canonical kernel. */
+export function adaptCoreV2AriaAccessGrants(
+  grants: readonly CoreV2AriaAccessGrantRecord[],
+): readonly AriaEntitlementRecord[] {
+  return grants.map(adaptCoreV2AriaAccessGrant);
+}
+
+/**
+ * Builds both entitlement dimensions without reimplementing kernel rules:
+ * aggregate tier capabilities, and feature-preserving course authorization.
+ */
+export function buildCoreV2AriaEntitlements(
+  grants: readonly CoreV2AriaAccessGrantRecord[],
+  now: Date,
+): CoreV2AriaEntitlements {
+  const canonicalRecords = adaptCoreV2AriaAccessGrants(grants);
+  const aggregate = buildCanonicalAriaEntitlementContext(canonicalRecords, now);
+  const recordsByFeature = new Map<AriaFeatureKey, AriaEntitlementRecord[]>();
+
+  grants.forEach((grant, index) => {
+    const records = recordsByFeature.get(grant.featureKey) ?? [];
+    records.push(canonicalRecords[index]!);
+    recordsByFeature.set(grant.featureKey, records);
+  });
+
+  const byFeatureKey = new Map<AriaFeatureKey, CanonicalAriaEntitlementContext>();
+  for (const [featureKey, records] of recordsByFeature) {
+    byFeatureKey.set(featureKey, buildCanonicalAriaEntitlementContext(records, now));
+  }
+
+  const features = [...byFeatureKey]
+    .filter(([, context]) => context.hasGenericAccess)
+    .map(([featureKey]) => featureKey)
+    .sort();
+
+  return {
+    aggregate,
+    byFeatureKey,
+    capabilities: resolveAriaCapabilities(aggregate.tier),
+    features,
+  };
+}
+
+/**
+ * Loads the complete authorization projection for one student. Deliberately
+ * no status/date predicate: the canonical kernel is the sole validity engine.
+ */
+export async function loadCoreV2AriaAccessGrants(
+  client: PrismaClient,
+  studentId: string,
+): Promise<CoreV2AriaAccessGrantRecord[]> {
+  const rows = await client.ariaAccessGrant.findMany({
+    where: { studentId },
+    select: {
+      id: true,
+      featureKey: true,
+      courseScopes: true,
+      status: true,
+      startsAt: true,
+      endsAt: true,
+      ariaTier: true,
+    },
+  });
+  return rows.map((row) => ({ ...row, featureKey: row.featureKey as AriaFeatureKey }));
+}
+
+/** Resolve one student's grants exclusively through the shared canonical kernel. */
 export async function resolveCoreV2AriaEntitlements(
   client: PrismaClient,
   studentId: string,
   now: Date = new Date(),
 ): Promise<CoreV2AriaEntitlements> {
-  const grants = await client.ariaAccessGrant.findMany({
-    where: {
-      studentId,
-      status: 'ACTIVE',
-      startsAt: { lte: now },
-      OR: [{ endsAt: null }, { endsAt: { gt: now } }],
-    },
-    select: { featureKey: true },
-  });
-  const features = [...new Set(grants.map((g) => g.featureKey))] as AriaFeatureKey[];
-  return { features };
+  const grants = await loadCoreV2AriaAccessGrants(client, studentId);
+  return buildCoreV2AriaEntitlements(grants, now);
 }
 
 export interface GrantCoreV2AriaAccessInput {
