@@ -126,11 +126,11 @@ describe('resolveAriaCurriculum', () => {
       expect(result.unsupportedCourseKeys).toContain('emc-terminale');
     });
 
-    it("n'expose une option que si l'élève l'a explicitement retenue", () => {
+    it("garde une option V1 non pinnée académiquement pertinente et sélectionnable", () => {
       const sansOption = viewOf(result, 'maths-complementaires-terminale');
-      expect(sansOption?.access.academicallyRelevant).toBe(false);
+      expect(sansOption?.access.academicallyRelevant).toBe(true);
       expect(result.requiredCourseKeys).not.toContain('maths-complementaires-terminale');
-      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.availableCourseKeys).toContain('maths-complementaires-terminale');
       expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
 
       const avecOption = resolveAriaCurriculum(
@@ -263,6 +263,42 @@ describe('resolveAriaCurriculum', () => {
   });
 
   describe('droits canoniques Core v2 par feature et par cours', () => {
+    it('omet de la carte une option non enrollée même sous grant global', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: {
+            kind: 'CANONICAL_BY_FEATURE',
+            contexts: new Map([['aria_maths', canonicalContext()]]),
+          },
+          enrollmentBackedCourseKeys: ['maths-terminale-eds'],
+        }),
+      );
+
+      expect(viewOf(result, 'maths-complementaires-terminale')).toBeUndefined();
+      expect(result.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+      expect(result.lockedCourseKeys).not.toContain('maths-complementaires-terminale');
+    });
+
+    it('conserve une option enrollée mais non pinnée dans la carte et la verrouille sans grant', () => {
+      const result = resolveAriaCurriculum(
+        input({
+          access: { kind: 'CANONICAL_BY_FEATURE', contexts: new Map() },
+          enrollmentBackedCourseKeys: [
+            'maths-terminale-eds',
+            'maths-complementaires-terminale',
+          ],
+        }),
+      );
+
+      const option = viewOf(result, 'maths-complementaires-terminale');
+      expect(option?.access).toMatchObject({
+        academicallyRelevant: true,
+        commerciallyEntitled: false,
+        selectedForAria: false,
+      });
+      expect(result.lockedCourseKeys).toContain('maths-complementaires-terminale');
+    });
+
     it('un grant global ne déverrouille que les cours de sa feature', () => {
       const result = resolveAriaCurriculum(
         input({

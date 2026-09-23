@@ -13,7 +13,10 @@ export const revalidate = 0;
 
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { loadCoreV2AriaStudentContext } from '@/lib/core-v2/aria/student-context';
-import { getCoreV2AriaCockpitProfile } from '@/lib/core-v2/aria/cockpit-profile';
+import {
+  getCoreV2AriaCockpitProfile,
+  listCoreV2AcademicallyRelevantCourseKeys,
+} from '@/lib/core-v2/aria/cockpit-profile';
 import { resolveCoreV2AriaEntitlements } from '@/lib/core-v2/aria/access-grants';
 import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
 import { buildAriaExamContext } from '@/lib/aria/curriculum/exam-context';
@@ -44,14 +47,15 @@ function buildSetup(
 export const GET = defineStaffRoute({
   handler: async ({ client, ctx }) => {
     const student = await loadCoreV2AriaStudentContext(client, ctx);
+    const academicContext = {
+      gradeLevel: student.gradeLevel,
+      academicTrack: student.academicTrack,
+      specialties: student.specialties,
+      stmgPathway: student.stmgPathway,
+      academicEnrollments: student.academicEnrollments,
+    };
     const [profile, entitlements] = await Promise.all([
-      getCoreV2AriaCockpitProfile(client, student.studentId, {
-        gradeLevel: student.gradeLevel,
-        academicTrack: student.academicTrack,
-        specialties: student.specialties,
-        stmgPathway: student.stmgPathway,
-        academicEnrollments: student.academicEnrollments,
-      }),
+      getCoreV2AriaCockpitProfile(client, student.studentId, academicContext),
       resolveCoreV2AriaEntitlements(client, student.studentId),
     ]);
 
@@ -62,6 +66,7 @@ export const GET = defineStaffRoute({
       stmgPathway: student.stmgPathway,
       school: student.school,
       pinnedCourseKeys: profile.pinnedCourseKeys,
+      enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext),
       access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey },
     });
 

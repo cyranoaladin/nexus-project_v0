@@ -82,6 +82,13 @@ function enrollmentBacksAriaCourse(
 export function listAllowedCoreV2PinnedCourseKeys(
   academicContext: CoreV2AriaProfileAcademicContext,
 ): readonly string[] {
+  return listCoreV2AcademicallyRelevantCourseKeys(academicContext);
+}
+
+/** Exact ARIA course keys backed by the current Core v2 schooling record. */
+export function listCoreV2AcademicallyRelevantCourseKeys(
+  academicContext: CoreV2AriaProfileAcademicContext,
+): readonly string[] {
   return listSelectableCourseKeys({
     gradeLevel: academicContext.gradeLevel,
     academicTrack: academicContext.academicTrack,

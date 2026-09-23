@@ -97,6 +97,53 @@ describe('AriaSetupWizard', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('offers Ajouter for an unpinned V1 option during bootstrap', () => {
+    const onSubmit = jest.fn();
+    const option = baseCockpit.curriculum.courses.find(
+      (view) => view.course.key === 'maths-complementaires-terminale',
+    );
+    if (!option) throw new Error('fixture must contain maths complémentaires');
+    const legacyBootstrap = {
+      ...baseCockpit,
+      curriculum: {
+        ...baseCockpit.curriculum,
+        courses: [
+          ...baseCockpit.curriculum.courses.filter(
+            (view) => view.course.key !== 'maths-complementaires-terminale',
+          ),
+          {
+            ...option,
+            access: {
+              ...option.access,
+              academicallyRelevant: true,
+              commerciallyEntitled: true,
+              selectedForAria: false,
+            },
+          },
+        ],
+      },
+    } as AriaCockpitDTO;
+
+    render(
+      <AriaSetupWizard
+        cockpit={legacyBootstrap}
+        saving={false}
+        error={null}
+        onSubmit={onSubmit}
+      />,
+    );
+    goToStep(2);
+
+    const addOption = screen.getByTestId('aria-wizard-course-maths-complementaires-terminale');
+    expect(addOption).toBeEnabled();
+    fireEvent.click(addOption);
+    goToStep(2);
+    fireEvent.click(screen.getByTestId('aria-wizard-submit'));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({
+      pinnedCourseKeys: expect.arrayContaining(['maths-complementaires-terminale']),
+    }));
+  });
+
   it('can navigate back to a previous step', () => {
     render(<AriaSetupWizard cockpit={baseCockpit} saving={false} error={null} onSubmit={jest.fn()} />);
     goToStep(1);

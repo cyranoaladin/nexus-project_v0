@@ -112,12 +112,39 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(r.body.data.curriculum.availableCourseKeys).toContain('maths-terminale-eds');
     expect(r.body.data.curriculum.lockedCourseKeys).toContain('nsi-terminale-eds');
     expect(r.body.data.curriculum.availableCourseKeys).not.toContain('maths-complementaires-terminale');
+    expect(r.body.data.curriculum.courses).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        course: expect.objectContaining({ key: 'maths-complementaires-terminale' }),
+      }),
+    ]));
+  });
+
+  test('an enrolled but unpinned option stays visible and locked without a grant', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'opt-maths-complementaires-terminale',
+        kind: 'OPTION',
+      },
+    });
+
+    const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+    expect(r.status).toBe(200);
     expect(r.body.data.curriculum.courses).toEqual(expect.arrayContaining([
       expect.objectContaining({
         course: expect.objectContaining({ key: 'maths-complementaires-terminale' }),
-        access: expect.objectContaining({ academicallyRelevant: false, selectedForAria: false }),
+        access: expect.objectContaining({
+          academicallyRelevant: true,
+          commerciallyEntitled: false,
+          selectedForAria: false,
+        }),
       }),
     ]));
+    expect(r.body.data.curriculum.lockedCourseKeys).toContain(
+      'maths-complementaires-terminale',
+    );
   });
 
   test('a scoped grant never unlocks another academically relevant course of the same feature', async () => {
@@ -297,6 +324,45 @@ describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () =>
     expect(reread.body.data.ariaProfile.onboardingCompletedAt).not.toBeNull();
   });
 
+  test('an enrolled non-Maths specialty with an exact canonical mapping can be pinned', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'eds-physique-chimie-terminale',
+        kind: 'SPECIALTY',
+      },
+    });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['physique-chimie-terminale-eds'],
+    });
+
+    expect(r.status).toBe(200);
+    expect(r.body.data.ariaProfile.pinnedCourseKeys).toEqual([
+      'physique-chimie-terminale-eds',
+    ]);
+  });
+
+  test('HGGSP stays fail-closed because the ARIA catalogue has no exact HGGSP identity', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    await h.client.studentCourseEnrollment.create({
+      data: {
+        academicYearEnrollmentId: f.enrollment.id,
+        courseKey: 'eds-hggsp-terminale',
+        kind: 'SPECIALTY',
+      },
+    });
+
+    const r = await callPut(profileRoute, '/api/v2/aria/cockpit/profile', {
+      pinnedCourseKeys: ['histoire-geo-terminale-eds'],
+    });
+
+    expect(r.status).toBe(400);
+  });
+
   test('pinning a course outside the student\'s real schooling is refused', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });
@@ -402,14 +468,9 @@ describe('GET/PUT /api/v2/aria/cockpit/profile — Core v2-only identity', () =>
     expect(cockpit.body.data.profile.pinnedCourseKeys).toEqual([]);
     expect(cockpit.body.data.curriculum.pinnedCourseKeys).toEqual([]);
     expect(cockpit.body.data.curriculum.availableCourseKeys).not.toContain('maths-expertes-terminale');
-    expect(cockpit.body.data.curriculum.courses).toEqual(expect.arrayContaining([
+    expect(cockpit.body.data.curriculum.courses).not.toEqual(expect.arrayContaining([
       expect.objectContaining({
         course: expect.objectContaining({ key: 'maths-expertes-terminale' }),
-        access: expect.objectContaining({
-          academicallyRelevant: false,
-          commerciallyEntitled: true,
-          selectedForAria: false,
-        }),
       }),
     ]));
   });

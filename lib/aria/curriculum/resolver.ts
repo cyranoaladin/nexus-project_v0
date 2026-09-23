@@ -42,6 +42,12 @@ export interface ResolveAriaCurriculumInput {
   readonly school?: string | null;
   /** Clés retenues par l'élève dans son cockpit (profil ARIA). */
   readonly pinnedCourseKeys: readonly AriaCourseKey[];
+  /**
+   * Cours dont l'autorité scolaire native atteste l'inscription. Core v2
+   * l'alimente depuis `StudentCourseEnrollment`; V1 l'omet car son modèle
+   * historique traite les options du catalogue comme sélectionnables.
+   */
+  readonly enrollmentBackedCourseKeys?: readonly AriaCourseKey[];
   /** Autorité commerciale explicite : projection V1 ou contextes canoniques Core v2. */
   readonly access: AriaCurriculumAccess;
 }
@@ -119,7 +125,7 @@ export function buildAcademicProfile(
 function isAcademicallyRelevant(
   course: AriaCourse,
   input: ResolveAriaCurriculumInput,
-  selected: ReadonlySet<AriaCourseKey>,
+  enrollmentBackedCourseKeys: ReadonlySet<AriaCourseKey>,
 ): boolean {
   if (course.stmgPathways && course.stmgPathways.length > 0) {
     if (!input.stmgPathway) return false;
@@ -130,7 +136,9 @@ function isAcademicallyRelevant(
     case 'SPECIALTY':
       return course.specialty !== undefined && input.specialties.includes(course.specialty);
     case 'OPTION':
-      return selected.has(course.key);
+      return input.access.kind === 'LEGACY_FEATURES'
+        ? true
+        : enrollmentBackedCourseKeys.has(course.key);
     case 'CORE':
     case 'TRACK_MODULE':
       return true;
@@ -148,6 +156,7 @@ function isAcademicallyRelevant(
 export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCurriculumDTO {
   const academicProfile = buildAcademicProfile(input);
   const selected = new Set(input.pinnedCourseKeys);
+  const enrollmentBackedCourseKeys = new Set(input.enrollmentBackedCourseKeys ?? []);
   const legacyFeatures = input.access.kind === 'LEGACY_FEATURES'
     ? new Set(input.access.featureKeys)
     : null;
@@ -185,7 +194,19 @@ export function resolveAriaCurriculum(input: ResolveAriaCurriculumInput): AriaCu
       if (!course.specialty || !input.specialties.includes(course.specialty)) continue;
     }
 
-    const academicallyRelevant = isAcademicallyRelevant(course, input, selected);
+    const academicallyRelevant = isAcademicallyRelevant(
+      course,
+      input,
+      enrollmentBackedCourseKeys,
+    );
+    // Core v2 owns an exact enrollment model: a catalogue-only option is not
+    // a school subject for this student and must not inflate the card/count.
+    // V1 keeps its historical catalogue bootstrap behavior above.
+    if (
+      input.access.kind === 'CANONICAL_BY_FEATURE'
+      && course.role === 'OPTION'
+      && !academicallyRelevant
+    ) continue;
     const productSupported = course.support.level !== 'COMING_SOON';
     const canonicalContext = input.access.kind === 'CANONICAL_BY_FEATURE'
       ? input.access.contexts.get(course.requiredFeature)

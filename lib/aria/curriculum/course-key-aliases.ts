@@ -38,6 +38,9 @@ const COCKPIT_TO_CANONICAL_COURSE_KEY: Readonly<Record<string, string>> = Object
   'sgn-premiere-stmg': 'stmg-sgn-premiere',
   'management-premiere-stmg': 'stmg-management-premiere',
   'droit-eco-premiere-stmg': 'stmg-droit-eco-premiere',
+  // HGGSP/HLP are intentionally absent: the current ARIA catalogue exposes
+  // broader HISTOIRE_GEO/FRANCAIS/PHILOSOPHIE identities, not exact matches.
+  // Enrollment authorization therefore stays fail-closed rather than guessed.
 });
 
 /**
