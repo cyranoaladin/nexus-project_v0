@@ -3,6 +3,8 @@ import {
   AriaConversationTurnStatus,
   AriaConversationTurnUseCase,
   AriaVisibility,
+  CoreV2JobStatus,
+  CoreV2JobType,
   Prisma,
   type PrismaClient,
 } from '@/core-v2/generated/client';
@@ -181,8 +183,18 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
         data: { conversationId, turnId: turn.id, role: AriaConversationMessageRole.ASSISTANT, content: '' },
         select: { id: true },
       });
+      await tx.coreV2JobOutbox.create({
+        data: {
+          jobType: CoreV2JobType.RECOVER_ARIA_TURN,
+          aggregateType: 'AriaConversationTurnCoreV2',
+          aggregateId: turn.id,
+          idempotencyKey: `aria-turn-watchdog:${turn.id}`,
+          payload: { schemaVersion: 1, turnId: turn.id },
+          status: CoreV2JobStatus.PENDING,
+          availableAt: input.pendingRecoveryAt,
+        },
+      });
       await tx.ariaConversationCoreV2.update({ where: { id: conversationId }, data: { updatedAt: input.now } });
-      void input.pendingRecoveryAt;
       return {
         turnId: turn.id,
         conversationId,
@@ -201,14 +213,27 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
   }
 
   async claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord> {
-    const updated = await this.client.ariaConversationTurnCoreV2.updateMany({
-      where: { id: input.turnId, conversationId: input.conversationId, actorUserId: input.actorUserId, subjectStudentId: input.subjectStudentId, status: AriaConversationTurnStatus.PENDING },
-      data: { status: AriaConversationTurnStatus.RUNNING, executionToken: input.executionToken, heartbeatAt: input.now, leaseExpiresAt: input.leaseExpiresAt, startedAt: input.now },
+    return this.client.$transaction(async (tx) => {
+      const rows = await tx.$queryRaw<Array<{ id: string; conversationId: string; actorUserId: string; subjectStudentId: string; status: AriaTurnStatus; executionToken: string | null; leaseExpiresAt: Date | null }>>(Prisma.sql`
+        SELECT id, "conversationId", "actorUserId", "subjectStudentId", status::text, "executionToken", "leaseExpiresAt"
+        FROM aria_conversation_turns_core_v2
+        WHERE id = ${input.turnId} AND "conversationId" = ${input.conversationId}
+        FOR UPDATE
+      `);
+      const turn = rows[0];
+      if (!turn || turn.actorUserId !== input.actorUserId || turn.subjectStudentId !== input.subjectStudentId) throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
+      if (turn.status !== 'PENDING') return { turnId: input.turnId, conversationId: input.conversationId, status: turn.status, executionToken: turn.executionToken ?? undefined, leaseExpiresAt: turn.leaseExpiresAt ?? undefined, disposition: 'NOT_CLAIMED' };
+      await tx.ariaConversationTurnCoreV2.update({ where: { id: input.turnId }, data: { status: AriaConversationTurnStatus.RUNNING, executionToken: input.executionToken, heartbeatAt: input.now, leaseExpiresAt: input.leaseExpiresAt, startedAt: input.now } });
+      const jobs = await tx.$queryRaw<Array<{ id: string; status: CoreV2JobStatus }>>(Prisma.sql`
+        SELECT id, status::text FROM core_v2_job_outbox
+        WHERE "aggregateType" = 'AriaConversationTurnCoreV2' AND "aggregateId" = ${input.turnId}
+          AND "idempotencyKey" = ${`aria-turn-watchdog:${input.turnId}`}
+        FOR UPDATE
+      `);
+      if (!jobs[0] || jobs[0].status === CoreV2JobStatus.COMPLETED || jobs[0].status === CoreV2JobStatus.FAILED_FINAL) throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', { reasonCode: 'TURN_WATCHDOG_MISSING' });
+      await tx.coreV2JobOutbox.update({ where: { id: jobs[0].id }, data: { status: CoreV2JobStatus.PENDING, availableAt: input.leaseExpiresAt, leaseOwner: null, leaseExpiresAt: null, lastError: null } });
+      return { turnId: input.turnId, conversationId: input.conversationId, status: 'RUNNING', executionToken: input.executionToken, leaseExpiresAt: input.leaseExpiresAt, disposition: 'CLAIMED' };
     });
-    if (updated.count === 1) return { turnId: input.turnId, conversationId: input.conversationId, status: 'RUNNING', executionToken: input.executionToken, leaseExpiresAt: input.leaseExpiresAt, disposition: 'CLAIMED' };
-    const turn = await this.client.ariaConversationTurnCoreV2.findFirst({ where: { id: input.turnId, conversationId: input.conversationId, actorUserId: input.actorUserId, subjectStudentId: input.subjectStudentId }, select: { status: true, executionToken: true, leaseExpiresAt: true } });
-    if (!turn) throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
-    return { turnId: input.turnId, conversationId: input.conversationId, status: turn.status as AriaTurnStatus, executionToken: turn.executionToken ?? undefined, leaseExpiresAt: turn.leaseExpiresAt ?? undefined, disposition: 'NOT_CLAIMED' };
   }
 
   async loadRecentCompletedTurns(input: { conversationId: string; subjectStudentId: string; maxTurns: number }): Promise<readonly AriaHistoryTurn[]> {
@@ -261,11 +286,19 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
       if (!checkpoint && (input.status === 'COMPLETED' || input.ragStatus !== 'NOT_CONFIGURED' || !sameJson(input.retrievalEvidence, { schemaVersion: 1, hits: [] }) || input.citations.length > 0)) throw new AriaError('INTERNAL_ERROR', 500, 'Aucun retrieval RAG checkpointé ne correspond.');
       if (retrieved.some((citation) => citation.courseKey !== turn.courseKey)) throw new AriaError('INTERNAL_ERROR', 500, 'La citation appartient à un autre cours.');
       const citations = retrieved.map((citation) => canonicalizeAriaCitationForPersistence(citation, turn.courseKey));
+      const jobs = await tx.$queryRaw<Array<{ id: string; status: CoreV2JobStatus }>>(Prisma.sql`
+        SELECT id, status::text FROM core_v2_job_outbox
+        WHERE "aggregateType" = 'AriaConversationTurnCoreV2' AND "aggregateId" = ${input.turnId}
+          AND "idempotencyKey" = ${`aria-turn-watchdog:${input.turnId}`}
+        FOR UPDATE
+      `);
+      if (!jobs[0] || jobs[0].status === CoreV2JobStatus.COMPLETED || jobs[0].status === CoreV2JobStatus.FAILED_FINAL) throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est introuvable.', { reasonCode: 'TURN_WATCHDOG_MISSING' });
       const updated = await tx.ariaConversationTurnCoreV2.updateMany({ where: { id: input.turnId, conversationId: input.conversationId, status: AriaConversationTurnStatus.RUNNING, executionToken: input.executionToken, ...(input.status === 'CANCELLED' ? {} : { cancellationRequestedAt: null }) }, data: { status: input.status, retrievalEvidence: jsonObject(evidence), ragStatus: checkpoint ? turn.ragStatus : input.ragStatus, executionMetadata: jsonObject(input.executionMetadata), completedAt: now, heartbeatAt: now, leaseExpiresAt: null } });
       if (updated.count !== 1) throw new AriaError('INTERNAL_ERROR', 500, 'La finalisation ARIA a perdu son verrou.');
       const assistant = await tx.ariaMessageCoreV2.updateMany({ where: { id: input.assistantMessageId, conversationId: input.conversationId, turnId: input.turnId, role: AriaConversationMessageRole.ASSISTANT }, data: { content: input.content, metadata: jsonObject({ ...input.executionMetadata, ragStatus: input.ragStatus, citationCount: citations.length }) } });
       if (assistant.count !== 1) throw new AriaError('INTERNAL_ERROR', 500, 'Le message assistant ARIA est introuvable.');
       if (citations.length > 0) await tx.ariaMessageCitationCoreV2.createMany({ data: citations.map((citation) => ({ messageId: input.assistantMessageId, sourceTitle: citation.sourceTitle, sourceDocument: citation.sourceDocument, sourceLocation: citation.sourceLocation ?? null, courseKey: citation.courseKey, provenance: citation.provenance, url: citation.url, resourceId: citation.resourceId, resourceVersionId: citation.resourceVersionId, contentSha256: citation.contentSha256, chunkId: citation.chunkId, locator: jsonObject(citation.locator), corpusId: citation.corpusId, corpusVersionId: citation.corpusVersionId, manifestSha256: citation.manifestSha256 })) });
+      await tx.coreV2JobOutbox.update({ where: { id: jobs[0].id }, data: { status: CoreV2JobStatus.COMPLETED, completedAt: now, leaseOwner: null, leaseExpiresAt: null, lastError: null } });
       await tx.ariaConversationCoreV2.update({ where: { id: input.conversationId }, data: { updatedAt: now } });
     });
   }
@@ -284,12 +317,24 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
 
   async requestCancellation(input: RequestTurnCancellationInput): Promise<TurnCancellationRecord> {
     return this.client.$transaction(async (tx) => {
-      const turn = await tx.ariaConversationTurnCoreV2.findUnique({ where: { id: input.turnId }, select: { id: true, conversationId: true, actorUserId: true, clientRequestId: true, status: true, executionToken: true, cancellationRequestedAt: true } });
+      const rows = await tx.$queryRaw<Array<{ id: string; conversationId: string; actorUserId: string; clientRequestId: string; status: AriaTurnStatus; executionToken: string | null; cancellationRequestedAt: Date | null }>>(Prisma.sql`
+        SELECT id, "conversationId", "actorUserId", "clientRequestId", status::text, "executionToken", "cancellationRequestedAt"
+        FROM aria_conversation_turns_core_v2 WHERE id = ${input.turnId} FOR UPDATE
+      `);
+      const turn = rows[0];
       if (!turn || turn.actorUserId !== input.actorUserId) throw new AriaError('CONVERSATION_NOT_FOUND', 404, 'Turn ARIA introuvable.');
       if (turn.clientRequestId !== input.clientRequestId) throw new AriaError('IDEMPOTENCY_CONFLICT', 409, 'La clé de requête ne correspond pas au Turn ARIA.');
       if (isTerminalAriaTurnStatus(turn.status as AriaTurnStatus)) return { turnId: turn.id, conversationId: turn.conversationId, status: turn.status as AriaTurnStatus, executionToken: turn.executionToken ?? undefined, disposition: 'TERMINAL_REPLAY' };
+      const jobs = await tx.$queryRaw<Array<{ id: string; status: CoreV2JobStatus }>>(Prisma.sql`
+        SELECT id, status::text FROM core_v2_job_outbox
+        WHERE "aggregateType" = 'AriaConversationTurnCoreV2' AND "aggregateId" = ${turn.id}
+          AND "idempotencyKey" = ${`aria-turn-watchdog:${turn.id}`}
+        FOR UPDATE
+      `);
+      if (!jobs[0] || jobs[0].status === CoreV2JobStatus.COMPLETED || jobs[0].status === CoreV2JobStatus.FAILED_FINAL) throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est indisponible.', { reasonCode: 'TURN_WATCHDOG_UNAVAILABLE' });
       if (turn.status === AriaConversationTurnStatus.PENDING) {
         await tx.ariaConversationTurnCoreV2.update({ where: { id: turn.id }, data: { status: AriaConversationTurnStatus.CANCELLED, cancellationRequestedAt: input.now, cancellationRequestedByActorId: input.actorUserId, completedAt: input.now, leaseExpiresAt: null } });
+        await tx.coreV2JobOutbox.update({ where: { id: jobs[0].id }, data: { status: CoreV2JobStatus.COMPLETED, completedAt: input.now, leaseOwner: null, leaseExpiresAt: null, lastError: null } });
         return { turnId: turn.id, conversationId: turn.conversationId, status: 'CANCELLED', disposition: 'CANCELLED' };
       }
       if (!turn.cancellationRequestedAt) await tx.ariaConversationTurnCoreV2.update({ where: { id: turn.id }, data: { cancellationRequestedAt: input.now, cancellationRequestedByActorId: input.actorUserId } });
@@ -299,10 +344,24 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
 
   async heartbeatTurn(input: HeartbeatTurnInput): Promise<HeartbeatTurnRecord> {
     return this.client.$transaction(async (tx) => {
-      const turn = await tx.ariaConversationTurnCoreV2.findFirst({ where: { id: input.turnId, conversationId: input.conversationId }, select: { status: true, executionToken: true, cancellationRequestedAt: true } });
-      if (!turn || turn.status !== AriaConversationTurnStatus.RUNNING || turn.executionToken !== input.executionToken) return { disposition: 'LEASE_LOST' };
+      const rows = await tx.$queryRaw<Array<{ status: AriaTurnStatus; executionToken: string | null; cancellationRequestedAt: Date | null }>>(Prisma.sql`
+        SELECT status::text, "executionToken", "cancellationRequestedAt"
+        FROM aria_conversation_turns_core_v2
+        WHERE id = ${input.turnId} AND "conversationId" = ${input.conversationId}
+        FOR UPDATE
+      `);
+      const turn = rows[0];
+      if (!turn || turn.status !== 'RUNNING' || turn.executionToken !== input.executionToken) return { disposition: 'LEASE_LOST' };
       if (turn.cancellationRequestedAt) return { disposition: 'CANCELLATION_REQUESTED' };
+      const jobs = await tx.$queryRaw<Array<{ id: string; status: CoreV2JobStatus }>>(Prisma.sql`
+        SELECT id, status::text FROM core_v2_job_outbox
+        WHERE "aggregateType" = 'AriaConversationTurnCoreV2' AND "aggregateId" = ${input.turnId}
+          AND "idempotencyKey" = ${`aria-turn-watchdog:${input.turnId}`}
+        FOR UPDATE
+      `);
+      if (!jobs[0] || jobs[0].status === CoreV2JobStatus.COMPLETED || jobs[0].status === CoreV2JobStatus.FAILED_FINAL) throw new AriaError('INTERNAL_ERROR', 500, 'Le watchdog ARIA est indisponible.', { reasonCode: 'TURN_WATCHDOG_UNAVAILABLE' });
       await tx.ariaConversationTurnCoreV2.update({ where: { id: input.turnId }, data: { heartbeatAt: input.now, leaseExpiresAt: input.leaseExpiresAt } });
+      await tx.coreV2JobOutbox.update({ where: { id: jobs[0].id }, data: { status: CoreV2JobStatus.PENDING, availableAt: input.leaseExpiresAt, leaseOwner: null, leaseExpiresAt: null, lastError: null } });
       return { disposition: 'RENEWED' };
     });
   }

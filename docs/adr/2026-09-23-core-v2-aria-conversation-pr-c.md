@@ -36,7 +36,16 @@ PR C démarre depuis ce commit sur `feat/core-v2-aria-conversation`.
 - Le repository `CoreV2AriaConversationRepository` implémente les ports
   Conversation Foundation sans les modifier. Il couvre réservation
   idempotente, claim, checkpoint RAG, finalisation fenced, historique,
-  annulation et heartbeat. L’outbox/recovery et les routes restent différés.
+  annulation et heartbeat.
+- La migration 0020 introduit `CoreV2JobOutbox`, limité à
+  `RECOVER_ARIA_TURN`, avec payload versionné sans PII, leases, plafond de
+  20 tentatives, backoff borné et états terminaux irréversibles.
+- `reserve`, `claim`, `heartbeat`, `finalize`, `cancel` et recovery suivent
+  l’ordre de verrouillage `TURN → JOB`. Le worker claim des jobs en
+  transaction courte avec `FOR UPDATE SKIP LOCKED`, puis traite chaque job
+  dans une transaction séparée.
+- La recovery ne relance jamais un provider : elle reschedule un worker vivant
+  ou terminalise de façon sûre un Turn stale/cancelled.
 - Les routes et l’exécution Conversation Foundation seront branchées sur ces
   modèles dans les incréments suivants. Aucun appel réel provider ou
   déploiement n’est effectué à ce stade.
@@ -47,9 +56,10 @@ PR C démarre depuis ce commit sur `feat/core-v2-aria-conversation`.
    validées sans drift contre une base disposable.
 2. `CoreV2AriaConversationRepository` : adapter repository implémentant les
    ports Conversation Foundation, avec concurrence PostgreSQL et fencing.
-3. Routes `/api/v2/aria/**` : chat, historique, annulation et feedback.
-4. Recovery/watchdog et wiring RAG/provider, puis client authority-aware.
-5. Tests unitaires, Core v2 DB/E2E et qualification intégrée avant toute
+3. `0020_core_v2_job_outbox` + worker/watchdog Core v2.
+4. Routes `/api/v2/aria/**` : chat, historique, annulation et feedback.
+5. Wiring RAG/provider, puis client authority-aware.
+6. Tests unitaires, Core v2 DB/E2E et qualification intégrée avant toute
    release ou migration de preview.
 
 ## Vérifications de cet incrément
@@ -60,14 +70,17 @@ PR C démarre depuis ce commit sur `feat/core-v2-aria-conversation`.
   lifecycle de Turn.
 - Tests PostgreSQL du repository : réservation/replay, concurrence, séquence,
   claim/finalize, historique, annulation et heartbeat.
+- Tests PostgreSQL recovery : watchdog atomique, claim concurrent,
+  reschedule, stale PENDING/RUNNING, annulation, FAILED_FINAL et invariants
+  de configuration du worker.
 - `SCHEMA↔MIGRATION DRIFT = NONE` et `PRISMA DIFF AFTER 0019 = EMPTY` après
   déploiement sur une base disposable.
 - Génération locale du client Prisma Core v2 (artefact gitignored).
 
 ## Risques restants
 
-- Le recovery générique CoreV2JobOutbox/watchdog n’est pas encore implémenté.
 - Les transports Core v2 ne sont pas encore branchés.
+- Les appels provider/RAG réels et le client restent désactivés.
 - Le chat Core v2 ne doit pas être exposé avant le wiring complet et les E2E.
 - La migration doit être répétée sur une base Core v2 disposable avant toute
   qualification intégrée.

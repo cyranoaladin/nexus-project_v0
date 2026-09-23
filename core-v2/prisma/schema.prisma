@@ -1387,6 +1387,29 @@ model AriaFeedbackCoreV2 {
   @@map("aria_feedback_core_v2")
 }
 
+model CoreV2JobOutbox {
+  id             String         @id @default(cuid())
+  jobType        CoreV2JobType
+  aggregateType  String
+  aggregateId    String
+  idempotencyKey String         @unique
+  payload        Json
+  status         CoreV2JobStatus @default(PENDING)
+  availableAt    DateTime       @default(now())
+  leaseOwner     String?
+  leaseExpiresAt DateTime?
+  attemptCount   Int            @default(0)
+  lastError      String?
+  completedAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([status, availableAt])
+  @@index([status, leaseExpiresAt])
+  @@index([aggregateType, aggregateId])
+  @@map("core_v2_job_outbox")
+}
+
 enum AriaConversationTurnStatus {
   PENDING
   RUNNING
@@ -1409,4 +1432,16 @@ enum AriaVisibility {
 enum AriaConversationMessageRole {
   USER
   ASSISTANT
+}
+
+enum CoreV2JobType {
+  RECOVER_ARIA_TURN
+}
+
+enum CoreV2JobStatus {
+  PENDING
+  LEASED
+  RETRY_SCHEDULED
+  COMPLETED
+  FAILED_FINAL
 }
