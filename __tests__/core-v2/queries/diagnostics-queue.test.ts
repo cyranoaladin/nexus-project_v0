@@ -217,9 +217,12 @@ describe('diagnostics queue repository boundary', () => {
     const sql = queryRaw.mock.calls[0]?.[0] as { strings?: readonly string[]; values?: readonly unknown[] };
     const strings = Array.from(sql.strings ?? []);
     const values = Array.from(sql.values ?? []);
-    expect(strings.join(' ')).not.toMatch(
+    const sqlText = strings.join(' ');
+    expect(sqlText).not.toMatch(
       /extractedText|aiProposal|humanReview|deterministicResults|publishedContent|email|phone|accountStatus|activatedAt/i,
     );
+    expect(sqlText).toContain('NULL::timestamp(3)');
+    expect(sqlText).not.toContain('NULL::timestamptz');
     const limitParameterIndex = strings.findIndex((fragment) => /LIMIT\s*$/i.test(fragment));
     expect(limitParameterIndex).toBeGreaterThanOrEqual(0);
     expect(values[limitParameterIndex]).toBe(3);

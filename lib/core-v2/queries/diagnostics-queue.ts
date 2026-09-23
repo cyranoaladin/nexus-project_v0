@@ -136,7 +136,6 @@ function decodeCanonicalBase64url(value: string): Buffer {
 
 const diagnosticQueueCursorParamSchema = z
   .string()
-  .trim()
   .min(1)
   .max(1024)
   .transform((value, ctx): DiagnosticQueueCursor => {
@@ -334,7 +333,7 @@ function buildDiagnosticQueuePageSql(query: DiagnosticQueueQuery): Prisma.Sql {
     SELECT
       NULL::text, NULL::text, NULL::integer, NULL::text, NULL::text, NULL::text,
       NULL::text, NULL::text, NULL::text, NULL::integer, NULL::text,
-      NULL::timestamptz, NULL::text, NULL::text, NULL::timestamptz, c."cursorValid", TRUE
+      NULL::timestamp(3), NULL::text, NULL::text, NULL::timestamp(3), c."cursorValid", TRUE
     FROM "cursorState" c
     WHERE NOT EXISTS (SELECT 1 FROM "page")
     ORDER BY "metadataOnly" ASC, "stateRank" ASC NULLS LAST, "lastActivityAt" ASC NULLS LAST, "submissionId" ASC NULLS LAST

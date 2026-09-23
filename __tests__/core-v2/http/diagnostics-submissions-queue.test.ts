@@ -401,7 +401,14 @@ describe('GET /api/v2/staff/diagnostics/submissions', () => {
     );
     const validCursor = firstPage.body.data.nextCursor as string;
 
-    for (const cursor of ['not-a-valid-cursor', `${validCursor}=`, `${validCursor}!`, `${validCursor}A`]) {
+    for (const cursor of [
+      'not-a-valid-cursor',
+      `${validCursor}=`,
+      `${validCursor}!`,
+      `${validCursor}A`,
+      ` ${validCursor}`,
+      `${validCursor} `,
+    ]) {
       const response = await callJson(
         queueRoute.GET,
         'GET',
