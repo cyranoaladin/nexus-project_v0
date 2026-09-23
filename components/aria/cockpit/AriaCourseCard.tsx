@@ -27,7 +27,9 @@ export function AriaCourseCard({ view, selectable = false, onToggle, onOpen }: A
   // when it is outside the commercial selection (historical V1 behavior).
   // Adding/removing a course still requires entitlement, and no academically
   // irrelevant course ever exposes an action in either mode.
-  const interactive = access.academicallyRelevant
+  const hasAction = selectable ? onToggle !== undefined : onOpen !== undefined;
+  const interactive = hasAction
+    && access.academicallyRelevant
     && !unsupported
     && (!selectable || !locked);
 

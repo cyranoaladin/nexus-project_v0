@@ -461,6 +461,8 @@ export interface AriaStudentDTO {
 export interface AriaCockpitCapabilitiesDTO {
   /** Chat runtime deployed for this authority (independent of commercial entitlement). */
   readonly chat: boolean;
+  /** Course workspace runtime deployed for this authority, including mastery, recommendations and workshops. */
+  readonly courseWorkspace: boolean;
   readonly trajectory: boolean;
   readonly assessments: boolean;
   readonly resources: boolean;

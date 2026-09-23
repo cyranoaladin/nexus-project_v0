@@ -12,6 +12,7 @@ const cockpit = {
     resources: true,
     nextSession: true,
     conversationHistory: true,
+    courseWorkspace: true,
   },
 } as unknown as AriaCockpitDTO;
 
@@ -111,6 +112,27 @@ describe('AriaCockpitShell', () => {
     const main = screen.getByRole('main');
     fireEvent.click(within(main).getByRole('button', { name: 'Ma carte scolaire' }));
     expect(screen.getByRole('heading', { name: 'Ma carte scolaire' })).toBeInTheDocument();
+  });
+
+  it('keeps Core v2 course workspaces unavailable without calling any legacy workspace API', () => {
+    const fetchSpy = jest.spyOn(global, 'fetch');
+    const coreV2Cockpit = {
+      ...cockpit,
+      capabilities: { ...cockpit.capabilities, courseWorkspace: false },
+    };
+
+    render(
+      <AriaCockpitShell
+        cockpit={coreV2Cockpit}
+        onToggleCourse={jest.fn()}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/aria\/(?:mastery\/course|next-best-action|workshops)/),
+    );
   });
 
   it('fetches real mastery and next-best-action data for the exact course opened, and renders them once loaded', async () => {

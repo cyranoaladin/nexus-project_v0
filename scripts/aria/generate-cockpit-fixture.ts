@@ -97,6 +97,7 @@ const cockpit = {
   examContext: null,
   capabilities: {
     chat: true,
+    courseWorkspace: true,
     trajectory: true,
     assessments: true,
     resources: true,

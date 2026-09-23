@@ -257,6 +257,7 @@ export async function buildAriaCockpit(userId: string): Promise<BuildAriaCockpit
     // Identité V1 historique : toutes les capacités sont réellement disponibles, sans exception.
     capabilities: {
       chat: true,
+      courseWorkspace: true,
       trajectory: true,
       assessments: true,
       resources: true,

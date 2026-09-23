@@ -57,7 +57,7 @@ export function AriaCockpitShell({
   const [nextBestAction, setNextBestAction] = useState<AriaNextBestAction | null | undefined>(undefined);
 
   useEffect(() => {
-    if (!openCourseKey) {
+    if (!cockpit.capabilities.courseWorkspace || !openCourseKey) {
       setCourseMastery(undefined);
       setNextBestAction(undefined);
       return;
@@ -92,7 +92,7 @@ export function AriaCockpitShell({
     return () => {
       cancelled = true;
     };
-  }, [openCourseKey, fetch]);
+  }, [cockpit.capabilities.courseWorkspace, openCourseKey, fetch]);
 
   function goToPanel(next: AriaCockpitPanel) {
     setPanel(next);
@@ -143,7 +143,7 @@ export function AriaCockpitShell({
         {panel === 'TODAY' && <AriaTodayPanel cockpit={cockpit} />}
 
         {panel === 'CURRICULUM' &&
-          (openCourseKey ? (
+          (cockpit.capabilities.courseWorkspace && openCourseKey ? (
             <AriaCourseWorkspace
               cockpit={cockpit}
               courseKey={openCourseKey}
@@ -155,7 +155,7 @@ export function AriaCockpitShell({
           ) : (
             <AriaCurriculumMap
               curriculum={cockpit.curriculum}
-              onOpen={setOpenCourseKey}
+              onOpen={cockpit.capabilities.courseWorkspace ? setOpenCourseKey : undefined}
               onToggle={onToggleCourse}
             />
           ))}

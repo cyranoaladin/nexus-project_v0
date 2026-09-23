@@ -86,6 +86,7 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
       resources: false,
       nextSession: false,
       conversationHistory: false,
+      courseWorkspace: false,
     });
     // No grant yet: nothing commercially available, even though academically relevant.
     expect(cockpit.curriculum.availableCourseKeys).toEqual([]);

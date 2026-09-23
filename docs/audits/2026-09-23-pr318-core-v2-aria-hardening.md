@@ -23,6 +23,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - La revue finale a détecté une sur-lecture de PII dans le contexte étudiant ARIA et un 404 qui exposait l'identifiant utilisateur interne.
 - Le premier cycle CI du rapport a détecté que le second `User.upsert` ajouté au seeder E2E n'était pas classé dans l'inventaire exhaustif des mutations de sécurité.
 - Le cycle CI suivant a révélé une régression V1 dans la lane ARIA desktop : trois parcours historiques ne pouvaient plus ouvrir une matière académiquement suivie mais hors sélection commerciale.
+- La revue automatisée fraîche sur `f068596e39ebc0a1f7201b021aae0d90e8b9a0c4` a détecté un autre chemin legacy : ouvrir un workspace Core v2 déclenchait encore mastery, next-best-action et workshops sous `/api/aria/**`.
 
 ## Décisions prises
 
@@ -33,6 +34,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Les pins Core v2 reposent sur les `StudentCourseEnrollment` réelles, plus les cours core/track obligatoires. Les pins devenues stale sont filtrées à la lecture.
 - Le bootstrap V1 reste inchangé : les options théoriquement sélectionnables restent proposées sous `LEGACY_FEATURES`. Cette décision produit explicite est couverte par les tests V1 ; elle ne rouvre pas le chemin Core v2, qui reste enrollment-backed.
 - `chat` est une capability de déploiement explicite : V1 `true`, Core v2 `false`. Aucune route `/api/aria/**` n'est appelée par la session Core v2.
+- `courseWorkspace` est également une capability de déploiement explicite : V1 `true`, Core v2 `false`. Quand elle est fausse, le cockpit ne transmet aucun callback d'ouverture, n'affiche aucun bouton `Ouvrir` et ne peut donc monter ni les effets mastery/NBA ni le composant workshops legacy. Les routes natives correspondantes restent volontairement hors périmètre jusqu'à la PR C.
 - Les capacités indisponibles rendent un état neutre unique, distinct de `AVAILABLE_EMPTY`.
 - Le seeder E2E refuse toute cible qui n'est pas exactement la base `core_v2_e2e` sur les hôtes/ports locaux ou compose autorisés, même si le marker jetable est présent. Les erreurs ne journalisent jamais l'URL ou les credentials.
 - Le contexte étudiant ARIA possède désormais une projection dédiée minimale : identifiants et noms nécessaires, au plus deux inscriptions `ACTIVE` de l'année `CURRENT`, champs scolaires utiles et clés/types de cours. Email, téléphone, date de naissance, household, parents, statut de compte et timestamps ne sont ni sélectionnés ni retournés.
@@ -50,6 +52,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - PII/erreur : RED 2/2, car la requête passait par le read model étendu et le 404 exposait `userId`; GREEN 26/26 sur le test exact de projection/erreur et la route native Core v2.
 - Inventaire de révocation CI : RED 1/18 sur `session-revocation-boundary`, car `seed-e2e-staff-actors.ts:upsert#2` était absent de l'inventaire ; GREEN 18/18 après classification des deux upserts et ajout de l'incrément `sessionVersion` au reseed du persona ARIA.
 - Actionnabilité V1/Core v2 : RED 1/9 sur la carte de cours, reproduisant l'absence de `Ouvrir` pour une matière V1 pertinente mais commercialement locked ; GREEN 9/9 après séparation des règles consultation/sélection, avec les contre-épreuves Core v2 non pertinentes toujours non actionnables.
+- Workspace legacy Core v2 : RED sur les tests shell/page, qui trouvaient encore six boutons `Ouvrir`; GREEN après ajout de `courseWorkspace=false`, suppression des callbacks d'ouverture et extension de la denylist Core v2 à toute route `/api/aria/**`. La contre-épreuve V1 conserve le launcher et ouvre réellement le workspace.
 
 ## Fichiers modifiés
 
@@ -84,6 +87,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Playwright Chromium réel sur stack jetable : 2/2 passés, puis 2/2 passés une seconde fois sur la même stack sans reseed manuel. Le second passage prouve la répétabilité du reset transactionnel.
 - Correctif du finding CI : garde `session-revocation-boundary` 18/18, guards/persona de seed Core v2 14/14, `npm run typecheck` et ESLint ciblé passés.
 - Correctif de la régression navigateur : test composant de carte 9/9, dont l'ouverture V1 locked et l'absence d'actions pour les options Core v2 non pertinentes.
+- Correctif de la revue fraîche workspace : page/shell/carte 19/19, route Core v2 native 24/24, suite ARIA unitaire 2 070/2 070, architecture ARIA 62/62, `npm run typecheck`, ESLint ciblé, ownership et syntax E2E passés. Le test E2E bloque désormais toute requête legacy `/api/aria/**`, vérifie l'absence de `Ouvrir` en Core v2 et l'ouverture du workspace en V1.
 
 ## Résultats
 
@@ -91,7 +95,7 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 - Les scopes de cours sont appliqués par feature sans grant global accidentel.
 - Une option Core v2 non enrollée ou hors scope n'est jamais pinnable ni actionnable.
 - Les surfaces V1 conservent le comportement de bootstrap et le launcher/chat existants.
-- Core v2 n'affiche aucun contrôle chat actif et la denylist réseau legacy reste vide.
+- Core v2 n'affiche aucun contrôle chat ou workspace actif et la denylist réseau de toute la surface `/api/aria/**` reste vide.
 - Les capacités non déployées sont présentées comme indisponibles, jamais comme des résultats calculés vides.
 - La minimisation PII est vérifiée sur le `select` Prisma exact et le payload construit.
 - La revue indépendante du diff complet n'a trouvé aucun modèle/route conversationnelle de PR C. Son finding V1 a été rejeté car contraire à l'exigence explicite de préserver le bootstrap V1 ; ses deux findings PII ont été corrigés et testés.
@@ -106,8 +110,8 @@ Cette PR reste un état intermédiaire : `capabilities.chat = false` pour `CORE_
 
 ## CI et revue fraîche
 
-- CI GitHub sur le SHA qualifié : `PENDING` au moment de cette mise à jour. Un cycle antérieur a échoué sur l'inventaire de révocation décrit ci-dessus ; le correctif a été poussé et exige un nouveau cycle complet.
-- Revue automatisée fraîche sur le SHA qualifié : `NOT_REQUESTED`, conformément à la règle de ne poster `@codex review` qu'après toutes les checks requises vertes sur le SHA exact.
+- CI GitHub sur `f068596e39ebc0a1f7201b021aae0d90e8b9a0c4` : complète et verte, y compris `CI Success`, les quatre lanes ARIA Browser et les lanes E2E Auth.
+- Revue automatisée fraîche sur ce même SHA : terminée et applicable ; elle a produit le finding P1 workspace legacy décrit ci-dessus. Le correctif impose un nouveau SHA, une nouvelle CI complète verte puis une nouvelle revue automatisée applicable avant de déclarer la PR review-ready.
 - Revue humaine : non demandée et non conservée avant fermeture de ces deux gates.
 
 ## Risques restants

@@ -6,19 +6,14 @@ const CORE_V2_STUDENT = 'coreV2AriaFoundation' as const;
 const PINNED_COURSE_KEY = 'maths-terminale-eds';
 const UNAVAILABLE_COPY = 'Fonction non encore disponible pour ce profil';
 
-const FORBIDDEN_CORE_V2_PATHS = [
-  /^\/api\/aria\/chat\/?$/,
-  /^\/api\/aria\/conversations(?:\/.*)?$/,
-  /^\/api\/aria\/turns(?:\/.*)?$/,
-  /^\/api\/aria\/feedback\/?$/,
-] as const;
+const FORBIDDEN_CORE_V2_LEGACY_ARIA_PATH = /^\/api\/aria(?:\/|$)/;
 
 function pathname(rawUrl: string): string {
   return new URL(rawUrl).pathname;
 }
 
 test.describe('Core v2 ARIA foundation', () => {
-  test('uses only the native foundation, persists onboarding, and exposes no legacy chat', async ({ page }) => {
+  test('uses only the native foundation, persists onboarding, and exposes no legacy ARIA runtime', async ({ page }) => {
     await resetCoreV2AriaFoundationProfile();
     const requestedPaths: string[] = [];
     let rejectLegacyRequest!: (error: Error) => void;
@@ -69,6 +64,9 @@ test.describe('Core v2 ARIA foundation', () => {
         await expect(page.getByRole('heading', { name: 'Cockpit ARIA' })).toBeVisible();
         await page.getByTestId('aria-nav-CURRICULUM').click();
         await expect(page.getByTestId(`aria-course-card-${PINNED_COURSE_KEY}`)).toHaveClass(/border-brand-accent\/50/);
+        await expect(
+          page.getByTestId(`aria-course-card-${PINNED_COURSE_KEY}`).getByRole('button', { name: 'Ouvrir' }),
+        ).toHaveCount(0);
         const scopedOutOptionCard = page.getByTestId('aria-course-card-maths-expertes-terminale');
         await expect(scopedOutOptionCard).toBeVisible();
         await expect(scopedOutOptionCard.getByText('Non inclus dans l’abonnement')).toBeVisible();
@@ -89,9 +87,7 @@ test.describe('Core v2 ARIA foundation', () => {
     expect(requestedPaths).not.toContain('/api/aria/cockpit');
     expect(requestedPaths).not.toContain('/api/aria/cockpit/profile');
     expect(requestedPaths.filter((path) => path.startsWith('/api/aria/'))).toEqual([]);
-    expect(
-      requestedPaths.filter((path) => FORBIDDEN_CORE_V2_PATHS.some((pattern) => pattern.test(path))),
-    ).toEqual([]);
+    expect(requestedPaths.filter((path) => FORBIDDEN_CORE_V2_LEGACY_ARIA_PATH.test(path))).toEqual([]);
   });
 
   test('keeps the V1 launcher and conversation surface available', async ({ page }) => {
@@ -99,6 +95,12 @@ test.describe('Core v2 ARIA foundation', () => {
 
     const trigger = page.getByTestId('aria-chat-trigger');
     await expect(trigger).toBeVisible();
+
+    await page.getByTestId('aria-nav-CURRICULUM').click();
+    await page.getByRole('button', { name: 'Ouvrir' }).first().click();
+    await expect(page.getByRole('button', { name: 'Ma carte scolaire' })).toBeVisible();
+
+    await page.getByTestId('aria-nav-ARIA').click();
     await trigger.click();
     await expect(page.getByRole('main', { name: 'Conversation ARIA' })).toBeVisible();
   });

@@ -97,6 +97,7 @@ export const GET = defineStaffRoute({
       examContext: buildAriaExamContext(profile.targetSession),
       capabilities: {
         chat: false,
+        courseWorkspace: false,
         trajectory: false,
         assessments: false,
         resources: false,

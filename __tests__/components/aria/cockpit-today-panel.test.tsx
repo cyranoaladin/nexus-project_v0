@@ -40,6 +40,7 @@ describe('AriaTodayPanel', () => {
             resources: false,
             nextSession: false,
             conversationHistory: false,
+            courseWorkspace: false,
           },
         })}
       />,

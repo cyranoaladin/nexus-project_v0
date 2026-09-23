@@ -21,6 +21,7 @@ const mockAriaChatLauncher = jest.fn((props: unknown) => {
 jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
   useProtectedFetch: () => mockProtectedFetch,
   useCanonicalSession: () => mockSessionState,
+  useSessionMutationSuspended: () => false,
 }));
 jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
@@ -31,13 +32,7 @@ jest.mock('@/components/aria/AriaChatLauncher', () => ({
 
 import AriaCockpitPage from '@/app/dashboard/eleve/aria/page';
 
-const CORE_V2_CHAT_REQUEST_DENYLIST = [
-  /^\/api\/aria\/chat(?:\?|$)/,
-  /^\/api\/aria\/conversations(?:\?|$)/,
-  /^\/api\/aria\/conversations\/[^/?]+\/messages(?:\?|$)/,
-  /^\/api\/aria\/turns\/.*$/,
-  /^\/api\/aria\/feedback(?:\?|$)/,
-] as const;
+const CORE_V2_LEGACY_ARIA_REQUEST = /^\/api\/aria(?:\/|\?|$)/;
 
 function cockpit(chat: boolean): AriaCockpitDTO {
   return {
@@ -49,6 +44,7 @@ function cockpit(chat: boolean): AriaCockpitDTO {
       resources: chat,
       nextSession: chat,
       conversationHistory: chat,
+      courseWorkspace: chat,
     },
   } as unknown as AriaCockpitDTO;
 }
@@ -67,7 +63,7 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     mockSessionState.status = 'authenticated';
   });
 
-  it('CORE_V2 mounts no launcher, exposes no active chat control, and calls no legacy chat route', async () => {
+  it('CORE_V2 mounts no launcher or course workspace and calls no legacy ARIA route', async () => {
     mockSessionState.data = {
       user: { id: 'student-v2', role: 'ELEVE', authority: 'CORE_V2' },
     };
@@ -86,14 +82,12 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     expect(screen.queryByRole('button', { name: /Maths|NSI/ })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
-    fireEvent.click(screen.getAllByRole('button', { name: 'Ouvrir' })[0]!);
+    expect(screen.queryByRole('button', { name: 'Ouvrir' })).not.toBeInTheDocument();
     expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
     expect(mockAriaChatLauncher).not.toHaveBeenCalled();
 
     await waitFor(() => {
-      const forbidden = requestedUrls().filter((url) =>
-        CORE_V2_CHAT_REQUEST_DENYLIST.some((pattern) => pattern.test(url)),
-      );
+      const forbidden = requestedUrls().filter((url) => CORE_V2_LEGACY_ARIA_REQUEST.test(url));
       expect(forbidden).toEqual([]);
     });
   });
@@ -102,7 +96,13 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     mockSessionState.data = {
       user: { id: 'student-v1', role: 'ELEVE', authority: 'V1' },
     };
-    mockProtectedFetch.mockResolvedValue(response(cockpit(true)));
+    mockProtectedFetch.mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.startsWith('/api/aria/workshops')) return response({ workshops: [] });
+      if (url.startsWith('/api/aria/mastery/course')) return response({ skills: [] });
+      if (url.startsWith('/api/aria/next-best-action')) return response({ action: null });
+      return response(cockpit(true));
+    });
 
     render(<AriaCockpitPage />);
 
@@ -110,5 +110,18 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     expect(mockProtectedFetch).toHaveBeenCalledWith('/api/aria/cockpit');
     expect(mockAriaChatLauncher).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('mock-aria-chat-launcher')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ouvrir' })[0]!);
+    await waitFor(() => {
+      expect(requestedUrls()).toEqual(
+        expect.arrayContaining([
+          expect.stringMatching(/^\/api\/aria\/mastery\/course/),
+          expect.stringMatching(/^\/api\/aria\/next-best-action/),
+          expect.stringMatching(/^\/api\/aria\/workshops/),
+        ]),
+      );
+    });
+    expect(screen.getAllByRole('button', { name: 'Ma carte scolaire' })).toHaveLength(2);
   });
 });

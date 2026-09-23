@@ -97,11 +97,9 @@ describe('AriaCourseCard', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('does not throw when activated in selectable mode with no onToggle handler wired', () => {
+  it('does not expose an active control when no action handler is wired', () => {
     render(<AriaCourseCard view={view({ selectedForAria: false })} selectable />);
-    expect(() =>
-      fireEvent.click(screen.getByRole('button', { name: 'Ajouter à mon cockpit' })),
-    ).not.toThrow();
+    expect(screen.queryByRole('button', { name: 'Ajouter à mon cockpit' })).not.toBeInTheDocument();
   });
 
   it('shows a support note when provided', () => {
