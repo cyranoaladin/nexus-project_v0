@@ -8,13 +8,167 @@
  *
  * Refuses to run outside a disposable stack, refuses a Core v2 target that
  * collides with DATABASE_URL (client guard), and never touches PARENT/ELEVE
- * rows: those are created through the Core v2 services by the scenarios.
+ * rows, except for the explicitly named Core-v2-only ARIA foundation persona
+ * below. That persona has a shared login User but deliberately no V1 Student.
  */
 import { prisma as coreV1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { normalizeEmail } from '@/lib/core-v2/contact';
 
 const MIRRORED_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
+const CORE_V2_ARIA_EMAIL = 'core-v2-aria-foundation@example.test';
+
+async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof requireCoreV2Client>>) {
+  const legacyIdentity = await coreV1.user.findUnique({
+    where: { email: CORE_V2_ARIA_EMAIL },
+    select: {
+      id: true,
+      email: true,
+      password: true,
+      role: true,
+      firstName: true,
+      lastName: true,
+      sessionVersion: true,
+      student: { select: { id: true } },
+    },
+  });
+  if (!legacyIdentity?.email || !legacyIdentity.password || legacyIdentity.role !== 'ELEVE') {
+    throw new Error('CORE_V2_ARIA_E2E_IDENTITY_MISSING');
+  }
+  if (legacyIdentity.student) throw new Error('CORE_V2_ARIA_E2E_LEGACY_STUDENT_FORBIDDEN');
+
+  await coreV2.user.upsert({
+    where: { id: legacyIdentity.id },
+    create: {
+      id: legacyIdentity.id,
+      email: normalizeEmail(legacyIdentity.email),
+      password: legacyIdentity.password,
+      role: 'ELEVE',
+      firstName: legacyIdentity.firstName,
+      lastName: legacyIdentity.lastName,
+      sessionVersion: legacyIdentity.sessionVersion,
+      accountStatus: 'ACTIVE',
+      activatedAt: new Date(),
+    },
+    update: {
+      email: normalizeEmail(legacyIdentity.email),
+      password: legacyIdentity.password,
+      firstName: legacyIdentity.firstName,
+      lastName: legacyIdentity.lastName,
+      accountStatus: 'ACTIVE',
+    },
+  });
+
+  const household = await coreV2.household.upsert({
+    where: { id: 'e2e-core-v2-aria-household' },
+    create: { id: 'e2e-core-v2-aria-household' },
+    update: {},
+  });
+  const student = await coreV2.student.upsert({
+    where: { userId: legacyIdentity.id },
+    create: {
+      id: 'e2e-core-v2-aria-student',
+      userId: legacyIdentity.id,
+      householdId: household.id,
+    },
+    update: { householdId: household.id },
+  });
+  const academicYear = await coreV2.academicYear.upsert({
+    where: { startYear: 2026 },
+    create: {
+      id: 'e2e-academic-year-2026',
+      startYear: 2026,
+      startsAt: new Date('2026-09-01T00:00:00.000Z'),
+      endsAt: new Date('2027-08-31T23:59:59.999Z'),
+      status: 'CURRENT',
+    },
+    update: { status: 'CURRENT' },
+  });
+  const enrollment = await coreV2.studentAcademicYearEnrollment.upsert({
+    where: {
+      studentId_academicYearId: { studentId: student.id, academicYearId: academicYear.id },
+    },
+    create: {
+      studentId: student.id,
+      academicYearId: academicYear.id,
+      status: 'ACTIVE',
+      schoolingStatus: 'SCHOOL_ENROLLED',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      school: 'Lycée Pierre-Mendès-France',
+      approvedAt: new Date(),
+    },
+    update: {
+      status: 'ACTIVE',
+      schoolingStatus: 'SCHOOL_ENROLLED',
+      gradeLevel: 'TERMINALE',
+      academicTrack: 'EDS_GENERALE',
+      school: 'Lycée Pierre-Mendès-France',
+    },
+  });
+
+  for (const course of [
+    { courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' as const },
+    { courseKey: 'opt-maths-expertes-terminale', kind: 'OPTION' as const },
+  ]) {
+    await coreV2.studentCourseEnrollment.upsert({
+      where: {
+        academicYearEnrollmentId_courseKey: {
+          academicYearEnrollmentId: enrollment.id,
+          courseKey: course.courseKey,
+        },
+      },
+      create: {
+        academicYearEnrollmentId: enrollment.id,
+        courseKey: course.courseKey,
+        kind: course.kind,
+      },
+      update: { kind: course.kind },
+    });
+  }
+
+  await coreV2.ariaAccessGrant.upsert({
+    where: { id: 'e2e-core-v2-aria-scoped-grant' },
+    create: {
+      id: 'e2e-core-v2-aria-scoped-grant',
+      studentId: student.id,
+      featureKey: 'aria_maths',
+      ariaTier: 'ARIA_ACCOMPAGNEE',
+      courseScopes: ['maths-terminale-eds'],
+      status: 'ACTIVE',
+      startsAt: new Date('2026-09-01T00:00:00.000Z'),
+      source: 'E2E Core v2 ARIA foundation',
+    },
+    update: {
+      studentId: student.id,
+      featureKey: 'aria_maths',
+      ariaTier: 'ARIA_ACCOMPAGNEE',
+      courseScopes: ['maths-terminale-eds'],
+      status: 'ACTIVE',
+      startsAt: new Date('2026-09-01T00:00:00.000Z'),
+      endsAt: null,
+    },
+  });
+  await coreV2.ariaCockpitProfileCoreV2.upsert({
+    where: { studentId: student.id },
+    create: {
+      studentId: student.id,
+      pinnedCourseKeys: [],
+      weeklyGoalMinutes: 180,
+      learningGoals: [],
+      preferences: {},
+      onboardingCompletedAt: null,
+    },
+    update: {
+      targetSession: null,
+      pinnedCourseKeys: [],
+      weeklyGoalMinutes: 180,
+      learningGoals: [],
+      preferences: {},
+      onboardingCompletedAt: null,
+    },
+  });
+}
 
 async function main(): Promise<void> {
   if (process.env.E2E_DISPOSABLE_STACK !== '1' && process.env.NEXUS_DISPOSABLE_POSTGRES !== '1') {
@@ -60,7 +214,9 @@ async function main(): Promise<void> {
     }
     mirrored += 1;
   }
+  await seedCoreV2AriaFoundationPersona(coreV2);
   console.log(`[seed-e2e-staff-actors] mirrored ${mirrored} staff/coach account(s) into Core v2 (same ids).`);
+  console.log('[seed-e2e-staff-actors] seeded the Core-v2-only ARIA foundation persona.');
   await disconnectCoreV2Client();
   await coreV1.$disconnect();
 }

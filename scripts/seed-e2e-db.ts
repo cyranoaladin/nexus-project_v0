@@ -203,6 +203,22 @@ async function main() {
   });
   console.log(`  ✓ PW Student2 (STMG): ${pwStudent2.email}\n`);
 
+  // Core-v2-only ARIA persona: the shared User identity is required by the
+  // real credentials login, but there is deliberately NO legacy Student row.
+  // Its academic state is seeded after Core v2 migrations by
+  // scripts/core-v2/seed-e2e-staff-actors.ts.
+  const coreV2AriaFoundation = await prisma.user.create({
+    data: {
+      email: 'core-v2-aria-foundation@example.test',
+      password: hashedPassword,
+      role: UserRole.ELEVE,
+      firstName: 'Lina',
+      lastName: 'Fondation',
+      activatedAt: new Date(),
+    },
+  });
+  console.log(`  ✓ Core v2-only ARIA student identity: ${coreV2AriaFoundation.email}\n`);
+
   const ariaCredentials = await createAriaE2EPersonas({
     prisma,
     passwordHash: hashedPassword,
@@ -796,6 +812,7 @@ const student = await prisma.user.create({
     // (a separate, timestamped "Marie Dupont" fixture with her own,
     // disjoint set of children — see `parent-mastery.spec.ts`).
     ariaPersonasParent: { email: pwParent.email, password: runtimePassword },
+    coreV2AriaFoundation: { email: coreV2AriaFoundation.email!, password: runtimePassword },
     ...ariaCredentials,
   };
   writeRuntimeCredentialsManifest(
