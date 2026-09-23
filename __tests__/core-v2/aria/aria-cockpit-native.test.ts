@@ -80,6 +80,7 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     expect(cockpit.student.gradeLevel).toBe('TERMINALE');
     expect(cockpit.curriculum.academicProfile.specialties).toEqual(['MATHEMATIQUES']);
     expect(cockpit.capabilities).toEqual({
+      chat: false,
       trajectory: false,
       assessments: false,
       resources: false,

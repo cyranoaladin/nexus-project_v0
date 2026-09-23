@@ -3,7 +3,24 @@ import { AriaCockpitShell } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
-const cockpit = fixture as unknown as AriaCockpitDTO;
+const cockpit = {
+  ...fixture,
+  capabilities: {
+    chat: true,
+    trajectory: true,
+    assessments: true,
+    resources: true,
+    nextSession: true,
+    conversationHistory: true,
+  },
+} as unknown as AriaCockpitDTO;
+
+function withChatCapability(chat: boolean): AriaCockpitDTO {
+  return {
+    ...cockpit,
+    capabilities: { ...cockpit.capabilities, chat },
+  };
+}
 
 function openFirstCourseWorkspace(onOpenChat = jest.fn()) {
   render(<AriaCockpitShell cockpit={cockpit} onOpenChat={onOpenChat} onToggleCourse={jest.fn()} />);
@@ -59,6 +76,27 @@ describe('AriaCockpitShell', () => {
 
     fireEvent.click(screen.getByTestId('aria-nav-ARIA'));
     expect(screen.getByText('Démarrer une conversation')).toBeInTheDocument();
+  });
+
+  it('shows no active chat entry point when the deployment capability is false', () => {
+    const onOpenChat = jest.fn();
+    (global.fetch as jest.Mock).mockImplementation(() => new Promise(() => {}));
+    render(
+      <AriaCockpitShell
+        cockpit={withChatCapability(false)}
+        onOpenChat={onOpenChat}
+        onToggleCourse={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('aria-nav-ARIA'));
+    expect(screen.getByText('Le chat ARIA n’est pas encore disponible pour ce profil.')).toBeInTheDocument();
+    expect(screen.queryByText('Démarrer une conversation')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('aria-nav-CURRICULUM'));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ouvrir' })[0]!);
+    expect(screen.queryByTestId('aria-work-with-aria')).not.toBeInTheDocument();
+    expect(onOpenChat).not.toHaveBeenCalled();
   });
 
   it('opens a course workspace from the curriculum map and returns to the map on back', () => {

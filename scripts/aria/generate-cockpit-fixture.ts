@@ -95,6 +95,14 @@ const cockpit = {
     coachName: 'Helios',
   },
   examContext: null,
+  capabilities: {
+    chat: true,
+    trajectory: true,
+    assessments: true,
+    resources: true,
+    nextSession: true,
+    conversationHistory: true,
+  },
   skillGraphs,
 };
 

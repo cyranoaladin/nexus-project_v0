@@ -17,10 +17,24 @@ import { EmptyState } from './EmptyState';
 
 interface AriaAgentPanelProps {
   cockpit: AriaCockpitDTO;
-  onOpenChat: (courseKey: string) => void;
+  onOpenChat?: (courseKey: string) => void;
 }
 
 export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
+  if (!cockpit.capabilities.chat) {
+    return (
+      <section id="aria-agent" aria-labelledby="aria-agent-title" className="space-y-4">
+        <h2 id="aria-agent-title" className="text-lg font-semibold text-neutral-100">
+          ARIA
+        </h2>
+        <EmptyState
+          title="Chat ARIA indisponible"
+          body="Le chat ARIA n’est pas encore disponible pour ce profil."
+        />
+      </section>
+    );
+  }
+
   const chattable = cockpit.curriculum.courses.filter(
     (view) => view.access.academicallyRelevant
       && view.course.chatSubject !== null
@@ -78,7 +92,7 @@ export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
                   key={view.course.key}
                   variant="outline"
                   size="sm"
-                  onClick={() => onOpenChat(view.course.key)}
+                  onClick={() => onOpenChat?.(view.course.key)}
                   className="justify-start border-white/10 text-neutral-200 hover:border-brand-accent/40 hover:text-brand-accent"
                 >
                   <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />

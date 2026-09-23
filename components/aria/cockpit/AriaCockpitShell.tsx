@@ -39,7 +39,7 @@ const NAV: { panel: AriaCockpitPanel; label: string; icon: React.ElementType }[]
 
 interface AriaCockpitShellProps {
   cockpit: AriaCockpitDTO;
-  onOpenChat: (courseKey: string) => void;
+  onOpenChat?: (courseKey: string) => void;
   onToggleCourse: (courseKey: string) => void;
 }
 
@@ -148,7 +148,7 @@ export function AriaCockpitShell({
               cockpit={cockpit}
               courseKey={openCourseKey}
               onBack={() => setOpenCourseKey(null)}
-              onWorkWithAria={onOpenChat}
+              onWorkWithAria={cockpit.capabilities.chat ? onOpenChat : undefined}
               mastery={courseMastery}
               nextBestAction={nextBestAction}
             />
@@ -163,7 +163,12 @@ export function AriaCockpitShell({
         {panel === 'TRAJECTORY' && <AriaTrajectoryPanel cockpit={cockpit} />}
         {panel === 'RESOURCES' && <AriaResourcesPanel cockpit={cockpit} />}
         {panel === 'ASSESSMENTS' && <AriaAssessmentsPanel cockpit={cockpit} />}
-        {panel === 'ARIA' && <AriaAgentPanel cockpit={cockpit} onOpenChat={onOpenChat} />}
+        {panel === 'ARIA' && (
+          <AriaAgentPanel
+            cockpit={cockpit}
+            onOpenChat={cockpit.capabilities.chat ? onOpenChat : undefined}
+          />
+        )}
       </main>
     </div>
   );

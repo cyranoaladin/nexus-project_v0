@@ -3,7 +3,17 @@ import { AriaCourseWorkspace } from '@/components/aria/cockpit';
 import type { AriaCockpitDTO, AriaCourseView } from '@/lib/aria/cockpit/contracts';
 import fixture from '@/e2e/fixtures/aria/cockpit-terminale-eds.json';
 
-const baseCockpit = fixture as unknown as AriaCockpitDTO;
+const baseCockpit = {
+  ...fixture,
+  capabilities: {
+    chat: true,
+    trajectory: true,
+    assessments: true,
+    resources: true,
+    nextSession: true,
+    conversationHistory: true,
+  },
+} as unknown as AriaCockpitDTO;
 
 function minimalCourseView(overrides: Partial<AriaCourseView['course']> = {}, accessOverrides: Partial<AriaCourseView['access']> = {}): AriaCourseView {
   return {
@@ -28,6 +38,14 @@ function minimalCockpit(overrides: Partial<AriaCockpitDTO> = {}): AriaCockpitDTO
     skillGraphs: [],
     resources: [],
     assessments: [],
+    capabilities: {
+      chat: true,
+      trajectory: true,
+      assessments: true,
+      resources: true,
+      nextSession: true,
+      conversationHistory: true,
+    },
     ...overrides,
   } as unknown as AriaCockpitDTO;
 }

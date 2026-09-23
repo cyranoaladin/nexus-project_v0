@@ -215,6 +215,7 @@ describe('GET /api/aria/cockpit', () => {
       expect(body).toHaveProperty(key);
     }
     expect(body.setup.state).toBe('READY');
+    expect(body.capabilities.chat).toBe(true);
   });
 
   it("dérive les droits depuis le dashboard, sans seconde résolution d'entitlements", async () => {

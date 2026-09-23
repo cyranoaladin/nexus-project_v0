@@ -38,7 +38,7 @@ interface AriaCourseWorkspaceProps {
   cockpit: AriaCockpitDTO;
   courseKey: string;
   onBack: () => void;
-  onWorkWithAria: (courseKey: string) => void;
+  onWorkWithAria?: (courseKey: string) => void;
   /** `undefined` while still loading, `[]` once loaded with no mastery data yet. */
   mastery?: readonly AriaCourseSkillMastery[];
   /** `undefined` while still loading, `null` once loaded with nothing to recommend. */
@@ -70,9 +70,11 @@ export function AriaCourseWorkspace({
   const assessments = cockpit.assessments.filter(
     (assessment) => assessment.subject !== null && course.chatSubject === assessment.subject,
   );
-  const canChat = access.academicallyRelevant
+  const canChat = cockpit.capabilities.chat
+    && access.academicallyRelevant
     && course.chatSubject !== null
-    && access.commerciallyEntitled;
+    && access.commerciallyEntitled
+    && onWorkWithAria !== undefined;
 
   return (
     <section aria-labelledby="aria-workspace-title" className="space-y-4">
@@ -107,23 +109,29 @@ export function AriaCourseWorkspace({
         <CardContent className="space-y-3">
           {course.supportNote && <p className="text-sm text-neutral-400">{course.supportNote}</p>}
           <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              disabled={!canChat}
-              onClick={() => onWorkWithAria(courseKey)}
-              className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90"
-              data-testid="aria-work-with-aria"
-            >
-              <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
-              Travailler avec ARIA
-            </Button>
-            {!canChat && (
+            {cockpit.capabilities.chat && (
+              <Button
+                size="sm"
+                disabled={!canChat}
+                onClick={() => onWorkWithAria?.(courseKey)}
+                className="bg-brand-accent text-surface-darker hover:bg-brand-accent/90"
+                data-testid="aria-work-with-aria"
+              >
+                <Sparkles className="mr-1.5 h-4 w-4" aria-hidden="true" />
+                Travailler avec ARIA
+              </Button>
+            )}
+            {!cockpit.capabilities.chat ? (
+              <span className="self-center text-xs text-neutral-400">
+                Le chat ARIA n’est pas encore disponible pour ce profil.
+              </span>
+            ) : !canChat ? (
               <span className="self-center text-xs text-amber-200">
                 {course.chatSubject === null
                   ? 'ARIA ne prend pas encore en charge cette matière.'
                   : "Cette matière n’est pas incluse dans ton abonnement."}
               </span>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>

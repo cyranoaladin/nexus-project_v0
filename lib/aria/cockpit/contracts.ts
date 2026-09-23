@@ -459,6 +459,8 @@ export interface AriaStudentDTO {
  * une limite temporaire, jamais comme une absence de données.
  */
 export interface AriaCockpitCapabilitiesDTO {
+  /** Chat runtime deployed for this authority (independent of commercial entitlement). */
+  readonly chat: boolean;
   readonly trajectory: boolean;
   readonly assessments: boolean;
   readonly resources: boolean;
