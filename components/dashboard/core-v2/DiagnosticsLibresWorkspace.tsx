@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { type ApiFail, type DiagnosticAssignment, describeFailure, v2 } from './api';
 import { PublishedBilanContentView, type PublishedBilanContent } from './PublishedBilanContentView';
 import { StatusMessage } from './StatusMessage';
+import { selectCurrentDiagnosticSubmission } from '@/lib/diagnostics/current-submission';
 
 /**
  * Espace candidat — "Diagnostics libres" (mission §7). Le candidat retrouve
@@ -69,11 +70,8 @@ const STATUS_LABELS: Record<DiagnosticAssignment['status'], string> = {
 function AssignmentCard({ assignment, onDeposited }: { assignment: DiagnosticAssignment; onDeposited: () => Promise<void> }) {
   // A REJECTED deposit (failed the required security scan or write
   // verification) is never presented as a received submission.
-  const usableSubmissions = assignment.submissions.filter((s) => s.status !== 'REJECTED');
-  const currentSubmission = usableSubmissions.length
-    ? usableSubmissions.reduce((max, s) => (s.version > max.version ? s : max))
-    : null;
-  const hasRejectedDeposit = usableSubmissions.length !== assignment.submissions.length;
+  const currentSubmission = selectCurrentDiagnosticSubmission(assignment.submissions);
+  const hasRejectedDeposit = assignment.submissions.some((submission) => submission.status === 'REJECTED');
   const revoked = assignment.status === 'REVOKED';
 
   return (

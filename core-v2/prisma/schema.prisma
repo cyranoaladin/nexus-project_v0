@@ -874,8 +874,10 @@ enum DiagnosticAssignmentStatus {
 // incremented `version`, never an update to a prior row's file (mission
 // constraint: "un second dépôt ne doit pas écraser silencieusement une
 // soumission déjà utilisée pour un bilan"). The "current" submission for an
-// assignment is the MAX(version) row, computed at query time — never a
-// separate boolean flag, to avoid a second source of truth.
+// assignment is the MAX(version) row among usable statuses (RECEIVED,
+// READABLE, ANALYZED); REJECTED rows remain audit history and never supplant
+// it. This is computed at query time — never a separate boolean flag, to
+// avoid a second source of truth.
 model DiagnosticSubmission {
   id String @id @default(cuid())
 
