@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { resetCoreV2AriaFoundationProfile } from '../helpers/core-v2-aria-foundation';
+import { fixtureState, resetFixture } from '../aria/helpers';
 
 const CORE_V2_STUDENT = 'coreV2AriaFoundation' as const;
 const PINNED_COURSE_KEY = 'maths-terminale-eds';
@@ -72,12 +73,30 @@ test.describe('Core v2 ARIA foundation', () => {
         await expect(scopedOutOptionCard.getByText('Non inclus dans l’abonnement')).toBeVisible();
         await expect(scopedOutOptionCard.getByRole('button', { name: 'Ouvrir' })).toHaveCount(0);
 
-        for (const panel of ['TODAY', 'TRAJECTORY', 'RESOURCES', 'ASSESSMENTS', 'ARIA'] as const) {
+        for (const panel of ['TODAY', 'TRAJECTORY', 'RESOURCES', 'ASSESSMENTS'] as const) {
           await page.getByTestId(`aria-nav-${panel}`).click();
           await expect(page.getByText(UNAVAILABLE_COPY).first()).toBeVisible();
         }
-        await expect(page.getByTestId('aria-chat-trigger')).toHaveCount(0);
-        await expect(page.getByText('Démarrer une conversation')).toHaveCount(0);
+        await resetFixture(page.request);
+        await page.getByTestId('aria-nav-ARIA').click();
+        await expect(page.getByText('Démarrer une conversation')).toBeVisible();
+        await page.getByRole('button', { name: /Mathématiques/ }).click();
+        await expect(page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' })).toBeVisible();
+        await expect(page.getByLabel('Cours ARIA')).toHaveValue(PINNED_COURSE_KEY);
+        await page.getByLabel('Message à ARIA').fill('Explique le lien entre le signe de la dérivée et les variations.');
+        await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
+        await expect(page.getByRole('main', { name: 'Conversation ARIA' })).toContainText(/ARIA|dérivée|fonction/i);
+        await expect.poll(async () => (await fixtureState(page.request)).modelInvocations).toBe(1);
+        await page.getByRole('button', { name: 'Réponse utile' }).click();
+        await expect(page.getByRole('button', { name: 'Réponse utile' })).toHaveAttribute('aria-pressed', 'true');
+
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await expect(page.getByRole('heading', { name: 'Cockpit ARIA' })).toBeVisible();
+        await page.getByTestId('aria-chat-trigger').click();
+        await expect(page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' })).toBeVisible();
+        await expect(page.getByRole('main', { name: 'Conversation ARIA' })).toContainText(/dérivée|fonction/i);
+        await expect(page.getByRole('button', { name: 'Réponse utile' })).toHaveAttribute('aria-pressed', 'true');
+        await expect.poll(async () => (await fixtureState(page.request)).modelInvocations).toBe(1);
         await page.waitForLoadState('networkidle');
       })(),
     ]);

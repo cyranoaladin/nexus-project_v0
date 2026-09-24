@@ -179,6 +179,10 @@ services:
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
       ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
+      # Core v2 conversation is enabled only in this disposable fixture stack;
+      # production/preview remain capability=false until the integrated release.
+      CORE_V2_ARIA_CONVERSATION_ENABLED: "true"
+      CORE_V2_ARIA_RECOVERY_WORKER_ENABLED: "true"
       ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: "1000"
       E2E_DISPOSABLE_STACK: "1"
       ARIA_MODEL_PROVIDER: OPENAI_COMPATIBLE_LOCAL

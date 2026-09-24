@@ -375,6 +375,48 @@ describe('ARIA browser client transport ownership', () => {
     expect(history.messages[3]).toMatchObject({ turnId: 'turn-active' });
   });
 
+  it('CORE_V2 loads every keyset page, de-duplicates ids, preserves derived status and restores the active turn', async () => {
+    const message = (id: string, role: 'USER' | 'ASSISTANT', status: string, feedback: boolean | null = null) => ({
+      id, turnId: 'turn-active', role, content: id, status, citations: [], feedback,
+    });
+    const firstPage = Array.from({ length: 50 }, (_, index) => message(`message-${String(index + 1).padStart(2, '0')}`, index === 0 ? 'USER' : 'ASSISTANT', index === 0 ? 'COMPLETED' : 'PENDING'));
+    firstPage.push(message('message-duplicate', 'ASSISTANT', 'STREAMING', true));
+    const secondPage = [message('message-duplicate', 'ASSISTANT', 'STREAMING', true), message('message-52', 'ASSISTANT', 'CANCELLED')];
+    const activeTurn = { turnId: 'turn-active', clientRequestId: activeHistoryTurn.clientRequestId, status: 'RUNNING', pedagogicalMode: 'METHODOLOGY' };
+    const envelope = (messages: unknown[], nextCursor: string | null) => ({
+      data: { conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale', contextState: 'ACTIVE', resumable: true, activeTurn }, messages, nextCursor },
+    });
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(firstPage, 'cursor-2')), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(secondPage, null)), { status: 200 }));
+
+    const history = await fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2');
+
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/v2/aria/conversations/conversation-1/messages?limit=50', { signal: undefined });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/v2/aria/conversations/conversation-1/messages?limit=50&cursor=cursor-2', { signal: undefined });
+    expect(history.messages).toHaveLength(52);
+    expect(new Set(history.messages.map(({ id }) => id)).size).toBe(52);
+    expect(history.messages[0]).toMatchObject({ id: 'message-01', status: 'COMPLETED' });
+    expect(history.messages[1]).toMatchObject({ status: 'PENDING' });
+    expect(history.messages.at(-1)).toMatchObject({ id: 'message-52', status: 'CANCELLED' });
+    expect(history.messages.find(({ id }) => id === 'message-duplicate')).toMatchObject({ status: 'STREAMING', feedback: true });
+    expect(history.activeTurn).toEqual(activeTurn);
+  });
+
+  it('CORE_V2 rejects a repeated keyset cursor instead of restarting the history', async () => {
+    const payload = {
+      data: {
+        conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale', contextState: 'ACTIVE', resumable: true, activeTurn: null },
+        messages: [], nextCursor: 'same-cursor',
+      },
+    };
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }));
+
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2')).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
   it('returns inactive history and preserves the canonical boolean feedback value', async () => {
     jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({
       conversation: historyConversation(null),

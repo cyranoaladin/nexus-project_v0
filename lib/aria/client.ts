@@ -215,6 +215,7 @@ export async function fetchAriaConversationHistory(
   authority?: AriaClientAuthority,
 ): Promise<AriaClientConversationHistory> {
   const pages: AriaClientMessage[][] = [];
+  const coreMessageIds = new Set<string>();
   const seenCursors = new Set<string>();
   let cursor: string | null = null;
   let canonicalConversation: AriaHistoryConversation | null = null;
@@ -227,28 +228,69 @@ export async function fetchAriaConversationHistory(
     const raw = object(await requireOk(response));
     const body = authority === 'CORE_V2' ? object(raw.data) : raw;
     if (authority === 'CORE_V2') {
-      const coreMessages = Array.isArray(body.messages) ? body.messages : [];
+      const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
+      if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      if (canonicalConversation === null) canonicalConversation = parsedConversation.data;
+      else if (parsedConversation.data.courseKey !== canonicalConversation.courseKey) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      const coreMessages = body.messages;
       const mapped = coreMessages.map((rawMessage) => {
         const message = object(rawMessage);
         const role = String(message.role).toLowerCase();
-        if (typeof message.id !== 'string'
+        const invalidCoreMessage = typeof message.id !== 'string'
           || !(message.turnId === null || typeof message.turnId === 'string')
           || !['user', 'assistant', 'system'].includes(role)
           || typeof message.content !== 'string'
-          || !Array.isArray(message.citations)) {
+          || !['PENDING', 'STREAMING', 'COMPLETED', 'CANCELLED', 'ERROR'].includes(String(message.status))
+          || !Array.isArray(message.citations)
+          || !(message.feedback === null || typeof message.feedback === 'boolean');
+        if (invalidCoreMessage) {
           throw new AriaClientError('INVALID_RESPONSE', 500, false);
         }
+        const messageId = message.id as string;
+        const turnId = message.turnId as string | null;
+        const content = message.content as string;
+        const status = message.status as AriaClientMessage['status'];
+        const feedback = message.feedback as boolean | null;
+        const citations = (message.citations as unknown[]).map((citation) => {
+          const parsed = ariaHistoryCitationSchema.safeParse(citation);
+          if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+          return Object.freeze(parsed.data);
+        });
         return {
-          id: message.id,
-          turnId: message.turnId,
+          id: messageId,
+          turnId,
           role: role as AriaClientMessage['role'],
-          content: message.content,
-          status: 'COMPLETED' as const,
-          citations: message.citations as AriaClientMessage['citations'],
-          feedback: null,
+          content,
+          status,
+          citations: Object.freeze(citations),
+          feedback,
         };
       });
-      return { messages: mapped, activeTurn: null };
+      pages.push(mapped.filter((message) => {
+        if (coreMessageIds.has(message.id)) return false;
+        coreMessageIds.add(message.id);
+        return true;
+      }));
+      if (body.nextCursor === null || body.nextCursor === undefined) {
+        if (!canonicalConversation) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        return Object.freeze({
+          messages: Object.freeze(pages.flat()),
+          activeTurn: canonicalConversation.activeTurn
+            ? Object.freeze(canonicalConversation.activeTurn)
+            : null,
+        });
+      }
+      if (typeof body.nextCursor !== 'string' || !body.nextCursor || seenCursors.has(body.nextCursor)) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      seenCursors.add(body.nextCursor);
+      cursor = body.nextCursor;
+      continue;
     }
     const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
     if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {
