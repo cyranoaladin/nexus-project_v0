@@ -25,6 +25,7 @@ import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 import { createAriaE2EPersonas } from './e2e/aria-personas';
+import { CORE_V2_ARIA_FOUNDATION_EMAIL } from './e2e/aria-foundation-identity';
 
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -203,21 +204,9 @@ async function main() {
   });
   console.log(`  ✓ PW Student2 (STMG): ${pwStudent2.email}\n`);
 
-  // Core-v2-only ARIA persona: the shared User identity is required by the
-  // real credentials login, but there is deliberately NO legacy Student row.
-  // Its academic state is seeded after Core v2 migrations by
-  // scripts/core-v2/seed-e2e-staff-actors.ts.
-  const coreV2AriaFoundation = await prisma.user.create({
-    data: {
-      email: 'core-v2-aria-foundation@example.test',
-      password: hashedPassword,
-      role: UserRole.ELEVE,
-      firstName: 'Lina',
-      lastName: 'Fondation',
-      activatedAt: new Date(),
-    },
-  });
-  console.log(`  ✓ Core v2-only ARIA student identity: ${coreV2AriaFoundation.email}\n`);
+  // The Core-v2-only ARIA persona exists solely in the Core v2 database.
+  // HYBRID auth resolves its email there without a V1 User or Student row.
+  // The Core v2 seed reads the disposable credentials manifest below.
 
   const ariaCredentials = await createAriaE2EPersonas({
     prisma,
@@ -812,7 +801,7 @@ const student = await prisma.user.create({
     // (a separate, timestamped "Marie Dupont" fixture with her own,
     // disjoint set of children — see `parent-mastery.spec.ts`).
     ariaPersonasParent: { email: pwParent.email, password: runtimePassword },
-    coreV2AriaFoundation: { email: coreV2AriaFoundation.email!, password: runtimePassword },
+    coreV2AriaFoundation: { email: CORE_V2_ARIA_FOUNDATION_EMAIL, password: runtimePassword },
     ...ariaCredentials,
   };
   writeRuntimeCredentialsManifest(

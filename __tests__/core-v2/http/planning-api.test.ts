@@ -40,7 +40,7 @@ async function json(response: Response) {
 }
 
 async function seed() {
-  const year = await seedAcademicYear(h.client, 2026);
+  const year = await seedAcademicYear(h.client, 2099);
   const parent = await h.client.user.create({ data: { role: 'PARENT', email: 'amel@synthetic.test', firstName: 'Amel', accountStatus: 'ACTIVE' } });
   const household = await h.client.household.create({ data: { parents: { create: { userId: parent.id, isPrimaryContact: true } } } });
   const studentUser = await h.client.user.create({ data: { role: 'ELEVE', email: 'yasmine@synthetic.test', firstName: 'Yasmine', accountStatus: 'ACTIVE' } });
@@ -54,7 +54,7 @@ async function seed() {
   const assignment = await assignCoach(h.client, h.ctx(), { coachId: coach.coachId, enrollmentId: enrollment.id, courseKey: 'maths-premiere' });
   const series = await createPlanningSeries(h.client, h.ctx(), {
     assignmentId: assignment.id,
-    startDate: new Date('2026-09-15'),
+    startDate: new Date('2099-09-15'),
     localStartTime: '18:00',
     localEndTime: '19:00',
     recurrenceRule: 'FREQ=WEEKLY;BYDAY=TU',
@@ -64,7 +64,7 @@ async function seed() {
   return { parent, studentUser, student, coach, assignment, series };
 }
 
-const RANGE = 'from=2026-09-01T00:00:00Z&to=2026-10-01T00:00:00Z';
+const RANGE = 'from=2099-09-01T00:00:00Z&to=2099-10-01T00:00:00Z';
 
 beforeEach(() => signInAs({ id: h.assistante.userId, role: 'ASSISTANTE' }));
 
@@ -94,10 +94,10 @@ describe('staff planning routes', () => {
     expect((await json(await cancelBooking.POST(req('POST', '/x', { reason: 'again' }), params(list[0]!.id)))).status).toBe(409);
     expect((await json(await cancelBooking.POST(req('POST', '/x', {}), params(list[1]!.id)))).status).toBe(400);
 
-    const collide = await json(await rescheduleBooking.POST(req('POST', '/x', { localDate: '2026-09-29', localStartTime: '18:00', localEndTime: '19:00', reason: 'x' }), params(list[1]!.id)));
+    const collide = await json(await rescheduleBooking.POST(req('POST', '/x', { localDate: '2099-09-29', localStartTime: '18:00', localEndTime: '19:00', reason: 'x' }), params(list[1]!.id)));
     expect(collide.status).toBe(409);
     expect(collide.body.error.details.conflicts[0]).toMatchObject({ with: 'COACH' });
-    const moved = await json(await rescheduleBooking.POST(req('POST', '/x', { localDate: '2026-09-24', localStartTime: '10:00', localEndTime: '11:00', reason: 'Rattrapage' }), params(list[1]!.id)));
+    const moved = await json(await rescheduleBooking.POST(req('POST', '/x', { localDate: '2099-09-24', localStartTime: '10:00', localEndTime: '11:00', reason: 'Rattrapage' }), params(list[1]!.id)));
     expect(moved.status).toBe(201);
     expect(moved.body.data).toMatchObject({ overridesBookingId: list[1]!.id, status: 'SCHEDULED' });
 

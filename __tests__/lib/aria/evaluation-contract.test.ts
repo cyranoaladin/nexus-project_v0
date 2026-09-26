@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import * as fs from 'node:fs';
 import {
   ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION,
   ariaConversationEvaluationCaseSchema,
@@ -7,6 +8,27 @@ import {
   validateAriaConversationEvaluationJsonStructure,
 } from '@/lib/aria/evaluation/contracts';
 import { getCourseCapabilities } from '@/lib/aria/curriculum';
+
+function loadEvaluationWithFixtureBytes(overrides: Readonly<Record<string, Buffer | string>>): () => unknown {
+  const originalRead = fs.readFileSync;
+  let load: (() => unknown) | undefined;
+  jest.isolateModules(() => {
+    jest.doMock('node:fs', () => ({
+      ...jest.requireActual('node:fs'),
+      readFileSync: ((path: fs.PathOrFileDescriptor, ...args: unknown[]) => {
+        const replacement = Object.entries(overrides).find(([suffix]) => String(path).endsWith(suffix));
+        if (replacement) return replacement[1];
+        return (originalRead as (...parameters: unknown[]) => unknown)(path, ...args);
+      }) as typeof fs.readFileSync,
+    }));
+    try {
+      load = require('@/lib/aria/evaluation/contracts').loadAriaConversationEvaluationBundle;
+    } finally {
+      jest.dontMock('node:fs');
+    }
+  });
+  return load!;
+}
 
 describe('ARIA versioned pedagogical evaluation contract', () => {
   const pedagogicalCaseIds = [
@@ -24,6 +46,85 @@ describe('ARIA versioned pedagogical evaluation contract', () => {
       .toBe(ARIA_CONVERSATION_EVALUATION_SEMANTIC_VALIDATOR_VERSION);
     expect(bundle.review.schemaSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(bundle.review.corpusSha256).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('rejects a review digest that no longer matches the evaluation corpus', () => {
+    const originalRead = fs.readFileSync;
+    const read = ((path: fs.PathOrFileDescriptor, ...args: unknown[]) => {
+      if (String(path).endsWith('conversation-policy.v1.review.json')) {
+        const review = JSON.parse(originalRead(path, 'utf8') as string);
+        return JSON.stringify({ ...review, corpusSha256: '0'.repeat(64) });
+      }
+      return (originalRead as (...parameters: unknown[]) => unknown)(path, ...args);
+    }) as typeof fs.readFileSync;
+    jest.isolateModules(() => {
+      jest.doMock('node:fs', () => ({ ...jest.requireActual('node:fs'), readFileSync: read }));
+      try {
+        const { loadAriaConversationEvaluationBundle: load } = require('@/lib/aria/evaluation/contracts');
+        expect(() => load()).toThrow('ARIA_EVALUATION_DIGEST_MISMATCH');
+      } finally {
+        jest.dontMock('node:fs');
+      }
+    });
+  });
+
+  it('rejects duplicate case identities even when the review digest is updated', () => {
+    const originalRead = fs.readFileSync;
+    const originalCorpus = originalRead('data/aria/evaluation/conversation-policy.v1.jsonl', 'utf8') as string;
+    const rows = originalCorpus.trimEnd().split('\n');
+    const duplicateCorpus = `${rows[0]}\n${rows[0]}\n`;
+    const read = ((path: fs.PathOrFileDescriptor, ...args: unknown[]) => {
+      if (String(path).endsWith('conversation-policy.v1.jsonl')) return Buffer.from(duplicateCorpus);
+      if (String(path).endsWith('conversation-policy.v1.review.json')) {
+        const review = JSON.parse(originalRead(path, 'utf8') as string);
+        return JSON.stringify({ ...review, corpusSha256: createHash('sha256').update(duplicateCorpus).digest('hex') });
+      }
+      return (originalRead as (...parameters: unknown[]) => unknown)(path, ...args);
+    }) as typeof fs.readFileSync;
+    jest.isolateModules(() => {
+      jest.doMock('node:fs', () => ({ ...jest.requireActual('node:fs'), readFileSync: read }));
+      try {
+        const { loadAriaConversationEvaluationBundle: load } = require('@/lib/aria/evaluation/contracts');
+        expect(() => load()).toThrow('ARIA_EVALUATION_DUPLICATE_CASE_ID');
+      } finally {
+        jest.dontMock('node:fs');
+      }
+    });
+  });
+
+  it.each([
+    ['an approval with no reviewer', { reviewStatus: 'APPROVED' }, 'approved evaluation requires human review evidence'],
+    ['an approval with a reviewer but no review date', { reviewStatus: 'APPROVED', reviewedBy: ['reviewer-1'] }, 'approved evaluation requires human review evidence'],
+    ['a pending review claiming a reviewer', { reviewedBy: ['reviewer-1'] }, 'pending evaluation cannot claim review evidence'],
+  ])('rejects %s', (_label, changedReview, message) => {
+    const review = JSON.parse(fs.readFileSync('data/aria/evaluation/conversation-policy.v1.review.json', 'utf8') as string);
+    const load = loadEvaluationWithFixtureBytes({
+      'conversation-policy.v1.review.json': JSON.stringify({ ...review, ...changedReview }),
+    });
+    expect(() => load()).toThrow(message);
+  });
+
+  it('rejects a corpus row that violates the bound JSON schema', () => {
+    const row = JSON.parse((fs.readFileSync('data/aria/evaluation/conversation-policy.v1.jsonl', 'utf8') as string).split('\n')[0]!);
+    const corpus = `${JSON.stringify({ ...row, courseKey: 123 })}\n`;
+    const review = JSON.parse(fs.readFileSync('data/aria/evaluation/conversation-policy.v1.review.json', 'utf8') as string);
+    const load = loadEvaluationWithFixtureBytes({
+      'conversation-policy.v1.jsonl': Buffer.from(corpus),
+      'conversation-policy.v1.review.json': JSON.stringify({
+        ...review, corpusSha256: createHash('sha256').update(corpus).digest('hex'),
+      }),
+    });
+    expect(() => load()).toThrow('ARIA_EVALUATION_SCHEMA_INVALID:1');
+  });
+
+  it('rejects a review that omits an otherwise valid corpus case', () => {
+    const review = JSON.parse(fs.readFileSync('data/aria/evaluation/conversation-policy.v1.review.json', 'utf8') as string);
+    const load = loadEvaluationWithFixtureBytes({
+      'conversation-policy.v1.review.json': JSON.stringify({
+        ...review, expectedCaseIds: review.expectedCaseIds.slice(1),
+      }),
+    });
+    expect(() => load()).toThrow('ARIA_EVALUATION_CASE_SET_MISMATCH');
   });
 
   it('proves fixture policy wiring without claiming real-model pedagogical quality', () => {

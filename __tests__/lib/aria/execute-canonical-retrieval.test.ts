@@ -35,6 +35,33 @@ describe('canonical retrieval academic identity boundary', () => {
     expect(executeAriaRetrieval).not.toHaveBeenCalled();
   });
 
+  it('resolves a Core v2 cockpit key to the canonical RAG plan and identity context', async () => {
+    const plan = {
+      courseKey: 'eds-maths-terminale',
+      manifestSha256: 'a'.repeat(64),
+      corpusId: 'aria-maths-terminale',
+      corpusVersionId: 'fixture-v1',
+      retrievalScope: {},
+    };
+    const context = { courseKey: 'maths-terminale-eds', subject: { studentId: 'student-core-v2' } };
+    (resolveAriaRetrievalPlan as jest.Mock).mockReturnValueOnce({ status: 'AVAILABLE', plan });
+    (resolveDisposableAriaRagIdentity as jest.Mock).mockReturnValueOnce({ pseudonymousSubject: 'psn_fixture' });
+    (executeAriaRetrieval as jest.Mock).mockResolvedValueOnce({ status: 'NO_RESULTS', plan });
+
+    await executeCanonicalRetrieval({
+      context,
+      policy: { kind: 'GROUNDED_REQUIRED', task: 'DISCOVERY', courseKey: 'eds-maths-terminale' },
+      query: 'Explique la dérivée.',
+      signal: new AbortController().signal,
+    } as never);
+
+    expect(resolveAriaRetrievalPlan).toHaveBeenCalledWith('eds-maths-terminale', 'DISCOVERY', 'TUTOR');
+    expect(resolveDisposableAriaRagIdentity).toHaveBeenCalledWith({
+      context: expect.objectContaining({ courseKey: 'eds-maths-terminale', subject: context.subject }),
+      plan,
+    });
+  });
+
   it('passes only the guarded disposable identity adapter result to retrieval execution', async () => {
     const plan = {
       courseKey: 'eds-nsi-premiere',

@@ -179,6 +179,10 @@ services:
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
       ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
+      # Core v2 conversation is enabled only in this disposable fixture stack;
+      # production/preview remain capability=false until the integrated release.
+      CORE_V2_ARIA_CONVERSATION_ENABLED: "true"
+      CORE_V2_ARIA_RECOVERY_WORKER_ENABLED: "true"
       ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: "1000"
       E2E_DISPOSABLE_STACK: "1"
       ARIA_MODEL_PROVIDER: OPENAI_COMPATIBLE_LOCAL
@@ -187,7 +191,8 @@ services:
       ARIA_MODEL_BASE_URL: http://aria-fixture-e2e:4010/v1
       ARIA_MODEL_API_KEY: "${ARIA_E2E_MODEL_API_KEY:?ARIA E2E model key required}"
       ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS: "750"
-      ARIA_MODEL_TIMEOUT_MS: "1500"
+      # A held fixture stream must survive a browser reload before Stop.
+      ARIA_MODEL_TIMEOUT_MS: "30000"
       RAG_API_BASE_URL: http://aria-fixture-e2e:4010
       ARIA_RAG_ENGINE_TIMEOUT_MS: "750"
       RAG_BFF_SERVICE_TOKEN: "${RAG_BFF_SERVICE_TOKEN:?ARIA E2E RAG token required}"
