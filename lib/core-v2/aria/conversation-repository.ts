@@ -35,6 +35,7 @@ import {
 import { AriaError } from '@/lib/aria/kernel/errors';
 import type { AriaErrorCode } from '@/lib/aria/kernel/errors';
 import { isKnownAriaCourseKey } from '@/lib/aria/curriculum/catalog';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 
 const reservationMessages = {
   messages: { select: { id: true, role: true } },
@@ -284,8 +285,9 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
       const retrieved = assertAriaCitationsMatchRetrievalEvidence(input.citations, evidence);
       if (checkpoint && (!sameJson(turn.retrievalEvidence, input.retrievalEvidence) || turn.ragStatus !== input.ragStatus)) throw new AriaError('INTERNAL_ERROR', 500, 'La provenance RAG finale est incohérente.');
       if (!checkpoint && (input.status === 'COMPLETED' || input.ragStatus !== 'NOT_CONFIGURED' || !sameJson(input.retrievalEvidence, { schemaVersion: 1, hits: [] }) || input.citations.length > 0)) throw new AriaError('INTERNAL_ERROR', 500, 'Aucun retrieval RAG checkpointé ne correspond.');
-      if (retrieved.some((citation) => citation.courseKey !== turn.courseKey)) throw new AriaError('INTERNAL_ERROR', 500, 'La citation appartient à un autre cours.');
-      const citations = retrieved.map((citation) => canonicalizeAriaCitationForPersistence(citation, turn.courseKey));
+      const canonicalCourseKey = toCanonicalAriaCourseKey(turn.courseKey);
+      if (retrieved.some((citation) => citation.courseKey !== canonicalCourseKey)) throw new AriaError('INTERNAL_ERROR', 500, 'La citation appartient à un autre cours.');
+      const citations = retrieved.map((citation) => canonicalizeAriaCitationForPersistence(citation, canonicalCourseKey));
       const jobs = await tx.$queryRaw<Array<{ id: string; status: CoreV2JobStatus }>>(Prisma.sql`
         SELECT id, status::text FROM core_v2_job_outbox
         WHERE "aggregateType" = 'AriaConversationTurnCoreV2' AND "aggregateId" = ${input.turnId}
@@ -312,7 +314,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
     const assistant = turn.messages[0];
     if (!assistant || !isKnownAriaCourseKey(turn.conversation.courseKey)) throw new AriaError('INTERNAL_ERROR', 500, 'Le résultat du Turn ARIA est incomplet.');
     if (turn.ragStatus !== null && !isAriaRagStatus(turn.ragStatus)) throw new AriaError('INTERNAL_ERROR', 500, 'Le résultat du Turn ARIA est invalide.');
-    return { turnId: turn.id, conversationId: turn.conversationId, assistantMessageId: assistant.id, status: turn.status as AriaTurnStatus, content: assistant.content, ragStatus: turn.ragStatus as PersistedTurnResult['ragStatus'], failureCode: readFailureCode(turn.executionMetadata), citations: assistant.citations.map((citation) => projectPersistedAriaReplayCitation({ row: citation, retrievalEvidence: turn.retrievalEvidence, expectedCourseKey: turn.conversation.courseKey })) };
+    return { turnId: turn.id, conversationId: turn.conversationId, assistantMessageId: assistant.id, status: turn.status as AriaTurnStatus, content: assistant.content, ragStatus: turn.ragStatus as PersistedTurnResult['ragStatus'], failureCode: readFailureCode(turn.executionMetadata), citations: assistant.citations.map((citation) => projectPersistedAriaReplayCitation({ row: citation, retrievalEvidence: turn.retrievalEvidence, expectedCourseKey: toCanonicalAriaCourseKey(turn.conversation.courseKey) })) };
   }
 
   async requestCancellation(input: RequestTurnCancellationInput): Promise<TurnCancellationRecord> {

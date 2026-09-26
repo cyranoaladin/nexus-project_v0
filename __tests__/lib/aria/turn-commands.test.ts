@@ -77,6 +77,20 @@ describe('ARIA Turn application commands', () => {
     }));
   });
 
+  it('keeps an idempotency fingerprint stable when reload adds the assigned conversation id', () => {
+    const initial = fingerprintAriaTurnRequest({
+      context: baseContext,
+      clientRequestId: 'request-resume',
+      message: 'Question en cours',
+    });
+    const reloaded = fingerprintAriaTurnRequest({
+      context: { ...baseContext, conversation: { id: 'conversation-assigned' } } as AriaConversationContext,
+      clientRequestId: 'request-resume',
+      message: 'Question en cours',
+    });
+    expect(reloaded).toBe(initial);
+  });
+
   it('reserves with a complete academic snapshot and caller-provided execution policy', async () => {
     const repo = repository();
     repo.reserveTurn.mockResolvedValue({

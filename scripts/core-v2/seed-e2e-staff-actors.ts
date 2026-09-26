@@ -14,6 +14,9 @@
 import { prisma as coreV1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { normalizeEmail } from '@/lib/core-v2/contact';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import bcrypt from 'bcryptjs';
 import { assertCoreV2E2eSeedTarget } from './e2e-seed-target';
 import {
   CORE_V2_ARIA_FOUNDATION_EMAIL,
@@ -25,44 +28,39 @@ const MIRRORED_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
 async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof requireCoreV2Client>>) {
   const legacyIdentity = await coreV1.user.findUnique({
     where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
-    select: {
-      id: true,
-      email: true,
-      password: true,
-      role: true,
-      firstName: true,
-      lastName: true,
-      sessionVersion: true,
-      student: { select: { id: true } },
-    },
+    select: { id: true },
   });
-  if (!legacyIdentity?.email || !legacyIdentity.password || legacyIdentity.role !== 'ELEVE') {
-    throw new Error('CORE_V2_ARIA_E2E_IDENTITY_MISSING');
+  if (legacyIdentity) throw new Error('CORE_V2_ARIA_E2E_LEGACY_USER_FORBIDDEN');
+
+  const manifest = JSON.parse(readFileSync(resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json'), 'utf8')) as Record<string, { email?: unknown; password?: unknown }>;
+  const credentials = manifest.coreV2AriaFoundation;
+  if (credentials?.email !== CORE_V2_ARIA_FOUNDATION_EMAIL
+    || typeof credentials.password !== 'string' || credentials.password.length < 32) {
+    throw new Error('CORE_V2_ARIA_E2E_CREDENTIALS_INVALID');
   }
-  if (legacyIdentity.student) throw new Error('CORE_V2_ARIA_E2E_LEGACY_STUDENT_FORBIDDEN');
+  const passwordHash = await bcrypt.hash(credentials.password, 12);
 
   await coreV2.user.upsert({
-    where: { id: legacyIdentity.id },
+    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
     create: {
-      id: legacyIdentity.id,
-      email: normalizeEmail(legacyIdentity.email),
-      password: legacyIdentity.password,
+      email: CORE_V2_ARIA_FOUNDATION_EMAIL,
+      password: passwordHash,
       role: 'ELEVE',
-      firstName: legacyIdentity.firstName,
-      lastName: legacyIdentity.lastName,
-      sessionVersion: legacyIdentity.sessionVersion,
+      firstName: 'Lina',
+      lastName: 'Fondation',
       accountStatus: 'ACTIVE',
       activatedAt: new Date(),
     },
     update: {
-      email: normalizeEmail(legacyIdentity.email),
-      password: legacyIdentity.password,
-      firstName: legacyIdentity.firstName,
-      lastName: legacyIdentity.lastName,
+      password: passwordHash,
       // Re-seeding rewrites credentials: revoke any existing Core v2 session.
       sessionVersion: { increment: 1 },
       accountStatus: 'ACTIVE',
     },
+  });
+  const identity = await coreV2.user.findUniqueOrThrow({
+    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
+    select: { id: true },
   });
 
   const household = await coreV2.household.upsert({
@@ -71,10 +69,10 @@ async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof
     update: {},
   });
   const student = await coreV2.student.upsert({
-    where: { userId: legacyIdentity.id },
+    where: { userId: identity.id },
     create: {
       id: 'e2e-core-v2-aria-student',
-      userId: legacyIdentity.id,
+      userId: identity.id,
       householdId: household.id,
     },
     update: { householdId: household.id },

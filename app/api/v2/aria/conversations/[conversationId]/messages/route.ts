@@ -53,7 +53,12 @@ export const GET = defineStaffRoute({
           courseKey: conversation.courseKey,
           contextState: 'ACTIVE' as const,
           resumable: true as const,
-          activeTurn,
+          activeTurn: activeTurn ? {
+            turnId: activeTurn.id,
+            clientRequestId: activeTurn.clientRequestId,
+            status: activeTurn.status,
+            pedagogicalMode: activeTurn.pedagogicalMode,
+          } : null,
         },
         conversationId: conversation.id,
         messages: page.map((message) => ({

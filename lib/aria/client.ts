@@ -233,10 +233,10 @@ export async function fetchAriaConversationHistory(
         throw new AriaClientError('INVALID_RESPONSE', 500, false);
       }
       if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
-      if (canonicalConversation === null) canonicalConversation = parsedConversation.data;
-      else if (parsedConversation.data.courseKey !== canonicalConversation.courseKey) {
+      if (canonicalConversation !== null && parsedConversation.data.courseKey !== canonicalConversation.courseKey) {
         throw new AriaClientError('INVALID_RESPONSE', 500, false);
       }
+      canonicalConversation = parsedConversation.data;
       const coreMessages = body.messages;
       const mapped = coreMessages.map((rawMessage) => {
         const message = object(rawMessage);
@@ -368,14 +368,15 @@ export async function streamAriaConversation(
   callbacks: AriaConversationTransportCallbacks,
   signal: AbortSignal,
 ): Promise<void> {
+  const { authority, ...chatPayload } = request;
   for (let attempt = 0; attempt < 30; attempt += 1) {
     let response: Response;
     try {
-      const base = resolveAriaApiBase(request.authority);
-      response = await fetch(request.authority === 'CORE_V2' ? `${base}/chat` : `${base}/chat`, {
+      const base = resolveAriaApiBase(authority);
+      response = await fetch(`${base}/chat`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', accept: request.authority === 'CORE_V2' ? 'application/json' : 'text/event-stream' },
-        body: JSON.stringify(request),
+        headers: { 'content-type': 'application/json', accept: authority === 'CORE_V2' ? 'application/json' : 'text/event-stream' },
+        body: JSON.stringify(chatPayload),
         signal,
       });
     } catch (error: unknown) {
@@ -384,14 +385,14 @@ export async function streamAriaConversation(
       continue;
     }
     if (response.status === 202) {
-      const pendingBody = request.authority === 'CORE_V2' ? object(await requireOk(response)).data : await requireOk(response);
+      const pendingBody = authority === 'CORE_V2' ? object(await requireOk(response)).data : await requireOk(response);
       const pending = ariaPendingResponseSchema.safeParse(pendingBody);
       if (!pending.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
       callbacks.onPending?.(Object.freeze(pending.data));
       await waitForRetry(pending.data.retryAfterMs, signal);
       continue;
     }
-    if (request.authority === 'CORE_V2') {
+    if (authority === 'CORE_V2') {
       const envelope = object(await requireOk(response));
       const body = object(envelope.data);
       const conversation = object(body.conversation);

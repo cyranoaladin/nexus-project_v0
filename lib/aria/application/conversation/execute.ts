@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import { buildAriaPromptEnvelope } from './build-prompt';
 import {
   makeRunAriaConversation,
@@ -33,7 +34,11 @@ export async function executeCanonicalRetrieval(
   input: Parameters<AriaConversationExecutionDependencies['retrieve']>[0],
 ): Promise<AriaCanonicalRetrievalOutcome> {
   if (input.policy.kind === 'GENERAL_CHAT') return { status: 'NOT_CONFIGURED', hits: [] };
-  const resolution = resolveAriaRetrievalPlan(input.context.courseKey, input.policy.task, 'TUTOR');
+  const canonicalCourseKey = toCanonicalAriaCourseKey(input.context.courseKey);
+  const canonicalContext = canonicalCourseKey === input.context.courseKey
+    ? input.context
+    : { ...input.context, courseKey: canonicalCourseKey };
+  const resolution = resolveAriaRetrievalPlan(canonicalCourseKey, input.policy.task, 'TUTOR');
   if (resolution.status === 'NOT_CONFIGURED') return {
     status: 'NOT_CONFIGURED',
     hits: [],
@@ -54,8 +59,8 @@ export async function executeCanonicalRetrieval(
   // otherwise the production resolver, which is itself still fail-closed
   // today pending a Nexus-side `audience` source of truth — see
   // production-academic-identity.ts for the full, documented reasoning.
-  const identity = resolveDisposableAriaRagIdentity({ context: input.context, plan })
-    ?? resolveProductionAriaRagIdentity({ context: input.context, plan });
+  const identity = resolveDisposableAriaRagIdentity({ context: canonicalContext, plan })
+    ?? resolveProductionAriaRagIdentity({ context: canonicalContext, plan });
   const result = await executeAriaRetrieval(plan, input.query, identity, { signal: input.signal });
   if (result.status !== 'SUCCESS') return {
     status: result.status,
@@ -82,7 +87,7 @@ export async function executeCanonicalRetrieval(
         corpusId: hit.corpusId,
         corpusVersionId: hit.corpusVersionId,
         manifestSha256: hit.manifestSha256,
-      }, input.context.courseKey);
+      }, canonicalCourseKey);
     }),
   };
 }

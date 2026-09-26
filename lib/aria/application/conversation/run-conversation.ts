@@ -1,4 +1,5 @@
 import { AriaError, type AriaErrorCode } from '../../kernel/errors';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import type { AriaConversationContext } from './build-context';
 import type {
   AriaConversationAdmissionPort,
@@ -498,7 +499,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
       if (cancellationSignal.aborted) throw abortError(cancellationSignal);
       hits = retrieval.hits.map((hit) => canonicalizeAriaGroundingHit(
         hit,
-        input.context.courseKey,
+        toCanonicalAriaCourseKey(input.context.courseKey),
       ));
       const decision = decideAriaRetrievalOutcome(policy, { ...retrieval, hits });
       downgradeReason = decision.downgradeReason;

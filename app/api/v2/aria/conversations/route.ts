@@ -48,7 +48,15 @@ export const GET = defineStaffRoute({
     const next = hasMore ? page[page.length - 1] : undefined;
     return {
       data: {
-        items: page.map((row) => ({ id: row.id, courseKey: row.courseKey, contextState: 'ACTIVE' as const, resumable: true as const, activeTurn: row.turns[0] ?? null })),
+        items: page.map((row) => ({
+          id: row.id,
+          courseKey: row.courseKey,
+          contextState: 'ACTIVE' as const,
+          resumable: true as const,
+          activeTurn: row.turns[0]
+            ? { turnId: row.turns[0].id, clientRequestId: row.turns[0].clientRequestId, status: row.turns[0].status, pedagogicalMode: row.turns[0].pedagogicalMode }
+            : null,
+        })),
         nextCursor: next ? encodeCursor(next.updatedAt, next.id) : null,
       },
     };

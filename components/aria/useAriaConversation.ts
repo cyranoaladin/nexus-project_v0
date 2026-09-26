@@ -310,6 +310,7 @@ export function useAriaConversation(input: Readonly<{
               content: userMessage.content,
               conversationId: latest,
               pedagogicalMode: history.activeTurn.pedagogicalMode,
+              ...(authority === 'CORE_V2' ? { authority } : {}),
             },
             callbacks: {},
             transportAttached: false,

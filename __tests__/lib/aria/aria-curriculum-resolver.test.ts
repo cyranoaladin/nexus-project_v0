@@ -406,6 +406,24 @@ describe('resolveAriaCurriculum', () => {
   });
 
   describe('listSelectableCourseKeys', () => {
+    it('selects only the declared Terminale STMG pathway', () => {
+      const academic = {
+        gradeLevel: GradeLevel.TERMINALE,
+        academicTrack: AcademicTrack.STMG,
+        specialties: [],
+        school: null,
+      };
+      const withoutPathway = listSelectableCourseKeys({ ...academic, stmgPathway: null });
+      const rhc = listSelectableCourseKeys({ ...academic, stmgPathway: StmgPathway.RHC });
+      const mercatique = listSelectableCourseKeys({ ...academic, stmgPathway: StmgPathway.MERCATIQUE });
+
+      expect(withoutPathway.some((key) => key.startsWith('parcours-'))).toBe(false);
+      expect(rhc).toContain('parcours-rhc-terminale-stmg');
+      expect(rhc).not.toContain('parcours-mercatique-terminale-stmg');
+      expect(mercatique).toContain('parcours-mercatique-terminale-stmg');
+      expect(mercatique).not.toContain('parcours-rhc-terminale-stmg');
+    });
+
     it('rejette les cours hors scolarité', () => {
       const keys = listSelectableCourseKeys({
         gradeLevel: GradeLevel.TERMINALE,
