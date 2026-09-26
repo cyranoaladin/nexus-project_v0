@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@/core-v2/generated/client';
+import { CORE_V2_ARIA_FOUNDATION_EMAIL } from '../e2e/aria-foundation-identity';
 
-export const CORE_V2_ARIA_FOUNDATION_EMAIL = 'core-v2-aria-foundation@example.test';
+export { CORE_V2_ARIA_FOUNDATION_EMAIL };
 
 /** Reset before every browser run so onboarding never depends on test order. */
 export async function resetCoreV2AriaFoundationProfile(client: PrismaClient): Promise<void> {

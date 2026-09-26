@@ -89,6 +89,21 @@ const persistedFailureCodes = new Set<AriaErrorCode>([
   'USER_CANCELLED', 'INTERNAL_ERROR',
 ]);
 
+export function findOwnedAssistantMessage(input: {
+  client: PrismaClient;
+  messageId: string;
+  studentId: string;
+}) {
+  return input.client.ariaMessageCoreV2.findFirst({
+    where: {
+      id: input.messageId,
+      role: AriaConversationMessageRole.ASSISTANT,
+      conversation: { studentId: input.studentId },
+    },
+    select: { id: true },
+  });
+}
+
 function readFailureCode(metadata: unknown): AriaErrorCode | undefined {
   if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
   const value = (metadata as Record<string, unknown>).failureCode;

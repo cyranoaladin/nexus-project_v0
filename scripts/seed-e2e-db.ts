@@ -25,7 +25,7 @@ import path from 'path';
 import { createDefaultSurvivalSnapshot, toPrismaSurvivalData } from '../lib/survival/progress';
 import { setStudentChosenCourses } from '../lib/curriculum/enrollment';
 import { createAriaE2EPersonas } from './e2e/aria-personas';
-import { CORE_V2_ARIA_FOUNDATION_EMAIL } from './core-v2/aria-foundation-e2e-persona';
+import { CORE_V2_ARIA_FOUNDATION_EMAIL } from './e2e/aria-foundation-identity';
 
 // Fallback only: process.env.DATABASE_URL (set by gate) takes precedence over .env.local
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
