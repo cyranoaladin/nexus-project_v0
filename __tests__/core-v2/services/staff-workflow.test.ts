@@ -190,6 +190,64 @@ describe('Golden staff workflow through canonical services', () => {
     );
   });
 
+  test('schoolingStatus corrections preserve the explicit before/after map and audit context', async () => {
+    const { client } = h;
+    const ctx = h.ctx(h.assistante);
+    const year = await createAcademicYear(client, ctx, { startYear: 2026, ...academicYearDates(2026) });
+    const { household } = await createHousehold(client, ctx, {
+      parent: { firstName: 'Audit', lastName: 'Parent', email: 'audit-parent@synthetic.test' },
+    });
+    const { student } = await createStudent(client, ctx, {
+      householdId: household.id,
+      student: { firstName: 'Audit', lastName: 'Student', email: 'audit-student@synthetic.test' },
+    });
+    const enrollment = await createAnnualEnrollment(client, ctx, {
+      studentId: student.id,
+      academicYearId: year.id,
+      academicMap: {
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        schoolingStatus: 'SCHOOL_ENROLLED',
+        school: 'Lycée synthétique',
+      },
+    });
+
+    const updated = await setAcademicMap(client, ctx, {
+      enrollmentId: enrollment.id,
+      academicMap: {
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        schoolingStatus: 'CANDIDAT_LIBRE',
+        school: null,
+      },
+    });
+
+    const event = await client.auditEvent.findFirstOrThrow({
+      where: { action: 'enrollment.academic_map_changed', subjectId: enrollment.id },
+    });
+    expect(event.metadata).toEqual({
+      before: {
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        stmgPathway: null,
+        schoolingStatus: 'SCHOOL_ENROLLED',
+        school: 'Lycée synthétique',
+      },
+      after: {
+        gradeLevel: 'TERMINALE',
+        academicTrack: 'EDS_GENERALE',
+        stmgPathway: null,
+        schoolingStatus: 'CANDIDAT_LIBRE',
+        school: null,
+      },
+      academicRevision: updated.academicRevision,
+    });
+    expect(event.actorUserId).toBe(ctx.actor.userId);
+    expect(event.correlationId).toBe(ctx.correlationId);
+    expect(event.subjectType).toBe('StudentAcademicYearEnrollment');
+    expect(event.subjectId).toBe(enrollment.id);
+  });
+
   test('a new enrollment into a CLOSED year is refused; approval of a non-PENDING enrollment is refused', async () => {
     const { client } = h;
     const ctx = h.ctx();

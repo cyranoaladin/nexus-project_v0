@@ -193,6 +193,23 @@ describe('golden staff workflow through the HTTP surface', () => {
     );
     expect(updatedAcademicMap.status).toBe(200);
     expect(updatedAcademicMap.body.data.schoolingStatus).toBe('CANDIDAT_LIBRE');
+    const academicMapAudit = await json(
+      await audit.GET(req('GET', `/api/v2/staff/audit?subjectId=${enrollmentId}`), NO_PARAMS),
+    );
+    const academicMapEvent = academicMapAudit.body.data.items.find(
+      (event: { action: string }) => event.action === 'enrollment.academic_map_changed',
+    );
+    expect(academicMapAudit.status).toBe(200);
+    expect(academicMapEvent).toMatchObject({
+      actorUserId: h.admin.userId,
+      correlationId: expect.any(String),
+      subjectType: 'StudentAcademicYearEnrollment',
+      subjectId: enrollmentId,
+      metadata: {
+        before: { schoolingStatus: 'SCHOOL_ENROLLED' },
+        after: { schoolingStatus: 'CANDIDAT_LIBRE' },
+      },
+    });
     expect((await json(await enrollmentApprove.POST(req('POST', '/x'), params(enrollmentId)))).body.data.status).toBe('ACTIVE');
     expect((await json(await enrollmentApprove.POST(req('POST', '/x'), params(enrollmentId)))).status).toBe(409);
 
