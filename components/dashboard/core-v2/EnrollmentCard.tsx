@@ -29,6 +29,7 @@ export function EnrollmentCard({ enrollment, coaches, can, refresh }: { enrollme
           <p className="text-sm text-neutral-400">
             {enrollment.gradeLevel} · {enrollment.academicTrack}
             {enrollment.stmgPathway && ` · ${enrollment.stmgPathway}`}
+            {enrollment.schoolingStatus && ` · ${schoolingStatusLabel(enrollment.schoolingStatus)}`}
             {enrollment.school && ` · ${enrollment.school}`}
             {enrollment.academicRevision > 0 && ` · révision ${enrollment.academicRevision}`}
           </p>
@@ -69,7 +70,7 @@ export function EnrollmentCard({ enrollment, coaches, can, refresh }: { enrollme
 
 function AcademicMapDialog({ enrollment, onDone }: { enrollment: EnrollmentDetail; onDone: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
-  const [map, setMap] = useState({ gradeLevel: enrollment.gradeLevel, academicTrack: enrollment.academicTrack, stmgPathway: enrollment.stmgPathway ?? '', school: enrollment.school ?? '' });
+  const [map, setMap] = useState({ gradeLevel: enrollment.gradeLevel, academicTrack: enrollment.academicTrack, stmgPathway: enrollment.stmgPathway ?? '', schoolingStatus: enrollment.schoolingStatus ?? '', school: enrollment.school ?? '' });
   const action = useAction(async () => {
     setOpen(false);
     await onDone();
@@ -89,7 +90,7 @@ function AcademicMapDialog({ enrollment, onDone }: { enrollment: EnrollmentDetai
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
-            void action.run('map', () => v2(`/staff/enrollments/${enrollment.id}/academic-map`, { method: 'PUT', json: { gradeLevel: map.gradeLevel, academicTrack: map.academicTrack, stmgPathway: map.stmgPathway || null, school: map.school || null } }), 'Carte académique corrigée.');
+            void action.run('map', () => v2(`/staff/enrollments/${enrollment.id}/academic-map`, { method: 'PUT', json: { gradeLevel: map.gradeLevel, academicTrack: map.academicTrack, stmgPathway: map.stmgPathway || null, schoolingStatus: map.schoolingStatus || null, school: map.school || null } }), 'Carte académique corrigée.');
           }}
         >
           <AcademicMapFields idPrefix={`map-${enrollment.id}`} value={map} onChange={setMap} />
@@ -101,6 +102,13 @@ function AcademicMapDialog({ enrollment, onDone }: { enrollment: EnrollmentDetai
       </DialogContent>
     </Dialog>
   );
+}
+
+function schoolingStatusLabel(status: string): string {
+  if (status === 'SCHOOL_ENROLLED') return 'Scolarisé';
+  if (status === 'CANDIDAT_LIBRE') return 'Candidat libre';
+  if (status === 'INDIVIDUAL') return 'Individuel / autre';
+  return 'Situation à préciser';
 }
 
 function CoursesEditor({ enrollment, editable, onDone }: { enrollment: EnrollmentDetail; editable: boolean; onDone: () => Promise<void> }) {

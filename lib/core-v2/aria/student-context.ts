@@ -16,7 +16,7 @@
  * constraint, not a reachable branch.
  */
 import type { Subject } from '@prisma/client';
-import type { AcademicTrack, GradeLevel, Prisma, StmgPathway } from '@/core-v2/generated/client';
+import type { AcademicTrack, GradeLevel, Prisma, SchoolingStatus, StmgPathway } from '@/core-v2/generated/client';
 import type { ServiceContext } from '@/lib/core-v2/services/context';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { resolveLegacySubjectForCourse } from '@/lib/curriculum/legacy-migration-map';
@@ -55,7 +55,7 @@ export interface CoreV2AriaStudentContext {
   readonly gradeLevel: GradeLevel;
   readonly academicTrack: AcademicTrack;
   readonly stmgPathway: StmgPathway | null;
-  readonly schoolingStatus: string | null;
+  readonly schoolingStatus: SchoolingStatus | null;
   readonly school: string | null;
   /**
    * Derived via `resolveLegacySubjectForCourse` for the shared

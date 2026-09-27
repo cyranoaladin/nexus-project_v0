@@ -15,6 +15,7 @@ import * as curriculumRoute from '@/app/api/v2/aria/curriculum/route';
 import * as profileRoute from '@/app/api/v2/aria/cockpit/profile/route';
 import { grantCoreV2AriaAccess, revokeCoreV2AriaAccess } from '@/lib/core-v2/aria/access-grants';
 import { buildCoreV2AriaConversationContext } from '@/lib/core-v2/aria/conversation-context';
+import { resolveProductionAriaRagIdentity } from '@/lib/aria/infrastructure/rag/production-academic-identity';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 import { auth } from '@/auth';
@@ -47,6 +48,7 @@ async function seedCoreV2OnlyStudent(overrides: {
   year?: Awaited<ReturnType<typeof seedAcademicYear>>;
   firstName?: string;
   gradeLevel?: 'PREMIERE' | 'TERMINALE';
+  schoolingStatus?: 'SCHOOL_ENROLLED' | 'CANDIDAT_LIBRE' | 'INDIVIDUAL';
   specialtyCourseKeys?: readonly string[];
 } = {}) {
   const year = overrides.year ?? (await seedAcademicYear(h.client, 2026, 'CURRENT'));
@@ -63,7 +65,7 @@ async function seedCoreV2OnlyStudent(overrides: {
   const household = await h.client.household.create({ data: {} });
   const student = await h.client.student.create({ data: { userId: user.id, householdId: household.id } });
   const enrollment = await h.client.studentAcademicYearEnrollment.create({
-    data: { studentId: student.id, academicYearId: year.id, status: 'ACTIVE', gradeLevel, academicTrack: 'EDS_GENERALE' },
+    data: { studentId: student.id, academicYearId: year.id, status: 'ACTIVE', gradeLevel, academicTrack: 'EDS_GENERALE', schoolingStatus: overrides.schoolingStatus },
   });
   const specialtyCourseKeys = overrides.specialtyCourseKeys ?? [
     gradeLevel === 'TERMINALE' ? 'eds-maths-terminale' : 'eds-maths-premiere',
@@ -77,6 +79,32 @@ async function seedCoreV2OnlyStudent(overrides: {
 }
 
 describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
+  test('a Core v2-only CANDIDAT_LIBRE enrollment resolves production RAG identity from persisted status', async () => {
+    const f = await seedCoreV2OnlyStudent({ schoolingStatus: 'CANDIDAT_LIBRE' });
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_maths',
+    });
+
+    const context = await buildCoreV2AriaConversationContext(
+      h.client,
+      h.ctx({ userId: f.user.id, role: 'ELEVE' }),
+      { courseKey: 'maths-terminale-eds' },
+    );
+    expect(context.student).toHaveProperty('schoolingStatus', 'CANDIDAT_LIBRE');
+
+    const identity = resolveProductionAriaRagIdentity({
+      context: { ...context, courseKey: 'eds-maths-terminale' },
+      plan: {
+        courseKey: 'eds-maths-terminale',
+        academicYear: '2026-2027',
+        retrievalScope: { target_policy: { audiences: ['libre'], candidates: ['libre'] } },
+      },
+      environment: { NEXUS_INTERNAL_TOKEN_SECRET: 'p'.repeat(32) },
+    });
+
+    expect(identity).toMatchObject({ candidat: 'libre', audience: 'libre', schoolYear: '2026-2027' });
+  });
+
   test('an NSI-only global grant cannot authorize Maths conversation', async () => {
     const f = await seedCoreV2OnlyStudent();
     await grantCoreV2AriaAccess(h.client, h.admin, {

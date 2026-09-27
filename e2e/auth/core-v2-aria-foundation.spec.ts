@@ -9,6 +9,8 @@ import { assertCoreV2E2eSeedTarget } from '../../scripts/core-v2/e2e-seed-target
 import { CORE_V2_ARIA_FOUNDATION_EMAIL } from '../../scripts/core-v2/aria-foundation-e2e-persona';
 import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import { sameOriginHeaders } from '../helpers/same-origin';
+import { grantCoreV2AriaAccess } from '../../lib/core-v2/aria/access-grants';
+import { resolveProductionAriaRagIdentity } from '../../lib/aria/infrastructure/rag/production-academic-identity';
 
 const CORE_V2_STUDENT = 'coreV2AriaFoundation' as const;
 const PINNED_COURSE_KEY = 'maths-terminale-eds';
@@ -21,6 +23,69 @@ function pathname(rawUrl: string): string {
 }
 
 test.describe('Core v2 ARIA foundation', () => {
+  test('production RAG preflight resolves a disposable Core-v2-only CANDIDAT_LIBRE identity without provider calls', async () => {
+    assertDisposableE2eDatabase(process.env.DATABASE_URL ?? '');
+    assertCoreV2E2eSeedTarget(process.env);
+    const legacy = new LegacyPrismaClient();
+    const core = new CoreV2PrismaClient({ datasources: { db: { url: process.env.CORE_V2_DATABASE_URL } } });
+    const email = 'core-v2-candidat-libre-rag-preflight@synthetic.test';
+    try {
+      const user = await core.user.upsert({
+        where: { email },
+        create: { email, role: 'ELEVE', firstName: 'Candidat', lastName: 'Libre', accountStatus: 'ACTIVE' },
+        update: { accountStatus: 'ACTIVE' },
+      });
+      const household = await core.household.upsert({ where: { id: 'e2e-candidat-libre-rag-household' }, create: { id: 'e2e-candidat-libre-rag-household' }, update: {} });
+      const student = await core.student.upsert({
+        where: { userId: user.id },
+        create: { id: 'e2e-candidat-libre-rag-student', userId: user.id, householdId: household.id },
+        update: { householdId: household.id },
+      });
+      const academicYear = await core.academicYear.upsert({
+        where: { startYear: 2026 },
+        create: { startYear: 2026, startsAt: new Date('2026-09-01T00:00:00.000Z'), endsAt: new Date('2027-08-31T23:59:59.999Z'), status: 'CURRENT' },
+        update: { status: 'CURRENT' },
+      });
+      const enrollment = await core.studentAcademicYearEnrollment.upsert({
+        where: { studentId_academicYearId: { studentId: student.id, academicYearId: academicYear.id } },
+        create: { studentId: student.id, academicYearId: academicYear.id, status: 'ACTIVE', schoolingStatus: 'CANDIDAT_LIBRE', gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE' },
+        update: { status: 'ACTIVE', schoolingStatus: 'CANDIDAT_LIBRE', gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE' },
+      });
+      await core.studentCourseEnrollment.upsert({
+        where: { academicYearEnrollmentId_courseKey: { academicYearEnrollmentId: enrollment.id, courseKey: 'eds-maths-terminale' } },
+        create: { academicYearEnrollmentId: enrollment.id, courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+        update: { kind: 'SPECIALTY' },
+      });
+      const admin = await core.user.findFirstOrThrow({ where: { role: 'ADMIN', accountStatus: 'ACTIVE' }, select: { id: true } });
+      await grantCoreV2AriaAccess(core, { userId: admin.id, role: 'ADMIN' }, { studentId: student.id, featureKey: 'aria_maths' });
+
+      expect(await legacy.user.findUnique({ where: { email } })).toBeNull();
+      expect(await legacy.student.findFirst({ where: { user: { email } } })).toBeNull();
+
+      // Feed the production resolver from the enrollment persisted in Core v2,
+      // without importing the server-only conversation HTTP adapter into the
+      // Playwright collector process.
+      const identity = resolveProductionAriaRagIdentity({
+        context: {
+          courseKey: 'eds-maths-terminale',
+          subject: { studentId: student.id },
+          student: {
+            gradeLevel: enrollment.gradeLevel,
+            academicTrack: enrollment.academicTrack,
+            schoolingStatus: enrollment.schoolingStatus,
+          },
+        },
+        plan: { courseKey: 'eds-maths-terminale', academicYear: '2026-2027', retrievalScope: { target_policy: { audiences: ['libre'] } } },
+        environment: { NEXUS_INTERNAL_TOKEN_SECRET: 'e'.repeat(32) },
+      });
+
+      expect(enrollment.schoolingStatus).toBe('CANDIDAT_LIBRE');
+      expect(identity).toMatchObject({ candidat: 'libre', audience: 'libre', schoolYear: '2026-2027' });
+    } finally {
+      await Promise.all([legacy.$disconnect(), core.$disconnect()]);
+    }
+  });
+
   test('has a Core v2 student, enrollment, and chat grant with no V1 User or Student', async () => {
     assertDisposableE2eDatabase(process.env.DATABASE_URL ?? '');
     assertCoreV2E2eSeedTarget(process.env);
@@ -28,6 +93,7 @@ test.describe('Core v2 ARIA foundation', () => {
     const core = new CoreV2PrismaClient({ datasources: { db: { url: process.env.CORE_V2_DATABASE_URL } } });
     try {
       expect(await legacy.user.findUnique({ where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL } })).toBeNull();
+      expect(await legacy.student.findFirst({ where: { user: { email: CORE_V2_ARIA_FOUNDATION_EMAIL } } })).toBeNull();
       const identity = await core.user.findUnique({
         where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
         include: { student: { include: { academicYearEnrollments: true, ariaAccessGrants: true } } },

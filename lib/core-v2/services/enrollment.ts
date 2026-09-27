@@ -21,7 +21,7 @@ const academicMapSchema = z.object({
   gradeLevel: z.enum(['QUATRIEME', 'TROISIEME', 'SECONDE', 'PREMIERE', 'TERMINALE', 'POSTBAC', 'AUTRE']),
   academicTrack: z.enum(['COLLEGE', 'EDS_GENERALE', 'STMG', 'STI2D', 'ST2S', 'STL', 'STD2A', 'STMG_NON_LYCEEN']).optional(),
   stmgPathway: z.enum(['RHC', 'MERCATIQUE', 'GF', 'SIG', 'INDETERMINE']).nullable().optional(),
-  schoolingStatus: z.enum(['SCHOOL_ENROLLED', 'INDIVIDUAL']).nullable().optional(),
+  schoolingStatus: z.enum(['SCHOOL_ENROLLED', 'CANDIDAT_LIBRE', 'INDIVIDUAL']).nullable().optional(),
   school: z.string().trim().max(200).nullable().optional(),
 });
 
