@@ -221,6 +221,9 @@ test.describe('Core v2 ARIA foundation', () => {
       .map(({ role, status }) => [role, status])).toEqual([
       ['USER', 'COMPLETED'], ['ASSISTANT', 'STREAMING'],
     ]);
+    const cockpit = await page.request.get('/api/v2/aria/cockpit');
+    expect(cockpit.status()).toBe(200);
+    expect((await cockpit.json()).data.activeConversationCourseKey).toBe(PINNED_COURSE_KEY);
     const resumedRequestIds: string[] = [];
     page.on('request', (request) => {
       if (new URL(request.url()).pathname !== '/api/v2/aria/chat' || request.method() !== 'POST') return;
@@ -234,6 +237,39 @@ test.describe('Core v2 ARIA foundation', () => {
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await expect.poll(() => resumedRequestIds.length).toBeGreaterThan(0);
     expect(resumedRequestIds.every((id) => id === active.clientRequestId)).toBe(true);
+    expect((await readHistory()).data.conversation.activeTurn).toMatchObject({
+      turnId: active.turnId, clientRequestId: active.clientRequestId, status: 'RUNNING',
+    });
+    expect(await fixtureState(page.request)).toMatchObject({ modelInvocations: 1 });
+
+    // Simulate an operator disabling new chat after the first reconnect. The
+    // browser still receives the history/recovery projection, but no chat POST
+    // is sent while reloading the same active Turn.
+    await page.route('**/api/v2/aria/cockpit', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json() as { data: { capabilities: { chat: boolean; conversationHistory: boolean } } };
+      body.data.capabilities.chat = false;
+      body.data.capabilities.conversationHistory = true;
+      await route.fulfill({ response, json: body });
+    });
+    await page.route('**/api/v2/aria/curriculum', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json() as { data: {
+        profile: { focusedCourseKey: string | null };
+        courses: Array<{ capabilities: { hasChat: boolean; canResumeConversation?: boolean } }>;
+      } };
+      body.data.profile.focusedCourseKey = PINNED_COURSE_KEY;
+      for (const course of body.data.courses) {
+        course.capabilities.hasChat = false;
+        course.capabilities.canResumeConversation = true;
+      }
+      await route.fulfill({ response, json: body });
+    });
+    resumedRequestIds.length = 0;
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Historique ARIA' }).click();
+    await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
+    expect(resumedRequestIds).toEqual([]);
     expect((await readHistory()).data.conversation.activeTurn).toMatchObject({
       turnId: active.turnId, clientRequestId: active.clientRequestId, status: 'RUNNING',
     });

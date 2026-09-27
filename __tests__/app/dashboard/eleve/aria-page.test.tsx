@@ -34,7 +34,7 @@ import AriaCockpitPage from '@/app/dashboard/eleve/aria/page';
 
 const CORE_V2_LEGACY_ARIA_REQUEST = /^\/api\/aria(?:\/|\?|$)/;
 
-function cockpit(chat: boolean): AriaCockpitDTO {
+function cockpit(chat: boolean, history = chat): AriaCockpitDTO {
   return {
     ...fixture,
     capabilities: {
@@ -43,7 +43,7 @@ function cockpit(chat: boolean): AriaCockpitDTO {
       assessments: chat,
       resources: chat,
       nextSession: chat,
-      conversationHistory: chat,
+      conversationHistory: history,
       courseWorkspace: chat,
     },
   } as unknown as AriaCockpitDTO;
@@ -123,5 +123,24 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
       );
     });
     expect(screen.getAllByRole('button', { name: 'Ma carte scolaire' })).toHaveLength(2);
+  });
+
+  it('keeps a history/recovery launcher when Core v2 chat rollout is disabled', async () => {
+    mockSessionState.data = {
+      user: { id: 'student-v2', role: 'ELEVE', authority: 'CORE_V2' },
+    };
+    mockProtectedFetch.mockResolvedValue(response({ ok: true, data: {
+      ...cockpit(false, true),
+      activeConversationCourseKey: 'maths-terminale-eds',
+    } }));
+
+    render(<AriaCockpitPage />);
+
+    expect(await screen.findByTestId('aria-cockpit-page')).toBeInTheDocument();
+    expect(mockAriaChatLauncher).toHaveBeenCalledWith(expect.objectContaining({
+      initialCourseKey: 'maths-terminale-eds',
+      recoveryOnly: true,
+    }));
+    expect(screen.getByTestId('mock-aria-chat-launcher')).toBeInTheDocument();
   });
 });

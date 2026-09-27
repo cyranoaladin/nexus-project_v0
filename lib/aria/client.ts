@@ -26,7 +26,7 @@ import { resolveAriaApiBase, type AriaClientAuthority } from './client/api-base'
 export interface AriaClientCourse {
   readonly courseKey: string;
   readonly label: string;
-  readonly capabilities: { readonly hasChat: boolean };
+  readonly capabilities: { readonly hasChat: boolean; readonly canResumeConversation?: boolean };
   readonly access: {
     readonly status: 'AVAILABLE' | 'LOCKED' | 'UNSUPPORTED';
     readonly commerciallyEntitled: boolean;
@@ -165,7 +165,12 @@ export async function fetchAriaCurriculum(signal?: AbortSignal, authority?: Aria
     return Object.freeze({
       courseKey: course.courseKey,
       label: course.label,
-      capabilities: Object.freeze({ hasChat: capabilities.hasChat }),
+      capabilities: Object.freeze({
+        hasChat: capabilities.hasChat,
+        canResumeConversation: typeof capabilities.canResumeConversation === 'boolean'
+          ? capabilities.canResumeConversation
+          : capabilities.hasChat,
+      }),
       access: Object.freeze({
         status: access.status as AriaClientCourse['access']['status'],
         commerciallyEntitled: access.commerciallyEntitled,

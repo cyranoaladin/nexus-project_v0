@@ -43,6 +43,10 @@ export const GET = defineStaffRoute({
       showCitations: true,
     };
     const chatEnabled = isCoreV2AriaConversationEnabled();
-    return { data: { courses: curriculum.courses.map((view) => ({ courseKey: view.course.key, label: view.course.label, capabilities: { hasChat: chatEnabled && view.course.capabilities.chat && entitlements.capabilities.chat }, access: { status: view.access.commerciallyEntitled && view.access.productSupported && view.access.academicallyRelevant ? 'AVAILABLE' : 'LOCKED', commerciallyEntitled: view.access.commerciallyEntitled } })), profile: clientProfile } };
+    return { data: { courses: curriculum.courses.map((view) => ({ courseKey: view.course.key, label: view.course.label, capabilities: {
+      hasChat: chatEnabled && view.course.capabilities.chat && entitlements.capabilities.chat,
+      canResumeConversation: view.course.capabilities.chat && entitlements.capabilities.chat
+        && view.access.academicallyRelevant && view.access.commerciallyEntitled,
+    }, access: { status: view.access.commerciallyEntitled && view.access.productSupported && view.access.academicallyRelevant ? 'AVAILABLE' : 'LOCKED', commerciallyEntitled: view.access.commerciallyEntitled } })), profile: clientProfile } };
   },
 });

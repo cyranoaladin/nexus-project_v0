@@ -484,6 +484,8 @@ export interface AriaCockpitDTO {
   readonly nextSession: AriaNextSessionDTO | null;
   readonly examContext: AriaExamContextDTO | null;
   readonly capabilities: AriaCockpitCapabilitiesDTO;
+  /** Latest own conversation course used only to recover persisted history/Turns. */
+  readonly activeConversationCourseKey?: string | null;
   /**
    * Graphes de compétences des seuls cours présents dans la carte de l'élève
    * (au plus quelques-uns). Bornés volontairement : le payload ne transporte

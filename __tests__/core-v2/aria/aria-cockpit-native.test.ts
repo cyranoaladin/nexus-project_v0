@@ -136,7 +136,7 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
       expect(disabledCockpit.body.data.capabilities).toMatchObject({ chat: false, conversationHistory: true });
       expect(disabledCurriculum.status).toBe(200);
       expect(disabledCurriculum.body.data.courses.find((course: { courseKey: string }) => course.courseKey === 'maths-terminale-eds'))
-        .toMatchObject({ capabilities: { hasChat: false }, access: { commerciallyEntitled: true } });
+        .toMatchObject({ capabilities: { hasChat: false, canResumeConversation: true }, access: { commerciallyEntitled: true } });
 
       process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true';
       const enabledCockpit = await callGet(cockpitRoute, '/api/v2/aria/cockpit');

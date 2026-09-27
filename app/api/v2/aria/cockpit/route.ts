@@ -55,9 +55,19 @@ export const GET = defineStaffRoute({
       stmgPathway: student.stmgPathway,
       academicEnrollments: student.academicEnrollments,
     };
-    const [profile, entitlements] = await Promise.all([
+    const [profile, entitlements, activeTurn, latestConversation] = await Promise.all([
       getCoreV2AriaCockpitProfile(client, student.studentId, academicContext),
       resolveCoreV2AriaEntitlements(client, student.studentId),
+      client.ariaConversationTurnCoreV2.findFirst({
+        where: { subjectStudentId: student.studentId, status: { in: ['PENDING', 'RUNNING'] } },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        select: { conversation: { select: { courseKey: true } } },
+      }),
+      client.ariaConversationCoreV2.findFirst({
+        where: { studentId: student.studentId },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        select: { courseKey: true },
+      }),
     ]);
 
     const curriculum = resolveAriaCurriculum({
@@ -118,6 +128,11 @@ export const GET = defineStaffRoute({
         .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
     };
 
-    return { data: cockpit };
+    return {
+      data: {
+        ...cockpit,
+        activeConversationCourseKey: activeTurn?.conversation.courseKey ?? latestConversation?.courseKey ?? null,
+      },
+    };
   },
 });

@@ -9,10 +9,12 @@ export interface AriaChatPanelProps {
   readonly open: boolean;
   readonly onClose: () => void;
   readonly initialCourseKey?: string;
+  readonly recoveryOnly?: boolean;
 }
 
 function disabledReason(course: ReturnType<typeof useAriaConversation>['courses'][number]): string {
-  if (!course.capabilities.hasChat) return 'chat indisponible';
+  if (!course.capabilities.hasChat && !course.capabilities.canResumeConversation) return 'chat indisponible';
+  if (!course.capabilities.hasChat) return 'historique uniquement';
   if (!course.access.commerciallyEntitled) return 'non inclus';
   if (course.access.status !== 'AVAILABLE') return 'indisponible';
   return '';
@@ -41,8 +43,8 @@ function citationSummary(
   return `${canonicalCount} source${canonicalCount > 1 ? 's' : ''}`;
 }
 
-export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanelProps) {
-  const conversation = useAriaConversation({ open, initialCourseKey });
+export function AriaChatPanel({ open, onClose, initialCourseKey, recoveryOnly = false }: AriaChatPanelProps) {
+  const conversation = useAriaConversation({ open, initialCourseKey, recoveryOnly });
   const dialogRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -111,15 +113,20 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
   }, [open, conversation.messages.length, lastMessage?.status, conversation.errorCode, conversation.ragStatus]);
 
   if (!open) return null;
-  const hasAvailableCourse = conversation.courses.some((course) => !disabledReason(course));
+  const hasAvailableCourse = conversation.courses.some((course) => (
+    (course.capabilities.hasChat || course.capabilities.canResumeConversation)
+      && course.access.status === 'AVAILABLE' && course.access.commerciallyEntitled
+  ));
   const noAvailableCourse = !hasAvailableCourse;
   const needsCourseSelection = hasAvailableCourse && conversation.selectedCourseKey === null;
   const busy = conversation.phase === 'STARTING'
     || conversation.phase === 'PENDING'
     || conversation.phase === 'STREAMING'
     || conversation.phase === 'STOPPING';
-  const composerDisabled = noAvailableCourse
+  const composerDisabled = recoveryOnly
+    || noAvailableCourse
     || conversation.selectedCourseKey === null
+    || !conversation.courses.find(({ courseKey }) => courseKey === conversation.selectedCourseKey)?.capabilities.hasChat
     || conversation.phase !== 'READY';
   const errorLabel = publicErrorLabel(conversation.errorCode);
 
@@ -190,7 +197,7 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
             {conversation.courses.map((course) => {
               const reason = disabledReason(course);
               return (
-                <option key={course.courseKey} value={course.courseKey} disabled={Boolean(reason)}>
+                <option key={course.courseKey} value={course.courseKey} disabled={Boolean(reason && reason !== 'historique uniquement')}>
                   {course.label}{reason ? ` — ${reason}` : ''}
                 </option>
               );
@@ -206,6 +213,12 @@ export function AriaChatPanel({ open, onClose, initialCourseKey }: AriaChatPanel
               <p className="mt-2 text-sm text-text-secondary">
                 Vos cours restent visibles dans votre cockpit. Un cours doit être supporté et inclus pour ouvrir le chat.
               </p>
+            </div>
+          ) : recoveryOnly && conversation.messages.length === 0 ? (
+            <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center">
+              <Sparkles className="mb-3 h-8 w-8 text-brand-accent/70" aria-hidden="true" />
+              <p className="font-medium text-white">Le démarrage de nouvelles conversations est temporairement désactivé.</p>
+              <p className="mt-2 text-sm text-text-secondary">Les conversations existantes restent consultables et peuvent être arrêtées.</p>
             </div>
           ) : needsCourseSelection ? (
             <div className="mx-auto flex h-full max-w-md flex-col items-center justify-center text-center">
