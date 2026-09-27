@@ -5,6 +5,7 @@ import { loadCoreV2AriaStudentContext } from '@/lib/core-v2/aria/student-context
 import { getCoreV2AriaCockpitProfile, listCoreV2AcademicallyRelevantCourseKeys } from '@/lib/core-v2/aria/cockpit-profile';
 import { resolveCoreV2AriaEntitlements } from '@/lib/core-v2/aria/access-grants';
 import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
+import { isCoreV2AriaConversationEnabled } from '@/lib/core-v2/aria/recovery-config';
 
 export const GET = defineStaffRoute({
   handler: async ({ client, ctx }) => {
@@ -41,6 +42,7 @@ export const GET = defineStaffRoute({
       courseOrder: profile.pinnedCourseKeys,
       showCitations: true,
     };
-    return { data: { courses: curriculum.courses.map((view) => ({ courseKey: view.course.key, label: view.course.label, capabilities: { hasChat: view.course.capabilities.chat && entitlements.capabilities.chat }, access: { status: view.access.commerciallyEntitled && view.access.productSupported && view.access.academicallyRelevant ? 'AVAILABLE' : 'LOCKED', commerciallyEntitled: view.access.commerciallyEntitled } })), profile: clientProfile } };
+    const chatEnabled = isCoreV2AriaConversationEnabled();
+    return { data: { courses: curriculum.courses.map((view) => ({ courseKey: view.course.key, label: view.course.label, capabilities: { hasChat: chatEnabled && view.course.capabilities.chat && entitlements.capabilities.chat }, access: { status: view.access.commerciallyEntitled && view.access.productSupported && view.access.academicallyRelevant ? 'AVAILABLE' : 'LOCKED', commerciallyEntitled: view.access.commerciallyEntitled } })), profile: clientProfile } };
   },
 });

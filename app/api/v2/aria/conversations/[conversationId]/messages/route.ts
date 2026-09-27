@@ -28,7 +28,7 @@ export const GET = defineStaffRoute({
       take: (query?.limit ?? 50) + 1,
       select: {
         id: true, turnId: true, role: true, content: true, createdAt: true,
-        turn: { select: { status: true } },
+        turn: { select: { status: true, ragStatus: true } },
         citations: { select: {
           id: true, sourceTitle: true, sourceDocument: true, sourceLocation: true,
           courseKey: true, provenance: true, url: true, resourceId: true,
@@ -67,6 +67,7 @@ export const GET = defineStaffRoute({
           role: message.role,
           content: message.content,
           status: projectCoreV2MessageStatus(message.role, message.turn.status),
+          ...(message.role === 'ASSISTANT' ? { ragStatus: message.turn.ragStatus } : {}),
           createdAt: message.createdAt,
           citations: message.citations.map((citation) => ({
             ...citation,

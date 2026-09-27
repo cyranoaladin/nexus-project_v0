@@ -11,8 +11,10 @@ import { NextRequest } from 'next/server';
 import { setupServiceHarness, seedAcademicYear } from '../helpers/service-harness';
 import { NO_PARAMS } from '@/lib/core-v2/http/staff-route';
 import * as cockpitRoute from '@/app/api/v2/aria/cockpit/route';
+import * as curriculumRoute from '@/app/api/v2/aria/curriculum/route';
 import * as profileRoute from '@/app/api/v2/aria/cockpit/profile/route';
 import { grantCoreV2AriaAccess, revokeCoreV2AriaAccess } from '@/lib/core-v2/aria/access-grants';
+import { buildCoreV2AriaConversationContext } from '@/lib/core-v2/aria/conversation-context';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 import { auth } from '@/auth';
@@ -75,6 +77,79 @@ async function seedCoreV2OnlyStudent(overrides: {
 }
 
 describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
+  test('an NSI-only global grant cannot authorize Maths conversation', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_nsi',
+    });
+
+    await expect(buildCoreV2AriaConversationContext(
+      h.client,
+      h.ctx({ userId: f.user.id, role: 'ELEVE' }),
+      { courseKey: 'maths-terminale-eds' },
+    )).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
+  });
+
+  test('academic refusal still precedes a missing feature grant', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_maths',
+    });
+
+    await expect(buildCoreV2AriaConversationContext(
+      h.client,
+      h.ctx({ userId: f.user.id, role: 'ELEVE' }),
+      { courseKey: 'nsi-terminale-eds' },
+    )).rejects.toMatchObject({ code: 'NOT_ENROLLED' });
+  });
+
+  test('a Maths conversation uses its own feature tier when another feature has a higher tier', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_maths', ariaTier: 'ARIA_AUTONOMIE',
+    });
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_nsi', ariaTier: 'ARIA_ACCOMPAGNEE',
+    });
+
+    const context = await buildCoreV2AriaConversationContext(
+      h.client,
+      h.ctx({ userId: f.user.id, role: 'ELEVE' }),
+      { courseKey: 'maths-terminale-eds' },
+    );
+    expect(context.entitlementContext.tier).toBe('ARIA_AUTONOMIE');
+    expect(context.entitlementContext.grantIds).toHaveLength(1);
+  });
+
+  test('rollout flag hides new chat in cockpit and curriculum while preserving history access', async () => {
+    const f = await seedCoreV2OnlyStudent();
+    signInAs({ id: f.user.id, role: 'ELEVE' });
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: f.student.id, featureKey: 'aria_maths',
+    });
+    const prior = process.env.CORE_V2_ARIA_CONVERSATION_ENABLED;
+    try {
+      process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'false';
+      const disabledCockpit = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+      const disabledCurriculum = await callGet(curriculumRoute, '/api/v2/aria/curriculum');
+      expect(disabledCockpit.status).toBe(200);
+      expect(disabledCockpit.body.data.capabilities).toMatchObject({ chat: false, conversationHistory: true });
+      expect(disabledCurriculum.status).toBe(200);
+      expect(disabledCurriculum.body.data.courses.find((course: { courseKey: string }) => course.courseKey === 'maths-terminale-eds'))
+        .toMatchObject({ capabilities: { hasChat: false }, access: { commerciallyEntitled: true } });
+
+      process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true';
+      const enabledCockpit = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
+      const enabledCurriculum = await callGet(curriculumRoute, '/api/v2/aria/curriculum');
+      expect(enabledCockpit.body.data.capabilities).toMatchObject({ chat: true, conversationHistory: true });
+      expect(enabledCurriculum.body.data.courses.find((course: { courseKey: string }) => course.courseKey === 'maths-terminale-eds'))
+        .toMatchObject({ capabilities: { hasChat: true }, access: { commerciallyEntitled: true } });
+    } finally {
+      if (prior === undefined) delete process.env.CORE_V2_ARIA_CONVERSATION_ENABLED;
+      else process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = prior;
+    }
+  });
+
   test('200, real identity and curriculum, honest unavailable capabilities, locked courses (no grant)', async () => {
     const f = await seedCoreV2OnlyStudent();
     signInAs({ id: f.user.id, role: 'ELEVE' });

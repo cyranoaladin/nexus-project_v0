@@ -66,9 +66,11 @@ describe('ARIA browser client transport ownership', () => {
       conversationId: 'conversation-1', authority: 'CORE_V2',
     }, () => 'd9428888-122b-4fd9-806c-02948637efeb');
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      success: true,
       conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
       turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'REPLAY' },
       message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [] },
+      metadata: { turnId: 'turn-1', courseKey: 'eds-nsi-terminale', status: 'COMPLETED', disposition: 'REPLAY' },
     } }), { status: 200, headers: { 'content-type': 'application/json' } }));
     const onDone = jest.fn();
 
@@ -84,6 +86,79 @@ describe('ARIA browser client transport ownership', () => {
     expect(onDone).toHaveBeenCalledWith(expect.objectContaining({ status: 'COMPLETED', fullText: 'Une pile est LIFO.' }));
   });
 
+  it('delivers grounded Core v2 JSON citations and RAG metadata before completion', async () => {
+    const coreRequest = createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
+      conversationId: 'conversation-1', authority: 'CORE_V2',
+    }, () => 'd9428888-122b-4fd9-806c-02948637efeb');
+    const citation = {
+      id: 'citation-1', resourceId: 'resource-1', resourceVersionId: 'version-1',
+      contentSha256: 'a'.repeat(64), chunkId: 'chunk-1', locator: { page: 1 },
+      corpusId: 'corpus-1', corpusVersionId: 'corpus-version-1', manifestSha256: 'b'.repeat(64),
+      sourceTitle: 'Programme officiel NSI', sourceDocument: 'programme.pdf',
+      courseKey: 'eds-nsi-terminale', provenance: 'OFFICIEL_MEN', snippet: 'Une pile est LIFO.',
+    };
+    const metadata = {
+      turnId: 'turn-1', courseKey: 'eds-nsi-terminale', status: 'COMPLETED',
+      disposition: 'EXECUTED', ragStatus: 'SUCCESS',
+    };
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      success: true,
+      conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
+      turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'EXECUTED' },
+      message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [citation] },
+      metadata,
+    } }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    const events: string[] = [];
+
+    await streamAriaConversation(coreRequest, {
+      onStart: () => events.push('start'),
+      onDelta: () => events.push('delta'),
+      onCitation: ({ citation: received }) => {
+        expect(received).toEqual(citation);
+        events.push('citation');
+      },
+      onMetadata: (received) => {
+        expect(received).toEqual(metadata);
+        events.push('metadata');
+      },
+      onDone: () => events.push('done'),
+    }, new AbortController().signal);
+
+    expect(events).toEqual(['start', 'delta', 'citation', 'metadata', 'done']);
+  });
+
+  it.each(['turnId', 'courseKey', 'status', 'disposition', 'citation'] as const)(
+    'rejects Core v2 JSON with incoherent or invalid %s before any callback', async (invalidField) => {
+      const coreRequest = createAriaClientRequest({
+        courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
+        conversationId: 'conversation-1', authority: 'CORE_V2',
+      }, () => 'd9428888-122b-4fd9-806c-02948637efeb');
+      const response = {
+        data: {
+          success: true,
+          conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
+          turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'EXECUTED' },
+          message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [] as unknown[] },
+          metadata: {
+            turnId: 'turn-1', courseKey: 'eds-nsi-terminale',
+            status: 'COMPLETED', disposition: 'EXECUTED', ragStatus: 'SUCCESS',
+          },
+        },
+      };
+      if (invalidField === 'citation') response.data.message.citations = [{}];
+      else response.data.metadata[invalidField] = 'wrong-value';
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify(response), { status: 200 }));
+      const onStart = jest.fn();
+      const onDone = jest.fn();
+
+      await expect(streamAriaConversation(coreRequest, { onStart, onDone }, new AbortController().signal))
+        .rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+      expect(onStart).not.toHaveBeenCalled();
+      expect(onDone).not.toHaveBeenCalled();
+    },
+  );
+
   it('replays a Core v2 RUNNING reservation with one stable request payload until completion', async () => {
     const coreRequest = createAriaClientRequest({
       courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
@@ -94,9 +169,11 @@ describe('ARIA browser client transport ownership', () => {
         turnId: 'turn-1', status: 'RUNNING', disposition: 'IN_PROGRESS', retryAfterMs: 1,
       } }), { status: 202 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        success: true,
         conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
         turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'REPLAY' },
         message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [] },
+        metadata: { turnId: 'turn-1', courseKey: 'eds-nsi-terminale', status: 'COMPLETED', disposition: 'REPLAY' },
       } }), { status: 200 }));
     const onPending = jest.fn();
     const onStart = jest.fn();
@@ -474,6 +551,42 @@ describe('ARIA browser client transport ownership', () => {
     expect(history.messages.at(-1)).toMatchObject({ id: 'message-52', status: 'CANCELLED' });
     expect(history.messages.find(({ id }) => id === 'message-duplicate')).toMatchObject({ status: 'STREAMING', feedback: true });
     expect(history.activeTurn).toEqual(activeTurn);
+  });
+
+  it('CORE_V2 preserves a grounded assistant citation and its Turn-derived RAG status on reload', async () => {
+    const citation = {
+      id: 'citation-1', traceability: 'CANONICAL', sourceTitle: 'Programme officiel NSI',
+      sourceDocument: 'programme.pdf', sourceLocation: 'Page 1', courseKey: 'eds-nsi-terminale',
+      provenance: 'OFFICIEL_MEN', url: 'https://www.education.gouv.fr/programmes-scolaires',
+      resourceId: 'resource-1', resourceVersionId: 'version-1', contentSha256: 'a'.repeat(64),
+      chunkId: 'chunk-1', locator: { page: 1 }, corpusId: 'corpus-1',
+      corpusVersionId: 'corpus-version-1', manifestSha256: 'b'.repeat(64),
+    };
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      conversation: historyConversation(), nextCursor: null,
+      messages: [
+        { id: 'user-1', turnId: 'turn-1', role: 'USER', content: 'Question', status: 'COMPLETED', citations: [], feedback: null },
+        { id: 'assistant-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', ragStatus: 'SUCCESS', citations: [citation], feedback: null },
+      ],
+    } }), { status: 200 }));
+
+    const history = await fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2');
+
+    expect(history.messages[1]).toMatchObject({ ragStatus: 'SUCCESS', citations: [citation] });
+    expect(history.messages[1]?.citations).toHaveLength(1);
+  });
+
+  it('CORE_V2 rejects an unknown persisted assistant RAG status', async () => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      conversation: historyConversation(), nextCursor: null,
+      messages: [{
+        id: 'assistant-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse',
+        status: 'COMPLETED', ragStatus: 'UNKNOWN', citations: [], feedback: null,
+      }],
+    } }), { status: 200 }));
+
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2'))
+      .rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
   });
 
   it('CORE_V2 rejects a repeated keyset cursor instead of restarting the history', async () => {

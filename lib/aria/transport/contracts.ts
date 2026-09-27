@@ -161,6 +161,22 @@ export const ariaSSEMetadataSchema = z.object({
   disposition: ariaExecutionDispositionSchema,
   ragStatus: ariaRagStatusSchema.optional(),
 }).strict();
+
+export const ariaCoreV2JsonResponseSchema = z.object({
+  success: z.literal(true),
+  conversation: z.object({ id: z.string().min(1), courseKey: z.string().min(1) }).strict(),
+  turn: z.object({
+    id: z.string().min(1),
+    status: z.enum(['COMPLETED', 'CANCELLED']),
+    disposition: z.enum(['EXECUTED', 'REPLAY']),
+  }).strict(),
+  message: z.object({
+    id: z.string().min(1),
+    content: z.string(),
+    citations: z.array(ariaCitationPayloadSchema),
+  }).strict(),
+  metadata: ariaSSEMetadataSchema,
+}).strict();
 export const ariaSSEDoneSchema = z.object({
   turnId: z.string().min(1),
   messageId: z.string().min(1),

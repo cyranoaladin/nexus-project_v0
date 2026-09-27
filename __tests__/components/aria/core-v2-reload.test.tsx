@@ -71,6 +71,38 @@ describe('Core v2 active Turn restoration', () => {
     expect(result.current.messages).toHaveLength(2);
   });
 
+  test('reload restores the latest assistant RAG status without duplicating its citation', async () => {
+    const citation = { id: 'citation-grounded', sourceTitle: 'Programme officiel NSI', traceability: 'CANONICAL' };
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      activeTurn: null,
+      messages: [
+        { id: 'user-existing', turnId: 'turn-grounded', role: 'user', content: 'Question', status: 'COMPLETED', citations: [], feedback: null },
+        { id: 'assistant-existing', turnId: 'turn-grounded', role: 'assistant', content: 'Réponse', status: 'COMPLETED', ragStatus: 'SUCCESS', citations: [citation], feedback: null },
+      ],
+    });
+
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    expect(result.current.ragStatus).toBe('SUCCESS');
+    expect(result.current.messages.find(({ role }) => role === 'assistant')?.citations).toEqual([citation]);
+  });
+
+  test('reload restores a Turn RAG outage so the source warning remains visible', async () => {
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValueOnce({
+      activeTurn: null,
+      messages: [
+        { id: 'user-existing', turnId: 'turn-unavailable', role: 'user', content: 'Question', status: 'COMPLETED', citations: [], feedback: null },
+        { id: 'assistant-existing', turnId: 'turn-unavailable', role: 'assistant', content: 'Réponse sans source', status: 'COMPLETED', ragStatus: 'RUNTIME_UNAVAILABLE', citations: [], feedback: null },
+      ],
+    });
+
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    expect(result.current.ragStatus).toBe('RUNTIME_UNAVAILABLE');
+  });
+
   test('Stop after reload uses the restored request id and reloads a cancelled assistant status', async () => {
     (cancelAriaTurn as jest.Mock).mockResolvedValue({
       turnId: 'turn-running', conversationId: 'conversation-existing',

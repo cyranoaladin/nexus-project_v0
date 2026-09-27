@@ -288,6 +288,7 @@ export function useAriaConversation(input: Readonly<{
         const history = await fetchHistoryForAuthority(latest, controller.signal, authority);
         if (token !== generation.current) return;
         setMessages(history.messages);
+        setRagStatus([...history.messages].reverse().find(({ role }) => role === 'assistant')?.ragStatus ?? null);
         if (history.activeTurn) {
           const turnMessages = history.messages.filter(
             ({ turnId }) => turnId === history.activeTurn?.turnId,

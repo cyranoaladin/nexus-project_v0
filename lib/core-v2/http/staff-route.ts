@@ -71,12 +71,15 @@ function parseWith<T extends z.ZodTypeAny>(schema: T | undefined, value: unknown
 export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined, Q extends z.ZodTypeAny | undefined = undefined>(options: {
   readonly body?: B;
   readonly query?: Q;
+  /** Optional route-specific mapping after authentication and Core v2 actor resolution. */
+  readonly mapError?: (error: unknown, correlationId: string) => NextResponse | undefined;
   readonly handler: (
     args: RouteArgs<B extends z.ZodTypeAny ? z.infer<B> : undefined, Q extends z.ZodTypeAny ? z.infer<Q> : undefined>,
   ) => Promise<RouteResult>;
 }): RouteHandler {
   return async (request, context) => {
     const correlationId = correlationIdFrom(request);
+    let routeBoundaryReady = false;
     try {
       const tooLarge = checkBodySize(request);
       if (tooLarge) return fail(correlationId, 413, 'PAYLOAD_TOO_LARGE', 'Request body too large.');
@@ -89,6 +92,7 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
       const client = await requireCoreV2Client();
       const actor = await resolveActor(client, session.user.id);
       const ctx = createServiceContext(actor, { correlationId });
+      routeBoundaryReady = true;
 
       const rawParams = await context.params;
       const query = parseWith(options.query, Object.fromEntries(request.nextUrl.searchParams.entries()));
@@ -107,6 +111,8 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
         { status: result.status ?? 200, headers: { [CORRELATION_HEADER]: correlationId } },
       );
     } catch (error) {
+      const mapped = routeBoundaryReady ? options.mapError?.(error, correlationId) : undefined;
+      if (mapped) return mapped;
       const response = failFromError(error, correlationId);
       if (response.status >= 500) {
         logger.error({ correlationId, path: request.nextUrl.pathname, err: error instanceof Error ? error.message : String(error) }, '[core-v2] unhandled route error');
