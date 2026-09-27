@@ -664,16 +664,15 @@ model CoreV2DatabaseIdentity {
   @@map("core_v2_database_identity")
 }
 
-// ── Enums carried over verbatim from prisma/schema.prisma ──────────────────
+// ── Shared academic enums ───────────────────────────────────────────────────
 //
-// Copied byte-identical from the live schema at the frozen SHA this design
-// was cut from (7313e738928522cb8066c2b323cd745fcd0a48eb) — purely so this
-// file `prisma validate`s standalone. NOT a design decision: at
-// implementation time these must be re-verified against whatever
-// prisma/schema.prisma says then, never assumed still identical.
+// Kept aligned with the shared academic vocabulary where applicable. Core v2
+// intentionally adds CANDIDAT_LIBRE to SchoolingStatus as an explicit annual
+// enrollment fact; this is not backfilled from the broader INDIVIDUAL value.
 
 enum SchoolingStatus {
   SCHOOL_ENROLLED
+  CANDIDAT_LIBRE
   INDIVIDUAL
 }
 

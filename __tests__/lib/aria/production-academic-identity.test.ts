@@ -54,7 +54,7 @@ function enrolledSpecialtyContext(overrides: Partial<{
   gradeLevel: GradeLevel;
   academicTrack: AcademicTrack;
   courseKey: string;
-  schoolingStatus: 'SCHOOL_ENROLLED' | 'INDIVIDUAL' | null;
+  schoolingStatus: 'SCHOOL_ENROLLED' | 'CANDIDAT_LIBRE' | 'INDIVIDUAL' | null;
 }> = {}) {
   const courseKey = overrides.courseKey ?? 'eds-maths-terminale';
   const gradeLevel = overrides.gradeLevel ?? 'TERMINALE';
@@ -86,7 +86,7 @@ function planFor(courseKey: string) {
  * `AriaRetrievalPlan.retrievalScope` from the imported manifest, never
  * invented by this resolver (see `resolveProductionAriaRagAudience`).
  */
-function planWithAudiences(courseKey: string, audiences: readonly string[]) {
+function planWithAudiences(courseKey: string, audiences: readonly string[], candidates: readonly string[] = ['scolarise']) {
   return {
     courseKey,
     academicYear: '2026-2027',
@@ -97,7 +97,7 @@ function planWithAudiences(courseKey: string, audiences: readonly string[]) {
         voie: 'generale',
         matiere: 'mathematiques',
         statut_enseignement: 'specialite',
-        candidates: ['scolarise'],
+        candidates,
         audiences,
         roles: ['student'],
       },
@@ -283,6 +283,10 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
       expect(resolveProductionCandidateStatus({ schoolingStatus: 'SCHOOL_ENROLLED' })).toBe('scolarise');
     });
 
+    it('maps only the explicit CANDIDAT_LIBRE status to candidat=libre', () => {
+      expect(resolveProductionCandidateStatus({ schoolingStatus: 'CANDIDAT_LIBRE' as never })).toBe('libre');
+    });
+
     it('SCHOOL_ENROLLED + an academically relevant derived/core course still resolves scolarise from schoolingStatus, not enrollment provenance', () => {
       // A tronc-commun / grade+track-DERIVED course has no
       // StudentAcademicEnrollment row at all (by design — only chosen
@@ -321,6 +325,32 @@ describe('P0-ARIA-01 — production RAG identity resolver', () => {
       expect(resolveProductionCandidateStatus({
         schoolingStatus: 'scolarise' as unknown as never,
       })).toBeNull();
+    });
+
+    it('client-controlled input cannot forge candidat=libre with an arbitrary schooling status', () => {
+      expect(resolveProductionCandidateStatus({
+        schoolingStatus: 'libre' as unknown as never,
+      })).toBeNull();
+    });
+
+    it('resolves an explicit Core v2 candidat libre against the compatible libre corpus audience', () => {
+      const identity = resolveProductionAriaRagIdentity({
+        context: enrolledSpecialtyContext({ schoolingStatus: 'CANDIDAT_LIBRE' }),
+        plan: planWithAudiences('eds-maths-terminale', ['libre'], ['libre']),
+        environment: baseEnv(),
+      });
+
+      expect(identity).toMatchObject({ candidat: 'libre', audience: 'libre' });
+    });
+
+    it('rejects an explicit candidat libre when the corpus audience is incompatible', () => {
+      const identity = resolveProductionAriaRagIdentity({
+        context: enrolledSpecialtyContext({ schoolingStatus: 'CANDIDAT_LIBRE' }),
+        plan: planWithAudiences('eds-maths-terminale', ['aefe'], ['libre']),
+        environment: baseEnv(),
+      });
+
+      expect(identity).toBeNull();
     });
   });
 

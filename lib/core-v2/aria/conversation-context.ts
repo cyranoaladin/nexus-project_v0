@@ -120,6 +120,7 @@ export async function buildCoreV2AriaConversationContext(
     gradeLevel: student.gradeLevel,
     academicTrack: student.academicTrack,
     stmgPathway: student.stmgPathway,
+    schoolingStatus: student.schoolingStatus,
     academicEnrollments: student.academicEnrollments.map((enrollment) => ({ ...enrollment, source: 'CORE_V2' })),
   };
   const capabilities = {

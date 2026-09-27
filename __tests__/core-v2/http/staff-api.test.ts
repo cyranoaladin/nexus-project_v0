@@ -27,6 +27,7 @@ import * as householdParents from '@/app/api/v2/staff/households/[id]/parents/ro
 import * as students from '@/app/api/v2/staff/students/route';
 import * as enrollments from '@/app/api/v2/staff/enrollments/route';
 import * as enrollmentApprove from '@/app/api/v2/staff/enrollments/[id]/approve/route';
+import * as enrollmentAcademicMap from '@/app/api/v2/staff/enrollments/[id]/academic-map/route';
 import * as enrollmentCourses from '@/app/api/v2/staff/enrollments/[id]/courses/route';
 import * as coachCapabilities from '@/app/api/v2/staff/coaches/[id]/capabilities/route';
 import * as assignments from '@/app/api/v2/staff/assignments/route';
@@ -169,12 +170,29 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect(student.status).toBe(201);
     const studentId: string = student.body.data.student.id;
 
+    const invalidSchoolingStatus = await json(
+      await enrollments.POST(req('POST', '/api/v2/staff/enrollments', {
+        studentId,
+        academicYearId: year.body.data.id,
+        academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', schoolingStatus: 'libre' },
+      }), NO_PARAMS),
+    );
+    expect(invalidSchoolingStatus.status).toBe(400);
+    expect(await h.client.studentAcademicYearEnrollment.count({ where: { studentId } })).toBe(0);
+
     const enrollment = await json(
-      await enrollments.POST(req('POST', '/api/v2/staff/enrollments', { studentId, academicYearId: year.body.data.id, academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } }), NO_PARAMS),
+      await enrollments.POST(req('POST', '/api/v2/staff/enrollments', { studentId, academicYearId: year.body.data.id, academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', schoolingStatus: 'SCHOOL_ENROLLED' } }), NO_PARAMS),
     );
     expect(enrollment.status).toBe(201);
     expect(enrollment.body.data.status).toBe('PENDING');
     const enrollmentId: string = enrollment.body.data.id;
+    const updatedAcademicMap = await json(
+      await enrollmentAcademicMap.PUT(req('PUT', '/api/v2/staff/enrollments/academic-map', {
+        gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', schoolingStatus: 'CANDIDAT_LIBRE',
+      }), params(enrollmentId)),
+    );
+    expect(updatedAcademicMap.status).toBe(200);
+    expect(updatedAcademicMap.body.data.schoolingStatus).toBe('CANDIDAT_LIBRE');
     expect((await json(await enrollmentApprove.POST(req('POST', '/x'), params(enrollmentId)))).body.data.status).toBe('ACTIVE');
     expect((await json(await enrollmentApprove.POST(req('POST', '/x'), params(enrollmentId)))).status).toBe(409);
 

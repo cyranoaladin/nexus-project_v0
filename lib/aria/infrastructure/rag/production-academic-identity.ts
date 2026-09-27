@@ -17,33 +17,14 @@
  *                           already been proven for this exact student.
  *   - `schoolYear`        : `plan.academicYear`, sourced from the imported RAG
  *                           servable-corpus manifest itself — never invented.
- *   - `candidat`          : asserted as `'scolarise'` ONLY from
- *                           `Student.schoolingStatus === 'SCHOOL_ENROLLED'`
- *                           — the canonical, staff/onboarding-set answer to
- *                           "is this student school-enrolled or an
- *                           individual candidate?" (`SchoolingStatus`,
- *                           `prisma/schema.prisma`). This is deliberately
- *                           NOT derived from "does the student have a
- *                           verified course enrollment?" (a
- *                           `StudentAcademicEnrollment` row proves WHICH
- *                           course a student follows, never WHETHER they
- *                           are school-enrolled — those are different
- *                           facts, and conflating them was a real semantic
- *                           bug this resolver used to have). `INDIVIDUAL`
- *                           and `null`/unset both fail closed to `null`
- *                           today: the RAG contract's `Candidat` enum
- *                           distinguishes `individuel` from `libre` from
- *                           `cned_reglemente`/`cned_libre`/`aefe`, and no
- *                           promoted RAG servable-manifest `target_policy`
- *                           exists yet to prove which literal an
- *                           `INDIVIDUAL` Nexus student should resolve to —
- *                           guessing one would be exactly the kind of
- *                           unverifiable per-student claim this module
- *                           refuses to make elsewhere (see `audience`
- *                           below). This is a real, current limitation
- *                           (no `INDIVIDUAL` student gets a RAG identity
- *                           today), not a placeholder to silently work
- *                           around.
+ *   - `candidat`          : only from the server-loaded persisted schooling
+ *                           status, never inferred from course/role/school.
+ *                           `SCHOOL_ENROLLED` maps to `scolarise`; the
+ *                           explicit Core v2 enrollment status
+ *                           `CANDIDAT_LIBRE` maps to `libre`. Generic
+ *                           `INDIVIDUAL`, null, and unset remain fail-closed
+ *                           because they do not establish that narrower
+ *                           candidate identity.
  *   - `statusDetail`      : the RAG contract's own documented default
  *                           (`'unknown'`), never invented business detail.
  *   - `audience`          : see `resolveProductionAriaRagAudience()` below —
@@ -94,6 +75,7 @@ import type { AcademicTrack, GradeLevel, SchoolingStatus } from '@prisma/client'
 import { getCourse } from '@/lib/curriculum/catalog';
 import type { AriaResolvedRagStudentIdentity } from '../../rag';
 
+type ProductionSchoolingStatus = SchoolingStatus | 'CANDIDAT_LIBRE';
 type JsonRecord = Readonly<Record<string, unknown>>;
 
 interface ProductionAcademicVocabulary {
@@ -187,20 +169,19 @@ export function resolveProductionAcademicVocabulary(input: {
 }
 
 /**
- * Asserts `candidat: 'scolarise'` only from the canonical, staff-set
- * `Student.schoolingStatus === 'SCHOOL_ENROLLED'` — see module docstring for
- * why this is deliberately NOT derived from `StudentAcademicEnrollment`
- * existence (a different fact: WHICH course, never WHETHER school-enrolled).
- * `INDIVIDUAL` and an unset/`null` status both fail closed: client input can
- * never forge either value into `'scolarise'`, since neither reaches this
- * branch at all.
+ * Resolves candidate identity only from the persisted, staff-set schooling
+ * status: `SCHOOL_ENROLLED` means `scolarise`, the explicit Core v2
+ * `CANDIDAT_LIBRE` means `libre`, and generic/unknown/unset states fail
+ * closed. No course, school, role, or client-provided value is consulted.
  */
 export function resolveProductionCandidateStatus(
   student: {
-    readonly schoolingStatus?: SchoolingStatus | null;
+    readonly schoolingStatus?: ProductionSchoolingStatus | null;
   },
-): 'scolarise' | null {
-  return student.schoolingStatus === 'SCHOOL_ENROLLED' ? 'scolarise' : null;
+): 'scolarise' | 'libre' | null {
+  if (student.schoolingStatus === 'SCHOOL_ENROLLED') return 'scolarise';
+  if (student.schoolingStatus === 'CANDIDAT_LIBRE') return 'libre';
+  return null;
 }
 
 /** Deterministic, non-reversible, production-dedicated pseudonym. */
@@ -304,7 +285,7 @@ export function resolveProductionAriaRagIdentity(input: {
     readonly student: {
       readonly gradeLevel: GradeLevel;
       readonly academicTrack: AcademicTrack;
-      readonly schoolingStatus?: SchoolingStatus | null;
+      readonly schoolingStatus?: ProductionSchoolingStatus | null;
     };
   };
   readonly plan: {

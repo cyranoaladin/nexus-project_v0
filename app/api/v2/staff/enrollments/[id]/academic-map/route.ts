@@ -9,7 +9,7 @@ export const PUT = defineStaffRoute({
     gradeLevel: z.string(),
     academicTrack: z.string().optional(),
     stmgPathway: z.string().nullable().optional(),
-    schoolingStatus: z.string().nullable().optional(),
+    schoolingStatus: z.enum(['SCHOOL_ENROLLED', 'CANDIDAT_LIBRE', 'INDIVIDUAL']).nullable().optional(),
     school: z.string().nullable().optional(),
   }),
   handler: async ({ client, ctx, body, params }) => ({

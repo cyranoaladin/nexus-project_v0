@@ -14,6 +14,11 @@ import { EnrollmentCard } from './EnrollmentCard';
 import { StatusMessage } from './StatusMessage';
 
 type Student = HouseholdDetail['students'][number];
+const SCHOOLING_STATUS_OPTIONS = [
+  { value: 'SCHOOL_ENROLLED', label: 'Scolarisé' },
+  { value: 'CANDIDAT_LIBRE', label: 'Candidat libre' },
+  { value: 'INDIVIDUAL', label: 'Individuel / autre' },
+] as const;
 
 export function StudentsSection({ household, years, coaches, can, refresh }: { household: HouseholdDetail; years: AcademicYear[]; coaches: CoachSummary[]; can: (c: string) => boolean; refresh: () => Promise<void> }) {
   return (
@@ -176,7 +181,7 @@ function CorrectStudentDialog({ student, onDone }: { student: Student; onDone: (
   );
 }
 
-export function AcademicMapFields({ idPrefix, value, onChange }: { idPrefix: string; value: { gradeLevel: string; academicTrack: string; stmgPathway: string; school: string }; onChange: (next: { gradeLevel: string; academicTrack: string; stmgPathway: string; school: string }) => void }) {
+export function AcademicMapFields({ idPrefix, value, onChange }: { idPrefix: string; value: { gradeLevel: string; academicTrack: string; stmgPathway: string; schoolingStatus: string; school: string }; onChange: (next: { gradeLevel: string; academicTrack: string; stmgPathway: string; schoolingStatus: string; school: string }) => void }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <div>
@@ -207,6 +212,15 @@ export function AcademicMapFields({ idPrefix, value, onChange }: { idPrefix: str
         </div>
       )}
       <div>
+        <Label htmlFor={`${idPrefix}-schooling-status`}>Situation scolaire</Label>
+        <select id={`${idPrefix}-schooling-status`} className="w-full rounded-md border border-white/10 bg-surface-darker px-3 py-2 text-sm text-neutral-100" value={value.schoolingStatus} onChange={(e) => onChange({ ...value, schoolingStatus: e.target.value })}>
+          <option value="">À préciser</option>
+          {SCHOOLING_STATUS_OPTIONS.map((status) => (
+            <option key={status.value} value={status.value}>{status.label}</option>
+          ))}
+        </select>
+      </div>
+      <div>
         <Label htmlFor={`${idPrefix}-school`}>Établissement (optionnel)</Label>
         <Input id={`${idPrefix}-school`} value={value.school} onChange={(e) => onChange({ ...value, school: e.target.value })} />
       </div>
@@ -217,7 +231,7 @@ export function AcademicMapFields({ idPrefix, value, onChange }: { idPrefix: str
 function NewEnrollmentDialog({ student, years, onDone }: { student: Student; years: AcademicYear[]; onDone: () => Promise<void> }) {
   const [open, setOpen] = useState(false);
   const [yearId, setYearId] = useState(years[0]?.id ?? '');
-  const [map, setMap] = useState({ gradeLevel: 'SECONDE', academicTrack: 'EDS_GENERALE', stmgPathway: '', school: '' });
+  const [map, setMap] = useState({ gradeLevel: 'SECONDE', academicTrack: 'EDS_GENERALE', stmgPathway: '', schoolingStatus: '', school: '' });
   const action = useAction(async () => {
     setOpen(false);
     await onDone();
@@ -237,7 +251,7 @@ function NewEnrollmentDialog({ student, years, onDone }: { student: Student; yea
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
-            void action.run('enroll', () => v2('/staff/enrollments', { method: 'POST', json: { studentId: student.id, academicYearId: yearId, academicMap: { gradeLevel: map.gradeLevel, academicTrack: map.academicTrack, stmgPathway: map.stmgPathway || undefined, school: map.school || undefined } } }), 'Inscription créée (en attente d’approbation).');
+            void action.run('enroll', () => v2('/staff/enrollments', { method: 'POST', json: { studentId: student.id, academicYearId: yearId, academicMap: { gradeLevel: map.gradeLevel, academicTrack: map.academicTrack, stmgPathway: map.stmgPathway || undefined, schoolingStatus: map.schoolingStatus || null, school: map.school || undefined } } }), 'Inscription créée (en attente d’approbation).');
           }}
         >
           <div>
