@@ -105,6 +105,22 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
+      # Keep this qualification topology aligned with E2E Auth — Chromium:
+      # HYBRID auth must be backed by its own migrated, disposable Core v2 DB.
+      postgres-core-v2-e2e:
+        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
+        env:
+          POSTGRES_USER: postgres
+          # Disposable job service: trust auth, no credential anywhere in the workflow.
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: core_v2_e2e
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d core_v2_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
 
     steps:
       - name: Checkout code
@@ -188,6 +204,20 @@ jobs:
           echo "Postgres did not become ready in time"
           exit 1
 
+      - name: Wait for Core v2 Postgres (E2E) to be ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5435 -U postgres -d core_v2_e2e; then
+              echo 'Core v2 DB reachable = YES'
+              exit 0
+            fi
+            echo "Waiting for Core v2 Postgres... ($i/30)"
+            sleep 2
+          done
+          echo 'Core v2 DB reachable = NO' >&2
+          echo 'QUALIFICATION_NOT_STARTED: Core v2 database is unavailable.' >&2
+          exit 1
+
       - name: Generate Prisma Client
         run: |
           npx prisma generate
@@ -203,6 +233,23 @@ jobs:
           SQL
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
+
+      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+        run: |
+          set -Eeuo pipefail
+          if [[ "$DATABASE_URL" == "$CORE_V2_DATABASE_URL" ]]; then
+            echo 'Legacy and Core v2 databases must be distinct.' >&2
+            exit 1
+          fi
+          npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
+          npx prisma migrate status --schema=core-v2/prisma/schema.prisma
+          echo 'legacy DB reachable = YES'
+          echo 'Core v2 migrations current = YES'
+          echo 'Staff actors mirrored = YES'
 
       - name: Install Playwright browsers (Chromium + Firefox + WebKit smoke)
         run: npx playwright install --with-deps chromium firefox webkit
@@ -224,6 +271,11 @@ jobs:
       - name: Start Next.js server in background (worker bilan actif)
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
+          CORE_V2_INVITATION_TTL_HOURS: '72'
+          CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
+          CORE_V2_AUTH_MODE: HYBRID
           NEXTAUTH_URL: http://localhost:3000
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           AUTH_TRUST_HOST: 'true'
@@ -272,13 +324,19 @@ jobs:
           echo $! > .next-server.pid
           for i in {1..30}; do
             if curl -sf http://localhost:3000/api/health > /dev/null 2>&1; then
-              echo "Server + Health API ready"
+              echo 'CORE_V2_AUTH_MODE = HYBRID'
+              echo 'legacy DB reachable = YES'
+              echo 'Core v2 DB reachable = YES'
+              echo 'Core v2 migrations current = YES'
+              echo 'server /api/health = 200'
+              echo 'QUALIFICATION_SERVER_READY'
               exit 0
             fi
             echo "Waiting for server... ($i/30)"
             sleep 2
           done
-          echo "Server failed to start (health endpoint not responding)"
+          echo 'Server failed to start (health endpoint not responding)' >&2
+          echo 'QUALIFICATION_NOT_STARTED: standalone server health preflight failed.' >&2
           curl -v http://localhost:3000/api/health 2>&1 || true
           exit 1
 
@@ -317,6 +375,7 @@ jobs:
         run: |
           # retries=0 is the whole point: a qualification run that retries
           # cannot distinguish "fixed" from "flaky but lucky on the retry".
+          echo 'QUALIFICATION_STARTED'
           npx playwright test \
             --config=playwright.auth.config.ts \
             --project=${{ inputs.project }} \
