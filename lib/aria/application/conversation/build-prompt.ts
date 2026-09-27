@@ -1,5 +1,6 @@
 import type { AriaCitationHit, AriaCourseKey } from '../../contracts';
 import { getCourse } from '@/lib/curriculum/catalog';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import { getSkillGraph } from '../../curriculum/skill-graph';
 import { getResourceForCourse } from '../../resources';
 import { GLOBAL_ARIA_SAFETY_POLICY } from '../../kernel/global-safety-policy';
@@ -61,9 +62,10 @@ export function buildAriaPromptEnvelope(params: AriaPromptContextParams): Format
     ragStatus,
     userMessage,
   } = params;
-  const course = getCourse(courseKey);
+  const canonicalCourseKey = toCanonicalAriaCourseKey(courseKey);
+  const course = getCourse(canonicalCourseKey);
   if (!course) throw new Error('ARIA_PROMPT_COURSE_CONTEXT_INVALID');
-  const policy = resolveAriaPedagogicalPolicy({ courseKey, agentRole, mode: pedagogicalMode });
+  const policy = resolveAriaPedagogicalPolicy({ courseKey: canonicalCourseKey, agentRole, mode: pedagogicalMode });
   let contextualSystemAdditions = [
     '\n\n[POLITIQUE PÉDAGOGIQUE DE LA TÂCHE]',
     `Version : ${policy.policyVersion}`,
@@ -78,7 +80,7 @@ export function buildAriaPromptEnvelope(params: AriaPromptContextParams): Format
     contextualSystemAdditions += `\n\n[POLITIQUE DOCUMENTAIRE]\nPlan : ${retrievalPolicy ?? 'NON_RÉSOLU'}\nÉtat : ${ragStatus ?? 'NON_EXÉCUTÉ'}`;
   }
   if (skillId) {
-    const graph = getSkillGraph(courseKey);
+    const graph = getSkillGraph(canonicalCourseKey);
     if (!graph) throw new Error('ARIA_PROMPT_SKILL_GRAPH_INVALID');
     let selectedDomain: typeof graph.domains[number] | undefined;
     let selectedCompetency: typeof graph.domains[number]['competencies'][number] | undefined;
@@ -98,7 +100,7 @@ export function buildAriaPromptEnvelope(params: AriaPromptContextParams): Format
     contextualSystemAdditions += `\n\n[COMPÉTENCE TRAVAILLÉE]\nDomaine : ${selectedDomain.label}\nObjectif : ${selectedCompetency.label}`;
   }
   if (resourceId) {
-    const resource = getResourceForCourse(resourceId, courseKey);
+    const resource = getResourceForCourse(resourceId, canonicalCourseKey);
     if (!resource) throw new Error('ARIA_PROMPT_RESOURCE_CONTEXT_INVALID');
     contextualSystemAdditions += `\n\n[DOCUMENT ÉTUDIÉ]\nTitre : ${resource.title}\nProvenance : ${resource.sourceLabel}\nType : ${resource.type}`;
   }

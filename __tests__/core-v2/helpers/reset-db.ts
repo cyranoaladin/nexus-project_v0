@@ -25,8 +25,20 @@ export async function resetCoreV2Database(client: PrismaClient): Promise<void> {
       "academic_years",
       "users",
       "diagnostic_submissions",
+      "diagnostic_submission_processings",
+      "diagnostic_submission_extractions",
+      "diagnostic_ai_budget_ledger",
+      "diagnostic_bilan_drafts",
       "diagnostic_assignments",
-      "diagnostic_instrument_refs"
+      "diagnostic_instrument_refs",
+      "aria_feedback_core_v2",
+      "aria_message_citations_core_v2",
+      "aria_messages_core_v2",
+      "core_v2_job_outbox",
+      "aria_conversation_turns_core_v2",
+      "aria_conversations_core_v2",
+      "aria_access_grants_core_v2",
+      "aria_cockpit_profiles_core_v2"
     RESTART IDENTITY CASCADE;
   `);
 }

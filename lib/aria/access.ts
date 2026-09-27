@@ -30,7 +30,10 @@ import type {
   AriaCourseStatus,
   AriaCourseSummary,
 } from './contracts';
-import type { CanonicalAriaEntitlementContext } from './kernel/entitlements';
+import {
+  isAriaCourseEntitled,
+  type CanonicalAriaEntitlementContext,
+} from './kernel/entitlements';
 import { AriaError } from './kernel/errors';
 
 export type {
@@ -109,10 +112,7 @@ export function resolveAriaCourseAccess(params: {
     capabilities.hasChat;
 
   // 3. Commercialement autorisé ? (Strictement sans heuristique implicite)
-  const commerciallyEntitled = Boolean(
-    entitlements?.hasGenericAccess
-    && (entitlements.hasGlobalAccess || entitlements.courseKeys.includes(courseKey)),
-  );
+  const commerciallyEntitled = isAriaCourseEntitled(entitlements, courseKey);
 
   // 4. Sélectionné dans le cockpit ARIA ?
   const pinnedForAria = pinnedCourseKeys.includes(courseKey);

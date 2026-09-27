@@ -9,6 +9,7 @@ import {
   submitAriaFeedback,
 } from '@/lib/aria/client';
 import { formatAriaSSEEvent } from '@/lib/aria/transport/sse-parser';
+import { ariaChatRequestSchema } from '@/lib/aria/transport/contracts';
 
 const request = createAriaClientRequest({
   courseKey: 'eds-nsi-terminale',
@@ -58,6 +59,78 @@ function historyConversation(activeTurn: typeof activeHistoryTurn | null = null)
 
 describe('ARIA browser client transport ownership', () => {
   beforeEach(() => jest.restoreAllMocks());
+
+  it('keeps Core v2 authority client-side while sending a strict canonical chat payload', async () => {
+    const coreRequest = createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
+      conversationId: 'conversation-1', authority: 'CORE_V2',
+    }, () => 'd9428888-122b-4fd9-806c-02948637efeb');
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
+      turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'REPLAY' },
+      message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [] },
+    } }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    const onDone = jest.fn();
+
+    await streamAriaConversation(coreRequest, { onDone }, new AbortController().signal);
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v2/aria/chat', expect.objectContaining({
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+    }));
+    const sent = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(ariaChatRequestSchema.safeParse(sent).success).toBe(true);
+    expect(sent).not.toHaveProperty('authority');
+    expect(onDone).toHaveBeenCalledWith(expect.objectContaining({ status: 'COMPLETED', fullText: 'Une pile est LIFO.' }));
+  });
+
+  it('replays a Core v2 RUNNING reservation with one stable request payload until completion', async () => {
+    const coreRequest = createAriaClientRequest({
+      courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
+      conversationId: 'conversation-1', authority: 'CORE_V2',
+    }, () => 'd9428888-122b-4fd9-806c-02948637efeb');
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        turnId: 'turn-1', status: 'RUNNING', disposition: 'IN_PROGRESS', retryAfterMs: 1,
+      } }), { status: 202 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale' },
+        turn: { id: 'turn-1', status: 'COMPLETED', disposition: 'REPLAY' },
+        message: { id: 'message-1', content: 'Une pile est LIFO.', citations: [] },
+      } }), { status: 200 }));
+    const onPending = jest.fn();
+    const onStart = jest.fn();
+    const onDone = jest.fn();
+
+    await streamAriaConversation(coreRequest, { onPending, onStart, onDone }, new AbortController().signal);
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[1]?.body).toBe(fetchMock.mock.calls[1]?.[1]?.body);
+    expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)).clientRequestId).toBe(coreRequest.clientRequestId);
+    expect(onPending).toHaveBeenCalledWith(expect.objectContaining({ turnId: 'turn-1', status: 'RUNNING' }));
+    expect(onStart).toHaveBeenCalledWith(expect.objectContaining({ turnId: 'turn-1', disposition: 'REPLAY' }));
+    expect(onDone).toHaveBeenCalledWith(expect.objectContaining({ status: 'COMPLETED', fullText: 'Une pile est LIFO.' }));
+  });
+
+  it('reads Core v2 cancel and feedback envelopes without changing the browser contract', async () => {
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        turnId: 'turn-1', conversationId: 'conversation-1', status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED',
+      } }), { status: 202 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        success: true,
+        feedback: { id: 'feedback-1', useful: false, reason: null, updatedAt: '2026-09-24T12:00:00.000Z' },
+        newBadges: [],
+      } }), { status: 200 }));
+
+    await expect(cancelAriaTurn('turn-1', request.clientRequestId, 'CORE_V2'))
+      .resolves.toMatchObject({ disposition: 'CANCELLATION_REQUESTED', status: 'RUNNING' });
+    await expect(submitAriaFeedback('message-1', false, 'CORE_V2'))
+      .resolves.toMatchObject({ id: 'feedback-1', useful: false });
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      '/api/v2/aria/turns/turn-1/cancel', '/api/v2/aria/feedback',
+    ]);
+  });
 
   it('creates a UUID idempotency key when randomUUID is unavailable in an HTTP browser context', () => {
     const originalCrypto = globalThis.crypto;
@@ -373,6 +446,90 @@ describe('ARIA browser client transport ownership', () => {
     ]);
     expect(history.activeTurn).toEqual(activeHistoryTurn);
     expect(history.messages[3]).toMatchObject({ turnId: 'turn-active' });
+  });
+
+  it('CORE_V2 loads every keyset page, de-duplicates ids, preserves derived status and restores the active turn', async () => {
+    const message = (id: string, role: 'USER' | 'ASSISTANT', status: string, feedback: boolean | null = null) => ({
+      id, turnId: 'turn-active', role, content: id, status, citations: [], feedback,
+    });
+    const firstPage = Array.from({ length: 50 }, (_, index) => message(`message-${String(index + 1).padStart(2, '0')}`, index === 0 ? 'USER' : 'ASSISTANT', index === 0 ? 'COMPLETED' : 'PENDING'));
+    firstPage.push(message('message-duplicate', 'ASSISTANT', 'STREAMING', true));
+    const secondPage = [message('message-duplicate', 'ASSISTANT', 'STREAMING', true), message('message-52', 'ASSISTANT', 'CANCELLED')];
+    const activeTurn = { turnId: 'turn-active', clientRequestId: activeHistoryTurn.clientRequestId, status: 'RUNNING', pedagogicalMode: 'METHODOLOGY' };
+    const envelope = (messages: unknown[], nextCursor: string | null) => ({
+      data: { conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale', contextState: 'ACTIVE', resumable: true, activeTurn }, messages, nextCursor },
+    });
+    const fetchMock = jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(firstPage, 'cursor-2')), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(secondPage, null)), { status: 200 }));
+
+    const history = await fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2');
+
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/v2/aria/conversations/conversation-1/messages?limit=50', { signal: undefined });
+    expect(fetchMock).toHaveBeenNthCalledWith(2, '/api/v2/aria/conversations/conversation-1/messages?limit=50&cursor=cursor-2', { signal: undefined });
+    expect(history.messages).toHaveLength(52);
+    expect(new Set(history.messages.map(({ id }) => id)).size).toBe(52);
+    expect(history.messages[0]).toMatchObject({ id: 'message-01', status: 'COMPLETED' });
+    expect(history.messages[1]).toMatchObject({ status: 'PENDING' });
+    expect(history.messages.at(-1)).toMatchObject({ id: 'message-52', status: 'CANCELLED' });
+    expect(history.messages.find(({ id }) => id === 'message-duplicate')).toMatchObject({ status: 'STREAMING', feedback: true });
+    expect(history.activeTurn).toEqual(activeTurn);
+  });
+
+  it('CORE_V2 rejects a repeated keyset cursor instead of restarting the history', async () => {
+    const payload = {
+      data: {
+        conversation: { id: 'conversation-1', courseKey: 'eds-nsi-terminale', contextState: 'ACTIVE', resumable: true, activeTurn: null },
+        messages: [], nextCursor: 'same-cursor',
+      },
+    };
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }));
+
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2')).rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('CORE_V2 uses the latest active Turn state when it completes during pagination', async () => {
+    const envelope = (activeTurn: typeof activeHistoryTurn | null, nextCursor: string | null) => ({
+      data: { conversation: historyConversation(activeTurn), messages: [], nextCursor },
+    });
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(activeHistoryTurn, 'next-page')), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify(envelope(null, null)), { status: 200 }));
+
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2'))
+      .resolves.toMatchObject({ activeTurn: null, messages: [] });
+  });
+
+  it.each([
+    ['missing id', { turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', citations: [], feedback: null }],
+    ['invalid turn', { id: 'message-1', turnId: 3, role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', citations: [], feedback: null }],
+    ['invalid role', { id: 'message-1', turnId: 'turn-1', role: 'STAFF', content: 'Réponse', status: 'COMPLETED', citations: [], feedback: null }],
+    ['invalid content', { id: 'message-1', turnId: 'turn-1', role: 'ASSISTANT', content: 7, status: 'COMPLETED', citations: [], feedback: null }],
+    ['invalid status', { id: 'message-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'RUNNING', citations: [], feedback: null }],
+    ['invalid citations', { id: 'message-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', citations: {}, feedback: null }],
+    ['foreign feedback shape', { id: 'message-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', citations: [], feedback: 'yes' }],
+    ['invalid citation identity', { id: 'message-1', turnId: 'turn-1', role: 'ASSISTANT', content: 'Réponse', status: 'COMPLETED', citations: [{}], feedback: null }],
+  ])('CORE_V2 rejects %s in an untrusted history message', async (_case, message) => {
+    jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+      conversation: historyConversation(), messages: [message], nextCursor: null,
+    } }), { status: 200 }));
+
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2'))
+      .rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
+  });
+
+  it('CORE_V2 refuses course identity drift across keyset pages', async () => {
+    jest.spyOn(global, 'fetch')
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        conversation: historyConversation(), messages: [], nextCursor: 'next-page',
+      } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: {
+        conversation: { ...historyConversation(), courseKey: 'foreign-course' }, messages: [], nextCursor: null,
+      } }), { status: 200 }));
+    await expect(fetchAriaConversationHistory('conversation-1', undefined, 'CORE_V2'))
+      .rejects.toMatchObject({ code: 'INVALID_RESPONSE' });
   });
 
   it('returns inactive history and preserves the canonical boolean feedback value', async () => {

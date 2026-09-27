@@ -18,6 +18,7 @@ import {
   type AriaPendingResponse,
 } from './transport/contracts';
 import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
+import { resolveAriaApiBase, type AriaClientAuthority } from './client/api-base';
 
 export interface AriaClientCourse {
   readonly courseKey: string;
@@ -59,6 +60,7 @@ export interface AriaClientRequest {
   readonly content: string;
   readonly conversationId?: string;
   readonly pedagogicalMode?: AriaPedagogicalMode;
+  readonly authority?: AriaClientAuthority;
 }
 
 export type AriaClientPendingTransport = AriaPendingResponse;
@@ -112,6 +114,7 @@ export function createAriaClientRequest(
     content: string;
     conversationId: string | null;
     pedagogicalMode?: AriaPedagogicalMode;
+    authority?: AriaClientAuthority;
   }>,
   createId: () => string = createBrowserUuid,
 ): AriaClientRequest {
@@ -121,6 +124,7 @@ export function createAriaClientRequest(
     content: input.content,
     ...(input.conversationId ? { conversationId: input.conversationId } : {}),
     ...(input.pedagogicalMode ? { pedagogicalMode: input.pedagogicalMode } : {}),
+    ...(input.authority ? { authority: input.authority } : {}),
   });
 }
 
@@ -137,11 +141,12 @@ function createBrowserUuid(): string {
   return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
 }
 
-export async function fetchAriaCurriculum(signal?: AbortSignal): Promise<{
+export async function fetchAriaCurriculum(signal?: AbortSignal, authority?: AriaClientAuthority): Promise<{
   readonly courses: readonly AriaClientCourse[];
   readonly profile: AriaLearningPreferencesV1;
 }> {
-  const body = object(await requireOk(await fetch('/api/aria/curriculum', { signal })));
+  const raw = object(await requireOk(await fetch(`${resolveAriaApiBase(authority)}/curriculum`, { signal })));
+  const body = authority === 'CORE_V2' ? object(raw.data) : raw;
   if (!Array.isArray(body.courses)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
   const courses = body.courses.map((raw) => {
     const course = object(raw);
@@ -189,11 +194,14 @@ export async function fetchAriaCurriculum(signal?: AbortSignal): Promise<{
 export async function fetchLatestAriaConversation(
   courseKey: string,
   signal?: AbortSignal,
+  authority?: AriaClientAuthority,
 ): Promise<string | null> {
-  const response = await fetch(`/api/aria/conversations?courseKey=${encodeURIComponent(courseKey)}&limit=1`, { signal });
-  const body = object(await requireOk(response));
-  if (!Array.isArray(body.conversations)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
-  const first = body.conversations[0];
+  const response = await fetch(`${resolveAriaApiBase(authority)}/conversations?courseKey=${encodeURIComponent(courseKey)}&limit=1`, { signal });
+  const raw = object(await requireOk(response));
+  const body = authority === 'CORE_V2' ? object(raw.data) : raw;
+  const conversations = Array.isArray(body.conversations) ? body.conversations : (Array.isArray(body.items) ? body.items : undefined);
+  if (!conversations) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+  const first = conversations[0];
   if (first === undefined) return null;
   const conversation = object(first);
   return typeof conversation.id === 'string' && conversation.resumable === true
@@ -204,18 +212,86 @@ export async function fetchLatestAriaConversation(
 export async function fetchAriaConversationHistory(
   conversationId: string,
   signal?: AbortSignal,
+  authority?: AriaClientAuthority,
 ): Promise<AriaClientConversationHistory> {
   const pages: AriaClientMessage[][] = [];
+  const coreMessageIds = new Set<string>();
   const seenCursors = new Set<string>();
   let cursor: string | null = null;
   let canonicalConversation: AriaHistoryConversation | null = null;
   for (let pageNumber = 0; pageNumber < 200; pageNumber += 1) {
     const query = cursor ? `&cursor=${encodeURIComponent(cursor)}` : '';
     const response = await fetch(
-      `/api/aria/conversations/${encodeURIComponent(conversationId)}/messages?limit=50${query}`,
+      `${resolveAriaApiBase(authority)}/conversations/${encodeURIComponent(conversationId)}/messages?limit=50${query}`,
       { signal },
     );
-    const body = object(await requireOk(response));
+    const raw = object(await requireOk(response));
+    const body = authority === 'CORE_V2' ? object(raw.data) : raw;
+    if (authority === 'CORE_V2') {
+      const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
+      if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      if (!Array.isArray(body.messages)) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      if (canonicalConversation !== null && parsedConversation.data.courseKey !== canonicalConversation.courseKey) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      canonicalConversation = parsedConversation.data;
+      const coreMessages = body.messages;
+      const mapped = coreMessages.map((rawMessage) => {
+        const message = object(rawMessage);
+        const role = String(message.role).toLowerCase();
+        const invalidCoreMessage = typeof message.id !== 'string'
+          || !(message.turnId === null || typeof message.turnId === 'string')
+          || !['user', 'assistant', 'system'].includes(role)
+          || typeof message.content !== 'string'
+          || !['PENDING', 'STREAMING', 'COMPLETED', 'CANCELLED', 'ERROR'].includes(String(message.status))
+          || !Array.isArray(message.citations)
+          || !(message.feedback === null || typeof message.feedback === 'boolean');
+        if (invalidCoreMessage) {
+          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        }
+        const messageId = message.id as string;
+        const turnId = message.turnId as string | null;
+        const content = message.content as string;
+        const status = message.status as AriaClientMessage['status'];
+        const feedback = message.feedback as boolean | null;
+        const citations = (message.citations as unknown[]).map((citation) => {
+          const parsed = ariaHistoryCitationSchema.safeParse(citation);
+          if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+          return Object.freeze(parsed.data);
+        });
+        return {
+          id: messageId,
+          turnId,
+          role: role as AriaClientMessage['role'],
+          content,
+          status,
+          citations: Object.freeze(citations),
+          feedback,
+        };
+      });
+      pages.push(mapped.filter((message) => {
+        if (coreMessageIds.has(message.id)) return false;
+        coreMessageIds.add(message.id);
+        return true;
+      }));
+      if (body.nextCursor === null || body.nextCursor === undefined) {
+        if (!canonicalConversation) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        return Object.freeze({
+          messages: Object.freeze(pages.flat()),
+          activeTurn: canonicalConversation.activeTurn
+            ? Object.freeze(canonicalConversation.activeTurn)
+            : null,
+        });
+      }
+      if (typeof body.nextCursor !== 'string' || !body.nextCursor || seenCursors.has(body.nextCursor)) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      seenCursors.add(body.nextCursor);
+      cursor = body.nextCursor;
+      continue;
+    }
     const parsedConversation = ariaHistoryConversationSchema.safeParse(body.conversation);
     if (!parsedConversation.success || parsedConversation.data.id !== conversationId) {
       throw new AriaClientError('INVALID_RESPONSE', 500, false);
@@ -292,13 +368,15 @@ export async function streamAriaConversation(
   callbacks: AriaConversationTransportCallbacks,
   signal: AbortSignal,
 ): Promise<void> {
+  const { authority, ...chatPayload } = request;
   for (let attempt = 0; attempt < 30; attempt += 1) {
     let response: Response;
     try {
-      response = await fetch('/api/aria/chat', {
+      const base = resolveAriaApiBase(authority);
+      response = await fetch(`${base}/chat`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
-        body: JSON.stringify(request),
+        headers: { 'content-type': 'application/json', accept: authority === 'CORE_V2' ? 'application/json' : 'text/event-stream' },
+        body: JSON.stringify(chatPayload),
         signal,
       });
     } catch (error: unknown) {
@@ -307,11 +385,24 @@ export async function streamAriaConversation(
       continue;
     }
     if (response.status === 202) {
-      const pending = ariaPendingResponseSchema.safeParse(await requireOk(response));
+      const pendingBody = authority === 'CORE_V2' ? object(await requireOk(response)).data : await requireOk(response);
+      const pending = ariaPendingResponseSchema.safeParse(pendingBody);
       if (!pending.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
       callbacks.onPending?.(Object.freeze(pending.data));
       await waitForRetry(pending.data.retryAfterMs, signal);
       continue;
+    }
+    if (authority === 'CORE_V2') {
+      const envelope = object(await requireOk(response));
+      const body = object(envelope.data);
+      const conversation = object(body.conversation);
+      const turn = object(body.turn);
+      const message = object(body.message);
+      if (typeof turn.id !== 'string' || typeof conversation.id !== 'string' || typeof message.id !== 'string' || typeof message.content !== 'string') throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      callbacks.onStart?.({ turnId: turn.id, conversationId: conversation.id, messageId: message.id, courseKey: request.courseKey, status: (turn.status === 'RUNNING' ? 'RUNNING' : 'COMPLETED'), disposition: (turn.disposition === 'REPLAY' ? 'REPLAY' : turn.disposition === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'EXECUTED') });
+      if (message.content) callbacks.onDelta?.({ text: message.content });
+      if (turn.status === 'COMPLETED' || turn.status === 'CANCELLED') callbacks.onDone?.({ turnId: turn.id, messageId: message.id, status: turn.status, fullText: message.content });
+      return;
     }
     if (!response.ok) {
       await requireOk(response);
@@ -338,12 +429,14 @@ export async function streamAriaConversation(
 export async function cancelAriaTurn(
   turnId: string,
   clientRequestId: string,
+  authority?: AriaClientAuthority,
 ): Promise<AriaClientCancellation> {
-  const body = await requireOk(await fetch(`/api/aria/turns/${encodeURIComponent(turnId)}/cancel`, {
+  const raw = await requireOk(await fetch(`${resolveAriaApiBase(authority)}/turns/${encodeURIComponent(turnId)}/cancel`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ clientRequestId }),
   }));
+  const body = authority === 'CORE_V2' ? object(raw).data : raw;
   const parsed = ariaCancellationResponseSchema.safeParse(body);
   if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
   return Object.freeze(parsed.data);
@@ -352,12 +445,14 @@ export async function cancelAriaTurn(
 export async function submitAriaFeedback(
   messageId: string,
   useful: boolean,
+  authority?: AriaClientAuthority,
 ): Promise<AriaFeedbackResponse['feedback']> {
-  const body = await requireOk(await fetch('/api/aria/feedback', {
+  const raw = await requireOk(await fetch(`${resolveAriaApiBase(authority)}/feedback`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ messageId, useful }),
   }));
+  const body = authority === 'CORE_V2' ? object(raw).data : raw;
   const parsed = ariaFeedbackResponseSchema.safeParse(body);
   if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
   return Object.freeze(parsed.data.feedback);

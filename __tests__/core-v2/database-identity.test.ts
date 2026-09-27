@@ -45,9 +45,7 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  for (const scratch of scratches) {
-    await scratch.drop();
-  }
+  await Promise.all(scratches.map((scratch) => scratch.drop()));
 });
 
 describe('lib/core-v2/client.ts exports only the verified async accessor', () => {

@@ -101,6 +101,14 @@ export async function register() {
     const { startDiagnosticProcessingScheduler } = await import('./lib/core-v2/diagnostics/processing-scheduler');
     startDiagnosticProcessingScheduler();
 
+    const { startCoreV2AriaRecoveryScheduler } = await import('./lib/core-v2/aria/recovery-scheduler');
+    try {
+      startCoreV2AriaRecoveryScheduler();
+    } catch (error) {
+      console.error('CORE_V2_ARIA_RECOVERY_WORKER_PREFLIGHT_FAILED', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+
     const { startAriaTurnRecoveryScheduler } = await import(
       './lib/aria/infrastructure/jobs/recovery-scheduler'
     );

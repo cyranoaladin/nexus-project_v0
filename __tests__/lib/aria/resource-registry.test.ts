@@ -5,6 +5,7 @@ import {
   getAriaResourceVersion,
   isAriaResourceRagCitable,
   listActiveAriaResourceRecords,
+  requireLocalAriaResourceStorage,
   resolveAriaResourceProvenance,
   resolveLegacyAriaResourceAliasForMigration,
 } from '@/lib/aria/manifests/resource-registry';
@@ -88,6 +89,7 @@ describe('canonical ARIA Resource Registry', () => {
   it('keeps legacy aliases migration-only and requires authoritative provenance', () => {
     const legacy = resolveLegacyAriaResourceAliasForMigration('res-maths-tle-prog-bo');
     expect(legacy?.resourceId).toMatch(UUID);
+    expect(resolveLegacyAriaResourceAliasForMigration('unknown-retired-alias')).toBeNull();
     const record = getAriaResourceRecord(legacy?.resourceId ?? '');
     expect(record).toMatchObject({
       placements: [{ courseKey: 'eds-maths-terminale' }],
@@ -256,6 +258,14 @@ describe('canonical ARIA Resource Registry', () => {
     expect(result.success).toBe(true);
   });
 
+  it('refuses to expose a fabricated local path for RAG-governed storage', () => {
+    expect(() => requireLocalAriaResourceStorage({ provider: 'RAG_GOVERNED' }))
+      .toThrow('ARIA_RESOURCE_STORAGE_NOT_LOCAL');
+    expect(requireLocalAriaResourceStorage({
+      provider: 'NEXUS_REPOSITORY', relativePath: 'approved/programme.pdf',
+    })).toEqual({ provider: 'NEXUS_REPOSITORY', relativePath: 'approved/programme.pdf' });
+  });
+
   it('rejects an absolute local storage path', () => {
     const base = registryDocument.resources[2]!;
     expect(ariaResourceRegistrySchema.safeParse({
@@ -296,5 +306,51 @@ describe('canonical ARIA Resource Registry', () => {
         { ...base, placements: [{ courseKey: 'eds-nsi-premiere' }] },
       ],
     }).success).toBe(false);
+  });
+
+  it.each([
+    ['active version with a retirement date', (base: typeof registryDocument.resources[number]) => ({
+      ...base, versions: [{ ...base.versions[0]!, retiredAt: '2026-08-01T00:00:00Z' }],
+    }), 'active version cannot be retired'],
+    ['retired version without a retirement date', (base: typeof registryDocument.resources[number]) => ({
+      ...base, status: 'RETIRED', activeVersionId: null,
+      versions: [{ ...base.versions[0]!, status: 'RETIRED', retiredAt: null }],
+    }), 'retired version needs retiredAt'],
+    ['active resource without its active version', (base: typeof registryDocument.resources[number]) => ({
+      ...base, activeVersionId: null,
+    }), 'active resource needs one active version'],
+    ['retired resource exposing an active version', (base: typeof registryDocument.resources[number]) => ({
+      ...base, status: 'RETIRED',
+    }), 'retired resource cannot expose an active version'],
+    ['public resource carrying a student owner', (base: typeof registryDocument.resources[number]) => ({
+      ...base, ownerStudentId: 'student-1',
+    }), 'public resource cannot have a student owner'],
+    ['private resource without its student owner', (base: typeof registryDocument.resources[number]) => ({
+      ...base, visibility: 'STUDENT_PRIVATE',
+      source: { ...base.source, official: false, rights: 'STUDENT_PRIVATE' },
+    }), 'private resource needs a student owner'],
+  ])('rejects %s', (_label, mutate, issue) => {
+    const parsed = ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [mutate(registryDocument.resources[2]!)],
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) expect(parsed.error.issues.map((item) => item.message)).toContain(issue);
+  });
+
+  it.each([
+    ['legacy alias', (base: typeof registryDocument.resources[number]) => ({
+      ...base, legacyAliases: [...base.legacyAliases, base.legacyAliases[0]!],
+    }), 'duplicate legacy resource alias'],
+    ['resource version identity', (base: typeof registryDocument.resources[number]) => ({
+      ...base, versions: [base.versions[0]!, { ...base.versions[0]!, status: 'RETIRED', retiredAt: '2026-08-01T00:00:00Z' }],
+    }), 'duplicate resource version identity'],
+  ])('rejects duplicate %s across the registry', (_label, mutate, issue) => {
+    const parsed = ariaResourceRegistrySchema.safeParse({
+      ...registryDocument,
+      resources: [mutate(registryDocument.resources[2]!)],
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) expect(parsed.error.issues.map((item) => item.message)).toContain(issue);
   });
 });

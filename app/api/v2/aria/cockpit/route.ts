@@ -77,6 +77,11 @@ export const GET = defineStaffRoute({
       curriculum.academicProfile.missingFields,
       curriculum.pinnedCourseKeys.length,
     );
+    const chatAvailable = entitlements.capabilities.chat && curriculum.courses.some((view) => (
+      view.access.academicallyRelevant
+      && view.access.commerciallyEntitled
+      && view.course.capabilities.chat
+    ));
 
     const cockpit: AriaCockpitDTO = {
       student: {
@@ -97,13 +102,13 @@ export const GET = defineStaffRoute({
       nextSession: null,
       examContext: buildAriaExamContext(profile.targetSession),
       capabilities: {
-        chat: false,
+        chat: chatAvailable,
         courseWorkspace: false,
         trajectory: false,
         assessments: false,
         resources: false,
         nextSession: false,
-        conversationHistory: false,
+        conversationHistory: chatAvailable,
       },
       skillGraphs: curriculum.courses
         .filter((view) => view.course.hasSkillGraph)

@@ -17,6 +17,15 @@ describe('ARIA Prompt Context Envelope', () => {
   });
 
   describe('buildAriaPromptEnvelope', () => {
+    it('uses the canonical curriculum context for a Core v2 cockpit alias', () => {
+      const messages = buildAriaPromptEnvelope({
+        courseKey: 'maths-terminale-eds',
+        userMessage: 'Explique les variations.',
+      });
+      expect(messages[0]?.content).toContain('Mathématiques');
+      expect(messages.at(-1)).toEqual({ role: 'user', content: 'Explique les variations.' });
+    });
+
     it('enrichit le prompt avec le contexte du cours officiel', () => {
       const messages = buildAriaPromptEnvelope({
         courseKey: 'eds-maths-premiere',

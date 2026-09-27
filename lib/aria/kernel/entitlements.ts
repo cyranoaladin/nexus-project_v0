@@ -81,6 +81,21 @@ export function buildCanonicalAriaEntitlementContext(
   });
 }
 
+/**
+ * Canonical course-scope check shared by V1 and Core v2 conversation surfaces.
+ * Tier resolution and validity remain owned by this kernel; callers only
+ * provide the course dimension they are authorizing.
+ */
+export function isAriaCourseEntitled(
+  context: CanonicalAriaEntitlementContext | null | undefined,
+  courseKey: string,
+): boolean {
+  return Boolean(
+    context?.hasGenericAccess
+    && (context.hasGlobalAccess || context.courseKeys.includes(courseKey)),
+  );
+}
+
 export interface AriaCapabilities {
   readonly chat: boolean;
   readonly resources: boolean;

@@ -25,6 +25,16 @@ it('validates only canonical persisted RAG states at runtime', () => {
 });
 
 describe('ARIA multi-dimensional retrieval policy', () => {
+  it('resolves an authorized cockpit course through the canonical execution key', () => {
+    expect(resolveAriaRetrievalPolicy({
+      task: 'DISCOVERY',
+      courseKey: 'maths-terminale-eds',
+      agentRole: 'TUTOR',
+      visibility: 'STUDENT_PRIVATE',
+      capabilities: groundedCapabilities,
+    })).toMatchObject({ courseKey: 'eds-maths-terminale', kind: 'GROUNDED_REQUIRED' });
+  });
+
   it('rejects an unknown course before resolving any model or grounding policy', () => {
     expect(() => resolveAriaRetrievalPolicy({
       task: 'DISCOVERY',

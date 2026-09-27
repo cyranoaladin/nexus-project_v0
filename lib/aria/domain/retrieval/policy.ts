@@ -1,4 +1,5 @@
 import { getCourse } from '@/lib/curriculum/catalog';
+import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import type { AriaPedagogicalMode } from '../pedagogy/pedagogical-mode';
 import type { AriaCourseChatPolicy } from '../../contracts';
 import { AriaError } from '../../errors';
@@ -52,7 +53,8 @@ export interface ResolvedAriaRetrievalPolicy extends ResolveAriaRetrievalPolicyI
 export function resolveAriaRetrievalPolicy(
   input: ResolveAriaRetrievalPolicyInput,
 ): ResolvedAriaRetrievalPolicy {
-  if (!getCourse(input.courseKey)) {
+  const courseKey = toCanonicalAriaCourseKey(input.courseKey);
+  if (!getCourse(courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
   if (input.agentRole !== 'TUTOR') {
@@ -89,6 +91,7 @@ export function resolveAriaRetrievalPolicy(
 
   return Object.freeze({
     ...input,
+    courseKey,
     kind,
     policyVersion: 'aria-retrieval-v1' as const,
     reasonCode,

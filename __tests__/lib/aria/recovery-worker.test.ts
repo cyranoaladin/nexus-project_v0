@@ -60,6 +60,11 @@ describe('ARIA Turn recovery worker boundaries', () => {
     expect(claim).not.toHaveBeenCalled();
   });
 
+  it('rejects an invalid policy before opening the default database dependency', async () => {
+    await expect(drainAriaTurnRecoveryOutbox({ limit: 0 }))
+      .rejects.toThrow('ARIA_TURN_RECOVERY_POLICY_INVALID');
+  });
+
   it('creates bounded default claim ownership without processing an empty queue', async () => {
     claim.mockResolvedValueOnce([]);
     const deps = dependencies();
@@ -154,6 +159,50 @@ describe('ARIA Turn recovery worker boundaries', () => {
         status: 'ERROR',
         executionMetadata: {
           reasonCode: 'EXECUTION_INTERRUPTED', recoveredAt: now.toISOString(),
+        },
+      }),
+    });
+  });
+
+  it('keeps prior structured metadata when recovering a cancelled running Turn', async () => {
+    claim.mockResolvedValueOnce([job()]);
+    const deps = dependencies({ turns: [{
+      id: 'turn-1', status: 'RUNNING',
+      cancellationRequestedAt: new Date(now.getTime() - 1_000),
+      leaseExpiresAt: new Date(now.getTime() + 30_000),
+      executionMetadata: { providerAttempt: 1, privatePrompt: 'must remain in storage' },
+    }] });
+    await expect(drainAriaTurnRecoveryOutbox({ owner: 'worker-1', now }, deps as never))
+      .resolves.toMatchObject({ recovered: 1, rescheduled: 0 });
+    expect(deps.transaction.ariaConversationTurn.update).toHaveBeenCalledWith({
+      where: { id: 'turn-1' },
+      data: expect.objectContaining({
+        status: 'CANCELLED',
+        executionMetadata: {
+          providerAttempt: 1,
+          privatePrompt: 'must remain in storage',
+          reasonCode: 'USER_CANCELLED',
+          recoveredAt: now.toISOString(),
+        },
+      }),
+    });
+  });
+
+  it('does not copy primitive execution metadata into a recovered Turn', async () => {
+    claim.mockResolvedValueOnce([job()]);
+    const deps = dependencies({ turns: [{
+      id: 'turn-1', status: 'PENDING', cancellationRequestedAt: null,
+      leaseExpiresAt: null, executionMetadata: 'unexpected plaintext',
+    }] });
+    await expect(drainAriaTurnRecoveryOutbox({ owner: 'worker-1', now }, deps as never))
+      .resolves.toMatchObject({ recovered: 1 });
+    expect(deps.transaction.ariaConversationTurn.update).toHaveBeenCalledWith({
+      where: { id: 'turn-1' },
+      data: expect.objectContaining({
+        status: 'ERROR',
+        executionMetadata: {
+          reasonCode: 'EXECUTION_INTERRUPTED',
+          recoveredAt: now.toISOString(),
         },
       }),
     });

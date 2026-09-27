@@ -19,7 +19,6 @@ export const fingerprintAriaTurnRequest = (input: ReserveAriaConversationTurnInp
     actorUserId: input.context.actor.userId,
     subjectStudentId: input.context.subject.studentId,
     courseKey: input.context.courseKey,
-    conversationId: input.context.conversation?.id ?? null,
     skillId: input.context.skillId ?? null,
     resourceId: input.context.resourceId ?? null,
     resourceVersionId: input.context.resourceVersionId ?? null,

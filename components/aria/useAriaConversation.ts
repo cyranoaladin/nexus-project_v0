@@ -15,10 +15,41 @@ import {
   type AriaClientRequest,
   type AriaConversationTransportCallbacks,
 } from '@/lib/aria/client';
+import { useCanonicalSession } from '@/components/auth/SessionRecoveryProvider';
 
 export type AriaConversationPhase =
   | 'LOADING' | 'READY' | 'STARTING' | 'PENDING' | 'RETRY_REQUIRED'
   | 'STREAMING' | 'STOPPING' | 'ERROR';
+
+function fetchLatestForAuthority(courseKey: string, signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchLatestAriaConversation(courseKey, signal, authority)
+    : fetchLatestAriaConversation(courseKey, signal);
+}
+
+function fetchHistoryForAuthority(conversationId: string, signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchAriaConversationHistory(conversationId, signal, authority)
+    : fetchAriaConversationHistory(conversationId, signal);
+}
+
+function fetchCurriculumForAuthority(signal: AbortSignal, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? fetchAriaCurriculum(signal, authority)
+    : fetchAriaCurriculum(signal);
+}
+
+function cancelForAuthority(turnId: string, clientRequestId: string, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? cancelAriaTurn(turnId, clientRequestId, authority)
+    : cancelAriaTurn(turnId, clientRequestId);
+}
+
+function feedbackForAuthority(messageId: string, useful: boolean, authority: 'CORE_V2' | 'V1') {
+  return authority === 'CORE_V2'
+    ? persistAriaFeedback(messageId, useful, authority)
+    : persistAriaFeedback(messageId, useful);
+}
 
 interface ActiveAriaTransport {
   generation: number;
@@ -61,6 +92,8 @@ export function useAriaConversation(input: Readonly<{
   open: boolean;
   initialCourseKey?: string;
 }>) {
+  const session = useCanonicalSession();
+  const authority = session?.data?.user?.authority === 'CORE_V2' ? 'CORE_V2' as const : 'V1' as const;
   const [courses, setCourses] = useState<readonly AriaClientCourse[]>([]);
   const [selectedCourseKey, setSelectedCourseKey] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -248,11 +281,11 @@ export function useAriaConversation(input: Readonly<{
     clearError();
     setRagStatus(null);
     try {
-      const latest = await fetchLatestAriaConversation(courseKey, controller.signal);
+      const latest = await fetchLatestForAuthority(courseKey, controller.signal, authority);
       if (token !== generation.current) return;
       setConversationId(latest);
       if (latest) {
-        const history = await fetchAriaConversationHistory(latest, controller.signal);
+        const history = await fetchHistoryForAuthority(latest, controller.signal, authority);
         if (token !== generation.current) return;
         setMessages(history.messages);
         if (history.activeTurn) {
@@ -277,6 +310,7 @@ export function useAriaConversation(input: Readonly<{
               content: userMessage.content,
               conversationId: latest,
               pedagogicalMode: history.activeTurn.pedagogicalMode,
+              ...(authority === 'CORE_V2' ? { authority } : {}),
             },
             callbacks: {},
             transportAttached: false,
@@ -313,7 +347,7 @@ export function useAriaConversation(input: Readonly<{
     } finally {
       if (activeController.current === controller) activeController.current = null;
     }
-  }, [attachTransport, clearError, configureActiveTransport, publishError]);
+  }, [attachTransport, authority, clearError, configureActiveTransport, publishError]);
 
   useEffect(() => {
     if (!input.open) return;
@@ -330,7 +364,7 @@ export function useAriaConversation(input: Readonly<{
     setRagStatus(null);
     setPhase('LOADING');
     setAnnouncement('Chargement des cours ARIA.');
-    void fetchAriaCurriculum(controller.signal).then((curriculum) => {
+    void fetchCurriculumForAuthority(controller.signal, authority).then((curriculum) => {
       if (token !== generation.current) return;
       setCourses(curriculum.courses);
       setShowCitations(curriculum.profile.showCitations);
@@ -359,7 +393,7 @@ export function useAriaConversation(input: Readonly<{
       setAnnouncement('Impossible de charger ARIA.');
     });
     return suspend;
-  }, [clearError, input.initialCourseKey, input.open, loadCourse, publishError, suspend]);
+  }, [authority, clearError, input.initialCourseKey, input.open, loadCourse, publishError, suspend]);
 
   const selectCourse = useCallback((courseKey: string) => {
     if (phase !== 'READY') return;
@@ -375,7 +409,12 @@ export function useAriaConversation(input: Readonly<{
   const send = useCallback(async () => {
     const content = composerInput.trim();
     if (!content || !selectedCourseKey || phase !== 'READY' || activeTurn.current) return;
-    const request = createAriaClientRequest({ courseKey: selectedCourseKey, content, conversationId });
+    const request = createAriaClientRequest({
+      courseKey: selectedCourseKey,
+      content,
+      conversationId,
+      ...(authority === 'CORE_V2' ? { authority } : {}),
+    });
     detach();
     const token = generation.current;
     setComposerInput('');
@@ -402,7 +441,7 @@ export function useAriaConversation(input: Readonly<{
     });
     activeTurn.current = active;
     await attachTransport(active, token);
-  }, [attachTransport, clearError, composerInput, configureActiveTransport, conversationId, detach, phase, selectedCourseKey]);
+  }, [attachTransport, authority, clearError, composerInput, configureActiveTransport, conversationId, detach, phase, selectedCourseKey]);
 
   const retry = useCallback(async () => {
     const active = activeTurn.current;
@@ -422,7 +461,7 @@ export function useAriaConversation(input: Readonly<{
     clearError();
     setAnnouncement('Arrêt de la réponse ARIA.');
     try {
-      const result = await cancelAriaTurn(active.turnId, active.clientRequestId);
+      const result = await cancelForAuthority(active.turnId, active.clientRequestId, authority);
       if (!isCurrentTurn()) return;
       if (result.turnId !== active.turnId
         || (active.conversationId && result.conversationId !== active.conversationId)) {
@@ -442,7 +481,7 @@ export function useAriaConversation(input: Readonly<{
       let history: readonly AriaClientMessage[];
       try {
         try {
-          const reloaded = await fetchAriaConversationHistory(result.conversationId, controller.signal);
+          const reloaded = await fetchHistoryForAuthority(result.conversationId, controller.signal, authority);
           const turnMessages = reloaded.messages.filter(
             ({ turnId }) => turnId === result.turnId,
           );
@@ -497,14 +536,14 @@ export function useAriaConversation(input: Readonly<{
       setPhase(active.messageId ? 'STREAMING' : active.turnId ? 'PENDING' : 'RETRY_REQUIRED');
       setAnnouncement('Impossible d’arrêter proprement la réponse ARIA.');
     }
-  }, [attachTransport, clearError, publishError]);
+  }, [attachTransport, authority, clearError, publishError]);
 
   const submitFeedback = useCallback(async (messageId: string, useful: boolean) => {
     const previous = feedbackQueues.current.get(messageId);
     const perform = async () => {
       const revisionAtStart = errorRevision.current;
       try {
-        const persisted = await persistAriaFeedback(messageId, useful);
+        const persisted = await feedbackForAuthority(messageId, useful, authority);
         setMessages((current) => current.map((message) =>
           message.id === messageId ? { ...message, feedback: persisted.useful } : message));
         if (revisionAtStart === errorRevision.current) {
@@ -526,7 +565,7 @@ export function useAriaConversation(input: Readonly<{
         feedbackQueues.current.delete(messageId);
       }
     }
-  }, [clearError, publishError]);
+  }, [authority, clearError, publishError]);
 
   return {
     courses,

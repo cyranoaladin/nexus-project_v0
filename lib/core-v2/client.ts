@@ -25,7 +25,16 @@
  * __tests__/architecture/core-v2-legacy-guards.test.ts
  * (CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME).
  */
-import { Prisma, PrismaClient as CoreV2PrismaClient } from '@/core-v2/generated/client';
+import {
+  Prisma,
+  PrismaClient as CoreV2PrismaClient,
+  AriaConversationMessageRole,
+  AriaConversationTurnStatus,
+  AriaConversationTurnUseCase,
+  AriaVisibility,
+  CoreV2JobStatus,
+  CoreV2JobType,
+} from '@/core-v2/generated/client';
 import { assertNoCoreV1V2TargetCollision, CoreV2DatabaseUrlError } from './database-target';
 
 export { CoreV2DatabaseUrlError };
@@ -40,7 +49,15 @@ export { CoreV2DatabaseUrlError };
  * re-exported binding — that TypeScript namespace merges its value exports
  * (enums, `Prisma.sql`) with its type exports.
  */
-export { Prisma };
+export {
+  Prisma,
+  AriaConversationMessageRole,
+  AriaConversationTurnStatus,
+  AriaConversationTurnUseCase,
+  AriaVisibility,
+  CoreV2JobStatus,
+  CoreV2JobType,
+};
 
 export class CoreV2DatabaseIdentityError extends Error {}
 

@@ -1181,6 +1181,48 @@ jobs:
           npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
           npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
 
+      - name: Configure disposable ARIA fixture for auth E2E
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          source scripts/aria/e2e-runtime-secrets.sh
+          prepare_aria_e2e_runtime_secrets
+          for name in ARIA_E2E_FIXTURE_ADMIN_TOKEN ARIA_E2E_MODEL_API_KEY RAG_BFF_SERVICE_TOKEN RAG_ENGINE_API_KEY NEXUS_INTERNAL_TOKEN_SECRET; do
+            printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
+          done
+          printf 'ARIA_MODEL_API_KEY=%s\n' "$ARIA_E2E_MODEL_API_KEY" >> "$GITHUB_ENV"
+          printf '%s\n' \
+            'ARIA_E2E_FIXTURE_BASE_URL=http://127.0.0.1:4010' \
+            'ARIA_MODEL_PROVIDER=OPENAI_COMPATIBLE_LOCAL' \
+            'ARIA_MODEL=aria-e2e' \
+            'ARIA_MODEL_CAPABILITY_PROFILE=TEXT_STANDARD' \
+            'ARIA_MODEL_BASE_URL=http://127.0.0.1:4010/v1' \
+            'RAG_API_BASE_URL=http://127.0.0.1:4010' \
+            'NEXUS_INTERNAL_TOKEN_ISSUER=nexus-cockpit-e2e' \
+            'NEXUS_INTERNAL_TOKEN_AUDIENCE=nexus-rag-e2e' \
+            'NEXUS_SSO_ISSUER=nexus-cockpit-e2e' \
+            'NEXUS_SSO_AUDIENCE=nexus-rag-e2e' \
+            'ARIA_MODEL_FIRST_TOKEN_TIMEOUT_MS=750' \
+            'ARIA_MODEL_TIMEOUT_MS=30000' \
+            'ARIA_RAG_ENGINE_TIMEOUT_MS=750' \
+            'CORE_V2_ARIA_CONVERSATION_ENABLED=true' \
+            'CORE_V2_ARIA_RECOVERY_WORKER_ENABLED=true' >> "$GITHUB_ENV"
+
+      - name: Start disposable ARIA fixture provider
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npx tsx scripts/e2e/aria-fixture-provider.ts > /tmp/nexus-aria-fixture.log 2>&1 &
+          echo $! > /tmp/nexus-aria-fixture.pid
+          for i in {1..20}; do
+            if curl -sf http://127.0.0.1:4010/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo 'Disposable ARIA fixture failed to start' >&2
+          exit 1
+
       - name: Install Playwright browsers (Chromium)
         run: npx playwright install --with-deps chromium
 
@@ -1260,7 +1302,6 @@ jobs:
           # required for getCourseCapabilities() to report hasChat=true on any
           # course. Values mirror docker-compose.e2e.yml's aria-fixture-e2e
           # service; the manifest file itself is prepared by the step above.
-          NEXUS_INTERNAL_TOKEN_SECRET: change_ci_e2e_auth_rag_identity_secret_do_not_use_in_prod
           ARIA_RAG_SERVABLE_MANIFEST_ROOT: ${{ github.workspace }}/data/aria/testing/rag
           ARIA_RAG_ACTIVE_MANIFEST_SHA256: a09b2844efff34329770358bf9d93a34a1d2194204a1e1396ad552b0195be4e8
           ARIA_E2E_RAG_CANDIDAT: scolarise
@@ -1331,6 +1372,13 @@ jobs:
           if [ -f .next-server.pid ]; then
             kill $(cat .next-server.pid) || true
             rm .next-server.pid
+          fi
+
+      - name: Stop disposable ARIA fixture provider
+        if: always()
+        run: |
+          if [ -f /tmp/nexus-aria-fixture.pid ]; then
+            kill "$(cat /tmp/nexus-aria-fixture.pid)" || true
           fi
 
       - name: Upload Playwright report

@@ -177,12 +177,30 @@ describe('ARIA coverage artifact gate', () => {
       coverageSummarySha256: '5'.repeat(64),
     };
     expect(() => validateAriaCoverageEvidence(null, HEAD_SHA)).toThrow('EVIDENCE_SCHEMA');
+    expect(() => validateAriaCoverageEvidence({ ...valid, headSha: undefined }, HEAD_SHA))
+      .toThrow('EVIDENCE_SCHEMA');
     expect(() => validateAriaCoverageEvidence({ ...valid, headSha: 'bad' }, HEAD_SHA))
       .toThrow('EVIDENCE_SCHEMA');
+    expect(() => validateAriaCoverageEvidence({ ...valid, headSha: 'b'.repeat(40) }, HEAD_SHA))
+      .toThrow('STALE_HEAD');
+    expect(() => validateAriaCoverageEvidence({ ...valid, lanes: ['database', 'application', 'concurrency'] }, HEAD_SHA))
+      .toThrow('LANES');
+    expect(() => validateAriaCoverageEvidence({ ...valid, laneArtifacts: undefined }, HEAD_SHA))
+      .toThrow('LANE_ARTIFACTS');
     expect(() => validateAriaCoverageEvidence({ ...valid, laneArtifacts: {} }, HEAD_SHA))
       .toThrow('LANE_ARTIFACTS');
     expect(() => validateAriaCoverageEvidence({ ...valid, coverageFinalSha256: 'bad' }, HEAD_SHA))
       .toThrow('MERGED_ARTIFACTS');
+    expect(() => validateAriaCoverageEvidence({ ...valid, coverageSummarySha256: 'bad' }, HEAD_SHA))
+      .toThrow('MERGED_ARTIFACTS');
+    expect(() => validateAriaCoverageEvidence({ ...valid, coverageSummarySha256: undefined }, HEAD_SHA))
+      .toThrow('MERGED_ARTIFACTS');
+    expect(() => validateAriaCoverageEvidence(valid, HEAD_SHA, {
+      ...valid.laneArtifacts,
+      application: '9'.repeat(64),
+      coverageFinal: valid.coverageFinalSha256,
+      coverageSummary: valid.coverageSummarySha256,
+    })).toThrow('ARTIFACT_TAMPERED:application');
     expect(() => validateAriaCoverageEvidence(valid, HEAD_SHA, {
       ...valid.laneArtifacts,
       coverageFinal: '9'.repeat(64),
