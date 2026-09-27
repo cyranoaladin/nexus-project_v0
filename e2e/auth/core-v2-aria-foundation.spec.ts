@@ -10,8 +10,6 @@ import { CORE_V2_ARIA_FOUNDATION_EMAIL } from '../../scripts/core-v2/aria-founda
 import { ARIA_E2E_SCENARIOS } from '../../scripts/e2e/aria-scenarios';
 import { sameOriginHeaders } from '../helpers/same-origin';
 import { grantCoreV2AriaAccess } from '../../lib/core-v2/aria/access-grants';
-import { buildCoreV2AriaConversationContext } from '../../lib/core-v2/aria/conversation-context';
-import { createServiceContext } from '../../lib/core-v2/services/context';
 import { resolveProductionAriaRagIdentity } from '../../lib/aria/infrastructure/rag/production-academic-identity';
 
 const CORE_V2_STUDENT = 'coreV2AriaFoundation' as const;
@@ -64,19 +62,24 @@ test.describe('Core v2 ARIA foundation', () => {
       expect(await legacy.user.findUnique({ where: { email } })).toBeNull();
       expect(await legacy.student.findFirst({ where: { user: { email } } })).toBeNull();
 
-      const context = await buildCoreV2AriaConversationContext(
-        core,
-        createServiceContext({ userId: user.id, role: 'ELEVE' }),
-        { courseKey: 'maths-terminale-eds' },
-      );
+      // Feed the production resolver from the enrollment persisted in Core v2,
+      // without importing the server-only conversation HTTP adapter into the
+      // Playwright collector process.
       const identity = resolveProductionAriaRagIdentity({
-        context: { ...context, courseKey: 'eds-maths-terminale' },
+        context: {
+          courseKey: 'eds-maths-terminale',
+          subject: { studentId: student.id },
+          student: {
+            gradeLevel: enrollment.gradeLevel,
+            academicTrack: enrollment.academicTrack,
+            schoolingStatus: enrollment.schoolingStatus,
+          },
+        },
         plan: { courseKey: 'eds-maths-terminale', academicYear: '2026-2027', retrievalScope: { target_policy: { audiences: ['libre'] } } },
         environment: { NEXUS_INTERNAL_TOKEN_SECRET: 'e'.repeat(32) },
       });
 
       expect(enrollment.schoolingStatus).toBe('CANDIDAT_LIBRE');
-      expect(context.student.schoolingStatus).toBe('CANDIDAT_LIBRE');
       expect(identity).toMatchObject({ candidat: 'libre', audience: 'libre', schoolYear: '2026-2027' });
     } finally {
       await Promise.all([legacy.$disconnect(), core.$disconnect()]);
