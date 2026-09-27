@@ -450,6 +450,7 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(useAriaConversation).toHaveBeenCalledWith({
       open: false,
       initialCourseKey: 'eds-nsi-terminale',
+      recoveryOnly: false,
     });
   });
 
