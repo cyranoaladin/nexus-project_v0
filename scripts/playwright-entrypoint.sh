@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+# E2E preflight specs may exercise server-side production resolvers directly.
+# Match the unified gate's server-only condition so those imports resolve to
+# server-only/empty.js instead of the client guard.
+export NODE_OPTIONS="${NODE_OPTIONS:+${NODE_OPTIONS} }--conditions=react-server"
+
 APP_URL="${BASE_URL:-http://app-e2e:3000}"
 MAX_WAIT=120
 
