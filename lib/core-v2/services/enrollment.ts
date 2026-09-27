@@ -202,8 +202,20 @@ export async function setAcademicMap(
       subjectId: enrollmentId,
       correlationId: ctx.correlationId,
       metadata: {
-        before: { gradeLevel: before.gradeLevel, academicTrack: before.academicTrack, stmgPathway: before.stmgPathway },
-        after: { gradeLevel: updated.gradeLevel, academicTrack: updated.academicTrack, stmgPathway: updated.stmgPathway },
+        before: {
+          gradeLevel: before.gradeLevel,
+          academicTrack: before.academicTrack,
+          stmgPathway: before.stmgPathway,
+          schoolingStatus: before.schoolingStatus,
+          school: before.school,
+        },
+        after: {
+          gradeLevel: updated.gradeLevel,
+          academicTrack: updated.academicTrack,
+          stmgPathway: updated.stmgPathway,
+          schoolingStatus: updated.schoolingStatus,
+          school: updated.school,
+        },
         academicRevision: updated.academicRevision,
       },
     });
