@@ -18,9 +18,9 @@ import {
   type AriaFeedbackResponse,
   type AriaHistoryConversation,
   type AriaPendingResponse,
+  type AriaRagStatus,
 } from './transport/contracts';
 import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
-import type { AriaRagStatus } from './domain/retrieval/policy';
 import { resolveAriaApiBase, type AriaClientAuthority } from './client/api-base';
 
 export interface AriaClientCourse {

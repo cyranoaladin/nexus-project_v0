@@ -10,6 +10,7 @@ export const ariaExecutionDispositionSchema = z.enum(['IN_PROGRESS', 'REPLAY', '
 export const ariaRagStatusSchema = z.enum([
   'NOT_CONFIGURED', 'NO_RESULTS', 'RUNTIME_UNAVAILABLE', 'SUCCESS',
 ]);
+export type AriaRagStatus = z.infer<typeof ariaRagStatusSchema>;
 
 export const ariaChatRequestSchema = z
   .object({
