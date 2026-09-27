@@ -193,4 +193,47 @@ describe('Core v2 ARIA history HTTP projection', () => {
     expect(cancelled.messages.map((message: { status: string }) => message.status)).toEqual(['COMPLETED', 'CANCELLED']);
     expect(cancelled.conversation.activeTurn).toBeNull();
   });
+
+  test('projects assistant RAG status from its Turn beside an owner-scoped canonical citation', async () => {
+    const year = await seedAcademicYear(h.client, 2026);
+    const owner = await seedStudent('grounded-owner', year.id);
+    const other = await seedStudent('grounded-other', year.id);
+    const conversation = await h.client.ariaConversationCoreV2.create({ data: {
+      studentId: owner.student.id, courseKey: 'eds-nsi-terminale',
+    } });
+    const turn = await h.client.ariaConversationTurnCoreV2.create({ data: {
+      conversationId: conversation.id, subjectStudentId: owner.student.id, actorUserId: owner.user.id,
+      useCase: 'CONVERSATION', clientRequestId: '00000000-0000-4000-8000-000000000199',
+      requestFingerprint: 'a'.repeat(64), sequence: 1, status: 'COMPLETED',
+      ragStatus: 'SUCCESS', completedAt: createdAt,
+      academicSnapshot: {}, pedagogicalMode: 'DISCOVERY', agentRole: 'TUTOR', modelPolicy: {},
+    } });
+    await h.client.ariaMessageCoreV2.create({ data: {
+      conversationId: conversation.id, turnId: turn.id, role: 'USER', content: 'Explique une pile.',
+    } });
+    const assistant = await h.client.ariaMessageCoreV2.create({ data: {
+      conversationId: conversation.id, turnId: turn.id, role: 'ASSISTANT', content: 'Une pile est LIFO.',
+    } });
+    await h.client.ariaMessageCitationCoreV2.create({ data: {
+      messageId: assistant.id, sourceTitle: 'Programme officiel NSI', sourceDocument: 'programme.pdf',
+      sourceLocation: 'Page 1', courseKey: 'eds-nsi-terminale', provenance: 'OFFICIEL_MEN',
+      url: 'https://www.education.gouv.fr/programmes-scolaires',
+      resourceId: 'resource-1', resourceVersionId: 'version-1', contentSha256: 'a'.repeat(64),
+      chunkId: 'chunk-1', locator: { page: 1 }, corpusId: 'corpus-1',
+      corpusVersionId: 'corpus-version-1', manifestSha256: 'b'.repeat(64),
+    } });
+
+    signIn(owner.user.id);
+    const response = await historyRequest(conversation.id);
+    expect(response.status).toBe(200);
+    const messages = (await response.json()).data.messages;
+    expect(messages.find((message: { role: string }) => message.role === 'USER')).not.toHaveProperty('ragStatus');
+    expect(messages.find((message: { role: string }) => message.role === 'ASSISTANT')).toMatchObject({
+      status: 'COMPLETED', ragStatus: 'SUCCESS',
+      citations: [{ sourceTitle: 'Programme officiel NSI', traceability: 'CANONICAL' }],
+    });
+
+    signIn(other.user.id);
+    expect((await historyRequest(conversation.id)).status).toBe(404);
+  });
 });

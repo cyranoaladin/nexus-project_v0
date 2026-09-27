@@ -9,13 +9,16 @@ import {
 } from './domain/profile/preferences';
 import {
   ariaCancellationResponseSchema,
+  ariaCoreV2JsonResponseSchema,
   ariaFeedbackResponseSchema,
   ariaHistoryConversationSchema,
   ariaPendingResponseSchema,
+  ariaRagStatusSchema,
   type AriaCancellationResponse,
   type AriaFeedbackResponse,
   type AriaHistoryConversation,
   type AriaPendingResponse,
+  type AriaRagStatus,
 } from './transport/contracts';
 import type { AriaPedagogicalMode } from './domain/pedagogy/pedagogical-mode';
 import { resolveAriaApiBase, type AriaClientAuthority } from './client/api-base';
@@ -23,7 +26,7 @@ import { resolveAriaApiBase, type AriaClientAuthority } from './client/api-base'
 export interface AriaClientCourse {
   readonly courseKey: string;
   readonly label: string;
-  readonly capabilities: { readonly hasChat: boolean };
+  readonly capabilities: { readonly hasChat: boolean; readonly canResumeConversation?: boolean };
   readonly access: {
     readonly status: 'AVAILABLE' | 'LOCKED' | 'UNSUPPORTED';
     readonly commerciallyEntitled: boolean;
@@ -47,6 +50,7 @@ export interface AriaClientMessage {
   readonly status: 'PENDING' | 'STREAMING' | 'COMPLETED' | 'CANCELLED' | 'ERROR';
   readonly citations: readonly AriaClientCitation[];
   readonly feedback: boolean | null;
+  readonly ragStatus?: AriaRagStatus | null;
 }
 
 export interface AriaClientConversationHistory {
@@ -161,7 +165,12 @@ export async function fetchAriaCurriculum(signal?: AbortSignal, authority?: Aria
     return Object.freeze({
       courseKey: course.courseKey,
       label: course.label,
-      capabilities: Object.freeze({ hasChat: capabilities.hasChat }),
+      capabilities: Object.freeze({
+        hasChat: capabilities.hasChat,
+        canResumeConversation: typeof capabilities.canResumeConversation === 'boolean'
+          ? capabilities.canResumeConversation
+          : capabilities.hasChat,
+      }),
       access: Object.freeze({
         status: access.status as AriaClientCourse['access']['status'],
         commerciallyEntitled: access.commerciallyEntitled,
@@ -256,6 +265,15 @@ export async function fetchAriaConversationHistory(
         const content = message.content as string;
         const status = message.status as AriaClientMessage['status'];
         const feedback = message.feedback as boolean | null;
+        const ragStatus = message.ragStatus;
+        if (role === 'assistant') {
+          if (ragStatus !== undefined && ragStatus !== null
+            && !ariaRagStatusSchema.safeParse(ragStatus).success) {
+            throw new AriaClientError('INVALID_RESPONSE', 500, false);
+          }
+        } else if (ragStatus !== undefined) {
+          throw new AriaClientError('INVALID_RESPONSE', 500, false);
+        }
         const citations = (message.citations as unknown[]).map((citation) => {
           const parsed = ariaHistoryCitationSchema.safeParse(citation);
           if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
@@ -269,6 +287,7 @@ export async function fetchAriaConversationHistory(
           status,
           citations: Object.freeze(citations),
           feedback,
+          ...(role === 'assistant' ? { ragStatus: (ragStatus ?? null) as AriaRagStatus | null } : {}),
         };
       });
       pages.push(mapped.filter((message) => {
@@ -394,14 +413,22 @@ export async function streamAriaConversation(
     }
     if (authority === 'CORE_V2') {
       const envelope = object(await requireOk(response));
-      const body = object(envelope.data);
-      const conversation = object(body.conversation);
-      const turn = object(body.turn);
-      const message = object(body.message);
-      if (typeof turn.id !== 'string' || typeof conversation.id !== 'string' || typeof message.id !== 'string' || typeof message.content !== 'string') throw new AriaClientError('INVALID_RESPONSE', 500, false);
-      callbacks.onStart?.({ turnId: turn.id, conversationId: conversation.id, messageId: message.id, courseKey: request.courseKey, status: (turn.status === 'RUNNING' ? 'RUNNING' : 'COMPLETED'), disposition: (turn.disposition === 'REPLAY' ? 'REPLAY' : turn.disposition === 'IN_PROGRESS' ? 'IN_PROGRESS' : 'EXECUTED') });
+      const parsed = ariaCoreV2JsonResponseSchema.safeParse(envelope.data);
+      if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      const { conversation, turn, message, metadata } = parsed.data;
+      if (conversation.courseKey !== request.courseKey
+        || (request.conversationId && conversation.id !== request.conversationId)
+        || metadata.turnId !== turn.id
+        || metadata.courseKey !== conversation.courseKey
+        || metadata.status !== turn.status
+        || metadata.disposition !== turn.disposition) {
+        throw new AriaClientError('INVALID_RESPONSE', 500, false);
+      }
+      callbacks.onStart?.({ turnId: turn.id, conversationId: conversation.id, messageId: message.id, courseKey: conversation.courseKey, status: turn.status, disposition: turn.disposition });
       if (message.content) callbacks.onDelta?.({ text: message.content });
-      if (turn.status === 'COMPLETED' || turn.status === 'CANCELLED') callbacks.onDone?.({ turnId: turn.id, messageId: message.id, status: turn.status, fullText: message.content });
+      for (const citation of message.citations) callbacks.onCitation?.({ citation });
+      callbacks.onMetadata?.(metadata);
+      callbacks.onDone?.({ turnId: turn.id, messageId: message.id, status: turn.status, fullText: message.content });
       return;
     }
     if (!response.ok) {

@@ -99,10 +99,10 @@ export default function AriaCockpitPage() {
 
   /** Ouvre le lanceur ARIA avec le cours présélectionné. */
   const handleOpenChat = useCallback((courseKey: string) => {
-    if (!cockpit?.capabilities.chat) return;
+    if (!cockpit?.capabilities.chat && !cockpit?.capabilities.conversationHistory) return;
     setChatCourseKey(courseKey);
     setChatOpen(true);
-  }, [cockpit?.capabilities.chat]);
+  }, [cockpit?.capabilities.chat, cockpit?.capabilities.conversationHistory]);
 
   const handleToggleCourse = useCallback(
     (courseKey: string) => {
@@ -171,9 +171,10 @@ export default function AriaCockpitPage() {
         </>
       )}
 
-      {cockpit.capabilities.chat && (
+      {(cockpit.capabilities.chat || cockpit.capabilities.conversationHistory) && (
         <AriaChatLauncher
-          initialCourseKey={chatCourseKey}
+          initialCourseKey={chatCourseKey ?? (!cockpit.capabilities.chat ? cockpit.activeConversationCourseKey ?? undefined : undefined)}
+          recoveryOnly={!cockpit.capabilities.chat}
           open={chatOpen}
           onOpen={() => setChatOpen(true)}
           onClose={() => setChatOpen(false)}

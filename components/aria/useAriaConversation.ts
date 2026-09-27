@@ -69,13 +69,20 @@ function isAvailable(course: Pick<AriaClientCourse, 'capabilities' | 'access'>):
     && course.access.commerciallyEntitled;
 }
 
+function isRecoverable(course: Pick<AriaClientCourse, 'capabilities' | 'access'>): boolean {
+  return (course.capabilities.canResumeConversation ?? course.capabilities.hasChat)
+    && course.access.status === 'AVAILABLE'
+    && course.access.commerciallyEntitled;
+}
+
 export function selectInitialAriaCourse(
   courses: readonly Pick<AriaClientCourse, 'courseKey' | 'capabilities' | 'access'>[],
   focusedCourseKey: string | null | undefined,
   requestedCourseKey: string | undefined,
   currentCourseKey?: string | null,
+  recoveryOnly = false,
 ): string | null {
-  const available = courses.filter(isAvailable);
+  const available = courses.filter((course) => isAvailable(course) || (recoveryOnly && isRecoverable(course)));
   if (requestedCourseKey && available.some(({ courseKey }) => courseKey === requestedCourseKey)) {
     return requestedCourseKey;
   }
@@ -91,7 +98,9 @@ export function selectInitialAriaCourse(
 export function useAriaConversation(input: Readonly<{
   open: boolean;
   initialCourseKey?: string;
+  recoveryOnly?: boolean;
 }>) {
+  const recoveryOnly = input.recoveryOnly ?? false;
   const session = useCanonicalSession();
   const authority = session?.data?.user?.authority === 'CORE_V2' ? 'CORE_V2' as const : 'V1' as const;
   const [courses, setCourses] = useState<readonly AriaClientCourse[]>([]);
@@ -288,6 +297,7 @@ export function useAriaConversation(input: Readonly<{
         const history = await fetchHistoryForAuthority(latest, controller.signal, authority);
         if (token !== generation.current) return;
         setMessages(history.messages);
+        setRagStatus([...history.messages].reverse().find(({ role }) => role === 'assistant')?.ragStatus ?? null);
         if (history.activeTurn) {
           const turnMessages = history.messages.filter(
             ({ turnId }) => turnId === history.activeTurn?.turnId,
@@ -318,7 +328,12 @@ export function useAriaConversation(input: Readonly<{
           });
           activeTurn.current = active;
           setAnnouncement('Reconnexion à la réponse ARIA en cours.');
-          void attachTransport(active, token);
+          if (recoveryOnly) {
+            setPhase(history.activeTurn.status === 'PENDING' ? 'PENDING' : 'STREAMING');
+            setAnnouncement('Une réponse ARIA est en cours. Le chat est désactivé; vous pouvez arrêter cette réponse.');
+          } else {
+            void attachTransport(active, token);
+          }
           return;
         }
       }
@@ -347,7 +362,7 @@ export function useAriaConversation(input: Readonly<{
     } finally {
       if (activeController.current === controller) activeController.current = null;
     }
-  }, [attachTransport, authority, clearError, configureActiveTransport, publishError]);
+  }, [attachTransport, authority, clearError, configureActiveTransport, publishError, recoveryOnly]);
 
   useEffect(() => {
     if (!input.open) return;
@@ -373,6 +388,7 @@ export function useAriaConversation(input: Readonly<{
         curriculum.profile.focusedCourseKey,
         input.initialCourseKey,
         selectedCourseRef.current,
+        recoveryOnly,
       );
       selectedCourseRef.current = initial;
       setSelectedCourseKey(initial);
@@ -380,7 +396,7 @@ export function useAriaConversation(input: Readonly<{
         activeTurn.current = null;
         setMessages([]);
         setPhase('READY');
-        setAnnouncement(curriculum.courses.some(isAvailable)
+        setAnnouncement(curriculum.courses.some((course) => isAvailable(course) || (recoveryOnly && isRecoverable(course)))
           ? 'Choisissez un cours ARIA.'
           : 'Aucun cours ARIA avec chat n’est disponible.');
         return;
@@ -393,22 +409,22 @@ export function useAriaConversation(input: Readonly<{
       setAnnouncement('Impossible de charger ARIA.');
     });
     return suspend;
-  }, [authority, clearError, input.initialCourseKey, input.open, loadCourse, publishError, suspend]);
+  }, [authority, clearError, input.initialCourseKey, input.open, loadCourse, publishError, recoveryOnly, suspend]);
 
   const selectCourse = useCallback((courseKey: string) => {
     if (phase !== 'READY') return;
     const course = courses.find((candidate) => candidate.courseKey === courseKey);
-    if (!course || !isAvailable(course)) return;
+    if (!course || !(isAvailable(course) || (recoveryOnly && isRecoverable(course)))) return;
     detach();
     const token = generation.current;
     selectedCourseRef.current = courseKey;
     setSelectedCourseKey(courseKey);
     void loadCourse(courseKey, token);
-  }, [courses, detach, loadCourse, phase]);
+  }, [courses, detach, loadCourse, phase, recoveryOnly]);
 
   const send = useCallback(async () => {
     const content = composerInput.trim();
-    if (!content || !selectedCourseKey || phase !== 'READY' || activeTurn.current) return;
+    if (!content || !selectedCourseKey || recoveryOnly || !courses.find(({ courseKey }) => courseKey === selectedCourseKey)?.capabilities.hasChat || phase !== 'READY' || activeTurn.current) return;
     const request = createAriaClientRequest({
       courseKey: selectedCourseKey,
       content,
@@ -441,15 +457,15 @@ export function useAriaConversation(input: Readonly<{
     });
     activeTurn.current = active;
     await attachTransport(active, token);
-  }, [attachTransport, authority, clearError, composerInput, configureActiveTransport, conversationId, detach, phase, selectedCourseKey]);
+  }, [attachTransport, authority, clearError, composerInput, configureActiveTransport, conversationId, courses, detach, phase, recoveryOnly, selectedCourseKey]);
 
   const retry = useCallback(async () => {
     const active = activeTurn.current;
-    if (!active || active.transportAttached || active.turnId || phase !== 'RETRY_REQUIRED') return;
+    if (recoveryOnly || !active || active.transportAttached || active.turnId || phase !== 'RETRY_REQUIRED') return;
     clearError();
     setAnnouncement('Reprise de la même demande ARIA.');
     await attachTransport(active, generation.current);
-  }, [attachTransport, clearError, phase]);
+  }, [attachTransport, clearError, phase, recoveryOnly]);
 
   const stop = useCallback(async () => {
     const active = activeTurn.current;
@@ -471,7 +487,26 @@ export function useAriaConversation(input: Readonly<{
       setConversationId(result.conversationId);
       if (result.disposition === 'CANCELLATION_REQUESTED') {
         setAnnouncement('Arrêt demandé. Confirmation en cours.');
-        if (!active.transportAttached) await attachTransport(active, token);
+        if (!active.transportAttached && recoveryOnly) {
+          const deadline = Date.now() + 20_000;
+          while (Date.now() < deadline && isCurrentTurn()) {
+            await new Promise((resolve) => setTimeout(resolve, 250));
+            const reloaded = await fetchHistoryForAuthority(result.conversationId, new AbortController().signal, authority);
+            const assistant = reloaded.messages.find(({ turnId, role }) => turnId === result.turnId && role === 'assistant');
+            if (!reloaded.activeTurn && assistant && (assistant.status === 'CANCELLED' || assistant.status === 'COMPLETED' || assistant.status === 'ERROR')) {
+              setMessages(reloaded.messages);
+              activeTurn.current = null;
+              clearError();
+              setPhase('READY');
+              setAnnouncement(assistant.status === 'CANCELLED' ? 'Réponse ARIA arrêtée.' : 'État final de la réponse ARIA rechargé.');
+              return;
+            }
+          }
+          if (isCurrentTurn()) {
+            setPhase('STOPPING');
+            setAnnouncement('L’arrêt est demandé. L’état final sera disponible dans l’historique.');
+          }
+        } else if (!active.transportAttached) await attachTransport(active, token);
         return;
       }
 
@@ -536,7 +571,7 @@ export function useAriaConversation(input: Readonly<{
       setPhase(active.messageId ? 'STREAMING' : active.turnId ? 'PENDING' : 'RETRY_REQUIRED');
       setAnnouncement('Impossible d’arrêter proprement la réponse ARIA.');
     }
-  }, [attachTransport, authority, clearError, publishError]);
+  }, [attachTransport, authority, clearError, publishError, recoveryOnly]);
 
   const submitFeedback = useCallback(async (messageId: string, useful: boolean) => {
     const previous = feedbackQueues.current.get(messageId);

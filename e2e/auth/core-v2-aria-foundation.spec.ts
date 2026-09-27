@@ -118,8 +118,23 @@ test.describe('Core v2 ARIA foundation', () => {
         await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
         const sent = await sendResponse;
         expect(sent.status()).toBe(200);
-        await expect(page.getByRole('main', { name: 'Conversation ARIA' }))
+        const sentBody = (await sent.json()) as { data: {
+          conversation: { id: string };
+          turn: { status: string };
+          message: { content: string; citations: Array<{ sourceTitle: string; resourceId: string; chunkId: string }> };
+          metadata: { ragStatus?: string };
+        } };
+        expect(sentBody.data.turn.status).toBe('COMPLETED');
+        expect(sentBody.data.metadata.ragStatus).toBe('SUCCESS');
+        expect(sentBody.data.message.citations).toHaveLength(1);
+        const chat = page.getByRole('main', { name: 'Conversation ARIA' });
+        await expect(chat)
           .toContainText('Une dérivée positive sur un intervalle signifie que la fonction y est croissante.');
+        const sourceTitle = sentBody.data.message.citations[0]!.sourceTitle;
+        const liveSource = chat.getByText('1 source', { exact: true });
+        await expect(liveSource).toHaveCount(1);
+        await liveSource.click();
+        await expect(chat.getByText(sourceTitle)).toBeVisible();
         await expect.poll(async () => (await fixtureState(page.request)).modelInvocations).toBe(1);
         await page.getByRole('button', { name: 'Réponse utile' }).click();
         await expect(page.getByRole('button', { name: 'Réponse utile' })).toHaveAttribute('aria-pressed', 'true');
@@ -129,8 +144,24 @@ test.describe('Core v2 ARIA foundation', () => {
         await page.getByTestId('aria-chat-trigger').click();
         await expect(page.getByRole('dialog', { name: 'Assistant pédagogique ARIA' })).toBeVisible();
         await expect(page.getByLabel('Cours ARIA')).toHaveValue(PINNED_COURSE_KEY);
-        await expect(page.getByRole('main', { name: 'Conversation ARIA' }))
+        await expect(chat)
           .toContainText('Une dérivée positive sur un intervalle signifie que la fonction y est croissante.');
+        const reloadedSource = chat.getByText('1 source', { exact: true });
+        await expect(reloadedSource).toHaveCount(1);
+        await reloadedSource.click();
+        await expect(chat.getByText(sourceTitle)).toBeVisible();
+        const historyResponse = await page.request.get(`/api/v2/aria/conversations/${sentBody.data.conversation.id}/messages`);
+        expect(historyResponse.status()).toBe(200);
+        const historyBody = (await historyResponse.json()) as { data: {
+          messages: Array<{ role: string; content: string; status: string; ragStatus?: string; citations: Array<{ sourceTitle: string; resourceId: string; chunkId: string }> }>;
+        } };
+        const reloadedAssistant = historyBody.data.messages.find(({ role }) => role === 'ASSISTANT');
+        expect(reloadedAssistant).toMatchObject({
+          content: sentBody.data.message.content, status: sentBody.data.turn.status,
+          ragStatus: sentBody.data.metadata.ragStatus,
+        });
+        expect(reloadedAssistant?.citations.map(({ sourceTitle, resourceId, chunkId }) => ({ sourceTitle, resourceId, chunkId })))
+          .toEqual(sentBody.data.message.citations.map(({ sourceTitle, resourceId, chunkId }) => ({ sourceTitle, resourceId, chunkId })));
         await expect(page.getByRole('button', { name: 'Réponse utile' })).toHaveAttribute('aria-pressed', 'true');
         await expect.poll(async () => (await fixtureState(page.request)).modelInvocations).toBe(1);
         await page.waitForLoadState('networkidle');
@@ -190,6 +221,9 @@ test.describe('Core v2 ARIA foundation', () => {
       .map(({ role, status }) => [role, status])).toEqual([
       ['USER', 'COMPLETED'], ['ASSISTANT', 'STREAMING'],
     ]);
+    const cockpit = await page.request.get('/api/v2/aria/cockpit');
+    expect(cockpit.status()).toBe(200);
+    expect((await cockpit.json()).data.activeConversationCourseKey).toBe(PINNED_COURSE_KEY);
     const resumedRequestIds: string[] = [];
     page.on('request', (request) => {
       if (new URL(request.url()).pathname !== '/api/v2/aria/chat' || request.method() !== 'POST') return;
@@ -203,6 +237,39 @@ test.describe('Core v2 ARIA foundation', () => {
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await expect.poll(() => resumedRequestIds.length).toBeGreaterThan(0);
     expect(resumedRequestIds.every((id) => id === active.clientRequestId)).toBe(true);
+    expect((await readHistory()).data.conversation.activeTurn).toMatchObject({
+      turnId: active.turnId, clientRequestId: active.clientRequestId, status: 'RUNNING',
+    });
+    expect(await fixtureState(page.request)).toMatchObject({ modelInvocations: 1 });
+
+    // Simulate an operator disabling new chat after the first reconnect. The
+    // browser still receives the history/recovery projection, but no chat POST
+    // is sent while reloading the same active Turn.
+    await page.route('**/api/v2/aria/cockpit', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json() as { data: { capabilities: { chat: boolean; conversationHistory: boolean } } };
+      body.data.capabilities.chat = false;
+      body.data.capabilities.conversationHistory = true;
+      await route.fulfill({ response, json: body });
+    });
+    await page.route('**/api/v2/aria/curriculum', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json() as { data: {
+        profile: { focusedCourseKey: string | null };
+        courses: Array<{ capabilities: { hasChat: boolean; canResumeConversation?: boolean } }>;
+      } };
+      body.data.profile.focusedCourseKey = PINNED_COURSE_KEY;
+      for (const course of body.data.courses) {
+        course.capabilities.hasChat = false;
+        course.capabilities.canResumeConversation = true;
+      }
+      await route.fulfill({ response, json: body });
+    });
+    resumedRequestIds.length = 0;
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.getByRole('button', { name: 'Historique ARIA' }).click();
+    await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
+    expect(resumedRequestIds).toEqual([]);
     expect((await readHistory()).data.conversation.activeTurn).toMatchObject({
       turnId: active.turnId, clientRequestId: active.clientRequestId, status: 'RUNNING',
     });

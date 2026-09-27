@@ -21,6 +21,7 @@ import { resolveCoreV2AriaEntitlements } from '@/lib/core-v2/aria/access-grants'
 import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
 import { buildAriaExamContext } from '@/lib/aria/curriculum/exam-context';
 import { getCockpitSkillGraph } from '@/lib/aria/cockpit/skill-views';
+import { isCoreV2AriaConversationEnabled } from '@/lib/core-v2/aria/recovery-config';
 import type { AriaCockpitDTO, AriaSetupDTO, AriaSetupState } from '@/lib/aria/cockpit/contracts';
 
 function buildSetup(
@@ -54,9 +55,19 @@ export const GET = defineStaffRoute({
       stmgPathway: student.stmgPathway,
       academicEnrollments: student.academicEnrollments,
     };
-    const [profile, entitlements] = await Promise.all([
+    const [profile, entitlements, activeTurn, latestConversation] = await Promise.all([
       getCoreV2AriaCockpitProfile(client, student.studentId, academicContext),
       resolveCoreV2AriaEntitlements(client, student.studentId),
+      client.ariaConversationTurnCoreV2.findFirst({
+        where: { subjectStudentId: student.studentId, status: { in: ['PENDING', 'RUNNING'] } },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        select: { conversation: { select: { courseKey: true } } },
+      }),
+      client.ariaConversationCoreV2.findFirst({
+        where: { studentId: student.studentId },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        select: { courseKey: true },
+      }),
     ]);
 
     const curriculum = resolveAriaCurriculum({
@@ -77,11 +88,12 @@ export const GET = defineStaffRoute({
       curriculum.academicProfile.missingFields,
       curriculum.pinnedCourseKeys.length,
     );
-    const chatAvailable = entitlements.capabilities.chat && curriculum.courses.some((view) => (
+    const historyAvailable = entitlements.capabilities.chat && curriculum.courses.some((view) => (
       view.access.academicallyRelevant
       && view.access.commerciallyEntitled
       && view.course.capabilities.chat
     ));
+    const chatAvailable = isCoreV2AriaConversationEnabled() && historyAvailable;
 
     const cockpit: AriaCockpitDTO = {
       student: {
@@ -108,7 +120,7 @@ export const GET = defineStaffRoute({
         assessments: false,
         resources: false,
         nextSession: false,
-        conversationHistory: chatAvailable,
+        conversationHistory: historyAvailable,
       },
       skillGraphs: curriculum.courses
         .filter((view) => view.course.hasSkillGraph)
@@ -116,6 +128,11 @@ export const GET = defineStaffRoute({
         .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
     };
 
-    return { data: cockpit };
+    return {
+      data: {
+        ...cockpit,
+        activeConversationCourseKey: activeTurn?.conversation.courseKey ?? latestConversation?.courseKey ?? null,
+      },
+    };
   },
 });

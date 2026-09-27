@@ -33,7 +33,7 @@ export function buildCoreV2AriaConversationAuthorization(input: {
   readonly actor: Actor;
   readonly student: CoreV2AriaStudentContext;
   readonly courseKey: string;
-  readonly entitlementContext: CanonicalAriaEntitlementContext;
+  readonly entitlementContext?: CanonicalAriaEntitlementContext;
 }): CoreV2AriaConversationAuthorization {
   try {
     assertSelfServiceRole(input.actor, 'ELEVE');
@@ -56,7 +56,7 @@ export function buildCoreV2AriaConversationAuthorization(input: {
   if (!academicallyRelevantCourseKeys.includes(input.courseKey)) {
     throw new AriaError('NOT_ENROLLED', 403, 'Ce cours ne fait pas partie du cursus scolaire actif.');
   }
-  if (!isAriaCourseEntitled(input.entitlementContext, input.courseKey)) {
+  if (!input.entitlementContext || !isAriaCourseEntitled(input.entitlementContext, input.courseKey)) {
     throw new AriaError('NOT_ENTITLED', 403, 'Aucun droit ARIA actif ne couvre ce cours.');
   }
   const capabilities = resolveAriaCapabilities(input.entitlementContext.tier);
@@ -93,14 +93,15 @@ export async function buildCoreV2AriaConversationContext(
 ): Promise<AriaConversationContext> {
   const student = await loadCoreV2AriaStudentContext(client, ctx);
   const entitlements = await resolveCoreV2AriaEntitlements(client, student.studentId, ctx.now());
+  const course = getAriaCourse(input.courseKey);
+  if (!course) throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
+  const entitlementContext = entitlements.byFeatureKey.get(course.requiredFeature);
   const authorization = buildCoreV2AriaConversationAuthorization({
     actor: ctx.actor,
     student,
     courseKey: input.courseKey,
-    entitlementContext: entitlements.aggregate,
+    entitlementContext,
   });
-  const course = getAriaCourse(input.courseKey);
-  if (!course) throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
 
   let conversation: { id: string; studentId: string; courseKey: string; skillId: string | null; resourceId: string | null; contextState: 'ACTIVE' } | null = null;
   if (input.conversationId) {

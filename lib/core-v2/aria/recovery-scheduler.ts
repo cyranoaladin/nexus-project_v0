@@ -1,6 +1,6 @@
 import { registerProcessShutdownOnce } from '@/lib/runtime/process-shutdown-signals';
 import { requireCoreV2Client } from '@/lib/core-v2/client';
-import { assertCoreV2AriaRecoveryConfiguration, getCoreV2AriaRecoveryPollIntervalMs, isCoreV2AriaConversationEnabled, isCoreV2AriaRecoveryWorkerEnabled } from './recovery-config';
+import { assertCoreV2AriaRecoveryConfiguration, getCoreV2AriaRecoveryPollIntervalMs, isCoreV2AriaRecoveryWorkerEnabled } from './recovery-config';
 import { drainCoreV2AriaRecoveryOutbox } from './recovery-worker';
 
 type SchedulerState = { timer?: NodeJS.Timeout; draining?: Promise<unknown> };
@@ -8,7 +8,7 @@ const globalState = globalThis as typeof globalThis & { __coreV2AriaRecoverySche
 function state(): SchedulerState { globalState.__coreV2AriaRecoveryScheduler ??= {}; return globalState.__coreV2AriaRecoveryScheduler; }
 
 export function kickCoreV2AriaRecoveryDrain(): void {
-  if (!isCoreV2AriaConversationEnabled() || !isCoreV2AriaRecoveryWorkerEnabled()) return;
+  if (!isCoreV2AriaRecoveryWorkerEnabled()) return;
   const current = state();
   if (current.draining) return;
   current.draining = (async () => {
@@ -29,7 +29,7 @@ export async function stopCoreV2AriaRecoveryScheduler(): Promise<void> {
 
 export function startCoreV2AriaRecoveryScheduler(): void {
   assertCoreV2AriaRecoveryConfiguration();
-  if (!isCoreV2AriaConversationEnabled() || !isCoreV2AriaRecoveryWorkerEnabled()) return;
+  if (!isCoreV2AriaRecoveryWorkerEnabled()) return;
   const current = state();
   if (!current.timer) {
     current.timer = setInterval(kickCoreV2AriaRecoveryDrain, getCoreV2AriaRecoveryPollIntervalMs());

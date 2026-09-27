@@ -1,14 +1,21 @@
 import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
+jest.mock('@/lib/aria/gateway', () => ({
+  ...jest.requireActual('@/lib/aria/gateway'),
+  streamChatCompletion: jest.fn(() => { throw new Error('PROVIDER_MUST_NOT_BE_CALLED'); }),
+}));
 
 import { auth } from '@/auth';
 import { NO_PARAMS } from '@/lib/core-v2/http/staff-route';
 import { setupServiceHarness, seedAcademicYear } from '../helpers/service-harness';
 import { CoreV2AriaConversationRepository } from '@/lib/core-v2/aria/conversation-repository';
-import { startCoreV2AriaRecoveryScheduler } from '@/lib/core-v2/aria/recovery-scheduler';
+import { grantCoreV2AriaAccess } from '@/lib/core-v2/aria/access-grants';
+import { kickCoreV2AriaRecoveryDrain, startCoreV2AriaRecoveryScheduler, stopCoreV2AriaRecoveryScheduler } from '@/lib/core-v2/aria/recovery-scheduler';
+import * as ariaGateway from '@/lib/aria/gateway';
 import * as chatRoute from '@/app/api/v2/aria/chat/route';
 import * as conversationsRoute from '@/app/api/v2/aria/conversations/route';
+import * as messagesRoute from '@/app/api/v2/aria/conversations/[conversationId]/messages/route';
 import * as cancelRoute from '@/app/api/v2/aria/turns/[turnId]/cancel/route';
 import * as feedbackRoute from '@/app/api/v2/aria/feedback/route';
 
@@ -79,6 +86,97 @@ describe('Core v2 ARIA conversation route guards', () => {
     expect(await h.client.ariaConversationTurnCoreV2.count()).toBe(0);
     expect(await h.client.ariaMessageCoreV2.count()).toBe(0);
     expect(await h.client.coreV2JobOutbox.count()).toBe(0);
+  });
+
+  test('POST chat rejects a Maths course for an NSI-only grant before reservation or provider execution', async () => {
+    const owner = await seedStudent('cross-feature-chat@synthetic.test');
+    const enrollment = await h.client.studentAcademicYearEnrollment.findFirstOrThrow({ where: { studentId: owner.student.id } });
+    await h.client.studentCourseEnrollment.createMany({ data: [
+      { academicYearEnrollmentId: enrollment.id, courseKey: 'eds-maths-terminale', kind: 'SPECIALTY' },
+      { academicYearEnrollmentId: enrollment.id, courseKey: 'eds-nsi-terminale', kind: 'SPECIALTY' },
+    ] });
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: owner.student.id, featureKey: 'aria_nsi', ariaTier: 'ARIA_ACCOMPAGNEE',
+    });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true';
+    process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED = 'true';
+    signInAs({ id: owner.user.id, role: 'ELEVE' });
+    const provider = ariaGateway.streamChatCompletion as jest.Mock;
+    provider.mockClear();
+    const result = await call('POST', '/api/v2/aria/chat', {
+      courseKey: 'maths-terminale-eds', clientRequestId, content: 'Question de maths', pedagogicalMode: 'DISCOVERY',
+    });
+    expect(result.status).toBe(403);
+    expect(result.body.error.code).toBe('NOT_ENTITLED');
+    expect(await h.client.ariaConversationTurnCoreV2.count()).toBe(0);
+    expect(await h.client.ariaMessageCoreV2.count()).toBe(0);
+    expect(await h.client.coreV2JobOutbox.count()).toBe(0);
+    expect(provider).not.toHaveBeenCalled();
+  });
+
+  test('disabled new chat preserves history and cancellation of an existing Turn', async () => {
+    const owner = await seedStudent('existing-turn@synthetic.test');
+    const turn = await reserve(owner.user.id, owner.student.id, 'existing');
+    signInAs({ id: owner.user.id, role: 'ELEVE' });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'false';
+    const historyPath = `/api/v2/aria/conversations/${turn.conversationId}/messages`;
+    const context = { params: Promise.resolve({ conversationId: turn.conversationId }) };
+    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    expect(before.status).toBe(200);
+    expect((await before.json()).data.conversation.activeTurn.turnId).toBe(turn.turnId);
+
+    const cancelled = await call('POST', `/api/v2/aria/turns/${turn.turnId}/cancel`, { clientRequestId }, { turnId: turn.turnId });
+    expect(cancelled.status).toBe(200);
+    expect(cancelled.body.data.status).toBe('CANCELLED');
+
+    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    expect(after.status).toBe(200);
+    expect((await after.json()).data.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: turn.assistantMessageId, status: 'CANCELLED' }),
+    ]));
+  });
+
+  test('disabled new chat still cancels and recovers a RUNNING Turn in the real store', async () => {
+    const owner = await seedStudent('running-rollout-cancel@synthetic.test');
+    const turn = await reserve(owner.user.id, owner.student.id, 'running-rollout');
+    const repository = new CoreV2AriaConversationRepository(h.client);
+    const claimedAt = new Date(Date.now() - 120_000);
+    const leaseExpiresAt = new Date(claimedAt.getTime() + 60_000);
+    await repository.claimTurn({
+      turnId: turn.turnId, conversationId: turn.conversationId,
+      actorUserId: owner.user.id, subjectStudentId: owner.student.id,
+      executionToken: 'rollout-cancel-token', now: claimedAt, leaseExpiresAt,
+    });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'false';
+    process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED = 'true';
+    signInAs({ id: owner.user.id, role: 'ELEVE' });
+    const historyPath = `/api/v2/aria/conversations/${turn.conversationId}/messages`;
+    const context = { params: Promise.resolve({ conversationId: turn.conversationId }) };
+
+    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    expect(before.status).toBe(200);
+    const runningHistory = (await before.json()).data;
+    expect(runningHistory.conversation.activeTurn).toMatchObject({ turnId: turn.turnId, status: 'RUNNING', clientRequestId });
+    expect(runningHistory.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: turn.assistantMessageId, status: 'STREAMING' }),
+    ]));
+
+    const cancelled = await call('POST', `/api/v2/aria/turns/${turn.turnId}/cancel`, { clientRequestId }, { turnId: turn.turnId });
+    expect(cancelled.status).toBe(202);
+    expect(cancelled.body.data).toMatchObject({ status: 'RUNNING', disposition: 'CANCELLATION_REQUESTED' });
+    expect((await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: turn.turnId } })).cancellationRequestedAt).not.toBeNull();
+
+    kickCoreV2AriaRecoveryDrain();
+    await stopCoreV2AriaRecoveryScheduler();
+    expect((await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: turn.turnId } })).status).toBe('CANCELLED');
+    expect((await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { idempotencyKey: `aria-turn-watchdog:${turn.turnId}` } })).status).toBe('COMPLETED');
+    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    expect(after.status).toBe(200);
+    const finalHistory = (await after.json()).data;
+    expect(finalHistory.conversation.activeTurn).toBeNull();
+    expect(finalHistory.messages).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: turn.assistantMessageId, status: 'CANCELLED' }),
+    ]));
   });
 
   test('startup rejects enabled conversation without the recovery worker', () => {
