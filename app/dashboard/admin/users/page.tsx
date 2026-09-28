@@ -294,7 +294,7 @@ export default function UsersManagementPage() {
       {/* Header */}
       <header className="bg-surface-card shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex h-auto flex-wrap items-center justify-between gap-1 py-2 sm:h-16 sm:flex-nowrap sm:gap-0 sm:py-0">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Users className="w-8 h-8 text-brand-accent" />
@@ -306,7 +306,7 @@ export default function UsersManagementPage() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="ml-auto flex items-center gap-1 sm:ml-0 sm:gap-4">
               <Button variant="ghost" className="text-neutral-300 hover:text-white" asChild>
                 <Link href="/dashboard/admin">
                   Retour au Dashboard
