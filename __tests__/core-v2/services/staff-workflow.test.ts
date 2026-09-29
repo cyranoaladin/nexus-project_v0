@@ -41,7 +41,10 @@ async function expectDomainError(promise: Promise<unknown>, code: CoreV2DomainEr
 describe('Golden staff workflow through canonical services', () => {
   test('search family → household → parent → student → enrollment → map → courses → coach → planning → invitation', async () => {
     const { client } = h;
-    const ctx = h.ctx(h.assistante);
+    const ctx = {
+      ...h.ctx(h.assistante),
+      now: () => new Date('2026-09-01T12:00:00.000Z'),
+    };
 
     // Academic year lifecycle (configured dates, no hardcoded calendar).
     const year = await createAcademicYear(client, ctx, { startYear: 2026, ...academicYearDates(2026) });

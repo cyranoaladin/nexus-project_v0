@@ -33,3 +33,9 @@ Le périmètre de la même PR est explicitement étendu à trois corrections ind
 - Identité : le gate écrit maintenant le manifeste vérifié à la racine du build et à celle de `.next/standalone`; il refuse un SHA invalide. Le lecteur runtime exige un manifeste vérifié, un SHA commit à 40 caractères et un `BUILD_ID` correspondant au `.next/BUILD_ID` livré. Tests couvrent l'artefact autonome, l'absence/invalidation du manifeste et le mismatch de build ID. Le test de prise en charge refuse aussi une autorisation liée à une autre release.
 
 Le run GitHub `36590752250` attempt 1 reste conservé comme preuve du défaut initial; il n'est pas relancé. État post-corrections : le scanner OSV exact de la lane CI, les gates locaux complets (dont build canonique et extraction PDF.js hermétique), puis la CI du nouveau head et la revue fraîche restent requis avant fusion. Aucun appel IA ni test sur la soumission v5 réelle n'est autorisé dans cette phase.
+
+### Correctif test-only révélé par la CI du head 1e6f9116
+
+Cette stabilisation ne corrige pas le comportement produit de replanification le jour même après l'heure du cours; ce cas préexistant reste hors du périmètre de #325 et doit être signalé séparément, non masqué comme un correctif applicatif.
+
+Le nouveau run `36626496663` a révélé un échec indépendant dans `staff-workflow.test.ts`: à 22:31 heure de Tunis, le test replanifiait un mardi commencé à 18:00 le même jour. La cancellation ne traite que les séances futures par instant, tandis que la rematérialisation repart du jour local inclusif, laissant la séance passée active et créant un conflit avec elle-même. L'échec a été reproduit sur PostgreSQL jetable; le test fixe maintenant `ctx.now` au 1er septembre 2026, avant la date de début du planning. Le test ciblé est vert avec cette horloge déterministe; aucun code métier de planning n'a changé.
