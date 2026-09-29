@@ -958,6 +958,24 @@ model DiagnosticSubmissionProcessing {
   leaseExpiresAt DateTime?
   attemptCount   Int       @default(0)
 
+  // One incident-specific, one-shot administrative extension. Historical
+  // attempts remain cumulative; only this exact authorization permits the
+  // single claim from the normal ceiling (5) to attempt 6.
+  retryAuthorizationOperationId   String?   @unique(map: "diagnostic_submission_processings_retry_operation_key")
+  retryAuthorizationActorId       String?
+  retryAuthorizationAt            DateTime?
+  retryAuthorizationReason        String?
+  retryAuthorizationReleaseSha    String?
+  retrySubmissionIdSnapshot       String?
+  retrySubmissionVersionSnapshot  Int?
+  retrySubmissionSha256Snapshot   String?
+  retrySubjectVersionSnapshot     String?
+  retryExtractionIdSnapshot       String?
+  retryExtractionRevisionSnapshot Int?
+  retryExtractionErrorSnapshot    String?
+  retryAttemptCountSnapshot       Int?
+  retryAuthorizationConsumedAt    DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
