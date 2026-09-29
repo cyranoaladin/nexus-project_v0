@@ -1,13 +1,16 @@
-import { extractPdfText } from '@/lib/bilans/render/pdf';
-
-const EXTRACTION_TIMEOUT_MS = 20_000;
-const MAX_INPUT_BYTES = 15 * 1024 * 1024; // matches the deposit route's own bound — defense in depth, not the only guard.
-const DEFAULT_MAX_STORED_TEXT_CHARS = 200_000; // a written answer, never a full-book dump; also bounds what a later step reads back.
+import {
+  checkPdfTextExtractionRuntime,
+  extractSubmissionTextBounded as extractBounded,
+  invalidatePdfTextExtractionRuntimeCheck,
+} from '@/lib/bilans/render/pdf-text-extraction-runtime.mjs';
 
 export type BoundedTextExtractionResult =
   | Readonly<{ status: 'SUCCEEDED'; text: string; characterCount: number; truncated: boolean; totalCharacterCount: number }>
   | Readonly<{ status: 'EMPTY' }>
-  | Readonly<{ status: 'FAILED'; errorMessage: string }>;
+  | Readonly<{ status: 'FAILED'; errorMessage: string }>
+  | Readonly<{ status: 'UNAVAILABLE'; errorCode: 'PDFJS_RUNTIME_DEPENDENCY_UNAVAILABLE' | 'PDF_TEXT_EXTRACTION_HELPER_UNAVAILABLE' }>;
+
+export { checkPdfTextExtractionRuntime, invalidatePdfTextExtractionRuntimeCheck };
 
 /**
  * Bounded, best-effort text extraction for one submission's PDF bytes.
@@ -26,33 +29,7 @@ export type BoundedTextExtractionResult =
  */
 export async function extractSubmissionTextBounded(
   pdf: Buffer,
-  options: { maxStoredTextChars?: number } = {},
+  options: { maxStoredTextChars?: number; timeoutMs?: number; root?: string; env?: NodeJS.ProcessEnv } = {},
 ): Promise<BoundedTextExtractionResult> {
-  const maxStoredTextChars = options.maxStoredTextChars ?? DEFAULT_MAX_STORED_TEXT_CHARS;
-  if (pdf.byteLength === 0) {
-    return { status: 'FAILED', errorMessage: 'EMPTY_FILE' };
-  }
-  if (pdf.byteLength > MAX_INPUT_BYTES) {
-    return { status: 'FAILED', errorMessage: `FILE_TOO_LARGE:${pdf.byteLength}` };
-  }
-
-  let raw: string;
-  try {
-    raw = await extractPdfText(pdf, { timeoutMs: EXTRACTION_TIMEOUT_MS });
-  } catch (error) {
-    return { status: 'FAILED', errorMessage: error instanceof Error ? error.message.slice(0, 300) : 'UNKNOWN_ERROR' };
-  }
-
-  const text = raw.trim();
-  if (text.length === 0) {
-    return { status: 'EMPTY' };
-  }
-  const truncated = text.length > maxStoredTextChars;
-  return {
-    status: 'SUCCEEDED',
-    text: truncated ? text.slice(0, maxStoredTextChars) : text,
-    characterCount: truncated ? maxStoredTextChars : text.length,
-    truncated,
-    totalCharacterCount: text.length,
-  };
+  return extractBounded(pdf, options) as Promise<BoundedTextExtractionResult>;
 }

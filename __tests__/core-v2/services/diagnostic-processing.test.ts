@@ -16,15 +16,22 @@ const h = setupServiceHarness();
 
 jest.mock('@/lib/core-v2/diagnostics/text-extraction', () => {
   const actual = jest.requireActual('@/lib/core-v2/diagnostics/text-extraction');
-  return { ...actual, extractSubmissionTextBounded: jest.fn(actual.extractSubmissionTextBounded) };
+  return {
+    ...actual,
+    checkPdfTextExtractionRuntime: jest.fn(actual.checkPdfTextExtractionRuntime),
+    extractSubmissionTextBounded: jest.fn(actual.extractSubmissionTextBounded),
+  };
 });
+jest.mock('@/lib/core-v2/diagnostics/release-identity', () => ({ readRunningReleaseSha: jest.fn(async () => null) }));
 
 import { createHousehold, createStudent } from '@/lib/core-v2/services';
 import { attributeDiagnostic } from '@/lib/core-v2/services/diagnostics';
 import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submission-pipeline';
 import { diagnosticsStorageRoot } from '@/lib/core-v2/diagnostics/storage';
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
-import { extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
+import { checkPdfTextExtractionRuntime, extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
+import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
+import { authorizeDiagnosticProcessingRetry, PDFJS_RETRY_AUTHORIZATION_REASON } from '@/lib/core-v2/services/diagnostic-processing-recovery';
 import {
   drainDiagnosticSubmissionProcessingQueue,
   enqueueDiagnosticSubmissionProcessing,
@@ -34,11 +41,17 @@ import {
 } from '@/lib/core-v2/services/diagnostic-processing';
 
 const mockedExtract = extractSubmissionTextBounded as jest.MockedFunction<typeof extractSubmissionTextBounded>;
+const mockedRuntimeCheck = checkPdfTextExtractionRuntime as jest.MockedFunction<typeof checkPdfTextExtractionRuntime>;
+const mockedReleaseSha = readRunningReleaseSha as jest.MockedFunction<typeof readRunningReleaseSha>;
 
 beforeEach(() => {
   process.env.DIAGNOSTIC_DEMO_MODE = '1';
   process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = '';
   mockedExtract.mockClear();
+  mockedRuntimeCheck.mockReset();
+  mockedRuntimeCheck.mockResolvedValue({ available: true });
+  mockedReleaseSha.mockReset();
+  mockedReleaseSha.mockResolvedValue(null);
 });
 
 function allowDemoFixtureFor(...studentIds: string[]) {
@@ -101,6 +114,38 @@ async function enqueueAndDrainOnce(submissionId: string) {
   return { metrics, processing: processing!, extraction: extraction! };
 }
 
+async function exhaustWithPdfJsPackagingIncident(submissionId: string) {
+  const incident = "BILAN_PDF_TEXT_EXTRACTION_FAILED:1:Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pdfjs-dist' imported from standalone";
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    mockedExtract.mockResolvedValueOnce({ status: 'FAILED', errorMessage: incident });
+    await enqueueAndDrainOnce(submissionId);
+  }
+  const processing = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { submissionId } });
+  const extraction = await h.client.diagnosticSubmissionExtraction.findFirstOrThrow({ where: { processingId: processing.id }, orderBy: { revision: 'desc' } });
+  return { processing, extraction };
+}
+
+function retryAuthorizationInput(processing: {
+  id: string;
+  submissionId: string;
+  submissionVersionSnapshot: number;
+  submissionSha256Snapshot: string;
+  subjectVersionSnapshot: string;
+}, extraction: { id: string; revision: number }) {
+  return {
+    processingId: processing.id,
+    submissionId: processing.submissionId,
+    submissionVersion: processing.submissionVersionSnapshot,
+    submissionSha256: processing.submissionSha256Snapshot,
+    subjectVersion: processing.subjectVersionSnapshot,
+    lastExtractionId: extraction.id,
+    lastExtractionRevision: extraction.revision,
+    attemptCount: 5,
+    reason: PDFJS_RETRY_AUTHORIZATION_REASON,
+    operationId: randomUUID(),
+  } as const;
+}
+
 describe('enqueue + drain — synthetic textual answer → real extraction', () => {
   test('extracts the real, non-empty text of a genuinely rendered PDF and records it as revision 1 SUCCEEDED', async () => {
     const ctx = h.ctx();
@@ -117,6 +162,142 @@ describe('enqueue + drain — synthetic textual answer → real extraction', () 
     expect(extraction.extractedText).toContain('capitale de la France');
     expect(extraction.characterCount).toBeGreaterThan(0);
     expect(extraction.truncated).toBe(false); // mission §6: a real, complete answer is explicitly marked as such, not just left ambiguous.
+  });
+});
+
+describe('runtime prerequisite blocks claims without consuming attempts', () => {
+  test('missing PDF.js runtime claims no processing and leaves attempt/lease/history untouched', async () => {
+    const ctx = h.ctx();
+    const pdf = await renderHtmlToPdf('<html><body><p>Précontrôle sans claim.</p></body></html>');
+    const { submission } = await seedDepositedSubmission(h.client, ctx, `RUNTIME-${randomUUID()}`, pdf);
+    const processing = await enqueueDiagnosticSubmissionProcessing(h.client, ctx, submission.id);
+    mockedRuntimeCheck.mockResolvedValueOnce({ available: false, code: 'PDFJS_RUNTIME_DEPENDENCY_UNAVAILABLE' });
+
+    const metrics = await drainDiagnosticSubmissionProcessingQueue(h.client);
+    const after = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    const extractions = await h.client.diagnosticSubmissionExtraction.findMany({ where: { processingId: processing.id } });
+
+    expect(metrics).toEqual({ claimed: 0, succeeded: 0, failed: 0, blockedReason: 'PDFJS_RUNTIME_DEPENDENCY_UNAVAILABLE' });
+    expect(after.status).toBe('QUEUED');
+    expect(after.attemptCount).toBe(0);
+    expect(after.leaseOwner).toBeNull();
+    expect(after.leaseExpiresAt).toBeNull();
+    expect(extractions).toHaveLength(0);
+    expect(mockedExtract).not.toHaveBeenCalled();
+  });
+});
+
+describe('one-shot incident-scoped administrative extraction recovery', () => {
+  test('keeps the five historical attempts, authorizes once, and two workers produce only revision 6', async () => {
+    const ctx = h.ctx();
+    const pdf = await renderHtmlToPdf('<html><body><p>PDF.js retry synthetic.</p></body></html>');
+    const { submission } = await seedDepositedSubmission(h.client, ctx, `PDFJS-RETRY-${randomUUID()}`, pdf);
+    const { processing, extraction } = await exhaustWithPdfJsPackagingIncident(submission.id);
+
+    expect(processing.attemptCount).toBe(5);
+    expect(processing.status).toBe('EXTRACTION_FAILED');
+    expect(extraction.revision).toBe(5);
+
+    // An exhausted row remains nonclaimable until the dedicated capability
+    // creates an exact authorization.
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+    const input = retryAuthorizationInput(processing, extraction);
+    const releaseSha = 'a'.repeat(40);
+    const assignment = await h.client.diagnosticAssignment.findUniqueOrThrow({
+      where: { id: submission.assignmentId },
+      select: { studentId: true },
+    });
+    const demoStudentIds = process.env.DIAGNOSTIC_DEMO_STUDENT_IDS;
+    process.env.DIAGNOSTIC_DEMO_MODE = '0';
+    await expect(authorizeDiagnosticProcessingRetry(h.client, ctx, input, releaseSha))
+      .rejects.toMatchObject({ code: 'INVALID_STATE' });
+    process.env.DIAGNOSTIC_DEMO_MODE = '1';
+    process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = '';
+    await expect(authorizeDiagnosticProcessingRetry(h.client, ctx, input, releaseSha))
+      .rejects.toMatchObject({ code: 'INVALID_STATE' });
+    process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = demoStudentIds;
+    const authorization = await authorizeDiagnosticProcessingRetry(h.client, ctx, input, releaseSha);
+    const replay = await authorizeDiagnosticProcessingRetry(h.client, ctx, input, releaseSha);
+    expect(replay.retryAuthorizationOperationId).toBe(authorization.retryAuthorizationOperationId);
+    expect(await h.client.auditEvent.count({ where: { subjectId: processing.id, action: 'diagnostic.submission.processing.retry_authorized' } })).toBe(1);
+    await expect(authorizeDiagnosticProcessingRetry(h.client, ctx, { ...input, operationId: randomUUID() }, releaseSha))
+      .rejects.toMatchObject({ code: 'CONFLICT' });
+    await expect(authorizeDiagnosticProcessingRetry(h.client, h.ctx(h.assistante), input, releaseSha))
+      .rejects.toMatchObject({ code: 'FORBIDDEN' });
+
+    mockedRuntimeCheck.mockResolvedValueOnce({ available: false, code: 'PDFJS_RUNTIME_DEPENDENCY_UNAVAILABLE' });
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({
+      claimed: 0,
+      succeeded: 0,
+      failed: 0,
+      blockedReason: 'PDFJS_RUNTIME_DEPENDENCY_UNAVAILABLE',
+    });
+    const stillAuthorized = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    expect(stillAuthorized).toMatchObject({ attemptCount: 5, status: 'EXTRACTION_FAILED', retryAuthorizationConsumedAt: null });
+
+    mockedReleaseSha.mockResolvedValue('d'.repeat(40));
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+    const wrongReleaseProcessing = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    expect(wrongReleaseProcessing).toMatchObject({ attemptCount: 5, status: 'EXTRACTION_FAILED', retryAuthorizationConsumedAt: null });
+
+    mockedReleaseSha.mockResolvedValue(releaseSha);
+    mockedExtract.mockResolvedValueOnce({
+      status: 'SUCCEEDED',
+      text: 'PDF.js retry synthetic.',
+      characterCount: 24,
+      truncated: false,
+      totalCharacterCount: 24,
+    });
+    process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = '';
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+    process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = demoStudentIds;
+    const [first, second] = await Promise.all([
+      drainDiagnosticSubmissionProcessingQueue(h.client, { owner: 'worker-a' }),
+      drainDiagnosticSubmissionProcessingQueue(h.client, { owner: 'worker-b' }),
+    ]);
+    expect(first.claimed + second.claimed).toBe(1);
+    const final = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    const revisions = await h.client.diagnosticSubmissionExtraction.findMany({ where: { processingId: processing.id }, orderBy: { revision: 'asc' } });
+    expect(final.status).toBe('EXTRACTED');
+    expect(final.attemptCount).toBe(6);
+    expect(final.retryAuthorizationConsumedAt).not.toBeNull();
+    expect(revisions).toHaveLength(6);
+    expect(revisions.slice(0, 5).map((row) => row.status)).toEqual(['FAILED', 'FAILED', 'FAILED', 'FAILED', 'FAILED']);
+    expect(revisions[5]).toMatchObject({ revision: 6, status: 'SUCCEEDED', extractedText: 'PDF.js retry synthetic.' });
+
+    mockedExtract.mockResolvedValueOnce({ status: 'SUCCEEDED', text: 'late result', characterCount: 11, truncated: false, totalCharacterCount: 11 });
+    await runOneDiagnosticProcessingJob(h.client, processing.id, 'stale-worker-token');
+    expect(await h.client.diagnosticSubmissionExtraction.count({ where: { processingId: processing.id } })).toBe(6);
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+  });
+
+  test('an expired one-shot lease becomes terminal FAILED revision 6 and cannot be reclaimed', async () => {
+    const ctx = h.ctx();
+    const pdf = await renderHtmlToPdf('<html><body><p>PDF.js crash retry synthetic.</p></body></html>');
+    const { submission } = await seedDepositedSubmission(h.client, ctx, `PDFJS-CRASH-${randomUUID()}`, pdf);
+    const { processing, extraction } = await exhaustWithPdfJsPackagingIncident(submission.id);
+    const input = retryAuthorizationInput(processing, extraction);
+    const releaseSha = 'b'.repeat(40);
+    await authorizeDiagnosticProcessingRetry(h.client, ctx, input, releaseSha);
+    await h.client.diagnosticSubmissionProcessing.update({
+      where: { id: processing.id },
+      data: {
+        status: 'EXTRACTING',
+        attemptCount: 6,
+        leaseOwner: 'expired-one-shot-owner',
+        leaseExpiresAt: new Date(Date.now() - 1_000),
+        retryAuthorizationConsumedAt: new Date(Date.now() - 90_000),
+      },
+    });
+    mockedReleaseSha.mockResolvedValue(releaseSha);
+
+    const metrics = await drainDiagnosticSubmissionProcessingQueue(h.client);
+    const final = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    const latest = await h.client.diagnosticSubmissionExtraction.findFirstOrThrow({ where: { processingId: processing.id }, orderBy: { revision: 'desc' } });
+    expect(metrics).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+    expect(final).toMatchObject({ status: 'EXTRACTION_FAILED', attemptCount: 6, leaseOwner: null, leaseExpiresAt: null });
+    expect(latest).toMatchObject({ revision: 6, status: 'FAILED', errorMessage: 'AUTHORIZED_RETRY_LEASE_EXPIRED' });
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
   });
 });
 

@@ -14,6 +14,15 @@ const nextConfig = {
       './content/bilans/prompts/**/*.md',
       './app/fonts/Fraunces-Variable.woff2',
       './app/fonts/DMSans-Variable.woff2',
+      './lib/bilans/render/pdf-text-extraction-child.mjs',
+      './lib/bilans/render/pdf-text-extraction-runtime.mjs',
+      './node_modules/pdfjs-dist/**/*',
+      // PDF.js's Node entrypoint dynamically resolves this optional native
+      // canvas peer for DOMMatrix/Path2D. The bare import is invisible to
+      // Next's tracer, so include the locked package and this build target's
+      // Linux x64 glibc binary explicitly.
+      './node_modules/@napi-rs/canvas/**/*',
+      './node_modules/@napi-rs/canvas-linux-x64-gnu/**/*',
     ],
   },
   outputFileTracingExcludes: {

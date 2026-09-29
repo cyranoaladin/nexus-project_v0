@@ -16,6 +16,7 @@ jest.mock('@/lib/core-v2/diagnostics/text-extraction', () => {
   const actual = jest.requireActual('@/lib/core-v2/diagnostics/text-extraction');
   return { ...actual, extractSubmissionTextBounded: jest.fn(actual.extractSubmissionTextBounded) };
 });
+jest.mock('@/lib/core-v2/diagnostics/release-identity', () => ({ readRunningReleaseSha: jest.fn(async () => 'c'.repeat(40)) }));
 
 import { auth } from '@/auth';
 import { type RouteContext } from '@/lib/core-v2/http/staff-route';
@@ -26,17 +27,23 @@ import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submis
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 import { extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
 import { drainDiagnosticSubmissionProcessingQueue } from '@/lib/core-v2/services/diagnostic-processing';
+import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
+import { PDFJS_RETRY_AUTHORIZATION_REASON } from '@/lib/core-v2/services/diagnostic-processing-recovery';
 import * as processingRoute from '@/app/api/v2/staff/diagnostics/submissions/[submissionId]/processing/route';
 import * as contentRoute from '@/app/api/v2/staff/diagnostics/submissions/[submissionId]/processing/content/route';
+import * as retryAuthorizationRoute from '@/app/api/v2/staff/diagnostics/processing/[processingId]/retry-authorization/route';
 
 const h = setupServiceHarness();
 const mockedAuth = auth as unknown as jest.Mock;
 const mockedExtract = extractSubmissionTextBounded as jest.MockedFunction<typeof extractSubmissionTextBounded>;
+const mockedReleaseSha = readRunningReleaseSha as jest.MockedFunction<typeof readRunningReleaseSha>;
 
 beforeEach(() => {
   process.env.DIAGNOSTIC_DEMO_MODE = '1';
   process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = '';
   mockedExtract.mockClear();
+  mockedReleaseSha.mockReset();
+  mockedReleaseSha.mockResolvedValue('c'.repeat(40));
 });
 
 function allowDemoFixtureFor(...studentIds: string[]) {
@@ -57,8 +64,13 @@ async function callJson(
   method: 'GET' | 'POST',
   path: string,
   params: Record<string, string>,
+  body?: unknown,
 ) {
-  const request = new NextRequest(`http://localhost:3000${path}`, { method, headers: { origin: 'http://localhost:3000' } });
+  const request = new NextRequest(`http://localhost:3000${path}`, {
+    method,
+    headers: { origin: 'http://localhost:3000', ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
   const response = await handler(request, paramsOf(params));
   const text = await response.text();
   return { status: response.status, text, body: text ? JSON.parse(text) : null };
@@ -204,5 +216,50 @@ describe('processing routes — ASSISTANTE never sees the academic content', () 
     });
     expect(posted.status).toBe(401);
     assertNoSentinel(posted.text, sentinel);
+  });
+});
+
+describe('one-shot PDF.js packaging recovery route — ADMIN-only and exact target', () => {
+  test('authorizes the exhausted historical incident once; replay is idempotent and ASSISTANTE is denied', async () => {
+    const sentinel = `PDFJS-RETRY-${randomUUID()}`;
+    const { submission } = await seedAssignmentWithSubmission('PDFJS', sentinel);
+    const incident = "BILAN_PDF_TEXT_EXTRACTION_FAILED:1:Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pdfjs-dist' imported from standalone";
+
+    signInAs(h.admin);
+    await callJson(processingRoute.POST, 'POST', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, { submissionId: submission.id });
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      mockedExtract.mockResolvedValueOnce({ status: 'FAILED', errorMessage: incident });
+      await drainDiagnosticSubmissionProcessingQueue(h.client);
+      if (attempt < 4) await callJson(processingRoute.POST, 'POST', `/api/v2/staff/diagnostics/submissions/${submission.id}/processing`, { submissionId: submission.id });
+    }
+    const processing = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { submissionId: submission.id } });
+    const latest = await h.client.diagnosticSubmissionExtraction.findFirstOrThrow({ where: { processingId: processing.id }, orderBy: { revision: 'desc' } });
+    const payload = {
+      submissionId: submission.id,
+      submissionVersion: submission.version,
+      submissionSha256: submission.sha256,
+      subjectVersion: (await h.client.diagnosticAssignment.findUniqueOrThrow({ where: { id: submission.assignmentId } })).instrumentVersionSnapshot,
+      lastExtractionId: latest.id,
+      lastExtractionRevision: latest.revision,
+      attemptCount: 5,
+      reason: PDFJS_RETRY_AUTHORIZATION_REASON,
+      operationId: randomUUID(),
+    };
+    const routePath = `/api/v2/staff/diagnostics/processing/${processing.id}/retry-authorization`;
+    signInAs(h.assistante);
+    const refused = await callJson(retryAuthorizationRoute.POST, 'POST', routePath, { processingId: processing.id }, payload);
+    expect(refused.status).toBe(403);
+
+    signInAs(h.admin);
+    const approved = await callJson(retryAuthorizationRoute.POST, 'POST', routePath, { processingId: processing.id }, payload);
+    expect(approved.status).toBe(201);
+    expect(approved.body.data).toMatchObject({ processingId: processing.id, operationId: payload.operationId, attemptCountSnapshot: 5, authorizationConsumed: false });
+    const replay = await callJson(retryAuthorizationRoute.POST, 'POST', routePath, { processingId: processing.id }, payload);
+    expect(replay.status).toBe(201);
+    expect(await h.client.auditEvent.count({ where: { subjectId: processing.id, action: 'diagnostic.submission.processing.retry_authorized' } })).toBe(1);
+    const changedReplay = await callJson(retryAuthorizationRoute.POST, 'POST', routePath, { processingId: processing.id }, { ...payload, submissionId: 'different-target' });
+    expect(changedReplay.status).toBe(409);
+    const wrongSnapshot = await callJson(retryAuthorizationRoute.POST, 'POST', routePath, { processingId: processing.id }, { ...payload, submissionSha256: '0'.repeat(64), operationId: randomUUID() });
+    expect(wrongSnapshot.status).toBe(409);
   });
 });

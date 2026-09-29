@@ -44,6 +44,7 @@ export const CAPABILITIES = [
   'DIAGNOSTIC_SUBMISSION_TRACK',
   'DIAGNOSTIC_SUBMISSION_CONTENT_READ',
   'DIAGNOSTIC_BILAN_REVIEW',
+  'DIAGNOSTIC_PROCESSING_RECOVERY_AUTHORIZE',
   'ARIA_ACCESS_GRANT',
 ] as const;
 
@@ -78,6 +79,7 @@ export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
   // to ADMIN above — a pedagogical-review capability that ASSISTANTE held
   // would be a content-read path in disguise.
   'DIAGNOSTIC_BILAN_REVIEW',
+  'DIAGNOSTIC_PROCESSING_RECOVERY_AUTHORIZE',
   // Granting/revoking a product right is a commercial decision, the same
   // weight class as account suspension above — not a day-to-day logistics
   // act ASSISTANTE performs.

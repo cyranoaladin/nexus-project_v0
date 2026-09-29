@@ -2,6 +2,8 @@ import { execSync } from 'child_process';
 import { mkdir, writeFile, rm, symlink } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
+import { readFile } from 'fs/promises';
+import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
 
 const SCRIPT = join(__dirname, '../../scripts/release/verify-standalone-artifact.mjs');
 
@@ -38,7 +40,7 @@ function runGate(dir: string, env: Record<string, string> = {}): { code: number;
     const output = execSync(`node ${SCRIPT} "${dir}"`, {
       encoding: 'utf8',
       timeout: 15000,
-      env: { ...process.env, RELEASE_SHA: 'test-sha-abc123', ...env },
+      env: { ...process.env, RELEASE_SHA: 'a'.repeat(40), ...env },
     });
     return { code: 0, output };
   } catch (e: any) {
@@ -132,16 +134,24 @@ describe('verify-standalone-artifact', () => {
     expect(output).toContain('RELEASE_SHA');
   });
 
+  test('fails closed when RELEASE_SHA is malformed', async () => {
+    await createValidArtifact(testDir);
+    const { code, output } = runGate(testDir, { RELEASE_SHA: 'not-a-commit-sha' });
+    expect(code).toBe(1);
+    expect(output).toContain('RELEASE_SHA is invalid');
+    await expect(readFile(join(testDir, 'release-manifest.json'), 'utf8')).rejects.toThrow();
+  });
+
   test('writes manifest on success', async () => {
     await createValidArtifact(testDir);
     runGate(testDir);
     const manifest = JSON.parse(await readFile(join(testDir, 'release-manifest.json'), 'utf8').catch(() => '{}'));
-    expect(manifest.RELEASE_SHA).toBe('test-sha-abc123');
+    const standaloneManifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8').catch(() => '{}'));
+    expect(manifest.RELEASE_SHA).toBe('a'.repeat(40));
     expect(manifest.ARTIFACT_VERIFIED).toBe(true);
     expect(manifest.NEXT_VERSION).toBe('15.5.18');
     expect(manifest.SOURCE_STATIC_TREE_SHA256).toMatch(/^[a-f0-9]{64}$/);
+    expect(standaloneManifest).toEqual(manifest);
+    await expect(readRunningReleaseSha(join(testDir, '.next/standalone'))).resolves.toBe('a'.repeat(40));
   });
 });
-
-// Need readFile for manifest check
-import { readFile } from 'fs/promises';

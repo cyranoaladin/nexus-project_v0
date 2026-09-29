@@ -1,7 +1,6 @@
 import { access, readFile, readdir } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
 
 import type { FactSheet } from '../facts/fact-sheet';
 import { BILAN_PRINT_BRAND } from './brand';
@@ -10,6 +9,7 @@ import type { HumanRenderIdentity } from './human-identity';
 import type { QuestionEvidence } from './question-evidence';
 import type { RenderIdentity } from './render-identity';
 import type { ReportAudience } from './profile-copy';
+import { extractPdfTextRaw } from './pdf-text-extraction-runtime.mjs';
 
 export const BILAN_PDF_ENGINE_VERSION = 'nexus-html-chromium-pdf.v1' as const;
 
@@ -201,49 +201,8 @@ export function normalizePdfForComparison(pdf: Buffer): Buffer {
 const DEFAULT_PDF_TEXT_EXTRACTION_TIMEOUT_MS = 60_000;
 
 export async function extractPdfText(pdf: Buffer, options: { timeoutMs?: number } = {}): Promise<string> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_PDF_TEXT_EXTRACTION_TIMEOUT_MS;
-  const script = `
-    import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-    const chunks = [];
-    for await (const chunk of process.stdin) chunks.push(chunk);
-    const document = await getDocument({ data: new Uint8Array(Buffer.concat(chunks)) }).promise;
-    const pages = [];
-    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
-      const page = await document.getPage(pageNumber);
-      const content = await page.getTextContent();
-      pages.push(content.items.map((item) => 'str' in item ? item.str : '').filter(Boolean).join(' '));
-    }
-    process.stdout.write(pages.join('\\n'));
-  `;
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ['--input-type=module', '--eval', script], {
-      cwd: process.cwd(),
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-    let settled = false;
-    const timer = setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      child.kill('SIGKILL');
-      reject(new Error('BILAN_PDF_TEXT_EXTRACTION_TIMEOUT'));
-    }, timeoutMs);
-    child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk));
-    child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk));
-    child.on('error', (error) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(error);
-    });
-    child.on('close', (code) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      if (code === 0) resolve(Buffer.concat(stdout).toString('utf8'));
-      else reject(new Error(`BILAN_PDF_TEXT_EXTRACTION_FAILED:${code}:${Buffer.concat(stderr).toString('utf8').slice(0, 200)}`));
-    });
-    child.stdin.end(pdf);
+  return extractPdfTextRaw(pdf, {
+    timeoutMs: options.timeoutMs ?? DEFAULT_PDF_TEXT_EXTRACTION_TIMEOUT_MS,
+    root: process.cwd(),
   });
 }

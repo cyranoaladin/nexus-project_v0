@@ -22,6 +22,7 @@ jest.mock('@/lib/aria/infrastructure/rag/manifest', () => ({
 
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const evaluationTime = new Date('2026-08-30T12:00:00.000Z');
+const expiredEvaluationTime = new Date('2026-09-30T12:00:00.000Z');
 
 describe('ARIA conversation context integrity on PostgreSQL', () => {
   let pool: Pool;
@@ -133,16 +134,26 @@ describe('ARIA conversation context integrity on PostgreSQL', () => {
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-nsi-premiere',
       conversationId: ids.crossCourseConversation,
+      now: evaluationTime,
     })).rejects.toMatchObject({ code: 'CROSS_COURSE_MISMATCH' });
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-nsi-premiere',
       conversationId: ids.otherStudentConversation,
+      now: evaluationTime,
     })).rejects.toMatchObject({ code: 'CONVERSATION_NOT_FOUND' });
     await expect(buildAriaConversationContext({
       actor: { userId: ids.studentUser, role: 'ELEVE' },
       courseKey: 'eds-nsi-premiere',
       conversationId: ids.invalidStoredContextConversation,
+      now: evaluationTime,
     })).rejects.toMatchObject({ code: 'RESOURCE_MISMATCH' });
+
+    await expect(buildAriaConversationContext({
+      actor: { userId: ids.studentUser, role: 'ELEVE' },
+      courseKey: 'eds-nsi-premiere',
+      conversationId: ids.validConversation,
+      now: expiredEvaluationTime,
+    })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
   });
 });

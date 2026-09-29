@@ -4,10 +4,14 @@
  * `totalCharacterCount`), never a silent edit that lets a truncated
  * answer pass for a complete one.
  */
-import { extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
+import { checkPdfTextExtractionRuntime, extractSubmissionTextBounded } from '@/lib/core-v2/diagnostics/text-extraction';
 import { renderHtmlToPdf } from '@/lib/bilans/render/pdf';
 
 describe('extractSubmissionTextBounded', () => {
+  test('runtime preflight confirms the same PDF.js child engine used by extraction is available', async () => {
+    await expect(checkPdfTextExtractionRuntime()).resolves.toMatchObject({ available: true });
+  });
+
   test('empty buffer is an explicit FAILED, never treated as a real file', async () => {
     const result = await extractSubmissionTextBounded(Buffer.alloc(0));
     expect(result).toEqual({ status: 'FAILED', errorMessage: 'EMPTY_FILE' });
