@@ -179,6 +179,8 @@ if (!releaseSha) {
 }
 if (!releaseSha) {
   fail('RELEASE_SHA cannot be determined (set RELEASE_SHA env or ensure .git is present)');
+} else if (!/^[a-f0-9]{40}$/.test(releaseSha)) {
+  fail('RELEASE_SHA is invalid (expected a 40-character lowercase commit SHA)');
 }
 
 // ── 9. Resolve versions ──
@@ -222,8 +224,10 @@ if (errors.length === 0) {
     BUILT_BY_UID: process.getuid?.() ?? -1,
     ARTIFACT_VERIFIED: true,
   };
-  await writeFile(join(buildDir, 'release-manifest.json'), JSON.stringify(manifest, null, 2));
-  console.log('\nrelease-manifest.json written');
+  const serializedManifest = JSON.stringify(manifest, null, 2);
+  await writeFile(join(buildDir, 'release-manifest.json'), serializedManifest);
+  await writeFile(join(buildDir, '.next/standalone/release-manifest.json'), serializedManifest);
+  console.log('\nrelease-manifest.json written to build root and standalone runtime root');
 }
 
 if (errors.length > 0) {

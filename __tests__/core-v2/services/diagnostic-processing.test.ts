@@ -235,6 +235,11 @@ describe('one-shot incident-scoped administrative extraction recovery', () => {
     const stillAuthorized = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
     expect(stillAuthorized).toMatchObject({ attemptCount: 5, status: 'EXTRACTION_FAILED', retryAuthorizationConsumedAt: null });
 
+    mockedReleaseSha.mockResolvedValue('d'.repeat(40));
+    expect(await drainDiagnosticSubmissionProcessingQueue(h.client)).toEqual({ claimed: 0, succeeded: 0, failed: 0 });
+    const wrongReleaseProcessing = await h.client.diagnosticSubmissionProcessing.findUniqueOrThrow({ where: { id: processing.id } });
+    expect(wrongReleaseProcessing).toMatchObject({ attemptCount: 5, status: 'EXTRACTION_FAILED', retryAuthorizationConsumedAt: null });
+
     mockedReleaseSha.mockResolvedValue(releaseSha);
     mockedExtract.mockResolvedValueOnce({
       status: 'SUCCEEDED',
