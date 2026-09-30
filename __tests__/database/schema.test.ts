@@ -32,8 +32,7 @@ describe('Schema Integrity Tests', () => {
   }, 30000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    try { await setupTestDatabase(); } finally { await prisma.$disconnect(); }
   }, 30000);
 
   describe('Cascade Delete Tests', () => {
