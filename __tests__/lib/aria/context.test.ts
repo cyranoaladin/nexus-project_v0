@@ -386,10 +386,25 @@ describe('buildAriaConversationContext authorization boundary', () => {
   });
 
   it('uses the current time only at the canonical boundary when none is supplied', async () => {
+    jest.useFakeTimers();
+    try {
+      jest.setSystemTime(new Date('2026-09-29T23:59:59.999Z'));
+      await expect(buildAriaConversationContext({
+        actor: { userId: 'student-user-1', role: 'ELEVE' },
+        courseKey: 'eds-maths-premiere',
+      })).resolves.toMatchObject({ courseKey: 'eds-maths-premiere' });
+    } finally {
+      jest.useRealTimers();
+      jest.restoreAllMocks();
+    }
+  });
+
+  it('rejects the same entitlement after its expiration when time is supplied', async () => {
     await expect(buildAriaConversationContext({
       actor: { userId: 'student-user-1', role: 'ELEVE' },
       courseKey: 'eds-maths-premiere',
-    })).resolves.toMatchObject({ courseKey: 'eds-maths-premiere' });
+      now: new Date('2026-10-01T00:00:00.000Z'),
+    })).rejects.toMatchObject({ code: 'NOT_ENTITLED' });
   });
 
   it('U002 ARIA-B-R011 rejects a conversation row whose stored student identity disagrees', async () => {
