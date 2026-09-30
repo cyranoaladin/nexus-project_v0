@@ -46,13 +46,12 @@ describe('Credit Debit Race Condition', () => {
 
   beforeAll(async () => {
     await assertTestDbAvailable();
-    dbAvailable = true;
     await setupTestDatabase();
-  }, 10000);
+    dbAvailable = true;
+  }, 35000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    try { await setupTestDatabase(); } finally { await prisma.$disconnect(); }
   }, 30000);
 
   afterEach(async () => {

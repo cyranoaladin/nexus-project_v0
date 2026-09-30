@@ -15,6 +15,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
+import { performance } from 'perf_hooks';
 import { testPrisma, setupTestDatabase, createTestParent, createTestStudent, assertTestDbAvailable } from '../setup/test-database';
 
 const prisma = testPrisma;
@@ -27,20 +28,27 @@ describe('Payment Validation Transaction Rollback', () => {
   let dbAvailable = false;
 
   beforeAll(async () => {
+    const started = performance.now();
     await assertTestDbAvailable();
-    dbAvailable = true;
     await setupTestDatabase();
-  }, 10000);
+    dbAvailable = true;
+    console.info('DB_CORE_HOOK_METRIC', JSON.stringify({ suite: 'payment-validation-rollback', phase: 'beforeAll', totalMs: Math.round(performance.now() - started) }));
+  }, 35000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    try {
+      await setupTestDatabase();
+    } finally {
+      await prisma.$disconnect();
+    }
   }, 30000);
 
   beforeEach(async () => {
     if (!dbAvailable) return;
+    const started = performance.now();
     // Full cleanup before each test to prevent orphaned records
     await setupTestDatabase();
+    const fixtureStarted = performance.now();
 
     runId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     // Create fresh test data for each test
@@ -73,6 +81,7 @@ describe('Payment Validation Transaction Rollback', () => {
       }
     });
     paymentId = payment.id;
+    console.info('DB_CORE_HOOK_METRIC', JSON.stringify({ suite: 'payment-validation-rollback', phase: 'beforeEach', fixtureMs: Math.round(performance.now() - fixtureStarted), totalMs: Math.round(performance.now() - started) }));
   }, 30000);
 
   afterEach(async () => {
