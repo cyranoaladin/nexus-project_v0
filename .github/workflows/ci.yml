@@ -612,6 +612,7 @@ jobs:
       # invariant. `jest.db-core.config.js` is that set minus the `aria-*`
       # files, which the disposable ARIA harness lanes already run.
       - name: Run core real database suites (concurrency, schema, transactions)
+        id: db_core
         env:
           DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test
           TEST_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_ci_test?schema=public
@@ -619,21 +620,25 @@ jobs:
           NEXTAUTH_SECRET: ${{ github.sha }}
           NODE_ENV: test
           NEXUS_DISPOSABLE_POSTGRES: "1"
-        run: npm run test:db:core
+        run: |
+          set -o pipefail
+          printf 'DB_CORE_EVIDENCE sha=%s run=%s attempt=%s\n' \
+            '${{ github.sha }}' '${{ github.run_id }}' '${{ github.run_attempt }}' | tee db-core-jest.log
+          npm run test:db:core -- --json --outputFile=db-core-jest-results.json 2>&1 | tee -a db-core-jest.log
 
       - name: Prove every test lane is reachable from a workflow
         run: npm run test:lanes:check
 
-      - name: Upload real database logs on failure
-        if: failure()
+      - name: Upload real database logs
+        if: always() && steps.db_core.outcome != 'skipped'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: real-db-integration-logs
+          name: real-db-integration-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            *.log
-            npm-debug.log*
+            db-core-jest.log
+            db-core-jest-results.json
           retention-days: 7
-          if-no-files-found: ignore
+          if-no-files-found: error
 
   # ===========================================================================
   # JOB: CORE V2 FOUNDATION (feat/core-v2-greenfield-foundation §23)
