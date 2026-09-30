@@ -3,10 +3,6 @@ name: Preview Artifact
 on:
   workflow_dispatch:
     inputs:
-      source_sha:
-        description: Optional confirmation; must equal the workflow dispatch commit
-        required: false
-        type: string
       preview_jitsi_server_url:
         description: Authorized HTTPS Jitsi service URL compiled into the Preview client
         required: true
@@ -62,7 +58,6 @@ jobs:
 
       - name: Validate dispatch source, workflow ref, and public URL
         env:
-          REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
           APPLICATION_SOURCE_SHA: ${{ github.sha }}
           REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
           WORKFLOW_REF: ${{ github.ref }}
@@ -78,7 +73,6 @@ jobs:
             eventName: process.env.WORKFLOW_EVENT_NAME,
             ref: process.env.WORKFLOW_REF,
             workflowSha: process.env.BUILDER_WORKFLOW_SHA,
-            requestedSha: process.env.REQUESTED_SOURCE_SHA,
           });
           const urlErrors = guards.validateJitsiServerUrl(process.env.REQUESTED_JITSI_URL);
           if (sourceErrors.length || urlErrors.length) throw new Error([...sourceErrors, ...urlErrors].join(','));
@@ -95,7 +89,6 @@ jobs:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           GITHUB_REF: ${{ github.ref }}
           GITHUB_SHA: ${{ github.sha }}
-          REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
           set -Eeuo pipefail
           node scripts/release/preview-artifact-builder-guards.js

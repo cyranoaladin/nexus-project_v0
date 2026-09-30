@@ -5,12 +5,11 @@ function isFullSha(value) {
   return typeof value === 'string' && /^[0-9a-f]{40}$/i.test(value);
 }
 
-function validateSourceSelection({ eventName, ref, workflowSha, requestedSha = '' }) {
+function validateSourceSelection({ eventName, ref, workflowSha }) {
   const errors = [];
   if (eventName !== 'workflow_dispatch') errors.push('WORKFLOW_EVENT_NOT_DISPATCH');
   if (ref !== 'refs/heads/main') errors.push('WORKFLOW_REF_NOT_MAIN');
   if (!isFullSha(workflowSha)) errors.push('WORKFLOW_SHA_INVALID');
-  if (requestedSha && requestedSha !== workflowSha) errors.push('REQUESTED_SOURCE_SHA_MISMATCH');
   return errors;
 }
 
@@ -104,10 +103,28 @@ function validateJitsiCspHeader(header, configuredUrl) {
   } catch {
     return ['JITSI_CSP_CONFIGURED_ORIGIN_INVALID'];
   }
-  if (typeof header !== 'string' || !header.includes(`frame-src 'self' ${origin}`)) {
+  if (typeof header !== 'string') {
     return ['JITSI_CSP_CONFIGURED_ORIGIN_MISSING'];
   }
-  if (header.includes('https://meet.jit.si')) return ['JITSI_CSP_PUBLIC_FALLBACK_ACTIVE'];
+  const directives = header.split(';').map((directive) => directive.trim().split(/\s+/));
+  const frameSources = directives.find(([name]) => name?.toLowerCase() === 'frame-src')?.slice(1) || [];
+  if (!frameSources.some((source) => {
+    try {
+      return new URL(source).origin === origin;
+    } catch {
+      return false;
+    }
+  })) return ['JITSI_CSP_CONFIGURED_ORIGIN_MISSING'];
+
+  const publicFallbackActive = frameSources.some((source) => {
+    try {
+      const parsed = new URL(source);
+      return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'meet.jit.si';
+    } catch {
+      return false;
+    }
+  });
+  if (publicFallbackActive) return ['JITSI_CSP_PUBLIC_FALLBACK_ACTIVE'];
   return [];
 }
 
@@ -126,7 +143,6 @@ function main() {
     eventName: process.env.GITHUB_EVENT_NAME,
     ref: process.env.GITHUB_REF,
     workflowSha: process.env.GITHUB_SHA,
-    requestedSha: process.env.REQUESTED_SOURCE_SHA || '',
   });
   const registryPath = process.argv[2] || '.github/governance/checks-registry.json';
   const rulesetPath = process.argv[3] || '.github/governance/main-ruleset.json';

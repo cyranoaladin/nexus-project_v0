@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   validateSourceSelection,
   validateRequiredStatusChecks,
@@ -24,21 +26,23 @@ const required = [
 ];
 
 describe('Preview artifact builder source and provenance guards', () => {
-  it('uses only the immutable dispatch commit on main and accepts an optional matching confirmation', () => {
+  it('does not accept a caller-selected application SHA or configure a shared Node cache', () => {
+    const workflow = readFileSync(resolve(__dirname, '../../.github/workflows/preview-artifact.yml'), 'utf8');
+    expect(workflow).not.toContain('inputs.source_sha');
+    expect(workflow).not.toMatch(/^\s+source_sha:/m);
+    expect(workflow).toContain('ref: ${{ github.sha }}');
+    expect(workflow).toContain('Deliberately no setup-node cache');
+  });
+
+  it('uses only the immutable workflow dispatch commit on main', () => {
     expect(validateSourceSelection({
-      eventName: 'workflow_dispatch', ref: 'refs/heads/main', workflowSha: sha, requestedSha: sha,
+      eventName: 'workflow_dispatch', ref: 'refs/heads/main', workflowSha: sha,
     })).toEqual([]);
     expect(validateSourceSelection({
-      eventName: 'workflow_dispatch', ref: 'refs/heads/main', workflowSha: sha, requestedSha: '',
-    })).toEqual([]);
-    expect(validateSourceSelection({
-      eventName: 'workflow_dispatch', ref: 'refs/heads/main', workflowSha: sha, requestedSha: 'b'.repeat(40),
-    })).toContain('REQUESTED_SOURCE_SHA_MISMATCH');
-    expect(validateSourceSelection({
-      eventName: 'workflow_dispatch', ref: 'refs/heads/feature', workflowSha: sha, requestedSha: '',
+      eventName: 'workflow_dispatch', ref: 'refs/heads/feature', workflowSha: sha,
     })).toContain('WORKFLOW_REF_NOT_MAIN');
     expect(validateSourceSelection({
-      eventName: 'pull_request', ref: 'refs/heads/main', workflowSha: sha, requestedSha: '',
+      eventName: 'pull_request', ref: 'refs/heads/main', workflowSha: sha,
     })).toContain('WORKFLOW_EVENT_NOT_DISPATCH');
   });
 
@@ -109,6 +113,14 @@ describe('Preview artifact builder source and provenance guards', () => {
       "frame-src 'self' https://video.example.org https://meet.jit.si",
       'https://video.example.org',
     )).toContain('JITSI_CSP_PUBLIC_FALLBACK_ACTIVE');
+    expect(validateJitsiCspHeader(
+      "frame-src 'self' https://video.example.org https://meet.jit.si.attacker.example",
+      'https://video.example.org',
+    )).toEqual([]);
+    expect(validateJitsiCspHeader(
+      "frame-src 'self' https://video.example.org https://attacker.example/https://meet.jit.si",
+      'https://video.example.org',
+    )).toEqual([]);
   });
 
   it('requires a safe deployable archive with hidden standalone files and preserved executable modes', () => {
