@@ -59,6 +59,8 @@ interface OpenRouterCompletionResponse {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    /** Only present when usage accounting was requested (canary mode). */
+    cost?: number;
   };
 }
 
@@ -73,14 +75,18 @@ export class OpenRouterClient {
   private apiKey: string;
   private baseUrl: string;
   private fetchImpl: typeof fetch;
+  private includeUsageCost: boolean;
 
   constructor(
     dependencies: {
       fetchImpl?: typeof fetch;
       apiKey?: string;
       baseUrl?: string;
+      /** Ask OpenRouter to report the cost of each generation (off in production). */
+      includeUsageCost?: boolean;
     } = {}
   ) {
+    this.includeUsageCost = dependencies.includeUsageCost === true;
     this.apiKey = dependencies.apiKey ?? NPC_OPENROUTER_API_KEY;
     this.baseUrl = dependencies.baseUrl ?? NPC_OPENROUTER_BASE_URL;
     this.fetchImpl =
@@ -94,6 +100,7 @@ export class OpenRouterClient {
       messages: request.messages,
       [NPC_MODEL_TRANSPORT.outputTokenParameter]: request.max_tokens ?? 8000,
       provider: withExcludedProviders(),
+      ...(this.includeUsageCost ? { usage: { include: true } } : {}),
     };
   }
 
@@ -104,6 +111,8 @@ export class OpenRouterClient {
         tokens: { prompt: number; completion: number; total: number };
         model: string;
         requestId: string | null;
+        /** Cost reported by OpenRouter, or null when not reported. */
+        costUsd: number | null;
       }
     | {
         success: false;
@@ -167,6 +176,7 @@ export class OpenRouterClient {
         },
         model: NPC_OPENROUTER_MODEL,
         requestId: data.id ?? null,
+        costUsd: typeof data.usage?.cost === 'number' ? data.usage.cost : null,
       };
     } catch (error) {
       return {
@@ -189,6 +199,8 @@ export class OpenRouterClient {
         text: string;
         confidence: number;
         tokens: { prompt: number; completion: number; total: number };
+        requestId: string | null;
+        costUsd: number | null;
       }
     | {
         success: false;
@@ -234,6 +246,8 @@ export class OpenRouterClient {
       text: text === 'NO_TEXT_DETECTED' ? '' : text,
       confidence,
       tokens: result.tokens,
+      requestId: result.requestId,
+      costUsd: result.costUsd,
     };
   }
 
@@ -251,6 +265,8 @@ export class OpenRouterClient {
         success: true;
         data: T;
         tokens: { prompt: number; completion: number; total: number };
+        requestId: string | null;
+        costUsd: number | null;
       }
     | {
         success: false;
@@ -281,6 +297,8 @@ export class OpenRouterClient {
         success: true,
         data,
         tokens: result.tokens,
+        requestId: result.requestId,
+        costUsd: result.costUsd,
       };
     } catch (parseError) {
       return {

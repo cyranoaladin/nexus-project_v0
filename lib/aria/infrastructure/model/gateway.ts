@@ -28,6 +28,17 @@ export interface AriaModelFallbackEvent {
   readonly reasonCode: 'PRIMARY_PROVIDER_UNAVAILABLE';
 }
 
+/**
+ * Explicit, optional control of the SDK client used for one streamed call.
+ * Production callers pass nothing and keep the SDK defaults (including its
+ * automatic retries). The OpenRouter canary sets `maxRetries: 0` and supplies a
+ * `fetch` that counts and inspects every generation request actually sent.
+ */
+export interface AriaProviderClientOptions {
+  readonly maxRetries?: number;
+  readonly fetch?: typeof fetch;
+}
+
 export interface StreamChatOptions {
   readonly maxTokens?: number;
   readonly temperature?: number;
@@ -36,6 +47,7 @@ export interface StreamChatOptions {
   readonly firstTokenTimeoutMs?: number;
   readonly requirements?: AriaModelRequirements;
   readonly onFallback?: (event: AriaModelFallbackEvent) => void;
+  readonly providerClient?: AriaProviderClientOptions;
 }
 
 type ExecutionAbortCause =
@@ -148,10 +160,12 @@ function classifyExecutionFailure(
   });
 }
 
-function createClient(candidate: AriaProviderCandidate): OpenAI {
+function createClient(candidate: AriaProviderCandidate, clientOptions?: AriaProviderClientOptions): OpenAI {
   return new OpenAI({
     apiKey: candidate.apiKey,
     ...(candidate.baseURL ? { baseURL: candidate.baseURL } : {}),
+    ...(clientOptions?.maxRetries !== undefined ? { maxRetries: clientOptions.maxRetries } : {}),
+    ...(clientOptions?.fetch ? { fetch: clientOptions.fetch } : {}),
   });
 }
 
@@ -196,7 +210,7 @@ export async function* streamChatCompletion(
       let emitted = false;
       try {
         const response = await waitForProvider(
-          createClient(candidate).chat.completions.create(
+          createClient(candidate, options.providerClient).chat.completions.create(
             {
               model: candidate.model,
               messages: messages.map((message) => ({ ...message })),
