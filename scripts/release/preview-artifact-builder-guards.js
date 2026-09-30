@@ -17,6 +17,13 @@ function getProducerName(check) {
   return check?.app?.name || '';
 }
 
+function isExpectedProducer(check, producer) {
+  const expectedName = producer.kind === 'EXTERNAL_APP' ? producer.appName : 'GitHub Actions';
+  return Number.isInteger(producer.integrationId)
+    && getProducerName(check) === expectedName
+    && check?.app?.id === producer.integrationId;
+}
+
 function checkTimestamp(check) {
   const raw = check?.started_at || check?.created_at || check?.updated_at || '';
   const parsed = Date.parse(raw);
@@ -29,8 +36,7 @@ function validateRequiredStatusChecks(checkRuns, requiredChecks, expectedSha) {
     const { context, producer } = requirement;
     const sameName = checkRuns.filter((check) => check.name === context);
     const exactSha = sameName.filter((check) => check.head_sha === expectedSha);
-    const expectedApp = producer.kind === 'EXTERNAL_APP' ? producer.appName : 'GitHub Actions';
-    const fromProducer = exactSha.filter((check) => getProducerName(check) === expectedApp);
+    const fromProducer = exactSha.filter((check) => isExpectedProducer(check, producer));
     if (fromProducer.length === 0) {
       if (exactSha.length > 0) errors.push(`REQUIRED_CHECK_WRONG_PRODUCER:${context}`);
       else errors.push(`REQUIRED_CHECK_MISSING:${context}`);
@@ -43,6 +49,69 @@ function validateRequiredStatusChecks(checkRuns, requiredChecks, expectedSha) {
     }
   }
   return { passed: errors.length === 0, errors };
+}
+
+// GitGuardian's GitHub App issues PR check runs, not a new check on the merge commit.
+// This fallback is deliberately narrower than ancestry: the checked PR head must be
+// the merge's second parent and have the exact tree delivered by the merge commit.
+function validateGitGuardianMergeEvidence({
+  sourceSha, repository, mergeCommit, associatedPullRequests, headCommit, headCheckRuns, requirement,
+}) {
+  const errors = [];
+  const parents = mergeCommit?.parents;
+  const baseSha = parents?.[0]?.sha;
+  const headSha = parents?.[1]?.sha;
+  const mergeTree = mergeCommit?.commit?.tree?.sha;
+  if (!isFullSha(sourceSha) || mergeCommit?.sha !== sourceSha || parents?.length !== 2
+    || !isFullSha(baseSha) || !isFullSha(headSha) || !isFullSha(mergeTree)) {
+    errors.push('GITGUARDIAN_MERGE_COMMIT_IDENTITY_INVALID');
+  }
+  if (requirement?.context !== 'GitGuardian Security Checks'
+    || requirement?.producer?.kind !== 'EXTERNAL_APP'
+    || requirement?.producer?.appName !== 'GitGuardian'
+    || !Number.isInteger(requirement?.producer?.integrationId)) {
+    errors.push('GITGUARDIAN_REQUIREMENT_INVALID');
+  }
+  if (errors.length) return { passed: false, errors };
+
+  const matching = (Array.isArray(associatedPullRequests) ? associatedPullRequests : []).filter((pr) => (
+    pr?.state === 'closed'
+    && Boolean(pr.merged_at)
+    && pr.merge_commit_sha === sourceSha
+    && pr.base?.ref === 'main'
+    && pr.base?.sha === baseSha
+    && pr.head?.sha === headSha
+    && pr.base?.repo?.full_name === repository
+    && pr.head?.repo?.full_name === repository
+  ));
+  if (associatedPullRequests?.length !== 1 || matching.length !== 1
+    || !Number.isInteger(matching[0]?.number) || matching[0].number < 1) {
+    errors.push('GITGUARDIAN_MERGED_PR_NOT_UNIQUE_OR_MISMATCHED');
+  }
+  if (headCommit?.sha !== headSha || headCommit?.commit?.tree?.sha !== mergeTree) {
+    errors.push('GITGUARDIAN_HEAD_TREE_MISMATCH');
+  }
+  const sameName = (Array.isArray(headCheckRuns) ? headCheckRuns : []).filter((check) => (
+    check.name === requirement.context && check.head_sha === headSha
+  ));
+  const fromProducer = sameName.filter((check) => isExpectedProducer(check, requirement.producer));
+  if (fromProducer.length === 0) {
+    errors.push(sameName.length ? 'GITGUARDIAN_HEAD_CHECK_WRONG_PRODUCER' : 'GITGUARDIAN_HEAD_CHECK_MISSING');
+  } else {
+    fromProducer.sort((a, b) => checkTimestamp(b) - checkTimestamp(a));
+    const latest = fromProducer[0];
+    if (latest.status !== 'completed' || latest.conclusion !== 'success') {
+      errors.push(`GITGUARDIAN_HEAD_CHECK_NOT_SUCCESS:${latest.conclusion || latest.status || 'unknown'}`);
+    }
+  }
+  if (errors.length) return { passed: false, errors };
+  return {
+    passed: true,
+    errors: [],
+    pullRequestNumber: matching[0].number,
+    headSha,
+    checkRunId: fromProducer[0].id,
+  };
 }
 
 function validateWorkflowQualification(workflowRuns, workflowPath, expectedSha) {
@@ -134,7 +203,13 @@ function ghJsonLines(args) {
     stdio: ['ignore', 'pipe', 'inherit'],
     maxBuffer: 64 * 1024 * 1024,
   });
-  return stdout.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+  if (!stdout.trim()) return [];
+  try {
+    const parsed = JSON.parse(stdout);
+    return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return stdout.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
+  }
 }
 
 function main() {
@@ -158,11 +233,34 @@ function main() {
     `repos/${repository}/commits/${sourceSha}/check-runs?per_page=100`,
     '--jq', '.check_runs[]',
   ]);
-  const checkGate = validateRequiredStatusChecks(
-    checkRuns,
-    registry.requiredChecks.filter((check) => check.required),
-    sourceSha,
-  );
+  const requiredChecks = registry.requiredChecks.filter((check) => check.required);
+  const checkGate = validateRequiredStatusChecks(checkRuns, requiredChecks, sourceSha);
+  const missingGitGuardian = 'REQUIRED_CHECK_MISSING:GitGuardian Security Checks';
+  const gitGuardianRequirement = requiredChecks.find((check) => check.context === 'GitGuardian Security Checks');
+  if (checkGate.errors.includes(missingGitGuardian) && gitGuardianRequirement) {
+    const mergeCommit = ghJsonLines([`repos/${repository}/commits/${sourceSha}`])[0];
+    const associatedPullRequests = ghJsonLines([
+      `repos/${repository}/commits/${sourceSha}/pulls?per_page=100`, '--jq', '.[]',
+    ]);
+    const headSha = mergeCommit?.parents?.[1]?.sha;
+    const headCommit = isFullSha(headSha)
+      ? ghJsonLines([`repos/${repository}/commits/${headSha}`])[0] : null;
+    const headCheckRuns = isFullSha(headSha)
+      ? ghJsonLines([`repos/${repository}/commits/${headSha}/check-runs?per_page=100`, '--jq', '.check_runs[]']) : [];
+    const evidence = validateGitGuardianMergeEvidence({
+      sourceSha, repository, mergeCommit, associatedPullRequests, headCommit, headCheckRuns,
+      requirement: gitGuardianRequirement,
+    });
+    if (evidence.passed) {
+      checkGate.errors.splice(checkGate.errors.indexOf(missingGitGuardian), 1);
+      console.log(`GITGUARDIAN_PROOF_SCOPE=PR_HEAD_TREE_IDENTICAL_TO_MERGE`);
+      console.log(`GITGUARDIAN_PR_NUMBER=${evidence.pullRequestNumber}`);
+      console.log(`GITGUARDIAN_PR_HEAD_SHA=${evidence.headSha}`);
+      console.log(`GITGUARDIAN_CHECK_RUN_ID=${evidence.checkRunId}`);
+    } else {
+      errors.push(...evidence.errors);
+    }
+  }
   errors.push(...checkGate.errors);
 
   const workflows = ghJsonLines([
@@ -190,7 +288,7 @@ function main() {
   console.log(`SOURCE_SHA=${sourceSha}`);
   console.log(`REQUIRED_CHECKS=${registry.requiredChecks.filter((check) => check.required).length}`);
   console.log('SOURCE_WORKFLOWS=QUALIFIED');
-  console.log('SOURCE_CHECKS=ALL_REQUIRED_SUCCESS');
+  console.log('SOURCE_EVIDENCE=ALL_REQUIRED_QUALIFIED');
 }
 
 if (require.main === module) {
@@ -205,6 +303,7 @@ if (require.main === module) {
 module.exports = {
   validateSourceSelection,
   validateRequiredStatusChecks,
+  validateGitGuardianMergeEvidence,
   validateWorkflowQualification,
   validateRequiredPolicy,
   validateJitsiServerUrl,

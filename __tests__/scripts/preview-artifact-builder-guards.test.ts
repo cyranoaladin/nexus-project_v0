@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import {
   validateSourceSelection,
   validateRequiredStatusChecks,
+  validateGitGuardianMergeEvidence,
   validateWorkflowQualification,
   validateRequiredPolicy,
   validateJitsiServerUrl,
@@ -16,12 +17,12 @@ const required = [
   {
     context: 'CI Success',
     required: true,
-    producer: { kind: 'GITHUB_ACTIONS_WORKFLOW', workflowPath: '.github/workflows/ci.yml' },
+    producer: { kind: 'GITHUB_ACTIONS_WORKFLOW', workflowPath: '.github/workflows/ci.yml', integrationId: 15368 },
   },
   {
     context: 'GitGuardian Security Checks',
     required: true,
-    producer: { kind: 'EXTERNAL_APP', appName: 'GitGuardian' },
+    producer: { kind: 'EXTERNAL_APP', appName: 'GitGuardian', integrationId: 46505 },
   },
 ];
 
@@ -32,6 +33,7 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(workflow).not.toMatch(/^\s+source_sha:/m);
     expect(workflow).toContain('ref: ${{ github.sha }}');
     expect(workflow).toContain('Deliberately no setup-node cache');
+    expect(workflow).toMatch(/^  pull-requests: read$/m);
   });
 
   it('uses only the immutable workflow dispatch commit on main', () => {
@@ -48,8 +50,8 @@ describe('Preview artifact builder source and provenance guards', () => {
 
   it('requires every protected status on the exact SHA from its declared producer', () => {
     const checks = [
-      { name: 'CI Success', head_sha: sha, status: 'completed', conclusion: 'success', app: { name: 'GitHub Actions' }, started_at: '2026-09-30T10:00:00Z' },
-      { name: 'GitGuardian Security Checks', head_sha: sha, status: 'completed', conclusion: 'success', app: { name: 'GitGuardian' }, started_at: '2026-09-30T10:00:00Z' },
+      { name: 'CI Success', head_sha: sha, status: 'completed', conclusion: 'success', app: { id: 15368, name: 'GitHub Actions' }, started_at: '2026-09-30T10:00:00Z' },
+      { name: 'GitGuardian Security Checks', head_sha: sha, status: 'completed', conclusion: 'success', app: { id: 46505, name: 'GitGuardian' }, started_at: '2026-09-30T10:00:00Z' },
       { name: 'Optional review bot', head_sha: sha, status: 'completed', conclusion: 'neutral', app: { name: 'Review Bot' }, started_at: '2026-09-30T10:00:00Z' },
     ];
     expect(validateRequiredStatusChecks(checks, required, sha).errors).toEqual([]);
@@ -64,6 +66,79 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(validateRequiredStatusChecks([
       { ...checks[0], app: { name: 'Other App' } }, checks[1],
     ], required, sha).errors).toContain('REQUIRED_CHECK_WRONG_PRODUCER:CI Success');
+    expect(validateRequiredStatusChecks([
+      checks[0], { ...checks[1], app: { id: 1, name: 'GitGuardian' } },
+    ], required, sha).errors).toContain('REQUIRED_CHECK_WRONG_PRODUCER:GitGuardian Security Checks');
+  });
+
+  it('accepts authentic GitGuardian PR evidence only for an identical merged tree', () => {
+    const baseSha = 'b'.repeat(40);
+    const headSha = 'c'.repeat(40);
+    const treeSha = 'd'.repeat(40);
+    const evidence = {
+      sourceSha: sha,
+      repository: 'cyranoaladin/nexus-project_v0',
+      mergeCommit: {
+        sha,
+        parents: [{ sha: baseSha }, { sha: headSha }],
+        commit: { tree: { sha: treeSha } },
+      },
+      associatedPullRequests: [{
+        number: 328,
+        state: 'closed',
+        merged_at: '2026-09-30T20:23:29Z',
+        merge_commit_sha: sha,
+        head: { sha: headSha, repo: { full_name: 'cyranoaladin/nexus-project_v0' } },
+        base: { sha: baseSha, ref: 'main', repo: { full_name: 'cyranoaladin/nexus-project_v0' } },
+      }],
+      headCommit: { sha: headSha, commit: { tree: { sha: treeSha } } },
+      headCheckRuns: [{
+        id: 110058061838,
+        name: 'GitGuardian Security Checks',
+        head_sha: headSha,
+        status: 'completed',
+        conclusion: 'success',
+        app: { id: 46505, name: 'GitGuardian' },
+        started_at: '2026-09-30T19:23:47Z',
+      }],
+      requirement: required[1],
+    };
+    expect(validateGitGuardianMergeEvidence(evidence)).toEqual({
+      passed: true, errors: [], pullRequestNumber: 328, headSha, checkRunId: 110058061838,
+    });
+    expect(validateGitGuardianMergeEvidence({ ...evidence, sourceSha: 'e'.repeat(40) }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, headCommit: {
+      sha: headSha, commit: { tree: { sha: 'e'.repeat(40) } },
+    } }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, associatedPullRequests: [] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, associatedPullRequests: [
+      ...evidence.associatedPullRequests, ...evidence.associatedPullRequests,
+    ] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, associatedPullRequests: [
+      ...evidence.associatedPullRequests,
+      { ...evidence.associatedPullRequests[0], number: 329, merge_commit_sha: 'e'.repeat(40) },
+    ] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, associatedPullRequests: [{
+      ...evidence.associatedPullRequests[0], head: {
+        ...evidence.associatedPullRequests[0].head, sha: 'e'.repeat(40),
+      },
+    }] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, associatedPullRequests: [{
+      ...evidence.associatedPullRequests[0], base: {
+        ...evidence.associatedPullRequests[0].base, sha: 'e'.repeat(40),
+      },
+    }] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, headCheckRuns: [] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, headCheckRuns: [{
+      ...evidence.headCheckRuns[0], app: { id: 1, name: 'GitGuardian' },
+    }] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, headCheckRuns: [{
+      ...evidence.headCheckRuns[0], conclusion: 'failure',
+    }] }).passed).toBe(false);
+    expect(validateGitGuardianMergeEvidence({ ...evidence, headCheckRuns: [
+      evidence.headCheckRuns[0],
+      { ...evidence.headCheckRuns[0], id: 2, conclusion: 'failure', started_at: '2026-09-30T19:25:00Z' },
+    ] }).passed).toBe(false);
   });
 
   it('requires a successful workflow run for the exact source SHA and declared workflow path', () => {
