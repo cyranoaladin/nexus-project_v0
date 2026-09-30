@@ -1,68 +1,36 @@
-# Cline Agent Setup for Nexus Réussite
+# Cline — RETIRED
 
-This repository includes project-specific Cline configuration.
+Cline is no longer used on this project (operator decision, 2026-09-30). This file
+is kept only as the retirement record and must not be turned back into a setup guide.
 
-## Files
+## Retirement procedure (already applied on the operator workstation)
 
-* `.clineignore`: excludes heavy, generated, sensitive or irrelevant files.
-* `.clinerules/`: always-on project rules.
-* `.clinerules/workflows/`: reusable workflows invoked from Cline.
-* `.cline/skills/`: project skills loaded by Cline when relevant.
+* Uninstall the extension with the editor's native command, using the installed id
+  (`saoudrizwan.claude-dev`): `cursor --uninstall-extension saoudrizwan.claude-dev`
+  (or `code --uninstall-extension …`). Do not reinstall or replace it.
+* Remove its extension storage and history. Keep any API key it held until you have
+  confirmed that the same key is available through your secure launch mechanism;
+  uninstalling never revokes a key at the provider.
+* Do not add the extension id to editor recommendations, devcontainers or scripts.
+  `__tests__/architecture/cline-retired.test.ts` fails if it reappears.
 
-## Recommended Cline provider configuration
+## Model gateway
 
-Provider:
-OpenRouter (native Cline provider). Chutes is retired: do not configure an
-OpenAI-compatible profile pointing at a Chutes domain, and add Chutes to the
-ignored providers of the OpenRouter account.
+OpenRouter is the only model gateway for the applications; Chutes is excluded both as a
+client and as a provider behind OpenRouter (`provider.ignore` contains `chutes` on every
+request, see `lib/llm/provider-exclusion.ts`).
 
-The OpenRouter key is entered by the operator in Cline's secure key field; it
-is never written to this repository.
+| Component | Client | Model |
+| --- | --- | --- |
+| NPC | `lib/npc/ai/openrouter-client.ts` | `openai/gpt-5-mini` (pinned) |
+| ARIA | `lib/aria/infrastructure/model/gateway.ts` | per `ARIA_MODEL` policy (`OPENROUTER_HOSTED`) |
+| Bilans | `lib/bilans/llm/` | per `data/bilans/model-policy.json` |
 
-Use only one model ID at a time. A first connectivity check may use
-`openai/gpt-5-mini`; that is a test choice, not a mandated development model.
-No `auto` and no latency alias.
+Keys are injected per service at launch (`OPENROUTER_API_KEY` for NPC and bilans,
+`ARIA_MODEL_API_KEY` for ARIA) and never written to the repository. An inference client
+never receives an OpenRouter management key, and there is no automatic switch to another
+key when a quota or budget is reached.
 
-Recommended settings:
-
-* Context: 64K or 96K
-* Max output: 8192 to 16384
-* Temperature: 0.1 or 0.2
-* Enable Skills in Cline settings
-* Enable different models for Plan and Act mode
-
-## Recommended workflows
-
-Before editing:
-`/audit-before-edit.md`
-
-For implementation:
-`/implement-feature-safely.md`
-
-For generated reports:
-`/generated-reports-hardening.md`
-
-For production read-only audit:
-`/production-readonly-audit.md`
-
-At the end:
-`/final-report.md`
-
-## Important
-
-Cline must not:
-
-* modify production without explicit approval;
-* print secrets;
-* run destructive migrations;
-* bypass RBAC;
-* generate raw LaTeX directly from LLM output;
-* store generated PDFs in public;
-* use scratch as final PDF storage.
-
-## Generated reports rule
-
-The LLM must generate structured JSON only.
-The application validates JSON.
-The application renders deterministic LaTeX.
-The application compiles and stores PDF securely.
+The historical `.clinerules/` and `.cline/skills/` content is product guidance that predates
+this decision; it is not loaded by any retained tool and is pending a review against
+`AGENTS.md` before conversion or removal.
