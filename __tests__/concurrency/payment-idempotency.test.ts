@@ -15,6 +15,7 @@ jest.mock('@/lib/prisma', () => {
 });
 
 import { PrismaClient } from '@prisma/client';
+import { performance } from 'perf_hooks';
 import { testPrisma, setupTestDatabase, createTestParent, canConnectToTestDb, assertTestDbAvailable } from '../setup/test-database';
 import { upsertPaymentByExternalId } from '@/lib/payments';
 
@@ -31,22 +32,31 @@ describe('Payment Idempotency - Concurrency', () => {
   }
 
   beforeAll(async () => {
+    const started = performance.now();
     await assertTestDbAvailable();
-    dbAvailable = true;
     await setupTestDatabase();
+    const fixtureStarted = performance.now();
     await createUser();
-  }, 10000);
+    dbAvailable = true;
+    console.info('DB_CORE_HOOK_METRIC', JSON.stringify({ suite: 'payment-idempotency', phase: 'beforeAll', fixtureMs: Math.round(performance.now() - fixtureStarted), totalMs: Math.round(performance.now() - started) }));
+  }, 35000);
 
   afterAll(async () => {
-    try { if (dbAvailable) await setupTestDatabase(); } catch { /* ignore */ }
-    try { await prisma.$disconnect(); } catch { /* ignore */ }
+    try {
+      await setupTestDatabase();
+    } finally {
+      await prisma.$disconnect();
+    }
   }, 30000);
 
   afterEach(async () => {
     if (!dbAvailable) return;
+    const started = performance.now();
     // Full cleanup to prevent orphaned records, then re-create user
     await setupTestDatabase();
+    const fixtureStarted = performance.now();
     await createUser();
+    console.info('DB_CORE_HOOK_METRIC', JSON.stringify({ suite: 'payment-idempotency', phase: 'afterEach', fixtureMs: Math.round(performance.now() - fixtureStarted), totalMs: Math.round(performance.now() - started) }));
   }, 30000);
 
   describe('Direct Database Constraint', () => {

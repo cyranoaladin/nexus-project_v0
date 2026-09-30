@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
+import { performance } from 'perf_hooks';
 import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
 // Preserve CI-provided env vars before loading .env.test defaults
@@ -118,6 +119,7 @@ export async function canConnectToTestDb(): Promise<boolean> {
  * Postgres every other suite in the job depends on.
  */
 export async function assertTestDbAvailable(url: string = testDbUrl): Promise<void> {
+  const started = performance.now();
   const probe = new PrismaClient({ datasources: { db: { url } } });
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -138,60 +140,118 @@ export async function assertTestDbAvailable(url: string = testDbUrl): Promise<vo
     // armed and rejects 3s later with nothing left awaiting it.
     clearTimeout(timer);
     await probe.$disconnect().catch(() => { /* best-effort */ });
+    console.info('DB_CORE_CONNECTION_METRIC', JSON.stringify({ durationMs: Math.round(performance.now() - started) }));
   }
 }
 
 // Test data setup utilities
-export async function setupTestDatabase() {
+export const DB_CORE_INVENTORY_STATEMENT_TIMEOUT_MS = 1000;
+export const DB_CORE_TRUNCATE_STATEMENT_TIMEOUT_MS = 15000;
+
+export async function setupTestDatabase(): Promise<{
+  tables: number;
+  cleanupStatements: number;
+  inventoryMs: number;
+  cleanupMs: number;
+  totalMs: number;
+}> {
+  // Recheck on every invocation, not only at module import: a test or operator
+  // can change the marker between two calls. Never execute SQL on an unproved target.
+  const target = assertDisposablePostgresUrl(testDbUrl);
+  if (target.searchParams.get('schema') !== 'public') {
+    throw new Error('DB_CORE_CLEANUP_REQUIRES_PUBLIC_SCHEMA');
+  }
+
+  const started = performance.now();
+  let tables = 0;
+  let inventoryMs = 0;
+  let cleanupMs = 0;
+  let cleanupStatements = 0;
+  let succeeded = false;
   try {
-    // Get all table names dynamically
-    const tables = await testPrisma.$queryRaw<Array<{ tablename: string }>>`
-      SELECT tablename FROM pg_tables 
-      WHERE schemaname = 'public' 
-      AND tablename != '_prisma_migrations'
-    `;
+    await testPrisma.$transaction(async (tx) => {
+      // PostgreSQL cancels the SQL itself on a lock/query timeout. A JS timer
+      // alone would leave an in-flight destructive statement behind.
+      await tx.$executeRawUnsafe("SET LOCAL lock_timeout = '1500ms'");
+      // Four catalog reads are each bounded at 1 s, then the one TRUNCATE at
+      // 15 s. Under accumulated I/O the 7 s limit cancelled two otherwise
+      // healthy db-core cleanups. Even with Prisma's 3 s maxWait, PostgreSQL
+      // cancels SQL before the 30 s client limit and the 35 s caller hook.
+      await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '${DB_CORE_INVENTORY_STATEMENT_TIMEOUT_MS}ms'`);
 
-    if (tables.length === 0) return;
-
-    // Disable triggers for clean TRUNCATE
-    await testPrisma.$executeRawUnsafe('SET session_replication_role = replica;');
-
-    try {
-      // TRUNCATE all tables with RESTART IDENTITY CASCADE
-      for (const { tablename } of tables) {
-        try {
-          await testPrisma.$executeRawUnsafe(
-            `TRUNCATE TABLE "${tablename}" RESTART IDENTITY CASCADE;`
-          );
-        } catch {
-          // Table might not exist or have special constraints
-        }
+      const inventoryStart = performance.now();
+      const current = await tx.$queryRaw<Array<{ database_name: string }>>`SELECT current_database() AS database_name`;
+      if (current[0]?.database_name !== decodeURIComponent(target.pathname.slice(1))) {
+        throw new Error('DB_CORE_CLEANUP_DATABASE_IDENTITY_MISMATCH');
       }
-    } finally {
-      // Re-enable triggers
-      await testPrisma.$executeRawUnsafe('SET session_replication_role = DEFAULT;');
-    }
-  } catch (error) {
-    console.warn('⚠️  Could not truncate tables, falling back to deleteMany:', error);
-    // Fallback to deleteMany if TRUNCATE fails
-    try { await testPrisma.sessionReminder.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.sessionNotification.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.creditTransaction.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.sessionBooking.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.session.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.ariaMessage.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.ariaConversation.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.studentBadge.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.badge.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.studentReport.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.message.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.payment.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.coachAvailability.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.student.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.subscription.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.parentProfile.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.coachProfile.deleteMany(); } catch { /* ignore */ }
-    try { await testPrisma.user.deleteMany(); } catch { /* ignore */ }
+      const relations = await tx.$queryRaw<Array<{ schemaname: string; tablename: string }>>`
+        SELECT n.nspname AS schemaname, c.relname AS tablename
+        FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+          AND c.relkind IN ('r', 'p')
+          AND c.relname <> '_prisma_migrations'
+        ORDER BY n.nspname, c.relname
+      `;
+      tables = relations.length;
+
+      // A parent TRUNCATE can traverse partitions/inheritance into another
+      // schema. No such object is in the current migration set; fail closed
+      // if one is introduced instead of widening the cleanup implicitly.
+      const inheritance = await tx.$queryRaw<Array<{ count: bigint }>>`
+        SELECT count(*) FROM pg_catalog.pg_inherits i
+        JOIN pg_catalog.pg_class child ON child.oid = i.inhrelid
+        JOIN pg_catalog.pg_namespace child_ns ON child_ns.oid = child.relnamespace
+        JOIN pg_catalog.pg_class parent ON parent.oid = i.inhparent
+        JOIN pg_catalog.pg_namespace parent_ns ON parent_ns.oid = parent.relnamespace
+        WHERE child_ns.nspname = 'public' OR parent_ns.nspname = 'public'
+      `;
+      if (inheritance[0].count !== BigInt(0)) {
+        throw new Error('DB_CORE_CLEANUP_PARTITION_OR_INHERITANCE_REQUIRES_REVIEW');
+      }
+      const truncateTriggers = await tx.$queryRaw<Array<{ count: bigint }>>`
+        SELECT count(*) FROM pg_catalog.pg_trigger t
+        JOIN pg_catalog.pg_class c ON c.oid = t.tgrelid
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public'
+          AND c.relname <> '_prisma_migrations'
+          AND NOT t.tgisinternal
+          AND (t.tgtype & 32) <> 0
+      `;
+      if (truncateTriggers[0].count !== BigInt(0)) {
+        throw new Error('DB_CORE_CLEANUP_ON_TRUNCATE_TRIGGER_REQUIRES_REVIEW');
+      }
+      inventoryMs = performance.now() - inventoryStart;
+      if (tables === 0) return;
+
+      const quote = (name: string) => `"${name.replace(/"/g, '""')}"`;
+      const qualified = relations.map(({ schemaname, tablename }) => `${quote(schemaname)}.${quote(tablename)}`);
+      const cleanupStart = performance.now();
+      await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '${DB_CORE_TRUNCATE_STATEMENT_TIMEOUT_MS}ms'`);
+      cleanupStatements = 1;
+      try {
+        await tx.$executeRawUnsafe(`TRUNCATE TABLE ${qualified.join(', ')} RESTART IDENTITY RESTRICT`);
+      } finally {
+        cleanupMs = performance.now() - cleanupStart;
+      }
+    }, { maxWait: 3000, timeout: 30000 });
+    succeeded = true;
+    return {
+      tables,
+      cleanupStatements,
+      inventoryMs: Math.round(inventoryMs),
+      cleanupMs: Math.round(cleanupMs),
+      totalMs: Math.round(performance.now() - started),
+    };
+  } finally {
+    console.info('DB_CORE_CLEANUP_METRIC', JSON.stringify({
+      success: succeeded,
+      tables,
+      cleanupStatements,
+      inventoryMs: Math.round(inventoryMs),
+      cleanupMs: Math.round(cleanupMs),
+      totalMs: Math.round(performance.now() - started),
+    }));
   }
 }
 
