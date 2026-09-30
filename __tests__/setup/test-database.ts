@@ -148,6 +148,14 @@ export async function assertTestDbAvailable(url: string = testDbUrl): Promise<vo
 export const DB_CORE_INVENTORY_STATEMENT_TIMEOUT_MS = 1000;
 export const DB_CORE_TRUNCATE_STATEMENT_TIMEOUT_MS = 15000;
 
+/** Prisma's omitted schema parameter means PostgreSQL's default public schema. */
+export function assertDbCorePublicSchema(target: URL): void {
+  const schema = target.searchParams.get('schema');
+  if (schema !== null && schema !== 'public') {
+    throw new Error('DB_CORE_CLEANUP_REQUIRES_PUBLIC_SCHEMA');
+  }
+}
+
 export async function setupTestDatabase(): Promise<{
   tables: number;
   cleanupStatements: number;
@@ -158,9 +166,7 @@ export async function setupTestDatabase(): Promise<{
   // Recheck on every invocation, not only at module import: a test or operator
   // can change the marker between two calls. Never execute SQL on an unproved target.
   const target = assertDisposablePostgresUrl(testDbUrl);
-  if (target.searchParams.get('schema') !== 'public') {
-    throw new Error('DB_CORE_CLEANUP_REQUIRES_PUBLIC_SCHEMA');
-  }
+  assertDbCorePublicSchema(target);
 
   const started = performance.now();
   let tables = 0;

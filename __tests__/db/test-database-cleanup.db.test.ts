@@ -2,7 +2,7 @@
 import { randomUUID } from 'crypto';
 import { performance } from 'perf_hooks';
 import { PrismaClient } from '@prisma/client';
-import { assertTestDbAvailable, DB_CORE_TRUNCATE_STATEMENT_TIMEOUT_MS, setupTestDatabase, testPrisma } from '../setup/test-database';
+import { assertDbCorePublicSchema, assertTestDbAvailable, DB_CORE_TRUNCATE_STATEMENT_TIMEOUT_MS, setupTestDatabase, testPrisma } from '../setup/test-database';
 
 const suffix = randomUUID().replace(/-/g, '').slice(0, 12);
 const parent = `dbcore_parent_${suffix}`;
@@ -24,6 +24,13 @@ async function count(sql: string): Promise<number> {
 }
 
 describe('disposable db-core cleanup', () => {
+  it('accepts only the implicit or explicit public schema before SQL', () => {
+    expect(() => assertDbCorePublicSchema(new URL('postgresql://localhost/nexus_disposable_test'))).not.toThrow();
+    expect(() => assertDbCorePublicSchema(new URL('postgresql://localhost/nexus_disposable_test?schema=public'))).not.toThrow();
+    expect(() => assertDbCorePublicSchema(new URL('postgresql://localhost/nexus_disposable_test?schema=private'))).toThrow('DB_CORE_CLEANUP_REQUIRES_PUBLIC_SCHEMA');
+    expect(() => assertDbCorePublicSchema(new URL('postgresql://localhost/nexus_disposable_test?schema='))).toThrow('DB_CORE_CLEANUP_REQUIRES_PUBLIC_SCHEMA');
+  });
+
   beforeAll(async () => {
     await assertTestDbAvailable();
     await testPrisma.$executeRawUnsafe(`CREATE TABLE ${parentName} (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY)`);
