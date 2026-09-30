@@ -1,0 +1,292 @@
+name: Preview Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact, already-merged Nexus application SHA
+        required: true
+        type: string
+        default: baa93ad9b397edbf06e5d0464c857208c4d57067
+      preview_jitsi_server_url:
+        description: Authorized HTTPS Jitsi service URL compiled into the Preview client
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  checks: read
+
+concurrency:
+  group: preview-artifact-${{ inputs.source_sha }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22.23.1'
+  NPM_VERSION: '10.9.8'
+  EXPECTED_SOURCE_SHA: baa93ad9b397edbf06e5d0464c857208c4d57067
+
+jobs:
+  build-preview-artifact:
+    name: Build isolated Preview artifact
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: nexus_prod
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - name: Checkout workflow definition
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate dispatch source, workflow ref, and public URL
+        env:
+          REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
+          REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
+          WORKFLOW_REF: ${{ github.ref }}
+        run: |
+          set -Eeuo pipefail
+          test "$WORKFLOW_REF" = refs/heads/main
+          test "$REQUESTED_SOURCE_SHA" = "$EXPECTED_SOURCE_SHA"
+          node --input-type=module <<'NODE'
+          const value = process.env.REQUESTED_JITSI_URL;
+          let url;
+          try { url = new URL(value); } catch { throw new Error('JITSI_URL_INVALID'); }
+          if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.search || url.hash) {
+            throw new Error('JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL');
+          }
+          if (url.hostname === 'localhost' || url.hostname.endsWith('.test') || url.hostname.endsWith('.localhost')) {
+            throw new Error('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+          }
+          console.log('DISPATCH_SOURCE_VALID=YES');
+          console.log('JITSI_URL_SHAPE_VALID=YES');
+          NODE
+
+      - name: Verify source SHA checks are all successful
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          set -Eeuo pipefail
+          count="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${REQUESTED_SOURCE_SHA}/check-runs?per_page=100" --jq '.total_count')"
+          test "$count" -gt 0
+          failures="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${REQUESTED_SOURCE_SHA}/check-runs?per_page=100" --jq '[.check_runs[] | select(.status != "completed" or .conclusion != "success")] | length')"
+          test "$failures" = 0
+          echo "SOURCE_CHECK_RUNS=$count"
+          echo 'SOURCE_CHECKS=ALL_SUCCESS'
+
+      - name: Checkout exact application source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.source_sha }}
+          path: app
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Pin repository npm version
+        run: npm install --global "npm@${NPM_VERSION}"
+
+      - name: Install locked dependencies
+        working-directory: app
+        run: npm ci
+
+      - name: Create ephemeral build-only secrets
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET JITSI_ROOM_SECRET EMAIL_OUTBOX_ENCRYPTION_KEY; do
+            value="$(openssl rand -hex 32)"
+            printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
+          done
+
+      - name: Generate Prisma clients
+        working-directory: app
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
+
+      - name: Apply migrations to disposable build database
+        working-directory: app
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_prod
+        run: npx prisma migrate deploy
+
+      - name: Build and run canonical artifact gates
+        working-directory: app
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_prod
+          NEXTAUTH_URL: http://localhost:3211
+          NEXT_PUBLIC_APP_URL: http://localhost:3211
+          NEXT_PUBLIC_WHATSAPP_NUMBER: '21699192829'
+          NEXT_PUBLIC_EAF_DEEP_LINK_BASE_URL: https://eaf.nexusreussite.academy
+          NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: 'false'
+          NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
+          RELEASE_SHA: ${{ inputs.source_sha }}
+          NODE_ENV: production
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run build
+
+      - name: Audit forbidden artifacts and runtime test configuration
+        working-directory: app
+        env:
+          REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
+        run: |
+          set -Eeuo pipefail
+          npm run artifact:traces
+          npm run artifact:audit
+          npm run security:forbidden-artifacts:artifact
+          node --input-type=module <<'NODE'
+          import { readdir, readFile } from 'node:fs/promises';
+          import { join } from 'node:path';
+          const root = '.next/static';
+          const forbidden = [/nexus-e2e\.test/i, /https?:\/\/[^"'\s]+\.test(?:[:/]|$)/i];
+          const pending = [root];
+          let checked = 0;
+          while (pending.length) {
+            const dir = pending.pop();
+            for (const entry of await readdir(dir, { withFileTypes: true })) {
+              const path = join(dir, entry.name);
+              if (entry.isDirectory()) pending.push(path);
+              else if (entry.isFile() && /\.(?:js|css|json)$/.test(entry.name)) {
+                checked++;
+                const body = await readFile(path, 'utf8');
+                if (forbidden.some((pattern) => pattern.test(body))) throw new Error(`RUNTIME_TEST_DOMAIN_FOUND:${path}`);
+                if (body.includes('https://meet.jit.si')) throw new Error(`PUBLIC_JITSI_FALLBACK_FOUND:${path}`);
+              }
+            }
+          }
+          if (!process.env.REQUESTED_JITSI_URL) throw new Error('JITSI_URL_MISSING');
+          console.log(`RUNTIME_STATIC_FILES_CHECKED=${checked}`);
+          console.log('RUNTIME_TEST_DOMAIN_SCAN=PASS');
+          NODE
+
+      - name: Smoke the built standalone server
+        working-directory: app
+        env:
+          CORE_V2_AUTH_MODE: V1_ONLY
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_prod
+          NEXTAUTH_URL: http://localhost:3000
+          NODE_ENV: production
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_KEY_NAMESPACE: preview-artifact
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: preview-artifact@example.invalid
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+        run: |
+          set -Eeuo pipefail
+          node .next/standalone/server.js &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/api/health >/dev/null; then
+              echo 'STANDALONE_HEALTH=PASS'
+              exit 0
+            fi
+            sleep 2
+          done
+          echo 'STANDALONE_HEALTH=FAIL' >&2
+          exit 1
+
+      - name: Create deployable archive and provenance sidecar
+        working-directory: app
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          BUILD_RUN_ID: ${{ github.run_id }}
+          BUILD_RUN_ATTEMPT: ${{ github.run_attempt }}
+          NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
+        run: |
+          set -Eeuo pipefail
+          build_id="$(cat .next/BUILD_ID)"
+          manifest_sha="$(node -p "JSON.parse(require('fs').readFileSync('.next/standalone/release-manifest.json','utf8')).RELEASE_SHA")"
+          test "$manifest_sha" = "$SOURCE_SHA"
+          node --input-type=module - "$build_id" <<'NODE'
+          import fs from 'node:fs';
+          const expected = process.argv[2];
+          const manifest = JSON.parse(fs.readFileSync('.next/standalone/release-manifest.json', 'utf8'));
+          if (manifest.BUILD_ID !== expected || manifest.ARTIFACT_VERIFIED !== true) throw new Error('RELEASE_MANIFEST_IDENTITY_INVALID');
+          if (manifest.RELEASE_SHA !== process.env.SOURCE_SHA) throw new Error('RELEASE_MANIFEST_SOURCE_MISMATCH');
+          NODE
+          test -f .next/standalone/server.js
+          test -f .next/standalone/.next/BUILD_ID
+          test -d .next/standalone/.next/static
+          test -d .next/standalone/public
+          if find .next/standalone -type f \( -name '.env' -o -name '.env.local' -o -name 'auth.json' -o -name 'preview-runtime.env' \) -print -quit | grep -q .; then
+            echo 'FORBIDDEN_RUNTIME_CONFIG_IN_STANDALONE' >&2
+            exit 1
+          fi
+          mkdir -p "$RUNNER_TEMP/preview-delivery"
+          cp .next/standalone/release-manifest.json "$RUNNER_TEMP/preview-delivery/release-manifest.json"
+          node - "$build_id" > "$RUNNER_TEMP/preview-delivery/delivery-provenance.json" <<'NODE'
+          const fs = require('node:fs');
+          const [buildId] = process.argv.slice(2);
+          const value = {
+            SOURCE_SHA: process.env.SOURCE_SHA,
+            WORKFLOW_SHA: process.env.WORKFLOW_SHA,
+            RUN_ID: process.env.BUILD_RUN_ID,
+            RUN_ATTEMPT: process.env.BUILD_RUN_ATTEMPT,
+            BUILD_ID: buildId,
+            RELEASE_MANIFEST_SHA256: require('node:crypto').createHash('sha256').update(fs.readFileSync('.next/standalone/release-manifest.json')).digest('hex'),
+            BUILD_CONFIGURATION: {
+              NEXTAUTH_URL: 'http://localhost:3211',
+              NEXT_PUBLIC_APP_URL: 'http://localhost:3211',
+              NEXT_PUBLIC_WHATSAPP_NUMBER: '21699192829',
+              NEXT_PUBLIC_EAF_DEEP_LINK_BASE_URL: 'https://eaf.nexusreussite.academy',
+              NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: false,
+              NEXT_PUBLIC_JITSI_SERVER_URL: process.env.NEXT_PUBLIC_JITSI_SERVER_URL,
+            },
+          };
+          process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+          NODE
+          tar --sort=name --owner=0 --group=0 --numeric-owner -czf "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz" -C .next/standalone .
+          sha256sum "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz" > "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz.sha256"
+          echo "BUILD_ID=$build_id" >> "$GITHUB_STEP_SUMMARY"
+          echo "SOURCE_SHA=$SOURCE_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "WORKFLOW_SHA=$WORKFLOW_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "RUN_ID=$BUILD_RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+          echo "RUN_ATTEMPT=$BUILD_RUN_ATTEMPT" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/preview-delivery/delivery-provenance.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload deployable Preview artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: preview-standalone-${{ inputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/preview-delivery/
+          retention-days: 14
+          include-hidden-files: true
+          if-no-files-found: error
