@@ -11,7 +11,11 @@ import {
   resolveAriaModelPolicy,
   type AriaModelRequirements,
 } from './policy';
-import { buildAriaModelTransportRequest, resolveAriaModelTransportPolicy } from './transport-policy';
+import {
+  buildAriaModelProviderRouting,
+  buildAriaModelTransportRequest,
+  resolveAriaModelTransportPolicy,
+} from './transport-policy';
 
 export interface ChatMessage {
   readonly role: 'system' | 'user' | 'assistant';
@@ -200,6 +204,7 @@ export async function* streamChatCompletion(
                 maxTokens: options.maxTokens,
                 temperature: options.temperature,
               }),
+              ...buildAriaModelProviderRouting(candidate),
               stream: true,
             },
             { signal: execution.signal },

@@ -12,7 +12,7 @@ Service worker asynchrone pour le Nexus Pedagogy Cockpit.
                                                   │
                                                   ▼
                                            ┌──────────────┐
-                                           │ Chutes.ai/   │
+                                           │ OpenRouter/  │
                                            │ Ollama/Stub  │
                                            └──────────────┘
 ```
@@ -21,7 +21,7 @@ Service worker asynchrone pour le Nexus Pedagogy Cockpit.
 
 | Mode | Description | Usage |
 |------|-------------|-------|
-| `live` | Appels réels à Chutes.ai | Production |
+| `live` | Appels réels à OpenRouter (`openai/gpt-5-mini`, `provider.ignore=["chutes"]`) | Production |
 | `stub` | Réponses déterministes | Tests, staging |
 | `off` | Skip complètement | CI, debugging |
 
@@ -64,5 +64,4 @@ docker exec nexus-db psql -U nexus -c "SELECT status, COUNT(*) FROM ai_processin
 | `NPC_WORKER_POLL_INTERVAL_MS` | `5000` | Intervalle de polling (ms) |
 | `NPC_WORKER_LOCK_DURATION_MS` | `300000` | Durée de lock d'un job (ms) |
 | `NPC_MAX_RETRY_ATTEMPTS` | `3` | Nombre max de retries |
-| `CHUTES_API_KEY` | - | Clé API Chutes.ai |
-| `CHUTES_BASE_URL` | `https://api.chutes.ai` | URL base Chutes.ai |
+| `OPENROUTER_API_KEY` | - | Clé API OpenRouter (endpoint et modèle épinglés dans `lib/npc/config.ts`) |

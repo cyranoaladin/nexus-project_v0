@@ -145,7 +145,14 @@ describe('buildCompliantProviderPreferences', () => {
       require_parameters: true,
       allow_fallbacks: false,
       only: ['Amazon Bedrock'],
+      ignore: ['chutes'],
     });
+  });
+
+  test('fails explicitly instead of dropping the exclusion when the only qualified provider is chutes', () => {
+    expect(() => buildCompliantProviderPreferences([
+      { providerName: 'Chutes', tag: 'chutes', promptUsdPerToken: 0.000001, completionUsdPerToken: 0.000002 },
+    ])).toThrow('aucune route conforme');
   });
 });
 

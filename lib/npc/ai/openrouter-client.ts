@@ -1,26 +1,52 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// NPC AI - Chutes.ai API Client
-// HTTP client for Chutes.ai vision and chat completions
+// NPC AI - OpenRouter API Client
+// HTTP client for NPC vision (OCR) and JSON chat completions, via OpenRouter.
+// Chutes is retired: every request carries provider.ignore=["chutes"].
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { CHUTES_API_KEY, CHUTES_BASE_URL } from '../config';
+import {
+  assertNotExcludedEndpoint,
+  withExcludedProviders,
+} from '../../llm/provider-exclusion';
+import {
+  NPC_OPENROUTER_API_KEY,
+  NPC_OPENROUTER_BASE_URL,
+  NPC_OPENROUTER_MODEL,
+} from '../config';
+
+/** Per-call ceiling; the worker retries at job level (NPC_MAX_RETRY_ATTEMPTS). */
+const REQUEST_TIMEOUT_MS = 120_000;
+
+/**
+ * Proven transport shape of the pinned NPC model (GPT-5-family reasoning model
+ * on OpenRouter): output budget via max_completion_tokens, and no
+ * temperature. Same contract as ARIA's transport policy for this exact
+ * identity; NPC keeps its own copy so it does not import ARIA internals.
+ */
+const NPC_MODEL_TRANSPORT = Object.freeze({
+  outputTokenParameter: 'max_completion_tokens' as const,
+  temperatureSupported: false,
+});
 
 // ─── Types ───
 
-interface ChutesMessage {
+interface NpcMessage {
   role: 'system' | 'user' | 'assistant';
-  content: string | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }>;
+  content:
+    | string
+    | Array<
+        | { type: 'text'; text: string }
+        | { type: 'image_url'; image_url: { url: string } }
+      >;
 }
 
-interface ChutesCompletionRequest {
-  model: string;
-  messages: ChutesMessage[];
-  temperature?: number;
+interface NpcCompletionRequest {
+  messages: NpcMessage[];
+  /** Output budget (sent as max_completion_tokens for the pinned model). */
   max_tokens?: number;
-  response_format?: { type: 'json_object' } | { type: 'json_schema'; json_schema: unknown };
 }
 
-interface ChutesCompletionResponse {
+interface OpenRouterCompletionResponse {
   id: string;
   choices: Array<{
     message: {
@@ -36,68 +62,97 @@ interface ChutesCompletionResponse {
   };
 }
 
-export interface ChutesError {
+export interface NpcLlmError {
   error: string;
   status: number;
 }
 
 // ─── Client ───
 
-export class ChutesClient {
+export class OpenRouterClient {
   private apiKey: string;
   private baseUrl: string;
+  private fetchImpl: typeof fetch;
 
-  constructor() {
-    this.apiKey = CHUTES_API_KEY || '';
-    this.baseUrl = CHUTES_BASE_URL || 'https://api.chutes.ai';
-
-    if (!this.apiKey) {
-    }
+  constructor(
+    dependencies: {
+      fetchImpl?: typeof fetch;
+      apiKey?: string;
+      baseUrl?: string;
+    } = {}
+  ) {
+    this.apiKey = dependencies.apiKey ?? NPC_OPENROUTER_API_KEY;
+    this.baseUrl = dependencies.baseUrl ?? NPC_OPENROUTER_BASE_URL;
+    this.fetchImpl =
+      dependencies.fetchImpl ?? ((input, init) => fetch(input, init));
   }
 
-  async complete(request: ChutesCompletionRequest): Promise<{
-    success: true;
-    content: string;
-    tokens: { prompt: number; completion: number; total: number };
-    model: string;
-  } | {
-    success: false;
-    error: string;
-    status: number;
-  }> {
+  /** The exact JSON body sent to OpenRouter (exported through complete()). */
+  private buildBody(request: NpcCompletionRequest): Record<string, unknown> {
+    return {
+      model: NPC_OPENROUTER_MODEL,
+      messages: request.messages,
+      [NPC_MODEL_TRANSPORT.outputTokenParameter]: request.max_tokens ?? 8000,
+      provider: withExcludedProviders(),
+    };
+  }
+
+  async complete(request: NpcCompletionRequest): Promise<
+    | {
+        success: true;
+        content: string;
+        tokens: { prompt: number; completion: number; total: number };
+        model: string;
+        requestId: string | null;
+      }
+    | {
+        success: false;
+        error: string;
+        status: number;
+      }
+  > {
     try {
       if (!this.apiKey) {
         return {
           success: false,
-          error: 'CHUTES_API_KEY not configured',
+          error: 'OPENROUTER_API_KEY not configured',
           status: 500,
         };
       }
+      assertNotExcludedEndpoint(this.baseUrl);
 
-      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify(request),
-      });
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      let response: Response;
+      try {
+        response = await this.fetchImpl(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify(this.buildBody(request)),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
 
       if (!response.ok) {
-        const errorText = await response.text();
+        // Status only: the provider body can echo request content.
         return {
           success: false,
-          error: `HTTP ${response.status}: ${errorText}`,
+          error: `HTTP ${response.status}`,
           status: response.status,
         };
       }
 
-      const data = await response.json() as ChutesCompletionResponse;
+      const data = (await response.json()) as OpenRouterCompletionResponse;
 
       if (!data.choices?.[0]?.message?.content) {
         return {
           success: false,
-          error: 'Invalid response format from Chutes.ai',
+          error: 'Invalid response format from OpenRouter',
           status: 500,
         };
       }
@@ -110,7 +165,8 @@ export class ChutesClient {
           completion: data.usage?.completion_tokens || 0,
           total: data.usage?.total_tokens || 0,
         },
-        model: request.model,
+        model: NPC_OPENROUTER_MODEL,
+        requestId: data.id ?? null,
       };
     } catch (error) {
       return {
@@ -124,21 +180,27 @@ export class ChutesClient {
   /**
    * Vision OCR - Extract text from image
    */
-  async visionOcr(imageBase64: string, mimeType: string = 'image/png'): Promise<{
-    success: true;
-    text: string;
-    confidence: number;
-    tokens: { prompt: number; completion: number; total: number };
-  } | {
-    success: false;
-    error: string;
-  }> {
+  async visionOcr(
+    imageBase64: string,
+    mimeType: string = 'image/png'
+  ): Promise<
+    | {
+        success: true;
+        text: string;
+        confidence: number;
+        tokens: { prompt: number; completion: number; total: number };
+      }
+    | {
+        success: false;
+        error: string;
+      }
+  > {
     const result = await this.complete({
-      model: 'unsloth/Llama-3.2-11B-Vision-Instruct',
       messages: [
         {
           role: 'system',
-          content: 'Tu es un système OCR. Extrais tout le texte visible de cette image. Réponds UNIQUEMENT avec le texte extrait, sans commentaire. Si tu ne vois pas de texte lisible, réponds "NO_TEXT_DETECTED".',
+          content:
+            'Tu es un système OCR. Extrais tout le texte visible de cette image. Réponds UNIQUEMENT avec le texte extrait, sans commentaire. Si tu ne vois pas de texte lisible, réponds "NO_TEXT_DETECTED".',
         },
         {
           role: 'user',
@@ -156,7 +218,6 @@ export class ChutesClient {
           ],
         },
       ],
-      temperature: 0.1,
       max_tokens: 4000,
     });
 
@@ -165,7 +226,8 @@ export class ChutesClient {
     }
 
     const text = result.content.trim();
-    const confidence = text === 'NO_TEXT_DETECTED' ? 0 : this.estimateConfidence(text);
+    const confidence =
+      text === 'NO_TEXT_DETECTED' ? 0 : this.estimateConfidence(text);
 
     return {
       success: true,
@@ -179,24 +241,24 @@ export class ChutesClient {
    * Structured JSON completion with schema validation hint
    */
   async completeJson<T>(
-    messages: ChutesMessage[],
+    messages: NpcMessage[],
     schemaDescription: string,
     options: {
-      model?: string;
-      temperature?: number;
       max_tokens?: number;
     } = {}
-  ): Promise<{
-    success: true;
-    data: T;
-    tokens: { prompt: number; completion: number; total: number };
-  } | {
-    success: false;
-    error: string;
-    rawContent?: string;
-  }> {
+  ): Promise<
+    | {
+        success: true;
+        data: T;
+        tokens: { prompt: number; completion: number; total: number };
+      }
+    | {
+        success: false;
+        error: string;
+        rawContent?: string;
+      }
+  > {
     const result = await this.complete({
-      model: options.model || 'chutesai/Llama-4-Maverick-17B-128E-Instruct-FP8',
       messages: [
         {
           role: 'system',
@@ -204,7 +266,6 @@ export class ChutesClient {
         },
         ...messages,
       ],
-      temperature: options.temperature ?? 0.2,
       max_tokens: options.max_tokens || 8000,
     });
 
@@ -262,4 +323,4 @@ export class ChutesClient {
 }
 
 // Singleton instance
-export const chutesClient = new ChutesClient();
+export const openRouterClient = new OpenRouterClient();

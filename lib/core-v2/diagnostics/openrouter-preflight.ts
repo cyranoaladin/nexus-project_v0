@@ -10,6 +10,8 @@
  * function never calls /chat/completions.
  */
 
+import { withExcludedProviders } from '../../llm/provider-exclusion';
+
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 
 /** The exact model named in the owner's authorization — never substituted. */
@@ -141,11 +143,11 @@ export function computeWorstCaseCostUsd(
  */
 export function buildCompliantProviderPreferences(endpoints: readonly CompliantEndpoint[]) {
   const providerNames = Array.from(new Set(endpoints.map((e) => e.providerName)));
-  return {
+  return withExcludedProviders({
     zdr: true,
     data_collection: 'deny' as const,
     require_parameters: true,
     allow_fallbacks: false,
     only: providerNames,
-  };
+  });
 }

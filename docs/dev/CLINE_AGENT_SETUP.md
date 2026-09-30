@@ -12,22 +12,16 @@ This repository includes project-specific Cline configuration.
 ## Recommended Cline provider configuration
 
 Provider:
-OpenAI Compatible
+OpenRouter (native Cline provider). Chutes is retired: do not configure an
+OpenAI-compatible profile pointing at a Chutes domain, and add Chutes to the
+ignored providers of the OpenRouter account.
 
-Base URL:
-[https://llm.chutes.ai/v1](https://llm.chutes.ai/v1)
+The OpenRouter key is entered by the operator in Cline's secure key field; it
+is never written to this repository.
 
-Use only one model ID at a time.
-
-Recommended Plan model:
-Qwen/Qwen3.5-397B-A17B-TEE
-
-Recommended Act model:
-deepseek-ai/DeepSeek-V3.2-TEE
-
-Fallback:
-Plan: deepseek-ai/DeepSeek-V3.2-TEE
-Act: deepseek-ai/DeepSeek-V3.1-TEE
+Use only one model ID at a time. A first connectivity check may use
+`openai/gpt-5-mini`; that is a test choice, not a mandated development model.
+No `auto` and no latency alias.
 
 Recommended settings:
 

@@ -36,10 +36,15 @@ export const NPC_CONVERTED_FORMAT = process.env.NPC_CONVERTED_FORMAT || 'webp';
 
 // ─── AI Processing Settings ───
 
-/** Chutes.ai API configuration */
-export const CHUTES_API_KEY = process.env.CHUTES_API_KEY || '';
-export const CHUTES_BASE_URL =
-  process.env.CHUTES_BASE_URL || 'https://api.chutes.ai';
+/**
+ * OpenRouter configuration (Chutes is retired). The endpoint and the model are
+ * pinned, not env-overridable: no `auto`, no latency alias, no silent fallback.
+ * Initial NPC target is a technical/functional qualification choice, not a
+ * validation of pedagogical quality.
+ */
+export const NPC_OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
+export const NPC_OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
+export const NPC_OPENROUTER_MODEL = 'openai/gpt-5-mini';
 
 /** AI Job Worker settings */
 export const NPC_WORKER_POLL_INTERVAL_MS = parseInt(

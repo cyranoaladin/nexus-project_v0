@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // NPC Worker - AI Processing Service
-// Connects worker jobs to Chutes.ai with validation
+// Connects worker jobs to OpenRouter with validation
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { PrismaClient, AiJobType, CopySubmission } from '@prisma/client';
 import {
-  chutesClient,
+  openRouterClient,
   buildDiagnosisPrompt,
   buildMatrixPrompt,
   buildRoadmapPrompt,
@@ -74,11 +74,11 @@ export async function processPedagogicalDiagnosis(
       };
     }
 
-    // Call Chutes.ai
-    const result = await chutesClient.completeJson<PedagogicalDiagnostic>(
+    // Call OpenRouter
+    const result = await openRouterClient.completeJson<PedagogicalDiagnostic>(
       [{ role: 'user', content: prompt }],
       'PedagogicalDiagnosticSchema',
-      { temperature: 0.2, max_tokens: 8000 }
+      { max_tokens: 8000 }
     );
 
     if (!result.success) {
@@ -145,10 +145,10 @@ export async function processCompetenceMatrix(
       };
     }
 
-    const result = await chutesClient.completeJson<CompetenceMatrix>(
+    const result = await openRouterClient.completeJson<CompetenceMatrix>(
       [{ role: 'user', content: prompt }],
       'CompetenceMatrixSchema',
-      { temperature: 0.2, max_tokens: 6000 }
+      { max_tokens: 6000 }
     );
 
     if (!result.success) {
@@ -213,10 +213,10 @@ export async function processRemediationRoadmap(
       };
     }
 
-    const result = await chutesClient.completeJson<RemediationRoadmap>(
+    const result = await openRouterClient.completeJson<RemediationRoadmap>(
       [{ role: 'user', content: prompt }],
       'RemediationRoadmapSchema',
-      { temperature: 0.3, max_tokens: 8000 }
+      { max_tokens: 8000 }
     );
 
     if (!result.success) {
@@ -277,10 +277,10 @@ export async function processMentorAdvice(
       };
     }
 
-    const result = await chutesClient.completeJson<MentorAdvice>(
+    const result = await openRouterClient.completeJson<MentorAdvice>(
       [{ role: 'user', content: prompt }],
       'MentorAdviceSchema',
-      { temperature: 0.4, max_tokens: 4000 }
+      { max_tokens: 4000 }
     );
 
     if (!result.success) {
@@ -323,7 +323,7 @@ export async function processVisionOcr(
       };
     }
 
-    const result = await chutesClient.visionOcr(imageBase64, mimeType);
+    const result = await openRouterClient.visionOcr(imageBase64, mimeType);
 
     if (!result.success) {
       return { success: false, error: result.error };

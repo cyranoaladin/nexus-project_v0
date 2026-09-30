@@ -298,6 +298,49 @@ describe('ARIA provider-neutral model gateway', () => {
     expect(sentRequest).not.toHaveProperty('temperature');
   });
 
+  it('excludes chutes behind OPENROUTER_HOSTED on the primary attempt, and never adds a provider block elsewhere', async () => {
+    process.env.ARIA_MODEL_PROVIDER = 'OPENROUTER_HOSTED';
+    process.env.ARIA_MODEL = 'openai/gpt-5-mini';
+    process.env.ARIA_MODEL_BASE_URL = 'https://openrouter.ai/api/v1';
+    Object.assign(process.env, { OPENAI_API_KEY: openrouterCredential });
+    async function* chunks() {
+      yield { choices: [{ delta: { content: 'ok' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(chunks());
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) void chunk;
+    const [openRouterRequest] = mockCreate.mock.calls[0] as [{ provider?: unknown; stream?: boolean }];
+    expect(openRouterRequest.provider).toEqual({ ignore: ['chutes'] });
+    expect(openRouterRequest.stream).toBe(true);
+
+    mockCreate.mockReset();
+    delete process.env.ARIA_MODEL_BASE_URL;
+    setHostedEnvironment();
+    mockCreate.mockResolvedValueOnce(chunks());
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) void chunk;
+    expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('provider');
+  });
+
+  it('keeps the chutes exclusion on an OPENROUTER_HOSTED fallback candidate', async () => {
+    process.env.ARIA_MODEL_FALLBACK_PROVIDER = 'OPENROUTER_HOSTED';
+    process.env.ARIA_MODEL_FALLBACK_MODEL = 'openai/gpt-5-mini';
+    process.env.ARIA_MODEL_FALLBACK_BASE_URL = 'https://openrouter.ai/api/v1';
+    Object.assign(process.env, { ARIA_MODEL_FALLBACK_API_KEY: openrouterCredential });
+    process.env.ARIA_MODEL_FALLBACK_CAPABILITY_PROFILE = 'TEXT_STANDARD';
+    process.env.ARIA_MODEL_FALLBACK_AUTHORIZED = '1';
+    mockCreate.mockRejectedValueOnce(new Error('primary unavailable'));
+    async function* fallbackChunks() {
+      yield { choices: [{ delta: { content: 'via openrouter' } }] };
+    }
+    mockCreate.mockResolvedValueOnce(fallbackChunks());
+
+    const received: string[] = [];
+    for await (const chunk of streamChatCompletion([{ role: 'user', content: 'test' }])) received.push(chunk);
+
+    expect(received).toEqual(['via openrouter']);
+    expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('provider');
+    expect((mockCreate.mock.calls[1][0] as { provider?: unknown }).provider).toEqual({ ignore: ['chutes'] });
+  });
+
   it('sends the legacy gpt-4o-mini request shape: max_tokens and temperature, no GPT-5-specific field', async () => {
     async function* chunks() {
       yield { choices: [{ delta: { content: 'Réponse legacy.' } }] };
