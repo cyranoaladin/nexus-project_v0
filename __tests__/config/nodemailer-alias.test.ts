@@ -25,9 +25,9 @@ describe('SMTP transport dependency boundary', () => {
     expect(pkg.devDependencies?.nodemailer).toBeUndefined();
     // Keep the historical internal alias to avoid satisfying next-auth's
     // optional nodemailer@6 peer, but make the actual runtime major explicit.
-    // GHSA-6vj9-mwq6-2f5v is fixed in nodemailer >=10.0.2.
-    expect(pkg.dependencies?.nodemailer9).toBe('npm:nodemailer@10.0.2');
-    expect(pkg.overrides?.['ip-address']).toBe('10.5.1');
+    // Keep the historical alias boundary while consuming the patched 10.x line.
+    expect(pkg.dependencies?.nodemailer9).toBe('npm:nodemailer@10.0.13');
+    expect(pkg.overrides?.['ip-address']).toBe('10.7.2');
     expect(pkg.dependencies?.['next-auth']).toBe('5.0.0-beta.32');
     expect(pkg.dependencies?.['@auth/prisma-adapter']).toBe('2.11.3');
 
@@ -50,11 +50,17 @@ describe('SMTP transport dependency boundary', () => {
       fs.readFileSync(path.join(projectRoot, 'package-lock.json'), 'utf8'),
     ) as { packages?: Record<string, unknown> };
     expect(lockfile.packages?.['node_modules/nodemailer']).toBeUndefined();
-    expect(lockfile.packages?.['node_modules/ip-address']).toMatchObject({ version: '10.5.1' });
+    expect(lockfile.packages?.['node_modules/ip-address']).toMatchObject({ version: '10.7.2' });
     expect(lockfile.packages?.['node_modules/nodemailer9']).toMatchObject({
       name: 'nodemailer',
-      version: '10.0.2',
+      version: '10.0.13',
     });
+    expect(lockfile.packages?.['node_modules/fast-uri']).toMatchObject({ version: '3.1.8' });
+    expect(lockfile.packages?.['node_modules/moment']).toMatchObject({ version: '2.31.0' });
+    expect(lockfile.packages?.['node_modules/brace-expansion']).toMatchObject({ version: '1.1.21' });
+    expect(lockfile.packages?.['node_modules/cacache/node_modules/brace-expansion']).toMatchObject({ version: '2.1.7' });
+    expect(lockfile.packages?.['node_modules/@typescript-eslint/typescript-estree/node_modules/brace-expansion'])
+      .toMatchObject({ version: '5.0.12' });
   });
 
   it('verifies nodemailer9 runtime exports: createTransport, createTestAccount', () => {
