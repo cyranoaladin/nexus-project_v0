@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import yaml from 'js-yaml';
 import {
   validateSourceSelection,
   validateRequiredStatusChecks,
@@ -50,6 +51,60 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(workflow).toContain('validateVideoCspHeader');
     expect(workflow).toContain('validateVideoPermissionsPolicyHeader');
     expect(workflow).not.toContain('for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET JITSI_ROOM_SECRET');
+  });
+
+  it('qualifies disposable runtime storage before publishing the same standalone', () => {
+    const workflow = yaml.load(readFileSync(resolve(__dirname, '../../.github/workflows/preview-artifact.yml'), 'utf8')) as {
+      jobs: Record<string, { steps: Array<{ name?: string; run?: string }> }>;
+    };
+    const steps = workflow.jobs['build-preview-artifact'].steps as Array<{
+      name?: string; run?: string; env?: Record<string, string>;
+    }>;
+    const prepare = steps.findIndex((step) => step.name === 'Prepare isolated runtime storage');
+    const negative = steps.findIndex((step) => step.name === 'Prove standalone rejects missing NPC root');
+    const positive = steps.findIndex((step) => step.name === 'Smoke the built standalone server');
+    const archive = steps.findIndex((step) => step.name === 'Create deployable archive and provenance sidecar');
+    const upload = steps.findIndex((step) => step.name === 'Upload deployable Preview artifact');
+
+    expect(prepare).toBeGreaterThan(-1);
+    expect(negative).toBeGreaterThan(prepare);
+    expect(positive).toBeGreaterThan(negative);
+    expect(archive).toBeGreaterThan(positive);
+    expect(upload).toBeGreaterThan(archive);
+    expect(steps[prepare].run).toContain('prepare-preview-smoke-storage.sh');
+    expect(steps[negative].run).toContain('verify-preview-npc-startup-guard.sh');
+    expect(steps[positive].run).toContain('STANDALONE_HEALTH=PASS');
+    expect(steps[positive].run).toContain('kill -0 "$server_pid"');
+    expect(steps[positive].run).toContain('"$health_status" = 200');
+    expect(steps[positive].run).toMatch(/if health_status="\$\(curl/);
+    expect(steps[positive].run).not.toMatch(/health_status=.*\|\| true/);
+    expect(steps[archive].run).toContain('verify-preview-archive.js');
+    for (const [key, value] of Object.entries(steps[negative].env ?? {})) {
+      expect(steps[positive].env?.[key]).toEqual(value);
+    }
+
+    const ci = yaml.load(readFileSync(resolve(__dirname, '../../.github/workflows/ci.yml'), 'utf8')) as {
+      jobs: Record<string, { steps: Array<{ name?: string; run?: string; env?: Record<string, string> }> }>;
+    };
+    const ciSteps = ci.jobs['preview-video-disabled'].steps;
+    const ciPrepare = ciSteps.findIndex((step) => step.name === 'Prepare isolated runtime storage');
+    const ciCopy = ciSteps.findIndex((step) => step.name === 'Copy standalone away from checkout');
+    const ciNegative = ciSteps.findIndex((step) => step.name === 'Prove standalone rejects missing NPC root');
+    const ciPositive = ciSteps.findIndex((step) => step.name === 'Smoke DISABLED standalone and authenticated browser');
+    expect(ciSteps[ciPrepare]?.run)
+      .toContain('prepare-preview-smoke-storage.sh');
+    expect(ciNegative).toBeGreaterThan(ciCopy);
+    expect(ciPositive).toBeGreaterThan(ciNegative);
+    expect(ciSteps[ciNegative]?.run)
+      .toContain('verify-preview-npc-startup-guard.sh');
+    expect(ciSteps[ciNegative].env).toEqual(ciSteps[ciPositive].env);
+    expect(ciSteps[ciPositive].run).toContain('"$health_status" = 200');
+    expect(ciSteps[ciPositive].run).toMatch(/if health_status="\$\(curl/);
+    expect(ciSteps[ciPositive].run).not.toMatch(/health_status=.*\|\| true/);
+    expect(ciSteps[ciPositive].run).toContain('kill -0 "$server_pid"');
+    expect(ciSteps[ciPositive].run).toContain('pid=$server_pid,');
+    expect(ciSteps.some((step) => step.name === 'Upload NPC startup smoke evidence' &&
+      step.run === undefined)).toBe(true);
   });
 
   it('uses only the immutable workflow dispatch commit on main', () => {

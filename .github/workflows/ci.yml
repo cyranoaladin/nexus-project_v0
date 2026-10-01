@@ -2106,11 +2106,7 @@ jobs:
         shell: bash
         run: |
           set -Eeuo pipefail
-          npc_storage_root="$RUNNER_TEMP/video-disabled-npc"
-          document_storage_root="$RUNNER_TEMP/video-disabled-documents"
-          install -d -m 0700 -- "$npc_storage_root" "$document_storage_root"
-          printf 'NPC_STORAGE_ROOT=%s\n' "$(realpath -- "$npc_storage_root")" >> "$GITHUB_ENV"
-          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$(realpath -- "$document_storage_root")" >> "$GITHUB_ENV"
+          bash scripts/release/prepare-preview-smoke-storage.sh
 
       - name: Generate Prisma Client
         run: |
@@ -2142,6 +2138,38 @@ jobs:
           install -d -m 0700 -- "$RUNNER_TEMP/video-disabled-standalone"
           cp -a -- .next/standalone/. "$RUNNER_TEMP/video-disabled-standalone/"
 
+      - name: Prove standalone rejects missing NPC root
+        shell: bash
+        env:
+          CORE_V2_AUTH_MODE: V1_ONLY
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
+          NEXUS_DISPOSABLE_POSTGRES: '1'
+          NEXTAUTH_URL: http://localhost:3211
+          NEXT_PUBLIC_APP_URL: http://localhost:3211
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          NODE_ENV: production
+          NEXT_PUBLIC_VIDEO_MODE: DISABLED
+          HOSTNAME: localhost
+          PORT: '3211'
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_KEY_SECRET: ${{ github.sha }}
+          RATE_LIMIT_KEY_NAMESPACE: nexus-ci-disabled
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ${{ github.sha }}
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-disabled@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+        run: |
+          set -Eeuo pipefail
+          cd "$RUNNER_TEMP/video-disabled-standalone"
+          bash "$GITHUB_WORKSPACE/scripts/release/verify-preview-npc-startup-guard.sh" \
+            "$RUNNER_TEMP/preview-delivery-proofs/npc-missing-root.log"
+
       - name: Smoke DISABLED standalone and authenticated browser
         shell: bash
         env:
@@ -2171,11 +2199,24 @@ jobs:
         run: |
           set -Eeuo pipefail
           cd "$RUNNER_TEMP/video-disabled-standalone"
-          node server.js &
+          if [ -n "$(ss -H -ltn '( sport = :3211 )')" ]; then
+            echo 'DISABLED_STANDALONE_PORT_ALREADY_OCCUPIED' >&2
+            exit 1
+          fi
+          node server.js >"$RUNNER_TEMP/preview-delivery-proofs/ci-standalone-positive.log" 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
           for attempt in {1..30}; do
-            if curl --fail --silent http://localhost:3211/api/health >/dev/null; then
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              echo 'DISABLED_STANDALONE_PROCESS_EXITED_BEFORE_READY' >&2
+              exit 1
+            fi
+            if health_status="$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 3 http://localhost:3211/api/health)" && [ "$health_status" = 200 ]; then
+              listener_details="$(ss -H -ltnp '( sport = :3211 )')"
+              if [[ "$listener_details" != *"pid=$server_pid,"* ]]; then
+                echo 'DISABLED_STANDALONE_HEALTH_LISTENER_NOT_OWNED_BY_SERVER' >&2
+                exit 1
+              fi
               break
             fi
             if (( attempt == 30 )); then
@@ -2206,6 +2247,15 @@ jobs:
           })().catch((error) => { console.error(error); process.exitCode = 1; });
           NODE
           node scripts/testing/verify-video-disabled-browser.mjs http://localhost:3211
+
+      - name: Upload NPC startup smoke evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: preview-npc-smoke-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/preview-delivery-proofs/
+          retention-days: 14
+          if-no-files-found: ignore
 
   # ===========================================================================
   # ARIA-B QUALIFICATION: HERMETIC JEST LANES

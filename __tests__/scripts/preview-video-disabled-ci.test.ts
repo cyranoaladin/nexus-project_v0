@@ -31,7 +31,7 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(smoke.run).toContain('validateVideoCspHeader');
     expect(smoke.run).toContain('validateVideoPermissionsPolicyHeader');
     expect(job.steps.some((step: { run?: string }) => step.run?.includes('verify-video-disabled-browser.mjs'))).toBe(true);
-    expect(smoke.run).toContain('node server.js &');
+    expect(smoke.run).toMatch(/node server\.js >"\$RUNNER_TEMP\/preview-delivery-proofs\/ci-standalone-positive\.log" 2>&1 &/);
     expect(smoke.run).toContain('cd "$GITHUB_WORKSPACE"');
   });
 
