@@ -48,6 +48,7 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(workflow).toContain('NEXT_PUBLIC_VIDEO_MODE: process.env.NEXT_PUBLIC_VIDEO_MODE');
     expect(workflow).toContain('manifest.VIDEO_MODE !== process.env.NEXT_PUBLIC_VIDEO_MODE');
     expect(workflow).toContain('validateVideoCspHeader');
+    expect(workflow).toContain('validateVideoPermissionsPolicyHeader');
     expect(workflow).not.toContain('for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET JITSI_ROOM_SECRET');
   });
 
@@ -226,6 +227,8 @@ describe('Preview artifact builder source and provenance guards', () => {
       "frame-src 'self' https://video.example.org https://attacker.example/https://meet.jit.si",
       'https://video.example.org',
     )).toEqual([]);
+    expect(validateJitsiCspHeader("frame-src 'self'", 'not-a-url'))
+      .toContain('JITSI_CSP_CONFIGURED_ORIGIN_INVALID');
   });
 
   it('requires an explicit dispatch mode and refuses ambiguous Jitsi settings', () => {
@@ -235,10 +238,16 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(validateVideoDispatch('UNKNOWN', '')).toContain('VIDEO_MODE_INVALID');
     expect(validateVideoDispatch('DISABLED', 'https://video.example.org')).toContain('JITSI_URL_FORBIDDEN_WHEN_VIDEO_DISABLED');
     expect(validateVideoDispatch('JITSI', '')).toContain('JITSI_URL_REQUIRED');
+    expect(validateVideoDispatch('JITSI', 'not-a-url')).toContain('JITSI_URL_INVALID');
     expect(validateVideoDispatch('JITSI', 'https://meet.jit.si')).toContain('JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK');
   });
 
   it('checks CSP grants according to the explicitly built video mode', () => {
+    expect(validateVideoCspHeader(undefined, 'DISABLED', '')).toContain('VIDEO_CSP_MISSING');
+    expect(validateVideoCspHeader("script-src 'self'", 'DISABLED', ''))
+      .toContain('VIDEO_CSP_FRAME_SRC_MISSING');
+    expect(validateVideoCspHeader("frame-src 'self'", 'DISABLED', ''))
+      .toContain('VIDEO_CSP_SCRIPT_SRC_MISSING');
     expect(validateVideoCspHeader("frame-src 'self'; script-src 'self'", 'DISABLED', '')).toEqual([]);
     expect(validateVideoCspHeader("frame-src 'self' https://meet.jit.si", 'DISABLED', ''))
       .toContain('JITSI_CSP_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
@@ -263,6 +272,8 @@ describe('Preview artifact builder source and provenance guards', () => {
   });
 
   it('checks camera and microphone delegation for the configured mode', () => {
+    expect(validateVideoPermissionsPolicyHeader(undefined, 'DISABLED', ''))
+      .toContain('VIDEO_PERMISSIONS_POLICY_MISSING');
     expect(validateVideoPermissionsPolicyHeader('camera=(self), microphone=(self), geolocation=()', 'DISABLED', ''))
       .toEqual([]);
     expect(validateVideoPermissionsPolicyHeader('camera=(), microphone=()', 'DISABLED', ''))

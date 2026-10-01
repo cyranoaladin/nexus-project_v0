@@ -52,15 +52,27 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(result.stderr).not.toContain(databaseUrl);
   });
 
-  it('exercises the direct join action on an owned disposable booking and proves it is unchanged', () => {
+  it('pins the direct-join guards in the CI smoke that runs against the standalone', () => {
     const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
     expect(smoke).toContain('prisma.sessionBooking.create(');
     expect(smoke).toContain('context.request.post(`${origin}/api/sessions/${fixtureBookingId}`)');
     expect(smoke).toContain("joinResponse.status() !== 503");
-    expect(smoke).toContain("joinPayload.error !== 'VIDEO_DISABLED'");
+    expect(smoke).toContain("joinPayload.error !== 'VIDEO_DISABLED' || 'roomName' in joinPayload");
     expect(smoke).toContain('prisma.sessionBooking.findUnique(');
     expect(smoke).toContain('VIDEO_BROWSER_BOOKING_MUTATED');
     expect(smoke).toContain('prisma.sessionBooking.delete(');
+  });
+
+  it('keeps the disposable booking within one calendar day and always attempts user cleanup', () => {
+    const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
+    expect(smoke).toContain('const endTime = `${hour}:59`');
+    expect(smoke).toContain('duration: 59');
+    const bookingDelete = smoke.indexOf('prisma.sessionBooking.delete(');
+    const firstCleanupCatch = smoke.indexOf('} catch {', bookingDelete);
+    const usersDelete = smoke.indexOf('prisma.user.deleteMany(', bookingDelete);
+    expect(bookingDelete).toBeGreaterThan(-1);
+    expect(firstCleanupCatch).toBeGreaterThan(bookingDelete);
+    expect(usersDelete).toBeGreaterThan(firstCleanupCatch);
   });
 
   it('keeps the existing legacy JITSI Production Build job', () => {

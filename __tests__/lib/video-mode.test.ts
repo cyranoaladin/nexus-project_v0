@@ -21,7 +21,9 @@ describe('the single video availability contract', () => {
   });
 
   it.each(['', 'disabled', 'JITSI_DISABLED', ' DISABLED '])('refuses an unknown or ambiguous mode %p', (mode) => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = mode;
     expect(() => parseVideoMode(mode)).toThrow('VIDEO_MODE_INVALID');
+    expect(() => getVideoMode()).toThrow('VIDEO_MODE_INVALID');
   });
 
   it.each([

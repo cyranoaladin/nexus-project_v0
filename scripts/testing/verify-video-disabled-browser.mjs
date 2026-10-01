@@ -80,9 +80,9 @@ try {
   fixtureUserIds.push(coach.id);
   const tunisNow = new Date(Date.now() + 60 * 60 * 1000);
   const scheduledDate = new Date(Date.UTC(tunisNow.getUTCFullYear(), tunisNow.getUTCMonth(), tunisNow.getUTCDate()));
-  const startTime = `${String(tunisNow.getUTCHours()).padStart(2, '0')}:${String(tunisNow.getUTCMinutes()).padStart(2, '0')}`;
-  const endHour = (tunisNow.getUTCHours() + 1) % 24;
-  const endTime = `${String(endHour).padStart(2, '0')}:${String(tunisNow.getUTCMinutes()).padStart(2, '0')}`;
+  const hour = String(tunisNow.getUTCHours()).padStart(2, '0');
+  const startTime = `${hour}:00`;
+  const endTime = `${hour}:59`;
   const booking = await prisma.sessionBooking.create({
     data: {
       parentId: user.id,
@@ -93,7 +93,7 @@ try {
       scheduledDate,
       startTime,
       endTime,
-      duration: 60,
+      duration: 59,
     },
     select: { id: true },
   });
@@ -193,6 +193,11 @@ try {
   } finally {
     try {
       if (fixtureBookingId) await prisma.sessionBooking.delete({ where: { id: fixtureBookingId } });
+    } catch {
+      console.error('VIDEO_BROWSER_FIXTURE_CLEANUP_FAILED');
+      process.exitCode = 1;
+    }
+    try {
       if (fixtureUserIds.length) await prisma.user.deleteMany({ where: { id: { in: fixtureUserIds } } });
     } catch {
       console.error('VIDEO_BROWSER_FIXTURE_CLEANUP_FAILED');

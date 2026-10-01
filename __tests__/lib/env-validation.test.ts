@@ -162,10 +162,13 @@ describe('validateEnv', () => {
       expect(message).not.toContain('NEXT_PUBLIC_JITSI_SERVER_URL');
     });
 
-    it('refuses a non-HTTPS or fixture Jitsi URL in explicit JITSI mode', () => {
+    it.each([
+      'http://video.example.org',
+      'https://meet.jit.si',
+    ])('refuses an insecure or public-fallback Jitsi URL in explicit JITSI mode: %s', (url) => {
       setNodeEnv('production');
       process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
-      process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'http://meet.jit.si';
+      process.env.NEXT_PUBLIC_JITSI_SERVER_URL = url;
       expect(() => loadValidateEnv()()).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL');
     });
 

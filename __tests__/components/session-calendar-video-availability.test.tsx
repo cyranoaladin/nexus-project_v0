@@ -24,7 +24,7 @@ describe('SessionCalendar video entry point', () => {
     else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
   });
 
-  function renderToday() {
+  function renderToday(selectDay = true) {
     const now = new Date();
     const start = new Date(now.getTime() - 10 * 60 * 1000);
     const end = new Date(now.getTime() + 20 * 60 * 1000);
@@ -34,7 +34,9 @@ describe('SessionCalendar video entry point', () => {
       scheduledDate: now, startTime: hhmm(start), endTime: hhmm(end),
       status: 'SCHEDULED', coach: null,
     }]} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Choisir aujourd’hui' }));
+    if (selectDay) {
+      fireEvent.click(screen.getByRole('button', { name: 'Choisir aujourd’hui' }));
+    }
   }
 
   it('keeps booking available while replacing Join with the disabled message', () => {
@@ -54,5 +56,29 @@ describe('SessionCalendar video entry point', () => {
     expect(screen.getByRole('link', { name: /Rejoindre la session/ })).toHaveAttribute(
       'href', '/session/video?sessionId=session-1',
     );
+  });
+
+  it('retains the legacy Join link when the video mode is absent', () => {
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+    renderToday();
+
+    expect(screen.getByRole('link', { name: /Rejoindre la session/ })).toHaveAttribute(
+      'href', '/session/video?sessionId=session-1',
+    );
+  });
+
+  it('refuses an invalid video mode instead of silently showing Join or DISABLED', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      renderToday(false);
+      expect(screen.getByRole('heading', { name: 'Une erreur est survenue' })).toBeVisible();
+      expect(screen.queryByRole('link', { name: /Rejoindre la session/ })).toBeNull();
+      expect(screen.queryByText('Visioconférence intégrée non activée sur cette Preview.')).toBeNull();
+      expect(consoleError.mock.calls.some(([, error]) =>
+        error instanceof Error && error.message === 'VIDEO_MODE_INVALID')).toBe(true);
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });

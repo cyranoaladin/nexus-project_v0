@@ -174,6 +174,29 @@ describe('applySecurityHeaders', () => {
     }
   });
 
+  it.each([
+    'http://video.example.org',
+    'https://video.example.org/path',
+    'https://meet.jit.si',
+  ])('refuses an unqualified explicit JITSI origin in production CSP: %s', (url) => {
+    const previousNodeEnv = Object.getOwnPropertyDescriptor(process.env, 'NODE_ENV');
+    const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+    const previousUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'production' });
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = url;
+    try {
+      expect(() => applySecurityHeaders(response)).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
+    } finally {
+      if (previousNodeEnv) Object.defineProperty(process.env, 'NODE_ENV', previousNodeEnv);
+      else delete (process.env as Record<string, string | undefined>).NODE_ENV;
+      if (previousMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+      else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
+      if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      else process.env.NEXT_PUBLIC_JITSI_SERVER_URL = previousUrl;
+    }
+  });
+
   it('should return the same response object', () => {
     const result = applySecurityHeaders(response);
     expect(result).toBe(response);
