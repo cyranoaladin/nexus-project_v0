@@ -37,7 +37,8 @@ const [{ PrismaClient }, { default: bcrypt }, { chromium }] = await Promise.all(
 
 const prisma = new PrismaClient();
 let browser;
-let fixtureId;
+const fixtureUserIds = [];
+let fixtureBookingId;
 
 function fail(code) {
   throw new Error(code);
@@ -63,7 +64,40 @@ try {
     },
     select: { id: true },
   });
-  fixtureId = user.id;
+  fixtureUserIds.push(user.id);
+
+  // A real, currently joinable booking proves that the server rejects the
+  // direct action after ownership/window checks, without changing its state.
+  const student = await prisma.user.create({
+    data: { email: `video-student-${randomUUID()}@example.test`, role: 'ELEVE', firstName: 'CI', lastName: 'Student' },
+    select: { id: true },
+  });
+  fixtureUserIds.push(student.id);
+  const coach = await prisma.user.create({
+    data: { email: `video-coach-${randomUUID()}@example.test`, role: 'COACH', firstName: 'CI', lastName: 'Coach' },
+    select: { id: true },
+  });
+  fixtureUserIds.push(coach.id);
+  const tunisNow = new Date(Date.now() + 60 * 60 * 1000);
+  const scheduledDate = new Date(Date.UTC(tunisNow.getUTCFullYear(), tunisNow.getUTCMonth(), tunisNow.getUTCDate()));
+  const startTime = `${String(tunisNow.getUTCHours()).padStart(2, '0')}:${String(tunisNow.getUTCMinutes()).padStart(2, '0')}`;
+  const endHour = (tunisNow.getUTCHours() + 1) % 24;
+  const endTime = `${String(endHour).padStart(2, '0')}:${String(tunisNow.getUTCMinutes()).padStart(2, '0')}`;
+  const booking = await prisma.sessionBooking.create({
+    data: {
+      parentId: user.id,
+      studentId: student.id,
+      coachId: coach.id,
+      subject: 'MATHEMATIQUES',
+      title: 'CI synthetic video-disabled booking',
+      scheduledDate,
+      startTime,
+      endTime,
+      duration: 60,
+    },
+    select: { id: true },
+  });
+  fixtureBookingId = booking.id;
 
   browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
@@ -106,9 +140,9 @@ try {
       if (response.status() >= 500) serverErrors += 1;
     });
 
-    // The query value is deliberately not a booking. The disabled client page
-    // must show availability without attempting the POST join action.
-    const response = await page.goto(`${origin}/session/video?sessionId=ci-disabled-${randomUUID()}`, {
+    // The disabled client page must show availability without attempting the
+    // POST join action even when the parent owns an eligible booking.
+    const response = await page.goto(`${origin}/session/video?sessionId=${fixtureBookingId}`, {
       waitUntil: 'load',
     });
     if (response?.status() !== 200) fail(`VIDEO_BROWSER_HTTP_${response?.status() ?? 'NO_RESPONSE'}`);
@@ -119,13 +153,28 @@ try {
     if (new URL(page.url()).pathname !== '/session/video') fail('VIDEO_BROWSER_REDIRECTED');
     await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 
-    if (joinPosts) fail(`VIDEO_BROWSER_JOIN_POSTS_${joinPosts}`);
+    if (joinPosts) fail(`VIDEO_BROWSER_AUTO_JOIN_POSTS_${joinPosts}`);
     if (jitsiRequests) fail(`VIDEO_BROWSER_JITSI_REQUESTS_${jitsiRequests}`);
     if (pageErrors) fail(`VIDEO_BROWSER_PAGE_ERRORS_${pageErrors}`);
     if (consoleErrors) fail(`VIDEO_BROWSER_CONSOLE_ERRORS_${consoleErrors}`);
     if (serverErrors) fail(`VIDEO_BROWSER_SERVER_ERRORS_${serverErrors}`);
+
+    const bookingBefore = await prisma.sessionBooking.findUnique({
+      where: { id: fixtureBookingId },
+    });
+    if (bookingBefore?.status !== 'SCHEDULED') fail('VIDEO_BROWSER_BOOKING_BASELINE_INVALID');
+    const joinResponse = await context.request.post(`${origin}/api/sessions/${fixtureBookingId}`);
+    if (joinResponse.status() !== 503) fail(`VIDEO_BROWSER_JOIN_HTTP_${joinResponse.status()}`);
+    const joinPayload = await joinResponse.json();
+    if (joinPayload.error !== 'VIDEO_DISABLED' || 'roomName' in joinPayload) fail('VIDEO_BROWSER_JOIN_RESPONSE_INVALID');
+    const bookingAfter = await prisma.sessionBooking.findUnique({
+      where: { id: fixtureBookingId },
+    });
+    if (JSON.stringify(bookingAfter) !== JSON.stringify(bookingBefore)) fail('VIDEO_BROWSER_BOOKING_MUTATED');
     console.log('VIDEO_AUTHENTICATED_DISABLED_UI=PASS');
-    console.log('VIDEO_BROWSER_JOIN_POSTS=0');
+    console.log('VIDEO_AUTHENTICATED_JOIN_REFUSED=PASS');
+    console.log('VIDEO_BOOKING_UNCHANGED=PASS');
+    console.log('VIDEO_BROWSER_AUTO_JOIN_POSTS=0');
     console.log('VIDEO_BROWSER_JITSI_REQUESTS=0');
     console.log('VIDEO_BROWSER_PAGE_ERRORS=0');
     console.log('VIDEO_BROWSER_CONSOLE_ERRORS=0');
@@ -142,10 +191,13 @@ try {
   try {
     if (browser) await browser.close();
   } finally {
-    if (fixtureId) await prisma.user.delete({ where: { id: fixtureId } }).catch(() => {
+    try {
+      if (fixtureBookingId) await prisma.sessionBooking.delete({ where: { id: fixtureBookingId } });
+      if (fixtureUserIds.length) await prisma.user.deleteMany({ where: { id: { in: fixtureUserIds } } });
+    } catch {
       console.error('VIDEO_BROWSER_FIXTURE_CLEANUP_FAILED');
       process.exitCode = 1;
-    });
+    }
     await prisma.$disconnect();
   }
 }

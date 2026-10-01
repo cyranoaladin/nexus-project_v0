@@ -52,6 +52,17 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(result.stderr).not.toContain(databaseUrl);
   });
 
+  it('exercises the direct join action on an owned disposable booking and proves it is unchanged', () => {
+    const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
+    expect(smoke).toContain('prisma.sessionBooking.create(');
+    expect(smoke).toContain('context.request.post(`${origin}/api/sessions/${fixtureBookingId}`)');
+    expect(smoke).toContain("joinResponse.status() !== 503");
+    expect(smoke).toContain("joinPayload.error !== 'VIDEO_DISABLED'");
+    expect(smoke).toContain('prisma.sessionBooking.findUnique(');
+    expect(smoke).toContain('VIDEO_BROWSER_BOOKING_MUTATED');
+    expect(smoke).toContain('prisma.sessionBooking.delete(');
+  });
+
   it('keeps the existing legacy JITSI Production Build job', () => {
     const workflow = yaml.load(readFileSync(workflowPath, 'utf8')) as any;
     const build = workflow.jobs.build;
