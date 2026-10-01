@@ -223,7 +223,10 @@ jobs:
   unit:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Keep the real Chromium/PDF install and the full unit suite inside one job.
+    # Runner package installation exceeded four minutes in run 36870479694;
+    # the former ten-minute job cap cancelled Jest while tests were still running.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
