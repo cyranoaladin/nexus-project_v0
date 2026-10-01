@@ -17,8 +17,8 @@
       "artifactAllowed": false,
       "owner": "SECURITY_TECHNICAL_OWNER",
       "approvedOn": "2026-07-23",
-      "reviewBy": "2026-09-15",
-      "expiresOn": "2026-09-30"
+      "reviewBy": "2026-10-08",
+      "expiresOn": "2026-10-15"
     },
     {
       "type": "extraneous",
@@ -36,8 +36,8 @@
       "artifactAllowed": false,
       "owner": "SECURITY_TECHNICAL_OWNER",
       "approvedOn": "2026-07-23",
-      "reviewBy": "2026-09-15",
-      "expiresOn": "2026-09-30"
+      "reviewBy": "2026-10-08",
+      "expiresOn": "2026-10-15"
     }
   ]
 }
