@@ -1,5 +1,6 @@
 import 'server-only';
 import { createHmac } from 'node:crypto';
+import { getVideoMode } from './video-mode';
 
 /**
  * Server-only Jitsi helpers. Split out of lib/jitsi.ts specifically
@@ -63,6 +64,7 @@ function requiredJitsiRoomSecret(): string {
  * defense-in-depth on top of that, not a substitute for it.
  */
 export function resolveJitsiRoomNameForSession(sessionId: string): string {
+  if (getVideoMode() === 'DISABLED') throw new Error('VIDEO_DISABLED');
   const digest = createHmac('sha256', requiredJitsiRoomSecret()).update(sessionId).digest('hex');
   return `nexus-session-${digest.slice(0, 24)}`;
 }

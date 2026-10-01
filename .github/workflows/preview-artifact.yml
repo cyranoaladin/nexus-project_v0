@@ -3,9 +3,13 @@ name: Preview Artifact
 on:
   workflow_dispatch:
     inputs:
-      preview_jitsi_server_url:
-        description: Authorized HTTPS Jitsi service URL compiled into the Preview client
+      preview_video_mode:
+        description: Explicit Preview video mode (DISABLED or JITSI)
         required: true
+        type: string
+      preview_jitsi_server_url:
+        description: Authorized HTTPS Jitsi URL; required only for JITSI and forbidden for DISABLED
+        required: false
         type: string
 
 permissions:
@@ -57,9 +61,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Validate dispatch source, workflow ref, and public URL
+      - name: Validate dispatch source, workflow ref, and video configuration
         env:
           APPLICATION_SOURCE_SHA: ${{ github.sha }}
+          REQUESTED_VIDEO_MODE: ${{ inputs.preview_video_mode }}
           REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
           WORKFLOW_REF: ${{ github.ref }}
           WORKFLOW_EVENT_NAME: ${{ github.event_name }}
@@ -75,12 +80,13 @@ jobs:
             ref: process.env.WORKFLOW_REF,
             workflowSha: process.env.BUILDER_WORKFLOW_SHA,
           });
-          const urlErrors = guards.validateJitsiServerUrl(process.env.REQUESTED_JITSI_URL);
-          if (sourceErrors.length || urlErrors.length) throw new Error([...sourceErrors, ...urlErrors].join(','));
+          const videoErrors = guards.validateVideoDispatch(process.env.REQUESTED_VIDEO_MODE, process.env.REQUESTED_JITSI_URL);
+          if (sourceErrors.length || videoErrors.length) throw new Error([...sourceErrors, ...videoErrors].join(','));
           console.log(`APPLICATION_SOURCE_SHA=${process.env.APPLICATION_SOURCE_SHA}`);
           console.log(`BUILDER_WORKFLOW_SHA=${process.env.BUILDER_WORKFLOW_SHA}`);
           console.log('DISPATCH_SOURCE_VALID=YES');
-          console.log('JITSI_URL_SHAPE_VALID=YES');
+          console.log(`VIDEO_MODE=${process.env.REQUESTED_VIDEO_MODE}`);
+          console.log('VIDEO_DISPATCH_CONFIGURATION_VALID=YES');
           NODE
 
       - name: Verify source SHA checks are all successful
@@ -116,13 +122,20 @@ jobs:
 
       - name: Create ephemeral build-only secrets
         shell: bash
+        env:
+          REQUESTED_VIDEO_MODE: ${{ inputs.preview_video_mode }}
         run: |
           set -Eeuo pipefail
-          for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET JITSI_ROOM_SECRET EMAIL_OUTBOX_ENCRYPTION_KEY; do
+          for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET EMAIL_OUTBOX_ENCRYPTION_KEY; do
             value="$(openssl rand -hex 32)"
             echo "::add-mask::$value"
             printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
           done
+          if [ "$REQUESTED_VIDEO_MODE" = JITSI ]; then
+            value="$(openssl rand -hex 32)"
+            echo "::add-mask::$value"
+            printf '%s=%s\n' JITSI_ROOM_SECRET "$value" >> "$GITHUB_ENV"
+          fi
 
       - name: Generate Prisma clients
         working-directory: app
@@ -145,6 +158,7 @@ jobs:
           NEXT_PUBLIC_WHATSAPP_NUMBER: '21699192829'
           NEXT_PUBLIC_EAF_DEEP_LINK_BASE_URL: https://eaf.nexusreussite.academy
           NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: 'false'
+          NEXT_PUBLIC_VIDEO_MODE: ${{ inputs.preview_video_mode }}
           NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
           RELEASE_SHA: ${{ github.sha }}
           NODE_ENV: production
@@ -153,14 +167,11 @@ jobs:
 
       - name: Audit forbidden artifacts and runtime test configuration
         working-directory: app
-        env:
-          REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
         run: |
           set -Eeuo pipefail
           npm run artifact:traces
           npm run artifact:audit
           npm run security:forbidden-artifacts:artifact
-          node scripts/release/verify-preview-client-config.mjs
 
       - name: Smoke the built standalone server
         working-directory: app/.next/standalone
@@ -176,8 +187,11 @@ jobs:
           REDIS_URL: redis://localhost:6379
           RATE_LIMIT_KEY_NAMESPACE: preview-artifact
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          NEXT_PUBLIC_VIDEO_MODE: ${{ inputs.preview_video_mode }}
           NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
+          REQUESTED_VIDEO_MODE: ${{ inputs.preview_video_mode }}
           REQUESTED_JITSI_URL: ${{ inputs.preview_jitsi_server_url }}
+          PREVIEW_SMOKE_ORIGIN: http://localhost:3211
           NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           EMAIL_OUTBOX_WORKER_ENABLED: 'true'
           SMTP_HOST: 127.0.0.1
@@ -206,13 +220,17 @@ jobs:
           node --input-type=module <<'NODE'
           import { createRequire } from 'node:module';
           const require = createRequire(import.meta.url);
-          const { validateJitsiCspHeader } = require('../../scripts/release/preview-artifact-builder-guards.js');
+          const { validateVideoCspHeader, validateVideoPermissionsPolicyHeader } = require('../../scripts/release/preview-artifact-builder-guards.js');
           const response = await fetch('http://localhost:3211/');
           if (response.status >= 500) throw new Error(`STANDALONE_PUBLIC_PAGE_HTTP_${response.status}`);
-          const errors = validateJitsiCspHeader(response.headers.get('content-security-policy'), process.env.REQUESTED_JITSI_URL);
+          const errors = [
+            ...validateVideoCspHeader(response.headers.get('content-security-policy'), process.env.REQUESTED_VIDEO_MODE, process.env.REQUESTED_JITSI_URL),
+            ...validateVideoPermissionsPolicyHeader(response.headers.get('permissions-policy'), process.env.REQUESTED_VIDEO_MODE, process.env.REQUESTED_JITSI_URL),
+          ];
           if (errors.length) throw new Error(errors.join(','));
-          console.log('STANDALONE_JITSI_CSP=PASS');
+          console.log('STANDALONE_VIDEO_SECURITY_HEADERS=PASS');
           NODE
+          (cd ../.. && node scripts/release/verify-preview-client-config.mjs)
 
       - name: Create deployable archive and provenance sidecar
         working-directory: app
@@ -221,6 +239,7 @@ jobs:
           BUILDER_WORKFLOW_SHA: ${{ github.sha }}
           BUILD_RUN_ID: ${{ github.run_id }}
           BUILD_RUN_ATTEMPT: ${{ github.run_attempt }}
+          NEXT_PUBLIC_VIDEO_MODE: ${{ inputs.preview_video_mode }}
           NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
         run: |
           set -Eeuo pipefail
@@ -233,6 +252,10 @@ jobs:
           const manifest = JSON.parse(fs.readFileSync('.next/standalone/release-manifest.json', 'utf8'));
           if (manifest.BUILD_ID !== expected || manifest.ARTIFACT_VERIFIED !== true) throw new Error('RELEASE_MANIFEST_IDENTITY_INVALID');
           if (manifest.RELEASE_SHA !== process.env.APPLICATION_SOURCE_SHA) throw new Error('RELEASE_MANIFEST_SOURCE_MISMATCH');
+          if (manifest.VIDEO_MODE !== process.env.NEXT_PUBLIC_VIDEO_MODE) throw new Error('RELEASE_MANIFEST_VIDEO_MODE_MISMATCH');
+          if (manifest.VIDEO_MODE === 'JITSI' && manifest.JITSI_ORIGIN !== new URL(process.env.NEXT_PUBLIC_JITSI_SERVER_URL).origin) {
+            throw new Error('RELEASE_MANIFEST_JITSI_ORIGIN_MISMATCH');
+          }
           NODE
           test -f .next/standalone/server.js
           test -f .next/standalone/.next/BUILD_ID
@@ -260,7 +283,10 @@ jobs:
               NEXT_PUBLIC_WHATSAPP_NUMBER: '21699192829',
               NEXT_PUBLIC_EAF_DEEP_LINK_BASE_URL: 'https://eaf.nexusreussite.academy',
               NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: false,
-              NEXT_PUBLIC_JITSI_SERVER_URL: process.env.NEXT_PUBLIC_JITSI_SERVER_URL,
+              NEXT_PUBLIC_VIDEO_MODE: process.env.NEXT_PUBLIC_VIDEO_MODE,
+              ...(process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI'
+                ? { NEXT_PUBLIC_JITSI_SERVER_URL: process.env.NEXT_PUBLIC_JITSI_SERVER_URL }
+                : {}),
             },
           };
           process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);

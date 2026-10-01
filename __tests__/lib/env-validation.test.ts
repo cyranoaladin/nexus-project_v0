@@ -116,6 +116,49 @@ describe('validateEnv', () => {
   });
 
   describe('in production mode', () => {
+    it('does not require Jitsi URL or room secret when explicitly DISABLED', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      const result = loadValidateEnv()();
+      expect(result.ok).toBe(true);
+    });
+
+    it('refuses a leftover Jitsi URL in DISABLED mode without changing other secrets', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+      expect(() => loadValidateEnv()()).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL');
+    });
+
+    it('keeps Jitsi URL and room secret required in explicit JITSI mode', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      expect(() => loadValidateEnv()()).toThrow('JITSI_ROOM_SECRET');
+    });
+
+    it('refuses an unknown mode instead of silently disabling video', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
+      expect(() => loadValidateEnv()()).toThrow('VIDEO_MODE_INVALID');
+    });
+
+    it('refuses a non-HTTPS or fixture Jitsi URL in explicit JITSI mode', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'http://meet.jit.si';
+      expect(() => loadValidateEnv()()).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL');
+    });
+
+    it('requires a dedicated room secret of sufficient length in explicit JITSI mode', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      process.env.JITSI_ROOM_SECRET = 'x'.repeat(7);
+      expect(() => loadValidateEnv()()).toThrow('JITSI_ROOM_SECRET');
+    });
+
     it('throws if DATABASE_URL is missing', () => {
       setNodeEnv('production');
       delete process.env.DATABASE_URL;

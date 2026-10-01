@@ -42,4 +42,12 @@ describe('jitsi utils', () => {
     process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://visio.example.com/';
     expect(getJitsiDomain()).toBe('visio.example.com');
   });
+
+  it('does not permit Jitsi helpers in explicit DISABLED mode', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    expect(() => getJitsiServerUrl()).toThrow('VIDEO_DISABLED');
+    expect(() => getJitsiDomain()).toThrow('VIDEO_DISABLED');
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+  });
 });

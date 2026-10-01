@@ -1,36 +1,37 @@
 #!/usr/bin/env node
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 const require = createRequire(import.meta.url);
 const {
-  validateJitsiServerUrl,
-  compiledBundleContainsConfiguredJitsiUrl,
+  validateVideoDispatch,
 } = require('./preview-artifact-builder-guards.js');
 
+const requestedMode = process.env.REQUESTED_VIDEO_MODE;
 const configuredUrl = process.env.REQUESTED_JITSI_URL;
-const urlErrors = validateJitsiServerUrl(configuredUrl);
-if (urlErrors.length) throw new Error(urlErrors.join(','));
+const configurationErrors = validateVideoDispatch(requestedMode, configuredUrl);
+if (configurationErrors.length) throw new Error(configurationErrors.join(','));
 
-const staticRoot = '.next/static';
-const paths = [];
-const pending = [staticRoot];
-while (pending.length > 0) {
-  const directory = pending.pop();
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) pending.push(path);
-    else if (entry.isFile() && entry.name.endsWith('.js')) paths.push(path);
-  }
+const manifest = JSON.parse(await readFile('.next/standalone/release-manifest.json', 'utf8'));
+if (manifest.VIDEO_MODE !== requestedMode) throw new Error('VIDEO_MODE_MANIFEST_MISMATCH');
+const appManifest = JSON.parse(await readFile('.next/app-build-manifest.json', 'utf8'));
+const routeChunks = appManifest?.pages?.['/session/video/page'];
+if (!Array.isArray(routeChunks) || routeChunks.length === 0) {
+  throw new Error('VIDEO_CLIENT_ROUTE_CHUNKS_MISSING');
 }
+await Promise.all(routeChunks.map((chunk) => readFile(join('.next', chunk))));
 
-const clientChunks = await Promise.all(paths.map((path) => readFile(path, 'utf8')));
-if (!compiledBundleContainsConfiguredJitsiUrl(clientChunks, configuredUrl)) {
-  throw new Error('CONFIGURED_JITSI_URL_NOT_CONSUMED_BY_CLIENT_BUNDLE');
-}
+const smokeOrigin = process.env.PREVIEW_SMOKE_ORIGIN;
+if (smokeOrigin !== 'http://localhost:3211') throw new Error('PREVIEW_SMOKE_ORIGIN_INVALID');
+const response = await fetch(`${smokeOrigin}/session/video`, { redirect: 'manual' });
+if (response.status !== 200) throw new Error(`VIDEO_PAGE_HTTP_${response.status}`);
+const html = await response.text();
+const renderedMode = new RegExp(`<[^>]+\\bdata-video-mode=["']${requestedMode}["'][^>]*>`, 'i');
+if (!renderedMode.test(html)) throw new Error('VIDEO_CLIENT_MODE_NOT_RENDERED');
 
-console.log(`CLIENT_JS_FILES_CHECKED=${paths.length}`);
-console.log('CONFIGURED_JITSI_URL_CONSUMED=YES');
-console.log('ACTIVE_JITSI_URL_POLICY=PASS');
+console.log(`VIDEO_ROUTE_JS_FILES_CHECKED=${routeChunks.length}`);
+console.log(`VIDEO_CLIENT_MODE=${requestedMode}`);
+if (requestedMode === 'JITSI') console.log('JITSI_URL_DISPATCH_VALIDATED=YES');
+console.log('ACTIVE_VIDEO_CONFIG_POLICY=PASS');

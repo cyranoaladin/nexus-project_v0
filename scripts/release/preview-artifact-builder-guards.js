@@ -149,15 +149,25 @@ function validateJitsiServerUrl(value) {
   } catch {
     return ['JITSI_URL_INVALID'];
   }
-  if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.search || url.hash) {
+  if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
     return ['JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL'];
   }
   const hostname = url.hostname.toLowerCase();
-  if (hostname === 'localhost' || hostname.endsWith('.localhost') || hostname.endsWith('.test')) {
+  if (hostname === 'localhost' || hostname === '127.0.0.1'
+    || hostname.endsWith('.localhost') || hostname.endsWith('.test')
+    || hostname.endsWith('.example') || hostname.endsWith('.invalid')) {
     return ['JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST'];
   }
   if (hostname === 'meet.jit.si') return ['JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK'];
   return [];
+}
+
+function validateVideoDispatch(mode, url) {
+  if (mode === undefined || mode === null || mode === '') return ['VIDEO_MODE_REQUIRED'];
+  if (mode !== 'DISABLED' && mode !== 'JITSI') return ['VIDEO_MODE_INVALID'];
+  if (mode === 'DISABLED') return url ? ['JITSI_URL_FORBIDDEN_WHEN_VIDEO_DISABLED'] : [];
+  if (!url) return ['JITSI_URL_REQUIRED'];
+  return validateJitsiServerUrl(url);
 }
 
 function compiledBundleContainsConfiguredJitsiUrl(compiledFiles, configuredUrl) {
@@ -195,6 +205,64 @@ function validateJitsiCspHeader(header, configuredUrl) {
   });
   if (publicFallbackActive) return ['JITSI_CSP_PUBLIC_FALLBACK_ACTIVE'];
   return [];
+}
+
+function validateVideoCspHeader(header, mode, configuredUrl) {
+  const configurationErrors = validateVideoDispatch(mode, configuredUrl);
+  if (configurationErrors.length) return configurationErrors;
+  if (typeof header !== 'string') return ['VIDEO_CSP_MISSING'];
+  const directives = header.split(';').map((directive) => directive.trim().split(/\s+/));
+  const frameSources = directives.find(([name]) => name?.toLowerCase() === 'frame-src')?.slice(1);
+  const scriptSources = directives.find(([name]) => name?.toLowerCase() === 'script-src')?.slice(1);
+  const connectSources = directives.find(([name]) => name?.toLowerCase() === 'connect-src')?.slice(1) || [];
+  if (mode === 'JITSI') {
+    const frameErrors = validateJitsiCspHeader(header, configuredUrl);
+    if (frameErrors.length) return frameErrors;
+    const origin = new URL(configuredUrl).origin;
+    if (!scriptSources?.includes(origin)) return ['JITSI_CSP_SCRIPT_ORIGIN_MISSING'];
+    const allowedFrames = new Set(["'self'", origin, 'https://www.google.com', 'https://maps.google.com']);
+    const allowedScripts = new Set(["'self'", "'unsafe-inline'", "'unsafe-eval'", origin, 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com']);
+    const expectedWebSocket = `wss://${new URL(configuredUrl).host}`;
+    if (connectSources.some((source) => source.startsWith('wss:') && source !== expectedWebSocket)) {
+      return ['JITSI_CSP_UNAPPROVED_WEBSOCKET'];
+    }
+    return frameSources.some((source) => !allowedFrames.has(source))
+      || scriptSources.some((source) => !allowedScripts.has(source))
+      ? ['JITSI_CSP_UNAPPROVED_ORIGIN'] : [];
+  }
+  if (!frameSources) return ['VIDEO_CSP_FRAME_SRC_MISSING'];
+  const independentFrames = new Set(["'self'", 'https://www.google.com', 'https://maps.google.com']);
+  const independentScripts = new Set(["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.jsdelivr.net', 'https://www.googletagmanager.com']);
+  if (frameSources.some((source) => !independentFrames.has(source))
+    || scriptSources?.some((source) => !independentScripts.has(source))) {
+    return ['JITSI_CSP_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED'];
+  }
+  if (connectSources.some((source) => source.startsWith('wss:'))) {
+    return ['JITSI_CSP_WEBSOCKET_ACTIVE_WHEN_DISABLED'];
+  }
+  if (!scriptSources) return ['VIDEO_CSP_SCRIPT_SRC_MISSING'];
+  return [];
+}
+
+function validateVideoPermissionsPolicyHeader(header, mode, configuredUrl) {
+  const configurationErrors = validateVideoDispatch(mode, configuredUrl);
+  if (configurationErrors.length) return configurationErrors;
+  if (typeof header !== 'string') return ['VIDEO_PERMISSIONS_POLICY_MISSING'];
+  const grants = ['camera', 'microphone'].map((name) => {
+    const match = header.match(new RegExp(`(?:^|,)\\s*${name}=\\(([^)]*)\\)`));
+    return match?.[1].trim().split(/\s+/) || [];
+  });
+  if (grants.some((sources) => sources.length === 0)) return ['VIDEO_PERMISSIONS_POLICY_CAMERA_MIC_MISSING'];
+  if (mode === 'DISABLED') {
+    return grants.some((sources) => sources.some((source) => source !== 'self'))
+      ? ['JITSI_PERMISSION_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED'] : [];
+  }
+  const origin = new URL(configuredUrl).origin;
+  if (!grants.every((sources) => sources.includes(`"${origin}"`))) {
+    return ['JITSI_PERMISSION_CONFIGURED_ORIGIN_MISSING'];
+  }
+  return grants.some((sources) => sources.some((source) => source !== 'self' && source !== `"${origin}"`))
+    ? ['JITSI_PERMISSION_UNAPPROVED_ORIGIN'] : [];
 }
 
 function ghJsonLines(args) {
@@ -307,6 +375,9 @@ module.exports = {
   validateWorkflowQualification,
   validateRequiredPolicy,
   validateJitsiServerUrl,
+  validateVideoDispatch,
   compiledBundleContainsConfiguredJitsiUrl,
   validateJitsiCspHeader,
+  validateVideoCspHeader,
+  validateVideoPermissionsPolicyHeader,
 };

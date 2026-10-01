@@ -14,14 +14,24 @@ import { createHash } from 'crypto';
 import { join, relative, resolve } from 'path';
 import { writeFile } from 'fs/promises';
 import { execSync } from 'child_process';
+import { createRequire } from 'node:module';
 
 import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
 
+const require = createRequire(import.meta.url);
+const { validateVideoDispatch } = require('./preview-artifact-builder-guards.js');
+
 const buildDir = resolve(process.argv[2] || process.cwd());
 const errors = [];
+const videoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+const jitsiUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
 
 function fail(msg) { errors.push(msg); console.error(`  FAIL: ${msg}`); }
 function ok(msg) { console.log(`  OK: ${msg}`); }
+if (videoMode !== undefined && videoMode !== 'DISABLED' && videoMode !== 'JITSI') fail('VIDEO_MODE_INVALID');
+if (videoMode === 'DISABLED' || videoMode === 'JITSI') {
+  for (const error of validateVideoDispatch(videoMode, jitsiUrl)) fail(error);
+}
 
 async function exists(p) {
   try { await stat(p); return true; } catch { return false; }
@@ -210,6 +220,8 @@ if (errors.length === 0) {
   const manifest = {
     RELEASE_SHA: releaseSha,
     BUILD_ID: buildId,
+    ...(videoMode === undefined ? {} : { VIDEO_MODE: videoMode }),
+    ...(videoMode === 'JITSI' ? { JITSI_ORIGIN: new URL(jitsiUrl).origin } : {}),
     NODE_VERSION: nodeVersion,
     NPM_VERSION: npmVersion,
     NEXT_VERSION: nextVersion,

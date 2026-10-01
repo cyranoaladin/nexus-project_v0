@@ -2,10 +2,18 @@ import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
 
 describe('resolveJitsiRoomNameForSession', () => {
   const previousJitsiSecret = process.env.JITSI_ROOM_SECRET;
+  const previousVideoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
 
   afterEach(() => {
     if (previousJitsiSecret === undefined) delete process.env.JITSI_ROOM_SECRET;
     else process.env.JITSI_ROOM_SECRET = previousJitsiSecret;
+    if (previousVideoMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+    else process.env.NEXT_PUBLIC_VIDEO_MODE = previousVideoMode;
+  });
+
+  it('cannot mint a room when video is disabled, even with a leftover secret', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    expect(() => resolveJitsiRoomNameForSession('session-1')).toThrow('VIDEO_DISABLED');
   });
 
   it('is deterministic for the same sessionId', () => {

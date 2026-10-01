@@ -13,6 +13,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import SessionBooking from "@/components/ui/session-booking";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { cn } from "@/lib/utils";
+import { getVideoMode } from "@/lib/video-mode";
+import Link from "next/link";
 import "react-day-picker/style.css";
 
 interface SessionData {
@@ -45,6 +47,7 @@ const SessionCalendarInner = memo(function SessionCalendarInner({
   className,
   onBookingComplete 
 }: SessionCalendarProps) {
+  const videoMode = getVideoMode();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
@@ -230,17 +233,21 @@ const SessionCalendarInner = memo(function SessionCalendarInner({
                       </div>
 
                       {isSessionScheduledToday(session) && session.status.toUpperCase() === 'SCHEDULED' && (
-                        <Button
-                          size="sm"
-                          className="w-full mt-2"
-                          onClick={() => {
-                            window.location.href = `/session/${session.id}`;
-                          }}
-                          aria-label={`Rejoindre la session ${session.title}`}
-                        >
-                          <Video className="h-3 w-3 mr-1" aria-hidden="true" />
-                          Rejoindre la session
-                        </Button>
+                        videoMode === 'DISABLED' ? (
+                          <p role="status" className="text-xs text-gray-600 mt-2">
+                            Visioconférence intégrée non activée sur cette Preview.
+                          </p>
+                        ) : (
+                          <Button size="sm" className="w-full mt-2" asChild>
+                            <Link
+                              href={`/session/video?sessionId=${encodeURIComponent(session.id)}`}
+                              aria-label={`Rejoindre la session ${session.title}`}
+                            >
+                              <Video className="h-3 w-3 mr-1" aria-hidden="true" />
+                              Rejoindre la session
+                            </Link>
+                          </Button>
+                        )
                       )}
                     </div>
                   ))}

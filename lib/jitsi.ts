@@ -1,3 +1,5 @@
+import { getVideoMode, parseDedicatedJitsiUrl } from './video-mode';
+
 /**
  * Utilitaires pour la gestion des salles de visioconférence Jitsi
  * Implémentation selon les directives CTO pour Nexus Réussite
@@ -35,8 +37,18 @@ const DEV_TEST_JITSI_SERVER_URL_FIXTURE = 'https://meet.jit.si';
  * une fixture explicitement nommée comme telle.
  */
 export function getJitsiServerUrl(): string {
+  if (getVideoMode() === 'DISABLED') {
+    throw new Error('VIDEO_DISABLED');
+  }
   const configured = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
-  if (configured) return configured;
+  if (configured) {
+    // The legacy (mode-absent) production path preserves its previous URL
+    // contract. An explicit JITSI delivery requires a dedicated HTTPS origin.
+    if (process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI' && process.env.NODE_ENV === 'production') {
+      parseDedicatedJitsiUrl(configured);
+    }
+    return configured;
+  }
   if (process.env.NODE_ENV === 'production') {
     throw new Error(
       'NEXT_PUBLIC_JITSI_SERVER_URL is not configured. Production must never fall back to the public meet.jit.si server — configure a dedicated Jitsi deployment.',

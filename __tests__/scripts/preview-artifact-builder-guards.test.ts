@@ -9,6 +9,9 @@ import {
   validateJitsiServerUrl,
   compiledBundleContainsConfiguredJitsiUrl,
   validateJitsiCspHeader,
+  validateVideoDispatch,
+  validateVideoCspHeader,
+  validateVideoPermissionsPolicyHeader,
 } from '../../scripts/release/preview-artifact-builder-guards';
 import { validateArchiveEntries } from '../../scripts/release/verify-preview-archive';
 
@@ -34,6 +37,18 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(workflow).toContain('ref: ${{ github.sha }}');
     expect(workflow).toContain('Deliberately no setup-node cache');
     expect(workflow).toMatch(/^  pull-requests: read$/m);
+  });
+
+  it('dispatches with an explicit video mode and carries it through build and provenance', () => {
+    const workflow = readFileSync(resolve(__dirname, '../../.github/workflows/preview-artifact.yml'), 'utf8');
+    expect(workflow).toMatch(/preview_video_mode:\n\s+description:.*\n\s+required: true\n\s+type: string/);
+    expect(workflow).toMatch(/preview_jitsi_server_url:\n\s+description:.*\n\s+required: false/);
+    expect(workflow).toContain('validateVideoDispatch(process.env.REQUESTED_VIDEO_MODE, process.env.REQUESTED_JITSI_URL)');
+    expect(workflow).toContain('NEXT_PUBLIC_VIDEO_MODE: ${{ inputs.preview_video_mode }}');
+    expect(workflow).toContain('NEXT_PUBLIC_VIDEO_MODE: process.env.NEXT_PUBLIC_VIDEO_MODE');
+    expect(workflow).toContain('manifest.VIDEO_MODE !== process.env.NEXT_PUBLIC_VIDEO_MODE');
+    expect(workflow).toContain('validateVideoCspHeader');
+    expect(workflow).not.toContain('for key in NEXTAUTH_SECRET RATE_LIMIT_KEY_SECRET JITSI_ROOM_SECRET');
   });
 
   it('uses only the immutable workflow dispatch commit on main', () => {
@@ -169,6 +184,10 @@ describe('Preview artifact builder source and provenance guards', () => {
   it('rejects unapproved Jitsi hostnames and proves the configured value is consumed in client JS', () => {
     expect(validateJitsiServerUrl('https://video.example.org')).toEqual([]);
     expect(validateJitsiServerUrl('https://jitsi-ci.nexus-e2e.test')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+    expect(validateJitsiServerUrl('https://video.example')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+    expect(validateJitsiServerUrl('https://video.invalid')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+    expect(validateJitsiServerUrl('https://127.0.0.1')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+    expect(validateJitsiServerUrl('https://video.example.org/path')).toContain('JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL');
     expect(validateJitsiServerUrl('https://meet.jit.si')).toContain('JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK');
     expect(compiledBundleContainsConfiguredJitsiUrl([
       'const message="example.test is a fixture message";',
@@ -196,6 +215,51 @@ describe('Preview artifact builder source and provenance guards', () => {
       "frame-src 'self' https://video.example.org https://attacker.example/https://meet.jit.si",
       'https://video.example.org',
     )).toEqual([]);
+  });
+
+  it('requires an explicit dispatch mode and refuses ambiguous Jitsi settings', () => {
+    expect(validateVideoDispatch('DISABLED', '')).toEqual([]);
+    expect(validateVideoDispatch('JITSI', 'https://video.example.org')).toEqual([]);
+    expect(validateVideoDispatch(undefined, '')).toContain('VIDEO_MODE_REQUIRED');
+    expect(validateVideoDispatch('UNKNOWN', '')).toContain('VIDEO_MODE_INVALID');
+    expect(validateVideoDispatch('DISABLED', 'https://video.example.org')).toContain('JITSI_URL_FORBIDDEN_WHEN_VIDEO_DISABLED');
+    expect(validateVideoDispatch('JITSI', '')).toContain('JITSI_URL_REQUIRED');
+    expect(validateVideoDispatch('JITSI', 'https://meet.jit.si')).toContain('JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK');
+  });
+
+  it('checks CSP grants according to the explicitly built video mode', () => {
+    expect(validateVideoCspHeader("frame-src 'self'; script-src 'self'", 'DISABLED', '')).toEqual([]);
+    expect(validateVideoCspHeader("frame-src 'self' https://meet.jit.si", 'DISABLED', ''))
+      .toContain('JITSI_CSP_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
+    expect(validateVideoCspHeader("frame-src 'self'; script-src 'self' https://meet.jit.si", 'DISABLED', ''))
+      .toContain('JITSI_CSP_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
+    expect(validateVideoCspHeader("frame-src 'self'; script-src 'self'; connect-src 'self' wss:", 'DISABLED', ''))
+      .toContain('JITSI_CSP_WEBSOCKET_ACTIVE_WHEN_DISABLED');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org", 'JITSI', 'https://video.example.org'))
+      .toEqual([]);
+    expect(validateVideoCspHeader("frame-src 'self'", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_CONFIGURED_ORIGIN_MISSING');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self'", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_SCRIPT_ORIGIN_MISSING');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org https://*.jitsi.net; script-src 'self' https://video.example.org", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_UNAPPROVED_ORIGIN');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org https://meet.jit.si", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_UNAPPROVED_ORIGIN');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org; connect-src 'self' wss:", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_UNAPPROVED_WEBSOCKET');
+  });
+
+  it('checks camera and microphone delegation for the configured mode', () => {
+    expect(validateVideoPermissionsPolicyHeader('camera=(self), microphone=(self), geolocation=()', 'DISABLED', ''))
+      .toEqual([]);
+    expect(validateVideoPermissionsPolicyHeader('camera=(self "https://meet.jit.si"), microphone=(self)', 'DISABLED', ''))
+      .toContain('JITSI_PERMISSION_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
+    expect(validateVideoPermissionsPolicyHeader('camera=(self "https://video.example.org"), microphone=(self "https://video.example.org")', 'JITSI', 'https://video.example.org'))
+      .toEqual([]);
+    expect(validateVideoPermissionsPolicyHeader('camera=(self), microphone=(self)', 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_PERMISSION_CONFIGURED_ORIGIN_MISSING');
+    expect(validateVideoPermissionsPolicyHeader('camera=(self "https://video.example.org" *), microphone=(self "https://video.example.org")', 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_PERMISSION_UNAPPROVED_ORIGIN');
   });
 
   it('requires a safe deployable archive with hidden standalone files and preserved executable modes', () => {

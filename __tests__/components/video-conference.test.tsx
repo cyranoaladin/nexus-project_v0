@@ -28,6 +28,7 @@ describe('VideoConference', () => {
     cleanup();
     delete (window as any).JitsiMeetExternalAPI;
     delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
   });
 
   const baseProps = {
@@ -38,6 +39,20 @@ describe('VideoConference', () => {
     isHost: false,
     onLeave: jest.fn(),
   };
+
+  it('does not construct Jitsi or load its script when video is DISABLED', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    const { rerender } = render(<VideoConference {...baseProps} />);
+
+    expect(constructorSpy).not.toHaveBeenCalled();
+    expect(document.querySelector('iframe')).toBeNull();
+    expect(document.querySelector('script[src*="external_api.js"]')).toBeNull();
+    expect(document.body).toHaveTextContent('Visioconférence intégrée non activée sur cette Preview.');
+
+    delete (window as any).JitsiMeetExternalAPI;
+    rerender(<VideoConference {...baseProps} />);
+    expect(document.querySelector('script[src*="external_api.js"]')).toBeNull();
+  });
 
   it('initialises JitsiMeetExternalAPI with the configured domain, not a hardcoded one', () => {
     process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://visio.nexusreussite.academy';

@@ -318,3 +318,52 @@ describe('POST /api/sessions/[sessionId] — explicit join, mutates', () => {
     expect(body.status).toBe(SessionStatus.IN_PROGRESS);
   });
 });
+
+describe.each([
+  ['GET', GET],
+  ['POST', POST],
+] as const)('%s /api/sessions/[sessionId] — DISABLED video', (_label, handler) => {
+  const previousVideoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+  const previousJitsiSecret = process.env.JITSI_ROOM_SECRET;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers().setSystemTime(SESSION_START_UTC);
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    delete process.env.JITSI_ROOM_SECRET;
+    (auth as jest.Mock).mockResolvedValue(baseSession);
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValue(null);
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue(buildBooking());
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    if (previousVideoMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+    else process.env.NEXT_PUBLIC_VIDEO_MODE = previousVideoMode;
+    if (previousJitsiSecret === undefined) delete process.env.JITSI_ROOM_SECRET;
+    else process.env.JITSI_ROOM_SECRET = previousJitsiSecret;
+  });
+
+  it('keeps authentication and ownership checks before exposing availability', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce(null);
+    const unauthenticated = await handler(makeRequest() as any, params());
+    expect(unauthenticated.status).toBe(401);
+
+    (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    const unowned = await handler(makeRequest() as any, params('unowned'));
+    expect(unowned.status).toBe(404);
+  });
+
+  it('returns VIDEO_DISABLED without a room or booking transition', async () => {
+    const response = await handler(makeRequest() as any, params());
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body).toEqual({
+      error: 'VIDEO_DISABLED',
+      message: 'Visioconférence intégrée non activée sur cette Preview.',
+    });
+    expect(prisma.sessionBooking.findFirst).toHaveBeenCalledTimes(1);
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
+  });
+});
