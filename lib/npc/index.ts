@@ -11,8 +11,9 @@ export {
   NPC_PDF_DPI,
   NPC_IMAGE_QUALITY,
   NPC_CONVERTED_FORMAT,
-  CHUTES_API_KEY,
-  CHUTES_BASE_URL,
+  NPC_OPENROUTER_API_KEY,
+  NPC_OPENROUTER_BASE_URL,
+  NPC_OPENROUTER_MODEL,
   NPC_WORKER_POLL_INTERVAL_MS,
   NPC_WORKER_LOCK_DURATION_MS,
   NPC_MAX_RETRY_ATTEMPTS,
@@ -79,5 +80,5 @@ export {
   type PageInfo,
 } from './pdf-converter';
 
-// AI Services (Chutes.ai integration)
+// AI Services (OpenRouter integration)
 export * from './ai';

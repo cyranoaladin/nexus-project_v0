@@ -1,4 +1,5 @@
 import { AriaError } from '../../kernel/errors';
+import { withExcludedProviders } from '../../../llm/provider-exclusion';
 import type { AriaModelProvider } from './policy';
 
 /**
@@ -137,4 +138,18 @@ export function buildAriaModelTransportRequest(
       ? { temperature: options.temperature ?? DEFAULT_TEMPERATURE }
       : {}),
   });
+}
+
+/**
+ * The OpenRouter-only routing fragment. OpenRouter can route a model to any of
+ * its upstream providers, including ones this organisation has retired
+ * (Chutes); the exclusion therefore travels with every request body -- primary
+ * attempt, fallback candidate, stream -- rather than living in account
+ * settings alone. Direct/local providers never receive a `provider` field.
+ */
+export function buildAriaModelProviderRouting(
+  identity: AriaModelIdentity,
+): Readonly<Record<string, ReturnType<typeof withExcludedProviders>>> {
+  if (identity.provider !== 'OPENROUTER_HOSTED') return Object.freeze({});
+  return Object.freeze({ provider: withExcludedProviders() });
 }

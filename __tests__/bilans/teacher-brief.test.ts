@@ -227,6 +227,7 @@ describe('teacher-brief — appel modèle, un appel par domaine', () => {
     const impl: typeof fetch = (async (_url: unknown, init?: RequestInit) => {
       const body = JSON.parse(String(init?.body));
       calls.push({ body });
+      expect(body.provider.ignore).toContain('chutes');
       const facts = JSON.parse(body.messages[1].content) as typeof FACTS;
       expect(facts.domainesPrioritaires).toHaveLength(1);
       const asked = facts.domainesPrioritaires[0];
