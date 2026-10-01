@@ -19,7 +19,7 @@
 
 ### Task 2: Minimal smoke repair (GREEN)
 
-**Files:** `.github/workflows/preview-artifact.yml`, `.github/workflows/ci.yml`, `scripts/release/verify-preview-npc-startup-guard.sh`
+**Files:** `.github/workflows/preview-artifact.yml`, `.github/workflows/ci.yml`, `scripts/release/prepare-preview-smoke-storage.sh`, `scripts/release/verify-preview-npc-startup-guard.sh`
 
 - [ ] Add preparation step using `$RUNNER_TEMP`, `mktemp -d`, mode 0700, `realpath`, and `GITHUB_ENV`; verify non-symlink, owner, read/write/traverse and no overlap with checkout/standalone. Use `GITHUB_ENV` only in later steps, or export in the same shell. Compare the remaining startup env with the qualified CI lane and add nothing speculative.
 - [ ] Add bounded negative control on the **same built standalone** with all other canonical prereqs: unset only `NPC_STORAGE_ROOT` for a separate server process; require nonzero exit, exact `NPC_STORAGE_PREFLIGHT_FAILED`, no ready/listener; retain bounded raw log without secrets and without filtering away the marker.

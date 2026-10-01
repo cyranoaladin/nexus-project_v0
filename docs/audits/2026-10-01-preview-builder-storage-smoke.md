@@ -16,10 +16,12 @@ Le même script prépare désormais des racines jetables privées et distinctes 
 
 Le builder conserve ses gardes source, GitGuardian, PDF.js, secrets, manifeste, SHA, BUILD_ID et digest. Aucune variable de Preview réelle ni donnée privée n'est copiée sur GitHub. Le run historique reste une preuve d'échec, non une réussite réinterprétée.
 
+Après la première CI verte de PR, la revue a mis en évidence deux faux positifs possibles dans le harnais : une panne de la sonde `ss` pouvait passer inaperçue dans la contre-épreuve, et un répertoire de preuves préexistant sous forme de lien symbolique pouvait dévier les logs. Les deux cas sont désormais refusés explicitement, avec tests rouges puis verts. Le lancement négatif reste borné mais dispose de 60 secondes par défaut sur un runner froid (au lieu de 15), sans élargir le délai de santé du smoke positif.
+
 ## Vérifications
 
 - Test RED : le contrat Jest a échoué parce que l'étape de préparation n'existait pas.
-- Tests locaux après correction : six suites ciblées (gardes builder, préparation, contre-épreuve, lane vidéo et architecture stockage) — 53/53 PASS. Le test de santé a été vu rouge avant correction : `curl` doit se terminer avec succès **et** répondre HTTP 200.
+- Tests locaux avant durcissement de revue : six suites ciblées (gardes builder, préparation, contre-épreuve, lane vidéo et architecture stockage) — 53/53 PASS. Le test de santé a été vu rouge avant correction : `curl` doit se terminer avec succès **et** répondre HTTP 200. Après revue, les deux nouveaux contre-tests `ss` et lien symbolique ont échoué avant correction, puis les six suites ciblées ont passé 55/55 tests.
 - `bash -n` des deux scripts : PASS. Les deux workflows se parsèrent ; leurs 190 blocs `run` passent `bash -n`.
 - Lint ciblé des tests : PASS. Typecheck complet : PASS après génération locale des clients Prisma dans le worktree.
 - Revue indépendante du diff final : aucun défaut bloquant relevé ; elle ne remplace pas la preuve runtime CI.

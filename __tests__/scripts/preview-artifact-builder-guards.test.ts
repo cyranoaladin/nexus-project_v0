@@ -79,9 +79,13 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(steps[positive].run).toMatch(/if health_status="\$\(curl/);
     expect(steps[positive].run).not.toMatch(/health_status=.*\|\| true/);
     expect(steps[archive].run).toContain('verify-preview-archive.js');
-    for (const [key, value] of Object.entries(steps[negative].env ?? {})) {
-      expect(steps[positive].env?.[key]).toEqual(value);
-    }
+    const { REQUESTED_VIDEO_MODE, REQUESTED_JITSI_URL, PREVIEW_SMOKE_ORIGIN, ...positiveStartupEnv } = steps[positive].env ?? {};
+    expect({ REQUESTED_VIDEO_MODE, REQUESTED_JITSI_URL, PREVIEW_SMOKE_ORIGIN }).toEqual({
+      REQUESTED_VIDEO_MODE: '${{ inputs.preview_video_mode }}',
+      REQUESTED_JITSI_URL: '${{ inputs.preview_jitsi_server_url }}',
+      PREVIEW_SMOKE_ORIGIN: 'http://localhost:3211',
+    });
+    expect(steps[negative].env).toEqual(positiveStartupEnv);
 
     const ci = yaml.load(readFileSync(resolve(__dirname, '../../.github/workflows/ci.yml'), 'utf8')) as {
       jobs: Record<string, { steps: Array<{ name?: string; run?: string; env?: Record<string, string> }> }>;
