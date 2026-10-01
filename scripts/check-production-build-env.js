@@ -54,7 +54,7 @@ const disposableE2eFixture = mode === 'e2e'
 // The absent mode is the previous production build contract. It still needs
 // an URL and is JITSI at runtime, but was not a Preview dispatch choice.
 const videoErrors = videoMode === undefined
-  ? (jitsiUrl ? [] : ['LEGACY_JITSI_URL_REQUIRED'])
+  ? (jitsiUrl?.trim() ? [] : ['LEGACY_JITSI_URL_REQUIRED'])
   : disposableE2eFixture ? [] : validateVideoDispatch(videoMode, jitsiUrl);
 if (videoErrors.length) throw new Error(`BUILD_VIDEO_CONFIG_INVALID:${videoErrors.join(',')}`);
 console.log(`BUILD_ENV_CHECK=PASS (mode=${mode})`);

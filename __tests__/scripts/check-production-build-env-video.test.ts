@@ -25,12 +25,14 @@ describe('production build video configuration', () => {
 
   it('rejects DISABLED with a supplied URL', () => {
     expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'DISABLED', NEXT_PUBLIC_JITSI_SERVER_URL: 'https://video.example.org' }))
-      .toThrow();
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:JITSI_URL_FORBIDDEN_WHEN_VIDEO_DISABLED/);
   });
 
   it('requires Jitsi config for JITSI and legacy absent mode', () => {
-    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'JITSI' })).toThrow();
-    expect(() => check({})).toThrow();
+    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'JITSI' }))
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:JITSI_URL_REQUIRED/);
+    expect(() => check({}))
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:LEGACY_JITSI_URL_REQUIRED/);
   });
 
   it('accepts a dedicated HTTPS origin and room secret for JITSI', () => {
@@ -44,13 +46,15 @@ describe('production build video configuration', () => {
   });
 
   it('rejects an unknown mode and a public Jitsi fallback', () => {
-    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'UNKNOWN' })).toThrow();
-    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: '' })).toThrow(/VIDEO_MODE_REQUIRED/);
+    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'UNKNOWN' }))
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:VIDEO_MODE_INVALID/);
+    expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: '' }))
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:VIDEO_MODE_REQUIRED/);
     expect(() => check({
       NEXT_PUBLIC_VIDEO_MODE: 'JITSI',
       NEXT_PUBLIC_JITSI_SERVER_URL: 'https://meet.jit.si',
       JITSI_ROOM_SECRET: 'x'.repeat(32),
-    })).toThrow();
+    })).toThrow(/BUILD_VIDEO_CONFIG_INVALID:JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK/);
   });
 
   it('uses Next dotenv precedence when the process does not override the mode', () => {
@@ -95,5 +99,10 @@ describe('production build video configuration', () => {
       .toContain('BUILD_ENV_CHECK=PASS');
     expect(() => check({ NEXT_PUBLIC_VIDEO_MODE: 'JITSI', NEXT_PUBLIC_JITSI_SERVER_URL: fixtureUrl }))
       .toThrow();
+  });
+
+  it('rejects a whitespace-only legacy Jitsi URL before producing an artifact', () => {
+    expect(() => check({ NEXT_PUBLIC_JITSI_SERVER_URL: '   ' }))
+      .toThrow(/BUILD_VIDEO_CONFIG_INVALID:LEGACY_JITSI_URL_REQUIRED/);
   });
 });
