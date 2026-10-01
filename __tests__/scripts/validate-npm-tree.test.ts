@@ -12,6 +12,17 @@ const testPlatform = {
   arch: os.arch(),
 };
 
+/**
+ * Fixture dates are relative to the real clock: the validator is spawned as a child
+ * process and reads `new Date()` itself, so absolute dates would silently expire the
+ * "valid exception" fixtures on a given day. UTC, to match the validator's own day.
+ */
+function isoDay(offsetDays: number): string {
+  const day = new Date();
+  day.setUTCDate(day.getUTCDate() + offsetDays);
+  return day.toISOString().slice(0, 10);
+}
+
 function writeJson(file: string, value: unknown): void {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
@@ -40,8 +51,8 @@ const exceptionFile = {
     artifactAllowed: false,
     owner: 'SECURITY_OWNER',
     approvedOn: '2026-07-23',
-    reviewBy: '2026-09-15',
-    expiresOn: '2026-09-30',
+    reviewBy: isoDay(7),
+    expiresOn: isoDay(14),
   }],
 };
 
@@ -111,8 +122,8 @@ describe('validate-npm-tree', () => {
           artifactAllowed: false,
           owner: 'SECURITY_OWNER',
           approvedOn: '2026-07-23',
-          reviewBy: '2026-09-15',
-          expiresOn: '2026-09-30',
+          reviewBy: isoDay(7),
+          expiresOn: isoDay(14),
         },
       ],
     });
@@ -176,7 +187,7 @@ describe('validate-npm-tree', () => {
 
   it('rejects a review date after the exception expiry', () => {
     const invalidReviewWindow = JSON.parse(JSON.stringify(exceptionFile));
-    invalidReviewWindow.exceptions[0].reviewBy = '2026-10-01';
+    invalidReviewWindow.exceptions[0].reviewBy = isoDay(15);
 
     const result = runValidator(
       { name: 'root', path: '/repo', dependencies: {} },
