@@ -12,6 +12,16 @@ const testPlatform = {
   arch: os.arch(),
 };
 
+/**
+ * Fixed fixture dates, independent of the real clock. The validator runs as a child
+ * process and reads the real clock itself, so "valid" fixtures use dates far in the
+ * future (and the expired case a fixed past date): the outcome cannot change with the
+ * day the suite runs.
+ */
+const FIXTURE_REVIEW_BY = '2099-01-08';
+const FIXTURE_EXPIRES_ON = '2099-01-15';
+const FIXTURE_REVIEW_AFTER_EXPIRY = '2099-01-16';
+
 function writeJson(file: string, value: unknown): void {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
@@ -40,8 +50,8 @@ const exceptionFile = {
     artifactAllowed: false,
     owner: 'SECURITY_OWNER',
     approvedOn: '2026-07-23',
-    reviewBy: '2026-09-15',
-    expiresOn: '2026-09-30',
+    reviewBy: FIXTURE_REVIEW_BY,
+    expiresOn: FIXTURE_EXPIRES_ON,
   }],
 };
 
@@ -111,8 +121,8 @@ describe('validate-npm-tree', () => {
           artifactAllowed: false,
           owner: 'SECURITY_OWNER',
           approvedOn: '2026-07-23',
-          reviewBy: '2026-09-15',
-          expiresOn: '2026-09-30',
+          reviewBy: FIXTURE_REVIEW_BY,
+          expiresOn: FIXTURE_EXPIRES_ON,
         },
       ],
     });
@@ -176,7 +186,7 @@ describe('validate-npm-tree', () => {
 
   it('rejects a review date after the exception expiry', () => {
     const invalidReviewWindow = JSON.parse(JSON.stringify(exceptionFile));
-    invalidReviewWindow.exceptions[0].reviewBy = '2026-10-01';
+    invalidReviewWindow.exceptions[0].reviewBy = FIXTURE_REVIEW_AFTER_EXPIRY;
 
     const result = runValidator(
       { name: 'root', path: '/repo', dependencies: {} },
