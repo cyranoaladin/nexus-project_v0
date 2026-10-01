@@ -9,6 +9,7 @@ describe('jitsi utils', () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
   });
 
   afterAll(() => {
@@ -41,5 +42,20 @@ describe('jitsi utils', () => {
   it('strips the protocol and trailing slash for the bare domain', () => {
     process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://visio.example.com/';
     expect(getJitsiDomain()).toBe('visio.example.com');
+  });
+
+  it('does not permit Jitsi helpers in explicit DISABLED mode', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://video.nexusreussite.academy';
+    expect(() => getJitsiServerUrl()).toThrow('VIDEO_DISABLED');
+    expect(() => getJitsiDomain()).toThrow('VIDEO_DISABLED');
+  });
+
+  it('uses the normalized origin for explicit production JITSI', () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'HTTPS://video.nexusreussite.academy/';
+    setNodeEnv('production');
+    expect(getJitsiServerUrl()).toBe('https://video.nexusreussite.academy');
+    expect(getJitsiDomain()).toBe('video.nexusreussite.academy');
   });
 });

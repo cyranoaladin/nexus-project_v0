@@ -19,8 +19,17 @@ export async function register() {
       process.exit(1);
     }
 
-    const { validateEnv } = await import('./lib/env-validation');
-    validateEnv();
+    try {
+      const { validateEnv } = await import('./lib/env-validation');
+      validateEnv();
+      const { assertStandaloneVideoMode } = await import('./lib/video-mode-runtime');
+      assertStandaloneVideoMode();
+    } catch (error) {
+      // Next may swallow a rejected instrumentation hook. A runtime mode that
+      // contradicts the compiled client/manifest must prevent readiness.
+      console.error('VIDEO_OR_ENV_PREFLIGHT_FAILED', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
 
     // Auth rollout mode (landing mission §10): HYBRID / V2_ONLY never start
     // without a verified Core v2 database identity; a bad mode never starts.

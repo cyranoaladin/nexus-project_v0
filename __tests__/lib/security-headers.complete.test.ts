@@ -117,6 +117,86 @@ describe('applySecurityHeaders', () => {
     }
   });
 
+  it('omits Jitsi grants while preserving same-origin microphone access when video is DISABLED', () => {
+    const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+    const previousUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    try {
+      applySecurityHeaders(response);
+      const csp = response.headers.get('Content-Security-Policy') ?? '';
+      const pp = response.headers.get('Permissions-Policy') ?? '';
+      expect(csp).not.toContain('meet.jit.si');
+      expect(csp).not.toContain('jitsi.net');
+      expect(csp).not.toContain('wss:');
+      expect(pp).toContain('microphone=(self)');
+      expect(pp).not.toContain('meet.jit.si');
+    } finally {
+      if (previousMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+      else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
+      if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      else process.env.NEXT_PUBLIC_JITSI_SERVER_URL = previousUrl;
+    }
+  });
+
+  it('retains legacy Jitsi CSP grants when the mode is absent', () => {
+    const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+    try {
+      applySecurityHeaders(response);
+      const csp = response.headers.get('Content-Security-Policy') ?? '';
+      expect(csp).toContain('wss:');
+      expect(csp).toContain('https://*.jitsi.net');
+    } finally {
+      if (previousMode !== undefined) process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
+    }
+  });
+
+  it('scopes explicit JITSI CSP and media delegation to its validated origin', () => {
+    const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+    const previousUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = 'https://visio.nexusreussite.academy';
+    try {
+      applySecurityHeaders(response);
+      const csp = response.headers.get('Content-Security-Policy') ?? '';
+      const pp = response.headers.get('Permissions-Policy') ?? '';
+      expect(csp).toContain('https://visio.nexusreussite.academy');
+      expect(csp).toContain('wss://visio.nexusreussite.academy');
+      expect(csp).not.toContain('https://*.jitsi.net');
+      expect(csp).not.toContain('meet.jit.si');
+      expect(pp).toContain('camera=(self "https://visio.nexusreussite.academy")');
+    } finally {
+      if (previousMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+      else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
+      if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      else process.env.NEXT_PUBLIC_JITSI_SERVER_URL = previousUrl;
+    }
+  });
+
+  it.each([
+    'http://video.example.org',
+    'https://video.example.org/path',
+    'https://meet.jit.si',
+  ])('refuses an unqualified explicit JITSI origin in production CSP: %s', (url) => {
+    const previousNodeEnv = Object.getOwnPropertyDescriptor(process.env, 'NODE_ENV');
+    const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+    const previousUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+    Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, writable: true, value: 'production' });
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+    process.env.NEXT_PUBLIC_JITSI_SERVER_URL = url;
+    try {
+      expect(() => applySecurityHeaders(response)).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
+    } finally {
+      if (previousNodeEnv) Object.defineProperty(process.env, 'NODE_ENV', previousNodeEnv);
+      else delete (process.env as Record<string, string | undefined>).NODE_ENV;
+      if (previousMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+      else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
+      if (previousUrl === undefined) delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      else process.env.NEXT_PUBLIC_JITSI_SERVER_URL = previousUrl;
+    }
+  });
+
   it('should return the same response object', () => {
     const result = applySecurityHeaders(response);
     expect(result).toBe(response);

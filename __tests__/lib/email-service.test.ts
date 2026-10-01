@@ -18,13 +18,23 @@ jest.mock('@/lib/prisma', () => ({
 }));
 
 describe('email-service', () => {
+  const previousVideoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
+
   beforeEach(() => {
+    // Each test starts with the legacy JITSI contract; the DISABLED case opts
+    // in explicitly, regardless of the shell used to launch Jest.
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
     process.env.SMTP_FROM = 'noreply@test.com';
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
     mockQueueCommittedEmail.mockReset();
     mockQueueCommittedEmail.mockResolvedValue({ id: 'job-1' });
     mockVerifySmtp.mockReset();
     mockVerifySmtp.mockResolvedValue({ ok: true });
+  });
+
+  afterEach(() => {
+    if (previousVideoMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
+    else process.env.NEXT_PUBLIC_VIDEO_MODE = previousVideoMode;
   });
 
   it('sends welcome email', async () => {
@@ -71,6 +81,25 @@ describe('email-service', () => {
     expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(1);
   });
 
+  it('does not promise a join link in disabled confirmation or reminder emails', async () => {
+    process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+    const { sendSessionConfirmationEmail, sendSessionReminderEmail } = await import('@/lib/email-service');
+    const session = {
+      id: 'sess-disabled', subject: 'NSI', scheduledAt: new Date('2026-02-12T10:00:00Z'), duration: 45,
+    };
+    const student = { email: 'student@test.com', firstName: 'Karim', lastName: 'Dupont' };
+
+    await sendSessionConfirmationEmail(session, student);
+    await sendSessionReminderEmail(session, student, 'http://localhost:3000/session/video?sessionId=sess-disabled');
+
+    expect(mockQueueCommittedEmail).toHaveBeenCalledTimes(2);
+    for (const [mail] of mockQueueCommittedEmail.mock.calls) {
+      expect(mail.html).toContain('Visioconférence intégrée non activée sur cette Preview.');
+      expect(mail.html).not.toContain('/session/video');
+      expect(mail.html).not.toContain('Rejoindre la session');
+    }
+  });
+
   it('tests email configuration', async () => {
     const { testEmailConfiguration } = await import('@/lib/email-service');
     mockVerifySmtp.mockResolvedValueOnce({ ok: true });
@@ -115,6 +144,10 @@ describe('email-service', () => {
     (prisma.sessionBooking.update as jest.Mock).mockResolvedValue({});
 
     await sendScheduledReminders();
+
+    expect(mockQueueCommittedEmail.mock.calls[0][0].html).toContain(
+      '/session/video?sessionId=sess-4',
+    );
 
     expect(prisma.sessionBooking.update).toHaveBeenCalledWith({
       where: { id: 'sess-4' },

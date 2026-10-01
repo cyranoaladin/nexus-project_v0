@@ -8,6 +8,7 @@ import { SessionStatus } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { tunisWallClockToUtcInstant } from '@/lib/planning/invariants';
 import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
+import { getVideoMode } from '@/lib/video-mode';
 
 /**
  * /api/sessions/[sessionId] — the real backend for the video join flow
@@ -33,6 +34,14 @@ import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
 
 const JOIN_EARLY_WINDOW_MS = 15 * 60 * 1000;
 const JOIN_LATE_TOLERANCE_MS = 30 * 60 * 1000;
+
+/** 503 VIDEO_DISABLED means video join is unavailable on this Preview. */
+function videoDisabledResponse() {
+  return NextResponse.json(
+    { error: 'VIDEO_DISABLED', message: 'Visioconférence intégrée non activée sur cette Preview.' },
+    { status: 503, headers: { 'Cache-Control': 'no-store' } },
+  );
+}
 
 interface RouteParams {
   params: Promise<{ sessionId: string }>;
@@ -173,6 +182,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
     if (!resolved.ok) return resolved.response;
 
+    if (getVideoMode() === 'DISABLED') return videoDisabledResponse();
+
     return NextResponse.json(
       serializeBooking(resolved.booking, resolved.sessionStart, resolved.booking.status)
     );
@@ -195,6 +206,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
     if (!resolved.ok) return resolved.response;
+
+    if (getVideoMode() === 'DISABLED') return videoDisabledResponse();
 
     let displayStatus = resolved.booking.status;
     if (resolved.booking.status === SessionStatus.SCHEDULED) {

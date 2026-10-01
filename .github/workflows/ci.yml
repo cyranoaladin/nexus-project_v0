@@ -19,6 +19,7 @@
 # 6. e2e                  - Tests E2E (Playwright + app demarree + DB E2E)
 # 7. security             - semgrep + OSV scanner
 # 8. build                - Next.js production build + artifact audit
+# 8b. preview-video-disabled - explicit DISABLED production build + standalone browser smoke
 # 9. documents            - Verification des 7 PDF publics figes
 #
 # =============================================================================
@@ -222,7 +223,10 @@ jobs:
   unit:
     name: Unit Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Keep the real Chromium/PDF install and the full unit suite inside one job.
+    # Runner package installation exceeded four minutes in run 36870479694;
+    # the former ten-minute job cap cancelled Jest while tests were still running.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -2046,6 +2050,163 @@ jobs:
           du -sh .next/standalone/ 2>/dev/null >> $GITHUB_STEP_SUMMARY || echo "(standalone output)" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
+  # Explicit Preview configuration is qualified independently of the legacy
+  # production build above. No Jitsi URL or room secret is supplied here.
+  preview-video-disabled:
+    name: Preview Video Disabled Build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: nexus_disposable_video_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf # 7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - name: Checkout exact source head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Pin npm version
+        run: npm install -g npm@${{ env.NPM_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for authenticated browser smoke
+        run: npx playwright install --with-deps chromium
+
+      - name: Prepare isolated runtime storage
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npc_storage_root="$RUNNER_TEMP/video-disabled-npc"
+          document_storage_root="$RUNNER_TEMP/video-disabled-documents"
+          install -d -m 0700 -- "$npc_storage_root" "$document_storage_root"
+          printf 'NPC_STORAGE_ROOT=%s\n' "$(realpath -- "$npc_storage_root")" >> "$GITHUB_ENV"
+          printf 'DOCUMENT_STORAGE_ROOT=%s\n' "$(realpath -- "$document_storage_root")" >> "$GITHUB_ENV"
+
+      - name: Generate Prisma Client
+        run: |
+          npx prisma generate
+          npx prisma generate --schema=core-v2/prisma/schema.prisma
+
+      - name: Apply migrations to disposable database
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
+        run: npx prisma migrate deploy
+
+      - name: Build explicit DISABLED production artifact
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
+          NEXTAUTH_URL: http://localhost:3211
+          NEXT_PUBLIC_APP_URL: http://localhost:3211
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
+          NODE_ENV: production
+          NEXT_PUBLIC_VIDEO_MODE: DISABLED
+          NODE_OPTIONS: --max-old-space-size=4096
+          RELEASE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: npm run build
+
+      - name: Copy standalone away from checkout
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          install -d -m 0700 -- "$RUNNER_TEMP/video-disabled-standalone"
+          cp -a -- .next/standalone/. "$RUNNER_TEMP/video-disabled-standalone/"
+
+      - name: Smoke DISABLED standalone and authenticated browser
+        shell: bash
+        env:
+          CORE_V2_AUTH_MODE: V1_ONLY
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
+          NEXUS_DISPOSABLE_POSTGRES: '1'
+          NEXTAUTH_URL: http://localhost:3211
+          NEXT_PUBLIC_APP_URL: http://localhost:3211
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          NODE_ENV: production
+          NEXT_PUBLIC_VIDEO_MODE: DISABLED
+          HOSTNAME: localhost
+          PORT: '3211'
+          RATE_LIMIT_BACKEND: redis
+          REDIS_URL: redis://localhost:6379
+          RATE_LIMIT_KEY_SECRET: ${{ github.sha }}
+          RATE_LIMIT_KEY_NAMESPACE: nexus-ci-disabled
+          RATE_LIMIT_TRUST_PROXY_HOPS: '1'
+          NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
+          EMAIL_OUTBOX_WORKER_ENABLED: 'true'
+          EMAIL_OUTBOX_ENCRYPTION_KEY: ${{ github.sha }}
+          SMTP_HOST: 127.0.0.1
+          SMTP_PORT: '1025'
+          SMTP_FROM: ci-disabled@example.test
+          ARIA_TURN_RECOVERY_WORKER_ENABLED: 'true'
+          ARIA_TURN_RECOVERY_POLL_INTERVAL_MS: '1000'
+        run: |
+          set -Eeuo pipefail
+          cd "$RUNNER_TEMP/video-disabled-standalone"
+          node server.js &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:3211/api/health >/dev/null; then
+              break
+            fi
+            if (( attempt == 30 )); then
+              echo 'DISABLED standalone health check failed.' >&2
+              exit 1
+            fi
+            sleep 2
+          done
+          cd "$GITHUB_WORKSPACE"
+          REQUESTED_VIDEO_MODE=DISABLED REQUESTED_JITSI_URL='' PREVIEW_SMOKE_ORIGIN=http://localhost:3211 \
+            node scripts/release/verify-preview-client-config.mjs
+          node <<'NODE'
+          const {
+            validateVideoCspHeader,
+            validateVideoPermissionsPolicyHeader,
+          } = require('./scripts/release/preview-artifact-builder-guards.js');
+          (async () => {
+            for (const path of ['/', '/offres', '/bilan-gratuit']) {
+              const response = await fetch(`http://localhost:3211${path}`);
+              if (response.status >= 500) throw new Error(`PREVIEW_PAGE_HTTP_${response.status}:${path}`);
+              if (path === '/') {
+                const cspErrors = validateVideoCspHeader(response.headers.get('content-security-policy'), 'DISABLED', '');
+                const policyErrors = validateVideoPermissionsPolicyHeader(response.headers.get('permissions-policy'), 'DISABLED', '');
+                if (cspErrors.length || policyErrors.length) throw new Error(`VIDEO_SECURITY_HEADERS:${[...cspErrors, ...policyErrors].join(',')}`);
+              }
+            }
+            console.log('VIDEO_DISABLED_STANDALONE_PAGES_AND_HEADERS=PASS');
+          })().catch((error) => { console.error(error); process.exitCode = 1; });
+          NODE
+          node scripts/testing/verify-video-disabled-browser.mjs http://localhost:3211
+
   # ===========================================================================
   # ARIA-B QUALIFICATION: HERMETIC JEST LANES
   # ===========================================================================
@@ -2576,6 +2737,7 @@ jobs:
       - e2e-auth-cross-browser
       - security
       - build
+      - preview-video-disabled
       - documents
       - nginx-sse-streaming
       - bilan-runtime-real-db

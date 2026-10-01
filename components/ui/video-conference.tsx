@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 import { getJitsiDomain } from "@/lib/jitsi";
+import { getVideoMode } from "@/lib/video-mode";
 
 interface VideoConferenceProps {
   sessionId: string;
@@ -14,7 +15,19 @@ interface VideoConferenceProps {
   className?: string;
 }
 
-export function VideoConference({
+export function VideoConference(props: VideoConferenceProps) {
+  if (getVideoMode() === 'DISABLED') {
+    return (
+      <div className={props.className} data-video-mode="DISABLED">
+        Visioconférence intégrée non activée sur cette Preview.
+      </div>
+    );
+  }
+
+  return <JitsiVideoConference {...props} />;
+}
+
+function JitsiVideoConference({
   sessionId,
   studentName,
   coachName,

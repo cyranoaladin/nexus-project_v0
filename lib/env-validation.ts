@@ -10,6 +10,7 @@
  */
 
 import { assertRateLimitRuntimeConfiguration } from '@/lib/rate-limit';
+import { parseDedicatedJitsiUrl, parseVideoMode } from '@/lib/video-mode';
 
 interface EnvVar {
   /** Environment variable name */
@@ -26,7 +27,8 @@ interface EnvVar {
  * ENV contract for Nexus Réussite.
  *
  * REQUIRED (prod fail-fast):
- *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, NEXT_PUBLIC_JITSI_SERVER_URL
+ *   DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, plus Jitsi URL/secret only
+ *   when video is JITSI. An absent video mode retains legacy JITSI behavior.
  *
  * RECOMMENDED (graceful degradation):
  *   OLLAMA_URL, RAG_API_BASE_URL, RAG_BFF_SERVICE_TOKEN,
@@ -43,8 +45,8 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RATE_LIMIT_BACKEND', level: 'REQUIRED', description: 'Distributed rate-limit backend (redis)', prodOnly: true },
   { name: 'RATE_LIMIT_KEY_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for opaque rate-limit keys', prodOnly: true },
   { name: 'RATE_LIMIT_TRUST_PROXY_HOPS', level: 'REQUIRED', description: 'Exact trusted reverse-proxy hop count', prodOnly: true },
-  { name: 'JITSI_ROOM_SECRET', level: 'REQUIRED', description: 'Dedicated HMAC secret for deterministic Jitsi room names (≥32 chars, never NEXTAUTH_SECRET)', prodOnly: true },
-  { name: 'NEXT_PUBLIC_JITSI_SERVER_URL', level: 'REQUIRED', description: 'Dedicated Jitsi deployment URL — must never fall back to the public meet.jit.si in production', prodOnly: true },
+  { name: 'JITSI_ROOM_SECRET', level: 'REQUIRED', description: 'Required only in JITSI mode: dedicated HMAC secret for deterministic Jitsi room names (≥32 chars, never NEXTAUTH_SECRET)', prodOnly: true },
+  { name: 'NEXT_PUBLIC_JITSI_SERVER_URL', level: 'REQUIRED', description: 'Required only in JITSI mode: dedicated Jitsi deployment URL — no production fallback', prodOnly: true },
   { name: 'NEXUS_ORGANIZATION_TIMEZONE', level: 'REQUIRED', description: 'IANA timezone name the organization operates in (e.g. Africa/Tunis) — must be an explicit, validated config value, never a hardcoded assumption (see lib/timezone.ts)', prodOnly: true },
   { name: 'CORE_V2_AUTH_MODE', level: 'REQUIRED', description: 'Auth rollout mode: V1_ONLY | HYBRID | V2_ONLY (no default; HYBRID/V2_ONLY require a verified Core v2 database)', prodOnly: true },
   { name: 'EMAIL_OUTBOX_WORKER_ENABLED', level: 'REQUIRED', description: 'Drains canonical_job_outbox: every activation, password-reset and parent-report e-mail. No default — an unset value disables all transactional mail, and the queue then grows silently', prodOnly: true },
@@ -77,6 +79,7 @@ const ENV_CONTRACT: EnvVar[] = [
   { name: 'RAG_MANIFEST_API_KEY', level: 'OPTIONAL', description: 'Ops-only scoped rag:read-source key for the compatibility gate' },
   { name: 'SENTRY_DSN', level: 'OPTIONAL', description: 'Sentry error tracking DSN' },
   { name: 'REDIS_URL', level: 'OPTIONAL', description: 'Redis URL for distributed rate limiting' },
+  { name: 'NEXT_PUBLIC_VIDEO_MODE', level: 'OPTIONAL', description: 'DISABLED | JITSI; absent preserves the legacy JITSI contract' },
 ];
 
 /**
@@ -91,8 +94,17 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   const isProd = process.env.NODE_ENV === 'production';
   const missing: string[] = [];
   const warnings: string[] = [];
+  let videoMode: 'DISABLED' | 'JITSI' | null = null;
+  try {
+    videoMode = parseVideoMode(process.env.NEXT_PUBLIC_VIDEO_MODE);
+  } catch {
+    missing.push('VIDEO_MODE_INVALID');
+  }
 
   for (const v of ENV_CONTRACT) {
+    if (videoMode !== 'JITSI' && (v.name === 'JITSI_ROOM_SECRET' || v.name === 'NEXT_PUBLIC_JITSI_SERVER_URL')) {
+      continue;
+    }
     const value = process.env[v.name];
     const isEmpty = !value || value.trim() === '';
 
@@ -106,6 +118,23 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
       }
       // OPTIONAL: silent
     }
+  }
+
+  if (isProd && videoMode === 'DISABLED' && process.env.NEXT_PUBLIC_JITSI_SERVER_URL) {
+    missing.push('NEXT_PUBLIC_JITSI_SERVER_URL must be absent when video is DISABLED');
+  }
+  if (isProd && process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI' && process.env.NEXT_PUBLIC_JITSI_SERVER_URL) {
+    try {
+      parseDedicatedJitsiUrl(process.env.NEXT_PUBLIC_JITSI_SERVER_URL);
+    } catch {
+      missing.push('NEXT_PUBLIC_JITSI_SERVER_URL must be a dedicated HTTPS origin in JITSI mode');
+    }
+  }
+  if (
+    isProd && process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI' &&
+    process.env.JITSI_ROOM_SECRET && process.env.JITSI_ROOM_SECRET.trim().length < 32
+  ) {
+    missing.push('JITSI_ROOM_SECRET must contain at least 32 characters');
   }
 
   // NEXTAUTH_SECRET length check (security hardening)

@@ -3,6 +3,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 import { queueCommittedEmail } from '@/lib/email/queue';
 import { verifySmtp } from '@/lib/email/mailer';
 import { hasUserEmail, normalizeUserEmail } from '@/lib/contact/user-email';
+import { getVideoMode } from '@/lib/video-mode';
 
 type EmailUser = {
   firstName?: string | null;
@@ -108,8 +109,9 @@ const EMAIL_TEMPLATES = {
           </div>
 
           <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3>🎥 Rejoindre la session :</h3>
-            <p>Le lien de visioconférence sera disponible 15 minutes avant le début de la session dans votre espace personnel.</p>
+            ${getVideoMode() === 'DISABLED'
+              ? '<p>Visioconférence intégrée non activée sur cette Preview.</p>'
+              : '<h3>🎥 Rejoindre la session :</h3><p>Le lien de visioconférence sera disponible 15 minutes avant le début de la session dans votre espace personnel.</p>'}
             <p>
               <a href="${process.env.NEXTAUTH_URL}/dashboard/eleve/sessions"
                  style="background: #2196f3; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block;">
@@ -148,10 +150,12 @@ const EMAIL_TEMPLATES = {
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${videoLink}"
+            ${getVideoMode() === 'DISABLED'
+              ? '<p>Visioconférence intégrée non activée sur cette Preview.</p>'
+              : `<a href="${videoLink}"
                style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-size: 18px;">
               🎥 Rejoindre la session
-            </a>
+            </a>`}
           </div>
 
           <p style="color: #666; font-size: 14px;">
@@ -362,7 +366,7 @@ export async function sendScheduledReminders() {
     });
 
     for (const session of upcomingSessions) {
-      const videoLink = `${process.env.NEXTAUTH_URL}/session/video?id=${session.id}`;
+      const videoLink = `${process.env.NEXTAUTH_URL}/session/video?sessionId=${encodeURIComponent(session.id)}`;
 
       const [hours, minutes] = session.startTime.split(':').map((value) => Number(value));
       const scheduledAt = new Date(session.scheduledDate);

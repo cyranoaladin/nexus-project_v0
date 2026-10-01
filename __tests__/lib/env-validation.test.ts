@@ -34,6 +34,7 @@ describe('validateEnv', () => {
     NEXUS_ORGANIZATION_TIMEZONE: 'Africa/Tunis',
     JITSI_ROOM_SECRET: 'change_me_jitsi_room_test_only_32_bytes_min',
     NEXT_PUBLIC_JITSI_SERVER_URL: 'https://meet.nexusreussite.academy',
+    NEXT_PUBLIC_VIDEO_MODE: 'JITSI',
     CORE_V2_AUTH_MODE: 'V1_ONLY',
     EMAIL_OUTBOX_WORKER_ENABLED: 'true',
     EMAIL_OUTBOX_ENCRYPTION_KEY: 'change_me_email_outbox_test_only_32_bytes',
@@ -116,6 +117,68 @@ describe('validateEnv', () => {
   });
 
   describe('in production mode', () => {
+    it('does not require Jitsi URL or room secret when explicitly DISABLED', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      const result = loadValidateEnv()();
+      expect(result.ok).toBe(true);
+    });
+
+    it('refuses a leftover Jitsi URL in DISABLED mode without changing other secrets', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'DISABLED';
+      expect(() => loadValidateEnv()()).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL');
+    });
+
+    it('keeps Jitsi URL and room secret required in explicit JITSI mode', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      expect(() => loadValidateEnv()()).toThrow('JITSI_ROOM_SECRET');
+    });
+
+    it('refuses an unknown mode instead of silently disabling video', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
+      expect(() => loadValidateEnv()()).toThrow('VIDEO_MODE_INVALID');
+    });
+
+    it('reports an invalid mode without requesting Jitsi settings', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      let message = '';
+      try {
+        loadValidateEnv()();
+      } catch (error) {
+        message = String(error);
+      }
+      expect(message).toContain('VIDEO_MODE_INVALID');
+      expect(message).not.toContain('JITSI_ROOM_SECRET');
+      expect(message).not.toContain('NEXT_PUBLIC_JITSI_SERVER_URL');
+    });
+
+    it.each([
+      'http://video.example.org',
+      'https://meet.jit.si',
+    ])('refuses an insecure or public-fallback Jitsi URL in explicit JITSI mode: %s', (url) => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      process.env.NEXT_PUBLIC_JITSI_SERVER_URL = url;
+      expect(() => loadValidateEnv()()).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL');
+    });
+
+    it('requires a dedicated room secret of sufficient length in explicit JITSI mode', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'JITSI';
+      process.env.JITSI_ROOM_SECRET = 'x'.repeat(7);
+      expect(() => loadValidateEnv()()).toThrow('JITSI_ROOM_SECRET');
+    });
+
     it('throws if DATABASE_URL is missing', () => {
       setNodeEnv('production');
       delete process.env.DATABASE_URL;

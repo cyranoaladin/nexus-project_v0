@@ -22,6 +22,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { getVideoMode, parseDedicatedJitsiUrl } from './video-mode';
 
 /**
  * Deliberately NOT imported from lib/jitsi.ts: this module is loaded by
@@ -43,9 +44,15 @@ function getJitsiOriginForCsp(): string {
     }
     const raw = configured || 'https://meet.jit.si';
     try {
+        if (process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI' && process.env.NODE_ENV === 'production') {
+            return parseDedicatedJitsiUrl(raw).origin;
+        }
         return new URL(raw).origin;
     } catch {
-        return 'https://meet.jit.si';
+        // Preserve the historical CSP behavior only for the absent-mode
+        // legacy contract. An explicit JITSI delivery never falls back.
+        if (process.env.NEXT_PUBLIC_VIDEO_MODE === undefined) return 'https://meet.jit.si';
+        throw new Error('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
     }
 }
 
@@ -53,7 +60,10 @@ function getJitsiOriginForCsp(): string {
  * Apply security headers to response
  */
 export function applySecurityHeaders(response: NextResponse): NextResponse {
-    const jitsiOrigin = getJitsiOriginForCsp();
+    const videoMode = getVideoMode();
+    const jitsiOrigin = videoMode === 'JITSI' ? getJitsiOriginForCsp() : null;
+    const legacyJitsi = videoMode === 'JITSI' && process.env.NEXT_PUBLIC_VIDEO_MODE === undefined;
+    const jitsiWebSocket = jitsiOrigin ? (legacyJitsi ? 'wss:' : `wss://${new URL(jitsiOrigin).host}`) : null;
 
     // Content Security Policy — application-level (authoritative)
     const csp = [
@@ -61,14 +71,14 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         // Next.js requires 'unsafe-inline' for script; nonce-based CSP would need
         // custom Document + middleware per-request nonce — tracked as future improvement.
         // 'unsafe-eval' is required for WebAssembly (used by some client-side libraries).
-        `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${jitsiOrigin} https://cdn.jsdelivr.net https://www.googletagmanager.com`,
+        `script-src 'self' 'unsafe-inline' 'unsafe-eval'${jitsiOrigin ? ` ${jitsiOrigin}` : ''} https://cdn.jsdelivr.net https://www.googletagmanager.com`,
         // 'unsafe-inline' required for Radix UI, TailwindCSS v4 runtime styles
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
-        "connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com wss: data:",
+        `connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com${jitsiWebSocket ? ` ${jitsiWebSocket}` : ''} data:`,
         "worker-src 'self' blob: https://cdn.jsdelivr.net",
-        `frame-src 'self' ${jitsiOrigin} https://*.jitsi.net https://www.google.com https://maps.google.com`,
+        `frame-src 'self'${jitsiOrigin ? ` ${jitsiOrigin}` : ''}${legacyJitsi ? ' https://*.jitsi.net' : ''} https://www.google.com https://maps.google.com`,
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -103,7 +113,9 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
     // the exact same Jitsi origin frame-src trusts, nothing else.
     response.headers.set(
         'Permissions-Policy',
-        `camera=(self "${jitsiOrigin}"), microphone=(self "${jitsiOrigin}"), geolocation=()`
+        jitsiOrigin
+            ? `camera=(self "${jitsiOrigin}"), microphone=(self "${jitsiOrigin}"), geolocation=()`
+            : 'camera=(self), microphone=(self), geolocation=()'
     );
 
     return response;

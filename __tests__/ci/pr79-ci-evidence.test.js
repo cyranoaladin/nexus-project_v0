@@ -46,6 +46,9 @@ const independentEvidenceJobs = [
   'e2e-auth-cross-browser',
   'security',
   'build',
+  // Explicit DISABLED delivery mode must prove a production standalone build
+  // independently of the legacy JITSI Production Build lane.
+  'preview-video-disabled',
   'documents',
   'bilan-runtime-real-db',
   // Real Nginx SSE streaming: proves the repository's own proxy configuration

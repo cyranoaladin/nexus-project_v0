@@ -9,6 +9,7 @@ import { useCanonicalSession as useSession } from '@/components/auth/SessionReco
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { getVideoMode } from "@/lib/video-mode";
 
 interface SessionData {
   id: string;
@@ -28,6 +29,7 @@ interface SessionData {
 
 function SessionVideoCallContent() {
   const { data: session, status } = useSession();
+  const videoMode = getVideoMode();
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('sessionId');
@@ -43,6 +45,10 @@ function SessionVideoCallContent() {
       router.push("/auth/signin");
       return;
     }
+
+    // Availability is compiled into the client. Opening this page in a
+    // disabled Preview must never perform the POST join action.
+    if (videoMode === 'DISABLED') return;
 
     if (!sessionId) {
       setError("ID de session manquant");
@@ -72,7 +78,7 @@ function SessionVideoCallContent() {
     };
 
     fetchSessionData();
-  }, [session, status, router, sessionId]);
+  }, [session, status, router, sessionId, videoMode]);
 
   const handleLeaveSession = () => {
     // Logique de fin de session
@@ -85,13 +91,33 @@ function SessionVideoCallContent() {
     router.push(redirectPath);
   };
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || !session || (videoMode === 'JITSI' && loading)) {
     return (
       <div className="min-h-screen bg-surface-darker flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent mx-auto mb-4"></div>
           <p className="text-neutral-300">Chargement de la session...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (videoMode === 'DISABLED') {
+    return (
+      <div className="min-h-screen bg-surface-darker flex items-center justify-center">
+        <Card className="max-w-md w-full mx-4 bg-surface-card border border-white/10">
+          <CardHeader>
+            <CardTitle className="text-slate-200">Visioconférence indisponible</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-neutral-300 mb-4">Visioconférence intégrée non activée sur cette Preview.</p>
+            <Button asChild>
+              <Link href={session.user.role === 'ELEVE' ? '/dashboard/eleve' : '/dashboard'}>
+                Retour au tableau de bord
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -239,8 +265,10 @@ function SessionVideoCallContent() {
 
 export default function SessionVideoCall() {
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
-      <SessionVideoCallContent />
-    </Suspense>
+    <div data-video-mode={getVideoMode()}>
+      <Suspense fallback={<div>Chargement...</div>}>
+        <SessionVideoCallContent />
+      </Suspense>
+    </div>
   );
 }

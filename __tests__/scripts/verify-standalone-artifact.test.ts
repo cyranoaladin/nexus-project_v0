@@ -40,7 +40,7 @@ function runGate(dir: string, env: Record<string, string> = {}): { code: number;
     const output = execSync(`node ${SCRIPT} "${dir}"`, {
       encoding: 'utf8',
       timeout: 15000,
-      env: { ...process.env, RELEASE_SHA: 'a'.repeat(40), ...env },
+      env: { PATH: process.env.PATH, NODE_ENV: 'production', RELEASE_SHA: 'a'.repeat(40), ...env },
     });
     return { code: 0, output };
   } catch (e: any) {
@@ -149,9 +149,66 @@ describe('verify-standalone-artifact', () => {
     const standaloneManifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8').catch(() => '{}'));
     expect(manifest.RELEASE_SHA).toBe('a'.repeat(40));
     expect(manifest.ARTIFACT_VERIFIED).toBe(true);
+    expect(manifest).not.toHaveProperty('VIDEO_MODE'); // Legacy absent-mode release.
     expect(manifest.NEXT_VERSION).toBe('15.5.18');
     expect(manifest.SOURCE_STATIC_TREE_SHA256).toMatch(/^[a-f0-9]{64}$/);
     expect(standaloneManifest).toEqual(manifest);
     await expect(readRunningReleaseSha(join(testDir, '.next/standalone'))).resolves.toBe('a'.repeat(40));
+  });
+
+  test('records an explicitly disabled build mode in both manifests', async () => {
+    await createValidArtifact(testDir);
+    const { code } = runGate(testDir, { NEXT_PUBLIC_VIDEO_MODE: 'DISABLED' });
+    expect(code).toBe(0);
+    const manifest = JSON.parse(await readFile(join(testDir, 'release-manifest.json'), 'utf8'));
+    const standalone = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8'));
+    expect(manifest.VIDEO_MODE).toBe('DISABLED');
+    expect(standalone).toEqual(manifest);
+  });
+
+  test('records an explicitly configured JITSI build mode', async () => {
+    await createValidArtifact(testDir);
+    const { code } = runGate(testDir, {
+      NEXT_PUBLIC_VIDEO_MODE: 'JITSI',
+      NEXT_PUBLIC_JITSI_SERVER_URL: 'https://video.preview.example.org',
+    });
+    expect(code).toBe(0);
+    const manifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8'));
+    expect(manifest.VIDEO_MODE).toBe('JITSI');
+    expect(manifest.JITSI_ORIGIN).toBe('https://video.preview.example.org');
+  });
+
+  test('records the effective dotenv mode and JITSI origin in the release manifest', async () => {
+    await createValidArtifact(testDir);
+    await writeFile(join(testDir, '.env.production'),
+      'NEXT_PUBLIC_VIDEO_MODE=JITSI\nNEXT_PUBLIC_JITSI_SERVER_URL=https://video.preview.example.org\n');
+    const { code } = runGate(testDir);
+    expect(code).toBe(0);
+    const manifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8'));
+    expect(manifest.VIDEO_MODE).toBe('JITSI');
+    expect(manifest.JITSI_ORIGIN).toBe('https://video.preview.example.org');
+  });
+
+  test('refuses a JITSI artifact without a real configured origin', async () => {
+    await createValidArtifact(testDir);
+    const { code, output } = runGate(testDir, { NEXT_PUBLIC_VIDEO_MODE: 'JITSI', NEXT_PUBLIC_JITSI_SERVER_URL: '' });
+    expect(code).toBe(1);
+    expect(output).toContain('JITSI_URL_REQUIRED');
+    await expect(readFile(join(testDir, 'release-manifest.json'), 'utf8')).rejects.toThrow();
+  });
+
+  test('refuses an unknown build mode before writing a manifest', async () => {
+    await createValidArtifact(testDir);
+    const { code, output } = runGate(testDir, { NEXT_PUBLIC_VIDEO_MODE: 'UNKNOWN' });
+    expect(code).toBe(1);
+    expect(output).toContain('VIDEO_MODE_INVALID');
+    await expect(readFile(join(testDir, 'release-manifest.json'), 'utf8')).rejects.toThrow();
+  });
+
+  test('refuses an explicitly empty build mode', async () => {
+    await createValidArtifact(testDir);
+    const { code, output } = runGate(testDir, { NEXT_PUBLIC_VIDEO_MODE: '' });
+    expect(code).toBe(1);
+    expect(output).toContain('VIDEO_MODE_INVALID');
   });
 });

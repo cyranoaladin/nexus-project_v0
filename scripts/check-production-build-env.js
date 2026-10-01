@@ -1,5 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const { loadEnvConfig } = require('@next/env');
+const { validateVideoDispatch } = require('./release/preview-artifact-builder-guards.js');
 
 const mode = process.argv.includes('--mode=e2e') ? 'e2e' : 'production';
 
@@ -28,7 +30,7 @@ function inspect(values, source) {
 // Always check: real .env files must not contain forbidden values.
 const envFiles = mode === 'e2e'
   ? ['.env', '.env.local']
-  : ['.env', '.env.local', '.env.production', '.env.production.local'];
+  : ['.env', '.env.production', '.env.local', '.env.production.local'];
 
 inspect(process.env, 'process');
 for (const file of envFiles) {
@@ -40,4 +42,19 @@ for (const file of envFiles) {
   }));
   inspect(values, file);
 }
+// Use Next's own dotenv parser and expansion rules for the values compiled
+// into NEXT_PUBLIC_* constants. The file scan above still checks each source
+// independently for forbidden release-only values.
+const effective = loadEnvConfig(process.cwd(), false, { info() {}, error() {} }).combinedEnv;
+const videoMode = effective.NEXT_PUBLIC_VIDEO_MODE;
+const jitsiUrl = effective.NEXT_PUBLIC_JITSI_SERVER_URL;
+const disposableE2eFixture = mode === 'e2e'
+  && videoMode === 'JITSI'
+  && jitsiUrl === 'https://jitsi-ci.nexus-e2e.test';
+// The absent mode is the previous production build contract. It still needs
+// an URL and is JITSI at runtime, but was not a Preview dispatch choice.
+const videoErrors = videoMode === undefined
+  ? (jitsiUrl?.trim() ? [] : ['LEGACY_JITSI_URL_REQUIRED'])
+  : disposableE2eFixture ? [] : validateVideoDispatch(videoMode, jitsiUrl);
+if (videoErrors.length) throw new Error(`BUILD_VIDEO_CONFIG_INVALID:${videoErrors.join(',')}`);
 console.log(`BUILD_ENV_CHECK=PASS (mode=${mode})`);
