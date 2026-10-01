@@ -45,7 +45,7 @@ export function getJitsiServerUrl(): string {
     // The legacy (mode-absent) production path preserves its previous URL
     // contract. An explicit JITSI delivery requires a dedicated HTTPS origin.
     if (process.env.NEXT_PUBLIC_VIDEO_MODE === 'JITSI' && process.env.NODE_ENV === 'production') {
-      parseDedicatedJitsiUrl(configured);
+      return parseDedicatedJitsiUrl(configured).origin;
     }
     return configured;
   }

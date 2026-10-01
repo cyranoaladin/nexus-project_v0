@@ -19,12 +19,17 @@ import { createRequire } from 'node:module';
 import { findRuntimeDataLeaks } from './runtime-data-leak.mjs';
 
 const require = createRequire(import.meta.url);
+const { loadEnvConfig } = require('@next/env');
 const { validateVideoDispatch } = require('./preview-artifact-builder-guards.js');
 
 const buildDir = resolve(process.argv[2] || process.cwd());
 const errors = [];
-const videoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
-const jitsiUrl = process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+// Match the values Next read while compiling the client, including dotenv
+// expansion and precedence. An env-only read can write a legacy manifest for
+// a client actually built in an explicit mode.
+const buildEnv = loadEnvConfig(buildDir, false, { info() {}, error() {} }).combinedEnv;
+const videoMode = buildEnv.NEXT_PUBLIC_VIDEO_MODE;
+const jitsiUrl = buildEnv.NEXT_PUBLIC_JITSI_SERVER_URL;
 
 function fail(msg) { errors.push(msg); console.error(`  FAIL: ${msg}`); }
 function ok(msg) { console.log(`  OK: ${msg}`); }

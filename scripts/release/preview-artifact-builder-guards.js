@@ -143,6 +143,9 @@ function validateRequiredPolicy(requiredChecks, ruleset) {
 }
 
 function validateJitsiServerUrl(value) {
+  if (typeof value !== 'string' || value !== value.trim()) {
+    return ['JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL'];
+  }
   let url;
   try {
     url = new URL(value);
@@ -152,8 +155,24 @@ function validateJitsiServerUrl(value) {
   if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
     return ['JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL'];
   }
-  const hostname = url.hostname.toLowerCase();
-  if (hostname === 'localhost' || hostname === '127.0.0.1'
+  const hostname = url.hostname.toLowerCase().replace(/\.+$/, '');
+  const ipv4 = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(hostname);
+  const octets = ipv4?.slice(1).map(Number);
+  const privateIpv4 = octets !== undefined && (
+    octets[0] === 0 || octets[0] === 10 || octets[0] === 127 ||
+    (octets[0] === 100 && octets[1] >= 64 && octets[1] <= 127) ||
+    (octets[0] === 169 && octets[1] === 254) ||
+    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+    (octets[0] === 192 && octets[1] === 168)
+  );
+  const ipv6 = hostname.startsWith('[') && hostname.endsWith(']')
+    ? hostname.slice(1, -1) : null;
+  const privateIpv6 = ipv6 !== null && (
+    ipv6 === '::' || ipv6 === '::1' ||
+    /^f[cd]/.test(ipv6) || /^fe[89ab]/.test(ipv6) ||
+    ipv6.startsWith('::ffff:')
+  );
+  if (hostname === 'localhost' || privateIpv4 || privateIpv6
     || hostname.endsWith('.localhost') || hostname.endsWith('.test')
     || hostname.endsWith('.example') || hostname.endsWith('.invalid')) {
     return ['JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST'];
@@ -226,9 +245,11 @@ function validateVideoCspHeader(header, mode, configuredUrl) {
     if (connectSources.some((source) => source.startsWith('wss:') && source !== expectedWebSocket)) {
       return ['JITSI_CSP_UNAPPROVED_WEBSOCKET'];
     }
-    return frameSources.some((source) => !allowedFrames.has(source))
-      || scriptSources.some((source) => !allowedScripts.has(source))
-      ? ['JITSI_CSP_UNAPPROVED_ORIGIN'] : [];
+    if (frameSources.some((source) => !allowedFrames.has(source))
+      || scriptSources.some((source) => !allowedScripts.has(source))) {
+      return ['JITSI_CSP_UNAPPROVED_ORIGIN'];
+    }
+    return connectSources.includes(expectedWebSocket) ? [] : ['JITSI_CSP_CONFIGURED_WEBSOCKET_MISSING'];
   }
   if (!frameSources) return ['VIDEO_CSP_FRAME_SRC_MISSING'];
   const independentFrames = new Set(["'self'", 'https://www.google.com', 'https://maps.google.com']);
@@ -250,7 +271,8 @@ function validateVideoPermissionsPolicyHeader(header, mode, configuredUrl) {
   if (typeof header !== 'string') return ['VIDEO_PERMISSIONS_POLICY_MISSING'];
   const grants = ['camera', 'microphone'].map((name) => {
     const match = header.match(new RegExp(`(?:^|,)\\s*${name}=\\(([^)]*)\\)`));
-    return match?.[1].trim().split(/\s+/) || [];
+    const sources = match?.[1].trim();
+    return sources ? sources.split(/\s+/) : [];
   });
   if (grants.some((sources) => sources.length === 0)) return ['VIDEO_PERMISSIONS_POLICY_CAMERA_MIC_MISSING'];
   if (mode === 'DISABLED') {

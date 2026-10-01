@@ -94,7 +94,7 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   const isProd = process.env.NODE_ENV === 'production';
   const missing: string[] = [];
   const warnings: string[] = [];
-  let videoMode: 'DISABLED' | 'JITSI' = 'JITSI';
+  let videoMode: 'DISABLED' | 'JITSI' | null = null;
   try {
     videoMode = parseVideoMode(process.env.NEXT_PUBLIC_VIDEO_MODE);
   } catch {
@@ -102,7 +102,7 @@ export function validateEnv(): { ok: boolean; missing: string[]; warnings: strin
   }
 
   for (const v of ENV_CONTRACT) {
-    if (videoMode === 'DISABLED' && (v.name === 'JITSI_ROOM_SECRET' || v.name === 'NEXT_PUBLIC_JITSI_SERVER_URL')) {
+    if (videoMode !== 'JITSI' && (v.name === 'JITSI_ROOM_SECRET' || v.name === 'NEXT_PUBLIC_JITSI_SERVER_URL')) {
       continue;
     }
     const value = process.env[v.name];

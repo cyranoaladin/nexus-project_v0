@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import yaml from 'js-yaml';
 
 const workflowPath = resolve(__dirname, '../../.github/workflows/ci.yml');
@@ -19,7 +20,10 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(job.steps.some((step: { run?: string }) => step.run === 'npm ci')).toBe(true);
     expect(job.steps.some((step: { run?: string }) => step.run?.includes('npx prisma migrate deploy'))).toBe(true);
     expect(job.steps.some((step: { run?: string }) => step.run?.includes('playwright install --with-deps chromium'))).toBe(true);
-    const smoke = job.steps.find((step: { name: string }) => step.name === 'Smoke DISABLED standalone and unauthenticated browser');
+    const smoke = job.steps.find((step: { name: string }) => step.name === 'Smoke DISABLED standalone and authenticated browser');
+    expect(job.services.postgres.env.POSTGRES_DB).toBe('nexus_disposable_video_test');
+    expect(smoke.env.NEXUS_DISPOSABLE_POSTGRES).toBe('1');
+    expect(new URL(smoke.env.DATABASE_URL).pathname).toBe('/nexus_disposable_video_test');
     expect(smoke.env.NEXT_PUBLIC_VIDEO_MODE).toBe('DISABLED');
     expect(smoke.env.NEXT_PUBLIC_JITSI_SERVER_URL).toBeUndefined();
     expect(smoke.env.JITSI_ROOM_SECRET).toBeUndefined();
@@ -27,6 +31,25 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(smoke.run).toContain('validateVideoCspHeader');
     expect(smoke.run).toContain('validateVideoPermissionsPolicyHeader');
     expect(job.steps.some((step: { run?: string }) => step.run?.includes('verify-video-disabled-browser.mjs'))).toBe(true);
+    expect(smoke.run).toContain('node server.js &');
+    expect(smoke.run).toContain('cd "$GITHUB_WORKSPACE"');
+  });
+
+  it.each([
+    ['missing marker', 'postgresql://postgres@localhost:5432/nexus_disposable_video_test', undefined],
+    ['production database', 'postgresql://postgres@localhost:5432/nexus_prod', '1'],
+    ['remote host', 'postgresql://postgres@db.example.com:5432/nexus_disposable_video_test', '1'],
+  ])('refuses fixture writes before browser or database access: %s', (_case, databaseUrl, marker) => {
+    const env: NodeJS.ProcessEnv = { ...process.env, DATABASE_URL: databaseUrl };
+    if (marker) env.NEXUS_DISPOSABLE_POSTGRES = marker;
+    else delete env.NEXUS_DISPOSABLE_POSTGRES;
+    const result = spawnSync(process.execPath, [
+      resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'),
+      'http://localhost:3211',
+    ], { env, encoding: 'utf8', timeout: 5000 });
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('VIDEO_BROWSER_DATABASE_NOT_DISPOSABLE');
+    expect(result.stderr).not.toContain(databaseUrl);
   });
 
   it('keeps the existing legacy JITSI Production Build job', () => {

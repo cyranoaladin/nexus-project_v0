@@ -34,6 +34,7 @@ describe('validateEnv', () => {
     NEXUS_ORGANIZATION_TIMEZONE: 'Africa/Tunis',
     JITSI_ROOM_SECRET: 'change_me_jitsi_room_test_only_32_bytes_min',
     NEXT_PUBLIC_JITSI_SERVER_URL: 'https://meet.nexusreussite.academy',
+    NEXT_PUBLIC_VIDEO_MODE: 'JITSI',
     CORE_V2_AUTH_MODE: 'V1_ONLY',
     EMAIL_OUTBOX_WORKER_ENABLED: 'true',
     EMAIL_OUTBOX_ENCRYPTION_KEY: 'change_me_email_outbox_test_only_32_bytes',
@@ -143,6 +144,22 @@ describe('validateEnv', () => {
       setNodeEnv('production');
       process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
       expect(() => loadValidateEnv()()).toThrow('VIDEO_MODE_INVALID');
+    });
+
+    it('reports an invalid mode without requesting Jitsi settings', () => {
+      setNodeEnv('production');
+      process.env.NEXT_PUBLIC_VIDEO_MODE = 'OFF';
+      delete process.env.NEXT_PUBLIC_JITSI_SERVER_URL;
+      delete process.env.JITSI_ROOM_SECRET;
+      let message = '';
+      try {
+        loadValidateEnv()();
+      } catch (error) {
+        message = String(error);
+      }
+      expect(message).toContain('VIDEO_MODE_INVALID');
+      expect(message).not.toContain('JITSI_ROOM_SECRET');
+      expect(message).not.toContain('NEXT_PUBLIC_JITSI_SERVER_URL');
     });
 
     it('refuses a non-HTTPS or fixture Jitsi URL in explicit JITSI mode', () => {

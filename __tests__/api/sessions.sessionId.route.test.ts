@@ -354,6 +354,20 @@ describe.each([
     expect(unowned.status).toBe(404);
   });
 
+  it('keeps the rate limit and join window checks before exposing availability', async () => {
+    (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'RATE_LIMIT' }), { status: 429 })
+    );
+    const throttled = await handler(makeRequest() as any, params());
+    expect(throttled.status).toBe(429);
+    expect(prisma.sessionBooking.findFirst).not.toHaveBeenCalled();
+
+    jest.setSystemTime(new Date(SESSION_START_UTC.getTime() - 20 * 60 * 1000));
+    const tooEarly = await handler(makeRequest() as any, params());
+    expect(tooEarly.status).toBe(400);
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
+  });
+
   it('returns VIDEO_DISABLED without a room or booking transition', async () => {
     const response = await handler(makeRequest() as any, params());
     const body = await response.json();

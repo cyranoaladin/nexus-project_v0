@@ -7,6 +7,7 @@ import { join } from 'node:path';
 const require = createRequire(import.meta.url);
 const {
   validateVideoDispatch,
+  compiledBundleContainsConfiguredJitsiUrl,
 } = require('./preview-artifact-builder-guards.js');
 
 const requestedMode = process.env.REQUESTED_VIDEO_MODE;
@@ -16,12 +17,18 @@ if (configurationErrors.length) throw new Error(configurationErrors.join(','));
 
 const manifest = JSON.parse(await readFile('.next/standalone/release-manifest.json', 'utf8'));
 if (manifest.VIDEO_MODE !== requestedMode) throw new Error('VIDEO_MODE_MANIFEST_MISMATCH');
+if (requestedMode === 'JITSI' && manifest.JITSI_ORIGIN !== new URL(configuredUrl).origin) {
+  throw new Error('JITSI_ORIGIN_MANIFEST_MISMATCH');
+}
 const appManifest = JSON.parse(await readFile('.next/app-build-manifest.json', 'utf8'));
 const routeChunks = appManifest?.pages?.['/session/video/page'];
 if (!Array.isArray(routeChunks) || routeChunks.length === 0) {
   throw new Error('VIDEO_CLIENT_ROUTE_CHUNKS_MISSING');
 }
-await Promise.all(routeChunks.map((chunk) => readFile(join('.next', chunk))));
+const compiledChunks = await Promise.all(routeChunks.map((chunk) => readFile(join('.next', chunk), 'utf8')));
+if (requestedMode === 'JITSI' && !compiledBundleContainsConfiguredJitsiUrl(compiledChunks, configuredUrl)) {
+  throw new Error('JITSI_URL_CLIENT_ROUTE_MISSING');
+}
 
 const smokeOrigin = process.env.PREVIEW_SMOKE_ORIGIN;
 if (smokeOrigin !== 'http://localhost:3211') throw new Error('PREVIEW_SMOKE_ORIGIN_INVALID');

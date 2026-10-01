@@ -188,7 +188,18 @@ describe('Preview artifact builder source and provenance guards', () => {
     expect(validateJitsiServerUrl('https://video.invalid')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
     expect(validateJitsiServerUrl('https://127.0.0.1')).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
     expect(validateJitsiServerUrl('https://video.example.org/path')).toContain('JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL');
+    expect(validateJitsiServerUrl(' https://video.example.org')).toContain('JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL');
+    expect(validateJitsiServerUrl('https://video.example.org\n')).toContain('JITSI_URL_MUST_BE_PUBLIC_HTTPS_BASE_URL');
     expect(validateJitsiServerUrl('https://meet.jit.si')).toContain('JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK');
+    expect(validateJitsiServerUrl('https://meet.jit.si./')).toContain('JITSI_URL_MUST_NOT_USE_PUBLIC_FALLBACK');
+    for (const url of [
+      'https://localhost./', 'https://video.test./', 'https://[::1]/',
+      'https://10.1.2.3/', 'https://100.64.1.1/', 'https://169.254.1.10/',
+      'https://172.16.1.1/', 'https://192.168.1.10/', 'https://[fc00::1]/',
+      'https://[fe80::1]/', 'https://[::ffff:127.0.0.1]/',
+    ]) {
+      expect(validateJitsiServerUrl(url)).toContain('JITSI_URL_MUST_NOT_USE_TEST_OR_LOCAL_HOST');
+    }
     expect(compiledBundleContainsConfiguredJitsiUrl([
       'const message="example.test is a fixture message";',
       'const activeServer="https://video.example.org";',
@@ -235,7 +246,7 @@ describe('Preview artifact builder source and provenance guards', () => {
       .toContain('JITSI_CSP_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
     expect(validateVideoCspHeader("frame-src 'self'; script-src 'self'; connect-src 'self' wss:", 'DISABLED', ''))
       .toContain('JITSI_CSP_WEBSOCKET_ACTIVE_WHEN_DISABLED');
-    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org", 'JITSI', 'https://video.example.org'))
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org; connect-src 'self' wss://video.example.org", 'JITSI', 'https://video.example.org'))
       .toEqual([]);
     expect(validateVideoCspHeader("frame-src 'self'", 'JITSI', 'https://video.example.org'))
       .toContain('JITSI_CSP_CONFIGURED_ORIGIN_MISSING');
@@ -247,11 +258,15 @@ describe('Preview artifact builder source and provenance guards', () => {
       .toContain('JITSI_CSP_UNAPPROVED_ORIGIN');
     expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org; connect-src 'self' wss:", 'JITSI', 'https://video.example.org'))
       .toContain('JITSI_CSP_UNAPPROVED_WEBSOCKET');
+    expect(validateVideoCspHeader("frame-src 'self' https://video.example.org; script-src 'self' https://video.example.org; connect-src 'self'", 'JITSI', 'https://video.example.org'))
+      .toContain('JITSI_CSP_CONFIGURED_WEBSOCKET_MISSING');
   });
 
   it('checks camera and microphone delegation for the configured mode', () => {
     expect(validateVideoPermissionsPolicyHeader('camera=(self), microphone=(self), geolocation=()', 'DISABLED', ''))
       .toEqual([]);
+    expect(validateVideoPermissionsPolicyHeader('camera=(), microphone=()', 'DISABLED', ''))
+      .toContain('VIDEO_PERMISSIONS_POLICY_CAMERA_MIC_MISSING');
     expect(validateVideoPermissionsPolicyHeader('camera=(self "https://meet.jit.si"), microphone=(self)', 'DISABLED', ''))
       .toContain('JITSI_PERMISSION_EXTERNAL_ORIGIN_ACTIVE_WHEN_DISABLED');
     expect(validateVideoPermissionsPolicyHeader('camera=(self "https://video.example.org"), microphone=(self "https://video.example.org")', 'JITSI', 'https://video.example.org'))

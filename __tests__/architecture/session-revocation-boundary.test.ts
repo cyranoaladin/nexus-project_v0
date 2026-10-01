@@ -220,6 +220,9 @@ describe('exhaustive User security mutation inventory', () => {
       'scripts/seed-parent-dashboard-e2e.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
       'scripts/test-performance.ts:upsert#1',
+      // Authenticated video smoke removes only its synthetic user from an
+      // explicitly guarded, CI-local disposable database.
+      'scripts/testing/verify-video-disabled-browser.mjs:delete#1',
     ].sort()
 
     expect(descriptors.sort()).toEqual(approved)

@@ -1,4 +1,4 @@
-import { getVideoMode, parseVideoMode } from '@/lib/video-mode';
+import { getVideoMode, parseDedicatedJitsiUrl, parseVideoMode } from '@/lib/video-mode';
 
 describe('the single video availability contract', () => {
   const original = process.env.NEXT_PUBLIC_VIDEO_MODE;
@@ -22,5 +22,23 @@ describe('the single video availability contract', () => {
 
   it.each(['', 'disabled', 'JITSI_DISABLED', ' DISABLED '])('refuses an unknown or ambiguous mode %p', (mode) => {
     expect(() => parseVideoMode(mode)).toThrow('VIDEO_MODE_INVALID');
+  });
+
+  it.each([
+    'https://meet.jit.si./',
+    'https://localhost./',
+    'https://video.test./',
+    'https://[::1]/',
+    'https://192.168.1.10/',
+    'https://169.254.1.10/',
+    ' https://video.nexusreussite.academy/',
+    'https://video.nexusreussite.academy/ ',
+  ])('refuses a public fallback or local Jitsi origin %s', (url) => {
+    expect(() => parseDedicatedJitsiUrl(url)).toThrow('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
+  });
+
+  it('normalizes an uppercase HTTPS scheme for explicit JITSI', () => {
+    expect(parseDedicatedJitsiUrl('HTTPS://video.nexusreussite.academy/').origin)
+      .toBe('https://video.nexusreussite.academy');
   });
 });

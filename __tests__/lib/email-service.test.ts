@@ -21,6 +21,9 @@ describe('email-service', () => {
   const previousVideoMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
 
   beforeEach(() => {
+    // Each test starts with the legacy JITSI contract; the DISABLED case opts
+    // in explicitly, regardless of the shell used to launch Jest.
+    delete process.env.NEXT_PUBLIC_VIDEO_MODE;
     process.env.SMTP_FROM = 'noreply@test.com';
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
     mockQueueCommittedEmail.mockReset();

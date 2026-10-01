@@ -19,13 +19,34 @@ export function getVideoMode(): VideoMode {
 
 /** No silent fallback for explicit JITSI delivery configuration. */
 export function parseDedicatedJitsiUrl(raw: string): URL {
+  if (raw !== raw.trim()) {
+    throw new Error('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
+  }
   let url: URL;
   try {
     url = new URL(raw);
   } catch {
     throw new Error('NEXT_PUBLIC_JITSI_SERVER_URL_INVALID');
   }
-  const hostname = url.hostname.toLowerCase();
+  // A final DNS dot names the same host, including the forbidden public
+  // fallback and local/test names. URL.hostname deliberately retains it.
+  const hostname = url.hostname.toLowerCase().replace(/\.+$/, '');
+  const ipv4 = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(hostname);
+  const octets = ipv4?.slice(1).map(Number);
+  const privateIpv4 = octets !== undefined && (
+    octets[0] === 0 || octets[0] === 10 || octets[0] === 127 ||
+    (octets[0] === 100 && octets[1] >= 64 && octets[1] <= 127) ||
+    (octets[0] === 169 && octets[1] === 254) ||
+    (octets[0] === 172 && octets[1] >= 16 && octets[1] <= 31) ||
+    (octets[0] === 192 && octets[1] === 168)
+  );
+  const ipv6 = hostname.startsWith('[') && hostname.endsWith(']')
+    ? hostname.slice(1, -1) : null;
+  const privateIpv6 = ipv6 !== null && (
+    ipv6 === '::' || ipv6 === '::1' ||
+    /^f[cd]/.test(ipv6) || /^fe[89ab]/.test(ipv6) ||
+    ipv6.startsWith('::ffff:')
+  );
   if (
     url.protocol !== 'https:' ||
     !hostname ||
@@ -37,6 +58,8 @@ export function parseDedicatedJitsiUrl(raw: string): URL {
     hostname === 'meet.jit.si' ||
     hostname === 'localhost' ||
     hostname === '127.0.0.1' ||
+    privateIpv4 ||
+    privateIpv6 ||
     hostname.endsWith('.localhost') ||
     hostname.endsWith('.test') ||
     hostname.endsWith('.example') ||

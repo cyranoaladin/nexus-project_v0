@@ -6,17 +6,16 @@ import { tmpdir } from 'node:os';
 const script = resolve(__dirname, '../../scripts/check-production-build-env.js');
 
 function check(video: Record<string, string | undefined>, e2e = false) {
-  const env = { ...process.env };
-  delete env.NEXT_PUBLIC_VIDEO_MODE;
-  delete env.NEXT_PUBLIC_JITSI_SERVER_URL;
-  delete env.JITSI_ROOM_SECRET;
-  Object.assign(env, video);
-  for (const [key, value] of Object.entries(video)) if (value === undefined) delete env[key];
-  return execFileSync('node', [script, ...(e2e ? ['--mode=e2e'] : [])], {
-    cwd: resolve(__dirname, '../..'),
-    env,
-    encoding: 'utf8',
-  });
+  const directory = mkdtempSync(join(tmpdir(), 'preview-build-env-'));
+  try {
+    return execFileSync('node', [script, ...(e2e ? ['--mode=e2e'] : [])], {
+      cwd: directory,
+      env: { PATH: process.env.PATH, NODE_ENV: 'production', ...video },
+      encoding: 'utf8',
+    });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 }
 
 describe('production build video configuration', () => {
@@ -60,12 +59,23 @@ describe('production build video configuration', () => {
       writeFileSync(join(directory, '.env'), 'NEXT_PUBLIC_VIDEO_MODE=JITSI\n');
       writeFileSync(join(directory, '.env.production'), 'NEXT_PUBLIC_VIDEO_MODE=JITSI\n');
       writeFileSync(join(directory, '.env.local'), 'NEXT_PUBLIC_VIDEO_MODE=DISABLED\n');
-      const env = { ...process.env };
-      delete env.NEXT_PUBLIC_VIDEO_MODE;
-      delete env.NEXT_PUBLIC_JITSI_SERVER_URL;
-      delete env.JITSI_ROOM_SECRET;
+      const env: NodeJS.ProcessEnv = { PATH: process.env.PATH, NODE_ENV: 'production' };
       expect(execFileSync('node', [script], { cwd: directory, env, encoding: 'utf8' }))
         .toContain('BUILD_ENV_CHECK=PASS');
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('validates the expanded dotenv value that Next compiles', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'preview-build-env-'));
+    try {
+      writeFileSync(join(directory, '.env.production'), 'NEXT_PUBLIC_VIDEO_MODE=${PREVIEW_VIDEO_MODE}\n');
+      expect(execFileSync('node', [script], {
+        cwd: directory,
+        env: { PATH: process.env.PATH, NODE_ENV: 'production', PREVIEW_VIDEO_MODE: 'DISABLED' },
+        encoding: 'utf8',
+      })).toContain('BUILD_ENV_CHECK=PASS');
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }

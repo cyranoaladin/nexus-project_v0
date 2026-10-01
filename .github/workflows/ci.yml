@@ -2058,8 +2058,8 @@ jobs:
         image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: nexus_prod
+          POSTGRES_DB: nexus_disposable_video_test
+          POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5432:5432
         options: >-
@@ -2096,7 +2096,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Chromium for unauthenticated browser smoke
+      - name: Install Chromium for authenticated browser smoke
         run: npx playwright install --with-deps chromium
 
       - name: Prepare isolated runtime storage
@@ -2116,12 +2116,12 @@ jobs:
 
       - name: Apply migrations to disposable database
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
         run: npx prisma migrate deploy
 
       - name: Build explicit DISABLED production artifact
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
           NEXTAUTH_URL: http://localhost:3211
           NEXT_PUBLIC_APP_URL: http://localhost:3211
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
@@ -2139,11 +2139,12 @@ jobs:
           install -d -m 0700 -- "$RUNNER_TEMP/video-disabled-standalone"
           cp -a -- .next/standalone/. "$RUNNER_TEMP/video-disabled-standalone/"
 
-      - name: Smoke DISABLED standalone and unauthenticated browser
+      - name: Smoke DISABLED standalone and authenticated browser
         shell: bash
         env:
           CORE_V2_AUTH_MODE: V1_ONLY
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
+          DATABASE_URL: postgresql://postgres@localhost:5432/nexus_disposable_video_test
+          NEXUS_DISPOSABLE_POSTGRES: '1'
           NEXTAUTH_URL: http://localhost:3211
           NEXT_PUBLIC_APP_URL: http://localhost:3211
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment

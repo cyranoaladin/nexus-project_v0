@@ -64,6 +64,37 @@ describe('standalone runtime video-mode attestation', () => {
     expect(() => assertStandaloneVideoMode(root, {})).not.toThrow();
   });
 
+  it('accepts a legacy object manifest without video fields', () => {
+    writeFileSync(join(root, 'release-manifest.json'), JSON.stringify({ RELEASE_SHA: 'legacy' }));
+    expect(() => assertStandaloneVideoMode(root, {})).not.toThrow();
+  });
+
+  it('refuses a Jitsi origin in a legacy manifest without a mode', () => {
+    writeFileSync(join(root, 'release-manifest.json'), JSON.stringify({ JITSI_ORIGIN: 'https://video.example.org' }));
+    expect(() => assertStandaloneVideoMode(root, {})).toThrow('VIDEO_MODE_MANIFEST_INVALID');
+  });
+
+  it.each(['[]', '"corrupt"', '42', 'null'])('refuses a non-object release manifest %s', (content) => {
+    writeFileSync(join(root, 'release-manifest.json'), content);
+    expect(() => assertStandaloneVideoMode(root, {})).toThrow('VIDEO_MODE_MANIFEST_INVALID');
+  });
+
+  it('refuses a nonempty Jitsi URL in a DISABLED standalone', () => {
+    manifest(root, 'DISABLED');
+    expect(() => assertStandaloneVideoMode(root, {
+      NEXT_PUBLIC_VIDEO_MODE: 'DISABLED',
+      NEXT_PUBLIC_JITSI_SERVER_URL: 'https://video.example.org',
+    })).toThrow('JITSI_URL_FORBIDDEN');
+  });
+
+  it('accepts the empty Jitsi URL injected by the DISABLED builder', () => {
+    manifest(root, 'DISABLED');
+    expect(() => assertStandaloneVideoMode(root, {
+      NEXT_PUBLIC_VIDEO_MODE: 'DISABLED',
+      NEXT_PUBLIC_JITSI_SERVER_URL: '',
+    })).not.toThrow();
+  });
+
   it('finds the delivered manifest beside server.js even when WorkingDirectory differs', () => {
     manifest(root, 'DISABLED');
     const otherCwd = mkdtempSync(join(tmpdir(), 'nexus-other-cwd-'));

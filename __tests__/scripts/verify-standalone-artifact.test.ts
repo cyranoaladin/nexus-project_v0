@@ -40,7 +40,7 @@ function runGate(dir: string, env: Record<string, string> = {}): { code: number;
     const output = execSync(`node ${SCRIPT} "${dir}"`, {
       encoding: 'utf8',
       timeout: 15000,
-      env: { ...process.env, NEXT_PUBLIC_JITSI_SERVER_URL: '', RELEASE_SHA: 'a'.repeat(40), ...env },
+      env: { PATH: process.env.PATH, NODE_ENV: 'production', RELEASE_SHA: 'a'.repeat(40), ...env },
     });
     return { code: 0, output };
   } catch (e: any) {
@@ -172,6 +172,17 @@ describe('verify-standalone-artifact', () => {
       NEXT_PUBLIC_VIDEO_MODE: 'JITSI',
       NEXT_PUBLIC_JITSI_SERVER_URL: 'https://video.preview.example.org',
     });
+    expect(code).toBe(0);
+    const manifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8'));
+    expect(manifest.VIDEO_MODE).toBe('JITSI');
+    expect(manifest.JITSI_ORIGIN).toBe('https://video.preview.example.org');
+  });
+
+  test('records the effective dotenv mode and JITSI origin in the release manifest', async () => {
+    await createValidArtifact(testDir);
+    await writeFile(join(testDir, '.env.production'),
+      'NEXT_PUBLIC_VIDEO_MODE=JITSI\nNEXT_PUBLIC_JITSI_SERVER_URL=https://video.preview.example.org\n');
+    const { code } = runGate(testDir);
     expect(code).toBe(0);
     const manifest = JSON.parse(await readFile(join(testDir, '.next/standalone/release-manifest.json'), 'utf8'));
     expect(manifest.VIDEO_MODE).toBe('JITSI');

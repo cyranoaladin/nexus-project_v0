@@ -34,14 +34,21 @@ export function assertStandaloneVideoMode(
   let manifestMode: unknown;
   let manifestJitsiOrigin: unknown;
   try {
-    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
-    manifestMode = manifest.VIDEO_MODE;
-    manifestJitsiOrigin = manifest.JITSI_ORIGIN;
+    const manifest: unknown = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    if (typeof manifest !== 'object' || manifest === null || Array.isArray(manifest)) {
+      throw new Error('VIDEO_MODE_MANIFEST_INVALID');
+    }
+    const fields = manifest as Record<string, unknown>;
+    manifestMode = fields.VIDEO_MODE;
+    manifestJitsiOrigin = fields.JITSI_ORIGIN;
   } catch {
     throw new Error('VIDEO_MODE_MANIFEST_INVALID');
   }
 
-  if (manifestMode === undefined && runtimeRaw === undefined) return;
+  if (manifestMode === undefined && runtimeRaw === undefined) {
+    if (manifestJitsiOrigin !== undefined) throw new Error('VIDEO_MODE_MANIFEST_INVALID');
+    return;
+  }
   if (manifestMode !== 'DISABLED' && manifestMode !== 'JITSI') {
     throw new Error('VIDEO_MODE_MANIFEST_INVALID');
   }
@@ -62,7 +69,11 @@ export function assertStandaloneVideoMode(
     if (runtimeOrigin !== manifestJitsiOrigin) {
       throw new Error('JITSI_ORIGIN_MANIFEST_MISMATCH');
     }
-  } else if (manifestJitsiOrigin !== undefined) {
-    throw new Error('JITSI_ORIGIN_MANIFEST_INVALID');
+  } else {
+    // The builder exports an empty value for DISABLED, which is not a URL.
+    // A nonempty runtime URL contradicts the disabled client bundle.
+    const runtimeUrl = Reflect.get(env, 'NEXT_PUBLIC_JITSI_SERVER_URL') as string | undefined;
+    if (runtimeUrl) throw new Error('JITSI_URL_FORBIDDEN');
+    if (manifestJitsiOrigin !== undefined) throw new Error('JITSI_ORIGIN_MANIFEST_INVALID');
   }
 }
