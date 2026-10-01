@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // NPC AI - Public API
-// Chutes.ai integration, prompts, schemas, and validators
+// OpenRouter integration, prompts, schemas, and validators
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // Client
-export { ChutesClient, chutesClient } from './chutes-client';
+export { OpenRouterClient, openRouterClient } from './openrouter-client';
 
 // Schemas
 export {

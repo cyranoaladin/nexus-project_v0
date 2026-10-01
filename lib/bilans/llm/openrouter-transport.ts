@@ -1,5 +1,6 @@
 import lexicon from '@/data/bilans/lexique-interdit.json';
 
+import { withExcludedProviders } from '../../llm/provider-exclusion';
 import type { BilanGenerationRequest, BilanLlmTransport } from './gateway';
 
 const FORBIDDEN_TERMS: readonly string[] = Object.values(lexicon.categories).flat();
@@ -183,6 +184,7 @@ export class OpenRouterBilanTransport implements BilanLlmTransport {
             max_tokens: this.config.maxTokens,
             temperature: this.config.temperature,
             response_format: { type: 'json_object' },
+            provider: withExcludedProviders(),
           }),
           signal: controller.signal,
         });

@@ -7,6 +7,7 @@ import lexicon from '@/data/bilans/lexique-interdit.json';
 import modelPolicy from '@/data/bilans/model-policy.json';
 import { prisma } from '@/lib/prisma';
 
+import { withExcludedProviders } from '../../llm/provider-exclusion';
 import { resolveEnabledPack, type PackResolver } from '../api/pack-access';
 import type { FactSheet } from '../facts/fact-sheet';
 import { scanPiiFields } from '../local-first/pii';
@@ -326,6 +327,7 @@ async function callTeacherBriefDomain(
           { role: 'user', content: JSON.stringify(facts) },
         ],
         usage: { include: true },
+        provider: withExcludedProviders(),
       }),
       signal: controller.signal,
     });

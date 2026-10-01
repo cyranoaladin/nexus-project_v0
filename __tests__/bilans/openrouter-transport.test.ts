@@ -57,6 +57,7 @@ describe('OpenRouterBilanTransport', () => {
     expect(headers.Authorization).toBe('Bearer sk-test-key');
     const body = JSON.parse(init.body as string);
     expect(body.model).toBe('mistralai/mistral-large-2512');
+    expect(body.provider.ignore).toContain('chutes');
     expect(body.messages[0]).toEqual({ role: 'system', content: expect.stringContaining('compte-rendu') });
     const userPayload = JSON.parse(body.messages[1].content);
     expect(userPayload.factSheet.globalScore).toBe(62.5);
