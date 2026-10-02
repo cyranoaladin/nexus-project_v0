@@ -357,13 +357,6 @@ model User {
   espaceLegacyLinks     EspaceLegacyLink[]         @relation("EspaceLegacyLinkStudent")
   espaceLegacyLinksMade EspaceLegacyLink[]         @relation("EspaceLegacyLinkAuthor")
 
-  // ARIA collective workshops (P7d)
-  ariaWorkshopSessionsCreated AriaWorkshopSession[]  @relation("AriaWorkshopSessionCreatedBy")
-  ariaWorkshopAttendanceMarks AriaWorkshopAttendee[] @relation("AriaWorkshopAttendeeMarkedBy")
-
-  // ARIA periodic bilan reviews (P7b-2)
-  bilansReviewed Bilan[] @relation("BilanReviewedBy")
-
   @@index([role])
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])

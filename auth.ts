@@ -5,6 +5,7 @@ import { authorizeCredentials, normalizeLoginIdentifier } from '@/lib/auth/crede
 import { authorizeEspaceCredentials } from '@/lib/auth/espace-authorize';
 import { normalizeUsername } from '@/lib/espace/username';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 import { issueSessionToken, projectSessionClaims } from '@/lib/auth/session-claims';
 import { validateSessionToken } from '@/lib/auth/session-revocation';
 

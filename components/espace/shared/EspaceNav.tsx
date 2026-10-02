@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
+import { signOut } from 'next-auth/react';
 import { LogOut } from 'lucide-react';
 
 export interface NavItem {
@@ -13,7 +13,6 @@ export interface NavItem {
 /** Navigation volontairement courte ; l'élément actif est annoncé (aria-current), pas seulement coloré. */
 export function EspaceNav({ items, displayName, roleLabel }: { items: NavItem[]; displayName: string; roleLabel: string }) {
   const pathname = usePathname() ?? '';
-  const signOut = useCanonicalSignOut();
   const isActive = (href: string) => (href.split('/').length <= 3 ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
 
   return (
