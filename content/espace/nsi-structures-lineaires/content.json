@@ -4,6 +4,9 @@
   "subtitle": "Organiser des données avec des objets",
   "session": "TP POO 2 • Terminale NSI",
   "duration": 120,
+  "ui": {
+    "phases": true
+  },
   "steps": [
     {
       "id": "reactivation",
