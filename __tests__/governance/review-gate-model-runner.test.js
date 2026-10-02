@@ -20,12 +20,12 @@ describe('trusted three-pass local semantic review', () => {
       return { ok: true, stdout: clean };
     });
     const outputs = await runThreePassReview({ headSha: HEAD, files,
-      modelPath: '/tmp/verified/model.gguf', binaryPath: '/tmp/verified/llama-cli',
+      modelPath: '/tmp/verified/model.gguf', binaryPath: '/tmp/verified/llama-completion',
       schemaPath: '/trusted/review-schema.json', contextTokens: 8192, runProcess });
     expect(Object.keys(outputs)).toEqual(['correctness', 'security', 'runtime']);
     expect(calls).toHaveLength(3);
     for (const call of calls) {
-      expect(call.command).toBe('/tmp/verified/llama-cli');
+      expect(call.command).toBe('/tmp/verified/llama-completion');
       expect(call.args).not.toContain('@@ -1 +1 @@');
       expect(call.args).toContain('-f');
       expect(call.args).not.toContain('/dev/stdin');
@@ -43,7 +43,7 @@ describe('trusted three-pass local semantic review', () => {
 
   test('invalid paths, unsupported diff and timeout fail closed', async () => {
     const base = { headSha: HEAD, files, modelPath: '/tmp/model.gguf',
-      binaryPath: '/tmp/llama-cli', schemaPath: '/tmp/schema.json', contextTokens: 8192 };
+      binaryPath: '/tmp/llama-completion', schemaPath: '/tmp/schema.json', contextTokens: 8192 };
     await expect(runThreePassReview({ ...base, modelPath: 'relative.gguf',
       runProcess: async () => ({ ok: true, stdout: clean }) })).rejects.toThrow('MODEL_CONFIG_INVALID');
     await expect(runThreePassReview({ ...base, files: [{ ...files[0], patch: 'x'.repeat(70_000) }],

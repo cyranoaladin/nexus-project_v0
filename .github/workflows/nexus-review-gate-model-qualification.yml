@@ -58,9 +58,9 @@ jobs:
             echo 'UNSAFE_RUNTIME_ARCHIVE_PATH'
             exit 1
           fi
-          printf '%s\n' "$entries" | grep -qx 'llama-b10977/llama-cli'
+          printf '%s\n' "$entries" | grep -qx 'llama-b10977/llama-completion'
           tar -xzf "$REVIEW_GATE_TEMP/runtime.tar.gz" -C "$REVIEW_GATE_TEMP"
-          test -x "$REVIEW_GATE_TEMP/llama-b10977/llama-cli"
+          test -x "$REVIEW_GATE_TEMP/llama-b10977/llama-completion"
 
       - name: Diagnose model invocation with synthetic prompt
         run: |
@@ -71,7 +71,7 @@ jobs:
           printf '%s' 'Review only this synthetic input and return {"review_complete":true,"blocking_findings":[],"warnings":[]}.' > "$synthetic_prompt"
           chmod 0600 "$synthetic_prompt"
           set +e
-          timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-cli" \
+          timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-completion" \
               -m "$REVIEW_GATE_TEMP/model.gguf" -f "$synthetic_prompt" -c 2048 -t 4 -n 128 \
               --temp 0 --top-k 1 \
               --json-schema-file scripts/github/review-gate/qualification/review-output.schema.json \
@@ -97,7 +97,7 @@ jobs:
           REVIEW_GATE_REPORT_PATH: ${{ runner.temp }}/review-gate-model-report.json
         run: |
           export REVIEW_GATE_MODEL_PATH="$REVIEW_GATE_TEMP/model.gguf"
-          export REVIEW_GATE_BINARY_PATH="$REVIEW_GATE_TEMP/llama-b10977/llama-cli"
+          export REVIEW_GATE_BINARY_PATH="$REVIEW_GATE_TEMP/llama-b10977/llama-completion"
           node scripts/github/review-gate/qualification/evaluate.mjs '${{ matrix.candidate }}'
 
       - name: Upload model metrics without diffs or model output

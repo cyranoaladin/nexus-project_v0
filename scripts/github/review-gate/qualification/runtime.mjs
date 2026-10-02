@@ -11,7 +11,7 @@ export function validateRuntimeArchiveEntries(raw) {
     throw new Error('RUNTIME_ARCHIVE_INVALID');
   }
   const entries = raw.trimEnd().split('\n');
-  if (!entries.includes(`${RUNTIME_DIR}/llama-cli`) || entries.some((entry) =>
+  if (!entries.includes(`${RUNTIME_DIR}/llama-completion`) || entries.some((entry) =>
     !entry.startsWith(`${RUNTIME_DIR}/`) || entry.startsWith('/') ||
     entry.includes('\\') || entry.includes('\0') ||
     entry.split('/').some((part) => part === '..' || part === '.') ||
@@ -45,7 +45,7 @@ export async function prepareQualifiedRuntime({ candidate, runtime, runnerTemp,
     exec('tar', ['-xzf', archivePath, '-C', root], {
       timeout: 60_000, stdio: 'ignore',
     });
-    const binaryPath = join(root, RUNTIME_DIR, 'llama-cli');
+    const binaryPath = join(root, RUNTIME_DIR, 'llama-completion');
     const stat = await lstat(binaryPath);
     const actual = await realpath(binaryPath);
     if (!stat.isFile() || !actual.startsWith(`${root}${sep}`) ||
