@@ -58,7 +58,7 @@ describe('texte d’élève : jamais du HTML', () => {
 
   it('un retour d’enseignant contenant du HTML est affiché comme texte', () => {
     const { container } = setup({}, {
-      annotations: [{ id: 'a1', kind: 'GENERAL', body: HOSTILE, stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', createdAt: '' }],
+      annotations: [{ id: 'a1', kind: 'GENERAL', body: HOSTILE, stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', mine: false, createdAt: '' }],
     });
     expect(container.querySelector('img[src="x"]')).toBeNull();
     expect(screen.getByTestId('annotation')).toHaveTextContent(HOSTILE);

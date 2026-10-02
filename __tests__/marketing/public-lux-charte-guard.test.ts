@@ -274,6 +274,23 @@ describe('Public lux-* charte guard', () => {
     'app/demo/utica-2026/aria/page.tsx',
     'app/demo/utica-2026/360/page.tsx',
     'app/demo/utica-2026/ressources/[slug]/page.tsx',
+    // Espace pédagogique Terminale (élèves + enseignant) : espace de travail authentifié, noindex,
+    // qui réutilise les tokens brand-*/surface-* du dashboard — pas une page marketing lux-*.
+    'app/espace/connexion/page.tsx',
+    'app/espace/eleve/matieres/page.tsx',
+    'app/espace/eleve/page.tsx',
+    'app/espace/eleve/travaux/page.tsx',
+    'app/espace/enseignant/a-corriger/page.tsx',
+    'app/espace/enseignant/archives-poo/page.tsx',
+    'app/espace/enseignant/corriger/[workId]/page.tsx',
+    'app/espace/enseignant/eleves/[id]/page.tsx',
+    'app/espace/enseignant/eleves/page.tsx',
+    'app/espace/enseignant/page.tsx',
+    'app/espace/enseignant/ressources/page.tsx',
+    'app/espace/enseignant/seances/page.tsx',
+    'app/espace/maths/suites/page.tsx',
+    'app/espace/nsi/poo/page.tsx',
+    'app/espace/page.tsx',
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {

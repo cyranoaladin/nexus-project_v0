@@ -315,9 +315,10 @@ describe('ouverture et accès', () => {
     await expectCode(openWork(teacher, { activitySlug: POO_ACTIVITY_SLUG }), 'FORBIDDEN');
   });
 
-  it('ouvre un travail vide, et deux ouvertures simultanées donnent le même travail', async () => {
-    const [a, b, c] = await Promise.all([freshWork(ada), freshWork(ada), freshWork(ada)]);
-    expect(new Set([a.id, b.id, c.id]).size).toBe(1);
+  it('ouvre un travail vide, et douze ouvertures simultanées donnent le même travail', async () => {
+    const opened = await Promise.all(Array.from({ length: 12 }, () => freshWork(ada)));
+    expect(new Set(opened.map((w) => w.id)).size).toBe(1);
+    const a = opened[0];
     expect(a.status).toBe('DRAFT');
     expect(a.revision).toBe(0);
     expect(a.editable).toBe(true);

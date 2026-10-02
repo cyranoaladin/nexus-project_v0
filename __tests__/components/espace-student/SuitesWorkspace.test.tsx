@@ -116,7 +116,7 @@ describe('remise', () => {
       <SuitesWorkspace
         {...withFile}
         status="CORRECTED"
-        annotations={[{ id: 'a', kind: 'GENERAL', body: '<img src=x onerror=alert(1)>', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', createdAt: '' }]}
+        annotations={[{ id: 'a', kind: 'GENERAL', body: '<img src=x onerror=alert(1)>', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', mine: false, createdAt: '' }]}
       />,
     );
     expect(container.querySelector('img[src="x"]')).toBeNull();

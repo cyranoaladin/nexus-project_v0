@@ -112,13 +112,19 @@ export async function openWork(
     sessionId = seat.id;
   }
 
-  // upsert : deux onglets qui ouvrent en même temps obtiennent le même travail.
-  const work = await prisma.espaceWork.upsert({
-    where: { studentId_activityId: { studentId: actor.id, activityId: activity.id } },
-    create: { studentId: actor.id, activityId: activity.id, sessionId },
-    update: {},
-    include: { activity: true },
-  });
+  // Deux onglets (ou deux requêtes) qui ouvrent en même temps obtiennent le même travail :
+  // lire, sinon créer, et si la contrainte d'unicité l'emporte, relire. (L'`upsert` de Prisma
+  // n'est pas toujours atomique : mesuré en échec sous charge.)
+  const key = { studentId_activityId: { studentId: actor.id, activityId: activity.id } };
+  let work = await prisma.espaceWork.findUnique({ where: key, include: { activity: true } });
+  if (!work) {
+    try {
+      work = await prisma.espaceWork.create({ data: { studentId: actor.id, activityId: activity.id, sessionId }, include: { activity: true } });
+    } catch (e) {
+      if ((e as { code?: string }).code !== 'P2002') throw e;
+      work = await prisma.espaceWork.findUniqueOrThrow({ where: key, include: { activity: true } });
+    }
+  }
   if (sessionId && !work.sessionId) {
     const linked = await prisma.espaceWork.update({ where: { id: work.id }, data: { sessionId }, include: { activity: true } });
     return toWorkDto(linked);

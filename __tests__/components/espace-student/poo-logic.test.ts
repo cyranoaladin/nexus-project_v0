@@ -18,7 +18,7 @@ import {
 const steps = getPooContent().steps;
 
 const note = (over: Partial<AnnotationDto>): AnnotationDto => ({
-  id: 'a', kind: 'GENERAL', body: 'x', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', createdAt: '', ...over,
+  id: 'a', kind: 'GENERAL', body: 'x', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 1, authorName: 'P', mine: false, createdAt: '', ...over,
 });
 
 describe('navigation', () => {

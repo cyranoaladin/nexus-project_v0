@@ -2,21 +2,29 @@
  * Appels HTTP de l'espace pédagogique côté navigateur.
  * Les erreurs métier sont normalisées en `EspaceApiError` (code stable + statut).
  */
+import type { AnnotationDto } from '../annotations';
+import type { AttachmentDto } from '../files';
+import type { TeacherOverview } from '../overview';
+import type { WorkContent } from '../work-content';
+import type { WorkDto } from '../works';
 import type { SaveApi, SaveResponse, Steps } from './sync-engine';
+
+type SessionSummary = { id: string; status: string; participants?: number };
+type VersionMeta = { id: string; revision: number; reason: string; createdAt: string };
 
 export class EspaceApiError extends Error {
   constructor(
     readonly status: number,
     readonly code: string,
     message: string,
-    readonly details?: Record<string, any>,
+    readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'EspaceApiError';
   }
 }
 
-async function call<T = any>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
+async function call<T = unknown>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
   const { json, headers, ...rest } = init;
   const res = await fetch(path, {
     credentials: 'same-origin',
@@ -31,39 +39,38 @@ async function call<T = any>(path: string, init: RequestInit & { json?: unknown 
 
 export const espaceApi = {
   openWork: (activitySlug: string, sessionId?: string | null) =>
-    call<{ work: any }>('/api/espace/works', { method: 'POST', json: { activitySlug, sessionId: sessionId ?? null } }),
-  getWork: (workId: string) => call<{ mode: 'student' | 'teacher'; work: any; annotations: any[]; attachments: any[] }>(`/api/espace/works/${workId}`),
+    call<{ work: WorkDto }>('/api/espace/works', { method: 'POST', json: { activitySlug, sessionId: sessionId ?? null } }),
+  getWork: (workId: string) => call<{ mode: 'student' | 'teacher'; work: WorkDto; annotations: AnnotationDto[]; attachments: AttachmentDto[] }>(`/api/espace/works/${workId}`),
   submit: (workId: string, baseRevision: number) =>
-    call<{ work: any }>(`/api/espace/works/${workId}/submit`, { method: 'POST', json: { baseRevision } }),
+    call<{ work: WorkDto }>(`/api/espace/works/${workId}/submit`, { method: 'POST', json: { baseRevision } }),
   review: (workId: string, action: 'MARK_CORRECTED' | 'REOPEN' | 'MARK_DONE') =>
-    call<{ work: any }>(`/api/espace/works/${workId}/review`, { method: 'POST', json: { action } }),
+    call<{ work: WorkDto }>(`/api/espace/works/${workId}/review`, { method: 'POST', json: { action } }),
   addAnnotation: (workId: string, body: Record<string, unknown>) =>
-    call<{ annotation: any }>(`/api/espace/works/${workId}/annotations`, { method: 'POST', json: body }),
+    call<{ annotation: AnnotationDto }>(`/api/espace/works/${workId}/annotations`, { method: 'POST', json: body }),
   deleteAnnotation: (workId: string, annotationId: string) =>
     call(`/api/espace/works/${workId}/annotations/${annotationId}`, { method: 'DELETE' }),
-  versions: (workId: string) => call<{ versions: any[] }>(`/api/espace/works/${workId}/versions`),
-  version: (workId: string, versionId: string) => call<{ version: any }>(`/api/espace/works/${workId}/versions/${versionId}`),
+  versions: (workId: string) => call<{ versions: VersionMeta[] }>(`/api/espace/works/${workId}/versions`),
+  version: (workId: string, versionId: string) => call<{ version: VersionMeta & { content: WorkContent } }>(`/api/espace/works/${workId}/versions/${versionId}`),
   upload: (workId: string, file: File) => {
     const form = new FormData();
     form.append('file', file);
-    return call<{ attachment: any }>(`/api/espace/works/${workId}/attachments`, { method: 'POST', body: form });
+    return call<{ attachment: AttachmentDto }>(`/api/espace/works/${workId}/attachments`, { method: 'POST', body: form });
   },
   deleteAttachment: (workId: string, attachmentId: string) => call(`/api/espace/works/${workId}/attachments/${attachmentId}`, { method: 'DELETE' }),
-  overview: (activitySlug: string) => call<any>(`/api/espace/teacher/overview?activity=${encodeURIComponent(activitySlug)}`),
+  overview: (activitySlug: string) => call<TeacherOverview>(`/api/espace/teacher/overview?activity=${encodeURIComponent(activitySlug)}`),
   snippets: () => call<{ snippets: { id: string; body: string }[] }>('/api/espace/teacher/snippets'),
   addSnippet: (body: string) => call<{ snippet: { id: string; body: string } }>('/api/espace/teacher/snippets', { method: 'POST', json: { body } }),
   deleteSnippet: (id: string) => call(`/api/espace/teacher/snippets/${id}`, { method: 'DELETE' }),
-  createSession: (body: Record<string, unknown>) => call<{ session: any }>('/api/espace/teacher/sessions', { method: 'POST', json: body }),
-  publishSession: (id: string) => call<{ session: any }>(`/api/espace/teacher/sessions/${id}/publish`, { method: 'POST' }),
-  closeSession: (id: string) => call<{ session: any }>(`/api/espace/teacher/sessions/${id}/close`, { method: 'POST' }),
+  createSession: (body: Record<string, unknown>) => call<{ session: SessionSummary }>('/api/espace/teacher/sessions', { method: 'POST', json: body }),
+  publishSession: (id: string) => call<{ session: SessionSummary }>(`/api/espace/teacher/sessions/${id}/publish`, { method: 'POST' }),
+  closeSession: (id: string) => call<{ session: SessionSummary }>(`/api/espace/teacher/sessions/${id}/close`, { method: 'POST' }),
 };
 
 /** Adaptateur du moteur d'autosave : traduit les statuts HTTP en réponses typées. */
 export function createSaveApi(workId: string): SaveApi {
   return {
     async save(input): Promise<SaveResponse> {
-      let res: Response;
-      res = await fetch(`/api/espace/works/${workId}`, {
+      const res = await fetch(`/api/espace/works/${workId}`, {
         method: 'PUT',
         credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
 import { LogOut } from 'lucide-react';
 
 export interface NavItem {
@@ -13,6 +13,7 @@ export interface NavItem {
 /** Navigation volontairement courte ; l'élément actif est annoncé (aria-current), pas seulement coloré. */
 export function EspaceNav({ items, displayName, roleLabel }: { items: NavItem[]; displayName: string; roleLabel: string }) {
   const pathname = usePathname() ?? '';
+  const signOut = useCanonicalSignOut();
   const isActive = (href: string) => (href.split('/').length <= 3 ? pathname === href : pathname === href || pathname.startsWith(`${href}/`));
 
   return (
@@ -39,7 +40,7 @@ export function EspaceNav({ items, displayName, roleLabel }: { items: NavItem[];
           </span>
           <button
             type="button"
-            onClick={() => signOut({ callbackUrl: '/espace/connexion' })}
+            onClick={() => void signOut({ callbackUrl: '/espace/connexion' })}
             className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-3 py-1.5 text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />

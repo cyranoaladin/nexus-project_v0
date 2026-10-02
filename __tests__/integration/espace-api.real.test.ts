@@ -76,6 +76,7 @@ function req(method: string, body?: unknown, headers: Record<string, string> = {
 const ctx = <T extends Record<string, string>>(p: T) => ({ params: Promise.resolve(p) });
 
 async function jsonOf(res: Response) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- corps JSON de test, lu champ par champ
   return (await res.json()) as Record<string, any>;
 }
 

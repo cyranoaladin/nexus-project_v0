@@ -36,7 +36,7 @@ export default async function EspaceLayout({ children }: { children: React.React
     <EspaceProvider timezone={timezone}>
       <div className="min-h-screen bg-surface-darker text-neutral-100">
         <a
-          href="#contenu"
+          href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:text-neutral-900"
         >
           Aller au contenu
@@ -48,7 +48,7 @@ export default async function EspaceLayout({ children }: { children: React.React
             roleLabel={actor.role === 'ELEVE' ? 'Élève' : 'Enseignant'}
           />
         )}
-        <main id="contenu" className="mx-auto max-w-6xl px-4 py-6">
+        <main id="main-content" className="mx-auto max-w-6xl px-4 py-6">
           {children}
         </main>
       </div>

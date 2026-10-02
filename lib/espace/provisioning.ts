@@ -18,6 +18,8 @@ import { randomBytes } from 'node:crypto';
 import type { Prisma, PrismaClient, Subject } from '@prisma/client';
 import { z } from 'zod';
 
+import { normalizeUserEmail } from '@/lib/contact/user-email';
+
 import { ACTIVITIES } from './catalog';
 import { generatePin, hashPin } from './pin';
 import { normalizeUsername } from './username';
@@ -184,7 +186,7 @@ export async function planProvisioning(db: Db, roster: Roster, options: PlanOpti
     } else {
       // Enseignant : un email fourni par l'utilisateur identifie sans ambiguïté.
       matches = p.matchEmail
-        ? await db.user.findMany({ where: { email: p.matchEmail.trim().toLowerCase() }, select: { id: true, role: true, firstName: true, lastName: true, username: true, createdAt: true, activatedAt: true } })
+        ? await db.user.findMany({ where: { email: normalizeUserEmail(p.matchEmail) }, select: { id: true, role: true, firstName: true, lastName: true, username: true, createdAt: true, activatedAt: true } })
         : [];
       if (matches.length === 0) {
         const f = fold(p.firstName);

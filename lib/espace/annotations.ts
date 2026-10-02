@@ -55,6 +55,8 @@ export interface AnnotationDto {
   lineEnd: number | null;
   workRevision: number | null;
   authorName: string;
+  /** L'acteur courant est l'auteur : calculé côté serveur, l'identifiant de l'auteur n'est jamais exposé. */
+  mine: boolean;
   createdAt: string;
 }
 
@@ -95,11 +97,11 @@ export async function addAnnotation(actor: EspaceActor, workId: string, raw: unk
     },
     include: { author: { select: { firstName: true, lastName: true } } },
   });
-  return toDto(created);
+  return toDto(actor.id, created);
 }
 
-function toDto(a: {
-  id: string; kind: EspaceAnnotationKind; body: string; stepId: string | null; questionId: string | null;
+function toDto(actorId: string, a: {
+  id: string; authorId: string; kind: EspaceAnnotationKind; body: string; stepId: string | null; questionId: string | null;
   lineStart: number | null; lineEnd: number | null; workRevision: number | null; createdAt: Date;
   author: { firstName: string | null; lastName: string | null };
 }): AnnotationDto {
@@ -113,6 +115,7 @@ function toDto(a: {
     lineEnd: a.lineEnd,
     workRevision: a.workRevision,
     authorName: authorName(a.author),
+    mine: a.authorId === actorId,
     createdAt: a.createdAt.toISOString(),
   };
 }
@@ -125,7 +128,7 @@ export async function listAnnotations(actor: EspaceActor, workId: string): Promi
     orderBy: { createdAt: 'asc' },
     include: { author: { select: { firstName: true, lastName: true } } },
   });
-  return rows.map(toDto);
+  return rows.map((row) => toDto(actor.id, row));
 }
 
 export async function deleteAnnotation(actor: EspaceActor, workId: string, annotationId: string): Promise<void> {
