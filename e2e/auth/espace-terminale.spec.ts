@@ -277,6 +277,67 @@ test.describe('retour élève', () => {
   });
 });
 
+test.describe('hors connexion et plusieurs onglets', () => {
+  test('hors connexion : l’indicateur le dit, le travail reste sur l’appareil, la synchronisation reprend au retour du réseau', async ({ browser }) => {
+    const { ctx, page } = await pageAs(browser, 'ada');
+    try {
+      await page.goto(`/espace/nsi/poo?seance=${sessionId}`);
+      const field = page.getByLabel(step1.fields[0].label);
+      await expect(field).toBeEnabled();
+      const OFFLINE = `Saisie hors connexion ${run}`;
+
+      await ctx.setOffline(true);
+      await field.fill(OFFLINE);
+      const indicator = page.getByTestId('save-indicator');
+      await expect(indicator).toHaveAttribute('data-state', /offline|error/, { timeout: 15_000 });
+      await expect(indicator).not.toContainText('✓'); // jamais « enregistré » sans accusé du serveur
+      await expect(field).toHaveValue(OFFLINE); // la saisie n'est pas perdue à l'écran
+      const during = await prisma.espaceWork.findUniqueOrThrow({ where: { id: workId } });
+      expect(JSON.stringify(during.content)).not.toContain(OFFLINE); // et rien n'est encore côté serveur
+
+      await ctx.setOffline(false);
+      await expectSaved(page);
+      const after = await prisma.espaceWork.findUniqueOrThrow({ where: { id: workId } });
+      expect(JSON.stringify(after.content)).toContain(OFFLINE);
+    } finally {
+      await ctx.close();
+    }
+  });
+
+  test('deux onglets : une modification concurrente de la même étape ne s’écrase jamais en silence', async ({ browser }) => {
+    const { ctx, page: tabA } = await pageAs(browser, 'ada');
+    try {
+      const tabB = await ctx.newPage();
+      const url = `/espace/nsi/poo?seance=${sessionId}`;
+      await tabA.goto(url);
+      await tabB.goto(url);
+      const fieldA = tabA.getByLabel(step1.fields[0].label);
+      const fieldB = tabB.getByLabel(step1.fields[0].label);
+      await expect(fieldA).toBeEnabled();
+      await expect(fieldB).toBeEnabled();
+      const VALUE_A = `Onglet A ${run}`;
+      const VALUE_B = `Onglet B ${run}`;
+
+      await fieldA.fill(VALUE_A);
+      await expectSaved(tabA);
+
+      await fieldB.fill(VALUE_B); // l'onglet B est périmé : il ignore la sauvegarde de A
+      await expect(tabB.getByRole('alertdialog')).toBeVisible({ timeout: 15_000 });
+      const kept = await prisma.espaceWork.findUniqueOrThrow({ where: { id: workId } });
+      expect(JSON.stringify(kept.content)).toContain(VALUE_A); // la version de A n'a pas été écrasée
+      expect(JSON.stringify(kept.content)).not.toContain(VALUE_B);
+
+      await tabB.getByRole('button', { name: 'Garder ma version' }).click(); // choix explicite de l'élève
+      await expect
+        .poll(async () => JSON.stringify((await prisma.espaceWork.findUniqueOrThrow({ where: { id: workId } })).content), { timeout: 15_000 })
+        .toContain(VALUE_B);
+      await expectSaved(tabB);
+    } finally {
+      await ctx.close();
+    }
+  });
+});
+
 test.describe('isolation', () => {
   test('un second élève ne peut accéder ni au travail ni à l’espace enseignant', async ({ browser }) => {
     const { ctx, page } = await pageAs(browser, 'bob');
