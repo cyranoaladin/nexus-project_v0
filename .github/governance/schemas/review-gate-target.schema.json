@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexusreussite.academy/schemas/review-gate-target.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "repository", "rulesetId", "activation", "notes", "prerequisites", "desired"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "repository": { "const": "cyranoaladin/nexus-project_v0" },
+    "rulesetId": { "const": 12801316 },
+    "activation": { "const": "PENDING_QUALIFICATION" },
+    "notes": { "type": "string", "minLength": 1 },
+    "prerequisites": {
+      "type": "array", "minItems": 6, "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" }
+    },
+    "desired": {
+      "type": "object", "additionalProperties": false,
+      "required": ["pullRequest", "bypassActors", "requiredStatusChecks"],
+      "properties": {
+        "pullRequest": {
+          "type": "object", "additionalProperties": false,
+          "required": ["requiredApprovingReviewCount", "requireLastPushApproval",
+            "dismissStaleReviewsOnPush", "requiredReviewThreadResolution",
+            "requireCodeOwnerReview", "allowedMergeMethods"],
+          "properties": {
+            "requiredApprovingReviewCount": { "const": 0 },
+            "requireLastPushApproval": { "const": false },
+            "dismissStaleReviewsOnPush": { "const": true },
+            "requiredReviewThreadResolution": { "const": true },
+            "requireCodeOwnerReview": { "const": false },
+            "allowedMergeMethods": { "const": ["merge"] }
+          }
+        },
+        "bypassActors": { "const": [] },
+        "requiredStatusChecks": {
+          "type": "array", "minItems": 12,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["context", "integrationId"],
+            "properties": {
+              "context": { "type": "string", "minLength": 1 },
+              "integrationId": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    }
+  }
+}

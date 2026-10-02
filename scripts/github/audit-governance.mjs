@@ -28,6 +28,7 @@ const GOVERNANCE_FILES = [
   ['main-ruleset.schema.json', 'main-ruleset.json'],
   ['review-policy.schema.json', 'review-policy.json'],
   ['checks-registry.schema.json', 'checks-registry.json'],
+  ['review-gate-target.schema.json', 'review-gate-target.json'],
 ];
 
 export function runOfflineAudit({ root = repoRoot } = {}) {
@@ -113,17 +114,24 @@ export function runOfflineAudit({ root = repoRoot } = {}) {
     findings.push({ code: 'CODEOWNERS_MISSING', details: codeownersPath });
   } else {
     const coverage = hasFullCoverage(readFileSync(codeownersPath, 'utf8'));
-    if (coverage.coverage !== 1) {
-      findings.push({ code: 'CODEOWNERS_COVERAGE_INCOMPLETE', details: 'no catch-all (*) rule found' });
-    }
     const reviewPolicy = loaded['review-policy.json'];
     const expectedPrincipals = [...(reviewPolicy?.codeowners?.principals ?? [])].sort();
-    const actualOwners = [...(coverage.catchAll?.owners ?? [])].sort();
-    if (JSON.stringify(expectedPrincipals) !== JSON.stringify(actualOwners)) {
+    const expectedPatterns = reviewPolicy?.codeowners?.sensitivePatterns ?? [];
+    const actualPatterns = coverage.rules.map((rule) => rule.pattern);
+    if (coverage.catchAll || new Set(actualPatterns).size !== actualPatterns.length ||
+        JSON.stringify([...actualPatterns].sort()) !== JSON.stringify([...expectedPatterns].sort())) {
       findings.push({
-        code: 'CODEOWNERS_PRINCIPALS_MISMATCH',
-        details: `CODEOWNERS has [${actualOwners.join(',')}], review-policy.json expects [${expectedPrincipals.join(',')}]`,
+        code: 'CODEOWNERS_SENSITIVE_PATHS_MISMATCH',
+        details: 'CODEOWNERS patterns differ from the versioned selective policy or include catch-all',
       });
+    }
+    for (const rule of coverage.rules) {
+      if (JSON.stringify([...rule.owners].sort()) !== JSON.stringify(expectedPrincipals)) {
+        findings.push({
+          code: 'CODEOWNERS_PRINCIPALS_MISMATCH',
+          details: `${rule.pattern} owners differ from review-policy.json`,
+        });
+      }
     }
   }
 

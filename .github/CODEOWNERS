@@ -1,1 +1,18 @@
-* @abenrhouma @adammeg
+# Human owners only for governance, privileged CI and deployment access.
+/.github/CODEOWNERS @abenrhouma @adammeg
+/.github/governance/** @abenrhouma @adammeg
+/.github/workflows/ci.yml @abenrhouma @adammeg
+/.github/workflows/governance-live-audit.yml @abenrhouma @adammeg
+/.github/workflows/nexus-review-gate-proof.yml @abenrhouma @adammeg
+/.github/workflows/nexus-review-gate.yml @abenrhouma @adammeg
+/.github/workflows/preview-artifact.yml @abenrhouma @adammeg
+/scripts/github/** @abenrhouma @adammeg
+/scripts/github/review-gate/** @abenrhouma @adammeg
+/__tests__/governance/** @abenrhouma @adammeg
+/scripts/deploy* @abenrhouma @adammeg
+/scripts/deploy/** @abenrhouma @adammeg
+/scripts/prepare-deployment.sh @abenrhouma @adammeg
+/scripts/ops/rotate-releases.sh @abenrhouma @adammeg
+/scripts/release/preview-artifact-builder-guards.js @abenrhouma @adammeg
+/scripts/release/verify-release-pointers.sh @abenrhouma @adammeg
+/scripts/security/check-versioned-credentials.mjs @abenrhouma @adammeg

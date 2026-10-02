@@ -4,8 +4,27 @@
   "repository": "cyranoaladin/nexus-project_v0",
   "codeowners": {
     "filePath": ".github/CODEOWNERS",
-    "coverageModel": "CATCH_ALL",
+    "coverageModel": "SENSITIVE_PATHS",
     "principals": ["abenrhouma", "adammeg"],
+    "sensitivePatterns": [
+      "/.github/CODEOWNERS",
+      "/.github/governance/**",
+      "/.github/workflows/ci.yml",
+      "/.github/workflows/governance-live-audit.yml",
+      "/.github/workflows/nexus-review-gate-proof.yml",
+      "/.github/workflows/nexus-review-gate.yml",
+      "/.github/workflows/preview-artifact.yml",
+      "/scripts/github/**",
+      "/scripts/github/review-gate/**",
+      "/__tests__/governance/**",
+      "/scripts/deploy*",
+      "/scripts/deploy/**",
+      "/scripts/prepare-deployment.sh",
+      "/scripts/ops/rotate-releases.sh",
+      "/scripts/release/preview-artifact-builder-guards.js",
+      "/scripts/release/verify-release-pointers.sh",
+      "/scripts/security/check-versioned-credentials.mjs"
+    ],
     "excludedAuthors": [
       {
         "login": "cyranoaladin",
@@ -14,7 +33,7 @@
     ],
     "eligibilityRequirement": "WRITE_OR_HIGHER",
     "requireCodeOwnerReview": false,
-    "enforcementRationale": "effective approver pool is only 2 people (abenrhouma, adammeg); enabling requireCodeOwnerReview would turn an ordinary availability dip into a hard merge block on every PR. required_approving_review_count=1 already guarantees a human approves."
+    "enforcementRationale": "Selective CODEOWNERS requests human review only on sensitive surfaces. The live ruleset still requires one approval during bootstrap; the pending App-owned gate will require an exact-head authorized human approval on exceptions before a future zero-approval transition."
   },
   "autoMerge": {
     "current": {
@@ -29,7 +48,7 @@
     },
     "invariantsNeverBypassed": [
       "dismissStaleReviewsOnPush stays true",
-      "requireLastPushApproval stays true",
+      "requireLastPushApproval stays true while the live one-approval ruleset remains active; a pending target may change it only after model and canary qualification",
       "bypassActors stays empty",
       "auto-merge only merges once every required gate is already satisfied; it never lowers a gate"
     ],
@@ -39,11 +58,12 @@
       "agent runs tests",
       "agent pushes",
       "agent opens PR",
-      "reviewers auto-requested via CODEOWNERS",
+      "human reviewers requested via CODEOWNERS only for sensitive surfaces",
       "agent fixes review feedback and resolves threads",
       "CI turns green",
-      "agent arms auto-merge (scripts/github/arm-auto-merge.mjs)",
-      "human approves",
+      "Nexus Review Gate evaluates the exact head with a qualified semantic reviewer",
+      "an authorized human approves exact-head sensitive changes only",
+      "trusted automation arms MERGE auto-merge after all gates pass",
       "GitHub merges automatically once every rule passes"
     ],
     "agentMayApprove": false,
@@ -60,8 +80,8 @@
   },
   "humanOnlyBoundary": [
     {
-      "id": "FINAL_PR_APPROVAL",
-      "description": "Final approval of a pull request. The agent never submits any approving review, on any PR, including its own."
+      "id": "GOV_SELF_MODIFICATION",
+      "description": "Changes to CODEOWNERS, governance, gate policy or privileged reviewer workflow require an exact-head authorized human approval."
     },
     {
       "id": "NEW_SECRET_VALUE",
@@ -86,6 +106,14 @@
     {
       "id": "PRODUCTION_DEPLOY_ACCESS_CHANGE",
       "description": "Any change to production deploy access, including the repository's single write-capable deploy key (see docs/audits/2026-08-29-github-governance-inventory.md for its identity and last-used date)."
+    },
+    {
+      "id": "DESTRUCTIVE_OR_IRREVERSIBLE_DATA_CHANGE",
+      "description": "A destructive migration or irreversible production-data operation requires an explicit human decision."
+    },
+    {
+      "id": "UNCLASSIFIED_HIGH_RISK_CHANGE",
+      "description": "Unclassifiable or incomplete high-risk diffs cannot receive an automatic success verdict."
     }
   ]
 }
