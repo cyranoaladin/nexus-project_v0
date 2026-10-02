@@ -46,9 +46,9 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
     <div className="space-y-6" data-testid="work-viewer">
       {attachments.length > 0 && (
         <section aria-labelledby="pieces-jointes" className="rounded-lg border border-white/10 p-4">
-          <h3 id="pieces-jointes" className="text-sm font-semibold text-neutral-100">
+          <h2 id="pieces-jointes" className="text-sm font-semibold text-neutral-100">
             Fichiers déposés par l’élève
-          </h3>
+          </h2>
           <ul className="mt-2 space-y-1 text-sm">
             {attachments.map((a) => (
               <li key={a.id}>
@@ -75,9 +75,9 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
         return (
           <section key={def.id} aria-labelledby={`step-${def.id}`} className="rounded-lg border border-white/10 bg-surface-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 id={`step-${def.id}`} className="text-base font-semibold text-neutral-50">
+              <h2 id={`step-${def.id}`} className="text-base font-semibold text-neutral-50">
                 {def.short} — {def.title}
-              </h3>
+              </h2>
               {onPickStep && (
                 <button type="button" onClick={() => onPickStep(def.id)} className="rounded-md border border-white/15 px-2 py-1 text-xs text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
                   Commenter cette étape
@@ -164,14 +164,16 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
                 {def.fields.map((f) => (
                   <div key={f.id} className="rounded-md border border-white/10 p-3">
                     <dt className="text-sm font-medium text-neutral-100">{f.label}</dt>
-                    <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-neutral-200" data-testid={`field-${def.id}-${f.id}`}>
-                      {step?.fields?.[f.id]?.trim() ? step.fields[f.id] : <span className="text-neutral-400">Pas de réponse.</span>}
+                    <dd className="mt-1 text-sm text-neutral-200">
+                      <div className="whitespace-pre-wrap break-words" data-testid={`field-${def.id}-${f.id}`}>
+                        {step?.fields?.[f.id]?.trim() ? step.fields[f.id] : <span className="text-neutral-400">Pas de réponse.</span>}
+                      </div>
+                      {onPickQuestion && (
+                        <button type="button" onClick={() => onPickQuestion(def.id, f.id)} className="mt-2 rounded-md border border-white/15 px-2 py-1 text-xs text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
+                          Commenter
+                        </button>
+                      )}
                     </dd>
-                    {onPickQuestion && (
-                      <button type="button" onClick={() => onPickQuestion(def.id, f.id)} className="mt-2 rounded-md border border-white/15 px-2 py-1 text-xs text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
-                        Commenter
-                      </button>
-                    )}
                   </div>
                 ))}
               </dl>

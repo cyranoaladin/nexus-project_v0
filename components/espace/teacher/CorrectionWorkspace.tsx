@@ -273,57 +273,57 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
         >
           <h2 className="text-base font-semibold text-neutral-50">Votre retour</h2>
 
-          <label className="block text-sm text-neutral-200">
-            Porte sur
-            <select className={inputClass} value={draft.kind} onChange={(e) => set({ kind: e.target.value as AnnotationKind })}>
+          <div className="block text-sm text-neutral-200">
+            <label htmlFor="ann-kind">Porte sur</label>
+            <select id="ann-kind" className={inputClass} value={draft.kind} onChange={(e) => set({ kind: e.target.value as AnnotationKind })}>
               {(Object.keys(KIND_LABEL) as AnnotationKind[]).map((k) => (
                 <option key={k} value={k}>{KIND_LABEL[k]}</option>
               ))}
             </select>
-          </label>
+          </div>
 
           {draft.kind !== 'GENERAL' && (
-            <label className="block text-sm text-neutral-200">
-              Étape
-              <select className={inputClass} value={draft.stepId} onChange={(e) => set({ stepId: e.target.value, questionId: '' })}>
+            <div className="block text-sm text-neutral-200">
+              <label htmlFor="ann-step">Étape</label>
+              <select id="ann-step" className={inputClass} value={draft.stepId} onChange={(e) => set({ stepId: e.target.value, questionId: '' })}>
                 <option value="">Choisir…</option>
                 {steps.map((s) => (
                   <option key={s.id} value={s.id}>{s.short} — {s.title}</option>
                 ))}
               </select>
-            </label>
+            </div>
           )}
 
           {draft.kind === 'QUESTION' && (
-            <label className="block text-sm text-neutral-200">
-              Question
-              <select className={inputClass} value={draft.questionId} onChange={(e) => set({ questionId: e.target.value })} disabled={!stepDef}>
+            <div className="block text-sm text-neutral-200">
+              <label htmlFor="ann-question">Question</label>
+              <select id="ann-question" className={inputClass} value={draft.questionId} onChange={(e) => set({ questionId: e.target.value })} disabled={!stepDef}>
                 <option value="">Choisir…</option>
                 {targets.map((t) => (
                   <option key={t.id} value={t.id}>{t.label.slice(0, 70)}</option>
                 ))}
               </select>
-            </label>
+            </div>
           )}
 
           {draft.kind === 'CODE' && (
             <div className="grid grid-cols-2 gap-2">
-              <label className="block text-sm text-neutral-200">
-                Ligne de début
-                <input className={inputClass} inputMode="numeric" value={draft.lineStart} onChange={(e) => set({ lineStart: e.target.value })} />
-              </label>
-              <label className="block text-sm text-neutral-200">
-                Ligne de fin
-                <input className={inputClass} inputMode="numeric" value={draft.lineEnd} onChange={(e) => set({ lineEnd: e.target.value })} placeholder="facultatif" />
-              </label>
+              <div className="block text-sm text-neutral-200">
+                <label htmlFor="ann-line-start">Ligne de début</label>
+                <input id="ann-line-start" className={inputClass} inputMode="numeric" value={draft.lineStart} onChange={(e) => set({ lineStart: e.target.value })} />
+              </div>
+              <div className="block text-sm text-neutral-200">
+                <label htmlFor="ann-line-end">Ligne de fin</label>
+                <input id="ann-line-end" className={inputClass} inputMode="numeric" value={draft.lineEnd} onChange={(e) => set({ lineEnd: e.target.value })} placeholder="facultatif" />
+              </div>
               <p className="col-span-2 text-xs text-neutral-400">Astuce : cliquez un numéro de ligne dans le code pour le renseigner.</p>
             </div>
           )}
 
-          <label className="block text-sm text-neutral-200">
-            Commentaire
-            <textarea className={`${inputClass} min-h-28`} value={draft.body} maxLength={MAX_BODY + 200} onChange={(e) => set({ body: e.target.value })} />
-          </label>
+          <div className="block text-sm text-neutral-200">
+            <label htmlFor="ann-body">Commentaire</label>
+            <textarea id="ann-body" className={`${inputClass} min-h-28`} value={draft.body} maxLength={MAX_BODY + 200} onChange={(e) => set({ body: e.target.value })} />
+          </div>
           <p className="text-xs text-neutral-400">{draft.body.length}/{MAX_BODY}</p>
 
           {snippets.length > 0 && (
