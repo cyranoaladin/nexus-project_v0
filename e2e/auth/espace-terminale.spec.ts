@@ -424,7 +424,7 @@ test.describe('moteur Python (réseau requis)', () => {
   test('« Vérifier mon code » exécute le harnais dans le navigateur', async ({ browser, request }) => {
     test.setTimeout(180_000);
     const reachable = await request.get('https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs', { timeout: 10_000 }).then((r) => r.ok(), () => false);
-    test.skip(!reachable, 'cdn.jsdelivr.net injoignable depuis cet environnement : exécution Python non vérifiable');
+    expect(reachable, 'cdn.jsdelivr.net doit être joignable : le moteur Python (Pyodide) est exercé pour de vrai').toBe(true);
 
     // Ada a rouvert son travail (REOPENED) : l'éditeur est actif.
     const { ctx, page } = await pageAs(browser, 'ada');

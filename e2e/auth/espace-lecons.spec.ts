@@ -194,7 +194,7 @@ test.describe('NSI — TP POO 2 : listes, piles et files', () => {
 
       // Étape « Liste » : le code de départ échoue, la solution de référence passe (moteur Python réel).
       const reachable = await request.get('https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.mjs', { timeout: 10_000 }).then((r) => r.ok(), () => false);
-      test.skip(!reachable, 'cdn.jsdelivr.net injoignable depuis cet environnement : exécution Python non vérifiable');
+      expect(reachable, 'cdn.jsdelivr.net doit être joignable : le moteur Python (Pyodide) est exercé pour de vrai').toBe(true);
       await page.getByRole('button', { name: 'Étape suivante' }).click();
       await page.getByRole('button', { name: 'Étape suivante' }).click();
       const editor = page.getByTestId('code-editor');
