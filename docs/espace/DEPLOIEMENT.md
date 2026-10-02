@@ -1,6 +1,6 @@
 # Espace pédagogique — plan de déploiement en production
 
-> **Statut : non déployé.** Rien n'a été modifié en production par cette mission, hormis la création d'une archive de sauvegarde du legacy POO (répertoire nouveau, voir `docs/legacy-poo/LEGACY_POO_INVENTORY.md`). Ce document décrit ce qui a été vérifié, ce qui reste à décider, et la séquence à suivre si tu donnes le feu vert.
+> **Statut au 2026-10-03 : prêt, NON déployé.** La release candidate est construite et vérifiée (voir §7). Aucune écriture n'a eu lieu en production : la sauvegarde PostgreSQL a été prise (lecture), mais l'application de la migration a été refusée par le contrôle d'autorisation de l'outil d'exécution. Les étapes de production restent à exécuter (§4 et §5).
 
 ## 1. État de la production (relevé en lecture seule, 2026-10-02)
 
@@ -97,3 +97,23 @@ La migration est additive : 12 tables, 5 types, 4 colonnes nullables sur `users`
 3. Vérifier `/`, `/auth/signin`, `/ateliers/poo/`.
 4. Les comptes créés restent (désactivables : `provision.ts disable --username … --execute`).
 5. La sauvegarde `pg_dump` du §5.1 ne sert qu'en dernier recours et perdrait tout ce qui a été écrit depuis : ne pas l'utiliser pour un simple retour applicatif.
+
+## 7. État de la release candidate (2026-10-03)
+
+| Élément | Valeur |
+|---|---|
+| Branche | `release/espace-terminale-2026-10-03` (base `724f8982d` + espace + TP POO 2 + Maths limites) |
+| Commit construit | `f50d531b6` (les commits suivants ne touchent que `e2e/`) |
+| Build | clone propre hors `.worktrees`, `npm ci` + `npm run build`, `ARTIFACT VALID`, `BUILD_ID` `KIimK0kXwRPuo0Gx4koXx` |
+| Tests | typecheck 0 erreur ; lint 0 ; unitaires 1 143 suites / 13 284 tests, 0 échec ; intégration vraie base : 67 suites + parent-email (Mailpit) + 3 suites NPC (harnais CI) ; E2E Chromium 19/19 (dont moteur Python réel) ; secours hors ligne 5/5 |
+| Sauvegarde prod | `/var/backups/nexus-espace-20261003/nexus_prod-AVANT-espace-*.dump` (13 Mo, 0600, SHA-256 consigné, `pg_restore --list` : 1 018 entrées) |
+| Migration | `20261002210000_add_espace_pedagogique` : 338 lignes, 0 instruction destructive, somme de contrôle = SHA-256 du fichier ; privilèges par défaut de `nexus_runtime` déjà en place |
+
+### Défaut préexistant à réparer avant la bascule
+Le garde de pointeur échoue **avant toute action** : `ALIAS_NOT_CHAINED` (le pointeur canonique `/var/www/nexus-project_v0` vise l'alias `/var/www/nexus-releases/current`, qui vise directement la release `724f8982d` ; le runbook exige l'inverse). Réparation sans changer la release servie : canonique → release courante, puis alias → canonique, puis garde.
+
+### Comptes (décisions prises, liste privée hors dépôt)
+Enseignant : compte COACH de l'adresse du propriétaire. Yassine : compte Terminale. Ines et Rostom : identifiant et code ajoutés **sans** consommer leur activation familiale (la session d'espace n'exige plus `activatedAt` pour un ÉLÈVE possédant un code personnel).
+
+### Corrigés enseignant (PDF privés)
+`scripts/espace/build-corriges.ts` puis `scripts/espace/install-resources.ts --module poo-structures|fonctions-limites` (dry-run par défaut).
