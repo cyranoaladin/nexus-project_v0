@@ -40,6 +40,7 @@ export async function evaluateCandidate({ candidateId, modelPath, binaryPath,
     const source = materializeHistoricalCase(item, { repoRoot });
     const start = performance.now();
     let outcome;
+    let failureReason = null;
     try {
       // A reversed fix is a synthetic regression, not the historical fix
       // commit. Give the model a stable case identifier without falsely
@@ -51,11 +52,17 @@ export async function evaluateCandidate({ candidateId, modelPath, binaryPath,
         contextTokens: candidate.contextTokens });
       outcome = classifyModelCase({ file: item.source.path, outputs });
     } catch (error) {
+      const allowedReasons = new Set(['MODEL_TIMEOUT', 'DIFF_UNSUPPORTED',
+        'MODEL_MISSING_RUNTIME_LIBRARY', 'MODEL_SCHEMA_REJECTED',
+        'MODEL_ARGUMENT_REJECTED', 'MODEL_LOAD_FAILED', 'MODEL_PROCESS_FAILED',
+        'MODEL_OUTPUT_TOO_LARGE', 'MODEL_START_FAILED', 'MODEL_CONFIG_INVALID',
+        'MODEL_EXECUTION_FAILED']);
+      failureReason = allowedReasons.has(error?.message) ? error.message : 'UNCLASSIFIED_FAILURE';
       outcome = error?.message === 'MODEL_TIMEOUT' ? 'TIMEOUT' :
         error?.message === 'DIFF_UNSUPPORTED' ? 'UNSUPPORTED' : 'MALFORMED';
     }
     responses.push({ id: item.id, outcome, diffBytes: source.diffBytes,
-      durationMs: Math.round(performance.now() - start) });
+      durationMs: Math.round(performance.now() - start), failureReason });
   }
   const assessment = scoreQualification(corpus, responses, thresholds);
   const sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repoRoot,

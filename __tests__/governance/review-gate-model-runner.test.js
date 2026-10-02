@@ -37,5 +37,11 @@ describe('trusted three-pass local semantic review', () => {
       runProcess: async () => ({ ok: true, stdout: clean }) })).rejects.toThrow('DIFF_UNSUPPORTED');
     await expect(runThreePassReview({ ...base,
       runProcess: async () => ({ ok: false, reason: 'MODEL_TIMEOUT' }) })).rejects.toThrow('MODEL_TIMEOUT');
+    await expect(runThreePassReview({ ...base,
+      runProcess: async () => ({ ok: false, reason: 'MODEL_MISSING_RUNTIME_LIBRARY' }) }))
+      .rejects.toThrow('MODEL_MISSING_RUNTIME_LIBRARY');
+    await expect(runThreePassReview({ ...base,
+      runProcess: async () => ({ ok: false, reason: 'untrusted text' }) }))
+      .rejects.toThrow('MODEL_EXECUTION_FAILED');
   });
 });

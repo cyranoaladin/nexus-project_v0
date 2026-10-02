@@ -44,7 +44,10 @@ export async function runThreePassReview({ headSha, files, modelPath, binaryPath
         '--no-display-prompt', '--simple-io', '--log-disable', '-st', '-f', '/dev/stdin'],
       prompt: promptFor(pass, headSha, files), timeoutMs: 120_000 });
     if (result?.ok !== true || typeof result.stdout !== 'string') {
-      throw new Error(result?.reason === 'MODEL_TIMEOUT' ? 'MODEL_TIMEOUT' : 'MODEL_EXECUTION_FAILED');
+      const safeReason = new Set(['MODEL_TIMEOUT', 'MODEL_MISSING_RUNTIME_LIBRARY',
+        'MODEL_SCHEMA_REJECTED', 'MODEL_ARGUMENT_REJECTED', 'MODEL_LOAD_FAILED',
+        'MODEL_PROCESS_FAILED', 'MODEL_OUTPUT_TOO_LARGE', 'MODEL_START_FAILED']);
+      throw new Error(safeReason.has(result?.reason) ? result.reason : 'MODEL_EXECUTION_FAILED');
     }
     outputs[pass] = result.stdout;
   }

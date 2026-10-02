@@ -1,5 +1,7 @@
-const { readFileSync } = require('node:fs');
-const { resolve } = require('node:path');
+const { mkdtempSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
+const { join, resolve } = require('node:path');
+const { tmpdir } = require('node:os');
+const { execFileSync } = require('node:child_process');
 
 let qualification;
 const root = resolve(__dirname, '../..');
@@ -11,6 +13,25 @@ beforeAll(async () => {
 });
 
 const response = (id, outcome, durationMs = 1000) => ({ id, outcome, durationMs, diffBytes: 4096 });
+
+function withDisposableGitHistory(testBody) {
+  const repoRoot = mkdtempSync(join(tmpdir(), 'nexus-review-corpus-'));
+  const git = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim();
+  try {
+    git('init', '-q');
+    git('config', 'user.name', 'Synthetic Test');
+    git('config', 'user.email', 'synthetic@example.invalid');
+    writeFileSync(join(repoRoot, 'runtime.txt'), 'binaryTargets = ["debian-openssl-1.1.x"]\n');
+    git('add', 'runtime.txt');
+    git('commit', '-qm', 'synthetic baseline');
+    writeFileSync(join(repoRoot, 'runtime.txt'), 'binaryTargets = ["debian-openssl-1.1.x", "debian-openssl-3.0.x"]\n');
+    git('add', 'runtime.txt');
+    git('commit', '-qm', 'synthetic correction');
+    return testBody({ repoRoot, commit: git('rev-parse', 'HEAD') });
+  } finally {
+    rmSync(repoRoot, { recursive: true, force: true });
+  }
+}
 
 describe('historical semantic qualification corpus', () => {
   test('contains distinct, traceable blocking and benign incidents', () => {
@@ -28,28 +49,33 @@ describe('historical semantic qualification corpus', () => {
     expect(corpus.cases.some((item) => item.family === 'auth-session')).toBe(true);
   });
 
-  test('reconstructs a real, bounded historical patch without fixture labels in the model input', () => {
-    const corpus = qualification.validateCorpus(JSON.parse(readFileSync(corpusPath, 'utf8')));
-    const item = corpus.cases.find((candidate) => candidate.family === 'prisma-openssl');
-    const evidence = qualification.materializeHistoricalCase(item, { repoRoot: root });
-    expect(evidence.diff).toMatch(/^@@ /);
-    expect(evidence.diff).toContain('binaryTargets');
-    expect(evidence.diffBytes).toBeGreaterThan(0);
-    const input = qualification.toModelData(evidence);
-    expect(input).toContain('binaryTargets');
-    expect(input).not.toContain('BLOCKING_EXPECTED');
-    expect(input).not.toContain(item.incident);
-    expect(input).not.toContain(item.source.commit);
+  test('reconstructs a bounded reverse patch without fixture labels using disposable Git history', () => {
+    withDisposableGitHistory(({ repoRoot, commit }) => {
+      const item = { source: { commit, path: 'runtime.txt', direction: 'reverse' },
+        incident: 'synthetic fixture' };
+      const evidence = qualification.materializeHistoricalCase(item, { repoRoot });
+      expect(evidence.diff).toMatch(/^@@ /);
+      expect(evidence.diff).toContain('binaryTargets');
+      expect(evidence.diffBytes).toBeGreaterThan(0);
+      const input = qualification.toModelData(evidence);
+      expect(input).toContain('binaryTargets');
+      expect(input).not.toContain('BLOCKING_EXPECTED');
+      expect(input).not.toContain(item.incident);
+      expect(input).not.toContain(item.source.commit);
+    });
   });
 
-  test('all 40 historical single-file diffs exist and remain inside the declared diff budget', () => {
-    const corpus = qualification.validateCorpus(JSON.parse(readFileSync(corpusPath, 'utf8')));
+  test('materialized patches obey the declared budget and missing history fails closed', () => {
     const policy = qualification.validateThresholds(JSON.parse(readFileSync(policyPath, 'utf8')));
-    for (const item of corpus.cases) {
-      const evidence = qualification.materializeHistoricalCase(item, { repoRoot: root });
+    withDisposableGitHistory(({ repoRoot, commit }) => {
+      const item = { source: { commit, path: 'runtime.txt', direction: 'forward' } };
+      const evidence = qualification.materializeHistoricalCase(item, { repoRoot });
       expect(evidence.diffBytes).toBeLessThanOrEqual(policy.maximumDiffBytes);
       expect(evidence.diff).toMatch(/^@@ /);
-    }
+      expect(() => qualification.materializeHistoricalCase({ source: {
+        ...item.source, commit: 'a'.repeat(40),
+      } }, { repoRoot })).toThrow('CORPUS_PATCH_UNAVAILABLE');
+    });
   });
 
   test('rejects malformed provenance and paths before invoking git', () => {

@@ -32,4 +32,17 @@ supported diff size is fail-closed.
 
 Materialization needs the repository's full commit history (`fetch-depth: 0`
 on a disposable qualification runner). It never executes historical source.
-No model or inference binary is downloaded or run by this harness.
+The required governance unit lane uses a small disposable Git history to test
+the materializer because its CI checkout is shallow. The advisory benchmark
+runner exercises all 40 historical refs with full history and fails if any is
+unavailable; neither lane silently skips a missing ref. No model or inference
+binary is downloaded or run by the unit harness.
+
+The first hosted comparison on PR head `61ddbefc1b4c47091e85dc234f2b84b714e7340c`
+(run `37072902396`, attempt 1) completed both jobs but qualified neither
+candidate. Qwen 7B produced 40/40 malformed outcomes; Granite 3B produced
+34 malformed and six unsupported outcomes. Recall was zero for both. Those
+are failure measurements, not semantic-review evidence. A follow-up diagnostic
+records only fixed error categories (never model stderr, PR text or output)
+to locate the model execution failure. The corpus still requires independent
+vetting and held-out evaluation regardless of that diagnosis.

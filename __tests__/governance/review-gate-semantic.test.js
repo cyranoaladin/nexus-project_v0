@@ -81,4 +81,14 @@ describe('bounded semantic reviewer process', () => {
     });
     expect(result).toEqual({ ok: true, stdout: JSON.stringify(clean) });
   });
+
+  test('a failed model process reports only a safe error category, never its stderr', async () => {
+    const result = await semantic.runBoundedReviewer({
+      command: process.execPath,
+      args: ['-e', 'process.stderr.write("error while loading shared libraries: synthetic-private-value"); process.exit(1)'],
+      prompt: 'synthetic diff', timeoutMs: 1000,
+    });
+    expect(result).toEqual({ ok: false, reason: 'MODEL_MISSING_RUNTIME_LIBRARY' });
+    expect(JSON.stringify(result)).not.toContain('synthetic-private-value');
+  });
 });

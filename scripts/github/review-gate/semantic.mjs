@@ -9,6 +9,23 @@ const plainObject = (value) => value !== null && typeof value === 'object' &&
 const exactKeys = (value, names) => plainObject(value) &&
   Object.keys(value).length === names.length && names.every((name) => Object.hasOwn(value, name));
 
+function failedProcessCategory(stderr) {
+  // Never return stderr itself: a model/runtime may echo untrusted PR text.
+  if (/error while loading shared libraries|cannot open shared object file/i.test(stderr)) {
+    return 'MODEL_MISSING_RUNTIME_LIBRARY';
+  }
+  if (/json.schema|grammar/i.test(stderr) && /error|invalid|failed/i.test(stderr)) {
+    return 'MODEL_SCHEMA_REJECTED';
+  }
+  if (/unknown argument|invalid argument|unrecognized option/i.test(stderr)) {
+    return 'MODEL_ARGUMENT_REJECTED';
+  }
+  if (/failed to load model|model load failed|could not load model|server exited before becoming ready/i.test(stderr)) {
+    return 'MODEL_LOAD_FAILED';
+  }
+  return 'MODEL_PROCESS_FAILED';
+}
+
 function compactJsonWhitespace(raw) {
   let compact = '';
   let quoted = false;
@@ -102,6 +119,7 @@ export function runBoundedReviewer({ command, args = [], prompt, timeoutMs, maxO
       return;
     }
     let stdout = '';
+    let stderr = '';
     let timedOut = false;
     let tooLarge = false;
     let settled = false;
@@ -135,15 +153,17 @@ export function runBoundedReviewer({ command, args = [], prompt, timeoutMs, maxO
         finish({ ok: false, reason: 'MODEL_OUTPUT_TOO_LARGE' });
       }
     });
-    // Never include stderr in logs: model/runtime output may echo untrusted PR text.
-    child.stderr.resume();
+    child.stderr.on('data', (chunk) => {
+      if (stderr.length < 8192) stderr += chunk.toString('utf8').slice(0, 8192 - stderr.length);
+    });
     child.stdin.on('error', () => {});
     child.stdin.end(prompt);
     child.on('error', () => finish({ ok: false, reason: 'MODEL_START_FAILED' }));
     child.on('close', (code) => {
       if (timedOut) return finish({ ok: false, reason: 'MODEL_TIMEOUT' });
       if (tooLarge) return finish({ ok: false, reason: 'MODEL_OUTPUT_TOO_LARGE' });
-      if (code !== 0) return finish({ ok: false, reason: 'MODEL_PROCESS_FAILED' });
+      if (code !== 0) return finish({ ok: false,
+        reason: failedProcessCategory(`${stderr}\n${stdout.slice(0, 8192)}`) });
       finish({ ok: true, stdout });
     });
   });
