@@ -1,0 +1,75 @@
+# Identity bootstrap only. This workflow does not review a PR and its Check Run
+# deliberately concludes action_required, never success. It is usable only once
+# this definition has been merged to the trusted default branch.
+name: Nexus Review Gate App Identity Proof
+
+on:
+  workflow_run:
+    workflows: ['CI Pipeline']
+    types: [completed]
+
+permissions:
+  contents: read
+  checks: read
+
+jobs:
+  prove-app-check:
+    name: Prove App-owned Check Run source
+    if: >-
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse PR-origin or failed upstream run before reading App key
+        env:
+          REF: ${{ github.ref }}
+          REPOSITORY: ${{ github.repository }}
+          APP_ID: ${{ vars.NEXUS_REVIEW_GATE_APP_ID }}
+          UPSTREAM_EVENT: ${{ github.event.workflow_run.event }}
+          UPSTREAM_WORKFLOW_ID: ${{ github.event.workflow_run.workflow_id }}
+          UPSTREAM_WORKFLOW_PATH: ${{ github.event.workflow_run.path }}
+          UPSTREAM_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          UPSTREAM_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          UPSTREAM_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          PROOF_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ "$REF" != 'refs/heads/main' ] || [ "$REPOSITORY" != 'cyranoaladin/nexus-project_v0' ]; then
+            echo 'UNTRUSTED_WORKFLOW_CONTEXT'
+            exit 1
+          fi
+          if [ "$APP_ID" != '5166727' ] || [ "$UPSTREAM_EVENT" != 'push' ] || \
+             [ "$UPSTREAM_WORKFLOW_ID" != '185409165' ] || \
+             [ "$UPSTREAM_WORKFLOW_PATH" != '.github/workflows/ci.yml' ] || \
+             [ "$UPSTREAM_BRANCH" != 'main' ] || [ "$UPSTREAM_REPOSITORY" != "$REPOSITORY" ] || \
+             [ "$UPSTREAM_CONCLUSION" != 'success' ] || [[ ! "$PROOF_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'UNQUALIFIED_UPSTREAM_RUN'
+            exit 1
+          fi
+
+      # Checkout is pinned to the workflow's trusted main commit. Never use
+      # the upstream SHA as executable source, and never checkout a PR.
+      - name: Checkout exact trusted main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      # The official action's post-step revokes its short-lived token. With
+      # owner/repositories omitted, the token is scoped to this repository.
+      - name: Create repository-scoped checks token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.NEXUS_REVIEW_GATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NEXUS_REVIEW_GATE_APP_PRIVATE_KEY }}
+          permission-checks: write
+
+      - name: Publish action-required proof and independently read it back
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_INSTALLATION_ID: ${{ steps.app-token.outputs.installation-id }}
+          PROOF_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node scripts/github/review-gate/prove-app-check.mjs
