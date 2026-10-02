@@ -80,12 +80,16 @@ jobs:
           synthetic_status=$?
           set -e
           rm -f "$synthetic_prompt"
-          if [ "$synthetic_status" -ne 0 ] || rg -qi 'Failed to initialize samplers|failed to launch slot' "$synthetic_log"; then
+          if [ "$synthetic_status" -ne 0 ] || grep -Eqi 'Failed to initialize samplers|failed to launch slot' "$synthetic_log"; then
             echo "MODEL_SYNTHETIC_SMOKE=FAIL exit=$synthetic_status"
-            rg -i 'error|failed|invalid|unknown|exited' "$synthetic_log" | head -n 12 || true
+            grep -Ei 'error|failed|invalid|unknown|exited' "$synthetic_log" | head -n 12 || true
             exit 1
           fi
-          node --input-type=module -e 'import { readFileSync } from "node:fs"; import { parseSemanticResponse } from "./scripts/github/review-gate/semantic.mjs"; if (!parseSemanticResponse(readFileSync(process.argv[1], "utf8"), new Set(["synthetic.ts"]))) process.exit(1)' "$synthetic_output"
+          if ! node --input-type=module -e 'import { readFileSync } from "node:fs"; import { parseSemanticResponse } from "./scripts/github/review-gate/semantic.mjs"; if (!parseSemanticResponse(readFileSync(process.argv[1], "utf8"), new Set(["synthetic.ts"]))) process.exit(1)' "$synthetic_output"; then
+            echo 'MODEL_SYNTHETIC_JSON_INVALID'
+            head -c 2048 "$synthetic_output"
+            exit 1
+          fi
           echo 'MODEL_SYNTHETIC_SMOKE=PASS'
 
       - name: Run bounded three-pass historical benchmark
