@@ -36,3 +36,22 @@ export function hasMath(text: string): boolean {
   MATH.lastIndex = 0;
   return MATH.test(text);
 }
+
+/** Texte brut lisible (étiquettes accessibles, légendes SVG) : les formules perdent leurs délimiteurs et commandes TeX. */
+export function plainMath(text: string): string {
+  return splitMath(text)
+    .map((seg) =>
+      seg.kind === 'text'
+        ? seg.value
+        : seg.value
+            .replace(/\\(?:mathcal|mathrm|mathbf|text)\s*\{([^}]*)\}/g, '$1')
+            .replace(/\\(?:to|rightarrow)\b/g, '→')
+            .replace(/\\infty\b/g, '∞')
+            .replace(/\\(?:left|right)\b/g, '')
+            .replace(/\\[a-zA-Z]+/g, '')
+            .replace(/[{}]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim(),
+    )
+    .join('');
+}

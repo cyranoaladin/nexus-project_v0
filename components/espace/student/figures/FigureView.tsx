@@ -1,5 +1,7 @@
 'use client';
 
+import { RichText } from '@/components/espace/shared/RichText';
+import { plainMath } from '@/lib/espace/math-text';
 import type { FigureSpec } from '@/lib/espace/lesson-types';
 
 import { FunctionFigure } from './FunctionFigure';
@@ -15,8 +17,8 @@ export function FigureView({ spec, overlay }: { spec: FigureSpec; overlay?: stri
     case 'svg':
       return (
         <figure className="my-3">
-          <div role="img" aria-label={spec.alt} className="max-w-full overflow-x-auto text-neutral-100 [&_svg]:h-auto [&_svg]:max-w-full" dangerouslySetInnerHTML={{ __html: spec.svg }} />
-          {spec.caption && <figcaption className="mt-1 text-sm text-neutral-300">{spec.caption}</figcaption>}
+          <div role="img" aria-label={plainMath(spec.alt)} className="max-w-full overflow-x-auto text-neutral-100 [&_svg]:h-auto [&_svg]:max-w-full" dangerouslySetInnerHTML={{ __html: spec.svg }} />
+          {spec.caption && <figcaption className="mt-1 text-sm text-neutral-300"><RichText text={spec.caption} /></figcaption>}
         </figure>
       );
   }

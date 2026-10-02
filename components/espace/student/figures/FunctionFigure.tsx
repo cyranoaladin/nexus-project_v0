@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { parseAffine } from '@/lib/espace/answer-check';
 import { buildFunctionSvg } from '@/lib/espace/figures/function-svg';
+import { RichText } from '@/components/espace/shared/RichText';
 import type { FunctionFigureSpec } from '@/lib/espace/lesson-types';
 
 /**
@@ -26,7 +27,7 @@ export function FunctionFigure({ spec, overlay }: { spec: FunctionFigureSpec; ov
   return (
     <figure className="my-2 max-w-full" data-testid={`figure-${spec.id}`}>
       <div className="overflow-hidden rounded-lg border border-white/15 bg-white [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-w-full" dangerouslySetInnerHTML={{ __html: svg }} />
-      {spec.caption && <figcaption className="mt-1 text-sm text-neutral-300">{spec.caption}</figcaption>}
+      {spec.caption && <figcaption className="mt-1 text-sm text-neutral-300"><RichText text={spec.caption} /></figcaption>}
     </figure>
   );
 }

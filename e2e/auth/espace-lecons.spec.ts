@@ -94,6 +94,7 @@ test.afterAll(async () => {
 
 test.describe('Maths — fonctions, limites et lecture graphique', () => {
   test('formules et figure rendues, vérification pédagogique, autosave et reprise', async ({ browser }) => {
+    test.setTimeout(120_000);
     const { ctx, page } = await pageAs(browser, 'cleo');
     try {
       await page.goto('/espace/eleve');
@@ -108,7 +109,7 @@ test.describe('Maths — fonctions, limites et lecture graphique', () => {
       await expect(page.locator('figure svg').first()).toBeVisible();
 
       // Étape « diagnostic » : réponse fausse → message ciblé ; réponse juste → confirmée.
-      const field = page.getByLabel(/limite/i).first();
+      const field = page.getByRole('textbox').first();
       await field.fill('7');
       await page.getByRole('button', { name: /vérifie|Vérifier ma réponse/ }).first().click();
       await expect(page.getByTestId('check-feedback').first()).not.toContainText(/^Correct/);
@@ -117,13 +118,20 @@ test.describe('Maths — fonctions, limites et lecture graphique', () => {
       await expect(page.getByTestId('check-feedback').first()).toContainText('Correct');
       await expectSaved(page);
 
-      const work = await prisma.espaceWork.findFirstOrThrow({ where: { studentId: ids.cleo, activity: { slug: MATHS_LIMITES_ACTIVITY_SLUG } } });
-      const content = JSON.stringify(work.content);
-      expect(content).toContain('"solved"');
-      expect(content).toContain('"tries"');
+      // Preuve côté serveur (et non seulement l'indicateur) : l'essai juste est enregistré en base.
+      await expect
+        .poll(
+          async () => {
+            const w = await prisma.espaceWork.findFirst({ where: { studentId: ids.cleo, activity: { slug: MATHS_LIMITES_ACTIVITY_SLUG } } });
+            const step = (w?.content as { steps?: Record<string, { solved?: Record<string, boolean>; tries?: Record<string, number> }> } | null)?.steps?.diagnostic;
+            return { solved: step?.solved?.['lim-droite'], tries: step?.tries?.['lim-droite'] };
+          },
+          { timeout: 20_000 },
+        )
+        .toEqual({ solved: true, tries: 2 });
 
       await page.reload();
-      await expect(page.getByLabel(/limite/i).first()).toHaveValue('3');
+      await expect(page.getByRole('textbox').first()).toHaveValue('3');
       await expect(page.getByTestId('check-feedback').first()).toContainText(/déjà validée/);
     } finally {
       await ctx.close();

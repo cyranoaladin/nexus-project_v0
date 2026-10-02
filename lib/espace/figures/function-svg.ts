@@ -10,6 +10,7 @@
  * - sortie déterministe : mêmes entrées → même chaîne.
  */
 import type { FunctionFigureSpec, FunctionSpec } from '../lesson-types';
+import { plainMath } from '../math-text';
 
 // ─── Évaluation exacte ──────────────────────────────────────────────────────
 
@@ -180,7 +181,7 @@ export function buildFunctionSvg(spec: FunctionFigureSpec, options: BuildOptions
 
   out.push(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img" aria-labelledby="${titleId} ${descId}" font-family="system-ui, sans-serif" font-size="12">`,
-    `<title id="${titleId}">${esc(spec.caption ?? 'Courbe représentative de la fonction')}</title>`,
+    `<title id="${titleId}">${esc(plainMath(spec.caption ?? 'Courbe représentative de la fonction'))}</title>`,
     `<desc id="${descId}">${esc(describeFigure(spec, overlay))}</desc>`,
     `<defs><clipPath id="${clipId}"><rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}"/></clipPath></defs>`,
     `<rect x="0" y="0" width="${width}" height="${height}" fill="${C.background}"/>`,
@@ -310,7 +311,7 @@ export function buildFunctionSvg(spec: FunctionFigureSpec, options: BuildOptions
   for (const p of marked) {
     const y = evalFunction(spec.fn, p.x);
     if (!Number.isFinite(y) || y < ymin || y > ymax || p.x < xmin || p.x > xmax) continue;
-    const text = `${p.label ?? ''}(${label(p.x)} ; ${label(y)})`;
+    const text = `${plainMath(p.label ?? '')}(${label(p.x)} ; ${label(y)})`;
     const px = X(p.x);
     const anchorEnd = px > m.l + pw - 90;
     out.push(`<circle cx="${fmt(px)}" cy="${fmt(Y(y))}" r="4.5" fill="${C.ink}" stroke="${C.background}" stroke-width="1.5"/>`);
@@ -329,7 +330,7 @@ export function buildFunctionSvg(spec: FunctionFigureSpec, options: BuildOptions
 
   // Légende minimale (en haut à droite)
   const legend: { color: string; dash?: string; text: string }[] = [];
-  if (!spec.hideCurve) legend.push({ color: C.curve, text: spec.curveLabel ?? 'courbe' });
+  if (!spec.hideCurve) legend.push({ color: C.curve, text: plainMath(spec.curveLabel ?? 'courbe') });
   if (vAs.length + hAs.length > 0) legend.push({ color: C.asymptote, dash: '7 5', text: vAs.length + hAs.length > 1 ? 'asymptotes' : 'asymptote' });
   if (spec.tangentAt !== undefined) legend.push({ color: C.tangent, text: 'tangente' });
   if (overlay) legend.push({ color: C.overlay, dash: '2 4', text: 'ta droite' });

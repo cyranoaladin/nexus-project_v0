@@ -1,4 +1,4 @@
-import { hasMath, renderMathInHtml, splitMath } from '@/lib/espace/math-text';
+import { hasMath, renderMathInHtml, splitMath, plainMath } from '@/lib/espace/math-text';
 
 describe('splitMath', () => {
   it('sépare texte, formule en ligne et formule centrée', () => {
@@ -29,5 +29,13 @@ describe('renderMathInHtml', () => {
     });
     expect(seen).toEqual(['I:x<1', 'D:a&b']);
     expect(out).toBe('<p>si [x<1] et [a&b]</p>');
+  });
+});
+
+describe('plainMath', () => {
+  it('rend un texte lisible sans délimiteurs ni commandes TeX', () => {
+    expect(plainMath('Courbe \\(\\mathcal C_d\\) : lis-la')).toBe('Courbe C_d : lis-la');
+    expect(plainMath('limite \\(x \\to +\\infty\\)')).toBe('limite x → +∞');
+    expect(plainMath('texte sans formule')).toBe('texte sans formule');
   });
 });
