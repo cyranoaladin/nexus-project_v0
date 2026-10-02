@@ -38,6 +38,11 @@ export function applyAction(from: WorkStatus, action: WorkAction): WorkStatus {
   return to;
 }
 
+/** Statuts de départ autorisés pour une action (pour les mises à jour conditionnelles). */
+export function fromStatusesFor(action: WorkAction): WorkStatus[] {
+  return Object.keys(TABLE[action]) as WorkStatus[];
+}
+
 export function actorFor(action: WorkAction): WorkActor {
   return action === 'SAVE' || action === 'SUBMIT' ? 'STUDENT' : 'TEACHER';
 }
