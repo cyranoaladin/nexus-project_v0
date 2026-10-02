@@ -1,0 +1,929 @@
+{
+  "version": "1.0.0",
+  "title": "TP POO 2 — Listes, piles et files",
+  "subtitle": "Organiser des données avec des objets",
+  "session": "TP POO 2 • Terminale NSI",
+  "duration": 120,
+  "steps": [
+    {
+      "id": "reactivation",
+      "short": "Réactiver",
+      "title": "Rappel : ce que sait déjà une classe",
+      "minutes": 8,
+      "level": "Diagnostic, non noté",
+      "concepts": [
+        "classe",
+        "attribut",
+        "méthode",
+        "instance"
+      ],
+      "intro": "Avant de construire de nouvelles structures, vérifions ce que tu retiens du TP POO 1. Rien n’est noté : tes réponses servent à ajuster la suite.",
+      "lesson": "<p>Voici une classe très simple : une boîte dans laquelle on range des valeurs.</p><pre><code>class Boite:\n    def __init__(self):\n        self.contenu = []\n\n    def ajouter(self, valeur):\n        self.contenu.append(valeur)\n\nb1 = Boite()\nb2 = Boite()\nb1.ajouter(5)</code></pre><p>Observe bien ce programme, puis réponds. Une erreur ne coûte rien : elle te montre ce qu’il faut revoir.</p>{{q:classe}}{{q:attribut}}{{q:ajouter}}{{q:instances}}<p>Pour finir, mets-le en mots.</p>{{f:independance}}",
+      "task": "Réponds aux quatre questions, puis rédige ta phrase.",
+      "starter": null,
+      "questions": [
+        {
+          "id": "classe",
+          "text": "Quel est le nom de la classe ?",
+          "choices": [
+            "Boite",
+            "__init__",
+            "contenu",
+            "ajouter"
+          ],
+          "correct": 0,
+          "feedback": "On déclare une classe avec le mot-clé class, suivi de son nom : ici Boite. __init__ et ajouter sont des méthodes ; contenu est un attribut.",
+          "choiceFeedback": [
+            "Oui : class Boite.",
+            "__init__ est une méthode spéciale (le constructeur) définie dans la classe, mais ce n’est pas la classe.",
+            "contenu est un attribut : une variable attachée à chaque instance.",
+            "ajouter est une méthode : une fonction définie dans la classe."
+          ]
+        },
+        {
+          "id": "attribut",
+          "text": "Quel est l’attribut d’instance de Boite ?",
+          "choices": [
+            "self.contenu",
+            "ajouter",
+            "b1",
+            "valeur"
+          ],
+          "correct": 0,
+          "feedback": "Un attribut d’instance se crée avec self.nom = ... dans __init__ : ici self.contenu. b1 est une instance, valeur est un paramètre.",
+          "choiceFeedback": [
+            "Oui : self.contenu est créé dans __init__.",
+            "ajouter est une méthode, pas une donnée.",
+            "b1 est une instance de la classe (un objet), pas un attribut.",
+            "valeur est un simple paramètre de la méthode ajouter."
+          ]
+        },
+        {
+          "id": "ajouter",
+          "text": "Que fait l’appel b1.ajouter(5) ?",
+          "choices": [
+            "Il modifie la list contenu de b1 et ne renvoie rien",
+            "Il renvoie une nouvelle boîte qui contient 5",
+            "Il affiche 5 à l’écran",
+            "Il modifie à la fois b1 et b2"
+          ],
+          "correct": 0,
+          "feedback": "ajouter agit par mutation : elle modifie l’attribut contenu de l’instance sur laquelle on l’appelle. Elle ne contient pas de return, donc elle renvoie None.",
+          "choiceFeedback": [
+            "Oui : mutation de b1, valeur de retour None.",
+            "Aucun return, aucune nouvelle boîte n’est créée : b1 est modifiée sur place.",
+            "Il n’y a aucun print dans la méthode : rien n’est affiché.",
+            "ajouter ne touche que l’instance sur laquelle on l’appelle (b1)."
+          ]
+        },
+        {
+          "id": "instances",
+          "text": "Après ces instructions, que contient b2.contenu ?",
+          "choices": [
+            "[5]",
+            "[]",
+            "Une erreur",
+            "None"
+          ],
+          "correct": 1,
+          "feedback": "Chaque instance a sa propre list : __init__ en crée une nouvelle à chaque Boite(). b1.ajouter(5) ne modifie que celle de b1.",
+          "choiceFeedback": [
+            "b2 n’a pas été modifiée : la list de b1 est un autre objet.",
+            "Oui : b2.contenu est une list vide.",
+            "Aucune erreur : b2.contenu existe depuis le Boite() de b2.",
+            "contenu vaut bien une list (vide), pas None."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "independance",
+          "label": "En une phrase : pourquoi b2.contenu n’est-il pas modifié par b1.ajouter(5) ?",
+          "placeholder": "Pense à ce que fait __init__ à chaque fois qu’on écrit Boite()."
+        }
+      ],
+      "hints": [
+        "Relis __init__ : que se passe-t-il chaque fois qu’on écrit Boite() ?"
+      ],
+      "takeaway": "Chaque instance possède ses propres attributs, créés par __init__. Une méthode comme ajouter modifie l’instance sur laquelle on l’appelle, et rien d’autre.",
+      "tests": []
+    },
+    {
+      "id": "types-abstraits",
+      "short": "Comprendre",
+      "title": "Liste, pile, file : trois façons d’organiser des données",
+      "minutes": 12,
+      "level": "Découverte",
+      "concepts": [
+        "type abstrait de données",
+        "interface",
+        "implémentation",
+        "LIFO",
+        "FIFO"
+      ],
+      "intro": "Une collection range des données. Ce qui distingue liste, pile et file, c’est la règle qui dit où l’on ajoute et d’où l’on retire.",
+      "lesson": "<p>Trois situations que tu connais.</p>{{fig:svg-liste}}<p>Une <strong>liste</strong> est une collection ordonnée : on peut lire l’élément de rang 0, 1, 2…, et en ajouter.</p>{{fig:svg-pile}}<p>Une <strong>pile</strong> (une pile de livres) : on ne pose et on ne retire qu’au sommet. Le dernier posé est le premier retiré : c’est <strong>LIFO</strong>, pour <em>Last In, First Out</em>.</p>{{fig:svg-file}}<p>Une <strong>file</strong> (la file d’attente d’un guichet) : on arrive par l’entrée, on sort par l’autre bout. Le premier arrivé est le premier servi : c’est <strong>FIFO</strong>, pour <em>First In, First Out</em>.</p><p>À toi d’observer : ajoute des lettres, retire-en, et regarde laquelle sort.</p>{{fig:sim-pile}}{{fig:sim-file}}{{q:pile-ordre}}{{q:file-ordre}}<p>Une pile ou une file n’est pas définie par la façon dont on la stocke, mais par <strong>ce qu’on peut faire avec elle</strong> et par la règle de comportement associée. C’est la notion de <strong>type abstrait de données</strong>.</p><div class=\"contract\"><strong>Interface</strong> : les opérations offertes et leur comportement (empiler, depiler, sommet…).<br><strong>Implémentation</strong> : la manière dont ces opérations sont réalisées (ici, avec une list Python cachée dans l’objet).</div>{{q:pourquoi-pas-element}}<p><strong>Attention au mot « liste ».</strong> En NSI, « liste » peut désigner le type abstrait (une collection ordonnée munie d’une interface), alors que <code>list</code> est un type concret de Python. On peut utiliser une <code>list</code> à l’intérieur d’une pile : la pile ne devient pas pour autant « juste une list », car elle n’expose que ses opérations de pile.</p>{{q:list-pile}}<p>Formule maintenant l’idée avec tes mots.</p>{{f:interface-implementation}}",
+      "task": "Manipule les deux simulateurs, réponds aux questions, puis explique la différence entre interface et implémentation.",
+      "starter": null,
+      "questions": [
+        {
+          "id": "pile-ordre",
+          "text": "On empile A, puis B, puis C. Quel élément sera dépilé en premier ?",
+          "choices": [
+            "A",
+            "B",
+            "C",
+            "On ne peut pas le savoir"
+          ],
+          "correct": 2,
+          "feedback": "Dernier entré, premier sorti : C a été empilé en dernier, c’est donc le sommet, et il sort le premier.",
+          "choiceFeedback": [
+            "A est au fond de la pile : il sortirait en dernier.",
+            "B est sous C : il sort après lui.",
+            "Oui : C est au sommet.",
+            "Si : la règle LIFO détermine l’ordre de sortie sans ambiguïté."
+          ]
+        },
+        {
+          "id": "file-ordre",
+          "text": "On enfile A, puis B, puis C. Quel élément sortira en premier ?",
+          "choices": [
+            "A",
+            "B",
+            "C",
+            "Cela dépend de la taille"
+          ],
+          "correct": 0,
+          "feedback": "Premier entré, premier sorti : A est arrivé le premier, il sort le premier.",
+          "choiceFeedback": [
+            "Oui : A a attendu le plus longtemps.",
+            "B passe après A.",
+            "C est le dernier arrivé : c’est le comportement d’une pile, pas d’une file.",
+            "La taille ne change rien : la règle FIFO fixe l’ordre."
+          ]
+        },
+        {
+          "id": "pourquoi-pas-element",
+          "text": "Pourquoi une pile ne propose-t-elle pas d’opération « lire l’élément de rang i » comme le fait une liste ?",
+          "choices": [
+            "Parce que Python l’interdit",
+            "Parce que la contrainte (n’agir qu’au sommet) fait partie de sa définition : c’est elle qui garantit le comportement LIFO",
+            "Parce que ce serait beaucoup trop lent",
+            "Parce qu’une pile n’a pas d’indices en mémoire"
+          ],
+          "correct": 1,
+          "feedback": "Une interface restreinte est un choix de conception : en limitant l’accès au sommet, on garantit la règle LIFO. Si on autorisait de lire ou d’insérer n’importe où, ce ne serait plus une pile.",
+          "choiceFeedback": [
+            "Python n’interdit rien : c’est la définition de la structure qui limite les opérations.",
+            "Oui : la restriction est voulue et garantit LIFO.",
+            "La vitesse n’est pas la raison : même rapide, un accès au rang i ferait sortir de la règle LIFO.",
+            "Peu importe la mémoire : on parle ici d’interface, pas d’implémentation."
+          ]
+        },
+        {
+          "id": "list-pile",
+          "text": "Une pile est réalisée avec une list Python. Que peut-on en conclure ?",
+          "choices": [
+            "Une pile et une list sont le même type abstrait",
+            "L’interface de la pile est celle de list : on peut utiliser tous les crochets",
+            "La list est un choix de représentation : l’interface de la pile n’en dépend pas",
+            "Une pile ne peut être réalisée qu’avec une list"
+          ],
+          "correct": 2,
+          "feedback": "La list est ici l’implémentation. L’interface (empiler, depiler, sommet…) ne change pas si l’on choisit une autre représentation.",
+          "choiceFeedback": [
+            "Non : le type abstrait pile impose une règle (LIFO) que list n’impose pas.",
+            "Non : celui qui utilise la pile n’a pas à connaître les crochets, seulement ses opérations.",
+            "Oui : interface et implémentation sont deux niveaux distincts.",
+            "Non : on pourrait réaliser une pile autrement (autre représentation)."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "interface-implementation",
+          "label": "Avec tes mots : quelle est la différence entre l’interface et l’implémentation d’une pile ?",
+          "placeholder": "Interface : ce que… Implémentation : comment…"
+        }
+      ],
+      "hints": [
+        "Pense à une télécommande : tu connais les boutons (l’interface), pas les circuits qu’ils commandent (l’implémentation).",
+        "L’interface est la liste des opérations et de leur comportement. L’implémentation est ce qu’il y a dans l’objet pour les réaliser."
+      ],
+      "takeaway": "Liste, pile et file se distinguent par la règle d’accès : n’importe où (liste), au sommet seulement (pile, LIFO), entrée d’un côté et sortie de l’autre (file, FIFO). Une interface se décrit sans parler de l’implémentation.",
+      "tests": [],
+      "figures": [
+        {
+          "type": "svg",
+          "id": "svg-liste",
+          "caption": "Liste : on peut lire n’importe quel rang.",
+          "alt": "Liste A, B, C, D avec indices 0 à 3",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 120\" width=\"100%\" role=\"img\" aria-label=\"Liste de quatre éléments A, B, C, D, indices 0 à 3\" font-family=\"sans-serif\"><defs><marker id=\"a\" markerWidth=\"8\" markerHeight=\"8\" refX=\"6\" refY=\"4\" orient=\"auto\"><path d=\"M0 0 L8 4 L0 8 z\" fill=\"currentColor\"/></marker></defs><rect x=\"20\" y=\"30\" width=\"60\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"50.0\" y=\"58.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">A</text><text x=\"50\" y=\"98\" text-anchor=\"middle\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">indice 0</text><path d=\"M82 52 H108\" stroke=\"currentColor\" stroke-width=\"1.5\" marker-end=\"url(#a)\"/><rect x=\"110\" y=\"30\" width=\"60\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"140.0\" y=\"58.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">B</text><text x=\"140\" y=\"98\" text-anchor=\"middle\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">indice 1</text><path d=\"M172 52 H198\" stroke=\"currentColor\" stroke-width=\"1.5\" marker-end=\"url(#a)\"/><rect x=\"200\" y=\"30\" width=\"60\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"230.0\" y=\"58.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">C</text><text x=\"230\" y=\"98\" text-anchor=\"middle\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">indice 2</text><path d=\"M262 52 H288\" stroke=\"currentColor\" stroke-width=\"1.5\" marker-end=\"url(#a)\"/><rect x=\"290\" y=\"30\" width=\"60\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"320.0\" y=\"58.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">D</text><text x=\"320\" y=\"98\" text-anchor=\"middle\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">indice 3</text></svg>"
+        },
+        {
+          "type": "svg",
+          "id": "svg-pile",
+          "caption": "Pile : tout se passe au sommet.",
+          "alt": "Pile avec D au sommet, puis C, B, A",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 400 230\" width=\"100%\" role=\"img\" aria-label=\"Pile de quatre éléments : D au sommet, puis C, B, A en bas\" font-family=\"sans-serif\"><rect x=\"150\" y=\"20\" width=\"100\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><text x=\"200.0\" y=\"47.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">D</text><rect x=\"150\" y=\"68\" width=\"100\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"200.0\" y=\"95.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">C</text><rect x=\"150\" y=\"116\" width=\"100\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"200.0\" y=\"143.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">B</text><rect x=\"150\" y=\"164\" width=\"100\" height=\"42\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"200.0\" y=\"191.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">A</text><path d=\"M290 41 H262\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M262 41 l9 -5 v10 z\" fill=\"currentColor\"/><text x=\"298\" y=\"46\" font-size=\"14\" fill=\"currentColor\">sommet</text><text x=\"40\" y=\"46\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">on pose et on</text><text x=\"40\" y=\"62\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">retire ici seulement</text></svg>"
+        },
+        {
+          "type": "svg",
+          "id": "svg-file",
+          "caption": "File : on entre d’un côté, on sort de l’autre.",
+          "alt": "File avec A à la sortie et D à l’entrée",
+          "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 440 110\" width=\"100%\" role=\"img\" aria-label=\"File de quatre éléments : A à la sortie, D à l’entrée\" font-family=\"sans-serif\"><text x=\"6\" y=\"30\" font-size=\"14\" fill=\"currentColor\">sortie</text><path d=\"M10 40 H34\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M10 40 l9 -5 v10 z\" fill=\"currentColor\"/><rect x=\"48\" y=\"22\" width=\"66\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><text x=\"81.0\" y=\"50.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">A</text><rect x=\"132\" y=\"22\" width=\"66\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"165.0\" y=\"50.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">B</text><rect x=\"216\" y=\"22\" width=\"66\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"249.0\" y=\"50.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">C</text><rect x=\"300\" y=\"22\" width=\"66\" height=\"44\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"/><text x=\"333.0\" y=\"50.0\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"600\" fill=\"currentColor\">D</text><text x=\"392\" y=\"30\" font-size=\"14\" fill=\"currentColor\">entrée</text><path d=\"M410 40 H386\" stroke=\"currentColor\" stroke-width=\"1.5\"/><path d=\"M386 40 l9 -5 v10 z\" fill=\"currentColor\"/><text x=\"48\" y=\"94\" font-size=\"13\" fill=\"currentColor\" opacity=\"0.8\">le premier arrivé (A) sortira le premier</text></svg>"
+        },
+        {
+          "type": "structure-sim",
+          "id": "sim-pile",
+          "mode": "pile",
+          "initial": [],
+          "caption": "Simulateur de pile"
+        },
+        {
+          "type": "structure-sim",
+          "id": "sim-file",
+          "mode": "file",
+          "initial": [],
+          "caption": "Simulateur de file"
+        }
+      ]
+    },
+    {
+      "id": "liste",
+      "short": "Liste",
+      "title": "Construire une classe Liste",
+      "minutes": 18,
+      "level": "Guidé",
+      "concepts": [
+        "classe",
+        "encapsulation",
+        "indice",
+        "cas limite",
+        "IndexError"
+      ],
+      "intro": "Premier objet : une Liste minimaliste. Tu l’écris méthode par méthode, en vérifiant au fur et à mesure.",
+      "lesson": "<p>Voici son <strong>interface</strong> :</p><div class=\"contract\"><strong>Liste()</strong> crée une liste vide.<br><strong>est_vide()</strong> renvoie True si elle ne contient rien.<br><strong>longueur()</strong> renvoie le nombre d’éléments.<br><strong>ajouter(valeur)</strong> ajoute valeur à la fin ; ne renvoie rien.<br><strong>element(indice)</strong> renvoie l’élément d’indice donné (le premier a l’indice 0).</div><p>L’objet garde ses éléments dans un attribut <code>_elements</code>. Le tiret bas initial est une <strong>convention</strong> : « n’y touche pas de l’extérieur, passe par les méthodes ». C’est l’<strong>encapsulation</strong> : on peut changer la représentation sans casser ceux qui utilisent l’interface.</p><p><strong>Prédis avant d’exécuter</strong> ce programme, qui figure en bas de l’éditeur :</p><pre><code>L = Liste()\nL.ajouter(\"Ada\")\nL.ajouter(\"Alan\")\nprint(L.longueur())\nprint(L.element(1))</code></pre>{{q:predire-longueur}}{{q:predire-element}}<p>Complète maintenant les méthodes <em>une par une</em>. Après chacune, clique sur « Vérifier mon code » : chaque contrôle porte sur une méthode précise.</p>{{code}}<p><strong>Cas limite.</strong> Que doit faire <code>element(10)</code> sur une liste de deux éléments ? Trois politiques sont possibles : renvoyer <code>None</code> (mais None peut aussi être une vraie valeur stockée), lever une exception, ou interdire l’appel « par contrat » sans rien vérifier. <strong>Dans tout ce TP nous adoptons une seule convention : on lève <code>IndexError</code>.</strong> Une erreur ne passe ainsi jamais inaperçue.</p><p>Attention : sur une <code>list</code> Python, <code>liste[-1]</code> est valide (dernier élément). Pour notre Liste, un indice négatif est <em>invalide</em> : c’est une décision d’interface, pas une limite de Python.</p>{{f:politique}}",
+      "task": "Complète les cinq méthodes de Liste jusqu’à ce que tous les contrôles soient réussis, puis réponds à la question.",
+      "starter": "class Liste:\n    def __init__(self):\n        # À compléter : un attribut _elements qui mémorise les éléments.\n        pass\n\n    def est_vide(self):\n        # Renvoyer True si la liste ne contient aucun élément.\n        pass\n\n    def longueur(self):\n        # Renvoyer le nombre d'éléments.\n        pass\n\n    def ajouter(self, valeur):\n        # Ajouter valeur à la fin. Ne rien renvoyer.\n        pass\n\n    def element(self, indice):\n        # Renvoyer l'élément d'indice donné (le premier a l'indice 0).\n        # Indice invalide (négatif ou trop grand) : lever IndexError(\"indice invalide\").\n        pass\n\nL = Liste()\nL.ajouter(\"Ada\")\nL.ajouter(\"Alan\")\nprint(L.longueur())\nprint(L.element(1))\n",
+      "questions": [
+        {
+          "id": "predire-longueur",
+          "text": "À la fin du programme, que vaut L.longueur() ?",
+          "choices": [
+            "0",
+            "1",
+            "2",
+            "Une erreur"
+          ],
+          "correct": 2,
+          "feedback": "Deux appels à ajouter : la liste contient \"Ada\" et \"Alan\", donc longueur() vaut 2.",
+          "choiceFeedback": [
+            "La liste n’est pas vide : deux éléments ont été ajoutés.",
+            "Il y a eu deux ajouts, pas un.",
+            "Oui : deux éléments.",
+            "Aucune erreur : tout est valide."
+          ]
+        },
+        {
+          "id": "predire-element",
+          "text": "Que renvoie L.element(1) ?",
+          "choices": [
+            "\"Ada\"",
+            "\"Alan\"",
+            "1",
+            "IndexError"
+          ],
+          "correct": 1,
+          "feedback": "Les indices commencent à 0 : element(0) est \"Ada\", element(1) est \"Alan\".",
+          "choiceFeedback": [
+            "\"Ada\" a l’indice 0, pas 1.",
+            "Oui : \"Alan\" est à l’indice 1.",
+            "1 est l’indice, pas l’élément.",
+            "L’indice 1 existe (la liste a deux éléments)."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "politique",
+          "label": "Pourquoi vaut-il mieux lever IndexError que renvoyer None quand l’indice est invalide ?",
+          "placeholder": "Pense à une liste qui contiendrait vraiment la valeur None."
+        }
+      ],
+      "hints": [
+        "Rappel : l’attribut _elements est une list créée dans __init__ ; chaque méthode agit sur self._elements. Pour est_vide et longueur, pense à len(...).",
+        "Pseudo-code d’element : si l’indice est négatif ou supérieur ou égal au nombre d’éléments, lever IndexError ; sinon renvoyer l’élément de rang indice.",
+        "Fragment : if indice < 0 or indice >= len(self._elements): raise IndexError(\"indice invalide\") ; puis return self._elements[indice]."
+      ],
+      "takeaway": "Une classe cache sa représentation (_elements) derrière une interface. Un cas limite (indice invalide) se règle par une convention claire et unique : ici, IndexError.",
+      "tests": [
+        "__init__ et est_vide : une liste neuve est vide",
+        "ajouter et longueur",
+        "element : lecture par indice",
+        "element : indice invalide → IndexError",
+        "Plusieurs listes indépendantes"
+      ]
+    },
+    {
+      "id": "pile",
+      "short": "Pile",
+      "title": "Construire une Pile",
+      "minutes": 18,
+      "level": "Guidé puis autonome",
+      "concepts": [
+        "pile",
+        "LIFO",
+        "mutation",
+        "valeur de retour",
+        "cas limite"
+      ],
+      "intro": "Une pile, c’est une interface avant d’être du code. Tu commences par le contrat, tu prédis, puis tu écris.",
+      "lesson": "<p>D’abord le <strong>contrat</strong>, sans une ligne de code :</p><div class=\"contract\"><strong>Pile()</strong> crée une pile vide.<br><strong>est_vide()</strong> et <strong>taille()</strong> décrivent son état.<br><strong>empiler(x)</strong> pose x au sommet.<br><strong>sommet()</strong> <em>consulte</em> l’élément du sommet.<br><strong>depiler()</strong> <em>retire et renvoie</em> l’élément du sommet.</div><p>Ne confonds pas <code>sommet()</code> et <code>depiler()</code>. La seconde fait deux choses à la fois : elle <strong>renvoie</strong> une valeur <em>et</em> <strong>modifie</strong> la pile. C’est la même idée que <code>emprunter()</code> au TP POO 1.</p><p><strong>Prédis avant d’exécuter</strong> (le programme est en bas de l’éditeur) : on empile \"A\", puis \"B\", puis \"C\".</p>{{q:predire-depiler}}{{q:predire-sommet}}{{q:predire-taille}}<p>À toi de jouer : écris les méthodes, puis vérifie-les.</p>{{code}}<p><strong>Pile vide.</strong> Que doit faire <code>depiler()</code> quand il n’y a rien à retirer ? Renvoyer <code>None</code> (et laisser l’erreur se propager plus loin sans bruit), lever une exception, ou supposer que l’appelant a déjà testé <code>est_vide()</code> (précondition). Nous gardons la convention du TP : <code>IndexError</code>. Remarque : sur une list vide, <code>pop()</code> lève déjà un IndexError, mais c’est <em>ton contrat</em> d’interface que tu dois garantir, quelle que soit la représentation.</p>{{q:politique-vide}}{{f:politique}}",
+      "task": "Écris les cinq méthodes de Pile (l’attribut _elements est déjà créé), vérifie-les, puis réponds aux deux dernières questions.",
+      "starter": "class Pile:\n    def __init__(self):\n        self._elements = []\n\n    def est_vide(self):\n        # Renvoyer True si la pile ne contient rien.\n        pass\n\n    def taille(self):\n        # Renvoyer le nombre d'éléments.\n        pass\n\n    def empiler(self, valeur):\n        # Poser valeur au sommet. Ne rien renvoyer.\n        pass\n\n    def sommet(self):\n        # Renvoyer l'élément du sommet SANS le retirer.\n        # Pile vide : lever IndexError(\"pile vide\").\n        pass\n\n    def depiler(self):\n        # Retirer l'élément du sommet ET le renvoyer.\n        # Pile vide : lever IndexError(\"pile vide\").\n        pass\n\np = Pile()\np.empiler(\"A\")\np.empiler(\"B\")\np.empiler(\"C\")\nprint(p.depiler())\nprint(p.sommet())\nprint(p.taille())\n",
+      "questions": [
+        {
+          "id": "predire-depiler",
+          "text": "Après empiler \"A\", \"B\", \"C\", que renvoie p.depiler() ?",
+          "choices": [
+            "\"A\"",
+            "\"B\"",
+            "\"C\"",
+            "Rien"
+          ],
+          "correct": 2,
+          "feedback": "Dernier entré, premier sorti : \"C\" est au sommet. depiler() le renvoie.",
+          "choiceFeedback": [
+            "\"A\" est tout en bas.",
+            "\"B\" est sous \"C\".",
+            "Oui : \"C\".",
+            "depiler() renvoie l’élément retiré."
+          ]
+        },
+        {
+          "id": "predire-sommet",
+          "text": "Juste après ce dépilage, que renvoie p.sommet() ?",
+          "choices": [
+            "\"A\"",
+            "\"B\"",
+            "\"C\"",
+            "Une erreur"
+          ],
+          "correct": 1,
+          "feedback": "Une fois \"C\" retiré, le sommet est \"B\". Si tu as répondu \"C\", tu as oublié que depiler() modifie la pile.",
+          "choiceFeedback": [
+            "\"A\" est sous \"B\".",
+            "Oui : \"B\".",
+            "\"C\" a été retiré de la pile par depiler().",
+            "La pile contient encore \"A\" et \"B\" : pas d’erreur."
+          ]
+        },
+        {
+          "id": "predire-taille",
+          "text": "Et p.taille() ?",
+          "choices": [
+            "1",
+            "2",
+            "3",
+            "0"
+          ],
+          "correct": 1,
+          "feedback": "Trois empilements, un dépilage : il reste \"A\" et \"B\", donc 2.",
+          "choiceFeedback": [
+            "Il reste deux éléments, pas un.",
+            "Oui : \"A\" et \"B\" restent, donc 2.",
+            "3 serait la taille avant le dépilage.",
+            "La pile n’est pas vide."
+          ]
+        },
+        {
+          "id": "politique-vide",
+          "text": "Un programme appelle depiler() sur une pile vide. Quelle politique est la plus sûre dans ce TP ?",
+          "choices": [
+            "Renvoyer None sans rien dire",
+            "Lever IndexError : l’erreur est signalée tout de suite",
+            "Ne rien vérifier et espérer que ça n’arrive pas",
+            "Renvoyer 0"
+          ],
+          "correct": 1,
+          "feedback": "Lever une exception signale le problème à l’endroit où il se produit. None pourrait être confondu avec une vraie valeur empilée, et 0 aussi.",
+          "choiceFeedback": [
+            "None peut être une valeur légitime stockée dans la pile : on ne distinguerait plus « pile vide » de « None au sommet ».",
+            "Oui : l’erreur est immédiate et explicite.",
+            "C’est une précondition sans garde-fou : le bug apparaîtrait plus tard, ailleurs.",
+            "0 est une valeur possible comme une autre : même défaut que None."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "politique",
+          "label": "Compare les trois politiques pour depiler() sur une pile vide (None, exception, précondition) et justifie celle du TP.",
+          "placeholder": "None : … Exception : … Précondition : …"
+        }
+      ],
+      "hints": [
+        "Rappel : empiler = ajouter à une extrémité de _elements ; depiler = retirer à la MÊME extrémité. Pour une list, la fin est l’extrémité la plus simple (append et pop).",
+        "Pseudo-code de depiler : si la pile est vide, lever IndexError ; sinon retirer le dernier élément de _elements et le renvoyer. sommet fait pareil sans retirer.",
+        "Fragment : if self.est_vide(): raise IndexError(\"pile vide\") ; puis return self._elements.pop() pour depiler, return self._elements[-1] pour sommet."
+      ],
+      "takeaway": "Une pile obéit à LIFO. depiler() renvoie ET modifie ; sommet() consulte seulement. La même convention (IndexError) vaut pour toute structure vide.",
+      "tests": [
+        "est_vide et taille : une pile neuve est vide",
+        "empiler : la taille augmente",
+        "sommet : consulte sans retirer",
+        "depiler : renvoie ET retire",
+        "LIFO : dernier entré, premier sorti",
+        "Pile vide : sommet et depiler lèvent IndexError",
+        "Plusieurs piles indépendantes"
+      ]
+    },
+    {
+      "id": "file",
+      "short": "File",
+      "title": "Construire une File",
+      "minutes": 18,
+      "level": "Guidé puis autonome",
+      "concepts": [
+        "file",
+        "FIFO",
+        "mutation",
+        "coût de pop(0)"
+      ],
+      "intro": "Même démarche que pour la pile, mais avec la règle inverse : le premier arrivé est le premier servi.",
+      "lesson": "<div class=\"contract\"><strong>File()</strong> crée une file vide.<br><strong>est_vide()</strong> et <strong>taille()</strong> décrivent son état.<br><strong>enfiler(x)</strong> place x à l’arrière.<br><strong>premier()</strong> <em>consulte</em> le prochain à sortir.<br><strong>defiler()</strong> <em>retire et renvoie</em> le prochain à sortir.</div><p><strong>Prédis</strong> avant d’exécuter (le programme est en bas de l’éditeur) : on enfile \"Adam\", puis \"Alexandre\", puis \"Zaineb\".</p>{{q:predire-sortie}}{{q:predire-restant}}<p>Écris maintenant les méthodes. Pour <code>defiler</code>, une <code>list</code> Python offre <code>pop(0)</code> : c’est simple, mais tous les éléments suivants sont décalés d’un cran, ce qui coûte de plus en plus cher quand la file s’allonge. Pour ce TP, c’est un choix acceptable ; le bonus propose mieux.</p>{{q:cout-pop0}}{{code}}{{f:choix}}",
+      "task": "Écris les cinq méthodes de File, vérifie-les, puis réponds à la dernière question.",
+      "starter": "class File:\n    def __init__(self):\n        self._elements = []\n\n    def est_vide(self):\n        # Renvoyer True si la file ne contient rien.\n        pass\n\n    def taille(self):\n        # Renvoyer le nombre d'éléments.\n        pass\n\n    def enfiler(self, valeur):\n        # Placer valeur à l'arrière de la file. Ne rien renvoyer.\n        pass\n\n    def premier(self):\n        # Renvoyer le prochain élément à sortir SANS le retirer.\n        # File vide : lever IndexError(\"file vide\").\n        pass\n\n    def defiler(self):\n        # Retirer le prochain élément à sortir ET le renvoyer.\n        # File vide : lever IndexError(\"file vide\").\n        pass\n\nf = File()\nf.enfiler(\"Adam\")\nf.enfiler(\"Alexandre\")\nf.enfiler(\"Zaineb\")\nprint(f.defiler())\nprint(f.premier())\nprint(f.taille())\n",
+      "questions": [
+        {
+          "id": "predire-sortie",
+          "text": "On enfile Adam, Alexandre, Zaineb. Qui est défilé en premier ?",
+          "choices": [
+            "Adam",
+            "Alexandre",
+            "Zaineb",
+            "On ne peut pas savoir"
+          ],
+          "correct": 0,
+          "feedback": "Premier entré, premier sorti : Adam est arrivé le premier, il sort le premier.",
+          "choiceFeedback": [
+            "Oui : Adam.",
+            "Alexandre passe après Adam.",
+            "Zaineb est la dernière arrivée : ce serait le comportement d’une pile.",
+            "La règle FIFO fixe l’ordre."
+          ]
+        },
+        {
+          "id": "predire-restant",
+          "text": "Après ce défilage, qui est le premier de la file ?",
+          "choices": [
+            "Adam",
+            "Alexandre",
+            "Zaineb",
+            "La file est vide"
+          ],
+          "correct": 1,
+          "feedback": "Adam est sorti (defiler modifie la file). Le prochain à sortir est Alexandre.",
+          "choiceFeedback": [
+            "Adam a été retiré par defiler().",
+            "Oui : Alexandre.",
+            "Zaineb est derrière Alexandre.",
+            "Il reste deux personnes."
+          ]
+        },
+        {
+          "id": "cout-pop0",
+          "text": "Pourquoi dit-on que pop(0) est simple mais pas optimale ?",
+          "choices": [
+            "Elle n’existe pas pour les list",
+            "Elle ne renvoie pas l’élément retiré",
+            "Elle décale tous les éléments restants d’un cran",
+            "Elle retire le dernier élément"
+          ],
+          "correct": 2,
+          "feedback": "Retirer en tête d’une list oblige Python à décaler les éléments suivants : plus la file est longue, plus c’est coûteux.",
+          "choiceFeedback": [
+            "pop(0) existe bien.",
+            "pop(0) renvoie bien l’élément retiré.",
+            "Oui : le décalage de tous les éléments suivants.",
+            "pop() sans argument retire le dernier ; pop(0) retire le premier."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "choix",
+          "label": "Dans ta list, à quelle extrémité as-tu placé l’élément qui sortira en premier ? Explique ton choix.",
+          "placeholder": "Début ou fin de _elements, et pourquoi…"
+        }
+      ],
+      "hints": [
+        "Rappel : une file a deux extrémités actives : l’arrière (on y ajoute) et l’avant (on en retire). Choisis quelle extrémité de la list sera l’avant.",
+        "Pseudo-code de defiler : si la file est vide, lever IndexError ; sinon retirer l’élément de l’avant et le renvoyer. premier fait pareil sans retirer.",
+        "Fragment : if self.est_vide(): raise IndexError(\"file vide\") ; puis return self._elements.pop(0) pour defiler, return self._elements[0] pour premier ; enfiler utilise append."
+      ],
+      "takeaway": "Une file obéit à FIFO. defiler() renvoie ET modifie ; premier() consulte seulement. Le choix de la représentation (début ou fin de list) n’est pas visible dans l’interface.",
+      "tests": [
+        "est_vide et taille : une file neuve est vide",
+        "enfiler : la taille augmente",
+        "premier : consulte sans retirer",
+        "defiler : renvoie ET retire",
+        "FIFO : premier entré, premier sorti",
+        "File vide : premier et defiler lèvent IndexError",
+        "Plusieurs files indépendantes"
+      ]
+    },
+    {
+      "id": "comparer",
+      "short": "Comparer",
+      "title": "Pile ou file : même entrée, sorties différentes",
+      "minutes": 8,
+      "level": "Consolidation",
+      "concepts": [
+        "LIFO",
+        "FIFO",
+        "comparaison"
+      ],
+      "intro": "Deux structures, deux règles. Tu complètes toi-même le tableau de comparaison, puis tu testes sur une même séquence.",
+      "lesson": "<table><thead><tr><th>Structure</th><th>Où ajoute-t-on ?</th><th>Où retire-t-on ?</th><th>Politique</th></tr></thead><tbody><tr><td>Pile</td><td>?</td><td>?</td><td>?</td></tr><tr><td>File</td><td>?</td><td>?</td><td>?</td></tr></tbody></table><p>Complète chaque case en quelques mots.</p>{{f:pile-ajout}}{{f:pile-retrait}}{{f:pile-politique}}{{f:file-ajout}}{{f:file-retrait}}{{f:file-politique}}<p>On ajoute successivement <strong>A, B, C, D</strong> dans chaque structure, puis on retire tout. Donne l’ordre de sortie.</p>{{f:sortie-pile}}{{f:sortie-file}}{{q:sequence-pile}}{{q:ordre-file}}",
+      "task": "Remplis le tableau, donne les deux ordres de sortie, puis réponds aux deux questions.",
+      "starter": null,
+      "questions": [
+        {
+          "id": "sequence-pile",
+          "text": "On empile A, B, C, D ; on dépile deux fois ; on empile E ; puis on dépile tout. Dans quel ordre sortent les éléments ?",
+          "choices": [
+            "D, C, E, B, A",
+            "D, C, A, B, E",
+            "A, B, C, D, E",
+            "D, C, B, A, E"
+          ],
+          "correct": 0,
+          "feedback": "Les deux premiers dépilages donnent D puis C. La pile contient alors A, B ; E arrive au sommet, donc le dépilage final donne E, B, A. Ordre total : D, C, E, B, A.",
+          "choiceFeedback": [
+            "Oui : D, C, puis E, B, A.",
+            "Après C, la pile contient A, B, puis E : E sort avant B et A.",
+            "C’est l’ordre d’arrivée : celui d’une file.",
+            "E est empilé après les deux dépilages : il est au sommet et sort avant B et A."
+          ]
+        },
+        {
+          "id": "ordre-file",
+          "text": "Dans une file, la suite des sorties est-elle toujours dans l’ordre d’arrivée, quelles que soient les alternances d’ajouts et de retraits ?",
+          "choices": [
+            "Oui : un élément sort toujours après tous ceux arrivés avant lui",
+            "Non : cela dépend du nombre d’éléments",
+            "Non, sauf si on défile au moins deux fois de suite",
+            "Oui, mais seulement si la file n’a jamais été vide"
+          ],
+          "correct": 0,
+          "feedback": "C’est la définition de FIFO : l’ordre relatif des éléments est conservé, quel que soit le moment où l’on défile.",
+          "choiceFeedback": [
+            "Oui : c’est exactement FIFO.",
+            "Le nombre d’éléments ne change pas la règle.",
+            "Le nombre de défilages consécutifs ne change pas la règle.",
+            "Que la file ait été vide ou non ne change pas la règle."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "pile-ajout",
+          "label": "Pile : où ajoute-t-on ?",
+          "placeholder": "au sommet…",
+          "input": "line"
+        },
+        {
+          "id": "pile-retrait",
+          "label": "Pile : où retire-t-on ?",
+          "placeholder": "…",
+          "input": "line"
+        },
+        {
+          "id": "pile-politique",
+          "label": "Pile : quelle politique (LIFO ou FIFO) ?",
+          "placeholder": "…",
+          "input": "line"
+        },
+        {
+          "id": "file-ajout",
+          "label": "File : où ajoute-t-on ?",
+          "placeholder": "…",
+          "input": "line"
+        },
+        {
+          "id": "file-retrait",
+          "label": "File : où retire-t-on ?",
+          "placeholder": "…",
+          "input": "line"
+        },
+        {
+          "id": "file-politique",
+          "label": "File : quelle politique (LIFO ou FIFO) ?",
+          "placeholder": "…",
+          "input": "line"
+        },
+        {
+          "id": "sortie-pile",
+          "label": "Ordre de sortie de la pile (A, B, C, D ajoutés dans cet ordre)",
+          "placeholder": "ex. : A, B, C, D",
+          "input": "line",
+          "check": {
+            "kind": "text",
+            "accept": [
+              "D, C, B, A",
+              "D C B A",
+              "D-C-B-A"
+            ],
+            "rules": [
+              {
+                "when": [
+                  "A, B, C, D",
+                  "A B C D"
+                ],
+                "feedback": "Tu as donné l’ordre d’une file. Pour une pile, le dernier empilé (D) sort le premier."
+              }
+            ],
+            "success": "Oui : D, C, B, A. Dernier entré, premier sorti.",
+            "fallback": "Écris les quatre lettres dans l’ordre de sortie, séparées par des virgules ; par exemple : A, B, C, D."
+          }
+        },
+        {
+          "id": "sortie-file",
+          "label": "Ordre de sortie de la file (A, B, C, D ajoutés dans cet ordre)",
+          "placeholder": "ex. : A, B, C, D",
+          "input": "line",
+          "check": {
+            "kind": "text",
+            "accept": [
+              "A, B, C, D",
+              "A B C D",
+              "A-B-C-D"
+            ],
+            "rules": [
+              {
+                "when": [
+                  "D, C, B, A",
+                  "D C B A"
+                ],
+                "feedback": "Tu as donné l’ordre d’une pile. Dans une file, le premier arrivé (A) sort le premier."
+              }
+            ],
+            "success": "Oui : A, B, C, D. Premier entré, premier sorti.",
+            "fallback": "Écris les quatre lettres dans l’ordre de sortie, séparées par des virgules ; par exemple : A, B, C, D."
+          }
+        }
+      ],
+      "hints": [
+        "Pose-toi la question : quel élément est le plus facile à atteindre dans chaque structure ?",
+        "Pour la pile, imagine quatre livres posés les uns sur les autres : lequel prends-tu en premier ?"
+      ],
+      "takeaway": "Pile : ajout et retrait au même endroit (LIFO). File : ajout à l’arrière, retrait à l’avant (FIFO). Sur A, B, C, D : la pile sort D, C, B, A ; la file sort A, B, C, D.",
+      "tests": []
+    },
+    {
+      "id": "mission",
+      "short": "Mission",
+      "title": "Mission : le centre d’impression Nexus",
+      "minutes": 22,
+      "level": "Transfert",
+      "concepts": [
+        "composition",
+        "file",
+        "pile",
+        "historique d’annulation",
+        "délégation"
+      ],
+      "intro": "Tu utilises maintenant des structures pour résoudre un problème concret, en deux parties : une file de documents, puis un historique d’annulation.",
+      "lesson": "<p>Le centre d’impression du lycée reçoit des documents : <strong>DS_Maths.pdf</strong>, <strong>TP_NSI.pdf</strong>, <strong>Correction.pdf</strong>. Il les imprime dans l’ordre où ils arrivent.</p><p>En haut de l’éditeur, les classes <code>File</code> et <code>Pile</code> te sont <strong>fournies</strong> : ce sont celles que tu viens d’écrire. Tu ne les réécris pas : tu <strong>les utilises</strong> comme des briques, en passant par leur interface seulement.</p><p><strong>Partie A.</strong> Complète <code>FileImpression</code> : elle <em>contient</em> une <code>File</code> (dans un attribut) et traduit ses propres méthodes en opérations de file. Imprimer un centre vide lève <code>IndexError</code>, comme toute structure vide dans ce TP.</p><p><strong>Partie B.</strong> Le centre a des réglages (nombre de copies, couleur). Chaque réglage peut être <strong>annulé</strong>, dans l’ordre inverse de leur application. Complète <code>Reglages.regler</code> et <code>Reglages.annuler</code> avec une <code>Pile</code> d’historique : on y empile le couple (nom, ancienne valeur) <em>avant</em> de modifier.</p>{{q:structure-annulation}}{{code}}{{f:justification}}",
+      "task": "Complète FileImpression (partie A) et Reglages (partie B) jusqu’à ce que tous les contrôles soient réussis, puis justifie tes choix de structures.",
+      "starter": "# ── Fournies : les deux structures que tu viens de construire ──────────────\nclass File:\n    def __init__(self):\n        self._elements = []\n\n    def est_vide(self):\n        return len(self._elements) == 0\n\n    def taille(self):\n        return len(self._elements)\n\n    def enfiler(self, valeur):\n        self._elements.append(valeur)\n\n    def premier(self):\n        if self.est_vide():\n            raise IndexError(\"file vide\")\n        return self._elements[0]\n\n    def defiler(self):\n        if self.est_vide():\n            raise IndexError(\"file vide\")\n        return self._elements.pop(0)\n\n\nclass Pile:\n    def __init__(self):\n        self._elements = []\n\n    def est_vide(self):\n        return len(self._elements) == 0\n\n    def taille(self):\n        return len(self._elements)\n\n    def empiler(self, valeur):\n        self._elements.append(valeur)\n\n    def sommet(self):\n        if self.est_vide():\n            raise IndexError(\"pile vide\")\n        return self._elements[-1]\n\n    def depiler(self):\n        if self.est_vide():\n            raise IndexError(\"pile vide\")\n        return self._elements.pop()\n\n\n# ── Partie A : le centre d'impression (une FILE de documents) ─────────────\nclass FileImpression:\n    def __init__(self):\n        # À compléter : contenir une File (composition), pas la recopier.\n        pass\n\n    def soumettre(self, document):\n        # Ajouter le document à la file d'attente.\n        pass\n\n    def prochain(self):\n        # Renvoyer le document qui sera imprimé en premier, sans le retirer.\n        pass\n\n    def imprimer(self):\n        # Retirer et renvoyer le premier document. File vide : IndexError.\n        pass\n\n    def en_attente(self):\n        # Nombre de documents en attente.\n        pass\n\n    def est_vide(self):\n        # True si aucun document n'attend.\n        pass\n\n\n# ── Partie B : annuler un réglage (une PILE d'historique) ──────────────────\nclass Reglages:\n    def __init__(self):\n        self._valeurs = {\"copies\": 1, \"couleur\": \"noir\"}\n        self._historique = Pile()\n\n    def valeur(self, nom):\n        return self._valeurs[nom]\n\n    def regler(self, nom, valeur):\n        # À compléter : mémoriser (nom, ancienne valeur) dans l'historique, PUIS modifier.\n        pass\n\n    def annuler(self):\n        # À compléter : retrouver le dernier réglage et restaurer l'ancienne valeur.\n        # Rien à annuler : IndexError (celui de la pile).\n        pass\n\ncentre = FileImpression()\ncentre.soumettre(\"DS_Maths.pdf\")\ncentre.soumettre(\"TP_NSI.pdf\")\ncentre.soumettre(\"Correction.pdf\")\nprint(centre.prochain())\nprint(centre.imprimer())\nprint(centre.en_attente())\n\noptions = Reglages()\noptions.regler(\"copies\", 3)\noptions.regler(\"couleur\", \"bleu\")\noptions.annuler()\nprint(options.valeur(\"couleur\"))\nprint(options.valeur(\"copies\"))\n",
+      "questions": [
+        {
+          "id": "structure-annulation",
+          "text": "Pour annuler les réglages dans l’ordre inverse de leur application, quelle structure convient ?",
+          "choices": [
+            "Une file",
+            "Une pile",
+            "Une liste indexée par rang",
+            "Aucune : il faut tout recalculer"
+          ],
+          "correct": 1,
+          "feedback": "Le dernier réglage appliqué doit être le premier annulé : c’est LIFO, donc une pile.",
+          "choiceFeedback": [
+            "Une file annulerait d’abord le plus ancien réglage : pas ce qu’on veut.",
+            "Oui : LIFO.",
+            "Possible mais inutilement général : la règle voulue est exactement celle d’une pile.",
+            "Il suffit de mémoriser l’ancienne valeur à chaque modification."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "justification",
+          "label": "En une phrase : pourquoi l’historique d’annulation est-il une pile, alors que le centre d’impression est une file ?",
+          "placeholder": "Pense à l’ordre dans lequel on traite les éléments…"
+        }
+      ],
+      "hints": [
+        "Rappel : FileImpression ne recopie pas File, elle la contient (self._attente = File()) et délègue : soumettre → enfiler, prochain → premier, imprimer → defiler, en_attente → taille, est_vide → est_vide.",
+        "Pseudo-code de Reglages : regler(nom, valeur) = empiler (nom, ancienne valeur), puis modifier ; annuler() = dépiler le couple, puis remettre l’ancienne valeur. Pile vide : l’erreur de la pile suffit.",
+        "Fragment : self._historique.empiler((nom, self._valeurs[nom])) ; self._valeurs[nom] = valeur ; et dans annuler : nom, ancienne = self._historique.depiler() ; self._valeurs[nom] = ancienne."
+      ],
+      "takeaway": "Une structure se choisit selon la règle d’accès voulue : FIFO pour traiter dans l’ordre d’arrivée, LIFO pour revenir en arrière. Un objet peut contenir une structure et lui déléguer le travail.",
+      "tests": [
+        "Centre : un centre neuf n’a rien en attente",
+        "Centre : soumettre et en_attente",
+        "Centre : prochain consulte sans retirer",
+        "Centre : imprimer respecte FIFO",
+        "Centre vide : prochain et imprimer lèvent IndexError",
+        "Réglages : regler et valeur",
+        "Réglages : annuler restaure la valeur précédente",
+        "Réglages : annulations successives dans l’ordre inverse",
+        "Réglages : rien à annuler → IndexError"
+      ]
+    },
+    {
+      "id": "synthese",
+      "short": "Synthèse",
+      "title": "Quelle structure pour quelle situation ?",
+      "minutes": 10,
+      "level": "Consolidation",
+      "concepts": [
+        "choix de structure",
+        "type abstrait de données"
+      ],
+      "intro": "Dernier réflexe à acquérir : devant un problème, choisir la structure dont la règle d’accès correspond à ce qu’on veut faire.",
+      "lesson": "<p>Pour chaque situation, choisis la structure qui convient le mieux : liste, pile ou file. Lis l’explication après chaque réponse.</p>{{q:annuler}}{{q:guichet}}{{q:playlist}}{{q:impression}}{{q:navigation}}{{q:appels}}<p>Et pour conclure…</p>{{f:abstrait}}",
+      "task": "Choisis la structure de chacune des six situations, puis réponds à la question finale.",
+      "starter": null,
+      "questions": [
+        {
+          "id": "annuler",
+          "text": "Le bouton « Annuler » d’un éditeur de texte",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 1,
+          "feedback": "La dernière action effectuée est la première annulée : LIFO, donc une pile.",
+          "choiceFeedback": [
+            "Non : pas liste. La dernière action effectuée est la première annulée : LIFO, donc une pile.",
+            "Oui : Pile.",
+            "Non : pas file. La dernière action effectuée est la première annulée : LIFO, donc une pile."
+          ]
+        },
+        {
+          "id": "guichet",
+          "text": "Les personnes qui attendent à un guichet",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 2,
+          "feedback": "La première arrivée est la première servie : FIFO, donc une file.",
+          "choiceFeedback": [
+            "Non : pas liste. La première arrivée est la première servie : FIFO, donc une file.",
+            "Non : pas pile. La première arrivée est la première servie : FIFO, donc une file.",
+            "Oui : File."
+          ]
+        },
+        {
+          "id": "playlist",
+          "text": "Une playlist modifiable, où l’on peut insérer, retirer et lire le titre numéro 5",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 0,
+          "feedback": "On accède aux éléments par leur rang et on modifie n’importe où : c’est une liste, ni LIFO ni FIFO.",
+          "choiceFeedback": [
+            "Oui : Liste.",
+            "Non : pas pile. On accède aux éléments par leur rang et on modifie n’importe où : c’est une liste, ni LIFO ni FIFO.",
+            "Non : pas file. On accède aux éléments par leur rang et on modifie n’importe où : c’est une liste, ni LIFO ni FIFO."
+          ]
+        },
+        {
+          "id": "impression",
+          "text": "Les travaux envoyés à une imprimante",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 2,
+          "feedback": "Les travaux s’impriment dans l’ordre d’envoi : FIFO, donc une file.",
+          "choiceFeedback": [
+            "Non : pas liste. Les travaux s’impriment dans l’ordre d’envoi : FIFO, donc une file.",
+            "Non : pas pile. Les travaux s’impriment dans l’ordre d’envoi : FIFO, donc une file.",
+            "Oui : File."
+          ]
+        },
+        {
+          "id": "navigation",
+          "text": "Le bouton « page précédente » d’un navigateur",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 1,
+          "feedback": "La dernière page visitée est la première à quitter quand on revient en arrière : LIFO, donc une pile.",
+          "choiceFeedback": [
+            "Non : pas liste. La dernière page visitée est la première à quitter quand on revient en arrière : LIFO, donc une pile.",
+            "Oui : Pile.",
+            "Non : pas file. La dernière page visitée est la première à quitter quand on revient en arrière : LIFO, donc une pile."
+          ]
+        },
+        {
+          "id": "appels",
+          "text": "Les appels de fonctions imbriquées pendant l’exécution d’un programme",
+          "choices": [
+            "Liste",
+            "Pile",
+            "File"
+          ],
+          "correct": 1,
+          "feedback": "La dernière fonction appelée est la première à se terminer : LIFO, donc une pile (« pile d’appels »).",
+          "choiceFeedback": [
+            "Non : pas liste. La dernière fonction appelée est la première à se terminer : LIFO, donc une pile (« pile d’appels »).",
+            "Oui : Pile.",
+            "Non : pas file. La dernière fonction appelée est la première à se terminer : LIFO, donc une pile (« pile d’appels »)."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "abstrait",
+          "label": "Pourquoi dit-on qu’une pile et une file sont des types abstraits de données ?",
+          "placeholder": "Pense à ce qui les définit : leur comportement… ou leur représentation ?"
+        }
+      ],
+      "hints": [
+        "Une pile est-elle définie par la list qu’elle contient, ou par ce qu’on peut faire avec elle ?",
+        "Pense à la phrase : « leur comportement et leurs opérations sont définis indépendamment de leur… »"
+      ],
+      "takeaway": "Une pile ou une file se définit par ses opérations et leur comportement, pas par la manière de les réaliser : c’est ce qui en fait des types abstraits de données.",
+      "tests": []
+    },
+    {
+      "id": "bonus",
+      "short": "Bonus",
+      "title": "Pour aller plus loin : la file avec deque",
+      "minutes": 0,
+      "level": "Facultatif, hors des 120 min",
+      "concepts": [
+        "collections.deque",
+        "coût",
+        "implémentation"
+      ],
+      "intro": "Facultatif. Tu changes l’implémentation de la file sans changer son interface.",
+      "lesson": "<p>Le module <code>collections</code> fournit <code>deque</code>, une file à deux extrémités : <code>append</code> ajoute à droite, <code>popleft</code> retire à gauche <strong>sans décaler</strong> les autres éléments. Réécris la file avec une <code>deque</code> comme représentation.</p>{{q:popleft}}{{code}}{{f:interface}}<p><strong>Approfondissement (lecture seule).</strong> Une autre représentation consiste à relier des <em>maillons</em> : chaque maillon contient une valeur et une référence vers le suivant (une liste chaînée). Ce n’est pas nécessaire pour ce TP ; retiens simplement que la même interface de file peut reposer sur des représentations très différentes.</p>",
+      "task": "Complète FileDeque avec une deque, puis réponds aux deux questions.",
+      "starter": "from collections import deque\n\n\nclass FileDeque:\n    def __init__(self):\n        self._elements = deque()\n\n    def est_vide(self):\n        # Comme pour File.\n        pass\n\n    def taille(self):\n        pass\n\n    def enfiler(self, valeur):\n        # deque : append ajoute à droite.\n        pass\n\n    def premier(self):\n        # File vide : IndexError(\"file vide\").\n        pass\n\n    def defiler(self):\n        # deque : popleft retire à gauche, sans décaler les autres éléments.\n        # File vide : IndexError(\"file vide\").\n        pass\n\n\nf = FileDeque()\nf.enfiler(\"A\")\nf.enfiler(\"B\")\nprint(f.defiler())\nprint(f.taille())\n",
+      "questions": [
+        {
+          "id": "popleft",
+          "text": "Pourquoi popleft est-il plus efficace que pop(0) sur une list ?",
+          "choices": [
+            "Il ne retire rien",
+            "Il retire à l’extrémité gauche sans décaler tous les autres éléments",
+            "Il trie les éléments",
+            "Il copie la file entière"
+          ],
+          "correct": 1,
+          "feedback": "Une deque est conçue pour des ajouts et retraits aux deux extrémités sans décalage.",
+          "choiceFeedback": [
+            "Il retire bien l’élément le plus à gauche.",
+            "Oui : pas de décalage.",
+            "Aucun tri n’est effectué.",
+            "Il ne copie rien."
+          ]
+        }
+      ],
+      "fields": [
+        {
+          "id": "interface",
+          "label": "Ton interface File a-t-elle changé en passant de list à deque ? Qu’est-ce que cela montre ?",
+          "placeholder": "Les méthodes sont-elles les mêmes ? Ce que voit l’utilisateur…"
+        }
+      ],
+      "hints": [
+        "Rappel : pour une deque d, d.append(x) ajoute à droite, d.popleft() retire à gauche, d[0] consulte la gauche.",
+        "Pseudo-code : mêmes méthodes que File ; seules les lignes qui touchent à _elements changent.",
+        "Fragment : return self._elements.popleft() pour defiler ; return self._elements[0] pour premier."
+      ],
+      "takeaway": "Changer d’implémentation sans toucher à l’interface est tout l’intérêt d’un type abstrait de données.",
+      "tests": [
+        "FileDeque : taille, premier et est_vide",
+        "FileDeque : FIFO",
+        "FileDeque : file vide → IndexError"
+      ]
+    }
+  ]
+}

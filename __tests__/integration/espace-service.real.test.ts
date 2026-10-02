@@ -248,7 +248,7 @@ describe('provisioning', () => {
     expect((await prisma.user.findUniqueOrThrow({ where: { id: second.id } })).email).toBe(`dora2-${run}@test.example`);
   }, 60_000);
 
-  it('adopter un élève en attente d’activation familiale est une décision explicite (activatePending)', async () => {
+  it('un élève en attente d’activation familiale reçoit un code d’espace SANS que son activation soit consommée', async () => {
     const pending = await prisma.user.create({ data: { role: 'ELEVE', firstName: 'Pia', lastName: `Attente${run}`, email: `pia-${run}@test.example` } }); // activatedAt = null
     createdUserIds.push(pending.id);
     const r = (extra: Record<string, unknown> = {}) =>
@@ -257,19 +257,27 @@ describe('provisioning', () => {
         students: [{ username: u('pia'), firstName: 'Pia', lastName: `Attente${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }], ...extra }],
       });
 
-    const blocked = await planProvisioning(prisma, r(), { adopt: true });
-    expect(blocked.users[0].action).toBe('CONFLICT');
-    expect(blocked.users[0].reason).toMatch(/activation/);
-    await expect(applyProvisioning(prisma, r(), { adopt: true })).rejects.toThrow(/Conflits/);
-    expect((await prisma.user.findUniqueOrThrow({ where: { id: pending.id } })).activatedAt).toBeNull(); // rien n'a bougé
-
-    const allowed = await planProvisioning(prisma, r({ activatePending: true }), { adopt: true });
-    expect(allowed.users[0]).toMatchObject({ action: 'ADOPT', willActivate: true });
-    await applyProvisioning(prisma, r({ activatePending: true }), { adopt: true });
+    const plan = await planProvisioning(prisma, r(), { adopt: true });
+    expect(plan.users[0]).toMatchObject({ action: 'ADOPT', willActivate: false });
+    const { credentials } = await applyProvisioning(prisma, r(), { adopt: true });
     const after = await prisma.user.findUniqueOrThrow({ where: { id: pending.id } });
-    expect(after.activatedAt).not.toBeNull();
+    expect(after.activatedAt).toBeNull(); // le lien d'activation de la famille reste valable
     expect(after.username).toBe(u('pia'));
+    expect(after.pinHash).toMatch(/^\$2[aby]\$/);
     expect(after.email).toBe(`pia-${run}@test.example`);
+    expect(credentials[0]).toMatchObject({ username: u('pia'), displayName: `Pia Attente${run}` });
+  }, 60_000);
+
+  it('activatePending reste possible, sur décision écrite : il marque aussi le compte activé', async () => {
+    const pending = await prisma.user.create({ data: { role: 'ELEVE', firstName: 'Quentin', lastName: `Attente${run}`, email: `quentin-${run}@test.example` } });
+    createdUserIds.push(pending.id);
+    const roster2 = parseRoster({
+      groups: [{ slug: g('principal'), name: 'x' }],
+      students: [{ username: u('quen'), firstName: 'Quentin', lastName: `Attente${run}`, activatePending: true, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }] }],
+    });
+    expect((await planProvisioning(prisma, roster2, { adopt: true })).users[0]).toMatchObject({ action: 'ADOPT', willActivate: true });
+    await applyProvisioning(prisma, roster2, { adopt: true });
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: pending.id } })).activatedAt).not.toBeNull();
   }, 60_000);
 
   it('matchUserId inconnu ou d’un autre rôle est un conflit, jamais une création', async () => {

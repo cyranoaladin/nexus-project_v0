@@ -70,7 +70,8 @@ export async function authorizeEspaceCredentials(
   let hash: string | null;
   let candidate: string | null;
   if (user.role === 'ELEVE') {
-    if (!user.activatedAt) return burnComparison(secret);
+    // Le code personnel suffit : l'activation familiale éventuellement en attente est un autre circuit.
+    if (!user.pinHash) return burnComparison(secret);
     hash = user.pinHash;
     candidate = normalizePin(secret);
   } else if (user.role === 'COACH') {

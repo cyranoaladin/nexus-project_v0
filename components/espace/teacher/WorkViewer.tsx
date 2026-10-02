@@ -1,5 +1,7 @@
 import { CheckCircle2, Circle, XCircle } from 'lucide-react';
 
+import { RichText } from '@/components/espace/shared/RichText';
+
 export interface ViewerStepDef {
   id: string;
   title: string;
@@ -14,6 +16,9 @@ export interface ViewerStepContent {
   fields?: Record<string, string>;
   choices?: Record<string, number>;
   tests?: { passed: number; total: number; ranAt?: string };
+  tries?: Record<string, number>;
+  solved?: Record<string, boolean>;
+  hints?: number;
 }
 
 export interface ViewerAttachment {
@@ -86,6 +91,11 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
             </div>
 
             {empty && <p className="mt-2 text-sm text-neutral-400">Étape non renseignée.</p>}
+            {(step?.hints ?? 0) > 0 && (
+              <p className="mt-2 text-xs text-neutral-400" data-testid={`hints-${def.id}`}>
+                Aides ouvertes : {step?.hints} (information, jamais une pénalité)
+              </p>
+            )}
 
             {step?.code?.trim() && (
               <div className="mt-3">
@@ -129,7 +139,7 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
                   return (
                     <li key={q.id} className="rounded-md border border-white/10 p-3">
                       <div className="flex flex-wrap items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-neutral-100">{q.text}</p>
+                        <p className="text-sm font-medium text-neutral-100"><RichText text={q.text} /></p>
                         {onPickQuestion && (
                           <button type="button" onClick={() => onPickQuestion(def.id, q.id)} className="rounded-md border border-white/15 px-2 py-1 text-xs text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
                             Commenter
@@ -144,7 +154,7 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
                             <li key={idx} className="flex items-start gap-2" data-testid={`choice-${def.id}-${q.id}-${idx}`}>
                               {isPicked ? (isCorrect ? <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" aria-hidden="true" /> : <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-orange-300" aria-hidden="true" />) : <Circle className="mt-0.5 h-4 w-4 shrink-0 text-neutral-600" aria-hidden="true" />}
                               <span className={isPicked ? 'text-neutral-50' : 'text-neutral-400'}>
-                                {choice}
+                                <RichText text={choice} />
                                 {isPicked && <strong className="ml-2 text-xs">· Choix de l’élève{isCorrect ? ' (bonne réponse)' : ' (réponse attendue différente)'}</strong>}
                                 {!isPicked && isCorrect && <em className="ml-2 text-xs not-italic text-emerald-300">· Bonne réponse</em>}
                               </span>
@@ -163,11 +173,16 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
               <dl className="mt-3 space-y-3">
                 {def.fields.map((f) => (
                   <div key={f.id} className="rounded-md border border-white/10 p-3">
-                    <dt className="text-sm font-medium text-neutral-100">{f.label}</dt>
+                    <dt className="text-sm font-medium text-neutral-100"><RichText text={f.label} /></dt>
                     <dd className="mt-1 text-sm text-neutral-200">
                       <div className="whitespace-pre-wrap break-words" data-testid={`field-${def.id}-${f.id}`}>
                         {step?.fields?.[f.id]?.trim() ? step.fields[f.id] : <span className="text-neutral-400">Pas de réponse.</span>}
                       </div>
+                      {step?.tries?.[f.id] !== undefined && (
+                        <p className="mt-1 text-xs text-neutral-400" data-testid={`tries-${def.id}-${f.id}`}>
+                          {step.tries[f.id]} essai{step.tries[f.id]! > 1 ? 's' : ''} · {step.solved?.[f.id] ? 'réponse validée par la vérification' : 'pas encore validée'}
+                        </p>
+                      )}
                       {onPickQuestion && (
                         <button type="button" onClick={() => onPickQuestion(def.id, f.id)} className="mt-2 rounded-md border border-white/15 px-2 py-1 text-xs text-neutral-200 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
                           Commenter

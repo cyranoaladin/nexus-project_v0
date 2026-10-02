@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 
 import { loadWorkForActor } from './access';
-import { getPooContent, POO_ACTIVITY_SLUG } from './catalog';
+import { getLessonSteps } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
 
@@ -71,8 +71,9 @@ export async function addAnnotation(actor: EspaceActor, workId: string, raw: unk
   if (!parsed.success) throw new EspaceError('INVALID_INPUT', parsed.error.issues[0]?.message ?? 'Annotation invalide');
   const input = parsed.data;
 
-  if (work.activity.slug === POO_ACTIVITY_SLUG && input.stepId) {
-    const step = getPooContent().steps.find((s) => s.id === input.stepId);
+  const lessonSteps = getLessonSteps(work.activity.slug);
+  if (lessonSteps.length > 0 && input.stepId) {
+    const step = lessonSteps.find((s) => s.id === input.stepId);
     if (!step) throw new EspaceError('INVALID_INPUT', 'Étape inconnue');
     if (input.questionId && !step.questions.some((q) => q.id === input.questionId) && !step.fields.some((f) => f.id === input.questionId)) {
       throw new EspaceError('INVALID_INPUT', 'Question inconnue');

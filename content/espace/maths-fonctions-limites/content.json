@@ -1,0 +1,1862 @@
+{
+ "version": "1.0.0",
+ "title": "Fonctions, limites et lecture graphique",
+ "subtitle": "Limites · asymptotes · dérivation · variations · tangentes",
+ "session": "Mathématiques • Terminale",
+ "duration": 115,
+ "steps": [
+  {
+   "id": "diagnostic",
+   "short": "Lire",
+   "title": "Lire une courbe avant de calculer",
+   "minutes": 8,
+   "level": "Diagnostic (non noté)",
+   "concepts": [
+    "lecture graphique",
+    "domaine",
+    "asymptote",
+    "pente de tangente"
+   ],
+   "intro": "Avant tout calcul, observe. Ces questions ne sont pas notées : elles servent à voir d'où tu pars.",
+   "lesson": "<p>La courbe ci-dessous est la courbe \\(\\mathcal C_d\\) d'une fonction \\(d\\). Regarde-la comme un paysage : où est-elle coupée ? que devient-elle très loin à droite, très loin à gauche ? monte-t-elle ou descend-elle ?</p>{{fig:diag}}<p>Réponds uniquement avec ce que tu vois.</p>{{q:dom}}{{q:av}}{{f:lim-droite}}{{q:val}}{{q:pente}}",
+   "task": "Réponds aux cinq questions en lisant la courbe, sans calcul.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "diag",
+     "caption": "Courbe \\(\\mathcal C_d\\) : lis-la sans calculer.",
+     "curveLabel": "C_d",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       -2,
+       3
+      ],
+      "den": [
+       1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -6,
+      "xmax": 6,
+      "ymin": -6,
+      "ymax": 10
+     }
+    }
+   ],
+   "questions": [
+    {
+     "id": "dom",
+     "text": "Pour quelle valeur de \\(x\\) la courbe n'existe-t-elle pas ?",
+     "choices": [
+      "Pour \\(x=-1\\)",
+      "Pour \\(x=1\\)",
+      "Pour \\(x=3\\)",
+      "Elle existe pour tout réel \\(x\\)"
+     ],
+     "correct": 0,
+     "feedback": "La courbe est en deux morceaux séparés par la verticale d'abscisse \\(-1\\) : la fonction n'est pas définie en \\(-1\\). On écrit \\(D_d=\\mathbb R\\setminus\\{-1\\}\\).",
+     "choiceFeedback": [
+      "",
+      "Regarde de quel côté de l'axe des ordonnées se trouve la coupure : l'abscisse est négative.",
+      "3 est la hauteur vers laquelle la courbe se stabilise à droite, pas une abscisse interdite.",
+      "Le trait est interrompu : il existe une abscisse où il n'y a aucun point de la courbe."
+     ]
+    },
+    {
+     "id": "av",
+     "text": "Que fait \\(d(x)\\) quand \\(x\\) se rapproche de \\(-1\\) ?",
+     "choices": [
+      "Il devient de plus en plus grand en valeur absolue (vers \\(+\\infty\\) ou \\(-\\infty\\))",
+      "Il se rapproche de \\(0\\)",
+      "Il se stabilise autour de \\(3\\)",
+      "On ne peut rien dire"
+     ],
+     "correct": 0,
+     "feedback": "Près de \\(x=-1\\), la courbe monte (à gauche) ou descend (à droite) sans s'arrêter : la droite \\(x=-1\\) est un bon candidat à être asymptote verticale. Le calcul de limite le prouvera.",
+     "choiceFeedback": [
+      "",
+      "Regarde la hauteur de la courbe tout près de la coupure : elle est loin de l'axe des abscisses.",
+      "Ce comportement-là se produit loin sur la droite ou sur la gauche, pas près de la coupure.",
+      "On voit très bien : les deux branches s'éloignent de plus en plus."
+     ]
+    },
+    {
+     "id": "val",
+     "text": "Lis une valeur approchée de \\(d(1)\\).",
+     "choices": [
+      "environ \\(-2\\)",
+      "environ \\(0{,}5\\)",
+      "environ \\(1\\)",
+      "environ \\(3\\)"
+     ],
+     "correct": 1,
+     "feedback": "Au point d'abscisse 1, la courbe est un peu au-dessus de l'axe des abscisses : \\(d(1)\\approx0{,}5\\) (c'est exactement \\(0{,}5\\)).",
+     "choiceFeedback": [
+      "C'est \\(d(0)\\) : la courbe coupe l'axe des ordonnées en \\(-2\\). Ici l'abscisse est 1.",
+      "",
+      "Pour \\(x=1\\), la courbe est encore sous la hauteur 1.",
+      "3 est la limite à l'infini, une hauteur jamais atteinte ici."
+     ]
+    },
+    {
+     "id": "pente",
+     "text": "Le coefficient directeur de la tangente à \\(\\mathcal C_d\\) au point d'abscisse \\(2\\) est…",
+     "choices": [
+      "positif",
+      "négatif",
+      "nul",
+      "impossible à deviner"
+     ],
+     "correct": 0,
+     "feedback": "Sur ce morceau de courbe, quand on avance vers la droite on monte : toutes les tangentes ont une pente positive.",
+     "choiceFeedback": [
+      "",
+      "Une pente négative correspond à une courbe qui descend de gauche à droite : ce n'est pas le cas ici.",
+      "Une tangente horizontale demanderait que la courbe soit « à plat » à cet endroit.",
+      "Si : le sens de variation de la courbe donne le signe de la pente."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "lim-droite",
+     "label": "À droite (quand \\(x\\) devient très grand), vers quelle valeur \\(d(x)\\) semble-t-il se stabiliser ?",
+     "placeholder": "Un nombre (une hauteur, à lire sur l'axe vertical).",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "3"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-1",
+         "1"
+        ],
+        "feedback": "−1 est une abscisse (la coupure) ; ici on cherche une hauteur : lis sur l'axe vertical."
+       },
+       {
+        "when": [
+         "2",
+         "4",
+         "2,5",
+         "3,5"
+        ],
+        "feedback": "Tu es proche : lis la hauteur plus précisément. La courbe s'approche d'un nombre entier."
+       },
+       {
+        "when": [
+         "+inf",
+         "inf",
+         "-inf"
+        ],
+        "feedback": "À l'extrême droite la courbe devient presque horizontale : elle ne monte pas sans fin. À quelle hauteur ?"
+       },
+       {
+        "when": [
+         "0"
+        ],
+        "feedback": "0 est l'axe des abscisses ; la courbe, à droite, reste nettement au-dessus. Lis plus haut."
+       }
+      ],
+      "success": "Oui : la courbe se rapproche de la hauteur 3. On écrira \\(\\lim_{x\\to+\\infty}d(x)=3\\) ; la droite \\(y=3\\) est une asymptote horizontale possible.",
+      "fallback": "Regarde l'extrême droite de la courbe : elle devient presque horizontale. À quelle hauteur sur l'axe vertical ?"
+     }
+    }
+   ],
+   "hints": [
+    "Cherche d'abord où la courbe est coupée en deux morceaux : la valeur interdite est une abscisse (axe horizontal).",
+    "Pour « à droite », regarde la courbe tout au bout, quand \\(x\\) devient grand ; lis la hauteur sur l'axe vertical.",
+    "Pour la pente d'une tangente, demande-toi si la courbe monte ou descend quand on se déplace vers la droite."
+   ],
+   "takeaway": "Une courbe se lit : les abscisses interdites (coupures), le comportement aux bords (hauteurs vers lesquelles elle tend), le sens de variation (pente). Les calculs qui suivent servent à justifier ce que l'on voit.",
+   "tests": []
+  },
+  {
+   "id": "limite",
+   "short": "Limite",
+   "title": "Que veut dire « tend vers » ?",
+   "minutes": 10,
+   "level": "Découverte",
+   "concepts": [
+    "limite en l'infini",
+    "limite en un point",
+    "limite à gauche et à droite",
+    "notation lim"
+   ],
+   "intro": "Une limite décrit ce que devient \\(f(x)\\) quand \\(x\\) évolue d'une façon précise. Deux situations à ne pas confondre.",
+   "lesson": "<p><strong>Quand \\(x\\to+\\infty\\)</strong> : \\(x\\) devient aussi grand qu'on veut. On regarde le <em>bord droit</em> de la courbe.</p><p><strong>Quand \\(x\\to a\\)</strong> : \\(x\\) se rapproche du réel \\(a\\). On regarde la courbe <em>autour de l'abscisse \\(a\\)</em>. On distingue \\(x\\to a^-\\) (on arrive par des valeurs plus petites que \\(a\\)) et \\(x\\to a^+\\) (par des valeurs plus grandes).</p><p>Toute la séance s'appuie sur une fonction fil rouge : \\[g(x)=\\frac{2x+1}{x-1}.\\] Voici ce qu'elle fait quand \\(x\\) devient grand :</p><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(x\\)</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">10</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">100</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">1 000</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">10 000</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(g(x)\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">2,3333</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">2,0303</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">2,0030</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">2,0003</td></tr></tbody></table><p>Les valeurs <em>se rapprochent de 2</em>. On écrit \\[\\lim_{x\\to+\\infty}g(x)=2.\\]</p><p>Voyons maintenant ce qu'elle fait quand \\(x\\) s'approche de 1, d'abord par la gauche, puis par la droite :</p><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(x\\) (avant 1)</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">0,9</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">0,99</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">0,999</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(g(x)\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-28\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-298\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-2\\,998\\)</td></tr></tbody></table><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(x\\) (après 1)</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">1,1</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">1,01</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">1,001</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(g(x)\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">32</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">302</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">3 002</td></tr></tbody></table><p>Les valeurs deviennent <em>de plus en plus grandes en valeur absolue</em> : négatives avant 1, positives après 1. On écrit \\[\\lim_{x\\to1^-}g(x)=-\\infty\\qquad\\text{et}\\qquad\\lim_{x\\to1^+}g(x)=+\\infty.\\]</p>{{fig:g-lim}}<p>Sur le graphique, ces deux phénomènes se voient : la courbe se colle à une droite verticale près de 1, et à une droite horizontale très loin à droite.</p>{{q:lecture}}{{q:notation}}{{f:difference}}",
+   "task": "Lis les tableaux, repère ce que fait \\(g(x)\\), puis réponds aux trois questions.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "g-lim",
+     "caption": "Courbe de \\(g\\) : près de 1 elle « s'envole », très loin à droite elle se rapproche de la hauteur 2.",
+     "curveLabel": "C_g",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       2
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -5,
+      "xmax": 7,
+      "ymin": -8,
+      "ymax": 12
+     }
+    }
+   ],
+   "questions": [
+    {
+     "id": "lecture",
+     "text": "Dans le premier tableau « avant 1 » (0,9 ; 0,99 ; 0,999), que fait \\(g(x)\\) ?",
+     "choices": [
+      "Il tend vers \\(+\\infty\\)",
+      "Il tend vers \\(-\\infty\\)",
+      "Il tend vers \\(2\\)",
+      "Il tend vers \\(0\\)"
+     ],
+     "correct": 1,
+     "feedback": "Les valeurs \\(-28\\), \\(-298\\), \\(-2\\,998\\) sont négatives et de plus en plus grandes en valeur absolue : \\(g(x)\\to-\\infty\\) quand \\(x\\to1^-\\).",
+     "choiceFeedback": [
+      "Regarde le signe des valeurs du tableau : elles sont négatives.",
+      "",
+      "2 est ce que devient \\(g(x)\\) quand \\(x\\) devient grand, pas quand \\(x\\) s'approche de 1.",
+      "Les valeurs s'éloignent de 0 au lieu de s'en approcher."
+     ]
+    },
+    {
+     "id": "notation",
+     "text": "Quelle écriture traduit « quand \\(x\\) tend vers \\(+\\infty\\), \\(g(x)\\) se rapproche de 2 » ?",
+     "choices": [
+      "\\(\\lim_{x\\to+\\infty}g(x)=2\\)",
+      "\\(\\lim_{x\\to2}g(x)=+\\infty\\)",
+      "\\(g(+\\infty)=2\\)",
+      "\\(\\lim_{x\\to1^+}g(x)=2\\)"
+     ],
+     "correct": 0,
+     "feedback": "Sous « lim » on écrit ce que fait \\(x\\) ; après le signe « = » on écrit ce que devient \\(g(x)\\).",
+     "choiceFeedback": [
+      "",
+      "Tu as échangé les rôles : sous « lim » on met le comportement de \\(x\\), après « = » celui de \\(g(x)\\).",
+      "\\(+\\infty\\) n'est pas un nombre : on ne peut pas « calculer \\(g\\) en \\(+\\infty\\) ». On écrit une limite.",
+      "En 1 par valeurs supérieures, \\(g(x)\\) devient très grand (tableau), il ne se rapproche pas de 2."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "difference",
+     "label": "Explique avec tes mots la différence entre \\(x\\to+\\infty\\) et \\(x\\to1\\).",
+     "placeholder": "Dans un cas, \\(x\\)… ; dans l'autre, \\(x\\)…",
+     "input": "area"
+    }
+   ],
+   "hints": [
+    "Relis les deux sortes de tableaux : dans le premier, \\(x\\) grandit ; dans les deux autres, \\(x\\) s'approche de 1.",
+    "Sous « lim », on lit le comportement de \\(x\\) ; après le « = », celui de \\(g(x)\\)."
+   ],
+   "takeaway": "Sous \\(\\lim\\) : ce que fait \\(x\\). Après le signe « = » : ce que devient \\(f(x)\\). Une limite peut être un nombre \\(\\ell\\), ou \\(+\\infty\\), ou \\(-\\infty\\).",
+   "tests": []
+  },
+  {
+   "id": "operations",
+   "short": "Calculer",
+   "title": "Calculer une limite : opérations et formes indéterminées",
+   "minutes": 20,
+   "level": "Application",
+   "concepts": [
+    "limites usuelles",
+    "opérations sur les limites",
+    "formes indéterminées",
+    "terme prépondérant"
+   ],
+   "intro": "Calculer une limite, c'est d'abord essayer de « remplacer » — et reconnaître quand ça ne suffit pas.",
+   "lesson": "<h4>1. Limites usuelles</h4><p>\\[\\lim_{x\\to+\\infty}x^n=+\\infty\\ (n\\ge1)\\qquad\\lim_{x\\to\\pm\\infty}\\frac1{x^n}=0\\qquad\\lim_{x\\to0^+}\\frac1x=+\\infty\\qquad\\lim_{x\\to0^-}\\frac1x=-\\infty.\\]</p><h4>2. Opérations</h4><p>Dans les cas suivants, on peut conclure directement (\\(\\ell\\) désigne un réel) :</p><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">Situation</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">Résultat</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(+\\infty+\\ell\\) ou \\((+\\infty)+(+\\infty)\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(+\\infty\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(+\\infty\\times\\ell\\) avec \\(\\ell\\gt0\\) ; \\(+\\infty\\times+\\infty\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(+\\infty\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(\\dfrac{\\ell}{\\pm\\infty}\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(0\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(\\dfrac{\\ell}{0^+}\\) avec \\(\\ell\\gt0\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(+\\infty\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(\\dfrac{\\ell}{0^-}\\) avec \\(\\ell\\gt0\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-\\infty\\)</td></tr></tbody></table><p>Mais certains cas ne permettent <strong>pas</strong> de conclure. On les appelle les <strong>formes indéterminées</strong> : \\[\\infty-\\infty,\\qquad\\frac{\\infty}{\\infty},\\qquad\\frac00,\\qquad0\\times\\infty.\\]</p><div class=\"contract\"><strong>Une forme indéterminée n'est pas un résultat.</strong> Elle signale qu'il faut transformer l'expression avant de conclure.</div>{{q:indet}}<h4>3. Un premier exemple</h4><p>Que donne \\(\\lim_{x\\to+\\infty}(x^2-3x)\\) par substitution ? \\(x^2\\to+\\infty\\) et \\(-3x\\to-\\infty\\).</p>{{q:forme}}<h4>4. Le terme prépondérant</h4><p>Pour un polynôme, quand \\(x\\) est très grand c'est le terme de plus haut degré qui « gagne ». On le met en facteur : \\[P(x)=3x^4-5x^2+7x-1=3x^4\\left(1-\\frac{5}{3x^2}+\\frac{7}{3x^3}-\\frac{1}{3x^4}\\right).\\] Entre parenthèses, tout tend vers 0 sauf le \\(1\\) : la parenthèse tend vers \\(1\\), et \\(3x^4\\to+\\infty\\).</p>{{f:limp}}{{q:limp-moins}}<h4>5. Un quotient de polynômes</h4><p>Soit \\[f(x)=\\frac{2x^2-3x+1}{x^2+4}.\\] Quand \\(x\\to+\\infty\\), le haut et le bas tendent vers \\(+\\infty\\) : c'est \\(\\dfrac\\infty\\infty\\), forme indéterminée. On met \\(x^2\\) en facteur au numérateur et au dénominateur : \\[f(x)=\\frac{x^2\\left(2-\\dfrac3x+\\dfrac1{x^2}\\right)}{x^2\\left(1+\\dfrac4{x^2}\\right)}=\\frac{2-\\dfrac3x+\\dfrac1{x^2}}{1+\\dfrac4{x^2}}.\\] Les fractions \\(\\dfrac3x\\), \\(\\dfrac1{x^2}\\), \\(\\dfrac4{x^2}\\) tendent vers 0.</p>{{f:limf}}{{fig:f-courbe}}{{f:asym-f}}",
+   "task": "Réponds aux questions dans l'ordre : chaque réponse prépare la suivante.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "f-courbe",
+     "caption": "Courbe de \\(f\\) : elle se rapproche de la hauteur trouvée quand \\(x\\) devient grand.",
+     "curveLabel": "C_f",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       -3,
+       2
+      ],
+      "den": [
+       4,
+       0,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -10,
+      "xmax": 10,
+      "ymin": -1,
+      "ymax": 4
+     }
+    }
+   ],
+   "questions": [
+    {
+     "id": "indet",
+     "text": "Parmi ces cas, lequel n'est PAS une forme indéterminée ?",
+     "choices": [
+      "\\(\\infty-\\infty\\)",
+      "\\(\\dfrac{\\infty}{\\infty}\\)",
+      "\\(+\\infty+\\infty\\)",
+      "\\(0\\times\\infty\\)"
+     ],
+     "correct": 2,
+     "feedback": "\\(+\\infty+\\infty=+\\infty\\) : deux quantités très grandes et positives s'ajoutent. Les trois autres peuvent donner n'importe quel résultat selon les expressions.",
+     "choiceFeedback": [
+      "Si : deux quantités énormes de signes opposés qui se retranchent peuvent donner n'importe quoi.",
+      "Si : tout dépend de laquelle « grandit le plus vite ».",
+      "",
+      "Si : « presque zéro » multiplié par « énorme » peut donner n'importe quoi."
+     ]
+    },
+    {
+     "id": "forme",
+     "text": "Pour \\(\\lim_{x\\to+\\infty}(x^2-3x)\\), la substitution donne…",
+     "choices": [
+      "\\(+\\infty\\)",
+      "\\(-\\infty\\)",
+      "une forme indéterminée \\(\\infty-\\infty\\)",
+      "\\(0\\)"
+     ],
+     "correct": 2,
+     "feedback": "\\(x^2\\to+\\infty\\) et \\(-3x\\to-\\infty\\) : c'est \\(\\infty-\\infty\\), on ne peut pas conclure sans transformer (ici : factoriser \\(x^2(1-\\frac3x)\\), et on trouve bien \\(+\\infty\\)).",
+     "choiceFeedback": [
+      "La limite est bien \\(+\\infty\\), mais on ne peut pas l'affirmer par simple substitution : il faut d'abord transformer.",
+      "Rien ne permet d'affirmer \\(-\\infty\\) : les deux termes « se battent ».",
+      "",
+      "0 serait une compensation parfaite : ce n'est pas ce qui se passe, il faut calculer."
+     ]
+    },
+    {
+     "id": "limp-moins",
+     "text": "Et quand \\(x\\to-\\infty\\) ? La limite de \\(P(x)=3x^4-5x^2+7x-1\\) est…",
+     "choices": [
+      "\\(+\\infty\\)",
+      "\\(-\\infty\\)",
+      "\\(0\\)"
+     ],
+     "correct": 0,
+     "feedback": "Le terme dominant est \\(3x^4\\) : une puissance paire, donc positive même si \\(x\\) est négatif. D'où \\(\\lim_{x\\to-\\infty}P(x)=+\\infty\\).",
+     "choiceFeedback": [
+      "",
+      "Pense à la parité : que vaut \\(x^4\\) quand \\(x\\) est négatif ?",
+      "Le terme dominant devient infiniment grand en valeur absolue : il n'y a aucune raison d'arriver à 0."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "limp",
+     "label": "\\(\\lim_{x\\to+\\infty}P(x)=\\) ?",
+     "placeholder": "\\(+\\infty\\), \\(-\\infty\\) ou un nombre",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "+inf"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-inf"
+        ],
+        "feedback": "Regarde le signe du terme dominant \\(3x^4\\) quand \\(x\\) est très grand : est-il positif ou négatif ?"
+       },
+       {
+        "when": [
+         "inf-inf",
+         "∞-∞",
+         "inf/inf",
+         "∞/∞"
+        ],
+        "feedback": "Ce n'est pas un résultat : \\(\\infty-\\infty\\) est une forme indéterminée. Mets en facteur le terme de plus haut degré, \\(3x^4\\)."
+       },
+       {
+        "when": [
+         "3"
+        ],
+        "feedback": "3 est le coefficient du terme dominant, pas la limite : \\(x^4\\) devient infiniment grand."
+       },
+       {
+        "when": [
+         "0"
+        ],
+        "feedback": "Pour avoir 0, il faudrait que tout s'annule. Or \\(3x^4\\) devient immense."
+       }
+      ],
+      "success": "Oui : la parenthèse tend vers 1 et \\(3x^4\\to+\\infty\\), donc \\(P(x)\\to+\\infty\\).",
+      "fallback": "Mets \\(3x^4\\) en facteur, comme dans l'exemple, puis demande-toi ce que devient chaque morceau."
+     }
+    },
+    {
+     "id": "limf",
+     "label": "\\(\\lim_{x\\to+\\infty}f(x)=\\) ?",
+     "placeholder": "Un nombre, \\(+\\infty\\) ou \\(-\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "inf/inf",
+         "∞/∞"
+        ],
+        "feedback": "\\(\\dfrac\\infty\\infty\\) est une forme indéterminée, ce n'est pas le résultat : transforme l'expression avant de conclure."
+       },
+       {
+        "when": [
+         "+inf"
+        ],
+        "feedback": "Le haut est grand, mais le bas aussi : ils grandissent « à la même vitesse ». Après factorisation par \\(x^2\\), que reste-t-il ?"
+       },
+       {
+        "when": [
+         "0"
+        ],
+        "feedback": "0 serait la limite si le dénominateur l'emportait (degré plus grand). Ici les deux degrés sont égaux : compare les coefficients de \\(x^2\\)."
+       },
+       {
+        "when": [
+         "1"
+        ],
+        "feedback": "Presque : divise bien chaque terme par \\(x^2\\). Le coefficient de \\(x^2\\) au numérateur est 2, pas 1."
+       },
+       {
+        "when": [
+         "1/2",
+         "0,5"
+        ],
+        "feedback": "Tu as inversé le quotient : c'est le coefficient du numérateur (2) sur celui du dénominateur (1)."
+       }
+      ],
+      "success": "Oui : \\(f(x)=\\dfrac{2-\\frac3x+\\frac1{x^2}}{1+\\frac4{x^2}}\\to\\dfrac21=2\\).",
+      "fallback": "Dans l'expression factorisée, que deviennent \\(\\frac3x\\), \\(\\frac1{x^2}\\) et \\(\\frac4{x^2}\\) quand \\(x\\to+\\infty\\) ?"
+     }
+    },
+    {
+     "id": "asym-f",
+     "label": "Interprétation graphique : donne l'équation de l'asymptote horizontale de la courbe de \\(f\\) en \\(+\\infty\\).",
+     "placeholder": "Une équation, par exemple y = …",
+     "input": "line",
+     "check": {
+      "kind": "equation",
+      "accept": [
+       "y=2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "x=2"
+        ],
+        "feedback": "\\(x=2\\) serait une droite verticale. La limite 2 est une hauteur : la droite est horizontale, d'équation \\(y=\\dots\\)"
+       },
+       {
+        "when": [
+         "y=1",
+         "y=0"
+        ],
+        "feedback": "Reprends la limite que tu viens de trouver : la droite horizontale a cette hauteur."
+       }
+      ],
+      "success": "Oui : la courbe se rapproche de la droite \\(y=2\\). C'est l'asymptote horizontale en \\(+\\infty\\).",
+      "fallback": "Quand \\(\\lim_{x\\to+\\infty}f(x)=\\ell\\), la droite d'équation \\(y=\\ell\\) est asymptote. Écris l'équation complète."
+     }
+    }
+   ],
+   "hints": [
+    "Pour une forme indéterminée, la méthode à retenir : mettre en facteur le terme de plus haut degré.",
+    "Dans le quotient, factorise par \\(x^2\\) en haut ET en bas, puis simplifie par \\(x^2\\).",
+    "Après simplification, remplace chaque fraction du type \\(\\frac1x\\), \\(\\frac1{x^2}\\) par 0."
+   ],
+   "takeaway": "Une forme indéterminée n'est jamais le résultat final d'une limite. Pour un polynôme ou un quotient de polynômes à l'infini : on met en facteur le terme de plus haut degré.",
+   "tests": []
+  },
+  {
+   "id": "asymptote-verticale",
+   "short": "Verticale",
+   "title": "Quand la courbe s'envole : l'asymptote verticale",
+   "minutes": 15,
+   "level": "Application",
+   "concepts": [
+    "limite en un point",
+    "limites à gauche et à droite",
+    "signe d'un quotient",
+    "asymptote verticale",
+    "contre-exemple"
+   ],
+   "intro": "Dire « le dénominateur s'annule donc il y a une asymptote » est incomplet, et parfois faux. On va voir pourquoi.",
+   "lesson": "<p>Étudions \\(g(x)=\\dfrac{2x+1}{x-1}\\) près de \\(1\\), là où le dénominateur s'annule.</p><p>Quand \\(x\\to1\\) : le numérateur \\(2x+1\\) tend vers \\(3\\), un nombre <strong>positif</strong>. Le dénominateur \\(x-1\\) tend vers \\(0\\). Un nombre proche de 3 divisé par un nombre très proche de 0 est très grand en valeur absolue : le résultat dépend uniquement du <strong>signe</strong> de \\(x-1\\).</p>{{q:signe-moins}}<p>Quand \\(x\\to1^-\\) : numérateur proche de \\(3\\) (positif), dénominateur négatif proche de \\(0\\) (on note \\(0^-\\)). Le quotient est négatif et très grand en valeur absolue.</p>{{f:lim-moins}}<p>Pour \\(x\\to1^+\\), reprends le même raisonnement avec le signe de \\(x-1\\) pour \\(x\\gt1\\).</p>{{f:lim-plus}}{{fig:g-av}}{{f:av-eq}}<h4>Attention : un contre-exemple essentiel</h4><p>Soit \\(h(x)=\\dfrac{x^2-1}{x-1}\\). Son dénominateur s'annule aussi en 1. Mais \\(x^2-1=(x-1)(x+1)\\), donc pour \\(x\\ne1\\) : \\[h(x)=\\frac{(x-1)(x+1)}{x-1}=x+1.\\]</p>{{f:limh}}{{fig:h}}{{q:condition}}{{f:contre}}",
+   "task": "Mène l'étude de \\(g\\) en 1, puis compare avec \\(h\\).",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "g-av",
+     "caption": "La courbe de \\(g\\) se colle à la droite pointillée \\(x=1\\) : elle descend sans fin à gauche, monte sans fin à droite.",
+     "curveLabel": "C_g",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       2
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -5,
+      "xmax": 7,
+      "ymin": -8,
+      "ymax": 12
+     },
+     "verticalAsymptotes": [
+      1
+     ]
+    },
+    {
+     "type": "function",
+     "id": "h",
+     "caption": "Courbe de \\(h\\) : c'est la droite \\(y=x+1\\), avec un petit « trou » (cercle ouvert) en 1. Aucune asymptote.",
+     "curveLabel": "C_h",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       -1,
+       0,
+       1
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -4,
+      "xmax": 5,
+      "ymin": -3,
+      "ymax": 7
+     }
+    }
+   ],
+   "questions": [
+    {
+     "id": "signe-moins",
+     "text": "Pour \\(x\\lt1\\) très proche de 1 (par exemple \\(0{,}99\\)), le signe de \\(x-1\\) est…",
+     "choices": [
+      "négatif",
+      "positif",
+      "nul"
+     ],
+     "correct": 0,
+     "feedback": "\\(0{,}99-1=-0{,}01\\lt0\\) : le dénominateur est négatif et proche de 0 (\\(0^-\\)).",
+     "choiceFeedback": [
+      "",
+      "Calcule \\(0{,}99-1\\) : est-ce positif ?",
+      "\\(x\\) n'est jamais égal à 1 : il s'en approche seulement."
+     ]
+    },
+    {
+     "id": "condition",
+     "text": "Quelle condition permet de conclure qu'une droite \\(x=a\\) est asymptote verticale ?",
+     "choices": [
+      "Le dénominateur s'annule en \\(a\\)",
+      "Une limite (à gauche ou à droite) de \\(f\\) en \\(a\\) vaut \\(+\\infty\\) ou \\(-\\infty\\)",
+      "La fonction n'est pas définie en \\(a\\)",
+      "La courbe semble monter près de \\(a\\)"
+     ],
+     "correct": 1,
+     "feedback": "C'est la limite qui prouve. Le dénominateur nul est un signal à examiner, pas une preuve : \\(h\\) en est le contre-exemple.",
+     "choiceFeedback": [
+      "Nécessaire pour qu'il y ait un problème, mais pas suffisant : \\(h\\) a un dénominateur nul en 1 et pas d'asymptote.",
+      "",
+      "Ne suffit pas : \\(h\\) n'est pas définie en 1 et n'a pas d'asymptote. Une valeur interdite n'est pas toujours une asymptote.",
+      "Le dessin peut tromper : seule une limite infinie le prouve."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "lim-moins",
+     "label": "\\(\\lim_{x\\to1^-}g(x)=\\) ?",
+     "placeholder": "\\(+\\infty\\) ou \\(-\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "-inf"
+      ],
+      "rules": [
+       {
+        "when": [
+         "+inf"
+        ],
+        "feedback": "Examine le signe de \\(x-1\\) quand \\(x\\) approche 1 par valeurs inférieures : le numérateur est proche de 3 (positif). Quel est le signe du quotient ?"
+       },
+       {
+        "when": [
+         "3"
+        ],
+        "feedback": "3 est la limite du numérateur seulement. Le dénominateur tend vers 0 : que devient le quotient ?"
+       },
+       {
+        "when": [
+         "0"
+        ],
+        "feedback": "Le dénominateur tend vers 0, ce qui rend le quotient grand, pas petit."
+       },
+       {
+        "when": [
+         "3/0"
+        ],
+        "feedback": "On ne divise pas par 0 : le dénominateur est proche de 0 mais non nul. Son signe (\\(0^-\\) ou \\(0^+\\)) donne \\(-\\infty\\) ou \\(+\\infty\\)."
+       }
+      ],
+      "success": "Oui : numérateur proche de 3 (positif), dénominateur négatif proche de 0 : le quotient tend vers \\(-\\infty\\).",
+      "fallback": "Étudie séparément le signe du numérateur (proche de 3) et celui du dénominateur \\(x-1\\) pour \\(x\\lt1\\)."
+     }
+    },
+    {
+     "id": "lim-plus",
+     "label": "\\(\\lim_{x\\to1^+}g(x)=\\) ?",
+     "placeholder": "\\(+\\infty\\) ou \\(-\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "+inf"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-inf"
+        ],
+        "feedback": "Pour \\(x\\gt1\\) proche de 1, le dénominateur \\(x-1\\) est positif et le numérateur aussi : quel est le signe du quotient ?"
+       },
+       {
+        "when": [
+         "3",
+         "0"
+        ],
+        "feedback": "Le dénominateur tend vers 0 : le quotient devient très grand en valeur absolue."
+       }
+      ],
+      "success": "Oui : numérateur positif, dénominateur positif proche de 0 (\\(0^+\\)) : le quotient tend vers \\(+\\infty\\).",
+      "fallback": "Pour \\(x\\gt1\\), \\(x-1\\) est un petit nombre positif. Un nombre proche de 3 divisé par un petit positif donne…"
+     }
+    },
+    {
+     "id": "av-eq",
+     "label": "Conclusion graphique : donne l'équation de l'asymptote verticale de la courbe de \\(g\\).",
+     "placeholder": "Une équation, par exemple x = …",
+     "input": "line",
+     "check": {
+      "kind": "equation",
+      "accept": [
+       "x=1"
+      ],
+      "rules": [
+       {
+        "when": [
+         "y=1"
+        ],
+        "feedback": "\\(y=1\\) est une droite horizontale. Ici \\(x\\) tend vers un nombre : l'asymptote est une droite verticale d'équation \\(x=\\dots\\)"
+       },
+       {
+        "when": [
+         "x=-1",
+         "x=1/2",
+         "x=-1/2"
+        ],
+        "feedback": "Le dénominateur s'annule pour \\(x-1=0\\) : résous cette équation."
+       },
+       {
+        "when": [
+         "y=2"
+        ],
+        "feedback": "\\(y=2\\) sera l'asymptote horizontale (comportement en l'infini) : à ne pas confondre avec la verticale."
+       }
+      ],
+      "success": "Oui : \\(\\lim_{x\\to1^-}g(x)=-\\infty\\) et \\(\\lim_{x\\to1^+}g(x)=+\\infty\\), donc la droite \\(x=1\\) est asymptote verticale.",
+      "fallback": "Une asymptote verticale a une équation de la forme \\(x=a\\), où \\(a\\) est la valeur dont \\(x\\) s'approche."
+     }
+    },
+    {
+     "id": "limh",
+     "label": "\\(\\lim_{x\\to1}h(x)=\\) ? (utilise \\(h(x)=x+1\\) pour \\(x\\ne1\\))",
+     "placeholder": "Un nombre ou \\(\\pm\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "+inf",
+         "-inf"
+        ],
+        "feedback": "Après simplification par \\(x-1\\) (possible car \\(x\\ne1\\)), \\(h(x)=x+1\\). Que vaut \\(x+1\\) quand \\(x\\) s'approche de 1 ?"
+       },
+       {
+        "when": [
+         "0/0",
+         "0"
+        ],
+        "feedback": "\\(\\dfrac00\\) est une forme indéterminée, pas un résultat : simplifie l'expression pour \\(x\\ne1\\)."
+       },
+       {
+        "when": [
+         "1"
+        ],
+        "feedback": "C'est la valeur de \\(x\\), pas celle de \\(x+1\\). Remplace \\(x\\) par 1 dans \\(x+1\\)."
+       }
+      ],
+      "success": "Oui : \\(h(x)=x+1\\to2\\). La limite est finie : la courbe de \\(h\\) n'a pas d'asymptote verticale en 1.",
+      "fallback": "Remplace \\(h(x)\\) par \\(x+1\\) (valable pour \\(x\\ne1\\)), puis fais tendre \\(x\\) vers 1."
+     }
+    },
+    {
+     "id": "contre",
+     "label": "Complète par une phrase : « Un dénominateur qui s'annule ne suffit pas à… »",
+     "placeholder": "Un dénominateur qui s'annule ne suffit pas à… car…",
+     "input": "area"
+    }
+   ],
+   "hints": [
+    "Pour la limite en \\(1^-\\) : étudie séparément le numérateur (proche de 3) et le dénominateur \\(x-1\\) (de quel signe pour \\(x\\lt1\\) ?).",
+    "Un nombre proche de 3 divisé par un nombre négatif très proche de 0 est un nombre négatif très grand en valeur absolue.",
+    "Pour \\(h\\) : pense à factoriser \\(x^2-1=(x-1)(x+1)\\) et à simplifier."
+   ],
+   "takeaway": "Si une limite à gauche ou à droite en \\(a\\) vaut \\(\\pm\\infty\\), alors la droite \\(x=a\\) est asymptote verticale. Un dénominateur qui s'annule est un signal à examiner, jamais une preuve.",
+   "tests": []
+  },
+  {
+   "id": "asymptote-horizontale",
+   "short": "Horizontale",
+   "title": "Se stabiliser très loin : l'asymptote horizontale",
+   "minutes": 8,
+   "level": "Application",
+   "concepts": [
+    "limite en ±∞",
+    "asymptote horizontale",
+    "position d'une courbe par rapport à une asymptote"
+   ],
+   "intro": "Même fonction \\(g\\), autre extrémité : que fait la courbe très loin à droite et très loin à gauche ?",
+   "lesson": "<p>On met \\(x\\) en facteur au numérateur et au dénominateur de \\(g(x)=\\dfrac{2x+1}{x-1}\\) : \\[g(x)=\\frac{x\\left(2+\\dfrac1x\\right)}{x\\left(1-\\dfrac1x\\right)}=\\frac{2+\\dfrac1x}{1-\\dfrac1x}.\\] Quand \\(x\\to\\pm\\infty\\), \\(\\dfrac1x\\to0\\).</p>{{f:lim-plus-inf}}{{f:lim-moins-inf}}{{f:ah-eq}}{{fig:g-complete}}{{q:vert-hori}}<h4>Une asymptote est-elle une barrière ?</h4><p>Reprenons la fonction \\(f\\) de l'étape précédente. Sa courbe se rapproche de \\(y=2\\) en \\(+\\infty\\). Mais résolvons \\(f(x)=2\\) : \\[\\frac{2x^2-3x+1}{x^2+4}=2\\iff2x^2-3x+1=2x^2+8\\iff x=-\\frac73.\\]</p>{{fig:f-croise}}{{q:croise}}",
+   "task": "Calcule les deux limites de \\(g\\) à l'infini, conclus, puis réfléchis à ce qu'est vraiment une asymptote.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "g-complete",
+     "caption": "Courbe de \\(g\\) avec ses deux asymptotes : \\(x=1\\) et \\(y=2\\).",
+     "curveLabel": "C_g",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       2
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -6,
+      "xmax": 8,
+      "ymin": -8,
+      "ymax": 12
+     },
+     "verticalAsymptotes": [
+      1
+     ],
+     "horizontalAsymptotes": [
+      2
+     ]
+    },
+    {
+     "type": "function",
+     "id": "f-croise",
+     "caption": "Courbe de \\(f\\) : elle coupe sa propre asymptote \\(y=2\\) au point B, d'abscisse \\(-\\dfrac73\\approx-2{,}33\\), avant de s'en rapprocher.",
+     "curveLabel": "C_f",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       -3,
+       2
+      ],
+      "den": [
+       4,
+       0,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -10,
+      "xmax": 10,
+      "ymin": -1,
+      "ymax": 4
+     },
+     "horizontalAsymptotes": [
+      2
+     ],
+     "points": [
+      {
+       "x": -2.3333333333333335,
+       "label": "B"
+      }
+     ]
+    }
+   ],
+   "questions": [
+    {
+     "id": "vert-hori",
+     "text": "Quelle phrase est correcte ?",
+     "choices": [
+      "Une asymptote verticale a pour équation \\(x=a\\) ; une asymptote horizontale a pour équation \\(y=\\ell\\)",
+      "Une asymptote verticale a pour équation \\(y=a\\) ; une asymptote horizontale a pour équation \\(x=\\ell\\)",
+      "Les deux ont une équation de la forme \\(y=\\dots\\)",
+      "Une asymptote est toujours la courbe elle-même"
+     ],
+     "correct": 0,
+     "feedback": "Verticale : on fixe l'abscisse, \\(x=a\\) (quand \\(x\\to a\\), \\(f\\) tend vers l'infini). Horizontale : on fixe la hauteur, \\(y=\\ell\\) (quand \\(x\\to\\pm\\infty\\), \\(f(x)\\to\\ell\\)).",
+     "choiceFeedback": [
+      "",
+      "Tu as inversé : une droite verticale a tous ses points de même abscisse.",
+      "Une droite verticale ne peut pas s'écrire \\(y=\\dots\\) : tous ses points ont la même abscisse.",
+      "Une asymptote est une droite dont la courbe se rapproche, pas la courbe elle-même."
+     ]
+    },
+    {
+     "id": "croise",
+     "text": "Une courbe peut-elle couper son asymptote horizontale ?",
+     "choices": [
+      "Non : une asymptote est une barrière que la courbe ne franchit jamais",
+      "Oui : l'asymptote décrit le comportement à l'infini, pas ce qui se passe à distance finie",
+      "Oui, mais seulement là où la fonction n'est pas définie",
+      "Non, sinon la limite ne vaudrait pas 2"
+     ],
+     "correct": 1,
+     "feedback": "L'asymptote horizontale ne parle que du comportement quand \\(x\\to\\pm\\infty\\). Ici \\(f(-\\frac73)=2\\) : la courbe coupe sa propre asymptote, puis s'en rapproche. Une asymptote n'est pas une barrière.",
+     "choiceFeedback": [
+      "Le point B de la figure montre le contraire.",
+      "",
+      "En B, la fonction \\(f\\) est bien définie (\\(f(-\\frac73)=2\\)) et pourtant la courbe coupe la droite.",
+      "La limite ne dépend que de ce qui se passe quand \\(x\\) devient très grand, pas du reste de la courbe."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "lim-plus-inf",
+     "label": "\\(\\lim_{x\\to+\\infty}g(x)=\\) ?",
+     "placeholder": "Un nombre ou \\(\\pm\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "inf/inf",
+         "∞/∞"
+        ],
+        "feedback": "\\(\\dfrac\\infty\\infty\\) est une forme indéterminée, ce n'est pas le résultat : utilise la forme factorisée."
+       },
+       {
+        "when": [
+         "+inf"
+        ],
+        "feedback": "Haut et bas grandissent ensemble : compare leurs coefficients dominants après factorisation par \\(x\\)."
+       },
+       {
+        "when": [
+         "1",
+         "0"
+        ],
+        "feedback": "Dans la forme factorisée, les fractions \\(\\frac1x\\) tendent vers 0 ; que reste-t-il en haut et en bas ?"
+       }
+      ],
+      "success": "Oui : \\(\\dfrac{2+\\frac1x}{1-\\frac1x}\\to\\dfrac21=2\\).",
+      "fallback": "Dans \\(\\dfrac{2+\\frac1x}{1-\\frac1x}\\), remplace \\(\\frac1x\\) par 0."
+     }
+    },
+    {
+     "id": "lim-moins-inf",
+     "label": "\\(\\lim_{x\\to-\\infty}g(x)=\\) ?",
+     "placeholder": "Un nombre ou \\(\\pm\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-2"
+        ],
+        "feedback": "Le signe de \\(x\\) disparaît quand on simplifie par \\(x\\) : \\(\\frac1x\\to0\\) aussi en \\(-\\infty\\), et le quotient tend encore vers 2."
+       },
+       {
+        "when": [
+         "-inf",
+         "+inf"
+        ],
+        "feedback": "Même forme factorisée qu'en \\(+\\infty\\) : les fractions \\(\\frac1x\\) tendent encore vers 0."
+       }
+      ],
+      "success": "Oui : même calcul qu'en \\(+\\infty\\), \\(\\dfrac1x\\to0\\) aussi en \\(-\\infty\\). La limite vaut encore 2.",
+      "fallback": "Utilise la même forme factorisée : \\(\\frac1x\\) tend aussi vers 0 quand \\(x\\to-\\infty\\)."
+     }
+    },
+    {
+     "id": "ah-eq",
+     "label": "Conclusion : donne l'équation de l'asymptote horizontale de la courbe de \\(g\\).",
+     "placeholder": "Une équation, par exemple y = …",
+     "input": "line",
+     "check": {
+      "kind": "equation",
+      "accept": [
+       "y=2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "x=2"
+        ],
+        "feedback": "La limite 2 est une hauteur, pas une abscisse : l'équation est de la forme \\(y=\\dots\\)"
+       },
+       {
+        "when": [
+         "x=1"
+        ],
+        "feedback": "\\(x=1\\) est l'asymptote verticale, trouvée à l'étape précédente. Ici on cherche la horizontale."
+       }
+      ],
+      "success": "Oui : \\(\\lim_{x\\to\\pm\\infty}g(x)=2\\), donc \\(y=2\\) est asymptote horizontale (en \\(+\\infty\\) et en \\(-\\infty\\)).",
+      "fallback": "Quand la limite en l'infini vaut \\(\\ell\\), l'asymptote est \\(y=\\ell\\)."
+     }
+    }
+   ],
+   "hints": [
+    "Utilise la forme factorisée \\(\\dfrac{2+\\frac1x}{1-\\frac1x}\\) pour les deux limites.",
+    "Une asymptote horizontale a une équation \\(y=\\ell\\), où \\(\\ell\\) est la limite en l'infini."
+   ],
+   "takeaway": "Si \\(\\lim_{x\\to+\\infty}f(x)=\\ell\\) (ou en \\(-\\infty\\)), la droite \\(y=\\ell\\) est asymptote horizontale dans cette direction. Une courbe peut très bien couper son asymptote horizontale.",
+   "tests": []
+  },
+  {
+   "id": "tangente",
+   "short": "Tangente",
+   "title": "Dérivée et tangente : de la pente à l'équation",
+   "minutes": 12,
+   "level": "Application",
+   "concepts": [
+    "nombre dérivé",
+    "coefficient directeur",
+    "équation de tangente",
+    "dérivée d'un quotient"
+   ],
+   "intro": "Le nombre dérivé est une pente. L'équation de la tangente se construit à partir de cette pente et d'un point.",
+   "lesson": "<p>Le <strong>nombre dérivé</strong> \\(f'(a)\\) est le coefficient directeur de la tangente à la courbe au point \\(A\\bigl(a\\,;\\,f(a)\\bigr)\\).</p><p><strong>Construisons l'équation.</strong> Une droite de coefficient directeur \\(m\\) a pour équation \\(y=mx+p\\). Elle doit passer par \\(A\\) : \\(f(a)=ma+p\\), donc \\(p=f(a)-ma\\). On obtient \\(y=mx+f(a)-ma\\), c'est-à-dire \\[T_a:\\ y=f(a)+f'(a)(x-a).\\]</p><div class=\"contract\"><strong>Ne pas confondre</strong> \\(f(a)\\), l'ordonnée du point, et \\(f'(a)\\), la pente de la tangente.</div><h4>Application à \\(g\\) en \\(a=0\\)</h4><p>On dérive \\(g=\\dfrac uv\\) avec \\(u=2x+1\\), \\(v=x-1\\), donc \\(u'=2\\), \\(v'=1\\) : \\[g'(x)=\\frac{u'v-uv'}{v^2}=\\frac{2(x-1)-(2x+1)\\times1}{(x-1)^2}.\\]</p>{{q:pente-sens}}{{f:num}}<p>Le numérateur étant constant, \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\). Maintenant, les deux ingrédients de la tangente en 0 :</p>{{f:g0}}{{f:gp0}}<p>Assemble-les avec la formule \\(T_a:\\ y=f(a)+f'(a)(x-a)\\) et <em>vérifie tout de suite sur la figure</em> : ta droite s'affiche en pointillés rouges.</p>{{f:tangente}}{{fig:g-tan}}",
+   "task": "Dérive \\(g\\), calcule \\(g(0)\\) et \\(g'(0)\\), écris l'équation de la tangente et confronte-la à la figure.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "g-tan",
+     "caption": "Courbe de \\(g\\), asymptotes, point A d'abscisse 0 et tangente (trait vert). Ta droite apparaît en pointillés rouges.",
+     "curveLabel": "C_g",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       2
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -4,
+      "xmax": 6,
+      "ymin": -8,
+      "ymax": 8
+     },
+     "verticalAsymptotes": [
+      1
+     ],
+     "horizontalAsymptotes": [
+      2
+     ],
+     "tangentAt": 0,
+     "points": [
+      {
+       "x": 0,
+       "label": "A"
+      }
+     ],
+     "overlayFieldId": "tangente"
+    }
+   ],
+   "questions": [
+    {
+     "id": "pente-sens",
+     "text": "Au point d'abscisse 0, la courbe de \\(g\\) « descend » quand on avance vers la droite. Le nombre dérivé \\(g'(0)\\) est donc…",
+     "choices": [
+      "négatif",
+      "positif",
+      "nul"
+     ],
+     "correct": 0,
+     "feedback": "Une courbe qui descend a des tangentes de pente négative : on attend \\(g'(0)\\lt0\\). Garde cette attente pour contrôler ton calcul.",
+     "choiceFeedback": [
+      "",
+      "Une pente positive correspond à une courbe qui monte de gauche à droite.",
+      "Une tangente horizontale correspond à un sommet ou un creux, pas à une courbe qui descend nettement."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "num",
+     "label": "Calcule le numérateur \\(u'v-uv'=2(x-1)-(2x+1)\\times1\\) en développant avec soin.",
+     "placeholder": "Un nombre (le résultat ne dépend pas de x)",
+     "input": "line",
+     "check": {
+      "kind": "number",
+      "accept": [
+       "-3"
+      ],
+      "rules": [
+       {
+        "when": [
+         "3"
+        ],
+        "feedback": "Attention au signe : développe \\(2(x-1)=2x-2\\), puis retranche TOUT le second produit : \\(-(2x+1)=-2x-1\\)."
+       },
+       {
+        "when": [
+         "-1"
+        ],
+        "feedback": "Tu as sans doute oublié de changer le signe du 1 : \\(-(2x+1)\\) donne \\(-2x\\) puis \\(-1\\) (et non \\(+1\\))."
+       },
+       {
+        "when": [
+         "1"
+        ],
+        "feedback": "Rassemble : \\(2x-2-2x-1\\). Les termes en \\(x\\) s'annulent ; que reste-t-il ?"
+       }
+      ],
+      "success": "Oui : \\(2x-2-2x-1=-3\\). Les termes en \\(x\\) disparaissent.",
+      "fallback": "Développe \\(2(x-1)\\) puis \\((2x+1)\\times1\\), et retranche : \\(2x-2-(2x+1)\\)."
+     }
+    },
+    {
+     "id": "g0",
+     "label": "Calcule \\(g(0)\\).",
+     "placeholder": "Un nombre",
+     "input": "line",
+     "check": {
+      "kind": "number",
+      "accept": [
+       "-1"
+      ],
+      "rules": [
+       {
+        "when": [
+         "1"
+        ],
+        "feedback": "Remplace \\(x\\) par 0 : \\(\\dfrac{2\\times0+1}{0-1}\\). Le dénominateur vaut \\(-1\\) : quel signe pour le quotient ?"
+       },
+       {
+        "when": [
+         "-3"
+        ],
+        "feedback": "−3 sera \\(g'(0)\\), pas \\(g(0)\\). \\(g(0)\\) est l'ordonnée du point : calcule \\(\\frac{2\\times0+1}{0-1}\\)."
+       }
+      ],
+      "success": "Oui : \\(g(0)=\\dfrac{1}{-1}=-1\\). Le point de tangence est \\(A(0\\,;\\,-1)\\).",
+      "fallback": "Remplace \\(x\\) par 0 dans \\(\\dfrac{2x+1}{x-1}\\)."
+     }
+    },
+    {
+     "id": "gp0",
+     "label": "Calcule \\(g'(0)\\) avec \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\).",
+     "placeholder": "Un nombre",
+     "input": "line",
+     "check": {
+      "kind": "number",
+      "accept": [
+       "-3"
+      ],
+      "rules": [
+       {
+        "when": [
+         "3"
+        ],
+        "feedback": "Signe : \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\). Avec \\(x=0\\), \\((0-1)^2=1\\), donc \\(\\dfrac{-3}{1}\\)."
+       },
+       {
+        "when": [
+         "-1"
+        ],
+        "feedback": "−1 est \\(g(0)\\), pas \\(g'(0)\\) : \\(f(a)\\) est l'ordonnée du point, \\(f'(a)\\) la pente de la tangente."
+       },
+       {
+        "when": [
+         "-3/-1",
+         "3/1"
+        ],
+        "feedback": "Le carré \\((0-1)^2\\) vaut \\(+1\\) : un carré n'est jamais négatif."
+       }
+      ],
+      "success": "Oui : \\(g'(0)=\\dfrac{-3}{(-1)^2}=-3\\). La pente est négative, comme prévu.",
+      "fallback": "Remplace \\(x\\) par 0 dans \\(\\dfrac{-3}{(x-1)^2}\\) et n'oublie pas que \\((-1)^2=1\\)."
+     }
+    },
+    {
+     "id": "tangente",
+     "label": "Écris l'équation de la tangente \\(T_0\\) à la courbe de \\(g\\) au point d'abscisse 0.",
+     "placeholder": "Sous la forme y = ax + b",
+     "input": "line",
+     "check": {
+      "kind": "linear",
+      "accept": [
+       "y=-3x-1"
+      ],
+      "rules": [
+       {
+        "when": [
+         "y=-3x+1"
+        ],
+        "feedback": "Vérifie \\(g(0)\\) : l'ordonnée à l'origine est \\(g(0)=-1\\), pas son opposé."
+       },
+       {
+        "when": [
+         "y=3x-1",
+         "y=3x+1"
+        ],
+        "feedback": "Le coefficient directeur est \\(g'(0)=-3\\), avec son signe."
+       },
+       {
+        "when": [
+         "y=-x-3"
+        ],
+        "feedback": "Tu as échangé \\(f(a)\\) et \\(f'(a)\\) : la pente est \\(g'(0)=-3\\), l'ordonnée du point est \\(g(0)=-1\\)."
+       },
+       {
+        "when": [
+         "y=-3x"
+        ],
+        "feedback": "Tu as oublié \\(f(a)\\) : \\(y=f(a)+f'(a)(x-a)=-1-3(x-0)\\)."
+       },
+       {
+        "when": [
+         "y=-1"
+        ],
+        "feedback": "Il manque la pente : \\(y=f(a)+f'(a)(x-a)\\) avec \\(f'(0)=-3\\)."
+       }
+      ],
+      "success": "Oui : \\(T_0:\\ y=-1+(-3)(x-0)=-3x-1\\). Sur la figure, la droite rouge pointillée se superpose au trait vert.",
+      "fallback": "Applique \\(y=f(a)+f'(a)(x-a)\\) avec \\(a=0\\), \\(f(a)=-1\\) et \\(f'(a)=-3\\)."
+     }
+    }
+   ],
+   "hints": [
+    "Le numérateur de la dérivée est \\(u'v-uv'\\) : attention au signe devant tout le second produit.",
+    "\\(f(a)\\) est une ordonnée (un point), \\(f'(a)\\) est une pente : ne les mélange pas.",
+    "Remplace dans \\(y=f(a)+f'(a)(x-a)\\) : \\(y=-1+(-3)(x-0)\\), puis simplifie."
+   ],
+   "takeaway": "La tangente en \\(a\\) : \\(T_a:\\ y=f(a)+f'(a)(x-a)\\). \\(f(a)\\) donne le point, \\(f'(a)\\) donne la pente.",
+   "tests": []
+  },
+  {
+   "id": "variations",
+   "short": "Variations",
+   "title": "Le signe de la dérivée donne les variations",
+   "minutes": 8,
+   "level": "Application",
+   "concepts": [
+    "signe de la dérivée",
+    "sens de variation",
+    "tableau de variations",
+    "domaine non connexe"
+   ],
+   "intro": "Une dérivée négative, c'est une fonction décroissante. Mais attention à la valeur interdite : on ne traverse pas \\(x=1\\).",
+   "lesson": "<p>On a \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\) pour \\(x\\ne1\\). Le numérateur \\(-3\\) est négatif ; le dénominateur \\((x-1)^2\\) est un carré, donc strictement positif dès que \\(x\\ne1\\).</p>{{q:signe-gprime}}<p>Donc \\(g'(x)\\lt0\\) sur \\(]-\\infty\\,;1[\\) et sur \\(]1\\,;+\\infty[\\). On construit le tableau <strong>intervalle par intervalle</strong>, en utilisant les limites trouvées avant :</p><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\"></th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">sur \\(]-\\infty\\,;1[\\)</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">en \\(x=1\\)</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">sur \\(]1\\,;+\\infty[\\)</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">signe de \\(g'(x)\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(g\\) n'est pas définie</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(-\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">variations de \\(g\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">décroît de \\(2\\) (en \\(-\\infty\\)) à \\(-\\infty\\) (en \\(1^-\\))</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">asymptote \\(x=1\\)</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">décroît de <strong>?</strong> (en \\(1^+\\)) à <strong>?</strong> (en \\(+\\infty\\))</td></tr></tbody></table>{{f:var-debut}}{{f:var-fin}}<p>On ne dit jamais « \\(g\\) est décroissante sur \\(\\mathbb R\\setminus\\{1\\}\\) » :</p>{{q:piege}}",
+   "task": "Détermine le signe de la dérivée, complète le tableau à droite de 1, puis démasque le piège.",
+   "starter": null,
+   "figures": [],
+   "questions": [
+    {
+     "id": "signe-gprime",
+     "text": "Le signe de \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\) pour \\(x\\ne1\\) est…",
+     "choices": [
+      "toujours négatif",
+      "toujours positif",
+      "positif puis négatif",
+      "il change de signe en \\(x=1\\)"
+     ],
+     "correct": 0,
+     "feedback": "Le numérateur \\(-3\\) est négatif et \\((x-1)^2\\gt0\\) pour \\(x\\ne1\\) : le quotient est toujours négatif.",
+     "choiceFeedback": [
+      "",
+      "Le numérateur est \\(-3\\) : il est négatif. Un carré ne change pas son signe.",
+      "Il n'y a aucune valeur de \\(x\\) où le numérateur change de signe : il vaut toujours \\(-3\\).",
+      "En 1, la dérivée n'existe pas (la fonction n'est pas définie) : elle ne change pas de signe de part et d'autre."
+     ]
+    },
+    {
+     "id": "piege",
+     "text": "Peut-on dire que \\(g\\) est décroissante sur \\(\\mathbb R\\setminus\\{1\\}\\) tout entier ?",
+     "choices": [
+      "Oui, puisque \\(g'\\lt0\\) partout où elle existe",
+      "Non : \\(g(0)=-1\\) est plus petit que \\(g(2)=5\\) alors que \\(0\\lt2\\)",
+      "Oui, mais seulement sur \\(]1\\,;+\\infty[\\)",
+      "Non, car \\(g\\) n'a pas de dérivée"
+     ],
+     "correct": 1,
+     "feedback": "La décroissance n'est vraie que sur chaque intervalle séparément. Si on traverse l'asymptote, la courbe « saute » du bas vers le haut : \\(g(0)=-1\\lt g(2)=5\\). Dans le tableau, on ne traverse jamais \\(x=1\\).",
+     "choiceFeedback": [
+      "Le contre-exemple \\(g(0)=-1\\), \\(g(2)=5\\) contredit une décroissance globale : une fonction décroissante vérifie \\(x_1\\lt x_2\\Rightarrow f(x_1)\\gt f(x_2)\\).",
+      "",
+      "Elle est bien décroissante sur \\(]1\\,;+\\infty[\\), mais la question porte sur les deux intervalles à la fois.",
+      "Elle est dérivable sur chaque intervalle de son domaine : \\(g'\\) existe, elle vaut \\(\\frac{-3}{(x-1)^2}\\)."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "var-debut",
+     "label": "Sur \\(]1\\,;+\\infty[\\) : de quelle valeur la fonction part-elle, c'est-à-dire \\(\\lim_{x\\to1^+}g(x)\\) ?",
+     "placeholder": "\\(+\\infty\\) ou \\(-\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "+inf"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-inf"
+        ],
+        "feedback": "Reprends ta réponse sur la limite à droite de 1 (étape « verticale ») : le tableau doit lui être cohérent."
+       }
+      ],
+      "success": "Oui : \\(g\\) part de \\(+\\infty\\) près de 1 et décroît.",
+      "fallback": "Cette valeur est celle de ta limite en \\(1^+\\)."
+     }
+    },
+    {
+     "id": "var-fin",
+     "label": "Sur \\(]1\\,;+\\infty[\\) : vers quelle valeur la fonction décroît-elle, c'est-à-dire \\(\\lim_{x\\to+\\infty}g(x)\\) ?",
+     "placeholder": "Un nombre ou \\(\\pm\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-inf"
+        ],
+        "feedback": "Une fonction qui décroît de \\(+\\infty\\) peut s'arrêter vers une valeur finie : reprends la limite en \\(+\\infty\\)."
+       }
+      ],
+      "success": "Oui : \\(g\\) décroît de \\(+\\infty\\) vers 2 sans jamais l'atteindre.",
+      "fallback": "Reprends la limite de \\(g\\) en \\(+\\infty\\)."
+     }
+    }
+   ],
+   "hints": [
+    "Un carré est positif ; le signe de la dérivée est donc celui du numérateur.",
+    "Dans le tableau, on remplit chaque intervalle avec ses propres limites aux bornes."
+   ],
+   "takeaway": "Une dérivée négative sur un intervalle : la fonction décroît sur cet intervalle. Quand le domaine a une valeur interdite, on étudie chaque intervalle séparément et on ne traverse jamais la valeur interdite dans le tableau.",
+   "tests": []
+  },
+  {
+   "id": "etude",
+   "short": "Étude",
+   "title": "Étude complète de g : tout assembler",
+   "minutes": 15,
+   "level": "Synthèse",
+   "concepts": [
+    "domaine",
+    "limites",
+    "asymptotes",
+    "dérivée",
+    "variations",
+    "tangente",
+    "cohérence graphique"
+   ],
+   "intro": "Tu as tous les morceaux. Il s'agit maintenant de les relier entre eux et de les confronter au graphique.",
+   "lesson": "<p>Voici la fiche d'étude de \\(g(x)=\\dfrac{2x+1}{x-1}\\), que tu as construite étape par étape :</p><table style=\"border-collapse:collapse;margin:.5rem 0;\"><thead><tr><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">Étape</th><th style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">Résultat établi</th></tr></thead><tbody><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">1. Domaine</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(D_g=\\mathbb R\\setminus\\{1\\}\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">2. Limites en 1</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(\\lim_{x\\to1^-}g=-\\infty\\) ; \\(\\lim_{x\\to1^+}g=+\\infty\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">3. Asymptote verticale</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(x=1\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">4. Limites à l'infini</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(\\lim_{x\\to\\pm\\infty}g=2\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">5. Asymptote horizontale</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(y=2\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">6–7. Dérivée et signe</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(g'(x)=\\dfrac{-3}{(x-1)^2}\\lt0\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">8. Variations</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">décroissante sur \\(]-\\infty\\,;1[\\) puis sur \\(]1\\,;+\\infty[\\)</td></tr><tr><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">9. Tangente en 0</td><td style=\"border:1px solid currentColor;padding:.25rem .6rem;text-align:center\">\\(y=-3x-1\\)</td></tr></tbody></table><p>Un bon mathématicien ne se contente pas d'empiler des résultats : il les fait <strong>se contrôler les uns les autres</strong>. À toi.</p><h4>Contrôle 1 — le domaine, source de tout</h4>{{q:dom}}<h4>Contrôle 2 — les quatre limites ensemble</h4><p>Un élève propose quatre jeux de limites pour \\(g\\). Un seul est cohérent avec toute l'étude.</p>{{q:bornes}}<h4>Contrôle 3 — où est la courbe par rapport à son asymptote ?</h4><p>On calcule \\(g(x)-2=\\dfrac{2x+1-2(x-1)}{x-1}=\\dfrac{3}{x-1}\\).</p>{{q:position}}<h4>Contrôle 4 — un point que le graphique doit confirmer</h4>{{f:zero}}{{fig:g-etude}}{{q:coherence}}<h4>Conclusion rédigée</h4>{{f:variations}}",
+   "task": "Réponds aux contrôles, regarde la figure, puis rédige ta conclusion.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "g-etude",
+     "caption": "Vision d'ensemble de \\(g\\) : asymptotes \\(x=1\\) et \\(y=2\\), point A et tangente en 0.",
+     "curveLabel": "C_g",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       2
+      ],
+      "den": [
+       -1,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -6,
+      "xmax": 8,
+      "ymin": -8,
+      "ymax": 12
+     },
+     "verticalAsymptotes": [
+      1
+     ],
+     "horizontalAsymptotes": [
+      2
+     ],
+     "tangentAt": 0,
+     "points": [
+      {
+       "x": 0,
+       "label": "A"
+      }
+     ]
+    }
+   ],
+   "questions": [
+    {
+     "id": "dom",
+     "text": "Quel est l'ensemble de définition de \\(g\\) ?",
+     "choices": [
+      "\\(\\mathbb R\\)",
+      "\\(\\mathbb R\\setminus\\{1\\}\\)",
+      "\\(\\mathbb R\\setminus\\{-\\frac12\\}\\)",
+      "\\(]1\\,;+\\infty[\\)"
+     ],
+     "correct": 1,
+     "feedback": "Un quotient est défini quand son dénominateur est non nul : \\(x-1\\ne0\\iff x\\ne1\\).",
+     "choiceFeedback": [
+      "Le dénominateur s'annule en 1 : la fonction n'y est pas définie.",
+      "",
+      "\\(-\\frac12\\) annule le numérateur (\\(2x+1=0\\)), ce qui est permis. Ce qui est interdit, c'est d'annuler le dénominateur.",
+      "La fonction est aussi définie pour \\(x\\lt1\\) (par exemple \\(g(0)=-1\\))."
+     ]
+    },
+    {
+     "id": "bornes",
+     "text": "Quel jeu de limites est cohérent avec l'étude de \\(g\\) ?",
+     "choices": [
+      "\\(\\lim_{1^-}=-\\infty\\) ; \\(\\lim_{1^+}=+\\infty\\) ; \\(\\lim_{+\\infty}=2\\) ; \\(\\lim_{-\\infty}=2\\)",
+      "\\(\\lim_{1^-}=+\\infty\\) ; \\(\\lim_{1^+}=-\\infty\\) ; \\(\\lim_{+\\infty}=2\\) ; \\(\\lim_{-\\infty}=2\\)",
+      "\\(\\lim_{1^-}=-\\infty\\) ; \\(\\lim_{1^+}=+\\infty\\) ; \\(\\lim_{+\\infty}=2\\) ; \\(\\lim_{-\\infty}=-2\\)",
+      "\\(\\lim_{1^-}=+\\infty\\) ; \\(\\lim_{1^+}=+\\infty\\) ; \\(\\lim_{+\\infty}=2\\) ; \\(\\lim_{-\\infty}=2\\)"
+     ],
+     "correct": 0,
+     "feedback": "Le dénominateur change de signe en 1 (donc les deux limites en 1 sont de signes contraires) et \\(\\frac1x\\to0\\) aux deux extrémités (donc la même limite 2 en \\(\\pm\\infty\\)).",
+     "choiceFeedback": [
+      "",
+      "Les signes sont inversés : pour \\(x\\lt1\\), \\(x-1\\) est négatif et le numérateur est positif.",
+      "En \\(-\\infty\\), \\(\\frac1x\\) tend aussi vers 0 : la limite est 2, pas −2.",
+      "Le dénominateur \\(x-1\\) est de signe contraire de part et d'autre de 1 (il n'est pas élevé au carré) : les deux limites en 1 sont de signes contraires."
+     ]
+    },
+    {
+     "id": "position",
+     "text": "Avec \\(g(x)-2=\\dfrac3{x-1}\\), la courbe de \\(g\\) est…",
+     "choices": [
+      "au-dessus de la droite \\(y=2\\) pour \\(x\\gt1\\), en dessous pour \\(x\\lt1\\)",
+      "toujours au-dessus de la droite \\(y=2\\)",
+      "au-dessus de la droite \\(y=2\\) pour \\(x\\lt1\\), en dessous pour \\(x\\gt1\\)",
+      "confondue avec la droite \\(y=2\\)"
+     ],
+     "correct": 0,
+     "feedback": "Le signe de \\(g(x)-2\\) est celui de \\(x-1\\) : positif pour \\(x\\gt1\\) (courbe au-dessus de \\(y=2\\)), négatif pour \\(x\\lt1\\) (en dessous). Remarque : \\(g(x)=2\\) n'a jamais de solution, la courbe ne coupe pas son asymptote.",
+     "choiceFeedback": [
+      "",
+      "\\(\\frac3{x-1}\\) change de signe en 1 : ce n'est pas toujours positif.",
+      "Tu as inversé : pour \\(x\\gt1\\), \\(x-1\\gt0\\) donc \\(\\frac3{x-1}\\gt0\\).",
+      "Si elles étaient confondues, \\(g(x)-2\\) vaudrait 0 : or elle vaut \\(\\frac3{x-1}\\ne0\\)."
+     ]
+    },
+    {
+     "id": "coherence",
+     "text": "Laquelle de ces affirmations sur le graphique est INCOMPATIBLE avec l'étude ?",
+     "choices": [
+      "La courbe passe par le point \\((0\\,;-1)\\)",
+      "La courbe coupe la droite d'équation \\(x=1\\)",
+      "La courbe est au-dessus de \\(y=2\\) pour \\(x\\gt1\\)",
+      "La tangente en 0 descend quand on avance vers la droite"
+     ],
+     "correct": 1,
+     "feedback": "\\(x=1\\) est une valeur interdite : aucun point de la courbe n'a pour abscisse 1. La courbe ne peut donc pas couper cette droite.",
+     "choiceFeedback": [
+      "Compatible : \\(g(0)=-1\\).",
+      "",
+      "Compatible : c'est le contrôle 3.",
+      "Compatible : \\(g'(0)=-3\\lt0\\)."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "zero",
+     "label": "En quelle abscisse la courbe coupe-t-elle l'axe des abscisses ? (résous \\(g(x)=0\\))",
+     "placeholder": "Un nombre",
+     "input": "line",
+     "check": {
+      "kind": "number",
+      "accept": [
+       "-1/2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "1/2",
+         "0,5"
+        ],
+        "feedback": "Résous \\(2x+1=0\\) : \\(2x=-1\\). Attention au signe."
+       },
+       {
+        "when": [
+         "-1"
+        ],
+        "feedback": "−1 est \\(g(0)\\), l'ordonnée à l'origine. Ici on cherche l'abscisse où \\(g(x)=0\\) : il faut \\(2x+1=0\\)."
+       },
+       {
+        "when": [
+         "1"
+        ],
+        "feedback": "En \\(x=1\\), la fonction n'est pas définie. Un quotient est nul quand son numérateur est nul : \\(2x+1=0\\)."
+       }
+      ],
+      "success": "Oui : un quotient est nul quand son numérateur l'est : \\(2x+1=0\\iff x=-\\frac12\\). Vérifie sur la figure : la courbe traverse bien l'axe des abscisses entre −1 et 0.",
+      "fallback": "Un quotient est nul quand son numérateur est nul (et son dénominateur non nul)."
+     }
+    },
+    {
+     "id": "variations",
+     "label": "Rédige en deux phrases la conclusion sur les variations de \\(g\\), en précisant les intervalles et les limites aux bornes.",
+     "placeholder": "g est strictement … sur … ; elle … de … vers …",
+     "input": "area"
+    }
+   ],
+   "hints": [
+    "Si deux résultats de ton étude se contredisent, l'un des deux est faux : reviens au signe du dénominateur.",
+    "Pour la position relative, étudie le signe de \\(g(x)-2=\\dfrac{3}{x-1}\\).",
+    "Pour la rédaction : « sur chaque intervalle, \\(g'\\lt0\\) donc \\(g\\) est strictement décroissante ; elle passe de … à … »."
+   ],
+   "takeaway": "Une étude de fonction n'est pas une liste : le domaine explique les asymptotes verticales, les limites en l'infini les horizontales, le signe de la dérivée les variations. Chaque résultat doit être compatible avec les autres et avec le graphique.",
+   "tests": []
+  },
+  {
+   "id": "autonome",
+   "short": "Autonomie",
+   "title": "À toi : une autre fonction",
+   "minutes": 14,
+   "level": "Transfert",
+   "concepts": [
+    "fonction rationnelle à deux pôles",
+    "limites latérales",
+    "asymptotes",
+    "dérivée",
+    "tangente"
+   ],
+   "intro": "Même démarche, autre fonction : deux valeurs interdites cette fois. Je te laisse mener l'étude.",
+   "lesson": "<p>Soit \\[k(x)=\\frac{2x^2-3x}{x^2-1}.\\]</p><p>Pour t'organiser : (1) domaine, (2) limite en \\(1^-\\) et conséquence, (3) limite en \\(+\\infty\\), (4) asymptotes, (5) dérivée et sens de variation, (6) tangente en 0.</p><p><em>Le graphique n'est volontairement affiché qu'à la fin : ne triche pas, calcule d'abord.</em></p>{{q:dom-k}}<p>Étude en \\(1\\) : au numérateur, \\(2\\times1^2-3\\times1=-1\\) (négatif). Au dénominateur, \\(x^2-1=(x-1)(x+1)\\).</p>{{f:k-1m}}{{f:k-inf}}{{q:k-asym}}<p>La dérivée de \\(k=\\dfrac uv\\), avec \\(u=2x^2-3x\\) et \\(v=x^2-1\\), s'écrit \\(\\dfrac{u'v-uv'}{v^2}\\) avec \\(u'=4x-3\\), \\(v'=2x\\).</p>{{q:k-prime}}<p>Le numérateur est \\(3x^2-4x+3\\), un trinôme de discriminant \\(\\Delta=(-4)^2-4\\times3\\times3=-20\\).</p>{{q:k-signe}}{{f:k-tan}}{{fig:k-fig}}",
+   "task": "Mène l'étude de \\(k\\) en suivant les six étapes, puis compare à la figure.",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "k-fig",
+     "caption": "Courbe de \\(k\\) : deux asymptotes verticales (\\(x=-1\\), \\(x=1\\)), une horizontale (\\(y=2\\)), et la tangente en 0.",
+     "curveLabel": "C_k",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       0,
+       -3,
+       2
+      ],
+      "den": [
+       -1,
+       0,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -6,
+      "xmax": 6,
+      "ymin": -8,
+      "ymax": 10
+     },
+     "verticalAsymptotes": [
+      -1,
+      1
+     ],
+     "horizontalAsymptotes": [
+      2
+     ],
+     "tangentAt": 0,
+     "points": [
+      {
+       "x": 0,
+       "label": "O'"
+      }
+     ]
+    }
+   ],
+   "questions": [
+    {
+     "id": "dom-k",
+     "text": "Quel est l'ensemble de définition de \\(k\\) ?",
+     "choices": [
+      "\\(\\mathbb R\\setminus\\{1\\}\\)",
+      "\\(\\mathbb R\\setminus\\{-1\\,;1\\}\\)",
+      "\\(\\mathbb R\\setminus\\{0\\}\\)",
+      "\\(\\mathbb R\\)"
+     ],
+     "correct": 1,
+     "feedback": "\\(x^2-1=0\\iff x=1\\) ou \\(x=-1\\) : deux valeurs interdites.",
+     "choiceFeedback": [
+      "Il manque une valeur : \\(x^2-1=(x-1)(x+1)\\) s'annule aussi en \\(-1\\).",
+      "",
+      "0 n'annule pas le dénominateur : \\(0^2-1=-1\\).",
+      "Le dénominateur s'annule : il y a des valeurs interdites."
+     ]
+    },
+    {
+     "id": "k-asym",
+     "text": "Que peut-on affirmer pour les asymptotes de la courbe de \\(k\\) ? (Raisonne de la même façon en \\(-1\\) : numérateur \\(2+3=5\\gt0\\), dénominateur \\(0^\\pm\\).)",
+     "choices": [
+      "Verticales \\(x=1\\) et \\(x=-1\\) ; horizontale \\(y=2\\)",
+      "Verticale \\(x=1\\) seulement ; horizontale \\(y=2\\)",
+      "Verticales \\(x=1\\) et \\(x=-1\\) ; aucune horizontale",
+      "Horizontale \\(y=2\\) seulement"
+     ],
+     "correct": 0,
+     "feedback": "Au voisinage de 1 et de \\(-1\\) le numérateur est non nul et le dénominateur tend vers 0 : les limites sont infinies, donc deux asymptotes verticales. En \\(\\pm\\infty\\), \\(k(x)\\to2\\) : asymptote horizontale \\(y=2\\).",
+     "choiceFeedback": [
+      "",
+      "En \\(-1\\) aussi le dénominateur s'annule avec un numérateur non nul (égal à 5) : il y a une seconde asymptote verticale.",
+      "Tu as calculé que \\(k(x)\\to2\\) en l'infini : cela donne l'horizontale.",
+      "Les limites infinies en \\(\\pm1\\) donnent aussi des asymptotes verticales."
+     ]
+    },
+    {
+     "id": "k-prime",
+     "text": "Quelle est la dérivée de \\(k\\) ?",
+     "choices": [
+      "\\(k'(x)=\\dfrac{3x^2-4x+3}{(x^2-1)^2}\\)",
+      "\\(k'(x)=\\dfrac{4x-3}{2x}\\)",
+      "\\(k'(x)=\\dfrac{-3x^2+4x-3}{(x^2-1)^2}\\)",
+      "\\(k'(x)=\\dfrac{(4x-3)(x^2-1)+(2x^2-3x)(2x)}{(x^2-1)^2}\\)"
+     ],
+     "correct": 0,
+     "feedback": "\\(u'v-uv'=(4x-3)(x^2-1)-(2x^2-3x)(2x)=4x^3-4x-3x^2+3-4x^3+6x^2=3x^2-4x+3\\).",
+     "choiceFeedback": [
+      "",
+      "La dérivée d'un quotient n'est pas le quotient des dérivées : la formule est \\(\\frac{u'v-uv'}{v^2}\\).",
+      "Vérifie le signe global : développe bien \\((4x-3)(x^2-1)-(2x^2-3x)(2x)\\).",
+      "Il y a un « moins » entre les deux produits dans \\(u'v-uv'\\), pas un « plus »."
+     ]
+    },
+    {
+     "id": "k-signe",
+     "text": "Le trinôme \\(3x^2-4x+3\\) (discriminant \\(-20\\)) est…",
+     "choices": [
+      "toujours strictement positif",
+      "toujours strictement négatif",
+      "positif puis négatif",
+      "nul en deux points"
+     ],
+     "correct": 0,
+     "feedback": "\\(\\Delta\\lt0\\) : pas de racine réelle, donc un signe constant, celui du coefficient de \\(x^2\\) (ici \\(3\\gt0\\)). Ainsi \\(k'(x)\\gt0\\) : \\(k\\) est strictement croissante sur chacun des trois intervalles \\(]-\\infty\\,;-1[\\), \\(]-1\\,;1[\\), \\(]1\\,;+\\infty[\\).",
+     "choiceFeedback": [
+      "",
+      "Le coefficient de \\(x^2\\) est \\(+3\\) : un trinôme sans racine a le signe de ce coefficient.",
+      "Un changement de signe exige des racines réelles, or \\(\\Delta\\lt0\\).",
+      "Un trinôme s'annule en ses racines réelles : ici il n'y en a pas, car \\(\\Delta\\lt0\\)."
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "id": "k-1m",
+     "label": "\\(\\lim_{x\\to1^-}k(x)=\\) ? (numérateur proche de \\(-1\\) ; signe de \\(x^2-1=(x-1)(x+1)\\) pour \\(x\\lt1\\) proche de 1 ?)",
+     "placeholder": "\\(+\\infty\\) ou \\(-\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "+inf"
+      ],
+      "rules": [
+       {
+        "when": [
+         "-inf"
+        ],
+        "feedback": "Numérateur proche de \\(-1\\) (négatif). Dénominateur \\((x-1)(x+1)\\) pour \\(x\\lt1\\) proche de 1 : \\(x-1\\lt0\\) et \\(x+1\\gt0\\). Que donne « négatif divisé par négatif » ?"
+       },
+       {
+        "when": [
+         "-1",
+         "0"
+        ],
+        "feedback": "−1 est la limite du numérateur seulement. Le dénominateur tend vers 0 : le quotient devient très grand en valeur absolue."
+       }
+      ],
+      "success": "Oui : numérateur négatif, dénominateur négatif proche de 0 : le quotient est positif et tend vers \\(+\\infty\\).",
+      "fallback": "Étudie le signe du numérateur (proche de \\(-1\\)) et celui du dénominateur pour \\(x\\lt1\\)."
+     }
+    },
+    {
+     "id": "k-inf",
+     "label": "\\(\\lim_{x\\to+\\infty}k(x)=\\) ?",
+     "placeholder": "Un nombre ou \\(\\pm\\infty\\)",
+     "input": "line",
+     "check": {
+      "kind": "limit",
+      "accept": [
+       "2"
+      ],
+      "rules": [
+       {
+        "when": [
+         "inf/inf",
+         "∞/∞"
+        ],
+        "feedback": "\\(\\dfrac\\infty\\infty\\) est une forme indéterminée, ce n'est pas le résultat : mets \\(x^2\\) en facteur en haut et en bas."
+       },
+       {
+        "when": [
+         "+inf"
+        ],
+        "feedback": "Haut et bas ont même degré : compare les coefficients de \\(x^2\\)."
+       },
+       {
+        "when": [
+         "0"
+        ],
+        "feedback": "0 demanderait un dénominateur de plus haut degré que le numérateur. Ici les degrés sont égaux."
+       },
+       {
+        "when": [
+         "1",
+         "-2",
+         "3"
+        ],
+        "feedback": "Les termes dominants sont \\(2x^2\\) en haut et \\(x^2\\) en bas : leur quotient donne la limite."
+       }
+      ],
+      "success": "Oui : \\(k(x)=\\dfrac{2-\\frac3x}{1-\\frac1{x^2}}\\to2\\).",
+      "fallback": "Mets \\(x^2\\) en facteur au numérateur et au dénominateur, puis simplifie."
+     }
+    },
+    {
+     "id": "k-tan",
+     "label": "Équation de la tangente à la courbe de \\(k\\) au point d'abscisse 0. (Indication : \\(k(0)=0\\) et \\(k'(0)=\\dfrac{3}{(0-1)^2}\\).)",
+     "placeholder": "Sous la forme y = ax + b",
+     "input": "line",
+     "check": {
+      "kind": "linear",
+      "accept": [
+       "y=3x"
+      ],
+      "rules": [
+       {
+        "when": [
+         "y=-3x"
+        ],
+        "feedback": "Signe : \\(k'(0)=\\dfrac{3\\times0-4\\times0+3}{(0-1)^2}=\\dfrac31=3\\)."
+       },
+       {
+        "when": [
+         "y=0"
+        ],
+        "feedback": "La tangente est horizontale seulement si \\(k'(0)=0\\). Ici \\(k'(0)=3\\)."
+       },
+       {
+        "when": [
+         "y=3x+1",
+         "y=3x-1"
+        ],
+        "feedback": "L'ordonnée à l'origine est \\(k(0)=0\\), pas 1."
+       }
+      ],
+      "success": "Oui : \\(T_0:\\ y=k(0)+k'(0)(x-0)=3x\\).",
+      "fallback": "Applique \\(y=f(a)+f'(a)(x-a)\\) avec \\(a=0\\), \\(k(0)=0\\), \\(k'(0)=3\\)."
+     }
+    }
+   ],
+   "hints": [
+    "Pour la limite en \\(1^-\\) : écris le signe du numérateur, puis celui de chaque facteur du dénominateur pour \\(x\\lt1\\).",
+    "Pour la dérivée : calcule d'abord \\(u'v\\) et \\(uv'\\) séparément, puis soustrais. Les termes en \\(x^3\\) s'annulent.",
+    "Le trinôme \\(3x^2-4x+3\\) n'a pas de racine réelle : son signe est constant.",
+    "Pour la tangente : \\(k(0)=0\\) et \\(k'(0)=3\\), donc la tangente passe par l'origine."
+   ],
+   "takeaway": "La même démarche s'applique à toute fonction rationnelle : domaine, limites aux valeurs interdites (par les signes), limites en l'infini (terme prépondérant), dérivée et son signe, tangente.",
+   "tests": []
+  },
+  {
+   "id": "methodes",
+   "short": "Méthodes",
+   "title": "Ma fiche méthode",
+   "minutes": 5,
+   "level": "Synthèse",
+   "concepts": [
+    "fiche méthode",
+    "asymptotes",
+    "tangente"
+   ],
+   "intro": "Voici la fiche à garder. Tu peux l'imprimer avec le bouton prévu à cet effet.",
+   "lesson": "<h3>Fiche méthode — Limites, asymptotes et tangentes</h3><h4>Quotient de polynômes à l'infini</h4><p>On met en facteur le terme de plus haut degré au numérateur et au dénominateur, on simplifie, puis les fractions en \\(\\frac1x\\) tendent vers 0. Exemple : \\(\\dfrac{2x^2-3x+1}{x^2+4}\\to2\\). Une forme \\(\\dfrac\\infty\\infty\\) n'est jamais un résultat.</p><h4>Asymptote verticale</h4><p>Si \\[\\lim_{x\\to a^-}f(x)=\\pm\\infty\\quad\\text{ou}\\quad\\lim_{x\\to a^+}f(x)=\\pm\\infty,\\] alors la droite \\(x=a\\) est asymptote verticale. On détermine le signe du quotient à gauche et à droite de \\(a\\). Un dénominateur nul ne suffit pas : \\(\\dfrac{x^2-1}{x-1}\\) n'a pas d'asymptote en 1.</p><h4>Asymptote horizontale</h4><p>Si \\[\\lim_{x\\to+\\infty}f(x)=\\ell\\quad\\text{ou}\\quad\\lim_{x\\to-\\infty}f(x)=\\ell,\\] alors la droite \\(y=\\ell\\) est asymptote horizontale dans la direction considérée. La courbe peut couper son asymptote.</p><h4>Tangente en \\(a\\)</h4><p>\\[T_a:\\ y=f(a)+f'(a)(x-a).\\] \\(f(a)\\) est l'ordonnée du point, \\(f'(a)\\) la pente. Avec \\(g(x)=\\dfrac{2x+1}{x-1}\\) : \\(g'(x)=\\dfrac{-3}{(x-1)^2}\\), \\(T_0:\\ y=-3x-1\\).</p><h4>Variations</h4><p>Le signe de \\(f'\\) donne le sens de variation, intervalle par intervalle ; on ne traverse jamais une valeur interdite.</p>{{f:retenir}}",
+   "task": "Lis la fiche, puis écris la méthode que tu risques le plus d'oublier.",
+   "starter": null,
+   "printable": true,
+   "figures": [],
+   "questions": [],
+   "fields": [
+    {
+     "id": "retenir",
+     "label": "Quelle est, pour toi, l'erreur la plus facile à commettre dans ce chapitre ? Écris-la, avec la façon de l'éviter.",
+     "placeholder": "L'erreur : … Pour l'éviter : …",
+     "input": "area"
+    }
+   ],
+   "hints": [],
+   "takeaway": "Calcul, graphique et sens vont ensemble : limite ↔ asymptote ; dérivée ↔ variations ↔ tangente.",
+   "tests": []
+  },
+  {
+   "id": "bonus",
+   "short": "Approfondissement",
+   "title": "Approfondissement : une asymptote oblique",
+   "minutes": 0,
+   "level": "Approfondissement (facultatif, hors durée)",
+   "concepts": [
+    "asymptote oblique"
+   ],
+   "intro": "Facultatif : si tu as terminé, voici un cas où la courbe se rapproche d'une droite qui n'est ni verticale ni horizontale.",
+   "lesson": "<p>Soit \\(m(x)=\\dfrac{x^2+x+1}{x}\\). Pour \\(x\\ne0\\), \\[m(x)=x+1+\\frac1x.\\] Quand \\(x\\to\\pm\\infty\\), \\(\\dfrac1x\\to0\\) : l'écart entre la courbe et la droite \\(y=x+1\\) devient aussi petit qu'on veut, car \\[m(x)-(x+1)=\\frac1x\\to0.\\] Une droite \\(y=ax+b\\) telle que \\(\\lim\\bigl(f(x)-(ax+b)\\bigr)=0\\) est une <strong>asymptote oblique</strong>.</p>{{f:bonus-ab}}{{fig:bonus-fig}}",
+   "task": "Trouve la droite \\(y=ax+b\\) telle que \\(m(x)-(ax+b)\\to0\\).",
+   "starter": null,
+   "figures": [
+    {
+     "type": "function",
+     "id": "bonus-fig",
+     "caption": "Courbe de \\(m\\) et ta droite (pointillés rouges) : elles se rejoignent loin du centre.",
+     "curveLabel": "C_m",
+     "fn": {
+      "kind": "rational",
+      "num": [
+       1,
+       1,
+       1
+      ],
+      "den": [
+       0,
+       1
+      ]
+     },
+     "window": {
+      "xmin": -6,
+      "xmax": 6,
+      "ymin": -8,
+      "ymax": 8
+     },
+     "verticalAsymptotes": [
+      0
+     ],
+     "overlayFieldId": "bonus-ab"
+    }
+   ],
+   "questions": [],
+   "fields": [
+    {
+     "id": "bonus-ab",
+     "label": "Équation de l'asymptote oblique de la courbe de \\(m\\).",
+     "placeholder": "Sous la forme y = ax + b",
+     "input": "line",
+     "check": {
+      "kind": "linear",
+      "accept": [
+       "y=x+1"
+      ],
+      "rules": [
+       {
+        "when": [
+         "y=x"
+        ],
+        "feedback": "Presque : \\(m(x)-x=1+\\frac1x\\to1\\), pas 0. Il manque une constante."
+       },
+       {
+        "when": [
+         "y=1",
+         "y=x-1",
+         "y=-x+1"
+        ],
+        "feedback": "Cherche \\(a\\) et \\(b\\) pour que \\(m(x)-(ax+b)=\\frac1x\\) : lis la décomposition \\(x+1+\\frac1x\\)."
+       }
+      ],
+      "success": "Oui : \\(m(x)-(x+1)=\\frac1x\\to0\\) : la droite \\(y=x+1\\) est asymptote oblique.",
+      "fallback": "Écris \\(m(x)=x+1+\\frac1x\\) et repère la partie qui tend vers 0."
+     }
+    }
+   ],
+   "hints": [
+    "Dans \\(x+1+\\frac1x\\), la partie \\(\\frac1x\\) tend vers 0 : que reste-t-il ?"
+   ],
+   "takeaway": "Asymptote oblique : \\(y=ax+b\\) avec \\(\\lim\\bigl(f(x)-(ax+b)\\bigr)=0\\). C'est un approfondissement : il n'est pas exigible dans cette séance.",
+   "tests": []
+  }
+ ]
+}

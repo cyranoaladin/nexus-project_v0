@@ -5,7 +5,7 @@ import { CorrectionWorkspace, type AnnotationView } from '@/components/espace/te
 import type { ViewerStepContent, ViewerStepDef } from '@/components/espace/teacher/WorkViewer';
 import { loadWorkForActor } from '@/lib/espace/access';
 import { listAnnotations } from '@/lib/espace/annotations';
-import { POO_ACTIVITY_SLUG, getPooContent } from '@/lib/espace/catalog';
+import { getLessonSteps } from '@/lib/espace/catalog';
 import { EspaceError } from '@/lib/espace/errors';
 import { listAttachments } from '@/lib/espace/files';
 import { fullName, getTeacherOverview } from '@/lib/espace/overview';
@@ -31,17 +31,14 @@ export default async function CorrectPage({ params }: { params: Promise<{ workId
     ]);
 
     // Seules les métadonnées utiles à l'affichage partent au navigateur (pas le HTML des leçons).
-    const steps: ViewerStepDef[] =
-      work.activity.slug === POO_ACTIVITY_SLUG
-        ? getPooContent().steps.map((s) => ({
-            id: s.id,
-            title: s.title,
-            short: s.short,
-            starter: s.starter,
-            questions: s.questions.map((q) => ({ id: q.id, text: q.text, choices: q.choices, correct: q.correct })),
-            fields: s.fields.map((f) => ({ id: f.id, label: f.label })),
-          }))
-        : [];
+    const steps: ViewerStepDef[] = getLessonSteps(work.activity.slug).map((s) => ({
+      id: s.id,
+      title: s.title,
+      short: s.short,
+      starter: s.starter,
+      questions: s.questions.map((q) => ({ id: q.id, text: q.text, choices: q.choices, correct: q.correct })),
+      fields: s.fields.map((f) => ({ id: f.id, label: f.label })),
+    }));
 
     return (
       <CorrectionWorkspace

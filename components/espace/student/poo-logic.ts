@@ -97,3 +97,40 @@ export function formatBytes(n: number): string {
   if (n < 1024 * 1024) return `${Math.round(n / 1024)} Ko`;
   return `${(n / (1024 * 1024)).toFixed(1).replace('.', ',')} Mo`;
 }
+
+// ─── Leçons : intercalation d'éléments dans le cours ────────────────────────
+
+export type LessonSegment =
+  | { kind: 'html'; html: string }
+  | { kind: 'q' | 'f' | 'fig'; id: string }
+  | { kind: 'code' };
+
+const TOKEN = /\{\{(?:(q|f|fig):([A-Za-z0-9_.-]+)|(code))\}\}/g;
+
+/** Découpe le HTML d'une leçon aux jetons `{{q:ID}}`, `{{f:ID}}`, `{{fig:ID}}`, `{{code}}`. */
+export function parseLesson(lesson: string): LessonSegment[] {
+  const out: LessonSegment[] = [];
+  let last = 0;
+  for (const m of lesson.matchAll(TOKEN)) {
+    const index = m.index ?? 0;
+    if (index > last) out.push({ kind: 'html', html: lesson.slice(last, index) });
+    out.push(m[3] ? { kind: 'code' } : { kind: m[1] as 'q' | 'f' | 'fig', id: m[2]! });
+    last = index + m[0].length;
+  }
+  if (last < lesson.length) out.push({ kind: 'html', html: lesson.slice(last) });
+  return out;
+}
+
+/** Éléments de l'étape qu'aucun jeton ne place : affichés après le cours (figures, questions, éditeur, champs). */
+export function unplaced<Q extends { id: string }, F extends { id: string }, G extends { id: string }>(
+  step: { questions: Q[]; fields: F[]; figures?: G[]; starter: string | null },
+  segments: readonly LessonSegment[],
+) {
+  const has = (kind: string, id?: string) => segments.some((s) => s.kind === kind && (id === undefined || (s as { id?: string }).id === id));
+  return {
+    figures: (step.figures ?? []).filter((f) => !has('fig', f.id)),
+    questions: step.questions.filter((q) => !has('q', q.id)),
+    code: step.starter !== null && !has('code'),
+    fields: step.fields.filter((f) => !has('f', f.id)),
+  };
+}

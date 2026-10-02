@@ -38,10 +38,14 @@ export const stepContentSchema = z
     fields: z.record(idKey, z.string().max(MAX_FIELD_CHARS)).optional(),
     choices: z.record(idKey, z.number().int().min(0).max(32)).optional(),
     tests: testResultSchema.optional(),
+    // Traces d'apprentissage (jamais une note) : essais par champ vérifié, champs résolus, aides ouvertes.
+    tries: z.record(idKey, z.number().int().min(0).max(999)).optional(),
+    solved: z.record(idKey, z.boolean()).optional(),
+    hints: z.number().int().min(0).max(64).optional(),
   })
   .strict()
   .superRefine((step, ctx) => {
-    if (Object.keys(step.fields ?? {}).length > MAX_ITEMS_PER_STEP || Object.keys(step.choices ?? {}).length > MAX_ITEMS_PER_STEP) {
+    if (Object.keys(step.fields ?? {}).length > MAX_ITEMS_PER_STEP || Object.keys(step.choices ?? {}).length > MAX_ITEMS_PER_STEP || Object.keys(step.tries ?? {}).length > MAX_ITEMS_PER_STEP || Object.keys(step.solved ?? {}).length > MAX_ITEMS_PER_STEP) {
       ctx.addIssue({ code: 'custom', message: 'Trop d’éléments dans l’étape' });
     }
   });

@@ -73,9 +73,9 @@ export const rosterSchema = z
             lastName: nameSchema,
             matchUserId: z.string().min(1).max(64).optional(),
             /**
-             * Autorise à marquer ACTIVÉ un compte élève existant dont l'activation par la famille est
-             * encore en attente. Décision explicite : le lien d'activation envoyé à la famille ne
-             * fonctionnera plus ensuite.
+             * Marque aussi ACTIVÉ un compte élève existant dont l'activation par la famille est encore en
+             * attente. Par défaut ce n'est PAS fait : l'espace n'a besoin que du code personnel, et le lien
+             * d'activation de la famille reste valable. À n'utiliser que sur décision explicite.
              */
             activatePending: z.boolean().optional(),
             enrollments: z.array(z.object({ group: slugSchema, subjects: z.array(subjectSchema).min(1) }).strict()).min(1),
@@ -211,13 +211,10 @@ export async function planProvisioning(db: Db, roster: Roster, options: PlanOpti
       conflicts.push(reason);
     } else {
       const m = matches[0]!;
-      const pendingStudent = p.kind === 'ELEVE' && m.role === 'ELEVE' && !m.activatedAt;
-      if (pendingStudent && !(p as { activatePending?: boolean }).activatePending) {
-        const reason = `${p.firstName} ${p.lastName} : compte existant en attente d'activation par la famille. L'adopter le marquerait activé et neutraliserait son lien d'activation : décision humaine requise (activatePending: true)`;
-        users.push({ ...base, action: 'CONFLICT', existingUserId: m.id, existingRole: m.role, reason });
-        conflicts.push(reason);
-        continue;
-      }
+      // Élève dont l'activation FAMILIALE est en attente : on lui ajoute un identifiant et un code d'espace
+      // sans toucher à son activation (son lien d'activation reste valable). Seul `activatePending: true`,
+      // décision écrite, la marque aussi activée.
+      const pendingStudent = p.kind === 'ELEVE' && m.role === 'ELEVE' && !m.activatedAt && (p as { activatePending?: boolean }).activatePending === true;
       users.push({
         ...base,
         action: options.adopt ? 'ADOPT' : 'NEEDS_ADOPT_FLAG',
@@ -246,6 +243,8 @@ export interface IssuedCredential {
   kind: 'ELEVE' | 'COACH';
   /** Code personnel (élève) ou mot de passe initial (enseignant créé). Renvoyé UNE fois. */
   secret: string;
+  /** Prénom NOM, pour le fichier privé de distribution. */
+  displayName?: string;
 }
 
 export async function syncActivities(db: Db): Promise<number> {
@@ -293,7 +292,7 @@ export async function applyProvisioning(
               where: { id: u.existingUserId! },
               data: { pinHash: await hashPin(pin), pinSetAt: now, ...(u.willActivate ? { activatedAt: now } : {}) },
             });
-            credentials.push({ username: u.username, kind: 'ELEVE', secret: pin });
+            credentials.push({ username: u.username, kind: 'ELEVE', secret: pin, displayName: `${u.firstName} ${u.lastName}` });
           }
           continue;
         }
@@ -305,7 +304,7 @@ export async function applyProvisioning(
             select: { id: true },
           });
           idByUsername.set(u.username, created.id);
-          credentials.push({ username: u.username, kind: 'ELEVE', secret: pin });
+          credentials.push({ username: u.username, kind: 'ELEVE', secret: pin, displayName: `${u.firstName} ${u.lastName}` });
         } else {
           const bcrypt = (await import('bcryptjs')).default;
           const initial = randomBytes(15).toString('base64url');
@@ -314,7 +313,7 @@ export async function applyProvisioning(
             select: { id: true },
           });
           idByUsername.set(u.username, created.id);
-          credentials.push({ username: u.username, kind: 'COACH', secret: initial });
+          credentials.push({ username: u.username, kind: 'COACH', secret: initial, displayName: `${u.firstName} ${u.lastName}` });
         }
       }
 

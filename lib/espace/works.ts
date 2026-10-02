@@ -15,7 +15,7 @@ import { Prisma, type EspaceVersionReason, type EspaceWorkStatus } from '@prisma
 import { prisma } from '@/lib/prisma';
 
 import { loadWorkForActor, isStudentEnrolled, type WorkWithActivity } from './access';
-import { getActivityDef, getPooContent, getPooRequiredSteps, POO_ACTIVITY_SLUG } from './catalog';
+import { getActivityDef, getLessonRequiredSteps, getLessonSteps, POO_ACTIVITY_SLUG } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
 import {
@@ -74,7 +74,7 @@ export function toWorkDto(work: WorkWithActivity): WorkDto {
 }
 
 function stepDefsFor(activitySlug: string) {
-  return activitySlug === POO_ACTIVITY_SLUG ? getPooContent().steps : [];
+  return getLessonSteps(activitySlug);
 }
 
 function conflict(work: WorkWithActivity): EspaceError {
@@ -191,7 +191,7 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
   const { work } = await loadWorkForActor(actor, workId, 'student');
 
   const defs = stepDefsFor(work.activity.slug);
-  if (work.activity.kind !== 'PYTHON_TP' || defs.length === 0) {
+  if (defs.length === 0) {
     throw new EspaceError('INVALID_INPUT', 'Cette activité ne s’enregistre pas par étapes');
   }
 
@@ -345,7 +345,7 @@ export async function reviewWork(actor: EspaceActor, workId: string, action: Rev
 }
 
 export function requiredStepCount(): number {
-  return getPooRequiredSteps().length;
+  return getLessonRequiredSteps(POO_ACTIVITY_SLUG).length;
 }
 
 export { getActivityDef };

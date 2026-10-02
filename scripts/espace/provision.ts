@@ -39,8 +39,8 @@ async function openCredentialsFile(target: string | undefined) {
 }
 
 async function writeCredentials(file: Awaited<ReturnType<typeof openCredentialsFile>>, list: IssuedCredential[]) {
-  const lines = list.map((c) => `${c.username};${c.kind === 'ELEVE' ? formatPin(c.secret) : c.secret}`);
-  await file.handle.writeFile(`# username;secret — à transmettre hors dépôt puis détruire\n${lines.join('\n')}\n`);
+  const lines = list.map((c) => `${c.displayName ?? ''};${c.username};${c.kind === 'ELEVE' ? formatPin(c.secret) : c.secret}`);
+  await file.handle.writeFile(`# nom;identifiant;code personnel (élève) ou mot de passe initial (enseignant créé) — à transmettre hors dépôt puis détruire\n${lines.join('\n')}\n`);
   await file.handle.close();
 }
 

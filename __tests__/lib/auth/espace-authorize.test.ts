@@ -67,9 +67,9 @@ describe('authorizeEspaceCredentials — élève', () => {
     expect(await authorizeEspaceCredentials({ username: 'adam.c', secret: PIN })).toBeNull();
   });
 
-  it('refuse un compte élève non activé', async () => {
+  it('accepte un élève dont l’activation familiale est encore en attente (le code personnel suffit)', async () => {
     findUnique.mockResolvedValue(row({ activatedAt: null }));
-    expect(await authorizeEspaceCredentials({ username: 'adam.c', secret: PIN })).toBeNull();
+    expect(await authorizeEspaceCredentials({ username: 'adam.c', secret: PIN })).toMatchObject({ id: 'u1', role: 'ELEVE' });
   });
 
   it('refuse un compte fusionné', async () => {
