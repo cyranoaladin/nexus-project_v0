@@ -1,11 +1,14 @@
 /**
- * Construit les corrigés enseignants (PDF privés) à partir des sources de `docs/espace/corriges/`.
+ * Construit les corrigés enseignants (HTML autonome + PDF privé) à partir des sources de `docs/espace/corriges/`.
  *
  *   npx tsx scripts/espace/build-corriges.ts [--out build/espace-corriges] [--only <module>]
  *
- * Sortie : <out>/<module>/corrige.pdf et <out>/<module>/MANIFEST.json (empreinte + taille) ;
- * ce manifeste est celui que `install-resources.ts` vérifie avant toute copie en stockage privé.
- * Les PDF ne sont JAMAIS committés ni servis publiquement.
+ * Modules : `poo-structures` (TP POO 2) et `fonctions-limites` (Maths) — mêmes noms que `install-resources.ts --module`.
+ * Sortie : <out>/<module>/corrige.html, corrige.pdf et MANIFEST.json (empreinte + taille de chaque fichier) ;
+ * c'est ce manifeste que `install-resources.ts` vérifie avant toute copie en stockage privé.
+ *   - corrige.html : autonome (KaTeX et polices incorporés, figures SVG incluses), sans aucune requête réseau ;
+ *   - corrige.pdf  : A4, fonds imprimés (Chromium via Playwright).
+ * Ces fichiers ne sont JAMAIS committés ni servis publiquement.
  */
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -14,49 +17,60 @@ import { parseArgs } from 'node:util';
 
 import { chromium } from 'playwright-core';
 
-import { CORRIGE_CSS, renderCorrigeBody } from '@/lib/espace/corrige-render';
-import type { LessonContent } from '@/lib/espace/lesson-types';
+import { CORRIGE_CSS, renderCorrigeBody } from '../../lib/espace/corrige-render';
+import type { LessonContent } from '../../lib/espace/lesson-types';
+
+import { katexInlineCss } from './katex-inline-css';
 
 interface CorrigeModule {
-  slug: string;
+  module: string;
   title: string;
   content: string;
   source: string;
 }
 
-const MODULES: CorrigeModule[] = [
+export const CORRIGE_MODULES: CorrigeModule[] = [
   {
-    slug: 'maths-fonctions-limites',
+    module: 'fonctions-limites',
     title: 'Corrigé enseignant — Fonctions, limites et lecture graphique',
     content: 'content/espace/maths-fonctions-limites/content.json',
     source: 'docs/espace/corriges/maths-limites/corrige.html',
   },
   {
-    slug: 'nsi-structures-lineaires',
-    title: 'Corrigé enseignant — TP POO 2 : Structures linéaires',
+    module: 'poo-structures',
+    title: 'Corrigé enseignant — TP POO 2 : Listes, piles et files',
     content: 'content/espace/nsi-structures-lineaires/content.json',
     source: 'docs/espace/corriges/nsi-poo2/corrige.html',
   },
 ];
 
-const root = process.cwd();
+const root = path.resolve(__dirname, '..', '..');
 const sha = (buf: Buffer) => createHash('sha256').update(buf).digest('hex');
+/** Les espaces de noms XML sont des URL inutiles dans un document HTML : on les retire pour un fichier sans lien externe. */
+const stripXmlns = (s: string) => s.replace(/\sxmlns="http:\/\/www\.w3\.org\/[^"]*"/g, '');
+
+export async function renderCorrigeHtml(mod: CorrigeModule, content: LessonContent, css: string): Promise<string> {
+  const source = await readFile(path.join(root, mod.source), 'utf8');
+  const body = renderCorrigeBody(source, content);
+  return stripXmlns(`<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${mod.title}</title>
+<style>${css}</style><style>${CORRIGE_CSS}</style></head><body>${body}
+<p class="footer-note">Document privé — Nexus Réussite. Réservé à l’enseignant ; ne pas diffuser aux élèves. Version du parcours : ${content.version}.</p></body></html>
+`);
+}
 
 async function main() {
   const { values } = parseArgs({ options: { out: { type: 'string', default: 'build/espace-corriges' }, only: { type: 'string' } } });
-  const out = path.resolve(root, values.out as string);
-  const katexDist = path.join(root, 'node_modules', 'katex', 'dist');
-  const katexCss = await readFile(path.join(katexDist, 'katex.min.css'), 'utf8');
+  const out = path.resolve(process.cwd(), values.out as string);
+  const modules = CORRIGE_MODULES.filter((m) => !values.only || m.module === values.only);
+  if (modules.length === 0) throw new Error(`Module inconnu : ${values.only} (attendu : ${CORRIGE_MODULES.map((m) => m.module).join(', ')})`);
+  const css = await katexInlineCss(root);
 
   const browser = await chromium.launch();
   try {
-    for (const mod of MODULES.filter((m) => !values.only || m.slug === values.only)) {
+    for (const mod of modules) {
       const content = JSON.parse(await readFile(path.join(root, mod.content), 'utf8')) as LessonContent;
-      const source = await readFile(path.join(root, mod.source), 'utf8');
-      const body = renderCorrigeBody(source, content);
-      const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><base href="file://${katexDist}/"><title>${mod.title}</title>
-<style>${katexCss}</style><style>${CORRIGE_CSS}</style></head><body>${body}
-<p class="footer-note">Document privé — Nexus Réussite. Réservé à l’enseignant ; ne pas diffuser aux élèves. Version du parcours : ${content.version}.</p></body></html>`;
+      const html = await renderCorrigeHtml(mod, content, css);
 
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'load' });
@@ -72,24 +86,31 @@ async function main() {
       });
       await page.close();
 
-      const dir = path.join(out, mod.slug);
+      const dir = path.join(out, mod.module);
       await mkdir(dir, { recursive: true });
-      const buf = Buffer.from(pdf);
-      await writeFile(path.join(dir, 'corrige.pdf'), buf, { mode: 0o640 });
+      const htmlBuf = Buffer.from(html, 'utf8');
+      const pdfBuf = Buffer.from(pdf);
+      await writeFile(path.join(dir, 'corrige.html'), htmlBuf, { mode: 0o640 });
+      await writeFile(path.join(dir, 'corrige.pdf'), pdfBuf, { mode: 0o640 });
       const manifest = {
-        module: mod.slug,
+        module: mod.module,
         content_version: content.version,
-        teacher_resources: [{ internal_name: 'corrige.pdf', sha256: sha(buf), bytes: buf.length }],
+        teacher_resources: [
+          { internal_name: 'corrige.pdf', sha256: sha(pdfBuf), bytes: pdfBuf.length },
+          { internal_name: 'corrige.html', sha256: sha(htmlBuf), bytes: htmlBuf.length },
+        ],
       };
-      await writeFile(path.join(dir, 'MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n');
-      process.stdout.write(`${mod.slug} : corrige.pdf ${buf.length} octets, sha256 ${manifest.teacher_resources[0].sha256.slice(0, 16)}…\n`);
+      await writeFile(path.join(dir, 'MANIFEST.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+      process.stdout.write(`${mod.module} : corrige.pdf ${pdfBuf.length} o (sha256 ${manifest.teacher_resources[0]!.sha256.slice(0, 16)}…), corrige.html ${htmlBuf.length} o\n`);
     }
   } finally {
     await browser.close();
   }
 }
 
-main().catch((e) => {
-  process.stderr.write(`ERREUR : ${e instanceof Error ? e.message : 'inconnue'}\n`);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((e) => {
+    process.stderr.write(`ERREUR : ${e instanceof Error ? e.message : 'inconnue'}\n`);
+    process.exitCode = 1;
+  });
+}

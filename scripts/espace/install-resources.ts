@@ -2,7 +2,7 @@
  * Installe les PDF privés d'un module dans le stockage privé, en vérifiant
  * chaque empreinte contre le manifeste d'origine. Dry-run par défaut.
  *
- *   npx tsx scripts/espace/install-resources.ts --from /chemin/resources --module suites|fonctions-limites|structures [--execute]
+ *   npx tsx scripts/espace/install-resources.ts --from /chemin/resources --module suites|fonctions-limites|poo-structures [--execute]
  *
  * Destination : <DOCUMENT_STORAGE_ROOT>/espace/resources/<module>/ (jamais public).
  * Un fichier existant d'empreinte identique est laissé tel quel ; d'empreinte
@@ -14,14 +14,16 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
-import { getActivityDef } from '@/lib/espace/catalog';
+import { getActivityDef, MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG } from '@/lib/espace/catalog';
 
 /** `manifest` : fichier d'empreintes attendu dans --from (Suites : manifeste d'origine ; corrigés : celui de build-corriges.ts). */
 const MODULES: Record<string, { slug: string; manifest: string }> = {
-  suites: { slug: 'maths-suites-synthese', manifest: 'MATHS_RESOURCES_MANIFEST.json' },
-  'fonctions-limites': { slug: 'maths-fonctions-limites', manifest: 'MANIFEST.json' },
-  structures: { slug: 'nsi-structures-lineaires', manifest: 'MANIFEST.json' },
+  suites: { slug: MATHS_SUITES_ACTIVITY_SLUG, manifest: 'MATHS_RESOURCES_MANIFEST.json' },
+  'fonctions-limites': { slug: MATHS_LIMITES_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
+  'poo-structures': { slug: POO2_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
 };
+// Ancien nom du brouillon : conservé comme alias de `poo-structures`.
+MODULES.structures = MODULES['poo-structures']!;
 
 function fail(message: string): never {
   process.stderr.write(`ERREUR : ${message}\n`);
