@@ -2,7 +2,7 @@
  * Installe les PDF privés d'un module dans le stockage privé, en vérifiant
  * chaque empreinte contre le manifeste d'origine. Dry-run par défaut.
  *
- *   npx tsx scripts/espace/install-resources.ts --from /chemin/resources --module suites [--execute]
+ *   npx tsx scripts/espace/install-resources.ts --from /chemin/resources --module suites|fonctions-limites|structures [--execute]
  *
  * Destination : <DOCUMENT_STORAGE_ROOT>/espace/resources/<module>/ (jamais public).
  * Un fichier existant d'empreinte identique est laissé tel quel ; d'empreinte
@@ -16,7 +16,12 @@ import { parseArgs } from 'node:util';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { getActivityDef } from '@/lib/espace/catalog';
 
-const MODULES: Record<string, string> = { suites: 'maths-suites-synthese' };
+/** `manifest` : fichier d'empreintes attendu dans --from (Suites : manifeste d'origine ; corrigés : celui de build-corriges.ts). */
+const MODULES: Record<string, { slug: string; manifest: string }> = {
+  suites: { slug: 'maths-suites-synthese', manifest: 'MATHS_RESOURCES_MANIFEST.json' },
+  'fonctions-limites': { slug: 'maths-fonctions-limites', manifest: 'MANIFEST.json' },
+  structures: { slug: 'nsi-structures-lineaires', manifest: 'MANIFEST.json' },
+};
 
 function fail(message: string): never {
   process.stderr.write(`ERREUR : ${message}\n`);
@@ -28,15 +33,16 @@ const sha = async (file: string) => createHash('sha256').update(await readFile(f
 async function main() {
   const { values } = parseArgs({ options: { from: { type: 'string' }, module: { type: 'string' }, execute: { type: 'boolean', default: false } } });
   if (!values.from || !values.module) fail('--from et --module sont obligatoires');
-  const slug = MODULES[values.module];
-  const def = slug ? getActivityDef(slug) : undefined;
+  const mod = MODULES[values.module];
+  const def = mod ? getActivityDef(mod.slug) : undefined;
   if (!def) fail(`Module inconnu : ${values.module}`);
 
-  const manifest = JSON.parse(await readFile(path.join(values.from, 'MATHS_RESOURCES_MANIFEST.json'), 'utf8')) as {
-    student_resource: { internal_name: string; sha256: string; bytes: number };
+  const manifest = JSON.parse(await readFile(path.join(values.from, mod!.manifest), 'utf8')) as {
+    student_resource?: { internal_name: string; sha256: string; bytes: number };
     teacher_resources: { internal_name: string; sha256: string; bytes: number }[];
   };
-  const expected = new Map([manifest.student_resource, ...manifest.teacher_resources].map((r) => [r.internal_name, r]));
+  const listed = [...(manifest.student_resource ? [manifest.student_resource] : []), ...manifest.teacher_resources];
+  const expected = new Map(listed.map((r) => [r.internal_name, r]));
   const dest = path.join(getDocumentStorageRoot(), 'espace', 'resources', def.moduleSlug);
 
   for (const resource of def.resources) {
