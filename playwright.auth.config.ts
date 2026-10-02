@@ -25,6 +25,8 @@ export default defineConfig({
     'pending-parent-lifecycle.spec.ts',
     'bilan-golden-path.spec.ts',
     'bilan-worker-autonomous.spec.ts',
+    // Espace pédagogique Terminale (élèves + enseignant) : parcours complets, isolation, a11y.
+    'espace-terminale.spec.ts',
     // Planning Studio : ces specs exigent le VRAI middleware (redirections de
     // role, protection des assets). Elles vivent donc dans la voie
     // authentifiee, qui demarre l'application en standalone, et non dans la
