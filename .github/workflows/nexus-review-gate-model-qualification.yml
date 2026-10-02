@@ -62,6 +62,27 @@ jobs:
           tar -xzf "$REVIEW_GATE_TEMP/runtime.tar.gz" -C "$REVIEW_GATE_TEMP"
           test -x "$REVIEW_GATE_TEMP/llama-b10977/llama-cli"
 
+      - name: Diagnose model invocation with synthetic prompt
+        run: |
+          set -euo pipefail
+          synthetic_log="$REVIEW_GATE_TEMP/synthetic-smoke.log"
+          set +e
+          printf '%s' 'Review only this synthetic input and return an empty JSON review.' | \
+            timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-cli" \
+              -m "$REVIEW_GATE_TEMP/model.gguf" -c 2048 -t 4 -n 32 \
+              --temp 0 --top-k 1 \
+              --json-schema-file scripts/github/review-gate/qualification/review-output.schema.json \
+              --no-display-prompt --simple-io -st \
+              > "$synthetic_log" 2>&1
+          synthetic_status=$?
+          set -e
+          if [ "$synthetic_status" -ne 0 ]; then
+            echo "MODEL_SYNTHETIC_SMOKE=FAIL exit=$synthetic_status"
+            rg -i 'error|failed|invalid|unknown|exited' "$synthetic_log" | head -n 12 || true
+            exit 1
+          fi
+          echo 'MODEL_SYNTHETIC_SMOKE=PASS'
+
       - name: Run bounded three-pass historical benchmark
         env:
           REVIEW_GATE_REPORT_PATH: ${{ runner.temp }}/review-gate-model-report.json

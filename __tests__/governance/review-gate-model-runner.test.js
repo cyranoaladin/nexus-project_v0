@@ -20,6 +20,8 @@ describe('trusted three-pass local semantic review', () => {
     for (const call of calls) {
       expect(call.command).toBe('/tmp/verified/llama-cli');
       expect(call.args).not.toContain('@@ -1 +1 @@');
+      expect(call.args).not.toContain('-f');
+      expect(call.args).not.toContain('/dev/stdin');
       expect(call.args).toContain('/trusted/review-schema.json');
       expect(call.prompt).toContain('app/page.tsx');
       expect(call.prompt).toContain('@@ -1 +1 @@');

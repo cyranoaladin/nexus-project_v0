@@ -41,7 +41,7 @@ export async function runThreePassReview({ headSha, files, modelPath, binaryPath
     const result = await runProcess({ command: binaryPath,
       args: ['-m', modelPath, '-c', String(contextTokens), '-t', '4', '-n', '512',
         '--temp', '0', '--top-k', '1', '--json-schema-file', schemaPath,
-        '--no-display-prompt', '--simple-io', '--log-disable', '-st', '-f', '/dev/stdin'],
+        '--no-display-prompt', '--simple-io', '-st'],
       prompt: promptFor(pass, headSha, files), timeoutMs: 120_000 });
     if (result?.ok !== true || typeof result.stdout !== 'string') {
       const safeReason = new Set(['MODEL_TIMEOUT', 'MODEL_MISSING_RUNTIME_LIBRARY',

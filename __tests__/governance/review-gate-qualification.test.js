@@ -2,6 +2,7 @@ const { mkdtempSync, readFileSync, rmSync, writeFileSync } = require('node:fs');
 const { join, resolve } = require('node:path');
 const { tmpdir } = require('node:os');
 const { execFileSync } = require('node:child_process');
+const yaml = require('yaml');
 
 let qualification;
 const root = resolve(__dirname, '../..');
@@ -89,6 +90,15 @@ describe('historical semantic qualification corpus', () => {
 });
 
 describe('frozen metrics and fail-closed qualification', () => {
+  test('the hosted comparison first exercises a bounded synthetic model invocation', () => {
+    const workflow = yaml.parse(readFileSync(resolve(root,
+      '.github/workflows/nexus-review-gate-model-qualification.yml'), 'utf8'));
+    const diagnostic = workflow.jobs['compare-models'].steps.find((step) =>
+      step.name === 'Diagnose model invocation with synthetic prompt');
+    expect(diagnostic.run).toContain('timeout 120');
+    expect(diagnostic.run).toContain('MODEL_SYNTHETIC_SMOKE=');
+    expect(diagnostic.run).not.toContain('github.event.pull_request.body');
+  });
   test('thresholds are versioned and fixed before model execution', () => {
     const policy = qualification.validateThresholds(JSON.parse(readFileSync(policyPath, 'utf8')));
     expect(policy.minimumBlockingCases).toBeGreaterThanOrEqual(20);

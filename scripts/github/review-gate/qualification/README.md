@@ -38,11 +38,15 @@ runner exercises all 40 historical refs with full history and fails if any is
 unavailable; neither lane silently skips a missing ref. No model or inference
 binary is downloaded or run by the unit harness.
 
-The first hosted comparison on PR head `61ddbefc1b4c47091e85dc234f2b84b714e7340c`
-(run `37072902396`, attempt 1) completed both jobs but qualified neither
-candidate. Qwen 7B produced 40/40 malformed outcomes; Granite 3B produced
-34 malformed and six unsupported outcomes. Recall was zero for both. Those
-are failure measurements, not semantic-review evidence. A follow-up diagnostic
-records only fixed error categories (never model stderr, PR text or output)
-to locate the model execution failure. The corpus still requires independent
-vetting and held-out evaluation regardless of that diagnosis.
+Hosted comparisons on PR heads `61ddbefc1b4c47091e85dc234f2b84b714e7340c`
+(run `37072902396`) and `640989ff4c3ec49b6837c60ccfd5a8f72352e3d8`
+(run `37073620315`), both attempt 1, qualified neither candidate. In the
+second run Qwen 7B had 40/40 `MODEL_PROCESS_FAILED`; Granite 3B had 34 of
+those plus six `DIFF_UNSUPPORTED`. Both recalls were zero. A local reproduction
+with the exact pinned llama.cpp binary and synthetic input showed that its
+`-f /dev/stdin` argument fails with `failed to open file '/dev/stdin'` under
+the Node subprocess transport. The corrected invocation keeps the prompt on
+stdin without that argument, and a negative local probe now reaches the
+expected model-load stage. A fresh hosted measurement is still required.
+These failures are not semantic-review evidence. The corpus also still
+requires independent vetting and held-out evaluation regardless of transport.
