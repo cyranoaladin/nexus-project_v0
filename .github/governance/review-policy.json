@@ -13,6 +13,7 @@
       "/.github/workflows/governance-live-audit.yml",
       "/.github/workflows/nexus-review-gate-proof.yml",
       "/.github/workflows/nexus-review-gate.yml",
+      "/.github/workflows/nexus-review-gate-model-qualification.yml",
       "/.github/workflows/preview-artifact.yml",
       "/scripts/github/**",
       "/scripts/github/review-gate/**",
@@ -37,8 +38,8 @@
   },
   "autoMerge": {
     "current": {
-      "allowAutoMerge": false,
-      "allowUpdateBranch": false,
+      "allowAutoMerge": true,
+      "allowUpdateBranch": true,
       "deleteBranchOnMerge": false
     },
     "desired": {
@@ -52,7 +53,7 @@
       "bypassActors stays empty",
       "auto-merge only merges once every required gate is already satisfied; it never lowers a gate"
     ],
-    "agentArmingTool": "scripts/github/arm-auto-merge.mjs",
+    "agentArmingTool": "scripts/github/review-gate/automation-entry.mjs",
     "agentLoop": [
       "agent codes",
       "agent runs tests",

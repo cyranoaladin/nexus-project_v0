@@ -1,0 +1,103 @@
+# Trusted default-branch workflow. PR code/diffs are API data, never executable.
+# Until a locally benchmarked model is explicitly qualified, its App check
+# finishes action_required and is not a substitute for human review.
+name: Nexus Review Gate
+
+on:
+  workflow_run:
+    workflows: ['CI Pipeline']
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+  checks: read
+  statuses: read
+  pull-requests: read
+
+jobs:
+  evaluate:
+    name: Evaluate exact PR head
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    # Qualified model assets are checksum-verified before inference; three
+    # inference passes each have their own 120-second process deadline.
+    timeout-minutes: 40
+    outputs:
+      conclusion: ${{ steps.gate.outputs.conclusion }}
+      pr_number: ${{ steps.gate.outputs.pr_number }}
+      head_sha: ${{ steps.gate.outputs.head_sha }}
+      check_run_id: ${{ steps.gate.outputs.check_run_id }}
+    steps:
+      - name: Refuse untrusted workflow context before App credential use
+        env:
+          TRUSTED_REF: ${{ github.ref }}
+          REPOSITORY: ${{ github.repository }}
+          APP_ID: ${{ vars.NEXUS_REVIEW_GATE_APP_ID }}
+          UPSTREAM_WORKFLOW_ID: ${{ github.event.workflow_run.workflow_id }}
+          UPSTREAM_WORKFLOW_PATH: ${{ github.event.workflow_run.path }}
+          UPSTREAM_EVENT: ${{ github.event.workflow_run.event }}
+          UPSTREAM_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [ "$TRUSTED_REF" != 'refs/heads/main' ] || \
+             [ "$REPOSITORY" != 'cyranoaladin/nexus-project_v0' ] || \
+             [ "$APP_ID" != '5166727' ] || \
+             [ "$UPSTREAM_WORKFLOW_ID" != '185409165' ] || \
+             [ "$UPSTREAM_WORKFLOW_PATH" != '.github/workflows/ci.yml' ] || \
+             [ "$UPSTREAM_EVENT" != 'pull_request' ] || \
+             [[ ! "$UPSTREAM_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'UNTRUSTED_WORKFLOW_CONTEXT'
+            exit 1
+          fi
+
+      - name: Checkout exact trusted main definition
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Create repository-scoped App token for Check Runs only
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.NEXUS_REVIEW_GATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.NEXUS_REVIEW_GATE_APP_PRIVATE_KEY }}
+          permission-checks: write
+
+      - name: Evaluate read-only evidence and publish App-owned verdict
+        id: gate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_INSTALLATION_ID: ${{ steps.app-token.outputs.installation-id }}
+          NEXUS_REVIEW_GATE_APP_ID: ${{ vars.NEXUS_REVIEW_GATE_APP_ID }}
+        run: node scripts/github/review-gate/workflow-entry.mjs
+
+  automate:
+    name: Update safe branch or arm protected auto-merge
+    needs: evaluate
+    if: needs.evaluate.outputs.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      statuses: read
+      pull-requests: write
+    steps:
+      - name: Checkout exact trusted main definition without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Recheck App source and exact head before branch or merge request
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GATE_PR_NUMBER: ${{ needs.evaluate.outputs.pr_number }}
+          GATE_EXPECTED_HEAD_SHA: ${{ needs.evaluate.outputs.head_sha }}
+          GATE_CHECK_RUN_ID: ${{ needs.evaluate.outputs.check_run_id }}
+        run: node scripts/github/review-gate/automation-entry.mjs

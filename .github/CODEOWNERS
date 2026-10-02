@@ -5,6 +5,7 @@
 /.github/workflows/governance-live-audit.yml @abenrhouma @adammeg
 /.github/workflows/nexus-review-gate-proof.yml @abenrhouma @adammeg
 /.github/workflows/nexus-review-gate.yml @abenrhouma @adammeg
+/.github/workflows/nexus-review-gate-model-qualification.yml @abenrhouma @adammeg
 /.github/workflows/preview-artifact.yml @abenrhouma @adammeg
 /scripts/github/** @abenrhouma @adammeg
 /scripts/github/review-gate/** @abenrhouma @adammeg

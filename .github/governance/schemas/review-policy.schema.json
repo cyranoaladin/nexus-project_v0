@@ -81,7 +81,7 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
-        "agentArmingTool": { "const": "scripts/github/arm-auto-merge.mjs" },
+        "agentArmingTool": { "const": "scripts/github/review-gate/automation-entry.mjs" },
         "agentLoop": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 }

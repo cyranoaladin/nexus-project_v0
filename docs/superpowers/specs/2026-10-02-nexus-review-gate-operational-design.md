@@ -1,0 +1,23 @@
+# Nexus Review Gate — operational bootstrap design
+
+Date: 2026-10-02. Owner specification: operationalize the App-owned proof without changing the live ruleset or treating deterministic CI as semantic review.
+
+## Trust and verdict
+
+The existing private App (ID 5166727) remains a checks-only publisher. A `workflow_run` definition loaded from trusted `main` validates the upstream CI workflow identity before obtaining the App token, then validates PR association and exact head/base through read-only API calls. It never checks out or executes PR content. Native `GITHUB_TOKEN` performs bounded reads; the installation token is used only for check writes. Evaluation inputs record PR number, base/head SHA and UTC start time. Immediately before any success publication, mutable PR state and all gate evidence are reread. An uncertain, stale or unreviewed state cannot succeed.
+
+The required-check evaluator obtains the live ruleset, validates each required context and expected App producer on the exact head, and excludes only its own `Nexus Review Gate` context to avoid a self-dependency. GitHub review threads and exact-head applicable blocking reviews are checked separately. Mergeability, complete diff pagination and bounded patch availability fail closed.
+
+Risk classification is versioned as NORMAL, SENSITIVE and UNCLASSIFIED. Governance, gate, privileged workflow, production deploy access, credential policy and destructive data changes are sensitive. Sensitive PRs require an APPROVED review by a versioned authorized human whose `commit_id` equals the current PR head; a changed head invalidates this evidence. UNCLASSIFIED requires human attention but remains `action_required` until the diff is classifiable and reviewable; an approval alone cannot make an unknown patch pass. CODEOWNERS becomes selective for justified surfaces, but the live ruleset continues to require one approval until a separate, proven transition.
+
+## Semantic review boundary
+
+At least one ~3B and one ~7B openly licensed coder GGUF are compared on a historical corpus, with held-out incident families and benign controls required before authority. Model bytes and the inference runtime are pinned by revision and SHA-256, and the runner validates their bytes before execution. Three bounded prompts address correctness, security/data integrity and runtime/provenance. Each output is parsed against a strict schema; malformed, timed-out, incomplete or blocking output cannot authorize success. Thresholds are frozen before measurement. The corpus currently remains `UNVETTED`; the ~3B candidate is expected to reject several inputs under its context bound. No model is yet qualified. The gate therefore publishes `action_required`, never success, until a reviewed authority record binds the actual model, bundle and benchmark report. A model that fails qualification is advisory only and the future zero-approval ruleset transition is refused.
+
+Initial qualification thresholds: all deterministic P0/P1 guards pass; semantic blocking recall at least 90% overall and 100% on known security/governance cases; false-positive rate at most 5%; malformed-output and timeout rates each at most 1%; p95 three-pass review at most 8 minutes on the standard public GitHub runner for a supported diff; unsupported or larger diffs require action. These are acceptance thresholds, not claims of achieved performance.
+
+Cubic is supplementary only: neutral/quota and success-without-review are not semantic attestations. Any unresolved review thread still blocks. Auto-merge uses MERGE only after the App-owned gate and remaining checks succeed; its separate job rereads deterministic/review evidence immediately before arming. Safe branch update requires an exact expected head, advanced base and conflict-free merge, then triggers fresh CI/review. A later out-of-band review change can outlive a head-bound successful check; native thread protection and a fresh final check narrow but do not eliminate this race. A zero-approval transition requires an explicit review of that residual risk and a successful canary. No live ruleset change occurs in this PR.
+
+## Deployment sequence and rollback
+
+Operational draft PR under current one-human-approval ruleset → independent corpus vetting and standard-runner model benchmark → select a model only if thresholds and held-out proof pass → final PR CI and human bootstrap approval → merge/post-merge CI → trusted gate from `main` → exact-head canary → governance dry-run and separate authorized apply. An unsuccessful model qualification or canary leaves the live ruleset untouched. Preview, production, V5 and AI-generation infrastructure are outside this bootstrap.
