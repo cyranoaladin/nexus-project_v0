@@ -2,6 +2,9 @@
  * Contenu « Fonctions, limites et lecture graphique » : invariants de structure
  * + vérification MATHÉMATIQUE des réponses attendues (calcul numérique indépendant du texte).
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import content from '@/content/espace/maths-fonctions-limites/content.json';
 import { evaluateAnswer } from '@/lib/espace/answer-check';
 import { derivativeAt, evalFunction } from '@/lib/espace/figures/function-svg';
@@ -114,8 +117,7 @@ describe('structure', () => {
 
   it('aucune balise HTML hors du champ `lesson` (le reste est affiché comme texte)', () => {
     for (const s of lesson.steps) {
-      const { lesson: _l, ...rest } = s;
-      expect(JSON.stringify(rest)).not.toMatch(/<\/?[a-z]/i);
+      expect(JSON.stringify({ ...s, lesson: '' })).not.toMatch(/<\/?[a-z]/i);
     }
   });
 
@@ -277,11 +279,7 @@ describe('figures du parcours', () => {
 });
 
 describe('corrigé enseignant (source)', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const html: string = require('fs').readFileSync(
-    require('path').join(process.cwd(), 'docs/espace/corriges/maths-limites/corrige.html'),
-    'utf8',
-  );
+  const html = readFileSync(join(process.cwd(), 'docs/espace/corriges/maths-limites/corrige.html'), 'utf8');
   it('chaque marqueur FIG désigne une figure du contenu, et toutes les figures sont couvertes', () => {
     const ids = new Set(lesson.steps.flatMap((s) => (s.figures ?? []).map((f) => f.id)));
     const marks = [...html.matchAll(/<!--FIG:([\w-]+?)-->/g)].map((m) => m[1]);
