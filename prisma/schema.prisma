@@ -4523,7 +4523,9 @@ model EspaceWorkVersion {
   content   Json
   createdAt DateTime            @default(now())
 
-  @@unique([workId, revision])
+  // Un instantané par (révision, motif) : une remise ou une correction ne change
+  // pas le contenu, donc partage la révision du dernier enregistrement.
+  @@unique([workId, revision, reason])
   @@index([workId, createdAt])
   @@map("espace_work_versions")
 }

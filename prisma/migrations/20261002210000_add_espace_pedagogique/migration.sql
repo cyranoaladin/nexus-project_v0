@@ -247,7 +247,7 @@ CREATE UNIQUE INDEX "espace_works_studentId_activityId_key" ON "espace_works"("s
 CREATE INDEX "espace_work_versions_workId_createdAt_idx" ON "espace_work_versions"("workId", "createdAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "espace_work_versions_workId_revision_key" ON "espace_work_versions"("workId", "revision");
+CREATE UNIQUE INDEX "espace_work_versions_workId_revision_reason_key" ON "espace_work_versions"("workId", "revision", "reason");
 
 -- CreateIndex
 CREATE INDEX "espace_annotations_workId_createdAt_idx" ON "espace_annotations"("workId", "createdAt");

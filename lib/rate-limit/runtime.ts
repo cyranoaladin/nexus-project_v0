@@ -25,6 +25,15 @@ export const RateLimitPresets = {
   notifyEmail: { limit: 5, windowMs: 60 * 60_000 },
   api: { limit: 60, windowMs: 60_000 },
   public: { limit: 200, windowMs: 60_000 },
+  // Espace pédagogique : une classe entière partage souvent une même IP (box,
+  // NAT d'établissement). Le plafond par IP est donc plus large que authIp ;
+  // la protection contre le devinage reste portée par l'identifiant (authIdentity).
+  espaceLoginIp: { limit: 150, windowMs: 15 * 60_000 },
+  // Autosave : ~1 écriture/s en pointe par élève (debounce côté client).
+  espaceSaveIdentity: { limit: 240, windowMs: 60_000 },
+  espaceSaveIp: { limit: 1500, windowMs: 60_000 },
+  espaceUploadIdentity: { limit: 30, windowMs: 60 * 60_000 },
+  espaceTeacherWriteIdentity: { limit: 240, windowMs: 15 * 60_000 },
 } as const
 
 export type RateLimitPresetName = keyof typeof RateLimitPresets

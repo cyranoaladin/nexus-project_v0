@@ -68,6 +68,9 @@ describe('S3 final distributed rate-limit contract', () => {
     ]
     expectedScopes.push('family-create');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['family-create']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity' });
+    // Espace pédagogique Terminale : login (IP large, identifiant strict), autosave, dépôt, écritures enseignant.
+    expectedScopes.push('espace-login', 'espace-autosave', 'espace-upload', 'espace-teacher-write');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['espace-login']).toEqual({ ipPreset: 'espaceLoginIp', identityPreset: 'authIdentity' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
