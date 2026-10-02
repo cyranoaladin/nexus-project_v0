@@ -426,6 +426,7 @@ jobs:
           --testPathIgnorePatterns='parent-registration-atomicity\.real\.test\.ts'
           --testPathIgnorePatterns='parent-email-onboarding\.real\.test\.ts'
           --testPathIgnorePatterns='npc-.*\.real\.test\.ts'
+          --testPathIgnorePatterns='espace-.*\.real\.test\.ts'
 
       # NPC real-database suites deliberately require UID 0 and their own
       # PostgreSQL 15 runtime. Keep them in the required Integration job, but
@@ -558,6 +559,9 @@ jobs:
             __tests__/integration/family-registration.real.test.ts \
             __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/integration/assignment-concurrency.real.test.ts \
+            __tests__/integration/espace-service.real.test.ts \
+            __tests__/integration/espace-api.real.test.ts \
+            __tests__/integration/espace-legacy-link.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure

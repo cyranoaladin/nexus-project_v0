@@ -33,6 +33,8 @@ export const espaceApi = {
   openWork: (activitySlug: string, sessionId?: string | null) =>
     call<{ work: any }>('/api/espace/works', { method: 'POST', json: { activitySlug, sessionId: sessionId ?? null } }),
   getWork: (workId: string) => call<{ mode: 'student' | 'teacher'; work: any; annotations: any[]; attachments: any[] }>(`/api/espace/works/${workId}`),
+  submit: (workId: string, baseRevision: number) =>
+    call<{ work: any }>(`/api/espace/works/${workId}/submit`, { method: 'POST', json: { baseRevision } }),
   review: (workId: string, action: 'MARK_CORRECTED' | 'REOPEN' | 'MARK_DONE') =>
     call<{ work: any }>(`/api/espace/works/${workId}/review`, { method: 'POST', json: { action } }),
   addAnnotation: (workId: string, body: Record<string, unknown>) =>

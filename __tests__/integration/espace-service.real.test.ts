@@ -26,6 +26,8 @@ const run = randomUUID().slice(0, 8);
 const u = (name: string) => `${name}.${run}`.slice(0, 32); // identifiants uniques par exécution
 const g = (slug: string) => `${slug}-${run}`;
 
+const planLink2 = (r: ReturnType<typeof parseRoster>) => planProvisioning(prisma, r, { adopt: true });
+
 const roster = parseRoster({
   groups: [
     { slug: g('principal'), name: `Principal ${run}` },
@@ -208,6 +210,7 @@ describe('provisioning', () => {
     expect(after.username).toBe(u('zoe'));
     expect(after.email).toBe(`zoe-${run}@test.example`);
     expect(after.password).toBe('hash-existant'); // jamais touché
+    expect(after.activatedAt?.getTime()).toBe(existing.activatedAt?.getTime()); // la date d'activation d'origine est conservée
     expect(await prisma.user.count({ where: { firstName: 'Zoé', lastName: `Existante${run}` } })).toBe(1); // pas de doublon
   }, 60_000);
 
@@ -219,6 +222,64 @@ describe('provisioning', () => {
     const plan = await planProvisioning(prisma, r, { adopt: true });
     expect(plan.users[0].action).toBe('CONFLICT');
     await expect(applyProvisioning(prisma, r, { adopt: true })).rejects.toThrow(/Conflits/);
+  });
+
+  it('deux comptes homonymes : conflit qui les liste ; matchUserId désigne le bon, l’autre reste intact', async () => {
+    const mk = (email: string) => prisma.user.create({ data: { role: 'ELEVE', firstName: 'Dora', lastName: `Double${run}`, email, activatedAt: new Date() } });
+    const first = await mk(`dora1-${run}@test.example`);
+    const second = await mk(`dora2-${run}@test.example`);
+    createdUserIds.push(first.id, second.id);
+    const base = { groups: [{ slug: g('principal'), name: 'x' }] };
+    const student = (extra: Record<string, unknown> = {}) => ({
+      username: u('dora'), firstName: 'Dora', lastName: `Double${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }], ...extra,
+    });
+
+    const ambiguous = await planLink2(parseRoster({ ...base, students: [student()] }));
+    expect(ambiguous.users[0].action).toBe('CONFLICT');
+    expect(ambiguous.users[0].reason).toContain(first.id.slice(-6));
+    expect(ambiguous.users[0].reason).toContain(second.id.slice(-6));
+    expect(ambiguous.users[0].reason).toContain('matchUserId');
+
+    const chosen = parseRoster({ ...base, students: [student({ matchUserId: second.id })] });
+    expect((await planProvisioning(prisma, chosen, { adopt: false })).users[0].action).toBe('NEEDS_ADOPT_FLAG');
+    await applyProvisioning(prisma, chosen, { adopt: true });
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: second.id } })).username).toBe(u('dora'));
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: first.id } })).username).toBeNull(); // l'autre homonyme n'est pas touché
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: second.id } })).email).toBe(`dora2-${run}@test.example`);
+  }, 60_000);
+
+  it('adopter un élève en attente d’activation familiale est une décision explicite (activatePending)', async () => {
+    const pending = await prisma.user.create({ data: { role: 'ELEVE', firstName: 'Pia', lastName: `Attente${run}`, email: `pia-${run}@test.example` } }); // activatedAt = null
+    createdUserIds.push(pending.id);
+    const r = (extra: Record<string, unknown> = {}) =>
+      parseRoster({
+        groups: [{ slug: g('principal'), name: 'x' }],
+        students: [{ username: u('pia'), firstName: 'Pia', lastName: `Attente${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }], ...extra }],
+      });
+
+    const blocked = await planProvisioning(prisma, r(), { adopt: true });
+    expect(blocked.users[0].action).toBe('CONFLICT');
+    expect(blocked.users[0].reason).toMatch(/activation/);
+    await expect(applyProvisioning(prisma, r(), { adopt: true })).rejects.toThrow(/Conflits/);
+    expect((await prisma.user.findUniqueOrThrow({ where: { id: pending.id } })).activatedAt).toBeNull(); // rien n'a bougé
+
+    const allowed = await planProvisioning(prisma, r({ activatePending: true }), { adopt: true });
+    expect(allowed.users[0]).toMatchObject({ action: 'ADOPT', willActivate: true });
+    await applyProvisioning(prisma, r({ activatePending: true }), { adopt: true });
+    const after = await prisma.user.findUniqueOrThrow({ where: { id: pending.id } });
+    expect(after.activatedAt).not.toBeNull();
+    expect(after.username).toBe(u('pia'));
+    expect(after.email).toBe(`pia-${run}@test.example`);
+  }, 60_000);
+
+  it('matchUserId inconnu ou d’un autre rôle est un conflit, jamais une création', async () => {
+    const base = { groups: [{ slug: g('principal'), name: 'x' }] };
+    const student = (matchUserId: string) => ({
+      username: u('erwan'), firstName: 'Erwan', lastName: `Inconnu${run}`, matchUserId, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }],
+    });
+    expect((await planLink2(parseRoster({ ...base, students: [student('cl-n-existe-pas')] }))).users[0].action).toBe('CONFLICT');
+    // L'id d'un enseignant ne peut pas désigner un élève.
+    expect((await planLink2(parseRoster({ ...base, students: [student(teacher.id)] }))).users[0].action).toBe('CONFLICT');
   });
 
   it('réinitialiser un code révoque les sessions et invalide l’ancien code ; désactiver aussi', async () => {

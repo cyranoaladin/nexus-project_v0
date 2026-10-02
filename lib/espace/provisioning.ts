@@ -55,6 +55,8 @@ export const rosterSchema = z
             firstName: nameSchema,
             lastName: nameSchema,
             matchEmail: z.string().email().optional(),
+            /** Identifiant technique du compte existant à réutiliser (lève une ambiguïté de nom). */
+            matchUserId: z.string().min(1).max(64).optional(),
             teaches: z.array(z.object({ group: slugSchema, subjects: z.array(subjectSchema).min(1) }).strict()).min(1),
           })
           .strict(),
@@ -67,6 +69,13 @@ export const rosterSchema = z
             username: usernameSchema,
             firstName: nameSchema,
             lastName: nameSchema,
+            matchUserId: z.string().min(1).max(64).optional(),
+            /**
+             * Autorise à marquer ACTIVÉ un compte élève existant dont l'activation par la famille est
+             * encore en attente. Décision explicite : le lien d'activation envoyé à la famille ne
+             * fonctionnera plus ensuite.
+             */
+            activatePending: z.boolean().optional(),
             enrollments: z.array(z.object({ group: slugSchema, subjects: z.array(subjectSchema).min(1) }).strict()).min(1),
           })
           .strict(),
@@ -110,6 +119,8 @@ export interface UserPlan {
   action: UserAction;
   existingUserId?: string;
   existingRole?: string;
+  /** Adoption d'un compte élève en attente d'activation, explicitement autorisée. */
+  willActivate?: boolean;
   reason?: string;
 }
 
@@ -131,14 +142,14 @@ export async function planProvisioning(db: Db, roster: Roster, options: PlanOpti
 
   const people = [
     ...roster.teachers.map((t) => ({ ...t, kind: 'COACH' as const })),
-    ...roster.students.map((s) => ({ ...s, kind: 'ELEVE' as const, matchEmail: undefined })),
+    ...roster.students.map((s) => ({ ...s, kind: 'ELEVE' as const, matchEmail: undefined as string | undefined })),
   ];
 
   // Tous les comptes de l'espace, avec ou sans identifiant : un homonyme déjà
   // identifié autrement ne doit jamais produire un second compte.
   const candidates = await db.user.findMany({
     where: { role: { in: ['ELEVE', 'COACH', 'ADMIN'] } },
-    select: { id: true, role: true, firstName: true, lastName: true, username: true },
+    select: { id: true, role: true, firstName: true, lastName: true, username: true, createdAt: true, activatedAt: true },
   });
 
   for (const p of people) {
@@ -158,15 +169,28 @@ export async function planProvisioning(db: Db, roster: Roster, options: PlanOpti
       continue;
     }
 
-    // Enseignant : un email fourni par l'utilisateur identifie sans ambiguïté.
-    let matches: { id: string; role: string; firstName: string | null; lastName: string | null; username?: string | null }[] = p.matchEmail
-      ? await db.user.findMany({ where: { email: p.matchEmail.trim().toLowerCase() }, select: { id: true, role: true, firstName: true, lastName: true, username: true } })
-      : [];
-    if (matches.length === 0) {
-      const f = fold(p.firstName);
-      const l = fold(p.lastName);
-      const roleOk = (role: string) => (p.kind === 'ELEVE' ? role === 'ELEVE' : role === 'COACH' || role === 'ADMIN');
-      matches = candidates.filter((u) => roleOk(u.role) && fold(u.firstName ?? '') === f && fold(u.lastName ?? '') === l);
+    type Match = { id: string; role: string; firstName: string | null; lastName: string | null; username?: string | null; createdAt?: Date; activatedAt?: Date | null };
+    const roleOk = (role: string) => (p.kind === 'ELEVE' ? role === 'ELEVE' : role === 'COACH' || role === 'ADMIN');
+    let matches: Match[];
+    if (p.matchUserId) {
+      // Choix humain explicite d'un compte existant : prioritaire sur toute recherche par nom.
+      matches = candidates.filter((c) => c.id === p.matchUserId && roleOk(c.role));
+      if (matches.length === 0) {
+        const reason = `matchUserId introuvable (ou de rôle incompatible) pour ${p.firstName} ${p.lastName}`;
+        users.push({ ...base, action: 'CONFLICT', reason });
+        conflicts.push(reason);
+        continue;
+      }
+    } else {
+      // Enseignant : un email fourni par l'utilisateur identifie sans ambiguïté.
+      matches = p.matchEmail
+        ? await db.user.findMany({ where: { email: p.matchEmail.trim().toLowerCase() }, select: { id: true, role: true, firstName: true, lastName: true, username: true, createdAt: true, activatedAt: true } })
+        : [];
+      if (matches.length === 0) {
+        const f = fold(p.firstName);
+        const l = fold(p.lastName);
+        matches = candidates.filter((u) => roleOk(u.role) && fold(u.firstName ?? '') === f && fold(u.lastName ?? '') === l);
+      }
     }
     const alreadyNamed = matches.find((m) => m.username);
     if (alreadyNamed) {
@@ -179,16 +203,25 @@ export async function planProvisioning(db: Db, roster: Roster, options: PlanOpti
     if (matches.length === 0) {
       users.push({ ...base, action: 'CREATE' });
     } else if (matches.length > 1) {
-      const reason = `Plusieurs comptes correspondent à ${p.firstName} ${p.lastName} : décision humaine requise`;
+      const listed = matches.map((m) => `…${m.id.slice(-6)} (créé le ${m.createdAt?.toISOString().slice(0, 10) ?? '?'})`).join(', ');
+      const reason = `Plusieurs comptes correspondent à ${p.firstName} ${p.lastName} : ${listed} — précisez matchUserId`;
       users.push({ ...base, action: 'CONFLICT', reason });
       conflicts.push(reason);
     } else {
       const m = matches[0]!;
+      const pendingStudent = p.kind === 'ELEVE' && m.role === 'ELEVE' && !m.activatedAt;
+      if (pendingStudent && !(p as { activatePending?: boolean }).activatePending) {
+        const reason = `${p.firstName} ${p.lastName} : compte existant en attente d'activation par la famille. L'adopter le marquerait activé et neutraliserait son lien d'activation : décision humaine requise (activatePending: true)`;
+        users.push({ ...base, action: 'CONFLICT', existingUserId: m.id, existingRole: m.role, reason });
+        conflicts.push(reason);
+        continue;
+      }
       users.push({
         ...base,
         action: options.adopt ? 'ADOPT' : 'NEEDS_ADOPT_FLAG',
         existingUserId: m.id,
         existingRole: m.role,
+        willActivate: pendingStudent,
         reason: options.adopt ? undefined : 'Un compte existant correspond : relancer avec --adopt pour le réutiliser',
       });
     }
@@ -253,7 +286,11 @@ export async function applyProvisioning(
           idByUsername.set(u.username, u.existingUserId!);
           if (u.kind === 'ELEVE') {
             const pin = generatePin();
-            await tx.user.update({ where: { id: u.existingUserId! }, data: { pinHash: await hashPin(pin), pinSetAt: now, activatedAt: now } });
+            // activatedAt n'est posé que sur décision explicite ; un compte déjà activé garde sa date.
+            await tx.user.update({
+              where: { id: u.existingUserId! },
+              data: { pinHash: await hashPin(pin), pinSetAt: now, ...(u.willActivate ? { activatedAt: now } : {}) },
+            });
             credentials.push({ username: u.username, kind: 'ELEVE', secret: pin });
           }
           continue;
