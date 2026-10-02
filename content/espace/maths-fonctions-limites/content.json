@@ -4,6 +4,9 @@
  "subtitle": "Limites · asymptotes · dérivation · variations · tangentes",
  "session": "Mathématiques • Terminale",
  "duration": 115,
+ "ui": {
+  "phases": true
+ },
  "steps": [
   {
    "id": "diagnostic",

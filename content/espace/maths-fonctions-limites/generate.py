@@ -1447,6 +1447,7 @@ content = {
     "subtitle": "Limites · asymptotes · dérivation · variations · tangentes",
     "session": "Mathématiques • Terminale",
     "duration": sum(s["minutes"] for s in steps),
+    "ui": {"phases": True},
     "steps": steps,
 }
 
