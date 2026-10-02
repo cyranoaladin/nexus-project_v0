@@ -26,7 +26,7 @@
      "type": "function",
      "id": "diag",
      "caption": "Courbe \\(\\mathcal C_d\\) : lis-la sans calculer.",
-     "curveLabel": "C_d",
+     "curveLabel": "courbe de d",
      "fn": {
       "kind": "rational",
       "num": [
@@ -197,7 +197,7 @@
      "type": "function",
      "id": "g-lim",
      "caption": "Courbe de \\(g\\) : près de 1 elle « s'envole », très loin à droite elle se rapproche de la hauteur 2.",
-     "curveLabel": "C_g",
+     "curveLabel": "courbe de g",
      "fn": {
       "kind": "rational",
       "num": [
@@ -291,7 +291,7 @@
      "type": "function",
      "id": "f-courbe",
      "caption": "Courbe de \\(f\\) : elle se rapproche de la hauteur trouvée quand \\(x\\) devient grand.",
-     "curveLabel": "C_f",
+     "curveLabel": "courbe de f",
      "fn": {
       "kind": "rational",
       "num": [
@@ -519,7 +519,7 @@
      "type": "function",
      "id": "g-av",
      "caption": "La courbe de \\(g\\) se colle à la droite pointillée \\(x=1\\) : elle descend sans fin à gauche, monte sans fin à droite.",
-     "curveLabel": "C_g",
+     "curveLabel": "courbe de g",
      "fn": {
       "kind": "rational",
       "num": [
@@ -545,7 +545,7 @@
      "type": "function",
      "id": "h",
      "caption": "Courbe de \\(h\\) : c'est la droite \\(y=x+1\\), avec un petit « trou » (cercle ouvert) en 1. Aucune asymptote.",
-     "curveLabel": "C_h",
+     "curveLabel": "courbe de h",
      "fn": {
       "kind": "rational",
       "num": [
@@ -779,7 +779,7 @@
      "type": "function",
      "id": "g-complete",
      "caption": "Courbe de \\(g\\) avec ses deux asymptotes : \\(x=1\\) et \\(y=2\\).",
-     "curveLabel": "C_g",
+     "curveLabel": "courbe de g",
      "fn": {
       "kind": "rational",
       "num": [
@@ -808,7 +808,7 @@
      "type": "function",
      "id": "f-croise",
      "caption": "Courbe de \\(f\\) : elle coupe sa propre asymptote \\(y=2\\) au point B, d'abscisse \\(-\\dfrac73\\approx-2{,}33\\), avant de s'en rapprocher.",
-     "curveLabel": "C_f",
+     "curveLabel": "courbe de f",
      "fn": {
       "kind": "rational",
       "num": [
@@ -1000,7 +1000,7 @@
      "type": "function",
      "id": "g-tan",
      "caption": "Courbe de \\(g\\), asymptotes, point A d'abscisse 0 et tangente (trait vert). Ta droite apparaît en pointillés rouges.",
-     "curveLabel": "C_g",
+     "curveLabel": "courbe de g",
      "fn": {
       "kind": "rational",
       "num": [
@@ -1338,7 +1338,7 @@
      "type": "function",
      "id": "g-etude",
      "caption": "Vision d'ensemble de \\(g\\) : asymptotes \\(x=1\\) et \\(y=2\\), point A et tangente en 0.",
-     "curveLabel": "C_g",
+     "curveLabel": "courbe de g",
      "fn": {
       "kind": "rational",
       "num": [
@@ -1518,7 +1518,7 @@
      "type": "function",
      "id": "k-fig",
      "caption": "Courbe de \\(k\\) : deux asymptotes verticales (\\(x=-1\\), \\(x=1\\)), une horizontale (\\(y=2\\)), et la tangente en 0.",
-     "curveLabel": "C_k",
+     "curveLabel": "courbe de k",
      "fn": {
       "kind": "rational",
       "num": [
@@ -1794,7 +1794,7 @@
      "type": "function",
      "id": "bonus-fig",
      "caption": "Courbe de \\(m\\) et ta droite (pointillés rouges) : elles se rejoignent loin du centre.",
-     "curveLabel": "C_m",
+     "curveLabel": "courbe de m",
      "fn": {
       "kind": "rational",
       "num": [
