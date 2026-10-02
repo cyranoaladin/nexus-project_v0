@@ -10,6 +10,9 @@ const exactKeys = (value, names) => plainObject(value) &&
   Object.keys(value).length === names.length && names.every((name) => Object.hasOwn(value, name));
 
 function failedProcessCategory(stderr) {
+  if (/Failed to initialize samplers|failed to launch slot/i.test(stderr)) {
+    return 'MODEL_SAMPLER_INIT_FAILED';
+  }
   // Never return stderr itself: a model/runtime may echo untrusted PR text.
   if (/error while loading shared libraries|cannot open shared object file/i.test(stderr)) {
     return 'MODEL_MISSING_RUNTIME_LIBRARY';
@@ -162,6 +165,9 @@ export function runBoundedReviewer({ command, args = [], prompt, timeoutMs, maxO
     child.on('close', (code) => {
       if (timedOut) return finish({ ok: false, reason: 'MODEL_TIMEOUT' });
       if (tooLarge) return finish({ ok: false, reason: 'MODEL_OUTPUT_TOO_LARGE' });
+      if (/Failed to initialize samplers|failed to launch slot/i.test(stderr)) {
+        return finish({ ok: false, reason: 'MODEL_SAMPLER_INIT_FAILED' });
+      }
       if (code !== 0) return finish({ ok: false,
         reason: failedProcessCategory(`${stderr}\n${stdout.slice(0, 8192)}`) });
       finish({ ok: true, stdout });

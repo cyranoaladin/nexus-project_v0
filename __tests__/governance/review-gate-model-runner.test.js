@@ -1,4 +1,5 @@
 const HEAD = 'a'.repeat(40);
+const fs = require('node:fs');
 let runThreePassReview;
 beforeAll(async () => {
   ({ runThreePassReview } = await import('../../scripts/github/review-gate/model-runner.mjs'));
@@ -9,9 +10,15 @@ const files = [{ filename: 'app/page.tsx', patch: '@@ -1 +1 @@\n-old\n+new',
   additions: 1, deletions: 1, changes: 2, status: 'modified' }];
 
 describe('trusted three-pass local semantic review', () => {
-  test('PR text is stdin data and never a command argument', async () => {
+  test('PR text uses a private, removed prompt file and never a command argument', async () => {
     const calls = [];
-    const runProcess = jest.fn(async (input) => { calls.push(input); return { ok: true, stdout: clean }; });
+    const runProcess = jest.fn(async (input) => {
+      const promptPath = input.args[input.args.indexOf('-f') + 1];
+      calls.push({ ...input, promptPath, fileText: fs.readFileSync(promptPath, 'utf8'),
+        fileMode: fs.statSync(promptPath).mode & 0o777,
+        dirMode: fs.statSync(require('node:path').dirname(promptPath)).mode & 0o777 });
+      return { ok: true, stdout: clean };
+    });
     const outputs = await runThreePassReview({ headSha: HEAD, files,
       modelPath: '/tmp/verified/model.gguf', binaryPath: '/tmp/verified/llama-cli',
       schemaPath: '/trusted/review-schema.json', contextTokens: 8192, runProcess });
@@ -20,14 +27,18 @@ describe('trusted three-pass local semantic review', () => {
     for (const call of calls) {
       expect(call.command).toBe('/tmp/verified/llama-cli');
       expect(call.args).not.toContain('@@ -1 +1 @@');
-      expect(call.args).not.toContain('-f');
+      expect(call.args).toContain('-f');
       expect(call.args).not.toContain('/dev/stdin');
       expect(call.args).toContain('/trusted/review-schema.json');
-      expect(call.prompt).toContain('app/page.tsx');
-      expect(call.prompt).toContain('@@ -1 +1 @@');
+      expect(call.prompt).toBe('');
+      expect(call.fileText).toContain('app/page.tsx');
+      expect(call.fileText).toContain('@@ -1 +1 @@');
+      expect(call.fileMode).toBe(0o600);
+      expect(call.dirMode).toBe(0o700);
+      expect(fs.existsSync(call.promptPath)).toBe(false);
       expect(call.timeoutMs).toBeLessThanOrEqual(120000);
     }
-    expect(new Set(calls.map((call) => call.prompt)).size).toBe(3);
+    expect(new Set(calls.map((call) => call.fileText)).size).toBe(3);
   });
 
   test('invalid paths, unsupported diff and timeout fail closed', async () => {

@@ -1,4 +1,7 @@
 import { runBoundedReviewer } from './semantic.mjs';
+import { chmodSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const SHA = /^[0-9a-f]{40}$/;
 const PASSES = {
@@ -38,15 +41,27 @@ export async function runThreePassReview({ headSha, files, modelPath, binaryPath
   }
   const outputs = {};
   for (const pass of Object.keys(PASSES)) {
-    const result = await runProcess({ command: binaryPath,
-      args: ['-m', modelPath, '-c', String(contextTokens), '-t', '4', '-n', '512',
-        '--temp', '0', '--top-k', '1', '--json-schema-file', schemaPath,
-        '--no-display-prompt', '--simple-io', '-st'],
-      prompt: promptFor(pass, headSha, files), timeoutMs: 120_000 });
+    const promptDir = mkdtempSync(join(tmpdir(), 'nexus-review-gate-prompt-'));
+    const promptPath = join(promptDir, 'review.txt');
+    let result;
+    try {
+      chmodSync(promptDir, 0o700);
+      writeFileSync(promptPath, promptFor(pass, headSha, files),
+        { encoding: 'utf8', flag: 'wx', mode: 0o600 });
+      result = await runProcess({ command: binaryPath,
+        args: ['-m', modelPath, '-f', promptPath, '-c', String(contextTokens), '-t', '4', '-n', '512',
+          '--temp', '0', '--top-k', '1', '--json-schema-file', schemaPath,
+          '--no-display-prompt', '--simple-io', '-st'],
+        prompt: '', timeoutMs: 120_000 });
+    } finally {
+      try { unlinkSync(promptPath); } catch (error) { if (error?.code !== 'ENOENT') throw error; }
+      rmdirSync(promptDir);
+    }
     if (result?.ok !== true || typeof result.stdout !== 'string') {
       const safeReason = new Set(['MODEL_TIMEOUT', 'MODEL_MISSING_RUNTIME_LIBRARY',
         'MODEL_SCHEMA_REJECTED', 'MODEL_ARGUMENT_REJECTED', 'MODEL_LOAD_FAILED',
-        'MODEL_PROCESS_FAILED', 'MODEL_OUTPUT_TOO_LARGE', 'MODEL_START_FAILED']);
+        'MODEL_PROCESS_FAILED', 'MODEL_OUTPUT_TOO_LARGE', 'MODEL_START_FAILED',
+        'MODEL_SAMPLER_INIT_FAILED']);
       throw new Error(safeReason.has(result?.reason) ? result.reason : 'MODEL_EXECUTION_FAILED');
     }
     outputs[pass] = result.stdout;

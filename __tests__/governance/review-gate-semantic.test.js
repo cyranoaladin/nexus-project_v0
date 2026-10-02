@@ -91,4 +91,13 @@ describe('bounded semantic reviewer process', () => {
     expect(result).toEqual({ ok: false, reason: 'MODEL_MISSING_RUNTIME_LIBRARY' });
     expect(JSON.stringify(result)).not.toContain('synthetic-private-value');
   });
+
+  test('sampler initialization error cannot masquerade as a successful zero exit', async () => {
+    const result = await semantic.runBoundedReviewer({
+      command: process.execPath,
+      args: ['-e', 'process.stderr.write("Failed to initialize samplers: std::exception"); process.exit(0)'],
+      prompt: 'synthetic diff', timeoutMs: 1000,
+    });
+    expect(result).toEqual({ ok: false, reason: 'MODEL_SAMPLER_INIT_FAILED' });
+  });
 });

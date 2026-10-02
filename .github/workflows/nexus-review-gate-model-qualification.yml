@@ -66,25 +66,27 @@ jobs:
         run: |
           set -euo pipefail
           synthetic_log="$REVIEW_GATE_TEMP/synthetic-smoke.log"
+          synthetic_output="$REVIEW_GATE_TEMP/synthetic-smoke.stdout"
+          synthetic_prompt="$REVIEW_GATE_TEMP/synthetic-prompt.txt"
+          printf '%s' 'Review only this synthetic input and return {"review_complete":true,"blocking_findings":[],"warnings":[]}.' > "$synthetic_prompt"
+          chmod 0600 "$synthetic_prompt"
           set +e
-          printf '%s' 'Review only this synthetic input and return an empty JSON review.' | \
-            timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-cli" \
-              -m "$REVIEW_GATE_TEMP/model.gguf" -c 2048 -t 4 -n 32 \
+          timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-cli" \
+              -m "$REVIEW_GATE_TEMP/model.gguf" -f "$synthetic_prompt" -c 2048 -t 4 -n 128 \
               --temp 0 --top-k 1 \
               --json-schema-file scripts/github/review-gate/qualification/review-output.schema.json \
               --no-display-prompt --simple-io -st \
-              > "$synthetic_log" 2>&1
+              > "$synthetic_output" 2> "$synthetic_log"
           synthetic_status=$?
           set -e
-          if [ "$synthetic_status" -ne 0 ]; then
+          rm -f "$synthetic_prompt"
+          if [ "$synthetic_status" -ne 0 ] || rg -qi 'Failed to initialize samplers|failed to launch slot' "$synthetic_log"; then
             echo "MODEL_SYNTHETIC_SMOKE=FAIL exit=$synthetic_status"
             rg -i 'error|failed|invalid|unknown|exited' "$synthetic_log" | head -n 12 || true
             exit 1
           fi
+          node --input-type=module -e 'import { readFileSync } from "node:fs"; import { parseSemanticResponse } from "./scripts/github/review-gate/semantic.mjs"; if (!parseSemanticResponse(readFileSync(process.argv[1], "utf8"), new Set(["synthetic.ts"]))) process.exit(1)' "$synthetic_output"
           echo 'MODEL_SYNTHETIC_SMOKE=PASS'
-          echo 'MODEL_SYNTHETIC_CAPTURE_BEGIN'
-          tail -n 24 "$synthetic_log"
-          echo 'MODEL_SYNTHETIC_CAPTURE_END'
 
       - name: Run bounded three-pass historical benchmark
         env:
