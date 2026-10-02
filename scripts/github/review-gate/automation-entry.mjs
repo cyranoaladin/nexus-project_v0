@@ -1,12 +1,10 @@
 import { fileURLToPath } from 'node:url';
 import { safeArmAutoMerge, safeUpdateBranch } from './automation.mjs';
-import { collectGateEvidence } from './collect.mjs';
 import { evaluateDeterministicGate } from './policy.mjs';
 import { applicableHumanApproval, classifyRisk } from './risk.mjs';
 
 const SHA = /^[0-9a-f]{40}$/;
 const REPO = 'cyranoaladin/nexus-project_v0';
-const API = 'https://api.github.com';
 
 export async function automateAfterGate({ expectedHeadSha, prNumber, checkRunId,
   readCheck, readPr, compare, updateBranch,
@@ -57,55 +55,16 @@ export function validPostGateEvidence(evidence, { prNumber, expectedHeadSha, bas
   return true;
 }
 
-async function request(token, path, { method = 'GET', body } = {}) {
-  if (!token || !path.startsWith('/') || path.startsWith('//') || /[\r\n#]/.test(path)) {
-    throw new Error('AUTOMATION_API_CONFIG_INVALID');
-  }
-  let response;
-  try {
-    response = await fetch(`${API}${path}`, { method,
-      headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${token}`,
-        'X-GitHub-Api-Version': '2022-11-28',
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-      signal: AbortSignal.timeout(15_000),
-    });
-  } catch { throw new Error('AUTOMATION_API_UNAVAILABLE'); }
-  if (!response.ok) throw new Error(`AUTOMATION_API_HTTP_${response.status}`);
-  try { return await response.json(); } catch { throw new Error('AUTOMATION_API_RESPONSE_INVALID'); }
-}
-
 export async function runPostGateAutomation(env = process.env) {
-  const prNumber = Number(env.GATE_PR_NUMBER);
-  const checkRunId = Number(env.GATE_CHECK_RUN_ID);
-  const expectedHeadSha = env.GATE_EXPECTED_HEAD_SHA;
   if (env.GITHUB_REPOSITORY !== REPO || env.GITHUB_REF !== 'refs/heads/main' ||
       env.GITHUB_EVENT_NAME !== 'workflow_run' || !SHA.test(env.GITHUB_SHA ?? '') ||
       !env.GITHUB_TOKEN) throw new Error('AUTOMATION_CONTEXT_UNTRUSTED');
-  const base = `/repos/${REPO}`;
-  const readPr = () => request(env.GITHUB_TOKEN, `${base}/pulls/${prNumber}`);
-  const readApi = (path) => request(env.GITHUB_TOKEN, path);
-  const readGraphql = (query, variables) => request(env.GITHUB_TOKEN, '/graphql', {
-    method: 'POST', body: { query, variables },
-  });
-  const outcome = await automateAfterGate({ expectedHeadSha, prNumber, checkRunId,
-    readCheck: (id) => request(env.GITHUB_TOKEN, `${base}/check-runs/${id}`),
-    readPr,
-    compare: (baseSha, headSha) => request(env.GITHUB_TOKEN,
-      `${base}/compare/${baseSha}...${headSha}`),
-    updateBranch: ({ prNumber: number, expectedHeadSha: sha }) => request(env.GITHUB_TOKEN,
-      `${base}/pulls/${number}/update-branch`, {
-        method: 'PUT', body: { expected_head_sha: sha },
-      }),
-    recheckEvidence: async (number, headSha, baseSha) => {
-      const evidence = await collectGateEvidence({ repo: REPO, prNumber: number,
-        readApi, readGraphql });
-      return validPostGateEvidence(evidence, { prNumber: number,
-        expectedHeadSha: headSha, baseSha });
-    },
-    graphql: readGraphql,
-  });
-  return outcome;
+  // GITHUB_TOKEN-created update-branch/auto-merge events do not reliably
+  // trigger the required fresh CI on the new head or main merge. The
+  // checks-only App token cannot perform either mutation. Keep the tested
+  // policy helpers dormant until a separately scoped, audited mutation
+  // identity exists; never silently arm an unsafe merge path.
+  throw new Error('AUTOMATION_MUTATION_TOKEN_UNAVAILABLE');
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

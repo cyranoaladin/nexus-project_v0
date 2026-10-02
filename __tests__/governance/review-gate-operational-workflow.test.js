@@ -20,17 +20,16 @@ describe('trusted operational workflow contract', () => {
     expect(workflow).not.toMatch(/npm ci|npm install|download-artifact|ref:\s*\$\{\{\s*github\.event\.workflow_run\.head_sha/);
   });
 
-  test('App key is present only in the read-only evaluator job and token is checks-only', () => {
+  test('App key is present only in the read-only evaluator job; no PR mutation job is armed', () => {
     const evaluate = parsed.jobs.evaluate;
-    const automate = parsed.jobs.automate;
+    expect(Object.keys(parsed.jobs)).toEqual(['evaluate']);
     expect(parsed.permissions['pull-requests']).toBe('read');
     expect(parsed.permissions.checks).toBe('read');
     expect(evaluate.permissions).toBeUndefined();
     expect(evaluate.steps[2].uses).toMatch(/^actions\/create-github-app-token@[0-9a-f]{40}$/);
     expect(evaluate.steps[2].with['permission-checks']).toBe('write');
-    expect(automate.permissions['pull-requests']).toBe('write');
-    expect(automate.if).toBe("needs.evaluate.outputs.conclusion == 'success'");
-    expect(JSON.stringify(automate)).not.toContain('NEXUS_REVIEW_GATE_APP_PRIVATE_KEY');
+    expect(workflow).not.toContain('pull-requests: write');
+    expect(workflow).not.toContain('automation-entry.mjs');
     expect(workflow).not.toMatch(/permission-contents: write|permission-administration: write/);
   });
 });

@@ -25,11 +25,6 @@ jobs:
     # Qualified model assets are checksum-verified before inference; three
     # inference passes each have their own 120-second process deadline.
     timeout-minutes: 40
-    outputs:
-      conclusion: ${{ steps.gate.outputs.conclusion }}
-      pr_number: ${{ steps.gate.outputs.pr_number }}
-      head_sha: ${{ steps.gate.outputs.head_sha }}
-      check_run_id: ${{ steps.gate.outputs.check_run_id }}
     steps:
       - name: Refuse untrusted workflow context before App credential use
         env:
@@ -75,29 +70,3 @@ jobs:
           APP_INSTALLATION_ID: ${{ steps.app-token.outputs.installation-id }}
           NEXUS_REVIEW_GATE_APP_ID: ${{ vars.NEXUS_REVIEW_GATE_APP_ID }}
         run: node scripts/github/review-gate/workflow-entry.mjs
-
-  automate:
-    name: Update safe branch or arm protected auto-merge
-    needs: evaluate
-    if: needs.evaluate.outputs.conclusion == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      checks: read
-      statuses: read
-      pull-requests: write
-    steps:
-      - name: Checkout exact trusted main definition without credentials
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.sha }}
-          persist-credentials: false
-
-      - name: Recheck App source and exact head before branch or merge request
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GATE_PR_NUMBER: ${{ needs.evaluate.outputs.pr_number }}
-          GATE_EXPECTED_HEAD_SHA: ${{ needs.evaluate.outputs.head_sha }}
-          GATE_CHECK_RUN_ID: ${{ needs.evaluate.outputs.check_run_id }}
-        run: node scripts/github/review-gate/automation-entry.mjs

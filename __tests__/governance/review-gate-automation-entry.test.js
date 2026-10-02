@@ -1,7 +1,8 @@
 let automateAfterGate;
 let validPostGateEvidence;
+let runPostGateAutomation;
 beforeAll(async () => {
-  ({ automateAfterGate, validPostGateEvidence } = await import('../../scripts/github/review-gate/automation-entry.mjs'));
+  ({ automateAfterGate, validPostGateEvidence, runPostGateAutomation } = await import('../../scripts/github/review-gate/automation-entry.mjs'));
 });
 
 const HEAD = 'a'.repeat(40);
@@ -18,6 +19,13 @@ const args = () => ({ expectedHeadSha: HEAD, prNumber: 42, checkRunId: 12,
   recheckEvidence: jest.fn(async () => true) });
 
 describe('post-gate automation', () => {
+  test('the trusted job cannot mutate PRs with GITHUB_TOKEN alone', async () => {
+    await expect(runPostGateAutomation({ GITHUB_REPOSITORY: 'cyranoaladin/nexus-project_v0',
+      GITHUB_REF: 'refs/heads/main', GITHUB_EVENT_NAME: 'workflow_run',
+      GITHUB_SHA: HEAD, GITHUB_TOKEN: 'R', GATE_PR_NUMBER: '42',
+      GATE_CHECK_RUN_ID: '12', GATE_EXPECTED_HEAD_SHA: HEAD }))
+      .rejects.toThrow('AUTOMATION_MUTATION_TOKEN_UNAVAILABLE');
+  });
   test('arms only a current App-owned success', async () => {
     const input = args();
     expect(await automateAfterGate(input)).toBe('ARMED');
