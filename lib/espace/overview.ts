@@ -16,7 +16,12 @@ import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
 import { listPublishedSessionsForStudent } from './sessions';
 
-export const SUBJECT_LABELS: Record<Subject, string> = {
+/**
+ * Libellés d'affichage. Volontairement indexé par chaîne et non `Record<Subject, …>` :
+ * l'enum Prisma évolue (langues ajoutées) et la table ne doit pas casser le build
+ * d'une version qui n'a pas toutes les valeurs.
+ */
+export const SUBJECT_LABELS: Record<string, string> = {
   MATHEMATIQUES: 'Mathématiques',
   MATHS_EXPERTES: 'Maths expertes',
   NSI: 'NSI',
@@ -33,6 +38,10 @@ export const SUBJECT_LABELS: Record<Subject, string> = {
   RUSSE: 'Russe',
   ALLEMAND: 'Allemand',
 };
+
+export function subjectLabel(subject: Subject): string {
+  return SUBJECT_LABELS[subject] ?? subject;
+}
 
 export function fullName(u: { firstName: string | null; lastName: string | null }): string {
   return [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Élève';
