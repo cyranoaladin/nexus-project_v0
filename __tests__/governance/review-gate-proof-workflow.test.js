@@ -10,8 +10,12 @@ describe('trusted Nexus Review Gate identity proof workflow contract', () => {
     expect(parsed.on.workflow_run).toEqual({ workflows: ['CI Pipeline'], types: ['completed'] });
     expect(Object.keys(parsed.on)).toEqual(['workflow_run']);
     expect(parsed.jobs['prove-app-check'].if).toContain("github.event.workflow_run.event == 'push'");
+    expect(parsed.jobs['prove-app-check'].if).toContain("github.event.workflow_run.head_branch == 'main'");
+    expect(parsed.jobs['prove-app-check'].if).toContain("github.event.workflow_run.conclusion == 'success'");
     expect(workflow).toContain("[ \"$UPSTREAM_WORKFLOW_ID\" != '185409165' ]");
     expect(workflow).toContain("[ \"$UPSTREAM_WORKFLOW_PATH\" != '.github/workflows/ci.yml' ]");
+    expect(workflow).toContain("[ \"$UPSTREAM_BRANCH\" != 'main' ]");
+    expect(workflow).toContain("[ \"$UPSTREAM_CONCLUSION\" != 'success' ]");
     expect(workflow).toMatch(/refs\/heads\/main/);
     expect(workflow).toMatch(/ref: \$\{\{ github\.sha \}\}/);
     expect(workflow).toMatch(/github\.event\.workflow_run\.head_sha/);

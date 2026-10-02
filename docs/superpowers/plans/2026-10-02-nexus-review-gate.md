@@ -14,7 +14,8 @@
 - [x] Verify official `actions/create-github-app-token` v3.2.0 commit `bcd2ba49218906704ab6c1aa796996da409d3eb1`; use `client-id` and `permission-checks: write`, with owner/repositories omitted to constrain the installation token to the current repo.
 - [x] RED → GREEN Jest tests for expected/wrong App ID, exact/stale SHA, Actions same-name source, missing installation/token, API errors, and malformed responses.
 - [x] Add trusted-main `workflow_run` identity proof after successful `CI Pipeline` push on main. It checks out only the workflow's `github.sha`, never a PR head; it does not install or run PR code.
-- [ ] Run full governance tests, offline audit, syntax checks, and CI on the bootstrap PR.
+- [x] Run full governance tests, offline audit, and syntax checks.
+- [ ] Confirm CI on the bootstrap PR's final head.
 - [ ] Obtain the current human bootstrap review and merge under the unchanged live ruleset.
 - [ ] Only after merge, let successful main CI trigger the proof; verify token creation and read back the App-owned `action_required` check on the merge SHA. Do not apply the ruleset.
 

@@ -46,7 +46,7 @@ describe('Nexus Review Gate App identity proof', () => {
     await expect(runProof({ sha, installationId: '167301397', appToken: 'test-only', readApi, writeApi }))
       .resolves.toEqual(expect.objectContaining({ appId: 5166727, headSha: sha }));
     expect(writeApi).toHaveBeenCalledTimes(1);
-    expect(writeApi.mock.calls[0][1]).toEqual(expect.objectContaining({
+    expect(writeApi).toHaveBeenCalledWith('/repos/cyranoaladin/nexus-project_v0/check-runs', expect.objectContaining({
       name: 'Nexus Review Gate', head_sha: sha, conclusion: 'action_required',
     }));
     expect(readApi).toHaveBeenCalledWith(expect.stringContaining('/check-runs/42'));
