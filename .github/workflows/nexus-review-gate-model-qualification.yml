@@ -82,6 +82,9 @@ jobs:
             exit 1
           fi
           echo 'MODEL_SYNTHETIC_SMOKE=PASS'
+          echo 'MODEL_SYNTHETIC_CAPTURE_BEGIN'
+          tail -n 24 "$synthetic_log"
+          echo 'MODEL_SYNTHETIC_CAPTURE_END'
 
       - name: Run bounded three-pass historical benchmark
         env:
