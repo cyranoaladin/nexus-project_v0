@@ -25,6 +25,15 @@ describe('strict semantic review evidence', () => {
     }).reason).toBe('MODEL_UNQUALIFIED');
   });
 
+  test('accepts only the pinned completion runtime end marker after canonical JSON', () => {
+    expect(semantic.parseSemanticResponse(`${JSON.stringify(clean)} [end of text]\n`, new Set(['lib/auth.ts'])))
+      .toEqual(clean);
+    expect(semantic.parseSemanticResponse(`${JSON.stringify(clean)} arbitrary text`, new Set(['lib/auth.ts'])))
+      .toBeNull();
+    expect(semantic.parseSemanticResponse(`${JSON.stringify(clean)} [end of text] extra`, new Set(['lib/auth.ts'])))
+      .toBeNull();
+  });
+
   test('MODEL_BLOCKER_FAIL retains a bounded structured finding', () => {
     const outputs = Object.fromEntries(passes.map((pass) => [pass, JSON.stringify(clean)]));
     outputs.security = JSON.stringify({ ...clean, blocking_findings: [finding] });

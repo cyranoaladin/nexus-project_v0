@@ -63,10 +63,15 @@ export function parseSemanticResponse(raw, allowedFiles) {
   if (typeof raw !== 'string' || Buffer.byteLength(raw, 'utf8') > MAX_OUTPUT_BYTES ||
       !(allowedFiles instanceof Set) || allowedFiles.size === 0) return null;
   try {
-    const parsed = JSON.parse(raw);
+    // The pinned llama-completion binary appends this exact terminal marker.
+    // Any other suffix remains invalid; it cannot authorize a free-form answer.
+    const trimmed = raw.trimEnd();
+    const json = trimmed.endsWith(' [end of text]')
+      ? trimmed.slice(0, -' [end of text]'.length).trimEnd() : trimmed;
+    const parsed = JSON.parse(json);
     // JSON.parse silently keeps the last duplicate key. Canonical equality
     // rejects duplicate/ambiguous keys and noncanonical numeric escapes.
-    if (compactJsonWhitespace(raw) !== JSON.stringify(parsed)) return null;
+    if (compactJsonWhitespace(json) !== JSON.stringify(parsed)) return null;
     if (!exactKeys(parsed, ['review_complete', 'blocking_findings', 'warnings']) ||
         parsed.review_complete !== true || !Array.isArray(parsed.blocking_findings) ||
         !Array.isArray(parsed.warnings) || parsed.blocking_findings.length > 20 ||
