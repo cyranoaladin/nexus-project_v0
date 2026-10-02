@@ -54,7 +54,7 @@ export function materializeHistoricalCase(item, { repoRoot } = {}) {
   const to = direction === 'reverse' ? before : commit;
   let diff;
   try {
-    diff = execFileSync('git', ['diff', '--no-ext-diff', '--no-textconv', '--unified=8',
+    diff = execFileSync('git', ['diff', '--no-ext-diff', '--no-textconv', '--unified=3',
       from, to, '--', path], {
       cwd: repoRoot, encoding: 'utf8', maxBuffer: MAX_PATCH_BYTES + 1,
       timeout: 10000, stdio: ['ignore', 'pipe', 'ignore'],
@@ -62,18 +62,21 @@ export function materializeHistoricalCase(item, { repoRoot } = {}) {
   } catch {
     throw new Error('CORPUS_PATCH_UNAVAILABLE');
   }
-  const diffBytes = Buffer.byteLength(diff, 'utf8');
-  if (!diff.startsWith('diff --git ') || diffBytes === 0 || diffBytes > MAX_PATCH_BYTES ||
+  const hunk = diff.indexOf('\n@@ ');
+  const patch = hunk < 0 ? '' : diff.slice(hunk + 1);
+  const diffBytes = Buffer.byteLength(patch, 'utf8');
+  if (!diff.startsWith('diff --git ') || !patch.startsWith('@@ ') ||
+      diffBytes === 0 || diffBytes > MAX_PATCH_BYTES ||
       diff.includes('Binary files ') || diff.includes('GIT binary patch')) {
     throw new Error('CORPUS_PATCH_INVALID');
   }
-  return { id: item.id, file: path, diff, diffBytes };
+  return { id: item.id, file: path, diff: patch, diffBytes };
 }
 
 /** No labels, incident descriptions, commits or expectations are sent to the reviewer. */
 export function toModelData(evidence) {
   if (!object(evidence) || !PATH.test(evidence.file ?? '') ||
-      typeof evidence.diff !== 'string' || !evidence.diff.startsWith('diff --git ') ||
+      typeof evidence.diff !== 'string' || !evidence.diff.startsWith('@@ ') ||
       Buffer.byteLength(evidence.diff, 'utf8') > MAX_PATCH_BYTES) throw new Error('MODEL_DATA_INVALID');
   return JSON.stringify({ changed_file: evidence.file, diff: evidence.diff });
 }

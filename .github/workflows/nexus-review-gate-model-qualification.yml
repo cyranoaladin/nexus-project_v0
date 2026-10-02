@@ -1,0 +1,80 @@
+# Advisory benchmark only. It has no App credential and cannot publish the
+# required gate. A model is not merge authority merely because this job passes.
+name: Nexus Review Gate Model Qualification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/github/review-gate/**'
+      - '.github/workflows/nexus-review-gate-model-qualification.yml'
+      - '__tests__/governance/review-gate-*.test.js'
+
+permissions:
+  contents: read
+
+jobs:
+  compare-models:
+    name: Compare local model (${{ matrix.candidate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate:
+          - granite-3b-code-instruct-q4-k-m
+          - qwen2.5-coder-7b-instruct-q4-k-m
+    steps:
+      - name: Checkout untrusted PR for advisory corpus evaluation only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node without shared cache
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.1'
+
+      - name: Prepare private ephemeral assets directory
+        run: |
+          set -euo pipefail
+          umask 077
+          review_gate_tmp=$(mktemp -d "$RUNNER_TEMP/nexus-review-model.XXXXXXXX")
+          test -d "$review_gate_tmp"
+          test ! -L "$review_gate_tmp"
+          test "$(stat -c '%a' "$review_gate_tmp")" = '700'
+          echo "REVIEW_GATE_TEMP=$review_gate_tmp" >> "$GITHUB_ENV"
+
+      - name: Download exact model and runtime with SHA-256 verification
+        run: node scripts/github/review-gate/qualification/fetch-assets.mjs '${{ matrix.candidate }}'
+
+      - name: Validate and unpack verified llama.cpp archive
+        run: |
+          set -euo pipefail
+          entries=$(tar -tzf "$REVIEW_GATE_TEMP/runtime.tar.gz")
+          if printf '%s\n' "$entries" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
+            echo 'UNSAFE_RUNTIME_ARCHIVE_PATH'
+            exit 1
+          fi
+          printf '%s\n' "$entries" | grep -qx 'llama-b10977/llama-cli'
+          tar -xzf "$REVIEW_GATE_TEMP/runtime.tar.gz" -C "$REVIEW_GATE_TEMP"
+          test -x "$REVIEW_GATE_TEMP/llama-b10977/llama-cli"
+
+      - name: Run bounded three-pass historical benchmark
+        env:
+          REVIEW_GATE_REPORT_PATH: ${{ runner.temp }}/review-gate-model-report.json
+        run: |
+          export REVIEW_GATE_MODEL_PATH="$REVIEW_GATE_TEMP/model.gguf"
+          export REVIEW_GATE_BINARY_PATH="$REVIEW_GATE_TEMP/llama-b10977/llama-cli"
+          node scripts/github/review-gate/qualification/evaluate.mjs '${{ matrix.candidate }}'
+
+      - name: Upload model metrics without diffs or model output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: review-gate-model-${{ matrix.candidate }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/review-gate-model-report.json
+          retention-days: 30
+          if-no-files-found: error

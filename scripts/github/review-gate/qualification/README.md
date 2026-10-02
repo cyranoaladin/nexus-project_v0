@@ -3,13 +3,19 @@
 This corpus is a qualification input, **not merge authority**. Its 40 cases
 reference 40 distinct historical repository commits (20 known-defect
 reintroductions from reversed fixes, 20 forward corrections). The harness
-reconstructs a single-file patch from each immutable commit; labels,
+reconstructs one three-line-context file hunk from each immutable commit,
+matching the patch shape exposed by GitHub's PR-files API. A reversed fix is
+an intentionally synthetic regression; its identifier is the patch digest,
+not the historical fixing commit. Labels,
 descriptions, commit IDs, and expected outcomes are never sent to the model.
 Model inference must treat only the reconstructed patch as untrusted text.
 
 The corpus deliberately remains `UNVETTED`. An independent reviewer must
 confirm each defect/benign label, that the selected single-file patch contains
 enough context, and that no forward correction carries an unrelated regression.
+Several cases were replaced after initial vetting found ambiguous labels or
+patches whose relevant context did not fit the proposed model window; this
+revision does not turn the corpus into an independent held-out evaluation.
 Historical incidents used to design a prompt or model choice must be excluded
 from a later held-out authority evaluation. Reverse-fix cases alone cannot
 establish performance on naturally occurring new defects. Until that work and

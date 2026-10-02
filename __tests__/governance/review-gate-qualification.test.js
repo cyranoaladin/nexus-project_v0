@@ -32,7 +32,7 @@ describe('historical semantic qualification corpus', () => {
     const corpus = qualification.validateCorpus(JSON.parse(readFileSync(corpusPath, 'utf8')));
     const item = corpus.cases.find((candidate) => candidate.family === 'prisma-openssl');
     const evidence = qualification.materializeHistoricalCase(item, { repoRoot: root });
-    expect(evidence.diff).toContain('diff --git');
+    expect(evidence.diff).toMatch(/^@@ /);
     expect(evidence.diff).toContain('binaryTargets');
     expect(evidence.diffBytes).toBeGreaterThan(0);
     const input = qualification.toModelData(evidence);
@@ -48,7 +48,7 @@ describe('historical semantic qualification corpus', () => {
     for (const item of corpus.cases) {
       const evidence = qualification.materializeHistoricalCase(item, { repoRoot: root });
       expect(evidence.diffBytes).toBeLessThanOrEqual(policy.maximumDiffBytes);
-      expect(evidence.diff).toContain(`diff --git a/${item.source.path} b/${item.source.path}`);
+      expect(evidence.diff).toMatch(/^@@ /);
     }
   });
 
