@@ -134,9 +134,12 @@ describe('Oversized Input Prevention', () => {
   it('should reject extremely long password', () => {
     const longPassword = 'A1' + 'a'.repeat(100000);
     const result = passwordSchema.safeParse(longPassword);
-    // Password has no max length in schema, but this tests it doesn't crash
-    // The schema should still parse without error
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toEqual(expect.arrayContaining([
+        expect.objectContaining({ message: 'Le mot de passe doit tenir dans 72 octets UTF-8' }),
+      ]));
+    }
   });
 
   it('should reject session description > 500 chars', () => {
