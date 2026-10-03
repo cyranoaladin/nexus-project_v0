@@ -1,0 +1,935 @@
+{
+  "principal": {
+    "added": [],
+    "removed": [
+      "enum AcademicEnrollmentKind",
+      "enum AcademicEnrollmentSource",
+      "enum ActivityAttemptStatus",
+      "enum ActivityOutcome",
+      "enum ActivityType",
+      "enum ActivityVersionStatus",
+      "enum AriaConversationContextState",
+      "enum AriaConversationTurnMessageRole",
+      "enum AriaConversationTurnStatus",
+      "enum AriaConversationTurnUseCase",
+      "enum AriaDataMigrationClassification",
+      "enum AriaDataMigrationMode",
+      "enum AriaDataMigrationStatus",
+      "enum AriaEntitlementScopeKind",
+      "enum AriaTier",
+      "enum AriaVisibility",
+      "enum AriaWorkshopAttendeeStatus",
+      "enum AriaWorkshopSessionStatus",
+      "enum AssignmentCourseScopeState",
+      "enum BilanReviewDecision",
+      "enum BrancheBascule",
+      "enum CandidateLevel",
+      "enum CorrectionAuthor",
+      "enum FamilyRequestStatus",
+      "enum FamilyRequestType",
+      "enum LearningEvidenceSource",
+      "enum Modalite",
+      "enum ParcoursType",
+      "enum ParentPhonePurpose",
+      "enum ParentPhoneState",
+      "enum PlanningSeriesStatus",
+      "enum PlanningStudioAction",
+      "enum QuotePaymentPolicy",
+      "enum QuoteRegulatoryMaturity",
+      "enum SchoolingStatus",
+      "model Activity",
+      "model ActivityAttempt",
+      "model ActivityResponse",
+      "model ActivityResult",
+      "model ActivityVersion",
+      "model AriaCockpitProfile",
+      "model AriaConversationTurn",
+      "model AriaDataMigrationRowAudit",
+      "model AriaDataMigrationRun",
+      "model AriaEntitlementScope",
+      "model AriaFeedback",
+      "model AriaLearningProfile",
+      "model AriaMessageCitation",
+      "model AriaWorkshopAttendee",
+      "model AriaWorkshopSession",
+      "model FamilyRequest",
+      "model FamilyRequestChild",
+      "model LearningEvidence",
+      "model ParentPhoneChallenge",
+      "model PlanningOverrideAudit",
+      "model PlanningSeries",
+      "model PlanningStudioDocument",
+      "model PlanningStudioRevision",
+      "model ProfilCandidat",
+      "model ShadowComparisonLog",
+      "model StudentAcademicEnrollment"
+    ],
+    "changed": {
+      "enum Subject": {
+        "only_main": [
+          "ARABE",
+          "ITALIEN",
+          "RUSSE",
+          "ALLEMAND"
+        ],
+        "only_local": []
+      },
+      "model PedagogicalReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ContactLead": {
+        "only_main": [
+          "profilsCandidats ProfilCandidat[]"
+        ],
+        "only_local": []
+      },
+      "enum BilanType": {
+        "only_main": [
+          "ARIA_PERIODIC // ARIA — bilan périodique généré depuis LearningEvidence (P7b)"
+        ],
+        "only_local": []
+      },
+      "model CanonicalApiIdempotencyKey": {
+        "only_main": [
+          "payloadHash String?"
+        ],
+        "only_local": []
+      },
+      "model EafPreparationReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SurvivalProgress": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model NsiPracticeProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CandidateDiagnostic": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model MathsProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ProjectionHistory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachStudentAssignment": {
+        "only_main": [
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "academicCourseKeys String[] @default([])",
+          "courseScopeState AssignmentCourseScopeState @default(BACKFILL_UNRESOLVED)",
+          "planningSeries PlanningSeries[]",
+          "sessionBookings SessionBooking[]",
+          "@@index([courseScopeState, status])"
+        ],
+        "only_local": [
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachNote": {
+        "only_main": [
+          "student User @relation(\"CoachNoteSubject\", fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach User @relation(\"CoachNoteAuthor\", fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student User @relation(\"CoachNoteSubject\", fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach User @relation(\"CoachNoteAuthor\", fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model EamProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachProfile": {
+        "only_main": [
+          "planningSeries PlanningSeries[] @relation(\"PlanningSeriesCoach\")",
+          "canonicalSessionBookings SessionBooking[] @relation(\"SessionBookingCoachProfile\")",
+          "ariaWorkshopSessions AriaWorkshopSession[]"
+        ],
+        "only_local": []
+      },
+      "model CopySubmission": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model User": {
+        "only_main": [
+          "parentPhoneState ParentPhoneState @default(NONE)",
+          "parentPhoneVersion Int @default(0)",
+          "emailVerifiedAt DateTime?",
+          "phoneVerifiedAt DateTime?",
+          "registrationCompletedAt DateTime?",
+          "parentPhoneChallenges ParentPhoneChallenge[]",
+          "ariaConversationTurns AriaConversationTurn[] @relation(\"AriaTurnActor\")",
+          "ariaTurnCancellations AriaConversationTurn[] @relation(\"AriaTurnCancellationActor\")",
+          "verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation(\"AcademicEnrollmentVerifier\")",
+          "planningStudioDocumentsUpdated PlanningStudioDocument[] @relation(\"PlanningStudioDocumentUpdatedBy\")",
+          "planningStudioRevisions PlanningStudioRevision[] @relation(\"PlanningStudioRevisionCreatedBy\")",
+          "familyRequestsProcessed FamilyRequest[] @relation(\"FamilyRequestProcessedBy\")",
+          "planningSeriesCreated PlanningSeries[] @relation(\"PlanningSeriesCreatedBy\")",
+          "planningOverrideAudits PlanningOverrideAudit[] @relation(\"PlanningOverrideAuditActor\")",
+          "ariaWorkshopSessionsCreated AriaWorkshopSession[] @relation(\"AriaWorkshopSessionCreatedBy\")",
+          "ariaWorkshopAttendanceMarks AriaWorkshopAttendee[] @relation(\"AriaWorkshopAttendeeMarkedBy\")",
+          "bilansReviewed Bilan[] @relation(\"BilanReviewedBy\")"
+        ],
+        "only_local": []
+      },
+      "model UserDocument": {
+        "only_main": [
+          "user User @relation(\"UserDocuments\", fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(\"UserDocuments\", fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SessionBooking": {
+        "only_main": [
+          "student User @relation(\"StudentSessions\", fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach User @relation(\"CoachSessions\", fields: [coachId], references: [id], onDelete: Restrict)",
+          "studentProfileId String?",
+          "studentProfile Student? @relation(\"SessionBookingStudentProfile\", fields: [studentProfileId], references: [id], onDelete: SetNull)",
+          "coachProfileId String?",
+          "coachProfile CoachProfile? @relation(\"SessionBookingCoachProfile\", fields: [coachProfileId], references: [id], onDelete: SetNull)",
+          "assignmentId String?",
+          "assignment CoachStudentAssignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)",
+          "academicCourseKey String?",
+          "planningSeriesId String?",
+          "planningSeries PlanningSeries? @relation(fields: [planningSeriesId], references: [id], onDelete: SetNull)",
+          "occurrenceKey String? @unique",
+          "overridesBookingId String? @unique",
+          "overridesBooking SessionBooking? @relation(\"SessionBookingOverride\", fields: [overridesBookingId], references: [id], onDelete: SetNull)",
+          "overriddenByBooking SessionBooking? @relation(\"SessionBookingOverride\")",
+          "overrideAudits PlanningOverrideAudit[] @relation(\"PlanningOverrideAuditBooking\")",
+          "@@index([studentProfileId, scheduledDate])",
+          "@@index([coachProfileId, scheduledDate])",
+          "@@index([assignmentId])",
+          "@@index([planningSeriesId, scheduledDate])"
+        ],
+        "only_local": [
+          "student User @relation(\"StudentSessions\", fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach User @relation(\"CoachSessions\", fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SessionReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Entitlement": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)",
+          "ariaTier AriaTier?",
+          "sourceSubscriptionId String? @unique",
+          "sourceSubscription Subscription? @relation(\"AriaEntitlementSourceSubscription\", fields: [sourceSubscriptionId], references: [id], onDelete: SetNull)",
+          "ariaScopes AriaEntitlementScope[]"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Session": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Quote": {
+        "only_main": [
+          "profilId String?",
+          "profil ProfilCandidat? @relation(fields: [profilId], references: [id], onDelete: SetNull)",
+          "snapshotCarte Json?",
+          "snapshotRegles Json?",
+          "parcours ParcoursType?",
+          "monthlyTotal Int",
+          "grandTotal Int",
+          "deposit Int?",
+          "lastInstallmentAmount Int?",
+          "regulatoryMaturity QuoteRegulatoryMaturity @default(LEGACY_ESTIMATE_UNVERIFIED)",
+          "paymentPolicy QuotePaymentPolicy?",
+          "@@index([profilId])"
+        ],
+        "only_local": [
+          "monthlyTotal Int // TND — sum of active lines for a standard month",
+          "grandTotal Int // TND — monthlyTotal x months billed"
+        ]
+      },
+      "model ParentProfile": {
+        "only_main": [
+          "familyRequests FamilyRequest[] @relation(\"FamilyRequestParent\")"
+        ],
+        "only_local": []
+      },
+      "model Trajectory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model GeneratedPedagogicalReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "enum CanonicalJobType": {
+        "only_main": [
+          "RECOVER_ARIA_TURN",
+          "WHATSAPP_SEND"
+        ],
+        "only_local": []
+      },
+      "model Bilan": {
+        "only_main": [
+          "reviewedById String?",
+          "reviewedBy User? @relation(\"BilanReviewedBy\", fields: [reviewedById], references: [id], onDelete: SetNull)",
+          "reviewedAt DateTime?",
+          "reviewDecision BilanReviewDecision?"
+        ],
+        "only_local": []
+      },
+      "model AriaMessage": {
+        "only_main": [
+          "role String // \"user\", \"assistant\" ou \"system\"",
+          "status String @default(\"COMPLETED\") // PENDING, STREAMING, COMPLETED, CANCELLED, ERROR",
+          "metadata Json?",
+          "turnId String?",
+          "turnRole AriaConversationTurnMessageRole?",
+          "turn AriaConversationTurn? @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Cascade)",
+          "citations AriaMessageCitation[]",
+          "feedbacks AriaFeedback[]",
+          "@@unique([turnId, turnRole])",
+          "@@index([turnId])"
+        ],
+        "only_local": [
+          "role String // \"user\" ou \"assistant\""
+        ]
+      },
+      "model AriaConversation": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "courseKey String?",
+          "skillId String?",
+          "resourceId String?",
+          "contextVersion String? @default(\"v1\")",
+          "contextState AriaConversationContextState @default(ACTIVE)",
+          "contextMigrationRunId String?",
+          "contextMigrationRun AriaDataMigrationRun? @relation(\"AriaConversationContextMigration\", fields: [contextMigrationRunId], references: [id], onDelete: SetNull)",
+          "subject Subject?",
+          "turns AriaConversationTurn[] @relation(\"AriaTurnConversationSubject\")",
+          "@@unique([id, studentId])",
+          "@@index([studentId, courseKey])",
+          "@@index([contextState])",
+          "@@index([contextMigrationRunId])"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "subject Subject"
+        ]
+      },
+      "model Student": {
+        "only_main": [
+          "parent ParentProfile @relation(fields: [parentId], references: [id], onDelete: Restrict)",
+          "schoolingStatus SchoolingStatus?",
+          "academicRevision Int @default(0)",
+          "ariaConversationTurns AriaConversationTurn[] @relation(\"AriaTurnSubject\")",
+          "ariaProfile AriaLearningProfile?",
+          "ariaCockpitProfile AriaCockpitProfile?",
+          "ariaFeedbacks AriaFeedback[]",
+          "learningEvidence LearningEvidence[]",
+          "activityAttempts ActivityAttempt[]",
+          "ariaWorkshopAttendances AriaWorkshopAttendee[]",
+          "profilsCandidats ProfilCandidat[]",
+          "academicEnrollments StudentAcademicEnrollment[]",
+          "planningSeries PlanningSeries[] @relation(\"PlanningSeriesStudent\")",
+          "canonicalSessionBookings SessionBooking[] @relation(\"SessionBookingStudentProfile\")"
+        ],
+        "only_local": [
+          "parent ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)",
+          "specialties Subject[] @default([])"
+        ]
+      },
+      "model StageBilan": {
+        "only_main": [
+          "student Student @relation(\"StudentStageBilans\", fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(\"StudentStageBilans\", fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CandidateDiagnosticConsent": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SubscriptionRequest": {
+        "only_main": [
+          "requestedByEmail String?",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "requestedByEmail String",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ProgressionHistory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Subscription": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "ariaEntitlement Entitlement? @relation(\"AriaEntitlementSourceSubscription\")"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CreditTransaction": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model StudentReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      }
+    },
+    "decision": "retain-main-no-schema-import",
+    "new_migration": null
+  },
+  "candidate": {
+    "added": [],
+    "removed": [
+      "enum AcademicEnrollmentKind",
+      "enum AcademicEnrollmentSource",
+      "enum ActivityAttemptStatus",
+      "enum ActivityOutcome",
+      "enum ActivityType",
+      "enum ActivityVersionStatus",
+      "enum AriaConversationContextState",
+      "enum AriaConversationTurnMessageRole",
+      "enum AriaConversationTurnStatus",
+      "enum AriaConversationTurnUseCase",
+      "enum AriaDataMigrationClassification",
+      "enum AriaDataMigrationMode",
+      "enum AriaDataMigrationStatus",
+      "enum AriaEntitlementScopeKind",
+      "enum AriaTier",
+      "enum AriaVisibility",
+      "enum AriaWorkshopAttendeeStatus",
+      "enum AriaWorkshopSessionStatus",
+      "enum AssignmentCourseScopeState",
+      "enum BilanReviewDecision",
+      "enum BrancheBascule",
+      "enum CandidateLevel",
+      "enum CorrectionAuthor",
+      "enum FamilyRequestStatus",
+      "enum FamilyRequestType",
+      "enum LearningEvidenceSource",
+      "enum Modalite",
+      "enum ParcoursType",
+      "enum ParentPhonePurpose",
+      "enum ParentPhoneState",
+      "enum PlanningSeriesStatus",
+      "enum PlanningStudioAction",
+      "enum QuoteLineModality",
+      "enum QuotePaymentPolicy",
+      "enum QuoteRegulatoryMaturity",
+      "enum QuoteSource",
+      "enum QuoteStatus",
+      "enum QuoteStrategy",
+      "enum SchoolingStatus",
+      "model Activity",
+      "model ActivityAttempt",
+      "model ActivityResponse",
+      "model ActivityResult",
+      "model ActivityVersion",
+      "model AriaCockpitProfile",
+      "model AriaConversationTurn",
+      "model AriaDataMigrationRowAudit",
+      "model AriaDataMigrationRun",
+      "model AriaEntitlementScope",
+      "model AriaFeedback",
+      "model AriaLearningProfile",
+      "model AriaMessageCitation",
+      "model AriaWorkshopAttendee",
+      "model AriaWorkshopSession",
+      "model FamilyRequest",
+      "model FamilyRequestChild",
+      "model LearningEvidence",
+      "model ParentPhoneChallenge",
+      "model PlanningOverrideAudit",
+      "model PlanningSeries",
+      "model PlanningStudioDocument",
+      "model PlanningStudioRevision",
+      "model ProfilCandidat",
+      "model Quote",
+      "model QuoteAuditLog",
+      "model QuoteLine",
+      "model ShadowComparisonLog",
+      "model StudentAcademicEnrollment"
+    ],
+    "changed": {
+      "enum Subject": {
+        "only_main": [
+          "ARABE",
+          "ITALIEN",
+          "RUSSE",
+          "ALLEMAND"
+        ],
+        "only_local": []
+      },
+      "model PedagogicalReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ContactLead": {
+        "only_main": [
+          "quotes Quote[]",
+          "profilsCandidats ProfilCandidat[]"
+        ],
+        "only_local": []
+      },
+      "enum BilanType": {
+        "only_main": [
+          "ARIA_PERIODIC // ARIA — bilan périodique généré depuis LearningEvidence (P7b)"
+        ],
+        "only_local": []
+      },
+      "model CanonicalApiIdempotencyKey": {
+        "only_main": [
+          "payloadHash String?"
+        ],
+        "only_local": []
+      },
+      "model EafPreparationReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SurvivalProgress": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model NsiPracticeProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CandidateDiagnostic": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model MathsProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ProjectionHistory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachStudentAssignment": {
+        "only_main": [
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "academicCourseKeys String[] @default([])",
+          "courseScopeState AssignmentCourseScopeState @default(BACKFILL_UNRESOLVED)",
+          "planningSeries PlanningSeries[]",
+          "sessionBookings SessionBooking[]",
+          "@@index([courseScopeState, status])"
+        ],
+        "only_local": [
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachNote": {
+        "only_main": [
+          "student User @relation(\"CoachNoteSubject\", fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach User @relation(\"CoachNoteAuthor\", fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student User @relation(\"CoachNoteSubject\", fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach User @relation(\"CoachNoteAuthor\", fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model EamProgress": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CoachProfile": {
+        "only_main": [
+          "planningSeries PlanningSeries[] @relation(\"PlanningSeriesCoach\")",
+          "canonicalSessionBookings SessionBooking[] @relation(\"SessionBookingCoachProfile\")",
+          "ariaWorkshopSessions AriaWorkshopSession[]"
+        ],
+        "only_local": []
+      },
+      "model CopySubmission": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model User": {
+        "only_main": [
+          "parentPhoneState ParentPhoneState @default(NONE)",
+          "parentPhoneVersion Int @default(0)",
+          "emailVerifiedAt DateTime?",
+          "phoneVerifiedAt DateTime?",
+          "registrationCompletedAt DateTime?",
+          "parentPhoneChallenges ParentPhoneChallenge[]",
+          "ariaConversationTurns AriaConversationTurn[] @relation(\"AriaTurnActor\")",
+          "ariaTurnCancellations AriaConversationTurn[] @relation(\"AriaTurnCancellationActor\")",
+          "verifiedAcademicEnrollments StudentAcademicEnrollment[] @relation(\"AcademicEnrollmentVerifier\")",
+          "planningStudioDocumentsUpdated PlanningStudioDocument[] @relation(\"PlanningStudioDocumentUpdatedBy\")",
+          "planningStudioRevisions PlanningStudioRevision[] @relation(\"PlanningStudioRevisionCreatedBy\")",
+          "familyRequestsProcessed FamilyRequest[] @relation(\"FamilyRequestProcessedBy\")",
+          "planningSeriesCreated PlanningSeries[] @relation(\"PlanningSeriesCreatedBy\")",
+          "planningOverrideAudits PlanningOverrideAudit[] @relation(\"PlanningOverrideAuditActor\")",
+          "ariaWorkshopSessionsCreated AriaWorkshopSession[] @relation(\"AriaWorkshopSessionCreatedBy\")",
+          "ariaWorkshopAttendanceMarks AriaWorkshopAttendee[] @relation(\"AriaWorkshopAttendeeMarkedBy\")",
+          "bilansReviewed Bilan[] @relation(\"BilanReviewedBy\")"
+        ],
+        "only_local": []
+      },
+      "model UserDocument": {
+        "only_main": [
+          "user User @relation(\"UserDocuments\", fields: [userId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "user User @relation(\"UserDocuments\", fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SessionBooking": {
+        "only_main": [
+          "student User @relation(\"StudentSessions\", fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach User @relation(\"CoachSessions\", fields: [coachId], references: [id], onDelete: Restrict)",
+          "studentProfileId String?",
+          "studentProfile Student? @relation(\"SessionBookingStudentProfile\", fields: [studentProfileId], references: [id], onDelete: SetNull)",
+          "coachProfileId String?",
+          "coachProfile CoachProfile? @relation(\"SessionBookingCoachProfile\", fields: [coachProfileId], references: [id], onDelete: SetNull)",
+          "assignmentId String?",
+          "assignment CoachStudentAssignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)",
+          "academicCourseKey String?",
+          "planningSeriesId String?",
+          "planningSeries PlanningSeries? @relation(fields: [planningSeriesId], references: [id], onDelete: SetNull)",
+          "occurrenceKey String? @unique",
+          "overridesBookingId String? @unique",
+          "overridesBooking SessionBooking? @relation(\"SessionBookingOverride\", fields: [overridesBookingId], references: [id], onDelete: SetNull)",
+          "overriddenByBooking SessionBooking? @relation(\"SessionBookingOverride\")",
+          "overrideAudits PlanningOverrideAudit[] @relation(\"PlanningOverrideAuditBooking\")",
+          "@@index([studentProfileId, scheduledDate])",
+          "@@index([coachProfileId, scheduledDate])",
+          "@@index([assignmentId])",
+          "@@index([planningSeriesId, scheduledDate])"
+        ],
+        "only_local": [
+          "student User @relation(\"StudentSessions\", fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach User @relation(\"CoachSessions\", fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SessionReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "coach CoachProfile @relation(fields: [coachId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Entitlement": {
+        "only_main": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Restrict)",
+          "ariaTier AriaTier?",
+          "sourceSubscriptionId String? @unique",
+          "sourceSubscription Subscription? @relation(\"AriaEntitlementSourceSubscription\", fields: [sourceSubscriptionId], references: [id], onDelete: SetNull)",
+          "ariaScopes AriaEntitlementScope[]"
+        ],
+        "only_local": [
+          "user User @relation(fields: [userId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model Session": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ParentProfile": {
+        "only_main": [
+          "familyRequests FamilyRequest[] @relation(\"FamilyRequestParent\")"
+        ],
+        "only_local": []
+      },
+      "model Trajectory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model GeneratedPedagogicalReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "enum CanonicalJobType": {
+        "only_main": [
+          "RECOVER_ARIA_TURN",
+          "WHATSAPP_SEND"
+        ],
+        "only_local": []
+      },
+      "model Bilan": {
+        "only_main": [
+          "reviewedById String?",
+          "reviewedBy User? @relation(\"BilanReviewedBy\", fields: [reviewedById], references: [id], onDelete: SetNull)",
+          "reviewedAt DateTime?",
+          "reviewDecision BilanReviewDecision?"
+        ],
+        "only_local": []
+      },
+      "model AriaMessage": {
+        "only_main": [
+          "role String // \"user\", \"assistant\" ou \"system\"",
+          "status String @default(\"COMPLETED\") // PENDING, STREAMING, COMPLETED, CANCELLED, ERROR",
+          "metadata Json?",
+          "turnId String?",
+          "turnRole AriaConversationTurnMessageRole?",
+          "turn AriaConversationTurn? @relation(fields: [turnId, conversationId], references: [id, conversationId], onDelete: Cascade)",
+          "citations AriaMessageCitation[]",
+          "feedbacks AriaFeedback[]",
+          "@@unique([turnId, turnRole])",
+          "@@index([turnId])"
+        ],
+        "only_local": [
+          "role String // \"user\" ou \"assistant\""
+        ]
+      },
+      "model AriaConversation": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "courseKey String?",
+          "skillId String?",
+          "resourceId String?",
+          "contextVersion String? @default(\"v1\")",
+          "contextState AriaConversationContextState @default(ACTIVE)",
+          "contextMigrationRunId String?",
+          "contextMigrationRun AriaDataMigrationRun? @relation(\"AriaConversationContextMigration\", fields: [contextMigrationRunId], references: [id], onDelete: SetNull)",
+          "subject Subject?",
+          "turns AriaConversationTurn[] @relation(\"AriaTurnConversationSubject\")",
+          "@@unique([id, studentId])",
+          "@@index([studentId, courseKey])",
+          "@@index([contextState])",
+          "@@index([contextMigrationRunId])"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)",
+          "subject Subject"
+        ]
+      },
+      "model Student": {
+        "only_main": [
+          "parent ParentProfile @relation(fields: [parentId], references: [id], onDelete: Restrict)",
+          "schoolingStatus SchoolingStatus?",
+          "academicRevision Int @default(0)",
+          "ariaConversationTurns AriaConversationTurn[] @relation(\"AriaTurnSubject\")",
+          "ariaProfile AriaLearningProfile?",
+          "ariaCockpitProfile AriaCockpitProfile?",
+          "ariaFeedbacks AriaFeedback[]",
+          "learningEvidence LearningEvidence[]",
+          "activityAttempts ActivityAttempt[]",
+          "ariaWorkshopAttendances AriaWorkshopAttendee[]",
+          "quotes Quote[]",
+          "profilsCandidats ProfilCandidat[]",
+          "academicEnrollments StudentAcademicEnrollment[]",
+          "planningSeries PlanningSeries[] @relation(\"PlanningSeriesStudent\")",
+          "canonicalSessionBookings SessionBooking[] @relation(\"SessionBookingStudentProfile\")"
+        ],
+        "only_local": [
+          "parent ParentProfile @relation(fields: [parentId], references: [id], onDelete: Cascade)",
+          "specialties Subject[] @default([])"
+        ]
+      },
+      "model StageBilan": {
+        "only_main": [
+          "student Student @relation(\"StudentStageBilans\", fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(\"StudentStageBilans\", fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CandidateDiagnosticConsent": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model SubscriptionRequest": {
+        "only_main": [
+          "requestedByEmail String?",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "requestedByEmail String",
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ProgressionHistory": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model ScoreSnapshot": {
+        "only_main": [],
+        "only_local": []
+      },
+      "model Subscription": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)",
+          "ariaEntitlement Entitlement? @relation(\"AriaEntitlementSourceSubscription\")"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model CreditTransaction": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      },
+      "model StudentReport": {
+        "only_main": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)"
+        ],
+        "only_local": [
+          "student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)"
+        ]
+      }
+    },
+    "decision": "retain-main-no-schema-import",
+    "new_migration": null
+  }
+}

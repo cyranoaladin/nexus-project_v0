@@ -1,0 +1,124 @@
+# Reprise ARIA / Core — 3 octobre 2026
+
+## Décision et base
+
+Le mandat de direction choisit exclusivement un clone neuf de GitHub, branche
+`codex/aria-go-live-recovery-20261003`, base `5ffd4dd8e1fb91b0eea42398670a260402660699`.
+Aucun état sale ne devient autorité. PR #317, #318 et #319 déjà fusionnées.
+Les règles live exigent un merge de PR, une approbation du dernier push et les
+contrôles requis. La preuve d'identité Review Gate ne vaut pas revue humaine.
+
+## Préservation
+
+Les preuves privées comprennent métadonnées, statuts porcelain v2, reflogs,
+stashes, manifests taille/mtime/hash, diffs contrôlés et empreintes. 43 sources
+inventoriées, 8 659 fichiers recensés. Aucun environnement, base ni gros binaire
+copié. Plus de 50 Gio restent disponibles. Les patches suspects sont retenus
+sous forme de hash uniquement. Gitleaks sur les preuves : exit 0.
+Les trois empreintes de l'inspection précédente sont identiques.
+
+Incident : le sous-agent de provenance a exécuté `git write-tree` dans la source
+candidate malgré la consigne lecture seule. L'objet retourné est
+`3354ce37bdce891210260cec13f51c37965f1bdf`. Il n'est pas prouvé si cet objet
+existait déjà. Pas de modification de fichiers/index/références par cette commande.
+Aucun effacement correctif ni autre mutation autorisé dans cette source.
+
+## Provenance et non-import
+
+`provenance.json` compte chaque fichier modifié/non suivi développé depuis les
+entrées de statut. Les 141 entrées principales deviennent 273 chemins lorsque les
+répertoires non suivis sont développés. Les 1 897 entrées candidates sont classées
+individuellement. Les environnements Python et la copie historique sont groupés,
+avec manifests exhaustifs privés identifiés par hash. Aucun code local importé.
+Les 2 179 chemins individuels sont classés : 54 identiques à main, 607 versions
+historiques rejetées, 1 229 suppressions obsolètes rejetées, 59 artefacts,
+224 chemins dépréciés/hors périmètre et 6 preuves historiques non promues.
+Les 85 chevauchements suivis comprennent 61 divergences ; aucune ne justifie
+un remplacement de main. `divergences.md` détaille les décisions.
+Cette classification ne constitue pas une qualification fonctionnelle production.
+
+## Réconciliation critique
+
+- Prisma : aucune nouvelle entité/enum utile démontrée dans les deux variantes ;
+  elles retirent notamment académique, famille, téléphone, planning et cycle ARIA,
+  et réintroduisent des cascades. Garder main ; aucune migration de récupération.
+- Pricing : garder main, sans variante commerciale non validée. Historique
+  `76d542ebf` et `5ebac7ee2` formalise les corrections sans acompte. Les variantes
+  locales ne constituent pas une décision de direction nouvelle.
+- Next : garder les dépendances standalone PDF.js/canvas, les protections et le
+  rewrite planning de main ; pas d'option expérimentale ajoutée.
+- Devis : conserver contrats/services actuels. Certaines routes principales sont
+  déjà identiques ; les variantes qui retirent le contexte candidat sont rejetées.
+- Tests : ne pas importer les anciennes suppressions d'assertions ; tester main.
+- Python : prototype FastAPI août 2025, mini-agents maquettes, pas d'appel démontré
+  depuis le Core actuel. Environnements/backups/PDF préservés, aucun import.
+- PDF/manifestes/smoke : preuves historiques, pas artefacts à promouvoir. Ne pas
+  déclarer un manifeste ancien comme preuve de la release actuelle.
+
+## Critères et lots autorisés
+
+Le design et l'ordre des lots sont ceux expressément approuvés par le mandat.
+1. Terminer provenance et qualification de la base sans modification produit.
+2. Exécuter guards architecture, auth/famille/planning, prix/factures et ARIA.
+3. Pour tout défaut démontré : test rouge, correction minimale, test vert,
+   contrôle des permissions/concurrence et commit atomique.
+4. Qualification complète : statiques, build, PostgreSQL isolé, E2E par rôle.
+5. Préparer PR séparée ; aucune publication avant ensemble cohérent vert.
+6. Avant déploiement : revue SHA, preuves TLS/révocation, sauvegarde restaurée,
+   runbook privé effectif, rétention et configuration validés. Aucun contournement.
+
+## État
+
+RECOVERY_CLASSIFIED. Aucun parcours qualifié production par cette reprise.
+La documentation historique ne remplace pas les tests du SHA courant.
+
+## Corrections démontrées sur la base GitHub
+
+| Commit | Invariant | Preuve |
+| --- | --- | --- |
+| `852884586` | verrou bootstrap ADMIN via SQL paramétré | guard rouge puis vert ; 7 tests bootstrap PostgreSQL |
+| `4c9599cc3` | lieu/modalité propagés aux séances futures | 3 cas rouges puis 16 tests planning verts ; test Africa/Tunis |
+| `336f29e61` | historique et exceptions conservés lors d'une révision | cas rouges séance commencée/terminée, annulation/report ; 22 tests planning verts |
+| `83761b3c7` | pause/reprise sans ressusciter annulation explicite | rouge puis vert ; 26 tests incluant collision, édition pendant pause, ancien audit ambigu et course réelle |
+
+Typecheck final du lot planning : exit 0. Lint ciblé, Gitleaks du diff et
+`git diff --check` : exit 0. Pas de migration nouvelle.
+Suite Core-v2 avant les derniers correctifs planning : 631 tests passés,
+3 ClamAV non exécutés dans cette lane puis exécutés séparément (3/3).
+Unitaires de base : 1 266 suites, 14 225 tests passés. Build de base : exit 0.
+Ces preuves doivent être renouvelées sur le SHA final ; elles ne qualifient
+pas un SHA ultérieur automatiquement.
+
+## Sécurité et gates externes
+
+Audit npm runtime : zéro vulnérabilité signalée. Audit complet : 39 packages
+HIGH relevant de deux advisories dev ; validateur de l'exception versionnée
+PR #336 : exit 0. Exception limitée au 10 octobre 2026, jamais une autorisation
+de vulnérabilité runtime.
+Scan historique : 120 alertes à qualifier, dont une clé privée historique
+dans `AGENT_ARIA_RAG.md`. Aucune valeur extraite ni copiée.
+Certificat public actuellement valide ; révocation/rotation historique NON PROUVÉE.
+Runbook privé actuel, restauration récente et politique de rétention globale
+restent à fournir ; aucun déploiement ou accès DB production entrepris.
+
+## Revalidation des sources gelées
+
+43 sources : HEAD et empreintes indexées/non indexées identiques à la capture
+initiale ; aucun index.lock présent à la relecture. Les manifests des fichiers
+ont été revalidés : 7 419 fichiers/liens avec hash disponible, zéro changement
+de contenu, taille ou mtime ; les 12 liens Python sont contrôlés par readlink. L'incident write-tree
+interdit de revendiquer une absence absolue de toute écriture Git : seule
+l'intégrité observée des fichiers, index et références peut être affirmée.
+
+L'audit de pause transporte désormais la révision et les IDs réellement annulés
+(par UPDATE RETURNING paramétré). Une pause historique sans preuve suffisante
+des overrides exige une revue : aucune restauration devinée. Une édition de
+série pendant la pause ne remplace pas cette preuve. L'audit reste append-only.
+
+Intégration Core-v1 : 52 tests critiques / 11 suites, 289 tests DB / 20 suites
+passés sur PostgreSQL pgvector jetable. Un premier essai avec vidéo désactivée
+échouait quatre assertions de la lane Jitsi ; relance avec sa configuration
+Jitsi prévue, zéro modification produit pour contourner ces tests.
+Le seed E2E v2 accepte uniquement le hostname/port jetable documenté : il a été
+exécuté dans un conteneur Node épinglé, sur réseau privé de test et montage
+lecture seule du clone, sans assouplir le guard.
