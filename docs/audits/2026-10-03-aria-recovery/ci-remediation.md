@@ -141,3 +141,9 @@ horloge Jest fixe à midi UTC pour les tests de dispatch vidéo, remise en
 horloge réelle après chaque test. Après correction : quatre succès.
 Toutes les assertions, les modes vidéo et la disponibilité métier restent
 inchangés. La suite complète doit être renouvelée sur le nouveau commit.
+
+## Qualification publiée `1e2d0a5c745479ef11e58edef575e390af6583d1`
+
+Sept commits correctifs publiés normalement vers la branche de PR #337, Draft conservé. Tests locaux : 1 274 suites / 14 286 tests unitaires, 69 suites / 674 tests Core-v2, couverture ARIA 190/2 464 + PostgreSQL 32/352 + concurrence 5/27, seuils conservés et chemins critiques 100 %. Typecheck/lint et build canonique réussis. Mobile isolé 20/20, matrice mobile 4/4, account 4/4 et lifecycle auth multi-navigateurs 60/60. Une trace de succès supplémentaire a été inspectée (592 événements d’action, zéro erreur d’action, 115 frames) ; dernier état vide responsive inspecté visuellement. Les deux streams interrompus `/api/aria/chat` (annulation/timeout contrôlés) et le préchargement `/dashboard/trajectoire` existent encore comme prévu par les scénarios ; aucune interruption de navigation vers account/security. Cookies/tokens de la trace ne sont pas exportés vers le dossier de preuves hôte.
+
+CI distante démarrée sur ce SHA. Le job ARIA PostgreSQL précédemment rouge est maintenant réussi ; CodeQL reste rouge, finding élevé #102 non classé. Les résultats distants complets ne sont pas encore acquis. La suite de migration réelle et le correctif CSRF ajoutés ensuite exigent de nouvelles preuves sur leur HEAD final. Ce jalon ne qualifie ni l’ensemble fonctionnel ni une release production.
