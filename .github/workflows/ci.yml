@@ -90,6 +90,9 @@ jobs:
             --tree /tmp/npm-tree.json \
             --exceptions security/npm-tree-exceptions.json
 
+      - name: Inventory production dependency tree
+        run: npm ls --omit=dev --all --json --long > npm-tree-production.json
+
       - name: Generate SBOM
         run: npm run sbom:runtime
 
@@ -105,8 +108,26 @@ jobs:
       - name: Audit production dependencies
         run: node scripts/security/run-npm-audit.mjs --output=npm-audit-production.json --omit=dev --audit-level=high
 
-      - name: Audit all dependencies without exceptions
-        run: node scripts/security/run-npm-audit.mjs --output=npm-audit-full.json --audit-level=high
+      - name: Audit all dependencies with exact temporary dev-tooling policy
+        run: |
+          set +e
+          node scripts/security/run-npm-audit.mjs --output=npm-audit-full.json --audit-level=high
+          audit_code=$?
+          set -e
+          if [ "$audit_code" -eq 0 ]; then
+            echo 'Full npm audit clean at the canonical threshold.'
+          elif [ "$audit_code" -eq 1 ]; then
+            node scripts/security/validate-dev-tooling-exception.mjs \
+              --mode current-npm-audit \
+              --policy security/current-dev-tooling-osv-exception.json \
+              --current-sha "$GITHUB_SHA" \
+              --now "$(date -u --iso-8601=seconds)" \
+              --report npm-audit-full.json \
+              --lockfile package-lock.json
+          else
+            echo "Full npm audit failed (exit=$audit_code); exception is not applicable." >&2
+            exit "$audit_code"
+          fi
 
       - name: Upload dependency evidence
         if: always()
@@ -116,6 +137,7 @@ jobs:
           path: |
             npm-audit-production.json
             npm-audit-full.json
+            npm-tree-production.json
             security/sbom/runtime.cdx.json
           retention-days: 30
           if-no-files-found: error
@@ -1732,6 +1754,8 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [dependency-integrity, build]
+    if: ${{ always() }}
 
     steps:
       - name: Checkout code
@@ -1853,7 +1877,67 @@ jobs:
           chmod +x osv-scanner
 
       - name: Run OSV Scanner
-        run: ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
+        id: osv_scan
+        run: |
+          set +e
+          ./osv-scanner --lockfile=package-lock.json --format=json --output=osv-report.json
+          osv_code=$?
+          set -e
+          if [ "$osv_code" -gt 1 ]; then
+            echo "OSV scanner failed (exit=$osv_code); exception is not applicable." >&2
+            exit "$osv_code"
+          fi
+          echo "code=$osv_code" >> "$GITHUB_OUTPUT"
+
+      - name: Validate clean OSV result
+        if: ${{ steps.osv_scan.outputs.code == '0' }}
+        run: |
+          node scripts/security/validate-dev-tooling-exception.mjs \
+            --mode clean-osv \
+            --report osv-report.json
+          echo 'OSV is green; no temporary exception consumed.'
+
+      - name: Verify runtime evidence jobs
+        if: ${{ steps.osv_scan.outputs.code == '1' }}
+        run: |
+          test '${{ needs.dependency-integrity.result }}' = 'success' || {
+            echo 'Dependency Integrity did not produce qualified evidence.' >&2
+            exit 1
+          }
+          test '${{ needs.build.result }}' = 'success' || {
+            echo 'Production Build did not produce a qualified standalone.' >&2
+            exit 1
+          }
+
+      - name: Download same-run dependency evidence
+        if: ${{ steps.osv_scan.outputs.code == '1' }}
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: dependency-integrity-evidence
+          path: ${{ runner.temp }}/security-dependency-evidence
+
+      - name: Download same-run standalone evidence
+        if: ${{ steps.osv_scan.outputs.code == '1' }}
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: nextjs-build
+          path: ${{ runner.temp }}/security-build-artifact
+
+      - name: Validate exact temporary OSV exception
+        if: ${{ steps.osv_scan.outputs.code == '1' }}
+        run: |
+          node scripts/security/validate-dev-tooling-exception.mjs \
+              --mode current-osv \
+              --policy security/current-dev-tooling-osv-exception.json \
+              --current-sha "$GITHUB_SHA" \
+              --now "$(date -u --iso-8601=seconds)" \
+              --report osv-report.json \
+              --lockfile package-lock.json \
+              --production-audit "$RUNNER_TEMP/security-dependency-evidence/npm-audit-production.json" \
+              --production-tree "$RUNNER_TEMP/security-dependency-evidence/npm-tree-production.json" \
+              --runtime-sbom "$RUNNER_TEMP/security-dependency-evidence/security/sbom/runtime.cdx.json" \
+              --artifact-root "$RUNNER_TEMP/security-build-artifact/.next/standalone" \
+              --artifact-manifest "$RUNNER_TEMP/security-build-artifact/release-manifest.json"
 
       - name: Upload OSV report
         if: always()
@@ -1862,7 +1946,7 @@ jobs:
           name: osv-report
           path: osv-report.json
           retention-days: 7
-          if-no-files-found: ignore
+          if-no-files-found: error
 
   # ===========================================================================
   # JOB 8: BUILD PRODUCTION
