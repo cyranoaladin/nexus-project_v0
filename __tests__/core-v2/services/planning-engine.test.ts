@@ -18,6 +18,7 @@ import {
 import { LIVE_BOOKING_STATUSES } from '@/lib/core-v2/services/planning';
 import { listBookings, listOwnCoachBookings, listOwnHouseholdBookings, listOwnStudentBookings } from '@/lib/core-v2/queries/planning';
 import { isCoreV2DomainError } from '@/lib/core-v2/errors';
+import { ORGANIZATION_TIMEZONE_ENV } from '@/lib/core-v2/config';
 import { holdOpenTransaction, seedAcademicYear, seedCoach, setupServiceHarness, waitForLockWaiter } from '../helpers/service-harness';
 
 const h = setupServiceHarness();
@@ -66,6 +67,28 @@ const weeklyTuesday = (assignmentId: string, extra: Record<string, unknown> = {}
 });
 
 describe('materialization', () => {
+  test('Africa/Tunis stays UTC+1 across winter and summer and is captured on the series', async () => {
+    const prior = process.env[ORGANIZATION_TIMEZONE_ENV];
+    process.env[ORGANIZATION_TIMEZONE_ENV] = 'Africa/Tunis';
+    try {
+      const c = await seedPlanningContext();
+      const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id));
+      expect(series.timezone).toBe('Africa/Tunis');
+      const bookings = await h.client.sessionBooking.findMany({
+        where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' },
+      });
+      expect(bookings).toHaveLength(44);
+      for (const date of ['2026-09-15', '2026-12-15', '2027-03-30', '2027-07-13']) {
+        const booking = bookings.find((row) => row.startsAt.toISOString().startsWith(date));
+        expect(booking?.startsAt.toISOString()).toBe(`${date}T17:00:00.000Z`);
+        expect(booking?.endsAt.toISOString()).toBe(`${date}T18:00:00.000Z`);
+      }
+    } finally {
+      if (prior === undefined) delete process.env[ORGANIZATION_TIMEZONE_ENV];
+      else process.env[ORGANIZATION_TIMEZONE_ENV] = prior;
+    }
+  });
+
   test('an open-ended weekly rule is materialized up to the academic year end; instants follow the zone (Europe/Paris DST)', async () => {
     const c = await seedPlanningContext();
     const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id));
@@ -219,6 +242,34 @@ describe('exceptions and series changes', () => {
       rescheduleOccurrence(h.client, h.ctx(), { bookingId: first!.id, localDate: '2026-09-18', localStartTime: '10:00', localEndTime: '11:00', reason: 'x' }),
       'INVALID_STATE',
     );
+  });
+
+  test.each([
+    { changes: { location: 'Salle synthétique B' }, modality: 'IN_PERSON', location: 'Salle synthétique B' },
+    { changes: { modality: 'ONLINE' as const }, modality: 'ONLINE', location: 'Salle synthétique A' },
+    { changes: { location: null }, modality: 'IN_PERSON', location: null },
+  ])('a logistics change $changes updates only future bookings', async ({ changes, modality, location }) => {
+    const c = await seedPlanningContext();
+    const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, {
+      recurrenceCount: 4, modality: 'IN_PERSON', location: 'Salle synthétique A',
+    }));
+    const originals = await h.client.sessionBooking.findMany({
+      where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' },
+    });
+    await changePlanningSeries(h.client, createServiceContext(h.admin, {
+      now: () => new Date('2026-09-25T12:00:00Z'),
+    }), { seriesId: series.id, expectedRevision: 0, changes });
+    const rows = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id } });
+    expect(rows.filter((row) => row.status === 'CANCELLED').map((row) => row.id).sort())
+      .toEqual(originals.slice(2).map((row) => row.id).sort());
+    for (const original of originals.slice(0, 2)) expect(rows.find((row) => row.id === original.id)).toEqual(original);
+    const future = rows.filter((row) => row.status === 'SCHEDULED' && row.startsAt >= new Date('2026-09-25T12:00:00Z'));
+    expect(future).toHaveLength(2);
+    for (const booking of future) {
+      expect(booking).toMatchObject({ modality, location });
+      expect(booking.occurrenceKey).toContain(':r1:');
+    }
+    expect(await h.client.auditEvent.count({ where: { subjectId: series.id, action: 'planning.occurrences_materialized' } })).toBe(2);
   });
 
   test('a schedule change is future-only: past occurrences stay, live future ones are re-materialized under the new revision', async () => {

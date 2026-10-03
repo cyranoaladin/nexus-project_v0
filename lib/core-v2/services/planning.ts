@@ -308,7 +308,7 @@ const changeSchema = z.object({
 
 export type ChangePlanningSeriesInput = z.input<typeof changeSchema>;
 
-const SCHEDULE_FIELDS = ['startDate', 'localStartTime', 'localEndTime', 'recurrenceRule', 'recurrenceCount', 'recurrenceUntil'] as const;
+const SCHEDULE_FIELDS = ['startDate', 'localStartTime', 'localEndTime', 'recurrenceRule', 'recurrenceCount', 'recurrenceUntil', 'modality', 'location'] as const;
 
 /** "Today" in the series' zone: the first local date whose occurrences a change may still touch. */
 function todayIn(timezone: string, now: Date): LocalDate {
@@ -325,7 +325,7 @@ async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date): Pr
 }
 
 /**
- * Optimistic change. A schedule change (date/time/rule) is FUTURE-ONLY: past
+ * Optimistic change. A schedule or logistics change (date/time/rule/modality/location) is FUTURE-ONLY: past
  * and in-progress occurrences are history; live occurrences from today on
  * are cancelled and re-materialized from the new definition. Setting status
  * to ENDED/CANCELLED/PAUSED cancels every future live occurrence; back to
