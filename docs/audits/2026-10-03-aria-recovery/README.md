@@ -122,3 +122,30 @@ Jitsi prévue, zéro modification produit pour contourner ces tests.
 Le seed E2E v2 accepte uniquement le hostname/port jetable documenté : il a été
 exécuté dans un conteneur Node épinglé, sur réseau privé de test et montage
 lecture seule du clone, sans assouplir le guard.
+
+## Qualification élargie et échecs conservés
+
+SHA `9e8d0d8cf` : Core-v2 67 suites / 647 tests verts, aucun ignoré ;
+Core-v1 critiques 52/52 et DB 289/289 ; lint/typecheck/lanes verts.
+Le build a compilé mais son audit a refusé une trace `.artifacts/recovery/rag`
+(`ARIA_STANDALONE_ROUTE_TRACE_FORBIDDEN`). Le garde n'a pas été assoupli.
+La suite générale a détecté l'import runtime du namespace Prisma interdit
+dans planning ; un second échec provenait d'un test de configuration modifié
+pendant cette exécution. Cette exécution mixte n'est pas une preuve SHA exacte.
+
+- `15e58df70` : SQL tagged template directement paramétré, import généré
+  uniquement typé ; guard d'isolation du client et 26 tests PostgreSQL verts.
+- `6b7a67ae0` : exclusions nommées de `.artifacts`, mocks, tests, coverage,
+  E2E, rapports et résultats, préservant Next, PDF.js, Canvas et ressources.
+  Test rouge sur le manifeste synthétique puis vert ; tests d'audit artefact
+  et typecheck verts avant commit. Build complet à renouveler.
+
+Restauration de la base synthétique : dump chiffré AES-256-CBC/PBKDF2
+200 000 itérations, répertoire 0700/fichiers 0600, rétention maximale 72 h.
+Restauré sur une autre base jetable : 124 migrations, 121 tables et 284 lignes
+identiques. Ce test ne remplace pas la restauration de la production.
+
+État actuel : NOT_READY ; tests exacts et E2E à renouveler, parcours annoncés
+à qualifier, gates TLS/runbook/backup réel/rétention/roster/revue toujours
+non prouvées. Les sources gelées restent inchangées selon les vérifications
+décrites, avec l'exception possible de l'objet write-tree déjà consignée.
