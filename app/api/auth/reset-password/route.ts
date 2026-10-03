@@ -13,7 +13,7 @@ import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
-import { requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
+import { canApplyV1CredentialProof, requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
 import { newPasswordSchema } from '@/lib/security/password-policy';
 
 /** Common weak passwords to reject */
@@ -226,6 +226,15 @@ async function handleConfirmReset(body: unknown) {
       { error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' },
       { status: 400 }
     );
+  }
+
+  try {
+    if (!await canApplyV1CredentialProof({ userId: user.id, email: user.email })) {
+      return NextResponse.json({ error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' }, { status: 400 });
+    }
+  } catch {
+    // Authority failure is an explicit refusal, without exposing provider errors.
+    return NextResponse.json({ error: 'Service temporairement indisponible. Veuillez réessayer.' }, { status: 503 });
   }
 
   // Hash new password and update

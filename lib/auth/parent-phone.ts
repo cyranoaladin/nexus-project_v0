@@ -4,6 +4,7 @@ import type { Prisma, ParentPhoneChallenge, User } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 import { newPasswordSchema } from '@/lib/security/password-policy';
+import { canApplyV1CredentialProof } from '@/lib/auth/password-reset-authority';
 
 export type ParentPhonePurpose = 'ACTIVATION' | 'RECOVERY';
 type PhoneTransaction = Pick<Prisma.TransactionClient, 'user' | 'parentPhoneChallenge'>;
@@ -29,6 +30,9 @@ export async function issueParentPhoneChallenge(tx: PhoneTransaction, input: {
   }
   if (normalizeParentPhone(user.phoneNormalized).normalized !== user.phoneNormalized) {
     throw new ParentPhoneError('PHONE_IDENTITY_INVALID');
+  }
+  if (!await canApplyV1CredentialProof({ userId: user.id })) {
+    throw new ParentPhoneError('PHONE_IDENTITY_UNAVAILABLE');
   }
   const activation = input.purpose === 'ACTIVATION';
   if (activation && user.activatedAt !== null) throw new ParentPhoneError('PHONE_ACTIVATION_NOT_ALLOWED');
@@ -80,6 +84,7 @@ export async function verifyParentPhoneChallenge(rawToken: string, dependencies:
     where: { tokenHash: hashParentPhoneToken(rawToken) }, include: { user: true },
   });
   if (!isParentPhoneChallengeValid(challenge, rawToken, dependencies.now ?? new Date())) return { valid: false as const };
+  if (!await canApplyV1CredentialProof({ userId: challenge.userId })) return { valid: false as const };
   return { valid: true as const, purpose: challenge.purpose, phoneHint: `•••• ${challenge.phoneNormalized.slice(-4)}` };
 }
 
@@ -94,6 +99,7 @@ export async function consumeParentPhoneChallenge(rawToken: string, password: st
         where: { tokenHash: hashParentPhoneToken(rawToken) }, include: { user: true },
       });
       if (!isParentPhoneChallengeValid(challenge, rawToken, now)) return { success: false as const };
+      if (!await canApplyV1CredentialProof({ userId: challenge.userId })) return { success: false as const };
       // Lock/update the user first: same lock ordering as issue and the trigger.
       // Any later failed challenge claim throws, rolling back this update.
       const activation = challenge.purpose === 'ACTIVATION';
