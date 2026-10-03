@@ -323,7 +323,8 @@ describe('exact temporary OSV development-tooling exception', () => {
       name: 'new OSV advisory', code: 'ADDITIONAL_ADVISORY',
       mutate: ({ data }) => { data.osv.results[0].packages.push({
         package: { name: 'other-package', version: '1.0.0', ecosystem: 'npm' },
-        vulnerabilities: [{ id: 'GHSA-xxxx-yyyy-zzzz', database_specific: { severity: 'HIGH' } }],
+        vulnerabilities: [{ id: 'GHSA-xxxx-yyyy-zzzz',
+          database_specific: { severity: 'HIGH' }, severity: [] }],
       }); },
     },
     {

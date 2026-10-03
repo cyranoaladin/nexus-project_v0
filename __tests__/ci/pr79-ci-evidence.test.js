@@ -44,7 +44,6 @@ const independentEvidenceJobs = [
   // 30-minute budget as e2e/auth gained coverage).
   'e2e-auth-chromium',
   'e2e-auth-cross-browser',
-  'security',
   'build',
   // Explicit DISABLED delivery mode must prove a production standalone build
   // independently of the legacy JITSI Production Build lane.
@@ -66,6 +65,7 @@ const ariaQualificationJobs = [
 ];
 const requiredJobs = [
   'dependency-integrity',
+  'security',
   ...independentEvidenceJobs,
   ...ariaQualificationJobs,
 ];
@@ -106,6 +106,16 @@ describe('PR #79 complete CI evidence workflow', () => {
     },
   );
 
+  test('Security Scan waits for exact-run build evidence but still executes when an upstream job fails', () => {
+    const security = workflow.jobs.security;
+    expect(security.needs).toEqual(['dependency-integrity', 'build']);
+    expect(security.if).toBe('${{ always() }}');
+    const verification = security.steps.find((step) => step.name === 'Verify runtime evidence jobs');
+    expect(verification.if).toContain("steps.osv_scan.outputs.code == '1'");
+    expect(verification.run).toContain('needs.dependency-integrity.result');
+    expect(verification.run).toContain('needs.build.result');
+  });
+
   test('keeps Dependency Integrity strict and unchanged in substance', () => {
     const gate = workflow.jobs['dependency-integrity'];
     const source = jobSource(gate);
@@ -126,7 +136,8 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(prodStep.run).toContain('--audit-level=high');
 
     // Full audit step must call the canonical wrapper with exact flags
-    const fullStep = gate.steps.find((step) => step.name === 'Audit all dependencies without exceptions');
+    const fullStep = gate.steps.find((step) =>
+      step.name === 'Audit all dependencies with exact temporary dev-tooling policy');
     expect(fullStep).toBeTruthy();
     expect(fullStep.run).toContain('node scripts/security/run-npm-audit.mjs');
     expect(fullStep.run).toContain('--output=npm-audit-full.json');
@@ -138,11 +149,11 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(runCommands).not.toMatch(/--audit-level\s+(?:low|moderate)/);
   });
 
-  test('keeps the full npm audit blocking with no advisory exception path', () => {
+  test('keeps the full npm audit blocking except for the exact temporary policy', () => {
     const gate = workflow.jobs['dependency-integrity'];
     const source = jobSource(gate);
     const fullAuditRun = gate.steps.find(
-      (step) => step.name === 'Audit all dependencies without exceptions',
+      (step) => step.name === 'Audit all dependencies with exact temporary dev-tooling policy',
     ).run;
 
     expect(fullAuditRun).toContain('node scripts/security/run-npm-audit.mjs');
@@ -150,8 +161,11 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(fullAuditRun).toContain('--output=npm-audit-full.json');
     expect(fullAuditRun).not.toContain('validate-brace-expansion-attestation');
     expect(fullAuditRun).not.toContain('--attestation');
-    expect(fullAuditRun).not.toContain('set +e');
-    expect(fullAuditRun).not.toMatch(/audit_code|FULL_AUDIT_EXIT_CODE/);
+    expect(fullAuditRun).toContain('elif [ "$audit_code" -eq 1 ]');
+    expect(fullAuditRun).toContain('--mode current-npm-audit');
+    expect(fullAuditRun).toContain('--policy security/current-dev-tooling-osv-exception.json');
+    expect(fullAuditRun).toContain('--lockfile package-lock.json');
+    expect(fullAuditRun).not.toContain('|| true');
     expect(source).toContain('npm-audit-production.json');
     expect(source).toContain('npm-audit-full.json');
     expect(
@@ -160,7 +174,7 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(fullAuditRun).not.toMatch(/exit\s+0\s*(?:#.*)?$/m);
   });
 
-  test('keeps OSV blocking with no advisory exception path', () => {
+  test('keeps OSV blocking, with only exact findings allowed after physical runtime proof', () => {
     const security = workflow.jobs.security;
     const source = jobSource(security);
     const osvRun = security.steps.find((step) => step.name === 'Run OSV Scanner').run;
@@ -168,8 +182,21 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(osvRun).toContain('./osv-scanner --lockfile=package-lock.json');
     expect(osvRun).not.toContain('validate-brace-expansion-attestation');
     expect(osvRun).not.toContain('--attestation');
-    expect(osvRun).not.toContain('set +e');
-    expect(osvRun).not.toMatch(/osv_code|OSV_EXIT_CODE/);
+    expect(security.steps.find((step) => step.name === 'Run OSV Scanner').id).toBe('osv_scan');
+    expect(osvRun).toContain('osv_code');
+    const exception = security.steps.find((step) =>
+      step.name === 'Validate exact temporary OSV exception');
+    expect(exception.if).toContain("steps.osv_scan.outputs.code == '1'");
+    expect(exception.run).toContain('--mode current-osv');
+    expect(exception.run).toContain('--artifact-root');
+    expect(exception.run).toContain('--runtime-sbom');
+    expect(exception.run).toContain('--production-tree');
+    const clean = security.steps.find((step) => step.name === 'Validate clean OSV result');
+    expect(clean.if).toContain("steps.osv_scan.outputs.code == '0'");
+    expect(clean.run).toContain('--mode clean-osv');
+    expect(security.steps.filter((step) => step.uses?.startsWith('actions/download-artifact@'))
+      .map((step) => step.with.name)).toEqual(['dependency-integrity-evidence', 'nextjs-build']);
+    expect(exception.run).not.toContain('|| true');
     expect(source).toContain('osv-report.json');
     expect(
       security.steps.find((step) => step.name === 'Upload OSV report').if,
