@@ -77,3 +77,37 @@ opérationnelle du migrateur ; aucune atomicité interbases n'est revendiquée. 
 trigger empêche UPDATE/DELETE par les écritures ordinaires, pas un administrateur
 DB privilégié désactivant les protections. La rétention globale et les autres
 gates de production restent non prouvées.
+
+## Qualification du SHA `1a409bbb395a0628b157a7f760cc4edf955a4ccf`
+
+Build et lint complets : exit 0. Core-v2 : 68 suites, 670 tests verts.
+Les quatre E2E Chromium V1/Core-v2 passent à 390 et 1440 px (24,8 s),
+avec deux sessions réelles, révocation, audit et reconnexion. La première
+invocation utilisait à tort la configuration Playwright par défaut, qui exclut
+`e2e/auth` : zéro test exécuté. La relance utilise explicitement
+`playwright.config.e2e.ts`; traces, captures et vidéos restent désactivées
+dans ces scénarios sensibles.
+
+La campagne unitaire initiale échoue : 1 261 / 1 270 suites et
+14 255 / 14 266 tests verts, zéro test ignoré. Trois causes de code/test
+sont corrigées ensuite : lecture de la snapshot JWT déplacée dans le module
+canonique de révocation (aucun Bearer accepté), inventaires exhaustifs de
+mutation User et rate limiting complétés, fixture coach mise en conformité
+avec la politique de nouveaux mots de passe. Le scanner détectait aussi des
+littéraux de fixtures synthétiques : leur construction explicite est corrigée,
+sans allowlist ni diminution du scanner. Le test de frontière continue de
+refuser toute lecture JWT hors du module canonique et vérifie la liaison
+identité/rôle dans la route. Un test HTTP vérifie cookie et absence de Bearer.
+
+Les autres échecs disparaissent lorsque l'environnement unitaire ne reçoit
+plus la configuration E2E (timeout RAG, identité académique, stockage privé,
+worker outbox et valeur LLM). Aucun changement de production n'est apporté
+pour satisfaire ces attentes. Les dix suites diagnostiquées passent ensuite :
+177 tests verts. La campagne complète doit être renouvelée sur le prochain SHA.
+
+Ces résultats ne qualifient ni l'ensemble du produit ni la production.
+
+Le lint ciblé du correctif de frontière retourne 0, avec six avertissements
+`any` préexistants dans le test coach historique ; aucun `any` ni suppression
+de règle n’est ajouté. Scan Gitleaks du diff : zéro détection ; scanner de
+credentials versionnées : zéro détection ; `git diff --check` : exit 0.

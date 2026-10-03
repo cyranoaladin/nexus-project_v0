@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { getToken } from 'next-auth/jwt';
+import { readPrivateSessionSnapshot } from '@/lib/auth/session-revocation';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -52,10 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
     if (!secret || secret.length < 32) throw ApiError.serviceUnavailable();
     // Bind this snapshot to the same session cookie auth() validated, not Bearer.
-    const token = await getToken({
-      req: { headers: new Headers({ cookie: request.headers.get('cookie') ?? '' }) },
-      secret, secureCookie: origin.protocol === 'https:',
-    });
+    const token = await readPrivateSessionSnapshot(request, { secret, secureCookie: origin.protocol === 'https:' });
     if (!token || token.id !== session.user.id || token.role !== session.user.role
       || (token.authority !== undefined && token.authority !== 'V1')
       || typeof token.sessionVersion !== 'number' || !Number.isSafeInteger(token.sessionVersion)

@@ -43,7 +43,9 @@ de lookup User et StageReservation avec un jeton de forme valide.
 
 ## Limites et suite nécessaire
 
-Le changement authentifié V1 et son audit transactionnel restent à développer.
+Le changement authentifié V1 et son audit transactionnel sont implémentés dans
+`1a409bbb395a0628b157a7f760cc4edf955a4ccf`; leur qualification est suivie dans
+`v1-password-change.md`.
 Les routes administratives historiques acceptant encore un mot de passe défini
 par un opérateur doivent être remplacées par invitation/réinitialisation selon
 le mandat ; cette validation ne qualifie pas ce parcours administratif.

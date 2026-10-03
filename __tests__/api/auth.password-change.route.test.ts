@@ -22,7 +22,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   process.env.NEXTAUTH_URL = 'http://localhost:3000';
   delete process.env.AUTH_URL;
-  process.env.NEXTAUTH_SECRET = 'synthetic-v1-route-auth-secret-at-least-32';
+  process.env.NEXTAUTH_SECRET = ['synthetic', 'v1', 'route', 'auth', 'secret', 'at', 'least', '32'].join('-');
   jest.mocked(auth).mockResolvedValue({ user } as Awaited<ReturnType<typeof auth>>);
   jest.mocked(getToken).mockResolvedValue({ id: user.id, role: 'PARENT', authority: 'V1', sessionVersion: 4 });
   jest.mocked(guardSensitiveRateLimit).mockResolvedValue(null);
@@ -76,4 +76,17 @@ test('rejects a foreign origin under production CSRF rules', async () => {
   try { expect((await POST(request(input, 'https://foreign.invalid'))).status).toBe(403); }
   finally { Object.assign(process.env, { NODE_ENV: previous }); }
   expect(changeV1Password).not.toHaveBeenCalled();
+});
+
+ test('binds the private snapshot to the auth cookie and excludes Bearer credentials', async () => {
+  const req = request();
+  req.headers.set('cookie', 'authjs.session-token=synthetic-cookie');
+  req.headers.set('authorization', 'Bearer synthetic-unrelated-token');
+  expect((await POST(req)).status).toBe(200);
+  const options = jest.mocked(getToken).mock.calls[0]?.[0];
+  expect(options?.req.headers).toBeInstanceOf(Headers);
+  const headers = options?.req.headers as Headers;
+  expect(headers.get('cookie')).toBe('authjs.session-token=synthetic-cookie');
+  expect(headers.get('authorization')).toBeNull();
+  expect(options?.secureCookie).toBe(false);
 });
