@@ -209,6 +209,65 @@ function validateProductionAudit(audit) {
   'PRODUCTION_AUDIT_NOT_GREEN');
 }
 
+export function validateCurrentNpmAudit(args, policy) {
+  for (const key of ['current-sha', 'now', 'report', 'lockfile']) {
+    assert(typeof args[key] === 'string' && args[key].length > 0, 'INVALID_ARGUMENTS');
+  }
+  assert(/^[0-9a-f]{40}$/.test(args['current-sha']), 'INVALID_HEAD_SHA');
+  validatePolicy(policy, args.now);
+  assert(sha256(args.lockfile) === policy.lockfileSha256, 'LOCKFILE_DIGEST_CHANGED');
+  const lock = readJson(args.lockfile, 'LOCKFILE_INVALID');
+  const audit = readJson(args.report, 'AUDIT_REPORT_INVALID');
+  validateLockfile(lock, policy);
+  const findings = audit?.vulnerabilities;
+  const counts = audit?.metadata?.vulnerabilities;
+  assert(audit?.auditReportVersion === 2 && findings &&
+    typeof findings === 'object' && !Array.isArray(findings) &&
+    !audit.error && (!audit.errors ||
+      (Array.isArray(audit.errors) && audit.errors.length === 0)) &&
+    Object.keys(findings).length > 0 && counts &&
+    ['info', 'low', 'moderate', 'critical'].every((level) => counts[level] === 0) &&
+    counts.high === Object.keys(findings).length &&
+    counts.total === counts.high, 'AUDIT_REPORT_INVALID');
+
+  const directFound = new Set();
+  const checked = new Set();
+  function visit(name, stack = new Set()) {
+    assert(!stack.has(name), 'AUDIT_VIA_CYCLE');
+    if (checked.has(name)) return;
+    const item = findings[name];
+    assert(item?.name === name && item.severity === 'high' &&
+      Array.isArray(item.via) && item.via.length > 0 &&
+      Array.isArray(item.nodes) && item.nodes.length > 0,
+    'AUDIT_UNEXPECTED_FINDING');
+    for (const path of item.nodes) {
+      assert(typeof path === 'string' && path.startsWith('node_modules/') &&
+        lock.packages[path]?.dev === true, 'PRODUCTION_DEPENDENCY');
+    }
+    const nextStack = new Set(stack);
+    nextStack.add(name);
+    for (const via of item.via) {
+      if (typeof via === 'string') {
+        visit(via, nextStack);
+      } else {
+        const expected = policy.advisories.find((entry) => entry.package === name);
+        assert(expected && via?.name === expected.package &&
+          via.dependency === expected.package &&
+          via.url === `https://github.com/advisories/${expected.id}` &&
+          via.severity === 'high' && via.range === `<=${expected.version}` &&
+          via.cvss?.vectorString === expected.cvssVectors[0],
+        'AUDIT_UNEXPECTED_FINDING');
+        directFound.add(expected.id);
+      }
+    }
+    checked.add(name);
+  }
+  for (const name of Object.keys(findings)) visit(name);
+  assert(sameValues([...directFound], policy.advisories.map((entry) => entry.id)),
+    'AUDIT_ADVISORY_MISSING');
+  return { advisoryIds: [...directFound].sort(), impactedPackages: checked.size };
+}
+
 function validateRuntimeSbom(sbom, packageNames) {
   assert(sbom?.bomFormat === 'CycloneDX' && sbom.specVersion === '1.6' &&
     Array.isArray(sbom.components) && sbom.components.length > 0,

@@ -161,6 +161,78 @@ function runClean(report: string) {
   ], { cwd: root, encoding: 'utf8' });
 }
 
+function fullAuditFixture(current: ReturnType<typeof fixture>) {
+  return {
+    auditReportVersion: 2,
+    metadata: { vulnerabilities: {
+      info: 0, low: 0, moderate: 0, high: 3, critical: 0, total: 3,
+    } },
+    vulnerabilities: {
+      braces: { name: 'braces', severity: 'high', via: [{
+        name: 'braces', dependency: 'braces', severity: 'high',
+        url: 'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm',
+        range: '<=3.0.3', cvss: { vectorString: current.data.policy.advisories[0].cvssVectors[0] },
+      }], nodes: ['node_modules/braces'] },
+      'http-cache-semantics': { name: 'http-cache-semantics', severity: 'high', via: [{
+        name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
+        url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
+        range: '<=4.2.0', cvss: { vectorString: current.data.policy.advisories[1].cvssVectors[0] },
+      }], nodes: ['node_modules/http-cache-semantics'] },
+      micromatch: { name: 'micromatch', severity: 'high', via: ['braces'],
+        nodes: ['node_modules/micromatch'] },
+    },
+  };
+}
+
+function runFullAudit(current: ReturnType<typeof fixture>, report: object) {
+  const path = join(current.directory, 'npm-audit-full.json');
+  writeFileSync(path, JSON.stringify(report));
+  return spawnSync(process.execPath, [validator,
+    '--mode', 'current-npm-audit', '--policy', current.files.policy,
+    '--current-sha', headSha, '--now', '2026-10-03T08:00:00Z',
+    '--report', path, '--lockfile', current.files.lockfile,
+  ], { cwd: root, encoding: 'utf8' });
+}
+
+describe('full npm audit transitive exception', () => {
+  it('allows only dev-only transitive impacts of the exact two root advisories', () => {
+    const current = fixture();
+    try {
+      expect(runFullAudit(current, fullAuditFixture(current)).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  for (const [name, mutate] of [
+    ['new root advisory', (audit: any) => {
+      audit.vulnerabilities.micromatch.via = [{ name: 'micromatch',
+        url: 'https://github.com/advisories/GHSA-other', severity: 'high' }];
+    }],
+    ['production-marked node', (audit: any) => {
+      audit.vulnerabilities.micromatch.nodes = ['node_modules/next'];
+    }],
+    ['critical severity', (audit: any) => {
+      audit.vulnerabilities.braces.severity = 'critical';
+    }],
+    ['dangling via', (audit: any) => {
+      audit.vulnerabilities.micromatch.via = ['missing-package'];
+    }],
+    ['missing second advisory', (audit: any) => {
+      delete audit.vulnerabilities['http-cache-semantics'];
+      audit.metadata.vulnerabilities.high = 2;
+      audit.metadata.vulnerabilities.total = 2;
+    }],
+  ] as const) {
+    it(`refuses ${name}`, () => {
+      const current = fixture();
+      try {
+        const audit = fullAuditFixture(current);
+        mutate(audit);
+        expect(runFullAudit(current, audit).status).not.toBe(0);
+      } finally { rmSync(current.directory, { recursive: true, force: true }); }
+    });
+  }
+});
+
 describe('clean OSV report proof', () => {
   it('accepts a well-formed report with zero findings', () => {
     const current = fixture();

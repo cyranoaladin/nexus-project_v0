@@ -18,6 +18,11 @@ reported no patched version at 2026-10-03T05:32:53Z. At that time, the npm
 registry reported latest versions 3.0.3 and 4.2.0 respectively. This is not a
 claim that the packages are safe; it is a temporary, bounded exception pending
 upstream remediation in [issue #335](https://github.com/cyranoaladin/nexus-project_v0/issues/335).
+The first PR run (`37100916514`) also proved that the unchanged full npm audit
+reports 39 HIGH affected development-tooling packages, all transitively derived
+from these **two** advisory roots, with zero CRITICAL and a clean production
+audit. Its original full-audit step failed before the OSV exception could use
+build evidence; this is an observed CI failure, not 39 authorized advisories.
 
 ## Decision and compensating controls
 
@@ -44,6 +49,12 @@ is not an exception. The OSV JSON is retained as a CI artifact.
 The Dependency Integrity job first validates installed-tree anomalies with
 the existing exact `npm-tree-exceptions.json`; optional native packages already
 covered there are not silently reclassified as vulnerabilities by this policy.
+The full npm audit still runs. Its nonzero vulnerability result may continue
+only if every affected package's lockfile node is `dev: true`, every transitive
+`via` chain terminates in exactly the two pinned GHSA roots, the root CVSS
+vectors and versions match, and no CRITICAL/other severity or unknown advisory
+appears. The final Security Scan must independently prove physical runtime
+absence before overall CI can pass.
 
 ## Revocation
 

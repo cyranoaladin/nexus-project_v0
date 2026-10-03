@@ -13,6 +13,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import {
   validateCleanOsvReport,
   validateCurrentException,
+  validateCurrentNpmAudit,
 } from './current-dev-tooling-exception.mjs';
 
 const scriptDirectory = fileURLToPath(new URL('.', import.meta.url));
@@ -354,6 +355,15 @@ if (args.mode === 'current-osv') {
     process.stdout.write(`CURRENT_OSV_EXCEPTION_VALID advisory_ids=${result.advisoryIds.join(',')} lockfile_sha256=${result.lockfileSha256}\n`);
   } catch (error) {
     fail(error?.message ?? 'CURRENT_OSV_EXCEPTION_FAILED');
+  }
+  process.exit(0);
+}
+if (args.mode === 'current-npm-audit') {
+  try {
+    const result = validateCurrentNpmAudit(args, policy);
+    process.stdout.write(`CURRENT_NPM_AUDIT_EXCEPTION_VALID advisory_ids=${result.advisoryIds.join(',')} impacted_packages=${result.impactedPackages}\n`);
+  } catch (error) {
+    fail(error?.message ?? 'CURRENT_NPM_AUDIT_EXCEPTION_FAILED');
   }
   process.exit(0);
 }

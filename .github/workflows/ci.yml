@@ -108,8 +108,26 @@ jobs:
       - name: Audit production dependencies
         run: node scripts/security/run-npm-audit.mjs --output=npm-audit-production.json --omit=dev --audit-level=high
 
-      - name: Audit all dependencies without exceptions
-        run: node scripts/security/run-npm-audit.mjs --output=npm-audit-full.json --audit-level=high
+      - name: Audit all dependencies with exact temporary dev-tooling policy
+        run: |
+          set +e
+          node scripts/security/run-npm-audit.mjs --output=npm-audit-full.json --audit-level=high
+          audit_code=$?
+          set -e
+          if [ "$audit_code" -eq 0 ]; then
+            echo 'Full npm audit clean at the canonical threshold.'
+          elif [ "$audit_code" -eq 1 ]; then
+            node scripts/security/validate-dev-tooling-exception.mjs \
+              --mode current-npm-audit \
+              --policy security/current-dev-tooling-osv-exception.json \
+              --current-sha "$GITHUB_SHA" \
+              --now "$(date -u --iso-8601=seconds)" \
+              --report npm-audit-full.json \
+              --lockfile package-lock.json
+          else
+            echo "Full npm audit failed (exit=$audit_code); exception is not applicable." >&2
+            exit "$audit_code"
+          fi
 
       - name: Upload dependency evidence
         if: always()

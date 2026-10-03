@@ -53,5 +53,11 @@ describe('temporary OSV exception CI evidence contract', () => {
     const upload = integrity.steps.find((step: { name: string }) =>
       step.name === 'Upload dependency evidence');
     expect(upload.with.path).toContain('npm-tree-production.json');
+    const fullAudit = integrity.steps.find((step: { name: string }) =>
+      step.name === 'Audit all dependencies with exact temporary dev-tooling policy');
+    expect(fullAudit.run).toContain('run-npm-audit.mjs');
+    expect(fullAudit.run).toContain('--mode current-npm-audit');
+    expect(fullAudit.run).toContain('--lockfile package-lock.json');
+    expect(fullAudit.run).not.toContain('|| true');
   });
 });
