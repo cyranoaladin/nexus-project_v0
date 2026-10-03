@@ -32,3 +32,36 @@ Il s'agit d'un défaut de test historique ; aucune protection abaissée.
 CodeQL, atelier/rappels, mobile et preuves exact-HEAD restent ouverts.
 PR en brouillon ; aucune fusion ou opération de production autorisée par
 la seule réussite d'un lot. Statut : `NOT_READY`.
+
+## Atelier PostgreSQL et couverture
+
+Jobs `ARIA PostgreSQL (db)` et `ARIA Coverage`, même première cause :
+`aria-workshop-reminder.real.test.ts` inscrit un élève après création d'un
+atelier déjà `CANCELLED`. La migration additive d'admission refuse cette
+insertion avec SQLSTATE 23514 / `ARIA_WORKSHOP_NOT_SCHEDULED`.
+La préparation échoue avant le scanner ; ce n'est ni un fuseau ni un retry.
+
+Reproduction canonique : `npm run test:aria:db -- --runTestsByPath
+__tests__/db/aria-workshop-reminder.real.test.ts` : 16 réussites, un échec.
+La fixture corrigée passe par les services publics de planification et
+d'inscription, avec horloge fixe, avant de fixer l'état terminal d'annulation.
+Ce module V1 ne possède pas de service public d'annulation : cette lacune
+fonctionnelle demeure distincte de la qualification du scanner.
+L'inscription après annulation est aussi explicitement refusée (404).
+Aucune suppression du trigger ou modification de l'horloge métier.
+
+Premier essai corrigé : mauvaise attente d'un email d'inscription ; la
+fixture minimale sans noms n'en produit pas. L'attente initiale de zéro
+email est conservée, ainsi que le refus de création d'un rappel.
+Qualification ciblée finale : 17/17 ; suite canonique complète
+`npm run test:aria:db` : 32 suites, 352/352 tests réussis, aucun ignoré.
+PostgreSQL 15 éphémère, image verrouillée par le script officiel.
+Le rapport de couverture complet doit encore être régénéré.
+
+## Contrôle ignoré
+
+`ARIA Requirement Evidence` dépend de `aria-jest`, `aria-postgres` et
+`aria-browser`. Sans condition explicite, GitHub applique `success()`.
+Son saut découle des échecs amont. Ce contrôle est une gate requise : il
+doit s'exécuter et réussir sur le nouveau SHA ; aucun skip permanent ou
+changement de workflow n'est justifié.
