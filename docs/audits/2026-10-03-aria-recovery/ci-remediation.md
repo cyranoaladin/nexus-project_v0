@@ -29,7 +29,8 @@ Il s'agit d'un défaut de test historique ; aucune protection abaissée.
 
 ## État global
 
-CodeQL, atelier/rappels, mobile et preuves exact-HEAD restent ouverts.
+Les causes atelier et mobile ont été corrigées localement. CodeQL et la
+qualification distante du nouveau HEAD restent ouverts.
 PR en brouillon ; aucune fusion ou opération de production autorisée par
 la seule réussite d'un lot. Statut : `NOT_READY`.
 
@@ -56,7 +57,11 @@ email est conservée, ainsi que le refus de création d'un rappel.
 Qualification ciblée finale : 17/17 ; suite canonique complète
 `npm run test:aria:db` : 32 suites, 352/352 tests réussis, aucun ignoré.
 PostgreSQL 15 éphémère, image verrouillée par le script officiel.
-Le rapport de couverture complet doit encore être régénéré.
+Le rapport de couverture complet a été régénéré sur `949549d21` :
+190 suites / 2 464 tests applicatifs, 32 suites / 352 PostgreSQL et
+5 suites / 27 tests de concurrence réussis. Contrôle de couverture :
+lignes 97,38 %, fonctions 97,32 %, branches 95,29 %, statements 96,38 %,
+chemins critiques 100 %. Aucun seuil abaissé.
 
 ## Contrôle ignoré
 
@@ -81,6 +86,44 @@ Le lien conserve sa destination et reste accessible aux cinq rôles.
 Tests de rendu avant correction : cinq échecs sur le préchargement actif.
 Après : 20 tests réussis (cinq rôles et contrat du harness ARIA existant).
 
-La qualification navigateur réelle, les vingt répétitions, l'inspection
-visuelle et les projets auth multi-navigateurs restent à exécuter sur le
-HEAD consolidé. Les preuves du SHA initial ne qualifient pas ce changement.
+Sur `949549d21`, le script mobile canonique a réussi les quatre viewports.
+Le scénario 390×844 a ensuite réussi 20 répétitions : aucun échec,
+aucun retry, aucun skip, durée 284,17 secondes. La capture mobile ready
+a été inspectée : aucun débordement ou élément superposé observé.
+Le changement de mot de passe V1/Core réussit ses quatre scénarios à
+390/1440 px. Le cycle d'authentification réussit 60 scénarios répartis
+entre Chromium, Firefox, WebKit et profil Pixel 7. Une trace Playwright
+réussie reste à inspecter ; les captures ne remplacent pas cette preuve.
+
+## Qualification locale du jalon `949549d21`
+
+| Contrôle réellement exécuté | Résultat |
+|---|---|
+| Suite unitaire | 1 274 suites, 14 286 tests, aucun ignoré |
+| Core PostgreSQL avec ClamAV | 68 suites, 670 tests, aucun ignoré |
+| Intégration générale, isolation conforme à la CI | 57 suites, 316 tests |
+| Intégration ARIA disposable, lane distincte | 9 suites, 27 tests |
+| Sessions / compte pending / onboarding parent / schéma bilan, bases dédiées | 3 / 10 / 12 / 9 tests |
+| Typecheck | réussi |
+| Lint complet | réussi, 27 avertissements préexistants |
+| Build officiel complet et contrôles standalone | réussi en configuration vidéo DISABLED |
+| Scan secrets de la branche | aucun finding |
+| Audit dépendances production | aucun finding |
+
+Les deux premiers essais de build ont été refusés par le garde-fou vidéo
+(fallback public puis domaine de test). Aucun garde-fou modifié ; le troisième
+utilise le mode DISABLED officiel pour qualifier l'artefact local. Cela ne
+valide pas la configuration vidéo production. Le manifest suivi a été
+restauré avec ses octets d'origine après conservation privée de la preuve.
+
+L'audit dépendances complet relève 39 entrées high de développement,
+issues des advisories `GHSA-vfj7-8cjw-p6xm` (braces) et
+`GHSA-ch52-4w7c-c8xp` (http-cache-semantics). Aucun correctif publié n'a
+été constaté lors de la vérification. Ni mise à jour majeure aveugle,
+ni baisse du scanner : exposition de la chaîne de build à qualifier.
+
+Le commit de contrats de jetons ajoute quatre tests PostgreSQL (32/32
+avec les suites account/HTTP voisines) et le dossier de décision CodeQL.
+Toute modification du HEAD nécessite une nouvelle qualification distante ;
+les résultats de ce tableau restent des preuves du jalon indiqué, pas une
+déclaration de CI verte sur un commit ultérieur.
