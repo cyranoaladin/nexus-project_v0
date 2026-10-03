@@ -1242,6 +1242,10 @@ model AriaWorkshopSession {
   location String?
   capacity Int?
 
+  // Technical MVCC fence for admission/count integrity under stale snapshots.
+  // Business updatedAt is preserved; this is not an attendance counter.
+  admissionRevision Int @default(0)
+
   status AriaWorkshopSessionStatus @default(SCHEDULED)
 
   createdById String

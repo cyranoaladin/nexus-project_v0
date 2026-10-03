@@ -279,3 +279,19 @@ Cinq cas de rôles échouent avant correction ; après correction **102/102**
 tests ciblés passent, incluant refus anonyme, chemins voisins et dashboards
 croisés. Les assertions d'inventaire restent inchangées. La campagne navigateur
 sera réexécutée après build du nouveau SHA ; cette entrée ne la déclare pas verte.
+
+
+### Résultats navigateur et lot ateliers
+
+`859318c665015b63e7aba354b30dd46bf6c971fc` : build vert et **2/2 E2E**
+changement de mot de passe à 390/1440. Autre session refusée, nouvelle connexion
+acceptée, navigation clavier, axe WCAG2/2.1/2.2 AA dans main et absence de
+scroll horizontal vérifiées. Cela ne vaut pas audit WCAG exhaustif de la plateforme.
+
+Lot suivant : admission atelier sérialisée et intention email transactionnelle.
+**34/34 tests PostgreSQL** passent ; migration additive testée sur base vide,
+ancien schéma avec surcharge historique, interruption de transaction et relance,
+comptages de 120 tables inchangés. Détails, limites et premiers échecs conservés
+établis dans [workshop-admission-migration.md](workshop-admission-migration.md).
+Le contrôle d'ownership familial global, les salles, billing et les gates
+externes restent ouverts ; statut de mission toujours NOT_READY.

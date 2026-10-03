@@ -19,7 +19,7 @@ Base : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Lecture de code et tests loca
 | 13 | Sites/salles | core-v2/prisma/schema.prisma | V2 location string only | PARTIEL: room/capacity/equipment not modeled in V2 |
 | 14 | Planning/calendriers | lib/core-v2/services/planning.ts; lib/planning | PlanningSeries / SessionBooking | SQL exclusions coach/student; room constraints missing |
 | 15 | Rendez-vous | app/api/reservation; lib/session-booking.ts | V1 SessionBooking | State/eligibility/ownership |
-| 16 | Séances/réservations/présences | app/api/v2/staff/bookings; V1 stages/sessions | Booking / Session | Capacity/wait-list/end-to-end attendance |
+| 16 | Séances/réservations/présences | app/api/v2/staff/bookings; V1 stages/sessions | Booking / Session | PARTIEL : atelier capacité/idempotence/outbox et snapshots PG testés (34/34) ; wait-list et parcours complet à qualifier |
 | 17 | Annulation/report/crédits | lib/core-v2/services/planning.ts; V1 credits APIs | Booking + CreditTransaction | Atomic state/credit transitions |
 | 18 | Offres/forfaits/inscriptions | lib/pricing.ts; data/pricing.canonical.json | Versioned catalogue / Subscription | Current main pricing retained |
 | 19 | Paiements/rapprochements | app/api/payments; lib/payments.ts | V1 Payment | Signatures/replay/sandbox; V2 not billing authority |
@@ -79,7 +79,7 @@ Aucune absence de vulnérabilité n'est inférée du seul build.
 | --- | --- | --- | --- |
 | P0 qualification | 5/10 | Le lien V1 `ParentStudentLink` représente le consentement aux bilans ; un nouveau consentement est permis après retrait. Le membership V2 reste au niveau foyer. | Séparer autorisation familiale administrativement révocable et consentement ; tests négatifs directs et courses requis. Aucun exploit production exécuté. |
 | P1 | 13 | Aucun modèle Site/Room dans les deux schémas inspectés ; `location` est une chaîne libre. | Modèle, permissions, capacités et exclusions salle à ajouter sans inventer les salles exploitées. |
-| P1 | 16 | Inscription atelier ARIA : lecture du compteur puis création sans transaction/verrou. | Deux élèves peuvent concourir pour la dernière place ; test PostgreSQL déterministe et invariant serveur/base requis. |
+| P1 corrigé localement | 16 | Admission atelier sérialisée, gardes SQL et révision MVCC ; intention email transactionnelle. | 34/34 tests réels, dont SQL direct/RR ; migration additive vide/ancien schéma/interruption/relance. Reste : qualification complète sur SHA et production. |
 | P1 | 19 | ClicToPay init/webhook répondent explicitement 501 ; effets webhook non implémentés. | Contrat prestataire officiel approuvé et sandbox nécessaires ; conserver le mode désactivé, aucun faux paiement. |
 | P1 intégrité | 19 | `Payment.amount`, transaction provider et `Subscription.monthlyPrice` historiques sont Float. | Migration additive vers unité mineure/decimal et rapprochement ; aucune erreur financière réelle revendiquée. |
 | P0 qualification | 20 | Accès facture encore fondé sur relations historiques et alternative email fiable. | Tester les bénéficiaires, ownership et accès directs ; ne pas confondre une facture propre au parent et un document privé d'un enfant. |
