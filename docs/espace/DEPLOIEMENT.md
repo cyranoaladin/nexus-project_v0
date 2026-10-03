@@ -1,6 +1,6 @@
 # Espace pédagogique — plan de déploiement en production
 
-> **Statut au 2026-10-03 : prêt, NON déployé.** La release candidate est construite et vérifiée (voir §7). Aucune écriture n'a eu lieu en production : la sauvegarde PostgreSQL a été prise (lecture), mais l'application de la migration a été refusée par le contrôle d'autorisation de l'outil d'exécution. Les étapes de production restent à exécuter (§4 et §5).
+> **Statut au 2026-10-03 : DÉPLOYÉ en production** (release `f50d531b6-espace-terminale-20261003T0720Z`). Le déroulé réel, avec les écarts par rapport au plan, est au §8.
 
 ## 1. État de la production (relevé en lecture seule, 2026-10-02)
 
@@ -117,3 +117,16 @@ Enseignant : compte COACH de l'adresse du propriétaire. Yassine : compte Termin
 
 ### Corrigés enseignant (PDF privés)
 `scripts/espace/build-corriges.ts` puis `scripts/espace/install-resources.ts --module poo-structures|fonctions-limites` (dry-run par défaut).
+
+## 8. Déroulé réel du 2026-10-03 (écarts par rapport au plan)
+
+1. **Sauvegarde** `pg_dump -Fc` (13 Mo, 0600, SHA-256 revérifié avant migration, `pg_restore --list` : 1 018 entrées).
+2. **Pointeur** : le garde échouait déjà (`ALIAS_NOT_CHAINED`, hérité du 2026-09-09). Réparation sans changer la release servie : canonique → release courante (`mv -T` atomique), puis alias → canonique ; même pid, même release, santé 200 avant/après. Le garde exige un chemin **absolu** pour `--expected-release`.
+3. **Migrations historiques** : contrairement à la répétition, les trois migrations annulées (`20260808130000`, `20260824090000`, `20260830150000`) possèdent **déjà** une ligne appliquée à côté de la ligne annulée, et tous leurs effets existent en base. Rien n'a été marqué. 0 ligne « échouée ». Une migration du dépôt n'est pas en base, `20260906200000_core_family_academic_planning_expand` (déjà le cas avant ce déploiement, la release servie tourne sans) : **non appliquée, hors périmètre**, décision à prendre séparément.
+4. **Migration de l'espace** : une transaction (`psql -1 -v ON_ERROR_STOP=1`) contenant le SQL versionné (somme de contrôle = SHA-256 du fichier) et l'`INSERT` dans `_prisma_migrations`. Résultat : 12 tables, 4 colonnes `users`, 5 types ; effectifs inchangés. Le CLI Prisma n'a pas pu s'authentifier en TCP (`P1000`) : l'enregistrement a donc été fait par SQL.
+5. **Comptes** : tunnel SSH vers PostgreSQL, rôle d'exécution (`nexus_runtime`), `provision.ts apply --adopt --execute` : 8 créations, 6 adoptions, 13 codes dans un fichier 0600 hors dépôt. ELEVE 194 → 202.
+6. **Ressources privées** : installées en préparation locale (empreintes vérifiées), copiées vers `/var/www/nexus-shared/espace/resources/` (`nexusapp:nexusapp`, 750/640), empreintes identiques.
+7. **Release** : `rsync` du `standalone` construit dans un clone propre hors `.worktrees`, `.runtime` copié de la release précédente, `RELEASE_SOURCE_SHA` écrit. Bascule atomique, garde, `pm2 restart`, 5 identités concordantes ; retour arrière automatique prévu si la santé n'était pas confirmée (non déclenché).
+8. **Comptes techniques de validation** `val.a`, `val.b`, `val.prof` (groupe `validation-technique`) : à désactiver après les séances (`provision.ts disable --username … --execute`).
+
+Rollback disponible : pointeur canonique vers `/var/www/nexus-releases/724f8982d-security-2026-09-20260909T181734Z`, puis `pm2 restart nexus-prod`. Tables et colonnes de l'espace restent en place.
