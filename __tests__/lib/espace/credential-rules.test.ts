@@ -2,8 +2,8 @@ import { checkStudentCode, checkTeacherPassword, rejectionMessage } from '@/lib/
 import { RateLimitPresets } from '@/lib/rate-limit/runtime';
 import { SENSITIVE_RATE_LIMIT_POLICIES } from '@/lib/rate-limit/sensitive';
 
-const student = { username: 'adam.c', firstName: 'Adam', lastName: 'CHOUKALI' };
-const teacher = { username: 'alaeddine', firstName: 'Alaeddine', lastName: 'BEN RHOUMA', email: 'cyranoaladin@gmail.com' };
+const student = { username: 'adam.c', firstName: 'Adam', lastName: 'CHARPENTIER' };
+const teacher = { username: 'alaeddine', firstName: 'Alaeddine', lastName: 'BEN RHOUMA', email: 'prof.exemple@example.test' };
 
 describe('code personnel de l’élève', () => {
   it('accepte un code de 6 caractères ou plus, lettres et chiffres, casse et tirets sans effet', () => {
@@ -31,11 +31,11 @@ describe('code personnel de l’élève', () => {
   it('refuse l’identifiant, le prénom ou le nom (seuls ou presque)', () => {
     expect(checkStudentCode('adamc', student).ok).toBe(false);
     expect(checkStudentCode('Adam', { ...student, firstName: 'Adam' }).ok).toBe(false);
-    expect(checkStudentCode('choukali', student).ok).toBe(false);
-    expect(checkStudentCode('choukali1', student).ok).toBe(false);
-    expect(checkStudentCode('adamchoukali', student).ok).toBe(false);
+    expect(checkStudentCode('charpentier', student).ok).toBe(false);
+    expect(checkStudentCode('charpentier1', student).ok).toBe(false);
+    expect(checkStudentCode('adamcharpentier', student).ok).toBe(false);
     // Un code qui n'a qu'un lien lointain avec le nom reste accepté.
-    expect(checkStudentCode('Choukali-Lune-77', student).ok).toBe(true);
+    expect(checkStudentCode('Charpentier-Lune-77', student).ok).toBe(true);
   });
 
   it('les messages sont sobres et distincts', () => {
@@ -63,7 +63,7 @@ describe('mot de passe de l’enseignant', () => {
 
   it('refuse l’identifiant, le nom ou l’e-mail comme mot de passe', () => {
     expect(checkTeacherPassword('alaeddine.benrhouma', teacher).ok).toBe(false);
-    expect(checkTeacherPassword('cyranoaladin@gmail.com', teacher).ok).toBe(false);
+    expect(checkTeacherPassword('prof.exemple@example.test', teacher).ok).toBe(false);
     expect(checkTeacherPassword('Alaeddine BEN RHOUMA', teacher).ok).toBe(false);
   });
 });

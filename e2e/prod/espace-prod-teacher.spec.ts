@@ -11,7 +11,8 @@ function teacherCreds(): { username: string; password: string } {
   return { username: get('IDENTIFIANT'), password: get('MOT_DE_PASSE') };
 }
 
-const REAL_LAST_NAMES = ['CHOUKALI', 'CHRAITI', 'BEN HASSINE', 'BSIRI', 'SMIDA', 'NAOUALI', 'BEN YAHIA', 'FEKIH', 'MANSOURI', 'ZGOLLI', 'KHELIL'];
+// Noms attendus dans la liste (séparés par des virgules) : fournis à l'exécution, jamais versionnés (données de mineurs).
+const EXPECTED_NAMES = (process.env.ESPACE_EXPECTED_STUDENT_NAMES ?? '').split(',').map((n) => n.trim()).filter(Boolean);
 const CORRIGES = [
   'maths-fonctions-limites/corrige',
   'nsi-poo-structures-lineaires/corrige',
@@ -39,7 +40,8 @@ test('connexion réelle du compte enseignant, accueil et liste des élèves', as
   const rows = page.getByTestId('student-row');
   await expect.poll(async () => rows.count()).toBeGreaterThanOrEqual(13);
   const text = await page.locator('main').innerText();
-  for (const name of REAL_LAST_NAMES) expect(text.toLowerCase(), name).toContain(name.toLowerCase());
+  expect(EXPECTED_NAMES.length, 'ESPACE_EXPECTED_STUDENT_NAMES est obligatoire').toBeGreaterThanOrEqual(11);
+  for (const name of EXPECTED_NAMES) expect(text.toLowerCase(), name).toContain(name.toLowerCase());
   expect(text).toMatch(/Jean Racine/);
   expect(text).toMatch(/Terminale/);
   for (const subject of ['Mathématiques', 'NSI']) expect(text, subject).toContain(subject);
@@ -47,7 +49,7 @@ test('connexion réelle du compte enseignant, accueil et liste des élèves', as
   console.log(`élèves visibles : ${await rows.count()}`);
 
   // Suivi d'un élève réel : lecture seule (aucune création de travail).
-  await rows.filter({ hasText: 'CHOUKALI' }).first().getByRole('link').first().click();
+  await rows.filter({ hasText: EXPECTED_NAMES[0]! }).first().getByRole('link').first().click();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
   // Accès aux corrigés enseignant avec la session réelle.

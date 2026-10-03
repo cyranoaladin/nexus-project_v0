@@ -21,7 +21,7 @@ function row(over: Record<string, unknown> = {}) {
     email: null,
     role: 'ELEVE',
     firstName: 'Adam',
-    lastName: 'CHOUKALI',
+    lastName: 'CHARPENTIER',
     sessionVersion: 3,
     activatedAt: new Date('2026-10-01'),
     disabledAt: null,

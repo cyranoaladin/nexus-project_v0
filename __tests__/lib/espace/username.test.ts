@@ -6,7 +6,7 @@ describe('normalizeUsername', () => {
   });
 
   it('accepte les identifiants du cahier des charges', () => {
-    for (const u of ['adam.c', 'alexandre.c', 'yassine.bh', 'ines.by', 'alaeddine']) {
+    for (const u of ['marie.d', 'paul.m', 'jean.bh', 'lea.by', 'alaeddine']) {
       expect(normalizeUsername(u)).toBe(u);
     }
   });
@@ -23,7 +23,7 @@ describe('normalizeUsername', () => {
     expect(normalizeUsername(null)).toBeNull();
   });
 
-  it('ne confond pas Adam CHOUKALI (adam.c) et Adem KHELIL (adem.k)', () => {
+  it('ne confond pas Adam CHARPENTIER (adam.c) et Adem KELLER (adem.k)', () => {
     expect(normalizeUsername('adam.c')).not.toBe(normalizeUsername('adem.k'));
   });
 

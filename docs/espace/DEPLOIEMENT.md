@@ -48,11 +48,11 @@ L'option A garde le rayon d'impact minimal. L'option B ne devrait être choisie 
 | Personne | Situation en prod | Proposition |
 |---|---|---|
 | Alaeddine BEN RHOUMA (enseignant) | **2 comptes COACH** : `…7tb195` (email = le tien, pseudonyme « Alaeddine Ben Rhouma », 9 affectations, créé le 2026-05-01) ; `…ne_001` (pseudonyme « Alaeddine », 18 séances comme coach, créé le 2026-03-03) | adopter `…7tb195` (`matchUserId` ou `matchEmail`) |
-| Ines BEN YAHIA | 1 compte, TERMINALE, **activation familiale en attente** | décision : adopter avec `activatePending: true` (le lien d'activation envoyé à la famille ne fonctionnera plus), ou créer un compte séparé |
-| Rostom FEKIH | 1 compte, TERMINALE, **activation familiale en attente** | idem |
-| Malek SMIDA | 1 compte, PREMIÈRE, activé | adopter (`--adopt`) |
-| Sarra BSIRI | 1 compte, PREMIÈRE, activé | adopter (`--adopt`) |
-| Yassine BEN HASSINE | **2 comptes** : `…up8cgk` (TERMINALE, en attente d'activation, 2026-08-14) ; `…afghb6` (PREMIÈRE, activé, 2 affectations coach, 2026-05-01) | choisir (`matchUserId`) ; `…up8cgk` correspond à l'année en cours mais est en attente d'activation |
+| Ines BERTIN | 1 compte, TERMINALE, **activation familiale en attente** | décision : adopter avec `activatePending: true` (le lien d'activation envoyé à la famille ne fonctionnera plus), ou créer un compte séparé |
+| Rostom FOURNIER | 1 compte, TERMINALE, **activation familiale en attente** | idem |
+| Malek SIMON | 1 compte, PREMIÈRE, activé | adopter (`--adopt`) |
+| Sarra BERNARD | 1 compte, PREMIÈRE, activé | adopter (`--adopt`) |
+| Yassine BELLON | **2 comptes** : `…up8cgk` (TERMINALE, en attente d'activation, 2026-08-14) ; `…afghb6` (PREMIÈRE, activé, 2 affectations coach, 2026-05-01) | choisir (`matchUserId`) ; `…up8cgk` correspond à l'année en cours mais est en attente d'activation |
 | 8 autres élèves | aucun compte | créés |
 
 L'outil **refuse** de choisir : sans ces décisions écrites dans la liste, `provision.ts apply` s'arrête sur un conflit et n'écrit rien.

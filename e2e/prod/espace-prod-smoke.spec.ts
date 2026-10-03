@@ -12,7 +12,10 @@ function readCreds(env: string): Record<string, string> {
   for (const line of readFileSync(file, 'utf8').split('\n')) {
     if (!line.trim() || line.startsWith('#')) continue;
     const [, username, secret] = line.split(';');
-    if (username && secret) out[username] = secret.trim().replace(/[^A-Za-z0-9]/g, '');
+    if (!username || !secret) continue;
+    const raw = secret.trim();
+    // Code d'élève « ABCD-2345 » : le tiret est décoratif. Un mot de passe enseignant est conservé tel quel.
+    out[username] = /^[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(raw) ? raw.replace('-', '') : raw;
   }
   return out;
 }
@@ -23,6 +26,7 @@ const run = Date.now().toString(36);
 /** Paire d'élèves techniques NEUVE à chaque campagne (un travail remis est en lecture seule : le test n'est pas rejouable sur le même compte). */
 const A = process.env.ESPACE_STUDENT_A ?? 'val.a';
 const B = process.env.ESPACE_STUDENT_B ?? 'val.b';
+const T = process.env.ESPACE_TEACHER ?? 'val.prof';
 const A_NAME = `TECHNIQUE-${A.split('.')[1]!.toUpperCase()}`;
 
 type StorageState = Awaited<ReturnType<BrowserContext['storageState']>>;
@@ -94,7 +98,8 @@ test.describe('accès public et anonyme', () => {
 
 test.describe('connexion de tous les comptes réels (lecture seule)', () => {
   test.describe.configure({ mode: 'serial' });
-  const MATHS_NSI = ['adam.c', 'alexandre.c', 'zaineb.c', 'yassine.bh'];
+  // Identifiants des élèves Maths + NSI : fournis à l'exécution (jamais versionnés).
+  const MATHS_NSI = (process.env.ESPACE_MATHS_NSI_USERNAMES ?? '').split(',').map((n) => n.trim()).filter(Boolean);
   test('chaque élève provisionné se connecte et voit ses matières', async ({ browser }) => {
     const report: string[] = [];
     for (const [username, secret] of Object.entries(real)) {
@@ -254,7 +259,7 @@ test.describe('remise', () => {
 
 test.describe('enseignant de validation', () => {
   test('suivi, relecture, commentaire, annotation et « À reprendre »', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.prof');
+    const { ctx, page } = await as(browser, T);
     try {
       await page.goto('/espace/enseignant');
       const row = page.getByTestId('roster-row').filter({ hasText: A_NAME }).first();
@@ -330,7 +335,7 @@ test.describe('isolation et corrigés', () => {
     } finally {
       await s.close();
     }
-    const { ctx: t, page: tp } = await as(browser, 'val.prof');
+    const { ctx: t, page: tp } = await as(browser, T);
     try {
       for (const k of targets) {
         const res = await tp.request.get(`/api/espace/resources/${k}/corrige`);

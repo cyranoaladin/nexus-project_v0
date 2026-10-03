@@ -177,8 +177,8 @@ describe('provisioning', () => {
     const r = parseRoster({
       groups: [{ slug: g('principal'), name: 'x' }],
       students: [
-        { username: u('adam'), firstName: 'Adam', lastName: `Choukali${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }] },
-        { username: u('adem'), firstName: 'Adem', lastName: `Khelil${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }] },
+        { username: u('adam'), firstName: 'Adam', lastName: `Charpentier${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }] },
+        { username: u('adem'), firstName: 'Adem', lastName: `Keller${run}`, enrollments: [{ group: g('principal'), subjects: ['MATHS'] }] },
       ],
     });
     const res = await applyProvisioning(prisma, r, { adopt: false });
