@@ -38,7 +38,7 @@ function getAllowedOrigins(): string[] {
     origins.push('http://127.0.0.1:3001');
   }
 
-  return origins;
+  return origins.map(extractOrigin).filter((origin): origin is string => origin !== null);
 }
 
 /**
@@ -48,7 +48,8 @@ function getAllowedOrigins(): string[] {
 function extractOrigin(url: string): string | null {
   try {
     const parsed = new URL(url);
-    return `${parsed.protocol}//${parsed.host}`;
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password) return null;
+    return parsed.origin;
   } catch {
     return null;
   }
@@ -99,27 +100,14 @@ export function checkCsrf(request: NextRequest): NextResponse | null {
 
   const allowedOrigins = getAllowedOrigins();
 
-  // Also allow the request's own host as a valid origin (handles proxies, tunnels, etc.)
-  const host = request.headers.get('host');
-  if (host) {
-    allowedOrigins.push(`http://${host}`);
-    allowedOrigins.push(`https://${host}`);
-  }
-
-  // Trust X-Forwarded-Host from reverse proxies
-  const forwardedHost = request.headers.get('x-forwarded-host');
-  if (forwardedHost) {
-    allowedOrigins.push(`http://${forwardedHost}`);
-    allowedOrigins.push(`https://${forwardedHost}`);
-  }
-
-  // Allow localhost/127.0.0.1 on any port (always a local trusted request)
+  // The trust boundary is configuration, never request-controlled Host or
+  // X-Forwarded-Host. Origin headers contain only an origin; Referer may
+  // contain a path and has already been reduced above.
   const sourceUrl = extractOrigin(sourceOrigin);
-  const isLocalOrigin = sourceUrl !== null && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(sourceUrl);
-
-  const isAllowed = isLocalOrigin || allowedOrigins.some(
-    (allowed) => sourceOrigin === allowed || sourceOrigin === extractOrigin(allowed)
-  );
+  const validSource = sourceUrl !== null && sourceOrigin === sourceUrl;
+  const localDevelopmentOrigin = process.env.NODE_ENV === 'development'
+    && sourceUrl !== null && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(sourceUrl);
+  const isAllowed = validSource && (localDevelopmentOrigin || allowedOrigins.includes(sourceUrl));
 
   if (!isAllowed) {
     return NextResponse.json(

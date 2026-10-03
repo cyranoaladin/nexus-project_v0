@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { checkCsrf } from '@/lib/csrf';
 import { z } from 'zod';
 import {
   applyWrite,
@@ -30,6 +31,8 @@ const rollbackPayloadSchema = z.object({
 export async function POST(request: NextRequest) {
   const auth = await requireRole('ADMIN');
   if (isErrorResponse(auth)) return auth;
+  const csrfResponse = checkCsrf(request);
+  if (csrfResponse) return csrfResponse;
   const session = auth as AuthSession;
 
   let json: unknown;
