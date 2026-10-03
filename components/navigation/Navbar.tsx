@@ -1,4 +1,5 @@
 import type { Session } from 'next-auth';
+import Link from 'next/link';
 import { navigationConfig } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
@@ -19,13 +20,14 @@ export async function Navbar({ user }: { user: Session['user'] }) {
         <div className="flex items-center gap-4">
           <MobileMenuWrapper items={navigationItems} user={user} />
 
-          <h1 className="text-lg font-bold text-brand-accent lg:hidden">
+          <span className="text-lg font-bold text-brand-accent lg:hidden">
             Nexus Réussite
-          </h1>
+          </span>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-4" aria-label="Actions utilisateur">
-          <div className="text-sm text-neutral-300">
+        <nav className="flex items-center gap-4" aria-label="Actions utilisateur">
+          <Link href="/dashboard/account/security" className="text-sm underline focus-visible:outline focus-visible:outline-2">Sécurité du compte</Link>
+          <div className="hidden lg:block text-sm text-neutral-300">
             Utilisateur connecté
           </div>
         </nav>

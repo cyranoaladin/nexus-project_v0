@@ -215,3 +215,45 @@ Tests ciblés : 22/22. Suite Core-v2 complète : **67 suites, 653/653 tests**, a
 ignoré. Typecheck et lint ciblé : exit 0 ; secret scan du diff : zéro détection ;
 `git diff --check` : exit 0. Aucun schéma/migration modifié dans ce lot.
 Ces preuves locales avant commit seront renouvelées sur le SHA final de release.
+
+## Changement de mot de passe authentifié Core-v2
+
+Critères : cible dérivée de l'acteur serveur, mot de passe actuel vérifié,
+aucun userId accepté dans le body, CSRF et limite de corps réellement lu,
+rate limit par identité, hash coût 12, CAS password/role/sessionVersion/status,
+révocation atomique des sessions et des reset tokens, audit dans la transaction.
+Le service ancien ignorait un `currentPassword` erroné et deux changements
+simultanés réussissaient : deux tests PostgreSQL rouges, puis correction.
+Les opérations reset prennent désormais le verrou User avant Invitation, dans
+le même ordre que le changement authentifié, pour éviter une inversion de verrous.
+
+API native ajoutée : `/api/v2/auth/password-change`. Formulaire protégé :
+`/dashboard/account/security`, accessible depuis la navigation des dashboards.
+Le formulaire attend l'hydratation, interdit les doubles soumissions, valide
+confirmation/UTF-8, et distingue confirmation serveur et fermeture locale.
+Core-v1 continue son parcours de réinitialisation existant ; son changement
+avec mot de passe courant et audit durable reste une tranche distincte.
+
+Tests PostgreSQL ciblés finaux : **39/39** (dont les cinq rôles, refus identité client,
+CSRF exécuté en mode production, corps sans Content-Length, concurrence change/
+reset et trigger PostgreSQL provoquant un échec d'audit avec rollback complet).
+Le premier essai d'injection par spy échouait dans le harness ESM ; remplacé
+par un refus INSERT réel, limité à la base jetable et nettoyé en finally.
+Tests formulaire : **5/5**, dont déconnexion locale échouée. E2E deux navigateurs à 390/1440, axe et navigation clavier
+ajoutés, **pas encore exécutés** au moment de cette entrée.
+
+La suite unitaire canonique après correction du mock : **1 266 suites,
+14 226/14 226 tests**, zéro ignoré. Cette campagne avait démarré sur b44421d0d ;
+les changements Core-v2 ultérieurs sont exclus de cette lane, mais la preuve
+ne qualifie pas un SHA ultérieur. Le lancement erroné avec jest.config.js a
+été interrompu (Core-v2 mélangé à la lane unitaire sans son environnement),
+journal conservé ; la commande correcte emploie jest.unit.config.js.
+
+Le typecheck a détecté un scope de rate limit absent ; deux cas rouges du
+limiteur réel démontrent l'erreur. Le scope est désormais enregistré avec les
+presets auth existants, et les tests protègent agrégation par compte malgré
+rotation IP et agrégation IP malgré rotation de compte. Le contrat exhaustif
+est étendu avec assertion des deux presets, sans retrait d'assertion.
+Le guard RBAC a refusé une lecture de rôle inline ; la vérification identité/
+rôle est centralisée dans `rbac.ts` et le guard reste inchangé.
+Les cinq suites ciblées UI/rate/architecture passent : **69/69 tests**.

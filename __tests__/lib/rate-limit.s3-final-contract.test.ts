@@ -75,6 +75,8 @@ describe('S3 final distributed rate-limit contract', () => {
     expectedScopes.push('core-v2-password-reset-request', 'core-v2-password-reset-confirm');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-request']).toEqual({ ipPreset: 'emailIp', identityPreset: 'emailIdentity' });
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-confirm']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    expectedScopes.push('core-v2-password-change');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-change']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',

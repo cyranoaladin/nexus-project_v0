@@ -17,8 +17,8 @@ import type { Invitation, PrismaClient, User } from '@/core-v2/generated/client'
 import { appendAuditEvent } from '../audit';
 import { getInvitationTtlMs, getPasswordResetTtlMs } from '../config';
 import { normalizeEmail } from '../contact';
-import { ConflictError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
-import { assertCapability } from '../rbac';
+import { ConflictError, ForbiddenError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
+import { assertActorOwnsIdentity, assertCapability } from '../rbac';
 import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
@@ -256,33 +256,54 @@ export async function disableAccount(client: PrismaClient, ctx: ServiceContext, 
   });
 }
 
-const changePasswordSchema = z.object({ userId: idSchema, newPassword: passwordSchema });
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1).max(200),
+  newPassword: passwordSchema,
+}).strict();
 
-/** Sets a new password and revokes every existing session (sessionVersion bump) in the same write. */
+/** Self-service only: the authenticated actor owns the identity, never the body. */
 export async function changePassword(
   client: PrismaClient,
+  ctx: ServiceContext,
   rawInput: z.input<typeof changePasswordSchema>,
-  options: { correlationId?: string } = {},
 ): Promise<{ sessionVersion: number }> {
   const input = parseInput(changePasswordSchema, rawInput);
+  const user = await client.user.findUnique({ where: { id: ctx.actor.userId } });
+  const matches = await bcrypt.compare(input.currentPassword, user?.password ?? (await dummyHash()));
+  if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') {
+    throw new ForbiddenError('Current credentials could not be verified.');
+  }
+  assertActorOwnsIdentity(ctx.actor, user);
   const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
   return inTransaction(client, async (tx) => {
     const moved = await tx.user.updateMany({
-      where: { id: input.userId, accountStatus: 'ACTIVE' },
+      where: {
+        id: user.id, accountStatus: 'ACTIVE', role: user.role,
+        password: user.password, sessionVersion: user.sessionVersion,
+      },
       data: { password, sessionVersion: { increment: 1 } },
     });
-    if (moved.count !== 1) throw new InvalidStateError('Password can only be changed on an ACTIVE account.', { userId: input.userId });
-    const user = await tx.user.findUniqueOrThrow({ where: { id: input.userId }, select: { sessionVersion: true } });
+    if (moved.count !== 1) throw new ConflictError('Credentials changed concurrently. Please sign in again.');
+    await tx.invitation.updateMany({
+      where: { userId: user.id, purpose: 'PASSWORD_RESET', consumedAt: null, revokedAt: null },
+      data: { revokedAt: ctx.now() },
+    });
+    const sessionVersion = user.sessionVersion + 1;
     await appendAuditEvent(tx, {
-      actorUserId: input.userId,
+      actorUserId: user.id,
       action: 'account.password_changed',
       subjectType: 'User',
-      subjectId: input.userId,
-      correlationId: options.correlationId ?? `password-change:${input.userId}:${user.sessionVersion}`,
-      metadata: { sessionVersion: user.sessionVersion },
+      subjectId: user.id,
+      correlationId: ctx.correlationId,
+      metadata: { sessionVersion, sessionsRevoked: true },
     });
-    return user;
+    return { sessionVersion };
   });
+}
+
+/** All password-reset writers lock User before Invitation, preventing lock-order deadlocks. */
+async function lockPasswordAccount(tx: Tx, userId: string): Promise<void> {
+  await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${userId} FOR UPDATE`;
 }
 
 // ── Password reset (§AL/§AT) ─────────────────────────────────────────────────
@@ -320,7 +341,10 @@ export async function requestPasswordReset(
   const now = options.now ?? (() => new Date());
   const ttl = getPasswordResetTtlMs();
   return inTransaction(client, async (tx) => {
-    const user = await tx.user.findUnique({ where: { email } });
+    const found = await tx.user.findUnique({ where: { email }, select: { id: true } });
+    if (!found) return null;
+    await lockPasswordAccount(tx, found.id);
+    const user = await tx.user.findUnique({ where: { id: found.id } });
     if (!user || user.accountStatus !== 'ACTIVE' || !user.password || !user.email) return null;
     const at = now();
     await tx.invitation.updateMany({
@@ -388,6 +412,9 @@ export async function confirmPasswordReset(
   const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
 
   return inTransaction(client, async (tx) => {
+    const found = await tx.invitation.findUnique({ where: { tokenHash }, select: { userId: true } });
+    if (!found) throw new NotFoundError('Reset link not found or no longer valid.');
+    await lockPasswordAccount(tx, found.userId);
     const reset = await tx.invitation.findUnique({ where: { tokenHash } });
     if (!reset || reset.purpose !== 'PASSWORD_RESET') throw new NotFoundError('Reset link not found or no longer valid.');
     const at = now();

@@ -199,3 +199,13 @@ export function assertSubjectRole(
     });
   }
 }
+
+/** Self-service credential changes never accept a different account or role. */
+export function assertActorOwnsIdentity(
+  actor: Actor,
+  subject: { readonly id: string; readonly role: UserRole },
+): void {
+  if (actor.userId !== subject.id || actor.role !== subject.role) {
+    throw new ForbiddenError('The authenticated identity does not match this account.');
+  }
+}
