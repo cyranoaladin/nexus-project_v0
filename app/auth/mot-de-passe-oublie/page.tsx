@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { normalizeParentPhone } from "@/lib/contact/parent-phone";
 // import { Badge } from "@/components/ui/badge"
@@ -15,6 +15,8 @@ import { ArrowLeft, CheckCircle, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 
 export default function MotDePasseOubliePage() {
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => { setIsHydrated(true); }, []);
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [manualDelivery, setManualDelivery] = useState(false);
@@ -156,7 +158,7 @@ export default function MotDePasseOubliePage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="+216 … ou votre email"
                     required
-                    disabled={isLoading}
+                    disabled={!isHydrated || isLoading}
                     className="bg-white/5 text-lux-ivory placeholder:text-lux-on-dark-subtle border-lux-line/40"
                   />
                   <p className="text-xs text-lux-on-dark-muted mt-2">
@@ -170,7 +172,7 @@ export default function MotDePasseOubliePage() {
                   </div>
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading || !email}>
+                <Button type="submit" className="w-full" disabled={!isHydrated || isLoading || !email}>
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />

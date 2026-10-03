@@ -149,3 +149,35 @@ identiques. Ce test ne remplace pas la restauration de la production.
 à qualifier, gates TLS/runbook/backup réel/rétention/roster/revue toujours
 non prouvées. Les sources gelées restent inchangées selon les vérifications
 décrites, avec l'exception possible de l'objet write-tree déjà consignée.
+
+## Qualification du SHA 39aa0fcdf et lot récupération de compte
+
+Sur `39aa0fcdf3b728e3f668d2cf4ab3b9d2f6491562`, après correction du harnais
+TMPDIR : 1 266 suites / 14 226 tests unitaires, 67 suites / 647 tests
+Core-v2 PostgreSQL avec ClamAV, 11 suites / 52 intégrations Core-v1 et
+20 suites / 289 tests DB passent, sans ignorés. Lint, types et build complet
+passent ; extraction standalone PDF.js réelle et contrôle négatif passent.
+Les exécutions antérieures en échec sont conservées : TMPDIR imbriqué dans
+le dépôt invalidait les hypothèses de stockage/isolation et le lancement
+Chromium. Les temporaires générés par ce seul harnais ont été inventoriés
+puis nettoyés ; aucun ancien worktree n'est concerné.
+
+E2E Chromium : 75 scénarios exécutés, 69 succès, 6 échecs, aucun ignoré.
+Cinq échecs de redirection avaient une cause de configuration du harnais :
+BASE_URL sur 127.0.0.1 et NEXTAUTH_URL sur localhost provoquaient un changement
+d'hôte sans cookie. Le sixième démontre une course d'hydratation du formulaire
+oubli de mot de passe. Un test bloquant les chunks JavaScript échoue avant
+correction (champ actif avant hydratation). Le formulaire reprend la garde
+d'hydratation du formulaire signin existant. La confirmation reset utilise
+déjà une frontière Suspense client : un scénario supposant un champ SSR
+a été rejeté, sans modifier cette page.
+
+Les huit pages publiques passent à 390 et 1 440 px : HTTP 200, un H1, sans
+débordement horizontal mesuré. Captures homepage/contact inspectées ;
+adresses distinctes et CTA lisibles. Ce contrôle ne vaut pas conformité
+WCAG complète ni qualification de toutes les pages authentifiées.
+
+Les preuves du SHA précédent ne qualifient pas le nouveau commit. Build et
+E2E doivent être renouvelés. Changement du mot de passe authentifié absent
+en API/UI et longueur bcrypt des nouveaux mots de passe : lot à poursuivre.
+Statut reste NOT_READY ; aucune promotion ou mutation production effectuée.

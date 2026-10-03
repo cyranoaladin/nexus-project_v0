@@ -46,6 +46,31 @@ test('static planning preserves its exact editor through unavailable canonical v
   } finally { await page.unrouteAll({ behavior: 'ignoreErrors' }); }
 });
 
+test('recovery form stays non-interactive until hydration', async ({ page }) => {
+  let releaseScripts!: () => void;
+  const scriptsReady = new Promise<void>(resolve => { releaseScripts = resolve; });
+  await page.route('**/_next/static/**/*.js', async route => {
+    await scriptsReady;
+    await route.continue();
+  });
+  try {
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'commit' });
+    const input = page.getByLabel('Téléphone WhatsApp ou email', { exact: true });
+    const form = page.locator('form').filter({ has: input });
+    await expect(input).toBeVisible();
+    await expect(input).toBeDisabled();
+    await expect(form.locator('button[type="submit"]')).toBeDisabled();
+    releaseScripts();
+    await expect(input).toBeEnabled();
+    await input.fill('synthetic-recovery@example.test');
+    await expect(input).toHaveValue('synthetic-recovery@example.test');
+    await expect(form.locator('button[type="submit"]')).toBeEnabled();
+  } finally {
+    releaseScripts();
+    await page.unrouteAll({ behavior: 'wait' });
+  }
+});
+
 test('sign-in remains non-interactive until delayed JavaScript hydrates the controlled inputs', async ({ page }) => {
   await resetDisposableE2ERateLimits();
   await resetBrowserSession(page);
