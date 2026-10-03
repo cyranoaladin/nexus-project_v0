@@ -53,3 +53,11 @@ La preuve spécifique sur deux bases synthétiques et la coordination pendant
 une migration d'identité restent à exécuter. Ce lot n'est pas une qualification
 production ni une preuve de transaction distribuée ; ne pas déclarer le
 critère 7 entièrement satisfait ou la gate go-live fermée.
+
+## Deux bases réelles — preuve de transfert terminé
+
+La suite canonique `__tests__/integration/core-v2-migrator.real.test.ts` émet désormais une preuve e-mail HMAC valide et une preuve téléphone via le service public avant la migration approuvée. Elle constate leur validité dans V1, exécute le migrateur existant vers une cible Core vide, puis prouve quatre refus : confirmation e-mail (400), vérification téléphone, consommation téléphone, et confirmation e-mail lorsque la configuration de l’autorité manque (503). Les mots de passe et versions de session des deux bases ainsi que les dates de consommation/révocation du challenge restent inchangés. Horloge fixe, contacts synthétiques, aucun transport externe.
+
+Qualification exécutée : 10/10 tests sur deux bases PostgreSQL 16 isolées, migrations versionnées appliquées, typecheck et lint ciblé réussis. Deux premiers essais de préparation ont été refusés par les gardes existants : nom de base sans suffixe `_test`, puis téléphone stocké dans un format non canonique. Les fixtures ont été corrigées ; aucun garde ni assertion métier n’a été abaissé.
+
+Cette preuve porte sur un transfert **terminé**. La coordination des écritures V1 pendant un transfert actif exige encore une procédure de quiescence/fence démontrée avant production ; les deux transactions séparées ne rendent pas le transfert concurrent atomique.

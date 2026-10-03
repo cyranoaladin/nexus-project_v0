@@ -13,7 +13,13 @@
  */
 jest.unmock('@/lib/prisma');
 
-import { randomUUID } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
+import { NextRequest } from 'next/server';
+import { POST as confirmPasswordReset } from '@/app/api/auth/reset-password/route';
+import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token';
+import { canApplyV1CredentialProof } from '@/lib/auth/password-reset-authority';
+import { normalizeParentPhone } from '@/lib/contact/parent-phone';
+import { issueParentPhoneChallenge, verifyParentPhoneChallenge, consumeParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { execFileSync } from 'node:child_process';
 import bcrypt from 'bcryptjs';
 import { prisma as v1 } from '@/lib/prisma';
@@ -35,6 +41,11 @@ const prefix = `mig-${randomUUID().slice(0, 8)}`;
 let v2: Awaited<ReturnType<typeof requireCoreV2Client>>;
 const ids = { admin: '', parent: '', parentProfile: '', studentA: '', studentB: '', coachUser: '', coachProfile: '', assignment: '', series: '' };
 const migratedAt = new Date('2026-09-12T08:00:00Z');
+const proofClock = new Date('2026-09-12T07:55:00Z');
+const originalAuthMode = process.env.CORE_V2_AUTH_MODE;
+let emailProof: string;
+let phoneProof: string;
+let phoneChallengeId: string;
 
 beforeAll(async () => {
   assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
@@ -42,11 +53,31 @@ beforeAll(async () => {
   execFileSync('npx', ['prisma', 'migrate', 'deploy', '--schema=core-v2/prisma/schema.prisma'], { stdio: 'inherit', env: process.env });
   v2 = await requireCoreV2Client();
   await resetCoreV2Database(v2);
+  process.env.CORE_V2_AUTH_MODE = 'HYBRID';
 
   // Synthetic Core v1 family: an ADMIN (the migrating actor), one parent with two students, one coach.
   const pw = await bcrypt.hash('change_me_migration_fixture', 4);
   const admin = await v1.user.create({ data: { email: `${prefix}-admin@synthetic.test`, role: 'ADMIN', password: pw, activatedAt: new Date(), firstName: 'Admin', lastName: prefix } });
-  const parentUser = await v1.user.create({ data: { email: `${prefix}-Parent@synthetic.test`, role: 'PARENT', password: pw, activatedAt: new Date(), firstName: 'Amel', lastName: prefix, phone: '+21620000001', sessionVersion: 4 } });
+  const phone = `+2162${randomInt(0, 10_000_000).toString().padStart(7, '0')}`;
+  const parentUser = await v1.user.create({ data: {
+    email: `${prefix}-Parent@synthetic.test`, emailVerifiedAt: proofClock,
+    role: 'PARENT', password: pw, activatedAt: proofClock, firstName: 'Amel', lastName: prefix,
+    phone, phoneNormalized: normalizeParentPhone(phone).normalized, parentPhoneState: 'VERIFIED', phoneVerifiedAt: proofClock, sessionVersion: 4,
+  } });
+  const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
+  try {
+    emailProof = generateResetToken(parentUser.id, parentUser.email!, parentUser.password);
+    expect(verifyResetToken(emailProof, parentUser.password)).toMatchObject({ userId: parentUser.id });
+    expect(await canApplyV1CredentialProof({ userId: parentUser.id, email: parentUser.email! })).toBe(true);
+  } finally {
+    clock.mockRestore();
+  }
+  const issuedPhone = await v1.$transaction(tx => issueParentPhoneChallenge(tx, {
+    userId: parentUser.id, purpose: 'RECOVERY', now: proofClock,
+  }));
+  phoneProof = issuedPhone.rawToken;
+  phoneChallengeId = issuedPhone.challengeId;
+  expect(await verifyParentPhoneChallenge(phoneProof, { now: proofClock })).toMatchObject({ valid: true });
   const parentProfile = await v1.parentProfile.create({ data: { userId: parentUser.id } });
   const studentAUser = await v1.user.create({ data: { email: `${prefix}-yasmine@synthetic.test`, role: 'ELEVE', password: pw, activatedAt: new Date(), firstName: 'Yasmine', lastName: prefix } });
   const studentA = await v1.student.create({ data: { userId: studentAUser.id, parentId: parentProfile.id, gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', school: 'Lycée synthétique' } });
@@ -78,6 +109,8 @@ beforeAll(async () => {
 }, 30_000); // `prisma migrate deploy` grows with every migration added (9 as of the candidat-libre diagnostics migration); the 5s Jest default no longer covers deploy + reset + fixture creation.
 
 afterAll(async () => {
+  if (originalAuthMode === undefined) delete process.env.CORE_V2_AUTH_MODE;
+  else process.env.CORE_V2_AUTH_MODE = originalAuthMode;
   await v1.user.deleteMany({ where: { lastName: prefix } }).catch(() => undefined);
   await v1.$disconnect();
   await disconnectCoreV2Client();
@@ -229,4 +262,59 @@ test('6. a target that holds rows outside the plan is refused before any write',
   await expect(runWithActor(true, `${prefix}-nobody`)).rejects.toThrow(/MIGRATION_ACTOR_ABSENT_FROM_TARGET/);
   // Un acteur present mais qui n'est pas ADMIN l'est aussi.
   await expect(runWithActor(true, ids.parent)).rejects.toThrow(/MIGRATION_ACTOR_NOT_ADMIN/);
+});
+
+
+async function credentialState() {
+  const select = { password: true, sessionVersion: true };
+  return {
+    source: await v1.user.findUniqueOrThrow({ where: { id: ids.parent }, select }),
+    target: await v2.user.findUniqueOrThrow({ where: { id: ids.parent }, select }),
+    challenge: await v1.parentPhoneChallenge.findUniqueOrThrow({
+      where: { id: phoneChallengeId }, select: { consumedAt: true, revokedAt: true, expiresAt: true },
+    }),
+  };
+}
+
+async function confirmStaleEmailProof() {
+  const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
+  try {
+    return await confirmPasswordReset(new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
+      body: JSON.stringify({ token: emailProof, newPassword: 'Synthetic-new-credential-42!' }),
+    }));
+  } finally {
+    clock.mockRestore();
+  }
+}
+
+test('7. a still-valid V1 email proof is refused after the approved real migration without changing either credential store', async () => {
+  const before = await credentialState();
+  expect((await confirmStaleEmailProof()).status).toBe(400);
+  expect(await credentialState()).toEqual(before);
+});
+
+test('8. an unexpired V1 phone proof is no longer verifiable after the real identity transfer', async () => {
+  const before = await credentialState();
+  expect(await verifyParentPhoneChallenge(phoneProof, { now: proofClock })).toEqual({ valid: false });
+  expect(await credentialState()).toEqual(before);
+});
+
+test('9. consuming an unexpired V1 phone proof after transfer cannot change passwords, rotate sessions or consume the challenge', async () => {
+  const before = await credentialState();
+  expect(await consumeParentPhoneChallenge(phoneProof, 'Synthetic-new-credential-42!', { now: proofClock })).toEqual({ success: false });
+  expect(await credentialState()).toEqual(before);
+});
+
+test('10. losing the Core authority configuration fails closed even with a valid old V1 email proof', async () => {
+  const before = await credentialState();
+  const url = process.env.CORE_V2_DATABASE_URL;
+  await disconnectCoreV2Client();
+  delete process.env.CORE_V2_DATABASE_URL;
+  try {
+    expect((await confirmStaleEmailProof()).status).toBe(503);
+  } finally {
+    process.env.CORE_V2_DATABASE_URL = url;
+  }
+  expect(await credentialState()).toEqual(before);
 });
