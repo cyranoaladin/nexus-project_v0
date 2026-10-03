@@ -257,3 +257,25 @@ est étendu avec assertion des deux presets, sans retrait d'assertion.
 Le guard RBAC a refusé une lecture de rôle inline ; la vérification identité/
 rôle est centralisée dans `rbac.ts` et le guard reste inchangé.
 Les cinq suites ciblées UI/rate/architecture passent : **69/69 tests**.
+
+
+### Qualification f0beded71 et correction des gardes de navigation
+
+Sur `f0beded71d0e245dc1ac7b4f75aa7f2a54d261ea`, build de production,
+68 suites Core-v2 (**670/670**), typecheck et lint réussissent. Le premier
+build refusait correctement la base nommée `nexus_e2e` en mode production ;
+le second utilise la vraie base représentative jetable, jamais une base réelle
+ou un contournement du guard. Les deux journaux sont conservés.
+
+La lane unitaire complète termine avec **1 267 suites vertes, une rouge,
+14 232 réussites et un échec**, sans test ignoré : la nouvelle page manque
+à l'inventaire exhaustif des pages protégées. Les deux E2E 390/1440 échouent
+avant le formulaire : les deux gardes (`auth.config.ts` et middleware)
+redirigent le chemin commun vers le dashboard du rôle.
+
+Correction : exception partagée limitée au chemin exact de sécurité du compte,
+aucune ouverture du sous-arbre `account`, et ajout de la page à l'inventaire.
+Cinq cas de rôles échouent avant correction ; après correction **102/102**
+tests ciblés passent, incluant refus anonyme, chemins voisins et dashboards
+croisés. Les assertions d'inventaire restent inchangées. La campagne navigateur
+sera réexécutée après build du nouveau SHA ; cette entrée ne la déclare pas verte.

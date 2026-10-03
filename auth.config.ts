@@ -1,3 +1,4 @@
+import { isAccountSecurityPath } from '@/lib/auth/account-security-path';
 import { getRoleDestination } from '@/lib/auth/role-destinations';
 import { isAdminSupervisionException } from '@/lib/auth/admin-supervision-exceptions';
 import type { NextAuthConfig } from 'next-auth';
@@ -25,7 +26,7 @@ export const authConfig = {
         }
 
         // Allow common authenticated dashboards
-        if (nextUrl.pathname === '/dashboard' || nextUrl.pathname.startsWith('/dashboard/trajectoire')) {
+        if (nextUrl.pathname === '/dashboard' || nextUrl.pathname.startsWith('/dashboard/trajectoire') || isAccountSecurityPath(nextUrl.pathname)) {
           return true;
         }
 
