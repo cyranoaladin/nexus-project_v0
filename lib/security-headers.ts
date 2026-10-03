@@ -33,7 +33,9 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
-        "connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com wss: data:",
+        // jsdelivr : le moteur Python (Pyodide) de l'espace pédagogique charge son WASM et sa
+        // bibliothèque standard par fetch ; l'hôte est déjà autorisé pour script/worker/style.
+        "connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com https://cdn.jsdelivr.net wss: data:",
         "worker-src 'self' blob: https://cdn.jsdelivr.net",
         "frame-src 'self' https://meet.jit.si https://*.jitsi.net https://www.google.com https://maps.google.com",
         "frame-ancestors 'none'",

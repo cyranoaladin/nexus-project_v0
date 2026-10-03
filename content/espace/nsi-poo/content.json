@@ -1,0 +1,449 @@
+{
+  "version": "1.0.0",
+  "title": "Des objets qui agissent",
+  "session": "TP POO • Terminale NSI",
+  "duration": 120,
+  "steps": [
+    {
+      "id": "reperes",
+      "short": "Se repérer",
+      "title": "Du constructeur à l’objet",
+      "minutes": 10,
+      "level": "Réactivation",
+      "concepts": [
+        "classe",
+        "instance",
+        "attribut",
+        "self"
+      ],
+      "intro": "Nous allons programmer une petite bibliothèque. Le constructeur a déjà été présenté : commence par vérifier ce qui est créé et ce qui appartient à chaque livre.",
+      "lesson": "<p><code>Livre</code> est une <strong>classe</strong> : elle décrit les données et les actions de ses instances. <code>Livre(\"Dune\", \"Frank Herbert\")</code> instancie un objet. Sa méthode <code>__init__</code> initialise son état.</p><p>Dans <code>self.titre = titre</code>, le membre de droite est le paramètre reçu ; celui de gauche est l’attribut de <em>l’instance en cours</em>. <code>self</code> est le nom conventionnel de ce premier paramètre.</p><div class=\"note\">Dans ce TP, nous reprenons le mot « constructeur » utilisé en cours pour <code>__init__</code>. Plus précisément, cette méthode initialise l’objet : on ne lui fait pas renvoyer cet objet avec <code>return</code>.</div>",
+      "task": "Lis le code sans l’exécuter. Réponds aux trois questions, puis lance le programme et confronte le résultat à ta prédiction.",
+      "starter": "class Livre:\n    def __init__(self, titre, auteur):\n        self.titre = titre\n        self.auteur = auteur\n        self.disponible = True\n\nlivre1 = Livre(\"Dune\", \"Frank Herbert\")\nlivre2 = Livre(\"1984\", \"George Orwell\")\nprint(livre1.titre)\nprint(livre2.disponible)\n",
+      "questions": [
+        {
+          "id": "classe",
+          "text": "Que désigne Livre dans ce programme ?",
+          "choices": [
+            "Une instance précise",
+            "Une classe",
+            "Un attribut de livre1"
+          ],
+          "correct": 1,
+          "feedback": "Livre est la classe ; livre1 et livre2 désignent deux instances construites séparément."
+        },
+        {
+          "id": "init",
+          "text": "À quoi sert self.titre = titre ?",
+          "choices": [
+            "À stocker le paramètre titre dans l’objet courant",
+            "À modifier le titre de toutes les instances",
+            "À afficher le titre"
+          ],
+          "correct": 0,
+          "feedback": "L’affectation crée ici un attribut d’instance. Elle ne produit aucun affichage."
+        },
+        {
+          "id": "sortie",
+          "text": "Quelles sont les deux lignes affichées ?",
+          "choices": [
+            "Livre puis True",
+            "Dune puis False",
+            "Dune puis True"
+          ],
+          "correct": 2,
+          "feedback": "livre1.titre vaut « Dune ». Chaque nouvel objet reçoit disponible = True."
+        }
+      ],
+      "fields": [
+        {
+          "id": "prediction",
+          "label": "Pourquoi la valeur de titre ne disparaît-elle pas à la fin de __init__ ?",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Sépare le nom de classe, le nom de variable et les attributs situés après le point.",
+        "Le paramètre local titre et l’attribut self.titre n’ont pas la même durée de vie. L’objet conserve son attribut."
+      ],
+      "takeaway": "Classe = description ; instance = objet particulier ; attribut = donnée de cet objet. self désigne le destinataire de la méthode.",
+      "tests": [
+        "Construction et état initial des deux livres."
+      ]
+    },
+    {
+      "id": "instances",
+      "short": "Construire",
+      "title": "Créer deux instances indépendantes",
+      "minutes": 15,
+      "level": "Guidé",
+      "concepts": [
+        "__init__",
+        "attributs d’instance",
+        "indépendance"
+      ],
+      "intro": "Deux livres possèdent les mêmes noms d’attributs, mais pas nécessairement les mêmes valeurs. Tu complètes maintenant toi-même leur initialisation.",
+      "lesson": "<p>Chaque appel à <code>Livre(...)</code> construit une nouvelle instance. Deux instances peuvent avoir des valeurs égales sans être le même objet.</p><p>La notation <code>objet.attribut</code> permet de lire un attribut. Une affectation telle que <code>livre1.disponible = False</code> modifie uniquement l’objet désigné par <code>livre1</code>, sauf si une autre variable désigne précisément le même objet.</p>",
+      "task": "Complète __init__ avec titre, auteur et disponible. Crée livre1 pour Dune (Frank Herbert) et livre2 pour 1984 (George Orwell). Un livre nouveau doit être disponible. Ajoute des affichages pour observer les deux objets, puis lance les tests.",
+      "starter": "class Livre:\n    def __init__(self, titre, auteur):\n        # À compléter : trois attributs propres à cette instance.\n        pass\n\n# À compléter : créer livre1 et livre2.\n",
+      "questions": [
+        {
+          "id": "indep",
+          "text": "Après livre1.disponible = False, que vaut livre2.disponible si les deux livres ont été construits séparément ?",
+          "choices": [
+            "True",
+            "False",
+            "Cela dépend du titre"
+          ],
+          "correct": 0,
+          "feedback": "Chaque instance a son propre attribut disponible. L’égalité éventuelle des titres n’intervient pas."
+        }
+      ],
+      "fields": [
+        {
+          "id": "preuve",
+          "label": "Écris deux instructions qui permettraient de vérifier l’indépendance des livres.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Il faut trois affectations commençant par self. Le paramètre auteur doit être mémorisé lui aussi.",
+        "Le début est self.titre = titre. Puis crée deux objets par deux appels distincts à Livre(...)."
+      ],
+      "takeaway": "Un paramètre reçoit une valeur pendant un appel ; self.attribut conserve une donnée dans l’instance.",
+      "tests": [
+        "Trois attributs d’instance présents.",
+        "Dune / Frank Herbert et 1984 / George Orwell correctement construits.",
+        "Deux objets distincts.",
+        "La modification de l’un ne modifie pas l’autre."
+      ]
+    },
+    {
+      "id": "consulter",
+      "short": "Consulter",
+      "title": "Une méthode renvoie une information",
+      "minutes": 15,
+      "level": "Guidé puis autonome",
+      "concepts": [
+        "méthode",
+        "appel",
+        "return / print"
+      ],
+      "intro": "Le constructeur prépare l’état. Une méthode permet ensuite de demander quelque chose à un objet.",
+      "lesson": "<p>On écrit <code>def description(self):</code> dans la classe, puis <code>livre.description()</code> pour l’appeler. Python transmet automatiquement l’objet comme premier argument.</p><p><code>return</code> donne une valeur à l’appelant. <code>print</code> affiche du texte mais ne remplace pas ce résultat. Une fonction arrivant à sa fin sans <code>return</code> explicite renvoie <code>None</code>.</p><pre><code>texte = livre.description()  # recevoir une valeur\nprint(texte)                 # choisir de l’afficher</code></pre>",
+      "task": "Écris description(self), qui renvoie exactement « titre / auteur », puis est_disponible(self), qui renvoie le booléen disponible. Ces méthodes ne doivent ni afficher ni modifier l’objet.",
+      "starter": "class Livre:\n    def __init__(self, titre, auteur):\n        self.titre = titre\n        self.auteur = auteur\n        self.disponible = True\n\n    def description(self):\n        # Renvoyer une chaîne de caractères, sans afficher.\n        pass\n\n    def est_disponible(self):\n        # Renvoyer un booléen, sans afficher.\n        pass\n\nlivre = Livre(\"Dune\", \"Frank Herbert\")\ntexte = livre.description()\nprint(texte)\nprint(livre.est_disponible())\n",
+      "questions": [
+        {
+          "id": "retour",
+          "text": "Si description affiche son texte avec print mais ne contient pas de return, que reçoit texte ?",
+          "choices": [
+            "Le texte affiché",
+            "True",
+            "None"
+          ],
+          "correct": 2,
+          "feedback": "L’affichage et la valeur renvoyée sont deux effets différents. Ici, texte reçoit None."
+        }
+      ],
+      "fields": [
+        {
+          "id": "self",
+          "label": "Pourquoi l’appel livre.description() n’écrit-il pas explicitement livre entre les parenthèses ?",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Lis le titre avec self.titre et l’auteur avec self.auteur. Assemble les deux chaînes avec \" / \".",
+        "Utilise return, pas print, dans les deux méthodes. L’attribut disponible est déjà un booléen."
+      ],
+      "takeaway": "Une méthode de consultation donne une information sans changer l’état. L’appelant peut ensuite utiliser la valeur renvoyée.",
+      "tests": [
+        "description renvoie la bonne chaîne sur plusieurs livres.",
+        "est_disponible reflète réellement l’attribut courant.",
+        "Les consultations ne modifient pas l’état et n’affichent rien."
+      ]
+    },
+    {
+      "id": "agir",
+      "short": "Faire agir",
+      "title": "Modifier un état en respectant un contrat",
+      "minutes": 20,
+      "level": "Application",
+      "concepts": [
+        "mutation",
+        "contrat",
+        "booléen",
+        "test de frontière"
+      ],
+      "intro": "Un livre déjà emprunté ne peut pas être emprunté une seconde fois. Les méthodes vont faire respecter cette règle.",
+      "lesson": "<p>Une méthode peut <strong>modifier l’état</strong> et <strong>renvoyer une réponse</strong>. Ici, le booléen renvoyé indique si l’action a effectivement changé la situation.</p><div class=\"contract\"><strong>emprunter()</strong> : si le livre est disponible, le rendre indisponible et renvoyer True ; sinon ne rien changer et renvoyer False.<br><strong>rendre()</strong> : si le livre est emprunté, le rendre disponible et renvoyer True ; sinon ne rien changer et renvoyer False.</div><p>Cette interface aide à conserver un état cohérent. En Python, elle ne rend pas pour autant l’attribut public <code>disponible</code> inaccessible.</p>",
+      "task": "Complète emprunter et rendre. Contrôle une première action réussie, sa répétition refusée, puis l’opération inverse. Les méthodes ne doivent rien afficher.",
+      "starter": "class Livre:\n    def __init__(self, titre, auteur):\n        self.titre = titre\n        self.auteur = auteur\n        self.disponible = True\n\n    def description(self):\n        return self.titre + \" / \" + self.auteur\n\n    def est_disponible(self):\n        return self.disponible\n\n    def emprunter(self):\n        # Respecter les deux cas du contrat.\n        pass\n\n    def rendre(self):\n        # Respecter les deux cas du contrat.\n        pass\n\nlivre = Livre(\"Dune\", \"Frank Herbert\")\nprint(livre.emprunter(), livre.est_disponible())\nprint(livre.emprunter(), livre.est_disponible())\nprint(livre.rendre(), livre.est_disponible())\n",
+      "questions": [
+        {
+          "id": "echec",
+          "text": "Un deuxième appel à emprunter() sur le même livre déjà emprunté doit…",
+          "choices": [
+            "Renvoyer False sans changer l’état",
+            "Rendre le livre disponible",
+            "Renvoyer True parce que la méthode existe"
+          ],
+          "correct": 0,
+          "feedback": "Le contrat décrit le comportement, pas seulement la possibilité d’appeler la méthode."
+        }
+      ],
+      "fields": [
+        {
+          "id": "caslimite",
+          "label": "Explique un test qui échouerait avec une méthode qui renvoie toujours True.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Dans emprunter, commence par examiner self.disponible. Si l’action est refusée, renvoie False avant toute mutation.",
+        "Lors d’un emprunt réussi : self.disponible = False, puis return True. Pour rendre, inverse la condition et l’état cible."
+      ],
+      "takeaway": "Un test doit vérifier à la fois la réponse et l’état. Une valeur True affichée ne suffit pas à montrer que l’objet a changé correctement.",
+      "tests": [
+        "Premier emprunt accepté ; deuxième refusé.",
+        "Retour accepté ; deuxième retour refusé.",
+        "L’état est juste après chaque appel.",
+        "Deux livres restent indépendants.",
+        "Aucun affichage produit par les méthodes."
+      ]
+    },
+    {
+      "id": "references",
+      "short": "Comprendre les liens",
+      "title": "Deux variables, un seul objet ?",
+      "minutes": 15,
+      "level": "Raisonnement",
+      "concepts": [
+        "référence",
+        "alias",
+        "identité",
+        "instance"
+      ],
+      "intro": "L’instruction b = a ne rappelle pas le constructeur. Elle crée un second nom pour le même objet.",
+      "lesson": "<p><code>b = a</code> ne copie pas le livre : les deux noms désignent la même instance. Au contraire, un nouvel appel à <code>Livre(...)</code> construit une autre instance, même avec les mêmes arguments.</p><p><code>a is b</code> demande si les deux noms désignent le même objet. Ce n’est pas une comparaison des titres.</p><div id=\"memory-demo\"></div>",
+      "task": "Prédis l’affichage sans exécuter, utilise le schéma de références, puis lance le programme. Explique pourquoi une action demandée avec b se voit ensuite avec a.",
+      "starter": "class Livre:\n    def __init__(self, titre, auteur):\n        self.titre = titre\n        self.auteur = auteur\n        self.disponible = True\n\n    def description(self):\n        return self.titre + \" / \" + self.auteur\n\n    def est_disponible(self):\n        return self.disponible\n\n    def emprunter(self):\n        if not self.disponible:\n            return False\n        self.disponible = False\n        return True\n\n    def rendre(self):\n        if self.disponible:\n            return False\n        self.disponible = True\n        return True\n\na = Livre(\"Dune\", \"Frank Herbert\")\nb = a\nc = Livre(\"Dune\", \"Frank Herbert\")\nresultat = b.emprunter()\nprint(a.disponible, b.disponible, c.disponible)\nprint(a is b, a is c)\n",
+      "questions": [
+        {
+          "id": "etat",
+          "text": "Première ligne : quelles valeurs prévois-tu ?",
+          "choices": [
+            "True False True",
+            "False False True",
+            "False False False"
+          ],
+          "correct": 1,
+          "feedback": "a et b visent le même objet, devenu indisponible. c vise un autre objet, encore disponible."
+        },
+        {
+          "id": "identite",
+          "text": "Deuxième ligne : quelles valeurs prévois-tu ?",
+          "choices": [
+            "True True",
+            "False False",
+            "True False"
+          ],
+          "correct": 2,
+          "feedback": "b = a établit un alias ; c vient d’une nouvelle instanciation."
+        }
+      ],
+      "fields": [
+        {
+          "id": "explication",
+          "label": "Explique la différence entre b = a et b = Livre(a.titre, a.auteur).",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Compte les appels au constructeur, pas le nombre de variables.",
+        "Il y a deux appels à Livre : a et c. L’affectation b = a ajoute seulement une flèche vers l’objet de a."
+      ],
+      "takeaway": "Un nom est une référence vers un objet. Plusieurs noms peuvent désigner la même instance ; une affectation n’est pas une copie.",
+      "tests": [
+        "a et b désignent le même objet ; c en désigne un autre.",
+        "Après b.emprunter(), a et b voient False, c voit True."
+      ]
+    },
+    {
+      "id": "mission",
+      "short": "Transférer",
+      "title": "Mission autonome : gérer les places d’une salle",
+      "minutes": 25,
+      "level": "Transfert",
+      "concepts": [
+        "conception de classe",
+        "état cohérent",
+        "contrats",
+        "tests"
+      ],
+      "intro": "Tu quittes la bibliothèque. Le même raisonnement objet permet de gérer les réservations d’une salle de travail.",
+      "lesson": "<p>Implémente <code>Salle(nom, capacite)</code>. La capacité est un entier strictement positif donné par l’appelant. L’objet possède <code>nom</code>, <code>capacite</code> et <code>libres</code>, initialement égal à la capacité.</p><div class=\"contract\"><strong>places_disponibles()</strong> renvoie le nombre de places libres sans mutation.<br><strong>reserver(n)</strong> : pour un entier n, accepte seulement si 0 &lt; n ≤ libres. En cas de succès, diminue libres et renvoie True ; sinon ne change rien et renvoie False.<br><strong>liberer(n)</strong> : accepte seulement si 0 &lt; n ≤ capacite − libres. En cas de succès, augmente libres et renvoie True ; sinon ne change rien et renvoie False.</div><p>À tout moment : <code>0 &lt;= libres &lt;= capacite</code>. Tu n’as pas à traiter les chaînes de caractères ou les flottants : le contrat prévoit des entiers. N’utilise ni héritage ni bibliothèque.</p>",
+      "task": "Écris la classe complète. Invente au moins deux tests personnels avant de lancer la batterie de vérification. Vérifie une réservation exacte de toutes les places, un dépassement et une libération impossible.",
+      "starter": "class Salle:\n    def __init__(self, nom, capacite):\n        pass\n\n    def places_disponibles(self):\n        pass\n\n    def reserver(self, n):\n        pass\n\n    def liberer(self, n):\n        pass\n\n# Tes propres essais, avec affichage de la réponse et de l’état :\n",
+      "questions": [],
+      "fields": [
+        {
+          "id": "plan",
+          "label": "Avant le code : quel attribut change et quels attributs doivent rester stables ?",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        },
+        {
+          "id": "tests",
+          "label": "Décris deux tests personnels : situation de départ, appel, résultat et état attendus.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        },
+        {
+          "id": "invariant",
+          "label": "Explique pourquoi ton code ne produit jamais un nombre négatif de places libres ni plus de places que la capacité.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Fais d’abord fonctionner l’initialisation et places_disponibles. Puis traite séparément refus et succès pour chaque action.",
+        "Pour liberer, le maximum autorisé est le nombre de places occupées : self.capacite - self.libres. Un refus ne modifie aucun attribut."
+      ],
+      "takeaway": "Concevoir une classe, c’est choisir un état, une interface et des règles que les méthodes préservent.",
+      "tests": [
+        "Initialisation et consultation.",
+        "Réservation partielle et réservation de toutes les places.",
+        "Refus des dépassements, de zéro et des nombres négatifs.",
+        "Libération valide et refus d’une libération impossible.",
+        "Plusieurs instances indépendantes."
+      ]
+    },
+    {
+      "id": "bilan",
+      "short": "Faire le point",
+      "title": "Ce que je sais expliquer sans mon écran",
+      "minutes": 20,
+      "level": "Consolidation",
+      "concepts": [
+        "synthèse",
+        "raisonnement écrit",
+        "trace de séance"
+      ],
+      "intro": "Prends quelques minutes sans le code. La maîtrise ne se réduit pas à un voyant vert : elle se voit aussi dans les explications et dans un nouvel exemple.",
+      "lesson": "<div class=\"summary-grid\"><div><strong>Classe</strong><p>Décrit les attributs et les méthodes des instances.</p></div><div><strong>Instance</strong><p>Objet particulier avec son état.</p></div><div><strong>self</strong><p>Référence vers le destinataire de l’appel.</p></div><div><strong>Méthode</strong><p>Peut consulter, modifier, et renvoyer une valeur selon son contrat.</p></div></div><p>Prépare une trace, exporte ton bilan et remets le fichier JSON à l’enseignant. En mode connecté configuré, utilise aussi « Remettre à l’enseignant » et vérifie le reçu.</p>",
+      "task": "Réponds, puis rédige un bilan court. Compare ensuite tes réponses avec le retour et conserve la trace de ce qui reste à reprendre.",
+      "starter": null,
+      "questions": [
+        {
+          "id": "self",
+          "text": "Dans salle.reserver(2), quel objet est transmis comme self ?",
+          "choices": [
+            "La classe Salle",
+            "L’objet désigné par salle",
+            "L’entier 2"
+          ],
+          "correct": 1,
+          "feedback": "La méthode reçoit salle comme premier paramètre, puis 2 comme paramètre n."
+        },
+        {
+          "id": "ret",
+          "text": "Une méthode qui change un attribut doit-elle obligatoirement utiliser print ?",
+          "choices": [
+            "Oui",
+            "Seulement si elle renvoie True",
+            "Non"
+          ],
+          "correct": 2,
+          "feedback": "La mutation, l’affichage et la valeur renvoyée sont trois choses distinctes."
+        },
+        {
+          "id": "alias",
+          "text": "Après s2 = s1, s2.liberer(1) peut-il changer l’état vu par s1 ?",
+          "choices": [
+            "Oui, ils désignent le même objet",
+            "Non, s2 est une copie indépendante",
+            "Seulement si les noms sont égaux"
+          ],
+          "correct": 0,
+          "feedback": "L’affectation n’a pas créé de nouvelle instance."
+        },
+        {
+          "id": "init",
+          "text": "Quelle affirmation est correcte à propos de __init__ ?",
+          "choices": [
+            "Elle doit renvoyer self",
+            "Elle initialise une instance et ne renvoie pas de valeur autre que None",
+            "Elle est appelée à chaque lecture d’un attribut"
+          ],
+          "correct": 1,
+          "feedback": "__init__ prépare l’état initial. Un return self dans cette méthode provoque une erreur lors de l’instanciation."
+        },
+        {
+          "id": "preuve",
+          "text": "Tous les tests proposés passent. Que peux-tu en conclure ?",
+          "choices": [
+            "La classe est correcte pour toutes les entrées possibles",
+            "Le comportement satisfait ces cas ; les explications et d’autres cas restent utiles",
+            "Aucune information"
+          ],
+          "correct": 1,
+          "feedback": "Les tests sont une preuve de comportement sur les cas exécutés, pas une preuve universelle."
+        }
+      ],
+      "fields": [
+        {
+          "id": "bilan",
+          "label": "En 3 à 5 lignes : explique classe, instance, attribut, méthode et self dans un exemple différent.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        },
+        {
+          "id": "erreur",
+          "label": "Quelle erreur as-tu corrigée ? Donne le premier état faux et le changement qui l’a réparé.",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        },
+        {
+          "id": "suite",
+          "label": "Quel point dois-tu encore retravailler, ou quel test supplémentaire veux-tu proposer ?",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Utilise un exemple concret : une lampe, un compteur, une réservation…",
+        "Explique d’abord les données conservées dans un objet, puis une action possible sur cet objet."
+      ],
+      "takeaway": "Je peux expliquer mon code, le tester sur des cas contrastés et distinguer objet, état, nom et résultat d’un appel.",
+      "tests": []
+    },
+    {
+      "id": "bonus",
+      "short": "Bonus",
+      "title": "Pour aller plus loin : une liste vraiment personnelle",
+      "minutes": 0,
+      "level": "Facultatif, hors des 120 min",
+      "concepts": [
+        "attribut de classe",
+        "attribut d’instance",
+        "liste mutable"
+      ],
+      "intro": "Seulement après le parcours principal. Deux carnets ne doivent pas partager accidentellement leurs notes.",
+      "lesson": "<p>Une liste placée directement dans la classe est ici partagée par les instances. Pour que chaque carnet ait sa propre liste, construis la liste dans <code>__init__</code> et attache-la à <code>self</code>.</p><p>Ce prolongement n’est pas un prérequis de la mission Salle. L’héritage, les décorateurs et les méthodes avancées seront abordés séparément si nécessaire.</p>",
+      "task": "Corrige la classe pour que les deux carnets ne partagent pas leurs listes. Après un ajout dans c1, la liste de c2 doit encore être vide.",
+      "starter": "class Carnet:\n    notes = []\n\n    def __init__(self, nom):\n        self.nom = nom\n\n    def ajouter(self, texte):\n        self.notes.append(texte)\n\nc1 = Carnet(\"A\")\nc2 = Carnet(\"B\")\nc1.ajouter(\"Revoir self\")\nprint(c1.notes, c2.notes)\n",
+      "questions": [],
+      "fields": [
+        {
+          "id": "partage",
+          "label": "Pourquoi la liste d’origine était-elle partagée ? Quelle instruction crée maintenant une liste par instance ?",
+          "placeholder": "Explique avec tes mots, puis appuie-toi sur un exemple."
+        }
+      ],
+      "hints": [
+        "Observe l’indentation de notes = []. Elle n’est pas dans __init__.",
+        "Supprime notes = [] dans le corps de la classe et place self.notes = [] dans __init__."
+      ],
+      "takeaway": "Une valeur mutable doit être placée au bon niveau : une liste par instance n’est pas une liste partagée par la classe.",
+      "tests": [
+        "Deux listes indépendantes, même après plusieurs ajouts."
+      ]
+    }
+  ]
+}

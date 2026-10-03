@@ -1,0 +1,32 @@
+{
+  "groups": [
+    { "slug": "terminale-principal", "name": "Terminale — groupe principal" },
+    { "slug": "jean-racine", "name": "Jean Racine" }
+  ],
+  "teachers": [
+    {
+      "username": "enseignant.exemple",
+      "firstName": "Prénom",
+      "lastName": "NOM",
+      "matchEmail": "enseignant@example.invalid",
+      "teaches": [
+        { "group": "terminale-principal", "subjects": ["MATHS", "NSI", "MATHS_EXPERTES"] },
+        { "group": "jean-racine", "subjects": ["MATHS"] }
+      ]
+    }
+  ],
+  "students": [
+    {
+      "username": "eleve.un",
+      "firstName": "Élève",
+      "lastName": "UN",
+      "enrollments": [{ "group": "terminale-principal", "subjects": ["MATHS", "NSI"] }]
+    },
+    {
+      "username": "eleve.deux",
+      "firstName": "Élève",
+      "lastName": "DEUX",
+      "enrollments": [{ "group": "jean-racine", "subjects": ["MATHS"] }]
+    }
+  ]
+}
