@@ -1,0 +1,110 @@
+# Advisory benchmark only. It has no App credential and cannot publish the
+# required gate. A model is not merge authority merely because this job passes.
+name: Nexus Review Gate Model Qualification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/github/review-gate/**'
+      - '.github/workflows/nexus-review-gate-model-qualification.yml'
+      - '__tests__/governance/review-gate-*.test.js'
+
+permissions:
+  contents: read
+
+jobs:
+  compare-models:
+    name: Compare local model (${{ matrix.candidate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate:
+          - granite-3b-code-instruct-q4-k-m
+          - qwen2.5-coder-7b-instruct-q4-k-m
+    steps:
+      - name: Checkout untrusted PR for advisory corpus evaluation only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node without shared cache
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.1'
+
+      - name: Prepare private ephemeral assets directory
+        run: |
+          set -euo pipefail
+          umask 077
+          review_gate_tmp=$(mktemp -d "$RUNNER_TEMP/nexus-review-model.XXXXXXXX")
+          test -d "$review_gate_tmp"
+          test ! -L "$review_gate_tmp"
+          test "$(stat -c '%a' "$review_gate_tmp")" = '700'
+          echo "REVIEW_GATE_TEMP=$review_gate_tmp" >> "$GITHUB_ENV"
+
+      - name: Download exact model and runtime with SHA-256 verification
+        run: node scripts/github/review-gate/qualification/fetch-assets.mjs '${{ matrix.candidate }}'
+
+      - name: Validate and unpack verified llama.cpp archive
+        run: |
+          set -euo pipefail
+          entries=$(tar -tzf "$REVIEW_GATE_TEMP/runtime.tar.gz")
+          if printf '%s\n' "$entries" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
+            echo 'UNSAFE_RUNTIME_ARCHIVE_PATH'
+            exit 1
+          fi
+          printf '%s\n' "$entries" | grep -qx 'llama-b10977/llama-completion'
+          tar -xzf "$REVIEW_GATE_TEMP/runtime.tar.gz" -C "$REVIEW_GATE_TEMP"
+          test -x "$REVIEW_GATE_TEMP/llama-b10977/llama-completion"
+
+      - name: Diagnose model invocation with synthetic prompt
+        run: |
+          set -euo pipefail
+          synthetic_log="$REVIEW_GATE_TEMP/synthetic-smoke.log"
+          synthetic_output="$REVIEW_GATE_TEMP/synthetic-smoke.stdout"
+          synthetic_prompt="$REVIEW_GATE_TEMP/synthetic-prompt.txt"
+          printf '%s' 'Review only this synthetic input and return {"review_complete":true,"blocking_findings":[],"warnings":[]}.' > "$synthetic_prompt"
+          chmod 0600 "$synthetic_prompt"
+          set +e
+          timeout 120 "$REVIEW_GATE_TEMP/llama-b10977/llama-completion" \
+              -m "$REVIEW_GATE_TEMP/model.gguf" -f "$synthetic_prompt" -c 2048 -t 4 -n 128 \
+              --temp 0 --top-k 1 \
+              --json-schema-file scripts/github/review-gate/qualification/review-output.schema.json \
+              --no-display-prompt --simple-io -st \
+              > "$synthetic_output" 2> "$synthetic_log"
+          synthetic_status=$?
+          set -e
+          rm -f "$synthetic_prompt"
+          if [ "$synthetic_status" -ne 0 ] || grep -Eqi 'Failed to initialize samplers|failed to launch slot' "$synthetic_log"; then
+            echo "MODEL_SYNTHETIC_SMOKE=FAIL exit=$synthetic_status"
+            grep -Ei 'error|failed|invalid|unknown|exited' "$synthetic_log" | head -n 12 || true
+            exit 1
+          fi
+          if ! node --input-type=module -e 'import { readFileSync } from "node:fs"; import { parseSemanticResponse } from "./scripts/github/review-gate/semantic.mjs"; if (!parseSemanticResponse(readFileSync(process.argv[1], "utf8"), new Set(["synthetic.ts"]))) process.exit(1)' "$synthetic_output"; then
+            echo 'MODEL_SYNTHETIC_JSON_INVALID'
+            head -c 2048 "$synthetic_output"
+            exit 1
+          fi
+          echo 'MODEL_SYNTHETIC_SMOKE=PASS'
+
+      - name: Run bounded three-pass historical benchmark
+        env:
+          REVIEW_GATE_REPORT_PATH: ${{ runner.temp }}/review-gate-model-report.json
+        run: |
+          export REVIEW_GATE_MODEL_PATH="$REVIEW_GATE_TEMP/model.gguf"
+          export REVIEW_GATE_BINARY_PATH="$REVIEW_GATE_TEMP/llama-b10977/llama-completion"
+          node scripts/github/review-gate/qualification/evaluate.mjs '${{ matrix.candidate }}'
+
+      - name: Upload model metrics without diffs or model output
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: review-gate-model-${{ matrix.candidate }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/review-gate-model-report.json
+          retention-days: 30
+          if-no-files-found: error

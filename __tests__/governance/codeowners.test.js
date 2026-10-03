@@ -22,15 +22,19 @@ describe('CODEOWNERS parsing, coverage and eligibility', () => {
     expect(result.rules).toEqual([{ pattern: '*', owners: ['abenrhouma', 'adammeg'] }]);
   });
 
-  test('the real repository CODEOWNERS is the catch-all abenrhouma+adammeg pair, cyranoaladin excluded', () => {
+  test('the real repository CODEOWNERS protects only declared sensitive paths', () => {
     const fs = require('fs');
     const path = require('path');
     const repoRoot = path.resolve(__dirname, '../..');
     const content = fs.readFileSync(path.join(repoRoot, '.github', 'CODEOWNERS'), 'utf8');
     const result = codeowners.hasFullCoverage(content);
-    expect(result.coverage).toBe(1);
-    expect(result.catchAll.owners.sort()).toEqual(['abenrhouma', 'adammeg']);
-    expect(result.catchAll.owners).not.toContain('cyranoaladin');
+    expect(result.coverage).toBe(0);
+    expect(result.catchAll).toBeNull();
+    expect(result.rules.map((rule) => rule.pattern)).toEqual(expect.arrayContaining([
+      '/.github/CODEOWNERS', '/.github/governance/**',
+      '/.github/workflows/nexus-review-gate.yml', '/scripts/github/review-gate/**',
+    ]));
+    expect(result.rules.every((rule) => rule.owners.sort().join(',') === 'abenrhouma,adammeg')).toBe(true);
   });
 });
 
