@@ -127,3 +127,17 @@ avec les suites account/HTTP voisines) et le dossier de décision CodeQL.
 Toute modification du HEAD nécessite une nouvelle qualification distante ;
 les résultats de ce tableau restent des preuves du jalon indiqué, pas une
 déclaration de CI verte sur un commit ultérieur.
+
+## Fixture vidéo : passage de minuit
+
+La requalification unitaire du 4 octobre a reproduit trois échecs dans
+`session-calendar-video-availability.test.tsx`. À 00:06 Africa/Tunis,
+`now - 10 minutes` donne la veille à 23:56 ; la fixture ne conserve que
+HH:mm et lui affecte la date d'aujourd'hui, créant donc une séance future.
+Le composant refuse correctement de proposer Join pour cette séance.
+
+Reproduction isolée avant correction : trois échecs, un succès. Correction :
+horloge Jest fixe à midi UTC pour les tests de dispatch vidéo, remise en
+horloge réelle après chaque test. Après correction : quatre succès.
+Toutes les assertions, les modes vidéo et la disponibilité métier restent
+inchangés. La suite complète doit être renouvelée sur le nouveau commit.

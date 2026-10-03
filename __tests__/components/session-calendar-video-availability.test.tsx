@@ -18,8 +18,16 @@ jest.mock('@/components/ui/session-booking', () => () => null);
 describe('SessionCalendar video entry point', () => {
   const previousMode = process.env.NEXT_PUBLIC_VIDEO_MODE;
 
+  beforeEach(() => {
+    // These tests exercise the video mode, not a session spanning midnight.
+    // Keep the displayed day and its HH:mm fixture on the same fixed day.
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-10-03T12:00:00.000Z'));
+  });
+
   afterEach(() => {
     cleanup();
+    jest.useRealTimers();
     if (previousMode === undefined) delete process.env.NEXT_PUBLIC_VIDEO_MODE;
     else process.env.NEXT_PUBLIC_VIDEO_MODE = previousMode;
   });
