@@ -65,3 +65,22 @@ Le rapport de couverture complet doit encore être régénéré.
 Son saut découle des échecs amont. Ce contrôle est une gate requise : il
 doit s'exécuter et réussir sur le nouveau SHA ; aucun skip permanent ou
 changement de workflow n'est justifié.
+
+## Mobile : chargement spéculatif de la sécurité du compte
+
+L'artefact de trace CI `11286407056` a été analysé en mémoire, sans
+persister ses cookies ou tokens. Les trois GET concernés portent
+`RSC=1`, `next-router-prefetch=1`, renvoient initialement 200, puis leur
+corps est annulé (`net::ERR_ABORTED`, taille -1). Ce sont les préchargements
+Next.js du nouveau lien Navbar, pas un POST de changement de mot de passe.
+
+Choix : la page de sécurité doit se charger sur navigation explicite ; son
+lien utilise `prefetch={false}`. Aucun événement `requestfailed` ignoré,
+aucune allowlist élargie, aucun timeout ou projet mobile désactivé.
+Le lien conserve sa destination et reste accessible aux cinq rôles.
+Tests de rendu avant correction : cinq échecs sur le préchargement actif.
+Après : 20 tests réussis (cinq rôles et contrat du harness ARIA existant).
+
+La qualification navigateur réelle, les vingt répétitions, l'inspection
+visuelle et les projets auth multi-navigateurs restent à exécuter sur le
+HEAD consolidé. Les preuves du SHA initial ne qualifient pas ce changement.

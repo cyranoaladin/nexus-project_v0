@@ -26,7 +26,7 @@ export async function Navbar({ user }: { user: Session['user'] }) {
         </div>
 
         <nav className="flex items-center gap-4" aria-label="Actions utilisateur">
-          <Link href="/dashboard/account/security" className="text-sm underline focus-visible:outline focus-visible:outline-2">Sécurité du compte</Link>
+          <Link href="/dashboard/account/security" prefetch={false} className="text-sm underline focus-visible:outline focus-visible:outline-2">Sécurité du compte</Link>
           <div className="hidden lg:block text-sm text-neutral-300">
             Utilisateur connecté
           </div>
