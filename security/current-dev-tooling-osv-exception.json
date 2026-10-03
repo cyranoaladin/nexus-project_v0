@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "2.0.0",
+  "policyId": "2026-10-03-exact-osv-dev-tooling",
+  "repository": "cyranoaladin/nexus-project_v0",
+  "decision": "TEMPORARY_DEV_TOOLING_EXCEPTION",
+  "approvedAt": "2026-10-03T00:00:00Z",
+  "expiresAt": "2026-10-10T00:00:00Z",
+  "maximumExpiry": "2026-10-10T00:00:00Z",
+  "maximumDurationDays": 7,
+  "lockfileSha256": "b5aaa205c437a091b6487ca6f1f131d0697bb9c79ae988d6736e759880dea29a",
+  "remediationIssue": "https://github.com/cyranoaladin/nexus-project_v0/issues/335",
+  "advisories": [
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "version": "3.0.3",
+      "severity": "HIGH",
+      "cvssVectors": ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"],
+      "lockPaths": ["node_modules/braces"],
+      "parentPaths": ["node_modules/micromatch"],
+      "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA=="
+    },
+    {
+      "id": "GHSA-ch52-4w7c-c8xp",
+      "package": "http-cache-semantics",
+      "version": "4.2.0",
+      "severity": "HIGH",
+      "cvssVectors": ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N", "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"],
+      "lockPaths": ["node_modules/http-cache-semantics"],
+      "parentPaths": ["node_modules/make-fetch-happen"],
+      "integrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ=="
+    }
+  ],
+  "revocationConditions": [
+    "NEW_ADVISORY",
+    "RUNTIME_PRESENCE",
+    "PRODUCTION_DEPENDENCY",
+    "DEPENDENCY_PATH_CHANGED",
+    "SEVERITY_ESCALATED",
+    "COMPENSATING_CONTROL_FAILED",
+    "EXCEPTION_EXPIRED"
+  ]
+}

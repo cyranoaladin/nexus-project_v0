@@ -10,6 +10,10 @@ import {
 import { basename, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import {
+  validateCleanOsvReport,
+  validateCurrentException,
+} from './current-dev-tooling-exception.mjs';
 
 const scriptDirectory = fileURLToPath(new URL('.', import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, '../..');
@@ -326,6 +330,16 @@ function validateArtifactMode(args, policy) {
 }
 
 const args = parseArguments(process.argv.slice(2));
+if (args.mode === 'clean-osv') {
+  if (!args.report) fail('INVALID_ARGUMENTS', '--report');
+  try {
+    validateCleanOsvReport(readJson(args.report, 'OSV_REPORT_INVALID'));
+    process.stdout.write('OSV_CLEAN_REPORT_VALID\n');
+  } catch (error) {
+    fail(error?.message ?? 'OSV_REPORT_INVALID');
+  }
+  process.exit(0);
+}
 const required = ['mode', 'policy', 'current-sha', 'now'];
 for (const argument of required) {
   if (!args[argument]) {
@@ -334,6 +348,15 @@ for (const argument of required) {
 }
 
 const policy = readJson(args.policy, 'policy');
+if (args.mode === 'current-osv') {
+  try {
+    const result = validateCurrentException(args, policy);
+    process.stdout.write(`CURRENT_OSV_EXCEPTION_VALID advisory_ids=${result.advisoryIds.join(',')} lockfile_sha256=${result.lockfileSha256}\n`);
+  } catch (error) {
+    fail(error?.message ?? 'CURRENT_OSV_EXCEPTION_FAILED');
+  }
+  process.exit(0);
+}
 const { decision, checksum } = validateDecision(
   policy,
   args['current-sha'],
