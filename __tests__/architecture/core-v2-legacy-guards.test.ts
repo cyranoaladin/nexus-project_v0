@@ -44,6 +44,12 @@ function violatingFiles(pattern: RegExp): string[] {
 }
 
 describe('Core v2 runtime guards (scoped to app/api/v2/** and lib/core-v2/**, vacuous until that runtime exists)', () => {
+  test('CORE_V2_MUST_USE_PARAMETERIZED_SQL_APIS', () => {
+    const offenders = violatingFiles(/\$(?:executeRawUnsafe|queryRawUnsafe)\s*\(/)
+      .map((file) => file.slice(root.length + 1));
+    expect(offenders).toEqual([]);
+  });
+
   test('CORE_V2_MUST_NOT_READ_STUDENT_GRADE_LEGACY', () => {
     const offenders = violatingFiles(/\.grade\b(?!Level)/);
     expect(offenders).toEqual([]);
