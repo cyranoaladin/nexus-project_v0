@@ -49,6 +49,12 @@ function fixture() {
     expiresAt: '2026-10-10T00:00:00Z',
     maximumExpiry: '2026-10-10T00:00:00Z',
     maximumDurationDays: 7,
+    fullAuditImpactedPackageCount: 3,
+    fullAuditImpactSha256: createHash('sha256').update(JSON.stringify([
+      ['braces', ['node_modules/braces']],
+      ['http-cache-semantics', ['node_modules/http-cache-semantics']],
+      ['micromatch', ['node_modules/micromatch']],
+    ])).digest('hex'),
     lockfileSha256: digest,
     remediationIssue: 'https://github.com/cyranoaladin/nexus-project_v0/issues/1',
     advisories: [
@@ -171,12 +177,14 @@ function fullAuditFixture(current: ReturnType<typeof fixture>) {
       braces: { name: 'braces', severity: 'high', via: [{
         name: 'braces', dependency: 'braces', severity: 'high',
         url: 'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm',
-        range: '<=3.0.3', cvss: { vectorString: current.data.policy.advisories[0].cvssVectors[0] },
+        range: '<=3.0.3', cvss: { score: 7.5,
+          vectorString: current.data.policy.advisories[0].cvssVectors[0] },
       }], nodes: ['node_modules/braces'] },
       'http-cache-semantics': { name: 'http-cache-semantics', severity: 'high', via: [{
         name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
         url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
-        range: '<=4.2.0', cvss: { vectorString: current.data.policy.advisories[1].cvssVectors[0] },
+        range: '<=4.2.0', cvss: { score: 7.5,
+          vectorString: current.data.policy.advisories[1].cvssVectors[0] },
       }], nodes: ['node_modules/http-cache-semantics'] },
       micromatch: { name: 'micromatch', severity: 'high', via: ['braces'],
         nodes: ['node_modules/micromatch'] },
@@ -210,14 +218,25 @@ describe('full npm audit transitive exception', () => {
     ['production-marked node', (audit: any) => {
       audit.vulnerabilities.micromatch.nodes = ['node_modules/next'];
     }],
+    ['mismatched dev-only node path', (audit: any) => {
+      audit.vulnerabilities.micromatch.nodes = ['node_modules/braces'];
+    }],
     ['critical severity', (audit: any) => {
       audit.vulnerabilities.braces.severity = 'critical';
+    }],
+    ['critical CVSS score despite HIGH label', (audit: any) => {
+      audit.vulnerabilities.braces.via[0].cvss.score = 9.8;
     }],
     ['dangling via', (audit: any) => {
       audit.vulnerabilities.micromatch.via = ['missing-package'];
     }],
     ['missing second advisory', (audit: any) => {
       delete audit.vulnerabilities['http-cache-semantics'];
+      audit.metadata.vulnerabilities.high = 2;
+      audit.metadata.vulnerabilities.total = 2;
+    }],
+    ['truncated transitive impacts with coherent counters', (audit: any) => {
+      delete audit.vulnerabilities.micromatch;
       audit.metadata.vulnerabilities.high = 2;
       audit.metadata.vulnerabilities.total = 2;
     }],

@@ -63,6 +63,7 @@ function validatePolicy(policy, nowText) {
   exactKeys(policy, [
     'schemaVersion', 'policyId', 'repository', 'decision', 'approvedAt',
     'expiresAt', 'maximumExpiry', 'maximumDurationDays', 'lockfileSha256',
+    'fullAuditImpactedPackageCount', 'fullAuditImpactSha256',
     'remediationIssue', 'advisories', 'revocationConditions',
   ], 'POLICY_SCHEMA_INVALID');
   assert(policy.schemaVersion === '2.0.0', 'POLICY_SCHEMA_INVALID');
@@ -82,6 +83,9 @@ function validatePolicy(policy, nowText) {
   assert(expiresAt > approvedAt && expiresAt - approvedAt <= MAX_DURATION_MS &&
     expiresAt <= ABSOLUTE_EXPIRY, 'EXCEPTION_DURATION_INVALID');
   assert(/^[0-9a-f]{64}$/.test(policy.lockfileSha256), 'LOCKFILE_DIGEST_INVALID');
+  assert(Number.isSafeInteger(policy.fullAuditImpactedPackageCount) &&
+    policy.fullAuditImpactedPackageCount > 0 &&
+    /^[0-9a-f]{64}$/.test(policy.fullAuditImpactSha256), 'AUDIT_IMPACT_POLICY_INVALID');
   assert(Array.isArray(policy.advisories) && policy.advisories.length === REQUIRED_FINDINGS.length, 'ADDITIONAL_ADVISORY');
   for (const expected of REQUIRED_FINDINGS) {
     const matching = policy.advisories.filter((entry) => entry?.id === expected.id);
@@ -229,6 +233,13 @@ export function validateCurrentNpmAudit(args, policy) {
     ['info', 'low', 'moderate', 'critical'].every((level) => counts[level] === 0) &&
     counts.high === Object.keys(findings).length &&
     counts.total === counts.high, 'AUDIT_REPORT_INVALID');
+  const impacts = Object.entries(findings)
+    .map(([name, item]) => [name, [...(item?.nodes ?? [])].sort()])
+    .sort(([left], [right]) => left.localeCompare(right));
+  const impactDigest = createHash('sha256')
+    .update(JSON.stringify(impacts)).digest('hex');
+  assert(Object.keys(findings).length === policy.fullAuditImpactedPackageCount &&
+    impactDigest === policy.fullAuditImpactSha256, 'AUDIT_IMPACT_SET_CHANGED');
 
   const directFound = new Set();
   const checked = new Set();
@@ -241,7 +252,8 @@ export function validateCurrentNpmAudit(args, policy) {
       Array.isArray(item.nodes) && item.nodes.length > 0,
     'AUDIT_UNEXPECTED_FINDING');
     for (const path of item.nodes) {
-      assert(typeof path === 'string' && path.startsWith('node_modules/') &&
+      assert(typeof path === 'string' &&
+        (path === `node_modules/${name}` || path.endsWith(`/node_modules/${name}`)) &&
         lock.packages[path]?.dev === true, 'PRODUCTION_DEPENDENCY');
     }
     const nextStack = new Set(stack);
@@ -255,7 +267,8 @@ export function validateCurrentNpmAudit(args, policy) {
           via.dependency === expected.package &&
           via.url === `https://github.com/advisories/${expected.id}` &&
           via.severity === 'high' && via.range === `<=${expected.version}` &&
-          via.cvss?.vectorString === expected.cvssVectors[0],
+          via.cvss?.vectorString === expected.cvssVectors[0] &&
+          via.cvss?.score === 7.5,
         'AUDIT_UNEXPECTED_FINDING');
         directFound.add(expected.id);
       }

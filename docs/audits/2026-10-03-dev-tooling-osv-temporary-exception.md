@@ -55,6 +55,10 @@ only if every affected package's lockfile node is `dev: true`, every transitive
 vectors and versions match, and no CRITICAL/other severity or unknown advisory
 appears. The final Security Scan must independently prove physical runtime
 absence before overall CI can pass.
+The observed 39 name/node-path pairs are frozen by the policy's
+`fullAuditImpactSha256` (`27072afb1280e062d26b3c32ce2806454da96fac2f9cb31672b5a6567a4c29b2`);
+removing an impact and adjusting only the reported counters cannot make a
+partial report pass. Each node path must also name its reported package.
 
 ## Revocation
 
