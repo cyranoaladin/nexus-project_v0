@@ -33,6 +33,7 @@ export const AUDIT_ACTIONS = [
   'planning.series_changed',
   'planning.series_cancelled',
   'planning.occurrences_materialized',
+  'planning.overrides_restored',
   'planning.occurrence_cancelled',
   'planning.occurrence_rescheduled',
   'account.invited',

@@ -313,6 +313,74 @@ describe('exceptions and series changes', () => {
     },
   );
 
+  test.each(['resume', 'conflict', 'legacy'] as const)('pause/resume preserves reported occurrences and refuses unsafe restoration (%s)', async (scenario) => {
+    const c = await seedPlanningContext();
+    const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 3 }));
+    const originals = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' } });
+    await cancelOccurrence(h.client, h.ctx(), { bookingId: originals[0]!.id, reason: 'Annulation synthétique' });
+    const replacement = await rescheduleOccurrence(h.client, h.ctx(), {
+      bookingId: originals[1]!.id, localDate: '2026-09-24', localStartTime: '10:00', localEndTime: '11:00', reason: 'Report synthétique',
+    });
+    const ctx = createServiceContext(h.admin, { now: () => new Date('2026-09-01T12:00:00Z') });
+    await changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 0, changes: { status: 'PAUSED' } });
+    expect((await h.client.sessionBooking.findUniqueOrThrow({ where: { id: replacement.id } })).status).toBe('CANCELLED');
+    await changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 1, changes: { location: 'Salle synthétique B' } });
+    if (scenario === 'legacy') {
+      await h.client.auditEvent.create({ data: {
+        actorUserId: h.admin.userId, action: 'planning.series_cancelled', subjectType: 'PlanningSeries', subjectId: series.id,
+        correlationId: ctx.correlationId, metadata: { status: 'PAUSED', cancelledOccurrences: 1 },
+      } });
+      await expectDomainError(changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 2, changes: { status: 'ACTIVE' } }), 'INVALID_STATE');
+      expect(await h.client.planningSeries.findUniqueOrThrow({ where: { id: series.id } })).toMatchObject({ status: 'PAUSED', revision: 2 });
+      return;
+    }
+    if (scenario === 'conflict') {
+      const other = await seedPlanningContext();
+      const assignment = await assignCoach(h.client, h.ctx(), { coachId: c.coach.coachId, enrollmentId: other.enrollment.id, courseKey: 'maths-premiere' });
+      await h.client.sessionBooking.create({ data: {
+        assignmentId: assignment.id, coachId: c.coach.coachId, studentId: other.student.id,
+        startsAt: replacement.startsAt, endsAt: replacement.endsAt, modality: 'ONLINE',
+      } });
+      await expectDomainError(changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 2, changes: { status: 'ACTIVE' } }), 'CONFLICT');
+      expect(await h.client.planningSeries.findUniqueOrThrow({ where: { id: series.id } })).toMatchObject({ status: 'PAUSED', revision: 2 });
+      expect((await h.client.sessionBooking.findUniqueOrThrow({ where: { id: replacement.id } })).status).toBe('CANCELLED');
+      return;
+    }
+    await changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 2, changes: { status: 'ACTIVE' } });
+    const restored = await h.client.sessionBooking.findUniqueOrThrow({ where: { id: replacement.id } });
+    expect(restored).toMatchObject({ status: 'SCHEDULED', startsAt: replacement.startsAt, endsAt: replacement.endsAt, cancelledAt: null });
+    const live = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id, status: 'SCHEDULED' }, orderBy: { startsAt: 'asc' } });
+    expect(live).toHaveLength(2);
+    expect(live[0]!.id).toBe(replacement.id);
+    expect(live[1]!.startsAt.toISOString().slice(0, 10)).toBe('2026-09-29');
+  });
+
+  test('a concurrent explicit cancellation wins over pause/resume restoration', async () => {
+    const c = await seedPlanningContext();
+    const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 2 }));
+    const original = await h.client.sessionBooking.findFirstOrThrow({ where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' } });
+    const replacement = await rescheduleOccurrence(h.client, h.ctx(), {
+      bookingId: original.id, localDate: '2026-09-17', localStartTime: '10:00', localEndTime: '11:00', reason: 'Report synthétique',
+    });
+    const now = () => new Date('2026-09-01T12:00:00Z');
+    const ctx = createServiceContext(h.admin, { now });
+    // Hold the actual cancellation-shaped write and its audit uncommitted,
+    // so pause sees the old row then must wait for its lock before updating.
+    const held = await holdOpenTransaction(h.client, async (tx) => {
+      await tx.sessionBooking.update({ where: { id: replacement.id }, data: { status: 'CANCELLED', cancelledAt: now() } });
+      await tx.auditEvent.create({ data: {
+        actorUserId: h.admin.userId, action: 'planning.occurrence_cancelled', subjectType: 'SessionBooking', subjectId: replacement.id,
+        correlationId: ctx.correlationId, metadata: { planningSeriesId: series.id },
+      } });
+    });
+    const paused = changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 0, changes: { status: 'PAUSED' } });
+    try { await waitForLockWaiter(h.client); } finally { await held.release(); }
+    await paused;
+    await changePlanningSeries(h.client, ctx, { seriesId: series.id, expectedRevision: 1, changes: { status: 'ACTIVE' } });
+    expect((await h.client.sessionBooking.findUniqueOrThrow({ where: { id: replacement.id } })).status).toBe('CANCELLED');
+    expect(await h.client.sessionBooking.count({ where: { planningSeriesId: series.id, status: 'SCHEDULED' } })).toBe(1);
+  });
+
   test('a schedule change is future-only: past occurrences stay, live future ones are re-materialized under the new revision', async () => {
     const c = await seedPlanningContext();
     const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 4 }));

@@ -15,7 +15,7 @@
  * CONFLICT.
  */
 import { z } from 'zod';
-import type { PlanningSeries, PrismaClient, SessionBooking } from '@/core-v2/generated/client';
+import { Prisma, type PlanningSeries, type PrismaClient, type SessionBooking } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { getOrganizationTimezone } from '../config';
 import { ConflictError, InvalidStateError, NotFoundError, ValidationError, isExclusionViolation } from '../errors';
@@ -320,14 +320,50 @@ function todayIn(timezone: string, now: Date): LocalDate {
   return { year: p.year, month: p.month, day: p.day };
 }
 
-async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date, preserveOverrides = false): Promise<number> {
-  const result = await tx.sessionBooking.updateMany({
-    where: { planningSeriesId: seriesId, status: { in: [...LIVE_BOOKING_STATUSES] }, startsAt: { gte: from },
-      ...(preserveOverrides ? { overridesBookingId: null } : {}),
-    },
-    data: { status: 'CANCELLED', cancelledAt: new Date() },
+async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date, preserveOverrides = false): Promise<string[]> {
+  // RETURNING captures only rows this statement actually cancelled, after
+  // PostgreSQL rechecks the predicate when a concurrent cancellation commits.
+  const changed = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+    UPDATE session_bookings_v2
+    SET status = 'CANCELLED', "cancelledAt" = ${from}, "updatedAt" = ${from}
+    WHERE "planningSeriesId" = ${seriesId} AND "startsAt" >= ${from}
+      AND status IN (${Prisma.join(LIVE_BOOKING_STATUSES.map((status) => Prisma.sql`${status}::"SessionStatus"`))})
+      ${preserveOverrides ? Prisma.sql`AND "overridesBookingId" IS NULL` : Prisma.empty}
+    RETURNING id
+  `);
+  return changed.map((booking) => booking.id);
+}
+
+/** Restore only overrides explicitly cancelled by this series' latest pause. */
+async function restorePausedOverrides(tx: Tx, ctx: ServiceContext, series: PlanningSeries, participants: Participants, now: Date): Promise<void> {
+  const pauses = await tx.auditEvent.findMany({
+    where: { subjectType: 'PlanningSeries', subjectId: series.id, action: 'planning.series_cancelled', metadata: { path: ['status'], equals: 'PAUSED' } },
+    select: { metadata: true },
   });
-  return result.count;
+  const pauseSchema = z.object({ pauseRevision: z.number().int().min(1), cancelledBookingIds: z.array(idSchema) });
+  const qualified = pauses.flatMap((event) => {
+    const parsed = pauseSchema.safeParse(event.metadata);
+    return parsed.success ? [parsed.data] : [];
+  }).sort((a, b) => b.pauseRevision - a.pauseRevision);
+  const ids = z.array(idSchema).safeParse(qualified[0]?.cancelledBookingIds);
+  if (!ids.success || qualified.length !== pauses.length) {
+    const ambiguous = await tx.sessionBooking.count({ where: { planningSeriesId: series.id, status: 'CANCELLED', overridesBookingId: { not: null }, startsAt: { gte: now } } });
+    if (ambiguous > 0) throw new InvalidStateError('Historical paused overrides require review before reactivation.', { seriesId: series.id });
+    return;
+  }
+  const explicitCancellations = await tx.auditEvent.findMany({
+    where: { subjectType: 'SessionBooking', action: 'planning.occurrence_cancelled', subjectId: { in: ids.data } }, select: { subjectId: true },
+  });
+  const cancelledIds = new Set(explicitCancellations.map((event) => event.subjectId));
+  const overrides = await tx.sessionBooking.findMany({
+    where: { id: { in: ids.data.filter((id) => !cancelledIds.has(id)) }, planningSeriesId: series.id, status: 'CANCELLED', overridesBookingId: { not: null }, startsAt: { gte: now } },
+  });
+  const occurrences = overrides.map((booking) => ({ localDate: localDateKeyOf(booking.startsAt, series.timezone), startsAt: booking.startsAt, endsAt: booking.endsAt }));
+  const conflicts = await findConflicts(tx, participants, occurrences);
+  if (conflicts.length > 0) throw conflictError(conflicts);
+  await tx.sessionBooking.updateMany({ where: { id: { in: overrides.map((booking) => booking.id) }, status: 'CANCELLED' }, data: { status: 'SCHEDULED', cancelledAt: null } });
+  await appendAuditEvent(tx, { actorUserId: ctx.actor.userId, action: 'planning.overrides_restored', subjectType: 'PlanningSeries', subjectId: series.id,
+    correlationId: ctx.correlationId, metadata: { restoredBookings: overrides.length } });
 }
 
 /**
@@ -386,6 +422,7 @@ export async function changePlanningSeries(
         const cancelled = await cancelFutureOccurrences(tx, after.id, now, after.status === 'ACTIVE');
         if (after.status === 'ACTIVE') {
           const participants = await loadActiveAssignment(tx, after.assignmentId);
+          if (before.status === 'PAUSED') await restorePausedOverrides(tx, ctx, after, participants, now);
           const history = await tx.sessionBooking.findMany({
             where: { planningSeriesId: after.id },
             select: { id: true, startsAt: true, status: true },
@@ -402,14 +439,14 @@ export async function changePlanningSeries(
             (booking.startsAt < now && booking.status !== 'CANCELLED'),
           ).map((booking) => formatLocalDate(todayIn(after.timezone, booking.startsAt))));
           await materialize(tx, ctx, after, participants, today, { notBefore: now, preservedDates });
-        } else {
+        } else if (statusChanged) {
           await appendAuditEvent(tx, {
             actorUserId: ctx.actor.userId,
             action: 'planning.series_cancelled',
             subjectType: 'PlanningSeries',
             subjectId: after.id,
             correlationId: ctx.correlationId,
-            metadata: { status: after.status, cancelledOccurrences: cancelled },
+            metadata: { status: after.status, pauseRevision: after.revision, cancelledOccurrences: cancelled.length, cancelledBookingIds: cancelled },
           });
         }
       }
