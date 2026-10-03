@@ -111,3 +111,28 @@ Le lint ciblé du correctif de frontière retourne 0, avec six avertissements
 `any` préexistants dans le test coach historique ; aucun `any` ni suppression
 de règle n’est ajouté. Scan Gitleaks du diff : zéro détection ; scanner de
 credentials versionnées : zéro détection ; `git diff --check` : exit 0.
+
+## Dépendance runtime découverte sur `ed5be24c7`
+
+La campagne unitaire isolée termine avec 1 268 / 1 270 suites vertes,
+14 240 assertions exécutées vertes et aucun test ignoré. Deux suites ne
+chargent pas : l’import runtime statique de `next-auth/jwt` introduit une
+dépendance ESM dans le validateur auparavant importable seul. Le projet
+Core-v2 retrouve le même défaut : 67 / 68 suites, 664 assertions vertes,
+la suite rollout-mode ne charge pas. Ces campagnes ne sont pas vertes.
+
+Correction minimale : importer le runtime Auth.js uniquement lorsque
+`readPrivateSessionSnapshot` est appelé, conserver JWT en import type,
+laisser inchangés validation canonique, configuration Jest et assertions.
+Le commentaire précise que le verrou User recontrôle le rôle/version V1 ;
+une transition d’autorité entre bases nécessite la coordination de migration.
+La compilation Next seule `ed5be24c7` passe ; elle n’est pas revendiquée comme
+le build officiel complet comprenant les contrôles d’artefact. Le manifeste
+préliminaire issu du fichier historique est classé non qualifié.
+
+Après correction du chargement, quatre suites ciblées passent (54 tests),
+ainsi que les six tests Core-v2 rollout-mode. Lint du module, scan secrets
+du diff et `git diff --check` retournent 0. Les suites qui ne chargeaient pas
+sont réexécutées avec leurs assertions complètes.
+
+Typecheck complet après import dynamique : exit 0.

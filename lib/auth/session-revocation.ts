@@ -1,4 +1,4 @@
-import { getToken, type JWT } from 'next-auth/jwt'
+import type { JWT } from 'next-auth/jwt'
 import { isAccountActivationRequired } from '@/lib/auth/parent-activation'
 import { getAuthRolloutMode, isIdentityOwnedByCoreV2, revokeCoreV2UserSessions, validateCoreV2Session, type AuthRolloutMode } from '@/lib/core-v2/auth/authority'
 import { prisma } from '@/lib/prisma'
@@ -140,11 +140,13 @@ export async function revokeAllUserSessions(
 
 /** Read only the same encrypted cookie validated by auth(), never a Bearer token.
  * The caller binds identity/role to its canonical authenticated session; the
- * mutation rechecks version and authority while holding the User row lock. */
+ * mutation rechecks V1 role/version while holding the User row lock.
+ * Inter-database authority transitions require migration coordination. */
 export async function readPrivateSessionSnapshot(
   request: Readonly<{ headers: Headers }>,
   options: Readonly<{ secret: string; secureCookie: boolean }>,
 ): Promise<JWT | null> {
+  const { getToken } = await import('next-auth/jwt')
   return getToken({
     req: { headers: new Headers({ cookie: request.headers.get('cookie') ?? '' }) },
     secret: options.secret, secureCookie: options.secureCookie,
