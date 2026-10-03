@@ -22,7 +22,7 @@ Base : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Lecture de code et tests loca
 | 16 | Séances/réservations/présences | app/api/v2/staff/bookings; V1 stages/sessions | Booking / Session | Capacity/wait-list/end-to-end attendance |
 | 17 | Annulation/report/crédits | lib/core-v2/services/planning.ts; V1 credits APIs | Booking + CreditTransaction | Atomic state/credit transitions |
 | 18 | Offres/forfaits/inscriptions | lib/pricing.ts; data/pricing.canonical.json | Versioned catalogue / Subscription | Current main pricing retained |
-| 19 | Paiements/rapprochements | app/api/payments; lib/payments | V1 Payment | Signatures/replay/sandbox; V2 not billing authority |
+| 19 | Paiements/rapprochements | app/api/payments; lib/payments.ts | V1 Payment | Signatures/replay/sandbox; V2 not billing authority |
 | 20 | Factures/PDF | lib/invoice; app/api/invoices | V1 Invoice/Item/Sequence/AccessToken | Atomic sequence/private storage/download |
 | 21 | Ressources | lib/aria/manifests/resource-registry.ts | Resource registry / version / grants | Governance/publication/download |
 | 22 | Conversation ARIA | lib/core-v2/aria; app/api/v2/aria | Conversation / Turn / Message / Citation | Idempotence/cancel/recovery/provider failure |
@@ -72,3 +72,19 @@ stockage, webhook/provider, IA/RAG. Preuves nécessaires : IDOR direct, rôles
 croisés, session révoquée, replay, concurrence, upload/path/SSRF, redaction,
 signature webhook, fail-closed documentaire et quotas des appels coûteux.
 Aucune absence de vulnérabilité n'est inférée du seul build.
+
+## Écarts confirmés pendant la qualification locale
+
+| Priorité | Capability | Constat vérifié dans le code | Preuve / action restante |
+| --- | --- | --- | --- |
+| P0 qualification | 5/10 | Le lien V1 `ParentStudentLink` représente le consentement aux bilans ; un nouveau consentement est permis après retrait. Le membership V2 reste au niveau foyer. | Séparer autorisation familiale administrativement révocable et consentement ; tests négatifs directs et courses requis. Aucun exploit production exécuté. |
+| P1 | 13 | Aucun modèle Site/Room dans les deux schémas inspectés ; `location` est une chaîne libre. | Modèle, permissions, capacités et exclusions salle à ajouter sans inventer les salles exploitées. |
+| P1 | 16 | Inscription atelier ARIA : lecture du compteur puis création sans transaction/verrou. | Deux élèves peuvent concourir pour la dernière place ; test PostgreSQL déterministe et invariant serveur/base requis. |
+| P1 | 19 | ClicToPay init/webhook répondent explicitement 501 ; effets webhook non implémentés. | Contrat prestataire officiel approuvé et sandbox nécessaires ; conserver le mode désactivé, aucun faux paiement. |
+| P1 intégrité | 19 | `Payment.amount`, transaction provider et `Subscription.monthlyPrice` historiques sont Float. | Migration additive vers unité mineure/decimal et rapprochement ; aucune erreur financière réelle revendiquée. |
+| P0 qualification | 20 | Accès facture encore fondé sur relations historiques et alternative email fiable. | Tester les bénéficiaires, ownership et accès directs ; ne pas confondre une facture propre au parent et un document privé d'un enfant. |
+
+Le planning coach/élève et ses exceptions ont des tests PostgreSQL verts locaux ;
+ils ne prouvent pas les conflits de salles absents du schéma. Les 81 E2E verts
+couvrent les fichiers sélectionnés, pas toutes les capabilities du mandat.
+Aucune ligne de cette matrice n'est `QUALIFIÉ PRODUCTION` à ce stade.

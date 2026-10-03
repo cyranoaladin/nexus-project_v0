@@ -8,6 +8,9 @@ import { CoreV2DomainError } from '@/lib/core-v2/errors';
 import {
   activateAccount,
   changePassword,
+  confirmPasswordReset,
+  inspectPasswordReset,
+  requestPasswordReset,
   createHousehold,
   disableAccount,
   inviteAccount,
@@ -54,6 +57,20 @@ describe('Invitation → activation', () => {
     await expect(activateAccount(client, { rawToken: issued.rawToken, password: PW.second })).rejects.toMatchObject({ code: 'INVALID_STATE' });
     const again = await client.user.findUniqueOrThrow({ where: { id: parent.id } });
     expect(again.password).toBe(activated.password);
+  });
+
+  test('overlong activation input leaves the single-use invitation available', async () => {
+    const parent = await pendingParent();
+    const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+    await expect(activateAccount(h.client, {
+      rawToken: issued.rawToken, password: 'é'.repeat(37),
+    })).rejects.toMatchObject({ code: 'VALIDATION' });
+    expect(await h.client.invitation.findUniqueOrThrow({ where: { id: issued.invitation.id } }))
+      .toMatchObject({ consumedAt: null });
+    expect(await h.client.user.findUniqueOrThrow({ where: { id: parent.id } }))
+      .toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null });
+    expect(await activateAccount(h.client, { rawToken: issued.rawToken, password: PW.first }))
+      .toMatchObject({ accountStatus: 'ACTIVE' });
   });
 
   test('inviting an already-invited account requires resend; resend revokes the prior token', async () => {
@@ -155,6 +172,47 @@ describe('Login / suspension / revocation', () => {
     expect(await verifyCredentials(client, { email: 'parent@example.com', password: PW.initial })).toBeNull();
     expect(await verifyCredentials(client, { email: 'parent@example.com', password: PW.changed })).toMatchObject({ sessionVersion });
     expect(await auditTrail(client, user.id)).toContain('account.password_changed');
+  });
+
+  test.each([
+    ['ASCII beyond bcrypt boundary', 'change_' + 'x'.repeat(66)],
+    ['UTF-8 beyond bcrypt boundary', 'é'.repeat(37)],
+  ])('refuses %s without modifying credentials, sessions or audit', async (_label, newPassword) => {
+    const user = await activeParent();
+    const beforeAudit = await auditTrail(h.client, user.id);
+    await expect(changePassword(h.client, { userId: user.id, newPassword }))
+      .rejects.toMatchObject({ code: 'VALIDATION' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await auditTrail(h.client, user.id)).toEqual(beforeAudit);
+  });
+
+  test.each([
+    ['ASCII at bcrypt boundary', 'change_' + 'x'.repeat(65)],
+    ['UTF-8 at bcrypt boundary', 'é'.repeat(36)],
+  ])('accepts %s without truncation', async (_label, newPassword) => {
+    const user = await activeParent();
+    const result = await changePassword(h.client, { userId: user.id, newPassword });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(result.sessionVersion).toBe(user.sessionVersion + 1);
+    expect(await bcrypt.compare(newPassword, after.password as string)).toBe(true);
+  });
+
+  test('overlong reset input preserves the token, password and session version', async () => {
+    const user = await activeParent();
+    const issued = await requestPasswordReset(h.client, { email: 'parent@example.com' });
+    expect(issued).not.toBeNull();
+    if (issued === null) throw new Error('Synthetic active account did not receive a reset token.');
+    await expect(confirmPasswordReset(h.client, {
+      rawToken: issued.rawToken, newPassword: 'change_' + 'x'.repeat(66),
+    })).rejects.toMatchObject({ code: 'VALIDATION' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await inspectPasswordReset(h.client, issued.rawToken)).toBe(true);
+    await expect(confirmPasswordReset(h.client, { rawToken: issued.rawToken, newPassword: PW.changed }))
+      .resolves.toMatchObject({ sessionVersion: user.sessionVersion + 1 });
   });
 
   test('role changed while a session is live invalidates that session', async () => {

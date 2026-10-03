@@ -200,3 +200,18 @@ ligne vérifiée après retrait du consentement. Réutiliser ce seul état comme
 révocation administrative globale serait insuffisant. Le mandat demande une
 autorité familiale vérifiée et révocable ; cette séparation reste à réaliser et
 à tester avant qualification production. Aucune exploitation en production.
+
+## Limite des nouveaux mots de passe Core-v2
+
+Bcrypt ignore les octets après le 72e. Le service acceptait jusqu'à 200 caractères,
+ce qui rendait deux valeurs distinctes équivalentes. Deux tests PostgreSQL rouges
+(73 octets ASCII, 74 octets UTF-8) démontrent l'acceptation avant correction.
+La validation commune des nouveaux mots de passe impose désormais 8 caractères
+minimum et 72 octets UTF-8 maximum. Les anciens credentials de connexion ne sont
+pas réinterprétés. Les bornes exactes passent ; les refus laissent password,
+sessionVersion, audit et jetons à usage unique inchangés.
+
+Tests ciblés : 22/22. Suite Core-v2 complète : **67 suites, 653/653 tests**, aucun
+ignoré. Typecheck et lint ciblé : exit 0 ; secret scan du diff : zéro détection ;
+`git diff --check` : exit 0. Aucun schéma/migration modifié dans ce lot.
+Ces preuves locales avant commit seront renouvelées sur le SHA final de release.
