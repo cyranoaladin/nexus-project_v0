@@ -183,6 +183,17 @@ describe('POST /api/auth/reset-password — confirm reset', () => {
     expect(res.status).toBe(400);
   });
 
+  it.each([`A1${'x'.repeat(71)}`, `A1${'é'.repeat(36)}`])(
+    'rejects a new credential over 72 UTF-8 bytes without looking up or consuming the token',
+    async (newPassword) => {
+      const res = await POST(makeRequest({ token: validToken, newPassword }));
+      expect(res.status).toBe(400);
+      expect(prisma.user.findUnique).not.toHaveBeenCalled();
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(verifyResetToken).not.toHaveBeenCalled();
+    },
+  );
+
   it('should reject common passwords', async () => {
     const res = await POST(makeRequest({ token: validToken, newPassword: 'password' }));
     const body = await res.json();

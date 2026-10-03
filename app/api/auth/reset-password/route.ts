@@ -14,6 +14,7 @@ import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
 import { requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -30,8 +31,7 @@ const requestSchema = z.object({
 /** Schema for confirming a password reset */
 const confirmSchema = z.object({
   token: z.string().min(1, 'Token requis'),
-  newPassword: z.string()
-    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+  newPassword: newPasswordSchema
     .refine(
       (pw) => !COMMON_PASSWORDS.has(pw.toLowerCase()),
       'Ce mot de passe est trop courant. Choisissez un mot de passe plus sécurisé.'

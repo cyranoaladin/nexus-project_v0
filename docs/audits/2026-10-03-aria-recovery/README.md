@@ -1,5 +1,36 @@
 # Reprise ARIA / Core — 3 octobre 2026
 
+## Qualification locale du build c4587a98 et lot mots de passe suivant
+
+Sur `c4587a98f878b0ee69a95478f29822b1f1493e72` : build exit 0 ; suite
+générale 1 268 suites / 14 243 tests verts ; Core-v2 68 suites / 670 tests
+verts ; PostgreSQL Core V1 20 suites / 290 tests verts. La campagne E2E
+sélectionnée obtient 94/96 au premier passage, sans skip : les deux échecs
+sont des timeouts de lancement Firefox avec HOME inaccessible dans le
+conteneur. Avec HOME éphémère accessible, ces deux scénarios passent (2/2),
+sans changement des assertions, du sandbox navigateur ou de l'application.
+Les rapports initiaux et de relance sont conservés séparément ; ce résultat
+ne signifie ni CI distante verte ni qualification exhaustive du produit.
+
+La suite d'intégration élargie conserve deux essais rouges : le premier
+profile vidéo/IA/chiffrement était inadéquat ; le second passe 64 suites mais
+échoue sur un comptage global de backfill contaminé par les autres fixtures
+et sur la contrainte UID 0 explicitement attendue par NPC. Backfill rejoué
+sur base isolée : vert. Les trois suites NPC sont rejouées dans le profil
+PostgreSQL 15 / conteneur éphémère attendu par la CI : 47/47 verts. Un premier
+montage des sources en lecture seule bloquait le test du répertoire dépôt ;
+un CWD éphémère avec liens vers les sources en lecture seule résout ce point.
+Aucun changement de permissions du clone ni sudo n'est utilisé. Ces essais
+ne sont pas présentés comme une exécution verte unique de la suite élargie.
+
+Le lot suivant centralise la limite bcrypt des nouveaux mots de passe :
+[critères, tests rouges et limites](password-policy.md). Dix suites ciblées /
+163 tests et la suite Core-v2 complète / 670 tests passent avant commit ;
+typecheck, lint ciblé, scan secrets et diff check sont verts. Un ancien cast
+`Function` dans le test d'activation touché est remplacé par l'appel typé.
+Le build c458 ne contient pas ce nouveau lot : sa qualification doit être
+renouvelée avant toute mise en production. Statut maintenu `NOT_READY`.
+
 ## Décision et base
 
 Le mandat de direction choisit exclusivement un clone neuf de GitHub, branche

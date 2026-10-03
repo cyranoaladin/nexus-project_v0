@@ -15,6 +15,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 import { setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 import bcrypt from 'bcryptjs';
 import { Prisma, type AcademicTrack, type GradeLevel, type StmgPathway } from '@prisma/client';
@@ -452,8 +453,9 @@ export async function completeStudentActivation(
   purpose: ActivationPurpose = 'student',
 ): Promise<SetPasswordResult> {
   // Validate password strength
-  if (!password || password.length < 8) {
-    return { success: false, error: 'Le mot de passe doit contenir au moins 8 caractères' };
+  const passwordValidation = newPasswordSchema.safeParse(password);
+  if (!passwordValidation.success) {
+    return { success: false, error: passwordValidation.error.issues[0].message };
   }
 
   if (!activationTokenMatchesPurpose(token, purpose)) {

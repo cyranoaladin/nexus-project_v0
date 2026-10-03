@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import type { Prisma, ParentPhoneChallenge, User } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { normalizeParentPhone } from '@/lib/contact/parent-phone';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 export type ParentPhonePurpose = 'ACTIVATION' | 'RECOVERY';
 type PhoneTransaction = Pick<Prisma.TransactionClient, 'user' | 'parentPhoneChallenge'>;
@@ -83,7 +84,7 @@ export async function verifyParentPhoneChallenge(rawToken: string, dependencies:
 }
 
 export async function consumeParentPhoneChallenge(rawToken: string, password: string, dependencies: { prisma?: PhoneDatabase; now?: Date } = {}) {
-  if (!parentPhoneTokenPattern.test(rawToken) || password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) return { success: false as const };
+  if (!parentPhoneTokenPattern.test(rawToken) || !newPasswordSchema.safeParse(password).success) return { success: false as const };
   const db = dependencies.prisma ?? prisma;
   const now = dependencies.now ?? new Date();
   const passwordHash = await bcrypt.hash(password, 12);

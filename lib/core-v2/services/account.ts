@@ -22,15 +22,10 @@ import { assertActorOwnsIdentity, assertCapability } from '../rbac';
 import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
+import { newPasswordSchema as passwordSchema } from '@/lib/security/password-policy';
 
 const BCRYPT_COST = 12;
 const INVITATION_TOKEN_BYTES = 32;
-// bcrypt uses only the first 72 UTF-8 bytes. Refuse longer new credentials
-// rather than silently accepting two distinct passwords as equivalent.
-const passwordSchema = z.string().min(8).max(72).refine(
-  (password) => Buffer.byteLength(password, 'utf8') <= 72,
-  { message: 'Password must fit within 72 UTF-8 bytes.' },
-);
 
 function hashInvitationToken(rawToken: string): string {
   return createHash('sha256').update(rawToken).digest('hex');

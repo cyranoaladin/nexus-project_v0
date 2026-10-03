@@ -10,13 +10,14 @@ import { z } from 'zod';
 import { Subject } from '@/types/enums';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 import { mapAccountDeletionRestrictError } from '@/lib/security/account-deletion-guard';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 // Validation schema for coach update
 const coachUpdateSchema = z.object({
   firstName: z.string().min(1, 'Prénom requis'),
   lastName: z.string().min(1, 'Nom requis'),
   email: z.string().transform(normalizeUserEmail).pipe(z.string().email('Email invalide')),
-  password: z.string().optional(),
+  password: newPasswordSchema.or(z.literal('')).optional(),
   pseudonym: z.string().min(1, 'Pseudonyme requis'),
   tag: z.string().min(1, 'Tag requis'),
   description: z.string().min(10, 'Description doit contenir au moins 10 caractères'),
@@ -97,7 +98,7 @@ export async function PUT(
 
       // Only update password if provided
       if (validatedData.password) {
-        userData.password = await bcrypt.hash(validatedData.password, 10);
+        userData.password = await bcrypt.hash(validatedData.password, 12);
       }
 
       // Re-read the row's CURRENT email under a row lock, inside this same
