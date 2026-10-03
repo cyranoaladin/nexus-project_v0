@@ -15,7 +15,7 @@
  * CONFLICT.
  */
 import { z } from 'zod';
-import { Prisma, type PlanningSeries, type PrismaClient, type SessionBooking } from '@/core-v2/generated/client';
+import type { PlanningSeries, PrismaClient, SessionBooking } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { getOrganizationTimezone } from '../config';
 import { ConflictError, InvalidStateError, NotFoundError, ValidationError, isExclusionViolation } from '../errors';
@@ -323,14 +323,14 @@ function todayIn(timezone: string, now: Date): LocalDate {
 async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date, preserveOverrides = false): Promise<string[]> {
   // RETURNING captures only rows this statement actually cancelled, after
   // PostgreSQL rechecks the predicate when a concurrent cancellation commits.
-  const changed = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+  const changed = await tx.$queryRaw<{ id: string }[]>`
     UPDATE session_bookings_v2
     SET status = 'CANCELLED', "cancelledAt" = ${from}, "updatedAt" = ${from}
     WHERE "planningSeriesId" = ${seriesId} AND "startsAt" >= ${from}
-      AND status IN (${Prisma.join(LIVE_BOOKING_STATUSES.map((status) => Prisma.sql`${status}::"SessionStatus"`))})
-      ${preserveOverrides ? Prisma.sql`AND "overridesBookingId" IS NULL` : Prisma.empty}
+      AND status::text = ANY(${[...LIVE_BOOKING_STATUSES]}::text[])
+      AND (${!preserveOverrides} OR "overridesBookingId" IS NULL)
     RETURNING id
-  `);
+  `;
   return changed.map((booking) => booking.id);
 }
 
