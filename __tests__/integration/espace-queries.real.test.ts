@@ -130,3 +130,27 @@ describe('nombre de requêtes des vues principales', () => {
     }
   }, 60_000);
 });
+
+describe('accueil enseignant : activité par défaut', () => {
+  it('ouvre l’activité sur laquelle les élèves ont travaillé le plus récemment', async () => {
+    const ctx = await populate(2, 'd');
+    // Tous les travaux créés par populate portent sur le TP POO 1 : c'est l'activité la plus récente.
+    expect(await overview.latestActiveActivitySlug(ctx.teacher)).toBe(POO_ACTIVITY_SLUG);
+
+    const other = await prisma.espaceActivity.findUniqueOrThrow({ where: { slug: 'nsi-poo-structures-lineaires' } }); // même matière (NSI) que l'enseignant du test
+    const student = await prisma.user.findFirstOrThrow({ where: { id: { in: userIds }, role: 'ELEVE', lastName: { endsWith: `d${run}` } } });
+    await prisma.espaceWork.create({
+      data: {
+        studentId: student.id, activityId: other.id, status: 'IN_PROGRESS', content: { v: 1, steps: {} },
+        progressSteps: 0, revision: 1, lastSavedAt: new Date(Date.now() + 60_000),
+      },
+    });
+    expect(await overview.latestActiveActivitySlug(ctx.teacher)).toBe(other.slug);
+  }, 60_000);
+
+  it('refuse un élève', async () => {
+    const ctx = await populate(1, 'e');
+    await expect(overview.latestActiveActivitySlug(ctx.student as never)).rejects.toThrow();
+  }, 60_000);
+});
+

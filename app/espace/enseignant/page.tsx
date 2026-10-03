@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { LiveRoster } from '@/components/espace/teacher/LiveRoster';
-import { getTeacherOverview } from '@/lib/espace/overview';
+import { getTeacherOverview, latestActiveActivitySlug } from '@/lib/espace/overview';
 import { requireActorForPage } from '@/lib/espace/page-guard';
 
 import { getTeacherScope, pickActivity } from './_server';
@@ -14,7 +14,7 @@ export default async function TeacherHome({ searchParams }: { searchParams: Prom
   const actor = await requireActorForPage(['COACH', 'ADMIN'], '/espace/enseignant');
   const { activite } = await searchParams;
   const scope = await getTeacherScope(actor);
-  const activity = pickActivity(scope, activite);
+  const activity = pickActivity(scope, activite ?? (await latestActiveActivitySlug(actor)) ?? undefined);
 
   if (!activity) {
     return (
@@ -45,7 +45,7 @@ export default async function TeacherHome({ searchParams }: { searchParams: Prom
                 aria-current={a.slug === activity.slug ? 'page' : undefined}
                 className={`rounded-md border px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent ${a.slug === activity.slug ? 'border-brand-accent bg-white/10 text-neutral-50' : 'border-white/15 text-neutral-300 hover:bg-white/5'}`}
               >
-                {a.moduleTitle.split(' — ')[0]}
+                {a.title.split(' — ')[0]}
               </Link>
             ))}
           </nav>

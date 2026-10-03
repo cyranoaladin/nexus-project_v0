@@ -314,6 +314,19 @@ export async function getStudentFile(actor: EspaceActor, studentId: string): Pro
   };
 }
 
+/** Activité sur laquelle les élèves de cet enseignant ont travaillé le plus récemment (accueil enseignant par défaut). */
+export async function latestActiveActivitySlug(actor: EspaceActor): Promise<string | null> {
+  if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
+  const scope = await teacherWorkScope(actor);
+  if (scope === null) return null;
+  const row = await prisma.espaceWork.findFirst({
+    where: { ...scope },
+    orderBy: { lastSavedAt: 'desc' },
+    select: { activity: { select: { slug: true } } },
+  });
+  return row?.activity.slug ?? null;
+}
+
 export interface CorrectionQueueItem {
   workId: string;
   studentName: string;
