@@ -218,8 +218,12 @@ async function materialize(
   series: PlanningSeries,
   participants: Participants,
   from?: LocalDate,
+  futureOnly?: { notBefore: Date; preservedDates: ReadonlySet<string> },
 ): Promise<number> {
-  const occurrences = occurrencesOf(series, participants.horizon, from);
+  const occurrences = occurrencesOf(series, participants.horizon, from).filter((occurrence) =>
+    !futureOnly || (occurrence.startsAt >= futureOnly.notBefore &&
+      !futureOnly.preservedDates.has(occurrence.localDate)),
+  );
   const conflicts = await findConflicts(tx, participants, occurrences);
   if (conflicts.length > 0) throw conflictError(conflicts);
   if (occurrences.length > 0) {
@@ -316,9 +320,11 @@ function todayIn(timezone: string, now: Date): LocalDate {
   return { year: p.year, month: p.month, day: p.day };
 }
 
-async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date): Promise<number> {
+async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date, preserveOverrides = false): Promise<number> {
   const result = await tx.sessionBooking.updateMany({
-    where: { planningSeriesId: seriesId, status: { in: [...LIVE_BOOKING_STATUSES] }, startsAt: { gte: from } },
+    where: { planningSeriesId: seriesId, status: { in: [...LIVE_BOOKING_STATUSES] }, startsAt: { gte: from },
+      ...(preserveOverrides ? { overridesBookingId: null } : {}),
+    },
     data: { status: 'CANCELLED', cancelledAt: new Date() },
   });
   return result.count;
@@ -377,10 +383,25 @@ export async function changePlanningSeries(
       if (scheduleChanged || statusChanged) {
         const now = ctx.now();
         const today = todayIn(after.timezone, now);
-        const cancelled = await cancelFutureOccurrences(tx, after.id, now);
+        const cancelled = await cancelFutureOccurrences(tx, after.id, now, after.status === 'ACTIVE');
         if (after.status === 'ACTIVE') {
           const participants = await loadActiveAssignment(tx, after.assignmentId);
-          await materialize(tx, ctx, after, participants, today);
+          const history = await tx.sessionBooking.findMany({
+            where: { planningSeriesId: after.id },
+            select: { id: true, startsAt: true, status: true },
+          });
+          // Explicit cancellations are distinguished from bulk revision cancellation
+          // by their append-only business event; reports retain their original date.
+          const cancellations = await tx.auditEvent.findMany({
+            where: { subjectType: 'SessionBooking', action: 'planning.occurrence_cancelled', subjectId: { in: history.map((booking) => booking.id) } },
+            select: { subjectId: true },
+          });
+          const cancelledIds = new Set(cancellations.map((event) => event.subjectId));
+          const preservedDates = new Set(history.filter((booking) =>
+            booking.status === 'RESCHEDULED' || cancelledIds.has(booking.id) ||
+            (booking.startsAt < now && booking.status !== 'CANCELLED'),
+          ).map((booking) => formatLocalDate(todayIn(after.timezone, booking.startsAt))));
+          await materialize(tx, ctx, after, participants, today, { notBefore: now, preservedDates });
         } else {
           await appendAuditEvent(tx, {
             actorUserId: ctx.actor.userId,

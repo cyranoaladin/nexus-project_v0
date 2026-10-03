@@ -272,6 +272,47 @@ describe('exceptions and series changes', () => {
     expect(await h.client.auditEvent.count({ where: { subjectId: series.id, action: 'planning.occurrences_materialized' } })).toBe(2);
   });
 
+  test.each([['17:00', 'IN_PROGRESS'], ['20:00', 'IN_PROGRESS'], ['20:00', 'COMPLETED'], ['20:00', 'NO_SHOW']] as const)('changing a series today to %s preserves its %s session without a second session', async (localStartTime, status) => {
+    const c = await seedPlanningContext();
+    const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 3 }));
+    const originals = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' } });
+    await h.client.sessionBooking.update({ where: { id: originals[0]!.id }, data: { status } });
+    const now = () => new Date('2026-09-15T16:30:00Z');
+    await changePlanningSeries(h.client, createServiceContext(h.admin, { now }), {
+      seriesId: series.id, expectedRevision: 0, changes: { localStartTime, localEndTime: localStartTime === '17:00' ? '18:00' : '21:00' },
+    });
+    const rows = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id } });
+    expect(rows.find((row) => row.id === originals[0]!.id)).toMatchObject({
+      status, startsAt: originals[0]!.startsAt, endsAt: originals[0]!.endsAt,
+    });
+    expect(rows.filter((row) => row.startsAt.toISOString().startsWith('2026-09-15'))).toHaveLength(1);
+    const future = rows.filter((row) => row.status === 'SCHEDULED');
+    expect(future).toHaveLength(2);
+    expect(future.every((row) => row.startsAt >= now() && row.occurrenceKey?.includes(':r1:'))).toBe(true);
+  });
+
+  test.each([{ location: 'Salle synthétique B' }, { localStartTime: '17:00', localEndTime: '18:00' }])(
+    'a series change $changes preserves explicit cancellations and rescheduled exceptions', async (changes) => {
+      const c = await seedPlanningContext();
+      const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 3 }));
+      const originals = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id }, orderBy: { startsAt: 'asc' } });
+      await cancelOccurrence(h.client, h.ctx(), { bookingId: originals[0]!.id, reason: 'Annulation synthétique' });
+      const replacement = await rescheduleOccurrence(h.client, h.ctx(), {
+        bookingId: originals[1]!.id, localDate: '2026-09-24', localStartTime: '10:00', localEndTime: '11:00', reason: 'Report synthétique',
+      });
+      await changePlanningSeries(h.client, createServiceContext(h.admin, { now: () => new Date('2026-09-01T12:00:00Z') }), {
+        seriesId: series.id, expectedRevision: 0, changes,
+      });
+      const rows = await h.client.sessionBooking.findMany({ where: { planningSeriesId: series.id } });
+      expect(rows.find((row) => row.id === originals[0]!.id)?.status).toBe('CANCELLED');
+      expect(rows.find((row) => row.id === originals[1]!.id)?.status).toBe('RESCHEDULED');
+      expect(rows.find((row) => row.id === replacement.id)).toEqual(replacement);
+      const ordinary = rows.filter((row) => row.status === 'SCHEDULED' && row.overridesBookingId === null);
+      expect(ordinary).toHaveLength(1);
+      expect(ordinary[0]!.startsAt.toISOString().slice(0, 10)).toBe('2026-09-29');
+    },
+  );
+
   test('a schedule change is future-only: past occurrences stay, live future ones are re-materialized under the new revision', async () => {
     const c = await seedPlanningContext();
     const series = await createPlanningSeries(h.client, h.ctx(), weeklyTuesday(c.assignment.id, { recurrenceCount: 4 }));
