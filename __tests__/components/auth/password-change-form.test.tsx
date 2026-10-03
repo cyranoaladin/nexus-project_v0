@@ -16,6 +16,15 @@ function fill() {
   fireEvent.change(screen.getByLabelText('Confirmer le nouveau mot de passe'), { target: { value: 'change_me_new' } });
 }
 describe('PasswordChangeForm', () => {
+  test('uses the server-selected native V1 endpoint for a V1 account', async () => {
+    mockFetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: { sessionsRevoked: true } }) });
+    render(<PasswordChangeForm endpoint="/api/auth/password-change" />); fill();
+    fireEvent.click(screen.getByRole('button', { name: 'Changer mon mot de passe' }));
+    await waitFor(() => expect(mockSignOut).toHaveBeenCalled());
+    expect(mockFetch).toHaveBeenCalledWith('/api/auth/password-change', expect.objectContaining({
+      method: 'POST', body: JSON.stringify({ currentPassword: 'change_me_current', newPassword: 'change_me_new' }),
+    }));
+  });
   test('submits only passwords and signs out after confirmed success', async () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true, data: { sessionsRevoked: true } }) });
     render(<PasswordChangeForm />); fill();

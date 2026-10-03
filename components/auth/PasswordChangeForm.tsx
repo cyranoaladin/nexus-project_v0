@@ -5,7 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCanonicalSignOut, useProtectedFetch } from './SessionRecoveryProvider';
 
-export function PasswordChangeForm() {
+export function PasswordChangeForm({ endpoint = '/api/v2/auth/password-change' }: {
+  endpoint?: '/api/auth/password-change' | '/api/v2/auth/password-change';
+}) {
   const router = useRouter();
   const fetch = useProtectedFetch();
   const signOut = useCanonicalSignOut();
@@ -32,7 +34,7 @@ export function PasswordChangeForm() {
     submitting.current = true; setPending(true);
     let changed = false;
     try {
-      const response = await fetch('/api/v2/auth/password-change', {
+      const response = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
       });

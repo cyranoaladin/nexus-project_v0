@@ -48,6 +48,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'core-v2-password-reset-request': { ipPreset: 'emailIp', identityPreset: 'emailIdentity' },
   'core-v2-password-reset-confirm': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'core-v2-password-change': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
+  'v1-password-change': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'student-credits': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'student-sessions': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'programme-rag-v2': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },

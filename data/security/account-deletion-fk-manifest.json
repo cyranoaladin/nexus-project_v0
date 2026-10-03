@@ -1,5 +1,12 @@
 [
   {
+    "conname": "account_security_events_userId_fkey",
+    "childTable": "account_security_events",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN"
+  },
+  {
     "conname": "aria_activity_attempts_studentId_fkey",
     "childTable": "aria_activity_attempts",
     "parentTable": "students",

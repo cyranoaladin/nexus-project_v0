@@ -16,25 +16,25 @@ function request(ip: string) {
     method: 'POST', headers: { 'x-forwarded-for': ip },
   });
 }
-test('changing source IP cannot bypass the authenticated identity attempt limit', async () => {
+test.each(['core-v2-password-change', 'v1-password-change'] as const)('%s: changing source IP cannot bypass the authenticated identity attempt limit', async (scope) => {
   for (let index = 0; index < 5; index++) {
     expect(await guardSensitiveRateLimit(request(`198.51.100.${index + 1}`), {
-      scope: 'core-v2-password-change', identity: 'synthetic-account',
+      scope, identity: 'synthetic-account',
     })).toBeNull();
   }
   const blocked = await guardSensitiveRateLimit(request('198.51.100.6'), {
-    scope: 'core-v2-password-change', identity: 'synthetic-account',
+    scope, identity: 'synthetic-account',
   });
   expect(blocked?.status).toBe(429);
   expect(blocked?.headers.get('retry-after')).not.toBeNull();
 });
-test('changing accounts cannot bypass the IP attempt limit', async () => {
+test.each(['core-v2-password-change', 'v1-password-change'] as const)('%s: changing accounts cannot bypass the IP attempt limit', async (scope) => {
   for (let index = 0; index < 30; index++) {
     expect(await guardSensitiveRateLimit(request('198.51.100.20'), {
-      scope: 'core-v2-password-change', identity: `synthetic-account-${index}`,
+      scope, identity: `synthetic-account-${index}`,
     })).toBeNull();
   }
   expect((await guardSensitiveRateLimit(request('198.51.100.20'), {
-    scope: 'core-v2-password-change', identity: 'synthetic-account-next',
+    scope, identity: 'synthetic-account-next',
   }))?.status).toBe(429);
 });
