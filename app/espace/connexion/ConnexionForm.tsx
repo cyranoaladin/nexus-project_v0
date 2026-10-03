@@ -11,7 +11,7 @@ export function safeDestination(value: string | undefined): string {
   return value;
 }
 
-export function ConnexionForm({ callbackUrl }: { callbackUrl?: string }) {
+export function ConnexionForm({ callbackUrl, credentialChanged = false }: { callbackUrl?: string; credentialChanged?: boolean }) {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [secret, setSecret] = useState('');
@@ -105,6 +105,12 @@ export function ConnexionForm({ callbackUrl }: { callbackUrl?: string }) {
           </div>
           <p className="mt-2 text-xs text-neutral-400">Majuscules ou minuscules, avec ou sans tiret : peu importe.</p>
         </div>
+
+        {credentialChanged && !error && (
+          <p role="status" data-testid="connexion-modifie" className="rounded-lg border border-emerald-400/40 bg-emerald-400/10 p-3 text-sm text-emerald-100">
+            Votre code a été modifié. Reconnectez-vous avec votre nouveau code (ou mot de passe).
+          </p>
+        )}
 
         {error && (
           <p id="connexion-erreur" role="alert" data-testid="connexion-erreur" className="rounded-lg border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-100">

@@ -277,6 +277,7 @@ describe('Public lux-* charte guard', () => {
     // Espace pédagogique Terminale (élèves + enseignant) : espace de travail authentifié, noindex,
     // qui réutilise les tokens brand-*/surface-* du dashboard — pas une page marketing lux-*.
     'app/espace/connexion/page.tsx',
+    'app/espace/eleve/compte/page.tsx',
     'app/espace/eleve/matieres/page.tsx',
     'app/espace/eleve/page.tsx',
     'app/espace/eleve/travaux/page.tsx',
@@ -285,6 +286,7 @@ describe('Public lux-* charte guard', () => {
     'app/espace/enseignant/corriger/[workId]/page.tsx',
     'app/espace/enseignant/eleves/[id]/page.tsx',
     'app/espace/enseignant/eleves/page.tsx',
+    'app/espace/enseignant/compte/page.tsx',
     'app/espace/enseignant/page.tsx',
     'app/espace/enseignant/ressources/page.tsx',
     'app/espace/enseignant/seances/page.tsx',

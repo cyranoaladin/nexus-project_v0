@@ -3,6 +3,7 @@
  *
  *   npx tsx scripts/espace/provision.ts apply --roster liste.json                       # dry-run
  *   npx tsx scripts/espace/provision.ts apply --roster liste.json --execute --credentials-out /chemin/hors/depot/codes.txt
+ *     (codes émis TEMPORAIRES : l'élève choisit le sien à la première connexion ; --keep-codes pour les rendre définitifs)
  *   npx tsx scripts/espace/provision.ts reset-pin --username adam.c --execute --credentials-out /chemin/codes.txt
  *   npx tsx scripts/espace/provision.ts disable   --username adam.c --execute
  *
@@ -52,6 +53,8 @@ async function main() {
       roster: { type: 'string' },
       username: { type: 'string' },
       adopt: { type: 'boolean', default: false },
+      // Par défaut les codes émis sont TEMPORAIRES (l'élève choisit le sien à la première connexion).
+      'keep-codes': { type: 'boolean', default: false },
       execute: { type: 'boolean', default: false },
       'credentials-out': { type: 'string' },
     },
@@ -72,7 +75,7 @@ async function main() {
     if (plan.conflicts.length > 0) fail('Conflits non résolus : rien n\'a été écrit');
     const file = await openCredentialsFile(values['credentials-out']);
     try {
-      const { credentials } = await applyProvisioning(prisma, roster, { adopt: values.adopt });
+      const { credentials } = await applyProvisioning(prisma, roster, { adopt: values.adopt, temporaryCodes: !values['keep-codes'] });
       await writeCredentials(file, credentials);
       process.stdout.write(`OK. ${credentials.length} code(s) émis dans ${file.resolved} (0600). Transmettez-les hors dépôt puis détruisez le fichier.\n`);
     } catch (e) {

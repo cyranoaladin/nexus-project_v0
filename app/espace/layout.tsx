@@ -17,6 +17,7 @@ const STUDENT_NAV: NavItem[] = [
   { href: '/espace/eleve', label: 'Accueil' },
   { href: '/espace/eleve/matieres', label: 'Mes matières' },
   { href: '/espace/eleve/travaux', label: 'Mes travaux' },
+  { href: '/espace/eleve/compte', label: 'Mon compte' },
 ];
 
 const TEACHER_NAV: NavItem[] = [
@@ -25,6 +26,7 @@ const TEACHER_NAV: NavItem[] = [
   { href: '/espace/enseignant/seances', label: 'Séances' },
   { href: '/espace/enseignant/a-corriger', label: 'À corriger' },
   { href: '/espace/enseignant/ressources', label: 'Ressources' },
+  { href: '/espace/enseignant/compte', label: 'Mon compte' },
 ];
 
 export default async function EspaceLayout({ children }: { children: React.ReactNode }) {

@@ -136,6 +136,8 @@ export interface ProvisioningPlan {
 
 interface PlanOptions {
   adopt: boolean;
+  /** Les codes émis sont TEMPORAIRES : l'élève devra en choisir un autre à sa première connexion (défaut : non). */
+  temporaryCodes?: boolean;
 }
 
 export async function planProvisioning(db: Db, roster: Roster, options: PlanOptions): Promise<ProvisioningPlan> {
@@ -290,7 +292,7 @@ export async function applyProvisioning(
             // activatedAt n'est posé que sur décision explicite ; un compte déjà activé garde sa date.
             await tx.user.update({
               where: { id: u.existingUserId! },
-              data: { pinHash: await hashPin(pin), pinSetAt: now, ...(u.willActivate ? { activatedAt: now } : {}) },
+              data: { pinHash: await hashPin(pin), pinSetAt: now, pinMustChange: options.temporaryCodes === true, ...(u.willActivate ? { activatedAt: now } : {}) },
             });
             credentials.push({ username: u.username, kind: 'ELEVE', secret: pin, displayName: `${u.firstName} ${u.lastName}` });
           }
@@ -300,7 +302,7 @@ export async function applyProvisioning(
         if (u.kind === 'ELEVE') {
           const pin = generatePin();
           const created = await tx.user.create({
-            data: { role: 'ELEVE', username: u.username, firstName: u.firstName, lastName: u.lastName, pinHash: await hashPin(pin), pinSetAt: now, activatedAt: now },
+            data: { role: 'ELEVE', username: u.username, firstName: u.firstName, lastName: u.lastName, pinHash: await hashPin(pin), pinSetAt: now, pinMustChange: options.temporaryCodes === true, activatedAt: now },
             select: { id: true },
           });
           idByUsername.set(u.username, created.id);
@@ -360,7 +362,7 @@ export async function resetStudentPin(db: Db, username: string): Promise<IssuedC
   const pin = generatePin();
   await db.user.update({
     where: { id: user.id },
-    data: { pinHash: await hashPin(pin), pinSetAt: new Date(), sessionVersion: { increment: 1 } },
+    data: { pinHash: await hashPin(pin), pinSetAt: new Date(), pinMustChange: true, sessionVersion: { increment: 1 } },
   });
   return { username: u, kind: 'ELEVE', secret: pin };
 }

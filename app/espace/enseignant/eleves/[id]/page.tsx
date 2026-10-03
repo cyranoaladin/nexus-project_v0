@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { StatusBadge } from '@/components/espace/shared/StatusBadge';
+import { StudentAccountPanel } from '@/components/espace/teacher/StudentAccountPanel';
 import { EspaceError } from '@/lib/espace/errors';
 import { formatDateTime } from '@/lib/espace/format';
 import { getStudentFile, type StudentFile } from '@/lib/espace/overview';
@@ -67,6 +68,7 @@ export default async function StudentFilePage({ params }: { params: Promise<{ id
     ...file.subjects.map((s) => ({ id: `matiere-${s.subject}`, label: s.label })),
     { id: 'corrections', label: 'Corrections' },
     { id: 'historique', label: 'Historique' },
+    { id: 'compte', label: 'Compte' },
   ];
 
   return (
@@ -134,6 +136,11 @@ export default async function StudentFilePage({ params }: { params: Promise<{ id
               ))}
           </ol>
         )}
+      </section>
+
+      <section id="compte" aria-labelledby="h-compte" className="scroll-mt-4">
+        <h2 id="h-compte" className="mb-3 text-lg font-semibold text-neutral-50">Compte</h2>
+        <StudentAccountPanel studentId={file.student.id} studentName={file.student.name} />
       </section>
     </div>
   );

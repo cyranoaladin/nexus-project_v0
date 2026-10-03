@@ -564,6 +564,7 @@ jobs:
             __tests__/integration/espace-legacy-link.real.test.ts \
             __tests__/integration/espace-export.real.test.ts \
             __tests__/integration/espace-queries.real.test.ts \
+            __tests__/integration/espace-credentials.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       - name: Upload real database logs on failure

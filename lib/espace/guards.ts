@@ -20,6 +20,8 @@ export interface EspaceActor {
   role: EspaceRole;
   firstName: string | null;
   lastName: string | null;
+  /** Élève dont le code est temporaire (émis par un opérateur) : il doit en choisir un autre. */
+  mustChangeCredential?: boolean;
 }
 
 export function isTeacherRole(role: string): role is 'COACH' | 'ADMIN' {
@@ -39,11 +41,11 @@ export async function getEspaceActor(): Promise<EspaceActor | null> {
 
   const user = await prisma.user.findUnique({
     where: { id },
-    select: { id: true, role: true, firstName: true, lastName: true, disabledAt: true, mergedIntoUserId: true },
+    select: { id: true, role: true, firstName: true, lastName: true, disabledAt: true, mergedIntoUserId: true, pinMustChange: true },
   });
   if (!user || user.disabledAt || user.mergedIntoUserId) return null;
   if (user.role !== 'ELEVE' && user.role !== 'COACH' && user.role !== 'ADMIN') return null;
-  return { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName };
+  return { id: user.id, role: user.role, firstName: user.firstName, lastName: user.lastName, mustChangeCredential: user.role === 'ELEVE' && user.pinMustChange };
 }
 
 export async function requireEspaceActor(allowed: readonly EspaceRole[]): Promise<EspaceActor | NextResponse> {

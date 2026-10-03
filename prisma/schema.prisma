@@ -345,6 +345,8 @@ model User {
   username              String?                    @unique
   pinHash               String?
   pinSetAt              DateTime?
+  // Vrai = code personnel TEMPORAIRE (émis par un opérateur) : l'élève doit en choisir un autre avant tout le reste.
+  pinMustChange         Boolean                    @default(false)
   disabledAt            DateTime? // non-null = compte désactivé (connexion refusée)
   espaceEnrollments     EspaceEnrollment[]         @relation("EspaceEnrollmentStudent")
   espaceTeaching        EspaceTeacherAssignment[]  @relation("EspaceTeacherAssignmentTeacher")
@@ -4595,4 +4597,18 @@ model EspaceLegacyLink {
 
   @@index([studentId])
   @@map("espace_legacy_links")
+}
+
+/// Journal des événements de sécurité de l'espace (changement/réinitialisation de code). Jamais de secret ni de hash.
+/// Pas de clé étrangère volontairement : la trace survit à la suppression du compte.
+model EspaceSecurityEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  actorId   String?
+  type      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("espace_security_events")
 }
