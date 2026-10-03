@@ -149,4 +149,55 @@ describe('assessment confidentiality scanner', () => {
       join(fixtures, 'safe'),
     ], { encoding: 'utf8' })).not.toThrow();
   });
+
+  it('rejects a V3 semantic-options item (options[]+correct_option_id) even when relocated', () => {
+    const repository = mkdtempSync(join(tmpdir(), 'nexus-confidentiality-scan-v3-'));
+    try {
+      mkdirSync(join(repository, 'some/random/path'), { recursive: true });
+      writeFileSync(
+        join(repository, 'some/random/path/sneaky.json'),
+        JSON.stringify({
+          item_id: 'X-1',
+          options: [{ id: 'o1', text: 'A' }, { id: 'o2', text: 'B' }],
+          correct_option_id: 'o1',
+        }),
+      );
+      execFileSync('git', ['init', '-q'], { cwd: repository });
+      execFileSync('git', ['add', '.'], { cwd: repository });
+
+      const result = spawnSync(process.execPath, [scanner], { cwd: repository, encoding: 'utf8' });
+      expect(result.status).toBe(1);
+      expect(`${result.stdout}${result.stderr}`).toContain('LIVE_ANSWER_KEY_STRUCTURE some/random/path/sneaky.json');
+    } finally {
+      rmSync(repository, { recursive: true, force: true });
+    }
+  });
+
+  it('accepts the pinned synthetic engine demo fixture at its known path', () => {
+    // --root pointé directement sur le dossier de la fixture change les chemins
+    // relatifs (juste "form.json", pas "__tests__/fixtures/diagnostic-demo/form.json")
+    // et invaliderait le pin par contenu, qui est adressé par le chemin complet tel
+    // qu'il apparaît depuis la racine du dépôt — le mode d'usage réel (hook
+    // pre-commit/pre-push, ou ici, la copie tracquée du dépôt réel).
+    expect(() => execFileSync(process.execPath, [scanner], { encoding: 'utf8' })).not.toThrow();
+  });
+
+  it('rejects the demo fixture path if its content is tampered with (content-addressed, not path-addressed)', () => {
+    const repository = mkdtempSync(join(tmpdir(), 'nexus-confidentiality-scan-tamper-'));
+    try {
+      mkdirSync(join(repository, '__tests__/fixtures/diagnostic-demo'), { recursive: true });
+      writeFileSync(
+        join(repository, '__tests__/fixtures/diagnostic-demo/form.json'),
+        JSON.stringify({ tampered: true, options: [{ id: 'a', text: 'x' }], correct_option_id: 'a' }),
+      );
+      execFileSync('git', ['init', '-q'], { cwd: repository });
+      execFileSync('git', ['add', '.'], { cwd: repository });
+
+      const result = spawnSync(process.execPath, [scanner], { cwd: repository, encoding: 'utf8' });
+      expect(result.status).toBe(1);
+      expect(`${result.stdout}${result.stderr}`).toContain('__tests__/fixtures/diagnostic-demo/form.json');
+    } finally {
+      rmSync(repository, { recursive: true, force: true });
+    }
+  });
 });
