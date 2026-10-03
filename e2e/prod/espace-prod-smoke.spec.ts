@@ -20,6 +20,10 @@ function readCreds(env: string): Record<string, string> {
 const validation = readCreds('ESPACE_VALIDATION_CREDENTIALS');
 const real = readCreds('ESPACE_REAL_CREDENTIALS');
 const run = Date.now().toString(36);
+/** Paire d'élèves techniques NEUVE à chaque campagne (un travail remis est en lecture seule : le test n'est pas rejouable sur le même compte). */
+const A = process.env.ESPACE_STUDENT_A ?? 'val.a';
+const B = process.env.ESPACE_STUDENT_B ?? 'val.b';
+const A_NAME = `TECHNIQUE-${A.split('.')[1]!.toUpperCase()}`;
 
 type StorageState = Awaited<ReturnType<BrowserContext['storageState']>>;
 const states: Record<string, StorageState> = {};
@@ -81,7 +85,7 @@ test.describe('accès public et anonyme', () => {
   });
 
   test('un mauvais code est refusé sans détail, le compte reste fermé', async ({ page }) => {
-    await login(page, 'val.a', 'ZZZZZZZZ');
+    await login(page, A, 'ZZZZZZZZ');
     await expect(page).toHaveURL(/\/espace\/connexion/);
     await expect(page.getByRole('alert')).toBeVisible();
     await expect(page.getByRole('alert')).not.toContainText(/val\.a|inconnu|existe/i);
@@ -118,7 +122,7 @@ test.describe('connexion de tous les comptes réels (lecture seule)', () => {
 
 test.describe('élève de validation — quatre parcours', () => {
   test('tableau de bord : Maths et NSI, quatre parcours qui s’ouvrent', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.a');
+    const { ctx, page } = await as(browser, A);
     try {
       await page.goto('/espace/eleve');
       await expect(page.getByTestId('bonjour')).toContainText('Bonjour');
@@ -141,24 +145,28 @@ test.describe('élève de validation — quatre parcours', () => {
 
 test.describe('TP POO 2 en production', () => {
   test('réponse, autosave, rechargement, Python réel (Pyodide), étape suivante', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.a');
+    const { ctx, page } = await as(browser, A);
     try {
       await page.goto('/espace/nsi/structures-lineaires');
       await expect(page.getByRole('heading', { level: 1 })).toContainText('POO 2');
 
-      const first = page.getByRole('textbox').first();
-      await first.fill(`Validation technique ${run}`);
+      await page.getByRole('button', { name: /^1\./ }).first().click(); // le parcours reprend là où l'élève s'était arrêté
+      await expect(page.getByText(/Étape 1 sur/)).toBeVisible();
+      await page.getByRole('textbox').first().fill(`Validation technique ${run}`);
       await expectSaved(page);
       await page.reload();
+      await expect(page.getByText(/Étape 1 sur/)).toBeVisible(); // l'étape courante est restaurée
       await expect(page.getByRole('textbox').first()).toHaveValue(`Validation technique ${run}`);
 
       await page.getByRole('button', { name: /^3\./ }).first().click(); // « Liste » (le parcours reprend là où l'élève s'était arrêté)
       await expect(page.getByText(/Étape 3 sur/)).toBeVisible();
       const editor = page.getByTestId('code-editor');
       await expect(editor).toBeVisible();
+      await editor.fill('class Liste:\n    pass\n'); // une ébauche vide : les contrôles de comportement doivent échouer
+      await expectSaved(page);
       await page.getByRole('button', { name: 'Vérifier mon code' }).click();
       const results = page.getByTestId('run-results');
-      await expect(results).toContainText('À revoir', { timeout: 170_000 }); // le code de départ échoue vraiment
+      await expect(results).toContainText('À revoir', { timeout: 170_000 });
 
       await editor.fill(reference('LISTE_SOLUTION'));
       await expectSaved(page);
@@ -181,7 +189,7 @@ test.describe('TP POO 2 en production', () => {
 
 test.describe('Maths — fonctions, limites et lecture graphique en production', () => {
   test('formules, graphique, vérifications de g(x) = (2x+1)/(x−1), autosave et reprise', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.a');
+    const { ctx, page } = await as(browser, A);
     try {
       await page.goto('/espace/maths/fonctions-limites');
       await expect(page.locator('.katex').first()).toBeVisible();
@@ -231,7 +239,7 @@ test.describe('Maths — fonctions, limites et lecture graphique en production',
 
 test.describe('remise', () => {
   test('le travail NSI est remis et passe en SUBMITTED', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.a');
+    const { ctx, page } = await as(browser, A);
     try {
       await page.goto(workNsi || '/espace/nsi/structures-lineaires');
       await page.getByTestId('btn-remettre').click();
@@ -249,14 +257,14 @@ test.describe('enseignant de validation', () => {
     const { ctx, page } = await as(browser, 'val.prof');
     try {
       await page.goto('/espace/enseignant');
-      const row = page.getByTestId('roster-row').filter({ hasText: 'TECHNIQUE-A' }).first();
+      const row = page.getByTestId('roster-row').filter({ hasText: A_NAME }).first();
       await expect(row).toBeVisible();
-      await expect(page.getByTestId('roster-row').filter({ hasText: 'TECHNIQUE-A' }).first()).toContainText(/À corriger|Remis/i);
+      await expect(page.getByTestId('roster-row').filter({ hasText: A_NAME }).first()).toContainText(/À corriger|Remis/i);
       await page.goto('/espace/enseignant/eleves');
-      await expect(page.getByTestId('student-row').filter({ hasText: 'TECHNIQUE-A' })).toBeVisible();
+      await expect(page.getByTestId('student-row').filter({ hasText: A_NAME })).toBeVisible();
 
       await page.goto('/espace/enseignant');
-      await page.getByTestId('roster-row').filter({ hasText: 'TECHNIQUE-A' }).first().getByRole('link').first().click();
+      await page.getByTestId('roster-row').filter({ hasText: A_NAME }).first().getByRole('link').first().click();
       await page.waitForURL(/\/espace\/enseignant\/corriger\//);
       workId = page.url().split('/').pop()!;
       await expect(page.getByTestId('work-viewer')).toContainText(`Validation technique ${run}`);
@@ -277,7 +285,7 @@ let workId = '';
 
 test.describe('retour à l’élève', () => {
   test('le retour est visible et le travail est rouvert (modifiable)', async ({ browser }) => {
-    const { ctx, page } = await as(browser, 'val.a');
+    const { ctx, page } = await as(browser, A);
     try {
       await page.goto('/espace/nsi/structures-lineaires');
       await expect(page.getByTestId('work-banner')).toContainText(/reprendre/i);
@@ -292,14 +300,19 @@ test.describe('retour à l’élève', () => {
 test.describe('isolation et corrigés', () => {
   test('un élève ne lit jamais le travail d’un autre (API)', async ({ browser }) => {
     expect(workId).not.toBe('');
-    const { ctx: b, page } = await as(browser, 'val.b');
+    const { ctx: b, page } = await as(browser, B);
     try {
       for (const sub of ['', '/versions', '/annotations']) {
         const res = await page.request.get(`/api/espace/works/${workId}${sub}`);
         expect([403, 404], `GET works/${sub}`).toContain(res.status());
       }
-      const res = await page.goto(`/espace/enseignant/corriger/${workId}`);
-      expect([403, 404]).toContain(res?.status() ?? 0);
+      // Pages enseignant : l'élève est renvoyé vers son propre tableau de bord, sans aucune donnée du travail ciblé.
+      for (const target of [`/espace/enseignant/corriger/${workId}`, '/espace/enseignant', '/espace/enseignant/eleves']) {
+        await page.goto(target);
+        await expect(page).toHaveURL(/\/espace\/eleve/);
+        await expect(page.locator('main')).not.toContainText(`Validation technique ${run}`);
+        await expect(page.getByTestId('work-viewer')).toHaveCount(0);
+      }
       const teacherApi = await page.request.get('/api/espace/teacher/overview');
       expect([401, 403, 404]).toContain(teacherApi.status());
     } finally {
@@ -309,7 +322,7 @@ test.describe('isolation et corrigés', () => {
 
   test('corrigés : refusés à l’élève, servis à l’enseignant', async ({ browser }) => {
     const targets = ['maths-fonctions-limites', 'nsi-poo-structures-lineaires'];
-    const { ctx: s, page: sp } = await as(browser, 'val.a');
+    const { ctx: s, page: sp } = await as(browser, A);
     try {
       for (const t of targets) expect((await sp.request.get(`/api/espace/resources/${t}/corrige`)).status(), `élève ${t}`).toBe(404);
       expect((await sp.request.get('/api/espace/resources/maths-suites-synthese/correction')).status()).toBe(404);
