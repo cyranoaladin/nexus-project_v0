@@ -9,15 +9,17 @@
  * PARENT/ELEVE sur cette page).
  */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import fs from 'node:fs';
 import path from 'node:path';
 import StudentProfilePage from '@/app/dashboard/assistante/students/[studentId]/page';
 
+const mockRouter = { push: jest.fn() };
+const mockParams = { studentId: 's1' };
 const mockSession = { data: { user: { role: 'ASSISTANTE' } }, status: 'authenticated' };
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: jest.fn() }),
-  useParams: () => ({ studentId: 's1' }),
+  useRouter: () => mockRouter,
+  useParams: () => mockParams,
 }));
 jest.mock('next-auth/react', () => ({ useSession: () => mockSession, signOut: jest.fn() }));
 jest.mock('@/components/dashboard/assistante/StudentDocumentsManager', () => ({
@@ -40,12 +42,9 @@ const overviewResponse = {
   assignments: [],
 };
 
-// The page shows a spinner until its mocked overview fetch resolves and the whole
-// profile re-renders. That completion has no intrinsic 1 s bound: RTL's default
-// findBy budget was exceeded once in CI under `--coverage --maxWorkers=2`
-// (instrumented re-render of the full page on a loaded runner, READINESS_RACE).
-// The contract asserted here is "the loaded page links out", so wait for the
-// load itself rather than for an arbitrary wall-clock slice of it.
+// Wait for the overview response rather than inspecting the initial spinner.
+// Router identity must remain stable like Next.js: a fresh router per render
+// retriggers the page effect, causing repeated fetches and eventual timeouts.
 const LOADED_PAGE_QUERY = { timeout: 10_000 } as const;
 
 describe('Assistante student page — operational sequence', () => {
@@ -63,6 +62,8 @@ describe('Assistante student page — operational sequence', () => {
     render(React.createElement(StudentProfilePage));
     const assignmentsLink = await screen.findByRole('link', { name: 'Voir assignations' }, LOADED_PAGE_QUERY);
     expect(assignmentsLink).toHaveAttribute('href', '/dashboard/assistante/assignments?studentId=s1');
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
+    expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('never embeds a generic PARENT/ELEVE user-creation form on this page (Amendement 6)', () => {

@@ -181,3 +181,22 @@ Les preuves du SHA précédent ne qualifient pas le nouveau commit. Build et
 E2E doivent être renouvelés. Changement du mot de passe authentifié absent
 en API/UI et longueur bcrypt des nouveaux mots de passe : lot à poursuivre.
 Statut reste NOT_READY ; aucune promotion ou mutation production effectuée.
+
+## Qualification du SHA 9bc7816 et correction du harness
+
+Sur `9bc781657b8ef58459c77373b5a8a9deb833b600`, build, lint, typecheck et
+647 tests Core-v2 passent. La campagne navigateur Node 22, PostgreSQL Core-v2
+neuf et origines localhost cohérentes passe : **81/81**, aucun test ignoré.
+Deux suites unitaires complètes donnent chacune 14 225 succès et un timeout du
+même test de navigation. Le mock `useRouter` recréait l'objet à chaque rendu,
+relançant le fetch dépendant de cet objet. Le cas ciblé avec assertion d'une seule
+requête échoue avant correction ; avec un routeur stable : 3/3 en 0,825 s.
+Aucun délai augmenté ni assertion retirée. Les campagnes complètes doivent être
+renouvelées après le commit de cette correction de test.
+
+L'audit d'ownership distingue le lien de consentement aux bilans existant du
+rattachement familial : `canonical-consent` permet volontairement une nouvelle
+ligne vérifiée après retrait du consentement. Réutiliser ce seul état comme
+révocation administrative globale serait insuffisant. Le mandat demande une
+autorité familiale vérifiée et révocable ; cette séparation reste à réaliser et
+à tester avant qualification production. Aucune exploitation en production.
