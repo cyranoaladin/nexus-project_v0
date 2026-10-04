@@ -1,0 +1,36 @@
+{
+  "sourceSha": "7350f700564222c6be884f81ba4dd1246a81fb1d",
+  "migrations": [
+    {
+      "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
+      "sha256": "a3ccc875bbfcfdbcf91d2a6fc2a7740013b0dbd8cd382b0e0a72665bd4d13098",
+      "introducedCommit": "dc2be493940bf63e9bdeef394376e313a3286eb0"
+    },
+    {
+      "path": "prisma/migrations/20261003194000_aria_workshop_admission_invariants/migration.sql",
+      "sha256": "57001fd2451b5115682e50f21fb974c9bd08b86021a999ea1c72d2be0935f7ba",
+      "introducedCommit": "c4587a98f878b0ee69a95478f29822b1f1493e72"
+    },
+    {
+      "path": "prisma/migrations/20261003211500_account_security_events/migration.sql",
+      "sha256": "ad58adaa0ea3b048b3174f0e2c89ed699a4c21cc4f54b988ec8a2578058f2d76",
+      "introducedCommit": "1a409bbb395a0628b157a7f760cc4edf955a4ccf"
+    },
+    {
+      "path": "prisma/migrations/20261004170000_invoice_financial_authority/migration.sql",
+      "sha256": "21be2dac716e3b15fe295873ec61bf13a6840f086a5e532b024a9e5c1d68b5c6",
+      "introducedCommit": "e90566f0b2410abb8b1125fb0bc25e75d7f8ef0e"
+    },
+    {
+      "path": "prisma/migrations/20261004183000_invoice_email_queue_evidence/migration.sql",
+      "sha256": "41b3824359ea2d736c72d5eefcd9e8c26ce5228a9a1c4d52adb0b80c23a68870",
+      "introducedCommit": "6a7e4cbfe0dae4b785d7a21ba2270557bbe15e41"
+    },
+    {
+      "path": "prisma/migrations/20261004190000_subscription_request_owner/migration.sql",
+      "sha256": "93b35c09e9b8ab073056c8217e227fef811c32e89ba27e78fcd5d1592c7c71ae",
+      "introducedCommit": "006cc1cf1653a64814a6e1b36946ef33ed917c39"
+    }
+  ],
+  "caveat": "Fingerprint inventory is not proof of additive safety or representative restoration for every migration."
+}

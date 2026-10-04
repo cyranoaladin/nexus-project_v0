@@ -1,0 +1,2016 @@
+{
+  "sourceSha": "7350f700564222c6be884f81ba4dd1246a81fb1d",
+  "classification": "path-based review aid, not security clearance",
+  "files": [
+    {
+      "path": ".env.example",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": ".env.production.example",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "domain": "CI-exploitation",
+      "highRisk": true
+    },
+    {
+      "path": ".github/workflows/flake-qualification.yml",
+      "domain": "CI-exploitation",
+      "highRisk": true
+    },
+    {
+      "path": "Dockerfile.e2e",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/admin-config-csrf-boundary.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/admin.invoices.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/admin.invoices.send.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/assessments.family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/assistant.coaches.id.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/assistante-student-operational-workflow.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/assistante.coaches.manage.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/auth.password-change.route.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/auth.reset-password.authority-confirmation.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/auth.reset-password.route.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/bilan-pallier2-maths.retry.route.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/bilans.family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/bilans.id.route.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/documents-download.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/documents.id.route.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/family-subscription-financial-boundary.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/health.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/internal-health.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoice-download-audit.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoice-financial-write-denial.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoice-send-atomic.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoices-draft-boundary.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoices.pdf.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.subscription-requests.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.subscriptions.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/payments.bank-transfer.authority.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/payments.bank-transfer.confirm.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/payments.validate.entitlement.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/payments.validate.route.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/quotes.family-authority.route.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/quotes.student-ownership.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.dashboard.payload.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.documents.boundary.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.documents.route.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.resources.official.route.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/invoice-write-permission.test.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/parent-invoices-phone.test.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/parent-subscription-details-financial-boundary.test.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/payment-write-permission.test.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/architecture/aria-test-harness-boundary.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/architecture/core-v2-legacy-guards.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/architecture/npc-storage-contract.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/architecture/session-revocation-boundary.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/auth/five-role-dashboard-isolation.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/auth/verified-session-provider.test.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/aria/conversation-engine.test.tsx",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/auth/password-change-form.test.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/core-v2/parent-household.test.tsx",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/eleve/survival/__snapshots__/PhraseMagiqueCard.test.tsx.snap",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/eleve/survival/__snapshots__/ReflexCard.test.tsx.snap",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/eleve/survival/__snapshots__/SurvivalHeroBanner.test.tsx.snap",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/floating-nav.test.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/household-membership-ui.test.tsx",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/navigation/account-security-prefetch.test.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/pre-rentree-2026-floating-advisor.test.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/session-calendar-video-availability.test.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/ui/error-boundary.test.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/config/next-standalone-env-exclusion.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/account-token-format.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/household-verification-api.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/parent-api.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/password-change-api.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/password-reset-api.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/password-reset-failure-enumeration.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/planning-api.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/self-service-api.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/unexpected-error-redaction.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/migration-transform.test.ts",
+      "domain": "schema-migration",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/queries/family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/queries/household-verification.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/account-token-contract.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/account-token-hmac.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/account.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/concurrency.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/planning-engine.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/staff-workflow.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/aria-workshop-concurrency.real.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/aria-workshop-reminder.real.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/invoice-email-request.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/invoice-financial-authority.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/subscription-request-owner.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/demo/utica-2026/demo-chrome.test.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/governance/account-security-qualification.test.js",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/governance/aria-ci-workflow-contract.test.js",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/governance/e2e-execution-evidence.test.js",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/bank-transfer-declaration.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/candidate-coach-assignment-period.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/core-v2-migrator.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/invoice-draft-boundary.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/password-change-v1.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/saisie-papier-normalisation.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/saisie-papier-visibilite-sans-email.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/stage-reservation-richstatus-nullsafe.real.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/student-document-visibility.real.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/student-stage-ownership.real.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/aria/sse-terminal-drain.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/auth-authority-readiness.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/auth/core-authority-error-redaction.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/auth/v1-credential-proof-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/browser-navigation.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/csrf-production-boundary.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/dashboard/student-payload.builders.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/diagnostics/candidat-libre/access-ownership.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/diagnostics/candidat-libre/storage.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/family-student-access-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/guards.family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/guards.invoice-authority.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/access-scope.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/access-token-boundary.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/access-token.db.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/email-template-session.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/no-leak.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/payer-authority.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/invoice/transitions.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/new-password-bcrypt-boundary.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/parent-phone-proof-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/password-change-rate-limit.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/pdf-text-extraction-runtime.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/rate-limit.s3-final-contract.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/redis-store.lifecycle.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/reports/stage/renderLatexPremiumReport.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/security/academic-read-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/services/initial-student-activation.service.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/browser-diagnostics.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/chat-transport-completion.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/e2e-harness-contract.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/transport-probe.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/visual-artifacts.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/core-v2-mail-link.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/e2e-bootstrap-contract.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/markdown-table-escaping.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/public-link-target.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/security/injection.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/setup/core-v2-token-env.js",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "app/api/admin/config/rollback/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/admin/config/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/admin/invoices/[id]/send/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/admin/invoices/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assessments/[id]/export/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assessments/[id]/result/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assessments/[id]/status/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assistante/coaches/manage/[id]/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assistante/coaches/manage/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/auth/password-change/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/auth/reset-password/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/bilan-pallier2-maths/retry/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/bilans/[id]/export/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/bilans/[id]/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/bilans/generate/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/[documentId]/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/modules/[moduleKey]/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/parent/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/staff-export/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/submit/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/consent/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/diagnostics/candidat-libre/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/documents/[id]/download/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/documents/[id]/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/health/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/internal/health/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/invoices/[id]/pdf/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/invoices/[id]/receipt/pdf/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/dashboard/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/subscription-requests/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/subscriptions/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/payments/bank-transfer/confirm/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/payments/validate/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/planning-studio/restore/route.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/planning-studio/revisions/[revision]/route.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/planning-studio/revisions/route.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/planning-studio/route.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/quotes/recommend/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/quotes/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/student/documents/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/auth/password-change/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/auth/password-reset/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/staff/households/[id]/parents/[parentUserId]/revoke/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/staff/households/[id]/parents/[parentUserId]/verify/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/auth/mot-de-passe-oublie/page.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/account/security/page.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/admin/facturation/page.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/assistante/facturation/page.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/assistante/paiements/page.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/parent/abonnements/page.tsx",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/parent/invoice-details-dialog.tsx",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "app/dashboard/parent/page.tsx",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "auth.config.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "components/aria/useAriaConversation.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "components/auth/PasswordChangeForm.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "components/auth/SessionRecoveryProvider.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "components/dashboard/core-v2/HouseholdDetail.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/dashboard/core-v2/HouseholdMembershipActions.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/dashboard/core-v2/ParentHousehold.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/dashboard/core-v2/api.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/dashboard/parent/ChildCard.tsx",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "components/demo/utica-2026/DemoChrome.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/error-boundary.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/navigation/Navbar.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "components/ui/floating-nav.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "core-v2/README.md",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "core-v2/prisma/schema.prisma",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "data/security/account-deletion-fk-manifest.json",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "docker-compose.e2e.yml",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "docker-compose.prod.yml",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "docs/architecture/restructuration/scripts/extract-schema.mjs",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/2026-10-04-execution-resumption.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/README.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/academic-family-read-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-security-repeat-shape.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-security-repeat20.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-token-hmac.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/aria-client-abort-probe.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/aria-generated-module-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/auth-authority-error-redaction.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/bank-transfer-declaration-transaction.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/bank-transfer-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/browser-abort-classification.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/browser-report-path.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/candidate-assignment-effective-period.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/candidate-diagnostic-access.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/capabilities.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/chat-transport-failure-observation.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/chromium-private-stream-diagnostic.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/ci-remediation.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/codeql-token-threat-model.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/console-domain-exemption-removal.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-account-mail-parser.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-readiness.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-unexpected-error-log.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/credential-proof-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/csrf-origin-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/dev-tooling-advisory-delta.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/diagnostic-retry-log-redaction.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/divergences.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/document-exception-redaction.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/document-read-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/e2e-diagnostic-worker.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/e2e-shared-runtime.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/email-outbox-codeql-review.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/family-authority-plan.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/family-subscription-financial-projection.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/household-verification.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-draft-publication-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-email-queue-credential-fixture.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-financial-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-private-error-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-write-permission.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/jest-security-upgrade.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/latex-single-pass-escaping.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/logout-navigation-ownership.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/logout-phase-attribution.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/markdown-table-escaping.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/migration-credential-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/migration-credential-integrity-v4.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/migrator-canonical-identity.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/migrator-credential-fixture.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/mobile-phase-attribution.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/next-config-candidate.diff",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/next-config-principal.diff",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/parent-invoice-list-contract-followup.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/password-policy.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/payment-write-permission.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/pdf-runtime-recovery.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/planning-public-session-sync.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/playwright-artifact-privacy.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/postgres-fixture-failclosed.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/private-build-discovery.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/provenance.json",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/public-link-origin-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/qualification-fixture-followup.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/quotes-student-ownership.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/recovery-report.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/reset-failure-non-enumeration.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/schema-comparison.json",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/sse-terminal-drain.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/student-document-list-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/student-document-metadata-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/student-financial-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/student-stage-ownership-boundary.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/subscription-request-owner.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/terminal-controller-retirement.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/token-oracle-isolation.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/v1-password-change.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/workshop-admission-migration.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/auth-session-convergence-inventory.json",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/aria/conversation.spec.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/aria/helpers.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/aria/visual-a11y.spec.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/auth-client-lifecycle.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/core-v2-staff-golden.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/parent-email-onboarding.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/password-change-v1.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/password-change.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/helpers/aria-transport-probe.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/helpers/core-v2-mail-link.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/helpers/public-link-target.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/helpers/request-completion.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/public/link-checker.spec.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/real/pages/05-public-pages.spec.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/real/pages/06-dashboards.spec.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "jest.aria.shared.js",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "jest.config.governance.js",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "jest.core-v2.config.js",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "jest.integration.config.js",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "jest.setup.js",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "lib/api-guard.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/aria/application/workshop/register-for-workshop.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "lib/aria/notifications/notify-parent-workshop-registered.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "lib/aria/transport/sse-parser.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "lib/auth/account-security-path.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/activation-controller.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/auth-rollout-startup.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/change-v1-password.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/client-session-recovery.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/parent-phone.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/password-reset-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/auth/session-revocation.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/bilans/render/pdf-text-extraction-runtime.mjs",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "lib/browser-navigation.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/account-token.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/audit.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/auth/authority.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/auth/rollout.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/http/respond.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/queries/family-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/queries/parent.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/queries/planning.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/queries/staff.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/queries/student.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/rbac.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/repositories/household-verification.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "lib/core-v2/services/account.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/services/household-verification.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/services/household.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/services/index.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/services/planning.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/services/staff-account.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/csrf.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/dashboard/student-payload.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "lib/deployment/rag-profile.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/diagnostics/candidat-libre/access.server.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/documents/read-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/documents/student-visibility.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "lib/env-validation.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/families/student-access-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/guards.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/invoice/access-token.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/download-audit.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/email-template.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/not-found.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/publication.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/queue-email-request.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/send-email.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/transitions.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/invoice/types.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "lib/payments/bank-transfer-declaration.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "lib/quotes/diagnostic.server.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/rate-limit/redis-store.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/rate-limit/runtime.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/rate-limit/sensitive.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "lib/rbac.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "lib/reports/stage/renderLatexPremiumReport.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "lib/security/academic-read-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/security/account-deletion-guard.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/security/ownership.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/security/password-policy.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/services/student-activation.service.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "lib/validation/common.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "middleware.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "next.config.mjs",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "package-lock.json",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "package.json",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "playwright.auth.config.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "prisma/migrations/20261003194000_aria_workshop_admission_invariants/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261003211500_account_security_events/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261004170000_invoice_financial_authority/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261004183000_invoice_email_queue_evidence/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261004190000_subscription_request_owner/migration.sql",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "public/planning/assets/session-recovery.js",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/aria/check-runtime-manifest.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/aria/check-visual-artifacts.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/aria/e2e-runtime-secrets.sh",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/aria/run-e2e-suite.sh",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/audit/markdown-table.cjs",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/audit/site-map.mjs",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/core-v2/migration/apply.ts",
+      "domain": "schema-migration",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/core-v2/migration/transform.ts",
+      "domain": "schema-migration",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/core-v2/migration/types.ts",
+      "domain": "schema-migration",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/github/lib/aria-ci-contract.mjs",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/check-account-security-repeat.mjs",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/chromium-private-stream-diagnostic.mjs",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/e2e-execution-evidence.mjs",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/safe-playwright-report.mjs",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    }
+  ]
+}
