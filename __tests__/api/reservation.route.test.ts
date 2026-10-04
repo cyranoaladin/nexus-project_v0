@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 jest.mock('@/lib/prisma', () => {
   const client = {
+    $queryRaw: jest.fn(async () => [{ id: 'stage-1' }]),
     stage: { findUnique: jest.fn() },
     stageReservation: {
       findUnique: jest.fn(),

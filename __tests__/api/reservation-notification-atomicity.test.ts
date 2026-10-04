@@ -4,7 +4,10 @@ const mockTransaction = jest.fn();
 const mockFind = jest.fn();
 const mockEnqueue = jest.fn();
 const mockDrain = jest.fn();
-const transaction = { stageReservation: { create: mockCreate }, jobOutbox: {} };
+const mockLockedStage = jest.fn();
+const mockCatalogLock = jest.fn();
+const transaction = { stageReservation: { create: mockCreate }, jobOutbox: {},
+  stage: { findUnique: mockLockedStage }, $queryRaw: mockCatalogLock };
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/prisma', () => ({ prisma: {
   stage: { findUnique: jest.fn(async () => ({ id: 'synthetic-stage', slug: 'synthetic-atomic', title: 'Synthetic Stage', priceAmount: 42 })) },
@@ -29,6 +32,8 @@ beforeEach(() => {
   mockCreate.mockResolvedValue({ id: 'synthetic-lead' });
   mockTransaction.mockImplementation(async (callback: (tx: typeof transaction) => Promise<unknown>) => callback(transaction));
   mockEnqueue.mockResolvedValue({ id: 'synthetic-intent' });
+  mockCatalogLock.mockReset().mockResolvedValue([{ id: 'synthetic-stage' }]);
+  mockLockedStage.mockReset().mockResolvedValue({ id: 'synthetic-stage', slug: 'synthetic-atomic', title: 'Synthetic Stage', priceAmount: 42 });
 });
 
 test('persists the internal intent in the lead transaction before draining', async () => {
@@ -69,4 +74,27 @@ test('failure of the second required intent refuses success and does not drain',
   expect((await POST(request('bank_transfer'))).status).toBe(500);
   expect(mockEnqueue).toHaveBeenCalledTimes(2);
   expect(mockDrain).not.toHaveBeenCalled();
+});
+
+test('reads canonical title and price after locking the catalog at commit', async () => {
+  mockLockedStage.mockResolvedValueOnce({ id: 'synthetic-stage', slug: 'synthetic-atomic', title: 'New canonical title', priceAmount: 84 });
+  expect((await POST(request())).status).toBe(201);
+  expect(mockCatalogLock).toHaveBeenCalledTimes(1);
+  expect(mockCreate.mock.calls[0][0].data).toMatchObject({ academyTitle: 'New canonical title', price: 84 });
+  expect(mockEnqueue.mock.calls[0][1].text.includes('New canonical title')).toBe(true);
+});
+
+test('a stage closed before commit cannot create a lead or notification', async () => {
+  mockLockedStage.mockResolvedValueOnce(null);
+  expect((await POST(request())).status).toBe(404);
+  expect(mockCreate).not.toHaveBeenCalled();
+  expect(mockEnqueue).not.toHaveBeenCalled();
+  expect(mockDrain).not.toHaveBeenCalled();
+});
+
+test('a stage removed before its lock cannot create a lead', async () => {
+  mockCatalogLock.mockResolvedValueOnce([]);
+  expect((await POST(request())).status).toBe(404);
+  expect(mockLockedStage).not.toHaveBeenCalled();
+  expect(mockCreate).not.toHaveBeenCalled();
 });

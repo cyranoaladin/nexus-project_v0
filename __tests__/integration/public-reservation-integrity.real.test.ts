@@ -74,3 +74,43 @@ test('bank-transfer acknowledgment and internal alert are durable without markin
   expect((await invoke(bankContact, 'bank_transfer')).status).toBe(201);
   expect(await prisma.jobOutbox.count({ where: { aggregateId: row.id } })).toBe(2);
 });
+
+test.each([
+  { label: 'closure', data: { isOpen: false }, expectedStatus: 404 },
+  { label: 'price', data: { priceAmount: 777 }, expectedStatus: 201 },
+])('serializes a concurrent catalog $label before committing a lead', async ({ label, data, expectedStatus }) => {
+  const concurrentContact = `${label}-${contact}`;
+  let entered!: () => void; let release!: () => void;
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  const released = new Promise<void>(resolve => { release = resolve; });
+  const catalogChange = prisma.$transaction(async tx => {
+    await tx.stage.update({ where: { slug }, data });
+    entered(); await released;
+  }, { timeout: 20_000, maxWait: 5_000 });
+  await started;
+  const submission = invoke(concurrentContact);
+  try {
+    const deadline = Date.now() + 5_000;
+    let observed = false;
+    while (Date.now() < deadline) {
+      const rows = await prisma.$queryRaw<Array<{ waiting: number }>>`
+        SELECT count(*)::int AS waiting FROM pg_stat_activity
+        WHERE datname = current_database() AND wait_event_type = 'Lock'
+          AND query LIKE '%FROM "stages"%' AND query LIKE '%FOR SHARE%'`;
+      if (rows[0].waiting > 0) { observed = true; break; }
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    expect(observed).toBe(true);
+    release(); await catalogChange;
+    expect((await submission).status).toBe(expectedStatus);
+    const row = await prisma.stageReservation.findUnique({ where: { email_academyId: { email: concurrentContact, academyId: slug } } });
+    if (label === 'closure') expect(row === null).toBe(true);
+    else {
+      expect(row?.price).toBe(777);
+      expect(await prisma.jobOutbox.count({ where: { aggregateId: row?.id } })).toBe(1);
+    }
+  } finally {
+    release(); await Promise.allSettled([catalogChange, submission]);
+    await prisma.stage.update({ where: { slug }, data: { isOpen: true, priceAmount: 350 } });
+  }
+});

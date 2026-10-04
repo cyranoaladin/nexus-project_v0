@@ -19,6 +19,8 @@ import { stageReservationSchema } from '@/lib/validations';
 import { NextRequest,NextResponse } from 'next/server';
 import { z } from 'zod';
 
+class StageSubmissionClosedError extends Error {}
+
 function getInternalNotificationRecipient(): string {
   return (
     process.env.INTERNAL_NOTIFICATION_EMAIL ||
@@ -107,22 +109,34 @@ async function submitReservation(request: NextRequest) {
     });
     if (existing) return reservationAcknowledgement();
     const isBankTransfer = data.paymentMethod === 'bank_transfer';
-    const internalTemplate = internalNotification({
-      eventType: 'Nouveau lead chaud (site web)',
-      fields: {
-        Parent: data.parent, Téléphone: data.phone, Email: data.email, Classe: data.classe,
-        Intérêt: data.academyTitle, Montant: `${data.price} TND`,
-        ...(isBankTransfer ? { Paiement: 'Virement bancaire (en attente de vérification)' } : {}),
-      },
-    });
     try {
       await prisma.$transaction(async transaction => {
+        const locked = await transaction.$queryRaw<Array<{ id: string }>>`
+          SELECT "id" FROM "stages" WHERE "id" = ${stage.id} FOR SHARE
+        `;
+        if (locked.length !== 1) throw new StageSubmissionClosedError();
+        const currentStage = await transaction.stage.findUnique({
+          where: { id: stage.id, slug: data.academyId, isVisible: true, isOpen: true,
+            endDate: getActiveStageEndDateFilter(new Date()) },
+          select: { id: true, slug: true, title: true, priceAmount: true },
+        });
+        if (!currentStage) throw new StageSubmissionClosedError();
+        const currentData = { ...data, academyTitle: currentStage.title, price: Number(currentStage.priceAmount) };
+        const internalTemplate = internalNotification({
+          eventType: 'Nouveau lead chaud (site web)',
+          fields: {
+            Parent: currentData.parent, Téléphone: currentData.phone, Email: currentData.email, Classe: currentData.classe,
+            Intérêt: currentData.academyTitle, Montant: `${currentData.price} TND`,
+            ...(isBankTransfer ? { Paiement: 'Virement bancaire (en attente de vérification)' } : {}),
+          },
+        });
+
         const created = await transaction.stageReservation.create({
           data: {
-            stageId: stage.id, parentName: data.parent, studentName: data.studentName || null,
-            email: data.email, phone: data.phone, classe: data.classe,
-            academyId: stage.slug, academyTitle: stage.title, price: data.price,
-            paymentMethod: data.paymentMethod || null,
+            stageId: stage.id, parentName: currentData.parent, studentName: currentData.studentName || null,
+            email: currentData.email, phone: currentData.phone, classe: currentData.classe,
+            academyId: currentStage.slug, academyTitle: currentStage.title, price: currentData.price,
+            paymentMethod: currentData.paymentMethod || null,
             status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
           },
           select: { id: true },
@@ -138,12 +152,15 @@ async function submitReservation(request: NextRequest) {
             aggregateType: 'STAGE_RESERVATION', aggregateId: created.id,
             messageType: 'TRANSACTIONAL_NOTIFICATION',
             dedupeKey: `reservation-bank-transfer:${created.id}:created:v1`,
-            to: data.email,
-            ...buildStageBankTransferAcknowledgment(data.parent, data.studentName || null, data.academyTitle, data.price),
+            to: currentData.email,
+            ...buildStageBankTransferAcknowledgment(currentData.parent, currentData.studentName || null, currentData.academyTitle, currentData.price),
           });
         }
       });
     } catch (error) {
+      if (error instanceof StageSubmissionClosedError) {
+        return NextResponse.json({ success: false, error: 'Stage introuvable ou inscriptions fermées' }, { status: 404 });
+      }
       // A conflict anywhere in the transaction is a duplicate acknowledgment
       // only when the canonical lead was committed by another submission.
       if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {

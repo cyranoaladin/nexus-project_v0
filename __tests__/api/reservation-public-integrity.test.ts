@@ -1,6 +1,7 @@
 /** @jest-environment node */
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/prisma', () => { const client = {
+  $queryRaw: jest.fn(async () => [{ id: 'stage-id' }]),
   stage: { findUnique: jest.fn() },
   stageReservation: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
 }; return { prisma: { ...client, $transaction: jest.fn(async (callback: (tx: typeof client) => Promise<unknown>) => callback(client)) } }; });
