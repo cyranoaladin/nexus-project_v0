@@ -142,11 +142,12 @@ export async function authenticateCoreV2ByPhone(rawPhone: string, password: stri
  * than answering "failed". Same posture as assertNpcStorageReady,
  * assertAuthRolloutStartup and verifyServerSession.
  */
-export async function revokeCoreV2UserSessions(userId: string): Promise<void> {
+export async function revokeCoreV2UserSessions(userId: string): Promise<{ sessionVersion: number }> {
   const client = await coreV2ClientOrRefuse();
-  await client.user.update({
+  return client.user.update({
     where: { id: userId },
     data: { sessionVersion: { increment: 1 } },
+    select: { sessionVersion: true },
   });
 }
 
