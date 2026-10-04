@@ -165,3 +165,22 @@ send barrier. A revocation after transfer may produce an unusable link but
 must not restore rights. Operational monitoring, process-kill recovery, actual
 SMTP delivery, production restoration and rollback are not qualified. Resend
 command retry identity remains a separate open item. NOT_READY.
+
+## Resend command identity checkpoint
+
+Three causal RED tests: proof 1791153907, 3 failed / 78 passed. After correction,
+proof 1791154204 passed 8 real-Core suites / 85 tests, including concurrent
+identical commands, different-account collision, revocation, expiration, final
+failure and changed recipient. An independent UI RED had one failed test:
+missing command header. UI retry then passed with the same key on unknown
+network outcome and a new key only after a confirmed success/refusal.
+The command key is scoped to the actor and validated as UUID; User row locking
+serializes same-account retries. The existing encrypted intent supplies the
+same issuance on replay only while all current eligibility checks still pass.
+No extra audit or issuance is created by a replay.
+
+Legacy callers omitting a key intentionally request a new issuance. The UI key
+is held during the mounted action; a reload/remount loses that pending identity.
+Key retention and encrypted-envelope retention must cover the guaranteed retry
+window. These operational and multi-tab scenarios are not declared qualified.
+No delivery, production operation or complete final-SHA CI is claimed.

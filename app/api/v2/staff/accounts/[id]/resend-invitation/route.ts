@@ -6,9 +6,9 @@ import { resendInvitation } from '@/lib/core-v2/services';
 import { assertAccountEmailHandoffRuntimeConfiguration, kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
 
 export const POST = defineStaffRoute({
-  handler: async ({ client, ctx, params }) => {
+  handler: async ({ client, ctx, params, request }) => {
     assertAccountEmailHandoffRuntimeConfiguration();
-    const issued = await resendInvitation(client, ctx, params.id);
+    const issued = await resendInvitation(client, ctx, params.id, { commandId: request.headers.get('idempotency-key') ?? undefined });
     const user = await client.user.findUniqueOrThrow({ where: { id: params.id } });
     kickAccountEmailHandoffDrain();
     return {

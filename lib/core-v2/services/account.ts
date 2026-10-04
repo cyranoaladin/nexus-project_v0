@@ -24,12 +24,12 @@ import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
 import { newPasswordSchema as passwordSchema } from '@/lib/security/password-policy';
-import { sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { openAccountEmailHandoff, sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
 import { CoreV2JobType } from '../client';
 
 const BCRYPT_COST = 12;
 
-async function persistAccountEmailHandoff(tx: Tx, user: User, issuance: Invitation, rawToken: string, at: Date): Promise<string> {
+async function persistAccountEmailHandoff(tx: Tx, user: User, issuance: Invitation, rawToken: string, at: Date, commandKey?: string): Promise<string> {
   if (!user.email) throw new InvalidStateError('Account email is required.');
   const envelope = sealAccountEmailHandoff({
     purpose: issuance.purpose, userId: user.id, issuanceId: issuance.id,
@@ -41,7 +41,7 @@ async function persistAccountEmailHandoff(tx: Tx, user: User, issuance: Invitati
     data: {
       jobType: CoreV2JobType.ACCOUNT_EMAIL_HANDOFF,
       aggregateType: 'ACCOUNT_EMAIL_HANDOFF', aggregateId: issuance.id,
-      idempotencyKey: `account-email-handoff:v1:${issuance.id}`,
+      idempotencyKey: commandKey ?? `account-email-handoff:v1:${issuance.id}`,
       payload: envelope, availableAt: at,
     }, select: { id: true },
   });
@@ -53,6 +53,7 @@ async function issueInvitation(
   ctx: ServiceContext,
   user: User,
   action: 'account.invited' | 'account.invitation_resent',
+  commandKey?: string,
 ): Promise<{ invitation: Invitation; rawToken: string; revokedCount: number; handoffId: string }> {
   if (user.accountStatus !== 'PENDING_ACTIVATION') {
     throw new InvalidStateError(`Only a PENDING_ACTIVATION account can be invited (is ${user.accountStatus}).`, {
@@ -94,7 +95,7 @@ async function issueInvitation(
     correlationId: ctx.correlationId,
     metadata: { userId: user.id, revokedPrior: revoked.count, expiresAt: invitation.expiresAt.toISOString() },
   });
-  const handoffId = await persistAccountEmailHandoff(tx, user, invitation, rawToken, now);
+  const handoffId = await persistAccountEmailHandoff(tx, user, invitation, rawToken, now, commandKey);
   return { invitation, rawToken, revokedCount: revoked.count, handoffId };
 }
 
@@ -117,14 +118,31 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
 }
 
 /** A new resend revokes the prior invitation; command-level retry identity is separate. */
-export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
+export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string } = {}): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
+  const commandId = options.commandId === undefined ? undefined : parseInput(z.string().uuid(), options.commandId);
+  const commandKey = commandId === undefined ? undefined : `account-resend-command:v1:${ctx.actor.userId}:${commandId}`;
   return inTransaction(client, async (tx) => {
     await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
-    const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent');
+    if (commandKey) {
+      const prior = await tx.coreV2JobOutbox.findUnique({ where: { idempotencyKey: commandKey } });
+      if (prior) {
+        const content = openAccountEmailHandoff(prior.payload, prior.aggregateId);
+        if (content.purpose !== 'ACTIVATION' || content.userId !== userId) throw new ConflictError('Command identity is already bound to another request.');
+        const invitation = await tx.invitation.findUnique({ where: { id: content.issuanceId } });
+        if (!invitation || invitation.userId !== userId || invitation.purpose !== 'ACTIVATION' ||
+          invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= ctx.now() ||
+          user.accountStatus !== 'PENDING_ACTIVATION' || user.email !== content.email || user.role !== content.role ||
+          invitation.tokenHash !== accountTokenDigest(content.rawToken, 'ACTIVATION') || prior.status === 'FAILED_FINAL') {
+          throw new InvalidStateError('The prior resend command is no longer eligible.');
+        }
+        return { invitation, rawToken: content.rawToken, email: content.email, handoffId: prior.id };
+      }
+    }
+    const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent', commandKey);
     return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
 }

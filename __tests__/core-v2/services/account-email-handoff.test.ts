@@ -1,3 +1,4 @@
+import { ConflictError, InvalidStateError } from '@/lib/core-v2/errors';
 import { openAccountEmailHandoff, sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
 import { drainAccountEmailHandoffs } from '@/lib/core-v2/accounts/email-handoff-worker';
 /** Real Core PostgreSQL: account issuance must have a recoverable encrypted mail intent. */
@@ -283,4 +284,72 @@ test.each(['schemaVersion', 'keyVersion', 'iv', 'tag', 'ciphertext'])('the SQL p
       typeof error.meta === 'object' && error.meta !== null && 'code' in error.meta && error.meta.code === '23514';
   }
   expect(refused).toBe(true);
+});
+
+
+test('replaying one resend command retains the original issuance and handoff without revoking it', async () => {
+  const parent = await pendingParent();
+  const command = '2b53b432-53de-4d7e-92f9-61c2d14cdcc4';
+  const first = await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command });
+  const second = await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command });
+  expect(second.invitation.id === first.invitation.id).toBe(true);
+  expect(second.handoffId === first.handoffId).toBe(true);
+  expect(second.rawToken === first.rawToken).toBe(true);
+  expect(await h.client.invitation.count({ where: { userId: parent.id } })).toBe(1);
+  expect((await h.client.invitation.findUniqueOrThrow({ where: { id: first.invitation.id } })).revokedAt === null).toBe(true);
+  expect(await h.client.auditEvent.count({ where: { action: 'account.invitation_resent' } })).toBe(1);
+});
+
+test('a resend command cannot be reused for a different account', async () => {
+  const parent = await pendingParent();
+  const { parent: other } = await createHousehold(h.client, h.ctx(), { parent: {
+    firstName: 'Other', lastName: 'Synthetic', email: 'other-handoff@example.test',
+  } });
+  const command = 'ff19a4d6-2b9a-4a75-9c64-9de5bb907ecd';
+  await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command });
+  let refused = false;
+  try { await resendInvitation(h.client, h.ctx(), other.id, { commandId: command }); }
+  catch (error) { refused = error instanceof ConflictError; }
+  expect(refused).toBe(true);
+  expect(await h.client.invitation.count({ where: { userId: other.id } })).toBe(0);
+});
+
+test('a revoked resend command cannot resurrect its old issuance', async () => {
+  const parent = await pendingParent();
+  const command = 'c101e083-f4f3-456f-9392-2a746babd616';
+  const first = await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command });
+  await resendInvitation(h.client, h.ctx(), parent.id);
+  let refused = false;
+  try { await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command }); }
+  catch (error) { refused = error instanceof InvalidStateError; }
+  expect(refused).toBe(true);
+  expect((await h.client.invitation.findUniqueOrThrow({ where: { id: first.invitation.id } })).revokedAt !== null).toBe(true);
+  expect(await h.client.invitation.count({ where: { userId: parent.id } })).toBe(2);
+});
+
+
+test('simultaneous retries create only one resend issuance and one handoff', async () => {
+  const parent = await pendingParent();
+  const options = { commandId: '2c77b542-410b-47d4-94ef-7bdcc0bfaef3' };
+  const [first, second] = await Promise.all([
+    resendInvitation(h.client, h.ctx(), parent.id, options),
+    resendInvitation(h.client, h.ctx(), parent.id, options),
+  ]);
+  expect(first.invitation.id === second.invitation.id).toBe(true);
+  expect(await h.client.invitation.count({ where: { userId: parent.id } })).toBe(1);
+  expect(await h.client.coreV2JobOutbox.count({ where: { aggregateId: first.invitation.id } })).toBe(1);
+});
+
+test.each(['expired', 'failed-final', 'changed-recipient'] as const)('resend retry refuses %s without another issuance', async (fault) => {
+  const parent = await pendingParent();
+  const options = { commandId: 'eb60291e-6d26-4fd6-83d1-b4022ec1c004' };
+  const issued = await resendInvitation(h.client, h.ctx(), parent.id, options);
+  if (fault === 'expired') await h.client.invitation.update({ where: { id: issued.invitation.id }, data: { expiresAt: new Date('2000-01-01T00:00:00Z') } });
+  if (fault === 'failed-final') await h.client.coreV2JobOutbox.update({ where: { id: issued.handoffId }, data: { status: 'FAILED_FINAL' } });
+  if (fault === 'changed-recipient') await h.client.user.update({ where: { id: parent.id }, data: { email: 'changed@example.test' } });
+  let refused = false;
+  try { await resendInvitation(h.client, h.ctx(), parent.id, options); }
+  catch (error) { refused = error instanceof InvalidStateError; }
+  expect(refused).toBe(true);
+  expect(await h.client.invitation.count({ where: { userId: parent.id } })).toBe(1);
 });
