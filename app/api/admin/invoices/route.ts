@@ -1,3 +1,4 @@
+import { privateFinancialJson } from '@/lib/invoice/private-response';
 /**
  * POST /api/admin/invoices — Create invoice + atomic number + PDF + store.
  * GET  /api/admin/invoices — List invoices (paginated).
@@ -5,7 +6,7 @@
  * Read: authorized staff. Write: canonical PAYMENT UPDATE permission.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import path from 'node:path';
 import { auth } from '@/auth';
 import { canPerformStatusAction } from '@/lib/invoice/transitions';
@@ -96,13 +97,7 @@ function hasStaffAccess(role?: string | null) {
 }
 
 function validationFailed() {
-  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
-}
-
-function safeErrorSummary(error: unknown) {
-  return error instanceof Error
-    ? { name: error.name, message: error.message }
-    : { name: 'UnknownError', message: 'Unknown error' };
+  return privateFinancialJson({ error: 'Données invalides' }, { status: 400 });
 }
 
 // ─── POST: Create Invoice ───────────────────────────────────────────────────
@@ -112,12 +107,12 @@ export async function POST(request: NextRequest) {
     // Auth check
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return privateFinancialJson({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const userRole = (session.user as { role?: string }).role;
     if (!canPerformStatusAction(userRole)) {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+      return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
 
     // Parse body
@@ -159,7 +154,7 @@ export async function POST(request: NextRequest) {
     if (requestedNumber) {
       const existing = await prisma.invoice.findUnique({ where: { number: requestedNumber } });
       if (existing) {
-        return NextResponse.json({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
+        return privateFinancialJson({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
       }
     }
     const invoiceNumber = requestedNumber || await generateInvoiceNumber();
@@ -265,7 +260,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    return privateFinancialJson({
       invoiceId: invoice.id,
       number: invoice.number,
       pdfUrl,
@@ -273,17 +268,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof MillimesValidationError) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
+      return privateFinancialJson({ error: error.message }, { status: 422 });
     }
     if (error instanceof InvoiceOverflowError) {
-      return NextResponse.json({
+      return privateFinancialJson({
         error: 'Dépassement de page',
         details: error.message,
       }, { status: 422 });
     }
 
-    console.error('[POST /api/admin/invoices] Error:', safeErrorSummary(error));
-    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
+    console.error('INVOICE_CREATE_FAILED');
+    return privateFinancialJson({ error: 'Erreur interne' }, { status: 500 });
   }
 }
 
@@ -293,12 +288,12 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return privateFinancialJson({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const userRole = (session.user as { role?: string }).role;
     if (!hasStaffAccess(userRole)) {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+      return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -362,7 +357,7 @@ export async function GET(request: NextRequest) {
       prisma.invoice.count({ where }),
     ]);
 
-    return NextResponse.json({
+    return privateFinancialJson({
       invoices,
       pagination: {
         page,
@@ -372,8 +367,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error) {
-    console.error('[GET /api/admin/invoices] Error:', safeErrorSummary(error));
-    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
+  } catch {
+    console.error('STAFF_INVOICE_LIST_FAILED');
+    return privateFinancialJson({ error: 'Erreur interne' }, { status: 500 });
   }
 }

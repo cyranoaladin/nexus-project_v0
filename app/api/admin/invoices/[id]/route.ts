@@ -1,5 +1,5 @@
+import { privateFinancialJson } from '@/lib/invoice/private-response';
 import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * PATCH /api/admin/invoices/:id — Invoice status actions.
  *
@@ -14,7 +14,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
  * - Audit trail: append-only events on every action
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
@@ -44,12 +44,12 @@ export async function PATCH(
     // ─── Auth ──────────────────────────────────────────────────────────
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return privateFinancialJson({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const userRole = (session.user as { role?: string }).role;
     if (!canPerformStatusAction(userRole)) {
-      return NextResponse.json(NOT_FOUND, { status: 404 });
+      return privateFinancialJson(NOT_FOUND, { status: 404 });
     }
 
     const { id } = await params;
@@ -60,7 +60,7 @@ export async function PATCH(
     const action = body.action as InvoiceAction | undefined;
 
     if (!action || !['MARK_SENT', 'MARK_PAID', 'CANCEL'].includes(action)) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Action invalide. Actions autorisées : MARK_SENT, MARK_PAID, CANCEL.' },
         { status: 400 }
       );
@@ -80,7 +80,7 @@ export async function PATCH(
     });
 
     if (!invoice) {
-      return NextResponse.json(NOT_FOUND, { status: 404 });
+      return privateFinancialJson(NOT_FOUND, { status: 404 });
     }
 
     // ─── Validate transition ───────────────────────────────────────────
@@ -93,7 +93,7 @@ export async function PATCH(
     );
 
     if (!transitionResult.valid) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: transitionResult.error },
         { status: transitionResult.httpStatus ?? 409 }
       );
@@ -101,7 +101,7 @@ export async function PATCH(
 
     // Idempotence: already in target status → 200 no-op, no event, no DB write
     if (transitionResult.noop) {
-      return NextResponse.json({
+      return privateFinancialJson({
         id: invoice.id,
         number: invoice.number,
         status: invoice.status,
@@ -261,7 +261,7 @@ export async function PATCH(
         return inv;
       });
 
-      return NextResponse.json(updated, { status: 200 });
+      return privateFinancialJson(updated, { status: 200 });
     }
 
     // Non-terminal transitions: simple update (no revocation needed)
@@ -276,11 +276,11 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(updated, { status: 200 });
+    return privateFinancialJson(updated, { status: 200 });
 
   } catch (error) {
     if (error instanceof LegacyCreditPurchaseError) {
-      return NextResponse.json({ code: error.code, error: error.message }, { status: 409 });
+      return privateFinancialJson({ code: error.code, error: error.message }, { status: 409 });
     }
     // Cubic P2: MARK_PAID also calls activateEntitlements() inside its own
     // transaction, so it can race the SAME canonical ARIA_ACCESS partial
@@ -292,12 +292,12 @@ export async function PATCH(
     if (error && typeof error === 'object' && 'code' in error
       && (error as { code: string }).code === 'P2002'
       && isCanonicalAriaAccessUniquenessConflict(error)) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
         { status: 409 }
       );
     }
-    console.error('[PATCH /api/admin/invoices/:id]', serializeError(error));
-    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
+    console.error('INVOICE_STATUS_ACTION_FAILED');
+    return privateFinancialJson({ error: 'Erreur interne' }, { status: 500 });
   }
 }
