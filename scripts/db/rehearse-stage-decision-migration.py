@@ -4,6 +4,7 @@ from pathlib import Path
 from urllib.parse import quote, urlunsplit
 parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expansion/restore rehearsal; never uses a supplied database URL')
 parser.add_argument('--old-ref',required=True)
+parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 args=parser.parse_args()
 if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_SHA_REQUIRED')
 if subprocess.run(['git','merge-base','--is-ancestor',args.old_ref,'HEAD'],capture_output=True).returncode: raise SystemExit('OLD_REF_NOT_ANCESTOR')
@@ -66,7 +67,8 @@ try:
  (out/'synthetic-backup-metadata.json').write_text(json.dumps({'scope':'synthetic fixture only; not a production backup', 'oldSourceSha':args.old_ref, 'oldMigrationCount':len(migration_dirs), 'ciphertextBytes':len(encrypted),'sha256':hashlib.sha256(encrypted).hexdigest(),'keyCustody':'ephemeral process RAM only; not a durable backup','retention':'reproducible synthetic fixture; no client data; proof artifact retained locally'},indent=2))
  print('SYNTHETIC_ENCRYPTED_RESTORE_VERIFIED=1;INTERRUPTED_DDL_ROLLBACK_VERIFIED=1')
  with open(out/'stage-list-real-tests-private.log','w') as f:
-  p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns=stage-lead-decision.real'],env=env,stdout=f,stderr=subprocess.STDOUT)
+  pattern='stage-lead-decision.real|reservation-staff-list.real' if args.include_staff_list else 'stage-lead-decision.real'
+  p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns='+pattern],env=env,stdout=f,stderr=subprocess.STDOUT)
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
  if p.returncode: raise RuntimeError('REAL_TEST_FAILED')

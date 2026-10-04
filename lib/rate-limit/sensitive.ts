@@ -33,6 +33,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'stage-confirmation': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'stage-registration': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'assessment-submit': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity', resourcePreset: 'resourceWrite' },
+  'reservation-list': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'reservation-verify': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'reservation-decision': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'reservation-submit': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },

@@ -1,0 +1,11 @@
+# Staff reservation list boundary
+
+October 4, 2026. Preceding published source `6083b3fa0e32643b46d4f1b5a4a652828adbc665`.
+
+The old GET list was unbounded, accepted an administrative role without a user identity, did not check finance permission, returned diagnostic JSON and logged driver details. Fifteen RED cases demonstrated the missing identity/permission, invalid filters, pagination/projection, private caching, throttling and error handling. A read-only reviewer found no active GET consumer in app/components/e2e; the existing POST and PATCH contracts are preserved.
+
+Authorization is now ADMIN/ASSISTANTE plus server identity and READ RESERVATION and READ PAYMENT, before retrieval. This is a staff financial list; COACH's generic reservation-read permission cannot open it. Unknown and duplicate query parameters are refused. Status is validated against the five documented legacy String states; it is not confused with richStatus. Academy identifiers are bounded. Page is 1–1000, limit 1–100, default 50; stable ordering is createdAt/id descending. Count remains the number returned on this page, with explicit page/limit/hasNext rather than a fabricated total. Diagnostic JSON, activation material and private notes are not selected. All responses, including errors and throttling, are private/no-store with Vary Cookie/Authorization. No CSRF is needed on this read-only GET. Logs do not emit driver messages.
+
+Four targeted suites passed 46 tests. The canonical synthetic restore runner with `--include-staff-list` passed two PostgreSQL suites / seven tests in `.artifacts/recovery/stage-lead-decision-green-1791148448`: identical timestamp ordering, filtering before pagination, diagnostic exclusion, outsider refusal, plus five audit/concurrency tests. The runner stopped its owned tmpfs instance. Targeted lint passed. This is not production backup or access qualification.
+
+No new migration is added for the list. Offset pagination is bounded, but deep-page performance and a representative production load still require measurement. No globally separate organization/site scope exists in this legacy model; this list remains exclusively staff-wide and must not be expanded to other roles by generic READ permission alone. Stage-linked cancellation, capacity and financial reconciliation remain independent gaps.

@@ -17,6 +17,7 @@ import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 import { stageReservationSchema } from '@/lib/validations';
 import { NextRequest,NextResponse } from 'next/server';
+import { z } from 'zod';
 
 function getInternalNotificationRecipient(): string {
   return (
@@ -190,65 +191,50 @@ async function submitReservation(request: NextRequest) {
   }
 }
 
-/**
- * GET /api/reservation
- *
- * Staff-only: list all reservations (for admin dashboard).
- * RBAC: ADMIN or ASSISTANTE only
- */
-export async function GET(request: NextRequest) {
-  try {
-    // RBAC Guard: Check session and role
-    const session = await auth();
-    const userRole = session?.user?.role;
-    
-    if (!session || (userRole !== 'ADMIN' && userRole !== 'ASSISTANTE')) {
-      return NextResponse.json(
-        { success: false, error: 'Accès non autorisé. Rôle ADMIN ou ASSISTANTE requis.' },
-        { status: 403 }
-      );
-    }
+const staffListSchema = z.object({
+  status: z.enum(['PENDING', 'PENDING_BANK_TRANSFER', 'CONFIRMED', 'CANCELLED', 'PAID']).optional(),
+  academyId: z.string().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/).optional(),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+}).strict();
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const academyId = searchParams.get('academyId');
-
-    const where: Record<string, string> = {};
-    if (status) where.status = status;
-    if (academyId) where.academyId = academyId;
-
-    const reservations = await prisma.stageReservation.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        parentName: true,
-        studentName: true,
-        email: true,
-        phone: true,
-        classe: true,
-        academyId: true,
-        academyTitle: true,
-        price: true,
-        paymentMethod: true,
-        status: true,
-        scoringResult: true,
-        createdAt: true,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      count: reservations.length,
-      reservations,
-    });
-  } catch (error) {
-    console.error('[reservation] GET error:', error instanceof Error ? error.message : 'unknown');
-    return NextResponse.json(
-      { success: false, error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+/** Staff financial lead list; role and permissions are checked before retrieval. */
+async function listStaffReservations(request: NextRequest): Promise<NextResponse> {
+  const session = await auth();
+  if (!session?.user?.id || session.user.id.length > 128 ||
+    !['ADMIN', 'ASSISTANTE'].includes(session.user.role) ||
+    !can(session.user.role, 'READ', 'RESERVATION') || !can(session.user.role, 'READ', 'PAYMENT')) {
+    return NextResponse.json({ success: false, error: 'Accès refusé' }, { status: 403 });
   }
+  const search = new URL(request.url).searchParams;
+  const seen = new Set<string>();
+  for (const key of search.keys()) {
+    if (seen.has(key)) return NextResponse.json({ success: false, error: 'Paramètres invalides' }, { status: 400 });
+    seen.add(key);
+  }
+  const parsed = staffListSchema.safeParse(Object.fromEntries(search));
+  if (!parsed.success) return NextResponse.json({ success: false, error: 'Paramètres invalides' }, { status: 400 });
+  const limited = await guardSensitiveRateLimit(request, { scope: 'reservation-list', identity: session.user.id });
+  if (limited) return limited;
+  const { status, academyId, page, limit } = parsed.data;
+  const rows = await prisma.stageReservation.findMany({
+    where: { ...(status ? { status } : {}), ...(academyId ? { academyId } : {}) },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], skip: (page - 1) * limit, take: limit + 1,
+    select: { id: true, parentName: true, studentName: true, email: true, phone: true, classe: true,
+      academyId: true, academyTitle: true, price: true, paymentMethod: true, status: true, createdAt: true },
+  });
+  const reservations = rows.slice(0, limit);
+  return NextResponse.json({ success: true, count: reservations.length, reservations,
+    page, limit, hasNext: rows.length > limit });
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
+  let response: NextResponse;
+  try { response = await listStaffReservations(request); }
+  catch { response = NextResponse.json({ success: false, error: 'Liste indisponible.' }, { status: 503 }); }
+  response.headers.set('Cache-Control', 'private, no-store');
+  response.headers.set('Vary', 'Cookie, Authorization');
+  return response;
 }
 
 /**
