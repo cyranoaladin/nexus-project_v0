@@ -37,6 +37,7 @@ import { readSourceSnapshot } from '@/scripts/core-v2/migration/source';
 import { buildTargetPlan, objectHash } from '@/scripts/core-v2/migration/transform';
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 import { resolveAssessmentReadAuthority, resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
+import { readAuthorizedDocument } from '@/lib/documents/read-authority';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= 'Africa/Tunis';
 process.env[INVITATION_TTL_ENV] ??= '72';
@@ -390,6 +391,7 @@ describe('legacy academic reads use real Core family authority after migration',
   let assessmentId: string;
   let publishedBilanId: string;
   let draftBilanId: string;
+  let documentId: string;
   const guardianIds = new Set<string>();
 
   beforeAll(async () => {
@@ -402,9 +404,15 @@ describe('legacy academic reads use real Core family authority after migration',
     const report = { studentId: student.id, studentEmail: student.user.email!, studentName: 'Synthetic fixture', subject: 'MATHS', type: 'ASSESSMENT_QCM' as const };
     publishedBilanId = (await v1.bilan.create({ data: { ...report, isPublished: true, status: 'COMPLETED', publishedAt: migratedAt } })).id;
     draftBilanId = (await v1.bilan.create({ data: report })).id;
+    documentId = (await v1.userDocument.create({ data: {
+      title: 'Synthetic authority fixture', originalName: 'synthetic.pdf', mimeType: 'application/pdf',
+      sizeBytes: 7, localPath: `${prefix}/authorization-fixture.pdf`, userId: student.userId,
+      visibilityScope: 'STUDENT_AND_PARENT',
+    } })).id;
   });
 
   afterAll(async () => {
+    if (documentId) await v1.userDocument.deleteMany({ where: { id: documentId } });
     if (assessmentId) await v1.assessment.deleteMany({ where: { id: assessmentId } });
     const reportIds = [publishedBilanId, draftBilanId].filter(Boolean);
     if (reportIds.length) await v1.bilan.deleteMany({ where: { id: { in: reportIds } } });
@@ -453,4 +461,21 @@ describe('legacy academic reads use real Core family authority after migration',
     expect(access.where).toEqual({ id: draftBilanId, studentId: ids.studentA, isPublished: true });
     expect(await v1.bilan.findFirst({ where: access.where! })).toBeNull();
   });
+  test.each(['HYBRID', 'V2_ONLY'])('%s applies real canonical membership to private child-document metadata', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    expect((await readAuthorizedDocument(documentId, { id: ids.parent, role: 'PARENT' })).status).toBe('DENIED');
+    const { subject, membership, ctx } = await newGuardian();
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('DENIED');
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'd'.repeat(64) });
+    const read = await readAuthorizedDocument(documentId, subject);
+    expect(read.status).toBe('ALLOWED');
+    if (read.status !== 'ALLOWED') throw new Error('DOCUMENT_AUTHORITY_EXPECTED_VERIFIED_READ');
+    expect(read.document.id).toBe(documentId);
+    expect(read.document.localPath).toBe(`${prefix}/authorization-fixture.pdf`);
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 1 });
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('DENIED');
+  });
+
 });
