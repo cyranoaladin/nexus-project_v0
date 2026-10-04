@@ -134,8 +134,8 @@ Les anciens défauts et arbitrages ci-dessus restent conservés ; un correctif l
 
 ## Dernières preuves ciblées (sans promotion de statut)
 
-- Capacités 5/16/18/19 : les listes staff de réservations exigent identité, rôle et permissions de lecture réservation/paiement ; refus avant accès, filtres stricts, ordre et pagination bornés, diagnostic exclu. Voir `staff-reservation-list.md`.
+- Capacités 5/16/19 : les listes staff de réservations exigent identité, rôle et permissions de lecture réservation/paiement ; refus avant accès, filtres stricts, ordre et pagination bornés, diagnostic exclu. Voir `staff-reservation-list.md`.
 - Capacités 16/17/31 : refus d’approbation financière sur le parcours legacy ; déclin d’un lead non lié par CAS et audit append-only, concurrents et FK testés. Voir `stage-lead-decision-audit.md`.
-- Capacité 21 : création publique depuis le catalogue, aucune autorité d’update par email ; retry et concurrence réels. Voir `public-reservation-integrity.md`.
-- Capacités 16/29 : le Markdown pédagogique encode le HTML non fiable avant sa mise en forme. Sept tests DOM passent ; les autorisations/publications et la qualification UX complète restent distinctes. Voir `bilan-markdown-html-boundary.md`.
+- Capacités 16/28 : création publique depuis le catalogue, aucune autorité d’update par email ; retry et concurrence réels. Voir `public-reservation-integrity.md`.
+- Capacité 21 : le Markdown pédagogique encode le HTML non fiable avant sa mise en forme. Sept tests DOM passent ; les autorisations/publications et la qualification UX complète restent distinctes. Voir `bilan-markdown-html-boundary.md`.
 - CodeQL moyen : sources corrigées et absence des quatre alertes dans la liste ouverte du SHA 6083b3fa0 ; CodeQL global reste rouge avec #114. Aucune exclusion/dismissal appliquée.
