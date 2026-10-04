@@ -226,6 +226,21 @@ describe('toStageItem', () => {
     setupMocks();
   });
 
+  it('requires explicit student ownership even when a foreign or unlinked reservation shares the email', async () => {
+    const stage = { id: 'synthetic-stage', slug: 'synthetic-stage', title: 'Synthetic stage',
+      startDate: new Date('2026-10-05T08:00:00Z'), endDate: new Date('2026-10-06T08:00:00Z'), location: 'Synthetic location' };
+    (prisma.stageReservation.findMany as jest.Mock).mockResolvedValue([
+      { id: 'owned-reservation', studentId: 'student-1', email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+      { id: 'FOREIGN-PRIVATE-RESERVATION', studentId: 'other-student', email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+      { id: 'UNLINKED-PRIVATE-RESERVATION', studentId: null, email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+    ]);
+    const result = await buildStudentDashboardPayload('user-1');
+    expect(prisma.stageReservation.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { studentId: 'student-1' } }));
+    expect([...result.upcomingStages, ...result.pastStages].map(item => item.reservationId)).toEqual(['owned-reservation']);
+    expect(JSON.stringify(result)).not.toContain('FOREIGN-PRIVATE-RESERVATION');
+    expect(JSON.stringify(result)).not.toContain('UNLINKED-PRIVATE-RESERVATION');
+  });
+
   it('maps PAID reservation status to CONFIRMED', async () => {
     const futureDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     (prisma.stageReservation.findMany as jest.Mock).mockResolvedValue([{

@@ -800,12 +800,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
     // Q4: All stage reservations for this student
     prisma.stageReservation.findMany({
-      where: {
-        OR: [
-          { studentId: student.id },
-          { email: studentEmail },
-        ],
-      },
+      where: { studentId: student.id },
       include: {
         stage: {
           select: {
@@ -861,7 +856,8 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   ]);
 
   // Q9: Stage bilans lookup (only if reservations exist)
-  const stageIds = allStageReservations
+  const ownedStageReservations = allStageReservations.filter(reservation => reservation.studentId === student.id);
+  const stageIds = ownedStageReservations
     .map((r) => r.stage?.id)
     .filter((id): id is string => id !== undefined);
 
@@ -977,7 +973,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   const recentBilans = recentBilansRaw.map(toBilan);
 
   // Stages
-  const stageItems = allStageReservations
+  const stageItems = ownedStageReservations
     .map((r) => toStageItem(r, stageBilansMap.get(r.stage?.id ?? '') ?? null))
     .filter((item): item is EleveStageItem => item !== null);
 
