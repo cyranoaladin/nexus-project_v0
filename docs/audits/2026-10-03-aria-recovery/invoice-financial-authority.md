@@ -25,3 +25,9 @@ Payment validation assigns the payer from the canonical Payment.userId inside th
 ## Remaining qualification
 
 These tests are not proof of full migrations from an entire old application database, a backup restoration, production rollback, delegated-access UI/service lifecycle, administrative payer assignment, invoice/download append-only auditing or sandbox provider reconciliation. Those gates remain open. No legacy invoice is automatically exposed; identifying its payer requires independent evidence and an audited workflow. The delegation schema is a contract, not a claim that the delegation feature is delivered. No production migration or deployment has occurred.
+
+### Legacy ownership guard and rollback gate — 4 October 2026
+
+The shared `requireParentOwnsInvoice` guard now consumes the canonical payer/delegation predicate before its database read. A beneficiary relationship alone is refused, including when a legacy parent/child row exists. Three regression tests failed before the correction; the corrected guard and neighboring guards/authority tests pass (5 suites, 57 tests). No runtime caller of this legacy helper was established by the read-only review; the change removes an unsafe alternate contract.
+
+Application rollback compatibility is not merely schema compatibility: a release using the old family/email invoice authorization would reintroduce the exposure. No production rollback target is qualified until it enforces the same restrictive financial policy, or financial endpoints remain closed by a reviewed server-side control. The old release must not be described as a safe rollback on the basis of additive DDL alone.

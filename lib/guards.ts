@@ -9,6 +9,7 @@ import { auth } from '@/auth';
 import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
+import { buildInvoiceAccessWhere } from './invoice/not-found';
 import { familyReadAllowed, resolveParentStudentAccess } from './families/student-access-authority';
 
 export type AuthSession = {
@@ -228,30 +229,14 @@ export async function requireStudentOwnsStudent(
   return true;
 }
 
-/**
- * Verify that a parent owns the invoice (via their userId on the payment).
- * Returns true if ownership is confirmed, otherwise a 403 NextResponse.
- */
+/** Require explicit payer or active delegated authority; family membership grants no finance access. */
 export async function requireParentOwnsInvoice(
   parentUserId: string,
   invoiceId: string
 ): Promise<true | NextResponse> {
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId },
-    select: { beneficiaryUserId: true },
-  });
-  if (!invoice || !invoice.beneficiaryUserId) {
-    return NextResponse.json(
-      { error: 'Forbidden', message: 'Cette facture ne vous appartient pas.' },
-      { status: 403 }
-    );
-  }
-  // Verify the beneficiary is a student owned by this parent
-  const parentProfile = await prisma.parentProfile.findUnique({
-    where: { userId: parentUserId },
-    include: { children: { where: { userId: invoice.beneficiaryUserId }, select: { id: true } } },
-  });
-  if (!parentProfile || parentProfile.children.length === 0) {
+  const where = await buildInvoiceAccessWhere(invoiceId, { id: parentUserId, role: 'PARENT' });
+  const invoice = where ? await prisma.invoice.findFirst({ where, select: { id: true } }) : null;
+  if (!invoice) {
     return NextResponse.json(
       { error: 'Forbidden', message: 'Cette facture ne vous appartient pas.' },
       { status: 403 }
