@@ -1,6 +1,6 @@
 # Matrice fonctionnelle et sources de vérité
 
-Suivi ciblé actualisé sur `7350f700564222c6be884f81ba4dd1246a81fb1d` le 4 octobre 2026. Le distant `006cc1cf1653a64814a6e1b36946ef33ed917c39` passe lint, typecheck, intégration PostgreSQL et couverture ARIA ; navigateurs et unitaires sont encore en cours au relevé. Dependency Integrity reste rouge et CodeQL #101 reste élevée ouverte sur ce SHA. Ces résultats ne qualifient pas le lot local de permissions financières. Le scénario mobile répété historique donne 17 réussites et 3 échecs sur 20, sans retry. Aucune capacité n’est qualifiée en production.
+Suivi ciblé actualisé sur `326c73598` le 4 octobre 2026. Le distant est `81baf60b773e6d536386b4ad45c88dc5989415d8` : sa CI est en cours, Dependency Integrity est rouge, CodeQL #101 élevée reste ouverte. Le lot local de statut/audit a passé 140 tests ciblés et 13 tests PostgreSQL ; 130 migrations, leur replay et un exercice depuis le schéma précédent complet passent. La suite unitaire complète est encore en cours au relevé. Aucun résultat historique ni unitaire ne qualifie une capacité en production. Le scénario mobile répété historique reste à 17 réussites et 3 échecs sur 20, sans retry.
 
 Base d’intégration : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Inventaire statique revalidé le 4 octobre 2026 sur `57d4c445d`, puis correctifs de redaction HTTP Core `1c3be47f6` et des lectures familiales assessments/bilans `43b6c8771`. Les résultats historiques ne qualifient pas automatiquement ce SHA. Le membership familial VERIFIED et sa révocation sont commités ; le portage exhaustif des routes V1 reste incomplet. Aucune ligne n’est QUALIFIÉ PRODUCTION. Tests cités ci-dessous = présents dans le dépôt, sauf exécution explicitement liée à un SHA dans `ci-remediation.md`.
 
@@ -104,3 +104,18 @@ Le mandat de direction impose que le lien familial seul ne donne aucun droit fin
 - [File facture atomique](invoice-email-queue-credential-fixture.md) : nouvelle clé synthétique éphémère, scanner versionné vert ; aucun statut de livraison inventé.
 
 Ces preuves ne ferment ni les parcours E2E par rôle, ni toutes les mutations/audits financiers, ni le sandbox prestataire. Chaque ligne reste PARTIEL ou ABSENT. Les modèles de salles/sites et leur planning transactionnel, backup/restauration, TLS historique, rétention approuvée, rollout et revue du SHA final restent à qualifier.
+
+
+## Preuves récentes ciblées — capacités toujours PARTIEL
+
+| Capacité | Correction | Source et preuve | Limite restante |
+|---|---|---|---|
+| 5, 19, 20 | Permissions financières canoniques et réponse privée | `d298cfb48` : 34 suites / 526 tests ; 3 suites PostgreSQL / 12 tests | CI finale, matrice complète et E2E par rôle non qualifiés |
+| 19, 20 | Refus CSRF sur quatre mutations financières | `0ac1a3e61` : 16 RED puis 12 suites / 180 GREEN avec origine légitime | Campagne browser et autres écrivains à examiner |
+| 18, 30 | Suspension commerciale cohérente sur la seconde route | `81baf60b7` : 1 RED puis 4 suites / 24 GREEN | Aucune réouverture ni service ARIA déclaré livré |
+| 20, 31 | Statut et preuve immuable dans une transaction | `326c73598` : 4 RED puis 140 GREEN ; 13 PostgreSQL GREEN ; ancien schéma 129 migrations puis 130, histoire préservée et interruption/reprise | Création de facture et autres mutations/audits à compléter ; restauration opérationnelle distincte |
+| 31 | TLS public vérifié | 2026-10-04 17:41 UTC : chaîne/hostname/TLS 1.3 valides | Ne prouve pas la rotation/révocation de la clé historique |
+
+Les propriétaires externes, preuves attendues et échéances de gate sont détaillés
+[dans le registre opérationnel](external-gates-20261004.md). Ce registre ne vaut
+ni approbation de sécurité, ni sauvegarde restaurée, ni autorisation de bascule.

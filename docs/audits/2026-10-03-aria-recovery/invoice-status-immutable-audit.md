@@ -48,3 +48,17 @@ Private evidence: `.artifacts/recovery/invoice-status-audit-red-final.log`,
 `invoice-status-green-1791135497/` beneath that private artifact directory.
 Invoice creation, financial delegation lifecycle and all other financial writers
 still require their own complete immutable audit qualification.
+
+## Full predecessor-schema follow-up
+
+On committed source `326c73598`, a second owned tmpfs PostgreSQL instance applied
+the exact 129 predecessor migrations, recorded their file hashes, then created
+one synthetic SENT invoice (total 1000) and one immutable PDF_READ audit. Deploying
+migration 130 and replaying migrations preserved that status, total and old audit
+count. A deliberately interrupted transaction creating INVOICE_SENT rolled back
+without changing the count; a subsequent operation recorded the new action.
+The same three real-DB suites passed again (13 tests). Private evidence:
+`.artifacts/recovery/invoice-status-predecessor-1791135808/`.
+The temporary instance was stopped only after ownership label and tmpfs checks;
+it had no persistent volume. This strengthens synthetic old-schema compatibility,
+but still does not establish production lock duration or backup restoration.
