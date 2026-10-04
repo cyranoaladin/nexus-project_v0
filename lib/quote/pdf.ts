@@ -95,7 +95,7 @@ function sanitize(str: string): string {
   return str
     .replace(/[\u202F\u00A0]/g, ' ')   // non-breaking spaces → regular space
     .replace(/\u2248/g, '~')            // ≈ → ~
-    .replace(/'/g, "'")            // right single quote → apostrophe
+    .replace(/\u2019/g, "'")       // right single quote → apostrophe
     .replace(/[\u201C\u201D]/g, '"')    // smart double quotes → straight
     .replace(/\u2026/g, '...');         // … → ...
 }
