@@ -279,11 +279,12 @@ async function credentialState() {
 }
 
 async function confirmStaleEmailProof() {
+  const newPassword = randomUUID().concat('-Synthetic-42!');
   const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
   try {
     return await confirmPasswordReset(new NextRequest('http://localhost:3000/api/auth/reset-password', {
       method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
-      body: JSON.stringify({ token: emailProof, newPassword: 'Synthetic-new-credential-42!' }),
+      body: JSON.stringify({ token: emailProof, newPassword }),
     }));
   } finally {
     clock.mockRestore();
