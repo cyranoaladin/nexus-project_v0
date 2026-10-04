@@ -38,6 +38,8 @@ export const AUDIT_ACTIONS = [
   'planning.overrides_restored',
   'planning.occurrence_cancelled',
   'planning.occurrence_rescheduled',
+  'account.email_handoff_transferred',
+  'account.email_handoff_discarded',
   'account.invited',
   'account.invitation_resent',
   'account.activated',

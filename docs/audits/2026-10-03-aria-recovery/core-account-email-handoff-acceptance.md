@@ -83,3 +83,30 @@ recovery or an operational process-kill recovery. Core fixture preservation is
 not a Core backup restoration. Typecheck passed. Worker delivery, cross-database
 retry/acknowledgment, scheduling, resend command idempotence and rollout/rollback
 remain open. No SMTP or production operation was performed. Status NOT_READY.
+
+## Worker qualification checkpoint
+
+The first missing-module RED run had zero executed tests; it is not claimed as
+a causal product regression. Two later real-database regressions reproduced
+final-attempt abandonment and transfer after lease expiration: 2 failed, 7
+passed in proof `1791151969`. The corrected worker passed 9, then 13 tests.
+Current proof `1791152213`: 13 PostgreSQL tests passed, including a slow logical
+clock, competing workers, blocked revocation, ineligible issuance, mismatched
+proof and lost acknowledgment with a synthetic destination. Audit of completed
+transfer is written append-only in the same Core acknowledgment transaction.
+
+Jobs are claimed individually with SKIP LOCKED, fixed lease and capped attempts;
+expired final-attempt leases become FAILED_FINAL. Eligibility includes current
+recipient, role, purpose, expiry, account status and proof HMAC equality.
+Core row locks span only the destination enqueue transaction, never a provider
+send; acknowledgment follows destination commit. Processing transactions are
+bounded at 20 seconds with 5 seconds maximum wait. Generic redacted failure codes
+retain encrypted retry work. Existing ARIA type filtering remains unchanged.
+
+The simulated destination Set proves stable issuance replay, not real V1
+Message-ID deduplication or cross-database commit durability. Those tests, runtime
+adapter/scheduler/route wiring, shutdown behavior and alerts remain pending.
+Activation currently uses invitation-before-user mutation order whereas reset
+locks user first: harmonize and test before enabling this worker. No worker is
+wired yet. This checkpoint does not close the account delivery P1 or approve a
+rollout. NOT_READY.

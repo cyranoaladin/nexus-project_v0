@@ -1,8 +1,10 @@
+import { openAccountEmailHandoff, sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { drainAccountEmailHandoffs } from '@/lib/core-v2/accounts/email-handoff-worker';
 /** Real Core PostgreSQL: account issuance must have a recoverable encrypted mail intent. */
 import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { createHousehold, inviteAccount, resendInvitation, requestPasswordReset } from '@/lib/core-v2/services';
-import { setupServiceHarness } from '../helpers/service-harness';
+import { setupServiceHarness, waitForLockWaiter } from '../helpers/service-harness';
 
 const h = setupServiceHarness();
 const previousKey = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
@@ -84,4 +86,153 @@ test('the database rejects a plaintext proof field in the handoff envelope', asy
   expect(databaseCode).toBe('23514');
   const stored = await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { id: job.id } });
   expect(JSON.stringify(stored.payload).includes(issued.rawToken)).toBe(false);
+});
+
+
+test('a failed transfer remains retryable and a recovered transfer uses the original issuance', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 1000);
+  const first = await drainAccountEmailHandoffs(h.client, {
+    now: () => at, owner: 'synthetic-worker-first',
+    transfer: async () => { throw new Error('synthetic-provider-failure'); },
+  });
+  expect(first.retried).toBe(1);
+  const pending = await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { id: issued.handoffId } });
+  expect(pending.status).toBe('RETRY_SCHEDULED');
+  expect(pending.lastError).toBe('ACCOUNT_EMAIL_TRANSFER_FAILED');
+  let sameIssuance = false;
+  const second = await drainAccountEmailHandoffs(h.client, {
+    now: () => new Date(at.getTime() + 60_000), owner: 'synthetic-worker-second',
+    transfer: async (content) => { sameIssuance = content.issuanceId === issued.invitation.id && content.rawToken === issued.rawToken; },
+  });
+  expect(second.completed).toBe(1);
+  expect(await h.client.auditEvent.count({ where: { action: 'account.email_handoff_transferred', subjectId: issued.invitation.id } })).toBe(1);
+  expect(sameIssuance).toBe(true);
+});
+
+test('a revoked invitation is finalized without transferring its proof', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  await h.client.invitation.update({ where: { id: issued.invitation.id }, data: { revokedAt: issued.invitation.createdAt } });
+  let transfers = 0;
+  const result = await drainAccountEmailHandoffs(h.client, {
+    now: () => new Date(issued.invitation.createdAt.getTime() + 1000), owner: 'synthetic-worker-revoked',
+    transfer: async () => { transfers += 1; },
+  });
+  expect(result.discarded).toBe(1);
+  expect(transfers).toBe(0);
+});
+
+
+test('an expired final-attempt lease is finalized instead of disappearing from recovery', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 60_000);
+  await h.client.coreV2JobOutbox.update({ where: { id: issued.handoffId }, data: {
+    status: 'LEASED', attemptCount: 20, leaseOwner: 'synthetic-interrupted-final-worker',
+    leaseExpiresAt: new Date(at.getTime() - 1),
+  } });
+  let transfers = 0;
+  await drainAccountEmailHandoffs(h.client, { now: () => at, owner: 'synthetic-recovery-worker', transfer: async () => { transfers += 1; } });
+  const job = await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { id: issued.handoffId } });
+  expect(job.status).toBe('FAILED_FINAL');
+  expect(job.leaseOwner === null).toBe(true);
+  expect(transfers).toBe(0);
+});
+
+
+test('a worker whose lease has expired does not transfer a pending proof', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 1000);
+  let clockReads = 0; let transfers = 0;
+  const result = await drainAccountEmailHandoffs(h.client, {
+    owner: 'synthetic-expired-worker', limit: 1,
+    now: () => new Date(at.getTime() + (clockReads++ * 31_000)),
+    transfer: async () => { transfers += 1; },
+  });
+  expect(transfers).toBe(0);
+  expect(result.leaseLost).toBe(1);
+});
+
+
+test('revocation waits for the eligible transfer transaction and two workers do not transfer twice', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 1000);
+  let release!: () => void; let entered!: () => void;
+  const barrier = new Promise<void>((resolve) => { release = resolve; });
+  const ready = new Promise<void>((resolve) => { entered = resolve; });
+  let transfers = 0;
+  const first = drainAccountEmailHandoffs(h.client, {
+    now: () => at, owner: 'synthetic-lock-worker',
+    transfer: async () => { transfers += 1; entered(); await barrier; },
+  });
+  await ready;
+  let revoked = false;
+  const revoke = h.client.invitation.update({ where: { id: issued.invitation.id }, data: { revokedAt: at } }).then(() => { revoked = true; });
+  try {
+    await waitForLockWaiter(h.client);
+    expect(revoked).toBe(false);
+    const second = await drainAccountEmailHandoffs(h.client, {
+      now: () => at, owner: 'synthetic-competing-worker', transfer: async () => { transfers += 1; },
+    });
+    expect(second.claimed).toBe(0);
+  } finally { release(); }
+  await Promise.all([first, revoke]);
+  expect(transfers).toBe(1);
+  expect(revoked).toBe(true);
+});
+
+test('a destination commit followed by lost acknowledgment replays the same issuance', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 1000);
+  const committed = new Set<string>();
+  await drainAccountEmailHandoffs(h.client, {
+    now: () => at, owner: 'synthetic-crashed-ack-worker',
+    transfer: async (content) => { committed.add(content.issuanceId); throw new Error('synthetic-lost-ack'); },
+  });
+  const result = await drainAccountEmailHandoffs(h.client, {
+    now: () => new Date(at.getTime() + 60_000), owner: 'synthetic-replay-worker',
+    transfer: async (content) => { committed.add(content.issuanceId); },
+  });
+  expect(result.completed).toBe(1);
+  expect(committed.size).toBe(1);
+});
+
+
+test('an authenticated envelope with the wrong proof is discarded before destination access', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const job = await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { id: issued.handoffId } });
+  const content = openAccountEmailHandoff(job.payload, issued.invitation.id);
+  const envelope = sealAccountEmailHandoff({ ...content, rawToken: 'synthetic_wrong_opaque_proof_256_bits_not_a_credential' });
+  await h.client.coreV2JobOutbox.update({ where: { id: job.id }, data: { payload: envelope } });
+  let transfers = 0;
+  const result = await drainAccountEmailHandoffs(h.client, {
+    now: () => new Date(issued.invitation.createdAt.getTime() + 1000), owner: 'synthetic-mismatched-proof-worker',
+    transfer: async () => { transfers += 1; },
+  });
+  expect(result.discarded).toBe(1);
+  expect(transfers).toBe(0);
+});
+
+
+test('slow sequential destination commits receive fresh leases rather than exhausting later jobs', async () => {
+  const parent = await pendingParent();
+  const first = await inviteAccount(h.client, h.ctx(), parent.id);
+  for (let i = 0; i < 2; i += 1) {
+    const user = await h.client.user.create({ data: { role: 'PARENT', email: `synthetic-slow-handoff-${i}@example.test`, accountStatus: 'PENDING_ACTIVATION' } });
+    await inviteAccount(h.client, h.ctx(), user.id);
+  }
+  let clock = first.invitation.createdAt.getTime() + 1000;
+  const result = await drainAccountEmailHandoffs(h.client, {
+    now: () => new Date(clock), owner: 'synthetic-slow-worker',
+    transfer: async () => { clock += 16_000; },
+  });
+  expect(result.completed).toBe(3);
+  const jobs = await h.client.coreV2JobOutbox.findMany({ where: { aggregateType: 'ACCOUNT_EMAIL_HANDOFF' } });
+  expect(jobs.every((job) => job.attemptCount === 1 && job.status === 'COMPLETED')).toBe(true);
 });
