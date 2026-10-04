@@ -15,6 +15,8 @@ import { changePassword, suspendAccount, disableAccount } from '@/lib/core-v2/se
  *   6. a target holding foreign rows is refused.
  */
 jest.unmock('@/lib/prisma');
+const mockBankTransferAuth = jest.fn();
+jest.mock('@/auth', () => ({ auth: () => mockBankTransferAuth() }));
 
 import { randomInt, randomUUID } from 'node:crypto';
 import { NextRequest } from 'next/server';
@@ -38,6 +40,7 @@ import { buildTargetPlan, objectHash } from '@/scripts/core-v2/migration/transfo
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 import { resolveAssessmentReadAuthority, resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 import { readAuthorizedDocument } from '@/lib/documents/read-authority';
+import { POST as declareBankTransfer } from '@/app/api/payments/bank-transfer/confirm/route';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= 'Africa/Tunis';
 process.env[INVITATION_TTL_ENV] ??= '72';
@@ -476,6 +479,36 @@ describe('legacy academic reads use real Core family authority after migration',
     await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId,
       parentUserId: subject.id, expectedRevision: 1 });
     expect((await readAuthorizedDocument(documentId, subject)).status).toBe('DENIED');
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s cannot declare a V1 child payment using migrated or revoked membership', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    const declare = async (parentId: string) => {
+      mockBankTransferAuth.mockResolvedValue({ user: { id: parentId, role: 'PARENT' } });
+      return declareBankTransfer(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: ids.studentA,
+          termsAccepted: true, termsVersion: '2026-09' }),
+      }));
+    };
+    const parentIds = [ids.parent, subject.id];
+    const paymentsBefore = await v1.payment.count({ where: { userId: { in: parentIds } } });
+    const notificationsBefore = await v1.notification.count({ where: { type: 'BANK_TRANSFER_DECLARED',
+      OR: parentIds.map(parentId => ({ data: { path: ['parentId'], equals: parentId } })) } });
+    expect((await declare(ids.parent)).status).toBe(404);
+    expect((await declare(subject.id)).status).toBe(404);
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'e'.repeat(64) });
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('ALLOWED');
+    // Verified reads are not a cross-store financial write capability.
+    expect((await declare(subject.id)).status).toBe(404);
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 1 });
+    expect((await declare(subject.id)).status).toBe(404);
+    expect(await v1.payment.count({ where: { userId: { in: parentIds } } })).toBe(paymentsBefore);
+    expect(await v1.notification.count({ where: { type: 'BANK_TRANSFER_DECLARED',
+      OR: parentIds.map(parentId => ({ data: { path: ['parentId'], equals: parentId } })) } })).toBe(notificationsBefore);
   });
 
 });

@@ -7,6 +7,7 @@ import { PaymentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { resolveSellablePaymentCatalogItem } from '@/lib/security/payment-catalog';
+import { resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 
 /**
  * POST /api/payments/bank-transfer/confirm
@@ -77,6 +78,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (data.studentId) {
+      const authority = await resolveParentStudentAccess(session.user.id, data.studentId, 'mutation');
+      if (authority.status === 'AUTHORITY_UNAVAILABLE') {
+        return NextResponse.json(
+          { error: 'Autorisation temporairement indisponible', code: 'FAMILY_AUTHORITY_UNAVAILABLE' },
+          { status: 503, headers: { 'cache-control': 'private, no-store' } },
+        );
+      }
+      // Core membership grants reads only until a cross-store write fence exists.
+      if (authority.status !== 'LEGACY_ALLOWED') {
+        return NextResponse.json(
+          { error: 'Élève introuvable ou non autorisé' },
+          { status: 404 },
+        );
+      }
       const parentProfile = await prisma.parentProfile.findUnique({
         where: { userId: session.user.id },
         select: { id: true },

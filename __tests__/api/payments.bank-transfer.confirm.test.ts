@@ -6,11 +6,15 @@
  * Source: app/api/payments/bank-transfer/confirm/route.ts
  */
 
-export {};
+import { NextRequest } from 'next/server';
 
 const mockAuth = jest.fn();
 jest.mock('@/auth', () => ({
   auth: () => mockAuth(),
+}));
+
+jest.mock('@/lib/families/student-access-authority', () => ({
+  resolveParentStudentAccess: jest.fn().mockResolvedValue({ status: 'LEGACY_ALLOWED' }),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -38,7 +42,7 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       createMany: jest.fn(),
     },
-    $transaction: jest.fn((fn: any) => fn({
+    $transaction: jest.fn((fn: (tx: { payment: { create: jest.Mock; findFirst: jest.Mock }; notification: { create: jest.Mock } }) => unknown) => fn({
       payment: {
         create: jest.fn().mockResolvedValue({ id: 'pay-1', status: 'PENDING' }),
         findFirst: jest.fn().mockResolvedValue(null),
@@ -74,12 +78,12 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
 
     // Act
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const request = new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const request = new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: 15000, subscriptionId: 'sub-1' }),
     });
-    const response = await POST(request as any);
+    const response = await POST(request);
 
     // Assert
     expect(response.status).toBe(401);
@@ -91,12 +95,12 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
 
     // Act
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const request = new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const request = new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: 15000, subscriptionId: 'sub-1' }),
     });
-    const response = await POST(request as any);
+    const response = await POST(request);
 
     // Assert
     expect([401, 403]).toContain(response.status);
@@ -109,7 +113,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     (prisma.student.findFirst as jest.Mock).mockResolvedValue(null);
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const request = new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const request = new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -126,7 +130,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       }),
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request);
 
     expect(response.status).toBe(404);
     expect(prisma.payment.create).not.toHaveBeenCalled();
@@ -142,7 +146,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const request = new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const request = new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -156,7 +160,7 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
       }),
     });
 
-    const response = await POST(request as any);
+    const response = await POST(request);
 
     // Cubic P2: proves anti-tampering with the EXACT canonical catalog
     // values (client sent amount:1 / description:'client supplied
@@ -182,10 +186,10 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'payment-1' });
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
-    }) as any);
+    }));
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ type: 'SPECIAL_PACK', status: 'PENDING' }) }));
   });
@@ -197,10 +201,10 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     (prisma.payment.create as jest.Mock).mockResolvedValue({ id: 'duplicate' });
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', termsAccepted: true, termsVersion: '2026-09' }),
-    }) as any);
+    }));
     expect(await response.json()).toMatchObject({ paymentId: 'historical-pack', alreadyExists: true });
     expect(prisma.payment.create).not.toHaveBeenCalled();
   });
@@ -208,10 +212,10 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
     const { prisma } = await import('@/lib/prisma');
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'addon', key: 'MATIERE_SUPPLEMENTAIRE', studentId: 'student-1', termsAccepted: true, termsVersion: '2026-09' }),
-    }) as any);
+    }));
     expect(response.status).toBe(409);
     expect(await response.json()).toMatchObject({ code: 'SALE_SUSPENDED' });
     expect(prisma.payment.create).not.toHaveBeenCalled();
@@ -220,10 +224,10 @@ describe('POST /api/payments/bank-transfer/confirm', () => {
     mockAuth.mockResolvedValue(mockSession('PARENT', 'parent-1'));
     const { prisma } = await import('@/lib/prisma');
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'pack', key: 'CREDIT_PACK_10', termsAccepted: true, termsVersion: '2026-09' }),
-    }) as any);
+    }));
     expect(response.status).toBe(400);
     expect(prisma.payment.create).not.toHaveBeenCalled();
   });
@@ -243,7 +247,7 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
   });
 
   function requestFor(type: 'subscription' | 'addon' | 'pack', key: string) {
-    return new Request('http://localhost/api/payments/bank-transfer/confirm', {
+    return new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -263,7 +267,7 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(requestFor('subscription', 'HYBRIDE') as any);
+    const response = await POST(requestFor('subscription', 'HYBRIDE'));
     const body = await response.json();
 
     expect(response.status).toBe(409);
@@ -278,7 +282,7 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     (prisma.student.findFirst as jest.Mock).mockResolvedValue({ id: 'student-1' });
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(requestFor('addon', 'MATIERE_SUPPLEMENTAIRE') as any);
+    const response = await POST(requestFor('addon', 'MATIERE_SUPPLEMENTAIRE'));
     const body = await response.json();
 
     expect(response.status).toBe(409);
@@ -296,7 +300,7 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     (prisma.user.findMany as jest.Mock).mockResolvedValue([]);
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    const response = await POST(requestFor('pack', 'GRAND_ORAL') as any);
+    const response = await POST(requestFor('pack', 'GRAND_ORAL'));
 
     expect(response.status).toBe(200);
     expect(prisma.payment.create).toHaveBeenCalled();
@@ -307,7 +311,7 @@ describe('POST /api/payments/bank-transfer/confirm — sale suspension (P0-ARIA-
     const { prisma } = await import('@/lib/prisma');
 
     const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
-    await POST(requestFor('subscription', 'HYBRIDE') as any);
+    await POST(requestFor('subscription', 'HYBRIDE'));
 
     expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
     expect(prisma.student.findFirst).not.toHaveBeenCalled();
@@ -326,10 +330,10 @@ it('preserves the accepted historical CGV version when an existing transfer is r
   const historicalPayment = Object.freeze({ id: 'historical-payment', termsVersion: 'CGV v1.0 – 2026-03-01', termsAcceptedAt: acceptedAt });
   (prisma.payment.findFirst as jest.Mock).mockResolvedValue(historicalPayment);
   expect(CGV_VERSION).not.toBe(historicalPayment.termsVersion);
-  const response = await POST(new Request('http://localhost/api/payments/bank-transfer/confirm', {
+  const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: 'student-1', termsAccepted: true, termsVersion: CGV_VERSION }),
-  }) as any);
+  }));
   expect(response.status).toBe(200);
   expect(await response.json()).toMatchObject({ paymentId: 'historical-payment', alreadyExists: true });
   expect(prisma.payment.create).not.toHaveBeenCalled();
