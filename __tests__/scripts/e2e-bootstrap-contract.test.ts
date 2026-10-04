@@ -8,6 +8,26 @@ const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
 
 describe('ephemeral E2E bootstrap contract', () => {
+  it('shares diagnostic fixture storage between the writer and the standalone reader', () => {
+    const compose = parse(read('docker-compose.e2e.yml')) as { services: Record<string, { environment: Record<string, string>; volumes: string[] }> };
+    const app = compose.services['app-e2e'];
+    const runner = compose.services['playwright'];
+    expect(runner.environment.DOCUMENT_STORAGE_ROOT).toBe(app.environment.DOCUMENT_STORAGE_ROOT);
+    const volume = app.volumes.find(value => value.endsWith(`:${app.environment.DOCUMENT_STORAGE_ROOT}`));
+    expect(volume).toBeDefined();
+    expect(runner.volumes).toContain(volume);
+    expect(app.environment.E2E_DISPOSABLE_STACK).toBe('1');
+    expect(app.environment.DIAGNOSTIC_AV_MODE).toBe('disabled');
+  });
+
+  it('compiles the same Jitsi fixture origin used by the isolated runtime', () => {
+    const compose = parse(read('docker-compose.e2e.yml')) as { services: Record<string, { environment: Record<string, string> }> };
+    const origin = compose.services['app-e2e'].environment.NEXT_PUBLIC_JITSI_SERVER_URL;
+    const builder = read('Dockerfile.e2e').split('FROM base AS runner')[0];
+    expect(builder).toContain(`ENV NEXT_PUBLIC_JITSI_SERVER_URL=${origin}`);
+    expect(builder.indexOf('ENV NEXT_PUBLIC_JITSI_SERVER_URL=')).toBeLessThan(builder.indexOf('RUN npm run build:base'));
+  });
+
   it('pins the Playwright runner to the same approved Node and npm contract', () => {
     const dockerfile = read('Dockerfile.playwright');
 
