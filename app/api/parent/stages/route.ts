@@ -3,7 +3,8 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { hasUserEmail } from '@/lib/contact/user-email';
+import { resolveParentStudentListAccess } from '@/lib/families/list-access-authority';
+import { familyStageReservationSelect, privateStageReadHeaders } from '@/lib/stages/family-read-projection';
 import {
   currentParentLinkIsVerified,
   currentParentLinkOrderBy,
@@ -17,22 +18,16 @@ export async function GET() {
   try {
     const parent = await prisma.parentProfile.findUnique({
       where: { userId: sessionOrError.user.id },
-      include: {
-        children: {
-          select: {
-            id: true,
-            user: { select: { firstName: true, lastName: true, email: true } },
-          },
-        },
-      },
+      select: { id: true },
     });
 
-    if (!parent) {
-      return NextResponse.json({ reservations: [], bilans: [], coachBilans: [] });
-    }
-
-    const childEmails = parent.children.map((c) => c.user.email).filter(hasUserEmail);
-    const childIds = parent.children.map((c) => c.id);
+    const empty = { reservations: [], bilans: [], coachBilans: [] };
+    if (!parent) return NextResponse.json(empty, { headers: privateStageReadHeaders });
+    const access = await resolveParentStudentListAccess(sessionOrError.user.id, parent.id);
+    if (access.unavailable) return NextResponse.json({ error: 'Autorité familiale indisponible.' },
+      { status: 503, headers: privateStageReadHeaders });
+    const childIds = [...access.studentIds];
+    if (childIds.length === 0) return NextResponse.json(empty, { headers: privateStageReadHeaders });
 
     // The unified Bilan model (coachBilans below) is served through
     // GET /api/parent/bilans/[id]/pdf, which requires a currently VERIFIED
@@ -58,17 +53,10 @@ export async function GET() {
 
     const reservations = await prisma.stageReservation.findMany({
       where: {
-        email: { in: childEmails },
+        studentId: { in: childIds },
         richStatus: 'CONFIRMED',
       },
-      include: {
-        stage: {
-          include: {
-            sessions: { orderBy: { startAt: 'asc' } },
-            documents: { where: { isPublic: true } },
-          },
-        },
-      },
+      select: familyStageReservationSelect,
     });
 
     // Legacy: StageBilan (older stages)
@@ -119,9 +107,9 @@ export async function GET() {
       orderBy: { publishedAt: 'desc' },
     });
 
-    return NextResponse.json({ reservations, bilans, coachBilans });
-  } catch (error) {
-    console.error('[GET /api/parent/stages]', error instanceof Error ? error.message : 'unknown');
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    return NextResponse.json({ reservations, bilans, coachBilans }, { headers: privateStageReadHeaders });
+  } catch {
+    console.error('[GET /api/parent/stages]', { code: 'PARENT_STAGE_READ_FAILED' });
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500, headers: privateStageReadHeaders });
   }
 }

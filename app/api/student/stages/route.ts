@@ -3,33 +3,24 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { familyStageReservationSelect, privateStageReadHeaders } from '@/lib/stages/family-read-projection';
 
 export async function GET() {
   const sessionOrError = await requireRole('ELEVE');
   if (sessionOrError instanceof NextResponse) return sessionOrError;
 
-  const userEmail = sessionOrError.user.email;
-  if (!userEmail) return NextResponse.json({ error: 'Identité élève invalide.' }, { status: 401 });
+  const userId = sessionOrError.user.id;
+  if (!userId) return NextResponse.json({ error: 'Identité élève invalide.' }, { status: 401, headers: privateStageReadHeaders });
 
   try {
+    const student = await prisma.student.findUnique({ where: { userId }, select: { id: true } });
+    if (!student) return NextResponse.json({ error: 'Profil élève introuvable.' }, { status: 404, headers: privateStageReadHeaders });
     const reservations = await prisma.stageReservation.findMany({
       where: {
-        email: userEmail,
+        studentId: student.id,
         richStatus: 'CONFIRMED',
       },
-      include: {
-        stage: {
-          include: {
-            sessions: { orderBy: { startAt: 'asc' } },
-            documents: { where: { isPublic: true } },
-            coaches: { include: { coach: { select: { pseudonym: true } } } },
-          },
-        },
-      },
-    });
-
-    const student = await prisma.student.findFirst({
-      where: { user: { email: userEmail } },
+      select: familyStageReservationSelect,
     });
 
     const bilans = student
@@ -78,9 +69,9 @@ export async function GET() {
         })
       : [];
 
-    return NextResponse.json({ reservations, bilans, coachBilans });
-  } catch (error) {
-    console.error('[GET /api/student/stages]', error instanceof Error ? error.message : 'unknown');
-    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
+    return NextResponse.json({ reservations, bilans, coachBilans }, { headers: privateStageReadHeaders });
+  } catch {
+    console.error('[GET /api/student/stages]', { code: 'STUDENT_STAGE_READ_FAILED' });
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500, headers: privateStageReadHeaders });
   }
 }

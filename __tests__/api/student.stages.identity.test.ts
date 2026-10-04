@@ -3,8 +3,8 @@ jest.mock('@/lib/prisma', () => ({ prisma: { stageReservation: { findMany: jest.
 import { GET } from '@/app/api/student/stages/route';
 import { requireRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-it('fails closed for a student session without the identifier required by the legacy stage lookup', async () => {
-  (requireRole as jest.Mock).mockResolvedValue({ user: { id: 'student-1', role: 'ELEVE', email: null } });
+it('fails closed for a student session without the canonical user identifier', async () => {
+  (requireRole as jest.Mock).mockResolvedValue({ user: { id: '', role: 'ELEVE', email: 'synthetic@example.test' } });
   expect((await GET()).status).toBe(401);
   expect(prisma.stageReservation.findMany).not.toHaveBeenCalled();
 });
