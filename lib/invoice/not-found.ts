@@ -9,8 +9,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { emailTrustSelect, hasTrustedAccountEmail } from '@/lib/auth/email-trust';
+import type { Prisma } from '@prisma/client';
 
 /** Canonical 404 JSON body — frozen, never varies. */
 const NOT_FOUND_BODY = { error: 'NOT_FOUND' } as const;
@@ -41,14 +40,12 @@ export function notFoundResponse(): NextResponse {
 export function buildInvoiceScopeWhere(
   id: string,
   role: string | undefined,
-  email: string | null | undefined
-): Record<string, unknown> | null {
+  _email: string | null | undefined
+): Prisma.InvoiceWhereInput | null {
   if (role === 'ADMIN' || role === 'ASSISTANTE') {
     return { id };
   }
-  if (role === 'PARENT' && email) {
-    return { id, customerEmail: email, status: { not: 'DRAFT' } };
-  }
+  // Email-only callers cannot establish financial authority.
   return null;
 }
 
@@ -61,13 +58,13 @@ type InvoiceAccessUser = {
 /**
  * Build a Prisma WHERE clause scoped to the authenticated user.
  *
- * Parent access is based on child beneficiary user ids when available, with a
- * legacy customerEmail fallback for older invoices that predate beneficiaryUserId.
+ * Parent financial access requires an explicit payer or active invoice delegation.
+ * Legacy invoices remain private until their payer is independently established.
  */
 export async function buildInvoiceAccessWhere(
   id: string,
   user: InvoiceAccessUser
-): Promise<Record<string, unknown> | null> {
+): Promise<Prisma.InvoiceWhereInput | null> {
   const scope = await buildInvoiceListAccessWhere(user);
   return scope ? { id, ...scope } : null;
 }
@@ -75,44 +72,26 @@ export async function buildInvoiceAccessWhere(
 /** Same ownership policy for listings and individual PDF/receipt access. */
 export async function buildInvoiceListAccessWhere(
   user: InvoiceAccessUser
-): Promise<Record<string, unknown> | null> {
+): Promise<Prisma.InvoiceWhereInput | null> {
   if (user.role === 'ADMIN' || user.role === 'ASSISTANTE') {
     return {};
   }
 
-  if (user.role !== 'PARENT') {
+  if (user.role !== 'PARENT' || !user.id) {
     return null;
   }
 
-  const parentProfile = await prisma.parentProfile.findUnique({
-    where: { userId: user.id },
-    select: {
-      children: {
-        select: { userId: true },
-      },
-    },
-  });
-
-  const childUserIds = parentProfile?.children
-    .map((child) => child.userId)
-    .filter((childUserId): childUserId is string => Boolean(childUserId)) ?? [];
-
-  const ownershipFilters: Record<string, unknown>[] = [];
-  if (childUserIds.length > 0) {
-    ownershipFilters.push({ beneficiaryUserId: { in: childUserIds } });
-  }
-  if (user.email) {
-    const account = await prisma.user.findUnique({
-      where: { id: user.id }, select: { email: true, ...emailTrustSelect },
-    });
-    if (account?.email === user.email && hasTrustedAccountEmail(account)) {
-      ownershipFilters.push({ customerEmail: account.email });
-    }
-  }
-
-  if (ownershipFilters.length === 0) {
-    return null;
-  }
-
-  return { status: { not: 'DRAFT' }, OR: ownershipFilters };
+  const now = new Date();
+  return {
+    status: { not: 'DRAFT' },
+    OR: [
+      { payerUserId: user.id },
+      { financialDelegations: { some: {
+        delegateUserId: user.id,
+        revokedAt: null,
+        startsAt: { lte: now },
+        expiresAt: { gt: now },
+      } } },
+    ],
+  };
 }

@@ -251,6 +251,9 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
+  payerInvoices    Invoice[] @relation("InvoicePayer")
+  invoiceFinancialDelegations InvoiceFinancialDelegation[] @relation("InvoiceFinancialDelegate")
+  invoiceFinancialAudits InvoiceFinancialAccessAudit[] @relation("InvoiceFinancialAuditActor")
 
   // Documents
   documents         UserDocument[] @relation("UserDocuments")
@@ -3392,6 +3395,12 @@ model Invoice {
   // Beneficiary (the student/user who receives the entitlements)
   beneficiaryUserId String?
 
+  // Financial authority is explicit; beneficiary/email never establish a payer.
+  payerUserId String?
+  payer User? @relation("InvoicePayer", fields: [payerUserId], references: [id], onDelete: Restrict)
+  financialDelegations InvoiceFinancialDelegation[]
+  financialAccessAudits InvoiceFinancialAccessAudit[]
+
   // Relations
   items        InvoiceItem[]
   accessTokens InvoiceAccessToken[]
@@ -3400,11 +3409,50 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, payerUserId])
+  @@index([payerUserId, status])
   @@index([status])
   @@index([customerEmail])
   @@index([issuedAt])
   @@index([createdByUserId])
   @@map("invoices")
+}
+
+// Explicit invoice-only financial delegation. Composite FK pins the payer.
+model InvoiceFinancialDelegation {
+  id String @id @default(cuid())
+  invoiceId String
+  payerUserId String
+  delegateUserId String
+  requestKey String @unique
+  startsAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  invoice Invoice @relation(fields: [invoiceId, payerUserId], references: [id, payerUserId], onDelete: Restrict, onUpdate: Restrict)
+  delegate User @relation("InvoiceFinancialDelegate", fields: [delegateUserId], references: [id], onDelete: Restrict)
+  audits InvoiceFinancialAccessAudit[]
+
+  @@unique([id, invoiceId])
+  @@index([invoiceId, delegateUserId, revokedAt, expiresAt])
+  @@map("invoice_financial_delegations")
+}
+
+// Append-only events; no payload, email, token or document content.
+model InvoiceFinancialAccessAudit {
+  id String @id @default(cuid())
+  invoiceId String
+  delegationId String?
+  actorUserId String
+  action String
+  requestKey String @unique
+  occurredAt DateTime @default(now())
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  delegation InvoiceFinancialDelegation? @relation(fields: [delegationId, invoiceId], references: [id, invoiceId], onDelete: Restrict, onUpdate: Restrict)
+  actor User @relation("InvoiceFinancialAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId, occurredAt])
+  @@map("invoice_financial_access_audits")
 }
 
 // InvoiceItem — Ligne de facture

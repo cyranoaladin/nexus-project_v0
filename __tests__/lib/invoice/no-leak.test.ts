@@ -45,12 +45,8 @@ describe('buildInvoiceScopeWhere', () => {
     expect(buildInvoiceScopeWhere(id, 'ASSISTANTE', null)).toEqual({ id });
   });
 
-  it('PARENT with email → returns { id, customerEmail }', () => {
-    expect(buildInvoiceScopeWhere(id, 'PARENT', 'parent@test.com')).toEqual({
-      id,
-      customerEmail: 'parent@test.com',
-      status: { not: 'DRAFT' },
-    });
+  it('PARENT with email alone → denied without payer authority', () => {
+    expect(buildInvoiceScopeWhere(id, 'PARENT', 'parent@test.com')).toBeNull();
   });
 
   it('PARENT without email → returns null (no access)', () => {

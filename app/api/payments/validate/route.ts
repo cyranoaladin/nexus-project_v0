@@ -331,6 +331,8 @@ export async function POST(request: NextRequest) {
             paidAmount: amountMillimes,
             createdByUserId: session.user.id,
             beneficiaryUserId: beneficiaryUserId,
+            payerUserId: payment.userId,
+            financialAccessAudits: { create: { actorUserId: session.user.id, action: 'PAYER_ASSIGNED', requestKey: `payment:${payment.id}:payer` } },
             events: JSON.parse(JSON.stringify([
               createInvoiceEvent('INVOICE_CREATED', session.user.id, `Facture auto-générée pour paiement ${payment.id}`),
               createInvoiceEvent('INVOICE_PAID', session.user.id, `Paiement validé — virement bancaire`),

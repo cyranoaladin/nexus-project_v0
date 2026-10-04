@@ -159,6 +159,8 @@ describe('POST /api/payments/validate — P0-04 entitlement bridge', () => {
     expect(activateEntitlements).toHaveBeenCalledWith('invoice-1', tx);
     const invoiceCreateArg = tx.invoice.create.mock.calls[0][0];
     expect(invoiceCreateArg.data.beneficiaryUserId).toBe('child-user-1');
+    expect(invoiceCreateArg.data.payerUserId).toBe('parent-user-1');
+    expect(invoiceCreateArg.data.financialAccessAudits.create).toEqual({ actorUserId: 'admin-1', action: 'PAYER_ASSIGNED', requestKey: 'payment:pay-test-1:payer' });
     expect(invoiceCreateArg.data.items.create[0].productCode).toBe('STAGE_MATHS_P1');
   });
 });
