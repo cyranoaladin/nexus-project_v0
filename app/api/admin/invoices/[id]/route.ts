@@ -180,7 +180,7 @@ export async function PATCH(
         // 1. Update invoice status + fields
         updateData.events = JSON.parse(JSON.stringify(events)) as Prisma.InputJsonValue;
         const inv = await tx.invoice.update({
-          where: { id: invoice.id },
+          where: { id: invoice.id, status: currentStatus },
           data: updateData,
           select: {
             id: true, number: true, status: true, updatedAt: true,
@@ -267,7 +267,7 @@ export async function PATCH(
     // Non-terminal transitions: simple update (no revocation needed)
     updateData.events = JSON.parse(JSON.stringify(events)) as Prisma.InputJsonValue;
     const updated = await prisma.invoice.update({
-      where: { id: invoice.id },
+      where: { id: invoice.id, status: currentStatus },
       data: updateData,
       select: {
         id: true, number: true, status: true, updatedAt: true,
@@ -279,6 +279,13 @@ export async function PATCH(
     return privateFinancialJson(updated, { status: 200 });
 
   } catch (error) {
+    // A state-conditional Invoice update lost its snapshot race (or the row
+    // disappeared after the authorized read). Other Prisma failures stay errors.
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025'
+      && 'meta' in error && error.meta && typeof error.meta === 'object'
+      && 'modelName' in error.meta && error.meta.modelName === 'Invoice') {
+      return privateFinancialJson({ error: 'État de facture modifié. Rechargez avant de réessayer.' }, { status: 409 });
+    }
     if (error instanceof LegacyCreditPurchaseError) {
       return privateFinancialJson({ code: error.code, error: error.message }, { status: 409 });
     }
