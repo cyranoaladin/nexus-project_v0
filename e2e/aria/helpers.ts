@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext, type Page, type Request } from '@
 import { randomUUID } from 'node:crypto';
 import { loginAsUser, type UserType } from '../helpers/auth';
 import { observeSubmittedRequest } from '../helpers/request-completion';
+import { installAriaTransportProbe } from '../helpers/aria-transport-probe';
 
 const fixtureBaseUrl = process.env.ARIA_E2E_FIXTURE_BASE_URL ?? '';
 const fixtureAdminToken = process.env.ARIA_E2E_FIXTURE_ADMIN_TOKEN ?? '';
@@ -65,6 +66,7 @@ export async function sendFromComposer(page: Page, content: string): Promise<voi
 
 /** A normal turn must finish its own HTTP body before a navigation or next send. */
 export async function sendFromComposerAndFinishTransport(page: Page, content: string): Promise<void> {
+  const probe = await installAriaTransportProbe(page);
   const transport = observeSubmittedRequest<Request>(page, (request) => {
     const url = new URL(request.url());
     return request.method() === 'POST' && url.pathname === '/api/aria/chat'
@@ -81,6 +83,17 @@ export async function sendFromComposerAndFinishTransport(page: Page, content: st
       const terminal = await transport.completion;
       expect(terminal.request).toBe(request);
       if (terminal.status === 'FAILED') {
+        const observation = await probe.snapshot();
+        const observations = [
+          observation.signalAborted ? 'signal-aborted' : 'no-signal-abort',
+          observation.headersReceived ? 'headers-received' : 'no-headers',
+          observation.dialogPresent ? 'dialog-present' : 'dialog-missing',
+          observation.composerEnabled ? 'composer-enabled' : 'composer-disabled',
+          observation.alertPresent ? 'alert-present' : 'no-alert',
+        ];
+        for (const observationPhase of observations) {
+          await test.step(`ARIA_PHASE:transport:probe:${observationPhase}`, async () => {});
+        }
         const phase = request.failure()?.errorText === 'net::ERR_ABORTED' ? 'aborted' : 'failed';
         await test.step(`ARIA_PHASE:transport:${phase}`, async () => {
           throw new Error(phase === 'aborted' ? 'ARIA_CHAT_TRANSPORT_ABORTED' : 'ARIA_CHAT_TRANSPORT_FAILED');
@@ -88,7 +101,10 @@ export async function sendFromComposerAndFinishTransport(page: Page, content: st
       }
       expect(terminal.status, 'The normal ARIA HTTP body must finish without a transport error').toBe('FINISHED');
     });
-  } finally { transport.dispose(); }
+  } finally {
+    transport.dispose();
+    await probe.dispose();
+  }
 }
 
 export async function postConversation(
