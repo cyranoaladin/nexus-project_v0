@@ -11,7 +11,7 @@ const router = { replace };
 const search = new URLSearchParams();
 let mockPathname = '/dashboard/admin';
 jest.mock('next/navigation', () => ({ useRouter: () => router, usePathname: () => mockPathname, useSearchParams: () => search }));
-beforeEach(() => { replace.mockClear(); mockPathname = '/dashboard/admin'; });
+beforeEach(() => { replace.mockReset(); mockPathname = '/dashboard/admin'; });
 
 // Browser channel semantics: messages reach other instances, never their
 // sender. The actual installed SessionProvider and refresh code are unmocked.
@@ -113,6 +113,10 @@ function LogoutProbe({ redirect = false }: { redirect?: boolean }) {
 }
 
 it.each([false, true])('a confirmed protected logout has one navigation owner and honors redirect=%s', async redirect => {
+  let navigationBeforeShellRetirement = false;
+  replace.mockImplementation(() => {
+    navigationBeforeShellRetirement = screen.queryByRole('button', { name: 'Logout transport' }) !== null;
+  });
   const originalFetch = global.fetch;
   const originalChannel = global.BroadcastChannel;
   global.BroadcastChannel = BrowserChannel as unknown as typeof BroadcastChannel;
@@ -134,6 +138,7 @@ it.each([false, true])('a confirmed protected logout has one navigation owner an
     expect(signedOut).toBe(true);
     expect(replace).toHaveBeenCalledTimes(redirect ? 1 : 0);
     if (redirect) expect(replace).toHaveBeenCalledWith('/auth/signin');
+    expect(navigationBeforeShellRetirement).toBe(false);
   } finally {
     view.unmount(); global.fetch = originalFetch; global.BroadcastChannel = originalChannel;
   }
