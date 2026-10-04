@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { refuseUnauthorizedParentAriaRead, privateParentAriaResponse } from '@/lib/families/parent-aria-read-boundary';
 import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { getAriaNextBestActionForParent } from '@/lib/aria/application/mastery/get-next-best-action-for-parent';
 import { createLogger } from '@/lib/middleware/logger';
@@ -15,11 +16,13 @@ export async function GET(
   try {
     const session = await auth();
 
-    if (!session?.user || session.user.role !== 'PARENT') {
-      return unauthorizedAriaResponse(logger);
+    if (!session?.user.id || session.user.role !== 'PARENT') {
+      return privateParentAriaResponse(unauthorizedAriaResponse(logger));
     }
 
     const { studentId } = await context.params;
+    const refusal = await refuseUnauthorizedParentAriaRead(session.user.id, studentId);
+    if (refusal) return refusal;
     const { searchParams } = new URL(request.url);
     const courseKey = searchParams.get('courseKey');
 
@@ -32,8 +35,8 @@ export async function GET(
       studentId,
       courseKey,
     });
-    return NextResponse.json({ studentId, courseKey, action });
+    return privateParentAriaResponse(NextResponse.json({ studentId, courseKey, action }));
   } catch (error) {
-    return toAriaErrorResponse(error, logger);
+    return privateParentAriaResponse(toAriaErrorResponse(error, logger));
   }
 }

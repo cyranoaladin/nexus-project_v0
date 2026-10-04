@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { refuseUnauthorizedParentAriaRead, privateParentAriaResponse } from '@/lib/families/parent-aria-read-boundary';
 import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { listAriaWorkshopsForParent } from '@/lib/aria/application/workshop/list-workshops-for-parent';
 import { createLogger } from '@/lib/middleware/logger';
@@ -14,11 +15,13 @@ export async function GET(
   const logger = createLogger(request);
   try {
     const session = await auth();
-    if (!session?.user || session.user.role !== 'PARENT') {
-      return unauthorizedAriaResponse(logger);
+    if (!session?.user.id || session.user.role !== 'PARENT') {
+      return privateParentAriaResponse(unauthorizedAriaResponse(logger));
     }
 
     const { studentId } = await context.params;
+    const refusal = await refuseUnauthorizedParentAriaRead(session.user.id, studentId);
+    if (refusal) return refusal;
     const { searchParams } = new URL(request.url);
     const courseKey = searchParams.get('courseKey');
     if (!courseKey) {
@@ -30,8 +33,8 @@ export async function GET(
       studentId,
       courseKey,
     });
-    return NextResponse.json({ studentId, courseKey, workshops });
+    return privateParentAriaResponse(NextResponse.json({ studentId, courseKey, workshops }));
   } catch (error) {
-    return toAriaErrorResponse(error, logger);
+    return privateParentAriaResponse(toAriaErrorResponse(error, logger));
   }
 }

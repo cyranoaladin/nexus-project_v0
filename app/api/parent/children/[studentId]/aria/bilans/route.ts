@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { refuseUnauthorizedParentAriaRead, privateParentAriaResponse } from '@/lib/families/parent-aria-read-boundary';
 import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
 import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
 import { createLogger } from '@/lib/middleware/logger';
@@ -14,17 +15,19 @@ export async function GET(
   const logger = createLogger(request);
   try {
     const session = await auth();
-    if (!session?.user || session.user.role !== 'PARENT') {
-      return unauthorizedAriaResponse(logger);
+    if (!session?.user.id || session.user.role !== 'PARENT') {
+      return privateParentAriaResponse(unauthorizedAriaResponse(logger));
     }
 
     const { studentId } = await context.params;
+    const refusal = await refuseUnauthorizedParentAriaRead(session.user.id, studentId);
+    if (refusal) return refusal;
     const bilans = await listAriaPeriodicBilansForParent({
       actor: { userId: session.user.id, role: session.user.role },
       studentId,
     });
-    return NextResponse.json({ studentId, bilans });
+    return privateParentAriaResponse(NextResponse.json({ studentId, bilans }));
   } catch (error) {
-    return toAriaErrorResponse(error, logger);
+    return privateParentAriaResponse(toAriaErrorResponse(error, logger));
   }
 }
