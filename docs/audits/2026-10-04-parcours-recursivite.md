@@ -50,10 +50,18 @@ Release en production : `/var/www/nexus-releases/a35be9fde-espace-recursivite-20
 
 ## Risques restants
 
-- **Fumée authentifiée de production non faite.** Pour ne modifier aucun vrai travail, elle exige des comptes techniques neufs ; leur création en base de production (tunnel + rôle d'exécution) a été refusée par le garde-fou de la session. Le parcours est donc vérifié en production côté anonyme et par identité de release, et côté authentifié sur un build identique en pile jetable. À exécuter une fois les comptes créés (commandes dans le rapport de session).
+- *(résolu le soir même, voir « Clôture » ci-dessous)* fumée authentifiée de production.
 - La limite de profondeur de l'atelier (200) diffère de Python standard (≈ 1 000) : annoncé dans le parcours.
 - Pas de paquet de secours hors ligne pour ce parcours (le plan de secours du 3 octobre couvre POO 2 et Maths).
 
 ## Rollback
 
 Pointeur canonique vers `/var/www/nexus-releases/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart nexus-prod`. La ligne `espace_activities` et le PDF restent (inertes sans le code) ; ne rien supprimer.
+
+## Clôture (2026-10-04, soir)
+
+Voir `docs/espace/DEPLOIEMENT.md` §10. Résumé : release finale `cabf20ce1-espace-recursivite-cloture-20261004T1718Z` (`BUILD_ID` `xn0iUwo3EQGN24uuPiQLq`) basculée avec verrou et compare-and-swap ; fumée authentifiée de production 8/8 avec les comptes techniques `val.*` existants (réactivés puis refermés) ; compte enseignant réel 2/2 en lecture seule ; empreintes des données réelles identiques avant/après ; plan de secours Récursivité testé sans réseau ; garde catalogue ↔ base (`audit-activities`) ; durcissement de la détection récursive et reformulation de la limite de 200 appels (bac à sable Nexus).
+
+Tests de la clôture : TypeScript 0 erreur, lint 0 erreur (avertissements préexistants hors périmètre) ; unitaires 1 149 suites / 13 498 tests, dont une suite (`architecture/npc-storage-contract`) dont le worker est parfois tué (SIGTERM) en exécution groupée et qui passe 23/23 isolément (intermittence constatée, non liée à ce chantier) ; un échec réel trouvé puis corrigé (inventaire des mutations `User` : réactivation technique) ; intégration `espace-*` 8 suites / 147 tests, E2E Chromium 39/39 sur le build du commit servi, plan de secours 6/6 (requêtes externes bloquées), fumée de production 8/8 + 2/2.
+
+Risque restant : la **publication distante** des sources est refusée par le garde-fou de la session ; branche prête : `release/espace-recursivite-2026-10-04` (historique anonymisé).
