@@ -1,10 +1,12 @@
-const path = require('node:path');
-const ROOT = path.resolve(__dirname, '../..');
+let path;
+let ROOT;
 const COMMAND = 'npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change.spec.ts password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0';
 let loadWorkflow;
 let qualifyAccountSecurityRepeat;
 let sanitizePlaywrightReport;
 beforeAll(async () => {
+  path = await import('node:path');
+  ROOT = path.resolve(__dirname, '../..');
   ({ loadWorkflow } = await import('../../scripts/github/lib/aria-ci-contract.mjs'));
   ({ qualifyAccountSecurityRepeat } = await import('../../scripts/testing/check-account-security-repeat.mjs'));
   ({ sanitizePlaywrightReport } = await import('../../scripts/testing/safe-playwright-report.mjs'));
@@ -76,4 +78,31 @@ test.each([
 ])('qualification refuses %s even if other summary counts are green', (_name, mutate) => {
   const report = successfulReport(); mutate(report);
   expect(() => qualifyAccountSecurityRepeat(report)).toThrow('ACCOUNT_SECURITY_REPEAT_EVIDENCE_INVALID');
+});
+
+
+test('privacy publisher retains only fixed ARIA phase timings and redacts nested diagnostics', () => {
+  const raw = { config: { rootDir: '/synthetic/repo/e2e/aria' }, errors: [], stats: {},
+    suites: [{ specs: [{ file: 'visual-a11y.spec.ts', title: 'E019 visual',
+      tests: [{ projectName: 'aria-mobile', results: [{ status: 'timedOut', steps: [
+        { title: 'ARIA_PHASE:rag:send', duration: 12, steps: [
+          { title: 'ARIA_PHASE:transport:request', duration: 3 },
+          { title: 'PRIVATE_PHASE_CANARY', duration: 4, steps: [
+            { title: 'ARIA_PHASE:transport:body', duration: 29, error: { message: 'PRIVATE_ERROR_CANARY' } },
+          ] },
+        ] },
+        { title: 'ARIA_PHASE:rag:alert', duration: 6 },
+      ] }] }] }] }],
+  };
+  const report = sanitizePlaywrightReport(raw);
+  const result = report.suites[0].specs[0].tests[0].results[0];
+  expect(result.phases).toEqual([
+    { phase: 'ARIA_PHASE:rag:send', duration: 12, failed: false },
+    { phase: 'ARIA_PHASE:transport:request', duration: 3, failed: false },
+    { phase: 'ARIA_PHASE:transport:body', duration: 29, failed: true },
+    { phase: 'ARIA_PHASE:rag:alert', duration: 6, failed: false },
+  ]);
+  expect(JSON.stringify(report)).not.toContain('PRIVATE_PHASE_CANARY');
+  expect(JSON.stringify(report)).not.toContain('PRIVATE_ERROR_CANARY');
+  expect(sanitizePlaywrightReport(report)).toEqual(report);
 });

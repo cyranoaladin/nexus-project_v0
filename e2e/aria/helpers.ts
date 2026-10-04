@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext, type Page, type Request } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page, type Request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { loginAsUser, type UserType } from '../helpers/auth';
 
@@ -70,11 +70,13 @@ export async function sendFromComposerAndFinishTransport(page: Page, content: st
       && url.origin === new URL(page.url()).origin
       && request.postDataJSON()?.content === content;
   });
-  await sendFromComposer(page, content);
-  const response = await (await chatRequest).response();
+  await test.step('ARIA_PHASE:transport:send', () => sendFromComposer(page, content));
+  const request = await test.step('ARIA_PHASE:transport:request', () => chatRequest);
+  const response = await test.step('ARIA_PHASE:transport:response', () => request.response());
   expect(response, 'The submitted ARIA turn must receive its own response').not.toBeNull();
   expect(response!.status(), 'The normal ARIA transport must be accepted').toBe(200);
-  expect(await response!.finished(), 'The normal ARIA HTTP body must finish without a transport error').toBeNull();
+  const transportError = await test.step('ARIA_PHASE:transport:body', () => response!.finished());
+  expect(transportError, 'The normal ARIA HTTP body must finish without a transport error').toBeNull();
 }
 
 export async function postConversation(

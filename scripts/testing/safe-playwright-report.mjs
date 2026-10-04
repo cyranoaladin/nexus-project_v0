@@ -67,6 +67,32 @@ function visualAttachments(value, allowed) {
   });
 }
 
+const phasePattern = /^ARIA_PHASE:(?:transport:(?:send|request|response|body)|(?:rag|timeout):(?:send|alert)|capture:(?:ready|streaming|citations-visible|history-loaded|feedback-submitted|rag-unavailable|timeout-error|course-unavailable):(?:layout|axe|screenshot))$/;
+
+function phases(input) {
+  const output = [];
+  const visit = values => {
+    for (const value of array(values)) {
+      const step = record(value);
+      if (typeof step.title === 'string' && phasePattern.test(step.title)) {
+        output.push({ phase: step.title, duration: number(step.duration), failed: Boolean(step.error) });
+      }
+      visit(step.steps);
+    }
+  };
+  visit(input.steps);
+  // Preserve only previously sealed, fixed-label diagnostics on resealing.
+  if (output.length === 0) {
+    for (const value of array(input.phases)) {
+      const phase = record(value);
+      if (typeof phase.phase === 'string' && phasePattern.test(phase.phase)) {
+        output.push({ phase: phase.phase, duration: number(phase.duration), failed: phase.failed === true });
+      }
+    }
+  }
+  return output;
+}
+
 function result(value, visualAllowed) {
   const input = record(value);
   const attachments = visualAttachments(input.attachments, visualAllowed);
@@ -76,7 +102,7 @@ function result(value, visualAllowed) {
     workerIndex: number(input.workerIndex), parallelIndex: number(input.parallelIndex),
     errors: errors(input.errors),
     ...(input.error ? { error: { message: 'PRIVATE_DIAGNOSTIC_REDACTED' } } : {}),
-    stdout: [], stderr: [], attachments,
+    stdout: [], stderr: [], attachments, phases: phases(input),
     attachmentCount: total, excludedAttachmentCount: total - attachments.length,
   };
 }

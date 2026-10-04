@@ -227,9 +227,9 @@ describe('ARIA disposable browser qualification harness', () => {
       visual.indexOf('async function captureState'),
       visual.indexOf('async function qualifyVisualViewport'),
     );
-    const layout = capture.indexOf('await assertQualifiedLayout(page)');
-    const axe = capture.indexOf('await assertNoSeriousOrCriticalA11y(page)');
-    const screenshot = capture.indexOf('await page.screenshot(');
+    const layout = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:layout`, () => assertQualifiedLayout(page))');
+    const axe = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:axe`, () => assertNoSeriousOrCriticalA11y(page))');
+    const screenshot = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:screenshot`, () => page.screenshot(');
     const attachment = capture.indexOf('await testInfo.attach(');
     expect(layout).toBeGreaterThanOrEqual(0);
     expect(axe).toBeGreaterThan(layout);

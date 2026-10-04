@@ -98,12 +98,12 @@ async function assertQualifiedLayout(page: Page) {
 }
 
 async function captureState(page: Page, testInfo: TestInfo, viewport: VisualViewport, state: string) {
-  await assertQualifiedLayout(page);
-  await assertNoSeriousOrCriticalA11y(page);
-  const screenshot = await page.screenshot({
+  await test.step(`ARIA_PHASE:capture:${state}:layout`, () => assertQualifiedLayout(page));
+  await test.step(`ARIA_PHASE:capture:${state}:axe`, () => assertNoSeriousOrCriticalA11y(page));
+  const screenshot = await test.step(`ARIA_PHASE:capture:${state}:screenshot`, () => page.screenshot({
     animations: 'disabled',
     scale: 'css',
-  });
+  }));
   await testInfo.attach(`aria-${viewport.id}-${state}`, {
     body: screenshot,
     contentType: 'image/png',
@@ -150,14 +150,16 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(useful).toHaveAttribute('aria-pressed', 'true');
     await captureState(page, testInfo, viewport, 'feedback-submitted');
 
-    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable);
-    await expect(page.getByRole('dialog').getByRole('alert'))
-      .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
+    await test.step('ARIA_PHASE:rag:send', () =>
+      sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable));
+    await test.step('ARIA_PHASE:rag:alert', () =>
+      expect(page.getByRole('dialog').getByRole('alert')).toHaveText('Les sources pédagogiques sont temporairement indisponibles.'));
     await captureState(page, testInfo, viewport, 'rag-unavailable');
 
-    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.modelTimeout);
-    await expect(page.getByRole('dialog').getByRole('alert'))
-      .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
+    await test.step('ARIA_PHASE:timeout:send', () =>
+      sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.modelTimeout));
+    await test.step('ARIA_PHASE:timeout:alert', () =>
+      expect(page.getByRole('dialog').getByRole('alert')).toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.'));
     await captureState(page, testInfo, viewport, 'timeout-error');
     await page.waitForLoadState('networkidle');
 
