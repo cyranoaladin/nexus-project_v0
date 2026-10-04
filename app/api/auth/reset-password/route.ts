@@ -95,12 +95,12 @@ export async function POST(request: NextRequest) {
 
     // Determine action: request or confirm
     if (isConfirmation) {
-      return handleConfirmReset(body);
+      return await handleConfirmReset(body);
     }
-    return handleRequestReset(body, request);
-  } catch (error) {
+    return await handleRequestReset(body, request);
+  } catch {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('[reset-password] Error:', error instanceof Error ? error.message : 'unknown');
+      console.error('PASSWORD_RESET_REQUEST_FAILED');
     }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
@@ -163,9 +163,9 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
       return true;
     });
     if (queued) kickEmailOutboxDrain();
-  } catch (dbError) {
+  } catch {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('[reset-password] DB error:', dbError instanceof Error ? dbError.message : 'unknown');
+      console.error('PASSWORD_RESET_DISPATCH_FAILED');
     }
   }
 
