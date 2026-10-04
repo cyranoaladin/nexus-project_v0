@@ -148,6 +148,14 @@ export async function POST(request: NextRequest) {
     const subtotal = computedItems.reduce((sum, item) => sum + item.total, 0);
     const discountTotal = body.discountTotal ?? 0;
     const taxRegime: TaxRegime = body.taxRegime ?? 'TVA_NON_APPLICABLE';
+    // Prisma Int maps to signed PostgreSQL int4. Reject invalid derived amounts
+    // before allocating a number, starting a transaction or rendering a PDF.
+    const maxStoredAmount = 2_147_483_647;
+    if (computedItems.some(item => !Number.isSafeInteger(item.total) || item.total > maxStoredAmount)
+      || !Number.isSafeInteger(subtotal) || subtotal > maxStoredAmount
+      || discountTotal > subtotal) {
+      return validationFailed();
+    }
     const totalBeforeTaxDisplay = subtotal - discountTotal;
     const taxTotal = taxRegime === 'TVA_INCLUSE'
       ? totalBeforeTaxDisplay - Math.round(totalBeforeTaxDisplay / 1.06)

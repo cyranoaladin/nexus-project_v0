@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { POST } from '@/app/api/admin/invoices/route';
-import { renderInvoicePDF } from '@/lib/invoice';
+import { renderInvoicePDF, generateInvoiceNumber } from '@/lib/invoice';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/invoice', () => ({
   ...jest.requireActual('@/lib/invoice/types'),
@@ -25,10 +25,10 @@ beforeEach(() => {
   });
   (prisma.invoiceFinancialAccessAudit.create as jest.Mock).mockResolvedValue({ id: 'synthetic-audit' });
 });
-function request() {
+function request(overrides: Record<string, unknown> = {}) {
   return POST(new NextRequest('https://nexusreussite.academy/api/admin/invoices', {
     method: 'POST', body: JSON.stringify({ customer: { name: 'Synthetic fixture' },
-      items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 1000 }] }),
+      items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 1000 }], ...overrides }),
   }));
 }
 it('commits creation evidence with the invoice before preparing a PDF', async () => {
@@ -47,4 +47,28 @@ it('does not prepare or expose a PDF when creation evidence fails', async () => 
   try { expect((await request()).status).toBe(500); }
   finally { logger.mockRestore(); }
   expect(renderInvoicePDF).not.toHaveBeenCalled();
+});
+
+it.each([
+  { discountTotal: 1001 },
+  { items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 2147483648 }] },
+  { items: [{ label: 'Synthetic fixture', qty: 100, unitPrice: 2147483647 }] },
+  { items: Array.from({ length: 2 }, () => ({ label: 'Synthetic fixture', qty: 1, unitPrice: 1500000000 })) },
+])('rejects invalid derived monetary amounts before number allocation or persistence: %j', async overrides => {
+  const response = await request(overrides);
+  expect(response.status).toBe(400);
+  expect(response.headers.get('cache-control')).toContain('no-store');
+  expect(generateInvoiceNumber).not.toHaveBeenCalled();
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+  expect(renderInvoicePDF).not.toHaveBeenCalled();
+});
+
+it.each([
+  { discountTotal: 1000 },
+  { items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 2147483647 }] },
+])('accepts the zero-after-discount and int4 boundaries: %j', async overrides => {
+  expect((await request(overrides)).status).toBe(201);
+  expect(prisma.invoice.create).toHaveBeenCalledWith(expect.objectContaining({
+    data: expect.objectContaining({ total: overrides.discountTotal ? 0 : 2147483647 }),
+  }));
 });
