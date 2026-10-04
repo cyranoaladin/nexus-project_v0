@@ -65,6 +65,41 @@ test('connexion réelle du compte enseignant, accueil et liste des élèves', as
   expect((await page.request.get('/api/espace/teacher/overview?activity=nsi-poo-structures-lineaires')).status()).toBeLessThan(400);
 });
 
+test('comptes de validation invisibles : effectifs, file « À corriger », accueil de chaque activité, statistiques', async ({ page }) => {
+  const { username, password } = teacherCreds();
+  await page.goto('/espace/connexion');
+  await page.getByTestId('input-username').fill(username);
+  await page.getByTestId('input-secret').fill(password);
+  await page.getByTestId('btn-connexion').click();
+  await page.waitForURL(/\/espace\/enseignant/, { timeout: 30_000 });
+  const FORBIDDEN = /TECHNIQUE|Validation technique|\bval\.[a-z0-9]+\b/i;
+
+  // Liste des élèves : exactement les 13 vrais élèves.
+  await page.goto('/espace/enseignant/eleves');
+  await expect(page.getByTestId('student-row')).toHaveCount(13);
+  expect(await page.locator('main').innerText()).not.toMatch(FORBIDDEN);
+
+  // File « À corriger » : aucun travail technique, même remis.
+  await page.goto('/espace/enseignant/a-corriger');
+  expect(await page.locator('main').innerText()).not.toMatch(FORBIDDEN);
+
+  // Accueil de chaque activité : lignes et compteurs sans comptes techniques.
+  for (const slug of ['nsi-poo-objets-qui-agissent', 'nsi-poo-structures-lineaires', 'nsi-recursivite', 'maths-suites-synthese', 'maths-fonctions-limites']) {
+    await page.goto(`/espace/enseignant?activite=${slug}`);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    expect(await page.locator('main').innerText(), slug).not.toMatch(FORBIDDEN);
+    const api = await page.request.get(`/api/espace/teacher/overview?activity=${slug}`);
+    expect(api.status(), slug).toBe(200);
+    const overview = (await api.json()) as { counts: { students: number }; rows: { name: string }[] };
+    expect(overview.counts.students, slug).toBe(overview.rows.length);
+    expect(overview.rows.map((r) => r.name).filter((n) => FORBIDDEN.test(n)), slug).toEqual([]);
+  }
+
+  // Séances : aucune séance technique.
+  await page.goto('/espace/enseignant/seances');
+  expect(await page.locator('main').innerText()).not.toMatch(FORBIDDEN);
+});
+
 test('une session anonyme n’accède à aucune de ces ressources', async ({ browser }) => {
   const ctx = await browser.newContext();
   try {
