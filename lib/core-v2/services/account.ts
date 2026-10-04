@@ -104,6 +104,7 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
   return inTransaction(client, async (tx) => {
+    await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
     const open = await tx.invitation.count({ where: { userId, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null, expiresAt: { gt: ctx.now() } } });
@@ -120,6 +121,7 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
   return inTransaction(client, async (tx) => {
+    await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
     const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent');
@@ -176,6 +178,9 @@ export async function activateAccount(
   if (!tokenHash) throw new NotFoundError('Invitation not found or no longer valid.');
 
   return inTransaction(client, async (tx) => {
+    const initial = await tx.invitation.findUnique({ where: { tokenHash }, select: { userId: true } });
+    if (!initial) throw new NotFoundError('Invitation not found or no longer valid.');
+    await lockAccountLifecycle(tx, initial.userId);
     const invitation = await tx.invitation.findUnique({ where: { tokenHash } });
     if (!invitation || invitation.purpose !== 'ACTIVATION') throw new NotFoundError('Invitation not found or no longer valid.');
     const at = now();
@@ -317,8 +322,8 @@ export async function changePassword(
   });
 }
 
-/** All password-reset writers lock User before Invitation, preventing lock-order deadlocks. */
-async function lockPasswordAccount(tx: Tx, userId: string): Promise<void> {
+/** Account lifecycle writers lock User before Invitation, matching handoff recovery. */
+async function lockAccountLifecycle(tx: Tx, userId: string): Promise<void> {
   await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${userId} FOR UPDATE`;
 }
 
@@ -360,7 +365,7 @@ export async function requestPasswordReset(
   return inTransaction(client, async (tx) => {
     const found = await tx.user.findUnique({ where: { email }, select: { id: true } });
     if (!found) return null;
-    await lockPasswordAccount(tx, found.id);
+    await lockAccountLifecycle(tx, found.id);
     const user = await tx.user.findUnique({ where: { id: found.id } });
     if (!user || user.accountStatus !== 'ACTIVE' || !user.password || !user.email) return null;
     const at = now();
@@ -435,7 +440,7 @@ export async function confirmPasswordReset(
   return inTransaction(client, async (tx) => {
     const found = await tx.invitation.findUnique({ where: { tokenHash }, select: { userId: true } });
     if (!found) throw new NotFoundError('Reset link not found or no longer valid.');
-    await lockPasswordAccount(tx, found.userId);
+    await lockAccountLifecycle(tx, found.userId);
     const reset = await tx.invitation.findUnique({ where: { tokenHash } });
     if (!reset || reset.purpose !== 'PASSWORD_RESET') throw new NotFoundError('Reset link not found or no longer valid.');
     const at = now();

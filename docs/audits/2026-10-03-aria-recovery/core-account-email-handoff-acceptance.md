@@ -110,3 +110,20 @@ Activation currently uses invitation-before-user mutation order whereas reset
 locks user first: harmonize and test before enabling this worker. No worker is
 wired yet. This checkpoint does not close the account delivery P1 or approve a
 rollout. NOT_READY.
+
+## Account lock-order correction
+
+The initial contention test had an omitted import (proof 1791152307); that
+is a harness failure and not the product RED. After fixing the import, proof
+1791152351 reproduced 1 failed / 13 passed: activation and recovery could not
+both finish in their expected terminal state under two observed lock waiters.
+Account invite, resend, activation and reset now acquire the user lock before
+mutating invitations. Activation rereads the invitation after acquiring the
+lock. The corrected test passed in proof 1791152400 (14 tests), then the broader
+real-Core account and HTTP campaign passed in 1791152437: 6 suites / 70 tests.
+
+The rehearsal runner now captures Core output in memory and persists only
+aggregate counts, failure source paths and an output hash. Raw account proof
+values are not saved by this lane. No arbitrary sleep was added to production;
+the contention test polls actual PostgreSQL lock state with a bounded deadline.
+Cross-database destination and runtime recovery wiring are still pending.

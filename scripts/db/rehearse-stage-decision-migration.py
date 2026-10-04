@@ -7,7 +7,9 @@ parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
 parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
+parser.add_argument('--include-core-account-foundations',action='store_true',help='Also run related real-Core account and HTTP suites with aggregate-only logs')
 args=parser.parse_args()
+if args.include_core_account_foundations and not args.include_core_account_handoff: raise SystemExit('CORE_HANDOFF_REHEARSAL_REQUIRED')
 if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_SHA_REQUIRED')
 if subprocess.run(['git','merge-base','--is-ancestor',args.old_ref,'HEAD'],capture_output=True).returncode: raise SystemExit('OLD_REF_NOT_ANCESTOR')
 root=Path.cwd(); out=root/'.artifacts/recovery'/('stage-lead-decision-green-'+str(int(time.time())))
@@ -102,8 +104,18 @@ try:
   run_private('core-handoff-schema-deploy',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
   run_private('core-expanded-native-rows',core_fixture+['verify',core_hash],core_env)
   run_private('core-expanded-schema-replay',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
-  with open(out/'core-account-handoff-private.log','w') as f:
-   p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns=account-email-handoff.test'],env=core_env,stdout=f,stderr=subprocess.STDOUT)
+  pattern='account-email-handoff.test'
+  if args.include_core_account_foundations:
+   pattern='services/(account-email-handoff|account|staff-account)\\.test|http/(staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
+  p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns='+pattern],env=core_env,capture_output=True,text=True)
+  combined=p.stdout+'\n'+p.stderr
+  safe=[]
+  for line in combined.splitlines():
+   if line.startswith(('Test Suites:', 'Tests:', 'Snapshots:', 'Time:')): safe.append(line)
+   elif re.fullmatch(r'FAIL __tests__/[A-Za-z0-9_./-]+(?: \(.*\))?',line): safe.append(line.split(' (',1)[0])
+  safe.append('OUTPUT_SHA256='+hashlib.sha256(combined.encode()).hexdigest())
+  (out/'core-account-handoff-summary.log').write_text('\n'.join(safe)+'\n')
+  for line in safe: print(line)
   print('CORE_ACCOUNT_HANDOFF_TEST_EXIT='+str(p.returncode))
   if p.returncode: raise RuntimeError('CORE_ACCOUNT_HANDOFF_TEST_FAILED')
 finally:

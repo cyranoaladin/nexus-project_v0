@@ -3,8 +3,8 @@ import { drainAccountEmailHandoffs } from '@/lib/core-v2/accounts/email-handoff-
 /** Real Core PostgreSQL: account issuance must have a recoverable encrypted mail intent. */
 import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
-import { createHousehold, inviteAccount, resendInvitation, requestPasswordReset } from '@/lib/core-v2/services';
-import { setupServiceHarness, waitForLockWaiter } from '../helpers/service-harness';
+import { activateAccount, createHousehold, inviteAccount, resendInvitation, requestPasswordReset } from '@/lib/core-v2/services';
+import { setupServiceHarness, waitForLockWaiter, holdOpenTransaction } from '../helpers/service-harness';
 
 const h = setupServiceHarness();
 const previousKey = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
@@ -235,4 +235,37 @@ test('slow sequential destination commits receive fresh leases rather than exhau
   expect(result.completed).toBe(3);
   const jobs = await h.client.coreV2JobOutbox.findMany({ where: { aggregateType: 'ACCOUNT_EMAIL_HANDOFF' } });
   expect(jobs.every((job) => job.attemptCount === 1 && job.status === 'COMPLETED')).toBe(true);
+});
+
+
+test('activation and handoff recovery use a compatible lock order under contention', async () => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const at = new Date(issued.invitation.createdAt.getTime() + 1000);
+  const held = await holdOpenTransaction(h.client, async (tx) => {
+    await tx.$queryRaw`SELECT id FROM invitations WHERE id = ${issued.invitation.id} FOR UPDATE`;
+  });
+  const activation = activateAccount(h.client, { rawToken: issued.rawToken, password: 'syntheticActivationPassword_42' }, { now: () => at });
+  const activationSettled = Promise.allSettled([activation]);
+  let recovery: ReturnType<typeof drainAccountEmailHandoffs> | undefined;
+  let transfers = 0;
+  try {
+    await waitForLockWaiter(h.client);
+    recovery = drainAccountEmailHandoffs(h.client, {
+      now: () => at, owner: 'synthetic-activation-concurrency-worker', transfer: async () => { transfers += 1; },
+    });
+    const deadline = Date.now() + 5000;
+    while (true) {
+      const rows = await h.client.$queryRaw<Array<{ count: number }>>`SELECT count(*)::int AS count FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'`;
+      if (rows[0].count >= 2) break;
+      if (Date.now() >= deadline) throw new Error('SYNTHETIC_TWO_LOCK_WAITERS_NOT_OBSERVED');
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+  } finally { await held.release(); }
+  const settled = await activationSettled;
+  const result = await recovery!;
+  expect(settled[0].status).toBe('fulfilled');
+  expect(result.discarded).toBe(1);
+  expect(result.retried).toBe(0);
+  expect(transfers).toBe(0);
 });
