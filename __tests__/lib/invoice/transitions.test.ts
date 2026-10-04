@@ -205,8 +205,8 @@ describe('canPerformStatusAction — RBAC', () => {
     expect(canPerformStatusAction('ADMIN')).toBe(true);
   });
 
-  it('ASSISTANTE can perform status actions', () => {
-    expect(canPerformStatusAction('ASSISTANTE')).toBe(true);
+  it('ASSISTANTE PAYMENT READ does not authorize status writes', () => {
+    expect(canPerformStatusAction('ASSISTANTE')).toBe(false);
   });
 
   it('PARENT cannot perform status actions', () => {

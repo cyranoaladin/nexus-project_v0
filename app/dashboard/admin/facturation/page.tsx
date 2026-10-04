@@ -1,6 +1,6 @@
 'use client';
 
-import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
+import { useCanonicalSession, useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useState, useEffect, useCallback } from 'react';
 import {
   FileText,
@@ -18,6 +18,7 @@ import {
   XCircle,
   CreditCard,
 } from 'lucide-react';
+import { can } from '@/lib/rbac';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -140,6 +141,8 @@ const NEXUS_PRESETS: ProductPreset[] = [
 
 export default function FacturationPage() {
   const fetch = useProtectedFetch();
+  const { data: session } = useCanonicalSession();
+  const canWrite = !!session?.user?.id && can(session.user.role, 'UPDATE', 'PAYMENT');
   // List state
   const [invoices, setInvoices] = useState<InvoiceListItem[]>([]);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 20, total: 0, totalPages: 0 });
@@ -257,6 +260,7 @@ export default function FacturationPage() {
   }
 
   async function handleCreate() {
+    if (!canWrite) return;
     const error = validateForm();
     if (error) {
       setFormError(error);
@@ -325,6 +329,7 @@ export default function FacturationPage() {
     action: 'MARK_SENT' | 'MARK_PAID' | 'CANCEL',
     meta?: Record<string, unknown>
   ) {
+    if (!canWrite) return;
     setActionLoading(invoiceId);
     setActionError(null);
     try {
@@ -383,16 +388,16 @@ export default function FacturationPage() {
         <div>
           <h1 className="text-xl font-bold text-neutral-100">Facturation</h1>
           <p className="text-sm text-neutral-500 mt-1">
-            Gestion des factures — Création, suivi, téléchargement.
+            {canWrite ? 'Gestion des factures — Création, suivi, téléchargement.' : 'Consultation des factures — Suivi et téléchargement autorisés.'}
           </p>
         </div>
-        <button
+        {canWrite && <button
           onClick={() => { resetForm(); setShowForm(true); }}
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Nouvelle facture
-        </button>
+        </button>}
       </div>
 
       {/* Filters */}
@@ -497,7 +502,7 @@ export default function FacturationPage() {
                       <Loader2 className="h-3.5 w-3.5 animate-spin text-neutral-500" />
                     ) : (
                       <>
-                        {inv.status === 'DRAFT' && (
+                        {canWrite && inv.status === 'DRAFT' && (
                           <>
                             <button
                               onClick={() => handleMarkSent(inv)}
@@ -515,7 +520,7 @@ export default function FacturationPage() {
                             </button>
                           </>
                         )}
-                        {inv.status === 'SENT' && (
+                        {canWrite && inv.status === 'SENT' && (
                           <>
                             <button
                               onClick={() => handleOpenPayModal(inv)}
@@ -578,7 +583,7 @@ export default function FacturationPage() {
       </div>
 
       {/* ─── Create Invoice Modal ──────────────────────────────────────── */}
-      {showForm && (
+      {canWrite && showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-neutral-700 bg-surface-card p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
@@ -787,7 +792,7 @@ export default function FacturationPage() {
             </div>
 
             {/* Preview Panel */}
-            {showPreview && (
+            {canWrite && showPreview && (
               <div className="rounded-lg border border-brand-primary/30 bg-brand-primary/5 p-4 mb-6">
                 <h3 className="text-xs font-medium uppercase tracking-wider text-brand-primary mb-3">
                   Aperçu avant génération
@@ -868,7 +873,7 @@ export default function FacturationPage() {
       )}
 
       {/* ─── Modal: Marquer payée ──────────────────────────────────────── */}
-      {showPayModal && (
+      {canWrite && showPayModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-2xl w-full max-w-md p-6 space-y-5">
             <div>

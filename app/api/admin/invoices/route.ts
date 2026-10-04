@@ -2,12 +2,13 @@
  * POST /api/admin/invoices — Create invoice + atomic number + PDF + store.
  * GET  /api/admin/invoices — List invoices (paginated).
  *
- * Access: ADMIN, ASSISTANTE only.
+ * Read: authorized staff. Write: canonical PAYMENT UPDATE permission.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'node:path';
 import { auth } from '@/auth';
+import { canPerformStatusAction } from '@/lib/invoice/transitions';
 import { prisma } from '@/lib/prisma';
 import { UserRole, type InvoiceItem, type Prisma } from '@prisma/client';
 import { z } from 'zod';
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userRole = (session.user as { role?: string }).role;
-    if (!hasStaffAccess(userRole)) {
+    if (!canPerformStatusAction(userRole)) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
