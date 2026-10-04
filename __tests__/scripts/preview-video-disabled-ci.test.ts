@@ -63,6 +63,13 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(smoke).toContain('prisma.sessionBooking.delete(');
   });
 
+  it('creates the canonical student profile and parent ownership before testing disabled video', () => {
+    const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
+    expect(smoke).toContain('parentProfile: { select: { id: true } }');
+    expect(smoke).toContain("fail('VIDEO_BROWSER_PARENT_PROFILE_MISSING')");
+    expect(smoke).toContain('student: { create: { parentId: user.parentProfile.id, gradeLevel:');
+  });
+
   it('keeps the disposable booking within one calendar day and always attempts user cleanup', () => {
     const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
     expect(smoke).toContain('const endTime = `${hour}:59`');
