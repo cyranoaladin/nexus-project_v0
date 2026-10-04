@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { escapeMarkdownTableText } from './markdown-table.cjs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -642,7 +643,7 @@ function anomalyList({ linkFindings, orphans, sitemapFindings, clientPages, busi
 function mdTable(headers, rows) {
   const line = `| ${headers.join(' | ')} |`;
   const sep = `| ${headers.map(() => '---').join(' | ')} |`;
-  return [line, sep, ...rows.map((row) => `| ${row.map((cell) => String(cell).replace(/\n/g, '<br>').replace(/\|/g, '\\|')).join(' | ')} |`)].join('\n');
+  return [line, sep, ...rows.map((row) => `| ${row.map((cell) => escapeMarkdownTableText(String(cell)).replace(/\n/g, '<br>')).join(' | ')} |`)].join('\n');
 }
 
 function renderSiteMap(data) {

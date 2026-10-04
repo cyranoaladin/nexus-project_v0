@@ -11,6 +11,7 @@
  */
 
 import { readFileSync } from 'fs';
+import { escapeMarkdownTableText } from '../../../../scripts/audit/markdown-table.cjs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -130,8 +131,8 @@ for (const m of models) {
   out.push('| Champ | Déclaration complète |');
   out.push('|-------|---------------------|');
   for (const f of fields) {
-    // Escape pipes in the raw string
-    const escaped = f.raw.replace(/\|/g, '\\|');
+    // Escape original backslashes and table separators in a single pass.
+    const escaped = escapeMarkdownTableText(f.raw);
     // Extract field name (first word)
     const nameMatch = f.raw.match(/^(\w+)\s/);
     const name = nameMatch ? nameMatch[1] : f.raw;
