@@ -20,7 +20,7 @@ export async function POST(
   context: RouteContext,
 ): Promise<NextResponse> {
   const session = await auth();
-  if (!session || session.user.role !== 'PARENT') return notFound();
+  if (!session?.user.id || session.user.role !== 'PARENT') return notFound();
 
   const csrfResponse = checkCsrf(request);
   if (csrfResponse !== null) return csrfResponse;
@@ -39,6 +39,11 @@ export async function POST(
     });
     if (!result.success) {
       if (result.error === 'NOT_FOUND') return notFound();
+      if (result.error === 'AUTHORITY_UNAVAILABLE') {
+        return NextResponse.json({ error: 'FAMILY_AUTHORITY_UNAVAILABLE' }, {
+          status: 503, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' },
+        });
+      }
       return NextResponse.json({ error: 'STUDENT_ALREADY_ACTIVE' }, { status: 409 });
     }
 

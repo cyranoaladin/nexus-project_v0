@@ -2,6 +2,7 @@ jest.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: jest.fn(),
     user: { findFirst: jest.fn() },
+    student: { findUnique: jest.fn() },
     stageReservation: { findFirst: jest.fn() },
   },
 }));
@@ -30,6 +31,7 @@ describe('initial student activation owned by a parent', () => {
     jest.clearAllMocks();
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
     (prisma.$transaction as jest.Mock).mockImplementation(async (action) => action(transaction));
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1', userId: 'child-user-1', parent: { userId: 'parent-user-1' } });
     transaction.parentProfile.findUnique.mockResolvedValue({ id: 'parent-profile-1' });
     transaction.$queryRaw.mockResolvedValue([{ id: 'student-1' }]);
     transaction.student.findFirst.mockResolvedValue({

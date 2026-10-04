@@ -15,6 +15,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import { resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 import { newPasswordSchema } from '@/lib/security/password-policy';
 import { setStudentChosenCourses } from '@/lib/curriculum/enrollment';
 import bcrypt from 'bcryptjs';
@@ -58,7 +59,7 @@ export type ParentOwnedActivationResult =
     }>
   | Readonly<{
       success: false;
-      error: 'NOT_FOUND' | 'ALREADY_ACTIVATED';
+      error: 'NOT_FOUND' | 'ALREADY_ACTIVATED' | 'AUTHORITY_UNAVAILABLE';
     }>;
 
 export type StudentTrackMetadata = {
@@ -360,6 +361,12 @@ export async function initiateParentOwnedStudentActivation(input: Readonly<{
   parentUserId: string;
   studentId: string;
 }>): Promise<ParentOwnedActivationResult> {
+  const authority = await resolveParentStudentAccess(input.parentUserId, input.studentId, 'mutation');
+  if (authority.status === 'AUTHORITY_UNAVAILABLE') {
+    return { success: false, error: 'AUTHORITY_UNAVAILABLE' };
+  }
+  // A Core read snapshot cannot authorize a token mutation in the separate legacy store.
+  if (authority.status !== 'LEGACY_ALLOWED') return { success: false, error: 'NOT_FOUND' };
   const prepared = await prisma.$transaction(async (transaction) => {
     const parent = await transaction.parentProfile.findUnique({
       where: { userId: input.parentUserId },

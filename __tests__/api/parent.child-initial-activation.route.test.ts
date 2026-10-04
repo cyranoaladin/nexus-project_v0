@@ -118,3 +118,13 @@ describe('POST /api/parent/children/[studentId]/activation', () => {
     log.mockRestore();
   });
 });
+
+it('returns a private 503 when canonical family authority is unavailable', async () => {
+  mockAuth.mockResolvedValue({ user: { id: 'synthetic-parent', role: 'PARENT' } });
+  mockCheckCsrf.mockReturnValue(null);
+  mockInitiate.mockResolvedValue({ success: false, error: 'AUTHORITY_UNAVAILABLE' });
+  const response = await POST(request(), context);
+  expect(response.status).toBe(503);
+  expect(await response.json()).toEqual({ error: 'FAMILY_AUTHORITY_UNAVAILABLE' });
+  expect(response.headers.get('cache-control')).toContain('no-store');
+});
