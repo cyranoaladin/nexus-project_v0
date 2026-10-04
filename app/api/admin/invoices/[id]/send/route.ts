@@ -32,13 +32,13 @@ const MAX_EMAILS_PER_24H = 3;
 const NOT_FOUND = Object.freeze({ error: 'Facture introuvable' });
 
 /**
- * Count INVOICE_SENT_EMAIL events in the last 24h from the events array.
+ * Count queued and historically sent invoice email events in the last 24h from the events array.
  */
 function countRecentSendEvents(events: unknown): number {
   if (!Array.isArray(events)) return 0;
   const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   return (events as Array<{ type?: string; at?: string }>).filter(
-    (e) => e.type === 'INVOICE_SENT_EMAIL' && typeof e.at === 'string' && e.at >= cutoff
+    (e) => (e.type === 'INVOICE_SENT_EMAIL' || e.type === 'INVOICE_EMAIL_QUEUED') && typeof e.at === 'string' && e.at >= cutoff
   ).length;
 }
 
@@ -130,7 +130,7 @@ export async function POST(
     // ─── Append audit events (structured details) ─────────────────────
     let events: InvoiceEvent[] = appendInvoiceEvent(
       invoice.events,
-      createInvoiceEvent('INVOICE_SENT_EMAIL', session.user.id, {
+      createInvoiceEvent('INVOICE_EMAIL_QUEUED', session.user.id, {
         to: recipientEmail,
         tokenExpiresAt: expiresAt.toISOString(),
       })
@@ -152,10 +152,11 @@ export async function POST(
     // ─── Response ─────────────────────────────────────────────────────
     return NextResponse.json({
       success: true,
+      deliveryStatus: 'QUEUED',
       sentTo: recipientEmail,
       expiresAt: expiresAt.toISOString(),
       expiryHours: TOKEN_EXPIRY_HOURS,
-    }, { status: 200 });
+    }, { status: 202 });
 
   } catch {
     console.error('INVOICE_EMAIL_REQUEST_FAILED');

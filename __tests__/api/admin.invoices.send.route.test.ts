@@ -29,7 +29,7 @@ jest.mock('@/lib/invoice/send-email', () => ({
 
 import { POST } from '@/app/api/admin/invoices/[id]/send/route';
 import { auth } from '@/auth';
-import { canPerformStatusAction, createAccessToken } from '@/lib/invoice';
+import { canPerformStatusAction, createAccessToken, createInvoiceEvent } from '@/lib/invoice';
 import { sendInvoiceEmail } from '@/lib/invoice/send-email';
 import { NextRequest } from 'next/server';
 
@@ -141,7 +141,9 @@ describe('POST /api/admin/invoices/[id]/send', () => {
     const res = await POST(...makeRequest('inv-1'));
     const body = await res.json();
 
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(202);
+    expect(body.deliveryStatus).toBe('QUEUED');
+    expect(createInvoiceEvent).toHaveBeenCalledWith('INVOICE_EMAIL_QUEUED', 'a1', expect.objectContaining({ to: 'payer@example.invalid' }));
     expect(body.success).toBe(true);
     expect(body.sentTo).toBe('payer@example.invalid');
     expect(mockSendEmail).toHaveBeenCalledWith(
@@ -178,4 +180,21 @@ describe('financial recipient authority', () => {
       expect(mockSendEmail).not.toHaveBeenCalled();
     },
   );
+});
+
+
+it('includes queued intents in the existing per-invoice throttle without claiming delivery', async () => {
+  mockAuth.mockResolvedValue({ user: { id: 'synthetic-staff', role: 'ADMIN' } });
+  mockCanPerform.mockReturnValue(true);
+  (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+    id: 'synthetic-invoice', number: 'SYNTHETIC-1', status: 'SENT', total: 1000,
+    payerUserId: 'synthetic-payer', payer: { id: 'synthetic-payer', email: 'payer@example.invalid',
+      emailVerifiedAt: new Date('2026-10-01T00:00:00Z') },
+    events: ['INVOICE_EMAIL_QUEUED','INVOICE_SENT_EMAIL','INVOICE_EMAIL_QUEUED']
+      .map(type => ({ type, at: new Date().toISOString() })),
+  });
+  const result = await POST(...makeRequest('synthetic-invoice'));
+  expect(result.status).toBe(429);
+  expect(mockSendEmail).not.toHaveBeenCalled();
+  expect(createAccessToken).not.toHaveBeenCalled();
 });
