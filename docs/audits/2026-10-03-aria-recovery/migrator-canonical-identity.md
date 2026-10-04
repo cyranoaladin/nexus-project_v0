@@ -40,3 +40,5 @@ ni les règles de rattachement des autres objets du roster. Ces points restent
 à qualifier séparément avant toute migration réelle. Revenir à l'ancienne
 application ne doit pas permettre de relancer l'ancien migrateur qui écrase
 les identités ; conserver la version corrigée de cet outil.
+
+L’inventaire exhaustif des mutations User a détecté son ancienne entrée upsert lors de la campagne globale 6a9b635f9. Le contrat est désormais aligné sur la création seule : aucune mutation de User dans apply.ts n’est autorisée. L’assertion exhaustive reste stricte ; les 14 tests réels du migrateur prouvent séparément la conservation du mot de passe et des statuts canoniques.
