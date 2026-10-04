@@ -1,4 +1,21 @@
-# Dossier de décision sécurité — CodeQL #102
+# Dossier de décision sécurité — CodeQL et empreintes
+
+## Analyse exacte après correction HMAC
+
+SHA analysé : `699343b4bb03a5b336d94f0ad3c905bc8bf2420f`, ref `refs/pull/337/head`, analyse CodeQL `1887522632`, check `111343061400`. Deux résultats `js/insufficient-password-hash` / CWE-916 maintiennent ce check rouge. Aucun finding n’a été supprimé ou classé par cette session.
+
+L’ancien sink runtime #102 n’apparaît plus dans les résultats de cette analyse de PR après le passage au HMAC dédié/versionné. L’alerte globale #102 demeure ouverte sur le main `5ffd4dd…` ; ne pas confondre correction sur la branche et état du main non fusionné.
+
+| Finding exact | Source et sink | Usage réel / décision proposée |
+| --- | --- | --- |
+| [#113](https://github.com/cyranoaladin/nexus-project_v0/security/code-scanning/113) | `requestPasswordReset` → `reset.rawToken` → `account-token-hmac.test.ts:74`, HMAC indépendant | Vérifie le digest d’un secret opaque CSPRNG 256 bits avec clé dédiée, domain/purpose/version. Le mot de passe humain a été traité séparément par bcrypt coût 12. Classement faux positif étroit proposé après revue sécurité. |
+| [#104](https://github.com/cyranoaladin/nexus-project_v0/security/code-scanning/104) | `SourceUser.password` → `TargetUser.password` → `transform.ts:101`, SHA-256 du JSON canonique | Empreinte de réconciliation d’un hash bcrypt existant, pas nouvelle dérivation de mot de passe. Le champ doit rester dans l’empreinte pour détecter une rotation de credentials. Préexistant sur main ; revue du contrat d’entrée et classement étroit requis, sans suppression du champ. |
+
+Le digest du manifeste ne publie pas le contenu de l’objet ou son hash bcrypt. L’empreinte SHA ne remplace pas le vérificateur d’authentification ; le migrateur conserve les credentials reconnus par V1. L’assurance que toute entrée de migration respecte le format de hash attendu doit être examinée, et ne se déduit pas du seul nom `password`. Une entrée source non conforme doit être traitée comme défaut de données et refusée sans afficher sa valeur.
+
+Preuves locales disponibles avant publication : suite Core canonique 73/720 réussie sur f12201789c2600e7d1256cf504f7cf4c6b8a8682, incluant contrats HMAC/rotation/replay et transformation ; suite unitaire 1281/14346 réussie. Ces résultats ne constituent pas la CI du nouveau SHA. La revue doit conserver l’assertion indépendante du HMAC et les tests prouvant qu’un changement du credential change l’empreinte, sans valeur de credential dans un artefact public.
+
+Action réservée à un responsable sécurité autorisé : examiner les deux chemins sur le SHA soumis, accepter ou rejeter les justifications, puis utiliser le mécanisme officiel GitHub pour un éventuel classement **de ces seules instances**. Renouveler le check et vérifier les résultats exacts après décision. Aucune exclusion de règle, annotation, test supprimé ou changement de seuil n’est proposé. La PR demeure Draft et le déploiement interdit tant que le contrôle reste rouge.
 
 ## État historique avant remédiation
 
