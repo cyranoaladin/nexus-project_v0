@@ -223,7 +223,7 @@ function userDocCategory(
  *   - COACH_RESOURCE | USER_DOCUMENT → derived from already-fetched userDocs (Q5).
  *   - RAG_REFERENCE → currently empty (requires schema extension to track
  *     consulted RAG sources per ARIA conversation; out-of-scope for Lot B).
- *   - INVOICE | RECEIPT → derived from userInvoices (Q10).
+ *   - Financial categories remain empty: an academic beneficiary is not a financial reader.
  *   - STAGE_BILAN → derived from already-computed stageItems (no extra query).
  *
  * Note: this builder does NOT issue any Prisma query of its own. It consumes
@@ -246,16 +246,6 @@ export function buildHub(input: {
     description: string | null;
     uploadedById: string | null;
     uploadedBy: { id: string; role: UserRole; firstName: string | null; lastName: string | null } | null;
-  }>;
-  invoices: ReadonlyArray<{
-    id: string;
-    number: string;
-    status: string;
-    issuedAt: Date;
-    paidAt: Date | null;
-    total: number;
-    currency: string;
-    pdfUrl: string | null;
   }>;
   stageItems: ReadonlyArray<EleveStageItem>;
 }): EleveHub {
@@ -322,24 +312,6 @@ export function buildHub(input: {
       uploaderRole: doc.uploadedBy?.role,
       uploaderName,
       badge: cat === 'COACH_RESOURCE' ? 'COACH' : isRecent ? 'NOUVEAU' : 'PERSONNEL',
-    });
-  }
-
-  // ── Invoices ─────────────────────────────────────────────────────────────
-  for (const inv of input.invoices) {
-    const isReceipt = inv.status === 'PAID' && inv.paidAt !== null;
-    const cat: EleveHubResourceCategory = isReceipt ? 'RECEIPT' : 'INVOICE';
-    hub.byCategory[cat].push({
-      id: `invoice:${inv.id}`,
-      category: cat,
-      title: isReceipt
-        ? `Reçu de paiement n°${inv.number}`
-        : `Facture n°${inv.number}`,
-      subtitle: `${(inv.total / 1000).toFixed(2)} ${inv.currency}`,
-      type: inv.pdfUrl ? 'PDF' : 'LINK',
-      uploadedAt: inv.issuedAt.toISOString(),
-      downloadUrl: inv.pdfUrl ?? undefined,
-      externalUrl: inv.pdfUrl ? undefined : `/dashboard/eleve/factures/${inv.id}`,
     });
   }
 
@@ -781,7 +753,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     academicTrack === AcademicTrack.STMG ||
     academicTrack === AcademicTrack.STMG_NON_LYCEEN;
 
-  // ── Q2–Q8 + Q10: Parallel independent queries ──────────────────────────────────
+  // ── Q2–Q8: Parallel independent queries ──────────────────────────────────
   const [
     mathsProgressForTrack,
     recentBilansRaw,
@@ -790,7 +762,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     userEntitlements,
     trajectoryData,
     nextStepResult,
-    userInvoices,
   ] = await Promise.all([
     // Q2: MathsProgress for this student's track
     prisma.mathsProgress.findFirst({
@@ -886,23 +857,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     // Q8: Next step engine
     getNextStep(userId).catch(() => null),
 
-    // Q10: Invoices addressed to this student (beneficiaryUserId)
-    // Used by the Hub to surface INVOICE / RECEIPT entries
-    prisma.invoice.findMany({
-      where: { beneficiaryUserId: userId },
-      orderBy: { issuedAt: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        number: true,
-        status: true,
-        issuedAt: true,
-        paidAt: true,
-        total: true,
-        currency: true,
-        pdfUrl: true,
-      },
-    }),
   ]);
 
   // Q9: Stage bilans lookup (only if reservations exist)
@@ -1173,7 +1127,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     track: academicTrack,
     studentUserId: student.id,
     userDocs,
-    invoices: userInvoices,
     stageItems,
   });
 

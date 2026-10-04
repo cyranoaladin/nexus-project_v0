@@ -75,6 +75,31 @@ function setupMocks(studentOverride = {}) {
   (getNextStep as jest.Mock).mockResolvedValue(null);
 }
 
+describe('student financial boundary', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it.each(['DRAFT', 'SENT', 'PAID'])('does not query or expose %s invoices to an academic beneficiary', async (status) => {
+    (prisma.invoice.findMany as jest.Mock).mockResolvedValue([{
+      id: 'private-financial-invoice', number: 'PRIVATE-FINANCIAL-NUMBER', status,
+      issuedAt: new Date('2026-10-04T08:00:00Z'),
+      paidAt: status === 'PAID' ? new Date('2026-10-04T09:00:00Z') : null,
+      total: 987654, currency: 'TND', pdfUrl: '/private-financial.pdf',
+    }]);
+
+    const result = await buildStudentDashboardPayload('user-1');
+
+    expect(prisma.invoice.findMany).not.toHaveBeenCalled();
+    expect(result.hub.byCategory.INVOICE).toEqual([]);
+    expect(result.hub.byCategory.RECEIPT).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain('PRIVATE-FINANCIAL-NUMBER');
+    expect(JSON.stringify(result)).not.toContain('/private-financial.pdf');
+    expect(JSON.stringify(result)).not.toContain('987.65');
+  });
+});
+
 // ─── toBilan ─────────────────────────────────────────────────────────────────
 
 describe('toBilan', () => {
