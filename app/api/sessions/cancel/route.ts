@@ -3,13 +3,15 @@ export const dynamic = 'force-dynamic';
 
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
-import { SessionStatus } from '@prisma/client';
+import { Prisma, SessionStatus } from '@prisma/client';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { cancelSessionSchema } from '@/lib/validation';
 import { safeJsonParse, assertExists } from '@/lib/api/helpers';
 import { successResponse, handleApiError, ApiError } from '@/lib/api/errors';
 import { createLogger } from '@/lib/middleware/logger';
 import { UserRole } from '@/types/enums';
+import { randomUUID } from 'node:crypto';
+import { z } from 'zod';
 
 /**
  * POST /api/sessions/cancel - Cancel a session booking
@@ -64,6 +66,11 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest('Validation failed');
     }
     const { sessionId, reason } = parsedBody.data;
+    const encodedCommand = request.headers.get('Idempotency-Key');
+    const command = encodedCommand === null ? randomUUID() : z.string().uuid().safeParse(encodedCommand);
+    if (typeof command !== 'string' && !command.success) throw ApiError.badRequest('Invalid cancellation command');
+    const commandId = (typeof command === 'string' ? command : command.data).toLowerCase();
+    const requestKey = `booking-cancel:v1:${session.user.id}:${commandId}`;
 
     // Fetch session
     const sessionToCancel = await prisma.sessionBooking.findUnique({
@@ -85,36 +92,58 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check if session can be cancelled
-    if (sessionToCancel.status === SessionStatus.CANCELLED) {
-      throw ApiError.badRequest('Session is already cancelled');
-    }
-
-    if (sessionToCancel.status === SessionStatus.COMPLETED) {
-      throw ApiError.badRequest('Cannot cancel a completed session');
-    }
-
-    if (!([SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] as SessionStatus[]).includes(sessionToCancel.status)) {
-      throw ApiError.badRequest('Cannot cancel a historical session');
-    }
-
-    // Recheck status and participant ownership at the atomic SQL write.
-    const cancelled = await prisma.sessionBooking.updateMany({
-      where: { id: sessionId, status: sessionToCancel.status, studentId: sessionToCancel.studentId, coachId: sessionToCancel.coachId },
-      data: {
-        status: SessionStatus.CANCELLED,
-        cancelledAt: new Date(),
-        coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled'
+    await prisma.$transaction(async tx => {
+      const matchesCommand = (event: { sessionBookingId: string; actorUserId: string; reason: string; action: string }) => event.sessionBookingId === sessionId && event.actorUserId === session.user.id && event.reason === reason && event.action === 'BOOKING_CANCELLED';
+      const prior = await tx.sessionBookingCancellationAudit.findUnique({ where: { requestKey } });
+      if (prior) {
+        if (!matchesCommand(prior)) throw ApiError.conflict('Cancellation command has different parameters');
+        return;
       }
-    });
 
-    if (cancelled.count !== 1) throw ApiError.conflict('Session changed; reload before cancelling.');
+      // Check if session can be cancelled
+      if (sessionToCancel.status === SessionStatus.CANCELLED) {
+        throw ApiError.badRequest('Session is already cancelled');
+      }
+
+      if (sessionToCancel.status === SessionStatus.COMPLETED) {
+        throw ApiError.badRequest('Cannot cancel a completed session');
+      }
+
+      if (!([SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] as SessionStatus[]).includes(sessionToCancel.status)) {
+        throw ApiError.badRequest('Cannot cancel a historical session');
+      }
+
+      // Recheck status and participant ownership at the atomic SQL write.
+      const cancelled = await tx.sessionBooking.updateMany({
+        where: { id: sessionId, status: sessionToCancel.status, studentId: sessionToCancel.studentId, coachId: sessionToCancel.coachId },
+        data: {
+          status: SessionStatus.CANCELLED,
+          cancelledAt: new Date(),
+        }
+      });
+
+      if (cancelled.count !== 1) {
+        const raced = await tx.sessionBookingCancellationAudit.findUnique({ where: { requestKey } });
+        if (raced && matchesCommand(raced)) return;
+        throw ApiError.conflict('Session changed; reload before cancelling.');
+      }
+      await tx.sessionBookingCancellationAudit.create({ data: {
+        sessionBookingId: sessionId, actorUserId: session.user.id, actorRole: session.user.role,
+        requestKey, action: 'BOOKING_CANCELLED', previousStatus: sessionToCancel.status,
+        nextStatus: SessionStatus.CANCELLED, reason,
+      } });
+    }, { maxWait: 5_000, timeout: 20_000 });
 
     logger.logRequest(200, { sessionId });
     return successResponse({ success: true, message: 'Session annulée' });
 
   } catch (error) {
-    const response = await handleApiError(error, 'POST /api/sessions/cancel');
+    const commandCollision = error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+      && error.meta?.modelName === 'SessionBookingCancellationAudit'
+      && Array.isArray(error.meta.target) && error.meta.target.length === 1 && error.meta.target[0] === 'requestKey';
+    const expectedError = commandCollision ? ApiError.conflict('Cancellation command has different parameters') : error instanceof ApiError ? error : null;
+    if (!expectedError) logger.error('Session cancellation failed');
+    const response = await handleApiError(expectedError ?? ApiError.internal('Session cancellation unavailable'), 'POST /api/sessions/cancel');
     logger.logRequest(response.status);
     return response;
   }

@@ -18,13 +18,16 @@ async function main() {
       academyTitle: 'Synthetic legacy lead', parentName: 'Synthetic Parent', phone: '55000003', classe: 'Terminale', price: 350 } });
     writeFileSync(proof, await rowHash(), { mode: 0o600 });
     console.log('OLD_SCHEMA_SYNTHETIC_ROWS_CREATED=2');
-  } else if (phase === 'interrupt') {
-    const sql = readFileSync('prisma/migrations/20261004214500_stage_reservation_decision_audit/migration.sql', 'utf8');
+  } else if (phase === 'interrupt' || phase === 'interrupt-session-cancellation') {
+    const sessionCancellation = phase === 'interrupt-session-cancellation';
+    const migration = sessionCancellation ? '20261005010000_session_booking_cancellation_audit' : '20261004214500_stage_reservation_decision_audit';
+    const sql = readFileSync(`prisma/migrations/${migration}/migration.sql`, 'utf8');
     const connection = new Client({ connectionString: process.env.DATABASE_URL });
     await connection.connect();
     await connection.query(sql.slice(0, sql.lastIndexOf('COMMIT;')));
     await connection.end(); // Connection interruption before COMMIT must roll back all DDL.
-    const rows = await db.$queryRaw<Array<{ table: string | null }>>`SELECT to_regclass('public.stage_reservation_decision_audits')::text AS "table"`;
+    const table = sessionCancellation ? 'public.session_booking_cancellation_audits' : 'public.stage_reservation_decision_audits';
+    const rows = await db.$queryRaw<Array<{ table: string | null }>>`SELECT to_regclass(${table})::text AS "table"`;
     if (rows[0].table !== null) throw new Error('INTERRUPTED_DDL_NOT_ATOMIC');
     if (await rowHash() !== readFileSync(proof, 'utf8')) throw new Error('OLD_ROW_CHANGED');
     console.log('INTERRUPTED_TRANSACTION_ROLLED_BACK=1');

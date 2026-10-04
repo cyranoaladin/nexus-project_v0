@@ -33,13 +33,14 @@ jest.mock('@/lib/credits', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: {
+  prisma: (() => { const database = {
     sessionBooking: {
       findUnique: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
     },
-  },
+    sessionBookingCancellationAudit: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn().mockResolvedValue({}) },
+  }; return { ...database, $transaction: jest.fn((operation: (tx: typeof database) => Promise<unknown>) => operation(database)) }; })(),
 }));
 
 const mockStudentSession = {

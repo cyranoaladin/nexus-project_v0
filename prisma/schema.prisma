@@ -1672,6 +1672,7 @@ model SessionBooking {
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
+  cancellationAudits SessionBookingCancellationAudit[]
   report        SessionReport?
 
   // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
@@ -4271,6 +4272,28 @@ model ReportFeedback {
   @@index([reportId, type])
   @@index([submittedById])
   @@map("report_feedback")
+}
+
+// Session subjects may belong to Core v2 without a V1 User mirror. The actor
+// is the verified server-session subject, never a client-supplied owner. A
+// cross-database actor FK is impossible; retain the opaque subject and role,
+// without copying names/contact data. The booking FK protects real history.
+model SessionBookingCancellationAudit {
+  id String @id @default(cuid())
+  sessionBookingId String
+  sessionBooking SessionBooking @relation(fields: [sessionBookingId], references: [id], onDelete: Restrict)
+  actorUserId String @db.VarChar(128)
+  actorRole String
+  requestKey String @unique
+  action String @default("BOOKING_CANCELLED")
+  previousStatus SessionStatus
+  nextStatus SessionStatus @default(CANCELLED)
+  reason String @db.VarChar(500)
+  occurredAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([sessionBookingId, occurredAt], map: "session_booking_cancellation_audits_booking_time_idx")
+  @@index([actorUserId, occurredAt], map: "session_booking_cancellation_audits_actor_time_idx")
+  @@map("session_booking_cancellation_audits")
 }
 
 model NpcAuditLog {

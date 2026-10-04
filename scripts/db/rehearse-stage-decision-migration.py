@@ -92,6 +92,8 @@ try:
  env['DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_disposable_stage_restore_test'; env['TEST_DATABASE_URL']=env['DATABASE_URL']
  run_private('restored-old-schema-verification',fixture+['verify-old',hash_path])
  run_private('interrupted-ddl-connection',fixture+['interrupt',hash_path])
+ if args.include_session_cancel:
+  run_private('interrupted-session-cancellation-ddl',fixture+['interrupt-session-cancellation',hash_path])
  run_private('current-schema-validation',['npx','--no-install','prisma','validate'])
  run_private('expanded-schema-deploy',['npx','--no-install','prisma','migrate','deploy'])
  run_private('expanded-schema-old-rows',fixture+['verify-new',hash_path])
@@ -102,7 +104,7 @@ try:
  with open(out/'stage-list-real-tests-private.log','w') as f:
   pattern='stage-lead-decision.real|reservation-staff-list.real' if args.include_staff_list else 'stage-lead-decision.real'
   if args.include_public_reservations: pattern+='|public-reservation-integrity.real'
-  if args.include_session_cancel: pattern+='|session-cancel-state-race.real'
+  if args.include_session_cancel: pattern+='|session-cancel-state-race.real|session-cancel-audit.real'
   p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns='+pattern],env=env,stdout=f,stderr=subprocess.STDOUT)
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
