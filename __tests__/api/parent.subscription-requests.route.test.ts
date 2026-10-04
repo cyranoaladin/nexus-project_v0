@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/subscription-requests/route';
 import { prisma } from '@/lib/prisma';
@@ -16,14 +17,22 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-function makeRequest(body?: any, url?: string) {
-  return {
-    json: async () => body,
-    url: url || 'http://localhost:3000/api/parent/subscription-requests',
-  } as any;
+function makeRequest(body?: unknown, url?: string): NextRequest {
+  return new NextRequest(url || 'http://localhost:3000/api/parent/subscription-requests', {
+    method: body === undefined ? 'GET' : 'POST',
+    ...(body === undefined ? {} : { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } }),
+  });
 }
 
 describe('parent subscription-requests', () => {
+  it('rejects a parent session without canonical identity before database access', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { role: 'PARENT' } });
+    const response = await GET(makeRequest(undefined,
+      'http://localhost:3000/api/parent/subscription-requests?studentId=student-1'));
+    expect(response.status).toBe(401);
+    expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
+    expect(prisma.subscriptionRequest.findMany).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -156,5 +165,15 @@ describe('parent subscription-requests', () => {
 
     expect(response.status).toBe(200);
     expect(body.requests).toHaveLength(1);
+    expect(prisma.subscriptionRequest.findMany).toHaveBeenCalledWith({
+      where: { studentId: 'student-1', requestedByUserId: 'parent-1' },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true, requestType: true, planName: true, monthlyPrice: true,
+        reason: true, status: true, processedAt: true, rejectionReason: true,
+        createdAt: true, updatedAt: true,
+      },
+    });
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
   });
 });

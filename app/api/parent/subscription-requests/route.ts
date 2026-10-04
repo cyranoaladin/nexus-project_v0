@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'PARENT') {
+    if (!session?.user?.id || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -131,6 +130,7 @@ export async function POST(request: NextRequest) {
         reason: reason || '',
         status: 'PENDING',
         requestedBy: `${session.user.firstName} ${session.user.lastName}`,
+        requestedByUserId: session.user.id,
         requestedByEmail: session.user.email
       }
     });
@@ -170,8 +170,8 @@ export async function POST(request: NextRequest) {
       requestId: subscriptionRequest.id
     });
 
-  } catch (error) {
-    console.error('Error creating subscription request:', serializeError(error));
+  } catch {
+    console.error('PARENT_SUBSCRIPTION_REQUEST_CREATE_FAILED');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -183,7 +183,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'PARENT') {
+    if (!session?.user?.id || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -229,10 +229,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get subscription requests for this student
+    // Family membership does not grant access to another guardian’s request.
     const requests = await prisma.subscriptionRequest.findMany({
       where: {
-        studentId: studentId
+        studentId: studentId,
+        requestedByUserId: session.user.id
+      },
+      select: {
+        id: true, requestType: true, planName: true, monthlyPrice: true,
+        reason: true, status: true, processedAt: true, rejectionReason: true,
+        createdAt: true, updatedAt: true,
       },
       orderBy: {
         createdAt: 'desc'
@@ -241,10 +247,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       requests: requests
-    });
+    }, { headers: { 'Cache-Control': 'private, no-store' } });
 
-  } catch (error) {
-    console.error('Error fetching subscription requests:', serializeError(error));
+  } catch {
+    console.error('PARENT_SUBSCRIPTION_REQUEST_READ_FAILED');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

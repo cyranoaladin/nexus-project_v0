@@ -153,6 +153,7 @@ export async function POST(request: NextRequest) {
         reason: '',
         status: 'PENDING',
         requestedBy: `${session.user.firstName} ${session.user.lastName}`,
+        requestedByUserId: session.user.id,
         requestedByEmail: session.user.email ?? null
       }
     });

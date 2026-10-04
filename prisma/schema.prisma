@@ -252,6 +252,7 @@ model User {
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
   payerInvoices    Invoice[] @relation("InvoicePayer")
+  subscriptionRequests SubscriptionRequest[] @relation("SubscriptionRequester")
   invoiceFinancialDelegations InvoiceFinancialDelegation[] @relation("InvoiceFinancialDelegate")
   invoiceFinancialAudits InvoiceFinancialAccessAudit[] @relation("InvoiceFinancialAuditActor")
 
@@ -1523,6 +1524,8 @@ model SubscriptionRequest {
   status           String // PENDING, APPROVED, REJECTED
   requestedBy      String
   requestedByEmail String?
+  requestedByUserId String?
+  requester User? @relation("SubscriptionRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
   processedBy      String?
   processedAt      DateTime?
   rejectionReason  String?
@@ -1532,6 +1535,7 @@ model SubscriptionRequest {
   // Relations
   student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
+  @@index([studentId, requestedByUserId, createdAt])
   @@map("subscription_requests")
 }
 

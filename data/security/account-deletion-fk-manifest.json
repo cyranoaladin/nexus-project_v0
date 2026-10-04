@@ -836,6 +836,13 @@
     "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED"
   },
   {
+    "conname": "subscription_requests_requestedByUserId_fkey",
+    "childTable": "subscription_requests",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT"
+  },
+  {
     "conname": "subscription_requests_studentId_fkey",
     "childTable": "subscription_requests",
     "parentTable": "students",

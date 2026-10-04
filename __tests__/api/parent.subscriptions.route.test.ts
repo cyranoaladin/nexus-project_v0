@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/subscriptions/route';
 import { prisma } from '@/lib/prisma';
@@ -17,10 +18,11 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-function makeRequest(body?: any) {
-  return {
-    json: async () => body,
-  } as any;
+function makeRequest(body?: unknown): NextRequest {
+  return new NextRequest('http://localhost/api/parent/subscriptions', {
+    method: body === undefined ? 'GET' : 'POST',
+    ...(body === undefined ? {} : { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } }),
+  });
 }
 
 describe('parent subscriptions', () => {
@@ -164,6 +166,7 @@ describe('parent subscriptions', () => {
     expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
+          requestedByUserId: 'parent-1',
           requestType: 'PLAN_CHANGE',
           planName: 'HYBRIDE',
           monthlyPrice: 450,
