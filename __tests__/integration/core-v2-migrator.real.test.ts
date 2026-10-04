@@ -29,6 +29,7 @@ import { prisma as v1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { INVITATION_TTL_ENV, ORGANIZATION_TIMEZONE_ENV, PASSWORD_RESET_TTL_ENV } from '@/lib/core-v2/config';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { resetCoreV2Database } from '@/__tests__/core-v2/helpers/reset-db';
 import { approvalDigest, parseApprovalFile } from '@/scripts/core-v2/migration/approval';
 import { applyPlan } from '@/scripts/core-v2/migration/apply';
@@ -41,6 +42,7 @@ process.env[INVITATION_TTL_ENV] ??= '72';
 process.env[PASSWORD_RESET_TTL_ENV] ??= '60';
 
 const prefix = `mig-${randomUUID().slice(0, 8)}`;
+const fixtureUserIds = new Set<string>();
 let v2: Awaited<ReturnType<typeof requireCoreV2Client>>;
 const ids = { admin: '', parent: '', parentProfile: '', studentA: '', studentB: '', coachUser: '', coachProfile: '', assignment: '', series: '' };
 const migratedAt = new Date('2026-09-12T08:00:00Z');
@@ -60,14 +62,16 @@ beforeAll(async () => {
   process.env.CORE_V2_AUTH_MODE = 'HYBRID';
 
   // Synthetic Core v1 family: an ADMIN (the migrating actor), one parent with two students, one coach.
-  const pw = await bcrypt.hash(initialFixture, 4);
+  const pw = await bcrypt.hash(initialFixture, 10);
   const admin = await v1.user.create({ data: { email: `${prefix}-admin@synthetic.test`, role: 'ADMIN', password: pw, activatedAt: new Date(), firstName: 'Admin', lastName: prefix } });
+  fixtureUserIds.add(admin.id);
   const phone = `+2162${randomInt(0, 10_000_000).toString().padStart(7, '0')}`;
   const parentUser = await v1.user.create({ data: {
     email: `${prefix}-Parent@synthetic.test`, emailVerifiedAt: proofClock,
     role: 'PARENT', password: pw, activatedAt: proofClock, firstName: 'Amel', lastName: prefix,
     phone, phoneNormalized: normalizeParentPhone(phone).normalized, parentPhoneState: 'VERIFIED', phoneVerifiedAt: proofClock, sessionVersion: 4,
   } });
+  fixtureUserIds.add(parentUser.id);
   const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
   try {
     emailProof = generateResetToken(parentUser.id, parentUser.email!, parentUser.password);
@@ -84,8 +88,10 @@ beforeAll(async () => {
   expect(await verifyParentPhoneChallenge(phoneProof, { now: proofClock })).toMatchObject({ valid: true });
   const parentProfile = await v1.parentProfile.create({ data: { userId: parentUser.id } });
   const studentAUser = await v1.user.create({ data: { email: `${prefix}-yasmine@synthetic.test`, role: 'ELEVE', password: pw, activatedAt: new Date(), firstName: 'Yasmine', lastName: prefix } });
+  fixtureUserIds.add(studentAUser.id);
   const studentA = await v1.student.create({ data: { userId: studentAUser.id, parentId: parentProfile.id, gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', school: 'Lycée synthétique' } });
   const studentBUser = await v1.user.create({ data: { email: `${prefix}-ziad@synthetic.test`, role: 'ELEVE', firstName: 'Ziad', lastName: prefix } }); // never activated, no password
+  fixtureUserIds.add(studentBUser.id);
   const studentB = await v1.student.create({ data: { userId: studentBUser.id, parentId: parentProfile.id, gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE' } });
   await v1.studentAcademicEnrollment.createMany({
     data: [
@@ -95,6 +101,7 @@ beforeAll(async () => {
     ],
   });
   const coachUser = await v1.user.create({ data: { email: `${prefix}-coach@synthetic.test`, role: 'COACH', password: pw, activatedAt: new Date(), firstName: 'Coach', lastName: prefix } });
+  fixtureUserIds.add(coachUser.id);
   const coachProfile = await v1.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `Coach-${prefix}`, subjects: ['MATHEMATIQUES'] } });
   const assignment = await v1.coachStudentAssignment.create({
     data: { coachId: coachProfile.id, studentId: studentA.id, status: 'ACTIVE', courseScopeState: 'STAFF_VERIFIED', academicCourseKeys: ['maths-premiere'], subjects: ['MATHEMATIQUES'], assignedById: admin.id },
@@ -115,9 +122,13 @@ beforeAll(async () => {
 afterAll(async () => {
   if (originalAuthMode === undefined) delete process.env.CORE_V2_AUTH_MODE;
   else process.env.CORE_V2_AUTH_MODE = originalAuthMode;
-  await v1.user.deleteMany({ where: { lastName: prefix } }).catch(() => undefined);
-  await v1.$disconnect();
-  await disconnectCoreV2Client();
+  try {
+    if (fixtureUserIds.size > 0) {
+      await cleanupDisposableTestFixture(v1, { userIds: [...fixtureUserIds] });
+    }
+  } finally {
+    await Promise.all([v1.$disconnect(), disconnectCoreV2Client()]);
+  }
 });
 
 function approval() {
