@@ -66,7 +66,7 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
         headers, data: { paymentId, action: 'approve' }, failOnStatusCode: false,
       });
       expect(refused.status()).toBe(403);
-      expect(refused.headers()['cache-control']).toBe('private, no-store');
+      expect(refused.headers()['cache-control']).toBe('private, no-store, max-age=0, must-revalidate');
       const pending = await page.request.get('/api/payments/pending');
       expect(pending.status()).toBe(200);
       expect(await pending.json()).toEqual(expect.objectContaining({ payments: expect.arrayContaining([

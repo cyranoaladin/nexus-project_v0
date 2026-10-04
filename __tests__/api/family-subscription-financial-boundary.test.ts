@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { GET as subscriptions } from '@/app/api/parent/subscriptions/route';
 import { GET as dashboard } from '@/app/api/parent/dashboard/route';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-const child = { id: 'synthetic-child', grade: 'Synthetic grade', school: 'Synthetic school',
+const child = { id: 'synthetic-child', userId: 'synthetic-student-user', parent: { userId: 'synthetic-parent' }, grade: 'Synthetic grade', school: 'Synthetic school',
   gradeLevel: 'SECONDE', academicTrack: 'EDS_GENERALE', totalSessions: 0, completedSessions: 0, badges: [],
   user: { id: 'synthetic-student-user', firstName: 'Synthetic', lastName: 'Fixture', activatedAt: new Date(), activationExpiry: null },
   subscriptions: [{ id: 'synthetic-subscription', planName: 'Synthetic plan', status: 'ACTIVE',
@@ -27,7 +27,10 @@ it('subscription family view retains pedagogical service state without private p
   expect(body.children[0].subscriptionDetails).not.toHaveProperty('monthlyPrice');
   expect(body.children[0].subscriptionDetails).not.toHaveProperty('ariaCost');
   expect(response.headers.get('cache-control')).toBe('private, no-store');
-  const query = (prisma.student.findMany as jest.Mock).mock.calls[0][0];
+  const identityQuery = (prisma.student.findMany as jest.Mock).mock.calls[0][0];
+  expect(identityQuery.select).toEqual({ id: true, userId: true, parent: { select: { userId: true } } });
+  const query = (prisma.student.findMany as jest.Mock).mock.calls[1][0];
+  expect(query.where).toEqual({ parentId: 'synthetic-family', id: { in: ['synthetic-child'] } });
   expect(query.include.subscriptions.select).not.toHaveProperty('monthlyPrice');
   expect(query.include.subscriptions.select).not.toHaveProperty('ariaCost');
 });
