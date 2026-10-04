@@ -56,6 +56,8 @@ export function buildCoreV2InvitationMessage(input: {
 }
 
 export interface DeliverCoreV2InvitationInput {
+  /** Durable Core handoff triggers delivery only after its acknowledgment. */
+  readonly deferDrain?: boolean;
   readonly userId: string;
   readonly role: 'PARENT' | 'ELEVE' | 'COACH' | 'ADMIN' | 'ASSISTANTE';
   readonly email: string;
@@ -79,7 +81,8 @@ export async function deliverCoreV2Invitation(input: DeliverCoreV2InvitationInpu
       html: message.html,
       text: message.text,
     }),
+    { maxWait: 2_000, timeout: 5_000 },
   );
-  kickEmailOutboxDrain();
+  if (!input.deferDrain) kickEmailOutboxDrain();
   return { messageId: intent.messageId };
 }

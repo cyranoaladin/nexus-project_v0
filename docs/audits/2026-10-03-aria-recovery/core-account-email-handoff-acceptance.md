@@ -127,3 +127,22 @@ aggregate counts, failure source paths and an output hash. Raw account proof
 values are not saved by this lane. No arbitrary sleep was added to production;
 the contention test polls actual PostgreSQL lock state with a bounded deadline.
 Cross-database destination and runtime recovery wiring are still pending.
+
+## Real cross-database destination checkpoint
+
+Proof 1791152673: 7 related Core suites / 71 tests passed; V1 synthetic encrypted
+restore and Core old-schema migration checks also passed. The destination test
+commits a real encrypted V1 intent, simulates loss of Core acknowledgment, then
+replays it and verifies one row, identical ciphertext and identical Message-ID
+using boolean assertions. It never contacts SMTP or a provider. A preceding
+test (1791152625) failed because the adapter kicked the sender inside the Core
+processing scope; the durable destination now defers that kick. Existing direct
+adapter callers retain their kick semantics. V1 enqueue transactions explicitly
+use 2-second maximum wait / 5-second timeout, below the Core 20-second bound.
+
+The source manifest records HEAD, working diff digest and individual runtime/test
+file digests. The runner verifies identity remained stable through this campaign;
+these are precommit source proofs, not a replacement for final-SHA CI. Targeted
+unit/architecture checks: 2 suites / 41 tests passed; typecheck and targeted lint
+passed. Runtime scheduler/route wiring and resend command idempotence remain open.
+No provider delivery, deployment, real data or production backup is claimed.

@@ -14,6 +14,25 @@ if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_
 if subprocess.run(['git','merge-base','--is-ancestor',args.old_ref,'HEAD'],capture_output=True).returncode: raise SystemExit('OLD_REF_NOT_ANCESTOR')
 root=Path.cwd(); out=root/'.artifacts/recovery'/('stage-lead-decision-green-'+str(int(time.time())))
 out.mkdir(mode=0o700)
+def source_identity():
+ paths=[
+  'lib/core-v2/services/account.ts', 'lib/core-v2/audit.ts',
+  'lib/core-v2/accounts/email-handoff-worker.ts', 'lib/core-v2/accounts/email-handoff-destination.ts',
+  'lib/email/account-handoff-envelope.ts', 'lib/email/core-v2-invitation.ts', 'lib/email/core-v2-password-reset.ts',
+  'core-v2/prisma/schema.prisma', 'core-v2/prisma/migrations/0024_core_v2_account_email_handoff/migration.sql',
+  '__tests__/core-v2/services/account-email-handoff.test.ts',
+  '__tests__/core-v2/services/account-email-handoff-destination.test.ts',
+  '__tests__/core-v2/helpers/account-handoff-migration-fixture.ts',
+  '__tests__/setup/core-v2-token-env.js', 'scripts/db/rehearse-stage-decision-migration.py',
+ ]
+ return {
+  'head_sha':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+  'old_reference_sha':args.old_ref,
+  'tracked_diff_sha256':hashlib.sha256(subprocess.check_output(['git','diff','HEAD','--binary'])).hexdigest(),
+  'source_files':{path:hashlib.sha256((root/path).read_bytes()).hexdigest() for path in paths if (root/path).is_file()},
+ }
+source_before=source_identity()
+(out/'source-manifest.json').write_text(json.dumps(source_before,sort_keys=True,indent=2)+'\n')
 name='nexus-stage-lead-decision-pgvector-20261004-'+str(int(time.time()))
 image='pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b'
 password=secrets.token_hex(32); env=os.environ.copy(); env['POSTGRES_PASSWORD']=password
@@ -104,9 +123,9 @@ try:
   run_private('core-handoff-schema-deploy',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
   run_private('core-expanded-native-rows',core_fixture+['verify',core_hash],core_env)
   run_private('core-expanded-schema-replay',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
-  pattern='account-email-handoff.test'
+  pattern='account-email-handoff.*\\.test'
   if args.include_core_account_foundations:
-   pattern='services/(account-email-handoff|account|staff-account)\\.test|http/(staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
+   pattern='services/(account-email-handoff.*|account|staff-account)\\.test|http/(staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
   p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns='+pattern],env=core_env,capture_output=True,text=True)
   combined=p.stdout+'\n'+p.stderr
   safe=[]
@@ -118,6 +137,8 @@ try:
   for line in safe: print(line)
   print('CORE_ACCOUNT_HANDOFF_TEST_EXIT='+str(p.returncode))
   if p.returncode: raise RuntimeError('CORE_ACCOUNT_HANDOFF_TEST_FAILED')
+ if source_identity()!=source_before: raise RuntimeError('REHEARSAL_SOURCE_CHANGED_DURING_TESTS')
+ print('REHEARSAL_SOURCE_IDENTITY_STABLE=1')
 finally:
  info=json.loads(subprocess.check_output(['docker','inspect',name]))[0]
  assert info['Config']['Labels']['nexus.recovery.owner']=='stage-lead-decision-rehearsal'

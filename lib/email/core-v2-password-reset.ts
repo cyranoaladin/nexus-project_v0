@@ -55,6 +55,8 @@ export function buildCoreV2PasswordResetMessage(input: { readonly displayName: s
 }
 
 export interface DeliverCoreV2PasswordResetInput {
+  /** Durable Core handoff triggers delivery only after its acknowledgment. */
+  readonly deferDrain?: boolean;
   readonly userId: string;
   readonly email: string;
   readonly displayName: string;
@@ -77,7 +79,8 @@ export async function deliverCoreV2PasswordReset(input: DeliverCoreV2PasswordRes
       html: message.html,
       text: message.text,
     }),
+    { maxWait: 2_000, timeout: 5_000 },
   );
-  kickEmailOutboxDrain();
+  if (!input.deferDrain) kickEmailOutboxDrain();
   return { messageId: intent.messageId };
 }
