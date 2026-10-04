@@ -93,6 +93,8 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
           ] },
         ] },
         { title: 'ARIA_PHASE:rag:alert', duration: 6 },
+        { title: 'AUTH_PHASE:logout:navigation', duration: 8, error: { message: 'PRIVATE_LOGOUT_CANARY' } },
+        { title: 'AUTH_PHASE:logout:PRIVATE_LOGOUT_CANARY', duration: 9 },
       ] }] }] }] }],
   };
   const report = sanitizePlaywrightReport(raw);
@@ -103,9 +105,11 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
     { phase: 'ARIA_PHASE:transport:body', duration: 29, failed: true },
     { phase: 'ARIA_PHASE:transport:aborted', duration: 0, failed: true },
     { phase: 'ARIA_PHASE:rag:alert', duration: 6, failed: false },
+    { phase: 'AUTH_PHASE:logout:navigation', duration: 8, failed: true },
   ]);
   expect(JSON.stringify(report)).not.toContain('PRIVATE_PHASE_CANARY');
   expect(JSON.stringify(report)).not.toContain('PRIVATE_ERROR_CANARY');
   expect(JSON.stringify(report)).not.toContain('PRIVATE_TRANSPORT_CANARY');
+  expect(JSON.stringify(report)).not.toContain('PRIVATE_LOGOUT_CANARY');
   expect(sanitizePlaywrightReport(report)).toEqual(report);
 });

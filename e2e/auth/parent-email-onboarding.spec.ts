@@ -139,12 +139,14 @@ async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').P
   const responsePromise = page.waitForResponse((response) =>
     response.url().includes('/api/auth/signout') && response.request().method() === 'POST'
   )
-  await page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click()
-  const response = await responsePromise
+  await test.step('AUTH_PHASE:logout:submit', () => page.getByRole('button', { name: 'Se déconnecter de votre compte' }).click())
+  const response = await test.step('AUTH_PHASE:logout:response', () => responsePromise)
   expect(response.status()).toBe(200)
-  expect((await response.headersArray()).some(({ name, value }) =>
-    name.toLowerCase() === 'set-cookie' && /authjs\.session-token=;/.test(value)
-  )).toBe(true)
+  await test.step('AUTH_PHASE:logout:cookies', async () => {
+    expect((await response.headersArray()).some(({ name, value }) =>
+      name.toLowerCase() === 'set-cookie' && /authjs\.session-token=;/.test(value)
+    )).toBe(true)
+  })
   // `waitUntil: 'commit'` and not the default `'load'`: signing out lands on
   // /auth/signin either by a full document navigation or by an App Router
   // client-side push, and only the first fires a fresh `load`. Waiting for a
@@ -152,10 +154,11 @@ async function signOutAndVerifyCookieDeletion(page: import('@playwright/test').P
   // path won the race — observed on main at 0bdad4fc, 510 passed / 1 failed,
   // while the very same spec passed on other runs. What this assertion means
   // is "the URL changed", so that is what it should wait for.
-  await page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname), { waitUntil: 'commit' })
-  await expect.poll(async () =>
+  await test.step('AUTH_PHASE:logout:navigation', () =>
+    page.waitForURL((url) => ['/auth/signin', '/'].includes(url.pathname), { waitUntil: 'commit' }))
+  await test.step('AUTH_PHASE:logout:session', () => expect.poll(async () =>
     (await page.context().cookies()).some(({ name }) => name === 'authjs.session-token')
-  ).toBe(false)
+  ).toBe(false))
 }
 
 test.describe('P0-D Parent onboarding without direct database bootstrap', () => {
