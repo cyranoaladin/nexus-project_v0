@@ -11,7 +11,7 @@ export async function requireDiagnosticActor() {
   return requireAnyRole([UserRole.ELEVE, UserRole.PARENT, UserRole.COACH, UserRole.ADMIN, UserRole.ASSISTANTE]);
 }
 
-export async function getStudentForActor(session: AuthSession, requestedStudentId?: string) {
+export async function getStudentForActor(session: AuthSession, requestedStudentId: string | undefined, action: 'read' | 'mutation') {
   if (session.user.role === UserRole.ELEVE) {
     return prisma.student.findUnique({
       where: { userId: session.user.id },
@@ -20,7 +20,7 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
   }
   if (!requestedStudentId) return null;
   if (session.user.role === UserRole.PARENT) {
-    const ownership = await requireParentOwnsStudent(session.user.id, requestedStudentId);
+    const ownership = await requireParentOwnsStudent(session.user.id, requestedStudentId, action);
     if (isErrorResponse(ownership)) return ownership;
   }
   return prisma.student.findUnique({
@@ -29,7 +29,7 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
   });
 }
 
-export async function getDiagnosticForActor(session: AuthSession, diagnosticId: string) {
+export async function getDiagnosticForActor(session: AuthSession, diagnosticId: string, action: 'read' | 'mutation') {
   const diagnostic = await prisma.candidateDiagnostic.findUnique({
     where: { id: diagnosticId },
     include: {
@@ -44,7 +44,7 @@ export async function getDiagnosticForActor(session: AuthSession, diagnosticId: 
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
   if (session.user.role === UserRole.PARENT) {
-    const ownership = await requireParentOwnsStudent(session.user.id, diagnostic.studentId);
+    const ownership = await requireParentOwnsStudent(session.user.id, diagnostic.studentId, action);
     if (isErrorResponse(ownership)) return ownership;
   }
   if (session.user.role === UserRole.COACH) {

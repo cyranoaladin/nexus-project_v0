@@ -22,7 +22,7 @@ export async function GET(_request: Request, { params }: Params) {
   const { diagnosticId } = await params;
   const sessionOrError = await requireRole(UserRole.PARENT);
   if (isErrorResponse(sessionOrError)) return sessionOrError;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'read');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   const moduleRecord = diagnosticOrError.modules.find((item: any) => item.moduleKey === MODULE_KEY);
   if (!moduleRecord) return NextResponse.json({ error: 'Module not found' }, { status: 404 });
@@ -61,7 +61,7 @@ async function saveParentQuestionnaire(request: Request, { params }: Params, act
   if (isErrorResponse(sessionOrError)) return sessionOrError;
   const identityLimited = await guardSensitiveRateLimit(request, { scope, identity: sessionOrError.user.id, dimensions: ['identity'] });
   if (identityLimited) return identityLimited;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'mutation');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
   const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);

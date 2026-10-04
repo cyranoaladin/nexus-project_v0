@@ -10,7 +10,7 @@ import { isErrorResponse } from '@/lib/guards';
 import { planningErrorResponse, planningService } from '../../_shared';
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ revision: string }> }) {
-  const guard = await apiGuard({ policy: 'planning-studio.history' });
+  const guard = await apiGuard({ policy: 'planning-studio.history', action: 'read' });
   if (isErrorResponse(guard)) return guard;
   const { revision: raw } = await context.params;
   const revision = Number(raw);

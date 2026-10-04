@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: Params) {
   if (!([UserRole.COACH, UserRole.ADMIN, UserRole.ASSISTANTE] as UserRole[]).includes(sessionOrError.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'read');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
 
   return NextResponse.json({

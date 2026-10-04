@@ -529,12 +529,12 @@ export async function enforcePolicy(policyKey: string) {
  *
  * @example
  * ```ts
- * const result = await enforcePolicyWithOwnership('parent.children', childId);
+ * const result = await enforcePolicyWithOwnership('parent.children', childId, 'read');
  * if (isErrorResponse(result)) return result;
  * const session = result;
  * ```
  */
-export async function enforcePolicyWithOwnership(policyKey: string, resourceId?: string) {
+export async function enforcePolicyWithOwnership(policyKey: string, resourceId: string | undefined, action: 'read' | 'mutation') {
   const { isErrorResponse, enforceOwnership } = await import('./guards');
 
   const sessionOrResponse = await enforcePolicy(policyKey);
@@ -547,7 +547,7 @@ export async function enforcePolicyWithOwnership(policyKey: string, resourceId?:
 
   // If policy requires ownership and user is not staff, verify ownership
   if (policy?.allowOwner && resourceId && !['ADMIN', 'ASSISTANTE'].includes(session.user.role)) {
-    const ownershipResult = await enforceOwnership(policyKey, session, resourceId);
+    const ownershipResult = await enforceOwnership(policyKey, session, resourceId, action);
     if (isErrorResponse(ownershipResult)) {
       return ownershipResult;
     }

@@ -24,7 +24,7 @@ export async function GET(_request: Request, { params }: Params) {
   const { diagnosticId, documentId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'read');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   const document = diagnosticOrError.documents.find((item: any) => item.id === documentId);
   if (!document) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
@@ -56,7 +56,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   if (!([UserRole.ELEVE, UserRole.PARENT, UserRole.ADMIN, UserRole.ASSISTANTE] as UserRole[]).includes(sessionOrError.user.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'mutation');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
   const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);

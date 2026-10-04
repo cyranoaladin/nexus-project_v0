@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: Params) {
   const { diagnosticId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'read');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   return NextResponse.json({ diagnostic: serializeCandidateDiagnostic(diagnosticOrError, sessionOrError.user.role) });
 }
@@ -27,7 +27,7 @@ export async function PATCH(request: Request, { params }: Params) {
   const { diagnosticId } = await params;
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'mutation');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
   const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);

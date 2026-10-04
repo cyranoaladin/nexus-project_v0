@@ -17,6 +17,7 @@ import type { RawDomainScores } from './diagnostic';
 
 export interface LoadedDiagnostic {
   diagnosticId: string;
+  studentId: string;
   raw: RawDomainScores;
   overconfidentDomainKeys: Set<string>;
 }
@@ -24,8 +25,9 @@ export interface LoadedDiagnostic {
 export async function loadRawDomainScores(
   session: AuthSession,
   diagnosticId: string,
+  action: 'read' | 'mutation',
 ): Promise<LoadedDiagnostic | NextResponse> {
-  const diagnostic = await getDiagnosticForActor(session, diagnosticId);
+  const diagnostic = await getDiagnosticForActor(session, diagnosticId, action);
   if (isErrorResponse(diagnostic)) return diagnostic;
 
   const raw: RawDomainScores = {};
@@ -42,5 +44,5 @@ export async function loadRawDomainScores(
     }
   }
 
-  return { diagnosticId, raw, overconfidentDomainKeys };
+  return { diagnosticId, studentId: diagnostic.studentId, raw, overconfidentDomainKeys };
 }

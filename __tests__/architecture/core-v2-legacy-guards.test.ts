@@ -224,6 +224,7 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
   // Core v2 identity is verified and re-validated in Core v2 alone. Any other
   // live-runtime import of Core v2 remains a guard failure.
   const CORE_V2_AUTH_INTEGRATION_FILES = ['lib/auth/credentials-authorize.ts', 'lib/auth/session-revocation.ts', 'lib/auth/auth-rollout-startup.ts', 'lib/auth/password-reset-authority.ts'];
+  const CORE_V2_FAMILY_INTEGRATION_FILE = 'lib/families/student-access-authority.ts';
   const LIVE_RUNTIME_DIRS = ['app', 'lib', 'components', 'scripts'];
   // Catches every real JS/TS module-reference shape, not just static
   // `import ... from '...'`: a side-effect import (`import '...'`, no
@@ -248,7 +249,8 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
       if (!existsSync(full)) continue;
       for (const file of listFilesRecursive(full)) {
         const relative = file.slice(root.length + 1);
-        if (!isUnderCoreV2OwnDir(file) && !CORE_V2_AUTH_INTEGRATION_FILES.includes(relative)) files.push(file);
+        if (!isUnderCoreV2OwnDir(file) && !CORE_V2_AUTH_INTEGRATION_FILES.includes(relative)
+          && relative !== CORE_V2_FAMILY_INTEGRATION_FILE) files.push(file);
       }
     }
     return files;
@@ -276,6 +278,28 @@ describe('CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME (foundation §12)', () =>
     expect(files.length).toBeGreaterThan(0); // sanity: the guard actually scanned something
     const offenders = files.filter((file) => CORE_V2_IMPORT_PATTERN.test(readFileSync(file, 'utf8')));
     expect(offenders).toEqual([]);
+  });
+
+  function familyBridgeCoreImports(source: string): string[] {
+    return [...source.matchAll(/(?:from\s+|import\s*\(\s*|require\s*\(\s*|import\s*)['"`]([^'"`]+)['"`]/g)]
+      .map(match => match[1])
+      .filter(reference => /(?:^@\/(?:lib\/)?core-v2(?:\/|$)|(?:^|\/)core-v2(?:\/|$))/.test(reference));
+  }
+
+  test('the family bridge binds only the minimal family authorization query', () => {
+    const source = readFileSync(join(root, CORE_V2_FAMILY_INTEGRATION_FILE), 'utf8');
+    expect(familyBridgeCoreImports(source)).toEqual(['@/lib/core-v2/queries/family-authority']);
+  });
+
+  test.each([
+    "import { x } from '@/lib/core-v2/client';",
+    "export * from '@/core-v2/generated/client';",
+    "import('@/lib/core-v2/services/account')",
+    "require('../core-v2/client')",
+    "import '@/lib/core-v2/auth/rollout';",
+  ])('the family bridge detects an unauthorized binding: %s', source => {
+    expect(familyBridgeCoreImports(source)).toHaveLength(1);
+    expect(familyBridgeCoreImports(source)).not.toEqual(['@/lib/core-v2/queries/family-authority']);
   });
 });
 

@@ -156,6 +156,11 @@ export function roleHasCapability(role: UserRole, capability: Capability): boole
   return CAPABILITY_MATRIX[role]?.has(capability) ?? false;
 }
 
+/** Boolean role decision for fail-closed read models; role comparisons stay centralized. */
+export function subjectHasRole(subject: { readonly role: UserRole }, expected: UserRole): boolean {
+  return subject.role === expected;
+}
+
 export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return CAPABILITIES.filter((c) => roleHasCapability(role, c));
 }

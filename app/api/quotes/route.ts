@@ -115,7 +115,7 @@ export async function POST(request: Request) {
       if (session.user.role === UserRole.ELEVE) {
         verifiedStudentId = input.studentId;
       } else if (session.user.role === UserRole.PARENT) {
-        const ownership = await requireParentOwnsStudent(session.user.id, input.studentId);
+        const ownership = await requireParentOwnsStudent(session.user.id, input.studentId, 'mutation');
         if (isErrorResponse(ownership)) return ownership;
         verifiedStudentId = input.studentId;
       } else if (session.user.role === UserRole.ADMIN || session.user.role === UserRole.ASSISTANTE) {
@@ -126,11 +126,13 @@ export async function POST(request: Request) {
     }
 
     if (input.diagnosticId) {
-      const loaded = await loadRawDomainScores(session, input.diagnosticId);
-      if (!isErrorResponse(loaded)) {
-        diagnosticDomainScores = loaded.raw;
-        overconfidentDomainKeys = loaded.overconfidentDomainKeys;
+      const loaded = await loadRawDomainScores(session, input.diagnosticId, 'mutation');
+      if (isErrorResponse(loaded)) return loaded;
+      if (verifiedStudentId && loaded.studentId !== verifiedStudentId) {
+        return NextResponse.json({ error: 'forbidden' }, { status: 403 });
       }
+      diagnosticDomainScores = loaded.raw;
+      overconfidentDomainKeys = loaded.overconfidentDomainKeys;
     }
   }
 

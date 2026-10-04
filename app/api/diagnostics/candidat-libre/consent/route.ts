@@ -41,7 +41,7 @@ async function resolveStudent(request: Request, studentId?: string) {
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return { error: sessionOrError } as const;
 
-  const studentOrError = await getStudentForActor(sessionOrError, studentId);
+  const studentOrError = await getStudentForActor(sessionOrError, studentId, request.method === 'GET' ? 'read' : 'mutation');
   if (studentOrError instanceof NextResponse) return { error: studentOrError } as const;
   if (!studentOrError) {
     return { error: NextResponse.json({ error: 'Student not found' }, { status: 404 }) } as const;
