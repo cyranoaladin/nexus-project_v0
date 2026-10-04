@@ -53,11 +53,25 @@ function makeRequest(body?: any) {
 }
 
 describe('POST /api/payments/validate', () => {
+  it.each(['ASSISTANTE', 'PARENT', 'ELEVE', 'COACH'])('denies %s without PAYMENT UPDATE before loading payment', async role => {
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'synthetic-actor', role } });
+    const response = await POST(makeRequest({ paymentId: 'synthetic-payment', action: 'approve' }));
+    expect(response.status).toBe(403);
+    expect(prisma.payment.findUnique).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+  });
+  it('denies missing canonical staff identity before loading payment', async () => {
+    (auth as jest.Mock).mockResolvedValue({ user: { role: 'ADMIN' } });
+    const response = await POST(makeRequest({ paymentId: 'synthetic-payment', action: 'approve' }));
+    expect(response.status).toBe(401);
+    expect(prisma.payment.findUnique).not.toHaveBeenCalled();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('returns 401 when not assistant', async () => {
+  it('returns 401 when not authenticated', async () => {
     (auth as jest.Mock).mockResolvedValue(null);
 
     const response = await POST(makeRequest({}));
@@ -69,7 +83,7 @@ describe('POST /api/payments/validate', () => {
 
   it('returns 404 when payment not found', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -82,7 +96,7 @@ describe('POST /api/payments/validate', () => {
 
   it('rejects any student-scoped payment when the referenced student is outside the parent household', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-foreign-addon',
@@ -104,7 +118,7 @@ describe('POST /api/payments/validate', () => {
 
   it('returns 400 on invalid payload', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
 
     const response = await POST(makeRequest({ paymentId: 'pay-1', action: 'invalid' }));
@@ -116,7 +130,7 @@ describe('POST /api/payments/validate', () => {
 
   it('approves payment via transaction', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-1',
@@ -206,7 +220,7 @@ describe('POST /api/payments/validate', () => {
 
   it('approves payment and invoice without allocating legacy subscription credits', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-2',
@@ -302,7 +316,7 @@ describe('POST /api/payments/validate', () => {
 
   it('does not activate subscription or credits when payment was already processed concurrently', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-race',
@@ -343,7 +357,7 @@ describe('POST /api/payments/validate', () => {
 
   it('rejects payment and updates status', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-3',
@@ -370,7 +384,7 @@ describe('POST /api/payments/validate', () => {
 
   it('returns 409 on transaction conflict', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-4',
@@ -400,7 +414,7 @@ describe('POST /api/payments/validate', () => {
 
   it('CODEX_CUBIC_P2_CONCURRENCY_RED: returns 409 on P2002 FOR THE CANONICAL ARIA_ACCESS invoice-uniqueness race specifically (Cubic P2)', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-4b',
@@ -427,7 +441,7 @@ describe('POST /api/payments/validate', () => {
     // (e.g. a corrupted invoice number sequence) behind a "just retry"
     // response that would loop forever instead of surfacing the real bug.
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-4c',
@@ -450,7 +464,7 @@ describe('POST /api/payments/validate', () => {
 
   it('returns 404 on transaction P2025', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'assistant-1', role: 'ASSISTANTE' },
+      user: { id: 'admin-1', role: 'ADMIN' },
     });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({
       id: 'pay-5',
@@ -479,7 +493,7 @@ describe('POST /api/payments/validate', () => {
   });
 
   it.each(['CREDIT_PACK_10', 'ancien-pack-inconnu'])('refuses a pending retired credit purchase before settlement: %s', async (itemKey) => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue({ id: 'pay-retired', status: 'PENDING', type: 'CREDIT_PACK', amount: 100, method: 'bank_transfer', userId: 'parent-1', user: { parentProfile: { children: [] } }, metadata: { itemKey } });
     const response = await POST(makeRequest({ paymentId: 'pay-retired', action: 'approve' }));
     expect(response.status).toBe(409);
@@ -525,7 +539,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
   }
 
   it('CODEX_P0_ARIA_03_RED: refuses to approve a historical PENDING payment for a currently-suspended subscription surface', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(pendingPayment({ itemType: 'subscription' }));
 
     const response = await POST(makeRequest({ paymentId: 'pay-suspended-1', action: 'approve' }));
@@ -538,7 +552,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
   });
 
   it('refuses to approve a historical PENDING payment for a currently-suspended ARIA addon surface', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
       pendingPayment({ itemType: 'addon', itemKey: 'MATIERE_SUPPLEMENTAIRE' }),
     );
@@ -552,7 +566,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
   });
 
   it('still allows approving a SPECIAL_PACK payment (never suspended)', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
       pendingPayment({ itemType: 'pack', itemKey: 'GRAND_ORAL' }),
     );
@@ -583,7 +597,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
   });
 
   it('never blocks rejecting a payment for a suspended surface — rejection always stays available', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
     (prisma.payment.findUnique as jest.Mock).mockResolvedValue(pendingPayment({ itemType: 'subscription' }));
     (prisma.payment.update as jest.Mock).mockResolvedValue({});
 
@@ -621,7 +635,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     }
 
     it('CODEX_CUBIC_P1A_RED: refuses to approve a historical subscription payment with itemKey but no itemType', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
         historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
       );
@@ -635,7 +649,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
 
     it('refuses to approve a historical ARIA addon payment with itemKey but no itemType', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
         historicalPayment({ type: 'SPECIAL_PACK', itemKey: 'ARIA_MATHS' }),
       );
@@ -648,7 +662,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
 
     it('refuses to approve when metadata is genuinely unidentifiable on a SUBSCRIPTION-typed payment (fail closed, never guessed)', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
         historicalPayment({ type: 'SUBSCRIPTION', itemKey: undefined }),
       );
@@ -661,7 +675,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
 
     it('still allows approving a historical SPECIAL_PACK/stage payment with no itemType', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
         historicalPayment({ type: 'CREDIT_PACK', itemKey: 'STAGE_MATHS_P1' }),
       );
@@ -692,7 +706,7 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
 
     it('still allows rejecting a historical payment regardless of how its surface resolves', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'assistant-1', role: 'ASSISTANTE' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
       (prisma.payment.findUnique as jest.Mock).mockResolvedValue(
         historicalPayment({ type: 'SUBSCRIPTION', itemKey: 'HYBRIDE' }),
       );

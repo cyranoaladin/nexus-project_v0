@@ -3,6 +3,7 @@ import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { can } from '@/lib/rbac';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 import type { InvoiceData,TaxRegime } from '@/lib/invoice';
@@ -195,11 +196,15 @@ export async function POST(request: NextRequest) {
       // auth() can throw UntrustedHost in standalone mode — treat as unauthenticated
     }
 
-    if (!session?.user || !['ASSISTANTE', 'ADMIN'].includes(session.user.role)) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Accès non autorisé' },
         { status: 401 }
       );
+    }
+
+    if (!can(session.user.role, 'UPDATE', 'PAYMENT')) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const body = await request.json();
