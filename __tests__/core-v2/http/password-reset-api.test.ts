@@ -1,3 +1,6 @@
+jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({ assertAccountEmailHandoffRuntimeConfiguration: jest.fn(), kickAccountEmailHandoffDrain: jest.fn() }));
+import { openAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
 /**
  * Core v2 password reset (§AL/§AT) against a real Core v2 database, through
  * the services and the public routes: request → mail adapter (token never in
@@ -46,7 +49,7 @@ async function activeParent(email: string, password = 'change_me_old_password') 
   });
 }
 
-beforeEach(() => mockedDeliver.mockClear());
+beforeEach(() => { mockedDeliver.mockClear(); jest.mocked(kickAccountEmailHandoffDrain).mockClear(); });
 
 describe('services', () => {
   test('request → one open token, mail adapter gets the raw token once; confirm sets the password and revokes sessions; replay refused', async () => {
@@ -107,14 +110,17 @@ describe('authority bridge', () => {
   test('a CORE_V2 identity is issued and mailed through Core v2; an unknown e-mail is V1 (left to the Core v1 flow); an ineligible Core v2 account is neither', async () => {
     await activeParent('amel@synthetic.test');
     expect(await requestPasswordResetByAuthority('amel@synthetic.test')).toBe('CORE_V2_ISSUED');
-    expect(mockedDeliver).toHaveBeenCalledTimes(1);
-    const delivery = mockedDeliver.mock.calls[0][0];
-    expect(delivery).toMatchObject({ email: 'amel@synthetic.test', displayName: 'Amel Synthetic' });
+    expect(mockedDeliver).not.toHaveBeenCalled();
+    expect(kickAccountEmailHandoffDrain).toHaveBeenCalledTimes(1);
+    const handoff = await h.client.coreV2JobOutbox.findFirstOrThrow({ where: { aggregateType: 'ACCOUNT_EMAIL_HANDOFF' } });
+    const delivery = openAccountEmailHandoff(handoff.payload, handoff.aggregateId);
+    expect({ email: delivery.email, displayName: delivery.displayName }).toMatchObject({ email: 'amel@synthetic.test', displayName: 'Amel Synthetic' });
     expect(delivery.rawToken.length).toBeGreaterThanOrEqual(40);
     expect(await requestPasswordResetByAuthority('stranger@synthetic.test')).toBe('V1');
     const pending = await h.client.user.create({ data: { role: 'PARENT', email: 'pending@synthetic.test', accountStatus: 'PENDING_ACTIVATION' } });
     expect(await requestPasswordResetByAuthority(pending.email!)).toBe('CORE_V2_NOT_ELIGIBLE');
-    expect(mockedDeliver).toHaveBeenCalledTimes(1);
+    expect(mockedDeliver).not.toHaveBeenCalled();
+    expect(kickAccountEmailHandoffDrain).toHaveBeenCalledTimes(1);
   });
 
   test('the rollout mode is the only switch: V1_ONLY never opens Core v2, V2_ONLY never falls back to Core v1', async () => {
@@ -142,8 +148,10 @@ describe('public routes', () => {
     expect(unknown.status).toBe(202);
     expect(JSON.stringify(unknown.body)).toBe(JSON.stringify(accepted.body).replace(accepted.body.correlationId, unknown.body.correlationId));
     expect((await json(await requestRoute.POST(req('POST', '/api/v2/auth/password-reset', { email: 'x' })))).status).toBe(400);
-    expect(mockedDeliver).toHaveBeenCalledTimes(1);
-    const rawToken: string = mockedDeliver.mock.calls[0][0].rawToken;
+    expect(mockedDeliver).not.toHaveBeenCalled();
+    expect(kickAccountEmailHandoffDrain).toHaveBeenCalledTimes(1);
+    const handoff = await h.client.coreV2JobOutbox.findFirstOrThrow({ where: { aggregateType: 'ACCOUNT_EMAIL_HANDOFF' } });
+    const rawToken = openAccountEmailHandoff(handoff.payload, handoff.aggregateId).rawToken;
     expect(JSON.stringify(accepted.body).includes(rawToken)).toBe(false);
 
     const preview = await json(await confirmRoute.GET(new NextRequest(`http://localhost:3000/api/v2/auth/password-reset/confirm?token=${rawToken}`)));

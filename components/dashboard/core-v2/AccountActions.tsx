@@ -27,10 +27,10 @@ export function AccountActions({ user, can, onChanged }: { user: PublicUser; can
       <div className="flex flex-wrap gap-2">
         {can('ACCOUNT_INVITE') && user.accountStatus === 'PENDING_ACTIVATION' && (
           <>
-            <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('invite', () => post('invite'), 'Invitation envoyée.')}>
+            <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('invite', () => post('invite'), 'Invitation mise en file d’envoi.')}>
               Inviter
             </Button>
-            <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('resend', () => post('resend-invitation'), 'Nouvelle invitation envoyée ; l’ancienne est révoquée.')}>
+            <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('resend', () => post('resend-invitation'), 'Nouvelle invitation mise en file d’envoi ; l’ancienne est révoquée.')}>
               Renvoyer l’invitation
             </Button>
           </>

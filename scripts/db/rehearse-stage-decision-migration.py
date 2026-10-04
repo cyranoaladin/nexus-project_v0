@@ -8,6 +8,7 @@ parser.add_argument('--include-staff-list',action='store_true',help='Also verify
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
 parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
 parser.add_argument('--include-core-account-foundations',action='store_true',help='Also run related real-Core account and HTTP suites with aggregate-only logs')
+os.umask(0o077)
 args=parser.parse_args()
 if args.include_core_account_foundations and not args.include_core_account_handoff: raise SystemExit('CORE_HANDOFF_REHEARSAL_REQUIRED')
 if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_SHA_REQUIRED')
@@ -17,8 +18,14 @@ out.mkdir(mode=0o700)
 def source_identity():
  paths=[
   'lib/core-v2/services/account.ts', 'lib/core-v2/audit.ts',
+  'lib/core-v2/accounts/email-handoff-schema.ts', 'lib/core-v2/accounts/email-handoff-scheduler.ts', 'instrumentation.ts',
+  'lib/auth/password-reset-authority.ts',
+  'app/api/v2/staff/accounts/[id]/invite/route.ts', 'app/api/v2/staff/accounts/[id]/resend-invitation/route.ts',
+  '__tests__/core-v2/http/account-email-handoff-routes.test.ts',
+  '__tests__/lib/email/core-v2-handoff-scheduler.test.ts',
   'lib/core-v2/accounts/email-handoff-worker.ts', 'lib/core-v2/accounts/email-handoff-destination.ts',
   'lib/email/account-handoff-envelope.ts', 'lib/email/core-v2-invitation.ts', 'lib/email/core-v2-password-reset.ts',
+  'core-v2/prisma/migrations/0025_core_v2_account_email_payload_fail_closed/migration.sql',
   'core-v2/prisma/schema.prisma', 'core-v2/prisma/migrations/0024_core_v2_account_email_handoff/migration.sql',
   '__tests__/core-v2/services/account-email-handoff.test.ts',
   '__tests__/core-v2/services/account-email-handoff-destination.test.ts',
@@ -120,17 +127,31 @@ try:
   core_hash=str(out/'old-core-native-rows.sha256')
   run_private('core-old-native-seed',core_fixture+['seed',core_hash],core_env)
   run_private('core-interrupted-ddl',core_fixture+['interrupt',core_hash],core_env)
+  # Apply only the first expansion, then interrupt the stricter forward-fix.
+  core_24_snapshot=out/'core-schema-24-snapshot'; (core_24_snapshot/'migrations').mkdir(parents=True)
+  (core_24_snapshot/'schema.prisma').write_bytes((root/'core-v2/prisma/schema.prisma').read_bytes())
+  (core_24_snapshot/'migrations/migration_lock.toml').write_bytes((core_snapshot/'migrations/migration_lock.toml').read_bytes())
+  for entry in core_migrations+['0024_core_v2_account_email_handoff']:
+   (core_24_snapshot/'migrations'/entry).mkdir()
+   (core_24_snapshot/'migrations'/entry/'migration.sql').symlink_to(root/'core-v2/prisma/migrations'/entry/'migration.sql')
+  run_private('core-only-24-expansion',['npx','--no-install','prisma','migrate','deploy','--schema='+str(core_24_snapshot/'schema.prisma')],core_env)
+  run_private('core-strict-ddl-interruption',core_fixture+['interrupt-strict',core_hash],core_env)
   run_private('core-handoff-schema-deploy',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
   run_private('core-expanded-native-rows',core_fixture+['verify',core_hash],core_env)
   run_private('core-expanded-schema-replay',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
+  subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_disposable_core_account_empty_test'],capture_output=True,check=True)
+  core_empty_env=core_env.copy(); core_empty_env['CORE_V2_DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_disposable_core_account_empty_test'
+  run_private('core-empty-current-schema',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_empty_env)
+  run_private('core-empty-expanded-startup',core_fixture+['ready-empty',core_hash],core_empty_env)
   pattern='account-email-handoff.*\\.test'
   if args.include_core_account_foundations:
-   pattern='services/(account-email-handoff.*|account|staff-account)\\.test|http/(staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
+   pattern='services/(account-email-handoff.*|account|staff-account)\\.test|http/(account-email-handoff-routes|staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
   p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns='+pattern],env=core_env,capture_output=True,text=True)
   combined=p.stdout+'\n'+p.stderr
   safe=[]
   for line in combined.splitlines():
    if line.startswith(('Test Suites:', 'Tests:', 'Snapshots:', 'Time:')): safe.append(line)
+   elif re.fullmatch(r'\s*(Expected|Received)( number of calls)?: (?:[0-9]+|true|false|null|\"(?:fulfilled|rejected|LEASED|FAILED_FINAL|COMPLETED|RETRY_SCHEDULED)\")',line): safe.append(line.strip())
    elif re.fullmatch(r'FAIL __tests__/[A-Za-z0-9_./-]+(?: \(.*\))?',line): safe.append(line.split(' (',1)[0])
   safe.append('OUTPUT_SHA256='+hashlib.sha256(combined.encode()).hexdigest())
   (out/'core-account-handoff-summary.log').write_text('\n'.join(safe)+'\n')

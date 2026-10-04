@@ -12,7 +12,7 @@
 import { getAuthRolloutMode, isIdentityOwnedByCoreV2, resolveCredentialAuthority } from '@/lib/core-v2/auth/authority';
 import { requireCoreV2Client } from '@/lib/core-v2/client';
 import { requestPasswordReset } from '@/lib/core-v2/services/account';
-import { deliverCoreV2PasswordReset } from '@/lib/email/core-v2-password-reset';
+import { assertAccountEmailHandoffRuntimeConfiguration, kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
 
 export type PasswordResetAuthorityOutcome = 'V1' | 'CORE_V2_ISSUED' | 'CORE_V2_NOT_ELIGIBLE';
 
@@ -36,16 +36,10 @@ export async function requestPasswordResetByAuthority(email: string, options: { 
   const mode = getAuthRolloutMode();
   if (mode === 'V1_ONLY') return 'V1';
   if (mode === 'HYBRID' && (await resolveCredentialAuthority(email)) !== 'CORE_V2') return 'V1';
+  assertAccountEmailHandoffRuntimeConfiguration();
   const client = await requireCoreV2Client();
   const issued = await requestPasswordReset(client, { email }, { correlationId: options.correlationId });
   if (!issued) return 'CORE_V2_NOT_ELIGIBLE';
-  await deliverCoreV2PasswordReset({
-    userId: issued.userId,
-    email: issued.email,
-    displayName: issued.displayName,
-    rawToken: issued.rawToken,
-    resetId: issued.resetId,
-    expiresAt: issued.expiresAt,
-  });
+  kickAccountEmailHandoffDrain();
   return 'CORE_V2_ISSUED';
 }

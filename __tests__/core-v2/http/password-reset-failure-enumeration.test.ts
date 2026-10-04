@@ -1,3 +1,9 @@
+jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({ assertAccountEmailHandoffRuntimeConfiguration: jest.fn(), kickAccountEmailHandoffDrain: jest.fn() }));
+jest.mock('@/lib/email/account-handoff-envelope', () => {
+  const actual = jest.requireActual<typeof import('@/lib/email/account-handoff-envelope')>('@/lib/email/account-handoff-envelope');
+  return { ...actual, sealAccountEmailHandoff: jest.fn(actual.sealAccountEmailHandoff) };
+});
+import { sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'node:crypto';
@@ -35,6 +41,7 @@ function request(email: string): NextRequest {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(sealAccountEmailHandoff).mockImplementation(jest.requireActual<typeof import('@/lib/email/account-handoff-envelope')>('@/lib/email/account-handoff-envelope').sealAccountEmailHandoff);
   jest.mocked(deliverCoreV2PasswordReset).mockReset();
   jest.mocked(deliverCoreV2PasswordReset).mockResolvedValue({ messageId: 'synthetic-outbox-message' });
 });
@@ -68,7 +75,7 @@ test.each(['HYBRID', 'V2_ONLY'])('missing HMAC configuration does not enumerate 
   }
 });
 
-test.each(['outbox-unavailable', 'reset-conflict'])('an eligible-only %s failure is neutral and observable without a credential in logs', async kind => {
+test.each(['handoff-unavailable', 'reset-conflict'])('an eligible-only %s failure is neutral and observable without a credential in logs', async kind => {
   const savedMode = process.env.CORE_V2_AUTH_MODE;
   process.env.CORE_V2_AUTH_MODE = 'V2_ONLY';
   const email = `active-${kind}@synthetic.test`;
@@ -76,7 +83,7 @@ test.each(['outbox-unavailable', 'reset-conflict'])('an eligible-only %s failure
     password: await bcrypt.hash(syntheticAccountPassword, 4), activatedAt: new Date('2026-10-01T00:00:00Z') } });
   const marker = 'synthetic-private-error-marker';
   const error = kind === 'reset-conflict' ? new ConflictError(marker, { userId: 'synthetic-private-id' }) : new Error(marker);
-  jest.mocked(deliverCoreV2PasswordReset).mockRejectedValueOnce(error);
+  jest.mocked(sealAccountEmailHandoff).mockImplementationOnce(() => { throw error; });
   try {
     const active = await POST(request(email));
     const absent = await POST(request(`absent-${kind}@synthetic.test`));
@@ -90,7 +97,7 @@ test.each(['outbox-unavailable', 'reset-conflict'])('an eligible-only %s failure
     const logs = JSON.stringify(jest.mocked(logger.error).mock.calls);
     expect(logs).not.toContain(marker);
     expect(logs).not.toContain(email);
-    for (const [input] of jest.mocked(deliverCoreV2PasswordReset).mock.calls) expect(logs).not.toContain(input.rawToken);
+    for (const [input] of jest.mocked(sealAccountEmailHandoff).mock.calls) expect(logs).not.toContain(input.rawToken);
   } finally {
     if (savedMode === undefined) delete process.env.CORE_V2_AUTH_MODE;
     else process.env.CORE_V2_AUTH_MODE = savedMode;

@@ -172,9 +172,9 @@ describe('HouseholdDetail', () => {
     const student = await screen.findByRole('region', { name: 'Yasmine Synthetic' });
     await userEvent.click(within(student).getByRole('button', { name: 'Inviter' }));
     await waitFor(() => expect(within(student).getByRole('button', { name: 'Inviter' })).toBeDisabled());
-    expect(within(student).queryByText('Invitation envoyée.')).not.toBeInTheDocument();
+    expect(within(student).queryByText('Invitation mise en file d’envoi.')).not.toBeInTheDocument();
     release();
-    expect(await within(student).findByText('Invitation envoyée.')).toBeInTheDocument();
+    expect(await within(student).findByText('Invitation mise en file d’envoi.')).toBeInTheDocument();
     expect(calls.filter((c) => c.method === 'POST').length).toBe(1);
   });
 

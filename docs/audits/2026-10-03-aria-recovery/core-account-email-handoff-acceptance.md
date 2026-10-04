@@ -146,3 +146,22 @@ these are precommit source proofs, not a replacement for final-SHA CI. Targeted
 unit/architecture checks: 2 suites / 41 tests passed; typecheck and targeted lint
 passed. Runtime scheduler/route wiring and resend command idempotence remain open.
 No provider delivery, deployment, real data or production backup is claimed.
+
+## Runtime wiring checkpoint
+
+2026-10-04. Staff invite/resend and Core password reset now commit encrypted
+handoff work before returning QUEUED; they do not claim provider delivery.
+The supervised poller is automatic in HYBRID/V2_ONLY, disabled in V1_ONLY,
+and refuses startup when the exact completed 0024/0025 migrations, enum or
+validated constraint are missing. It coalesces drains and uses bounded retries.
+Five scheduler unit tests pass, including missing schema and deferred sender
+kick. Typecheck and targeted lint pass. HTTP fixtures initially omitted the
+synthetic admin email (401); that harness error was corrected without weakening
+authentication. The full real-database rerun 1791153537 passed eight suites /
+78 tests with source identity stable and the owned disposable instance stopped.
+
+V1 has an independent sender: deferring this worker's kick is not a global
+send barrier. A revocation after transfer may produce an unusable link but
+must not restore rights. Operational monitoring, process-kill recovery, actual
+SMTP delivery, production restoration and rollback are not qualified. Resend
+command retry identity remains a separate open item. NOT_READY.
