@@ -72,3 +72,14 @@ Voir `docs/espace/DEPLOIEMENT.md` §11. Release servie : `e8a81cba0-espace-valid
 
 Risque restant : publication distante de la branche anonymisée, refusée par le garde-fou de la session.
 
+## Traçabilité Git (2026-10-05)
+
+```text
+RELEASE_SOURCE_PUSHED=YES            PRODUCTION_TAG_PUSHED=YES
+REMOTE_RELEASE_HEAD=bd2023e94a9163bcd4f22292ae45a3b94421db65 (= tête locale à la publication)
+REMOTE_PRODUCTION_TAG=espace-recursivite-production-20261004 -> e8a81cba0e693c48c20c6edfa10ef2911ff48c18 (commit servi)
+PRODUCTION_SOURCE_RECONSTRUCTIBLE=YES    TRACEABILITY_COMPLETE=YES (sous réserve de l'incident ci-dessous)
+```
+
+Incident : une valeur de test égale au mot de passe enseignant réel figurait dans l'historique publié (voir `docs/espace/DEPLOIEMENT.md` §12). Remplacée à la tête ; changement du mot de passe réel à effectuer par le propriétaire.
+

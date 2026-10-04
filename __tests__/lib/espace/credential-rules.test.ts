@@ -47,7 +47,7 @@ describe('code personnel de l’élève', () => {
 describe('mot de passe de l’enseignant', () => {
   it('accepte une phrase de passe sans règle de composition', () => {
     expect(checkTeacherPassword('le cheval gris traverse la vallée', teacher).ok).toBe(true);
-    expect(checkTeacherPassword('XBJ466-5CEt9W-E4GVLY-GEbtZJ', teacher).ok).toBe(true);
+    expect(checkTeacherPassword('Ardoise-Lune-Fenetre-4721', teacher).ok).toBe(true);
     expect(checkTeacherPassword('motsdepassetreslongs mais memorisables', teacher).ok).toBe(true);
   });
 
