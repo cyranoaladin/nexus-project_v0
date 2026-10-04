@@ -5,10 +5,9 @@
  * started for this rehearsal) over its own native INSTREAM wire protocol
  * on a plain TCP socket — no `docker exec`, no Docker daemon access, no
  * external clamdscan binary — with the real, officially-distributed
- * signature database, never a fabricated verdict. Skips (does not fail)
- * if that infrastructure is not configured, so it never silently passes
- * as "qualified" without it, and never blocks a run where it was not set
- * up.
+ * signature database, never a fabricated verdict. This qualification lane
+ * requires an explicit local daemon and isolated synthetic storage; missing
+ * infrastructure fails rather than silently skipping required AV evidence.
  *
  * Naming: `.real.test.ts`, same convention as the rest of this codebase's
  * real-infrastructure-dependent suites (jest.unit.config.js excludes this
@@ -18,14 +17,18 @@ import { randomUUID } from 'node:crypto';
 import { scanDiagnosticSubmissionFile } from '@/lib/core-v2/diagnostics/virus-scan';
 import { writeDiagnosticStorageFile } from '@/lib/core-v2/diagnostics/storage';
 
-const configured = Boolean(process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST);
-const describeOrSkip = configured ? describe : describe.skip;
+const previousMode = process.env.DIAGNOSTIC_AV_MODE;
 
 const EICAR = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
 
-describeOrSkip('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP (DIAGNOSTIC_AV_CLAMD_TCP_HOST configured)', () => {
+describe('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP (DIAGNOSTIC_AV_CLAMD_TCP_HOST configured)', () => {
   beforeAll(() => {
+    if (!process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST || !process.env.DOCUMENT_STORAGE_ROOT) throw new Error('DIAGNOSTIC_AV_REAL_TEST_CONFIGURATION_REQUIRED');
     process.env.DIAGNOSTIC_AV_MODE = 'clamdscan';
+  });
+
+  afterAll(() => {
+    if (previousMode === undefined) delete process.env.DIAGNOSTIC_AV_MODE; else process.env.DIAGNOSTIC_AV_MODE = previousMode;
   });
 
   test('a harmless synthetic file is genuinely scanned and reported clean by the real engine', async () => {

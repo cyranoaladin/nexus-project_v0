@@ -264,6 +264,20 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
   });
 
+  test('CORE_ACCOUNT_CI_CREATES_AND_MIGRATES_A_DISTINCT_DISPOSABLE_V1_DESTINATION', () => {
+    const job = loadWorkflow(WORKFLOW_PATH).jobs['core-v2-foundation'];
+    expect(job.env.NEXUS_DISPOSABLE_POSTGRES).toBe('1');
+    expect(job.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST).toBe('127.0.0.1');
+    expect(job.env.DOCUMENT_STORAGE_ROOT).toBe('${{ runner.temp }}/nexus-core-synthetic-av-storage');
+    expect(job.services.clamav.image).toMatch(/^clamav\/clamav@sha256:/);
+    expect(job.env.DATABASE_URL).toMatch(/\/nexus_disposable_core_legacy_test$/);
+    expect(job.env.DATABASE_URL).not.toBe(job.env.CORE_V2_DATABASE_URL);
+    expect(job.services.postgres.image).toMatch(/^pgvector\/pgvector@sha256:/);
+    const commands = job.steps.map(step => step.run).filter(Boolean);
+    expect(commands).toContain('npx prisma migrate deploy --schema=prisma/schema.prisma');
+    expect(commands.indexOf('npx prisma migrate deploy --schema=prisma/schema.prisma')).toBeLessThan(commands.indexOf('npx jest --config jest.core-v2.config.js --ci'));
+  });
+
   test('ARIA_CI_REQUALIFIES_THE_SEALED_VISUAL_MATRIX_BEFORE_TRACEABILITY', () => {
     const document = passingDocument();
     const commands = document.jobs['aria-evidence'].steps.map((step) => step.run).filter(Boolean);

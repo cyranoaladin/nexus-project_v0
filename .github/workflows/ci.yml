@@ -680,7 +680,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres@sha256:f1c3376c26f2609ab9f29f71f824103fe2fcd8ee0346485cb6122a4f93df6f94 # 16
+        image: pgvector/pgvector@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b # pg16, V1 destination extension
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ github.run_id }}
@@ -693,15 +693,20 @@ jobs:
           --health-timeout 5s
           --health-retries 20
 
+      clamav:
+        image: clamav/clamav@sha256:57deb108fc4c72778aa83eafbca7bb7153e28c3f57c005afd38d31f16da86f23
+        ports:
+          - 3310:3310
+
     env:
       CORE_V2_DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v2_foundation_ci
-      # Present so the Core v1/v2 URL target-collision guard
-      # (lib/core-v2/database-target.ts) actually exercises its full
-      # comparison path in CI instead of short-circuiting on "DATABASE_URL
-      # unset" — points at a distinct database name on this job's own
-      # disposable container; nothing in this job connects to it, so it
-      # doesn't need to exist.
-      DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/core_v1_legacy_ci_shadow
+      # Distinct, owned temporary V1 destination for real encrypted handoff tests.
+      # The collision guard remains active; no production target is used.
+      DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_core_legacy_test
+      NEXUS_DISPOSABLE_POSTGRES: '1'
+      DIAGNOSTIC_AV_CLAMD_TCP_HOST: '127.0.0.1'
+      DIAGNOSTIC_AV_CLAMD_TCP_PORT: '3310'
+      DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
       # Organization configuration consumed by the Core v2 service layer
       # (lib/core-v2/config.ts) — no built-in defaults exist, so CI must
       # provide them exactly like a deployment would.
@@ -734,6 +739,26 @@ jobs:
       - name: Install Playwright browsers (Chromium)
         run: npx playwright install --with-deps chromium
 
+      - name: Create isolated legacy destination database
+        run: |
+          node --input-type=module <<'NODE'
+          import { Client } from 'pg';
+          const client = new Client({ connectionString: process.env.CORE_V2_DATABASE_URL });
+          try {
+            await client.connect();
+            await client.query('CREATE DATABASE nexus_disposable_core_legacy_test');
+          } catch {
+            console.error('CORE_CI_LEGACY_BOOTSTRAP_FAILED');
+            process.exitCode = 1;
+          } finally { await client.end(); }
+          NODE
+
+      - name: Generate legacy destination client
+        run: npx prisma generate --schema=prisma/schema.prisma
+
+      - name: Migrate isolated legacy destination
+        run: npx prisma migrate deploy --schema=prisma/schema.prisma
+
       - name: Generate Core v2 Prisma Client
         run: npx prisma generate --schema=core-v2/prisma/schema.prisma
 
@@ -757,6 +782,9 @@ jobs:
 
       - name: Architecture guards (legacy dependency + no-live-runtime-import)
         run: npx jest --config jest.unit.config.js --ci __tests__/architecture/core-v2-legacy-guards.test.ts
+
+      - name: Create private synthetic AV storage
+        run: mkdir -m 700 "$DOCUMENT_STORAGE_ROOT"
 
       - name: Core v2 tests (Golden Empty DB, negative golden, client guards, RAG independence, database target/identity safety, catastrophic misroute)
         run: npx jest --config jest.core-v2.config.js --ci

@@ -147,7 +147,7 @@ try:
   run_private('core-empty-expanded-startup',core_fixture+['ready-empty',core_hash],core_empty_env)
   pattern='account-email-handoff.*\\.test'
   if args.include_core_account_foundations:
-   pattern='services/(account-email-handoff.*|account|staff-account)\\.test|http/(account-email-handoff-routes|staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
+   pattern='account-email-envelope\\.test|services/(account-email-handoff.*|account-token-hmac|account|staff-account|concurrency)\\.test|http/(core-only-session-revocation|account-email-handoff-routes|staff-api|password-reset-api|password-reset-failure-enumeration)\\.test'
   p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns='+pattern],env=core_env,capture_output=True,text=True)
   combined=p.stdout+'\n'+p.stderr
   safe=[]
