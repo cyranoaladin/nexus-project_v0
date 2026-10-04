@@ -1,5 +1,5 @@
 {
-  "sourceSha": "7350f700564222c6be884f81ba4dd1246a81fb1d",
+  "sourceSha": "a52c63c3343e86a6c750dafe1c57064ffc8fbf7a",
   "migrations": [
     {
       "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
@@ -30,6 +30,16 @@
       "path": "prisma/migrations/20261004190000_subscription_request_owner/migration.sql",
       "sha256": "93b35c09e9b8ab073056c8217e227fef811c32e89ba27e78fcd5d1592c7c71ae",
       "introducedCommit": "006cc1cf1653a64814a6e1b36946ef33ed917c39"
+    },
+    {
+      "path": "prisma/migrations/20261004200000_invoice_status_audit/migration.sql",
+      "sha256": "364a549be3174f1f5c7457ff58950e00684acd9a22f9ea607cbcca0ae084edb4",
+      "introducedCommit": "326c735981ff1eb9774d2fb46c5030434752454b"
+    },
+    {
+      "path": "prisma/migrations/20261004203000_invoice_creation_audit/migration.sql",
+      "sha256": "cbfac991866d8cf6f43d67a719d4c24154a7d28c01ab13c8dd219f01b4f4ff33",
+      "introducedCommit": "f36c4db01c718fdb9999e8c1251df6e7e343e87d"
     }
   ],
   "caveat": "Fingerprint inventory is not proof of additive safety or representative restoration for every migration."

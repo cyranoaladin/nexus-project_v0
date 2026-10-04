@@ -1,5 +1,5 @@
 {
-  "sourceSha": "7350f700564222c6be884f81ba4dd1246a81fb1d",
+  "sourceSha": "a52c63c3343e86a6c750dafe1c57064ffc8fbf7a",
   "classification": "path-based review aid, not security clearance",
   "files": [
     {
@@ -108,6 +108,16 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/financial-csrf-boundary.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/financial-response-privacy.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/health.route.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -115,6 +125,11 @@
     {
       "path": "__tests__/api/internal-health.route.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/invoice-create-immutable-audit.test.ts",
+      "domain": "finance",
       "highRisk": false
     },
     {
@@ -133,6 +148,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/invoice-status-immutable-audit.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/invoices-draft-boundary.test.ts",
       "domain": "finance",
       "highRisk": false
@@ -140,6 +160,11 @@
     {
       "path": "__tests__/api/invoices.pdf.route.test.ts",
       "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent-subscription-sale-boundary.test.ts",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -183,6 +208,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/reset-password-error-redaction.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/student.dashboard.payload.test.ts",
       "domain": "famille-academique",
       "highRisk": false
@@ -200,6 +230,11 @@
     {
       "path": "__tests__/api/student.resources.official.route.test.ts",
       "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/assistante.facturation.page.test.tsx",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -225,6 +260,11 @@
     {
       "path": "__tests__/architecture/aria-test-harness-boundary.test.ts",
       "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/architecture/client-financial-permissions.test.ts",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -418,12 +458,22 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/db/invoice-create-audit.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/db/invoice-email-request.real.test.ts",
       "domain": "finance",
       "highRisk": false
     },
     {
       "path": "__tests__/db/invoice-financial-authority.real.test.ts",
+      "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/db/invoice-status-concurrency.real.test.ts",
       "domain": "finance",
       "highRisk": false
     },
@@ -708,6 +758,11 @@
       "highRisk": true
     },
     {
+      "path": "app/api/admin/invoices/[id]/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
       "path": "app/api/admin/invoices/[id]/send/route.ts",
       "domain": "finance",
       "highRisk": true
@@ -864,6 +919,11 @@
     },
     {
       "path": "app/api/payments/bank-transfer/confirm/route.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/payments/pending/route.ts",
       "domain": "finance",
       "highRisk": true
     },
@@ -1108,8 +1168,18 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/assistante-invoice-list-fixture.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/auth-authority-error-redaction.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/auth-e2e-financial-contract-alignment.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1160,6 +1230,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/ci-remediation.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/client-financial-permissions-build.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1238,6 +1313,16 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/empty-e2e-directory-qualification.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/external-gates-20261004.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/family-authority-plan.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1248,8 +1333,33 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/financial-csrf-boundary.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/financial-response-privacy.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/financial-review-lot-20261004.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/household-verification.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-creation-immutable-audit.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-derived-amount-validation.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1270,6 +1380,16 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-private-error-boundary.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-status-concurrency.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-status-immutable-audit.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1373,6 +1493,16 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/pr-migration-fingerprints.json",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/pr-scope-file-map.json",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/private-build-discovery.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1408,6 +1538,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/reset-password-error-boundary.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/schema-comparison.json",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1440,6 +1575,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/subscription-request-owner.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/subscription-sale-route-consistency.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1493,6 +1633,16 @@
       "highRisk": false
     },
     {
+      "path": "e2e/auth/dialog-all-roles-proof.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/parent-dashboard.spec.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
       "path": "e2e/auth/parent-email-onboarding.spec.ts",
       "domain": "auth-securite",
       "highRisk": false
@@ -1505,6 +1655,11 @@
     {
       "path": "e2e/auth/password-change.spec.ts",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/auth/payments.invoice.documents.spec.ts",
+      "domain": "finance",
       "highRisk": false
     },
     {
@@ -1793,6 +1948,11 @@
       "highRisk": true
     },
     {
+      "path": "lib/invoice/private-response.ts",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
       "path": "lib/invoice/publication.ts",
       "domain": "finance",
       "highRisk": true
@@ -1846,6 +2006,11 @@
       "path": "lib/rbac.ts",
       "domain": "auth-securite",
       "highRisk": false
+    },
+    {
+      "path": "lib/rbac/permissions.ts",
+      "domain": "auth-securite",
+      "highRisk": true
     },
     {
       "path": "lib/reports/stage/renderLatexPremiumReport.ts",
@@ -1930,6 +2095,16 @@
     {
       "path": "prisma/migrations/20261004190000_subscription_request_owner/migration.sql",
       "domain": "schema-migration",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261004200000_invoice_status_audit/migration.sql",
+      "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261004203000_invoice_creation_audit/migration.sql",
+      "domain": "finance",
       "highRisk": true
     },
     {
