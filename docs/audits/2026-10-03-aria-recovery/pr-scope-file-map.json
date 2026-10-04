@@ -1,5 +1,5 @@
 {
-  "sourceSha": "98ff57b24ea60abc60bc72759b90e2759c29dc61",
+  "sourceSha": "cb3665fc68be6ae9652f386f64ba3c206a72e3ea",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -244,6 +244,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/parent.stages.route.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/parent.subscription-requests.route.test.ts",
       "domain": "finance",
       "highRisk": false
@@ -289,6 +294,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/reservation.verify.route.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/reset-password-error-redaction.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -306,6 +316,31 @@
     {
       "path": "__tests__/api/sessions.sessionId.route.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/stage-confirm-delivery-authority.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/stage-confirm-payment-state.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/stage-list-authority.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/stages.reservations.confirm.route.test.ts",
+      "domain": "tests",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/stages/confirm.test.ts",
+      "domain": "tests",
       "highRisk": false
     },
     {
@@ -336,6 +371,11 @@
     {
       "path": "__tests__/api/student.resources.official.route.test.ts",
       "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.stages.identity.test.ts",
+      "domain": "tests",
       "highRisk": false
     },
     {
@@ -651,6 +691,11 @@
     {
       "path": "__tests__/integration/saisie-papier-visibilite-sans-email.real.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/stage-reservation-confirm-null-richstatus.real.test.ts",
+      "domain": "tests",
       "highRisk": false
     },
     {
@@ -1099,6 +1144,11 @@
       "highRisk": true
     },
     {
+      "path": "app/api/parent/stages/route.ts",
+      "domain": "planning-stages",
+      "highRisk": true
+    },
+    {
       "path": "app/api/parent/subscription-requests/route.ts",
       "domain": "finance",
       "highRisk": true
@@ -1154,8 +1204,18 @@
       "highRisk": true
     },
     {
+      "path": "app/api/reservation/verify/route.ts",
+      "domain": "securite-transversale",
+      "highRisk": true
+    },
+    {
       "path": "app/api/sessions/[sessionId]/route.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts",
+      "domain": "planning-stages",
       "highRisk": true
     },
     {
@@ -1166,6 +1226,11 @@
     {
       "path": "app/api/student/documents/route.ts",
       "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/student/stages/route.ts",
+      "domain": "planning-stages",
       "highRisk": true
     },
     {
@@ -1445,6 +1510,11 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/client-financial-permissions-build.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/closure-checkpoint-20261004.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1784,6 +1854,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/reservation-existence-privacy.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/reset-failure-non-enumeration.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1809,12 +1884,42 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/sse-abort-phase-contracts.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/sse-ci-collection-coverage.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/sse-cleanup-invariant.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/sse-native-consumer.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/sse-terminal-drain.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-confirm-delivery-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-confirm-payment-separation.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-list-family-authority.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1981,6 +2086,11 @@
     {
       "path": "jest.aria.sse.config.js",
       "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "jest.aria.unit.config.js",
+      "domain": "securite-transversale",
       "highRisk": false
     },
     {
@@ -2352,6 +2462,11 @@
       "path": "lib/services/student-activation.service.ts",
       "domain": "famille-academique",
       "highRisk": false
+    },
+    {
+      "path": "lib/stages/family-read-projection.ts",
+      "domain": "planning-stages",
+      "highRisk": true
     },
     {
       "path": "lib/validation/common.ts",
