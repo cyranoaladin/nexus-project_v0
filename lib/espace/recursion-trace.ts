@@ -182,3 +182,26 @@ export function phaseAfter(events: TraceEvent[], k: number): 'avant' | 'descente
   if (k >= events.length) return 'fin';
   return events[k - 1]!.kind === 'call' ? 'descente' : 'remontee';
 }
+
+// ─── Textes communs (composant React de la plateforme ET plan de secours hors ligne) ─────────────
+
+export const PHASE_TEXT = {
+  avant: 'Rien n’a encore été appelé. Clique sur « Étape suivante ».',
+  descente: 'Descente : chaque appel en crée un nouveau, sur un problème plus petit.',
+  remontee: 'Remontée : les appels se terminent, du dernier créé au premier.',
+  fin: 'Terminé : l’appel initial a retourné sa valeur et la pile est vide.',
+} as const;
+
+/** Ligne d'historique : `APPEL somme(3)` ou `RETOUR 6 (3 + 3 = 6) — somme(3)`. */
+export function eventText(e: TraceEvent): string {
+  if (e.kind === 'call') return `APPEL ${e.label}`;
+  const detail = e.detail && e.detail !== 'cas de base' ? ` (${e.detail})` : e.detail ? ' (cas de base)' : '';
+  return `RETOUR ${e.value}${detail} — ${e.label}`;
+}
+
+/** Phrase annoncée après chaque étape (zone aria-live). */
+export function stepMessage(last: TraceEvent | null): string {
+  if (!last) return '';
+  if (last.kind === 'call') return `On appelle ${last.label}${last.depth > 0 ? ' : un problème plus petit que l’appel précédent' : ''}.`;
+  return `${last.label} se termine et retourne ${last.value}${last.detail === 'cas de base' ? ' (cas de base : aucun nouvel appel)' : ` (${last.detail})`}. Le dernier appel créé est le premier terminé : c’est le comportement d’une pile (LIFO).`;
+}

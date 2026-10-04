@@ -10,9 +10,10 @@
 import { evaluateAnswer, parseAffine, type AnswerVerdict } from '../../../lib/espace/answer-check';
 import { PythonRunner, type PythonRunResult, type RunnerPhase } from '../../../lib/espace/client/python-runner';
 import { buildFunctionSvg } from '../../../lib/espace/figures/function-svg';
-import type { FunctionFigureSpec, StaticSvgSpec, StructureSimSpec } from '../../../lib/espace/lesson-types';
+import type { CallTraceSpec, FunctionFigureSpec, StaticSvgSpec, StructureSimSpec } from '../../../lib/espace/lesson-types';
 
 import { addItem, initialState, peekItem, readAt, removeItem, simMarkup, type SimState } from './sim';
+import { initialTrace, traceMarkup, traceReduce, type TraceState } from './trace';
 import type { FbData, FbField, FbQuestion, FbStep } from './types';
 
 interface StepState {
@@ -88,6 +89,7 @@ let index = Math.min(Math.max(Number.isInteger(saved.current) ? saved.current : 
 const verdicts = new Map<string, AnswerVerdict>();
 const results = new Map<string, PythonRunResult>();
 const sims = new Map<string, SimState>();
+const traces = new Map<string, TraceState>();
 let phase: RunnerPhase = 'idle';
 
 const pyAvailable = runnerSource !== null && location.protocol !== 'file:';
@@ -114,6 +116,11 @@ function figureHtml(step: FbStep, id: string): string {
   if (spec.type === 'svg') {
     const s = spec as StaticSvgSpec;
     return `<figure class="fig"><div role="img" aria-label="${esc(s.alt)}" class="fig-static">${s.svg}</div>${s.caption ? `<figcaption>${esc(s.caption)}</figcaption>` : ''}</figure>`;
+  }
+  if (spec.type === 'call-trace') {
+    const trace = spec as CallTraceSpec;
+    if (!traces.has(trace.id)) traces.set(trace.id, initialTrace(trace));
+    return `<figure class="sim trace" data-testid="trace-${esc(trace.id)}" data-traceid="${esc(trace.id)}">${traceMarkup(trace, traces.get(trace.id)!)}</figure>`;
   }
   const sim = spec as StructureSimSpec;
   if (!sims.has(sim.id)) sims.set(sim.id, initialState(sim));
@@ -295,6 +302,17 @@ function printSheet() {
   window.print();
 }
 
+function traceAction(el: HTMLElement, action: { type: 'prev' | 'next' | 'reset' } | { type: 'arg'; index: number; value: number }) {
+  const fig = el.closest<HTMLElement>('[data-traceid]')!;
+  const spec = stepOf().figures.find((x) => x.id === fig.dataset.traceid) as CallTraceSpec;
+  const next = traceReduce(spec, traces.get(spec.id) ?? initialTrace(spec), action);
+  traces.set(spec.id, next);
+  fig.innerHTML = traceMarkup(spec, next);
+  const focus = action.type === 'arg' ? `[data-trace-arg="${action.index}"]` : `[data-trace="${action.type}"]`;
+  const target = fig.querySelector<HTMLElement>(`${focus}:not([disabled])`) ?? fig.querySelector<HTMLElement>('[data-trace="next"]:not([disabled]),[data-trace="prev"]:not([disabled])');
+  target?.focus();
+}
+
 function simAction(button: HTMLElement) {
   const fig = button.closest<HTMLElement>('[data-simid]')!;
   const spec = stepOf().figures.find((x) => x.id === fig.dataset.simid) as StructureSimSpec;
@@ -357,6 +375,7 @@ article.addEventListener('input', (e) => {
 
 article.addEventListener('change', (e) => {
   const t = e.target as HTMLInputElement;
+  if (t.dataset.traceArg !== undefined) return traceAction(t, { type: 'arg', index: Number(t.dataset.traceArg), value: Number(t.value) });
   if (t.type !== 'radio' || !t.dataset.q) return;
   const step = stepOf();
   const q = step.questions.find((x) => x.id === t.dataset.q);
@@ -393,10 +412,11 @@ article.addEventListener('keydown', (e) => {
 });
 
 document.addEventListener('click', (e) => {
-  const el = (e.target as HTMLElement).closest<HTMLElement>('[data-goto],[data-action],[data-sim]');
+  const el = (e.target as HTMLElement).closest<HTMLElement>('[data-goto],[data-action],[data-sim],[data-trace]');
   if (!el) return;
   if (el.dataset.goto !== undefined) return goTo(Number(el.dataset.goto));
   if (el.dataset.sim) return simAction(el);
+  if (el.dataset.trace) return traceAction(el, { type: el.dataset.trace as 'prev' | 'next' | 'reset' });
   switch (el.dataset.action) {
     case 'verify':
       return verify(el.dataset.f!);

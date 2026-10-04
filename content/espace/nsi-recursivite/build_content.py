@@ -202,7 +202,7 @@ DECOUVERTE = step(
     '<h3>Ton premier bug récursif</h3>'
     '<p>Voici une version défectueuse :</p>' + BUG_CODE + '{{q:bug-prediction}}'
     '<p>Le programme défectueux est déjà dans l’éditeur. <strong>Exécute-le</strong>, lis le message, puis <strong>répare-le</strong> : ajoute le cas de base et fais porter l’appel sur un problème plus petit. Clique ensuite sur « Vérifier mon code ».</p>{{code}}'
-    '<p>Python n’exécute pas une infinité d’appels : le nombre d’appels imbriqués est limité (environ 1 000 dans Python standard, 200 dans cet atelier). Au-delà, il s’arrête avec une erreur <code>RecursionError</code>.</p>'
+    '<p>Python n’exécute pas une infinité d’appels : le nombre d’appels imbriqués est limité (environ 1 000 par défaut dans Python standard). Dans cet atelier, Nexus limite volontairement la profondeur à 200 appels, afin qu’un programme incorrect ne bloque pas le navigateur. Au-delà de la limite, l’exécution s’arrête avec une erreur <code>RecursionError</code>.</p>'
     '{{q:recursionerror}}'
     '<p>Une fonction récursive qui ne progresse pas vers un cas de base est <strong>incorrecte</strong>.</p>{{f:reparation}}',
     'Réponds aux questions, exécute puis répare le programme défectueux, vérifie-le, puis explique ta réparation.',
@@ -222,8 +222,8 @@ DECOUVERTE = step(
           ['Python n’interdit rien : c’est la logique qui l’exige.', 'print affiche n, pas n - 1.', 'Oui : le problème diminue à chaque appel.', 'n - 1 vaut 0 seulement quand n vaut 1.']),
         q('bug-prediction', 'Que va-t-il se passer si on exécute compte_a_rebours(3) avec cette version ?',
           ['Elle affiche 3 une fois, puis s’arrête', 'Elle affiche 3, 2, 1, 0', 'Elle affiche 3 de nombreuses fois, puis Python s’arrête avec une RecursionError', 'Elle affiche 3 indéfiniment et ne s’arrête jamais, quoi qu’il arrive'], 2,
-          'Il n’y a ni cas de base ni progression : chaque appel recommence le même problème. Python limite la profondeur d’appels et signale une RecursionError.',
-          ['Rien n’arrête la fonction après le premier affichage : elle se rappelle.', 'Elle ne décrémente jamais n : 2, 1, 0 n’apparaissent jamais.', 'Oui : les appels s’empilent jusqu’à la limite de profondeur de Python.', 'En pratique, Python s’arrête de lui-même grâce à sa limite de profondeur.']),
+          'Il n’y a ni cas de base ni progression : chaque appel recommence le même problème. Le nombre d’appels imbriqués est limité (par Python, et plus bas encore dans cet atelier) : l’exécution s’arrête avec une RecursionError.',
+          ['Rien n’arrête la fonction après le premier affichage : elle se rappelle.', 'Elle ne décrémente jamais n : 2, 1, 0 n’apparaissent jamais.', 'Oui : les appels s’empilent jusqu’à la limite de profondeur autorisée, puis l’exécution s’arrête.', 'En pratique, Python s’arrête de lui-même grâce à sa limite de profondeur.']),
         q('recursionerror', 'Que signifie une RecursionError ?',
           ['Python a trouvé une faute de syntaxe', 'Trop d’appels sont imbriqués : la limite de profondeur de la pile d’appels est dépassée', 'La fonction a retourné None', 'Le fichier du programme est trop gros'], 1,
           'Chaque appel non terminé occupe de la place dans la pile d’appels. Quand il y en a trop, Python lève une RecursionError.',
@@ -447,7 +447,7 @@ ECRIRE = step(
     ['somme : cas de base somme(0) = 0', 'somme : somme(1), somme(3), somme(5), somme(10)', 'somme : la fonction s’appelle elle-même',
      'factorielle : 0! = 1 et 1! = 1', 'factorielle : 3!, 5!, 6!', 'factorielle : la fonction s’appelle elle-même',
      'puissance : cas de base a puissance 0 = 1', 'puissance : 2 puissance 1, 2 puissance 5, 3 puissance 3, 10 puissance 4', 'puissance : la fonction s’appelle elle-même',
-     'Terminaison : somme(100), factorielle(20) et puissance(2, 100) se terminent'])
+     'Terminaison : somme(60), factorielle(20) et puissance(2, 60) se terminent'])
 
 # ─── Étape 5 — Chaînes et listes ─────────────────────────────────────────────
 
@@ -559,7 +559,7 @@ ITERATIF = step(
           ['Oui : elle suit la définition ligne à ligne.', 'La version itérative calcule le produit 1 × 2 × … × n, ce qui est équivalent mais moins direct.', 'Une des deux est plus proche de la définition.', 'Elles ne sont pas équivalentes en lisibilité par rapport à cette définition.']),
         q('cout', 'Pourquoi puissance_recursive(2, 1000) provoque-t-elle une RecursionError dans cet atelier alors que puissance_iterative(2, 1000) fonctionne ?',
           ['Parce que 2 puissance 1000 est un nombre trop grand pour Python', 'Parce que 1000 appels sont empilés en même temps et dépassent la limite de profondeur, alors que la boucle n’empile rien', 'Parce que la récursivité est interdite pour n ≥ 100', 'Parce que la boucle est plus rapide'], 1,
-          'La limite porte sur le nombre d’appels imbriqués. La version récursive en empile 1 001 ; la version itérative en utilise un seul.',
+          'La limite porte sur le nombre d’appels imbriqués : dans cet atelier, Nexus la fixe volontairement à 200 (Python standard : environ 1 000, ce qui reste largement inférieur à des milliers d’appels). La version récursive en empile 1 001 ; la version itérative en utilise un seul.',
           ['Python sait calculer 2 puissance 1000 : le nombre n’est pas le problème.', 'Oui : c’est la profondeur de la pile d’appels.', 'Aucune interdiction de ce genre n’existe : c’est une limite de profondeur.', 'La vitesse n’est pas en cause ici.']),
         q('meilleure', 'Une solution récursive est-elle toujours meilleure qu’une solution itérative ?',
           ['Oui : elle est toujours plus courte', 'Oui : elle consomme moins de mémoire', 'Non : l’itérative est toujours meilleure', 'Non : on choisit selon la structure du problème et son coût'], 3,
@@ -883,7 +883,7 @@ DIAGNOSTIC_COMPREHENSION = [
 
 VIGILANCE = [
     'Le parcours vérifie le COMPORTEMENT (valeurs de retour, affichages) et le caractère récursif (la fonction doit s’appeler elle-même), pas la forme exacte du code : toute écriture valide est acceptée.',
-    'La limite de profondeur est volontairement basse dans cet atelier (200 appels) : une RecursionError arrive vite et sans geler le navigateur. Python standard autorise environ 1 000 appels.',
+    'La limite de 200 appels est une limite du bac à sable pédagogique Nexus, pas une propriété de Python : elle est volontairement basse pour qu’une RecursionError arrive vite et sans geler le navigateur. Python standard autorise environ 1 000 appels par défaut (valeur modifiable). Ne jamais présenter 200 comme la limite de Python.',
     'Les restrictions de l’éditeur (aucun import, pas d’accès fichier, pas d’exécution dynamique) sont pédagogiques, pas un dispositif de sécurité.',
     'Fibonacci est volontairement absent du noyau : deux appels récursifs introduisent l’arbre d’appels et les recalculs, traités seulement en bonus comme contre-exemple.',
     'On n’enseigne pas ici l’optimisation de la récursion terminale : Python ne la fait pas en pratique.',

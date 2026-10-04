@@ -205,6 +205,34 @@ suite('Récursivité — contrôles formatifs (Python système)', () => {
       expect(f.map((t) => t.label)).toContain('indice_dicho : environ la moitié des cases écartée à chaque appel');
     });
 
+    describe('la détection « récursive » ne se laisse pas tromper par le texte du code', () => {
+      const iterative = (extra: string) =>
+        `def somme(n):\n${extra}    total = 0\n    for k in range(n + 1):\n        total += k\n    return total\n\n\n` +
+        SOLUTIONS.ecrire.slice(SOLUTIONS.ecrire.indexOf('def factorielle'));
+      it.each([
+        ['un commentaire contenant l’appel', '    # return n + somme(n - 1)\n'],
+        ['une chaîne contenant l’appel', '    note = "n + somme(n - 1)"\n'],
+        ['une docstring contenant l’appel', '    """somme(n - 1)"""\n'],
+        ['un appel mort (jamais exécuté)', '    if False:\n        somme(n - 1)\n'],
+      ])('boucle + %s : valeurs justes mais refusée', (_n, extra) => {
+        const bad = iterative(extra);
+        expect(bad).not.toBe(SOLUTIONS.ecrire);
+        expect(labelsOf('ecrire', bad)).toEqual(['somme : la fonction s’appelle elle-même']);
+      });
+
+      it('des appels répétés mais jamais imbriqués (une boucle qui rappelle la fonction) sont refusés', () => {
+        const bad = SOLUTIONS.ecrire.replace('    if n == 0:\n        return 0\n    return n + somme(n - 1)', '    total = 0\n    for k in range(n + 1):\n        total += k\n    for _ in range(10):\n        somme(0)\n    return total');
+        expect(bad).not.toBe(SOLUTIONS.ecrire);
+        expect(labelsOf('ecrire', bad)).toContain('somme : la fonction s’appelle elle-même');
+      });
+
+      it('une récursion indirecte (deux fonctions qui s’appellent) est reconnue comme récursive', () => {
+        const ok = SOLUTIONS.ecrire.replace('def somme(n):\n    if n == 0:\n        return 0\n    return n + somme(n - 1)', 'def somme(n):\n    if n == 0:\n        return 0\n    return aide(n)\n\n\ndef aide(n):\n    return n + somme(n - 1)');
+        expect(ok).not.toBe(SOLUTIONS.ecrire);
+        expect(failing('ecrire', ok)).toEqual([]);
+      });
+    });
+
     it('une erreur d’exécution dans le code élève est expliquée sans trace Python brute', () => {
       const r = run('def f(n):\n    return n + "a"\nf(1)\n', 'ecrire', 'run');
       expect(r.ok).toBe(false);
@@ -238,7 +266,8 @@ suite('Récursivité — contrôles formatifs (Python système)', () => {
 
     it('l’élève ne peut pas relever la limite de récursion', () => {
       const r = run('def f(n):\n    return f(n - 1)\nf(1)\n', 'ecrire', 'run');
-      expect(r.error).toMatch(/limite de cet atelier : 200/);
+      expect(r.error).toMatch(/Nexus limite volontairement la profondeur à 200 appels/);
+      expect(r.error).toMatch(/Python standard en autorise environ 1 000/);
     });
 
     it('une erreur de syntaxe est localisée', () => {

@@ -7,10 +7,12 @@ import {
   callLabel,
   callStats,
   clampArgs,
+  eventText,
+  PHASE_TEXT,
   phaseAfter,
   stackAfter,
+  stepMessage,
   TRACE_LIMITS,
-  type TraceEvent,
 } from '@/lib/espace/recursion-trace';
 import type { CallTraceSpec } from '@/lib/espace/lesson-types';
 
@@ -18,17 +20,6 @@ const BTN =
   'inline-flex h-10 items-center rounded-lg border border-white/20 px-4 text-sm text-neutral-100 hover:bg-white/5 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent';
 const INPUT =
   'h-10 w-20 rounded-lg border border-white/15 bg-white/5 px-3 text-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
-
-const PHASE_TEXT = {
-  avant: 'Rien n’a encore été appelé. Clique sur « Étape suivante ».',
-  descente: 'Descente : chaque appel en crée un nouveau, sur un problème plus petit.',
-  remontee: 'Remontée : les appels se terminent, du dernier créé au premier.',
-  fin: 'Terminé : l’appel initial a retourné sa valeur et la pile est vide.',
-} as const;
-
-function eventText(e: TraceEvent): string {
-  return e.kind === 'call' ? `APPEL ${e.label}` : `RETOUR ${e.value}${e.detail && e.detail !== 'cas de base' ? ` (${e.detail})` : e.detail ? ' (cas de base)' : ''} — ${e.label}`;
-}
 
 export function CallTrace({ spec }: { spec: CallTraceSpec }) {
   const uid = useId();
@@ -122,11 +113,7 @@ export function CallTrace({ spec }: { spec: CallTraceSpec }) {
       </div>
 
       <p role="status" aria-live="polite" className="mt-3 min-h-6 text-sm text-neutral-100" data-testid="trace-message">
-        {last
-          ? last.kind === 'call'
-            ? `On appelle ${last.label}${last.depth > 0 ? ' : un problème plus petit que l’appel précédent' : ''}.`
-            : `${last.label} se termine et retourne ${last.value}${last.detail === 'cas de base' ? ' (cas de base : aucun nouvel appel)' : ` (${last.detail})`}. Le dernier appel créé est le premier terminé : c’est le comportement d’une pile (LIFO).`
-          : ''}
+        {stepMessage(last)}
       </p>
       {spec.fn === 'fibonacci' && stats.repeated.length > 0 && (
         <p className="mt-2 text-sm text-neutral-100" data-testid="trace-repeated">

@@ -6,7 +6,9 @@
  *     (codes émis TEMPORAIRES : l'élève choisit le sien à la première connexion ; --keep-codes pour les rendre définitifs)
  *   npx tsx scripts/espace/provision.ts reset-pin --username adam.c --execute --credentials-out /chemin/codes.txt
  *   npx tsx scripts/espace/provision.ts disable   --username adam.c --execute
+ *   npx tsx scripts/espace/provision.ts audit-activities                                # preflight : catalogue code ↔ base (lecture seule, code 1 si écart)
  *   npx tsx scripts/espace/provision.ts sync-activities [--execute]                     # miroir DB du catalogue (nouveau parcours)
+ *   npx tsx scripts/espace/provision.ts enable-technical --username val.b --execute --credentials-out /chemin/codes.txt   # réactive un compte val.* (jamais un vrai compte)
  *
  * Dry-run par défaut. Les codes personnels ne sont JAMAIS affichés : ils sont
  * écrits une seule fois dans un fichier 0600 créé hors du dépôt.
@@ -20,7 +22,9 @@ import { prisma } from '@/lib/prisma';
 import { formatPin } from '@/lib/espace/pin';
 import {
   applyProvisioning,
+  auditActivities,
   disableAccount,
+  enableTechnicalAccount,
   parseRoster,
   planProvisioning,
   resetStudentPin,
@@ -113,6 +117,34 @@ async function main() {
     return;
   }
 
+  if (command === 'audit-activities') {
+    const audit = await auditActivities(prisma);
+    for (const w of audit.warnings) process.stdout.write(`AVERTISSEMENT ${w}\n`);
+    for (const e of audit.errors) process.stdout.write(`ERREUR ${e}\n`);
+    process.stdout.write(audit.errors.length === 0 ? 'CATALOGUE_DB_SYNC=PASS (aucun écart bloquant)\n' : `CATALOGUE_DB_SYNC=FAIL (${audit.errors.length} écart(s))\n`);
+    if (audit.errors.length > 0) process.exitCode = 1;
+    return;
+  }
+
+  if (command === 'enable-technical') {
+    if (!values.username) fail('--username est obligatoire');
+    if (!values.execute) {
+      process.stdout.write(`DRY-RUN : le compte technique ${values.username} serait réactivé avec de nouveaux identifiants (réservé à val.*). Ajoutez --execute.\n`);
+      return;
+    }
+    const file = await openCredentialsFile(values['credentials-out']);
+    try {
+      const issued = await enableTechnicalAccount(prisma, values.username);
+      await writeCredentials(file, [issued]);
+      process.stdout.write(`OK. ${values.username} réactivé ; identifiants écrits dans ${file.resolved} (0600). Refermer avec disable.\n`);
+    } catch (e) {
+      await file.handle.close().catch(() => undefined);
+      await rm(file.resolved, { force: true });
+      throw e;
+    }
+    return;
+  }
+
   if (command === 'sync-activities') {
     // Le contenu reste dans le code ; la base ne porte qu'un miroir (clés étrangères des travaux). Un nouveau parcours
     // publié dans le code exige donc cette ligne avant la première ouverture par un élève. Idempotent, sans suppression.
@@ -127,7 +159,7 @@ async function main() {
     return;
   }
 
-  fail('Commande inconnue. Utilisez : apply | reset-pin | disable | sync-activities');
+  fail('Commande inconnue. Utilisez : apply | reset-pin | disable | enable-technical | audit-activities | sync-activities');
 }
 
 main()

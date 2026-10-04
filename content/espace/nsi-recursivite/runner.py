@@ -51,7 +51,7 @@ def check_source(code, step=None):
 
 
 RECURSION_MESSAGE = (
-    'RecursionError : profondeur maximale d’appels dépassée (limite de cet atelier : %d appels imbriqués). '
+    'RecursionError : profondeur maximale d’appels dépassée (dans cet atelier, Nexus limite volontairement la profondeur à %d appels imbriqués, pour qu’un programme incorrect ne bloque pas le navigateur ; Python standard en autorise environ 1 000). '
     'La fonction s’appelle sans jamais atteindre un cas de base : rien ne l’arrête, ou rien ne la fait progresser vers l’arrêt. '
     'Python s’interrompt de lui-même ; il n’exécute pas une infinité d’appels.' % RECURSION_LIMIT
 )
@@ -177,6 +177,9 @@ def run_tests(ns, step, out, exec_error=None):
         expect(stats['calls'] >= minimum,
                f'{name} ne s’est pas appelée elle-même ({stats["calls"]} appel observé pour {shown}). '
                f'Ici la fonction doit être RÉCURSIVE : le cas général doit contenir un appel à {name}, sur un problème plus petit.')
+        expect(stats['max_depth'] >= 2 or minimum < 2,
+               f'{name} n’a jamais été appelée depuis elle-même : les appels observés pour {shown} ne sont pas imbriqués. '
+               f'Ici la fonction doit être RÉCURSIVE : le cas général doit contenir un appel à {name} sur un problème plus petit.')
         return stats
 
     def unchanged(desc, value, fn):
@@ -272,9 +275,9 @@ def run_tests(ns, step, out, exec_error=None):
         recursive('puissance', 2, 4, minimum=3)
 
     def ecrire_terminaison():
-        expect(call('somme', 100) == 5050, 'somme(100) doit renvoyer 5050.')
+        expect(call('somme', 60) == 1830, 'somme(60) doit renvoyer 1830.')
         expect(call('factorielle', 20) == 2432902008176640000, 'factorielle(20) doit renvoyer 2432902008176640000.')
-        expect(call('puissance', 2, 100) == 2 ** 100, 'puissance(2, 100) doit renvoyer 2 puissance 100.')
+        expect(call('puissance', 2, 60) == 2 ** 60, 'puissance(2, 60) doit renvoyer 2 puissance 60.')
 
     # ─── structures ─────────────────────────────────────────────────────────
 
@@ -431,7 +434,7 @@ def run_tests(ns, step, out, exec_error=None):
             ('puissance : cas de base a puissance 0 = 1', puis_base),
             ('puissance : 2 puissance 1, 2 puissance 5, 3 puissance 3, 10 puissance 4', puis_valeurs),
             ('puissance : la fonction s’appelle elle-même', puis_recursive),
-            ('Terminaison : somme(100), factorielle(20) et puissance(2, 100) se terminent', ecrire_terminaison)],
+            ('Terminaison : somme(60), factorielle(20) et puissance(2, 60) se terminent', ecrire_terminaison)],
         'structures': [
             ('longueur : cas de base et valeurs', long_valeurs),
             ('longueur : la fonction s’appelle elle-même', long_recursive),

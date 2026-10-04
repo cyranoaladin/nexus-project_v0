@@ -188,7 +188,7 @@
         "RecursionError"
       ],
       "intro": "Même compte à rebours, sans boucle : la fonction s’appelle elle-même. Tu identifies ses deux ingrédients, puis tu fais volontairement un premier bug.",
-      "lesson": "<p>Voici le même compte à rebours, écrit <strong>sans boucle</strong> : la fonction s’appelle elle-même.</p><pre tabindex=\"0\"><code>def compte_a_rebours(n):\n    if n &lt; 0:\n        return\n    print(n)\n    compte_a_rebours(n - 1)</code></pre><p>Pour <code>compte_a_rebours(2)</code>, la fonction affiche 2, puis demande à <em>une version plus petite d’elle-même</em> de s’occuper du reste : elle affiche 1, puis 0, puis le problème est devenu si petit (n est négatif) qu’il n’y a plus rien à faire.</p><h3>Les deux ingrédients</h3><ul><li><strong>Le cas de base</strong> : la situation si simple qu’on répond sans nouvel appel. Ici <code>if n &lt; 0: return</code>.</li><li><strong>L’appel récursif</strong> : on ramène le problème à une <em>instance plus petite du même problème</em>. Ici <code>compte_a_rebours(n - 1)</code>.</li></ul>{{q:cas-de-base}}{{q:appel}}{{q:pourquoi-n-1}}<p>Le message à retenir : <strong>une fonction récursive doit toujours progresser vers un cas de base.</strong></p><h3>Ton premier bug récursif</h3><p>Voici une version défectueuse :</p><pre tabindex=\"0\"><code>def compte_a_rebours(n):\n    print(n)\n    compte_a_rebours(n)</code></pre>{{q:bug-prediction}}<p>Le programme défectueux est déjà dans l’éditeur. <strong>Exécute-le</strong>, lis le message, puis <strong>répare-le</strong> : ajoute le cas de base et fais porter l’appel sur un problème plus petit. Clique ensuite sur « Vérifier mon code ».</p>{{code}}<p>Python n’exécute pas une infinité d’appels : le nombre d’appels imbriqués est limité (environ 1 000 dans Python standard, 200 dans cet atelier). Au-delà, il s’arrête avec une erreur <code>RecursionError</code>.</p>{{q:recursionerror}}<p>Une fonction récursive qui ne progresse pas vers un cas de base est <strong>incorrecte</strong>.</p>{{f:reparation}}",
+      "lesson": "<p>Voici le même compte à rebours, écrit <strong>sans boucle</strong> : la fonction s’appelle elle-même.</p><pre tabindex=\"0\"><code>def compte_a_rebours(n):\n    if n &lt; 0:\n        return\n    print(n)\n    compte_a_rebours(n - 1)</code></pre><p>Pour <code>compte_a_rebours(2)</code>, la fonction affiche 2, puis demande à <em>une version plus petite d’elle-même</em> de s’occuper du reste : elle affiche 1, puis 0, puis le problème est devenu si petit (n est négatif) qu’il n’y a plus rien à faire.</p><h3>Les deux ingrédients</h3><ul><li><strong>Le cas de base</strong> : la situation si simple qu’on répond sans nouvel appel. Ici <code>if n &lt; 0: return</code>.</li><li><strong>L’appel récursif</strong> : on ramène le problème à une <em>instance plus petite du même problème</em>. Ici <code>compte_a_rebours(n - 1)</code>.</li></ul>{{q:cas-de-base}}{{q:appel}}{{q:pourquoi-n-1}}<p>Le message à retenir : <strong>une fonction récursive doit toujours progresser vers un cas de base.</strong></p><h3>Ton premier bug récursif</h3><p>Voici une version défectueuse :</p><pre tabindex=\"0\"><code>def compte_a_rebours(n):\n    print(n)\n    compte_a_rebours(n)</code></pre>{{q:bug-prediction}}<p>Le programme défectueux est déjà dans l’éditeur. <strong>Exécute-le</strong>, lis le message, puis <strong>répare-le</strong> : ajoute le cas de base et fais porter l’appel sur un problème plus petit. Clique ensuite sur « Vérifier mon code ».</p>{{code}}<p>Python n’exécute pas une infinité d’appels : le nombre d’appels imbriqués est limité (environ 1 000 par défaut dans Python standard). Dans cet atelier, Nexus limite volontairement la profondeur à 200 appels, afin qu’un programme incorrect ne bloque pas le navigateur. Au-delà de la limite, l’exécution s’arrête avec une erreur <code>RecursionError</code>.</p>{{q:recursionerror}}<p>Une fonction récursive qui ne progresse pas vers un cas de base est <strong>incorrecte</strong>.</p>{{f:reparation}}",
       "task": "Réponds aux questions, exécute puis répare le programme défectueux, vérifie-le, puis explique ta réparation.",
       "starter": "# Ce programme est volontairement défectueux.\n# 1) Exécute-le et lis le message. 2) Répare-le : ajoute un cas de base et fais progresser l’appel récursif.\ndef compte_a_rebours(n):\n    print(n)\n    compte_a_rebours(n)\n\n\ncompte_a_rebours(3)\n",
       "questions": [
@@ -256,11 +256,11 @@
             "Elle affiche 3 indéfiniment et ne s’arrête jamais, quoi qu’il arrive"
           ],
           "correct": 2,
-          "feedback": "Il n’y a ni cas de base ni progression : chaque appel recommence le même problème. Python limite la profondeur d’appels et signale une RecursionError.",
+          "feedback": "Il n’y a ni cas de base ni progression : chaque appel recommence le même problème. Le nombre d’appels imbriqués est limité (par Python, et plus bas encore dans cet atelier) : l’exécution s’arrête avec une RecursionError.",
           "choiceFeedback": [
             "Rien n’arrête la fonction après le premier affichage : elle se rappelle.",
             "Elle ne décrémente jamais n : 2, 1, 0 n’apparaissent jamais.",
-            "Oui : les appels s’empilent jusqu’à la limite de profondeur de Python.",
+            "Oui : les appels s’empilent jusqu’à la limite de profondeur autorisée, puis l’exécution s’arrête.",
             "En pratique, Python s’arrête de lui-même grâce à sa limite de profondeur."
           ]
         },
@@ -713,7 +713,7 @@
         "puissance : cas de base a puissance 0 = 1",
         "puissance : 2 puissance 1, 2 puissance 5, 3 puissance 3, 10 puissance 4",
         "puissance : la fonction s’appelle elle-même",
-        "Terminaison : somme(100), factorielle(20) et puissance(2, 100) se terminent"
+        "Terminaison : somme(60), factorielle(20) et puissance(2, 60) se terminent"
       ]
     },
     {
@@ -948,7 +948,7 @@
             "Parce que la boucle est plus rapide"
           ],
           "correct": 1,
-          "feedback": "La limite porte sur le nombre d’appels imbriqués. La version récursive en empile 1 001 ; la version itérative en utilise un seul.",
+          "feedback": "La limite porte sur le nombre d’appels imbriqués : dans cet atelier, Nexus la fixe volontairement à 200 (Python standard : environ 1 000, ce qui reste largement inférieur à des milliers d’appels). La version récursive en empile 1 001 ; la version itérative en utilise un seul.",
           "choiceFeedback": [
             "Python sait calculer 2 puissance 1000 : le nombre n’est pas le problème.",
             "Oui : c’est la profondeur de la pile d’appels.",

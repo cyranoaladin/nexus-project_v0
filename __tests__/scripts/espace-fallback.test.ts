@@ -28,6 +28,7 @@ afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 const LESSONS = [
   { name: 'TP1 (POO objets)', dir: 'content/espace/nsi-poo', python: true },
   { name: 'TP POO 2', dir: 'content/espace/nsi-structures-lineaires', python: true },
+  { name: 'Récursivité', dir: 'content/espace/nsi-recursivite', python: true },
   { name: 'Maths fonctions et limites', dir: 'content/espace/maths-fonctions-limites', python: false },
 ].filter(({ dir }) => {
   const content = readJson(`${dir}/content.json`);
@@ -161,6 +162,7 @@ describe('LIRE_DABORD.md et paquet complet', () => {
     expect(lines[0]).toMatch(/^# /);
     expect(lines.slice(0, 8).join('\n')).toContain('cd ~/Documents/Nexus_Conservation/urgence-seances-2026-10-03 && python3 -m http.server 8765 --directory .');
     expect(text).toContain('http://localhost:8765/NSI_TP2_LISTES_PILES_FILES/');
+    expect(text).toContain('http://localhost:8765/NSI_RECURSIVITE/');
     expect(text).toContain('http://localhost:8765/MATHS_FONCTIONS_LIMITES/');
     expect(text).toMatch(/python3 verifier\.py etape_\d+_\w+\.py/);
     expect(text).toContain('https://nexusreussite.academy/espace');
@@ -168,9 +170,10 @@ describe('LIRE_DABORD.md et paquet complet', () => {
     expect(text).not.toContain(tmp);
   });
 
-  it('crée les deux dossiers du paquet', () => {
-    for (const dir of ['NSI_TP2_LISTES_PILES_FILES', 'MATHS_FONCTIONS_LIMITES']) expect(existsSync(path.join(pkg, dir, 'index.html'))).toBe(true);
+  it('crée les trois dossiers du paquet', () => {
+    for (const dir of ['NSI_TP2_LISTES_PILES_FILES', 'NSI_RECURSIVITE', 'MATHS_FONCTIONS_LIMITES']) expect(existsSync(path.join(pkg, dir, 'index.html'))).toBe(true);
     expect(existsSync(path.join(pkg, 'NSI_TP2_LISTES_PILES_FILES', 'python', 'verifier.py'))).toBe(true);
+    expect(existsSync(path.join(pkg, 'NSI_RECURSIVITE', 'python', 'verifier.py'))).toBe(true);
     expect(existsSync(path.join(pkg, 'MATHS_FONCTIONS_LIMITES', 'python'))).toBe(false);
   });
 
