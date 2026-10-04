@@ -1,4 +1,5 @@
 import { deflateSync } from 'node:zlib';
+import { execFileSync } from 'node:child_process';
 import {
   mkdtempSync,
   mkdirSync,
@@ -62,6 +63,7 @@ interface MutableReport {
           results: Array<{
             status: string;
             retry: number;
+            excludedAttachmentCount?: number;
             attachments: readonly AttachmentFixture[];
           }>;
         }>;
@@ -182,6 +184,18 @@ function pngFromChunks(...chunks: readonly Buffer[]): Buffer {
 }
 
 describe('ARIA visual artifact qualification', () => {
+  it('keeps the complete 32-state visual proof after privacy sealing', () => {
+    const setup = fixture();
+    const source = { ...report(setup.attachments), config: { rootDir: '/isolated/e2e/aria', projects: [] }, errors: [] };
+    const safe = execFileSync(process.execPath, ['--input-type=module', '-e',
+      "import { readFileSync } from 'node:fs'; import { sanitizePlaywrightReport } from './scripts/testing/safe-playwright-report.mjs'; process.stdout.write(JSON.stringify(sanitizePlaywrightReport(JSON.parse(readFileSync(0, 'utf8')))));"], {
+      input: JSON.stringify(source), encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
+      env: { NODE_ENV: 'test', PATH: process.env.PATH, HOME: process.env.HOME },
+    });
+    write(setup.artifactRoot, 'report.json', safe);
+    expect(qualifyAriaVisualArtifacts({ repositoryRoot: setup.root, expectedHeadSha: HEAD_SHA, mode: 'write' }).evidenceCount).toBe(32);
+  });
+
   it('ARIA_VISUAL_ARTIFACT_MANIFEST_IS_EXACT_HEAD_BOUND_32_STATE_MATRIX', () => {
     const setup = fixture();
     const result = qualifyAriaVisualArtifacts({
@@ -248,6 +262,7 @@ describe('ARIA visual artifact qualification', () => {
     ['wrong project', (document: MutableReport) => { document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.projectName = 'aria-desktop'; }, 'PROJECT'],
     ['flaky retry', (document: MutableReport) => { document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.retry = 1; }, 'RETRY'],
     ['failed result', (document: MutableReport) => { document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.status = 'failed'; }, 'RESULT_STATUS'],
+    ['excluded private attachment', (document: MutableReport) => { document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.results[0]!.excludedAttachmentCount = 1; }, 'PRIVATE_ATTACHMENTS_NOT_PUBLISHABLE'],
     ['unexpected outcome', (document: MutableReport) => { document.suites[0]!.suites[0]!.specs[0]!.tests[0]!.status = 'unexpected'; }, 'TEST_STATUS'],
     ['wrong statistics', (document: MutableReport) => { document.stats.flaky = 1; }, 'REPORT_STATS'],
     ['wrong viewport binding', (document: MutableReport) => {

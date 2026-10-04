@@ -64,6 +64,7 @@ export interface AriaVisualEvidence {
 
 interface QualifyOptions {
   readonly repositoryRoot?: string;
+  readonly artifactRoot?: string;
   readonly expectedHeadSha?: string;
   readonly mode: 'write' | 'check';
 }
@@ -178,9 +179,13 @@ function strictAttachments(spec: PlaywrightSpec, id: string): readonly Playwrigh
     readonly status?: unknown;
     readonly retry?: unknown;
     readonly attachments?: unknown;
+    readonly excludedAttachmentCount?: unknown;
   };
   if (execution.retry !== 0) fail(`RETRY:${id}`);
   if (execution.status !== 'passed') fail(`RESULT_STATUS:${id}`);
+  if (execution.excludedAttachmentCount !== undefined && execution.excludedAttachmentCount !== 0) {
+    fail(`PRIVATE_ATTACHMENTS_NOT_PUBLISHABLE:${id}`);
+  }
   if (!Array.isArray(execution.attachments)) fail(`ATTACHMENTS:${id}`);
   return execution.attachments.map((attachment) => {
     if (typeof attachment !== 'object' || attachment === null) fail(`ATTACHMENT:${id}`);
@@ -309,7 +314,7 @@ export function qualifyAriaVisualArtifacts(options: QualifyOptions): AriaVisualE
   const repositoryRoot = options.repositoryRoot ?? process.cwd();
   const expectedHeadSha = options.expectedHeadSha ?? currentHead(repositoryRoot);
   if (!/^[0-9a-f]{40}$/.test(expectedHeadSha)) fail('EXPECTED_HEAD');
-  const artifactRoot = resolve(repositoryRoot, `.artifacts/aria/playwright/${PROJECT}`);
+  const artifactRoot = resolve(repositoryRoot, options.artifactRoot ?? `.artifacts/aria/playwright/${PROJECT}`);
   assertContainedArtifactRoot(repositoryRoot, artifactRoot);
   const artifactHead = readRegularFile(resolve(artifactRoot, 'head.sha'), 'HEAD').toString('utf8').trim();
   if (artifactHead !== expectedHeadSha) fail('STALE_HEAD');
@@ -335,8 +340,11 @@ export function qualifyAriaVisualArtifacts(options: QualifyOptions): AriaVisualE
 }
 
 if (require.main === module) {
-  const mode = process.argv.slice(2).includes('--check') ? 'check' : 'write';
-  const result = qualifyAriaVisualArtifacts({ mode });
+  const args = process.argv.slice(2);
+  const mode = args.includes('--check') ? 'check' : 'write';
+  const rootIndex = args.indexOf('--artifact-root');
+  if (rootIndex >= 0 && !args[rootIndex + 1]) fail('ARTIFACT_ROOT_ARGUMENT');
+  const result = qualifyAriaVisualArtifacts({ mode, artifactRoot: rootIndex >= 0 ? args[rootIndex + 1] : undefined });
   process.stdout.write('ARIA_CHAT_VISUAL_QA=PASS\n');
   process.stdout.write(`ARIA_VISUAL_EVIDENCE_HEAD=${result.headSha}\n`);
   process.stdout.write(`ARIA_VISUAL_EVIDENCE_COUNT=${result.evidenceCount}\n`);

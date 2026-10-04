@@ -1009,34 +1009,35 @@ jobs:
             rm .next-server.pid
           fi
 
+      - name: Prepare private-data-free public browser report
+        if: always()
+        run: node scripts/testing/safe-playwright-report.mjs playwright-report/public/results.json .artifacts/publish/public/report.json
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-report
-          path: playwright-report/
+          path: .artifacts/publish/public/
           retention-days: 7
 
-      - name: Upload Playwright screenshots
+      - name: Upload structured public browser failure evidence
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: playwright-screenshots
-          path: test-results/
+          name: playwright-failure-evidence
+          path: .artifacts/publish/public/
           retention-days: 7
-          if-no-files-found: ignore
+          if-no-files-found: error
 
-      - name: Upload E2E logs on failure
+      - name: Upload redacted E2E failure evidence
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: e2e-logs
-          path: |
-            *.log
-            npm-debug.log*
-            .next/trace
+          path: .artifacts/publish/public/
           retention-days: 7
-          if-no-files-found: ignore
+          if-no-files-found: error
 
   # ===========================================================================
   # JOB 7: SECURITY SCANNING
@@ -1387,7 +1388,9 @@ jobs:
 
       - name: Seal auth E2E execution evidence
         if: always()
-        run: node scripts/testing/e2e-execution-evidence.mjs seal auth-chromium playwright-report/auth-chromium/results.json e2e-execution/auth-chromium.evidence.json
+        run: |
+          node scripts/testing/safe-playwright-report.mjs playwright-report/auth-chromium/results.json .artifacts/publish/auth-chromium/report.json
+          node scripts/testing/e2e-execution-evidence.mjs seal auth-chromium .artifacts/publish/auth-chromium/report.json e2e-execution/auth-chromium.evidence.json
 
       - name: Upload auth E2E execution evidence
         if: always()
@@ -1418,12 +1421,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-auth-chromium-report
-          # test-results/ carries the retain-on-failure traces (trace.zip,
-          # error-context.md) — without it a cross-engine failure leaves no
-          # evidence to classify (flake registry A4 had none).
-          path: |
-            playwright-report/
-            test-results/
+          path: .artifacts/publish/auth-chromium/
           retention-days: 7
           if-no-files-found: error
 
@@ -1729,7 +1727,9 @@ jobs:
 
       - name: Seal auth E2E execution evidence
         if: always()
-        run: node scripts/testing/e2e-execution-evidence.mjs seal auth-cross-browser playwright-report/auth-cross-browser/results.json e2e-execution/auth-cross-browser.evidence.json
+        run: |
+          node scripts/testing/safe-playwright-report.mjs playwright-report/auth-cross-browser/results.json .artifacts/publish/auth-cross-browser/report.json
+          node scripts/testing/e2e-execution-evidence.mjs seal auth-cross-browser .artifacts/publish/auth-cross-browser/report.json e2e-execution/auth-cross-browser.evidence.json
 
       - name: Upload auth E2E execution evidence
         if: always()
@@ -1753,12 +1753,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-auth-crossbrowser-report
-          # test-results/ carries the retain-on-failure traces (trace.zip,
-          # error-context.md) — without it a cross-engine failure leaves no
-          # evidence to classify (flake registry A4 had none).
-          path: |
-            playwright-report/
-            test-results/
+          path: .artifacts/publish/auth-cross-browser/
           retention-days: 7
           if-no-files-found: error
 
@@ -2727,18 +2722,28 @@ jobs:
           git rev-parse HEAD > "${{ matrix.artifactPath }}/head.sha"
           printf '%s\n' "$ARIA_JOB_STATUS" > "${{ matrix.artifactPath }}/job-status.txt"
 
+      - name: Prepare private-data-free ARIA browser report
+        if: always()
+        env:
+          ARIA_JOB_STATUS: ${{ job.status }}
+        run: node scripts/testing/safe-playwright-report.mjs ${{ matrix.artifactPath }}/report.json .artifacts/publish/aria-${{ matrix.lane }}/report.json
+
+      - name: Qualify public mobile screenshots without private traces
+        if: ${{ always() && matrix.lane == 'mobile' }}
+        run: npm run aria:visual-evidence:write -- --artifact-root .artifacts/publish/aria-mobile
+
       - name: Upload exact ARIA browser evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: aria-browser-${{ matrix.lane }}-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
-          path: ${{ matrix.artifactPath }}/
+          path: .artifacts/publish/aria-${{ matrix.lane }}/
           retention-days: 30
           if-no-files-found: error
 
       - name: Seal ARIA E2E execution evidence
         if: always()
-        run: node scripts/testing/e2e-execution-evidence.mjs seal aria-${{ matrix.lane }} .artifacts/aria/playwright/aria-${{ matrix.lane }}/report.json e2e-execution/aria-${{ matrix.lane }}.evidence.json
+        run: node scripts/testing/e2e-execution-evidence.mjs seal aria-${{ matrix.lane }} .artifacts/publish/aria-${{ matrix.lane }}/report.json e2e-execution/aria-${{ matrix.lane }}.evidence.json
 
       - name: Upload ARIA E2E execution evidence
         if: always()

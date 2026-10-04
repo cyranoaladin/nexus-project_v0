@@ -109,6 +109,13 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(inspectAriaCiWorkflow(duplicated).findings).toContain('ARIA_CI_MATRIX_CONTRACT_MISMATCH:aria-jest');
   });
 
+  test('ARIA_CI_REJECTS_BROWSER_REPORT_WITHOUT_PRIVACY_PUBLISHER', () => {
+    const document = passingDocument();
+    document.jobs['aria-browser'].steps = document.jobs['aria-browser'].steps.filter(step =>
+      !String(step.run ?? '').startsWith('node scripts/testing/safe-playwright-report.mjs '));
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_BROWSER_PRIVACY_PUBLISHER_INVALID');
+  });
+
   test('ARIA_CI_REJECTS_UNEXPECTED_MATRIX_LANE', () => {
     const document = passingDocument();
     document.jobs['aria-browser'].strategy.matrix.include.push({

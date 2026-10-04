@@ -142,11 +142,17 @@ function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
   if (protectedSteps.some((step) => Object.prototype.hasOwnProperty.call(step, 'if'))) {
     findings.push(`ARIA_CI_PROTECTED_STEP_CONDITIONAL:${jobKey}`);
   }
+  if (jobKey === 'aria-browser') {
+    const publishers = exactRunSteps(job, 'node scripts/testing/safe-playwright-report.mjs ${{ matrix.artifactPath }}/report.json .artifacts/publish/aria-${{ matrix.lane }}/report.json');
+    if (publishers.length !== 1 || publishers[0]?.if !== 'always()') {
+      findings.push('ARIA_CI_BROWSER_PRIVACY_PUBLISHER_INVALID');
+    }
+  }
   inspectArtifact(
     jobKey,
     job,
     `aria-${jobKey.slice('aria-'.length)}-${'${{ matrix.lane }}'}-${PR_HEAD_REF}-${RUN_ATTEMPT}`,
-    MATRIX_ARTIFACT_PATH,
+    jobKey === 'aria-browser' ? '.artifacts/publish/aria-${{ matrix.lane }}/' : MATRIX_ARTIFACT_PATH,
     findings,
   );
 }

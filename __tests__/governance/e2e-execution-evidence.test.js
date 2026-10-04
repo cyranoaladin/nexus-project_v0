@@ -10,6 +10,50 @@ beforeAll(async () => {
 });
 
 const identity = { sourceSha: 'a'.repeat(40), runId: '123', runAttempt: '1' };
+test.each(['configuration', 'network', 'errors', 'output', 'attachments', 'titles'])('sealed evidence excludes private %s payloads', kind => {
+  const { evidence } = fixture();
+  const report = structuredClone(evidence[0].report);
+  const { randomUUID } = require('node:crypto');
+  const marker = randomUUID();
+  const testRecord = firstTest(report);
+  if (kind === 'configuration') report.config.metadata = { cookies: marker, token: marker };
+  if (kind === 'network') report.network = { headers: { Authorization: marker }, body: marker, url: `https://synthetic.test/?token=${marker}` };
+  if (kind === 'errors') { report.errors = [{ message: marker, stack: marker }]; testRecord.results[0].errors = [{ message: marker }]; }
+  if (kind === 'output') { testRecord.results[0].stdout = [{ text: marker }]; testRecord.results[0].stderr = [{ text: marker }]; }
+  if (kind === 'attachments') testRecord.results[0].attachments = [{ name: marker, body: marker, path: marker }];
+  if (kind === 'titles') report.suites[0].suites[0].specs[0].title = marker;
+  const sealed = sealReport('public', report, identity);
+  expect(JSON.stringify(sealed).includes(marker)).toBe(false);
+  expect(firstTest(sealed.report).results[0].status).toBe('passed');
+  if (kind === 'errors') expect(sealed.report.errors).toHaveLength(1);
+});
+test('privacy sealing preserves failures, retries, skip annotations and requirement references', () => {
+  const { evidence } = fixture();
+  const report = structuredClone(evidence[0].report);
+  report.suites[0].suites[0].specs[0].title = 'E018 ARIA-B-R123 private scenario';
+  const execution = firstTest(report);
+  execution.annotations = [{ type: 'skip', description: 'private explanation' }];
+  execution.status = 'unexpected'; execution.results[0].status = 'failed'; execution.results[0].retry = 2;
+  const safe = sealReport('public', report, identity).report;
+  expect(firstTest(safe)).toMatchObject({ status: 'unexpected', annotations: [{ type: 'skip' }], results: [{ status: 'failed', retry: 2 }] });
+  expect(safe.suites[0].suites[0].specs[0].title).toMatch(/^E018 ARIA-B-R123 case:[a-f0-9]{64}$/);
+});
+test('sealing twice preserves the exact sanitized digest including custom annotations', () => {
+  const { evidence } = fixture();
+  const report = structuredClone(evidence[0].report);
+  firstTest(report).annotations = [{ type: 'owner-review', description: 'private explanation' }];
+  const once = sealReport('public', report, identity);
+  const twice = sealReport('public', once.report, identity);
+  expect(twice.reportSha256).toBe(once.reportSha256);
+});
+test('privacy sealing does not turn a missing cross-browser selection guard into an empty allowlist', () => {
+  const { evidence, tracked } = fixture();
+  const index = evidence.findIndex(entry => entry.lane === 'auth-cross-browser');
+  const report = structuredClone(evidence[index].report);
+  delete report.config.projects[0].testIgnore;
+  evidence[index] = sealReport('auth-cross-browser', report, identity);
+  expect(auditExecutionEvidence(tracked, evidence, identity).problems).toContain('INVALID_CROSS_BROWSER_SELECTION:firefox-smoke');
+});
 function fixture() {
   const tracked = new Set();
   const evidence = Object.entries(INVOCATIONS).map(([lane, config]) => {
