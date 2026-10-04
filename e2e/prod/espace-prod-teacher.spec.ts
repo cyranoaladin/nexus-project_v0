@@ -16,6 +16,7 @@ const EXPECTED_NAMES = (process.env.ESPACE_EXPECTED_STUDENT_NAMES ?? '').split('
 const CORRIGES = [
   'maths-fonctions-limites/corrige',
   'nsi-poo-structures-lineaires/corrige',
+  'nsi-recursivite/corrige',
   'maths-suites-synthese/correction',
   'maths-suites-synthese/teacher-guide',
 ];
@@ -31,8 +32,8 @@ test('connexion réelle du compte enseignant, accueil et liste des élèves', as
   await page.waitForURL(/\/espace\/enseignant/, { timeout: 30_000 });
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
-  // Sélecteur d'activités : les quatre parcours sont suivables.
-  for (const label of ['TP POO 1', 'TP POO 2', 'Sujet de synthèse', 'Fonctions, limites et lecture graphique']) {
+  // Sélecteur d'activités : les cinq parcours sont suivables.
+  for (const label of ['TP POO 1', 'TP POO 2', 'Récursivité et programmation récursive', 'Sujet de synthèse', 'Fonctions, limites et lecture graphique']) {
     await expect(page.getByRole('navigation', { name: 'Choisir l’activité' }).getByRole('link', { name: label })).toBeVisible();
   }
 
