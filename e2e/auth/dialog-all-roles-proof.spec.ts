@@ -265,7 +265,8 @@ test('assistante: legacy credit-requests redirects to payment governance', async
   await loginAsUser(page, 'assistante');
   await page.goto(`${BASE}/dashboard/assistante/credit-requests`, { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/dashboard\/assistante\/paiements$/);
-  await expect(page.getByRole('heading', { name: 'Validation des Paiements', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Consultation des paiements', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /valider le paiement|rejeter/i })).toHaveCount(0);
   await expect(page.getByText('Virements bancaires en attente', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /ajouter des crédits/i })).toHaveCount(0);
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -306,7 +307,8 @@ test('assistante: legacy credits redirects to payment governance', async ({ page
   await loginAsUser(page, 'assistante');
   await page.goto(`${BASE}/dashboard/assistante/credits`, { waitUntil: 'domcontentloaded' });
   await expect(page).toHaveURL(/\/dashboard\/assistante\/paiements$/);
-  await expect(page.getByRole('heading', { name: 'Validation des Paiements', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Consultation des paiements', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /valider le paiement|rejeter/i })).toHaveCount(0);
   await expect(page.getByText('Virements bancaires en attente', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /ajouter des crédits/i })).toHaveCount(0);
   await expect(page.getByRole('dialog')).toHaveCount(0);
