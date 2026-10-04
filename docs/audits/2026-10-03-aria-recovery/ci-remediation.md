@@ -1,5 +1,13 @@
 # Remédiation CI — PR #337
 
+## Point courant — 4 octobre — campagne 71a973349 terminée
+
+Code local : `98ff57b24ea60abc60bc72759b90e2759c29dc61`, six commits après le distant `71a973349981bf691939ca0dcf1dc4a455624776`. Ce dernier présente 44 succès, sept échecs et un contrôle ignoré ; Chromium auth est désormais vert. La nouvelle CI n'a pas encore démarré. PR Draft, NOT_READY, aucun déploiement.
+
+Les défauts restants de cette campagne sont CodeQL, Dependency Integrity/policy stale et son Security Scan en aval, transport ARIA desktop/mobile et fixture du smoke vidéo désactivée. Corrections causales locales : identités durables d'émission mail (`email-issuance-identity.md`), consommation native SSE et cleanup (`sse-native-consumer.md`), rattachement réel de la fixture (`video-disabled-family-fixture.md`). La gate E019 ×20 (`mobile-e019-repeat-gate.md`) attend sa première campagne réelle. Aucun échec n'est fermé par la seule présence du commit ; ARIA Requirement Evidence est ignoré en aval des échecs ; il doit s'exécuter et réussir sur le prochain SHA.
+
+Les sections suivantes conservent les constats et preuves historiques avec leurs limites ; elles ne constituent pas la qualification du nouveau HEAD.
+
 ## Référence de départ
 
 `d65806143971d00e4ad2062e558ac718878b64cd` : 51 contrôles terminés,

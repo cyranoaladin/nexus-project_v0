@@ -27,3 +27,5 @@ Aucun changement de données, de permission produit, de lockfile, de prix, de sc
 ## Correction de collecte avant publication
 
 Une collecte réelle --list a révélé que --project aria-mobile suivi du fichier est interprété comme une liste de projets : visual-a11y.spec.ts était rejeté comme projet inexistant. Le filtre ^E019 aurait également exclu le titre complet composé par Playwright. La commande utilise maintenant --project=aria-mobile et un motif canonique non ancré. Le CLI réel collecte exactement vingt tests dans un fichier, sans exécuter de navigateur ou requête DB. Un quatrième test d'entrypoint lance ce collecteur, en retirant les URLs de base de son environnement ; quatre tests réussissent. Le commit précédent est conservé, pas réécrit.
+
+La première exécution du collecteur depuis Jest était aussi refusée par la protection anti-exécution E2E dans Jest : son marqueur hérité a été retiré uniquement de l'environnement du process enfant CLI. La protection reste intacte ; aucun E2E n'est exécuté par Jest.

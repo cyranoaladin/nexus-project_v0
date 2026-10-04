@@ -1,16 +1,17 @@
 {
-  "sourceSha": "a52c63c3343e86a6c750dafe1c57064ffc8fbf7a",
+  "sourceSha": "98ff57b24ea60abc60bc72759b90e2759c29dc61",
+  "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
     {
       "path": ".env.example",
       "domain": "transversal-a-revoir",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": ".env.production.example",
       "domain": "transversal-a-revoir",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": ".github/workflows/ci.yml",
@@ -93,6 +94,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/coach.sessions.report.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/documents-download.test.ts",
       "domain": "documents-pedagogie",
       "highRisk": false
@@ -163,8 +169,78 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/parent-aria-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent-dashboard-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent-list-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/parent-subscription-sale-boundary.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.child-initial-activation.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-bilans.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-courses.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-mastery.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-next-best-action.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-recent-activity.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.aria-workshops.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.idor.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.children.route.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.dashboard.activation-state.test.ts",
+      "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent.dashboard.route.test.ts",
+      "domain": "famille-academique",
       "highRisk": false
     },
     {
@@ -175,6 +251,11 @@
     {
       "path": "__tests__/api/parent.subscriptions.route.test.ts",
       "domain": "finance",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/parent/dashboard.test.ts",
+      "domain": "famille-academique",
       "highRisk": false
     },
     {
@@ -213,12 +294,37 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/session-report-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/session-video-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/sessions.sessionId.route.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student-document-download-visibility.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/student.dashboard.payload.test.ts",
       "domain": "famille-academique",
       "highRisk": false
     },
     {
       "path": "__tests__/api/student.documents.boundary.test.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/student.documents.download.test.ts",
       "domain": "documents-pedagogie",
       "highRisk": false
     },
@@ -498,6 +604,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/governance/aria-mobile-repeat-qualification.test.js",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/governance/e2e-execution-evidence.test.js",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -515,6 +626,11 @@
     {
       "path": "__tests__/integration/core-v2-migrator.real.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/email-issuance-outbox.real.test.ts",
+      "domain": "auth-securite",
       "highRisk": false
     },
     {
@@ -550,6 +666,11 @@
     {
       "path": "__tests__/integration/student-stage-ownership.real.test.ts",
       "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/aria/native-response-reader.test.ts",
+      "domain": "ARIA",
       "highRisk": false
     },
     {
@@ -595,6 +716,16 @@
     {
       "path": "__tests__/lib/diagnostics/candidat-libre/storage.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/email/core-v2-issuance-delivery.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/email/issuance-outbox.test.ts",
+      "domain": "auth-securite",
       "highRisk": false
     },
     {
@@ -693,6 +824,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/lib/services/parent-activation-family-authority.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/scripts/aria/browser-diagnostics.test.ts",
       "domain": "ARIA",
       "highRisk": false
@@ -704,6 +840,11 @@
     },
     {
       "path": "__tests__/scripts/aria/e2e-harness-contract.test.ts",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/aria/mobile-repeat-entrypoint.test.ts",
       "domain": "ARIA",
       "highRisk": false
     },
@@ -729,6 +870,11 @@
     },
     {
       "path": "__tests__/scripts/markdown-table-escaping.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/preview-video-disabled-ci.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
     },
@@ -828,6 +974,11 @@
       "highRisk": true
     },
     {
+      "path": "app/api/coach/sessions/[sessionId]/report/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
       "path": "app/api/diagnostics/candidat-libre/[diagnosticId]/documents/[documentId]/route.ts",
       "domain": "documents-pedagogie",
       "highRisk": true
@@ -903,6 +1054,46 @@
       "highRisk": true
     },
     {
+      "path": "app/api/parent/children/[studentId]/activation/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/bilans/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/courses/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/mastery/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/next-best-action/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/recent-activity/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/[studentId]/aria/workshops/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/parent/children/route.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
       "path": "app/api/parent/dashboard/route.ts",
       "domain": "famille-academique",
       "highRisk": true
@@ -963,6 +1154,16 @@
       "highRisk": true
     },
     {
+      "path": "app/api/sessions/[sessionId]/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/student/documents/[id]/download/route.ts",
+      "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
       "path": "app/api/student/documents/route.ts",
       "domain": "documents-pedagogie",
       "highRisk": true
@@ -974,6 +1175,16 @@
     },
     {
       "path": "app/api/v2/auth/password-reset/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/staff/accounts/[id]/invite/route.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/v2/staff/accounts/[id]/resend-invitation/route.ts",
       "domain": "auth-securite",
       "highRisk": true
     },
@@ -1169,7 +1380,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/assistante-invoice-list-fixture.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1179,7 +1390,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/auth-e2e-financial-contract-alignment.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1234,7 +1445,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/client-financial-permissions-build.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1308,18 +1519,23 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/email-issuance-identity.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/email-outbox-codeql-review.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/empty-e2e-directory-qualification.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/external-gates-20261004.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1333,18 +1549,23 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/financial-contract-followup.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/financial-csrf-boundary.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/financial-response-privacy.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/financial-review-lot-20261004.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1354,12 +1575,12 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-creation-immutable-audit.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-derived-amount-validation.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1378,18 +1599,23 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/invoice-number-conflict.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-private-error-boundary.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-status-concurrency.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/invoice-status-immutable-audit.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1443,6 +1669,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/mobile-e019-repeat-gate.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/mobile-phase-attribution.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1458,7 +1689,27 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/parent-activation-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/parent-aria-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/parent-dashboard-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/parent-invoice-list-contract-followup.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/parent-list-family-authority.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1494,12 +1745,12 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/pr-migration-fingerprints.json",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/pr-scope-file-map.json",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1539,7 +1790,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/reset-password-error-boundary.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1548,7 +1799,27 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/session-report-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/session-video-family-authority.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/sse-native-consumer.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/sse-terminal-drain.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/student-document-download-authority.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1579,7 +1850,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/subscription-sale-route-consistency.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1594,6 +1865,11 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/v1-password-change.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/video-disabled-family-fixture.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1703,6 +1979,11 @@
       "highRisk": false
     },
     {
+      "path": "jest.aria.sse.config.js",
+      "domain": "ARIA",
+      "highRisk": false
+    },
+    {
       "path": "jest.config.governance.js",
       "domain": "CI-exploitation",
       "highRisk": false
@@ -1738,9 +2019,14 @@
       "highRisk": false
     },
     {
+      "path": "lib/aria/transport/native-response-reader.ts",
+      "domain": "ARIA",
+      "highRisk": true
+    },
+    {
       "path": "lib/aria/transport/sse-parser.ts",
       "domain": "ARIA",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/auth/account-security-path.ts",
@@ -1795,62 +2081,62 @@
     {
       "path": "lib/core-v2/account-token.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/audit.ts",
       "domain": "transversal-a-revoir",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/auth/authority.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/auth/rollout.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/http/respond.ts",
       "domain": "transversal-a-revoir",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/queries/family-authority.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/queries/parent.ts",
       "domain": "famille-academique",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/queries/planning.ts",
       "domain": "planning",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/queries/staff.ts",
       "domain": "transversal-a-revoir",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/queries/student.ts",
       "domain": "famille-academique",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/rbac.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/repositories/household-verification.ts",
       "domain": "famille-academique",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/core-v2/services/account.ts",
@@ -1905,12 +2191,27 @@
     {
       "path": "lib/documents/read-authority.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/documents/student-visibility.ts",
       "domain": "documents-pedagogie",
-      "highRisk": false
+      "highRisk": true
+    },
+    {
+      "path": "lib/email/core-v2-invitation.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/email/core-v2-password-reset.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/email/outbox.ts",
+      "domain": "auth-securite",
+      "highRisk": true
     },
     {
       "path": "lib/env-validation.ts",
@@ -1918,9 +2219,19 @@
       "highRisk": false
     },
     {
+      "path": "lib/families/list-access-authority.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/families/parent-aria-read-boundary.ts",
+      "domain": "famille-academique",
+      "highRisk": true
+    },
+    {
       "path": "lib/families/student-access-authority.ts",
       "domain": "auth-securite",
-      "highRisk": false
+      "highRisk": true
     },
     {
       "path": "lib/guards.ts",
@@ -2168,8 +2479,18 @@
       "highRisk": false
     },
     {
+      "path": "scripts/playwright-entrypoint.sh",
+      "domain": "CI-exploitation",
+      "highRisk": false
+    },
+    {
       "path": "scripts/testing/check-account-security-repeat.mjs",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/check-aria-mobile-repeat.mjs",
+      "domain": "ARIA",
       "highRisk": false
     },
     {
@@ -2185,6 +2506,11 @@
     {
       "path": "scripts/testing/safe-playwright-report.mjs",
       "domain": "documents-pedagogie",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/verify-video-disabled-browser.mjs",
+      "domain": "CI-exploitation",
       "highRisk": false
     }
   ]
