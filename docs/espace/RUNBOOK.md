@@ -57,3 +57,12 @@ Voir `docs/legacy-poo/LEGACY_POO_LINKING.md`. Le service et l'archive historique
 2. **Ne pas** supprimer les tables `espace_*` ni les colonnes `users.username/pinHash/pinSetAt/disabledAt` : elles contiennent des travaux d'élèves et sont inertes sans le nouveau code.
 3. Vérifier `/`, `/auth/signin`, `/ateliers/poo/` (legacy inchangé).
 4. Les travaux déjà enregistrés restent en base ; un redéploiement ultérieur les retrouve.
+
+## 8. Ajouter un parcours guidé (exemple : Récursivité)
+
+1. Contenu : `content/espace/<module>/` (`build_content.py` → `content.json` + corrigé `docs/espace/corriges/<module>/corrige.html`, `runner.py` si Python, `solutions.py`). Enregistrer le slug dans `lib/espace/lesson-routes.ts`, l'activité dans `lib/espace/catalog.ts` (champ `theme` pour le regroupement affiché), une page `app/espace/<matière>/<module>/page.tsx`, l'inclusion du `runner.py` dans `next.config.mjs` (`outputFileTracingIncludes`).
+2. Tests : unitaires (contenu, harnais), intégration vraie base, E2E, puis fumée de production.
+3. Corrigé : `npx tsx scripts/espace/build-corriges.ts --only <module>` puis `install-resources.ts --module <module>` (ou copie vérifiée par empreinte vers `<DOCUMENT_STORAGE_ROOT>/espace/resources/<moduleSlug>/`).
+4. **Miroir de catalogue en base** (obligatoire avant la première ouverture par un élève) : `npx tsx scripts/espace/provision.ts sync-activities` (dry-run) puis `--execute`.
+5. Compétences annotables côté enseignant : champ `skills` du contenu (réutilise les annotations existantes, aucun nouveau stockage).
+
