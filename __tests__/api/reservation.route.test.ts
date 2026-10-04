@@ -1,6 +1,7 @@
-import { auth } from '@/auth';
+import { NextRequest } from 'next/server';
 jest.mock('@/lib/prisma', () => ({
   prisma: {
+    stage: { findUnique: jest.fn() },
     stageReservation: {
       findUnique: jest.fn(),
       create: jest.fn(),
@@ -41,13 +42,10 @@ import { POST } from '@/app/api/reservation/route';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 
-function makeRequest(body?: any) {
-  return {
-    json: async () => body,
-    headers: new Headers({ 'x-forwarded-for': '127.0.0.1' }),
-    url: 'http://localhost:3000/api/reservation',
-    nextUrl: { searchParams: new URLSearchParams() },
-  } as any;
+function makeRequest(body?: unknown) {
+  return new NextRequest('http://localhost:3000/api/reservation', {
+    method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: JSON.stringify(body),
+  });
 }
 
 const validBody = {
@@ -63,7 +61,7 @@ const validBody = {
 describe('POST /api/reservation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as any).fetch = jest.fn();
+    jest.mocked(prisma.stage.findUnique).mockResolvedValue({ id: 'stage-1', slug: 'academy-1', title: 'Canonical stage', priceAmount: 150 } as never);
     // No existing reservation by default
     (prisma.stageReservation.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.stageReservation.create as jest.Mock).mockResolvedValue({ id: 'res-1' });

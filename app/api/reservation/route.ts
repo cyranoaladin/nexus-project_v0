@@ -2,6 +2,8 @@ import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
+import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 import { checkBodySize,checkCsrf } from '@/lib/csrf';
 import { sendStageBankTransferConfirmation } from '@/lib/email';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
@@ -9,6 +11,8 @@ import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { internalNotification } from '@/lib/email/templates';
 import { LEGAL } from '@/lib/legal';
 import { prisma } from '@/lib/prisma';
+import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
+import { normalizeUserEmail } from '@/lib/contact/user-email';
 import { stageReservationSchema } from '@/lib/validations';
 import { NextRequest,NextResponse } from 'next/server';
 
@@ -24,10 +28,10 @@ function getInternalNotificationRecipient(): string {
 /**
  * POST /api/reservation
  *
- * Pipeline: Rate limit → Honeypot → Zod validate → Upsert DB → Email
- * Returns: 201 Created | 200 Updated | 400 Bad Request | 429 Rate Limited | 500 Internal Error
+ * Pipeline: Rate limit → Honeypot → Zod validate → Server catalog → Create-only DB → Email
+ * Returns: uniform 201 acknowledgement | 400 | 404 | 429 | 500; never grants update authority
  */
-export async function POST(request: NextRequest) {
+async function submitReservation(request: NextRequest) {
   try {
     // 0a. CSRF protection
     const csrfResponse = checkCsrf(request);
@@ -44,15 +48,18 @@ export async function POST(request: NextRequest) {
     });
     if (blocked) return blocked;
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = JSON.parse(await readBoundedRequestBody(request, 4096));
+    } catch (error) {
+      return NextResponse.json({ success: false, error: 'Corps de requête invalide' },
+        { status: error instanceof RequestBodyTooLargeError ? 413 : 400 });
+    }
 
     // 2. Honeypot check (bot trap field)
-    if (body.website || body.url || body.honeypot) {
-      // Return success to fool bots, but don't save
-      return NextResponse.json(
-        { success: true, message: 'Réservation enregistrée avec succès !' },
-        { status: 201 }
-      );
+    if (typeof body === 'object' && body !== null &&
+      (('website' in body && body.website) || ('url' in body && body.url) || ('honeypot' in body && body.honeypot))) {
+      return reservationAcknowledgement();
     }
 
     // 3. Strict Zod validation
@@ -70,7 +77,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const data = parseResult.data;
+    if (parseResult.data.academyId === 'pre-rentree-2026' && !canAcceptPreRentreeCampaignSubmission()) {
+      return NextResponse.json({ success: false, error: 'Stage introuvable ou inscriptions fermées' }, { status: 404 });
+    }
+    const stage = await prisma.stage.findUnique({
+      where: { slug: parseResult.data.academyId, isVisible: true, isOpen: true,
+        endDate: getActiveStageEndDateFilter(new Date()) },
+      select: { id: true, slug: true, title: true, priceAmount: true },
+    });
+    if (!stage) return NextResponse.json({ success: false, error: 'Stage introuvable ou inscriptions fermées' }, { status: 404 });
+    const data = { ...parseResult.data, email: normalizeUserEmail(parseResult.data.email),
+      academyId: stage.slug, academyTitle: stage.title, price: Number(stage.priceAmount) };
 
     const identityBlocked = await guardSensitiveRateLimit(request, {
       scope: 'reservation-submit',
@@ -80,59 +97,39 @@ export async function POST(request: NextRequest) {
     });
     if (identityBlocked) return identityBlocked;
 
-    // 3. Upsert: create or update (anti-duplicate on email+academyId)
-    let isUpdate = false;
+    // A public email string grants no authority to modify an existing record.
     const existing = await prisma.stageReservation.findUnique({
-      where: {
-        email_academyId: {
-          email: data.email,
-          academyId: data.academyId,
-        },
-      },
-      select: { id: true, status: true },
+      where: { email_academyId: { email: data.email, academyId: data.academyId } },
+      select: { id: true },
     });
-
+    if (existing) return reservationAcknowledgement();
+    const isBankTransfer = data.paymentMethod === 'bank_transfer';
     let reservationId: string;
-    if (existing) {
-      isUpdate = true;
-      reservationId = existing.id;
-      // Update existing reservation (allow re-submission to update phone/payment)
-      await prisma.stageReservation.update({
-        where: { id: existing.id },
-        data: {
-          parentName: data.parent,
-          studentName: data.studentName || null,
-          phone: data.phone,
-          classe: data.classe,
-          academyTitle: data.academyTitle,
-          price: data.price,
-          paymentMethod: data.paymentMethod || null,
-          updatedAt: new Date(),
-        },
-      });
-    } else {
-      const isBankTransfer = data.paymentMethod === 'bank_transfer';
+    try {
       const created = await prisma.stageReservation.create({
-        data: {
-          parentName: data.parent,
-          studentName: data.studentName || null,
-          email: data.email,
-          phone: data.phone,
-          classe: data.classe,
-          academyId: data.academyId,
-          academyTitle: data.academyTitle,
-          price: data.price,
-          paymentMethod: data.paymentMethod || null,
-          status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
-        },
-        select: { id: true },
+      data: {
+        stageId: stage.id, parentName: data.parent, studentName: data.studentName || null,
+        email: data.email, phone: data.phone, classe: data.classe,
+        academyId: stage.slug, academyTitle: stage.title, price: data.price,
+        paymentMethod: data.paymentMethod || null,
+        status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
+      },
+      select: { id: true },
       });
       reservationId = created.id;
+    } catch (error) {
+      // Only the create operation can be acknowledged as a duplicate. Errors
+      // in later notification work must not be mistaken for a reservation retry.
+      if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
+        return reservationAcknowledgement();
+      }
+      throw error;
     }
+
 
     // 4. Internal staff alert — non-blocking
     try {
-      const tag = isUpdate ? 'Mise à jour réservation' : 'Nouveau lead chaud (site web)';
+      const tag = 'Nouveau lead chaud (site web)';
       const internalTemplate = internalNotification({
         eventType: tag,
         fields: {
@@ -158,12 +155,12 @@ export async function POST(request: NextRequest) {
         text: internalTemplate.text,
       });
       kickEmailOutboxDrain();
-    } catch (internalAlertError) {
-      console.error('[reservation] Internal alert failed:', internalAlertError instanceof Error ? internalAlertError.message : 'unknown');
+    } catch {
+      console.error('[reservation]', { code: 'RESERVATION_INTERNAL_ALERT_FAILED' });
     }
 
     // 5. Email notification — non-blocking
-    if (!isUpdate) {
+    {
       try {
         if (data.paymentMethod === 'bank_transfer') {
           // Bank transfer confirmation email
@@ -175,36 +172,15 @@ export async function POST(request: NextRequest) {
             data.price
           );
         }
-      } catch (emailError) {
+      } catch {
         // Non-blocking: log but don't fail the request
-        console.error('[reservation] Email failed:', emailError instanceof Error ? emailError.message : 'unknown');
+        console.error('[reservation]', { code: 'RESERVATION_EMAIL_FAILED' });
       }
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: isUpdate
-          ? 'Votre réservation a été mise à jour avec succès.'
-          : 'Réservation enregistrée avec succès ! Nous vous contactons dans les 24h.',
-        isUpdate,
-      },
-      { status: isUpdate ? 200 : 201 }
-    );
-  } catch (error) {
-    // Handle Prisma unique constraint violation (race condition fallback)
-    if (error instanceof Error && error.message.includes('Unique constraint')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Vous êtes déjà inscrit(e) pour cette académie.',
-          code: 'DUPLICATE',
-        },
-        { status: 409 }
-      );
-    }
-
-    console.error('[reservation] Error:', error instanceof Error ? error.message : 'unknown');
+    return reservationAcknowledgement();
+  } catch {
+    console.error('[reservation]', { code: 'RESERVATION_CREATE_FAILED' });
     return NextResponse.json(
       { success: false, error: 'Erreur interne du serveur' },
       { status: 500 }
@@ -349,4 +325,16 @@ export async function PATCH(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function reservationAcknowledgement(): NextResponse {
+  return NextResponse.json({ success: true, message: 'Demande reçue. Notre équipe vous contactera pour la suite.' },
+    { status: 201, headers: { 'Cache-Control': 'private, no-store' } });
+}
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const response = await submitReservation(request);
+  response.headers.set('Cache-Control', 'private, no-store');
+  response.headers.set('Vary', 'Cookie, Authorization');
+  return response;
 }
