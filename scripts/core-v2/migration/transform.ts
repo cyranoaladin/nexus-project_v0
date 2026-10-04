@@ -135,6 +135,16 @@ export function deriveAccount(user: SourceUser): { accountStatus: AccountStatus;
   const warnings: string[] = [];
   const familyRole = user.role === 'PARENT' || user.role === 'ELEVE';
   if (user.password && (user.activatedAt || !familyRole)) {
+    // Preserve only the existing, supported slow-hash representation. Never
+    // infer that an arbitrary source string is already an encrypted credential.
+    // Cost 10 is the minimum accepted legacy bcrypt work factor; 31 is the
+    // format maximum. Newly chosen passwords still use the account service.
+    if (user.password.length !== 60
+      || !/^\$2[aby]\$(?:1[0-9]|2[0-9]|3[01])\$[./A-Za-z0-9]{53}$/.test(user.password)) {
+      // Abort planning before apply; do not echo an identity or credential and
+      // do not silently activate, disable or reset the affected account.
+      throw new Error('MIGRATION_SOURCE_CREDENTIAL_UNSUPPORTED');
+    }
     return { accountStatus: 'ACTIVE', password: user.password, activatedAt: user.activatedAt, warnings };
   }
   if (user.password && familyRole && !user.activatedAt) warnings.push('PASSWORD_DROPPED_PENDING_ACTIVATION');

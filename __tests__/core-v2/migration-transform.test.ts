@@ -8,8 +8,12 @@ import type { SourceSnapshot, SourceUser } from '@/scripts/core-v2/migration/sou
 import { buildTargetPlan, deriveAccount, objectHash } from '@/scripts/core-v2/migration/transform';
 import { MigrationPolicy, TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 
+// A structural bcrypt fixture, never a credential for an executable account.
+const syntheticCredential = ['', '2b', '12', 'a'.repeat(53)].join('$');
+const unsupportedSourceCredential = 'synthetic-plaintext-not-a-hash';
+
 const user = (id: string, role: SourceUser['role'], extra: Partial<SourceUser> = {}): SourceUser => ({
-  id, role, email: `${id}@synthetic.test`, password: 'hash', firstName: 'F', lastName: 'L', phone: null, activatedAt: new Date('2026-01-01T00:00:00Z'), sessionVersion: 3, mergedIntoUserId: null, ...extra,
+  id, role, email: `${id}@synthetic.test`, password: syntheticCredential, firstName: 'F', lastName: 'L', phone: null, activatedAt: new Date('2026-01-01T00:00:00Z'), sessionVersion: 3, mergedIntoUserId: null, ...extra,
 });
 
 const approval = parseApprovalFile({
@@ -55,6 +59,47 @@ function snapshot(): SourceSnapshot {
 
 const migratedAt = new Date('2026-09-12T08:00:00Z');
 
+describe('migration credential boundary', () => {
+  test.each([
+    unsupportedSourceCredential,
+    'a'.repeat(64),
+    ['', '2b', '09', 'a'.repeat(53)].join('$'),
+    ['', '2b', '32', 'a'.repeat(53)].join('$'),
+    ['', '2b', '12', 'a'.repeat(52)].join('$'),
+    ['', '2x', '12', 'a'.repeat(53)].join('$'),
+    `${syntheticCredential}\n`,
+  ])('refuses an unsupported active credential without echoing it (%#)', credential => {
+    let caught: unknown;
+    try { deriveAccount(user('credential-fixture', 'ADMIN', { password: credential })); }
+    catch (error) { caught = error; }
+    expect(caught).toBeInstanceOf(Error);
+    expect(caught).toMatchObject({ message: 'MIGRATION_SOURCE_CREDENTIAL_UNSUPPORTED' });
+    expect(String(caught)).not.toContain(credential);
+  });
+
+  test.each(['2a', '2b', '2y'])('preserves supported legacy bcrypt %s without rehashing', version => {
+    const credential = ['', version, '10', 'a'.repeat(53)].join('$');
+    expect(deriveAccount(user('legacy-credential', 'PARENT', { password: credential })).password).toBe(credential);
+  });
+
+  test('refuses the complete target plan before any write can be requested', () => {
+    const source = snapshot();
+    const first = source.students[0];
+    if (!first) throw new Error('MISSING_SYNTHETIC_STUDENT');
+    const changed = { ...source, students: source.students.map(student => ({
+      ...student, parentUser: { ...student.parentUser, password: unsupportedSourceCredential },
+    })) };
+    expect(() => buildTargetPlan(changed, approval, migratedAt)).toThrow('MIGRATION_SOURCE_CREDENTIAL_UNSUPPORTED');
+  });
+
+  test('does not retain a never-activated family credential, regardless of its format', () => {
+    expect(deriveAccount(user('pending-credential', 'ELEVE', {
+      password: unsupportedSourceCredential, activatedAt: null,
+    }))).toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null,
+      warnings: ['PASSWORD_DROPPED_PENDING_ACTIVATION'] });
+  });
+});
+
 describe('buildTargetPlan', () => {
   const plan = buildTargetPlan(snapshot(), approval, migratedAt);
   const by = (entity: string, result?: string) => plan.entries.filter((e) => e.entity === entity && (!result || e.result === result));
@@ -69,7 +114,7 @@ describe('buildTargetPlan', () => {
 
   test('account status is derived, never guessed; never-activated family passwords are dropped with a warning', () => {
     const users = Object.fromEntries(plan.users.map((u) => [u.id, u]));
-    expect(users['par-1']).toMatchObject({ accountStatus: 'ACTIVE', password: 'hash', sessionVersion: 3 });
+    expect(users['par-1']).toMatchObject({ accountStatus: 'ACTIVE', password: syntheticCredential, sessionVersion: 3 });
     expect(users['stu-a-u']).toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null, activatedAt: null });
     expect(users['stu-b-u']).toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null });
     expect(by('User').find((e) => e.sourceId === 'stu-a-u')!.warnings).toContain('PASSWORD_DROPPED_PENDING_ACTIVATION');

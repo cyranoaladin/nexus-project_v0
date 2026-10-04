@@ -22,7 +22,7 @@
  *     with a reason, never guessed.
  */
 
-export const TRANSFORM_VERSION = 'core-v2-migration/2';
+export const TRANSFORM_VERSION = 'core-v2-migration/3';
 
 export type MigrationEntity =
   | 'AcademicYear'
