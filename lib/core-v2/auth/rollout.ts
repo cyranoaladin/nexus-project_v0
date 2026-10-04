@@ -25,7 +25,7 @@ export function getAuthRolloutMode(env: Record<string, string | undefined> = pro
   const raw = env[AUTH_ROLLOUT_MODE_ENV]?.trim();
   if (!raw || !(AUTH_ROLLOUT_MODES as readonly string[]).includes(raw)) {
     throw new CoreV2ConfigError(
-      `${AUTH_ROLLOUT_MODE_ENV} must be one of ${AUTH_ROLLOUT_MODES.join(', ')} (got ${raw ? `"${raw}"` : 'nothing'}). ` +
+      `${AUTH_ROLLOUT_MODE_ENV} must be one of ${AUTH_ROLLOUT_MODES.join(', ')}. ` +
         'Authentication refuses to guess which store owns identities.',
     );
   }
