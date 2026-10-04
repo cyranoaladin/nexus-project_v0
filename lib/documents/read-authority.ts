@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
+import { studentDocumentVisible } from './student-visibility';
 
 const STAFF_ROLES = new Set<string>([UserRole.ADMIN, UserRole.ASSISTANTE]);
 const COACH_SCOPES = new Set<string>([
@@ -10,10 +11,6 @@ const COACH_SCOPES = new Set<string>([
 ]);
 const PARENT_SCOPES = new Set<string>([
   DocumentVisibilityScope.STUDENT_AND_PARENT, DocumentVisibilityScope.STUDENT_PARENT_COACH,
-]);
-const STUDENT_SCOPES = new Set<string>([
-  DocumentVisibilityScope.STUDENT_ONLY, DocumentVisibilityScope.STUDENT_AND_PARENT,
-  DocumentVisibilityScope.STUDENT_AND_COACH, DocumentVisibilityScope.STUDENT_PARENT_COACH,
 ]);
 
 type PrivateDocument = Pick<UserDocument,
@@ -59,7 +56,7 @@ export async function readAuthorizedDocument(id: string, subject: {
       if (!familyReadAllowed(access)) return deny();
     }
   } else if (role === UserRole.ELEVE) {
-    if (scope.userId !== subject.id || !STUDENT_SCOPES.has(scope.visibilityScope)) return deny();
+    if (scope.userId !== subject.id || !studentDocumentVisible(scope.visibilityScope)) return deny();
   } else return deny(403);
 
   // A changed owner/visibility cannot cross the authorization/private-read boundary.

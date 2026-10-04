@@ -185,6 +185,7 @@ describe('toResource', () => {
     (prisma.userDocument.findMany as jest.Mock).mockResolvedValue([{
       id: 'doc-abc', title: 'Cours Maths', originalName: 'cours.pdf',
       mimeType: 'application/pdf', sizeBytes: 51200, createdAt: new Date(),
+      visibilityScope: 'STUDENT_ONLY',
     }]);
 
     const result = await buildStudentDashboardPayload('user-1');
@@ -192,6 +193,28 @@ describe('toResource', () => {
     expect(result.resources[0].downloadUrl).toBe('/api/student/documents/doc-abc/download');
     expect(result.resources[0].type).toBe('USER_DOCUMENT');
     expect(result.resources[0].sizeBytes).toBe(51200);
+  });
+
+  it('excludes administrative and unknown document metadata from both student projections', async () => {
+    const scopes = ['STUDENT_ONLY', 'STUDENT_AND_PARENT', 'STUDENT_AND_COACH', 'STUDENT_PARENT_COACH', 'ADMIN_ONLY', 'UNKNOWN'];
+    (prisma.userDocument.findMany as jest.Mock).mockResolvedValue(scopes.map(scope => ({
+      id: scope, title: scope, originalName: `${scope}.pdf`, description: scope,
+      mimeType: 'application/pdf', sizeBytes: 32, createdAt: new Date('2026-10-04T08:00:00Z'),
+      documentType: 'AUTRE', visibilityScope: scope, subject: null,
+      uploadedById: null, uploadedBy: null,
+    })));
+
+    const result = await buildStudentDashboardPayload('user-1');
+
+    expect(prisma.userDocument.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { userId: 'user-1', visibilityScope: { in: scopes.slice(0, 4) } }, take: 10,
+    }));
+    expect(result.resources.map(resource => resource.id)).toEqual(scopes.slice(0, 4));
+    expect(JSON.stringify(result)).not.toContain('ADMIN_ONLY');
+    expect(JSON.stringify(result)).not.toContain('UNKNOWN');
+    for (const scope of scopes.slice(0, 4)) {
+      expect(JSON.stringify(result.hub)).toContain(`/api/student/documents/${scope}/download`);
+    }
   });
 });
 

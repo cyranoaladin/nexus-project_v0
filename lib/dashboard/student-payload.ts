@@ -20,6 +20,7 @@ import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { listOfficialPdfsForProfile } from '@/lib/programme/official-pdfs';
 import { getCourse } from '@/lib/curriculum/catalog';
+import { STUDENT_DOCUMENT_SCOPES, studentDocumentVisible } from '@/lib/documents/student-visibility';
 import type {
   EleveDashboardData,
   EleveBilan,
@@ -281,7 +282,7 @@ export function buildHub(input: {
   addInteractiveProgramResources(hub, { level: input.level, track: input.track });
 
   // ── User documents → COACH_RESOURCE or USER_DOCUMENT ────────────────────
-  for (const doc of input.userDocs) {
+  for (const doc of input.userDocs.filter(doc => studentDocumentVisible(doc.visibilityScope))) {
     const cat = userDocCategory(doc, input.studentUserId);
     const isPdf = doc.mimeType === 'application/pdf';
     const isMd = doc.mimeType === 'text/markdown' || doc.mimeType === 'text/x-markdown';
@@ -822,7 +823,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
     // Q5: User documents
     prisma.userDocument.findMany({
-      where: { userId },
+      where: { userId, visibilityScope: { in: [...STUDENT_DOCUMENT_SCOPES] } },
       orderBy: { createdAt: 'desc' },
       take: 10,
       select: {
@@ -991,7 +992,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   );
 
   // Resources
-  const resources = userDocs.map(toResource);
+  const resources = userDocs.filter(doc => studentDocumentVisible(doc.visibilityScope)).map(toResource);
 
   // Track content
   const EDS_SKILL_GRAPH_BY_SUBJECT: Partial<Record<string, string>> = {

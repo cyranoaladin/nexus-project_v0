@@ -444,6 +444,7 @@ describe('buildStudentDashboardPayload', () => {
       (prisma.userDocument.findMany as jest.Mock).mockResolvedValue([{
         id: 'doc-1',
         title: 'Fiche de révision',
+        visibilityScope: 'STUDENT_ONLY',
         originalName: 'fiche.pdf',
         mimeType: 'application/pdf',
         sizeBytes: 102400,
