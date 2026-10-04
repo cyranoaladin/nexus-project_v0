@@ -55,7 +55,7 @@ test('configuration errors never echo key material', () => {
   catch (error) {
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toBe('CORE_V2_ACCOUNT_TOKEN_KEY_REUSED');
-    expect((error as Error).message).not.toContain(key);
+    expect((error as Error).message.includes(key)).toBe(false);
   }
 });
 

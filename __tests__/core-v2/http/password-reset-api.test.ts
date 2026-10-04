@@ -73,7 +73,7 @@ describe('services', () => {
     await expect(activateAccount(h.client, { rawToken: second!.rawToken, password: 'change_me_x' })).rejects.toMatchObject({ code: 'NOT_FOUND' });
     const actions = (await h.client.auditEvent.findMany({ where: { OR: [{ subjectId: user.id }, { subjectType: 'Invitation' }] }, orderBy: { createdAt: 'asc' } })).map((a) => a.action);
     expect(actions).toEqual(['account.password_reset_requested', 'account.password_reset_requested', 'account.password_reset']);
-    expect(JSON.stringify(await h.client.auditEvent.findMany())).not.toContain(second!.rawToken);
+    expect(JSON.stringify(await h.client.auditEvent.findMany()).includes(second!.rawToken)).toBe(false);
   });
 
   test('only an ACTIVE account with a password is eligible; unknown e-mails and invalid addresses yield null, never an error', async () => {
@@ -144,7 +144,7 @@ describe('public routes', () => {
     expect((await json(await requestRoute.POST(req('POST', '/api/v2/auth/password-reset', { email: 'x' })))).status).toBe(400);
     expect(mockedDeliver).toHaveBeenCalledTimes(1);
     const rawToken: string = mockedDeliver.mock.calls[0][0].rawToken;
-    expect(JSON.stringify(accepted.body)).not.toContain(rawToken);
+    expect(JSON.stringify(accepted.body).includes(rawToken)).toBe(false);
 
     const preview = await json(await confirmRoute.GET(new NextRequest(`http://localhost:3000/api/v2/auth/password-reset/confirm?token=${rawToken}`)));
     expect(preview.body.data).toEqual({ valid: true });

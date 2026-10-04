@@ -20,3 +20,14 @@ Avant correction, quatre tests de service échouaient sur le SHA non versionné,
 Le helper E2E génère des clés éphémères séparées et masque clé brute/keyring sur GitHub avant persistance. Chaque job HYBRID indépendant conserve une seule génération entre serveur et navigateur. Compose transmet explicitement la configuration ; les exemples restent sans clé. Hors Jest et fixtures jetables, aucune valeur de remplacement n’existe.
 
 Qualification distante CodeQL non encore obtenue : l’alerte #102 reste ouverte sur le dernier SHA publié. Build final, suites générales, navigateurs et CI doivent être renouvelés sur le commit contenant ce lot. La PR reste Draft, la release production n’est pas autorisée. Les anciens liens doivent être réémis sans envoi massif ; une release antérieure sans HMAC ne constitue pas un rollback compatible.
+
+## Journaux de tests
+
+Trois vérificateurs synthétiques avaient été imprimés par Jest lors des échecs
+RED initiaux. Ces valeurs ont été expurgées dans les preuves privées ; seules
+les empreintes avant/après et le nombre de remplacements sont conservés.
+Les assertions de format, d'entropie et d'absence dans les enregistrements
+portent désormais sur des booléens ou une longueur entière : leur condition
+reste identique, mais un échec ne réimprime pas le jeton ou les enregistrements.
+Les cinq suites concernées passent, soit 50 tests. Les traces navigateur brutes
+restent privées et doivent être expurgées avant toute publication d'artefact.

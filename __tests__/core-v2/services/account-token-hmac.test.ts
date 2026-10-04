@@ -36,13 +36,13 @@ async function parent(email = 'hmac-primary@example.test') {
 test('activation uses a dedicated versioned HMAC and preserves 256 bits of CSPRNG entropy', async () => {
   const user = await parent();
   const issued = await inviteAccount(h.client, ctx(), user.id);
-  expect(issued.rawToken).toMatch(/^v1:primary:[A-Za-z0-9_-]{43}$/);
-  expect(Buffer.from(issued.rawToken.split(':')[2]!, 'base64url')).toHaveLength(32);
+  expect(/^v1:primary:[A-Za-z0-9_-]{43}$/.test(issued.rawToken)).toBe(true);
+  expect(Buffer.from(issued.rawToken.split(':')[2]!, 'base64url').byteLength).toBe(32);
   const expected = createHmac('sha256', Buffer.from(primary, 'hex'))
     .update(`nexus-core-v2-account-token\0v1\0ACTIVATION\0${issued.rawToken}`).digest('hex');
   expect(issued.invitation.tokenHash).toBe(`v1:primary:${expected}`);
-  expect(JSON.stringify({ invitation: issued.invitation, audit: await h.client.auditEvent.findMany() }))
-    .not.toContain(issued.rawToken);
+  expect(JSON.stringify({ invitation: issued.invitation, audit: await h.client.auditEvent.findMany() })
+    .includes(issued.rawToken)).toBe(false);
 });
 
 test('legacy SHA proof is retained in storage but cannot inspect or activate an account', async () => {
@@ -75,8 +75,8 @@ test('reset HMAC is independently verifiable and cannot be used as an activation
   expect(reset.tokenHash).toBe(`v1:primary:${expected}`);
   expect(await inspectPasswordReset(h.client, reset.rawToken, now)).toBe(true);
   expect(await inspectInvitation(h.client, reset.rawToken, now)).toBeNull();
-  expect(JSON.stringify(await h.client.invitation.findMany())).not.toContain(reset.rawToken);
-  expect(JSON.stringify(await h.client.auditEvent.findMany())).not.toContain(reset.rawToken);
+  expect(JSON.stringify(await h.client.invitation.findMany()).includes(reset.rawToken)).toBe(false);
+  expect(JSON.stringify(await h.client.auditEvent.findMany()).includes(reset.rawToken)).toBe(false);
 });
 
 test('malformed and retired activation proofs are refused before a database lookup', async () => {
@@ -105,7 +105,7 @@ test('rotation keeps the previous key valid until explicit retirement without fa
   process.env[keysName] = JSON.stringify({ primary, secondary });
   process.env[currentName] = 'secondary';
   const next = await inviteAccount(h.client, ctx(), (await parent('hmac-secondary@example.test')).id);
-  expect(next.rawToken).toMatch(/^v1:secondary:/);
+  expect(/^v1:secondary:/.test(next.rawToken)).toBe(true);
   expect(await inspectInvitation(h.client, old.rawToken, now)).not.toBeNull();
   expect(await inspectInvitation(h.client, next.rawToken, now)).not.toBeNull();
   process.env[keysName] = JSON.stringify({ secondary });

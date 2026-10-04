@@ -140,7 +140,7 @@ describe('Golden staff workflow through canonical services', () => {
     // Invitation for the parent account.
     const issued = await inviteAccount(client, ctx, parent.id);
     expect(issued.rawToken.length).toBeGreaterThanOrEqual(40);
-    expect(issued.invitation.tokenHash).not.toContain(issued.rawToken);
+    expect(issued.invitation.tokenHash.includes(issued.rawToken)).toBe(false);
     expect(await auditTrail(client, issued.invitation.id)).toEqual(['account.invited']);
 
     // Corrections are audited by field name only — never by value.
