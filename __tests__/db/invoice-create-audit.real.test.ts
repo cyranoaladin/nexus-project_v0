@@ -34,10 +34,10 @@ beforeEach(() => {
   jest.clearAllMocks(); mockFailCreationAudit = false;
   (auth as jest.Mock).mockResolvedValue({ user: { id: actorId, role: 'ADMIN' } });
 });
-function create(number: string) {
+function create(number: string, overrides: Record<string, unknown> = {}) {
   return POST(new NextRequest('https://nexusreussite.academy/api/admin/invoices', {
     method: 'POST', body: JSON.stringify({ number, customer: { name: 'Synthetic fixture' },
-      items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 1000 }] }),
+      items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 1000 }], ...overrides }),
   }));
 }
 it('commits one private draft, its items and immutable creation evidence', async () => {
@@ -66,4 +66,31 @@ it('rolls back invoice and nested items on audit failure and allows a subsequent
   expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id,
     actorUserId: actorId, action: 'INVOICE_CREATED' } })).toBe(1);
   expect(await prisma.invoiceFinancialAccessAudit.count({ where: { actorUserId: actorId } })).toBe(auditCountBefore + 1);
+});
+
+it.each([
+  { discountTotal: 1001 },
+  { items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 2147483648 }] },
+  { items: [{ label: 'Synthetic fixture', qty: 100, unitPrice: 2147483647 }] },
+  { items: Array.from({ length: 2 }, () => ({ label: 'Synthetic fixture', qty: 1, unitPrice: 1500000000 })) },
+])('rejects invalid derived amounts without PostgreSQL effects: %j', async overrides => {
+  const number = `SYNTHETIC-${randomUUID()}`;
+  const before = await prisma.invoiceFinancialAccessAudit.count({ where: { actorUserId: actorId } });
+  expect((await create(number, overrides)).status).toBe(400);
+  expect(await prisma.invoice.count({ where: { number } })).toBe(0);
+  expect(await prisma.invoiceItem.count({ where: { invoice: { number } } })).toBe(0);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { actorUserId: actorId } })).toBe(before);
+  expect(renderInvoicePDF).not.toHaveBeenCalled();
+});
+it.each([
+  { discountTotal: 1000 },
+  { items: [{ label: 'Synthetic fixture', qty: 1, unitPrice: 2147483647 }] },
+])('persists the valid amount boundaries exactly: %j', async overrides => {
+  const number = `SYNTHETIC-${randomUUID()}`;
+  expect((await create(number, overrides)).status).toBe(201);
+  const invoice = await prisma.invoice.findUniqueOrThrow({ where: { number }, include: { items: true } });
+  expect(invoice.total).toBe(overrides.discountTotal ? 0 : 2147483647);
+  expect(invoice.items[0].total).toBe(overrides.discountTotal ? 1000 : 2147483647);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id,
+    actorUserId: actorId, action: 'INVOICE_CREATED' } })).toBe(1);
 });

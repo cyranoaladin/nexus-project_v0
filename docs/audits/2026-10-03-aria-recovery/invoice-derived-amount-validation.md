@@ -20,4 +20,4 @@ Avant allocation du numéro, transaction et PDF : contrôler les totaux de ligne
 
 ## Limites
 
-La suite route utilise des doubles Prisma ; elle ne constitue pas une qualification PostgreSQL ou navigateur. La CI du prochain SHA doit renouveler ces preuves. Les gaps payeur manuel, idempotence et reprise PDF restent ouverts. Aucun déploiement effectué.
+La suite route utilise des doubles Prisma. Une campagne supplémentaire sur PostgreSQL 16 isolé passe 4 suites / 21 tests après 131 migrations et replay : les quatre refus ne créent ni facture, ni ligne, ni audit ; zéro et int4 maximal sont persistés exactement. Les preuves privées sont dans `.artifacts/recovery/invoice-status-green-1791137736/` ; l’instance tmpfs a été arrêtée. Cette preuve ne constitue pas une qualification navigateur. La CI du prochain SHA doit renouveler ces preuves. Les gaps payeur manuel, idempotence et reprise PDF restent ouverts. Aucun déploiement effectué.
