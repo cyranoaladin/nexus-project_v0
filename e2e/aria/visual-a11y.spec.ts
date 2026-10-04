@@ -166,7 +166,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByRole('main', { name: 'Conversation ARIA' })
       .getByText('Aucun cours ARIA avec chat n’est disponible.')).toBeVisible();
     await captureState(page, testInfo, viewport, 'course-unavailable');
-    expect(diagnostics.failures).toEqual([]);
+    expect(diagnostics.failures, JSON.stringify(diagnostics.networkFailures)).toEqual([]);
     expect(diagnostics.networkFailures.filter(event => event.disposition === 'failure')).toEqual([]);
   } finally {
     await context.close();
