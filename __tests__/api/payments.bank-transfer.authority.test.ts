@@ -11,13 +11,17 @@ jest.mock('@/auth', () => ({ auth: () => mockAuth() }));
 jest.mock('@/lib/families/student-access-authority', () => ({
   resolveParentStudentAccess: (...args: unknown[]) => mockAuthority(...args),
 }));
-jest.mock('@/lib/prisma', () => ({ prisma: {
-  parentProfile: { findUnique: (...args: unknown[]) => mockLegacyParent(...args) },
-  student: { findFirst: (...args: unknown[]) => mockLegacyStudent(...args) },
-  payment: { findFirst: (...args: unknown[]) => mockPending(...args), create: (...args: unknown[]) => mockPaymentCreate(...args) },
-  user: { findMany: jest.fn().mockResolvedValue([]) },
-  notification: { createMany: (...args: unknown[]) => mockNotifications(...args) },
-} }));
+jest.mock('@/lib/prisma', () => {
+  const database = {
+    $queryRaw: jest.fn().mockResolvedValue([{ id: 'synthetic-parent' }]),
+    parentProfile: { findUnique: (...args: unknown[]) => mockLegacyParent(...args) },
+    student: { findFirst: (...args: unknown[]) => mockLegacyStudent(...args) },
+    payment: { findFirst: (...args: unknown[]) => mockPending(...args), create: (...args: unknown[]) => mockPaymentCreate(...args) },
+    user: { findMany: jest.fn().mockResolvedValue([]) },
+    notification: { createMany: (...args: unknown[]) => mockNotifications(...args) },
+  };
+  return { prisma: { ...database, $transaction: jest.fn((fn: (tx: typeof database) => unknown) => fn(database)) } };
+});
 import { POST } from '@/app/api/payments/bank-transfer/confirm/route';
 
 function request(studentId = 'synthetic-student') {

@@ -17,42 +17,18 @@ jest.mock('@/lib/families/student-access-authority', () => ({
   resolveParentStudentAccess: jest.fn().mockResolvedValue({ status: 'LEGACY_ALLOWED' }),
 }));
 
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const database = {
+    $queryRaw: jest.fn().mockResolvedValue([{ id: 'synthetic-parent' }]),
     payment: {
-      create: jest.fn(),
-      createMany: jest.fn(),
-      update: jest.fn(),
-      updateMany: jest.fn(),
-      upsert: jest.fn(),
-      delete: jest.fn(),
-      deleteMany: jest.fn(),
-      findFirst: jest.fn(),
+      create: jest.fn(), createMany: jest.fn(), update: jest.fn(), updateMany: jest.fn(),
+      upsert: jest.fn(), delete: jest.fn(), deleteMany: jest.fn(), findFirst: jest.fn(),
     },
-    parentProfile: {
-      findUnique: jest.fn(),
-    },
-    student: {
-      findFirst: jest.fn(),
-    },
-    user: {
-      findMany: jest.fn(),
-    },
-    notification: {
-      create: jest.fn(),
-      createMany: jest.fn(),
-    },
-    $transaction: jest.fn((fn: (tx: { payment: { create: jest.Mock; findFirst: jest.Mock }; notification: { create: jest.Mock } }) => unknown) => fn({
-      payment: {
-        create: jest.fn().mockResolvedValue({ id: 'pay-1', status: 'PENDING' }),
-        findFirst: jest.fn().mockResolvedValue(null),
-      },
-      notification: {
-        create: jest.fn().mockResolvedValue({ id: 'notif-1' }),
-      },
-    })),
-  },
-}));
+    parentProfile: { findUnique: jest.fn() }, student: { findFirst: jest.fn() },
+    user: { findMany: jest.fn() }, notification: { create: jest.fn(), createMany: jest.fn() },
+  };
+  return { prisma: { ...database, $transaction: jest.fn((fn: (tx: typeof database) => unknown) => fn(database)) } };
+});
 
 function mockSession(role: string, userId = 'user-1') {
   return {
@@ -340,7 +316,8 @@ it('preserves the accepted historical CGV version when an existing transfer is r
   for (const write of ['create', 'createMany', 'update', 'updateMany', 'upsert', 'delete', 'deleteMany'] as const) {
     expect(prisma.payment[write]).not.toHaveBeenCalled();
   }
-  expect(prisma.$transaction).not.toHaveBeenCalled();
+  expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+  // A read/lock transaction may run; every financial and notification DML remains forbidden on replay.
   expect(prisma.notification.create).not.toHaveBeenCalled();
   expect(prisma.notification.createMany).not.toHaveBeenCalled();
   expect(historicalPayment.termsVersion).toBe('CGV v1.0 – 2026-03-01');
