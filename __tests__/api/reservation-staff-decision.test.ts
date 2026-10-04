@@ -1,7 +1,7 @@
 /** @jest-environment node */
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/prisma', () => {
-  const db = { stageReservation: { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
+  const db = { $queryRaw: jest.fn(), stageReservation: { findUnique: jest.fn(), update: jest.fn(), updateMany: jest.fn() },
     stageReservationDecisionAudit: { findUnique: jest.fn(), create: jest.fn() } };
   return { prisma: { ...db, $transaction: jest.fn(async (callback: (tx: typeof db) => Promise<unknown>) => callback(db)) } };
 });
@@ -16,18 +16,20 @@ const invoke = (action = 'reject', overrides: Record<string, unknown> = {}) => P
   { method: 'PATCH', body: JSON.stringify({ reservationId: 'synthetic-reservation', action, requestId, ...overrides }) }));
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(prisma.$queryRaw).mockReset();
+  jest.mocked(prisma.$queryRaw).mockResolvedValue([{ role: 'ADMIN', mergedIntoUserId: null }]);
   jest.mocked(prisma.stageReservationDecisionAudit.findUnique).mockReset();
   jest.mocked(prisma.stageReservationDecisionAudit.create).mockReset();
   jest.mocked(prisma.stageReservation.findUnique).mockReset();
   jest.mocked(prisma.stageReservation.updateMany).mockReset();
-  jest.mocked(auth).mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN' } } as never);
+  jest.mocked(auth).mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN', authority: 'V1' } } as never);
   jest.mocked(prisma.stageReservation.findUnique).mockResolvedValue({ id: 'synthetic-reservation', status: 'PENDING', stageId: null,
     studentId: null, paymentStatus: null, paymentRef: null, richStatus: null, confirmedAt: null, activationToken: null, activationTokenExpiresAt: null } as never);
   jest.mocked(prisma.stageReservation.updateMany).mockResolvedValue({ count: 1 });
   jest.mocked(prisma.stageReservationDecisionAudit.findUnique).mockResolvedValue(null);
 });
 test('secretaire cannot validate a financial decision without a PAYMENT mutation permission', async () => {
-  jest.mocked(auth).mockResolvedValue({ user: { id: 'synthetic-assistant', role: 'ASSISTANTE' } } as never);
+  jest.mocked(auth).mockResolvedValue({ user: { id: 'synthetic-assistant', role: 'ASSISTANTE', authority: 'V1' } } as never);
   expect((await invoke('approve')).status).toBe(403);
   expect(prisma.stageReservation.findUnique).not.toHaveBeenCalled();
 });
@@ -123,4 +125,19 @@ test('retry recognizes its winning audit even when the lead is already cancelled
   expect((await invoke()).status).toBe(200);
   expect(prisma.stageReservation.updateMany).not.toHaveBeenCalled();
   expect(prisma.stageReservationDecisionAudit.create).not.toHaveBeenCalled();
+});
+
+test('does not mutate legacy identities using a Core authority or a missing authority claim', async () => {
+  for (const authority of ['CORE_V2', undefined]) {
+    jest.mocked(auth).mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN', authority } } as never);
+    expect((await invoke()).status).toBe(403);
+  }
+  expect(prisma.$transaction).not.toHaveBeenCalled();
+});
+test.each([[], [{ role: 'COACH', mergedIntoUserId: null }], [{ role: 'ADMIN', mergedIntoUserId: 'another-synthetic-user' }]].map(actors => ({ actors })))
+('rejects an absent, demoted or merged canonical actor before retry lookup or CAS', async ({ actors }) => {
+  jest.mocked(prisma.$queryRaw).mockResolvedValue(actors);
+  expect((await invoke()).status).toBe(403);
+  expect(prisma.stageReservationDecisionAudit.findUnique).not.toHaveBeenCalled();
+  expect(prisma.stageReservation.updateMany).not.toHaveBeenCalled();
 });

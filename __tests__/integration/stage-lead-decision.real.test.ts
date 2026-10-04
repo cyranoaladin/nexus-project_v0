@@ -17,7 +17,7 @@ async function createLead(richStatus: 'PENDING' | null = null) {
   return prisma.stageReservation.create({ data: { email: `${prefix}-${id}@example.test`, academyId: prefix,
     parentName: 'Synthetic Parent', phone: '55000003', classe: 'Terminale', academyTitle: 'Synthetic legacy lead', price: 350, richStatus } });
 }
-const command = (reservationId: string, requestId = randomUUID()) => ({ actorUserId: actorId, reservationId, requestId });
+const command = (reservationId: string, requestId = randomUUID()) => ({ actorAuthority: 'V1' as const, actorUserId: actorId, reservationId, requestId });
 test('concurrent identical retries produce one audited decision and preserve financial state', async () => {
   const lead = await createLead(); const input = command(lead.id);
   const results = await Promise.all(Array.from({ length: 8 }, () => declineLegacyStageLead(input)));
@@ -50,9 +50,14 @@ test('a reused command ID cannot cancel a second lead under concurrency', async 
   expect(rows.filter(row => row.status === 'CANCELLED')).toHaveLength(1);
   expect(rows.filter(row => row.status === 'PENDING')).toHaveLength(1);
 });
-test('a failed audit FK rolls back the lead mutation', async () => {
+test('a failed audit FK rolls back a synthetic direct-writer transaction', async () => {
   const lead = await createLead();
-  await expect(declineLegacyStageLead({ ...command(lead.id), actorUserId: 'synthetic-absent-actor' })).rejects.toThrow();
+  await expect(prisma.$transaction(async tx => {
+    await tx.stageReservation.update({ where: { id: lead.id }, data: { status: 'CANCELLED', richStatus: 'CANCELLED' } });
+    await tx.stageReservationDecisionAudit.create({ data: { reservationId: lead.id, actorUserId: 'synthetic-absent-actor',
+      requestKey: `synthetic-absent-actor:${randomUUID()}`, action: 'LEAD_DECLINED', previousStatus: 'PENDING',
+      nextStatus: 'CANCELLED', previousRichStatus: null, nextRichStatus: 'CANCELLED' } });
+  })).rejects.toMatchObject({ code: 'P2003' });
   expect((await prisma.stageReservation.findUniqueOrThrow({ where: { id: lead.id } })).status).toBe('PENDING');
   expect(await prisma.stageReservationDecisionAudit.count({ where: { reservationId: lead.id } })).toBe(0);
 });
@@ -62,4 +67,50 @@ test('database rejects rewriting or deleting decision history', async () => {
   await expect(prisma.stageReservationDecisionAudit.update({ where: { id: audit.id }, data: { action: 'LEAD_DECLINED' } })).rejects.toThrow('STAGE_RESERVATION_DECISION_AUDIT_APPEND_ONLY');
   await expect(prisma.stageReservationDecisionAudit.delete({ where: { id: audit.id } })).rejects.toThrow('STAGE_RESERVATION_DECISION_AUDIT_APPEND_ONLY');
   expect(await prisma.stageReservationDecisionAudit.count({ where: { reservationId: lead.id } })).toBe(1);
+});
+
+test('an absent actor is refused before any lead mutation', async () => {
+  const lead = await createLead();
+  expect(await declineLegacyStageLead({ ...command(lead.id), actorUserId: 'synthetic-absent-actor' })).toBe('FORBIDDEN');
+  expect((await prisma.stageReservation.findUniqueOrThrow({ where: { id: lead.id } })).status).toBe('PENDING');
+  expect(await prisma.stageReservationDecisionAudit.count({ where: { reservationId: lead.id } })).toBe(0);
+});
+test('a revoked staff role cannot obtain a previous successful command response', async () => {
+  const lead = await createLead(); const input = command(lead.id);
+  expect(await declineLegacyStageLead(input)).toBe('DECLINED');
+  await prisma.user.update({ where: { id: actorId }, data: { role: 'COACH' } });
+  try {
+    expect(await declineLegacyStageLead(input)).toBe('FORBIDDEN');
+    expect(await prisma.stageReservationDecisionAudit.count({ where: { reservationId: lead.id } })).toBe(1);
+  } finally { await prisma.user.update({ where: { id: actorId }, data: { role: 'ADMIN' } }); }
+});
+test('a concurrent role revocation wins before the service acquires its authorization lock', async () => {
+  const lead = await createLead();
+  let entered!: () => void; let release!: () => void;
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  const released = new Promise<void>(resolve => { release = resolve; });
+  const revocation = prisma.$transaction(async tx => {
+    await tx.user.update({ where: { id: actorId }, data: { role: 'COACH' } });
+    entered(); await released;
+  }, { timeout: 20_000, maxWait: 5_000 });
+  await started;
+  const decision = declineLegacyStageLead(command(lead.id));
+  try {
+    const deadline = Date.now() + 5_000;
+    let observed = false;
+    while (Date.now() < deadline) {
+      const rows = await prisma.$queryRaw<Array<{ waiting: number }>>`
+        SELECT count(*)::int AS waiting FROM pg_stat_activity
+        WHERE datname = current_database() AND wait_event_type = 'Lock' AND query LIKE '%FOR SHARE%'`;
+      if (rows[0].waiting > 0) { observed = true; break; }
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    expect(observed).toBe(true);
+    release(); await revocation;
+    expect(await decision).toBe('FORBIDDEN');
+    expect((await prisma.stageReservation.findUniqueOrThrow({ where: { id: lead.id } })).status).toBe('PENDING');
+  } finally {
+    release(); await Promise.allSettled([revocation, decision]);
+    await prisma.user.update({ where: { id: actorId }, data: { role: 'ADMIN' } });
+  }
 });

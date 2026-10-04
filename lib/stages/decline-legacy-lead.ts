@@ -1,23 +1,26 @@
 import { z } from 'zod';
-import type { Prisma } from '@prisma/client';
+import type { Prisma, UserRole } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { can } from '@/lib/rbac/permissions';
 
 export const legacyStageDecisionSchema = z.object({
   reservationId: z.string().min(1).max(100).regex(/^[A-Za-z0-9_-]+$/),
   action: z.enum(['approve', 'reject']), requestId: z.string().uuid().transform(value => value.toLowerCase()),
 }).strict();
 
-export type LeadDeclineResult = 'DECLINED' | 'NOT_FOUND' | 'WORKFLOW_REQUIRED' | 'COMMAND_CONFLICT' | 'STATE_CONFLICT';
+export type LeadDeclineResult = 'DECLINED' | 'NOT_FOUND' | 'WORKFLOW_REQUIRED' | 'COMMAND_CONFLICT' | 'STATE_CONFLICT' | 'FORBIDDEN';
 
 /** A lead decline cannot cancel a linked admission, refund or assert settlement. */
 export async function declineLegacyStageLead(input: Readonly<{
-  actorUserId: string; reservationId: string; requestId: string;
+  actorAuthority: 'V1'; actorUserId: string; reservationId: string; requestId: string;
 }>): Promise<LeadDeclineResult> {
+  if (input.actorAuthority !== 'V1') return 'FORBIDDEN';
   const actorUserId = z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/).parse(input.actorUserId);
   const { reservationId, requestId } = legacyStageDecisionSchema.parse({ reservationId: input.reservationId, requestId: input.requestId, action: 'reject' });
   const requestKey = `${actorUserId}:${requestId}`;
   try {
     return await prisma.$transaction(async tx => {
+      if (!await lockAuthorizedActor(tx, actorUserId)) return 'FORBIDDEN';
       const previousCommand = await tx.stageReservationDecisionAudit.findUnique({ where: { requestKey }, select: { reservationId: true } });
       if (previousCommand) return previousCommand.reservationId === reservationId ? 'DECLINED' : 'COMMAND_CONFLICT';
       const lead = await tx.stageReservation.findUnique({ where: { id: reservationId },
@@ -44,10 +47,21 @@ export async function declineLegacyStageLead(input: Readonly<{
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
       // The failed transaction has rolled back before checking the winner.
-      return observeWinningCommand(prisma, requestKey, reservationId);
+      return prisma.$transaction(async tx => {
+        if (!await lockAuthorizedActor(tx, actorUserId)) return 'FORBIDDEN';
+        return observeWinningCommand(tx, requestKey, reservationId);
+      });
     }
     throw error;
   }
+}
+
+/** V1-only boundary: a Core identity cannot borrow authority from a V1 mirror. */
+async function lockAuthorizedActor(tx: Prisma.TransactionClient, actorUserId: string): Promise<boolean> {
+  const actors = await tx.$queryRaw<Array<{ role: UserRole; mergedIntoUserId: string | null }>>`
+    SELECT "role", "mergedIntoUserId" FROM "users" WHERE "id" = ${actorUserId} FOR SHARE`;
+  const actor = actors[0];
+  return Boolean(actor && !actor.mergedIntoUserId && can(actor.role, 'UPDATE', 'RESERVATION'));
 }
 
 async function observeWinningCommand(db: Pick<Prisma.TransactionClient, 'stageReservationDecisionAudit'>, requestKey: string, reservationId: string): Promise<LeadDeclineResult> {

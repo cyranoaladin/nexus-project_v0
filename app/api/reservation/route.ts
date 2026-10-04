@@ -249,6 +249,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 async function decideLegacyReservation(request: NextRequest): Promise<NextResponse> {
   const session = await auth();
   if (!session?.user?.id || session.user.id.length > 128 ||
+    session.user.authority !== 'V1' ||
     !can(session.user.role, 'UPDATE', 'RESERVATION')) {
     return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
@@ -269,9 +270,9 @@ async function decideLegacyReservation(request: NextRequest): Promise<NextRespon
   const limited = await guardSensitiveRateLimit(request, { scope: 'reservation-decision',
     identity: session.user.id, resource: reservationId });
   if (limited) return limited;
-  const result = await declineLegacyStageLead({ actorUserId: session.user.id, reservationId, requestId });
+  const result = await declineLegacyStageLead({ actorAuthority: 'V1', actorUserId: session.user.id, reservationId, requestId });
   if (result === 'DECLINED') return NextResponse.json({ success: true, message: 'Demande déclinée.', newStatus: 'CANCELLED' });
-  return NextResponse.json({ error: result }, { status: result === 'NOT_FOUND' ? 404 : 409 });
+  return NextResponse.json({ error: result }, { status: result === 'FORBIDDEN' ? 403 : result === 'NOT_FOUND' ? 404 : 409 });
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
