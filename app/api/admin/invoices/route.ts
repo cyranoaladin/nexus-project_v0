@@ -1,3 +1,4 @@
+import { checkCsrf } from '@/lib/csrf';
 import { privateFinancialJson } from '@/lib/invoice/private-response';
 /**
  * POST /api/admin/invoices — Create invoice + atomic number + PDF + store.
@@ -114,6 +115,9 @@ export async function POST(request: NextRequest) {
     if (!canPerformStatusAction(userRole)) {
       return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
+
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
 
     // Parse body
     const parsedBody = createInvoiceBodySchema.safeParse(await request.json());

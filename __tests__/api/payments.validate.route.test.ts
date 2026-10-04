@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { POST } from '@/app/api/payments/validate/route';
 import { prisma } from '@/lib/prisma';
@@ -46,10 +47,12 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-function makeRequest(body?: any) {
-  return {
-    json: async () => body,
-  } as any;
+function makeRequest(body?: unknown) {
+  return new NextRequest('https://nexusreussite.academy/api/payments/validate', {
+    method: 'POST',
+    headers: { origin: 'https://nexusreussite.academy', 'content-type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  });
 }
 
 describe('POST /api/payments/validate', () => {

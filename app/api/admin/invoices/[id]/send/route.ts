@@ -1,3 +1,4 @@
+import { checkCsrf } from '@/lib/csrf';
 /** Administrative invoice email requests require an explicit UUID operation key.
  * HTTP 202 means committed queue acceptance, never provider delivery.
  */
@@ -21,6 +22,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (!session?.user?.id || !canPerformStatusAction(session.user.role)) {
       return NextResponse.json(NOT_FOUND, { status: 404, headers: PRIVATE_HEADERS });
     }
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return NextResponse.json({ error: 'Accès refusé' }, { status: 403, headers: PRIVATE_HEADERS });
+
     const { id } = await params;
     const result = await queueInvoiceEmailRequest({ invoiceId: id, actorUserId: session.user.id,
       role: session.user.role, operationKey: request.headers.get('Idempotency-Key') });

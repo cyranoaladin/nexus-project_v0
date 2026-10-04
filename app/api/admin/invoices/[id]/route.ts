@@ -1,3 +1,4 @@
+import { checkCsrf } from '@/lib/csrf';
 import { privateFinancialJson } from '@/lib/invoice/private-response';
 import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
 /**
@@ -51,6 +52,9 @@ export async function PATCH(
     if (!canPerformStatusAction(userRole)) {
       return privateFinancialJson(NOT_FOUND, { status: 404 });
     }
+
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
 
     const { id } = await params;
     const userId = session.user.id;

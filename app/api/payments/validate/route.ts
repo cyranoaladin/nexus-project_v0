@@ -1,3 +1,4 @@
+import { checkCsrf } from '@/lib/csrf';
 import { privateFinancialJson } from '@/lib/invoice/private-response';
 import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
 export const dynamic = 'force-dynamic';
@@ -206,6 +207,9 @@ export async function POST(request: NextRequest) {
     if (!can(session.user.role, 'UPDATE', 'PAYMENT')) {
       return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
+
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
 
     const body = await request.json();
     const { paymentId, action, note } = validatePaymentSchema.parse(body);
