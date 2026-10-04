@@ -22,3 +22,11 @@ Le calcul lent des révisions source/cible s'effectue hors transaction. Sous ver
 Le coût scrypt est payé par utilisateur préparé ; mesurer le temps total selon le roster avant exécution opérationnelle. Une modification pendant préparation impose une nouvelle préparation, jamais un contournement du contrôle. CodeQL distant, campagne globale et restauration représentative restent à qualifier sur le nouveau SHA.
 
 Mesure locale isolée : 100 utilisateurs synthétiques, 16 844 ms, sans transaction de base. Ce microbenchmark mesure uniquement la dérivation ; il ne prouve ni le débit complet d'une migration ni son RTO.
+
+## Correction du guard d'autorité du client
+
+La CI de `71e8cec8d2e6876ade6e46294c3d073e8942cc27` a refusé l'import valeur de `Prisma` depuis le module généré : 1 échec et 38 réussites dans le guard d'architecture. Reproduction locale identique. Le verrou utilise maintenant `$queryRaw` tagué, sans accès valeur au module généré. Après correction : 39 tests du guard réussis, 27 tests PostgreSQL réussis (25,36 s), typecheck et lint ciblé réussis. Aucun guard affaibli.
+
+Une campagne Core locale a terminé avec 76 suites et 762 tests réussis (224,68 s), mais le petit changement d'import a été réalisé pendant son exécution : ce résultat est diagnostique et ne qualifie aucun SHA figé. La CI du prochain SHA doit renouveler la preuve complète.
+
+Revue en lecture seule du delta : aucun P0/P1 nouveau identifié ; pas d'approbation GitHub ni de validation opérationnelle implicite.

@@ -9,7 +9,7 @@
  * reports UNCHANGED / UPDATED truthfully. Dry run computes the same report
  * without writing anything.
  */
-import { Prisma, type PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '@/lib/core-v2/audit';
 import { isCoreV2DomainError } from '@/lib/core-v2/errors';
 import { createServiceContext, type Tx } from '@/lib/core-v2/services/context';
@@ -101,7 +101,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
 
     for (const u of plan.users) {
-      await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "users" WHERE "id" = ${u.id} FOR UPDATE`);
+      await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${u.id} FOR UPDATE`;
       const existing = await tx.user.findUnique({ where: { id: u.id }, select: userProofSelect });
       const prepared = existingUserProofs.get(u.id);
       if ((existing === null) !== (prepared === undefined)
