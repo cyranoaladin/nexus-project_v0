@@ -13,7 +13,7 @@ const customJestConfig = {
   testEnvironment: 'node',
   testMatch: ['<rootDir>/__tests__/governance/**/*.test.js'],
   testPathIgnorePatterns: ['/node_modules/', '/.next/', '<rootDir>/.worktrees/'],
-  modulePathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/.worktrees/'],
+  modulePathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/.worktrees/', '<rootDir>/.artifacts/'],
   maxWorkers: 1,
   testTimeout: 30000,
 };
