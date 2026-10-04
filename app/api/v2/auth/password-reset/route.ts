@@ -8,6 +8,7 @@ import { correlationIdFrom } from '@/lib/core-v2/http/staff-route';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { logger } from '@/lib/logger';
 
 const bodySchema = z.object({ email: z.string().trim().min(3).max(320) });
 
@@ -46,7 +47,16 @@ export async function POST(request: NextRequest) {
       return identityBlocked;
     }
 
-    await requestPasswordResetByAuthority(email, { correlationId });
+    try {
+      await requestPasswordResetByAuthority(email, { correlationId });
+    } catch {
+      // A failure after resolving account eligibility must not become an
+      // existence oracle. Accepted means the request was received, never
+      // that a message was delivered. Keep this operational event observable
+      // without an address, credential, driver cause or account identifier.
+      logger.error({ correlationId, event: 'PASSWORD_RESET_PROCESSING_FAILED' },
+        '[auth] password reset request processing failed');
+    }
     const response = ok({ accepted: true }, correlationId, 202);
     response.headers.set('Cache-Control', 'private, no-store, max-age=0');
     return response;
