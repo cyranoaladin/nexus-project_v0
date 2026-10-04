@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { resolvePublicLinkTarget } from '../helpers/public-link-target';
 
 const PAGES = [
   '/',
@@ -21,20 +22,12 @@ test.describe('Marketing links integrity', () => {
       );
 
       const unique = Array.from(new Set(hrefs as string[]));
-      const toCheck = unique.filter((href) => {
-        if (!href) return false;
-        if (href.startsWith('#')) return false;
-        if (href.startsWith('mailto:')) return false;
-        if (href.startsWith('tel:')) return false;
-        if (href.startsWith('javascript:')) return false;
-        if (href.startsWith('http://') || href.startsWith('https://')) return false;
-        return true;
-      });
-
-      for (const href of toCheck) {
-        const target = new URL(href, page.url()).toString();
-        const response = await page.request.get(target);
-        expect(response.status(), `Link ${href} on ${path} returned ${response.status()}`).toBeLessThan(400);
+      for (const href of unique) {
+        const target = resolvePublicLinkTarget(href, page.url());
+        expect(target.kind, 'Public links must use a supported navigation scheme').not.toBe('UNSAFE');
+        if (target.kind !== 'INTERNAL') continue;
+        const response = await page.request.get(target.url);
+        expect(response.status(), `Internal link on ${path} returned ${response.status()}`).toBeLessThan(400);
       }
     });
   }
