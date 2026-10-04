@@ -307,7 +307,7 @@ export interface IssuedPasswordReset {
   readonly email: string;
   readonly displayName: string;
   readonly rawToken: string;
-  readonly tokenHash: string;
+  readonly resetId: string;
   readonly expiresAt: Date;
 }
 
@@ -368,7 +368,7 @@ export async function requestPasswordReset(
       email: user.email,
       displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
       rawToken,
-      tokenHash,
+      resetId: reset.id,
       expiresAt: reset.expiresAt,
     };
   });

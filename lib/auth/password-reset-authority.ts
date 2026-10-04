@@ -44,7 +44,7 @@ export async function requestPasswordResetByAuthority(email: string, options: { 
     email: issued.email,
     displayName: issued.displayName,
     rawToken: issued.rawToken,
-    tokenHash: issued.tokenHash,
+    resetId: issued.resetId,
     expiresAt: issued.expiresAt,
   });
   return 'CORE_V2_ISSUED';

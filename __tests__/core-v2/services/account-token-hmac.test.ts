@@ -82,7 +82,9 @@ test.each([11, 137])('reset issuance matches an independent opaque entropy vecto
   } finally { entropySource.mockRestore(); }
   if (!reset) throw new Error('SYNTHETIC_ACCOUNT_NOT_ELIGIBLE');
   expect(reset.rawToken === opaqueVector).toBe(true);
-  expect(reset.tokenHash).toBe(`v1:primary:${expected}`);
+  expect(reset).not.toHaveProperty('tokenHash');
+  expect((await h.client.invitation.findUniqueOrThrow({ where: { id: reset.resetId } })).tokenHash)
+    .toBe(`v1:primary:${expected}`);
   expect(await inspectPasswordReset(h.client, reset.rawToken, now)).toBe(true);
   expect(await inspectInvitation(h.client, reset.rawToken, now)).toBeNull();
   expect(JSON.stringify(await h.client.invitation.findMany()).includes(reset.rawToken)).toBe(false);

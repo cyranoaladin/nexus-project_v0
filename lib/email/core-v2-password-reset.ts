@@ -6,7 +6,7 @@
  * The link host comes from the trusted application origin (configuration).
  */
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
-import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { enqueueEmailIntentForIssuance } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { escapeHtml } from '@/lib/email/templates';
 import { prisma } from '@/lib/prisma';
@@ -59,19 +59,19 @@ export interface DeliverCoreV2PasswordResetInput {
   readonly email: string;
   readonly displayName: string;
   readonly rawToken: string;
-  readonly tokenHash: string;
+  readonly resetId: string;
   readonly expiresAt: Date;
 }
 
-/** Enqueues the reset email; dedupe on the token hash so a retried request never sends twice. */
+/** Enqueues the reset email; dedupe on the durable issuance so its retry preserves the original message. */
 export async function deliverCoreV2PasswordReset(input: DeliverCoreV2PasswordResetInput): Promise<{ messageId: string }> {
   const message = buildCoreV2PasswordResetMessage(input);
   const intent = await prisma.$transaction((tx) =>
-    enqueueEmailIntent(tx, {
+    enqueueEmailIntentForIssuance(tx, {
       aggregateId: input.userId,
       aggregateType: 'core-v2-password-reset',
       messageType: 'PASSWORD_RESET',
-      dedupeKey: input.tokenHash,
+      issuanceId: input.resetId,
       to: input.email,
       subject: message.subject,
       html: message.html,
@@ -79,5 +79,5 @@ export async function deliverCoreV2PasswordReset(input: DeliverCoreV2PasswordRes
     }),
   );
   kickEmailOutboxDrain();
-  return { messageId: (intent as { messageId?: string }).messageId ?? '' };
+  return { messageId: intent.messageId };
 }

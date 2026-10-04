@@ -15,7 +15,7 @@ export const POST = defineStaffRoute({
       email: issued.email,
       displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
       rawToken: issued.rawToken,
-      tokenHash: issued.invitation.tokenHash,
+      invitationId: issued.invitation.id,
       expiresAt: issued.invitation.expiresAt,
     });
     return {
