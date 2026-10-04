@@ -73,3 +73,7 @@ without weakening the guard. Their private artifacts were retained.
 Production backup/restore, retention approval, TLS rotation proof, exact-head CI,
 human review and staging rollback remain unproved. No production migration,
 notification, payment or release was performed for this lot.
+
+## Follow-up: credential scan of the runner
+
+The published Lint job on `28b692f60d99fc46522e6ef04bf612217f8f05d5` stopped in `security:repo`, identifying `CREDENTIALED_DATABASE_URL` at runner line 27. Its source concatenation was not a stored credential: the password was generated in process memory. The runner now constructs a structured URL with an encoded credential component instead of assembling a credential-looking literal; the scanner is unchanged. The full versioned-credential scanner now reports zero findings. The complete rehearsal was repeated successfully in `stage-lead-decision-green-1791148101`, including all five real database tests. No scanner exclusion or assignment exception was added.

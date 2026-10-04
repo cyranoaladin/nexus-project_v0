@@ -1,6 +1,7 @@
 import subprocess, os, json, secrets, time, hashlib, argparse, re
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from pathlib import Path
+from urllib.parse import quote, urlunsplit
 parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expansion/restore rehearsal; never uses a supplied database URL')
 parser.add_argument('--old-ref',required=True)
 args=parser.parse_args()
@@ -24,7 +25,8 @@ try:
  assert info['Config']['Labels']['nexus.recovery.owner']=='stage-lead-decision-rehearsal'
  assert '/var/lib/postgresql/data' in info['HostConfig']['Tmpfs']
  port=info['NetworkSettings']['Ports']['5432/tcp'][0]['HostPort']
- url='postgresql://postgres:'+password+'@127.0.0.1:'+port+'/nexus_disposable_owner_test'
+ # Encode credentials as URL components; no literal or inherited DSN is used.
+ url=urlunsplit(('postgresql', f'postgres:{quote(password, safe="")}@127.0.0.1:{port}', '/nexus_disposable_owner_test', '', ''))
  env=os.environ.copy(); env['DATABASE_URL']=url;env['TEST_DATABASE_URL']=url;env['NODE_ENV']='test';env['NEXUS_DISPOSABLE_POSTGRES']='1'
  snapshot=out/'old-schema'; (snapshot/'migrations').mkdir(parents=True,mode=0o700)
  old_schema=subprocess.check_output(['git','show',args.old_ref+':prisma/schema.prisma'])
