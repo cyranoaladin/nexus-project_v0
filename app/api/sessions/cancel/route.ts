@@ -23,13 +23,13 @@ import { UserRole } from '@/types/enums';
  * précise par son `id`, que cette occurrence appartienne ou non à une
  * `PlanningSeries` : c'est un cas d'usage légitime en soi (ex. un élève
  * annule une seule séance à venir d'une série qui continue par ailleurs), et
- * son garde-fou existant sur `status === 'COMPLETED'` respecte déjà
+ * le contrôle atomique du statut et des participants préserve
  * l'invariant « les occurrences passées restent immuables » pour une
  * réservation individuelle. L'annulation FUTURE-ONLY *en masse* d'une série
  * entière est une opération distincte, exposée par
  * `DELETE /api/assistante/planning/series/[seriesId]`
  * (app/api/assistante/planning/series/[seriesId]/route.ts) — jamais dupliquée
- * ici. Aucun changement de comportement n'était donc nécessaire dans cette
+ * ici. La protection contre les écritures concurrentes est assurée dans cette
  * route pour la Tâche 11.
  */
 export async function POST(request: NextRequest) {
@@ -94,15 +94,17 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest('Cannot cancel a completed session');
     }
 
-    // Cancel the session
-    await prisma.sessionBooking.update({
-      where: { id: sessionId },
+    // Recheck status and participant ownership at the atomic SQL write.
+    const cancelled = await prisma.sessionBooking.updateMany({
+      where: { id: sessionId, status: sessionToCancel.status, studentId: sessionToCancel.studentId, coachId: sessionToCancel.coachId },
       data: {
         status: SessionStatus.CANCELLED,
         cancelledAt: new Date(),
         coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled'
       }
     });
+
+    if (cancelled.count !== 1) throw ApiError.conflict('Session changed; reload before cancelling.');
 
     logger.logRequest(200, { sessionId });
     return successResponse({ success: true, message: 'Session annulée' });

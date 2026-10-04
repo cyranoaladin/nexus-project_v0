@@ -6,6 +6,7 @@ parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expa
 parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
+parser.add_argument('--include-session-cancel',action='store_true',help='Verify conditional cancellation on the isolated restored database')
 parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
 parser.add_argument('--include-core-account-foundations',action='store_true',help='Also run related real-Core account and HTTP suites with aggregate-only logs')
 os.umask(0o077)
@@ -101,6 +102,7 @@ try:
  with open(out/'stage-list-real-tests-private.log','w') as f:
   pattern='stage-lead-decision.real|reservation-staff-list.real' if args.include_staff_list else 'stage-lead-decision.real'
   if args.include_public_reservations: pattern+='|public-reservation-integrity.real'
+  if args.include_session_cancel: pattern+='|session-cancel-state-race.real'
   p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns='+pattern],env=env,stdout=f,stderr=subprocess.STDOUT)
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
