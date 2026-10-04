@@ -6,9 +6,11 @@ const mockReceipt = jest.fn();
 const mockFindUnique = jest.fn();
 const mockFindFirst = jest.fn();
 const mockUpdate = jest.fn().mockResolvedValue({});
+const mockAppendAudit = jest.fn();
 jest.mock('@/auth', () => ({ auth: () => mockAuth() }));
 jest.mock('@/lib/prisma', () => ({ prisma: {
   invoice: { findUnique: (...args: unknown[]) => mockFindUnique(...args), findFirst: (...args: unknown[]) => mockFindFirst(...args), update: (...args: unknown[]) => mockUpdate(...args) },
+  invoiceFinancialAccessAudit: { create: (...args: unknown[]) => mockAppendAudit(...args) },
   parentProfile: { findUnique: jest.fn().mockResolvedValue({ children: [] }) },
   user: { findUnique: jest.fn().mockResolvedValue({ email: 'synthetic@synthetic.test', parentPhoneState: 'NONE', emailVerifiedAt: new Date(), parentPhoneChallenges: [] }) },
 } }));
@@ -31,6 +33,8 @@ beforeEach(() => {
   mockVerify.mockResolvedValue({ valid: true, invoiceId: 'synthetic-invoice' });
   mockReadPdf.mockResolvedValue(Buffer.from('%PDF-synthetic'));
   mockUpdate.mockResolvedValue({});
+  mockAppendAudit.mockResolvedValue({ id: 'synthetic-audit' });
+  mockFindFirst.mockReset();
 });
 
 test.each(['invoice', 'receipt'])('unexpected %s read failures cannot log private exception details', async route => {
@@ -61,7 +65,7 @@ test.each([false, true])('DRAFT cannot be downloaded through token path=%s', asy
 });
 
 test.each(['SENT', 'PAID', 'CANCELLED'])('published %s can be read but cannot be cached or leak token referrers', async status => {
-  mockFindUnique.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status });
+  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status });
   const response = await GET(request(true), params);
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toBe('private, no-store');
@@ -77,7 +81,7 @@ test('a parent cannot turn DRAFT receipt lookup into a financial status disclosu
 });
 
 test.each([null, undefined, 'UNKNOWN'])('external access fails closed for non-published status %s', async status => {
-  mockFindUnique.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status });
+  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status });
   const response = await GET(request(true), params);
   expect(response.status).toBe(404);
   expect(mockReadPdf).not.toHaveBeenCalled();
@@ -108,11 +112,13 @@ test('receipt audit failures are observable without private exception contents',
     issuedAt: new Date('2026-10-01T00:00:00Z'), paidAt: new Date('2026-10-01T00:00:00Z'),
     paidAmount: 1000, currency: 'TND', events: [] });
   mockReceipt.mockResolvedValue(Buffer.from('%PDF-synthetic-receipt'));
-  mockUpdate.mockRejectedValueOnce(new Error(privateCanary));
+  mockAppendAudit.mockRejectedValueOnce(new Error(privateCanary));
   const logging = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   try {
-    expect((await receipt(request(), params)).status).toBe(200);
-    expect(logging).toHaveBeenCalledWith('INVOICE_RECEIPT_AUDIT_APPEND_FAILED');
+    const response = await receipt(request(), params);
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+    expect(logging).toHaveBeenCalledWith('INVOICE_RECEIPT_READ_FAILED');
     expect(JSON.stringify(logging.mock.calls)).not.toContain(privateCanary);
   } finally {
     logging.mockRestore();
