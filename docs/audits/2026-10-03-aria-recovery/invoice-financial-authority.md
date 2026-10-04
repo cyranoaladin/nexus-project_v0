@@ -35,3 +35,9 @@ Application rollback compatibility is not merely schema compatibility: a release
 ### Foreign-key retention inventory — 4 October 2026
 
 The `6a8b2baac` Real DB Integration job applied all migrations successfully, then refused three unclassified user FKs before running tests. This was a missing classification introduced by the additive authority migration, not a database migration failure. The manifest now classifies invoice payer and financial delegate as FINANCIAL_RESTRICT, audit actor as AUDIT_RETAIN, all ON DELETE RESTRICT. No retention duration or erasure permission is invented. The unchanged static inventory checker reproduced 4 failures / 109 successes before correction and passes all 113 tests afterward. The live PostgreSQL manifest check remains subject to the next exact-SHA CI.
+
+### Invoice email recipient boundary — 4 October 2026
+
+The administrative send endpoint formerly created a bearer link addressed to `customerEmail`, without proving a payer identity or verified email channel. Two synthetic regression cases demonstrated this unauthorized recipient selection. The endpoint now selects the invoice's explicit payer and verified email before creating a token or enqueuing a message; absent/ambiguous payer and unverified/missing email fail closed. The positive test deliberately keeps a different legacy customer email and verifies delivery selection uses only the canonical payer's verified address. ORM errors are reduced to a fixed log marker. No real message was sent.
+
+This is recipient selection hardening, not complete communications qualification: bearer recipient binding/revocation, send concurrency and append-only access audit remain to be qualified. The existing sender queues delivery and its historical `INVOICE_SENT_EMAIL` wording must not be used as proof of provider delivery. All financial and external communication capabilities remain PARTIEL.

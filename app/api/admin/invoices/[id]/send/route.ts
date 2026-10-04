@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * POST /api/admin/invoices/[id]/send
  *
@@ -70,7 +69,8 @@ export async function POST(
         status: true,
         total: true,
         customerName: true,
-        customerEmail: true,
+        payerUserId: true,
+        payer: { select: { id: true, email: true, emailVerifiedAt: true } },
         events: true,
       },
     });
@@ -87,10 +87,13 @@ export async function POST(
       );
     }
 
-    // ─── Validate customer email ──────────────────────────────────────
-    if (!invoice.customerEmail) {
+    // Only a canonical payer with a verified channel may receive a bearer link.
+    // Legacy invoice labels and family membership are not financial authority.
+    const recipientEmail = invoice.payer?.email;
+    if (!invoice.payerUserId || invoice.payer?.id !== invoice.payerUserId
+      || !invoice.payer.emailVerifiedAt || !recipientEmail) {
       return NextResponse.json(
-        { error: 'Aucune adresse email client renseignée sur cette facture.' },
+        { error: 'Aucune adresse email vérifiée du payeur disponible pour cette facture.' },
         { status: 422 }
       );
     }
@@ -116,7 +119,7 @@ export async function POST(
     const pdfUrl = `${baseUrl}/api/invoices/${invoice.id}/pdf?token=${rawToken}`;
 
     // ─── Send email ───────────────────────────────────────────────────
-    await sendInvoiceEmail(invoice.customerEmail, {
+    await sendInvoiceEmail(recipientEmail, {
       invoiceNumber: invoice.number,
       customerName: invoice.customerName,
       formattedTotal: millimesToDisplay(invoice.total),
@@ -128,7 +131,7 @@ export async function POST(
     let events: InvoiceEvent[] = appendInvoiceEvent(
       invoice.events,
       createInvoiceEvent('INVOICE_SENT_EMAIL', session.user.id, {
-        to: invoice.customerEmail,
+        to: recipientEmail,
         tokenExpiresAt: expiresAt.toISOString(),
       })
     );
@@ -149,13 +152,13 @@ export async function POST(
     // ─── Response ─────────────────────────────────────────────────────
     return NextResponse.json({
       success: true,
-      sentTo: invoice.customerEmail,
+      sentTo: recipientEmail,
       expiresAt: expiresAt.toISOString(),
       expiryHours: TOKEN_EXPIRY_HOURS,
     }, { status: 200 });
 
-  } catch (error) {
-    console.error('[POST /api/admin/invoices/[id]/send]', serializeError(error));
+  } catch {
+    console.error('INVOICE_EMAIL_REQUEST_FAILED');
     return NextResponse.json(
       { error: 'Erreur interne du serveur.' },
       { status: 500 }
