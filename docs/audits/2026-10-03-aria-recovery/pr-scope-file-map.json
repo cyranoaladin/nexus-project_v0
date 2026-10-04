@@ -1,5 +1,5 @@
 {
-  "sourceSha": "d2584a8cc4b89b6887de79f55905a46716d60f35",
+  "sourceSha": "1e0d18ef62aceeda275f2b85faacb6da8cdf0220",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -300,6 +300,11 @@
     },
     {
       "path": "__tests__/api/reservation-staff-decision.test.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/reservation-staff-list.test.ts",
       "domain": "stages-reservations",
       "highRisk": false
     },
@@ -705,6 +710,11 @@
     },
     {
       "path": "__tests__/integration/public-reservation-integrity.real.test.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/reservation-staff-list.real.test.ts",
       "domain": "stages-reservations",
       "highRisk": false
     },
@@ -1569,6 +1579,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-render-security-20261004.md",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-security-20261004.md",
       "domain": "documentation-preuves",
       "highRisk": false
@@ -1996,6 +2011,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/sse-terminal-drain.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/staff-reservation-list.md",
+      "domain": "stages-reservations",
       "highRisk": false
     },
     {
