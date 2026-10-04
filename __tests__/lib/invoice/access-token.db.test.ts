@@ -103,7 +103,7 @@ describe('verifyAccessToken', () => {
   it('returns NOT_FOUND for unknown token', async () => {
     prisma.invoiceAccessToken.findUnique.mockResolvedValue(null);
 
-    const result = await verifyAccessToken('unknown-token');
+    const result = await verifyAccessToken('b'.repeat(64));
 
     expect(result.valid).toBe(false);
     expect(result.reason).toBe('NOT_FOUND');
@@ -116,7 +116,7 @@ describe('verifyAccessToken', () => {
       revokedAt: new Date(),
     });
 
-    const result = await verifyAccessToken('revoked-token');
+    const result = await verifyAccessToken('c'.repeat(64));
 
     expect(result.valid).toBe(false);
     expect(result.reason).toBe('REVOKED');
@@ -129,7 +129,7 @@ describe('verifyAccessToken', () => {
       revokedAt: null,
     });
 
-    const result = await verifyAccessToken('expired-token');
+    const result = await verifyAccessToken('d'.repeat(64));
 
     expect(result.valid).toBe(false);
     expect(result.reason).toBe('EXPIRED');
@@ -169,7 +169,10 @@ describe('revokeTokensForInvoice', () => {
       },
     };
 
-    const result = await revokeTokensForInvoice('invoice-1', mockTx as any);
+    const result = await revokeTokensForInvoice(
+      'invoice-1',
+      mockTx as unknown as Parameters<typeof revokeTokensForInvoice>[1]
+    );
 
     expect(result).toBe(2);
     expect(mockTx.invoiceAccessToken.updateMany).toHaveBeenCalled();

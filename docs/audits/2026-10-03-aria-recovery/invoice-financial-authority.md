@@ -67,3 +67,9 @@ The token branch formerly bypassed authentication, payer/delegation filtering an
 The existing valid-link success test retains its PDF assertions with an authorized session; its missing-PDF fixture was ported to the canonical scoped query. An intermediate run failed this obsolete fixture (267 successes / 1 failure), then was corrected without changing the expected 404. Anonymous link access has been intentionally removed to enforce the direction's restrictive finance rule; this is documented behavior, not a silent feature flag. The link's existing digest format and the precise delegation audit reference remain separate qualification work.
 
 The new PostgreSQL 15 tmpfs fixture was verified to contain zero finance_authority_* schemas after rollback, then its exact owned container was stopped and automatically removed. No persistent database or volume was deleted. Its private metadata/credential file remains outside versioned content.
+
+### Supplemental link nonce boundary — 4 October 2026
+
+Invoice link nonces are generated with 256 bits of CSPRNG entropy and stored only as SHA-256 digests. They are not passwords, short codes or an alternative financial authorization: the signed-link route still requires an authenticated payer/delegate session. This boundary does not claim a dedicated HMAC format or single-use semantics for invoice links; Core account credentials have a separate HMAC contract. Rotation/revocation and final security review remain qualification gates.
+
+Verification now rejects every noncanonical 64-character lowercase hexadecimal nonce before database lookup and rejects expiry at the exact expiration instant. A fixed-clock regression suite reproduced nine failures and one success before correction. After correction, four token suites pass all 41 tests. Existing positive database fixtures now use canonical opaque test vectors while preserving expired, revoked and unknown-token assertions. No real token or message was used.

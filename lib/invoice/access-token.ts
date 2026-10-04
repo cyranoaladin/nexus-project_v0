@@ -86,6 +86,7 @@ export interface VerifyTokenResult {
  * Single DB hit: lookup by hash, then check expiry + revocation in memory.
  */
 export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenResult> {
+  if (!/^[a-f0-9]{64}$/.test(rawToken)) return { valid: false, reason: 'NOT_FOUND' };
   const tokenHash = hashToken(rawToken);
 
   const record = await prisma.invoiceAccessToken.findUnique({
@@ -101,7 +102,7 @@ export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenRe
     return { valid: false, reason: 'REVOKED' };
   }
 
-  if (new Date() > record.expiresAt) {
+  if (new Date() >= record.expiresAt) {
     return { valid: false, reason: 'EXPIRED' };
   }
 
@@ -111,7 +112,7 @@ export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenRe
 /**
  * Prisma transaction client type — accepts either the global prisma or a $transaction tx.
  */
-type PrismaTransactionClient = typeof prisma;
+type PrismaTransactionClient = Pick<typeof prisma, 'invoiceAccessToken'>;
 
 /**
  * Revoke all active tokens for an invoice (e.g. on payment or cancellation).
