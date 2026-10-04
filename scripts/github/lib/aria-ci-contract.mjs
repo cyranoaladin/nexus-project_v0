@@ -230,13 +230,13 @@ export function inspectAriaCiWorkflow(document) {
     || !['aria-jest', 'aria-postgres', 'aria-browser'].every((job) => evidenceNeeds.includes(job))) {
     findings.push('ARIA_CI_EVIDENCE_DEPENDENCIES_INVALID');
   }
-  const download = (document?.jobs?.['aria-evidence']?.steps ?? []).find((step) =>
+  const downloads = (document?.jobs?.['aria-evidence']?.steps ?? []).filter((step) =>
     typeof step?.uses === 'string' && step.uses.startsWith('actions/download-artifact@'));
-  if (download?.with?.pattern !== `aria-browser-*-${PR_HEAD_REF}-${RUN_ATTEMPT}`
-    || download?.with?.path !== '.artifacts/aria'
-    || download?.with?.['merge-multiple'] !== true) {
-    findings.push('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
-  }
+  const validDownloads = downloads.length === 4 && ['desktop', 'mobile', 'a11y', 'smoke'].every((lane) =>
+    downloads.filter((step) => step?.with?.name === `aria-browser-${lane}-${PR_HEAD_REF}-${RUN_ATTEMPT}`
+      && step?.with?.path === `.artifacts/aria/playwright/aria-${lane}`
+      && step?.with?.pattern === undefined && step?.with?.['merge-multiple'] !== true).length === 1);
+  if (!validDownloads) findings.push('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
 
   const aggregate = document?.jobs?.['ci-success'];
   const needs = Array.isArray(aggregate?.needs) ? aggregate.needs : [];

@@ -2823,12 +2823,29 @@ jobs:
         run: npx prisma generate --schema=core-v2/prisma/schema.prisma
 
 
-      - name: Download exact-head browser evidence
+      - name: Download exact-head desktop browser evidence
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
-          pattern: aria-browser-*-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
-          path: .artifacts/aria
-          merge-multiple: true
+          name: aria-browser-desktop-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/playwright/aria-desktop
+
+      - name: Download exact-head mobile browser evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: aria-browser-mobile-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/playwright/aria-mobile
+
+      - name: Download exact-head a11y browser evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: aria-browser-a11y-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/playwright/aria-a11y
+
+      - name: Download exact-head smoke browser evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: aria-browser-smoke-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}
+          path: .artifacts/aria/playwright/aria-smoke
 
       - name: Generate canonical Jest requirement evidence
         run: npm run aria:test-evidence:jest

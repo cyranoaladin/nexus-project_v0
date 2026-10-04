@@ -1,13 +1,18 @@
-const path = require('node:path');
+let path;
+let fs;
 
-const REPOSITORY_ROOT = path.resolve(__dirname, '../..');
-const WORKFLOW_PATH = path.join(REPOSITORY_ROOT, '.github/workflows/ci.yml');
+let REPOSITORY_ROOT;
+let WORKFLOW_PATH;
 
 describe('ARIA GitHub CI qualification contract', () => {
   let inspectAriaCiWorkflow;
   let loadWorkflow;
 
   beforeAll(async () => {
+    path = await import('node:path');
+    fs = await import('node:fs');
+    REPOSITORY_ROOT = path.resolve(__dirname, '../..');
+    WORKFLOW_PATH = path.join(REPOSITORY_ROOT, '.github/workflows/ci.yml');
     ({ inspectAriaCiWorkflow, loadWorkflow } = await import(
       '../../scripts/github/lib/aria-ci-contract.mjs'
     ));
@@ -26,7 +31,6 @@ describe('ARIA GitHub CI qualification contract', () => {
   });
 
   test('ARIA_CI_BROWSER_REPORT_PATH_MATCHES_CANONICAL_PRODUCER_FOR_EVERY_LANE', () => {
-    const fs = require('node:fs');
     const scripts = JSON.parse(fs.readFileSync(path.join(REPOSITORY_ROOT, 'package.json'), 'utf8')).scripts;
     const runner = fs.readFileSync(path.join(REPOSITORY_ROOT, 'scripts/aria/run-e2e-suite.sh'), 'utf8');
     expect(runner).toContain('.artifacts/aria/playwright/${project}');
@@ -234,6 +238,30 @@ describe('ARIA GitHub CI qualification contract', () => {
 
     expect(inspectAriaCiWorkflow(document).findings)
       .toContain('ARIA_CI_COMMAND_STEP_INVALID:aria-coverage:npm run test:aria:coverage');
+  });
+
+  test('ARIA_CI_RESTORES_EACH_PUBLIC_BROWSER_ARTIFACT_TO_ITS_CANONICAL_PROJECT_ROOT', () => {
+    const document = passingDocument();
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
+    expect(downloads).toHaveLength(4);
+    for (const lane of ['desktop', 'mobile', 'a11y', 'smoke']) {
+      const download = downloads.find((step) => step.with.name?.startsWith(`aria-browser-${lane}-`));
+      expect(download?.with.path).toBe(`.artifacts/aria/playwright/aria-${lane}`);
+      expect(download?.with.name).toContain('${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}');
+      expect(download?.with['merge-multiple']).not.toBe(true);
+    }
+  });
+
+  test.each(['missing lane', 'wrong head', 'merged root', 'duplicate lane'])('ARIA_CI_REJECTS_BROWSER_DOWNLOAD_%s', (fault) => {
+    const document = passingDocument();
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
+    if (fault === 'missing lane') document.jobs['aria-evidence'].steps = document.jobs['aria-evidence'].steps.filter((step) => step !== downloads[0]);
+    if (fault === 'wrong head') downloads[0].with.name = 'aria-browser-desktop-stale';
+    if (fault === 'merged root') downloads[0].with['merge-multiple'] = true;
+    if (fault === 'duplicate lane') document.jobs['aria-evidence'].steps.push(structuredClone(downloads[0]));
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
   });
 
   test('ARIA_CI_REQUALIFIES_THE_SEALED_VISUAL_MATRIX_BEFORE_TRACEABILITY', () => {
