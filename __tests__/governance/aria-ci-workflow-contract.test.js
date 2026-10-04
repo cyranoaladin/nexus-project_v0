@@ -268,7 +268,11 @@ describe('ARIA GitHub CI qualification contract', () => {
     const job = loadWorkflow(WORKFLOW_PATH).jobs['core-v2-foundation'];
     expect(job.env.NEXUS_DISPOSABLE_POSTGRES).toBe('1');
     expect(job.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST).toBe('127.0.0.1');
-    expect(job.env.DOCUMENT_STORAGE_ROOT).toBe('${{ runner.temp }}/nexus-core-synthetic-av-storage');
+    expect(job.env.DOCUMENT_STORAGE_ROOT).toBeUndefined();
+    const avStorage = job.steps.find(step => step.name === 'Create private synthetic AV storage');
+    const coreTests = job.steps.find(step => String(step.run ?? '').includes('--config jest.core-v2.config.js'));
+    expect(avStorage.env.DOCUMENT_STORAGE_ROOT).toBe('${{ runner.temp }}/nexus-core-synthetic-av-storage');
+    expect(coreTests.env.DOCUMENT_STORAGE_ROOT).toBe(avStorage.env.DOCUMENT_STORAGE_ROOT);
     expect(job.services.clamav.image).toMatch(/^clamav\/clamav@sha256:/);
     expect(job.env.DATABASE_URL).toMatch(/\/nexus_disposable_core_legacy_test$/);
     expect(job.env.DATABASE_URL).not.toBe(job.env.CORE_V2_DATABASE_URL);

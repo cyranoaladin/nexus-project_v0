@@ -21,3 +21,15 @@ An invocation without the canonical experimental-vm-modules setting also failed
 at dynamic import initialization; the corrected command uses the setting from
 npm run test:governance rather than changing the tests.
 Typecheck passed. No lockfile, production database or schema change in this lot.
+
+## GitHub context correction
+
+Published a6ef56fc4 run 37243596513 failed immediately with zero jobs. The new
+runner.temp expression was placed in jobs.env, whose allowed contexts exclude
+runner. GitHub's contexts reference permits runner in steps.env. The root is
+now defined identically at the storage-creation and Core-test steps. Regression
+RED: 1 failed / 34 passed; corrected governance run: 35 passed. Required real AV
+coverage and private storage remain enabled. A fresh remote run must prove that
+the workflow is accepted; the zero-job failure is not an application test run.
+
+Reference: https://docs.github.com/en/actions/reference/workflows-and-actions/contexts

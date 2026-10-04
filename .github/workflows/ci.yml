@@ -706,7 +706,6 @@ jobs:
       NEXUS_DISPOSABLE_POSTGRES: '1'
       DIAGNOSTIC_AV_CLAMD_TCP_HOST: '127.0.0.1'
       DIAGNOSTIC_AV_CLAMD_TCP_PORT: '3310'
-      DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
       # Organization configuration consumed by the Core v2 service layer
       # (lib/core-v2/config.ts) — no built-in defaults exist, so CI must
       # provide them exactly like a deployment would.
@@ -784,9 +783,13 @@ jobs:
         run: npx jest --config jest.unit.config.js --ci __tests__/architecture/core-v2-legacy-guards.test.ts
 
       - name: Create private synthetic AV storage
+        env:
+          DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
         run: mkdir -m 700 "$DOCUMENT_STORAGE_ROOT"
 
       - name: Core v2 tests (Golden Empty DB, negative golden, client guards, RAG independence, database target/identity safety, catastrophic misroute)
+        env:
+          DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
         run: npx jest --config jest.core-v2.config.js --ci
 
   # ===========================================================================
