@@ -26,7 +26,6 @@ export interface ParentDashboardChild {
     } | null;
     alerts?: string[];
     lastBilanDate?: string | null;
-    subscriptionDetails?: { monthlyPrice?: number } | null;
     progressionHistory?: Array<{ date: string; ssn: number }>;
     sessions?: Array<{
       id: string;

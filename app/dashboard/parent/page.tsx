@@ -205,19 +205,18 @@ function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnTy
                 <CardHeader>
                   <CardTitle className="text-white text-base flex items-center gap-2">
                     <CreditCard className="w-4 h-4 text-emerald-400" />
-                    Facturation Groupée
+                    Vos factures
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
                     <div>
-                      <p className="text-xs text-neutral-300">Total Mensuel</p>
-                      <p className="text-2xl font-bold text-white">
-                        {(dashboardData?.children || []).reduce((sum, c) => sum + (c.subscriptionDetails?.monthlyPrice || 0), 0)} TND
+                      <p className="text-sm text-neutral-300">
+                        Consultez les factures dont vous êtes payeur ou bénéficiaire d’une délégation financière.
                       </p>
                     </div>
                     <Button asChild variant="outline" className="border-white/10">
-                      <Link href="/dashboard/parent/abonnements">Voir les formules</Link>
+                      <Link href="/dashboard/parent/factures">Voir mes factures</Link>
                     </Button>
                   </div>
                 </CardContent>

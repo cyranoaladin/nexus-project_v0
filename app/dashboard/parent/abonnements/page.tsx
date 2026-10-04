@@ -26,7 +26,6 @@ interface Child {
   subscriptionExpiry: string | null;
   subscriptionDetails: {
     planName: string;
-    monthlyPrice: number;
     status: string;
     startDate: string | null;
     endDate: string | null;

@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, Calendar, Receipt } from "lucide-react";
 
 interface InvoiceDetailsDialogProps {
   subscriptionDetails: {
     planName: string;
-    monthlyPrice: number;
     status: string;
     startDate: string | null;
     endDate: string | null;
@@ -58,9 +57,9 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             <Receipt className="w-5 h-5" />
             Détails de l'abonnement
           </DialogTitle>
-          <p className="text-sm text-neutral-400 mt-2">
+          <DialogDescription className="text-sm text-neutral-400 mt-2">
             Informations d'abonnement pour {studentName}
-          </p>
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -83,9 +82,6 @@ export default function InvoiceDetailsDialog({ subscriptionDetails, studentName 
             </div>
             <p className="text-lg font-bold text-brand-primary">
               {subscriptionDetails.planName}
-            </p>
-            <p className="text-sm text-neutral-400">
-              {subscriptionDetails.monthlyPrice} TND/mois
             </p>
           </div>
 

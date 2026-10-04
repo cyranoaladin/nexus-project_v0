@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
@@ -19,7 +18,7 @@ export async function GET() {
   try {
     const session = await auth();
 
-    if (!session || !session.user) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
     }
 
@@ -60,12 +59,10 @@ export async function GET() {
               select: {
                 id: true,
                 planName: true,
-                monthlyPrice: true,
                 status: true,
                 startDate: true,
                 endDate: true,
-                ariaSubjects: true,
-                ariaCost: true
+                ariaSubjects: true
               }
             },
             badges: {
@@ -198,7 +195,6 @@ export async function GET() {
         subscriptionDetails: subscription ? {
           id: subscription.id,
           planName: subscription.planName,
-          monthlyPrice: subscription.monthlyPrice,
           status: subscription.status,
           startDate: subscription.startDate?.toISOString(),
           endDate: subscription.endDate?.toISOString() ?? null,
@@ -245,10 +241,10 @@ export async function GET() {
         status: p.status,
         type: p.type
       }))
-    });
+    }, { headers: { 'Cache-Control': 'private, no-store' } });
 
-  } catch (error) {
-    console.error('[Parent Dashboard API] Error fetching parent dashboard data:', serializeError(error));
+  } catch {
+    console.error('PARENT_DASHBOARD_READ_FAILED');
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
