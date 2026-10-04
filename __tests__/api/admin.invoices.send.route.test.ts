@@ -6,6 +6,8 @@
  * Source: app/api/admin/invoices/[id]/send/route.ts
  */
 
+import { randomUUID } from 'node:crypto';
+
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
@@ -24,29 +26,34 @@ jest.mock('@/lib/invoice', () => ({
 }));
 
 jest.mock('@/lib/invoice/send-email', () => ({
-  sendInvoiceEmail: jest.fn().mockResolvedValue(undefined),
+  enqueueInvoiceEmail: jest.fn().mockResolvedValue({ id: 'synthetic-intent' }),
 }));
 
 import { POST } from '@/app/api/admin/invoices/[id]/send/route';
 import { auth } from '@/auth';
-import { canPerformStatusAction, createAccessToken, createInvoiceEvent } from '@/lib/invoice';
-import { sendInvoiceEmail } from '@/lib/invoice/send-email';
+import { canPerformStatusAction } from '@/lib/invoice';
+import { enqueueInvoiceEmail } from '@/lib/invoice/send-email';
 import { NextRequest } from 'next/server';
 
 const mockAuth = auth as jest.Mock;
 const mockCanPerform = canPerformStatusAction as jest.Mock;
-const mockSendEmail = sendInvoiceEmail as jest.Mock;
+const mockSendEmail = enqueueInvoiceEmail as jest.Mock;
 
 import { prisma } from '@/lib/prisma';
 
 beforeEach(async () => {
   jest.clearAllMocks();
+  (prisma.$queryRaw as jest.Mock).mockResolvedValue([{ id: 'synthetic-invoice' }]);
+  (prisma.invoiceFinancialAccessAudit.findUnique as jest.Mock).mockResolvedValue(null);
+  (prisma.invoiceFinancialAccessAudit.count as jest.Mock).mockResolvedValue(0);
+  (prisma.invoiceFinancialAccessAudit.create as jest.Mock).mockResolvedValue({});
+  (prisma.invoiceAccessToken.create as jest.Mock).mockResolvedValue({ id: 'synthetic-token-id' });
 });
 
 function makeRequest(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
   const req = new NextRequest(`http://localhost:3000/api/admin/invoices/${id}/send`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': randomUUID() },
   });
   return [req, { params: Promise.resolve({ id }) }];
 }
@@ -143,12 +150,13 @@ describe('POST /api/admin/invoices/[id]/send', () => {
 
     expect(res.status).toBe(202);
     expect(body.deliveryStatus).toBe('QUEUED');
-    expect(createInvoiceEvent).toHaveBeenCalledWith('INVOICE_EMAIL_QUEUED', 'a1', expect.objectContaining({ to: 'payer@example.invalid' }));
+    expect(prisma.invoiceFinancialAccessAudit.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ action: 'INVOICE_EMAIL_QUEUED', actorUserId: 'a1' }) }));
     expect(body.success).toBe(true);
-    expect(body.sentTo).toBe('payer@example.invalid');
+    expect(body).not.toHaveProperty('sentTo');
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
     expect(mockSendEmail).toHaveBeenCalledWith(
-      'payer@example.invalid',
-      expect.objectContaining({ invoiceNumber: 'NXS-2026-0001' })
+      prisma,
+      expect.objectContaining({ recipientEmail: 'payer@example.invalid', data: expect.objectContaining({ invoiceNumber: 'NXS-2026-0001' }) })
     );
   });
 
@@ -176,7 +184,7 @@ describe('financial recipient authority', () => {
         events: [], payerUserId: payer?.id ?? null, payer });
       const result = await POST(...makeRequest('synthetic-invoice'));
       expect(result.status).toBe(422);
-      expect(createAccessToken).not.toHaveBeenCalled();
+      expect(prisma.invoiceAccessToken.create).not.toHaveBeenCalled();
       expect(mockSendEmail).not.toHaveBeenCalled();
     },
   );
@@ -196,5 +204,5 @@ it('includes queued intents in the existing per-invoice throttle without claimin
   const result = await POST(...makeRequest('synthetic-invoice'));
   expect(result.status).toBe(429);
   expect(mockSendEmail).not.toHaveBeenCalled();
-  expect(createAccessToken).not.toHaveBeenCalled();
+  expect(prisma.invoiceAccessToken.create).not.toHaveBeenCalled();
 });

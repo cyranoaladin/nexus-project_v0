@@ -1,5 +1,5 @@
 /**
- * InvoiceAccessToken — generate, hash, and verify tokens for external PDF access.
+ * InvoiceAccessToken — generate, hash, and verify supplemental nonces for authenticated PDF links.
  *
  * Design:
  * - Raw token = crypto.randomBytes(32).toString('hex') → 64-char hex string
@@ -57,13 +57,15 @@ export interface CreateTokenResult {
 export async function createAccessToken(
   invoiceId: string,
   createdByUserId: string,
-  expiryHours: number = TOKEN_EXPIRY_HOURS
+  expiryHours: number = TOKEN_EXPIRY_HOURS,
+  transaction?: Pick<typeof prisma, 'invoiceAccessToken'>,
+  now: Date = new Date(),
 ): Promise<CreateTokenResult> {
   const rawToken = generateRawToken();
   const tokenHash = hashToken(rawToken);
-  const expiresAt = computeExpiresAt(expiryHours);
+  const expiresAt = new Date(now.getTime() + expiryHours * 60 * 60 * 1000);
 
-  const record = await prisma.invoiceAccessToken.create({
+  const record = await (transaction ?? prisma).invoiceAccessToken.create({
     data: {
       invoiceId,
       tokenHash,

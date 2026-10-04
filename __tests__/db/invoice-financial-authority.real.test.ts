@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { Pool, type PoolClient } from 'pg';
 import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
+const queueEvidenceMigration = readFileSync('prisma/migrations/20261004183000_invoice_email_queue_evidence/migration.sql', 'utf8');
 const migration = readFileSync('prisma/migrations/20261004170000_invoice_financial_authority/migration.sql', 'utf8');
 
 describe('additive invoice financial authority on isolated PostgreSQL predecessor', () => {
@@ -30,6 +31,12 @@ describe('additive invoice financial authority on isolated PostgreSQL predecesso
     await client.query(migration.slice(0, migration.indexOf('-- CreateTable')));
     await client.query('ROLLBACK TO SAVEPOINT interrupted_expand');
     await client.query(migration);
+    await client.query(`INSERT INTO invoice_financial_access_audits (id,"invoiceId","actorUserId",action,"requestKey")
+      VALUES ('preexisting-audit','legacy','staff','PAYER_ASSIGNED','preexisting-audit')`);
+    await client.query('SAVEPOINT interrupted_queue_expand');
+    await client.query(queueEvidenceMigration);
+    await client.query('ROLLBACK TO SAVEPOINT interrupted_queue_expand');
+    await client.query(queueEvidenceMigration);
     await client.query("UPDATE invoices SET \"payerUserId\"='payer' WHERE id IN ('owned','draft')");
   });
   beforeEach(async () => { await client.query('SAVEPOINT test_case'); });
@@ -78,6 +85,16 @@ describe('additive invoice financial authority on isolated PostgreSQL predecesso
       (id,"invoiceId","delegationId","actorUserId",action,"requestKey")
       VALUES ('wrong-invoice','draft','audit-bound','staff','DELEGATION_GRANTED','wrong-invoice')`))
       .rejects.toMatchObject({ code: '23503' });
+  });
+  it('preserves prior audit evidence after interrupted expansion and replay', async () => {
+    const prior = await client.query("SELECT action FROM invoice_financial_access_audits WHERE id='preexisting-audit'");
+    expect(prior.rows).toEqual([{ action: 'PAYER_ASSIGNED' }]);
+  });
+  it('accepts append-only committed invoice queue evidence', async () => {
+    const inserted = await client.query(`INSERT INTO invoice_financial_access_audits
+      (id,"invoiceId","actorUserId",action,"requestKey")
+      VALUES ('queued-audit','owned','staff','INVOICE_EMAIL_QUEUED','queued-operation') RETURNING id`);
+    expect(inserted.rowCount).toBe(1);
   });
   it('limits audit action to non-sensitive lifecycle codes', async () => {
     await expect(client.query(`INSERT INTO invoice_financial_access_audits
