@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const expectedCases = new Map([
+  ['password-change.spec.ts', 'parent changes their password and revokes both old sessions at 390px'],
+  ['password-change-v1.spec.ts', 'V1 parent changes their password and revokes two sessions at 390px'],
+].map(([file, title]) => [file, `case:${createHash('sha256').update(title).digest('hex')}`]));
+const invalid = () => { throw new Error('ACCOUNT_SECURITY_REPEAT_EVIDENCE_INVALID'); };
+
+export function qualifyAccountSecurityRepeat(report) {
+  if (!report || report.privacyFormat !== 'playwright-allowlist/1'
+    || report.config?.rootDir !== '/workspace/e2e/auth' || !Array.isArray(report.suites) || !Array.isArray(report.errors)
+    || report.errors.length !== 0 || report.stats?.expected !== 40
+    || report.stats.skipped !== 0 || report.stats.unexpected !== 0 || report.stats.flaky !== 0) invalid();
+  const specs = [];
+  function walk(suites, depth = 0) {
+    if (!Array.isArray(suites) || depth > 32) invalid();
+    for (const suite of suites) {
+      if (!suite || !Array.isArray(suite.specs) || !Array.isArray(suite.suites)) invalid();
+      specs.push(...suite.specs);
+      walk(suite.suites, depth + 1);
+    }
+  }
+  walk(report.suites);
+  if (specs.length !== 2) invalid();
+  const seen = new Set();
+  for (const spec of specs) {
+    const file = typeof spec?.file === 'string' ? spec.file.replace(/^e2e\/auth\//, '') : '';
+    if (!expectedCases.has(file) || seen.has(file) || spec.title !== expectedCases.get(file)
+      || spec.ok !== true || !Array.isArray(spec.tests) || spec.tests.length !== 20) invalid();
+    seen.add(file);
+    for (const test of spec.tests) {
+      if (test?.projectName !== 'mobile-smoke' || test.expectedStatus !== 'passed'
+        || test.status !== 'expected' || !Array.isArray(test.annotations)
+        || test.annotations.some(a => ['skip', 'fixme', 'fail'].includes(a?.type))
+        || !Array.isArray(test.results) || test.results.length !== 1) invalid();
+      const result = test.results[0];
+      if (result?.status !== 'passed' || result.retry !== 0 || result.error
+        || !Array.isArray(result.errors) || result.errors.length !== 0) invalid();
+    }
+  }
+  return { project: 'mobile-smoke', cases: 2, repetitionsPerCase: 20, passed: 40, skipped: 0, retries: 0 };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  const reportPath = process.argv[2];
+  if (!reportPath) invalid();
+  const directory = path.dirname(path.resolve(reportPath));
+  const head = readFileSync(path.join(directory, 'head.sha'), 'utf8').trim();
+  const actualHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  if (!/^[a-f0-9]{40}$/.test(head) || head !== actualHead) invalid();
+  const proof = qualifyAccountSecurityRepeat(JSON.parse(readFileSync(reportPath, 'utf8')));
+  writeFileSync(path.join(directory, 'qualification.json'), JSON.stringify({ head, ...proof }) + '\n', { mode: 0o600, flag: 'wx' });
+  console.log('ACCOUNT_SECURITY_REPEAT20_VERIFIED');
+}

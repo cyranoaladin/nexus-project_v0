@@ -59,6 +59,8 @@ export default defineConfig({
         'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
         'session-video-join.spec.ts',
+        'password-change.spec.ts',
+        'password-change-v1.spec.ts',
       ],
       use: { ...devices['Desktop Firefox'] },
     },
@@ -70,6 +72,8 @@ export default defineConfig({
         'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
         'session-video-join.spec.ts',
+        'password-change.spec.ts',
+        'password-change-v1.spec.ts',
       ],
       use: { ...devices['Desktop Safari'] },
     },
@@ -78,7 +82,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'password-change.spec.ts', 'password-change-v1.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],

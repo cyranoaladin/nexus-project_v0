@@ -5,6 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { PrismaClient } from '../../core-v2/generated/client';
 import { assertCoreV2E2eSeedTarget } from '../../scripts/core-v2/e2e-seed-target';
 import { gotoSignInForm } from '../helpers/auth';
+import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
 import { verifyHouseholdParent } from '../../lib/core-v2/services/household-verification';
 import { createServiceContext } from '../../lib/core-v2/services/context';
 
@@ -21,13 +22,16 @@ async function signIn(page: Page, email: string, password: string) {
 }
 
 for (const width of [390, 1440]) {
-test(`parent changes their password and revokes both old sessions at ${width}px`, async ({ browser }) => {
+test(`parent changes their password and revokes both old sessions at ${width}px`, async ({ browser }, testInfo) => {
   assertCoreV2E2eSeedTarget(process.env);
+  await resetDisposableE2ERateLimits();
   const client = new PrismaClient({ datasources: { db: { url: process.env.CORE_V2_DATABASE_URL } } });
   const email = `password-change-${randomUUID()}@synthetic.test`;
   const baseURL = process.env.BASE_URL ?? 'http://localhost:3002';
-  const first = await browser.newContext({ baseURL, viewport: { width, height: 900 } });
-  const second = await browser.newContext({ baseURL });
+  const { userAgent, isMobile, hasTouch, deviceScaleFactor } = testInfo.project.use;
+  const deviceProfile = { userAgent, isMobile, hasTouch, deviceScaleFactor };
+  const first = await browser.newContext({ ...deviceProfile, baseURL, viewport: { width, height: 900 } });
+  const second = await browser.newContext({ ...deviceProfile, baseURL });
   try {
     const household = await client.household.create({ data: {} });
     const user = await client.user.create({ data: {
@@ -40,6 +44,8 @@ test(`parent changes their password and revokes both old sessions at ${width}px`
       householdId: household.id, parentUserId: user.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64),
     });
     const page = await first.newPage();
+    if (userAgent) expect(await page.evaluate(() => navigator.userAgent)).toBe(userAgent);
+    if (hasTouch) expect(await page.evaluate(() => navigator.maxTouchPoints)).toBeGreaterThan(0);
     const other = await second.newPage();
     await signIn(page, email, OLD);
     await signIn(other, email, OLD);

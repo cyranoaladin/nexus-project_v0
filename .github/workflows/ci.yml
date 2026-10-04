@@ -1725,6 +1725,31 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=firefox-smoke --project=webkit-smoke --project=mobile-smoke
 
+      - name: Repeat mobile account security twenty times
+        timeout-minutes: 15
+        env:
+          AUTH_E2E_REPORT_LABEL: auth-account-security-repeat20
+          BASE_URL: http://localhost:3000
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
+          CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+        run: npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change.spec.ts password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0
+
+      - name: Qualify mobile account security repetition evidence
+        if: always()
+        run: |
+          node scripts/testing/safe-playwright-report.mjs playwright-report/auth-account-security-repeat20/results.json .artifacts/publish/auth-account-security-repeat20/report.json
+          node scripts/testing/check-account-security-repeat.mjs .artifacts/publish/auth-account-security-repeat20/report.json
+
+      - name: Upload mobile account security repetition evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: account-security-repeat20-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/publish/auth-account-security-repeat20/
+          retention-days: 7
+          if-no-files-found: error
+
       - name: Seal auth E2E execution evidence
         if: always()
         run: |
