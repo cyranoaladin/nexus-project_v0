@@ -5,6 +5,18 @@ import { resolve } from 'node:path';
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 describe('ARIA test harness ownership', () => {
+  it('excludes generated build contexts from module and manual-mock resolution while retaining canonical sources', () => {
+    const output = execFileSync(process.execPath, [
+      'node_modules/jest/bin/jest.js', '--config', 'jest.aria.db.config.js', '--showConfig',
+    ], { cwd: process.cwd(), encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+    const config = JSON.parse(output) as { configs: Array<{ modulePathIgnorePatterns: string[] }> };
+    const ignores = config.configs[0].modulePathIgnorePatterns.map(pattern => new RegExp(pattern));
+    const artifactMock = resolve(process.cwd(), '.artifacts/recovery/synthetic-build-context/__mocks__/@prisma/client.js');
+    const canonicalMock = resolve(process.cwd(), '__mocks__/@prisma/client.js');
+    expect(ignores.some(pattern => pattern.test(artifactMock))).toBe(true);
+    expect(ignores.some(pattern => pattern.test(canonicalMock))).toBe(false);
+  });
+
   it('keeps every ARIA PostgreSQL suite outside the generic integration testMatch', () => {
     const generic = read('jest.integration.config.js');
     expect(generic).not.toContain("'**/*.real.test.ts'");
