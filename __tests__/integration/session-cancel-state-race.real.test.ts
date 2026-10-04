@@ -59,3 +59,15 @@ test.each(['completed', 'student-reassigned', 'coach-reassigned'] as const)('a c
     await prisma.sessionBooking.update({ where: { id: booking.id }, data: { status: 'CANCELLED' } });
   }
 });
+
+
+test.each(['NO_SHOW', 'RESCHEDULED'] as const)('historical %s is not a cancellation transition', async status => {
+  const booking = await prisma.sessionBooking.create({ data: { studentId, coachId, subject: 'MATHEMATIQUES', title: 'Synthetic historical presence', scheduledDate: new Date('2000-01-01T00:00:00Z'), startTime: '10:00', endTime: '11:00', duration: 60, status } });
+  bookings.push(booking.id);
+  (requireAnyRole as jest.Mock).mockResolvedValue({ user: { id: studentId, role: 'ELEVE' } });
+  const response = await POST(new NextRequest('http://localhost:3000/api/sessions/cancel', { method: 'POST', body: JSON.stringify({ sessionId: booking.id, reason: 'Synthetic historical cancellation attempt' }) }));
+  expect(response.status).toBe(400);
+  const current = await prisma.sessionBooking.findUniqueOrThrow({ where: { id: booking.id } });
+  expect(current.status).toBe(status);
+  expect(current.cancelledAt === null).toBe(true);
+});

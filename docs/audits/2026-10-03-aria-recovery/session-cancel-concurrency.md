@@ -25,3 +25,17 @@ Command: python3 scripts/db/rehearse-stage-decision-migration.py --old-ref
 This closes the demonstrated stale-write defect. Full cancellation workflow,
 append-only business audit, cancellation windows, notification and financial
 policy are not qualified by this proof. Remote CI and production gates remain.
+
+## Historical-state protection, 2026-10-05
+
+NO_SHOW and RESCHEDULED were also writable through cancellation. Two new unit
+tests failed (2 failed / 12 passed). Real PostgreSQL proof 1791155514 reproduced
+both defects (2 failed / 11 passed). An earlier real fixture omitted the required
+reason and therefore failed validation before reaching the state check; its pass
+is explicitly excluded from state-protection evidence.
+
+Cancellation now accepts only SCHEDULED, CONFIRMED and IN_PROGRESS, retaining
+the atomic participant/status comparison. No attendance or report history is
+rewritten. GREEN: 14 unit tests; PostgreSQL proof 1791155664: 2 suites / 13 tests,
+with stable source identity, encrypted synthetic restore and interruption replay.
+No production database or commercial cancellation-window rule was changed.

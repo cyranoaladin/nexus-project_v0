@@ -94,6 +94,10 @@ export async function POST(request: NextRequest) {
       throw ApiError.badRequest('Cannot cancel a completed session');
     }
 
+    if (!([SessionStatus.SCHEDULED, SessionStatus.CONFIRMED, SessionStatus.IN_PROGRESS] as SessionStatus[]).includes(sessionToCancel.status)) {
+      throw ApiError.badRequest('Cannot cancel a historical session');
+    }
+
     // Recheck status and participant ownership at the atomic SQL write.
     const cancelled = await prisma.sessionBooking.updateMany({
       where: { id: sessionId, status: sessionToCancel.status, studentId: sessionToCancel.studentId, coachId: sessionToCancel.coachId },

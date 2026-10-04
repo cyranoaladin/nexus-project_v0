@@ -115,6 +115,13 @@ describe('POST /api/sessions/cancel', () => {
     expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
   });
 
+  it.each(['NO_SHOW', 'RESCHEDULED'])('preserves the historical %s state instead of cancelling it', async status => {
+    (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession({ status }));
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
+    expect(response.status).toBe(400);
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
+  });
+
   it('returns 429 when rate limited', async () => {
     (guardSensitiveRateLimit as jest.Mock).mockReturnValue(
       NextResponse.json({ error: 'RATE_LIMIT' }, { status: 429 })
