@@ -48,3 +48,19 @@ Read-only infrastructure review did not establish that issuance-v1 has never
 executed: absence from main or GitHub deployments does not exclude a manual or
 staging execution. Release history and authorized outbox namespace inventory are
 therefore required before a namespace replacement can be claimed retry-safe.
+
+## External dismissal observed at 22:55 Africa/Tunis
+
+On published `d31562cd78440011dbcb87d664746a76fafb2b93`, CodeQL is success and
+the pull-ref open-alert list is empty. GitHub reports HIGH #114 dismissed by
+`abenrhouma` at `2026-10-04T21:46:22Z`, reason `used in tests`, with no dismissal
+comment. The collaborator permission endpoint reports write. This session did
+not dismiss, suppress or rename the source to close the alert.
+
+The event is not a causal code correction. The design path is intended for
+runtime mail deduplication; its actual production execution on this SHA is not
+proved. The chosen dismissal reason alone does not document the narrow
+false-positive assessment. A corrected, argued security disposition pinned to
+the final SHA is requested; this remains an evidence gap, without inferring that
+the collaborator is unauthorized. The separate proven Core-to-V1 handoff P1
+still requires a real durable workflow correction irrespective of scanner state.

@@ -1,5 +1,5 @@
 {
-  "sourceSha": "1e0d18ef62aceeda275f2b85faacb6da8cdf0220",
+  "sourceSha": "18b56ef8a2c7bc0ebed8d001102bbe87af68538f",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -291,6 +291,11 @@
     {
       "path": "__tests__/api/quotes.student-ownership.route.test.ts",
       "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/reservation-notification-atomicity.test.ts",
+      "domain": "planning-reservations",
       "highRisk": false
     },
     {
@@ -806,6 +811,11 @@
     {
       "path": "__tests__/lib/diagnostics/candidat-libre/storage.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/email-bank-transfer-html.test.ts",
+      "domain": "notifications",
       "highRisk": false
     },
     {
@@ -1584,6 +1594,16 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-staff-list-20261004.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-authority-20261004.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-security-20261004.md",
       "domain": "documentation-preuves",
       "highRisk": false
@@ -2019,6 +2039,16 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-bank-transfer-html-boundary.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-catalog-commit-consistency.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-confirm-delivery-authority.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -2029,6 +2059,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-decision-commit-authority.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-lead-decision-audit.md",
       "domain": "stages-reservations",
       "highRisk": false
@@ -2036,6 +2071,16 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-list-family-authority.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-notification-acceptance.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-reservation-atomic-notifications.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -2431,6 +2476,11 @@
     {
       "path": "lib/documents/student-visibility.ts",
       "domain": "documents-pedagogie",
+      "highRisk": true
+    },
+    {
+      "path": "lib/email.ts",
+      "domain": "notifications",
       "highRisk": true
     },
     {
