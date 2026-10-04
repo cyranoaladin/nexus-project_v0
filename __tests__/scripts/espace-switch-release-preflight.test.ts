@@ -109,3 +109,59 @@ describe('préflight : propriétés du script', () => {
     for (const line of script.split('\n').filter((l) => l.includes('sync-activities'))) expect(line.trim()).toMatch(/^(#|echo)/);
   });
 });
+
+describe('préflight complet lu sur stdin (ssh … bash -s) — régression : docker exec -i avalait la suite du script', () => {
+  const fake = (dbBody: string) => {
+    const dir = mkdtempSync(path.join(tmp, 'fake-'));
+    // Faux docker : comme `docker exec -i`, il LIT l'entrée standard jusqu'au bout avant de répondre.
+    writeFileSync(path.join(dir, 'docker'), `#!/bin/sh\ncat > /dev/null\ncat <<'EOF_DB'\n${dbBody}\nEOF_DB\n`, { mode: 0o755 });
+    writeFileSync(path.join(dir, 'migrator.env'), 'NEXUS_MIGRATOR_PASSWORD=factice\n');
+    const rel = path.join(dir, 'release');
+    spawnSync('mkdir', ['-p', rel]);
+    writeFileSync(path.join(rel, 'espace-catalog.json'), JSON.stringify(real));
+    return { dir, rel };
+  };
+  const viaStdin = (dir: string, rel: string) =>
+    spawnSync('bash', ['-s', '--', '--preflight-only', rel], {
+      input: readFileSync(SCRIPT, 'utf8'),
+      encoding: 'utf8',
+      env: { ...process.env, DOCKER_BIN: path.join(dir, 'docker'), NEXUS_MIGRATOR_ENV: path.join(dir, 'migrator.env') },
+    });
+
+  it('base synchronisée : le script va jusqu’au bout (PREFLIGHT_ONLY_DONE)', () => {
+    const { dir, rel } = fake(JSON.stringify(copy()));
+    const r = viaStdin(dir, rel);
+    expect(r.stdout).toContain('CATALOGUE_DB_SYNC=PASS (5 activités)');
+    expect(r.stdout).toContain('PREFLIGHT_ONLY_DONE');
+    expect(r.status).toBe(0);
+  });
+
+  it('base désynchronisée : DEPLOYMENT_BLOCKED, code 17, jamais PREFLIGHT_ONLY_DONE', () => {
+    const { dir, rel } = fake(JSON.stringify(copy().filter((a) => a.slug !== 'nsi-recursivite')));
+    const r = viaStdin(dir, rel);
+    expect(r.status).toBe(17);
+    expect(r.stdout).toContain('DEPLOYMENT_BLOCKED');
+    expect(r.stdout).not.toContain('PREFLIGHT_ONLY_DONE');
+  });
+
+  it('lecture de la base impossible (faux docker en erreur) : fail closed', () => {
+    const { dir, rel } = fake('x');
+    writeFileSync(path.join(dir, 'docker'), '#!/bin/sh\ncat > /dev/null\nexit 1\n', { mode: 0o755 });
+    const r = viaStdin(dir, rel);
+    expect(r.status).toBe(17);
+    expect(r.stdout).toContain('lecture de espace_activities impossible (fail closed)');
+  });
+
+  it('catalogue absent de la release : fail closed', () => {
+    const { dir, rel } = fake('[]');
+    rmSync(path.join(rel, 'espace-catalog.json'));
+    const r = viaStdin(dir, rel);
+    expect(r.status).toBe(17);
+    expect(r.stdout).toContain('DEPLOYMENT_BLOCKED');
+  });
+
+  it('le script ne lit pas lui-même son entrée standard sans la fermer (aucun « docker exec -i »)', () => {
+    const code = readFileSync(SCRIPT, 'utf8').split('\n').filter((l) => !l.trim().startsWith('#')).join('\n');
+    expect(code).not.toMatch(/exec\s+-i\b/);
+  });
+});

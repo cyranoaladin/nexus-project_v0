@@ -65,3 +65,10 @@ Voir `docs/espace/DEPLOIEMENT.md` §10. Résumé : release finale `cabf20ce1-esp
 Tests de la clôture : TypeScript 0 erreur, lint 0 erreur (avertissements préexistants hors périmètre) ; unitaires 1 149 suites / 13 498 tests, dont une suite (`architecture/npc-storage-contract`) dont le worker est parfois tué (SIGTERM) en exécution groupée et qui passe 23/23 isolément (intermittence constatée, non liée à ce chantier) ; un échec réel trouvé puis corrigé (inventaire des mutations `User` : réactivation technique) ; intégration `espace-*` 8 suites / 147 tests, E2E Chromium 39/39 sur le build du commit servi, plan de secours 6/6 (requêtes externes bloquées), fumée de production 8/8 + 2/2.
 
 Risque restant : la **publication distante** des sources est refusée par le garde-fou de la session ; branche prête : `release/espace-recursivite-2026-10-04` (historique anonymisé).
+
+## Clôture d'ingénierie (2026-10-04, nuit)
+
+Voir `docs/espace/DEPLOIEMENT.md` §11. Release servie : `e8a81cba0-espace-validation-scope-20261004T1827Z` (`BUILD_ID` `Q83ltYG_UJ8P1SV6vt8qZ`, source `e8a81cba0e693c48c20c6edfa10ef2911ff48c18`). Points : comptes de validation exclus des vues ADMIN (groupe `validation-technique`, `includeValidation` pour l'audit) ; preflight catalogue ↔ base fail closed dans la bascule (bogue de stdin trouvé avant toute bascule et corrigé) ; voie de tests lourde déterministe ; delta de comptage 13 505 → 13 498 expliqué (aucune suppression) ; fumée authentifiée de production 8/8 + 5/5 + 3/3 ; données réelles inchangées ; legacy POO inchangé (`dd6c60e9…`).
+
+Risque restant : publication distante de la branche anonymisée, refusée par le garde-fou de la session.
+

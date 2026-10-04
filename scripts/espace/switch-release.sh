@@ -3,7 +3,8 @@
 #
 #   switch-release.sh --new /var/www/nexus-releases/<release> --expected-current /var/www/nexus-releases/<release actuelle vérifiée>
 #   switch-release.sh --check /var/www/nexus-releases/<release>      # préparation (rollback readiness) : ne bascule RIEN
-#   switch-release.sh --audit-only --catalog <espace-catalog.json> --db-json <lignes.json>   # preflight seul (tests)
+#   switch-release.sh --audit-only --catalog <espace-catalog.json> --db-json <lignes.json>   # comparaison seule (tests)
+#   switch-release.sh --preflight-only <release>                      # preflight complet (lecture base), sans verrou ni bascule
 #
 # Garanties :
 #  1. VERROU : un seul déploiement à la fois (flock non bloquant sur /var/lock/nexus-production-deploy.lock). Si le verrou
@@ -28,13 +29,14 @@ GUARD=/usr/local/libexec/nexus-release-pointer-guard
 HEALTH_URL=${NEXUS_HEALTH_URL:-http://127.0.0.1:3001/api/health}
 NODE_VERSION=v22.23.1
 
-NEW=""; EXPECTED=""; CHECK=""; AUDIT_ONLY=""; CATALOG=""; DBJSON_FILE=""
+NEW=""; EXPECTED=""; CHECK=""; PREFLIGHT_ONLY=""; AUDIT_ONLY=""; CATALOG=""; DBJSON_FILE=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --new) NEW=${2:-}; shift 2;;
     --expected-current) EXPECTED=${2:-}; shift 2;;
     --check) CHECK=${2:-}; shift 2;;
     --audit-only) AUDIT_ONLY=1; shift;;
+    --preflight-only) PREFLIGHT_ONLY=${2:-}; shift 2;;
     --catalog) CATALOG=${2:-}; shift 2;;
     --db-json) DBJSON_FILE=${2:-}; shift 2;;
     *) echo "Argument inconnu : $1"; exit 64;;
@@ -91,9 +93,11 @@ PY
 }
 
 fetch_activities_json() { # lecture seule, identifiants lus sur le serveur (jamais affichés)
-  ( set -a; . /etc/nexus/nexus-migrator.env; set +a
-    docker exec -i -e PGPASSWORD="${NEXUS_MIGRATOR_PASSWORD}" nexus-postgres-db psql -U nexus_admin -d nexus_prod -X -At -c \
-      "SELECT json_agg(row_to_json(t)) FROM (SELECT slug, subject::text AS subject, \"moduleSlug\", title, kind::text AS kind, \"stepsTotal\", \"contentVersion\" FROM espace_activities ORDER BY slug) t;" )
+  # IMPORTANT : le script est lu sur l'entrée standard (ssh … 'bash -s' < switch-release.sh). Toute commande qui lit stdin
+  # (docker exec -i) AVALERAIT la suite du script et l'arrêterait en silence : stdin est donc fermé explicitement.
+  ( set -a; . "${NEXUS_MIGRATOR_ENV:-/etc/nexus/nexus-migrator.env}"; set +a
+    "${DOCKER_BIN:-docker}" exec -e PGPASSWORD="${NEXUS_MIGRATOR_PASSWORD}" nexus-postgres-db psql -U nexus_admin -d nexus_prod -X -At -c \
+      "SELECT json_agg(row_to_json(t)) FROM (SELECT slug, subject::text AS subject, \"moduleSlug\", title, kind::text AS kind, \"stepsTotal\", \"contentVersion\" FROM espace_activities ORDER BY slug) t;" < /dev/null )
 }
 
 catalog_preflight() { # $1 = release candidate
@@ -120,6 +124,12 @@ if [ -n "$AUDIT_ONLY" ]; then
   echo "DEPLOYMENT_BLOCKED : le catalogue du code et la base diffèrent. Aucune mutation automatique : exécuter explicitement"
   echo "  npx tsx scripts/espace/provision.ts sync-activities --execute   (puis audit-activities), puis relancer ce déploiement."
   exit 17
+fi
+
+if [ -n "$PREFLIGHT_ONLY" ]; then   # preflight complet (lecture en base comprise), sans verrou ni bascule
+  catalog_preflight "$PREFLIGHT_ONLY" || exit 17
+  echo "PREFLIGHT_ONLY_DONE"
+  exit 0
 fi
 
 if [ -n "$CHECK" ]; then
