@@ -32,6 +32,7 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'newsletter-subscribe': { ipPreset: 'writeIp', identityPreset: 'emailIdentity' },
   'stage-registration': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'assessment-submit': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity', resourcePreset: 'resourceWrite' },
+  'reservation-verify': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'reservation-submit': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'notification-email': { ipPreset: 'emailIp', identityPreset: 'emailIdentity' },
   'quotes-pdf': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
