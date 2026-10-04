@@ -111,3 +111,11 @@ Les élèves `val.*` sont inscrits au seul groupe `validation-technique` (`lib/e
 
 `__tests__/architecture/npc-storage-contract.test.ts` construit un Program TypeScript complet du dépôt (≈ 3,4 Go résidents, ≈ 50 s). Dans le pool parallèle par défaut (jusqu'à N-1 workers), son worker était tué de façon intermittente (SIGTERM, OOM de cgroup). Il tourne désormais seul : `npm run test:unit:heavy` (`jest.heavy.config.js`, un worker, assertions et timeout inchangés) ; `npm run test:unit` l'ignore ; `npm run test:unit:all` exécute les deux ; la CI a une étape dédiée.
 
+## 15. Hygiène des secrets dans le dépôt
+
+- **Jamais** de secret réel (mot de passe, code d'élève, jeton) comme donnée de test, d'exemple ou de documentation : utiliser des valeurs synthétiques lisibles (« phrase de passe d'exemple »).
+- Le scanner `scripts/security/check-versioned-credentials.mjs` (pré-commit, test unitaire) refuse les affectations suspectes et, désormais, les littéraux à forte entropie passés à une fonction de contrôle d'identifiant.
+- Contrôle local contre les secrets réellement connus, sans jamais les exporter : `NEXUS_PRIVATE_SECRETS_FILES=~/Documents/Nexus_Conservation/espace-codes-eleves-20261003.txt:… node scripts/security/check-versioned-credentials.mjs`. Il compare l'arbre suivi (ou `--staged`) et n'affiche que `chemin:ligne`. Pour l'historique : `git log --all -S"<valeur>" --format=%h` (valeur lue dans le fichier privé, jamais saisie dans un document).
+- Un secret publié par erreur est **roté d'abord** (changement par son propriétaire via « Mon compte »), puis remplacé dans l'arbre ; la réécriture d'historique n'est envisagée que s'il reste exploitable.
+- Les fichiers privés d'accès (`Nexus_Conservation/espace-acces-*.txt`) ne contiennent plus de mot de passe enseignant : il est connu du seul propriétaire. Les specs de production qui ouvrent la session réelle (`espace-prod-teacher`, `espace-prod-credentials`) exigent de leur fournir le mot de passe courant à l'exécution (ligne `MOT_DE_PASSE=` ajoutée localement, 0600, hors Git).
+
