@@ -2,7 +2,7 @@
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { Pool, type PoolClient } from 'pg';
-import { assertDisposableE2eDatabase } from '../../e2e/helpers/disposable-database';
+import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
 const migration = readFileSync('prisma/migrations/20261004170000_invoice_financial_authority/migration.sql', 'utf8');
 
@@ -14,7 +14,7 @@ describe('additive invoice financial authority on isolated PostgreSQL predecesso
   beforeAll(async () => {
     const database = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
     if (!database) throw new Error('DISPOSABLE_DATABASE_REQUIRED');
-    assertDisposableE2eDatabase(database);
+    assertDisposablePostgresUrl(database);
     pool = new Pool({ connectionString: database });
     client = await pool.connect();
     await client.query('BEGIN');
@@ -33,7 +33,7 @@ describe('additive invoice financial authority on isolated PostgreSQL predecesso
     await client.query("UPDATE invoices SET \"payerUserId\"='payer' WHERE id IN ('owned','draft')");
   });
   beforeEach(async () => { await client.query('SAVEPOINT test_case'); });
-  afterEach(async () => { await client.query('ROLLBACK TO SAVEPOINT test_case'); });
+  afterEach(async () => { if (client) await client.query('ROLLBACK TO SAVEPOINT test_case'); });
   afterAll(async () => {
     if (client) { await client.query('ROLLBACK'); client.release(); }
     if (pool) await pool.end();
