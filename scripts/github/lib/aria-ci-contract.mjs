@@ -42,10 +42,10 @@ export const ARIA_CI_MATRIX_JOBS = Object.freeze({
     lane('source-artifact', 'aria:artifact:source-check'),
   ]),
   'aria-browser': Object.freeze([
-    lane('desktop', 'test:aria:e2e:desktop', '.artifacts/aria'),
-    lane('mobile', 'test:aria:e2e:mobile', '.artifacts/aria'),
-    lane('a11y', 'test:aria:a11y', '.artifacts/aria'),
-    lane('smoke', 'aria:smoke:production-artifact', '.artifacts/aria'),
+    lane('desktop', 'test:aria:e2e:desktop', '.artifacts/aria/playwright/aria-desktop'),
+    lane('mobile', 'test:aria:e2e:mobile', '.artifacts/aria/playwright/aria-mobile'),
+    lane('a11y', 'test:aria:a11y', '.artifacts/aria/playwright/aria-a11y'),
+    lane('smoke', 'aria:smoke:production-artifact', '.artifacts/aria/playwright/aria-smoke'),
   ]),
 });
 

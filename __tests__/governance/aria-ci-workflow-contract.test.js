@@ -25,6 +25,26 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(inspectRealWorkflow().findings).toEqual([]);
   });
 
+  test('ARIA_CI_BROWSER_REPORT_PATH_MATCHES_CANONICAL_PRODUCER_FOR_EVERY_LANE', () => {
+    const fs = require('node:fs');
+    const scripts = JSON.parse(fs.readFileSync(path.join(REPOSITORY_ROOT, 'package.json'), 'utf8')).scripts;
+    const runner = fs.readFileSync(path.join(REPOSITORY_ROOT, 'scripts/aria/run-e2e-suite.sh'), 'utf8');
+    expect(runner).toContain('.artifacts/aria/playwright/${project}');
+    const lanes = loadWorkflow(WORKFLOW_PATH).jobs['aria-browser'].strategy.matrix.include;
+    for (const entry of lanes) {
+      const command = scripts[entry.script];
+      expect(command).toMatch(/^bash scripts\/aria\/run-e2e-suite\.sh aria-(desktop|mobile|a11y|smoke)$/);
+      const project = command.split(' ').at(-1);
+      expect(entry.artifactPath).toBe(`.artifacts/aria/playwright/${project}`);
+    }
+  });
+
+  test.each(['desktop', 'mobile', 'a11y', 'smoke'])('ARIA_CI_REJECTS_STALE_BROWSER_REPORT_ROOT_%s', (lane) => {
+    const document = passingDocument();
+    document.jobs['aria-browser'].strategy.matrix.include.find(entry => entry.lane === lane).artifactPath = '.artifacts/aria';
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_MATRIX_CONTRACT_MISMATCH:aria-browser');
+  });
+
   test('ARIA_CI_REJECTS_UNSCOPED_OR_DUPLICATED_UNIFIED_EXECUTION_EXPORT', () => {
     const document = passingDocument();
     const steps = document.jobs['aria-browser'].steps;

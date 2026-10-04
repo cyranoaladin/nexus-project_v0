@@ -2673,16 +2673,16 @@ jobs:
         include:
           - lane: desktop
             script: test:aria:e2e:desktop
-            artifactPath: .artifacts/aria
+            artifactPath: .artifacts/aria/playwright/aria-desktop
           - lane: mobile
             script: test:aria:e2e:mobile
-            artifactPath: .artifacts/aria
+            artifactPath: .artifacts/aria/playwright/aria-mobile
           - lane: a11y
             script: test:aria:a11y
-            artifactPath: .artifacts/aria
+            artifactPath: .artifacts/aria/playwright/aria-a11y
           - lane: smoke
             script: aria:smoke:production-artifact
-            artifactPath: .artifacts/aria
+            artifactPath: .artifacts/aria/playwright/aria-smoke
 
     steps:
       - name: Checkout exact source head
