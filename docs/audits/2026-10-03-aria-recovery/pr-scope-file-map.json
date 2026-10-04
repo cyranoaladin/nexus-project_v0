@@ -1,5 +1,5 @@
 {
-  "sourceSha": "5a18830d3f8e20dbb3931f6b1509a7665f32fd0e",
+  "sourceSha": "d2584a8cc4b89b6887de79f55905a46716d60f35",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -769,6 +769,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/lib/bilan/render-markdown.test.ts",
+      "domain": "rendu-securite",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/lib/browser-navigation.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -874,6 +879,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/lib/quote/pdf.test.ts",
+      "domain": "rendu-securite",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/lib/rate-limit.s3-final-contract.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -901,6 +911,11 @@
     {
       "path": "__tests__/lib/services/parent-activation-family-authority.test.ts",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/marketing/unicode-escape-guard.test.ts",
+      "domain": "rendu-securite",
       "highRisk": false
     },
     {
@@ -946,6 +961,11 @@
     {
       "path": "__tests__/scripts/markdown-table-escaping.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/migrate-bilans.test.ts",
+      "domain": "rendu-securite",
       "highRisk": false
     },
     {
@@ -1304,6 +1324,11 @@
       "highRisk": false
     },
     {
+      "path": "app/bilan-pallier2-maths/resultat/[id]/page.tsx",
+      "domain": "rendu-securite",
+      "highRisk": true
+    },
+    {
       "path": "app/dashboard/account/security/page.tsx",
       "domain": "auth-securite",
       "highRisk": false
@@ -1504,6 +1529,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/bilan-markdown-html-boundary.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/browser-abort-classification.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1536,6 +1566,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-client-access-20261004.md",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-security-20261004.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -1834,6 +1869,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/pdf-apostrophe-normalization.md",
+      "domain": "documentation-preuves",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/pdf-runtime-recovery.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -2016,6 +2056,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/terminal-controller-retirement.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/test-shell-boundaries.md",
+      "domain": "documentation-preuves",
       "highRisk": false
     },
     {
@@ -2231,6 +2276,11 @@
     {
       "path": "lib/auth/session-revocation.ts",
       "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/bilan/render-markdown.ts",
+      "domain": "rendu-securite",
       "highRisk": true
     },
     {
@@ -2457,6 +2507,11 @@
       "path": "lib/payments/bank-transfer-declaration.ts",
       "domain": "finance",
       "highRisk": false
+    },
+    {
+      "path": "lib/quote/pdf.ts",
+      "domain": "rendu-securite",
+      "highRisk": true
     },
     {
       "path": "lib/quotes/diagnostic.server.ts",
