@@ -124,6 +124,8 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
   const commandId = options.commandId === undefined ? undefined : parseInput(z.string().uuid(), options.commandId);
   const commandKey = commandId === undefined ? undefined : `account-resend-command:v1:${ctx.actor.userId}:${commandId}`;
   return inTransaction(client, async (tx) => {
+    const openWhere = { userId, purpose: 'ACTIVATION' as const, consumedAt: null, revokedAt: null };
+    const before = await tx.invitation.findFirst({ where: openWhere, select: { id: true } });
     await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
@@ -142,6 +144,8 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
         return { invitation, rawToken: content.rawToken, email: content.email, handoffId: prior.id };
       }
     }
+    const current = await tx.invitation.findFirst({ where: openWhere, select: { id: true } });
+    if (current?.id !== before?.id) throw new ConflictError('The invitation changed while this resend was waiting.');
     const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent', commandKey);
     return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
