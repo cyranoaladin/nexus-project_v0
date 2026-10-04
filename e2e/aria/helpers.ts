@@ -62,6 +62,21 @@ export async function sendFromComposer(page: Page, content: string): Promise<voi
   await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
 }
 
+/** A normal turn must finish its own HTTP body before a navigation or next send. */
+export async function sendFromComposerAndFinishTransport(page: Page, content: string): Promise<void> {
+  const chatRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url());
+    return request.method() === 'POST' && url.pathname === '/api/aria/chat'
+      && url.origin === new URL(page.url()).origin
+      && request.postDataJSON()?.content === content;
+  });
+  await sendFromComposer(page, content);
+  const response = await (await chatRequest).response();
+  expect(response, 'The submitted ARIA turn must receive its own response').not.toBeNull();
+  expect(response!.status(), 'The normal ARIA transport must be accepted').toBe(200);
+  expect(await response!.finished(), 'The normal ARIA HTTP body must finish without a transport error').toBeNull();
+}
+
 export async function postConversation(
   page: Page,
   input: Readonly<{

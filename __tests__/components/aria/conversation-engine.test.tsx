@@ -1912,4 +1912,38 @@ describe('useAriaConversation stream isolation', () => {
     expect(result.current.errorCode).toBeNull();
     rerender({ open: false });
   });
+  it.each(['done', 'error'] as const)('does not abort a finalized %s transport on close before promise cleanup', async (terminalKind) => {
+    let terminal: (() => void) | undefined;
+    let finishTransport: (() => void) | undefined;
+    let transportSignal: AbortSignal | undefined;
+    (streamAriaConversation as jest.Mock).mockImplementationOnce(async (_request, callbacks: AriaConversationTransportCallbacks, signal: AbortSignal) => {
+      transportSignal = signal;
+      callbacks.onStart?.({
+        turnId: 'turn-retired', conversationId: 'conversation-retired',
+        messageId: 'assistant-retired', courseKey: 'eds-nsi-terminale',
+        status: 'RUNNING', disposition: 'EXECUTED',
+      });
+      terminal = () => {
+        if (terminalKind === 'done') callbacks.onDone?.({
+          turnId: 'turn-retired', messageId: 'assistant-retired',
+          status: 'COMPLETED', fullText: 'Réponse terminée.',
+        });
+        else callbacks.onError?.({ code: 'MODEL_UNAVAILABLE', requestId: 'request-retired', retryable: true });
+      };
+      await new Promise<void>((resolve) => { finishTransport = resolve; });
+    });
+    const { result, unmount } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Question de transport'));
+    let sending: Promise<void> | undefined;
+    act(() => { sending = result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('STREAMING'));
+    act(() => terminal?.());
+    expect(result.current.phase).toBe('READY');
+    unmount();
+    const wasAborted = transportSignal?.aborted;
+    await act(async () => { finishTransport?.(); await sending; });
+    expect(wasAborted).toBe(false);
+  });
+
 });

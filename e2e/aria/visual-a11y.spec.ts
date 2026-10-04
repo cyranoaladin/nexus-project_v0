@@ -20,6 +20,7 @@ import {
   loginAndOpenAria,
   resetFixture,
   sendFromComposer,
+  sendFromComposerAndFinishTransport,
 } from './helpers';
 
 const viewports = [
@@ -129,7 +130,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect.poll(async () => (await fixtureState(page.request)).activeModelStreams).toBe(0);
     await page.waitForLoadState('networkidle');
 
-    await sendFromComposer(page, 'Question avec citation visible.');
+    await sendFromComposerAndFinishTransport(page, 'Question avec citation visible.');
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA terminée.');
     const citationSummary = page.getByText('1 source').last();
     await expect(citationSummary).toBeVisible();
@@ -149,12 +150,12 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(useful).toHaveAttribute('aria-pressed', 'true');
     await captureState(page, testInfo, viewport, 'feedback-submitted');
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
+    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await captureState(page, testInfo, viewport, 'rag-unavailable');
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.modelTimeout);
+    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.modelTimeout);
     await expect(page.getByRole('dialog').getByRole('alert'))
       .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
     await captureState(page, testInfo, viewport, 'timeout-error');
@@ -259,7 +260,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     await expect(citationSummary.locator('..').getByText(canonicalNsiPremiereResource.title)).toBeVisible();
     await assertNoSeriousOrCriticalA11y(page);
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
+    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(dialog.getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await expect(page.getByRole('status')).toHaveText('La réponse ARIA a échoué.');
