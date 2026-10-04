@@ -5,6 +5,13 @@ jest.mock('@/lib/entitlement/engine', () => ({ getUserEntitlements: jest.fn().mo
 jest.mock('@/lib/trajectory', () => ({ getActiveTrajectory: jest.fn().mockResolvedValue(null), parseMilestones: jest.fn().mockReturnValue([]) }));
 jest.mock('@/lib/next-step-engine', () => ({ getNextStep: jest.fn().mockResolvedValue(null) }));
 import { randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
+import { NextRequest } from 'next/server';
+import { GET as downloadStudentDocument } from '@/app/api/student/documents/[id]/download/route';
+import { openSecureDocument } from '@/lib/documents/secure-file-access';
+jest.mock('@/lib/documents/secure-file-access', () => ({
+  ...jest.requireActual('@/lib/documents/secure-file-access'), openSecureDocument: jest.fn(),
+}));
 import { prisma } from '@/lib/prisma';
 import { buildStudentDashboardPayload } from '@/lib/dashboard/student-payload';
 import { STUDENT_DOCUMENT_SCOPES } from '@/lib/documents/student-visibility';
@@ -44,11 +51,38 @@ test('visibility is applied by PostgreSQL before pagination and aligns metadata 
   }
 });
 test('direct student listing reads the same authorized scopes from PostgreSQL', async () => {
-  mockAuth.mockResolvedValue({ user: { id: studentId, role: 'ELEVE' } });
+  mockAuth.mockResolvedValue({ user: { id: studentId, email: `${studentId}@synthetic.test`, role: 'ELEVE' } });
   const response = await listStudentDocuments();
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toBe('private, no-store');
   const body = await response.json();
   expect(body.documents).toHaveLength(4);
   expect(JSON.stringify(body)).not.toContain('PRIVATE-ADMIN');
+});
+
+test('the student download URL refuses owned ADMIN_ONLY before touching storage', async () => {
+  mockAuth.mockResolvedValue({ user: { id: studentId, email: `${studentId}@synthetic.test`, role: 'ELEVE' } });
+  const id = `${prefix}-admin-0`;
+  (openSecureDocument as jest.Mock).mockClear();
+  const response = await downloadStudentDocument(new NextRequest(`http://localhost/api/student/documents/${id}/download`), { params: Promise.resolve({ id }) });
+  expect(response.status).toBe(404);
+  expect(openSecureDocument).not.toHaveBeenCalled();
+  expect(response.headers.get('cache-control')).toBe('private, no-store');
+});
+test.each(STUDENT_DOCUMENT_SCOPES)('the student download URL serves an authorized %s file', async scope => {
+  mockAuth.mockResolvedValue({ user: { id: studentId, email: `${studentId}@synthetic.test`, role: 'ELEVE' } });
+  const id = `${prefix}-${scope}`;
+  (openSecureDocument as jest.Mock).mockResolvedValue({ handle: { createReadStream: () => Readable.from(Buffer.from('synthetic')), close: jest.fn().mockResolvedValue(undefined) }, sizeBytes: 9 });
+  const response = await downloadStudentDocument(new NextRequest(`http://localhost/api/student/documents/${id}/download`), { params: Promise.resolve({ id }) });
+  expect(response.status).toBe(200);
+  expect(await response.text()).toBe('synthetic');
+});
+
+test('direct parent ownership cannot override an administrative-only scope', async () => {
+  const id = `${prefix}-parent-private`;
+  await prisma.userDocument.create({ data: { id, userId: parentId, title: 'Synthetic admin note', originalName: 'synthetic.pdf', localPath: 'synthetic.pdf', mimeType: 'application/pdf', sizeBytes: 9, visibilityScope: 'ADMIN_ONLY' } });
+  const decision = await readAuthorizedDocument(id, { id: parentId, role: 'PARENT' });
+  expect(decision.status).toBe('DENIED');
+  if (decision.status !== 'DENIED') throw new Error('Expected administrative privacy refusal');
+  expect(decision.response.status).toBe(404);
 });

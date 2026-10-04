@@ -217,6 +217,16 @@ describe('GET /api/documents/[id]/download', () => {
 
   // ── Parent direct ownership (P2 — invoices) ──
 
+  it('refuses ADMIN_ONLY even when the parent owns the document directly', async () => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, userId: PARENT_USER_ID,
+      visibilityScope: 'ADMIN_ONLY', user: { id: PARENT_USER_ID, student: null } });
+    const response = await GET(request(), params());
+    expect(response.status).toBe(404);
+    expect(mockPrivateDocument).not.toHaveBeenCalled();
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
   it('returns 200 for parent downloading their own document (invoice, STUDENT_ONLY scope)', async () => {
     // Invoices are created with userId = parent and default scope STUDENT_ONLY.
     // The parent owns the document directly — scope should NOT gate.

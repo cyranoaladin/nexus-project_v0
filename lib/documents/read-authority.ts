@@ -35,6 +35,8 @@ export async function readAuthorizedDocument(id: string, subject: {
   });
   if (!scope) return deny();
   const role = subject.role ?? '';
+  // Administrative privacy is never overridden by direct family ownership.
+  if (!STAFF_ROLES.has(role) && scope.visibilityScope === DocumentVisibilityScope.ADMIN_ONLY) return deny();
   if (STAFF_ROLES.has(role)) {
     // Explicit administrative scope; no private file metadata loaded yet.
   } else if (role === UserRole.COACH) {

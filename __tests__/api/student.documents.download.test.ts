@@ -6,7 +6,7 @@ jest.mock('@/lib/guards', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: { userDocument: { findFirst: jest.fn() } },
+  prisma: { userDocument: { findUnique: jest.fn(), findFirst: jest.fn() } },
 }));
 
 jest.mock('@/lib/documents/storage-root', () => ({
@@ -56,6 +56,9 @@ describe('GET /api/student/documents/[id]/download', () => {
     (requireRole as jest.Mock).mockResolvedValue(mockSession);
     (isErrorResponse as unknown as jest.Mock).mockReturnValue(false);
     mockOpenSecure.mockResolvedValue(makeSuccessHandle());
+    (prisma.userDocument.findUnique as jest.Mock).mockImplementation(async ({ where }: { where: { id: string } }) => ({
+      id: where.id, userId: 'u1', visibilityScope: 'STUDENT_ONLY', user: { id: 'u1', student: null },
+    }));
   });
 
   it('returns 401 when unauthenticated', async () => {
