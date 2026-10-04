@@ -189,10 +189,12 @@ describe('exhaustive User security mutation inventory', () => {
       //  personnel : aucun secret existant n'est remplacé, il n'y a donc aucune session à révoquer.
       //  update#3 (réinitialisation d'un code) et updateMany#1 (désactivation) changent ou retirent un
       //  accès : ils révoquent les sessions (voir la liste « versioned » ci-dessous).
+      //  update#4 et update#5 (réactivation d'un compte TECHNIQUE val.* élève / enseignant) émettent de nouveaux
+      //  identifiants : ils révoquent aussi les sessions.
       // Changement autonome du code/mot de passe et réinitialisation par l'enseignant : chaque écriture incrémente sessionVersion.
       'lib/espace/credentials.ts:update#1',
       'lib/espace/credentials.ts:update#2',
-      ...Array.from({ length: 3 }, (_, index) => `lib/espace/provisioning.ts:update#${index + 1}`),
+      ...Array.from({ length: 5 }, (_, index) => `lib/espace/provisioning.ts:update#${index + 1}`),
       'lib/espace/provisioning.ts:updateMany#1',
       ...Array.from({ length: 3 }, (_, index) => `prisma/seed-demo-student.ts:upsert#${index + 1}`),
       'prisma/seed.ts:updateMany#1',
@@ -237,6 +239,8 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/services/student-activation.service.ts:updateMany#2',
       // Réinitialisation d'un code personnel et désactivation d'un compte de l'espace pédagogique.
       'lib/espace/provisioning.ts:update#3',
+      'lib/espace/provisioning.ts:update#4',
+      'lib/espace/provisioning.ts:update#5',
       'lib/espace/provisioning.ts:updateMany#1',
       ...Array.from({ length: 3 }, (_, index) => `prisma/seed-demo-student.ts:upsert#${index + 1}`),
       'prisma/seed.ts:updateMany#1',
