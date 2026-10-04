@@ -269,3 +269,18 @@ test('activation and handoff recovery use a compatible lock order under contenti
   expect(result.retried).toBe(0);
   expect(transfers).toBe(0);
 });
+
+
+test.each(['schemaVersion', 'keyVersion', 'iv', 'tag', 'ciphertext'])('the SQL payload invariant refuses JSON null for %s', async field => {
+  const parent = await pendingParent();
+  const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+  const job = await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { id: issued.handoffId } });
+  const malformed = JSON.stringify({ ...(job.payload as Record<string, unknown>), [field]: null });
+  let refused = false;
+  try { await h.client.$executeRaw`UPDATE core_v2_job_outbox SET payload = ${malformed}::jsonb WHERE id = ${job.id}`; }
+  catch (error) {
+    refused = typeof error === 'object' && error !== null && 'meta' in error &&
+      typeof error.meta === 'object' && error.meta !== null && 'code' in error.meta && error.meta.code === '23514';
+  }
+  expect(refused).toBe(true);
+});
