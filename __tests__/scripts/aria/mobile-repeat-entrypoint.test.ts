@@ -23,7 +23,7 @@ function run(project: string, failFirst = false) {
 test('runs the complete mobile matrix before twenty serial E019 executions with no retries', () => {
   expect(run('aria-mobile')).toEqual({ status: 0, commands: [
     'aria-mobile|playwright test --config playwright.aria.config.ts --project aria-mobile',
-    'aria-mobile-repeat20|playwright test --config playwright.aria.config.ts --project aria-mobile visual-a11y.spec.ts --grep ^E019  --repeat-each=20 --workers=1 --retries=0',
+    'aria-mobile-repeat20|playwright test --config playwright.aria.config.ts --project=aria-mobile visual-a11y.spec.ts --grep E019 ARIA_VISUAL_VIEWPORT_MATRIX --repeat-each=20 --workers=1 --retries=0',
   ] });
 });
 test('does not mask a failed complete campaign by running the repetition', () => {
@@ -33,4 +33,19 @@ test('does not mask a failed complete campaign by running the repetition', () =>
 });
 test('keeps the desktop lane unchanged', () => {
   expect(run('aria-desktop')).toEqual({ status: 0, commands: ['aria-desktop|playwright test --config playwright.aria.config.ts --project aria-desktop'] });
+});
+
+test('the actual Playwright collector selects twenty E019 cases, not zero cases or a filename as a project', () => {
+  const env: NodeJS.ProcessEnv = { ...process.env, PLAYWRIGHT_PROJECT: 'aria-mobile-repeat20' };
+  // This child is a Playwright CLI collector, not a Jest execution.
+  delete env.JEST_WORKER_ID;
+  delete env.DATABASE_URL;
+  delete env.TEST_DATABASE_URL;
+  delete env.CORE_V2_DATABASE_URL;
+  const result = spawnSync(process.execPath, [resolve('node_modules/playwright/cli.js'), 'test',
+    '--config=playwright.aria.config.ts', '--project=aria-mobile', 'visual-a11y.spec.ts',
+    '--grep', 'E019 ARIA_VISUAL_VIEWPORT_MATRIX', '--repeat-each=20', '--workers=1', '--retries=0', '--list'],
+    { env, encoding: 'utf8' });
+  expect(result.status).toBe(0);
+  expect(result.stdout).toContain('Total: 20 tests in 1 file');
 });

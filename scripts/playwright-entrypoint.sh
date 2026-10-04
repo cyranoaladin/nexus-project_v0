@@ -59,7 +59,7 @@ if [ "$PLAYWRIGHT_CONFIG" = 'playwright.aria.config.ts' ] && [ "$PLAYWRIGHT_PROJ
   # Preserve the full E018–E021 campaign, then qualify E019 on the same stack.
   npx playwright "${args[@]}"
   export PLAYWRIGHT_PROJECT=aria-mobile-repeat20
-  exec npx playwright test --config playwright.aria.config.ts --project aria-mobile \
-    visual-a11y.spec.ts --grep '^E019 ' --repeat-each=20 --workers=1 --retries=0
+  exec npx playwright test --config playwright.aria.config.ts --project=aria-mobile \
+    visual-a11y.spec.ts --grep 'E019 ARIA_VISUAL_VIEWPORT_MATRIX' --repeat-each=20 --workers=1 --retries=0
 fi
 exec npx playwright "${args[@]}"
