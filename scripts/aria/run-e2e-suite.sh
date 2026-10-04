@@ -53,6 +53,13 @@ test_status=$?
 "${compose[@]}" cp \
   "playwright:/app/.artifacts/aria/playwright/${project}/." "$private_artifact_dir/"
 artifact_status=$?
+repeat_artifact_status=0
+if [ "$project" = "aria-mobile" ]; then
+  mkdir "$private_artifact_dir/repeat20"
+  "${compose[@]}" cp \
+    "playwright:/app/.artifacts/aria/playwright/aria-mobile-repeat20/." "$private_artifact_dir/repeat20/"
+  repeat_artifact_status=$?
+fi
 "${compose[@]}" down -v --remove-orphans
 teardown_status=$?
 current_head="$(git rev-parse HEAD)"
@@ -78,9 +85,18 @@ if [ "$source_status" -ne 0 ]; then
 fi
 node scripts/testing/safe-playwright-report.mjs \
   "$private_artifact_dir/report.json" "$artifact_dir/report.json" "$run_head"
+if [ "$project" = "aria-mobile" ] && [ "$repeat_artifact_status" -eq 0 ]; then
+  node scripts/testing/safe-playwright-report.mjs \
+    "$private_artifact_dir/repeat20/report.json" "$artifact_dir/repeat20/report.json" "$run_head"
+fi
 if [ "$test_status" -ne 0 ]; then
   exit "$test_status"
 fi
 if [ "$project" = "aria-mobile" ]; then
+  if [ "$repeat_artifact_status" -ne 0 ]; then
+    echo "ARIA_MOBILE_REPEAT_REPORT_COPY_FAILED=${repeat_artifact_status}" >&2
+    exit "$repeat_artifact_status"
+  fi
+  node scripts/testing/check-aria-mobile-repeat.mjs "$artifact_dir/repeat20/report.json"
   npm run aria:visual-evidence:write
 fi

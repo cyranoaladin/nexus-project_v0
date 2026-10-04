@@ -2753,6 +2753,12 @@ jobs:
           ARIA_JOB_STATUS: ${{ job.status }}
         run: node scripts/testing/safe-playwright-report.mjs ${{ matrix.artifactPath }}/report.json .artifacts/publish/aria-${{ matrix.lane }}/report.json
 
+      - name: Publish and qualify canonical E019 twenty repetitions
+        if: ${{ always() && matrix.lane == 'mobile' }}
+        run: |
+          node scripts/testing/safe-playwright-report.mjs .artifacts/aria/playwright/aria-mobile/repeat20/report.json .artifacts/publish/aria-mobile/repeat20/report.json
+          node scripts/testing/check-aria-mobile-repeat.mjs .artifacts/publish/aria-mobile/repeat20/report.json
+
       - name: Qualify public mobile screenshots without private traces
         if: ${{ always() && matrix.lane == 'mobile' }}
         run: npm run aria:visual-evidence:write -- --artifact-root .artifacts/publish/aria-mobile
