@@ -222,6 +222,19 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.goto(`/dashboard/assistante/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
   });
 
+  await test.step('explicitly verifies the household membership through the administrative confirmation', async () => {
+    await expect(page.getByText('Rattachement à vérifier', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Vérifier le rattachement', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('button', { name: 'Confirmer la vérification' })).toBeDisabled();
+    await dialog.getByLabel('Empreinte du justificatif', { exact: true }).fill('a'.repeat(64));
+    await dialog.getByLabel('Je confirme avoir vérifié le rattachement de ce parent à ce foyer.').check();
+    await dialog.getByRole('button', { name: 'Confirmer la vérification' }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page.getByText('Rattachement vérifié', { exact: true })).toBeVisible();
+    await expectAccessible(page);
+  });
+
   await test.step('adds a student', async () => {
     await page.getByRole('button', { name: 'Ajouter un élève' }).click();
     const dialog = page.getByRole('dialog');

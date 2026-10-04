@@ -5,6 +5,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { PrismaClient } from '../../core-v2/generated/client';
 import { assertCoreV2E2eSeedTarget } from '../../scripts/core-v2/e2e-seed-target';
 import { gotoSignInForm } from '../helpers/auth';
+import { verifyHouseholdParent } from '../../lib/core-v2/services/household-verification';
+import { createServiceContext } from '../../lib/core-v2/services/context';
 
 test.use({ trace: 'off', screenshot: 'off', video: 'off' });
 const OLD = 'change_me_current_e2e';
@@ -33,6 +35,10 @@ test(`parent changes their password and revokes both old sessions at ${width}px`
       password: await bcrypt.hash(OLD, 12), activatedAt: new Date(),
       householdParent: { create: { householdId: household.id, isPrimaryContact: true } },
     } });
+    const verifier = await client.user.create({ data: { role: 'ADMIN', accountStatus: 'ACTIVE' } });
+    await verifyHouseholdParent(client, createServiceContext({ userId: verifier.id, role: 'ADMIN' }), {
+      householdId: household.id, parentUserId: user.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64),
+    });
     const page = await first.newPage();
     const other = await second.newPage();
     await signIn(page, email, OLD);

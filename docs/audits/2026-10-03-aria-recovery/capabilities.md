@@ -1,6 +1,6 @@
 # Matrice fonctionnelle et sources de vérité
 
-Base : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Lecture de code et tests locaux ne valent pas qualification production.
+Base d’intégration : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Inventaire revalidé le 4 octobre 2026 sur les services de la branche de reprise, y compris le lot familial local non commité. La qualification locale publiée concerne `1e2d0a5c745479ef11e58edef575e390af6583d1` et ne couvre pas les modifications ultérieures. Aucune ligne n’est QUALIFIÉ PRODUCTION. Tests cités ci-dessous = présents dans le dépôt, sauf exécution explicitement liée à un SHA dans `ci-remediation.md`.
 
 | # | Capability | Routes/services | Autorité | État et preuve restante |
 |---|---|---|---|---|
@@ -13,14 +13,14 @@ Base : `5ffd4dd8e1fb91b0eea42398670a260402660699`. Lecture de code et tests loca
 | 7 | Dashboard coach | app/api/v2/coach/me; app/dashboard/coach | Coach assignment | Out-of-assignment denial |
 | 8 | Dashboard parent | app/dashboard/parent; lib/core-v2/queries/parent.ts | HouseholdParent + V1 billing | Cross-household denial |
 | 9 | Dashboard élève | app/dashboard/eleve; app/api/v2/student | Student / enrollment | Own-only scope |
-| 10 | Familles/rattachements | lib/core-v2/services/household.ts; prisma/schema.prisma | V2 HouseholdParent; V1 ParentStudentLink | PARTIEL: V2 lacks per-child VERIFIED/revocable rights |
+| 10 | Familles/rattachements | lib/core-v2/services/household.ts; prisma/schema.prisma | V2 HouseholdParent + Student.householdId ; V1 Student.parentId (ParentStudentLink = consentement bilan seulement) | PARTIEL : vérification/révocation locale en qualification ; autorité interstores à fermer |
 | 11 | Parcours académiques | lib/core-v2/services/enrollment.ts | AcademicYear / courseKey enrollments | Historical roster and normalized combinations |
 | 12 | Coachs/disponibilité | lib/core-v2/services/coach.ts | CoachProfile / capability / assignment | Capabilities/history/conflicts |
-| 13 | Sites/salles | core-v2/prisma/schema.prisma | V2 location string only | PARTIEL: room/capacity/equipment not modeled in V2 |
+| 13 | Sites/salles | prisma/schema.prisma; core-v2/prisma/schema.prisma | location string only | ABSENT : aucun modèle gouverné Site/Room dans les deux schémas ; capacité/équipement/conflit salle non garantis |
 | 14 | Planning/calendriers | lib/core-v2/services/planning.ts; lib/planning | PlanningSeries / SessionBooking | SQL exclusions coach/student; room constraints missing |
 | 15 | Rendez-vous | app/api/reservation; lib/session-booking.ts | V1 SessionBooking | State/eligibility/ownership |
 | 16 | Séances/réservations/présences | app/api/v2/staff/bookings; V1 stages/sessions | Booking / Session | PARTIEL : atelier capacité/idempotence/outbox et snapshots PG testés (34/34) ; wait-list et parcours complet à qualifier |
-| 17 | Annulation/report/crédits | lib/core-v2/services/planning.ts; V1 credits APIs | Booking + CreditTransaction | Atomic state/credit transitions |
+| 17 | Annulation/report/crédits | lib/core-v2/services/planning.ts; V1 credits APIs | Booking + historique CreditTransaction | PARTIEL : annulation/report à qualifier ; crédits commerciaux retirés, ne pas réintroduire les anciens forfaits ; historique soumis à décision staff explicite |
 | 18 | Offres/forfaits/inscriptions | lib/pricing.ts; data/pricing.canonical.json | Versioned catalogue / Subscription | Current main pricing retained |
 | 19 | Paiements/rapprochements | app/api/payments; lib/payments.ts | V1 Payment | Signatures/replay/sandbox; V2 not billing authority |
 | 20 | Factures/PDF | lib/invoice; app/api/invoices | V1 Invoice/Item/Sequence/AccessToken | Atomic sequence/private storage/download |
@@ -52,12 +52,12 @@ est canonique, les chunks/index sont dérivés ; staging RAG non qualifié ici.
 - Bootstrap : verrou advisory transactionnel, désormais API SQL paramétrée ;
   deux connexions indépendantes donnent un seul administrateur (test réel).
 - Parent V2 : identité serveur → membership household, pas household client ;
-  cela ne fournit pas encore les droits VERIFIED distincts par enfant demandés.
+  le lot local ajoute VERIFIED/révocation à ce membership. La co-visibilité du foyer est l’ADR accepté ; aucun droit par enfant n’est déduit du consentement bilans.
 - ARIA : turn lifecycle/idempotency/citations/recovery, à requalifier sur DB.
 
 ## Risques bloquants et arbitrages
 
-P1 : périmètre salles/capacité V2 et droits par enfant non complet. Ne pas
+P1 : gestion gouvernée salles/sites absente, planning salle non garanti ; vérification familiale et coexistence d’autorisation V1/V2 non qualifiées. Ne pas
 annoncer ces capacités comme livrées par V2. Ne pas backfiller des droits depuis
 un simple homonyme ; un roster/provenance d'ownership approuvé est requis.
 TLS compromis historique : la validité du certificat servi ne démontre pas

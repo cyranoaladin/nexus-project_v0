@@ -79,6 +79,7 @@ model User {
   sessionVersion          Int       @default(0)
   registrationCompletedAt DateTime?
 
+  householdMembershipsVerified HouseholdParent[] @relation("HouseholdMembershipVerifier")
   householdParent HouseholdParent?
   student         Student?
   coachProfile    CoachProfile?
@@ -204,6 +205,12 @@ model Household {
 // `userId @unique` = one parent user belongs to at most one household.
 // At most one primary contact per household — race-safe via partial unique
 // index household_parents_primary_contact_key (migration 0006).
+enum HouseholdMembershipStatus {
+  PENDING
+  VERIFIED
+  REVOKED
+}
+
 model HouseholdParent {
   id               String    @id @default(cuid())
   householdId      String
@@ -211,6 +218,13 @@ model HouseholdParent {
   userId           String    @unique
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   isPrimaryContact Boolean   @default(false)
+  verificationStatus HouseholdMembershipStatus @default(PENDING)
+  verifiedAt DateTime?
+  verifiedById String?
+  verifiedBy User? @relation("HouseholdMembershipVerifier", fields: [verifiedById], references: [id], onDelete: Restrict)
+  verificationEvidenceDigest String?
+  revokedAt DateTime?
+  revision Int @default(0)
   createdAt        DateTime  @default(now())
 
   @@unique([householdId, userId])

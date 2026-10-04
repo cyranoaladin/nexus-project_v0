@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * Planning HTTP surface (§AK) against a real Core v2 database: staff range
  * reads with bounded windows, occurrence cancel/reschedule and series cancel
@@ -43,6 +44,7 @@ async function seed() {
   const year = await seedAcademicYear(h.client, 2099);
   const parent = await h.client.user.create({ data: { role: 'PARENT', email: 'amel@synthetic.test', firstName: 'Amel', accountStatus: 'ACTIVE' } });
   const household = await h.client.household.create({ data: { parents: { create: { userId: parent.id, isPrimaryContact: true } } } });
+  await verifyHouseholdParent(h.client, h.ctx(), { householdId: household.id, parentUserId: parent.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
   const studentUser = await h.client.user.create({ data: { role: 'ELEVE', email: 'yasmine@synthetic.test', firstName: 'Yasmine', accountStatus: 'ACTIVE' } });
   const student = await h.client.student.create({ data: { userId: studentUser.id, householdId: household.id } });
   const enrollment = await h.client.studentAcademicYearEnrollment.create({

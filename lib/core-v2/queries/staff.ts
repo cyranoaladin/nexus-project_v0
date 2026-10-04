@@ -1,3 +1,4 @@
+import { verifiedHouseholdMembershipWhere } from '../repositories/household-verification';
 /**
  * Staff read models (§AD): server-side search + cursor pagination over the
  * Core v2 authorities. Read access is a capability like any write — every
@@ -91,7 +92,7 @@ export async function searchHouseholds(client: PrismaClient, ctx: ServiceContext
     items: page.items.map((h) => ({
       id: h.id,
       createdAt: h.createdAt,
-      parents: h.parents.map((p) => ({ ...(p.user as PublicUser), isPrimaryContact: p.isPrimaryContact })),
+      parents: h.parents.map((p) => ({ ...(p.user as PublicUser), isPrimaryContact: p.isPrimaryContact, verificationStatus: p.verificationStatus, membershipRevision: p.revision })),
       students: h.students.map((s) => ({ id: s.id, user: s.user as PublicUser })),
     })),
   };
@@ -219,11 +220,11 @@ export type EnrollmentDetail = ReturnType<typeof mapEnrollment>;
  * decide WHO may see it (staff capability above, household membership in
  * queries/parent.ts). Never export this through a route directly.
  */
-export async function loadHouseholdDetail(client: PrismaClient, householdId: string) {
+export async function loadHouseholdDetail(client: PrismaClient, householdId: string, parentUserId?: string) {
   const household = await client.household.findUnique({
-    where: { id: householdId },
+    where: { id: householdId, ...(parentUserId ? { parents: { some: { userId: parentUserId, ...verifiedHouseholdMembershipWhere } } } : {}) },
     include: {
-      parents: { include: { user: { select: userSelect } }, orderBy: { createdAt: 'asc' } },
+      parents: { ...(parentUserId ? { where: verifiedHouseholdMembershipWhere } : {}), include: { user: { select: userSelect } }, orderBy: { createdAt: 'asc' } },
       students: {
         include: { user: { select: userSelect }, academicYearEnrollments: enrollmentsInclude },
         orderBy: { createdAt: 'asc' },
@@ -234,7 +235,7 @@ export async function loadHouseholdDetail(client: PrismaClient, householdId: str
   return {
     id: household.id,
     createdAt: household.createdAt,
-    parents: household.parents.map((p) => ({ ...(p.user as PublicUser), isPrimaryContact: p.isPrimaryContact })),
+    parents: household.parents.map((p) => ({ ...(p.user as PublicUser), isPrimaryContact: p.isPrimaryContact, verificationStatus: p.verificationStatus, membershipRevision: p.revision })),
     students: household.students.map((s) => ({
       id: s.id,
       birthDate: s.birthDate,

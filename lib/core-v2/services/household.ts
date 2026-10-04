@@ -7,7 +7,7 @@ import { z } from 'zod';
 import type { Household, HouseholdParent, PrismaClient, User } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { normalizeEmail, normalizePhone } from '../contact';
-import { ConflictError, NotFoundError, isUniqueViolation } from '../errors';
+import { ConflictError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
 import { assertCapability, assertSubjectRole } from '../rbac';
 import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
@@ -166,13 +166,21 @@ export async function setPrimaryContact(
     if (!membership || membership.householdId !== householdId) {
       throw new NotFoundError('This parent is not a member of this household.', { householdId, parentUserId });
     }
+    if (membership.verificationStatus !== 'VERIFIED' || !membership.verifiedAt || membership.revokedAt) {
+      throw new InvalidStateError('Verify household membership before choosing its primary contact.');
+    }
     await tx.householdParent.updateMany({
       where: { householdId, isPrimaryContact: true, NOT: { userId: parentUserId } },
       data: { isPrimaryContact: false },
     });
     let updated: HouseholdParent;
     try {
-      updated = await tx.householdParent.update({ where: { userId: parentUserId }, data: { isPrimaryContact: true } });
+      const changed = await tx.householdParent.updateMany({
+        where: { id: membership.id, verificationStatus: 'VERIFIED', revokedAt: null, revision: membership.revision },
+        data: { isPrimaryContact: true, revision: { increment: 1 } },
+      });
+      if (changed.count !== 1) throw new ConflictError('Household membership changed concurrently.');
+      updated = await tx.householdParent.findUniqueOrThrow({ where: { id: membership.id } });
     } catch (error) {
       if (isUniqueViolation(error)) {
         throw new ConflictError('Another parent became primary contact concurrently.', { householdId });

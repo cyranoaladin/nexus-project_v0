@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * Planning engine (§AK) against a real Core v2 database: recurrence
  * materialization bounded by the academic year, DST-correct instants,
@@ -442,6 +443,7 @@ describe('read scopes', () => {
     const studentB = await listOwnStudentBookings(h.client, createServiceContext({ userId: b.studentUser.id, role: 'ELEVE' }), range);
     expect(studentB.map((x) => x.coach.id)).toEqual([b.coach.coachId, b.coach.coachId]);
 
+    await verifyHouseholdParent(h.client, h.ctx(), { householdId: a.household.id, parentUserId: a.parent.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
     const parentA = await listOwnHouseholdBookings(h.client, createServiceContext({ userId: a.parent.id, role: 'PARENT' }), range);
     expect(parentA).toHaveLength(2);
     expect(parentA.every((x) => x.student.id === a.student.id)).toBe(true);

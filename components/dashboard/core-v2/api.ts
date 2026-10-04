@@ -82,7 +82,7 @@ export interface Page<T> {
 export interface HouseholdSummary {
   id: string;
   createdAt: string;
-  parents: Array<PublicUser & { isPrimaryContact: boolean }>;
+  parents: Array<PublicUser & { isPrimaryContact: boolean; verificationStatus: 'PENDING' | 'VERIFIED' | 'REVOKED'; membershipRevision: number }>;
   students: Array<{ id: string; user: PublicUser }>;
 }
 
@@ -132,7 +132,7 @@ export interface EnrollmentDetail {
 export interface HouseholdDetail {
   id: string;
   createdAt: string;
-  parents: Array<PublicUser & { isPrimaryContact: boolean }>;
+  parents: Array<PublicUser & { isPrimaryContact: boolean; verificationStatus: 'PENDING' | 'VERIFIED' | 'REVOKED'; membershipRevision: number }>;
   students: Array<{ id: string; birthDate: string | null; user: PublicUser; enrollments: EnrollmentDetail[] }>;
 }
 

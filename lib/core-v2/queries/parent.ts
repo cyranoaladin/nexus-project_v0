@@ -9,15 +9,16 @@ import type { PrismaClient } from '@/core-v2/generated/client';
 import { assertSelfServiceRole } from '../rbac';
 import type { ServiceContext } from '../services/context';
 import { loadHouseholdDetail } from './staff';
+import { verifiedHouseholdMembershipWhere } from '../repositories/household-verification';
 
 export type OwnHousehold = NonNullable<Awaited<ReturnType<typeof loadHouseholdDetail>>>;
 
 export async function getOwnHousehold(client: PrismaClient, ctx: ServiceContext): Promise<OwnHousehold | null> {
   assertSelfServiceRole(ctx.actor, 'PARENT');
   const membership = await client.householdParent.findUnique({
-    where: { userId: ctx.actor.userId },
+    where: { userId: ctx.actor.userId, ...verifiedHouseholdMembershipWhere },
     select: { householdId: true },
   });
   if (!membership) return null;
-  return loadHouseholdDetail(client, membership.householdId);
+  return loadHouseholdDetail(client, membership.householdId, ctx.actor.userId);
 }

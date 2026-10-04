@@ -1,3 +1,5 @@
+import { createServiceContext } from '@/lib/core-v2/services/context';
+import { verifyHouseholdParent, revokeHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * Migrator rehearsal against TWO real databases (go-live §AP / §AR):
  *   source = a disposable Core v1 database seeded with a synthetic family,
@@ -317,4 +319,17 @@ test('10. losing the Core authority configuration fails closed even with a valid
     process.env.CORE_V2_DATABASE_URL = url;
   }
   expect(await credentialState()).toEqual(before);
+});
+
+
+test('11. rerunning an approved student roster cannot reactivate a revoked family or restore its primary contact', async () => {
+  const membership = await v2.householdParent.findUniqueOrThrow({ where: { userId: ids.parent } });
+  const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+  await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
+  await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 1 });
+  const before = await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } });
+  const { manifest } = await run(true);
+  expect(results(manifest, 'HouseholdParent')).toEqual(['UNCHANGED']);
+  expect(await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } })).toEqual(before);
+  expect(before).toMatchObject({ verificationStatus: 'REVOKED', isPrimaryContact: false, revision: 2 });
 });

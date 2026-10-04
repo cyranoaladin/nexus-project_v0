@@ -109,11 +109,14 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
     for (const hp of plan.householdParents) {
       const existing = await tx.householdParent.findUnique({ where: { id: hp.id } });
-      const result = decide(existing ? objectHash({ id: existing.id, householdId: existing.householdId, userId: existing.userId, isPrimaryContact: existing.isPrimaryContact }) : null, objectHash(hp), options.execute);
-      record('HouseholdParent', hp.id, result);
-      if (options.execute && result !== 'UNCHANGED') {
-        await tx.householdParent.upsert({ where: { id: hp.id }, create: hp, update: { householdId: hp.householdId, isPrimaryContact: true } });
+      if (existing && (existing.householdId !== hp.householdId || existing.userId !== hp.userId)) {
+        throw new Error('HOUSEHOLD_MEMBERSHIP_REASSIGNMENT_REQUIRES_APPROVAL');
       }
+      // A roster is not authority to verify/reactivate a family or reset its
+      // primary contact. Preserve every existing administrative decision.
+      const result = existing ? 'UNCHANGED' : decide(null, objectHash(hp), options.execute);
+      record('HouseholdParent', hp.id, result);
+      if (options.execute && !existing) await tx.householdParent.create({ data: hp });
     }
     for (const s of plan.students) {
       const existing = await tx.student.findUnique({ where: { id: s.id } });

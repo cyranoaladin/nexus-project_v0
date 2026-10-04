@@ -12,6 +12,8 @@ export const AUDIT_ACTIONS = [
   'academic_year.status_changed',
   'household.created',
   'household.parent_attached',
+  'household.parent_verified',
+  'household.parent_revoked',
   'household.primary_contact_changed',
   'parent.created',
   'parent.contact_corrected',

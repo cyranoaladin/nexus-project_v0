@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * Parent self-service API (§AH) against a real Core v2 database: a parent
  * reads exactly their own household; there is no id to tamper with; staff
@@ -28,6 +29,7 @@ async function call() {
 async function seedFamily(parentEmail: string, childFirstName: string) {
   const parent = await h.client.user.create({ data: { role: 'PARENT', email: parentEmail, firstName: 'Parent', lastName: childFirstName, accountStatus: 'ACTIVE', password: 'change_me_hash' } });
   const household = await h.client.household.create({ data: { parents: { create: { userId: parent.id, isPrimaryContact: true } } } });
+  await verifyHouseholdParent(h.client, h.ctx(), { householdId: household.id, parentUserId: parent.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
   const child = await h.client.user.create({ data: { role: 'ELEVE', firstName: childFirstName, lastName: 'Synthetic', accountStatus: 'PENDING_ACTIVATION' } });
   const student = await h.client.student.create({ data: { userId: child.id, householdId: household.id } });
   return { parent, household, student };

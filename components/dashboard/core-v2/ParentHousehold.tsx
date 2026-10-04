@@ -36,7 +36,7 @@ export function ParentHousehold() {
   }
   if (!household) {
     if (failure?.status === 404) {
-      return <StatusMessage kind="info">Aucun foyer n’est encore rattaché à votre compte. Contactez l’équipe Nexus Réussite.</StatusMessage>;
+      return <StatusMessage kind="info">Aucun rattachement familial vérifié n’est disponible. Contactez l’équipe Nexus Réussite.</StatusMessage>;
     }
     return <StatusMessage kind="error">{failure ? describeFailure(failure) : 'Erreur inattendue.'}</StatusMessage>;
   }
