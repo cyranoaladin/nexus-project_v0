@@ -22,6 +22,7 @@ const customJestConfig = {
     '**/__tests__/lib/bilan-runtime/**/*.real.test.ts',
   ],
   testPathIgnorePatterns: [
+    '<rootDir>/.artifacts/',
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/.worktrees/',
@@ -30,6 +31,7 @@ const customJestConfig = {
   // Prisma generé sous un autre schéma) : ils ne doivent jamais entrer dans
   // la résolution de modules de la suite.
   modulePathIgnorePatterns: [
+    '<rootDir>/.artifacts/',
     '<rootDir>/.worktrees/',
   ],
 };
