@@ -68,6 +68,8 @@ it('competing paid/cancel decisions with the same read snapshot have one winner'
   const body = await winner.json();
   expect((await prisma.invoice.findUniqueOrThrow({ where: { id: invoice.id } })).status).toBe(body.status);
   expect((activateEntitlements as jest.Mock).mock.calls.length + (suspendEntitlements as jest.Mock).mock.calls.length).toBe(1);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id,
+    action: { in: ['INVOICE_PAID', 'INVOICE_CANCELLED'] } } })).toBe(1);
 });
 it('concurrent non-terminal MARK_SENT does not overwrite a previously accepted snapshot', async () => {
   const invoice = await fixture('DRAFT');
@@ -77,6 +79,7 @@ it('concurrent non-terminal MARK_SENT does not overwrite a previously accepted s
   const retry = await action(invoice.id, 'MARK_SENT');
   expect(retry.status).toBe(200);
   expect((await retry.json()).noop).toBe(true);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id, action: 'INVOICE_SENT' } })).toBe(1);
 });
 it('a cancelled terminal invoice remains terminal after the losing mutation is retried', async () => {
   const invoice = await fixture();
@@ -90,6 +93,20 @@ it('a cancelled terminal invoice remains terminal after the losing mutation is r
   expect((await retry.json()).noop).toBe(true);
   expect(suspendEntitlements).toHaveBeenCalledTimes(1);
   expect(await prisma.invoiceAccessToken.count({ where: { invoiceId: invoice.id, revokedAt: { not: null } } })).toBe(1);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id, action: 'INVOICE_CANCELLED' } })).toBe(1);
+});
+it('rolls back status, token revocation and audit if the evidence actor is invalid', async () => {
+  mockGateEnabled = false;
+  const invoice = await fixture();
+  await prisma.invoiceAccessToken.create({ data: { invoiceId: invoice.id, createdByUserId: actorId,
+    tokenHash: randomBytes(32).toString('hex'), expiresAt: new Date('2030-01-01T00:00:00Z') } });
+  (auth as jest.Mock).mockResolvedValue({ user: { id: randomUUID(), role: 'ADMIN' } });
+  const logger = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  try { expect((await action(invoice.id, 'CANCEL')).status).toBe(500); }
+  finally { logger.mockRestore(); }
+  expect((await prisma.invoice.findUniqueOrThrow({ where: { id: invoice.id } })).status).toBe('SENT');
+  expect(await prisma.invoiceAccessToken.count({ where: { invoiceId: invoice.id, revokedAt: null } })).toBe(1);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id } })).toBe(0);
 });
 it('independent invoice transitions are not globally serialized or refused', async () => {
   const [first, second] = await Promise.all([fixture(), fixture()]);
