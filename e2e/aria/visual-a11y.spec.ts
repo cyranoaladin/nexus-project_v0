@@ -16,6 +16,7 @@ import {
   captureBrowserDiagnostics,
   captureBrowserFailures,
   chooseCourse,
+  fixtureState,
   loginAndOpenAria,
   resetFixture,
   sendFromComposer,
@@ -122,8 +123,10 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await captureState(page, testInfo, viewport, 'streaming');
+    diagnostics.expectChatCancellation();
     await page.getByRole('button', { name: 'Arrêter la réponse ARIA' }).click();
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA arrêtée.');
+    await expect.poll(async () => (await fixtureState(page.request)).activeModelStreams).toBe(0);
     await page.waitForLoadState('networkidle');
 
     await sendFromComposer(page, 'Question avec citation visible.');
@@ -164,17 +167,7 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
       .getByText('Aucun cours ARIA avec chat n’est disponible.')).toBeVisible();
     await captureState(page, testInfo, viewport, 'course-unavailable');
     expect(diagnostics.failures).toEqual([]);
-    const expectedAborts = new Set([
-      'requestfailed:POST:/api/aria/chat:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/trajectoire:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/aria:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/nsi-pratique-2026:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/npc:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/documents:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/diagnostics-libres:net::ERR_ABORTED',
-      'requestfailed:GET:/bilan-gratuit/assessment:net::ERR_ABORTED',
-    ]);
-    expect(diagnostics.aborts.filter((abort) => !expectedAborts.has(abort))).toEqual([]);
+    expect(diagnostics.networkFailures.filter(event => event.disposition === 'failure')).toEqual([]);
   } finally {
     await context.close();
   }

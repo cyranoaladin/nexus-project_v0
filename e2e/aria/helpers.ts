@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, type APIRequestContext, type Page, type Request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { loginAsUser, type UserType } from '../helpers/auth';
 
@@ -137,9 +137,40 @@ export async function conversationMessages(page: Page, conversationId: string) {
   };
 }
 
+const expectedPrefetchPaths = new Set([
+  '/dashboard/trajectoire', '/dashboard/eleve/aria', '/dashboard/eleve/nsi-pratique-2026',
+  '/dashboard/eleve/npc', '/dashboard/eleve/documents', '/dashboard/eleve/diagnostics-libres',
+  '/bilan-gratuit/assessment', '/dashboard/account/security',
+]);
+
+export interface BrowserNetworkFailure {
+  readonly method: string;
+  readonly pathname: string;
+  readonly resourceType: string;
+  readonly errorText: string;
+  readonly sameOrigin: boolean;
+  readonly rsc: boolean;
+  readonly prefetch: boolean;
+  readonly explicitChatCancellation: boolean;
+  readonly disposition: 'failure' | 'expected-chat-cancellation' | 'expected-rsc-prefetch';
+}
+
 export function captureBrowserDiagnostics(page: Page) {
   const failures: string[] = [];
   const aborts: string[] = [];
+  const networkFailures: BrowserNetworkFailure[] = [];
+  const activeChats = new Set<Request>();
+  const intentionalCancellations = new Set<Request>();
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (request.method() === 'POST' && url.pathname === '/api/aria/chat'
+      && url.origin === new URL(page.url()).origin
+      && ['fetch', 'xhr'].includes(request.resourceType())) activeChats.add(request);
+  });
+  page.on('requestfinished', request => {
+    activeChats.delete(request);
+    intentionalCancellations.delete(request);
+  });
   page.on('console', (message) => {
     const text = message.text();
     if (message.type() === 'error'
@@ -151,12 +182,29 @@ export function captureBrowserDiagnostics(page: Page) {
   page.on('requestfailed', (request) => {
     const url = new URL(request.url());
     const errorText = request.failure()?.errorText ?? 'UNKNOWN';
-    const diagnostic = `requestfailed:${request.method()}:${url.pathname}:${errorText}`;
-    if (errorText === 'net::ERR_ABORTED') {
-      aborts.push(diagnostic);
-    } else {
-      failures.push(diagnostic);
+    const headers = request.headers();
+    const method = request.method();
+    const resourceType = request.resourceType();
+    const sameOrigin = url.origin === new URL(page.url()).origin;
+    const rsc = headers.rsc === '1';
+    const prefetch = headers['next-router-prefetch'] === '1' || headers.purpose === 'prefetch';
+    const explicitChatCancellation = intentionalCancellations.has(request);
+    let disposition: BrowserNetworkFailure['disposition'] = 'failure';
+    if (errorText === 'net::ERR_ABORTED' && sameOrigin) {
+      if (method === 'POST' && url.pathname === '/api/aria/chat'
+        && ['fetch', 'xhr'].includes(resourceType) && explicitChatCancellation) {
+        disposition = 'expected-chat-cancellation';
+      } else if (method === 'GET' && resourceType === 'fetch' && rsc && prefetch
+        && expectedPrefetchPaths.has(url.pathname)) {
+        disposition = 'expected-rsc-prefetch';
+      }
     }
+    networkFailures.push({ method, pathname: url.pathname, resourceType, errorText,
+      sameOrigin, rsc, prefetch, explicitChatCancellation, disposition });
+    const diagnostic = `requestfailed:${method}:${url.pathname}:${errorText}`;
+    (disposition === 'failure' ? failures : aborts).push(diagnostic);
+    activeChats.delete(request);
+    intentionalCancellations.delete(request);
   });
   page.on('response', (response) => {
     const url = new URL(response.url());
@@ -165,7 +213,11 @@ export function captureBrowserDiagnostics(page: Page) {
       failures.push(`response:${response.status()}:${url.pathname}`);
     }
   });
-  return { failures, aborts } as const;
+  function expectChatCancellation() {
+    if (activeChats.size !== 1) throw new Error('ARIA_EXPECTED_CANCELLATION_REQUIRES_ONE_ACTIVE_CHAT');
+    intentionalCancellations.add([...activeChats][0]!);
+  }
+  return { failures, aborts, networkFailures, expectChatCancellation } as const;
 }
 
 export function captureBrowserFailures(page: Page) {
