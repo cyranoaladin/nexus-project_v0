@@ -72,7 +72,7 @@ test.each<Outcome>(['FINISHED', 'net::ERR_ABORTED', 'net::ERR_CONNECTION_RESET',
   await operation;
   if (outcome === 'FINISHED') expect(failure).toBeUndefined();
   else if (outcome === 'NO_HEADERS') {
-    expect(failure instanceof Error && failure.message.includes('not.toBeNull')).toBe(true);
+    expect(failure).toMatchObject({ message: 'ARIA_CHAT_TRANSPORT_NO_HEADERS' });
   } else {
     const expected = outcome === 'net::ERR_ABORTED' ? 'ARIA_CHAT_TRANSPORT_ABORTED'
       : outcome === 'RESPONSE_REJECTED' ? 'SYNTHETIC_RESPONSE_UNAVAILABLE'

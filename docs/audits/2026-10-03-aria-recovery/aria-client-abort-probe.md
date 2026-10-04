@@ -27,3 +27,7 @@ Ces 20 répétitions sont un diagnostic du transport et de l'observateur. Elles 
 La première exécution des tests voisins a terminé avec 1 échec et 12 réussites : la page synthétique du test de Request n'exposait pas l'API navigateur de l'observateur. Le commit d'observation a été publié avant traitement de ce résultat ; il n'est pas revendiqué comme qualifié.
 
 Le test de Request isole désormais le module d'observation, déjà exercé dans le diagnostic Chromium. Il conserve le budget de 32 microtâches, les requêtes concurrentes et toutes les assertions de nettoyage. Les assertions sont renforcées pour vérifier le message causal exact des échecs, l'absence d'erreur nominale et la libération de l'observateur. Après correction : 2 suites, 13 tests réussis (0,568 s), sans sleep ni augmentation de timeout. Journaux : `.artifacts/recovery/aria-probe-neighbor-tests.log` et `aria-probe-fixture-green.log`.
+
+## CI colour-independent missing-header contract
+
+On b575187d, the unit lane passed 2169 tests and failed one assertion; coverage failed on the same case (2501 passed). FORCE_COLOR=1 reproduced it locally: ANSI formatting splits the human-readable Jest matcher name. The transport harness now rejects missing headers with ARIA_CHAT_TRANSPORT_NO_HEADERS, and the fixture checks that exact code. No missing response or failed business request is ignored. Six targeted scenarios pass with colours forced; typecheck, ESLint and secret scan pass. Production transport code is unchanged.

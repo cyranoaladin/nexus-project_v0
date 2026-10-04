@@ -77,8 +77,8 @@ export async function sendFromComposerAndFinishTransport(page: Page, content: st
     await test.step('ARIA_PHASE:transport:send', () => sendFromComposer(page, content));
     const request = await test.step('ARIA_PHASE:transport:request', () => transport.request);
     const response = await test.step('ARIA_PHASE:transport:response', () => request.response());
-    expect(response, 'The submitted ARIA turn must receive its own response').not.toBeNull();
-    expect(response!.status(), 'The normal ARIA transport must be accepted').toBe(200);
+    if (response === null) throw new Error('ARIA_CHAT_TRANSPORT_NO_HEADERS');
+    expect(response.status(), 'The normal ARIA transport must be accepted').toBe(200);
     await test.step('ARIA_PHASE:transport:body', async () => {
       const terminal = await transport.completion;
       expect(terminal.request).toBe(request);
