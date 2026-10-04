@@ -85,7 +85,11 @@ function ProtectedObservationBoundary({ children }: { children: React.ReactNode 
   const { state, identityEpoch } = useSessionRecoveryState();
   const router = useRouter();
   const confirmed = state.endsWith('_CONFIRMED');
-  useEffect(() => { if (confirmed) router.replace(controller.getRedirectDestination()); }, [confirmed, router, controller]);
+  useEffect(() => {
+    if (!confirmed) return;
+    const destination = controller.claimConfirmedRedirect();
+    if (destination) router.replace(destination);
+  }, [confirmed, router, controller]);
   if (confirmed) return <div role="status">Session terminée. Redirection vers la connexion…</div>;
   return <div key={`${identityEpoch}:${pathname}`} data-session-observation={state}>
     <SessionRecoveryNotice />
@@ -169,8 +173,9 @@ export function useCanonicalSignOut() {
       // Installed Auth.js resolves some HTTP failures and may navigate anyway.
       // It still owns CSRF/cookies/provider broadcast; navigation waits for
       // positive confirmation from the existing canonical server-session path.
-      const result = await controller.runLogout(() => signOut({ ...options, redirect: false }), destination);
-      if (options?.redirect !== false) router.replace(destination);
+      const result = await controller.runLogout(() => signOut({ ...options, redirect: false }), destination, options?.redirect !== false);
+      const confirmedDestination = controller.claimConfirmedRedirect();
+      if (confirmedDestination) router.replace(confirmedDestination);
       return result;
     } catch (error) {
       // Fire-and-forget navigation buttons surface failure through the shared
