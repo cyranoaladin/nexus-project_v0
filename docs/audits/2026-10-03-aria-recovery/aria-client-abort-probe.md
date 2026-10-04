@@ -31,3 +31,7 @@ Le test de Request isole désormais le module d'observation, déjà exercé dans
 ## CI colour-independent missing-header contract
 
 On b575187d, the unit lane passed 2169 tests and failed one assertion; coverage failed on the same case (2501 passed). FORCE_COLOR=1 reproduced it locally: ANSI formatting splits the human-readable Jest matcher name. The transport harness now rejects missing headers with ARIA_CHAT_TRANSPORT_NO_HEADERS, and the fixture checks that exact code. No missing response or failed business request is ignored. Six targeted scenarios pass with colours forced; typecheck, ESLint and secret scan pass. Production transport code is unchanged.
+
+## Published evidence allowlist correction
+
+The b575 desktop campaign still fails E025 after HTTP 200 (40 passed, one failed, one did not run). The private publisher retained the aborted phase but discarded the ten new fixed-label probe phases. The allowlist now includes only those exact labels. A regression test fails before this change and all 22 qualification tests pass after it; arbitrary labels and suffix canaries remain excluded, and resealing is idempotent. No body/header/identity/error text is released. The missing probe observations cannot be recovered from the already sealed artifact; the next exact-SHA browser campaign must reproduce them.

@@ -67,7 +67,7 @@ function visualAttachments(value, allowed) {
   });
 }
 
-const phasePattern = /^(?:ARIA_PHASE:(?:transport:(?:send|request|response|body|aborted|failed)|(?:rag|timeout):(?:send|alert)|capture:(?:ready|streaming|citations-visible|history-loaded|feedback-submitted|rag-unavailable|timeout-error|course-unavailable):(?:layout|axe|screenshot))|AUTH_PHASE:logout:(?:submit|response|cookies|navigation|session))$/;
+const phasePattern = /^(?:ARIA_PHASE:(?:transport:(?:send|request|response|body|aborted|failed|probe:(?:signal-aborted|no-signal-abort|headers-received|no-headers|dialog-present|dialog-missing|composer-enabled|composer-disabled|alert-present|no-alert))|(?:rag|timeout):(?:send|alert)|capture:(?:ready|streaming|citations-visible|history-loaded|feedback-submitted|rag-unavailable|timeout-error|course-unavailable):(?:layout|axe|screenshot))|AUTH_PHASE:logout:(?:submit|response|cookies|navigation|session))$/;
 
 function phases(input) {
   const output = [];

@@ -113,3 +113,22 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
   expect(JSON.stringify(report)).not.toContain('PRIVATE_LOGOUT_CANARY');
   expect(sanitizePlaywrightReport(report)).toEqual(report);
 });
+
+ test('sealing retains fixed abort attribution and rejects arbitrary probe labels', () => {
+  const labels = ['signal-aborted', 'no-signal-abort', 'headers-received', 'no-headers',
+    'dialog-present', 'dialog-missing', 'composer-enabled', 'composer-disabled',
+    'alert-present', 'no-alert'];
+  const phases = labels.map(label => `ARIA_PHASE:transport:probe:${label}`);
+  const raw = { config: { rootDir: '/isolated/e2e/aria' }, errors: [], stats: {}, suites: [{
+    title: 'synthetic', specs: [{ title: 'E025 synthetic', tests: [{ projectName: 'aria-desktop', results: [{
+      status: 'failed', steps: [...phases.map(title => ({ title, duration: 0 })),
+        { title: 'ARIA_PHASE:transport:probe:PRIVATE_PROBE_CANARY', duration: 0 },
+        { title: 'ARIA_PHASE:transport:probe:signal-aborted:PRIVATE_PROBE_CANARY', duration: 0 }],
+    }] }] }],
+  }] };
+  const sealed = sanitizePlaywrightReport(raw);
+  expect(sealed.suites[0].specs[0].tests[0].results[0].phases).toEqual(
+    phases.map(phase => ({ phase, duration: 0, failed: false })));
+  expect(JSON.stringify(sealed)).not.toContain('PRIVATE_PROBE_CANARY');
+  expect(sanitizePlaywrightReport(sealed)).toEqual(sealed);
+});
