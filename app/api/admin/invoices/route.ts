@@ -13,7 +13,7 @@ import path from 'node:path';
 import { auth } from '@/auth';
 import { canPerformStatusAction } from '@/lib/invoice/transitions';
 import { prisma } from '@/lib/prisma';
-import { UserRole, type InvoiceItem, type Prisma } from '@prisma/client';
+import { UserRole, Prisma, type InvoiceItem } from '@prisma/client';
 import { z } from 'zod';
 import { civilDateSchema } from '@/lib/validation/common';
 import {
@@ -290,6 +290,11 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+      && error.meta?.modelName === 'Invoice' && Array.isArray(error.meta.target)
+      && error.meta.target.length === 1 && error.meta.target[0] === 'number') {
+      return privateFinancialJson({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
+    }
     if (error instanceof MillimesValidationError) {
       return privateFinancialJson({ error: error.message }, { status: 422 });
     }

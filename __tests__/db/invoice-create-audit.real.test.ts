@@ -94,3 +94,17 @@ it.each([
   expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id,
     actorUserId: actorId, action: 'INVOICE_CREATED' } })).toBe(1);
 });
+
+it('returns a controlled conflict for simultaneous creation with the same invoice number', async () => {
+  const number = `SYNTHETIC-${randomUUID()}`;
+  const logger = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  let statuses: number[];
+  try { statuses = (await Promise.all([create(number), create(number)])).map(response => response.status); }
+  finally { logger.mockRestore(); }
+  expect(statuses.sort()).toEqual([201, 409]);
+  const invoice = await prisma.invoice.findUniqueOrThrow({ where: { number }, include: { items: true } });
+  expect(await prisma.invoice.count({ where: { number } })).toBe(1);
+  expect(invoice.items).toHaveLength(1);
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId: invoice.id,
+    action: 'INVOICE_CREATED' } })).toBe(1);
+});

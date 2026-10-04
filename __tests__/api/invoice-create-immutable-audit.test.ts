@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
@@ -71,4 +72,25 @@ it.each([
   expect(prisma.invoice.create).toHaveBeenCalledWith(expect.objectContaining({
     data: expect.objectContaining({ total: overrides.discountTotal ? 0 : 2147483647 }),
   }));
+});
+
+it('maps the unique invoice number race to a private conflict without a PDF', async () => {
+  (prisma.invoice.create as jest.Mock).mockRejectedValue(new Prisma.PrismaClientKnownRequestError('SYNTHETIC_NUMBER_CONFLICT', {
+    code: 'P2002', clientVersion: 'synthetic', meta: { modelName: 'Invoice', target: ['number'] },
+  }));
+  const logger = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  let response: Response;
+  try { response = await request(); } finally { logger.mockRestore(); }
+  expect(response.status).toBe(409);
+  expect(response.headers.get('cache-control')).toContain('no-store');
+  expect(await response.json()).toEqual({ error: 'Numéro de facture déjà utilisé' });
+  expect(renderInvoicePDF).not.toHaveBeenCalled();
+});
+it('does not misclassify unrelated unique violations as invoice number conflicts', async () => {
+  (prisma.invoice.create as jest.Mock).mockRejectedValue(new Prisma.PrismaClientKnownRequestError('SYNTHETIC_OTHER_CONFLICT', {
+    code: 'P2002', clientVersion: 'synthetic', meta: { modelName: 'InvoiceFinancialAccessAudit', target: ['requestKey'] },
+  }));
+  const logger = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+  try { expect((await request()).status).toBe(500); } finally { logger.mockRestore(); }
+  expect(renderInvoicePDF).not.toHaveBeenCalled();
 });
