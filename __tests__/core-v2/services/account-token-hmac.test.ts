@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes } from 'node:crypto';
+import crypto, { createHash, createHmac, randomBytes } from 'node:crypto';
 import {
   activateAccount, createHousehold, inspectInvitation, inspectPasswordReset, inviteAccount, requestPasswordReset,
 } from '@/lib/core-v2/services';
@@ -62,16 +62,26 @@ test('legacy SHA proof is retained in storage but cannot inspect or activate an 
     .toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null, sessionVersion: 0 });
 });
 
-test('reset HMAC is independently verifiable and cannot be used as an activation proof', async () => {
+test.each([11, 137])('reset issuance matches an independent opaque entropy vector %s and cannot activate an account', async seed => {
   const user = await parent();
   const activation = await inviteAccount(h.client, ctx(), user.id);
   await activateAccount(h.client, {
     rawToken: activation.rawToken, password: randomBytes(20).toString('hex').concat('-Aa1!'),
   }, { now });
-  const reset = await requestPasswordReset(h.client, { email: user.email! }, { now });
-  if (!reset) throw new Error('SYNTHETIC_ACCOUNT_NOT_ELIGIBLE');
+  // Oracle input predates issuance and is independent of the account-service result.
+  const entropy = Buffer.from(Array.from({ length: 32 }, (_, index) => (seed + index) % 256));
+  const opaqueVector = `v1:primary:${entropy.toString('base64url')}`;
   const expected = createHmac('sha256', Buffer.from(primary, 'hex'))
-    .update(`nexus-core-v2-account-token\0v1\0PASSWORD_RESET\0${reset.rawToken}`).digest('hex');
+    .update(`nexus-core-v2-account-token\0v1\0PASSWORD_RESET\0${opaqueVector}`).digest('hex');
+  const entropySource = jest.spyOn(crypto, 'randomBytes').mockImplementation(() => Buffer.from(entropy));
+  let reset: Awaited<ReturnType<typeof requestPasswordReset>>;
+  try {
+    reset = await requestPasswordReset(h.client, { email: user.email! }, { now });
+    expect(entropySource).toHaveBeenCalledTimes(1);
+    expect(entropySource).toHaveBeenCalledWith(32);
+  } finally { entropySource.mockRestore(); }
+  if (!reset) throw new Error('SYNTHETIC_ACCOUNT_NOT_ELIGIBLE');
+  expect(reset.rawToken === opaqueVector).toBe(true);
   expect(reset.tokenHash).toBe(`v1:primary:${expected}`);
   expect(await inspectPasswordReset(h.client, reset.rawToken, now)).toBe(true);
   expect(await inspectInvitation(h.client, reset.rawToken, now)).toBeNull();
