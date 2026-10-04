@@ -15,7 +15,7 @@ export type AriaSSEProtocolErrorCode =
   | 'INVALID_CONTENT_TYPE' | 'INVALID_EVENT' | 'INVALID_JSON' | 'INVALID_PAYLOAD'
   | 'UNKNOWN_EVENT' | 'START_EVENT_REQUIRED' | 'START_EVENT_DUPLICATED'
   | 'TERMINAL_EVENT_DUPLICATED' | 'TERMINAL_EVENT_MISSING' | 'EVENT_AFTER_TERMINAL'
-  | 'EVENT_IDENTITY_MISMATCH' | 'ABORTED' | 'TERMINAL_DRAIN_TIMEOUT' | 'TRANSPORT_CLEANUP_FAILED';
+  | 'EVENT_IDENTITY_MISMATCH' | 'ABORTED' | 'TERMINAL_DRAIN_TIMEOUT';
 
 const TERMINAL_DRAIN_TIMEOUT_MS = 5_000;
 const TERMINAL_DRAIN_TIMEOUT_REASON = Symbol('ARIA_TERMINAL_DRAIN_TIMEOUT');
@@ -144,7 +144,6 @@ export async function parseAriaSSEResponse(
   const transport = createNativeResponseReader(response);
   const reader = transport.reader;
   let ended = false;
-  let failed = false;
   const drainController = new AbortController();
   const forwardAbort = () => drainController.abort(options.signal?.reason);
   if (options.signal?.aborted) forwardAbort();
@@ -225,14 +224,12 @@ export async function parseAriaSSEResponse(
     // incorrectly announces completion for an invalid trailing frame.
     dispatch(terminalEvent, callbacks);
   } catch (error: unknown) {
-    failed = true;
     if (error instanceof AriaSSEParseError) throw error;
     fail('INVALID_EVENT', callbacks);
   } finally {
     if (drainTimer !== undefined) clearTimeout(drainTimer);
     options.signal?.removeEventListener('abort', forwardAbort);
-    const cleaned = ended || await transport.cancel();
+    if (!ended) await transport.cancel();
     transport.release();
-    if (!cleaned && !failed) fail('TRANSPORT_CLEANUP_FAILED', callbacks);
   }
 }
