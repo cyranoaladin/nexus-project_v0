@@ -90,7 +90,7 @@ function ProtectedObservationBoundary({ children }: { children: React.ReactNode 
     const destination = controller.claimConfirmedRedirect();
     if (destination) router.replace(destination);
   }, [confirmed, router, controller]);
-  if (confirmed) return <div role="status">Session terminée. Redirection vers la connexion…</div>;
+  if (confirmed) return <div role="status">Session terminée.</div>;
   return <div key={`${identityEpoch}:${pathname}`} data-session-observation={state}>
     <SessionRecoveryNotice />
     <SessionMutationBoundary>

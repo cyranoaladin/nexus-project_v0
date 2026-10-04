@@ -128,7 +128,8 @@ it.each([false, true])('a confirmed protected logout has one navigation owner an
   try {
     await waitFor(() => expect(document.querySelector('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED'));
     fireEvent.click(screen.getByRole('button', { name: 'Logout transport' }));
-    await screen.findByText('Session terminée. Redirection vers la connexion…');
+    await screen.findByText('Session terminée.');
+    expect(screen.queryByText(/Redirection vers la connexion/)).not.toBeInTheDocument();
     await act(async () => {});
     expect(signedOut).toBe(true);
     expect(replace).toHaveBeenCalledTimes(redirect ? 1 : 0);
