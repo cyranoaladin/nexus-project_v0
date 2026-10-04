@@ -1,5 +1,4 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
@@ -9,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { tunisWallClockToUtcInstant } from '@/lib/planning/invariants';
 import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
 import { getVideoMode } from '@/lib/video-mode';
+import { familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 
 /**
  * /api/sessions/[sessionId] — the real backend for the video join flow
@@ -19,7 +19,7 @@ import { getVideoMode } from '@/lib/video-mode';
  * to fall back to (`session-${sessionId}-${Date.now()}`, which gave every
  * participant a different, private room).
  *
- * GET is read-only (a safe, cacheable status check) and never mutates the
+ * GET is read-only (a private, non-cacheable status check) and never mutates the
  * booking. POST is the explicit join action: same checks as GET, plus the
  * SCHEDULED→IN_PROGRESS transition — an HTTP GET must never have a side
  * effect (a browser prefetch, retry, or link preview could otherwise
@@ -32,12 +32,19 @@ import { getVideoMode } from '@/lib/video-mode';
  * decided here; see the go-live audit's blocker register.
  */
 
+function videoJson(body: unknown, init: ResponseInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set('Cache-Control', 'private, no-store');
+  headers.append('Vary', 'Cookie, Authorization');
+  return NextResponse.json(body, { ...init, headers });
+}
+
 const JOIN_EARLY_WINDOW_MS = 15 * 60 * 1000;
 const JOIN_LATE_TOLERANCE_MS = 30 * 60 * 1000;
 
 /** 503 VIDEO_DISABLED means video join is unavailable on this Preview. */
 function videoDisabledResponse() {
-  return NextResponse.json(
+  return videoJson(
     { error: 'VIDEO_DISABLED', message: 'Visioconférence intégrée non activée sur cette Preview.' },
     { status: 503, headers: { 'Cache-Control': 'no-store' } },
   );
@@ -49,6 +56,8 @@ interface RouteParams {
 
 interface JoinableBookingSession {
   id: string;
+  studentId: string;
+  coachId: string;
   scheduledDate: Date;
   startTime: string;
   duration: number;
@@ -67,18 +76,42 @@ type ResolveResult =
  * time window. Shared by GET (read-only) and POST (join, mutates) so the
  * two never drift — the eligibility rule is defined exactly once.
  */
-async function resolveJoinableBooking(sessionId: string, userId: string): Promise<ResolveResult> {
+async function resolveJoinableBooking(
+  sessionId: string, subject: { id: string; role?: string }, action: 'read' | 'mutation',
+): Promise<ResolveResult> {
+  let participantWhere: { studentId: string } | { coachId: string };
+  if (subject.role === 'ELEVE') participantWhere = { studentId: subject.id };
+  else if (subject.role === 'COACH') participantWhere = { coachId: subject.id };
+  else if (subject.role === 'PARENT') {
+    const identity = await prisma.sessionBooking.findFirst({
+      where: { id: sessionId }, select: { studentId: true },
+    });
+    const student = identity ? await prisma.student.findUnique({
+      where: { userId: identity.studentId }, select: { id: true },
+    }) : null;
+    if (!student || !identity) {
+      return { ok: false, response: videoJson({ error: 'Session non trouvée' }, { status: 404 }) };
+    }
+    const decision = await resolveParentStudentAccess(subject.id, student.id, action);
+    if (decision.status === 'AUTHORITY_UNAVAILABLE') {
+      return { ok: false, response: videoJson({ error: 'Family authority unavailable' }, { status: 503 }) };
+    }
+    if (!(action === 'read' ? familyReadAllowed(decision) : decision.status === 'LEGACY_ALLOWED')) {
+      return { ok: false, response: videoJson({ error: 'Session non trouvée' }, { status: 404 }) };
+    }
+    participantWhere = { studentId: identity.studentId };
+  } else {
+    return { ok: false, response: videoJson({ error: 'Session non trouvée' }, { status: 404 }) };
+  }
   const bookingSession = await prisma.sessionBooking.findFirst({
     where: {
       id: sessionId,
-      OR: [
-        { studentId: userId },
-        { coachId: userId },
-        { parentId: userId },
-      ],
+      ...participantWhere,
     },
     select: {
       id: true,
+      studentId: true,
+      coachId: true,
       scheduledDate: true,
       startTime: true,
       duration: true,
@@ -90,17 +123,17 @@ async function resolveJoinableBooking(sessionId: string, userId: string): Promis
   });
 
   if (!bookingSession) {
-    return { ok: false, response: NextResponse.json({ error: 'Session non trouvée' }, { status: 404 }) };
+    return { ok: false, response: videoJson({ error: 'Session non trouvée' }, { status: 404 }) };
   }
 
   // A cancelled or already-completed booking is never joinable, no
   // matter the time window — the dead code this replaces had no such
   // guard at all.
   if (bookingSession.status === SessionStatus.CANCELLED) {
-    return { ok: false, response: NextResponse.json({ error: 'Cette session a été annulée.' }, { status: 410 }) };
+    return { ok: false, response: videoJson({ error: 'Cette session a été annulée.' }, { status: 410 }) };
   }
   if (bookingSession.status === SessionStatus.COMPLETED) {
-    return { ok: false, response: NextResponse.json({ error: 'Cette session est déjà terminée.' }, { status: 410 }) };
+    return { ok: false, response: videoJson({ error: 'Cette session est déjà terminée.' }, { status: 410 }) };
   }
 
   const sessionStart = tunisWallClockToUtcInstant(bookingSession.scheduledDate, bookingSession.startTime);
@@ -108,14 +141,14 @@ async function resolveJoinableBooking(sessionId: string, userId: string): Promis
   const now = new Date();
 
   if (now.getTime() < sessionStart.getTime() - JOIN_EARLY_WINDOW_MS) {
-    return { ok: false, response: NextResponse.json({ error: "La session n'est pas encore disponible." }, { status: 400 }) };
+    return { ok: false, response: videoJson({ error: "La session n'est pas encore disponible." }, { status: 400 }) };
   }
   // The previous logic only checked "too early" despite its own error
   // message claiming to also cover "or a expiré" — there was no upper
   // bound at all. A session stays joinable up to 30 minutes past its
   // scheduled end before being treated as expired.
   if (now.getTime() > sessionEnd.getTime() + JOIN_LATE_TOLERANCE_MS) {
-    return { ok: false, response: NextResponse.json({ error: 'La fenêtre de cette session a expiré.' }, { status: 410 }) };
+    return { ok: false, response: videoJson({ error: 'La fenêtre de cette session a expiré.' }, { status: 410 }) };
   }
 
   return { ok: true, booking: bookingSession, sessionStart };
@@ -151,11 +184,15 @@ async function guardRequest(request: NextRequest) {
     scope: 'session-video-ip',
     dimensions: ['ip'],
   });
-  if (ipBlocked) return { blocked: ipBlocked, session: null };
+  if (ipBlocked) {
+    ipBlocked.headers.set('Cache-Control', 'private, no-store');
+    ipBlocked.headers.append('Vary', 'Cookie, Authorization');
+    return { blocked: ipBlocked, session: null };
+  }
 
   const session = await auth();
-  if (!session?.user) {
-    return { blocked: NextResponse.json({ error: 'Non autorisé' }, { status: 401 }), session: null };
+  if (!session?.user?.id) {
+    return { blocked: videoJson({ error: 'Non autorisé' }, { status: 401 }), session: null };
   }
 
   const userBlocked = await guardSensitiveRateLimit(request, {
@@ -163,7 +200,11 @@ async function guardRequest(request: NextRequest) {
     identity: session.user.id,
     dimensions: ['identity'],
   });
-  if (userBlocked) return { blocked: userBlocked, session: null };
+  if (userBlocked) {
+    userBlocked.headers.set('Cache-Control', 'private, no-store');
+    userBlocked.headers.append('Vary', 'Cookie, Authorization');
+    return { blocked: userBlocked, session: null };
+  }
 
   return { blocked: null, session };
 }
@@ -176,20 +217,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const { sessionId } = await params;
     if (!sessionId || sessionId.length > 128) {
-      return NextResponse.json({ error: 'ID de session invalide' }, { status: 400 });
+      return videoJson({ error: 'ID de session invalide' }, { status: 400 });
     }
 
-    const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
+    const resolved = await resolveJoinableBooking(sessionId, session!.user, 'read');
     if (!resolved.ok) return resolved.response;
 
     if (getVideoMode() === 'DISABLED') return videoDisabledResponse();
 
-    return NextResponse.json(
+    return videoJson(
       serializeBooking(resolved.booking, resolved.sessionStart, resolved.booking.status)
     );
-  } catch (error) {
-    console.error('[GET /api/sessions/[sessionId]]', serializeError(error));
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch {
+    console.error('SESSION_VIDEO_READ_FAILED');
+    return videoJson({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -201,10 +242,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { sessionId } = await params;
     if (!sessionId || sessionId.length > 128) {
-      return NextResponse.json({ error: 'ID de session invalide' }, { status: 400 });
+      return videoJson({ error: 'ID de session invalide' }, { status: 400 });
     }
 
-    const resolved = await resolveJoinableBooking(sessionId, session!.user.id);
+    const resolved = await resolveJoinableBooking(sessionId, session!.user, 'mutation');
     if (!resolved.ok) return resolved.response;
 
     if (getVideoMode() === 'DISABLED') return videoDisabledResponse();
@@ -220,7 +261,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       // compare-and-swap at the database level: it can only ever affect a
       // row that is STILL SCHEDULED at the instant Postgres executes it.
       const transition = await prisma.sessionBooking.updateMany({
-        where: { id: sessionId, status: SessionStatus.SCHEDULED },
+        where: { id: sessionId, status: SessionStatus.SCHEDULED,
+          studentId: resolved.booking.studentId, coachId: resolved.booking.coachId },
         data: { status: SessionStatus.IN_PROGRESS },
       });
 
@@ -232,9 +274,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         // COMPLETED -> 410 "terminée"), and if the booking is already
         // IN_PROGRESS (a concurrent join won first), that is a valid,
         // idempotent outcome, not an error.
-        const reResolved = await resolveJoinableBooking(sessionId, session!.user.id);
+        const reResolved = await resolveJoinableBooking(sessionId, session!.user, 'mutation');
         if (!reResolved.ok) return reResolved.response;
-        return NextResponse.json(
+        if (reResolved.booking.status === SessionStatus.SCHEDULED) {
+          return videoJson({ error: 'Session modifiée. Réessayez.' }, { status: 409 });
+        }
+        return videoJson(
           serializeBooking(reResolved.booking, reResolved.sessionStart, reResolved.booking.status)
         );
       }
@@ -242,11 +287,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       displayStatus = SessionStatus.IN_PROGRESS;
     }
 
-    return NextResponse.json(
+    return videoJson(
       serializeBooking(resolved.booking, resolved.sessionStart, displayStatus)
     );
-  } catch (error) {
-    console.error('[POST /api/sessions/[sessionId]]', serializeError(error));
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch {
+    console.error('SESSION_VIDEO_JOIN_FAILED');
+    return videoJson({ error: 'Internal server error' }, { status: 500 });
   }
 }

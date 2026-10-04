@@ -106,11 +106,7 @@ describe.each([
     expect(prisma.sessionBooking.findFirst).toHaveBeenCalledWith(expect.objectContaining({
       where: {
         id: 'session-1',
-        OR: [
-          { studentId: 'student-1' },
-          { coachId: 'student-1' },
-          { parentId: 'student-1' },
-        ],
+        studentId: 'student-1',
       },
     }));
   });
@@ -275,7 +271,7 @@ describe('POST /api/sessions/[sessionId] — explicit join, mutates', () => {
     // SCHEDULED at the instant this statement executes, not merely at the
     // instant it was read above.
     expect(prisma.sessionBooking.updateMany).toHaveBeenCalledWith({
-      where: { id: 'session-1', status: SessionStatus.SCHEDULED },
+      where: { id: 'session-1', status: SessionStatus.SCHEDULED, studentId: 'student-1', coachId: 'coach-1' },
       data: { status: SessionStatus.IN_PROGRESS },
     });
     expect(body.status).toBe(SessionStatus.IN_PROGRESS);
