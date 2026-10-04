@@ -9,7 +9,10 @@ it('lists phone-only parent invoices only through owned child beneficiaries', as
   (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent1', role: 'PARENT', email: null } });
   (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ children: [{ userId: 'child1' }] });
   await ParentInvoicesPage();
-  expect(prisma.invoice.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { OR: [{ beneficiaryUserId: { in: ['child1'] } }] } }));
+  expect(prisma.invoice.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {
+    status: { not: 'DRAFT' },
+    OR: [{ beneficiaryUserId: { in: ['child1'] } }],
+  } }));
 });
 it('never searches empty customer email when no ownership scope exists', async () => {
   (auth as jest.Mock).mockResolvedValue({ user: { id: 'parent1', role: 'PARENT', email: null } });
