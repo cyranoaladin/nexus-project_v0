@@ -125,7 +125,7 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
     expect(prisma.user.findFirst).not.toHaveBeenCalled();
   });
 
-  it('confirms atomically: sets richStatus, studentId and paymentStatus in one CAS update, then enqueues one activation email', async () => {
+  it('confirms atomically: sets richStatus and studentId without asserting payment in one CAS update, then enqueues one activation email', async () => {
     prisma.stageReservation.findFirst.mockResolvedValue(pendingReservation());
     prisma.student.findUnique.mockResolvedValue(pendingStudent());
     prisma.$transaction.mockImplementation(async (fn: any) => fn(prisma));
@@ -144,7 +144,6 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
           richStatus: 'CONFIRMED',
           status: 'CONFIRMED',
           studentId: 'student-1',
-          paymentStatus: 'COMPLETED',
         }),
       }),
     );
@@ -209,7 +208,7 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
     expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
   });
 
-  it('preserves payment state by only ever setting COMPLETED as part of the same atomic confirmation write (never a separate non-atomic write)', async () => {
+  it('preserves payment state by leaving it to the source payment system', async () => {
     prisma.stageReservation.findFirst.mockResolvedValue(pendingReservation());
     prisma.student.findUnique.mockResolvedValue(pendingStudent());
     prisma.$transaction.mockImplementation(async (fn: any) => fn(prisma));
@@ -220,5 +219,6 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
 
     expect(prisma.stageReservation.update).not.toHaveBeenCalled();
     expect(prisma.stageReservation.updateMany).toHaveBeenCalledTimes(1);
+    expect(prisma.stageReservation.updateMany.mock.calls[0][0].data).not.toHaveProperty('paymentStatus');
   });
 });

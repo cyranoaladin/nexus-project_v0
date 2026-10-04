@@ -73,7 +73,9 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
     await prisma.$disconnect();
   });
 
-  it('confirme avec succès une réservation dont richStatus est NULL (jamais initialisé)', async () => {
+  beforeEach(async () => { await cleanup(); });
+
+  it.each([null, 'PENDING', 'FAILED', 'COMPLETED'] as const)('confirme richStatus NULL sans modifier le paiement source %s', async paymentStatus => {
     const stage = await prisma.stage.create({
       data: {
         slug: `${PREFIX}-stage`,
@@ -116,6 +118,7 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
         price: 0,
         status: 'PENDING',
         richStatus: null,
+        paymentStatus,
       },
     });
     expect(reservation.richStatus).toBeNull();
@@ -133,5 +136,6 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
     expect(updated.richStatus).toBe('CONFIRMED');
     expect(updated.status).toBe('CONFIRMED');
     expect(updated.studentId).toBe(student.id);
+    expect(updated.paymentStatus).toBe(reservation.paymentStatus);
   });
 });

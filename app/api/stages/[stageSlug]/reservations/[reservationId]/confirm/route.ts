@@ -118,7 +118,6 @@ export async function POST(
           status: 'CONFIRMED',
           confirmedAt: new Date(),
           studentId: student.id,
-          paymentStatus: 'COMPLETED',
           ...(token ? { activationToken: token.tokenHash, activationTokenExpiresAt: token.expiresAt } : {}),
         },
       });
