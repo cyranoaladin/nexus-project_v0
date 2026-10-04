@@ -45,3 +45,11 @@ This is recipient selection hardening, not complete communications qualification
 ### Queue acceptance is not delivery — 4 October 2026
 
 A successful administrative send request now returns HTTP 202 with `deliveryStatus: QUEUED` and appends `INVOICE_EMAIL_QUEUED`, not an unobserved `INVOICE_SENT_EMAIL`. The existing rate limit counts both queued intents and historical sent events, preventing the semantic correction from opening a throttle bypass. Two route regressions failed before the change; the route and neighboring event/throttle tests now pass (3 suites, 46 tests). Actual SMTP delivery remains a distinct outbox/provider event. No UI caller of this invoice send endpoint was found in the application source; API clients must distinguish queue acceptance from delivery.
+
+### Awaited append-only download evidence — 4 October 2026
+
+Authorized session PDF and receipt responses now await a dedicated `InvoiceFinancialAccessAudit` insert after artifact reading/rendering and before HTTP 200. Actor, invoice, action and a server-generated UUID request key are the only new audit fields; no raw token, URL or client payload is recorded. This means authorized response preparation, not a claim that a client received every byte. The receipt's asynchronous JSON read-modify-write was removed. Audit failure preserves the opaque refusal contract and yields no PDF success.
+
+Regression: 4 failures / 2 successes on the uncorrected routes, after correcting the test fixture's old JSON-event mock. Final route suite: 26 tests in 3 suites pass, including deterministic deferred persistence, two simultaneous requests with distinct audit entries, denied scope and artifact failure. Typecheck and targeted lint pass. Simultaneous request tests are unit evidence; cross-client PostgreSQL concurrency remains an integration gate. Existing real-DB append-only constraints were established separately.
+
+Token-based anonymous PDF reads are not claimed audited: that contract has no authenticated actor, and this change does not invent one. An explicit token principal and recipient/revocation contract is still required before financial general access. Session audits also do not yet identify the specific delegation used. Financial capability status stays PARTIEL.

@@ -2,7 +2,7 @@
  * GET /api/invoices/:id/pdf — Stream invoice PDF with RBAC + token access.
  *
  * Two access paths:
- * 1. Session-based (RBAC): ADMIN sees all, PARENT scoped by child beneficiary/email
+ * 1. Session-based (RBAC): ADMIN sees all, PARENT scoped by payer or active financial delegation
  * 2. Token-based (?token=...): signed link from email, 72h expiry
  *
  * No-leak design:
@@ -16,6 +16,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
 import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
 
 /**
@@ -95,6 +96,7 @@ export async function GET(
     }
 
     const pdfBuffer = await readInvoicePDF(invoice.pdfPath);
+    await recordInvoiceDownload({ invoiceId: invoice.id, actorUserId: session.user.id, action: 'PDF_READ' });
     return streamPdf(pdfBuffer, invoice.number);
 
   } catch {

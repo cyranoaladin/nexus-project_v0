@@ -3,7 +3,7 @@
  *
  * RBAC: same as invoice PDF (ADMIN sees all, PARENT scoped).
  * Precondition: invoice.status === 'PAID' with paidAt + paidAmount.
- * Appends RECEIPT_RENDERED audit event on success only.
+ * Records an awaited append-only access event after PDF preparation.
  *
  * No-leak design:
  * - ALL deny cases return canonical 404 (same as invoice PDF route).
@@ -15,14 +15,11 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import {
-  renderReceiptPDF,
-  createInvoiceEvent,
-  appendInvoiceEvent,
-} from '@/lib/invoice';
+import { renderReceiptPDF } from '@/lib/invoice';
+import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
-import type { InvoiceEvent, ReceiptData } from '@/lib/invoice';
+import type { ReceiptData } from '@/lib/invoice';
 
 export async function GET(
   _request: NextRequest,
@@ -64,7 +61,6 @@ export async function GET(
         paidAmount: true,
         paymentMethod: true,
         paymentReference: true,
-        events: true,
       },
     });
 
@@ -100,17 +96,7 @@ export async function GET(
     // Render PDF
     const pdfBuffer = await renderReceiptPDF(receiptData);
 
-    // Append RECEIPT_RENDERED event (fire-and-forget, don't block response)
-    const events: InvoiceEvent[] = appendInvoiceEvent(
-      invoice.events,
-      createInvoiceEvent('RECEIPT_RENDERED', session.user.id, { by: 'session' })
-    );
-    prisma.invoice.update({
-      where: { id: invoice.id },
-      data: { events: JSON.parse(JSON.stringify(events)) },
-    }).catch(() => {
-      console.error('INVOICE_RECEIPT_AUDIT_APPEND_FAILED');
-    });
+    await recordInvoiceDownload({ invoiceId: invoice.id, actorUserId: session.user.id, action: 'RECEIPT_READ' });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
