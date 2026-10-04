@@ -118,3 +118,21 @@ test('preserves valid event parsing when a frame also contains SSE comments and 
   expect(onDone).toHaveBeenCalledWith(done.data);
   expect(onDone).toHaveBeenCalledTimes(1);
 });
+
+
+test.each(['invalid-json', 'consumer-failure'])('cancels an open native transport after %s without publishing completion', async kind => {
+  const cancelled = jest.fn();
+  const onDone = jest.fn();
+  const wire = formatAriaSSEEvent(start) + (kind === 'invalid-json'
+    ? 'event: delta\ndata: {broken\n\n'
+    : formatAriaSSEEvent({ event: 'delta', data: { text: 'synthetic delta' } }));
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { controller.enqueue(new TextEncoder().encode(wire)); },
+    cancel: cancelled,
+  });
+  await expect(parseAriaSSEResponse(new Response(body, { headers: { 'content-type': 'text/event-stream' } }), {
+    onDone, onDelta() { if (kind === 'consumer-failure') throw new Error('synthetic callback failure'); },
+  })).rejects.toMatchObject({ code: kind === 'invalid-json' ? 'INVALID_JSON' : 'INVALID_EVENT' });
+  expect(onDone).not.toHaveBeenCalled();
+  expect(cancelled).toHaveBeenCalledTimes(1);
+});
