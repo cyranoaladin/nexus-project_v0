@@ -26,6 +26,7 @@ jest.mock('@/lib/email/outbox-scheduler', () => ({
 }));
 
 import { POST } from '@/app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route';
+import { decryptEmailIntent } from '@/lib/email/outbox';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
@@ -137,5 +138,9 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
     expect(updated.status).toBe('CONFIRMED');
     expect(updated.studentId).toBe(student.id);
     expect(updated.paymentStatus).toBe(reservation.paymentStatus);
+    const jobs = await prisma.jobOutbox.findMany({ where: { aggregateType: 'STAGE_RESERVATION', aggregateId: reservation.id } });
+    expect(jobs).toHaveLength(1);
+    expect(decryptEmailIntent(jobs[0].payload).content.to).toBe(studentUser.email);
+    expect(decryptEmailIntent(jobs[0].payload).content.to).not.toBe(reservation.email);
   });
 });

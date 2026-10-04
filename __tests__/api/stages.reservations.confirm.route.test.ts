@@ -68,6 +68,7 @@ function pendingStudent(overrides: Record<string, unknown> = {}) {
       firstName: 'Eleve',
       lastName: 'Test',
       role: 'ELEVE',
+      email: 'shared@example.com',
       activatedAt: null,
     },
     ...overrides,
@@ -147,9 +148,9 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
         }),
       }),
     );
-    expect(prisma.user.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'student-user-1' } }),
-    );
+    expect(jest.mocked(prisma.user.update).mock.calls[0][0].where).toEqual({
+      id: 'student-user-1', email: 'shared@example.com', activatedAt: null,
+    });
     expect(enqueueEmailIntent).toHaveBeenCalledTimes(1);
     expect(kickEmailOutboxDrain).toHaveBeenCalledTimes(1);
   });
@@ -187,6 +188,7 @@ describe('POST /api/stages/[stageSlug]/reservations/[reservationId]/confirm — 
         firstName: 'Eleve',
         lastName: 'Test',
         role: 'ELEVE',
+      email: 'shared@example.com',
         activatedAt: new Date('2026-01-15T00:00:00.000Z'),
       },
     }));

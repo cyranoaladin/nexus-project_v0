@@ -66,6 +66,7 @@ function pendingStudent(overrides: Record<string, unknown> = {}) {
       firstName: 'Eleve',
       lastName: 'Example',
       role: 'ELEVE',
+      email: 'eleve@example.com',
       activatedAt: null,
     },
     ...overrides,
@@ -245,6 +246,7 @@ describe('POST /api/stages/[slug]/reservations/[id]/confirm', () => {
         firstName: 'Eleve',
         lastName: 'Example',
         role: 'ELEVE',
+      email: 'eleve@example.com',
         activatedAt: new Date('2026-01-01T00:00:00.000Z'),
       },
     }));
