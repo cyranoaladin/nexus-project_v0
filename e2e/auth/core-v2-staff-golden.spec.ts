@@ -19,6 +19,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { gotoSignInForm, loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
+import { extractCoreAccountMailToken, type CoreAccountLinkPath } from '../helpers/core-v2-mail-link';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -101,32 +102,22 @@ let rawToken = '';
 let studentToken = '';
 
 /**
- * One literal pattern per link, instead of building a regex from the path.
- * Escaping `/` was both unnecessary (it carries no meaning inside a `RegExp`
- * constructor) and incomplete (no other metacharacter was escaped) — CodeQL
- * flags that shape as `js/incomplete-sanitization`, and it is right to: a
- * path that later gains a `.` or a `+` would silently match too much. Literals
- * cannot drift that way.
+ * Parse exact paths and decoded query parameters, including versioned HMAC
+ * tokens and HTML ampersands. No dynamic regex and no raw token in errors.
  */
-const TOKEN_PATTERN = {
-  '/auth/activate': /\/auth\/activate\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
-  '/auth/reset-password': /\/auth\/reset-password\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
-} as const;
-
-async function findCoreV2Token(recipient: string, linkPath: keyof typeof TOKEN_PATTERN): Promise<string> {
-  const pattern = TOKEN_PATTERN[linkPath];
+async function findCoreV2Token(recipient: string, linkPath: CoreAccountLinkPath): Promise<string> {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
     for (const message of messages) {
       const detail = await fetch(`${MAILPIT_API_URL}/api/v1/message/${message.ID}`);
       const body = (await detail.json()) as { Text?: string; HTML?: string };
-      const match = pattern.exec(`${body.Text ?? ''}\n${body.HTML ?? ''}`);
-      if (match) return match[1]!;
+      const token = extractCoreAccountMailToken(`${body.Text ?? ''}\n${body.HTML ?? ''}`, linkPath);
+      if (token) return token;
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
-  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}:${recipient}`);
+  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}`);
 }
 const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
 
