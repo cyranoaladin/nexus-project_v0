@@ -1,4 +1,6 @@
 jest.unmock('@/lib/prisma');
+const mockAuth = jest.fn();
+jest.mock('@/auth', () => ({ auth: () => mockAuth() }));
 jest.mock('@/lib/entitlement/engine', () => ({ getUserEntitlements: jest.fn().mockResolvedValue([]) }));
 jest.mock('@/lib/trajectory', () => ({ getActiveTrajectory: jest.fn().mockResolvedValue(null), parseMilestones: jest.fn().mockReturnValue([]) }));
 jest.mock('@/lib/next-step-engine', () => ({ getNextStep: jest.fn().mockResolvedValue(null) }));
@@ -7,6 +9,7 @@ import { prisma } from '@/lib/prisma';
 import { buildStudentDashboardPayload } from '@/lib/dashboard/student-payload';
 import { STUDENT_DOCUMENT_SCOPES } from '@/lib/documents/student-visibility';
 import { readAuthorizedDocument } from '@/lib/documents/read-authority';
+import { GET as listStudentDocuments } from '@/app/api/student/documents/route';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 import { cleanupDisposableTestFixture } from '@/__tests__/helpers/real-db-fixture-cleanup';
 
@@ -39,4 +42,13 @@ test('visibility is applied by PostgreSQL before pagination and aligns metadata 
     expect((await readAuthorizedDocument(`${prefix}-${scope}`, { id: studentId, role: 'ELEVE' })).status).toBe('ALLOWED');
     expect(JSON.stringify(payload.hub)).toContain(`/api/student/documents/${prefix}-${scope}/download`);
   }
+});
+test('direct student listing reads the same authorized scopes from PostgreSQL', async () => {
+  mockAuth.mockResolvedValue({ user: { id: studentId, role: 'ELEVE' } });
+  const response = await listStudentDocuments();
+  expect(response.status).toBe(200);
+  expect(response.headers.get('cache-control')).toBe('private, no-store');
+  const body = await response.json();
+  expect(body.documents).toHaveLength(4);
+  expect(JSON.stringify(body)).not.toContain('PRIVATE-ADMIN');
 });
