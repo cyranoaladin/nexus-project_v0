@@ -73,12 +73,13 @@ test.each([11, 137])('reset issuance matches an independent opaque entropy vecto
   const opaqueVector = `v1:primary:${entropy.toString('base64url')}`;
   const expected = createHmac('sha256', Buffer.from(primary, 'hex'))
     .update(`nexus-core-v2-account-token\0v1\0PASSWORD_RESET\0${opaqueVector}`).digest('hex');
-  const entropySource = jest.spyOn(crypto, 'randomBytes').mockImplementation(() => Buffer.from(entropy));
+  const originalEntropy = crypto.randomBytes.bind(crypto);
+  const entropySource = jest.spyOn(crypto, 'randomBytes').mockImplementation(size => size === 32 ? Buffer.from(entropy) : originalEntropy(size));
   let reset: Awaited<ReturnType<typeof requestPasswordReset>>;
   try {
     reset = await requestPasswordReset(h.client, { email: user.email! }, { now });
-    expect(entropySource).toHaveBeenCalledTimes(1);
-    expect(entropySource).toHaveBeenCalledWith(32);
+    expect(entropySource.mock.calls.filter(([size]) => size === 32)).toHaveLength(1);
+    expect(entropySource.mock.calls.filter(([size]) => size === 12)).toHaveLength(1);
   } finally { entropySource.mockRestore(); }
   if (!reset) throw new Error('SYNTHETIC_ACCOUNT_NOT_ELIGIBLE');
   expect(reset.rawToken === opaqueVector).toBe(true);
