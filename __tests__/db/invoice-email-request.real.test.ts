@@ -25,7 +25,8 @@ beforeAll(async () => {
   const database = process.env.TEST_DATABASE_URL;
   if (!database) throw new Error('DISPOSABLE_DATABASE_REQUIRED');
   assertDisposablePostgresUrl(database);
-  process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = randomBytes(32).toString('base64');
+  const ephemeralOutboxKey = randomBytes(32).toString('hex');
+  process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = `${ephemeralOutboxKey}`;
   actorUserId = randomUUID(); payerUserId = randomUUID();
   await prisma.user.createMany({ data: [
     { id: actorUserId, role: 'ADMIN' },
