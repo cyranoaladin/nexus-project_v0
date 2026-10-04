@@ -373,24 +373,8 @@ if (typeof globalThis !== 'undefined') {
   globalThis.window.alert = globalThis.alert;
 }
 
-// Mock window.location to avoid jsdom "Not implemented: navigation" errors
-delete window.location;
-window.location = {
-  href: '',
-  origin: 'http://localhost:3000',
-  protocol: 'http:',
-  host: 'localhost:3000',
-  hostname: 'localhost',
-  port: '3000',
-  pathname: '/',
-  search: '',
-  hash: '',
-  assign: jest.fn(),
-  reload: jest.fn(),
-  replace: jest.fn(),
-  toString: () => 'http://localhost:3000/',
-};
-
+// JSDOM owns its native, non-configurable Location. URL changes use history
+// APIs; full-document navigation is tested through lib/browser-navigation.
 // Mock URL.createObjectURL and URL.revokeObjectURL
 global.URL.createObjectURL = jest.fn(() => 'mock-object-url');
 global.URL.revokeObjectURL = jest.fn();

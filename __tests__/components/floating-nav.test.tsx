@@ -1,9 +1,11 @@
+import { navigateDocument } from '@/lib/browser-navigation';
+jest.mock('@/lib/browser-navigation', () => ({ navigateDocument: jest.fn(), reloadDocument: jest.fn() }));
 import { FloatingNav } from '@/components/ui/floating-nav';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 // Mock framer-motion — filter motion-specific props
 jest.mock('framer-motion', () => {
-  const React = require('react');
+  const React = jest.requireActual<typeof import('react')>('react');
   const motionProps = new Set([
     'initial', 'animate', 'exit', 'transition', 'variants',
     'whileHover', 'whileTap', 'whileInView', 'whileFocus', 'whileDrag',
@@ -11,15 +13,15 @@ jest.mock('framer-motion', () => {
     'drag', 'dragConstraints', 'layout', 'layoutId',
     'onAnimationStart', 'onAnimationComplete', 'custom', 'inherit',
   ]);
-  const filterProps = (props: any) => {
-    const filtered: any = {};
+  const filterProps = (props: Record<string, unknown>) => {
+    const filtered: Record<string, unknown> = {};
     Object.keys(props).forEach((k) => { if (!motionProps.has(k)) filtered[k] = props[k]; });
     return filtered;
   };
   return {
     motion: {
-      div: React.forwardRef(({ children, ...props }: any, ref: any) => <div {...filterProps(props)} ref={ref}>{children}</div>),
-      button: React.forwardRef(({ children, ...props }: any, ref: any) => <button {...filterProps(props)} ref={ref}>{children}</button>),
+      div: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(function MockMotionDiv({ children, ...props }, ref) { return <div {...filterProps(props)} ref={ref}>{children}</div>; }),
+      button: React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(function MockMotionButton({ children, ...props }, ref) { return <button {...filterProps(props)} ref={ref}>{children}</button>; }),
     },
     useScroll: () => ({ scrollYProgress: { get: () => 0 } }),
     useTransform: () => ({ get: () => 1 }),
@@ -60,7 +62,7 @@ describe('FloatingNav', () => {
     const ariaButton = screen.getByText('ARIA');
     fireEvent.click(ariaButton);
 
-    expect(window.location.href).toBe('/offres#section-plateforme');
+    expect(navigateDocument).toHaveBeenCalledWith('/offres#section-plateforme');
   });
 
   it('a les bonnes classes CSS', () => {

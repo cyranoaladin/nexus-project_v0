@@ -1,5 +1,7 @@
 'use client';
 
+import { navigateDocument } from '@/lib/browser-navigation';
+
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Brain, Crown, Rocket } from 'lucide-react';
 import { Button } from './button';
@@ -21,7 +23,7 @@ export function FloatingNav({ className = "" }: FloatingNavProps) {
 
   const handleClick = (href: string) => {
     if (!href.startsWith('#')) {
-      window.location.href = href;
+      navigateDocument(href);
       return;
     }
 

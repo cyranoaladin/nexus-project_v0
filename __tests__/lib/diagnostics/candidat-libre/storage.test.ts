@@ -1,15 +1,13 @@
 jest.mock('server-only', () => ({}));
 
-const mockMkdir = jest.fn().mockResolvedValue(undefined);
-const mockWriteFile = jest.fn().mockResolvedValue(undefined);
-jest.mock('fs/promises', () => ({
-  mkdir: (...args: unknown[]) => mockMkdir(...args),
-  writeFile: (...args: unknown[]) => mockWriteFile(...args),
+jest.mock('@/lib/documents/storage-root', () => ({
+  getDocumentStorageRoot: () => mockStorageRoot,
 }));
 
-jest.mock('@/lib/documents/storage-root', () => ({
-  getDocumentStorageRoot: () => '/tmp/candidate-diagnostics-test-root',
-}));
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+const mockStorageRoot = mkdtempSync(join(tmpdir(), 'nexus-candidate-storage-'));
 
 import { persistDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { isEncryptedDocument } from '@/lib/documents/encryption';
@@ -21,6 +19,7 @@ beforeAll(() => {
   process.env.DOCUMENT_ENCRYPTION_KEY = 'test-document-encryption-key-0123456789abcd';
 });
 afterAll(() => {
+  rmSync(mockStorageRoot, { recursive: true, force: true });
   if (ORIGINAL_DOCUMENT_KEY === undefined) delete process.env.DOCUMENT_ENCRYPTION_KEY;
   else process.env.DOCUMENT_ENCRYPTION_KEY = ORIGINAL_DOCUMENT_KEY;
 });
@@ -83,19 +82,7 @@ describe('persistDiagnosticFile — audio signature validation', () => {
 });
 
 describe('persistDiagnosticFile — chiffrement au repos', () => {
-  /**
-   * Le mock `fs/promises` de ce fichier n'intercepte pas réellement les
-   * écritures : les fichiers atterrissent sur le disque. On s'en sert plutôt
-   * que de lutter contre — lire les octets réellement écrits est une preuve
-   * plus forte qu'une assertion sur un mock.
-   */
-  const realFs = jest.requireActual('fs') as typeof import('fs');
-  const ROOT = '/tmp/candidate-diagnostics-test-root';
-
-  afterAll(() => {
-    realFs.rmSync(`${ROOT}/candidate-diagnostics`, { recursive: true, force: true });
-  });
-
+  // Read the actual encrypted bytes from this suite's isolated temporary root.
   it('écrit une enveloppe chiffrée, jamais le contenu en clair', async () => {
     const marker = [0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37];
     const result = await persistDiagnosticFile({
@@ -104,7 +91,7 @@ describe('persistDiagnosticFile — chiffrement au repos', () => {
       file: fakeFile(marker, 'application/pdf', 'piece-identite.pdf'),
     });
 
-    const written = realFs.readFileSync(`${ROOT}/${result.storageKey}`);
+    const written = readFileSync(join(mockStorageRoot, result.storageKey));
     expect(isEncryptedDocument(written)).toBe(true);
     expect(written.includes(Buffer.from(marker))).toBe(false);
   });

@@ -491,7 +491,7 @@ jobs:
           NODE_ENV: test
         run: >-
           npx jest --config jest.integration.config.js --runInBand --ci
-          --testPathPattern='session-revocation\.real\.test\.ts'
+          --testPathPatterns='session-revocation\.real\.test\.ts'
 
       - name: Run integration tests (pending-account-lifecycle -- isolated database)
         env:
@@ -502,7 +502,7 @@ jobs:
           NODE_ENV: test
         run: >-
           npx jest --config jest.integration.config.js --runInBand --ci
-          --testPathPattern='pending-account-lifecycle\.real\.test\.ts'
+          --testPathPatterns='pending-account-lifecycle\.real\.test\.ts'
 
       - name: Run integration tests (P0-D parent onboarding -- isolated database + Mailpit)
         env:
@@ -516,7 +516,7 @@ jobs:
           SMTP_PORT: '1025'
         run: >-
           npx jest --config jest.integration.config.js --runInBand --ci
-          --testPathPattern='(activation-domain-separation|parent-registration-atomicity|parent-email-onboarding)\.real\.test\.ts'
+          --testPathPatterns='(activation-domain-separation|parent-registration-atomicity|parent-email-onboarding)\.real\.test\.ts'
 
       - name: Upload test logs on failure
         if: failure()

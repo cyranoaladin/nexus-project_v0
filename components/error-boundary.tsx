@@ -1,5 +1,7 @@
 'use client';
 
+import { reloadDocument } from '@/lib/browser-navigation';
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -73,7 +75,7 @@ function ErrorFallback({ error, onReset }: { error?: Error; onReset: () => void 
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => reloadDocument()}
             className="px-6 py-3 bg-brand-primary hover:bg-brand-primary/90 text-white rounded-lg font-medium transition-colors"
           >
             Recharger la page
