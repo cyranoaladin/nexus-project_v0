@@ -1,6 +1,7 @@
 import { expect, test, type APIRequestContext, type Page, type Request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { loginAsUser, type UserType } from '../helpers/auth';
+import { observeSubmittedRequest } from '../helpers/request-completion';
 
 const fixtureBaseUrl = process.env.ARIA_E2E_FIXTURE_BASE_URL ?? '';
 const fixtureAdminToken = process.env.ARIA_E2E_FIXTURE_ADMIN_TOKEN ?? '';
@@ -64,19 +65,30 @@ export async function sendFromComposer(page: Page, content: string): Promise<voi
 
 /** A normal turn must finish its own HTTP body before a navigation or next send. */
 export async function sendFromComposerAndFinishTransport(page: Page, content: string): Promise<void> {
-  const chatRequest = page.waitForRequest((request) => {
+  const transport = observeSubmittedRequest<Request>(page, (request) => {
     const url = new URL(request.url());
     return request.method() === 'POST' && url.pathname === '/api/aria/chat'
       && url.origin === new URL(page.url()).origin
       && request.postDataJSON()?.content === content;
   });
-  await test.step('ARIA_PHASE:transport:send', () => sendFromComposer(page, content));
-  const request = await test.step('ARIA_PHASE:transport:request', () => chatRequest);
-  const response = await test.step('ARIA_PHASE:transport:response', () => request.response());
-  expect(response, 'The submitted ARIA turn must receive its own response').not.toBeNull();
-  expect(response!.status(), 'The normal ARIA transport must be accepted').toBe(200);
-  const transportError = await test.step('ARIA_PHASE:transport:body', () => response!.finished());
-  expect(transportError, 'The normal ARIA HTTP body must finish without a transport error').toBeNull();
+  try {
+    await test.step('ARIA_PHASE:transport:send', () => sendFromComposer(page, content));
+    const request = await test.step('ARIA_PHASE:transport:request', () => transport.request);
+    const response = await test.step('ARIA_PHASE:transport:response', () => request.response());
+    expect(response, 'The submitted ARIA turn must receive its own response').not.toBeNull();
+    expect(response!.status(), 'The normal ARIA transport must be accepted').toBe(200);
+    await test.step('ARIA_PHASE:transport:body', async () => {
+      const terminal = await transport.completion;
+      expect(terminal.request).toBe(request);
+      if (terminal.status === 'FAILED') {
+        const phase = request.failure()?.errorText === 'net::ERR_ABORTED' ? 'aborted' : 'failed';
+        await test.step(`ARIA_PHASE:transport:${phase}`, async () => {
+          throw new Error(phase === 'aborted' ? 'ARIA_CHAT_TRANSPORT_ABORTED' : 'ARIA_CHAT_TRANSPORT_FAILED');
+        });
+      }
+      expect(terminal.status, 'The normal ARIA HTTP body must finish without a transport error').toBe('FINISHED');
+    });
+  } finally { transport.dispose(); }
 }
 
 export async function postConversation(

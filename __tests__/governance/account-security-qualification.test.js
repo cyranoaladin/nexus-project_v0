@@ -89,6 +89,7 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
           { title: 'ARIA_PHASE:transport:request', duration: 3 },
           { title: 'PRIVATE_PHASE_CANARY', duration: 4, steps: [
             { title: 'ARIA_PHASE:transport:body', duration: 29, error: { message: 'PRIVATE_ERROR_CANARY' } },
+            { title: 'ARIA_PHASE:transport:aborted', duration: 0, error: { message: 'PRIVATE_TRANSPORT_CANARY' } },
           ] },
         ] },
         { title: 'ARIA_PHASE:rag:alert', duration: 6 },
@@ -100,9 +101,11 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
     { phase: 'ARIA_PHASE:rag:send', duration: 12, failed: false },
     { phase: 'ARIA_PHASE:transport:request', duration: 3, failed: false },
     { phase: 'ARIA_PHASE:transport:body', duration: 29, failed: true },
+    { phase: 'ARIA_PHASE:transport:aborted', duration: 0, failed: true },
     { phase: 'ARIA_PHASE:rag:alert', duration: 6, failed: false },
   ]);
   expect(JSON.stringify(report)).not.toContain('PRIVATE_PHASE_CANARY');
   expect(JSON.stringify(report)).not.toContain('PRIVATE_ERROR_CANARY');
+  expect(JSON.stringify(report)).not.toContain('PRIVATE_TRANSPORT_CANARY');
   expect(sanitizePlaywrightReport(report)).toEqual(report);
 });
