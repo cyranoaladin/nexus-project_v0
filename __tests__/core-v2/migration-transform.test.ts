@@ -5,7 +5,7 @@
  */
 import { approvalDigest, parseApprovalFile } from '@/scripts/core-v2/migration/approval';
 import type { SourceSnapshot, SourceUser } from '@/scripts/core-v2/migration/source';
-import { buildTargetPlan, deriveAccount, objectHash } from '@/scripts/core-v2/migration/transform';
+import { buildTargetPlan, deriveAccount, objectHash, userIntegrityPayload } from '@/scripts/core-v2/migration/transform';
 import { MigrationPolicy, TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 
 // A structural bcrypt fixture, never a credential for an executable account.
@@ -179,15 +179,15 @@ describe('buildTargetPlan', () => {
 });
 
 describe('le manifeste ne porte jamais de justificatif', () => {
-  /**
-   * CodeQL signale `objectHash` comme « hachage de mot de passe insuffisant »
-   * parce que la charge empreintée contient `password`. Ce champ est un
-   * hachage bcrypt DEJA existant, transporte tel quel pour que les familles
-   * gardent leur mot de passe ; `objectHash` est une empreinte d'integrite de
-   * manifeste, pas une derivation de justificatif. Ce qu'il faut tenir, et
-   * que ce test tient, c'est que la valeur elle-meme ne sorte jamais dans le
-   * manifeste : seule son empreinte, a sens unique, y figure.
-   */
+  test.each([
+    { password: syntheticCredential },
+    { nested: { password: syntheticCredential } },
+    [{ password: syntheticCredential }],
+    { PASSWORD: syntheticCredential },
+  ])('refuses credential-bearing input at the generic manifest hash boundary (%#)', payload => {
+    expect(() => objectHash(payload)).toThrow('MIGRATION_INTEGRITY_PAYLOAD_CONTAINS_CREDENTIAL');
+  });
+  // Operational bcrypt stays unchanged; evidence contains only a slow revision.
   const plan = buildTargetPlan(snapshot(), approval, migratedAt);
 
   test('aucune entree du manifeste ne contient de champ ni de valeur de mot de passe', () => {
@@ -213,6 +213,31 @@ describe('le manifeste ne porte jamais de justificatif', () => {
     const h = (p: ReturnType<typeof buildTargetPlan>) =>
       p.entries.filter((e) => e.entity === 'User').map((e) => e.hash).join(',');
     expect(h(other)).not.toBe(h(plan));
+  });
+
+  const proofUser = {
+    id: 'integrity-fixture', email: null, password: syntheticCredential, role: 'PARENT' as const,
+    firstName: null, lastName: null, phone: null, accountStatus: 'ACTIVE', activatedAt: null, sessionVersion: 1,
+  };
+  test('user evidence replaces the verifier with a structural sentinel and a versioned revision', () => {
+    const payload = userIntegrityPayload(proofUser);
+    expect(Object.keys(payload)).not.toContain('password');
+    expect(JSON.stringify(payload).includes(syntheticCredential)).toBe(false);
+    expect(payload.credentialState).toBe('PRESENT');
+    expect(payload.credentialRevision).toMatch(/^scrypt-v1:[0-9a-f]{64}$/);
+    expect(objectHash(payload)).toMatch(/^[0-9a-f]{64}$/);
+  });
+  test('same identity and verifier produce identical proofs, while presence and identity are separated', () => {
+    const proof = userIntegrityPayload(proofUser);
+    expect(objectHash(userIntegrityPayload(proofUser)) === objectHash(proof)).toBe(true);
+    const absent = userIntegrityPayload({ ...proofUser, password: null });
+    expect(absent).toMatchObject({ credentialState: 'ABSENT', credentialRevision: null });
+    expect(objectHash(absent) === objectHash(proof)).toBe(false);
+    expect(userIntegrityPayload({ ...proofUser, id: 'another-integrity-fixture' }).credentialRevision === proof.credentialRevision).toBe(false);
+  });
+  test('an unsupported verifier cannot enter an integrity proof', () => {
+    expect(() => userIntegrityPayload({ ...proofUser, password: unsupportedSourceCredential }))
+      .toThrow('MIGRATION_SOURCE_CREDENTIAL_UNSUPPORTED');
   });
 });
 

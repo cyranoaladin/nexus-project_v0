@@ -27,6 +27,7 @@ import { normalizeParentPhone } from '@/lib/contact/parent-phone';
 import { issueParentPhoneChallenge, verifyParentPhoneChallenge, consumeParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { execFileSync } from 'node:child_process';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@/core-v2/generated/client';
 import { prisma as v1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { INVITATION_TTL_ENV, ORGANIZATION_TIMEZONE_ENV, PASSWORD_RESET_TTL_ENV } from '@/lib/core-v2/config';
@@ -36,7 +37,7 @@ import { resetCoreV2Database } from '@/__tests__/core-v2/helpers/reset-db';
 import { approvalDigest, parseApprovalFile } from '@/scripts/core-v2/migration/approval';
 import { applyPlan } from '@/scripts/core-v2/migration/apply';
 import { readSourceSnapshot } from '@/scripts/core-v2/migration/source';
-import { buildTargetPlan, objectHash } from '@/scripts/core-v2/migration/transform';
+import { buildTargetPlan, objectHash, userIntegrityPayload } from '@/scripts/core-v2/migration/transform';
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 import { resolveAssessmentReadAuthority, resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 import { readAuthorizedDocument } from '@/lib/documents/read-authority';
@@ -191,6 +192,25 @@ async function runWithActor(execute: boolean, actorUserId: string) {
 
 const results = (m: Awaited<ReturnType<typeof run>>['manifest'], entity?: string) =>
   m.objects.filter((o) => !entity || o.entity === entity).map((o) => o.result);
+
+test.each(['options', 'entries'] as const)('incompatible proof versions in %s are refused before reading or writing the target', async mismatch => {
+  const source = await readSourceSnapshot(v1, approval());
+  const plan = buildTargetPlan(source, approval(), migratedAt);
+  const incompatiblePlan = mismatch === 'entries'
+    ? { ...plan, entries: plan.entries.map(entry => ({ ...entry, transformVersion: 'core-v2-migration/3' })) }
+    : plan;
+  const lookup = jest.spyOn(v2.user, 'findUnique');
+  try {
+    await expect(applyPlan(v2, incompatiblePlan, {
+      execute: true, actorUserId: ids.admin, migratedAt, approvalDigest: approvalDigest(approval()),
+      sourceFingerprint: source.fingerprint,
+      transformVersion: mismatch === 'options' ? 'core-v2-migration/3' : TRANSFORM_VERSION,
+      correlationId: 'synthetic-proof-version-check',
+    })).rejects.toThrow('MIGRATION_PROOF_VERSION_UNSUPPORTED');
+    expect(lookup).not.toHaveBeenCalled();
+    expect(await v2.user.count()).toBe(0);
+  } finally { lookup.mockRestore(); }
+});
 
 test('1. dry run on an empty target writes nothing and reports every roster object as PLANNED, the rest SKIPPED/REJECTED with reasons', async () => {
   const { manifest } = await run(false);
@@ -366,16 +386,55 @@ test('12. a roster rerun preserves a password changed in the canonical Core iden
   expect(await bcrypt.compare(nextPassword, after.password!)).toBe(true);
   expect(await bcrypt.compare(initialFixture, after.password!)).toBe(false);
   const entry = manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent);
-  const canonicalHash = objectHash({
+  const canonicalHash = objectHash(userIntegrityPayload({
     id: before.id, email: before.email, password: before.password, role: before.role,
     firstName: before.firstName, lastName: before.lastName, phone: before.phone,
     accountStatus: before.accountStatus, activatedAt: before.activatedAt, sessionVersion: before.sessionVersion,
-  });
+  }));
   expect(entry?.result).toBe('UNCHANGED');
   expect(entry?.reason).toBe('CORE_IDENTITY_PRESERVED');
   expect(entry?.hash === canonicalHash).toBe(true);
   const dryRun = await run(false);
   expect(dryRun.manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent)?.hash === canonicalHash).toBe(true);
+});
+
+test('a credential rotation after proof capture refuses the roster transaction without overwriting Core', async () => {
+  const source = await readSourceSnapshot(v1, approval());
+  const plan = buildTargetPlan(source, approval(), migratedAt);
+  const rotated = await bcrypt.hash(randomUUID().concat('!aA1'), 12);
+  const auditCount = await v2.auditEvent.count();
+  const userCount = await v2.user.count();
+  let signalLocked!: (pid: number) => void;
+  let release!: () => void;
+  const locked = new Promise<number>(resolve => { signalLocked = resolve; });
+  const resume = new Promise<void>(resolve => { release = resolve; });
+  const writer = v2.$transaction(async tx => {
+    const [{ pid }] = await tx.$queryRaw<Array<{ pid: number }>>(Prisma.sql`SELECT pg_backend_pid() AS pid`);
+    await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "users" WHERE "id" = ${ids.parent} FOR UPDATE`);
+    signalLocked(pid);
+    await resume;
+    await tx.user.update({ where: { id: ids.parent }, data: { password: rotated, sessionVersion: { increment: 1 } } });
+  });
+  const writerPid = await locked;
+  const result = applyPlan(v2, plan, {
+    execute: true, actorUserId: ids.admin, migratedAt, approvalDigest: approvalDigest(approval()),
+    sourceFingerprint: source.fingerprint, transformVersion: TRANSFORM_VERSION, correlationId: 'synthetic-proof-rotation',
+  }).then(() => ({ refused: false, code: '' }), error => ({ refused: true, code: error instanceof Error ? error.message : 'UNKNOWN' }));
+  let blocked = false;
+  try {
+    // Database lock observation is the barrier, not an elapsed sleep.
+    for (let attempt = 0; attempt < 200 && !blocked; attempt++) {
+      const [row] = await v2.$queryRaw<Array<{ blocked: boolean }>>(Prisma.sql`
+        SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE ${writerPid} = ANY(pg_blocking_pids(pid))) AS blocked`);
+      blocked = row.blocked;
+    }
+    expect(blocked).toBe(true);
+  } finally { release(); }
+  await writer;
+  expect(await result).toEqual({ refused: true, code: 'MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK' });
+  expect((await v2.user.findUniqueOrThrow({ where: { id: ids.parent } })).password === rotated).toBe(true);
+  expect(await v2.user.count()).toBe(userCount);
+  expect(await v2.auditEvent.count()).toBe(auditCount);
 });
 
 test.each(['SUSPENDED', 'DISABLED'] as const)('a roster rerun cannot reactivate a Core %s account', async (status) => {

@@ -4,7 +4,7 @@
  * every source object considered (written, skipped or rejected — nothing is
  * dropped silently). No clock, no randomness, no database.
  */
-import { createHash } from 'node:crypto';
+import { createHash, scryptSync } from 'node:crypto';
 import type { ApprovalFile } from './approval';
 import type { SourceSnapshot, SourceUser } from './source';
 import { TRANSFORM_VERSION, type MigrationEntity, type ObjectManifestEntry } from './types';
@@ -80,25 +80,40 @@ export interface TargetPlan {
 export const ALLOWED_COURSE_SOURCES = new Set(['ADMIN', 'ASSISTANTE', 'SEED']);
 export const VERIFIED_SCOPE_STATES = new Set(['STAFF_VERIFIED', 'BACKFILL_AUTO']);
 
-/**
- * Stable JSON (sorted keys, Dates as ISO) → sha256.
- *
- * This is a MANIFEST INTEGRITY fingerprint, not a credential derivation.
- * CodeQL reports `js/insufficient-password-hash` here because one field of
- * the payload it digests is `TargetUser.password`. That field is a bcrypt
- * hash that ALREADY exists in Core v1 and is carried across unchanged, so
- * families keep their password through the migration; nothing is hashed for
- * authentication anywhere in this file, and `bcrypt` remains the only
- * password hasher (lib/core-v2/services/account.ts, cost 12).
- *
- * Excluding the field would be worse, not safer: the fingerprint is what
- * makes a rerun report UNCHANGED versus UPDATED, so a credential rotated in
- * the source has to move the digest — `migration-transform.test.ts` holds
- * exactly that, next to a guard proving no manifest entry ever carries a
- * password field or a bcrypt value. Only the one-way digest is written.
- */
+/** Generic manifest integrity never accepts an authentication verifier. */
+function assertNoCredentialFields(value: unknown): void {
+  if (!value || typeof value !== 'object') return;
+  for (const [key, field] of Object.entries(value)) {
+    if (key.toLowerCase() === 'password') throw new Error('MIGRATION_INTEGRITY_PAYLOAD_CONTAINS_CREDENTIAL');
+    assertNoCredentialFields(field);
+  }
+}
+
+/** Stable JSON (sorted keys, Dates as ISO) → sha256 of non-credential metadata. */
 export function objectHash(payload: unknown): string {
+  assertNoCredentialFields(payload);
   return createHash('sha256').update(canonicalJson(payload)).digest('hex');
+}
+
+/**
+ * Offline integrity proof, never a login verifier or a replacement password.
+ * The operational row keeps its existing bcrypt verifier unchanged. Its
+ * evidence payload substitutes a structural sentinel plus a slow, identity-
+ * and version-bound revision, so verifier rotation still changes the proof.
+ * No credential value reaches the generic SHA-256 boundary or manifest.
+ */
+export function userIntegrityPayload(user: Omit<TargetUser, 'accountStatus'> & { readonly accountStatus: string }) {
+  const { password, ...metadata } = user;
+  let credentialRevision: string | null = null;
+  if (password !== null) {
+    if (password.length !== 60 || !/^\$2[aby]\$(?:1[0-9]|2[0-9]|3[01])\$[./A-Za-z0-9]{53}$/.test(password)) {
+      throw new Error('MIGRATION_SOURCE_CREDENTIAL_UNSUPPORTED');
+    }
+    const salt = JSON.stringify(['nexus-core-v2-user-integrity', 'scrypt-v1', user.id]);
+    const revision = scryptSync(password, salt, 32, { N: 16_384, r: 8, p: 5, maxmem: 32 * 1024 * 1024 });
+    credentialRevision = `scrypt-v1:${revision.toString('hex')}`;
+  }
+  return { ...metadata, credentialState: password === null ? 'ABSENT' : 'PRESENT', credentialRevision };
 }
 
 export function canonicalJson(value: unknown): string {
@@ -205,7 +220,7 @@ export function buildTargetPlan(snapshot: SourceSnapshot, approval: ApprovalFile
       sessionVersion: u.sessionVersion,
     };
     users.push(target);
-    entry({ entity: 'User', sourceId: u.id, targetId: u.id, hash: objectHash(target), result: 'PLANNED', warnings });
+    entry({ entity: 'User', sourceId: u.id, targetId: u.id, hash: objectHash(userIntegrityPayload(target)), result: 'PLANNED', warnings });
   }
   const userPlanned = (id: string) => !rejectedUserIds.has(id);
 

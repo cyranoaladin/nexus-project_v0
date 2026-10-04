@@ -9,15 +9,15 @@
  * reports UNCHANGED / UPDATED truthfully. Dry run computes the same report
  * without writing anything.
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import { Prisma, type PrismaClient } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '@/lib/core-v2/audit';
 import { isCoreV2DomainError } from '@/lib/core-v2/errors';
 import { createServiceContext, type Tx } from '@/lib/core-v2/services/context';
 import { loadPlanningParticipants, materializeSeriesOccurrences } from '@/lib/core-v2/services/planning';
 import { localDateFromDateColumn, compareLocalDates, zonedParts } from '@/lib/core-v2/time';
 import type { TargetPlan } from './transform';
-import { objectHash } from './transform';
-import { MIGRATION_ENTITIES, OBJECT_RESULTS, type MigrationEntity, type MigrationManifest, type ObjectManifestEntry, type ObjectResult, type Reconciliation } from './types';
+import { canonicalJson, objectHash, userIntegrityPayload } from './transform';
+import { MIGRATION_ENTITIES, OBJECT_RESULTS, TRANSFORM_VERSION, type MigrationEntity, type MigrationManifest, type ObjectManifestEntry, type ObjectResult, type Reconciliation } from './types';
 
 export interface ApplyOptions {
   readonly execute: boolean;
@@ -63,8 +63,23 @@ async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan, ac
 }
 
 export async function applyPlan(client: PrismaClient, plan: TargetPlan, options: ApplyOptions): Promise<MigrationManifest> {
+  if (options.transformVersion !== TRANSFORM_VERSION || plan.entries.some(entry => entry.transformVersion !== TRANSFORM_VERSION)) {
+    throw new Error('MIGRATION_PROOF_VERSION_UNSUPPORTED');
+  }
   const startedAt = new Date();
   const targetFingerprint = await assertTargetCompatible(client, plan, options.actorUserId);
+  // Slow integrity derivations must never extend the roster transaction's locks.
+  const plannedUserHashes = new Map(plan.users.map(user => [user.id, objectHash(userIntegrityPayload(user))]));
+  const userProofSelect = {
+    id: true, email: true, password: true, role: true, firstName: true, lastName: true,
+    phone: true, accountStatus: true, activatedAt: true, sessionVersion: true,
+  } as const;
+  const existingUsers = await client.user.findMany({
+    where: { id: { in: plan.users.map(user => user.id) } }, select: userProofSelect,
+  });
+  const existingUserProofs = new Map(existingUsers.map(user => [user.id, {
+    snapshot: user, hash: objectHash(userIntegrityPayload(user)),
+  }]));
   const outcomes = new Map<string, Outcome>(); // `${entity}:${targetId}` → outcome
   const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string, hash?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason, hash });
 
@@ -86,15 +101,17 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
 
     for (const u of plan.users) {
-      const existing = await tx.user.findUnique({ where: { id: u.id } });
-      const existingHash = existing
-        ? objectHash({
-            id: existing.id, email: existing.email, password: existing.password, role: existing.role, firstName: existing.firstName, lastName: existing.lastName,
-            phone: existing.phone, accountStatus: existing.accountStatus, activatedAt: existing.activatedAt, sessionVersion: existing.sessionVersion,
-          })
-        : null;
-      const result = existing ? 'UNCHANGED' : decide(null, objectHash(u), options.execute);
-      record('User', u.id, result, existing ? 'CORE_IDENTITY_PRESERVED' : undefined, existingHash ?? undefined);
+      await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "users" WHERE "id" = ${u.id} FOR UPDATE`);
+      const existing = await tx.user.findUnique({ where: { id: u.id }, select: userProofSelect });
+      const prepared = existingUserProofs.get(u.id);
+      if ((existing === null) !== (prepared === undefined)
+        || (existing && prepared && canonicalJson(existing) !== canonicalJson(prepared.snapshot))) {
+        throw new Error('MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK');
+      }
+      const plannedHash = plannedUserHashes.get(u.id);
+      if (!plannedHash) throw new Error('MIGRATION_USER_PROOF_MISSING');
+      const result = existing ? 'UNCHANGED' : decide(null, plannedHash, options.execute);
+      record('User', u.id, result, existing ? 'CORE_IDENTITY_PRESERVED' : undefined, prepared?.hash);
       if (options.execute && !existing) {
         // A copied roster is never authority to roll back a canonical identity.
         // A concurrent creator or an email collision fails this transaction;
