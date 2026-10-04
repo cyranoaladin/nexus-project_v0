@@ -330,7 +330,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
-    await expect(parents.getByRole('status').filter({ hasText: /^Invitation envoyée\.$/ })).toBeVisible();
+    await expect(parents.getByRole('status').filter({ hasText: /^Invitation mise en file d’envoi\.$/ })).toBeVisible();
 
     rawToken = await findActivationToken(parentEmail);
     // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
