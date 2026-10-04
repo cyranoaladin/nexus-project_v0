@@ -68,6 +68,7 @@ describe('parent subscriptions', () => {
     (prisma.student.findMany as jest.Mock).mockResolvedValue([
       {
         id: 'student-1',
+          userId: 'student-1-user', parent: { userId: 'parent-1' },
         grade: 'Seconde',
         school: 'Lycée',
         user: { firstName: 'Student', lastName: 'One' },

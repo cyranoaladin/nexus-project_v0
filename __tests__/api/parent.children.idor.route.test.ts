@@ -28,6 +28,7 @@ describe('GET /api/parent/children — IDOR (P0-02)', () => {
         return Promise.resolve([
           {
             id: 'student-a',
+          userId: 'student-a-user', parent: { userId: 'parent-a' },
             grade: 'Terminale',
             school: 'Lycée A',
             createdAt: new Date('2025-01-01'),

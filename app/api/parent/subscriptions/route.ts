@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { resolveParentStudentListAccess } from '@/lib/families/list-access-authority';
 import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
 import { ARIA_SUSPENSION_REASON, isSaleSuspended } from '@/lib/commerce/sale-suspension';
 import { z } from 'zod';
@@ -38,8 +39,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Get children with their subscriptions
+    const access = await resolveParentStudentListAccess(userId, parentProfile.id);
+    if (access.unavailable) {
+      return NextResponse.json({ error: 'Family authority unavailable' },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+    if (access.studentIds.length === 0) {
+      return NextResponse.json({ children: [] },
+        { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+
     const children = await prisma.student.findMany({
-      where: { parentId: parentProfile.id },
+      where: { parentId: parentProfile.id, id: { in: [...access.studentIds] } },
       include: {
         user: { select: { firstName: true, lastName: true } },
         subscriptions: {
