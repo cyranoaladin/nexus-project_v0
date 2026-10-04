@@ -41,10 +41,11 @@ function successfulReport() {
   return sanitizePlaywrightReport({
     config: { rootDir: '/synthetic/repo/e2e/auth' }, errors: [],
     stats: { expected: 40, skipped: 0, unexpected: 0, flaky: 0 },
-    suites: [{ specs: cases.map(([file, title]) => ({ file, title, ok: true,
-      tests: Array.from({ length: 20 }, () => ({ projectName: 'mobile-smoke', expectedStatus: 'passed',
-        status: 'expected', annotations: [], results: [{ status: 'passed', retry: 0, errors: [] }] })),
-    })), suites: [] }],
+    suites: [{ specs: cases.flatMap(([file, title]) => Array.from({ length: 20 }, (_, repetition) => ({
+      id: `${file}-repeat-${repetition}`, file, title, ok: true,
+      tests: [{ projectName: 'mobile-smoke', expectedStatus: 'passed',
+        status: 'expected', annotations: [], results: [{ status: 'passed', retry: 0, errors: [] }] }],
+    }))), suites: [] }],
   });
 }
 
@@ -55,8 +56,10 @@ test('twenty genuine records per approved case qualify after privacy publishing'
 });
 
 test.each([
-  ['nineteen repetitions', r => { r.suites[0].specs[0].tests.pop(); }],
-  ['duplicated case', r => { r.suites[0].specs[1] = structuredClone(r.suites[0].specs[0]); }],
+  ['duplicate execution identity', r => { r.suites[0].specs[1].executionId = r.suites[0].specs[0].executionId; }],
+  ['missing execution identity', r => { delete r.suites[0].specs[0].executionId; }],
+  ['nineteen repetitions', r => { r.suites[0].specs.pop(); }],
+  ['duplicated case', r => { r.suites[0].specs[20] = structuredClone(r.suites[0].specs[0]); }],
   ['wrong viewport signature', r => { r.suites[0].specs[0].title = 'case:' + 'a'.repeat(64); }],
   ['wrong browser project', r => { r.suites[0].specs[0].tests[0].projectName = 'chromium'; }],
   ['skipped status', r => { r.suites[0].specs[0].tests[0].results[0].status = 'skipped'; }],

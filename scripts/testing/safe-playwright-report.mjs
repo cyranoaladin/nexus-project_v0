@@ -107,7 +107,13 @@ function suite(value, root) {
       const safeFile = file(spec.file, root);
       const visualSpec = safeFile?.endsWith('visual-a11y.spec.ts') === true
         && typeof spec.title === 'string' && /\bE0(?:18|19|20|21)\b/.test(spec.title);
+      // Playwright's opaque test id includes the repeat index. Retain only a
+      // one-way reference so qualification can reject duplicate executions.
+      const executionId = typeof spec.executionId === 'string' && /^execution:[a-f0-9]{64}$/.test(spec.executionId)
+        ? spec.executionId : typeof spec.id === 'string' && spec.id.length > 0
+          ? `execution:${hash(spec.id)}` : undefined;
       return { title: title(spec.title), file: safeFile, line: number(spec.line), column: number(spec.column),
+        ...(executionId ? { executionId } : {}),
         ok: spec.ok === true, tests: array(spec.tests).map(value => test(value, visualSpec)) };
     }),
   };

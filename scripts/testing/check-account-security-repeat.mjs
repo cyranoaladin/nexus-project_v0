@@ -26,13 +26,17 @@ export function qualifyAccountSecurityRepeat(report) {
     }
   }
   walk(report.suites);
-  if (specs.length !== 2) invalid();
+  if (specs.length !== 40) invalid();
   const seen = new Set();
+  const counts = new Map([...expectedCases.keys()].map(file => [file, 0]));
   for (const spec of specs) {
     const file = typeof spec?.file === 'string' ? spec.file.replace(/^e2e\/auth\//, '') : '';
-    if (!expectedCases.has(file) || seen.has(file) || spec.title !== expectedCases.get(file)
-      || spec.ok !== true || !Array.isArray(spec.tests) || spec.tests.length !== 20) invalid();
-    seen.add(file);
+    if (!expectedCases.has(file) || spec.title !== expectedCases.get(file)
+      || typeof spec.executionId !== 'string' || !/^execution:[a-f0-9]{64}$/.test(spec.executionId)
+      || seen.has(spec.executionId) || spec.ok !== true
+      || !Array.isArray(spec.tests) || spec.tests.length !== 1) invalid();
+    seen.add(spec.executionId);
+    counts.set(file, counts.get(file) + 1);
     for (const test of spec.tests) {
       if (test?.projectName !== 'mobile-smoke' || test.expectedStatus !== 'passed'
         || test.status !== 'expected' || !Array.isArray(test.annotations)
@@ -43,6 +47,7 @@ export function qualifyAccountSecurityRepeat(report) {
         || !Array.isArray(result.errors) || result.errors.length !== 0) invalid();
     }
   }
+  if ([...counts.values()].some(count => count !== 20)) invalid();
   return { project: 'mobile-smoke', cases: 2, repetitionsPerCase: 20, passed: 40, skipped: 0, retries: 0 };
 }
 
