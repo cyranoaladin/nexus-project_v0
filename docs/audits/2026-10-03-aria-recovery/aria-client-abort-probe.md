@@ -21,3 +21,9 @@ Ces métadonnées doivent distinguer une annulation cliente d'une coupure sans a
 ## Limites
 
 Ces 20 répétitions sont un diagnostic du transport et de l'observateur. Elles ne remplacent pas les 20 répétitions du scénario mobile canonique, la matrice E018–E021, les sessions réelles de test ou les campagnes multi-navigateurs. Le prochain résultat CI doit être lié à son SHA exact.
+
+## Fixture du contrat de requête
+
+La première exécution des tests voisins a terminé avec 1 échec et 12 réussites : la page synthétique du test de Request n'exposait pas l'API navigateur de l'observateur. Le commit d'observation a été publié avant traitement de ce résultat ; il n'est pas revendiqué comme qualifié.
+
+Le test de Request isole désormais le module d'observation, déjà exercé dans le diagnostic Chromium. Il conserve le budget de 32 microtâches, les requêtes concurrentes et toutes les assertions de nettoyage. Les assertions sont renforcées pour vérifier le message causal exact des échecs, l'absence d'erreur nominale et la libération de l'observateur. Après correction : 2 suites, 13 tests réussis (0,568 s), sans sleep ni augmentation de timeout. Journaux : `.artifacts/recovery/aria-probe-neighbor-tests.log` et `aria-probe-fixture-green.log`.

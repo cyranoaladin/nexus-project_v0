@@ -3,6 +3,17 @@ import { EventEmitter } from 'node:events';
 import type { Page, Request } from '@playwright/test';
 import { sendFromComposerAndFinishTransport } from '../../../e2e/aria/helpers';
 jest.mock('../../../e2e/helpers/auth', () => ({ loginAsUser: jest.fn() }));
+// Observation has its separate native-browser diagnostic; this fixture tests
+// the submitted Request contract, including concurrent requests and cleanup.
+jest.mock('../../../e2e/helpers/aria-transport-probe', () => ({
+  installAriaTransportProbe: jest.fn(async (page: { probeDisposed: () => void }) => ({
+    snapshot: async () => ({
+      selected: true, headersReceived: true, signalAborted: false,
+      fetchRejected: false, dialogPresent: true, composerEnabled: true, alertPresent: false,
+    }),
+    dispose: async () => page.probeDisposed(),
+  })),
+}));
 jest.mock('@playwright/test', () => ({
   expect: (value: unknown) => expect(value),
   test: { step: (_title: string, action: () => unknown) => action() },
@@ -12,6 +23,7 @@ type Outcome = 'FINISHED' | 'net::ERR_ABORTED' | 'net::ERR_CONNECTION_RESET'
   | 'NO_HEADERS' | 'RESPONSE_REJECTED' | 'BODY_REJECTED';
 
 class SyntheticPage extends EventEmitter {
+  readonly probeDisposed = jest.fn();
   private bodyFinished!: () => void;
   readonly submitted = {
     url: () => 'http://synthetic.test/api/aria/chat', method: () => 'POST',
@@ -51,12 +63,23 @@ test.each<Outcome>(['FINISHED', 'net::ERR_ABORTED', 'net::ERR_CONNECTION_RESET',
   'NO_HEADERS', 'RESPONSE_REJECTED', 'BODY_REJECTED'])('the exact submitted chat transport settles on %s without hiding failures', async outcome => {
   const page = new SyntheticPage(outcome);
   let disposition = 'pending';
+  let failure: unknown;
   const operation = sendFromComposerAndFinishTransport(page as unknown as Page, 'synthetic-turn')
-    .then(() => { disposition = 'finished'; }, () => { disposition = 'failed'; });
+    .then(() => { disposition = 'finished'; }, error => { disposition = 'failed'; failure = error; });
   // Drain the bounded promise chain without advancing a clock or sleeping.
   for (let i = 0; i < 32; i++) await Promise.resolve();
   expect(disposition).toBe(outcome === 'FINISHED' ? 'finished' : 'failed');
   await operation;
+  if (outcome === 'FINISHED') expect(failure).toBeUndefined();
+  else if (outcome === 'NO_HEADERS') {
+    expect(failure instanceof Error && failure.message.includes('not.toBeNull')).toBe(true);
+  } else {
+    const expected = outcome === 'net::ERR_ABORTED' ? 'ARIA_CHAT_TRANSPORT_ABORTED'
+      : outcome === 'RESPONSE_REJECTED' ? 'SYNTHETIC_RESPONSE_UNAVAILABLE'
+        : 'ARIA_CHAT_TRANSPORT_FAILED';
+    expect(failure).toMatchObject({ message: expected });
+  }
+  expect(page.probeDisposed).toHaveBeenCalledTimes(1);
   expect(page.listenerCount('request')).toBe(0);
   expect(page.listenerCount('requestfinished')).toBe(0);
   expect(page.listenerCount('requestfailed')).toBe(0);
