@@ -3,6 +3,7 @@ import 'server-only';
 import type { AuthSession } from '@/lib/guards';
 import { isErrorResponse, requireAnyRole, requireParentOwnsStudent } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { activeAssignmentClause } from '@/lib/security/ownership';
 import { NextResponse } from 'next/server';
 import { UserRole } from '@prisma/client';
 import type { DiagnosticAudience } from './types';
@@ -11,7 +12,7 @@ export async function requireDiagnosticActor() {
   return requireAnyRole([UserRole.ELEVE, UserRole.PARENT, UserRole.COACH, UserRole.ADMIN, UserRole.ASSISTANTE]);
 }
 
-export async function getStudentForActor(session: AuthSession, requestedStudentId: string | undefined, action: 'read' | 'mutation') {
+export async function getStudentForActor(session: AuthSession, requestedStudentId: string | undefined, action: 'read' | 'mutation', now: Date = new Date()) {
   if (session.user.role === UserRole.ELEVE) {
     return prisma.student.findUnique({
       where: { userId: session.user.id },
@@ -25,7 +26,7 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
   }
   if (session.user.role === UserRole.COACH) {
     const assignment = await prisma.coachStudentAssignment.findFirst({
-      where: { studentId: requestedStudentId, coach: { userId: session.user.id }, status: 'ACTIVE' },
+      where: { studentId: requestedStudentId, coach: { userId: session.user.id }, ...activeAssignmentClause(now) },
       select: { id: true },
     });
     if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -36,7 +37,7 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
   });
 }
 
-export async function getDiagnosticForActor(session: AuthSession, diagnosticId: string, action: 'read' | 'mutation') {
+export async function getDiagnosticForActor(session: AuthSession, diagnosticId: string, action: 'read' | 'mutation', now: Date = new Date()) {
   // Load only authorization identifiers before accessing a minor's answers,
   // documents or names. Refusal must never cause a detailed record read.
   const scope = await prisma.candidateDiagnostic.findUnique({
@@ -54,7 +55,7 @@ export async function getDiagnosticForActor(session: AuthSession, diagnosticId: 
   }
   if (session.user.role === UserRole.COACH) {
     const assignment = await prisma.coachStudentAssignment.findFirst({
-      where: { studentId: scope.studentId, coach: { userId: session.user.id }, status: 'ACTIVE' },
+      where: { studentId: scope.studentId, coach: { userId: session.user.id }, ...activeAssignmentClause(now) },
       select: { id: true },
     });
     if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

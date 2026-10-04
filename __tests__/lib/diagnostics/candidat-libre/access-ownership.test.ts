@@ -38,10 +38,12 @@ test('an unassigned coach cannot resolve another student or load their profile',
 });
 
 test('an assigned coach resolves the student only after the active assignment check', async () => {
+  const now = new Date('2026-10-04T10:00:00.000Z');
   jest.mocked(prisma.coachStudentAssignment.findFirst).mockResolvedValue({ id: 'synthetic-assignment' } as never);
-  expect(await getStudentForActor(actor(UserRole.COACH), 'synthetic-student', 'read')).toEqual({ id: 'synthetic-student' });
+  expect(await getStudentForActor(actor(UserRole.COACH), 'synthetic-student', 'read', now)).toEqual({ id: 'synthetic-student' });
   expect(prisma.coachStudentAssignment.findFirst).toHaveBeenCalledWith({
-    where: { studentId: 'synthetic-student', coach: { userId: 'synthetic-viewer' }, status: 'ACTIVE' },
+    where: { studentId: 'synthetic-student', coach: { userId: 'synthetic-viewer' }, status: 'ACTIVE',
+      startsAt: { lte: now }, OR: [{ endsAt: null }, { endsAt: { gte: now } }] },
     select: { id: true },
   });
   expect(jest.mocked(prisma.coachStudentAssignment.findFirst).mock.invocationCallOrder[0])

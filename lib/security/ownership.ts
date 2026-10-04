@@ -9,7 +9,7 @@ type SessionUserLike = {
 const STAFF_ROLES = new Set(['ADMIN', 'ASSISTANTE']);
 const INTERNAL_BILAN_ROLES = new Set(['ADMIN', 'ASSISTANTE', 'COACH']);
 
-function activeAssignmentClause(now: Date = new Date()): Prisma.CoachStudentAssignmentWhereInput {
+export function activeAssignmentClause(now: Date = new Date()): Prisma.CoachStudentAssignmentWhereInput {
   return {
     status: 'ACTIVE',
     startsAt: { lte: now },
