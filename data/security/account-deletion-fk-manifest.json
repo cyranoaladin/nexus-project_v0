@@ -1,5 +1,54 @@
 [
   {
+    "conname": "CoachAvailability_coachId_fkey",
+    "childTable": "CoachAvailability",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED"
+  },
+  {
+    "conname": "SessionBooking_coachId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_coachProfileId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "coach_profiles",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_parentId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_studentId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionBooking_studentProfileId_fkey",
+    "childTable": "SessionBooking",
+    "parentTable": "students",
+    "onDelete": "SET NULL",
+    "category": "HISTORICAL_RESTRICT"
+  },
+  {
+    "conname": "SessionNotification_userId_fkey",
+    "childTable": "SessionNotification",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED"
+  },
+  {
     "conname": "account_security_events_userId_fkey",
     "childTable": "account_security_events",
     "parentTable": "users",
@@ -35,7 +84,7 @@
       "isAuditRelevant": false,
       "isCommercialEvidence": false,
       "retentionRequirement": "None.",
-      "whyCascadeIsSafe": "Pure UI preference/onboarding state (target session, weekly goal, pinned courses) — no history value, fully re-derivable."
+      "whyCascadeIsSafe": "Pure UI preference/onboarding state (target session, weekly goal, pinned courses) \u2014 no history value, fully re-derivable."
     }
   },
   {
@@ -102,7 +151,7 @@
       "isAuditRelevant": false,
       "isCommercialEvidence": false,
       "retentionRequirement": "None.",
-      "whyCascadeIsSafe": "Pure UI preference state (selected/pinned course keys, ordering, citation-display toggle) — no history value, fully re-derivable from the student re-configuring the cockpit."
+      "whyCascadeIsSafe": "Pure UI preference state (selected/pinned course keys, ordering, citation-display toggle) \u2014 no history value, fully re-derivable from the student re-configuring the cockpit."
     }
   },
   {
@@ -365,13 +414,6 @@
     "category": "HISTORICAL_RESTRICT"
   },
   {
-    "conname": "CoachAvailability_coachId_fkey",
-    "childTable": "CoachAvailability",
-    "parentTable": "users",
-    "onDelete": "CASCADE",
-    "category": "EPHEMERAL_CASCADE_ALLOWED"
-  },
-  {
     "conname": "copy_submissions_coachId_fkey",
     "childTable": "copy_submissions",
     "parentTable": "coach_profiles",
@@ -434,7 +476,7 @@
       "isPedagogicalHistory": false,
       "isAuditRelevant": true,
       "isCommercialEvidence": true,
-      "retentionRequirement": "Record of every product/tier ever granted or revoked for this user, linked to its source invoice/subscription — needed for billing-dispute and support history.",
+      "retentionRequirement": "Record of every product/tier ever granted or revoked for this user, linked to its source invoice/subscription \u2014 needed for billing-dispute and support history.",
       "whyCascadeIsSafe": null
     }
   },
@@ -467,6 +509,54 @@
     "category": "HISTORICAL_RESTRICT"
   },
   {
+    "conname": "invoice_financial_access_audits_actorUserId_fkey",
+    "childTable": "invoice_financial_access_audits",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": true,
+      "retentionRequirement": "Preserve evidence pending an approved retention/anonymization policy; this classification does not set a legal duration.",
+      "whyRestrictIsRequired": "Append-only financial attribution must survive account deactivation; hard deletion of the actor is restricted."
+    }
+  },
+  {
+    "conname": "invoice_financial_delegations_delegateUserId_fkey",
+    "childTable": "invoice_financial_delegations",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": true,
+      "retentionRequirement": "Preserve evidence pending an approved retention/anonymization policy; this classification does not set a legal duration.",
+      "whyRestrictIsRequired": "A grant and its revocation are financial authorization history; account removal cannot cascade through this evidence."
+    }
+  },
+  {
+    "conname": "invoices_payerUserId_fkey",
+    "childTable": "invoices",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "FINANCIAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": true,
+      "retentionRequirement": "Preserve evidence pending an approved retention/anonymization policy; this classification does not set a legal duration.",
+      "whyRestrictIsRequired": "Canonical payer identity is commercial evidence; disabling an account must not erase issued invoices or change their party."
+    }
+  },
+  {
     "conname": "maths_progress_userId_fkey",
     "childTable": "maths_progress",
     "parentTable": "users",
@@ -478,7 +568,7 @@
       "isPedagogicalHistory": true,
       "isAuditRelevant": false,
       "isCommercialEvidence": false,
-      "retentionRequirement": "The student's actual practice record: completed/mastered chapters, XP, quiz scores, streaks, diagnostic results, error tags. Not a cache — it IS the record of what this minor did on the platform. Never explicitly reviewed before #273.",
+      "retentionRequirement": "The student's actual practice record: completed/mastered chapters, XP, quiz scores, streaks, diagnostic results, error tags. Not a cache \u2014 it IS the record of what this minor did on the platform. Never explicitly reviewed before #273.",
       "whyCascadeIsSafe": null
     }
   },
@@ -615,7 +705,7 @@
       "isPedagogicalHistory": true,
       "isAuditRelevant": true,
       "isCommercialEvidence": false,
-      "retentionRequirement": "A time series of SSN-score predictions (ssnProjected/confidenceIndex/modelVersion) — the table's own name and purpose IS the trend it preserves. inputSnapshot (the one field that could make a row re-derivable) is nullable and often absent, so \"re-derivable\" does not generally hold. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
+      "retentionRequirement": "A time series of SSN-score predictions (ssnProjected/confidenceIndex/modelVersion) \u2014 the table's own name and purpose IS the trend it preserves. inputSnapshot (the one field that could make a row re-derivable) is nullable and often absent, so \"re-derivable\" does not generally hold. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
       "whyCascadeIsSafe": null
     }
   },
@@ -639,48 +729,6 @@
     "parentTable": "students",
     "onDelete": "RESTRICT",
     "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionBooking_coachId_fkey",
-    "childTable": "SessionBooking",
-    "parentTable": "users",
-    "onDelete": "RESTRICT",
-    "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionBooking_coachProfileId_fkey",
-    "childTable": "SessionBooking",
-    "parentTable": "coach_profiles",
-    "onDelete": "SET NULL",
-    "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionBooking_parentId_fkey",
-    "childTable": "SessionBooking",
-    "parentTable": "users",
-    "onDelete": "SET NULL",
-    "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionBooking_studentId_fkey",
-    "childTable": "SessionBooking",
-    "parentTable": "users",
-    "onDelete": "RESTRICT",
-    "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionBooking_studentProfileId_fkey",
-    "childTable": "SessionBooking",
-    "parentTable": "students",
-    "onDelete": "SET NULL",
-    "category": "HISTORICAL_RESTRICT"
-  },
-  {
-    "conname": "SessionNotification_userId_fkey",
-    "childTable": "SessionNotification",
-    "parentTable": "users",
-    "onDelete": "CASCADE",
-    "category": "EPHEMERAL_CASCADE_ALLOWED"
   },
   {
     "conname": "sessions_coachId_fkey",
@@ -813,7 +861,7 @@
       "isPedagogicalHistory": true,
       "isAuditRelevant": false,
       "isCommercialEvidence": false,
-      "retentionRequirement": "Structurally the same category of data as maths_progress (gamified exam-prep progress: reflexes/phrases/qcm state, a predicted grade notePotentielle) — being gamified is not itself a reason to treat it as disposable once maths_progress (the same shape of data) is treated as real pedagogical history. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
+      "retentionRequirement": "Structurally the same category of data as maths_progress (gamified exam-prep progress: reflexes/phrases/qcm state, a predicted grade notePotentielle) \u2014 being gamified is not itself a reason to treat it as disposable once maths_progress (the same shape of data) is treated as real pedagogical history. Reclassified from EPHEMERAL_CASCADE_ALLOWED on #273 re-review.",
       "whyCascadeIsSafe": null
     }
   },
