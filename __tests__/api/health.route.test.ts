@@ -29,4 +29,14 @@ describe('health route', () => {
     expect(json.status).toBe('error');
     errSpy.mockRestore();
   });
+
+  it('never logs underlying database connection details', async () => {
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      jest.mocked(prisma.$queryRaw).mockRejectedValueOnce(new Error('SYNTHETIC_PRIVATE_DATABASE_DETAIL'));
+      expect((await GET()).status).toBe(503);
+      expect(JSON.stringify(errSpy.mock.calls)).not.toContain('SYNTHETIC_PRIVATE_DATABASE_DETAIL');
+      expect(errSpy).toHaveBeenCalled();
+    } finally { errSpy.mockRestore(); }
+  });
 });

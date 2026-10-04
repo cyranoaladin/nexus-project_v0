@@ -3,6 +3,7 @@ const mockDisconnect = jest.fn()
 const mockQuit = jest.fn(async () => undefined)
 const mockOn = jest.fn()
 const mockEvalCommand = jest.fn<Promise<unknown>, unknown[]>()
+const mockPing = jest.fn<Promise<string>, unknown[]>()
 import { RedisStore } from '@/lib/rate-limit/redis-store'
 import { createClient } from 'redis'
 
@@ -22,8 +23,11 @@ describe('RedisStore lifecycle', () => {
       quit: mockQuit,
       on: mockOn,
       eval: mockEvalCommand,
+      ping: mockPing,
     }))
     process.env.RATE_LIMIT_REDIS_COMMAND_TIMEOUT_MS = '20'
+    mockPing.mockResolvedValue('PONG')
+    mockConnect.mockResolvedValue(undefined)
   })
 
   afterAll(() => {
@@ -69,5 +73,46 @@ describe('RedisStore lifecycle', () => {
     await expect(store.increment('rl:v1:test:scope:ip:key', 1, 1_000)).rejects.toThrow(
       'Redis returned an invalid rate-limit TTL',
     )
+  })
+
+  it('probes Redis without incrementing any business counter', async () => {
+    const store = new RedisStore('redis://127.0.0.1:6379')
+    await store.probe()
+    expect(mockPing).toHaveBeenCalledTimes(1)
+    expect(mockEvalCommand).not.toHaveBeenCalled()
+  })
+
+  it('rejects a readiness response other than PONG', async () => {
+    mockPing.mockResolvedValue('INVALID')
+    const store = new RedisStore('redis://127.0.0.1:6379')
+    await expect(store.probe()).rejects.toThrow('Redis readiness response invalid')
+    expect(mockDisconnect).toHaveBeenCalledTimes(1)
+  })
+
+  it('bounds an unavailable readiness probe with the command deadline', async () => {
+    process.env.RATE_LIMIT_REDIS_COMMAND_TIMEOUT_MS = '50'
+    mockPing.mockImplementation(() => new Promise(() => undefined))
+    const store = new RedisStore('redis://127.0.0.1:6379')
+    await expect(store.probe()).rejects.toThrow('Redis rate-limit command timed out')
+    expect(mockDisconnect).toHaveBeenCalledTimes(1)
+  })
+
+  it('shares an in-flight connection between readiness and a business decision', async () => {
+    let connected = false
+    let release!: () => void
+    const barrier = new Promise<void>(resolve => { release = resolve })
+    mockConnect.mockImplementation(async () => { await barrier; connected = true; return undefined })
+    mockEvalCommand.mockResolvedValue([1, 1_000])
+    mockCreateClient.mockImplementation(() => ({
+      get isOpen() { return connected }, connect: mockConnect, disconnect: mockDisconnect,
+      quit: mockQuit, on: mockOn, eval: mockEvalCommand, ping: mockPing,
+    }))
+    const store = new RedisStore('redis://127.0.0.1:6379')
+    const probe = store.probe()
+    const decision = store.increment('synthetic-readiness-race', 1, 1_000)
+    try { expect(mockConnect).toHaveBeenCalledTimes(1) }
+    finally { release(); await Promise.all([probe, decision]) }
+    expect(mockPing).toHaveBeenCalledTimes(1)
+    expect(mockEvalCommand).toHaveBeenCalledTimes(1)
   })
 })

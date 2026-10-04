@@ -47,6 +47,7 @@ function reconnectDelay(retries: number): number | Error {
 
 export class RedisStore implements DistributedRateLimitStore {
   private readonly client: ReturnType<typeof createClient>
+  private connecting?: Promise<void>
 
   constructor(url: string) {
     this.client = createClient({
@@ -86,12 +87,9 @@ export class RedisStore implements DistributedRateLimitStore {
     limit: number,
     windowMs: number,
   ): Promise<RateLimitDecision> {
-    if (!this.client.isOpen) {
-      await this.withDeadline(this.client.connect())
-    }
-
     let result: unknown
     try {
+      await this.ensureConnected()
       result = await this.withDeadline(
         this.client.eval(script, {
           keys: [...keys],
@@ -122,6 +120,27 @@ export class RedisStore implements DistributedRateLimitStore {
 
   async close(): Promise<void> {
     if (this.client.isOpen) await this.client.quit()
+  }
+
+  /** Bounded read-only dependency probe, without a rate-limit counter. */
+  async probe(): Promise<void> {
+    try {
+      await this.ensureConnected()
+      const response = await this.withDeadline(this.client.ping())
+      if (response !== 'PONG') throw new Error('Redis readiness response invalid')
+    } catch (error) {
+      if (this.client.isOpen) this.client.disconnect()
+      throw error
+    }
+  }
+
+  private async ensureConnected(): Promise<void> {
+    if (this.connecting) return this.connecting
+    if (this.client.isOpen) return
+    const connecting = this.withDeadline(this.client.connect()).then(() => undefined)
+    this.connecting = connecting
+    try { await connecting }
+    finally { if (this.connecting === connecting) this.connecting = undefined }
   }
 
   async destroy(): Promise<void> {

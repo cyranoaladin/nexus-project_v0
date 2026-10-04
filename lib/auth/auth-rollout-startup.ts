@@ -12,6 +12,19 @@ import { requireCoreV2Client } from '@/lib/core-v2/client'
 import { coreV2AuthEnabled, getAuthRolloutMode, type AuthRolloutMode } from '@/lib/core-v2/auth/rollout'
 import { getPasswordResetTtlMs } from '@/lib/core-v2/config'
 
+/** Read-only monitoring through the same verified client authority as startup.
+ * A cached client still performs SELECT 1 on every probe; no V1 fallback.
+ */
+export async function checkAuthAuthorityReadiness(): Promise<{
+  mode: AuthRolloutMode; coreV2: 'ready' | 'not-applicable';
+}> {
+  const mode = getAuthRolloutMode()
+  if (!coreV2AuthEnabled(mode)) return { mode, coreV2: 'not-applicable' }
+  const client = await requireCoreV2Client()
+  await client.$queryRaw`SELECT 1`
+  return { mode, coreV2: 'ready' }
+}
+
 export async function assertAuthRolloutStartup(): Promise<AuthRolloutMode> {
   const mode = getAuthRolloutMode()
   if (coreV2AuthEnabled(mode)) {
