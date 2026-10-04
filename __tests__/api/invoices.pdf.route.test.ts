@@ -61,9 +61,11 @@ describe('GET /api/invoices/[id]/pdf — Token-based access', () => {
     expect(res.status).toBe(404);
   });
 
-  it('should stream PDF for valid token', async () => {
+  it('should stream PDF for valid token and an authorized financial session', async () => {
+    mockAuth.mockResolvedValue({user:{id:'synthetic-payer',role:'PARENT'}});
+    mockBuildScope.mockResolvedValue({id:'inv-1',payerUserId:'synthetic-payer',status:{not:'DRAFT'}});
     mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' });
-    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue({
       id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', pdfPath: '/storage/invoices/NXS-2026-0001.pdf',
     });
 
@@ -73,9 +75,11 @@ describe('GET /api/invoices/[id]/pdf — Token-based access', () => {
     expect(res.headers.get('Content-Type')).toBe('application/pdf');
   });
 
-  it('should return 404 when invoice has no pdfPath', async () => {
+  it('should return 404 when an authorized link has no pdfPath', async () => {
+    mockAuth.mockResolvedValue({user:{id:'synthetic-payer',role:'PARENT'}});
+    mockBuildScope.mockResolvedValue({id:'inv-1',payerUserId:'synthetic-payer',status:{not:'DRAFT'}});
     mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' });
-    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue({
       id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', pdfPath: null,
     });
 

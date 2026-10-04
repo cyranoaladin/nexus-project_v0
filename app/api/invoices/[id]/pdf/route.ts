@@ -1,9 +1,8 @@
 /**
  * GET /api/invoices/:id/pdf — Stream invoice PDF with RBAC + token access.
  *
- * Two access paths:
- * 1. Session-based (RBAC): ADMIN sees all, PARENT scoped by payer or active financial delegation
- * 2. Token-based (?token=...): signed link from email, 72h expiry
+ * Every read requires session-based financial authority.
+ * A signed email link adds expiry/revocation checks; it never grants authority by itself.
  *
  * No-leak design:
  * - ALL deny cases (absent, out-of-scope, token invalid/expired/revoked, forbidden role)
@@ -43,7 +42,7 @@ export async function GET(
     const { id } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
-    // ─── Path 1: Token-based access (external link from email) ────────
+    // Optional signed-link constraint, never a replacement for session authority.
     if (token) {
       const verification = await verifyAccessToken(token);
 
@@ -51,20 +50,10 @@ export async function GET(
         return notFoundResponse();
       }
 
-      const invoice = await prisma.invoice.findUnique({
-        where: { id },
-        select: { id: true, number: true, pdfPath: true, status: true },
-      });
 
-      if (!invoice || !invoice.pdfPath || !isPublishedInvoiceStatus(invoice.status)) {
-        return notFoundResponse();
-      }
-
-      const pdfBuffer = await readInvoicePDF(invoice.pdfPath);
-      return streamPdf(pdfBuffer, invoice.number);
     }
 
-    // ─── Path 2: Session-based RBAC access ────────────────────────────
+    // Every successful read uses the same scoped session query and audit.
     const session = await auth();
     if (!session?.user?.id) {
       return notFoundResponse();

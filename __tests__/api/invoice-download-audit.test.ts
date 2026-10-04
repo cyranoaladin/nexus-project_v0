@@ -3,7 +3,7 @@ import { GET as invoicePDF } from '@/app/api/invoices/[id]/pdf/route';
 import { GET as receiptPDF } from '@/app/api/invoices/[id]/receipt/pdf/route';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
-import { readInvoicePDF, renderReceiptPDF, createInvoiceEvent, appendInvoiceEvent } from '@/lib/invoice';
+import { readInvoicePDF, renderReceiptPDF, createInvoiceEvent, appendInvoiceEvent, verifyAccessToken } from '@/lib/invoice';
 import { NextRequest } from 'next/server';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/invoice', () => ({
@@ -84,4 +84,32 @@ it.each([invoicePDF,receiptPDF])('never records a successful read for an out-of-
   (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(null);
   expect((await get(request,params)).status).toBe(404);
   expect(prisma.invoiceFinancialAccessAudit.create).not.toHaveBeenCalled();
+});
+
+
+describe('a PDF link never replaces financial session authority', () => {
+  const linkedRequest = new NextRequest('http://localhost/api/invoices/synthetic-invoice/pdf?token=synthetic-link');
+  beforeEach(() => {
+    jest.mocked(verifyAccessToken).mockResolvedValue({valid:true,invoiceId:'synthetic-invoice'});
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({id:'synthetic-invoice',number:'SYNTHETIC-1',status:'PAID',pdfPath:'/synthetic/invoice.pdf'});
+  });
+  it('refuses an unauthenticated bearer even when the invoice token is valid', async () => {
+    jest.mocked(auth).mockResolvedValue(null);
+    expect((await invoicePDF(linkedRequest,params)).status).toBe(404);
+    expect(readInvoicePDF).not.toHaveBeenCalled();
+  });
+  it('refuses a verified link held by an out-of-scope parent', async () => {
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(null);
+    expect((await invoicePDF(linkedRequest,params)).status).toBe(404);
+    expect(readInvoicePDF).not.toHaveBeenCalled();
+  });
+  it('refuses student finance access even with a valid link', async () => {
+    jest.mocked(auth).mockResolvedValue({user:{id:'synthetic-student',role:'ELEVE'}} as never);
+    expect((await invoicePDF(linkedRequest,params)).status).toBe(404);
+    expect(readInvoicePDF).not.toHaveBeenCalled();
+  });
+  it('audits a valid link only under the actual authorized session actor', async () => {
+    expect((await invoicePDF(linkedRequest,params)).status).toBe(200);
+    expect(prisma.invoiceFinancialAccessAudit.create).toHaveBeenCalledWith({data:expect.objectContaining({actorUserId:'synthetic-parent',action:'PDF_READ'})});
+  });
 });
