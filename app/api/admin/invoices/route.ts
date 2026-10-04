@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { checkCsrf } from '@/lib/csrf';
 import { privateFinancialJson } from '@/lib/invoice/private-response';
 /**
@@ -169,36 +170,46 @@ export async function POST(request: NextRequest) {
       ...body.issuer,
     };
 
-    // Create invoice in DB
-    const invoice = await prisma.invoice.create({
-      data: {
-        number: invoiceNumber,
-        status: 'DRAFT',
-        issuedAt: body.issuedAt ? new Date(body.issuedAt) : new Date(),
-        dueAt: body.dueAt ? new Date(body.dueAt) : null,
-        customerName: body.customer.name,
-        customerEmail: body.customer.email ?? null,
-        customerAddress: body.customer.address ?? null,
-        customerId: body.customer.customerId ?? null,
-        issuerName: issuer.name,
-        issuerAddress: issuer.address,
-        issuerMF: issuer.mf,
-        issuerRNE: issuer.rne ?? null,
-        currency: 'TND',
-        subtotal,
-        discountTotal,
-        taxTotal,
-        total,
-        taxRegime,
-        paymentMethod: body.paymentMethod ?? null,
-        createdByUserId: session.user.id,
-        notes: body.notes ?? null,
-        events: JSON.parse(JSON.stringify([createInvoiceEvent('INVOICE_CREATED', session.user.id, `Facture ${invoiceNumber} créée`)])) as Prisma.InputJsonValue,
-        items: {
-          create: computedItems,
+    // Invoice, nested items and immutable creation evidence commit together.
+    const actorUserId = session.user.id;
+    const invoice = await prisma.$transaction(async tx => {
+      const created = await tx.invoice.create({
+        data: {
+          number: invoiceNumber,
+          status: 'DRAFT',
+          issuedAt: body.issuedAt ? new Date(body.issuedAt) : new Date(),
+          dueAt: body.dueAt ? new Date(body.dueAt) : null,
+          customerName: body.customer.name,
+          customerEmail: body.customer.email ?? null,
+          customerAddress: body.customer.address ?? null,
+          customerId: body.customer.customerId ?? null,
+          issuerName: issuer.name,
+          issuerAddress: issuer.address,
+          issuerMF: issuer.mf,
+          issuerRNE: issuer.rne ?? null,
+          currency: 'TND',
+          subtotal,
+          discountTotal,
+          taxTotal,
+          total,
+          taxRegime,
+          paymentMethod: body.paymentMethod ?? null,
+          createdByUserId: actorUserId,
+          notes: body.notes ?? null,
+          events: JSON.parse(JSON.stringify([createInvoiceEvent('INVOICE_CREATED', actorUserId, `Facture ${invoiceNumber} créée`)])) as Prisma.InputJsonValue,
+          items: {
+            create: computedItems,
+          },
         },
-      },
-      include: { items: true },
+        include: { items: true },
+      });
+      await tx.invoiceFinancialAccessAudit.create({ data: {
+        invoiceId: created.id,
+        actorUserId,
+        action: 'INVOICE_CREATED',
+        requestKey: `invoice-create:${randomUUID()}`,
+      } });
+      return created;
     });
 
     // Build InvoiceData for PDF rendering
