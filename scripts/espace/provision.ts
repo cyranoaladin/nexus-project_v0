@@ -6,6 +6,7 @@
  *     (codes émis TEMPORAIRES : l'élève choisit le sien à la première connexion ; --keep-codes pour les rendre définitifs)
  *   npx tsx scripts/espace/provision.ts reset-pin --username adam.c --execute --credentials-out /chemin/codes.txt
  *   npx tsx scripts/espace/provision.ts disable   --username adam.c --execute
+ *   npx tsx scripts/espace/provision.ts sync-activities [--execute]                     # miroir DB du catalogue (nouveau parcours)
  *
  * Dry-run par défaut. Les codes personnels ne sont JAMAIS affichés : ils sont
  * écrits une seule fois dans un fichier 0600 créé hors du dépôt.
@@ -23,8 +24,10 @@ import {
   parseRoster,
   planProvisioning,
   resetStudentPin,
+  syncActivities,
   type IssuedCredential,
 } from '@/lib/espace/provisioning';
+import { ACTIVITIES } from '@/lib/espace/catalog';
 
 function fail(message: string): never {
   process.stderr.write(`ERREUR : ${message}\n`);
@@ -110,7 +113,21 @@ async function main() {
     return;
   }
 
-  fail('Commande inconnue. Utilisez : apply | reset-pin | disable');
+  if (command === 'sync-activities') {
+    // Le contenu reste dans le code ; la base ne porte qu'un miroir (clés étrangères des travaux). Un nouveau parcours
+    // publié dans le code exige donc cette ligne avant la première ouverture par un élève. Idempotent, sans suppression.
+    const present = new Set((await prisma.espaceActivity.findMany({ select: { slug: true } })).map((a) => a.slug));
+    for (const a of ACTIVITIES) process.stdout.write(`${present.has(a.slug) ? 'présente ' : 'À CRÉER  '} ${a.slug}  (${a.stepsTotal} étapes, v${a.contentVersion})\n`);
+    if (!values.execute) {
+      process.stdout.write('DRY-RUN : aucune écriture. Ajoutez --execute pour synchroniser le miroir.\n');
+      return;
+    }
+    const count = await syncActivities(prisma);
+    process.stdout.write(`OK. ${count} activité(s) synchronisée(s) (création ou mise à jour des titres et du nombre d’étapes).\n`);
+    return;
+  }
+
+  fail('Commande inconnue. Utilisez : apply | reset-pin | disable | sync-activities');
 }
 
 main()

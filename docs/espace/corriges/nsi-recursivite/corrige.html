@@ -1,0 +1,428 @@
+<!--
+  Corrigé enseignant — Récursivité et programmation récursive.
+  DOCUMENT PRIVÉ : jamais servi aux élèves. Généré par content/espace/nsi-recursivite/build_content.py
+  à partir de solutions.py et de content.json : ne pas modifier à la main.
+-->
+<h1>Corrigé enseignant — Récursivité et programmation récursive</h1>
+<p class="meta">Terminale · NSI · Algorithmique et programmation · séance guidée de 1 h 50 à 2 h. Le parcours vérifie le comportement du code et son caractère récursif ; ce document donne les solutions de référence, les traces d’exécution, les réponses attendues, les erreurs probables et les interventions possibles.</p>
+<div class="box"><strong>Message central.</strong> Une fonction récursive résout un problème en traitant directement un <strong>cas simple</strong>, ou en le ramenant à une <strong>instance plus petite du même problème</strong>. Elle doit toujours progresser vers un cas de base. Cas de base + appel sur un problème plus petit + pile d’appels + retour des résultats + terminaison.</div>
+<div class="box"><strong>Position dans la progression NSI.</strong> Programmation orientée objet : TP POO 1 (Des objets qui agissent) et TP POO 2 (Listes, piles et files). Algorithmique et programmation : ce parcours. Il prolonge le TP Piles (pile d’appels, LIFO) sans être un « TP POO 3 ».</div>
+<h2>Déroulé conseillé (114 min + bonus)</h2><table><thead><tr><th>Étape</th><th>Durée</th><th>Niveau</th></tr></thead><tbody>
+<tr><td>Diagnostic : comment un programme finit-il ?</td><td>8 min</td><td>Diagnostic, non noté</td></tr>
+<tr><td>Découvrir la récursivité</td><td>12 min</td><td>Découverte puis guidé</td></tr>
+<tr><td>Cas de base et appel récursif</td><td>12 min</td><td>Guidé</td></tr>
+<tr><td>Suivre la pile d’appels</td><td>14 min</td><td>Guidé puis autonome</td></tr>
+<tr><td>Écrire ses premières fonctions récursives</td><td>16 min</td><td>Guidé puis autonome</td></tr>
+<tr><td>Récursivité sur des chaînes et des listes</td><td>16 min</td><td>Guidé puis autonome</td></tr>
+<tr><td>Itératif ou récursif ?</td><td>10 min</td><td>Guidé</td></tr>
+<tr><td>Mission : explorer un dossier imaginaire</td><td>18 min</td><td>Transfert</td></tr>
+<tr><td>Synthèse : ce qu’il faut retenir</td><td>8 min</td><td>Consolidation</td></tr>
+<tr><td>Pour aller plus loin : dichotomie, Fibonacci et arbres</td><td>facultatif</td><td>Facultatif, hors des 120 min</td></tr>
+</tbody></table>
+<h2>Compétences suivies</h2><table><thead><tr><th>Compétence</th><th>Étapes où elle est travaillée</th></tr></thead><tbody>
+<tr><td>Identifier le cas de base</td><td>Découvrir, Cas de base, Écrire, Mission</td></tr>
+<tr><td>Identifier l’appel récursif</td><td>Découvrir, Cas de base, Chaînes et listes</td></tr>
+<tr><td>Prévoir la terminaison</td><td>Diagnostic, Découvrir, Écrire</td></tr>
+<tr><td>Tracer des appels récursifs</td><td>Cas de base, Pile d’appels</td></tr>
+<tr><td>Comprendre les valeurs de retour</td><td>Cas de base, Pile d’appels</td></tr>
+<tr><td>Écrire une fonction récursive</td><td>Écrire, Chaînes et listes, Mission, Bonus</td></tr>
+<tr><td>Choisir entre itération et récursion</td><td>Itératif ou récursif, Synthèse</td></tr>
+</tbody></table>
+<p>Dans l’espace enseignant, ces compétences peuvent être annotées sur le travail de chaque élève (annotation d’étape ou commentaire réutilisable), avec le statut « À reprendre » si nécessaire.</p>
+<h2>Diagnostic : comment un programme finit-il ?</h2>
+<p><span class="tag">diagnostic</span> Une répétition finit parce que quelque chose progresse vers la condition d’arrêt. Sans progression, elle ne finit jamais : nous retrouverons cette exigence avec la récursivité.</p>
+<h3>Quelle est la condition d’arrêt de cette boucle ?</h3><p><strong>Réponse attendue :</strong> La boucle s’arrête quand n &gt;= 0 devient fausse (n est alors négatif)</p>
+<p>La boucle while continue tant que la condition n &gt;= 0 est vraie ; elle s’arrête dès que n devient négatif.</p>
+<ul><li><em>La boucle s’arrête quand n vaut 3</em> — n vaut 3 au départ seulement : ce n’est pas ce qui arrête la boucle.</li><li><em>La boucle s’arrête après le premier print</em> — print est dans la boucle : il est exécuté à chaque tour.</li><li><em>Il n’y a pas de condition d’arrêt</em> — Toute boucle while possède une condition : ici n &gt;= 0.</li></ul>
+<h3>Quelle variable évolue à chaque tour de boucle ?</h3><p><strong>Réponse attendue :</strong> n</p>
+<p>C’est n : la ligne n = n - 1 la diminue de 1 à chaque tour.</p>
+<ul><li><em>compte_a_rebours</em> — compte_a_rebours est le nom de la fonction, il ne change pas.</li><li><em>print</em> — print est une fonction d’affichage, pas une variable qui évolue.</li><li><em>La constante 0</em> — 0 est une valeur fixe, pas une variable.</li></ul>
+<h3>Pourquoi cette boucle finit-elle toujours ?</h3><p><strong>Réponse attendue :</strong> Parce que n diminue de 1 à chaque tour, donc finit par devenir négatif</p>
+<p>La boucle finit parce que n progresse vers la condition d’arrêt : il diminue de 1 à chaque tour.</p>
+<ul><li><em>Parce que Python arrête toute boucle au bout de dix tours</em> — Python ne limite pas les boucles à dix tours : une boucle sans progression ne finirait jamais.</li><li><em>Parce que n est positif au départ</em> — Être positif au départ ne suffit pas : il faut que n diminue.</li><li><em>Parce que print affiche des nombres</em> — L’affichage n’a aucun rôle dans l’arrêt.</li></ul>
+<h3>Que se passerait-il si la ligne n = n - 1 était supprimée ?</h3><p><strong>Réponse attendue :</strong> La boucle afficherait 3 indéfiniment : n ne changerait jamais</p>
+<p>Sans cette ligne, n reste égal à 3 et la condition n &gt;= 0 reste vraie : la boucle ne s’arrête jamais.</p>
+<ul><li><em>La boucle afficherait 3, 2, 1, 0 quand même</em> — Sans diminution de n, la suite 3, 2, 1, 0 ne peut pas apparaître.</li><li><em>La boucle ne s’exécuterait jamais</em> — La condition est vraie au départ : la boucle s’exécute.</li><li><em>Python refuserait de lire le programme</em> — Le programme est syntaxiquement correct : c’est sa logique qui est défaillante.</li></ul>
+<h3>En une phrase : à quelle condition une répétition finit-elle ?</h3><p><strong>Réponse attendue :</strong> Une répétition finit si, à chaque tour, quelque chose progresse vers la condition d’arrêt (ici n diminue jusqu’à devenir négatif). Sans progression, elle ne finit jamais.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Confondre « la boucle s’arrête » et « la boucle fait ce qui est demandé » : insister sur la progression de la variable.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Faire exécuter la boucle à la main sur un tableau de variables.</li></ul>
+<h2>Découvrir la récursivité</h2>
+<p><span class="tag">decouverte</span> Une fonction récursive a un cas de base et un appel récursif sur un problème plus petit. Sans progression vers le cas de base, les appels s’empilent jusqu’à la RecursionError.</p>
+<h3>Quelle instruction est le cas de base de compte_a_rebours ?</h3><p><strong>Réponse attendue :</strong> if n &lt; 0: return</p>
+<p>Le cas de base est la situation la plus simple, traitée sans nouvel appel : quand n est négatif, on s’arrête.</p>
+<ul><li><em>print(n)</em> — print(n) est exécuté pour chaque valeur de n ≥ 0 : ce n’est pas le cas d’arrêt.</li><li><em>compte_a_rebours(n - 1)</em> — Cette ligne est l’appel récursif, pas le cas de base.</li><li><em>def compte_a_rebours(n):</em> — C’est l’en-tête de la fonction : elle ne décide de rien.</li></ul>
+<h3>Quelle instruction est l’appel récursif ?</h3><p><strong>Réponse attendue :</strong> compte_a_rebours(n - 1)</p>
+<p>L’appel récursif est la ligne où la fonction s’appelle elle-même, ici sur un problème plus petit.</p>
+<ul><li><em>print(n)</em> — print est un appel de fonction, mais pas un appel à compte_a_rebours elle-même.</li><li><em>if n &lt; 0: return</em> — Cette ligne arrête la récursion : c’est le cas de base.</li><li><em>def compte_a_rebours(n):</em> — Ceci définit la fonction ; ce n’est pas un appel.</li></ul>
+<h3>Pourquoi l’appel récursif porte-t-il sur n - 1 et non sur n ?</h3><p><strong>Réponse attendue :</strong> Parce que n - 1 est un problème plus petit : on se rapproche du cas de base</p>
+<p>Avec n, on referait exactement le même problème, sans progresser : l’appel se répéterait sans fin. Avec n - 1, on se rapproche du cas de base n &lt; 0.</p>
+<ul><li><em>Parce que Python interdit d’appeler une fonction avec la même valeur</em> — Python n’interdit rien : c’est la logique qui l’exige.</li><li><em>Parce que print affiche n - 1</em> — print affiche n, pas n - 1.</li><li><em>Parce que n - 1 est toujours égal à 0</em> — n - 1 vaut 0 seulement quand n vaut 1.</li></ul>
+<h3>Que va-t-il se passer si on exécute compte_a_rebours(3) avec cette version ?</h3><p><strong>Réponse attendue :</strong> Elle affiche 3 de nombreuses fois, puis Python s’arrête avec une RecursionError</p>
+<p>Il n’y a ni cas de base ni progression : chaque appel recommence le même problème. Python limite la profondeur d’appels et signale une RecursionError.</p>
+<ul><li><em>Elle affiche 3 une fois, puis s’arrête</em> — Rien n’arrête la fonction après le premier affichage : elle se rappelle.</li><li><em>Elle affiche 3, 2, 1, 0</em> — Elle ne décrémente jamais n : 2, 1, 0 n’apparaissent jamais.</li><li><em>Elle affiche 3 indéfiniment et ne s’arrête jamais, quoi qu’il arrive</em> — En pratique, Python s’arrête de lui-même grâce à sa limite de profondeur.</li></ul>
+<h3>Que signifie une RecursionError ?</h3><p><strong>Réponse attendue :</strong> Trop d’appels sont imbriqués : la limite de profondeur de la pile d’appels est dépassée</p>
+<p>Chaque appel non terminé occupe de la place dans la pile d’appels. Quand il y en a trop, Python lève une RecursionError.</p>
+<ul><li><em>Python a trouvé une faute de syntaxe</em> — Une faute de syntaxe donnerait une SyntaxError avant l’exécution.</li><li><em>La fonction a retourné None</em> — Retourner None ne provoque aucune erreur par lui-même.</li><li><em>Le fichier du programme est trop gros</em> — La taille du fichier n’a aucun lien avec cette erreur.</li></ul>
+<h3>Explique en une phrase ce que tu as ajouté ou changé pour réparer compte_a_rebours.</h3><p><strong>Réponse attendue :</strong> J’ai ajouté un cas de base (if n &lt; 0: return) pour arrêter la récursion, et j’ai remplacé l’appel compte_a_rebours(n) par compte_a_rebours(n - 1) pour que le problème diminue à chaque appel.</p>
+<h3>Solution de référence</h3><pre>def compte_a_rebours(n):
+    if n &lt; 0:
+        return
+    print(n)
+    compte_a_rebours(n - 1)
+
+
+compte_a_rebours(3)</pre>
+<h3>Trace d’exécution</h3><p>compte_a_rebours(2) → affiche 2 → compte_a_rebours(1) → affiche 1 → compte_a_rebours(0) → affiche 0 → compte_a_rebours(-1) → cas de base : return. Quatre appels empilés au maximum, puis les retours (sans valeur) remontent un à un.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Penser que « la fonction s’appelle elle-même » suffit : un appel sans progression ni cas de base ne finit pas.</li><li>Croire que Python exécute réellement une infinité d’appels : la limite de profondeur provoque la RecursionError.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>Cas de base placé après l’appel récursif (la fonction s’appelle avant de tester).</li><li>Appel sur n ou sur n + 1 au lieu de n - 1.</li><li>Cas de base n &lt; 0 remplacé par n == 1 : le 0 n’est jamais affiché.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Demander à l’élève de prédire la sortie de la version défectueuse avant l’exécution ; lui faire lire le message de RecursionError.</li><li>Lui faire énoncer le cas de base à voix haute avant toute écriture.</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>compte_a_rebours(3) affiche 3, 2, 1, 0</li><li>Cas de base : rien à afficher pour n &lt; 0</li><li>Terminaison : compte_a_rebours(50) se termine</li><li>La fonction s’appelle elle-même : un appel par valeur de n</li></ul>
+<h2>Cas de base et appel récursif</h2>
+<p><span class="tag">cas-de-base</span> Une fonction récursive se développe en une chaîne d’appels qui s’arrête au cas de base ; la valeur finale se construit avec les valeurs RETOURNÉES (return). La récurrence mathématique et la fonction récursive sont proches, mais distinctes.</p>
+<h3>Que retourne somme(0) ?</h3><p><strong>Réponse attendue :</strong> 0</p>
+<p>C’est le cas de base : la somme des entiers de 1 à 0 est vide, donc 0. La fonction retourne 0 sans nouvel appel.</p>
+<ul><li><em>1</em> — Il n’y a aucun entier à additionner : la somme est 0, pas 1.</li><li><em>None</em> — Le cas de base contient bien return 0 : la fonction ne retourne pas None.</li><li><em>Une erreur</em> — Aucune erreur : c’est le cas de base, traité directement.</li></ul>
+<h3>Une fonction récursive en informatique et une suite définie par récurrence en mathématiques sont-elles la même chose ?</h3><p><strong>Réponse attendue :</strong> Non : les idées sont proches (un problème défini à partir d’un cas plus simple), mais l’une est un mécanisme d’exécution, l’autre une relation entre des nombres</p>
+<p>Les deux définissent quelque chose à partir d’un cas plus simple, mais ce ne sont pas des notions identiques. Une fonction récursive peut d’ailleurs calculer les termes d’une suite définie par récurrence.</p>
+<ul><li><em>Oui : ce sont exactement deux écritures de la même notion</em> — Elles sont proches, pas identiques : l’une est mathématique, l’autre est un programme qui s’appelle lui-même.</li><li><em>Non : une fonction récursive ne peut jamais calculer une suite</em> — Au contraire : une fonction récursive peut très bien calculer les termes d’une suite.</li><li><em>Oui : mais seulement quand la fonction contient un print</em> — Le print n’a aucun rapport avec cette distinction.</li></ul>
+<h3>Avec cette version (le return est oublié devant n + somme(n - 1)), que renvoie somme(1) ?</h3><p><strong>Réponse attendue :</strong> None</p>
+<p>La somme 1 + 0 est calculée puis jetée : sans return, la fonction ne renvoie rien, c’est-à-dire None. Pour somme(2), le calcul 2 + None provoquerait même une TypeError.</p>
+<ul><li><em>1</em> — 1 serait la bonne valeur, mais elle n’est jamais renvoyée.</li><li><em>Une RecursionError</em> — Les appels se terminent : le cas de base est bien atteint, il n’y a pas de RecursionError.</li><li><em>0</em> — Le cas de base n’est pas utilisé par somme(1) : il l’est par l’appel somme(0), dont la valeur est jetée.</li></ul>
+<h3>Dans la version qui contient print(n + somme(n - 1)), pourquoi somme(3) ne permet-elle pas d’obtenir la valeur 6 dans un calcul ?</h3><p><strong>Réponse attendue :</strong> Parce que print affiche une valeur mais ne la transmet pas à l’appelant : la fonction ne retourne rien</p>
+<p>print montre une valeur à l’écran ; return la transmet à l’appelant. Une fonction récursive a besoin du résultat de l’appel plus petit pour construire le sien : il faut donc return.</p>
+<ul><li><em>Parce que print est interdit dans une fonction récursive</em> — Aucune règle n’interdit print : le problème est qu’il ne transmet rien.</li><li><em>Parce que print ralentit trop la fonction</em> — La vitesse n’est pas en cause.</li><li><em>Parce que print convertit tous les nombres en texte</em> — print ne renvoie pas une chaîne : il ne renvoie rien du tout (None).</li></ul>
+<h3>Que vaut somme(1) ?</h3><p><strong>Réponse attendue :</strong> 1.</p>
+<h3>Développe somme(4), ligne par ligne, comme pour somme(3).</h3><p><strong>Réponse attendue :</strong> somme(4) = 4 + somme(3) = 4 + 3 + somme(2) = 4 + 3 + 2 + somme(1) = 4 + 3 + 2 + 1 + somme(0) = 10. Accepter tout développement cohérent qui s’arrête à somme(0).</p>
+<h3>Que vaut somme(4) ?</h3><p><strong>Réponse attendue :</strong> 10.</p>
+<h3>Trace d’exécution</h3><p>somme(3) → 3 + somme(2) → 3 + 2 + somme(1) → 3 + 2 + 1 + somme(0) → somme(0) retourne 0 → somme(1) retourne 1 → somme(2) retourne 3 → somme(3) retourne 6.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Confondre afficher et retourner.</li><li>Ne pas voir que le return du cas de base est la seule source de valeur : les autres retours s’appuient dessus.</li><li>Assimiler récursivité et récurrence mathématique.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Faire développer somme(2), puis somme(3), à la main, sans ordinateur.</li><li>Faire corriger le programme sans return en lisant la valeur obtenue (None).</li></ul>
+<h2>Suivre la pile d’appels</h2>
+<p><span class="tag">pile-appels</span> Une fonction récursive empile ses appels pendant la descente, puis les termine dans l’ordre inverse pendant la remontée : le dernier appel créé est le premier terminé, comme dans une pile (LIFO).</p>
+<h3>Dans la trace de somme(4), quel appel se termine en premier ?</h3><p><strong>Réponse attendue :</strong> somme(0)</p>
+<p>Le dernier appel créé, somme(0), est le premier à retourner sa valeur : tous les autres l’attendent.</p>
+<ul><li><em>somme(4)</em> — somme(4) est le premier créé : il attend la fin de tous les autres.</li><li><em>somme(2)</em> — somme(2) attend le résultat de somme(1), qui attend celui de somme(0).</li><li><em>Tous se terminent en même temps</em> — Les appels se terminent un par un, dans l’ordre inverse de leur création.</li></ul>
+<h3>Combien d’appels sont empilés en même temps, au maximum, pendant somme(4) ?</h3><p><strong>Réponse attendue :</strong> 5</p>
+<p>Au plus bas de la descente, somme(4), somme(3), somme(2), somme(1) et somme(0) sont tous en attente : 5 appels.</p>
+<ul><li><em>4</em> — Il faut compter aussi somme(0), le cas de base.</li><li><em>1</em> — Un seul appel serait empilé si la fonction n’était pas récursive.</li><li><em>10</em> — 10 est la valeur retournée, pas le nombre d’appels.</li></ul>
+<h3>Pourquoi dit-on pile d’appels ?</h3><p><strong>Réponse attendue :</strong> Parce que le dernier appel créé est le premier terminé (LIFO), comme dans une pile</p>
+<p>Dernier entré, premier sorti : c’est exactement la règle d’une pile. Le programmeur n’a pas à la coder : l’interpréteur s’en charge.</p>
+<ul><li><em>Parce que le premier appel créé est le premier terminé (FIFO)</em> — Ce serait le comportement d’une file, pas d’une pile.</li><li><em>Parce que les appels sont triés par ordre alphabétique</em> — Aucun tri alphabétique n’intervient.</li><li><em>Parce que Python stocke chaque appel dans une list que tu dois programmer</em> — La pile d’appels est gérée par l’interpréteur : tu ne la programmes pas.</li></ul>
+<h3>Dans la trace de puissance(2, 4), quelle valeur retourne puissance(2, 3) ?</h3><p><strong>Réponse attendue :</strong> 8</p>
+<p>puissance(2, 3) = 2 × puissance(2, 2) = 2 × 4 = 8. C’est puissance(2, 4) qui retourne 16.</p>
+<ul><li><em>16</em> — 16 est la valeur retournée par puissance(2, 4), l’appel initial.</li><li><em>4</em> — 4 est la valeur retournée par puissance(2, 2).</li><li><em>2</em> — 2 est la valeur retournée par puissance(2, 1).</li></ul>
+<h3>Avec tes mots : quelle différence y a-t-il entre la descente dans les appels et la remontée des valeurs retournées ?</h3><p><strong>Réponse attendue :</strong> Pendant la descente, chaque appel en crée un nouveau sur un problème plus petit, jusqu’au cas de base : les appels s’empilent et aucune valeur n’est encore calculée. Pendant la remontée, chaque appel reçoit la valeur de l’appel plus petit, calcule la sienne et la retourne, du dernier appel créé au premier.</p>
+<h3>Solution de référence</h3><pre>def somme_trace(n, profondeur=0):
+    marge = "  " * profondeur
+    print(marge + "APPEL somme(" + str(n) + ")")
+    if n == 0:
+        resultat = 0
+    else:
+        resultat = n + somme_trace(n - 1, profondeur + 1)
+    print(marge + "RETOUR " + str(resultat))
+    return resultat
+
+
+somme_trace(3)</pre>
+<h3>Trace d’exécution</h3><p>Affichage attendu de somme_trace(3) : APPEL somme(3) ; (2 espaces) APPEL somme(2) ; (4) APPEL somme(1) ; (6) APPEL somme(0) ; (6) RETOUR 0 ; (4) RETOUR 1 ; (2) RETOUR 3 ; RETOUR 6.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Imaginer que les appels « se font en parallèle » ou que la valeur est connue dès la descente.</li><li>Mélanger l’ordre de création et l’ordre de fin des appels.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>Oublier d’augmenter la profondeur dans l’appel récursif (tous les affichages sont alignés).</li><li>Afficher le RETOUR avant de connaître le résultat.</li><li>Appeler somme_trace(n - 1) sans profondeur + 1.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Utiliser la figure interactive pas à pas, en la masquant à moitié : l’élève prévoit la prochaine étape.</li><li>Faire le lien avec le TP Piles : « quel est le sommet ? ».</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>Les APPEL et RETOUR de somme_trace(3), avec leur retrait</li><li>somme_trace renvoie la même valeur que somme</li><li>Tous les APPEL précèdent tous les RETOUR (descente puis remontée)</li><li>Profondeur de la pile : n + 1 appels simultanés</li></ul>
+<h2>Écrire ses premières fonctions récursives</h2>
+<p><span class="tag">ecrire</span> Avant d’écrire : cas de base, réduction, terminaison, valeur retournée. Une fonction récursive correcte se reconnaît à ses valeurs, mais aussi au fait qu’elle s’appelle réellement elle-même sur un problème plus petit.</p>
+<h3>Quel est le défaut de la première fonction, f(n) qui retourne f(n - 1) ?</h3><p><strong>Réponse attendue :</strong> Elle n’a pas de cas de base : rien n’arrête les appels</p>
+<p>Sans cas de base, chaque appel en crée un nouveau, indéfiniment : la limite de profondeur est dépassée et Python lève une RecursionError.</p>
+<ul><li><em>L’appel porte sur n au lieu de n - 1</em> — Ici l’appel porte bien sur n - 1 : c’est le cas de base qui manque.</li><li><em>Elle contient un print en trop</em> — Il n’y a aucun print dans cette fonction.</li><li><em>Elle devrait être écrite avec une boucle</em> — Une boucle n’est pas nécessaire : la récursion convient, mais il lui faut un cas de base.</li></ul>
+<h3>Quel est le défaut de la deuxième fonction (cas de base n == 0, puis return f(n)) ?</h3><p><strong>Réponse attendue :</strong> L’appel récursif porte sur le même problème : aucune progression vers le cas de base</p>
+<p>Pour n différent de 0, f(n) rappelle f(n) : exactement le même problème, sans jamais s’en rapprocher du cas de base.</p>
+<ul><li><em>Le cas de base est faux</em> — Le cas de base est correct pour n == 0 : c’est l’appel qui ne progresse pas.</li><li><em>Il manque un return</em> — Il y a bien un return dans chaque branche.</li><li><em>La fonction n’a pas de paramètre</em> — La fonction a bien un paramètre, n.</li></ul>
+<h3>Quel est le défaut de la troisième fonction (return f(n + 1), pour un appel f(3)) ?</h3><p><strong>Réponse attendue :</strong> n s’éloigne de 0 : le cas de base n’est jamais atteint</p>
+<p>f(3) appelle f(4), puis f(5)… : on s’éloigne du cas de base n == 0 au lieu de s’en rapprocher. La fonction ne termine pas.</p>
+<ul><li><em>Le cas de base est incorrect</em> — Le cas de base n == 0 est correct ; c’est l’appel qui s’en éloigne.</li><li><em>f(n + 1) est interdit par Python</em> — Python n’interdit rien : c’est la logique qui est fausse.</li><li><em>La fonction termine mais retourne 0</em> — Elle ne termine pas : elle ne retourne jamais 0 pour n = 3.</li></ul>
+<h3>Que vaut 0! ?</h3><p><strong>Réponse attendue :</strong> 1 (convention : le produit vide).</p>
+<h3>Quel est le cas de base de chacune des trois fonctions (somme, factorielle, puissance) ?</h3><p><strong>Réponse attendue :</strong> somme : n == 0, valeur 0. factorielle : n == 0, valeur 1. puissance : n == 0, valeur 1.</p>
+<h3>Comment chacune ramène-t-elle son problème à un problème plus petit ? Que fait-elle de la valeur retournée par l’appel récursif ?</h3><p><strong>Réponse attendue :</strong> somme(n) = n + somme(n - 1) ; factorielle(n) = n × factorielle(n - 1) ; puissance(a, n) = a × puissance(a, n - 1). La valeur retournée par l’appel plus petit est combinée avec n (ou a) pour construire la réponse.</p>
+<h3>Pour puissance(a, n) avec n ≥ 0, pourquoi les appels finissent-ils toujours ?</h3><p><strong>Réponse attendue :</strong> À chaque appel, n diminue de 1 ; comme n est un entier positif ou nul au départ, il finit par valoir 0, qui est le cas de base.</p>
+<h3>Solution de référence</h3><pre>def somme(n):
+    if n == 0:
+        return 0
+    return n + somme(n - 1)
+
+
+def factorielle(n):
+    if n == 0:
+        return 1
+    return n * factorielle(n - 1)
+
+
+def puissance(a, n):
+    if n == 0:
+        return 1
+    return a * puissance(a, n - 1)
+
+
+print(somme(4))
+print(factorielle(5))
+print(puissance(2, 4))</pre>
+<h3>Autre implémentation valide</h3><pre>def somme(n):
+    if n &lt;= 0:
+        return 0
+    return somme(n - 1) + n
+
+
+def factorielle(n):
+    if n &lt; 2:
+        return 1
+    return n * factorielle(n - 1)
+
+
+def puissance(a, n):
+    # Variante : on divise l’exposant par deux (moins d’appels).
+    if n == 0:
+        return 1
+    moitie = puissance(a, n // 2)
+    if n % 2 == 0:
+        return moitie * moitie
+    return a * moitie * moitie</pre>
+<h3>Trace d’exécution</h3><p>factorielle(4) → 4 × factorielle(3) → 4 × 3 × factorielle(2) → 4 × 3 × 2 × factorielle(1) → … × factorielle(0) → 1 ; remontée : 1, 1, 2, 6, 24.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Écrire le code avant d’avoir identifié le cas de base.</li><li>Oublier la convention 0! = 1.</li><li>Écrire une version avec boucle qui donne les bonnes valeurs : le contrôle « s’appelle elle-même » le signale.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>Cas de base oublié ou faux (0! = 0, a puissance 0 = 0).</li><li>Oublier return devant l’appel récursif (la fonction renvoie None).</li><li>Version avec boucle.</li><li>Appel récursif sur n au lieu de n - 1.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Faire remplir les champs cas de base / réduction avant l’éditeur.</li><li>Si l’élève bloque : lui faire écrire le développement d’un exemple, puis généraliser.</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>somme : cas de base somme(0) = 0</li><li>somme : somme(1), somme(3), somme(5), somme(10)</li><li>somme : la fonction s’appelle elle-même</li><li>factorielle : 0! = 1 et 1! = 1</li><li>factorielle : 3!, 5!, 6!</li><li>factorielle : la fonction s’appelle elle-même</li><li>puissance : cas de base a puissance 0 = 1</li><li>puissance : 2 puissance 1, 2 puissance 5, 3 puissance 3, 10 puissance 4</li><li>puissance : la fonction s’appelle elle-même</li><li>Terminaison : somme(100), factorielle(20) et puissance(2, 100) se terminent</li></ul>
+<h2>Récursivité sur des chaînes et des listes</h2>
+<p><span class="tag">structures</span> Une chaîne ou une liste se réduit en lui retirant un élément. Le cas de base est la structure vide (ou minimale) ; une tranche crée une copie, ce qui est lisible mais pas toujours le plus efficace.</p>
+<h3>Quel est le cas de base de longueur(texte) ?</h3><p><strong>Réponse attendue :</strong> texte est la chaîne vide : sa longueur est 0</p>
+<p>La chaîne vide est la situation la plus simple : sa longueur est 0, sans nouvel appel. Sinon, on retire un caractère et on ajoute 1.</p>
+<ul><li><em>texte vaut "NSI"</em> — "NSI" est un exemple d’appel, pas un cas de base général.</li><li><em>texte contient exactement un caractère et un seul</em> — Un seul caractère se traite aussi par un appel sur la chaîne vide : ce n’est pas obligatoire comme cas de base.</li><li><em>Il n’y a pas de cas de base : on appelle toujours longueur</em> — Sans cas de base, les appels ne s’arrêteraient jamais.</li></ul>
+<h3>Pour est_palindrome, quels cas peut-on traiter directement, sans appel récursif ?</h3><p><strong>Réponse attendue :</strong> La chaîne vide et la chaîne d’un seul caractère : toujours vrai</p>
+<p>Une chaîne vide ou d’un seul caractère se lit forcément pareil dans les deux sens : la réponse est True.</p>
+<ul><li><em>Seulement la chaîne vide</em> — La chaîne d’un seul caractère est aussi un palindrome, et il est utile de la traiter directement.</li><li><em>Les chaînes de deux caractères</em> — Pour deux caractères, il faut comparer le premier et le dernier.</li><li><em>Les chaînes qui commencent par une voyelle</em> — La première lettre n’a aucune importance pour décider si un mot est un palindrome.</li></ul>
+<h3>Si le premier et le dernier caractère sont égaux, que faut-il faire ensuite ?</h3><p><strong>Réponse attendue :</strong> Tester l’intérieur de la chaîne, c’est-à-dire sans ces deux caractères</p>
+<p>Égaux aux deux bouts ne suffit pas : il faut que l’intérieur soit aussi un palindrome. C’est l’appel récursif, sur une chaîne plus courte.</p>
+<ul><li><em>Renvoyer True immédiatement</em> — "abca" a le même premier et dernier caractère mais n’est pas un palindrome.</li><li><em>Inverser la chaîne</em> — Inverser la chaîne ne serait pas récursif et n’est pas nécessaire.</li><li><em>Recommencer avec la même chaîne</em> — Recommencer avec la même chaîne ne progresse pas vers le cas de base.</li></ul>
+<h3>Que vaut somme_liste([]) ?</h3><p><strong>Réponse attendue :</strong> 0</p>
+<p>La somme d’une liste vide est 0 : c’est le cas de base, et c’est aussi l’élément neutre de l’addition.</p>
+<ul><li><em>None</em> — Le cas de base doit retourner une valeur, pas None.</li><li><em>1</em> — 1 ajouterait un élément qui n’existe pas.</li><li><em>Une IndexError</em> — Aucun accès à un indice n’est nécessaire pour une liste vide.</li></ul>
+<h3>Que fait l’expression tab[1:] ?</h3><p><strong>Réponse attendue :</strong> Elle crée une nouvelle liste contenant tous les éléments sauf le premier</p>
+<p>tab[1:] est une tranche : une nouvelle liste (copie) sans le premier élément. tab, elle, n’est pas modifiée.</p>
+<ul><li><em>Elle retire le premier élément de tab</em> — Une tranche ne modifie pas tab : elle en crée une copie.</li><li><em>Elle renvoie l’indice 1</em> — tab[1] serait l’élément d’indice 1 ; avec « : », on obtient une liste.</li><li><em>Elle renvoie le premier élément</em> — Le premier élément s’obtient avec tab[0].</li></ul>
+<h3>Avant de coder : écris en français les trois situations que doit traiter est_palindrome (cas de base, désaccord, accord).</h3><p><strong>Réponse attendue :</strong> Si la chaîne est vide ou d’un seul caractère, c’est un palindrome (True). Sinon, si le premier et le dernier caractère sont différents, ce n’est pas un palindrome (False). Sinon, la réponse est celle de l’intérieur de la chaîne (sans ses deux extrémités).</p>
+<h3>Solution de référence</h3><pre>def longueur(texte):
+    if texte == "":
+        return 0
+    return 1 + longueur(texte[1:])
+
+
+def est_palindrome(texte):
+    if len(texte) &lt;= 1:
+        return True
+    if texte[0] != texte[-1]:
+        return False
+    return est_palindrome(texte[1:-1])
+
+
+def somme_liste(tab):
+    if tab == []:
+        return 0
+    return tab[0] + somme_liste(tab[1:])
+
+
+print(longueur("NSI"))
+print(est_palindrome("radar"))
+print(somme_liste([4, 7, 2]))</pre>
+<h3>Autre implémentation valide</h3><pre>def longueur(texte):
+    if texte == "":
+        return 0
+    return longueur(texte[:-1]) + 1
+
+
+def est_palindrome(texte, i=0):
+    # Variante avec un indice : aucune copie de chaîne.
+    j = len(texte) - 1 - i
+    if i &gt;= j:
+        return True
+    return texte[i] == texte[j] and est_palindrome(texte, i + 1)
+
+
+def somme_liste(tab, i=0):
+    # Variante avec un indice : aucune copie de liste.
+    if i == len(tab):
+        return 0
+    return tab[i] + somme_liste(tab, i + 1)</pre>
+<h3>Trace d’exécution</h3><p>est_palindrome("radar") → r = r → est_palindrome("ada") → a = a → est_palindrome("d") → cas de base : True ; les deux appels au-dessus retournent True.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Ne pas voir que la chaîne ou la liste diminue de taille.</li><li>Modifier la liste reçue (pop) au lieu de la lire.</li><li>Palindrome : oublier le cas des chaînes d’un seul caractère.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>Palindrome : comparer le premier caractère au deuxième au lieu du dernier.</li><li>tab.pop(0) : modifie la liste reçue.</li><li>Utiliser len() ou sum() sans récursion (le contrôle le signale).</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Écrire la chaîne ou la liste sur papier et barrer un élément à chaque appel.</li><li>Pour le palindrome : traiter d’abord à la main "kayak" puis "kayaks".</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>longueur : cas de base et valeurs</li><li>longueur : la fonction s’appelle elle-même</li><li>est_palindrome : les palindromes renvoient True</li><li>est_palindrome : les autres mots renvoient False</li><li>est_palindrome : la fonction s’appelle elle-même</li><li>somme_liste : cas de base et valeurs</li><li>somme_liste : la liste reçue n’est pas modifiée</li><li>somme_liste : la fonction s’appelle elle-même</li></ul>
+<h2>Itératif ou récursif ?</h2>
+<p><span class="tag">iteratif</span> Récursif et itératif sont deux écritures possibles. La récursivité suit la structure du problème mais empile des appels (coût, RecursionError) ; la boucle n’empile rien. Aucune n’est meilleure par principe.</p>
+<h3>factorielle_iterative(5) et factorielle_recursive(5) donnent-elles le même résultat ?</h3><p><strong>Réponse attendue :</strong> Oui : 120 dans les deux cas</p>
+<p>Les deux calculent 5! = 120 : ce sont deux manières d’écrire le même calcul.</p>
+<ul><li><em>Non : la version récursive renvoie 24</em> — La version récursive renvoie bien 120.</li><li><em>Non : la version itérative renvoie None</em> — La version itérative contient bien un return.</li><li><em>Cela dépend de la machine</em> — Le résultat ne dépend pas de la machine.</li></ul>
+<h3>Laquelle des deux versions utilise explicitement une boucle ?</h3><p><strong>Réponse attendue :</strong> La version itérative</p>
+<p>La version itérative contient une boucle for ; la version récursive n’en contient aucune : la répétition vient des appels.</p>
+<ul><li><em>La version récursive</em> — La version récursive répète grâce aux appels, pas à une boucle.</li><li><em>Aucune des deux</em> — Il y a bien une boucle dans l’une des deux.</li><li><em>Les deux</em> — La version récursive n’en a pas.</li></ul>
+<h3>Laquelle des deux versions utilise la pile d’appels pour se répéter ?</h3><p><strong>Réponse attendue :</strong> La version récursive</p>
+<p>Chaque appel récursif est empilé en attendant le résultat du suivant ; la boucle, elle, répète sans empiler.</p>
+<ul><li><em>La version itérative</em> — La boucle reste dans un seul appel : rien n’est empilé.</li><li><em>Les deux de la même façon</em> — Une seule des deux empile des appels.</li><li><em>Aucune des deux</em> — Toute fonction appelée occupe un cadre dans la pile, et ici il y en a plusieurs pour la récursive.</li></ul>
+<h3>Laquelle traduit le plus directement la définition n! = n × (n - 1)! avec 0! = 1 ?</h3><p><strong>Réponse attendue :</strong> La version récursive</p>
+<p>La version récursive recopie la définition mathématique : cas de base 0! = 1, puis n! = n × (n - 1)!.</p>
+<ul><li><em>La version itérative</em> — La version itérative calcule le produit 1 × 2 × … × n, ce qui est équivalent mais moins direct.</li><li><em>Aucune</em> — Une des deux est plus proche de la définition.</li><li><em>Les deux au même niveau</em> — Elles ne sont pas équivalentes en lisibilité par rapport à cette définition.</li></ul>
+<h3>Pourquoi puissance_recursive(2, 1000) provoque-t-elle une RecursionError dans cet atelier alors que puissance_iterative(2, 1000) fonctionne ?</h3><p><strong>Réponse attendue :</strong> Parce que 1000 appels sont empilés en même temps et dépassent la limite de profondeur, alors que la boucle n’empile rien</p>
+<p>La limite porte sur le nombre d’appels imbriqués. La version récursive en empile 1 001 ; la version itérative en utilise un seul.</p>
+<ul><li><em>Parce que 2 puissance 1000 est un nombre trop grand pour Python</em> — Python sait calculer 2 puissance 1000 : le nombre n’est pas le problème.</li><li><em>Parce que la récursivité est interdite pour n ≥ 100</em> — Aucune interdiction de ce genre n’existe : c’est une limite de profondeur.</li><li><em>Parce que la boucle est plus rapide</em> — La vitesse n’est pas en cause ici.</li></ul>
+<h3>Une solution récursive est-elle toujours meilleure qu’une solution itérative ?</h3><p><strong>Réponse attendue :</strong> Non : on choisit selon la structure du problème et son coût</p>
+<p>Ni l’une ni l’autre n’est automatiquement meilleure. Une structure naturellement récursive (dossiers imbriqués, arbres) s’écrit plus clairement en récursif ; un simple parcours s’écrit très bien avec une boucle.</p>
+<ul><li><em>Oui : elle est toujours plus courte</em> — Plus courte n’est pas toujours plus claire ni plus efficace.</li><li><em>Oui : elle consomme moins de mémoire</em> — La récursivité consomme au contraire de la mémoire (pile d’appels).</li><li><em>Non : l’itérative est toujours meilleure</em> — L’itératif n’est pas toujours meilleur non plus : pour des structures imbriquées, le récursif est souvent plus naturel.</li></ul>
+<h3>Donne un cas où tu choisirais plutôt une écriture récursive, et un cas où tu choisirais plutôt une boucle. Justifie.</h3><p><strong>Réponse attendue :</strong> Récursif : structure naturellement imbriquée (dossiers, arbres) ou définition mathématique récursive. Boucle : simple répétition, très grand nombre d’étapes (pas de pile d’appels, pas de RecursionError). Accepter toute justification cohérente.</p>
+<h3>Solution de référence</h3><pre>def puissance_recursive(a, n):
+    if n == 0:
+        return 1
+    return a * puissance_recursive(a, n - 1)
+
+
+def puissance_iterative(a, n):
+    resultat = 1
+    for _ in range(n):
+        resultat = resultat * a
+    return resultat
+
+
+print(puissance_recursive(2, 10))
+print(puissance_iterative(2, 10))</pre>
+<h3>Trace d’exécution</h3><p>puissance_recursive(2, 3) empile 4 appels (n = 3, 2, 1, 0) ; puissance_iterative(2, 3) fait trois tours de boucle dans un seul appel.</p>
+<h3>Difficultés prévisibles</h3><ul><li>Penser que la récursivité est toujours meilleure (ou toujours moins bonne).</li><li>Ne pas relier le coût à la pile d’appels.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>Initialiser l’accumulateur à 0 (le produit reste nul).</li><li>Déléguer à puissance_recursive.</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Faire réécrire une fonction de l’élève dans l’autre style.</li><li>Comparer la profondeur de pile avec n = 1000.</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>puissance_iterative : valeurs</li><li>Mêmes résultats que la version récursive</li><li>La version itérative n’utilise aucun appel récursif</li><li>Sans pile d’appels : puissance_iterative(2, 1000) fonctionne</li></ul>
+<h2>Mission : explorer un dossier imaginaire</h2>
+<p><span class="tag">mission</span> Une structure imbriquée se parcourt naturellement par récursivité : un élément simple est le cas de base, un élément composé se traite en traitant chacun de ses éléments.</p>
+<h3>Dans cette modélisation, comment distingue-t-on un fichier d’un dossier ?</h3><p><strong>Réponse attendue :</strong> Un fichier est une chaîne, un dossier est une liste</p>
+<p>Un fichier est une chaîne (son nom) ; un dossier est une liste de fichiers et d’autres dossiers. On les distingue avec isinstance(x, list).</p>
+<ul><li><em>Un fichier est une liste, un dossier est une chaîne</em> — C’est l’inverse : le dossier contient d’autres éléments, c’est donc la liste.</li><li><em>On ne peut pas les distinguer</em> — On peut les distinguer par leur type, avec isinstance.</li><li><em>Un dossier est toujours un nombre</em> — Un nombre ne représente ni l’un ni l’autre ici.</li></ul>
+<h3>Pour compter_fichiers, quel est le cas de base ?</h3><p><strong>Réponse attendue :</strong> L’élément est un fichier (une chaîne) : il compte pour 1</p>
+<p>Un fichier est le plus petit élément possible : il compte pour 1, sans nouvel appel. Un dossier vide se traite naturellement : 0 fichier.</p>
+<ul><li><em>L’élément est un dossier vide uniquement</em> — Un dossier vide contient 0 fichier, mais ce n’est pas le seul cas simple : un fichier seul aussi.</li><li><em>Il n’y en a pas : on appelle toujours compter_fichiers</em> — Sans cas de base, la récursion ne s’arrêterait jamais.</li><li><em>L’élément est le premier de la liste</em> — La place dans la liste n’a pas de rôle dans le cas de base.</li></ul>
+<h3>Dans compter_fichiers : quel est le cas de base, et sur quoi porte l’appel récursif ?</h3><p><strong>Réponse attendue :</strong> Cas de base : l’élément est un fichier (une chaîne), il compte pour 1. Appel récursif : sur chaque élément du dossier (fichier ou sous-dossier), dont on additionne les résultats.</p>
+<h3>Pour inverse(texte) : comment ramènes-tu le problème à un problème plus petit, et comment utilises-tu le résultat obtenu ?</h3><p><strong>Réponse attendue :</strong> On retire le premier caractère ; on inverse le reste (appel récursif, chaîne plus courte) ; le résultat est le reste inversé suivi du caractère retiré. Cas de base : la chaîne vide, qui s’inverse en elle-même.</p>
+<h3>Solution de référence</h3><pre>def compter_elements(x):
+    if not isinstance(x, list):
+        return 1
+    total = 0
+    for y in x:
+        total = total + compter_elements(y)
+    return total
+
+
+dossier = [
+    "cours.pdf",
+    [
+        "tp.py",
+        "correction.pdf",
+    ],
+    "notes.txt",
+]
+
+
+def compter_fichiers(element):
+    if not isinstance(element, list):
+        return 1
+    total = 0
+    for sous_element in element:
+        total = total + compter_fichiers(sous_element)
+    return total
+
+
+def inverse(texte):
+    if texte == "":
+        return ""
+    return inverse(texte[1:]) + texte[0]
+
+
+print(compter_elements([1, [2, 3], [4, [5, 6]]]))
+print(compter_fichiers(dossier))
+print(inverse("NSI"))</pre>
+<h3>Autre implémentation valide</h3><pre>def compter_elements(x):
+    if isinstance(x, list):
+        return sum(compter_elements(y) for y in x)
+    return 1
+
+
+def compter_fichiers(element):
+    if isinstance(element, str):
+        return 1
+    if element == []:
+        return 0
+    return compter_fichiers(element[0]) + compter_fichiers(element[1:])
+
+
+def inverse(texte):
+    if len(texte) &lt;= 1:
+        return texte
+    return texte[-1] + inverse(texte[:-1])</pre>
+<h3>Trace d’exécution</h3><p>compter_fichiers(["cours.pdf", ["tp.py", "correction.pdf"], "notes.txt"]) → 1 (cours.pdf) + compter_fichiers(["tp.py", "correction.pdf"]) (= 1 + 1) + 1 (notes.txt) = 4. inverse("NSI") → inverse("SI") + "N" → (inverse("I") + "S") + "N" → ((inverse("") + "I") + "S") + "N" = "ISN".</p>
+<h3>Difficultés prévisibles</h3><ul><li>Ne pas distinguer fichier et dossier (isinstance).</li><li>Écrire un seul cas (fichier) et oublier de parcourir les éléments du dossier.</li><li>inverse : placer le caractère au mauvais bout.</li></ul>
+<h3>Erreurs probables dans le code</h3><ul><li>isinstance oublié : un fichier est parcouru caractère par caractère (une chaîne est itérable).</li><li>Cas du dossier vide oublié (avec la version [premier] + reste).</li><li>inverse : texte[0] + inverse(texte[1:]) (rend la chaîne inchangée).</li></ul>
+<h3>Interventions pédagogiques possibles</h3><ul><li>Dessiner le dossier sous forme d’arbre.</li><li>Faire écrire la partie A (nombres) avant B (fichiers) pour dégager le même squelette.</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>compter_elements : cas simples et listes imbriquées</li><li>compter_elements : la fonction s’appelle elle-même</li><li>compter_fichiers : le dossier de l’énoncé contient 4 fichiers</li><li>compter_fichiers : fichier seul, dossiers vides, imbrications profondes</li><li>compter_fichiers : le dossier reçu n’est pas modifié</li><li>compter_fichiers : la fonction s’appelle elle-même</li><li>inverse : cas de base et valeurs</li><li>inverse : la fonction s’appelle elle-même</li></ul>
+<h2>Synthèse : ce qu’il faut retenir</h2>
+<p><span class="tag">synthese</span> Cas de base + appel sur un problème plus petit + progression vers le cas de base : c’est ce qui rend une fonction récursive correcte. La pile d’appels garde les appels en attente ; le dernier créé est le premier terminé.</p>
+<h3>Que doit posséder toute fonction récursive correcte ?</h3><p><strong>Réponse attendue :</strong> Un cas de base, un appel sur un problème plus petit, et une progression vers le cas de base</p>
+<p>Sans cas de base, les appels ne s’arrêtent pas ; sans problème plus petit, il n’y a pas de progression ; sans appel, la fonction n’est pas récursive.</p>
+<ul><li><em>Une boucle et un compteur</em> — Une fonction récursive peut se passer de boucle : la répétition vient des appels.</li><li><em>Seulement un appel à elle-même</em> — Un appel à elle-même seul ne suffit pas : il faut un arrêt et une progression.</li><li><em>Un print dans chaque branche</em> — Le print n’a aucun rôle dans la correction d’une fonction récursive.</li></ul>
+<h3>Dans f(3) → f(2) → f(1) → f(0), quel appel se termine le premier ?</h3><p><strong>Réponse attendue :</strong> f(0)</p>
+<p>Le dernier appel créé, f(0), est le premier à se terminer : logique de pile (LIFO).</p>
+<ul><li><em>f(3)</em> — f(3) est le premier créé : il se termine en dernier.</li><li><em>f(2)</em> — f(2) attend le retour de f(1).</li><li><em>f(1)</em> — f(1) attend le retour de f(0).</li></ul>
+<h3>Pourquoi une fonction récursive correcte finit-elle ?</h3><p><strong>Réponse attendue :</strong> Parce qu’à chaque appel le problème diminue, jusqu’à atteindre le cas de base</p>
+<p>La terminaison vient de la progression : si le problème diminue à chaque appel, il finit par atteindre le cas de base.</p>
+<ul><li><em>Parce que Python arrête toujours les fonctions au bout de quelques appels</em> — Python ne sauve pas une fonction mal écrite : il lève une RecursionError.</li><li><em>Parce qu’elle retourne une valeur</em> — Retourner une valeur ne garantit pas la fin des appels.</li><li><em>Parce qu’elle utilise return</em> — return seul ne garantit pas non plus la fin.</li></ul>
+<h3>Pour compter tous les fichiers d’un dossier contenant des sous-dossiers de profondeur quelconque, que choisis-tu en général ?</h3><p><strong>Réponse attendue :</strong> Une écriture récursive, car la structure est elle-même imbriquée</p>
+<p>Un dossier contient des dossiers : la structure du problème est récursive, donc la solution récursive la traduit directement.</p>
+<ul><li><em>Une boucle for obligatoirement, la récursivité étant interdite</em> — La récursivité n’est jamais interdite.</li><li><em>Une écriture récursive uniquement si le dossier est vide</em> — Un dossier vide se traite par le cas de base, mais la récursivité sert surtout pour les dossiers imbriqués.</li><li><em>Aucune solution n’existe</em> — La mission a justement montré une solution.</li></ul>
+<h3>En quelques phrases, explique à un camarade qui découvre la récursivité comment on construit une fonction récursive.</h3><p><strong>Réponse attendue :</strong> Réponse libre. Attendu : chercher le cas le plus simple (cas de base), ramener le cas général à un problème plus petit (appel récursif), vérifier que le problème diminue (terminaison), puis construire la valeur retournée à partir de celle de l’appel plus petit.</p>
+<h2>Pour aller plus loin : dichotomie, Fibonacci et arbres</h2>
+<p><span class="tag">bonus</span> La dichotomie divise le problème par deux à chaque appel. Une récursion à deux appels peut recalculer plusieurs fois les mêmes valeurs : correct ne veut pas dire efficace.</p>
+<h3>Dans indice_dicho, que doit-on renvoyer quand debut &gt; fin ?</h3><p><strong>Réponse attendue :</strong> -1 : la plage est vide, x n’y est pas</p>
+<p>Quand debut &gt; fin, il ne reste plus aucune case à examiner : c’est le cas de base « non trouvé », et on renvoie -1.</p>
+<ul><li><em>0</em> — 0 serait une position valide : on ne peut pas s’en servir pour dire « non trouvé ».</li><li><em>L’indice du milieu</em> — Il n’y a plus de milieu quand la plage est vide.</li><li><em>None</em> — None pourrait fonctionner dans l’absolu, mais l’énoncé demande -1.</li></ul>
+<h3>Pourquoi la dichotomie est-elle bien plus rapide qu’une recherche case par case sur une grande liste triée ?</h3><p><strong>Réponse attendue :</strong> Parce qu’à chaque appel, la plage de recherche est à peu près divisée par deux</p>
+<p>Diviser par deux à chaque appel : pour 1 000 cases, une douzaine d’appels suffisent, contre 1 000 au pire en parcourant tout.</p>
+<ul><li><em>Parce qu’elle trie la liste</em> — La liste doit déjà être triée : la dichotomie ne trie rien.</li><li><em>Parce qu’elle ne regarde jamais le milieu</em> — Elle regarde au contraire le milieu à chaque appel.</li><li><em>Parce qu’elle utilise moins de variables</em> — Le nombre de variables n’intervient pas.</li></ul>
+<h3>Une fonction peut-elle être correcte mais inefficace ?</h3><p><strong>Réponse attendue :</strong> Oui : fibonacci donne le bon résultat mais recalcule les mêmes valeurs un grand nombre de fois</p>
+<p>Correction (le résultat est juste) et efficacité (le temps et la mémoire utilisés) sont deux qualités différentes.</p>
+<ul><li><em>Non : une fonction correcte est toujours efficace</em> — Les deux qualités sont indépendantes.</li><li><em>Non : une fonction inefficace est toujours incorrecte</em> — Une fonction inefficace peut donner un résultat tout à fait juste.</li><li><em>Oui, mais seulement si elle contient une boucle</em> — Une boucle n’est pas nécessaire pour être inefficace.</li></ul>
+<h3>Combien de fois peut-on diviser 1 000 par 2 avant d’arriver à 1 ? Que dit ce nombre sur le nombre d’appels de la dichotomie ?</h3><p><strong>Réponse attendue :</strong> Environ 10 fois (2 puissance 10 = 1 024). La dichotomie fait donc environ 10 à 11 appels pour 1 000 cases, au lieu de 1 000 cases examinées au pire.</p>
+<h3>Solution de référence</h3><pre>def maximum(tab):
+    if len(tab) == 1:
+        return tab[0]
+    reste = maximum(tab[1:])
+    if tab[0] &gt; reste:
+        return tab[0]
+    return reste
+
+
+def indice_dicho(tab, x, debut, fin):
+    if debut &gt; fin:
+        return -1
+    milieu = (debut + fin) // 2
+    if tab[milieu] == x:
+        return milieu
+    if tab[milieu] &lt; x:
+        return indice_dicho(tab, x, milieu + 1, fin)
+    return indice_dicho(tab, x, debut, milieu - 1)
+
+
+print(maximum([4, 9, 2]))
+print(indice_dicho([2, 5, 8, 12, 16, 23], 12, 0, 5))</pre>
+<h3>Trace d’exécution</h3><p>indice_dicho([2, 5, 8, 12, 16, 23], 12, 0, 5) → milieu 2 (valeur 8 &lt; 12) → indice_dicho(…, 3, 5) → milieu 4 (valeur 16 &gt; 12) → indice_dicho(…, 3, 3) → milieu 3 (valeur 12) → renvoie 3.</p>
+<h3>Erreurs probables dans le code</h3><ul><li>maximum sur la liste vide (non couvert par le contrat).</li><li>Dichotomie : milieu + 1 / milieu - 1 oubliés (boucle infinie : RecursionError).</li><li>debut &gt; fin non traité.</li></ul>
+<h3>Contrôles automatiques</h3><ul><li>maximum : valeurs</li><li>maximum : la fonction s’appelle elle-même</li><li>indice_dicho : l’indice des éléments présents</li><li>indice_dicho : éléments absents et plage vide → -1</li><li>indice_dicho : environ la moitié des cases écartée à chaque appel</li></ul>
+<h2>Comment diagnostiquer une mauvaise compréhension ?</h2>
+<h3>L’élève sait écrire la syntaxe mais ne comprend pas la récursion</h3><p><strong>Symptôme :</strong> il reproduit un modèle (if n == 0 … return n + f(n - 1)) sans pouvoir tracer somme(4), ni dire ce que retourne somme(1).</p><p><strong>Intervention :</strong> Retirer l’ordinateur : lui faire développer somme(3) à la main, puis tracer la pile avec la figure interactive. Lui demander de prévoir la valeur de chaque RETOUR avant de la voir.</p>
+<h3>L’élève oublie le cas de base</h3><p><strong>Symptôme :</strong> RecursionError, ou fonction qui « marche presque ».</p><p><strong>Intervention :</strong> Travailler d’abord le raisonnement, pas la syntaxe : « quel est le plus petit problème ? » Lui faire écrire en français la réponse à ce plus petit problème avant le code.</p>
+<h3>L’élève comprend la descente mais pas les retours</h3><p><strong>Symptôme :</strong> il sait où les appels vont, mais pas d’où vient la valeur finale ; il pense que « somme(4) vaut 4 » ou n’explique pas le rôle du return.</p><p><strong>Intervention :</strong> Utiliser la pile d’appels visuelle : insister sur le fait que chaque appel attend la valeur de l’appel plus petit. Faire annoter chaque RETOUR avec le calcul (2 + 1 = 3).</p>
+<h3>L’élève confond afficher et retourner</h3><p><strong>Symptôme :</strong> print à la place de return, ou le contrôle indique « renvoie None ».</p><p><strong>Intervention :</strong> Faire utiliser le résultat d’un appel dans un calcul (somme(3) + 1). Constater None, puis comparer avec print.</p>
+<h3>L’élève confond récursivité et récurrence mathématique</h3><p><strong>Symptôme :</strong> il cherche une « formule » plutôt qu’un appel de fonction, ou croit que toute suite définie par récurrence est une fonction récursive.</p><p><strong>Intervention :</strong> Reprendre la distinction du cours : la récurrence relie des nombres ; la fonction récursive est un mécanisme d’exécution. Les faire coexister sur un exemple (somme).</p>
+<h3>L’élève veut tout faire avec des boucles</h3><p><strong>Symptôme :</strong> le contrôle « la fonction s’appelle elle-même » échoue, alors que les valeurs sont correctes.</p><p><strong>Intervention :</strong> Valider d’abord l’exactitude, puis demander : « comment ce problème se ramène-t-il à lui-même, en plus petit ? » La mission des dossiers imbriqués rend la boucle difficile : bon contre-exemple.</p>
+<h2>Points de vigilance</h2><ul><li>Le parcours vérifie le COMPORTEMENT (valeurs de retour, affichages) et le caractère récursif (la fonction doit s’appeler elle-même), pas la forme exacte du code : toute écriture valide est acceptée.</li><li>La limite de profondeur est volontairement basse dans cet atelier (200 appels) : une RecursionError arrive vite et sans geler le navigateur. Python standard autorise environ 1 000 appels.</li><li>Les restrictions de l’éditeur (aucun import, pas d’accès fichier, pas d’exécution dynamique) sont pédagogiques, pas un dispositif de sécurité.</li><li>Fibonacci est volontairement absent du noyau : deux appels récursifs introduisent l’arbre d’appels et les recalculs, traités seulement en bonus comme contre-exemple.</li><li>On n’enseigne pas ici l’optimisation de la récursion terminale : Python ne la fait pas en pratique.</li><li>Rythme : si la classe est en retard à la 75e minute, passer à la mission avec la partie A seule (nombres imbriqués) ; la synthèse peut se faire à l’oral.</li><li>Le dernier contrôle de l’étape « Itératif ou récursif ? » (puissance_iterative(2, 1000)) doit réussir sans RecursionError : c’est le constat du coût de la pile d’appels.</li></ul>

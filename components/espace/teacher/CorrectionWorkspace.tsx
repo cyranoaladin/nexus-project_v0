@@ -55,6 +55,8 @@ interface Props {
   annotations: AnnotationView[];
   queue: QueueItem[];
   isAdmin: boolean;
+  /** Compétences annotables de la leçon (facultatif) : elles pré-remplissent le commentaire, rien de plus. */
+  skills?: { id: string; label: string }[];
 }
 
 const REASON_LABEL: Record<string, string> = {
@@ -77,7 +79,7 @@ const KIND_LABEL: Record<AnnotationKind, string> = {
 const inputClass = 'mt-1 block w-full rounded-md border border-white/15 bg-white/5 px-2 py-2 text-sm text-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 const btn = 'rounded-md border border-white/15 px-3 py-2 text-sm text-neutral-100 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 
-export function CorrectionWorkspace({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin }: Props) {
+export function CorrectionWorkspace({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin, skills }: Props) {
   const router = useRouter();
   const timezone = useEspaceTimezone();
   const [status, setStatus] = useState<WorkStatus>(work.status);
@@ -85,6 +87,7 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
   const [draft, setDraft] = useState<AnnotationDraft>(EMPTY_DRAFT);
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [skillId, setSkillId] = useState('');
   const [snippets, setSnippets] = useState<{ id: string; body: string }[]>([]);
   const [versions, setVersions] = useState<{ id: string; revision: number; reason: string; createdAt: string }[]>([]);
   const [viewing, setViewing] = useState<{ label: string; content: { steps: Record<string, ViewerStepContent> } } | null>(null);
@@ -325,6 +328,37 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
             <textarea id="ann-body" className={`${inputClass} min-h-28`} value={draft.body} maxLength={MAX_BODY + 200} onChange={(e) => set({ body: e.target.value })} />
           </div>
           <p className="text-xs text-neutral-400">{draft.body.length}/{MAX_BODY}</p>
+
+          {skills && skills.length > 0 && (
+            <fieldset>
+              <legend className="text-xs font-medium text-neutral-300">Compétence suivie (facultatif)</legend>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <label htmlFor="ann-skill" className="sr-only">Compétence</label>
+                <select id="ann-skill" className={`${inputClass} mt-0 w-auto max-w-full`} value={skillId} onChange={(e) => setSkillId(e.target.value)}>
+                  <option value="">Choisir…</option>
+                  {skills.map((s) => (
+                    <option key={s.id} value={s.id}>{s.label}</option>
+                  ))}
+                </select>
+                {(['acquise', 'à consolider'] as const).map((verdict) => (
+                  <button
+                    key={verdict}
+                    type="button"
+                    disabled={!skillId}
+                    onClick={() => {
+                      const skill = skills.find((s) => s.id === skillId);
+                      if (!skill) return;
+                      const line = `Compétence «\u00a0${skill.label}\u00a0»\u00a0: ${verdict}.`;
+                      set({ body: draft.body ? `${draft.body.trimEnd()}\n${line}` : line });
+                    }}
+                    className={btn}
+                  >
+                    {verdict === 'acquise' ? 'Acquise' : 'À consolider'}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          )}
 
           {snippets.length > 0 && (
             <fieldset>

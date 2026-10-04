@@ -3,7 +3,7 @@
  *
  *   npx tsx scripts/espace/build-corriges.ts [--out build/espace-corriges] [--only <module>]
  *
- * Modules : `poo-structures` (TP POO 2) et `fonctions-limites` (Maths) — mêmes noms que `install-resources.ts --module`.
+ * Modules : `poo-structures` (TP POO 2), `recursivite` (NSI, Algorithmique) et `fonctions-limites` (Maths) — mêmes noms que `install-resources.ts --module`.
  * Sortie : <out>/<module>/corrige.html, corrige.pdf et MANIFEST.json (empreinte + taille de chaque fichier) ;
  * c'est ce manifeste que `install-resources.ts` vérifie avant toute copie en stockage privé.
  *   - corrige.html : autonome (KaTeX et polices incorporés, figures SVG incluses), sans aucune requête réseau ;
@@ -41,6 +41,12 @@ export const CORRIGE_MODULES: CorrigeModule[] = [
     title: 'Corrigé enseignant — TP POO 2 : Listes, piles et files',
     content: 'content/espace/nsi-structures-lineaires/content.json',
     source: 'docs/espace/corriges/nsi-poo2/corrige.html',
+  },
+  {
+    module: 'recursivite',
+    title: 'Corrigé enseignant — Récursivité et programmation récursive',
+    content: 'content/espace/nsi-recursivite/content.json',
+    source: 'docs/espace/corriges/nsi-recursivite/corrige.html',
   },
 ];
 

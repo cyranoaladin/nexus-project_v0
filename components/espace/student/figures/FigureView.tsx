@@ -4,6 +4,7 @@ import { RichText } from '@/components/espace/shared/RichText';
 import { plainMath } from '@/lib/espace/math-text';
 import type { FigureSpec } from '@/lib/espace/lesson-types';
 
+import { CallTrace } from './CallTrace';
 import { FunctionFigure } from './FunctionFigure';
 import { StructureSim } from './StructureSim';
 
@@ -14,6 +15,8 @@ export function FigureView({ spec, overlay }: { spec: FigureSpec; overlay?: stri
       return <FunctionFigure spec={spec} overlay={overlay} />;
     case 'structure-sim':
       return <StructureSim spec={spec} />;
+    case 'call-trace':
+      return <CallTrace spec={spec} />;
     case 'svg':
       return (
         <figure className="my-3">
