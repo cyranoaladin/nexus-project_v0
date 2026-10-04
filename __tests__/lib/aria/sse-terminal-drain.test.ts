@@ -108,3 +108,13 @@ test.each(['abort', 'network-error'])('does not publish a terminal after %s duri
   expect(onProtocolError).toHaveBeenCalledTimes(1);
   expect(cancelled).toHaveBeenCalledTimes(kind === 'abort' ? 1 : 0);
 });
+
+test('preserves valid event parsing when a frame also contains SSE comments and an event id', async () => {
+  const onStart = jest.fn();
+  const onDone = jest.fn();
+  const wire = ': synthetic keepalive\nid: synthetic-event-id\n' + formatAriaSSEEvent(start) + formatAriaSSEEvent(done);
+  await parseAriaSSEResponse(new Response(wire, { headers: { 'content-type': 'text/event-stream' } }), { onStart, onDone });
+  expect(onStart).toHaveBeenCalledWith(start.data);
+  expect(onDone).toHaveBeenCalledWith(done.data);
+  expect(onDone).toHaveBeenCalledTimes(1);
+});

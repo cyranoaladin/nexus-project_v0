@@ -42,6 +42,16 @@ All six new drainage cases passed. Existing streaming/cancellation/parser
 assertions remained active. Full ARIA coverage, browser and final exact-SHA CI
 must be renewed before qualification.
 
+The full coverage run on 3ce315bae passed 2492 application, 352 PostgreSQL
+and 27 concurrency tests, but the critical parser branch gate failed at 97.05%.
+The internal abort controller makes the optional-signal path unreachable.
+The refinement requires that controller and shares the abort-reason mapping;
+it preserves caller cancellation and the drainage deadline. A seventh case
+checks valid frames containing SSE comments and event IDs. Targeted parser
+coverage is 100% across 114 lines, 16 functions, 140 statements and 98 branches.
+The seven-suite targeted regression run passes 237 tests. These targeted results
+do not replace the required renewed complete coverage gate on a committed SHA.
+
 ## Mobile CI attribution
 
 On df266cc1fe1a0d86f1ab6a285a0019c2fb65c44f, mobile job111350885051

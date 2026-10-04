@@ -99,19 +99,22 @@ function nextMessage(buffer: string): { message: string; rest: string } | null {
   };
 }
 
+function abortCode(signal: AbortSignal): AriaSSEProtocolErrorCode {
+  return signal.reason === TERMINAL_DRAIN_TIMEOUT_REASON ? 'TERMINAL_DRAIN_TIMEOUT' : 'ABORTED';
+}
+
 async function readWithAbort(
   reader: ReadableStreamDefaultReader<Uint8Array>,
-  signal: AbortSignal | undefined,
+  signal: AbortSignal,
   callbacks: AriaSSECallbacks,
 ): Promise<ReadableStreamReadResult<Uint8Array>> {
-  if (!signal) return reader.read();
   if (signal.aborted) {
     await reader.cancel();
-    return fail(signal.reason === TERMINAL_DRAIN_TIMEOUT_REASON ? 'TERMINAL_DRAIN_TIMEOUT' : 'ABORTED', callbacks);
+    return fail(abortCode(signal), callbacks);
   }
   return new Promise<ReadableStreamReadResult<Uint8Array>>((resolve, reject) => {
     const abort = () => {
-      reject(new AriaSSEParseError(signal.reason === TERMINAL_DRAIN_TIMEOUT_REASON ? 'TERMINAL_DRAIN_TIMEOUT' : 'ABORTED'));
+      reject(new AriaSSEParseError(abortCode(signal)));
       void reader.cancel().then(undefined, reject);
     };
     signal.addEventListener('abort', abort, { once: true });
