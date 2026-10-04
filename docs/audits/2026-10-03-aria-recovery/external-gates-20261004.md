@@ -5,6 +5,15 @@
 Status: NOT_READY. These are requests, not approvals or completed exercises.
 Technical qualification continues independently.
 
+Current checkpoint: local source `ef6330bc05759c94cb8a0cefc9ac3b8ab454af9e`,
+published `6083b3fa0e32643b46d4f1b5a4a652828adbc665`. The source identifiers above
+and alert #101 below are historical. The current blocking HIGH alert is #114;
+the security-owner request applies to its issuance-ID-to-outbox HMAC data path.
+No disposition has been approved. The official production locator remains
+unavailable to this session: release owner must supply the current private
+runbook reference/hash and authorized access mechanism, release history and
+an authorized issuance-v1 namespace inventory. No secret value is requested.
+
 | Gate | Responsible role (individual to be assigned) | Required action and evidence | Deadline |
 |---|---|---|---|
 | Historical TLS compromise | Infrastructure/security owner | Confirm rotation date, replacement public-key fingerprint, issuer revocation status where applicable, and absence of the compromised key fingerprint from active listeners and dependent systems. Keep private-key material outside all reports. | Before any real-client pilot |

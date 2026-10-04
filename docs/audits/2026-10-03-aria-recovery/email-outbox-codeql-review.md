@@ -27,3 +27,24 @@ Operational request: the repository security owner must inspect the above data p
 At `57da8a6d0ee3b00afad2cd7b817f544f0ef0ff71`, pull-ref alerts show one HIGH: #114, `js/insufficient-password-hash`, `lib/email/outbox.ts:189`. Historical #101 does not establish the current alert identity. Four MEDIUM alerts also remain: #70 (`__tests__/marketing/unicode-escape-guard.test.ts:50`), #50 (`__tests__/scripts/migrate-bilans.test.ts:21`), #64 (`lib/quote/pdf.ts:98`), #16 (`app/bilan-pallier2-maths/resultat/[id]/page.tsx:967`). No alert has been dismissed or excluded by this mission.
 
 The issuance dedupe HMAC consumes database issuance IDs, not password material, but the HIGH alert is still blocking without causal resolution or an authorized narrow security disposition. Changing its namespace also requires proof that a previous namespace is not deployed, or retry compatibility, to avoid duplicate delivery. Dependency policy approval is likewise unresolved; its lock digest is not simply restamped to bypass the audit.
+
+## Published observation at 22:32 Africa/Tunis — October 4
+
+Published source `6083b3fa0e32643b46d4f1b5a4a652828adbc665` has only HIGH #114
+open on the pull ref. The four MEDIUM findings above are no longer open after
+causal fixes to HTML rendering, shell-free test execution and apostrophe
+normalization. No dismissal, annotation or global exclusion was used. The HIGH
+finding and its security-owner disposition remain unresolved. This observation
+does not qualify a subsequent SHA.
+
+The complete CI is still nonterminal: 42 successes, three failures, three running
+and two queued checks in this snapshot. CodeQL, Dependency Integrity and Security
+Scan are the failures; no downstream aggregate or evidence check is inferred to
+have passed. A renewed production npm audit reported zero vulnerabilities; the
+complete audit still reports five HIGH development entries from the braces
+advisory. A policy update requires a named authorized owner and a traced decision.
+
+Read-only infrastructure review did not establish that issuance-v1 has never
+executed: absence from main or GitHub deployments does not exclude a manual or
+staging execution. Release history and authorized outbox namespace inventory are
+therefore required before a namespace replacement can be claimed retry-safe.
