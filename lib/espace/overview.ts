@@ -15,6 +15,7 @@ import { ACTIVITIES, getActivityDef } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
 import { listPublishedSessionsForStudent } from './sessions';
+import { notValidationGroup, type ValidationScopeOptions } from './validation';
 
 /**
  * Libellés d'affichage. Volontairement indexé par chaîne et non `Record<Subject, …>` :
@@ -201,19 +202,19 @@ export interface TeacherOverview {
   generatedAt: string;
 }
 
-async function teacherRosterWhere(actor: EspaceActor, subject: Subject) {
-  if (actor.role === 'ADMIN') return { subject };
+async function teacherRosterWhere(actor: EspaceActor, subject: Subject, opts: ValidationScopeOptions = {}) {
+  if (actor.role === 'ADMIN') return opts.includeValidation ? { subject } : { subject, group: notValidationGroup };
   return { subject, group: { teachers: { some: { teacherId: actor.id, subject } } } };
 }
 
-export async function getTeacherOverview(actor: EspaceActor, activitySlug: string): Promise<TeacherOverview> {
+export async function getTeacherOverview(actor: EspaceActor, activitySlug: string, opts: ValidationScopeOptions = {}): Promise<TeacherOverview> {
   if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
   const def = getActivityDef(activitySlug);
   const activity = await prisma.espaceActivity.findUnique({ where: { slug: activitySlug } });
   if (!def || !activity) throw new EspaceError('NOT_FOUND', 'Activité introuvable');
 
   const enrollments = await prisma.espaceEnrollment.findMany({
-    where: await teacherRosterWhere(actor, activity.subject),
+    where: await teacherRosterWhere(actor, activity.subject, opts),
     select: { user: { select: { id: true, firstName: true, lastName: true } }, group: { select: { name: true } } },
   });
   const studentIds = [...new Set(enrollments.map((e) => e.user.id))];
@@ -267,13 +268,13 @@ export interface TeacherStudentRow {
   toCorrect: number;
 }
 
-export async function listTeacherStudents(actor: EspaceActor): Promise<TeacherStudentRow[]> {
+export async function listTeacherStudents(actor: EspaceActor, opts: ValidationScopeOptions = {}): Promise<TeacherStudentRow[]> {
   if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
   const assignments = actor.role === 'ADMIN' ? null : await prisma.espaceTeacherAssignment.findMany({ where: { teacherId: actor.id }, select: { groupId: true, subject: true } });
   if (assignments && assignments.length === 0) return [];
 
   const enrollments = await prisma.espaceEnrollment.findMany({
-    where: assignments ? { OR: assignments.map((a) => ({ groupId: a.groupId, subject: a.subject })) } : {},
+    where: assignments ? { OR: assignments.map((a) => ({ groupId: a.groupId, subject: a.subject })) } : opts.includeValidation ? {} : { group: notValidationGroup },
     select: { subject: true, user: { select: { id: true, firstName: true, lastName: true } }, group: { select: { name: true } } },
   });
   const ids = [...new Set(enrollments.map((e) => e.user.id))];
@@ -338,9 +339,9 @@ export async function getStudentFile(actor: EspaceActor, studentId: string): Pro
 }
 
 /** Activité sur laquelle les élèves de cet enseignant ont travaillé le plus récemment (accueil enseignant par défaut). */
-export async function latestActiveActivitySlug(actor: EspaceActor): Promise<string | null> {
+export async function latestActiveActivitySlug(actor: EspaceActor, opts: ValidationScopeOptions = {}): Promise<string | null> {
   if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
-  const scope = await teacherWorkScope(actor);
+  const scope = await teacherWorkScope(actor, opts);
   if (scope === null) return null;
   const row = await prisma.espaceWork.findFirst({
     where: { ...scope },
@@ -360,9 +361,9 @@ export interface CorrectionQueueItem {
   stepsTotal: number;
 }
 
-export async function listWorksToCorrect(actor: EspaceActor, activitySlug?: string): Promise<CorrectionQueueItem[]> {
+export async function listWorksToCorrect(actor: EspaceActor, activitySlug?: string, opts: ValidationScopeOptions = {}): Promise<CorrectionQueueItem[]> {
   if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
-  const scope = await teacherWorkScope(actor);
+  const scope = await teacherWorkScope(actor, opts);
   if (scope === null) return [];
   const rows = await prisma.espaceWork.findMany({
     where: { status: 'SUBMITTED', ...scope, ...(activitySlug ? { activity: { slug: activitySlug } } : {}) },

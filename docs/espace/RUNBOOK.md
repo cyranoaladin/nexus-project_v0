@@ -71,11 +71,12 @@ Voir `docs/legacy-poo/LEGACY_POO_LINKING.md`. Le service et l'archive historique
 
 Toute bascule passe par `scripts/espace/switch-release.sh`, exécuté **sur le serveur** (copié par `ssh … 'bash -s -- <args>' < scripts/espace/switch-release.sh`).
 
-1. Préparer la release hors ligne (build en clone propre hors `.worktrees`, `rsync` du standalone, `.runtime` copié d'une release vivante, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). Ressources privées et miroir de catalogue **avant** la bascule (§8).
+1. Préparer la release hors ligne (build en clone propre hors `.worktrees`, `rsync` du standalone, `.runtime` copié d'une release vivante, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). Ressources privées et miroir de catalogue **avant** la bascule (§8). Générer le catalogue du code : `npx tsx scripts/espace/export-catalog.ts > <release>/espace-catalog.json` (fichier lu par le preflight, §11).
 2. Relever la release servie : `readlink -f /var/www/nexus-project_v0`. C'est la valeur **vérifiée** à passer en `--expected-current`.
 3. `switch-release.sh --new <release> --expected-current <release servie vérifiée>` :
    - **verrou** `flock -n /var/lock/nexus-production-deploy.lock` : si un autre déploiement le tient → `LOCK_BUSY`, arrêt (jamais d'attente ni de contournement) ;
    - **compare-and-swap** : si la release servie n'est plus celle vérifiée → `CAS_MISMATCH`, arrêt, réévaluation humaine ; on n'écrase jamais une release plus récente ;
+   - **preflight catalogue ↔ base** (lecture seule, fail closed, avant tout changement) : catalogue du code ≠ `espace_activities` → `DEPLOYMENT_BLOCKED` (code 17), **aucune mutation automatique** — corriger explicitement par `provision.ts sync-activities --execute` puis relancer ;
    - pré-vol (artefact, Node embarqué `v22.23.1`, garde de pointeur), bascule atomique du seul pointeur canonique, garde `--expected-release`, `pm2 restart`, santé ; **retour arrière automatique** si la santé n'est pas confirmée.
 4. Vérifier ensuite : `GARDE_FINAL=OK`, `CANON`, `ALIAS`, `CMDLINE`, exécutable Node, santé, journaux.
 5. **Rollback readiness** (sans rien basculer) : `switch-release.sh --check <release précédente saine>` — dossier, `server.js`, `BUILD_ID`, Node, propriétaire, commande pm2, pointeur modifiable, garde de l'état courant. Compatibilité base : comparer `prisma/` entre les deux commits (diff vide = aucun schéma à défaire).
@@ -96,8 +97,17 @@ Les travaux techniques peuvent rester (traces) mais le compte doit être désact
 
 ## 11. Contrôle catalogue ↔ base (étape de déploiement)
 
-`npx tsx scripts/espace/provision.ts audit-activities` — lecture seule, code de sortie 1 en cas d'écart bloquant (activité absente de la base, type, matière, module, titre, nombre d'étapes ou version différents). Aucune mutation au démarrage de l'application. Correction : `sync-activities` (ne touche qu'à `espace_activities`, jamais aux comptes, codes ou inscriptions).
+Intégré à `switch-release.sh` (preflight, §9) ; testable seul : `switch-release.sh --audit-only --catalog <espace-catalog.json> --db-json <lignes.json>`. Équivalent développeur avec Prisma : `npx tsx scripts/espace/provision.ts audit-activities` — lecture seule, code de sortie 1 en cas d'écart bloquant (activité absente de la base, type, matière, module, titre, nombre d'étapes ou version différents). Aucune mutation au démarrage de l'application. Correction : `sync-activities` (ne touche qu'à `espace_activities`, jamais aux comptes, codes ou inscriptions).
 
 ## 12. Plan de secours hors ligne
 
 `~/Documents/Nexus_Conservation/espace-terminale-fallback/` (TP POO 2, Récursivité, Maths ; l'ancien `urgence-seances-2026-10-03/` est conservé tel quel). Reconstruction : `build-corriges.ts` puis `build-fallback.ts --out … --corriges …`. Lancement : voir `LIRE_DABORD.md`.
+
+## 13. Comptes de validation : invisibles des vues pédagogiques
+
+Les élèves `val.*` sont inscrits au seul groupe `validation-technique` (`lib/espace/validation.ts`). Les vues d'ensemble d'un ADMIN (effectifs et statistiques d'une activité, liste des élèves, file « À corriger », activité récente, séances) l'excluent **par défaut** ; `includeValidation: true` les réintègre pour un audit explicite, et l'accès par identifiant (travail, élève, export) n'est jamais bloqué. Un enseignant réel (COACH) n'est concerné que par ses affectations et ne les voit jamais ; l'enseignant technique `val.prof*`, affecté à ce groupe, les voit (la fumée de production en dépend).
+
+## 14. Voie de tests lourde (déterministe)
+
+`__tests__/architecture/npc-storage-contract.test.ts` construit un Program TypeScript complet du dépôt (≈ 3,4 Go résidents, ≈ 50 s). Dans le pool parallèle par défaut (jusqu'à N-1 workers), son worker était tué de façon intermittente (SIGTERM, OOM de cgroup). Il tourne désormais seul : `npm run test:unit:heavy` (`jest.heavy.config.js`, un worker, assertions et timeout inchangés) ; `npm run test:unit` l'ignore ; `npm run test:unit:all` exécute les deux ; la CI a une étape dédiée.
+

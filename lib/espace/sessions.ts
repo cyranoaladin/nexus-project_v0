@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { teacherTeachesGroupSubject } from './teaching';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
+import { notValidationGroup, type ValidationScopeOptions } from './validation';
 
 const createInput = z
   .object({
@@ -100,10 +101,10 @@ export async function listPublishedSessionsForStudent(userId: string) {
   });
 }
 
-export async function listSessionsForTeacher(actor: EspaceActor) {
+export async function listSessionsForTeacher(actor: EspaceActor, opts: ValidationScopeOptions = {}) {
   if (actor.role === 'ELEVE') throw new EspaceError('FORBIDDEN', 'Accès refusé');
   return prisma.espaceSession.findMany({
-    where: actor.role === 'ADMIN' ? {} : { teacherId: actor.id },
+    where: actor.role === 'ADMIN' ? (opts.includeValidation ? {} : { group: notValidationGroup }) : { teacherId: actor.id },
     orderBy: [{ createdAt: 'desc' }],
     take: 100,
     select: {

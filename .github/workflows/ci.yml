@@ -261,6 +261,15 @@ jobs:
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
           NEXTAUTH_URL: http://localhost:3000
 
+      # Voie lourde déterministe : construit un Program TypeScript complet (≈ 3,4 Go). Un seul worker, sans couverture.
+      - name: Run heavy architecture lane (single worker)
+        run: npm run test:unit:heavy -- --ci
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          NEXTAUTH_URL: http://localhost:3000
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

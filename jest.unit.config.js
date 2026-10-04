@@ -46,6 +46,8 @@ const customJestConfig = {
     '<rootDir>/__tests__/security/',
     // Exclude governance suite (ESM-only, executed via npm run test:governance)
     '<rootDir>/__tests__/governance/',
+    // Voie lourde déterministe (un seul worker) : voir jest.heavy.config.js
+    '<rootDir>/__tests__/architecture/npc-storage-contract\\.test\\.ts$',
   ],
 };
 
