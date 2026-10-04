@@ -1,5 +1,5 @@
 {
-  "sourceSha": "18b56ef8a2c7bc0ebed8d001102bbe87af68538f",
+  "sourceSha": "cb372cf2dac8a2f9cb97ecb8f50dd0d22bca787e",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -15,12 +15,12 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": true
     },
     {
       "path": ".github/workflows/flake-qualification.yml",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": true
     },
     {
@@ -295,27 +295,27 @@
     },
     {
       "path": "__tests__/api/reservation-notification-atomicity.test.ts",
-      "domain": "planning-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "__tests__/api/reservation-public-integrity.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "__tests__/api/reservation-staff-decision.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "__tests__/api/reservation-staff-list.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "__tests__/api/reservation.route.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -336,6 +336,11 @@
     {
       "path": "__tests__/api/session-video-family-authority.test.ts",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/sessions.cancel.route.test.ts",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -430,7 +435,7 @@
     },
     {
       "path": "__tests__/architecture/aria-test-harness-boundary.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -465,12 +470,22 @@
     },
     {
       "path": "__tests__/components/aria/conversation-engine.test.tsx",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/components/auth/password-change-form.test.tsx",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/core-v2/account-resend-retry.test.tsx",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/components/dashboard/core-v2/household-detail.test.tsx",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -529,8 +544,28 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/core-v2/account-email-envelope.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/core-v2/account-token-format.test.ts",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/helpers/account-handoff-migration-fixture.ts",
+      "domain": "donnees-migrations",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/account-email-handoff-routes.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/http/core-only-session-revocation.test.ts",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -569,13 +604,18 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/core-v2/http/staff-api.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/core-v2/http/unexpected-error-redaction.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
       "path": "__tests__/core-v2/migration-transform.test.ts",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": false
     },
     {
@@ -586,6 +626,16 @@
     {
       "path": "__tests__/core-v2/queries/household-verification.test.ts",
       "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/account-email-handoff-destination.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/core-v2/services/account-email-handoff.test.ts",
+      "domain": "auth-securite",
       "highRisk": false
     },
     {
@@ -619,13 +669,18 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/core-v2/services/virus-scan-clamav.real.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/db/aria-workshop-concurrency.real.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/db/aria-workshop-reminder.real.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -665,12 +720,12 @@
     },
     {
       "path": "__tests__/governance/aria-ci-workflow-contract.test.js",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/governance/aria-mobile-repeat-qualification.test.js",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -680,7 +735,7 @@
     },
     {
       "path": "__tests__/helpers/stage-decision-migration-fixture.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -715,12 +770,12 @@
     },
     {
       "path": "__tests__/integration/public-reservation-integrity.real.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "__tests__/integration/reservation-staff-list.real.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -734,8 +789,13 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/integration/session-cancel-state-race.real.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/integration/stage-lead-decision.real.test.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -760,12 +820,12 @@
     },
     {
       "path": "__tests__/lib/aria/native-response-reader.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/lib/aria/sse-terminal-drain.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -775,6 +835,11 @@
     },
     {
       "path": "__tests__/lib/auth/core-authority-error-redaction.test.ts",
+      "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/auth/session-revocation-authority.test.ts",
       "domain": "auth-securite",
       "highRisk": false
     },
@@ -816,6 +881,11 @@
     {
       "path": "__tests__/lib/email-bank-transfer-html.test.ts",
       "domain": "notifications",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/email/core-v2-handoff-scheduler.test.ts",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -940,32 +1010,32 @@
     },
     {
       "path": "__tests__/scripts/aria/browser-diagnostics.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/scripts/aria/chat-transport-completion.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/scripts/aria/e2e-harness-contract.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/scripts/aria/mobile-repeat-entrypoint.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/scripts/aria/transport-probe.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "__tests__/scripts/aria/visual-artifacts.test.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -995,6 +1065,11 @@
     },
     {
       "path": "__tests__/scripts/public-link-target.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/scripts/versioned-credential-scan.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
     },
@@ -1215,7 +1290,7 @@
     },
     {
       "path": "app/api/parent/stages/route.ts",
-      "domain": "planning-stages",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -1275,7 +1350,7 @@
     },
     {
       "path": "app/api/reservation/route.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -1289,8 +1364,13 @@
       "highRisk": true
     },
     {
+      "path": "app/api/sessions/cancel/route.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
       "path": "app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route.ts",
-      "domain": "planning-stages",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -1305,7 +1385,7 @@
     },
     {
       "path": "app/api/student/stages/route.ts",
-      "domain": "planning-stages",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -1390,7 +1470,7 @@
     },
     {
       "path": "components/aria/useAriaConversation.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -1402,6 +1482,11 @@
       "path": "components/auth/SessionRecoveryProvider.tsx",
       "domain": "auth-securite",
       "highRisk": false
+    },
+    {
+      "path": "components/dashboard/core-v2/AccountActions.tsx",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
     },
     {
       "path": "components/dashboard/core-v2/HouseholdDetail.tsx",
@@ -1455,12 +1540,22 @@
     },
     {
       "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
+      "highRisk": true
+    },
+    {
+      "path": "core-v2/prisma/migrations/0024_core_v2_account_email_handoff/migration.sql",
+      "domain": "donnees-migrations",
+      "highRisk": true
+    },
+    {
+      "path": "core-v2/prisma/migrations/0025_core_v2_account_email_payload_fail_closed/migration.sql",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
       "path": "core-v2/prisma/schema.prisma",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
@@ -1499,6 +1594,21 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-email-envelope-contract.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-hmac-oracle-nonce.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/account-resend-concurrency.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/account-security-repeat-shape.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1510,6 +1620,11 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/account-token-hmac.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/aria-browser-artifact-isolation.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1550,7 +1665,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/bilan-markdown-html-boundary.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1590,22 +1705,27 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-render-security-20261004.md",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-staff-list-20261004.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-authority-20261004.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-notifications-20261004.md",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-stage-security-20261004.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1639,7 +1759,27 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-account-email-handoff-acceptance.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/core-account-mail-parser.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-account-payload-null-invariant.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-foundation-ci-destination-av.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/core-only-session-revocation.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1650,6 +1790,11 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/core-unexpected-error-log.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/credential-guard-csprng.md",
       "domain": "documentation-preuve",
       "highRisk": false
     },
@@ -1905,7 +2050,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/pdf-apostrophe-normalization.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -1955,7 +2100,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/public-reservation-integrity.md",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -1999,6 +2144,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/session-cancel-concurrency.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/session-report-family-authority.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -2034,18 +2184,23 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/staff-golden-queued-email-contract.md",
+      "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/staff-reservation-list.md",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-bank-transfer-html-boundary.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-catalog-commit-consistency.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -2060,12 +2215,12 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-decision-commit-authority.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-lead-decision-audit.md",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -2075,12 +2230,12 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-notification-acceptance.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-reservation-atomic-notifications.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -2125,7 +2280,7 @@
     },
     {
       "path": "docs/audits/2026-10-03-aria-recovery/test-shell-boundaries.md",
-      "domain": "documentation-preuves",
+      "domain": "documentation-preuve",
       "highRisk": false
     },
     {
@@ -2155,17 +2310,17 @@
     },
     {
       "path": "e2e/aria/conversation.spec.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "e2e/aria/helpers.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "e2e/aria/visual-a11y.spec.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -2210,7 +2365,7 @@
     },
     {
       "path": "e2e/helpers/aria-transport-probe.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -2244,13 +2399,18 @@
       "highRisk": false
     },
     {
+      "path": "instrumentation.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
       "path": "jest.aria.shared.js",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "jest.aria.sse.config.js",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
@@ -2260,22 +2420,22 @@
     },
     {
       "path": "jest.config.governance.js",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "jest.core-v2.config.js",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "jest.integration.config.js",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "jest.setup.js",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
@@ -2285,22 +2445,22 @@
     },
     {
       "path": "lib/aria/application/workshop/register-for-workshop.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "lib/aria/notifications/notify-parent-workshop-registered.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "lib/aria/transport/native-response-reader.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": true
     },
     {
       "path": "lib/aria/transport/sse-parser.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": true
     },
     {
@@ -2360,6 +2520,26 @@
     },
     {
       "path": "lib/core-v2/account-token.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/accounts/email-handoff-destination.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/accounts/email-handoff-scheduler.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/accounts/email-handoff-schema.ts",
+      "domain": "auth-securite",
+      "highRisk": true
+    },
+    {
+      "path": "lib/core-v2/accounts/email-handoff-worker.ts",
       "domain": "auth-securite",
       "highRisk": true
     },
@@ -2481,6 +2661,11 @@
     {
       "path": "lib/email.ts",
       "domain": "notifications",
+      "highRisk": true
+    },
+    {
+      "path": "lib/email/account-handoff-envelope.ts",
+      "domain": "auth-securite",
       "highRisk": true
     },
     {
@@ -2645,12 +2830,12 @@
     },
     {
       "path": "lib/stages/decline-legacy-lead.ts",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": true
     },
     {
       "path": "lib/stages/family-read-projection.ts",
-      "domain": "planning-stages",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -2670,12 +2855,12 @@
     },
     {
       "path": "package-lock.json",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "package.json",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
@@ -2685,27 +2870,27 @@
     },
     {
       "path": "prisma/migrations/20261003194000_aria_workshop_admission_invariants/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
       "path": "prisma/migrations/20261003211500_account_security_events/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
       "path": "prisma/migrations/20261004170000_invoice_financial_authority/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
       "path": "prisma/migrations/20261004183000_invoice_email_queue_evidence/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
       "path": "prisma/migrations/20261004190000_subscription_request_owner/migration.sql",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
@@ -2720,12 +2905,12 @@
     },
     {
       "path": "prisma/migrations/20261004214500_stage_reservation_decision_audit/migration.sql",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": true
     },
     {
       "path": "prisma/schema.prisma",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": true
     },
     {
@@ -2735,63 +2920,68 @@
     },
     {
       "path": "scripts/aria/check-runtime-manifest.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/aria/check-visual-artifacts.ts",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/aria/e2e-runtime-secrets.sh",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/aria/run-e2e-suite.sh",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/audit/markdown-table.cjs",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "scripts/audit/site-map.mjs",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "scripts/core-v2/migration/apply.ts",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": false
     },
     {
       "path": "scripts/core-v2/migration/transform.ts",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": false
     },
     {
       "path": "scripts/core-v2/migration/types.ts",
-      "domain": "schema-migration",
+      "domain": "donnees-migrations",
       "highRisk": false
     },
     {
       "path": "scripts/db/rehearse-stage-decision-migration.py",
-      "domain": "stages-reservations",
+      "domain": "planning",
       "highRisk": true
     },
     {
       "path": "scripts/github/lib/aria-ci-contract.mjs",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/playwright-entrypoint.sh",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
+    },
+    {
+      "path": "scripts/security/check-versioned-credentials.mjs",
+      "domain": "ci-exploitation",
+      "highRisk": true
     },
     {
       "path": "scripts/testing/check-account-security-repeat.mjs",
@@ -2800,17 +2990,17 @@
     },
     {
       "path": "scripts/testing/check-aria-mobile-repeat.mjs",
-      "domain": "ARIA",
+      "domain": "aria",
       "highRisk": false
     },
     {
       "path": "scripts/testing/chromium-private-stream-diagnostic.mjs",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "scripts/testing/e2e-execution-evidence.mjs",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     },
     {
@@ -2820,7 +3010,7 @@
     },
     {
       "path": "scripts/testing/verify-video-disabled-browser.mjs",
-      "domain": "CI-exploitation",
+      "domain": "ci-exploitation",
       "highRisk": false
     }
   ]

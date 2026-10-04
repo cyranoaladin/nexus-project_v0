@@ -1,10 +1,20 @@
 {
-  "sourceSha": "5a18830d3f8e20dbb3931f6b1509a7665f32fd0e",
+  "sourceSha": "cb372cf2dac8a2f9cb97ecb8f50dd0d22bca787e",
   "migrations": [
     {
       "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
       "sha256": "a3ccc875bbfcfdbcf91d2a6fc2a7740013b0dbd8cd382b0e0a72665bd4d13098",
       "introducedCommit": "dc2be493940bf63e9bdeef394376e313a3286eb0"
+    },
+    {
+      "path": "core-v2/prisma/migrations/0024_core_v2_account_email_handoff/migration.sql",
+      "sha256": "cdcfe6abfd7a5d4d693ac8b50d8e9d7e67765820d82081586ba86f157a8af388",
+      "introducedCommit": "0eb92de0db60b4fb4d8f0f78974faa302895ffc3"
+    },
+    {
+      "path": "core-v2/prisma/migrations/0025_core_v2_account_email_payload_fail_closed/migration.sql",
+      "sha256": "d4f1a65b6db22fcbd1af8baad2cd089b77539fa23ff9ca60226202751c4fa52a",
+      "introducedCommit": "e69f1207571a8bd41dc1f5e3fd8a2537f8d14a46"
     },
     {
       "path": "prisma/migrations/20261003194000_aria_workshop_admission_invariants/migration.sql",
@@ -47,5 +57,5 @@
       "introducedCommit": "5a18830d3f8e20dbb3931f6b1509a7665f32fd0e"
     }
   ],
-  "caveat": "Fingerprint inventory is not proof of additive safety or representative restoration for every migration."
+  "caveat": "Inventory and content fingerprints, not proof of compatibility, restore, or production qualification."
 }
