@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { ARIA_SUSPENSION_REASON, isSaleSuspended } from '@/lib/commerce/sale-suspension';
 import { z } from 'zod';
 
 const parentSubscriptionRequestSchema = z.object({
@@ -105,6 +106,13 @@ export async function POST(request: NextRequest) {
       );
     }
     const { studentId, planName } = parsedBody.data;
+
+    if (isSaleSuspended('SUBSCRIPTION_PLAN')) {
+      return NextResponse.json(
+        { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
+        { status: 409, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
 
     const plan = getOperationalSubscriptionPlan(planName);
     if (!plan) {

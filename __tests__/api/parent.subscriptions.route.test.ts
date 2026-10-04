@@ -7,6 +7,13 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
+// Exercise the underlying request/ownership contract for a future qualified
+// reopening. The actual currently closed policy has a separate boundary test.
+jest.mock('@/lib/commerce/sale-suspension', () => ({
+  ...jest.requireActual('@/lib/commerce/sale-suspension'),
+  isSaleSuspended: jest.fn(() => false),
+}));
+
 jest.mock('@/lib/prisma', () => ({
   prisma: {
     parentProfile: { findUnique: jest.fn() },
