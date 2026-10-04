@@ -390,10 +390,12 @@ const rules = [
   },
   {
     code: 'SERVICE_SECRET_LITERAL',
-    pattern: /^(?!\s*[#'"`])\s*(?:(?:const|let|var)\s+|export\s+)?(?:process\.env\.)?((?:[A-Z][A-Z0-9_]*(?:PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY))|PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY|SMTP_PASS)\s*[=:]\s*[`'"| ]*([^\\\s`'"|]{8,})/gm,
+    pattern: /^(?!\s*[#'"`])\s*(?:(?:const|let|var)\s+|export\s+)?(?:process\.env\.)?((?:[A-Z][A-Z0-9_]*(?:PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY))|PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY|SMTP_PASS)\s*[=:]\s*[`'"| ]*((?:crypto\.)?randomBytes\(\d+\)\.toString\((?:'hex'|'base64url'|'base64'|"hex"|"base64url"|"base64")\)|[^\\\s`'"|]{8,})/gm,
     applies: () => true,
     isFinding: (match, path) => !isPlaceholder(match[2])
-      && !isRuntimeExpression(match[2])
+      && !(isRuntimeExpression(match[2])
+        && (!/^(?:crypto\.)?randomBytes\(/.test(match[2])
+          || !/['"`]\s*$/.test(match[0].slice(0, match[0].lastIndexOf(match[2])))))
       && !isAllowedAssignment(path, match[1], match[2]),
   },
   {

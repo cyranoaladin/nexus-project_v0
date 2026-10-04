@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({
   assertAccountEmailHandoffRuntimeConfiguration: jest.fn(), kickAccountEmailHandoffDrain: jest.fn(),
@@ -46,7 +47,7 @@ test('public reset is durably queued and enumeration-safe when the V1 destinatio
   const savedMode = process.env.CORE_V2_AUTH_MODE;
   process.env.CORE_V2_AUTH_MODE = 'V2_ONLY';
   try {
-    await h.client.user.create({ data: { role: 'PARENT', email: 'synthetic-reset-route@example.test', accountStatus: 'ACTIVE', password: await bcrypt.hash('syntheticResetPassword_42', 4) } });
+    await h.client.user.create({ data: { role: 'PARENT', email: 'synthetic-reset-route@example.test', accountStatus: 'ACTIVE', password: await bcrypt.hash(randomBytes(32).toString('base64url') + 'Aa1!', 4) } });
     const active = await reset(request('/api/v2/auth/password-reset', { email: 'synthetic-reset-route@example.test' }));
     const absent = await reset(request('/api/v2/auth/password-reset', { email: 'synthetic-absent-route@example.test' }));
     expect(active.status).toBe(202);

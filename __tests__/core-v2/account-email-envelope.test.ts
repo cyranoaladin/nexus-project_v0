@@ -54,6 +54,6 @@ test('partial keyring configuration fails closed rather than falling back', () =
 test('missing or short legacy encryption key refuses issuance', () => {
   delete process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
   expect(() => sealAccountEmailHandoff(input)).toThrow('ACCOUNT_EMAIL_HANDOFF_KEY_INVALID');
-  process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = 'synthetic-short';
+  process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = randomBytes(4).toString('hex');
   expect(() => sealAccountEmailHandoff(input)).toThrow('ACCOUNT_EMAIL_HANDOFF_KEY_INVALID');
 });

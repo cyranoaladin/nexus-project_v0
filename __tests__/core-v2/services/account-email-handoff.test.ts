@@ -246,7 +246,7 @@ test('activation and handoff recovery use a compatible lock order under contenti
   const held = await holdOpenTransaction(h.client, async (tx) => {
     await tx.$queryRaw`SELECT id FROM invitations WHERE id = ${issued.invitation.id} FOR UPDATE`;
   });
-  const activation = activateAccount(h.client, { rawToken: issued.rawToken, password: 'syntheticActivationPassword_42' }, { now: () => at });
+  const activation = activateAccount(h.client, { rawToken: issued.rawToken, password: randomBytes(32).toString('base64url') + 'Aa1!' }, { now: () => at });
   const activationSettled = Promise.allSettled([activation]);
   let recovery: ReturnType<typeof drainAccountEmailHandoffs> | undefined;
   let transfers = 0;
