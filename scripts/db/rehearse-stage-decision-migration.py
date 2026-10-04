@@ -5,6 +5,7 @@ from urllib.parse import quote, urlunsplit
 parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expansion/restore rehearsal; never uses a supplied database URL')
 parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
+parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
 args=parser.parse_args()
 if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_SHA_REQUIRED')
 if subprocess.run(['git','merge-base','--is-ancestor',args.old_ref,'HEAD'],capture_output=True).returncode: raise SystemExit('OLD_REF_NOT_ANCESTOR')
@@ -68,6 +69,7 @@ try:
  print('SYNTHETIC_ENCRYPTED_RESTORE_VERIFIED=1;INTERRUPTED_DDL_ROLLBACK_VERIFIED=1')
  with open(out/'stage-list-real-tests-private.log','w') as f:
   pattern='stage-lead-decision.real|reservation-staff-list.real' if args.include_staff_list else 'stage-lead-decision.real'
+  if args.include_public_reservations: pattern+='|public-reservation-integrity.real'
   p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns='+pattern],env=env,stdout=f,stderr=subprocess.STDOUT)
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))

@@ -7,7 +7,7 @@ import { auth } from '@/auth';
 import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 import { checkBodySize,checkCsrf } from '@/lib/csrf';
-import { sendStageBankTransferConfirmation } from '@/lib/email';
+import { buildStageBankTransferAcknowledgment } from '@/lib/email';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { internalNotification } from '@/lib/email/templates';
@@ -31,7 +31,7 @@ function getInternalNotificationRecipient(): string {
 /**
  * POST /api/reservation
  *
- * Pipeline: Rate limit → Honeypot → Zod validate → Server catalog → Create-only DB → Email
+ * Pipeline: Rate limit → Honeypot → Zod validate → Server catalog → Atomic create-only DB + notification intents
  * Returns: uniform 201 acknowledgement | 400 | 404 | 429 | 500; never grants update authority
  */
 async function submitReservation(request: NextRequest) {
@@ -107,79 +107,56 @@ async function submitReservation(request: NextRequest) {
     });
     if (existing) return reservationAcknowledgement();
     const isBankTransfer = data.paymentMethod === 'bank_transfer';
-    let reservationId: string;
-    try {
-      const created = await prisma.stageReservation.create({
-      data: {
-        stageId: stage.id, parentName: data.parent, studentName: data.studentName || null,
-        email: data.email, phone: data.phone, classe: data.classe,
-        academyId: stage.slug, academyTitle: stage.title, price: data.price,
-        paymentMethod: data.paymentMethod || null,
-        status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
+    const internalTemplate = internalNotification({
+      eventType: 'Nouveau lead chaud (site web)',
+      fields: {
+        Parent: data.parent, Téléphone: data.phone, Email: data.email, Classe: data.classe,
+        Intérêt: data.academyTitle, Montant: `${data.price} TND`,
+        ...(isBankTransfer ? { Paiement: 'Virement bancaire (en attente de vérification)' } : {}),
       },
-      select: { id: true },
+    });
+    try {
+      await prisma.$transaction(async transaction => {
+        const created = await transaction.stageReservation.create({
+          data: {
+            stageId: stage.id, parentName: data.parent, studentName: data.studentName || null,
+            email: data.email, phone: data.phone, classe: data.classe,
+            academyId: stage.slug, academyTitle: stage.title, price: data.price,
+            paymentMethod: data.paymentMethod || null,
+            status: isBankTransfer ? 'PENDING_BANK_TRANSFER' : 'PENDING',
+          },
+          select: { id: true },
+        });
+        await enqueueEmailIntent(transaction, {
+          aggregateType: 'STAGE_RESERVATION', aggregateId: created.id,
+          messageType: 'TRANSACTIONAL_NOTIFICATION',
+          dedupeKey: `reservation-internal:${created.id}:created:v1`,
+          to: getInternalNotificationRecipient(), ...internalTemplate,
+        });
+        if (isBankTransfer) {
+          await enqueueEmailIntent(transaction, {
+            aggregateType: 'STAGE_RESERVATION', aggregateId: created.id,
+            messageType: 'TRANSACTIONAL_NOTIFICATION',
+            dedupeKey: `reservation-bank-transfer:${created.id}:created:v1`,
+            to: data.email,
+            ...buildStageBankTransferAcknowledgment(data.parent, data.studentName || null, data.academyTitle, data.price),
+          });
+        }
       });
-      reservationId = created.id;
     } catch (error) {
-      // Only the create operation can be acknowledged as a duplicate. Errors
-      // in later notification work must not be mistaken for a reservation retry.
+      // A conflict anywhere in the transaction is a duplicate acknowledgment
+      // only when the canonical lead was committed by another submission.
       if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
-        return reservationAcknowledgement();
+        const committed = await prisma.stageReservation.findUnique({
+          where: { email_academyId: { email: data.email, academyId: data.academyId } },
+          select: { id: true },
+        });
+        if (committed) return reservationAcknowledgement();
       }
       throw error;
     }
-
-
-    // 4. Internal staff alert — non-blocking
-    try {
-      const tag = 'Nouveau lead chaud (site web)';
-      const internalTemplate = internalNotification({
-        eventType: tag,
-        fields: {
-          Parent: data.parent,
-          Téléphone: data.phone,
-          Email: data.email,
-          Classe: data.classe,
-          Intérêt: data.academyTitle,
-          Montant: `${data.price} TND`,
-          ...(data.paymentMethod === 'bank_transfer'
-            ? { Paiement: 'Virement bancaire (en attente de vérification)' }
-            : {}),
-        },
-      });
-      await enqueueEmailIntent(prisma, {
-        aggregateType: 'STAGE_RESERVATION',
-        aggregateId: reservationId,
-        messageType: 'TRANSACTIONAL_NOTIFICATION',
-        dedupeKey: `reservation-internal:${reservationId}:${Date.now()}`,
-        to: getInternalNotificationRecipient(),
-        subject: internalTemplate.subject,
-        html: internalTemplate.html,
-        text: internalTemplate.text,
-      });
-      kickEmailOutboxDrain();
-    } catch {
-      console.error('[reservation]', { code: 'RESERVATION_INTERNAL_ALERT_FAILED' });
-    }
-
-    // 5. Email notification — non-blocking
-    {
-      try {
-        if (data.paymentMethod === 'bank_transfer') {
-          // Bank transfer confirmation email
-          await sendStageBankTransferConfirmation(
-            data.email,
-            data.parent,
-            data.studentName || null,
-            data.academyTitle,
-            data.price
-          );
-        }
-      } catch {
-        // Non-blocking: log but don't fail the request
-        console.error('[reservation]', { code: 'RESERVATION_EMAIL_FAILED' });
-      }
-    }
+    // Every required intent is durable before a worker is permitted to drain.
+    kickEmailOutboxDrain();
 
     return reservationAcknowledgement();
   } catch {

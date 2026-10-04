@@ -8,9 +8,9 @@ import { prisma } from '@/lib/prisma';
 import { POST } from '@/app/api/reservation/route';
 const slug = `synthetic-public-${randomUUID()}`;
 const contact = `${slug}@example.test`;
-const invoke = (email = contact) => POST(new NextRequest('http://localhost:3000/api/reservation', { method: 'POST', body: JSON.stringify({
+const invoke = (email = contact, paymentMethod?: string) => POST(new NextRequest('http://localhost:3000/api/reservation', { method: 'POST', body: JSON.stringify({
   parent: 'New synthetic name', email, phone: '55000003', classe: 'Terminale',
-  academyId: slug, academyTitle: 'Untrusted title', price: 1,
+  academyId: slug, academyTitle: 'Untrusted title', price: 1, paymentMethod,
 }) }));
 beforeAll(async () => {
   assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
@@ -45,4 +45,32 @@ test('concurrent first submissions preserve one row and one notification intent'
   expect(rows).toHaveLength(1);
   expect(rows[0].price).toBe(350);
   expect(await prisma.jobOutbox.count({ where: { aggregateId: rows[0].id } })).toBe(1);
+});
+
+test('required intent failure rolls back the lead and a later retry can commit once', async () => {
+  const failureContact = `failure-${contact}`;
+  const previousKey = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+  try {
+    delete process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+    expect((await invoke(failureContact)).status).toBe(500);
+    expect(await prisma.stageReservation.count({ where: { academyId: slug, email: failureContact } })).toBe(0);
+  } finally {
+    if (previousKey === undefined) delete process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
+    else process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = previousKey;
+  }
+  expect((await invoke(failureContact)).status).toBe(201);
+  const row = await prisma.stageReservation.findUniqueOrThrow({ where: { email_academyId: { email: failureContact, academyId: slug } } });
+  expect(await prisma.jobOutbox.count({ where: { aggregateId: row.id } })).toBe(1);
+});
+
+test('bank-transfer acknowledgment and internal alert are durable without marking payment as paid', async () => {
+  const bankContact = `bank-${contact}`;
+  expect((await invoke(bankContact, 'bank_transfer')).status).toBe(201);
+  const row = await prisma.stageReservation.findUniqueOrThrow({ where: { email_academyId: { email: bankContact, academyId: slug } } });
+  expect(row.status).toBe('PENDING_BANK_TRANSFER');
+  expect(row.paymentStatus === null || row.paymentStatus === 'PENDING').toBe(true);
+  expect(row.confirmedAt).toBeNull();
+  expect(await prisma.jobOutbox.count({ where: { aggregateId: row.id, status: 'PENDING' } })).toBe(2);
+  expect((await invoke(bankContact, 'bank_transfer')).status).toBe(201);
+  expect(await prisma.jobOutbox.count({ where: { aggregateId: row.id } })).toBe(2);
 });

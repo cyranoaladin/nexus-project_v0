@@ -1,9 +1,9 @@
 /** @jest-environment node */
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/lib/prisma', () => ({ prisma: {
+jest.mock('@/lib/prisma', () => { const client = {
   stage: { findUnique: jest.fn() },
   stageReservation: { findUnique: jest.fn(), create: jest.fn(), update: jest.fn() },
-} }));
+}; return { prisma: { ...client, $transaction: jest.fn(async (callback: (tx: typeof client) => Promise<unknown>) => callback(client)) } }; });
 jest.mock('@/lib/email', () => ({ sendStageBankTransferConfirmation: jest.fn() }));
 jest.mock('@/lib/email/outbox', () => ({ enqueueEmailIntent: jest.fn() }));
 jest.mock('@/lib/email/outbox-scheduler', () => ({ kickEmailOutboxDrain: jest.fn() }));
@@ -48,6 +48,7 @@ test('reads a bounded body even when content length is absent', async () => {
 });
 test('does not expose database conflict through concurrent duplicate submissions', async () => {
   jest.mocked(prisma.stageReservation.create).mockRejectedValueOnce({ code: 'P2002' });
+  jest.mocked(prisma.stageReservation.findUnique).mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'concurrent-committed-lead' } as never);
   const response = await POST(request());
   expect(response.status).toBe(201);
   expect(await response.json()).toEqual({ success: true, message: 'Demande reçue. Notre équipe vous contactera pour la suite.' });

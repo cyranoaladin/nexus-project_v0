@@ -257,8 +257,7 @@ export async function sendStageDiagnosticInvitation(
  * Template BT: Email de confirmation — Virement bancaire stage
  * Envoyé immédiatement après une réservation par virement bancaire
  */
-export async function sendStageBankTransferConfirmation(
-  email: string,
+export function buildStageBankTransferAcknowledgment(
   parentName: string,
   studentName: string | null,
   academyTitle: string,
@@ -268,8 +267,6 @@ export async function sendStageBankTransferConfirmation(
   const safeStudentName = studentName === null ? null : escapeHtml(studentName);
   const safeAcademyTitle = escapeHtml(academyTitle);
   const mailOptions = {
-    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
-    to: email,
     subject: 'Réservation enregistrée – en attente de virement bancaire',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc;">
@@ -343,7 +340,13 @@ export async function sendStageBankTransferConfirmation(
     `
   };
 
-  await queueLegacyMail(mailOptions);
+  return mailOptions;
+}
+
+export async function sendStageBankTransferConfirmation(
+  email: string, parentName: string, studentName: string | null, academyTitle: string, price: number
+) {
+  await queueLegacyMail({ to: email, ...buildStageBankTransferAcknowledgment(parentName, studentName, academyTitle, price) });
 }
 
 /**

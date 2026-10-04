@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+jest.mock('@/lib/prisma', () => {
+  const client = {
     stage: { findUnique: jest.fn() },
     stageReservation: {
       findUnique: jest.fn(),
@@ -8,8 +8,9 @@ jest.mock('@/lib/prisma', () => ({
       update: jest.fn(),
       updateMany: jest.fn(),
     },
-  },
-}));
+  };
+  return { prisma: { ...client, $transaction: jest.fn(async (callback: (tx: typeof client) => Promise<unknown>) => callback(client)) } };
+});
 
 jest.mock('@/lib/email', () => ({
   sendStageDiagnosticInvitation: jest.fn().mockResolvedValue(undefined),
@@ -88,7 +89,7 @@ describe('POST /api/reservation', () => {
     await POST(makeRequest(validBody));
 
     expect(enqueueEmailIntent).toHaveBeenCalledWith(
-      prisma,
+      expect.objectContaining({ stageReservation: prisma.stageReservation }),
       expect.objectContaining({
         aggregateId: 'res-1',
         subject: expect.stringContaining('Nouveau lead chaud'),
