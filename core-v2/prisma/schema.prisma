@@ -117,7 +117,7 @@ enum AccountStatus {
 //   EXPIRED  = consumedAt IS NULL AND revokedAt IS NULL AND expiresAt <= now
 //   CONSUMED = consumedAt IS NOT NULL
 //   REVOKED  = revokedAt IS NOT NULL
-// Only the token HASH is stored (sha256 of a 32-byte random token) — the raw
+// Only the versioned token HMAC is stored (dedicated key; 32-byte random entropy) — the raw
 // token exists only in the service return value handed to the mail layer.
 // One-time, hashed tokens with two purposes: ACTIVATION (set the first
 // password on a PENDING_ACTIVATION account) and PASSWORD_RESET (replace the

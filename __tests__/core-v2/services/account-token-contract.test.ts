@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { accountTokenDigest } from '@/lib/core-v2/account-token';
 import {
   activateAccount, confirmPasswordReset, createHousehold, inspectPasswordReset,
   inviteAccount, requestPasswordReset,
@@ -29,10 +29,10 @@ test.each(['ACTIVATION', 'PASSWORD_RESET'] as const)(
         : await requestPasswordReset(h.client, { email: user.email! });
       if (!issued) throw new Error('SYNTHETIC_ACCOUNT_NOT_ELIGIBLE');
       expect(entropy).toHaveBeenCalledWith(32);
-      expect(issued.rawToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
-      expect(Buffer.from(issued.rawToken, 'base64url')).toHaveLength(32);
+      expect(issued.rawToken).toMatch(/^v1:[a-z][a-z0-9-]{0,23}:[A-Za-z0-9_-]{43}$/);
+      expect(Buffer.from(issued.rawToken.split(':')[2]!, 'base64url')).toHaveLength(32);
       const invitation = await h.client.invitation.findFirstOrThrow({ where: { userId: user.id, purpose } });
-      expect(invitation.tokenHash).toBe(createHash('sha256').update(issued.rawToken).digest('hex'));
+      expect(invitation.tokenHash).toBe(accountTokenDigest(issued.rawToken, purpose));
       expect(invitation.tokenHash).not.toBe(issued.rawToken);
       const records = {
         invitation,

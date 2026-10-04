@@ -78,6 +78,9 @@ services:
       # NextAuth (REQUIRED)
       NEXTAUTH_URL: ${NEXTAUTH_URL}  # e.g., https://nexus.example.com
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}  # openssl rand -base64 32
+      # Empty is permitted only in V1_ONLY. Core startup validates the keyring.
+      CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID: ${CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID:-}
+      CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS: ${CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS:-}
 
       # SMTP / Email
       SMTP_HOST: ${SMTP_HOST}

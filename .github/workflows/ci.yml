@@ -1218,7 +1218,8 @@ jobs:
           set -Eeuo pipefail
           source scripts/aria/e2e-runtime-secrets.sh
           prepare_aria_e2e_runtime_secrets
-          for name in ARIA_E2E_FIXTURE_ADMIN_TOKEN ARIA_E2E_MODEL_API_KEY RAG_BFF_SERVICE_TOKEN RAG_ENGINE_API_KEY NEXUS_INTERNAL_TOKEN_SECRET; do
+          for name in ARIA_E2E_FIXTURE_ADMIN_TOKEN ARIA_E2E_MODEL_API_KEY RAG_BFF_SERVICE_TOKEN RAG_ENGINE_API_KEY NEXUS_INTERNAL_TOKEN_SECRET CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+            printf '::add-mask::%s\n' "${!name}"
             printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
           done
           printf 'ARIA_MODEL_API_KEY=%s\n' "$ARIA_E2E_MODEL_API_KEY" >> "$GITHUB_ENV"
@@ -1577,6 +1578,17 @@ jobs:
         run: |
           npx prisma generate
           npx prisma generate --schema=core-v2/prisma/schema.prisma
+
+      - name: Configure dedicated disposable Core account-token keys
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          source scripts/aria/e2e-runtime-secrets.sh
+          prepare_aria_e2e_runtime_secrets
+          for name in CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+            printf '::add-mask::%s\n' "${!name}"
+            printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
+          done
 
       - name: Seed E2E test data
         env:

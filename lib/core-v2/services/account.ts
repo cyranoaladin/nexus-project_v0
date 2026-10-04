@@ -5,12 +5,13 @@
  *   PENDING_ACTIVATION --activate(token)--> ACTIVE --suspend--> SUSPENDED --reactivate--> ACTIVE
  *   {PENDING_ACTIVATION, ACTIVE, SUSPENDED} --disable--> DISABLED (terminal)
  *
- * Invitation tokens: 32 random bytes, base64url on the wire, sha256 at rest;
+ * Invitation tokens: 32 random bytes, version/key-id plus base64url on the wire, dedicated HMAC-SHA256 at rest;
  * the raw token is returned ONCE to the caller (mail layer) and never logged
  * or audited. Password hashes: bcrypt, same cost as the live app so a
  * migrated hash stays verifiable without a forced reset.
  */
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
+import { accountTokenDigest, createAccountToken } from '../account-token';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import type { Invitation, PrismaClient, User } from '@/core-v2/generated/client';
@@ -25,11 +26,6 @@ import { idSchema, parseInput } from './validation';
 import { newPasswordSchema as passwordSchema } from '@/lib/security/password-policy';
 
 const BCRYPT_COST = 12;
-const INVITATION_TOKEN_BYTES = 32;
-
-function hashInvitationToken(rawToken: string): string {
-  return createHash('sha256').update(rawToken).digest('hex');
-}
 
 async function issueInvitation(
   tx: Tx,
@@ -51,14 +47,14 @@ async function issueInvitation(
     where: { userId: user.id, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null },
     data: { revokedAt: now },
   });
-  const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
+  const { rawToken, tokenHash } = createAccountToken('ACTIVATION');
   let invitation: Invitation;
   try {
     invitation = await tx.invitation.create({
       data: {
         userId: user.id,
         purpose: 'ACTIVATION',
-        tokenHash: hashInvitationToken(rawToken),
+        tokenHash,
         expiresAt: new Date(now.getTime() + getInvitationTtlMs()),
         issuedById: ctx.actor.userId,
       },
@@ -126,8 +122,10 @@ export async function inspectInvitation(
   now: () => Date = () => new Date(),
 ): Promise<InvitationPreview | null> {
   if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return null;
+  const tokenHash = accountTokenDigest(rawToken, 'ACTIVATION');
+  if (!tokenHash) return null;
   const invitation = await client.invitation.findUnique({
-    where: { tokenHash: hashInvitationToken(rawToken) },
+    where: { tokenHash },
     include: { user: { select: { email: true, role: true, firstName: true, accountStatus: true } } },
   });
   if (!invitation || invitation.purpose !== 'ACTIVATION' || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
@@ -152,7 +150,8 @@ export async function activateAccount(
 ): Promise<User> {
   const input = parseInput(activateSchema, rawInput);
   const now = options.now ?? (() => new Date());
-  const tokenHash = hashInvitationToken(input.rawToken);
+  const tokenHash = accountTokenDigest(input.rawToken, 'ACTIVATION');
+  if (!tokenHash) throw new NotFoundError('Invitation not found or no longer valid.');
 
   return inTransaction(client, async (tx) => {
     const invitation = await tx.invitation.findUnique({ where: { tokenHash } });
@@ -346,8 +345,7 @@ export async function requestPasswordReset(
       where: { userId: user.id, purpose: 'PASSWORD_RESET', consumedAt: null, revokedAt: null },
       data: { revokedAt: at },
     });
-    const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
-    const tokenHash = hashInvitationToken(rawToken);
+    const { rawToken, tokenHash } = createAccountToken('PASSWORD_RESET');
     let reset: Invitation;
     try {
       reset = await tx.invitation.create({
@@ -379,8 +377,10 @@ export async function requestPasswordReset(
 /** `true` only for an open, unexpired PASSWORD_RESET token of an ACTIVE account; never consumes anything. */
 export async function inspectPasswordReset(client: PrismaClient, rawToken: string, now: () => Date = () => new Date()): Promise<boolean> {
   if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return false;
+  const tokenHash = accountTokenDigest(rawToken, 'PASSWORD_RESET');
+  if (!tokenHash) return false;
   const reset = await client.invitation.findUnique({
-    where: { tokenHash: hashInvitationToken(rawToken) },
+    where: { tokenHash },
     include: { user: { select: { accountStatus: true } } },
   });
   if (!reset || reset.purpose !== 'PASSWORD_RESET' || reset.consumedAt || reset.revokedAt || reset.expiresAt <= now()) return false;
@@ -403,7 +403,8 @@ export async function confirmPasswordReset(
 ): Promise<User> {
   const input = parseInput(confirmResetSchema, rawInput);
   const now = options.now ?? (() => new Date());
-  const tokenHash = hashInvitationToken(input.rawToken);
+  const tokenHash = accountTokenDigest(input.rawToken, 'PASSWORD_RESET');
+  if (!tokenHash) throw new NotFoundError('Reset not found or no longer valid.');
   const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
 
   return inTransaction(client, async (tx) => {

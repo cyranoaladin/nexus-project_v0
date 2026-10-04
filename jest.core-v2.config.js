@@ -11,6 +11,7 @@ const createJestConfig = nextJest({
 // has no reason to depend on. Requires CORE_V2_DATABASE_URL to point at a
 // disposable PostgreSQL database; never DATABASE_URL, never production.
 const customJestConfig = {
+  setupFiles: ['<rootDir>/__tests__/setup/core-v2-token-env.js'],
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',

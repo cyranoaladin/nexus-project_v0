@@ -1,6 +1,10 @@
 # Dossier de décision sécurité — CodeQL #102
 
-## État de la décision
+## État historique avant remédiation
+
+Ce dossier décrit le SHA publié `1e2d0a5c745479ef11e58edef575e390af6583d1`. La proposition de classement faux positif ci-dessous est remplacée par la correction réelle HMAC dédiée/versionnée décrite dans [account-token-hmac.md](account-token-hmac.md). Aucun classement ou suppression de finding n’a été effectué. Les preuves historiques SHA-256 ne qualifient pas le nouveau format.
+
+## État de la décision historique
 
 Alerte ouverte, bloquante. Aucune suppression, annotation d'exclusion,
 modification du ruleset ou classification automatique. La proposition de

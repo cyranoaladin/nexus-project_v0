@@ -12,6 +12,8 @@ process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test';
 const dotenv = require('dotenv');
 const path = require('path');
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
+// Explicit synthetic key fixture; production never imports this test setup.
+require('./__tests__/setup/core-v2-token-env.js');
 
 // Polyfill setImmediate for pino logger (required in jsdom)
 if (typeof global.setImmediate === 'undefined') {

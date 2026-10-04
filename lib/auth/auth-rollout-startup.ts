@@ -11,6 +11,7 @@
 import { requireCoreV2Client } from '@/lib/core-v2/client'
 import { coreV2AuthEnabled, getAuthRolloutMode, type AuthRolloutMode } from '@/lib/core-v2/auth/rollout'
 import { getPasswordResetTtlMs } from '@/lib/core-v2/config'
+import { assertAccountTokenConfiguration } from '@/lib/core-v2/account-token'
 
 /** Read-only monitoring through the same verified client authority as startup.
  * A cached client still performs SELECT 1 on every probe; no V1 fallback.
@@ -20,6 +21,7 @@ export async function checkAuthAuthorityReadiness(): Promise<{
 }> {
   const mode = getAuthRolloutMode()
   if (!coreV2AuthEnabled(mode)) return { mode, coreV2: 'not-applicable' }
+  assertAccountTokenConfiguration()
   const client = await requireCoreV2Client()
   await client.$queryRaw`SELECT 1`
   return { mode, coreV2: 'ready' }
@@ -28,6 +30,7 @@ export async function checkAuthAuthorityReadiness(): Promise<{
 export async function assertAuthRolloutStartup(): Promise<AuthRolloutMode> {
   const mode = getAuthRolloutMode()
   if (coreV2AuthEnabled(mode)) {
+    assertAccountTokenConfiguration()
     // Throws CoreV2DatabaseUrlError / CoreV2DatabaseIdentityError / connection errors: all fatal here.
     await requireCoreV2Client()
     // The reset TTL is fail-closed with no default, and the public route

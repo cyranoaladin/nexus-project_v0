@@ -2,7 +2,7 @@
  * §U/§V/§W/§X — account lifecycle, invitation lifecycle, credential check and
  * session revocation, against a real Core v2 database.
  */
-import { createHash } from 'node:crypto';
+import { accountTokenDigest } from '@/lib/core-v2/account-token';
 import bcrypt from 'bcryptjs';
 import { CoreV2DomainError } from '@/lib/core-v2/errors';
 import {
@@ -44,7 +44,7 @@ describe('Invitation → activation', () => {
     const { client } = h;
     const parent = await pendingParent();
     const issued = await inviteAccount(client, h.ctx(), parent.id);
-    expect(issued.invitation.tokenHash).toBe(createHash('sha256').update(issued.rawToken).digest('hex'));
+    expect(issued.invitation.tokenHash).toBe(accountTokenDigest(issued.rawToken, 'ACTIVATION'));
     expect(issued.email).toBe('parent@example.com');
 
     const activated = await activateAccount(client, { rawToken: issued.rawToken, password: PW.first });
