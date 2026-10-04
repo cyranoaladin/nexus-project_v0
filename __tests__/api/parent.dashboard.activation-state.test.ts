@@ -24,6 +24,7 @@ describe('GET /api/parent/dashboard activation state', () => {
       children: [{
         id: 'student-1',
         userId: 'child-user-1',
+        parent: { userId: 'parent-1' },
         grade: 'Seconde',
         gradeLevel: 'SECONDE',
         academicTrack: 'EDS_GENERALE',

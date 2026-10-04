@@ -42,7 +42,10 @@ it('parent dashboard does not derive finance visibility from child membership', 
   expect(body.children[0].subscriptionDetails).not.toHaveProperty('monthlyPrice');
   expect(body.children[0].subscriptionDetails).not.toHaveProperty('ariaCost');
   expect(response.headers.get('cache-control')).toBe('private, no-store');
-  const query = (prisma.parentProfile.findUnique as jest.Mock).mock.calls[0][0];
+  const identityQuery = (prisma.parentProfile.findUnique as jest.Mock).mock.calls[0][0];
+  expect(identityQuery.select.children.select).toEqual({ id: true, userId: true, parent: { select: { userId: true } } });
+  const query = (prisma.parentProfile.findUnique as jest.Mock).mock.calls[1][0];
+  expect(query.include.children.where).toEqual({ id: { in: ['synthetic-child'] } });
   expect(query.include.children.include.subscriptions.select).not.toHaveProperty('monthlyPrice');
   expect(query.include.children.include.subscriptions.select).not.toHaveProperty('ariaCost');
   expect(prisma.payment.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { userId: 'synthetic-parent' } }));

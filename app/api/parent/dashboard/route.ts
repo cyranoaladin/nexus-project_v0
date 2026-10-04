@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { authorizeParentStudentRecords, familyReadAllowed } from '@/lib/families/student-access-authority';
 import type { Prisma } from '@prisma/client';
 import { combineDateAndTime } from '@/lib/planning/invariants';
 import { tunisTodayUtcMidnight } from '@/lib/planning/series';
@@ -26,21 +27,28 @@ export async function GET() {
       return NextResponse.json({ error: 'Accès réservé aux parents' }, { status: 403 });
     }
 
-    // Fetch Parent Profile and Children.
-    //
-    // Séances : lues séparément ci-dessous, directement via
-    // `SessionBooking.studentProfileId` (identité canonique — Tâche 13), au
-    // lieu de la relation legacy `User.studentSessions` (`SessionBooking.
-    // studentId`). `SessionBooking` est la seule source d'occurrence
-    // opérationnelle ("Operational planning", spec) : le modèle historique
-    // `Session` n'alimente plus les dashboards. Chaque enfant n'est de toute
-    // façon iteré QUE parmi `parentProfile.children` (déjà scopé au parent
-    // appelant) : aucune contamination croisée entre enfants d'un autre
-    // parent n'est possible par construction.
-    const parentProfile = await prisma.parentProfile.findUnique({
+    // Decide current family authority from stored identity facts before any
+    // child names, activation metadata, subscriptions, progression or planning.
+    const identity = await prisma.parentProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true, children: { select: {
+        id: true, userId: true, parent: { select: { userId: true } },
+      } } },
+    });
+    if (!identity) return NextResponse.json({ error: 'Profil parent introuvable' }, { status: 404 });
+    const decisions = await authorizeParentStudentRecords(session.user.id, identity.children, 'read');
+    if (decisions.some(decision => decision.status === 'AUTHORITY_UNAVAILABLE')) {
+      return NextResponse.json({ error: 'Family authority unavailable' },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+    const allowed = new Set(decisions.filter(familyReadAllowed).map(decision => decision.id));
+    const studentIds = identity.children.filter(student => allowed.has(student.id)).map(student => student.id);
+
+    const parentProfile = studentIds.length === 0 ? { children: [] } : await prisma.parentProfile.findUnique({
       where: { userId: session.user.id },
       include: {
         children: {
+          where: { id: { in: studentIds } },
           include: {
             user: {
               select: {
@@ -90,7 +98,7 @@ export async function GET() {
     // conditionne la visibilité des bilans (VERIFIED requis). Exposé au
     // dashboard pour que l'attente de consentement soit explicite et
     // actionnable — jamais un enfant visible avec des bilans muets.
-    const consentLinks = await prisma.parentStudentLink.findMany({
+    const consentLinks = studentIds.length === 0 ? [] : await prisma.parentStudentLink.findMany({
       where: {
         parentUserId: session.user.id,
         studentId: { in: parentProfile.children.map((child) => child.id) },
