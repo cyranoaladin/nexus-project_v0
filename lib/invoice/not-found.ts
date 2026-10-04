@@ -47,7 +47,7 @@ export function buildInvoiceScopeWhere(
     return { id };
   }
   if (role === 'PARENT' && email) {
-    return { id, customerEmail: email };
+    return { id, customerEmail: email, status: { not: 'DRAFT' } };
   }
   return null;
 }
@@ -114,5 +114,5 @@ export async function buildInvoiceListAccessWhere(
     return null;
   }
 
-  return { OR: ownershipFilters };
+  return { status: { not: 'DRAFT' }, OR: ownershipFilters };
 }

@@ -17,6 +17,7 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
 
 /**
  * Stream a PDF response from a buffer.
@@ -28,7 +29,8 @@ function streamPdf(pdfBuffer: Buffer, invoiceNumber: string): NextResponse {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `inline; filename="facture_${invoiceNumber}.pdf"`,
       'Content-Length': String(pdfBuffer.length),
-      'Cache-Control': 'private, max-age=3600',
+      'Cache-Control': 'private, no-store',
+      'Referrer-Policy': 'no-referrer',
     },
   });
 }
@@ -51,10 +53,10 @@ export async function GET(
 
       const invoice = await prisma.invoice.findUnique({
         where: { id },
-        select: { id: true, number: true, pdfPath: true },
+        select: { id: true, number: true, pdfPath: true, status: true },
       });
 
-      if (!invoice || !invoice.pdfPath) {
+      if (!invoice || !invoice.pdfPath || !isPublishedInvoiceStatus(invoice.status)) {
         return notFoundResponse();
       }
 
@@ -84,10 +86,12 @@ export async function GET(
         id: true,
         number: true,
         pdfPath: true,
+        status: true,
       },
     });
 
-    if (!invoice || !invoice.pdfPath) {
+    if (!invoice || !invoice.pdfPath
+      || (session.user.role === 'PARENT' && !isPublishedInvoiceStatus(invoice.status))) {
       return notFoundResponse();
     }
 

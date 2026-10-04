@@ -15,33 +15,28 @@ jest.mock('@/lib/invoice', () => ({
   verifyAccessToken: jest.fn(),
 }));
 
-jest.mock('@/lib/invoice/not-found', () => ({
-  notFoundResponse: jest.fn().mockReturnValue(
-    new (require('next/server').NextResponse)(JSON.stringify({ error: 'Facture introuvable' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  ),
-  buildInvoiceAccessWhere: jest.fn(),
-}));
+jest.mock('@/lib/invoice/not-found', () => {
+  const { NextResponse } = jest.requireActual<typeof import('next/server')>('next/server');
+  return {
+    notFoundResponse: jest.fn(() => new NextResponse(JSON.stringify({ error: 'Facture introuvable' }), {
+      status: 404, headers: { 'Content-Type': 'application/json' },
+    })),
+    buildInvoiceAccessWhere: jest.fn(),
+  };
+});
 
 import { GET } from '@/app/api/invoices/[id]/pdf/route';
 import { auth } from '@/auth';
 import { verifyAccessToken } from '@/lib/invoice';
 import { buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 const mockAuth = auth as jest.Mock;
 const mockVerifyToken = verifyAccessToken as jest.Mock;
 const mockBuildScope = buildInvoiceAccessWhere as jest.Mock;
 
-let prisma: any;
-
-beforeEach(async () => {
-  const mod = await import('@/lib/prisma');
-  prisma = (mod as any).prisma;
-  jest.clearAllMocks();
-});
+beforeEach(() => { jest.clearAllMocks(); });
 
 function makeRequest(id: string, token?: string): [NextRequest, { params: Promise<{ id: string }> }] {
   const url = token
@@ -53,23 +48,23 @@ function makeRequest(id: string, token?: string): [NextRequest, { params: Promis
 
 describe('GET /api/invoices/[id]/pdf — Token-based access', () => {
   it('should return 404 for invalid token', async () => {
-    mockVerifyToken.mockResolvedValue({ valid: false } as any);
+    mockVerifyToken.mockResolvedValue({ valid: false });
 
     const res = await GET(...makeRequest('inv-1', 'bad-token'));
     expect(res.status).toBe(404);
   });
 
   it('should return 404 when token invoiceId mismatch', async () => {
-    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-other' } as any);
+    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-other' });
 
     const res = await GET(...makeRequest('inv-1', 'tok-abc'));
     expect(res.status).toBe(404);
   });
 
   it('should stream PDF for valid token', async () => {
-    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' } as any);
-    prisma.invoice.findUnique.mockResolvedValue({
-      id: 'inv-1', number: 'NXS-2026-0001', pdfPath: '/storage/invoices/NXS-2026-0001.pdf',
+    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' });
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+      id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', pdfPath: '/storage/invoices/NXS-2026-0001.pdf',
     });
 
     const res = await GET(...makeRequest('inv-1', 'tok-valid'));
@@ -79,9 +74,9 @@ describe('GET /api/invoices/[id]/pdf — Token-based access', () => {
   });
 
   it('should return 404 when invoice has no pdfPath', async () => {
-    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' } as any);
-    prisma.invoice.findUnique.mockResolvedValue({
-      id: 'inv-1', number: 'NXS-2026-0001', pdfPath: null,
+    mockVerifyToken.mockResolvedValue({ valid: true, invoiceId: 'inv-1' });
+    (prisma.invoice.findUnique as jest.Mock).mockResolvedValue({
+      id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', pdfPath: null,
     });
 
     const res = await GET(...makeRequest('inv-1', 'tok-valid'));
@@ -91,25 +86,25 @@ describe('GET /api/invoices/[id]/pdf — Token-based access', () => {
 
 describe('GET /api/invoices/[id]/pdf — Session-based access', () => {
   it('should return 404 when not authenticated', async () => {
-    mockAuth.mockResolvedValue(null as any);
+    mockAuth.mockResolvedValue(null);
 
     const res = await GET(...makeRequest('inv-1'));
     expect(res.status).toBe(404);
   });
 
   it('should return 404 for unauthorized role', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE', email: 'e@t.com' } } as any);
-    mockBuildScope.mockResolvedValue(null as any);
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE', email: 'e@t.com' } });
+    mockBuildScope.mockResolvedValue(null);
 
     const res = await GET(...makeRequest('inv-1'));
     expect(res.status).toBe(404);
   });
 
   it('should stream PDF for ADMIN', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } } as any);
-    mockBuildScope.mockResolvedValue({ id: 'inv-1' } as any);
-    prisma.invoice.findFirst.mockResolvedValue({
-      id: 'inv-1', number: 'NXS-2026-0001', pdfPath: '/storage/invoices/NXS-2026-0001.pdf',
+    mockAuth.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN', email: 'a@t.com' } });
+    mockBuildScope.mockResolvedValue({ id: 'inv-1' });
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1', number: 'NXS-2026-0001', status: 'SENT', pdfPath: '/storage/invoices/NXS-2026-0001.pdf',
     });
 
     const res = await GET(...makeRequest('inv-1'));
@@ -120,9 +115,9 @@ describe('GET /api/invoices/[id]/pdf — Session-based access', () => {
   });
 
   it('should return 404 when invoice not found in scope', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'p1', role: 'PARENT', email: 'p@t.com' } } as any);
-    mockBuildScope.mockResolvedValue({ id: 'inv-1', OR: [{ customerEmail: 'p@t.com' }] } as any);
-    prisma.invoice.findFirst.mockResolvedValue(null);
+    mockAuth.mockResolvedValue({ user: { id: 'p1', role: 'PARENT', email: 'p@t.com' } });
+    mockBuildScope.mockResolvedValue({ id: 'inv-1', OR: [{ customerEmail: 'p@t.com' }] });
+    (prisma.invoice.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(...makeRequest('inv-1'));
     expect(res.status).toBe(404);

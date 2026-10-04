@@ -24,6 +24,7 @@ describe('buildInvoiceAccessWhere', () => {
       buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: 'parent@test.tn' }),
     ).resolves.toEqual({
       id: 'inv-1',
+      status: { not: 'DRAFT' },
       OR: [
         { beneficiaryUserId: { in: ['child-user-1', 'child-user-2'] } },
         { customerEmail: 'parent@test.tn' },
@@ -38,6 +39,7 @@ describe('buildInvoiceAccessWhere', () => {
       buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: 'parent@test.tn' }),
     ).resolves.toEqual({
       id: 'inv-1',
+      status: { not: 'DRAFT' },
       OR: [{ customerEmail: 'parent@test.tn' }],
     });
   });
@@ -53,7 +55,7 @@ describe('buildInvoiceAccessWhere', () => {
   it.each(['VERIFIED', 'NONE'])('ignores an unverified secondary email for phone accounts in %s state', async (state) => {
     mockParentProfileFindUnique.mockResolvedValue({ children: [{ userId: 'owned-child' }] });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({ email: 'parent@test.tn', parentPhoneState: state, emailVerifiedAt: null, parentPhoneChallenges: [{ id: 'proof' }] });
-    await expect(buildInvoiceAccessWhere('inv-1', { id: 'parent1', role: 'PARENT', email: 'parent@test.tn' })).resolves.toEqual({ id: 'inv-1', OR: [{ beneficiaryUserId: { in: ['owned-child'] } }] });
+    await expect(buildInvoiceAccessWhere('inv-1', { id: 'parent1', role: 'PARENT', email: 'parent@test.tn' })).resolves.toEqual({ id: 'inv-1', status: { not: 'DRAFT' }, OR: [{ beneficiaryUserId: { in: ['owned-child'] } }] });
   });
 
   it('grants ASSISTANTE full access and denies ELEVE, COACH and unknown roles on public invoice PDFs', async () => {
@@ -85,6 +87,7 @@ describe('buildInvoiceScopeWhere', () => {
     expect(buildInvoiceScopeWhere('inv-1', 'PARENT', 'parent@test.tn')).toEqual({
       id: 'inv-1',
       customerEmail: 'parent@test.tn',
+      status: { not: 'DRAFT' },
     });
   });
 

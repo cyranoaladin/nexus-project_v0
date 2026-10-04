@@ -22,6 +22,7 @@ import {
   appendInvoiceEvent,
 } from '@/lib/invoice';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
 import type { InvoiceEvent, ReceiptData } from '@/lib/invoice';
 
 export async function GET(
@@ -68,7 +69,7 @@ export async function GET(
       },
     });
 
-    if (!invoice) {
+    if (!invoice || (session.user.role === 'PARENT' && !isPublishedInvoiceStatus(invoice.status))) {
       return notFoundResponse();
     }
 
@@ -118,7 +119,8 @@ export async function GET(
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="recu_${invoice.number}.pdf"`,
         'Content-Length': String(pdfBuffer.length),
-        'Cache-Control': 'private, max-age=3600',
+        'Cache-Control': 'private, no-store',
+        'Referrer-Policy': 'no-referrer',
       },
     });
 
