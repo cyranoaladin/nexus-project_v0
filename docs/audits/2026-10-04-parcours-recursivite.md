@@ -81,5 +81,21 @@ REMOTE_PRODUCTION_TAG=espace-recursivite-production-20261004 -> e8a81cba0e693c48
 PRODUCTION_SOURCE_RECONSTRUCTIBLE=YES    TRACEABILITY_COMPLETE=YES (sous réserve de l'incident ci-dessous)
 ```
 
-Incident : une valeur de test égale au mot de passe enseignant réel figurait dans l'historique publié (voir `docs/espace/DEPLOIEMENT.md` §12). Remplacée à la tête ; changement du mot de passe réel à effectuer par le propriétaire.
+## Incident credential enseignant — clôturé
+
+```text
+TEACHER_PASSWORD_ROTATED=YES              OLD_EXPOSED_PASSWORD_REVOKED=YES
+REAL_TEACHER_RELOGIN_AFTER_ROTATION=PASS  OLD_PASSWORD_CURRENTLY_VALID=NO (connexion refusée en production)
+REAL_CREDENTIAL_IN_TEST_CODE=NO           OLD_PASSWORD_PRESENT_IN_PUBLISHED_HISTORY=YES (voir périmètre)
+SECURITY_INCIDENT_CLOSED=YES
+```
+
+- **Cause** : un credential réel a été recopié comme donnée de test (`__tests__/lib/espace/credential-rules.test.ts`). Le scanner du dépôt ne le signalait pas (valeur dans un appel de fonction de contrôle, hors des motifs d'affectation).
+- **Détection** : audit de publication final, après le premier push. Le propriétaire a été informé immédiatement.
+- **Traitement** : mot de passe changé par le propriétaire depuis l'interface ; reconnexion réussie avec le nouveau ; ancienne valeur refusée en production (une tentative) ; fixture remplacée par une phrase de passe synthétique (commit de correction `196a014fd`, publié) ; l'ancienne valeur a été retirée du guide confidentiel et du fichier privé d'accès (remplacée par une mention de rotation) ; aucune autre copie locale (Documents/Nexus_Conservation, Téléchargements) ne la contient ; le guide sans credentials n'a jamais contenu de mot de passe.
+- **Périmètre historique** : la valeur n'est présente que dans les commits `cf35f3853` à `bd2023e94` de la branche `release/espace-recursivite-2026-10-04` et donc dans l'arbre du commit taggé `espace-recursivite-production-20261004` (`e8a81cba0`). Elle est absente de la tête de branche, de `origin/main` et de toute autre référence distante. Secret historique révoqué ; conservation de l'historique pour stabilité et traçabilité. Pas de `filter-repo`, pas de force-push, tag inchangé (`PRODUCTION_TAG_TARGET_UNCHANGED=YES`). Aucune raison de sécurité impérieuse n'impose une purge : la valeur est inutilisable.
+- **Garde-fous renforcés** (`scripts/security/check-versioned-credentials.mjs`) :
+  1. nouvelle règle `CREDENTIAL_FIXTURE_REALISTIC` : une valeur sans espace ni « @ », d'au moins 16 caractères et d'entropie ≥ 4 bits/caractère passée à une fonction `check/validate/verify/hash/compare/assert…Password|Passphrase|Pin|Code|Secret(…)` est refusée ; les phrases lisibles et les noms d'exemple restent acceptés ;
+  2. comparaison locale aux secrets privés : `NEXUS_PRIVATE_SECRETS_FILES=/chemin/a.txt:/chemin/b.txt node scripts/security/check-versioned-credentials.mjs` (formats `CLE=valeur` et `nom;identifiant;secret`) signale `PRIVATE_SECRET_MATCH chemin:ligne` sans jamais afficher la valeur ; fichier illisible = arrêt (code 2). Les fichiers de secrets restent hors Git et ne sont jamais exportés ; le nouveau mot de passe réel n'est dans aucun de ces mécanismes (le propriétaire peut l'ajouter à son fichier privé local s'il le souhaite) ;
+  3. règle de conduite : aucune fixture de test ne dérive d'un vrai secret ; utiliser des valeurs synthétiques lisibles et identifiables.
 

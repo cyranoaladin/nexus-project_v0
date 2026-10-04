@@ -105,4 +105,75 @@ describe('versioned credential scanner', () => {
       encoding: 'utf8',
     })).not.toThrow();
   });
+
+  describe('fixtures réalistes et secrets privés (incident : un mot de passe réel recopié comme donnée de test)', () => {
+    const run = (directory: string, env: Record<string, string> = {}) => {
+      const result = spawnSync(process.execPath, [scanner, '--root', directory], { encoding: 'utf8', env: { ...process.env, NEXUS_PRIVATE_SECRETS_FILES: '', ...env } });
+      return { status: result.status, output: `${result.stdout}${result.stderr}` };
+    };
+    const withDir = (fn: (dir: string) => void) => {
+      const dir = mkdtempSync(join(tmpdir(), 'nexus-credential-scan-'));
+      try {
+        fn(dir);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    };
+
+    it('refuse une valeur à forte entropie passée à une fonction de contrôle, sans l’afficher', () => {
+      const generated = ['kX9vT2mQ8rLw3Z', 'pB7nYc4HdFa5s'].join('');
+      withDir((dir) => {
+        writeFileSync(join(dir, 'unsafe.test.ts'), `expect(checkTeacherPassword('${generated}', teacher).ok).toBe(true);\n`);
+        const { status, output } = run(dir);
+        expect(status).toBe(1);
+        expect(output).toContain('CREDENTIAL_FIXTURE_REALISTIC unsafe.test.ts:1');
+        expect(output).not.toContain(generated);
+      });
+    });
+
+    it('accepte une fixture synthétique lisible (phrase, nom, e-mail d’exemple)', () => {
+      withDir((dir) => {
+        writeFileSync(
+          join(dir, 'safe.test.ts'),
+          [
+            "expect(checkTeacherPassword('le cheval gris traverse la vallée', teacher).ok).toBe(true);",
+            "expect(checkTeacherPassword('Ardoise-Lune-Fenetre-4721', teacher).ok).toBe(true);",
+            "expect(checkTeacherPassword('prof.exemple@example.test', teacher).ok).toBe(false);",
+          ].join('\n'),
+        );
+        expect(run(dir).status).toBe(0);
+      });
+    });
+
+    it('compare aux secrets PRIVÉS (fichiers hors Git) : trouve la valeur recopiée n’importe où, sans jamais l’afficher', () => {
+      const secret = ['Prive', 'Secret', 'Jamais', 'Versionne', '9'].join('-');
+      const code = 'ABCD-2345';
+      withDir((dir) => {
+        const priv = join(dir, 'prive.txt');
+        writeFileSync(priv, ['URL=https://exemple.test', 'IDENTIFIANT=quelquun', `MOT_DE_PASSE=${secret}`, `Nom Prenom;eleve.test;${code}`, 'NOTE_MOT_DE_PASSE=modifié par le propriétaire, non conservé'].join('\n'));
+        const tree = join(dir, 'arbre');
+        mkdirSync(tree);
+        writeFileSync(join(tree, 'doc.md'), `ligne 1\nmot de passe : ${secret}\n`);
+        writeFileSync(join(tree, 'eleve.ts'), `const c = 'ABCD2345';\n`);
+        writeFileSync(join(tree, 'propre.ts'), `const ok = 'rien à voir';\n`);
+        const { status, output } = run(tree, { NEXUS_PRIVATE_SECRETS_FILES: priv });
+        expect(status).toBe(1);
+        expect(output).toContain('PRIVATE_SECRET_MATCH doc.md:2');
+        expect(output).toContain('PRIVATE_SECRET_MATCH eleve.ts:1'); // le code d’élève sans tiret est aussi cherché
+        expect(output).not.toContain('propre.ts');
+        expect(output).not.toContain(secret);
+        expect(output).not.toContain(code);
+        expect(run(tree).output).not.toContain('PRIVATE_SECRET_MATCH'); // sans variable : aucune comparaison privée
+      });
+    });
+
+    it('un fichier de secrets illisible arrête le contrôle (code 2) plutôt que de le passer en silence', () => {
+      withDir((dir) => {
+        const { status, output } = run(dir, { NEXUS_PRIVATE_SECRETS_FILES: join(dir, 'absent.txt') });
+        expect(status).toBe(2);
+        expect(output).toContain('PRIVATE_SECRETS_FILE_UNREADABLE');
+      });
+    });
+  });
 });
+

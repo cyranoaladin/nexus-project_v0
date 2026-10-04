@@ -367,6 +367,20 @@ const rules = [
       ),
   },
   {
+    // Fixture de test réaliste passée à une fonction de contrôle d'identifiant (ex. checkTeacherPassword('…')).
+    // Un secret réel recopié comme « donnée de test » a ainsi déjà été publié : toute valeur qui ressemble à un secret
+    // (longue, à forte entropie) est refusée ; une fixture doit être SYNTHÉTIQUE et lisible (mots, pas de hasard).
+    code: 'CREDENTIAL_FIXTURE_REALISTIC',
+    pattern: /\b(?:check|validate|verify|hash|compare|assert)\w*(?:Password|Passphrase|Pin|Code|Secret)\w*\(\s*(['"`])([^'"`\n]{16,})\1/g,
+    applies: () => true,
+    // Un secret généré (base64url, hexadécimal…) est sans espace ni « @ » et dépasse ≈ 4 bits d'entropie par caractère ;
+    // une phrase ou un nom propre de test (« le cheval gris… », « prénom NOM ») reste en dessous.
+    isFinding: (match, path) => !isPlaceholder(match[2])
+      && !/[\s@]/.test(match[2])
+      && entropy(match[2]) >= 4
+      && !isAllowedPassword(path, match[0]),
+  },
+  {
     code: 'SERVICE_SECRET_LITERAL',
     pattern: /^(?!\s*[#'"`])\s*(?:(?:const|let|var)\s+|export\s+)?(?:process\.env\.)?((?:[A-Z][A-Z0-9_]*(?:PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY))|PASSWORD|PASSPHRASE|SECRET|TOKEN|API_KEY|WEBHOOK_SECRET|ENCRYPTION_KEY|SMTP_PASS)\s*[=:]\s*[`'"| ]*([^\\\s`'"|]{8,})/gm,
     applies: () => true,
@@ -383,6 +397,38 @@ const rules = [
       && (executionSurface.test(path) || (entropy(match[4]) >= 3.5)),
   },
 ];
+
+// Comparaison à des secrets PRIVÉS connus (fichiers hors Git : mots de passe, codes, identifiants techniques).
+// Activée par NEXUS_PRIVATE_SECRETS_FILES=/chemin/a.txt:/chemin/b.txt (jamais versionné, jamais exporté, jamais affiché).
+// Formats reconnus : « CLE=valeur » (CLE contenant PASS, SECRET, TOKEN, CODE ou MOT_DE_PASSE) et « nom;identifiant;secret ».
+// Seules les valeurs d'au moins 8 caractères, sans espace, sont comparées. Sortie : code + chemin + ligne, jamais la valeur.
+function loadPrivateSecrets() {
+  const files = (process.env.NEXUS_PRIVATE_SECRETS_FILES ?? '').split(':').filter(Boolean);
+  const secrets = new Set();
+  for (const file of files) {
+    let text;
+    try {
+      text = readFileSync(file, 'utf8');
+    } catch {
+      console.error(`PRIVATE_SECRETS_FILE_UNREADABLE ${file}`);
+      process.exit(2);
+    }
+    for (const raw of text.split('\n')) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      let value = '';
+      const kv = /^([A-Za-z0-9_ ]*?(?:PASS|SECRET|TOKEN|CODE|MOT_DE_PASSE)[A-Za-z0-9_ ]*)=(.*)$/i.exec(line);
+      if (kv) value = kv[2].trim();
+      else if (line.includes(';')) value = line.split(';').pop().trim();
+      if (value.length >= 8 && !/\s/.test(value) && !/^<.*>$/.test(value)) {
+        secrets.add(value);
+        if (/^[A-Z2-9]{4}-[A-Z2-9]{4}$/.test(value)) secrets.add(value.replace('-', ''));
+      }
+    }
+  }
+  return [...secrets];
+}
+const privateSecrets = loadPrivateSecrets();
 
 const findings = [];
 for (const { absolute, path } of trackedFiles()) {
@@ -402,6 +448,14 @@ for (const { absolute, path } of trackedFiles()) {
       : readFileSync(absolute, 'utf8');
   } catch {
     continue;
+  }
+
+  for (const secret of privateSecrets) {
+    let at = source.indexOf(secret);
+    while (at >= 0) {
+      findings.push({ code: 'PRIVATE_SECRET_MATCH', path, line: source.slice(0, at).split('\n').length });
+      at = source.indexOf(secret, at + secret.length);
+    }
   }
 
   for (const rule of rules) {
