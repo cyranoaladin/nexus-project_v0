@@ -1,5 +1,10 @@
 /** @jest-environment node */
+jest.mock('@/lib/aria/transport/native-response-reader', () => {
+  const actual = jest.requireActual<typeof import('@/lib/aria/transport/native-response-reader')>('@/lib/aria/transport/native-response-reader');
+  return { ...actual, createNativeResponseReader: jest.fn(actual.createNativeResponseReader) };
+});
 import { formatAriaSSEEvent, parseAriaSSEResponse } from '@/lib/aria/transport/sse-parser';
+import * as nativeReader from '@/lib/aria/transport/native-response-reader';
 import type { AriaSSEEvent } from '@/lib/aria/transport/contracts';
 
 const start: AriaSSEEvent = { event: 'start', data: {
@@ -157,4 +162,45 @@ test('cancels before the next read when the consumer aborts synchronously during
   expect(cancelled).toHaveBeenCalledTimes(1);
   expect(onDone).not.toHaveBeenCalled();
   expect(onProtocolError).toHaveBeenCalledTimes(1);
+});
+
+
+test('honours an abort during native response setup before attaching the forwarding listener', async () => {
+  const abort = new AbortController();
+  const cancelled = jest.fn();
+  const body = new ReadableStream<Uint8Array>({ cancel: cancelled });
+  const response = new Response(body, { headers: { 'content-type': 'text/event-stream' } });
+  const clone = response.clone.bind(response);
+  const cloneSpy = jest.spyOn(response, 'clone').mockImplementation(() => {
+    const result = clone();
+    abort.abort();
+    return result;
+  });
+  const onDone = jest.fn();
+  try {
+    await expect(parseAriaSSEResponse(response, { onDone }, { signal: abort.signal })).rejects.toMatchObject({ code: 'ABORTED' });
+    expect(cancelled).toHaveBeenCalledTimes(1);
+    expect(onDone).not.toHaveBeenCalled();
+  } finally {
+    cloneSpy.mockRestore();
+  }
+});
+test('does not publish completion if cancelled when native drainage finishes', async () => {
+  const abort = new AbortController();
+  const createReader = jest.requireActual<typeof nativeReader>('@/lib/aria/transport/native-response-reader').createNativeResponseReader;
+  jest.mocked(nativeReader.createNativeResponseReader).mockImplementation(response => {
+    const transport = createReader(response);
+    return { ...transport, async finish() { await transport.finish(); abort.abort(); } };
+  });
+  const onDone = jest.fn();
+  const onProtocolError = jest.fn();
+  try {
+    await expect(parseAriaSSEResponse(new Response(formatAriaSSEEvent(start) + formatAriaSSEEvent(done),
+      { headers: { 'content-type': 'text/event-stream' } }), { onDone, onProtocolError }, { signal: abort.signal }))
+      .rejects.toMatchObject({ code: 'ABORTED' });
+    expect(onDone).not.toHaveBeenCalled();
+    expect(onProtocolError).toHaveBeenCalledTimes(1);
+  } finally {
+    jest.mocked(nativeReader.createNativeResponseReader).mockImplementation(createReader);
+  }
 });
