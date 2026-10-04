@@ -23,6 +23,13 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
     const ownership = await requireParentOwnsStudent(session.user.id, requestedStudentId, action);
     if (isErrorResponse(ownership)) return ownership;
   }
+  if (session.user.role === UserRole.COACH) {
+    const assignment = await prisma.coachStudentAssignment.findFirst({
+      where: { studentId: requestedStudentId, coach: { userId: session.user.id }, status: 'ACTIVE' },
+      select: { id: true },
+    });
+    if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
   return prisma.student.findUnique({
     where: { id: requestedStudentId },
     include: { user: { select: { firstName: true, lastName: true, email: true } } },
@@ -30,31 +37,38 @@ export async function getStudentForActor(session: AuthSession, requestedStudentI
 }
 
 export async function getDiagnosticForActor(session: AuthSession, diagnosticId: string, action: 'read' | 'mutation') {
-  const diagnostic = await prisma.candidateDiagnostic.findUnique({
+  // Load only authorization identifiers before accessing a minor's answers,
+  // documents or names. Refusal must never cause a detailed record read.
+  const scope = await prisma.candidateDiagnostic.findUnique({
     where: { id: diagnosticId },
+    select: { id: true, studentId: true, student: { select: { userId: true } } },
+  });
+  if (!scope) return NextResponse.json({ error: 'Not Found', message: 'Diagnostic introuvable.' }, { status: 404 });
+
+  if (session.user.role === UserRole.ELEVE && scope.student.userId !== session.user.id) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  if (session.user.role === UserRole.PARENT) {
+    const ownership = await requireParentOwnsStudent(session.user.id, scope.studentId, action);
+    if (isErrorResponse(ownership)) return ownership;
+  }
+  if (session.user.role === UserRole.COACH) {
+    const assignment = await prisma.coachStudentAssignment.findFirst({
+      where: { studentId: scope.studentId, coach: { userId: session.user.id }, status: 'ACTIVE' },
+      select: { id: true },
+    });
+    if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  const diagnostic = await prisma.candidateDiagnostic.findUnique({
+    // Bind the detailed read to the identifiers that were authorized.
+    where: { id: diagnosticId, studentId: scope.studentId, student: { userId: scope.student.userId } },
     include: {
       student: { include: { user: { select: { firstName: true, lastName: true, email: true } } } },
       modules: { orderBy: { createdAt: 'asc' } },
       documents: { orderBy: { createdAt: 'desc' } },
     },
   });
-  if (!diagnostic) return NextResponse.json({ error: 'Not Found', message: 'Diagnostic introuvable.' }, { status: 404 });
-
-  if (session.user.role === UserRole.ELEVE && diagnostic.student.userId !== session.user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  if (session.user.role === UserRole.PARENT) {
-    const ownership = await requireParentOwnsStudent(session.user.id, diagnostic.studentId, action);
-    if (isErrorResponse(ownership)) return ownership;
-  }
-  if (session.user.role === UserRole.COACH) {
-    const assignment = await prisma.coachStudentAssignment.findFirst({
-      where: { studentId: diagnostic.studentId, coach: { userId: session.user.id }, status: 'ACTIVE' },
-      select: { id: true },
-    });
-    if (!assignment) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-  return diagnostic;
+  return diagnostic ?? NextResponse.json({ error: 'Not Found', message: 'Diagnostic introuvable.' }, { status: 404 });
 }
 
 // actorRole feeds ONLY the CandidateDiagnosticActorRole audit-log column,
