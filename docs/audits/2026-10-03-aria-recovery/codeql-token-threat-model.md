@@ -1,5 +1,27 @@
 # Dossier de décision sécurité — CodeQL et empreintes
 
+## Revalidation du 4 octobre sur fb9738226
+
+Les alertes de `refs/pull/337/head` sont encore ouvertes et high au SHA exact
+`fb97382265406b74c349b330506afed46046c162` : #113 au test HMAC ligne 74,
+et #104 à l'empreinte de réconciliation ligne 101. Le check CodeQL est rouge.
+Ce résultat ne qualifie pas les commits ultérieurs.
+
+Le contrat du migrateur est désormais fail-closed : un compte actif à mot de
+passe doit présenter un format bcrypt valide, coût 10–31, avant construction du
+plan. Un credential incompatible arrête le plan entier sans l'afficher ni
+désactiver son compte. TRANSFORM_VERSION est 3. Le test de répétition réel
+utilise maintenant coût 10 et conserve la preuve de rotation des credentials.
+La limite supérieure de format ne constitue pas une recommandation de coût 31.
+
+Le digest de manifeste ne sert toujours pas à vérifier un mot de passe. Il
+détecte une modification du hash déjà dérivé. Le retirer ferait perdre cette
+preuve d'intégrité. L'oracle HMAC du test #113 reste indépendant du service et
+porte sur le bearer opaque CSPRNG 256 bits, jamais un mot de passe humain.
+Aucune assertion, annotation ou règle CodeQL n'a été retirée pour cacher ces
+traces. La proposition de faux positif reste soumise à une décision sécurité
+humaine étroite et une revalidation de l'analyse sur le SHA final.
+
 ## Analyse exacte après correction HMAC
 
 SHA analysé : `699343b4bb03a5b336d94f0ad3c905bc8bf2420f`, ref `refs/pull/337/head`, analyse CodeQL `1887522632`, check `111343061400`. Deux résultats `js/insufficient-password-hash` / CWE-916 maintiennent ce check rouge. Aucun finding n’a été supprimé ou classé par cette session.
@@ -70,9 +92,10 @@ dans les logs, analytics ou rapports. Aucun secret n'est reproduit ici.
 
 Un digest rapide est adapté au vérificateur aléatoire de forte entropie ;
 le coût d'un KDF de mot de passe ne remédie ici à aucune faiblesse d'entropie.
-Une évolution HMAC éventuelle exigerait une clé dédiée versionnée, une
-rotation, une compatibilité TTL et des preuves opérationnelles ; elle ne doit
-pas être improvisée pour faire disparaître une heuristique.
+La correction HMAC dédiée/versionnée est déjà implémentée sur la branche,
+avec rotation et refus des anciens digests non versionnés ; voir le dossier
+account-token-hmac.md. Les observations SHA-256 précédentes restent historiques
+et ne sont pas une approbation de leur maintien.
 
 Références primaires : [règle CodeQL sur les mots de passe](https://codeql.github.com/codeql-query-help/javascript/js-insufficient-password-hash/),
 [OWASP Session Management — vérificateurs aléatoires](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html),
@@ -102,11 +125,11 @@ des contrôles d'exploitation distincts. Aucun déploiement n'est qualifié ici.
 
 ## Action de sécurité proposée
 
-Un mainteneur sécurité autorisé doit examiner le flux du finding
-[#102](https://github.com/cyranoaladin/nexus-project_v0/security/code-scanning/102)
-sur le HEAD soumis et les résultats associés. S'il confirme que le sink
-concerne exclusivement les vérificateurs CSPRNG décrits, classifier ce seul
-finding comme faux positif par le mécanisme GitHub officiel, avec référence
-à ce dossier. Sinon, conserver l'alerte ouverte et définir la remédiation
-cryptographique nécessaire. Vérifier ensuite à nouveau CodeQL et la CI sur
-le HEAD exact ; aucun vert ne peut être déduit de ce document seul.
+Un mainteneur sécurité autorisé doit examiner uniquement les flux des findings
+#113 et #104 sur le HEAD final et les preuves associées. Un classement faux
+positif éventuel doit suivre le mécanisme GitHub officiel et sa revue requise,
+avec justification propre à chacun. Sinon, ils restent ouverts et bloquants.
+L'ancienne proposition concernant #102 est retirée : son sink runtime a reçu
+une correction réelle, et son état sur main doit suivre la fusion protégée.
+Renouveler ensuite CodeQL et toute la CI du HEAD exact. Ce document n'autorise
+ni le classement, ni un déploiement, ni une modification du ruleset.
