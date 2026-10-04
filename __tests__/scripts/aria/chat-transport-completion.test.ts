@@ -8,16 +8,26 @@ jest.mock('@playwright/test', () => ({
   test: { step: (_title: string, action: () => unknown) => action() },
 }));
 
+type Outcome = 'FINISHED' | 'net::ERR_ABORTED' | 'net::ERR_CONNECTION_RESET'
+  | 'NO_HEADERS' | 'RESPONSE_REJECTED' | 'BODY_REJECTED';
+
 class SyntheticPage extends EventEmitter {
   private bodyFinished!: () => void;
   readonly submitted = {
     url: () => 'http://synthetic.test/api/aria/chat', method: () => 'POST',
     postDataJSON: () => ({ content: 'synthetic-turn' }),
     failure: () => ({ errorText: this.outcome }),
-    response: async () => ({ status: () => 200, finished: () => this.body }),
+    response: async () => {
+      if (this.outcome === 'NO_HEADERS') return null;
+      if (this.outcome === 'RESPONSE_REJECTED') throw new Error('SYNTHETIC_RESPONSE_UNAVAILABLE');
+      return { status: () => 200, finished: async () => {
+        if (this.outcome === 'BODY_REJECTED') throw new Error('SYNTHETIC_BODY_READ_FAILED');
+        return this.body;
+      } };
+    },
   } as unknown as Request;
   private readonly body = new Promise<null>(resolve => { this.bodyFinished = () => resolve(null); });
-  constructor(private readonly outcome: 'FINISHED' | 'net::ERR_ABORTED' | 'net::ERR_CONNECTION_RESET') { super(); }
+  constructor(private readonly outcome: Outcome) { super(); }
   url() { return 'http://synthetic.test/dashboard/eleve'; }
   getByLabel() { return { fill: async () => undefined }; }
   getByRole() { return { click: async () => {
@@ -37,7 +47,8 @@ class SyntheticPage extends EventEmitter {
   }
 }
 
-test.each(['FINISHED', 'net::ERR_ABORTED', 'net::ERR_CONNECTION_RESET'] as const)('the exact submitted chat transport settles on %s without hiding failures', async outcome => {
+test.each<Outcome>(['FINISHED', 'net::ERR_ABORTED', 'net::ERR_CONNECTION_RESET',
+  'NO_HEADERS', 'RESPONSE_REJECTED', 'BODY_REJECTED'])('the exact submitted chat transport settles on %s without hiding failures', async outcome => {
   const page = new SyntheticPage(outcome);
   let disposition = 'pending';
   const operation = sendFromComposerAndFinishTransport(page as unknown as Page, 'synthetic-turn')
