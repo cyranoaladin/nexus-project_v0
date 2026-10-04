@@ -13,6 +13,7 @@ import { prisma } from '@/lib/prisma';
 
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
+import { notValidationStudent, type ValidationScopeOptions } from './validation';
 
 export async function studentSubjects(userId: string): Promise<Subject[]> {
   const rows = await prisma.espaceEnrollment.findMany({
@@ -76,8 +77,8 @@ export async function loadWorkForActor(
 }
 
 /** Critère Prisma : travaux visibles par cet enseignant (somme de ses couples groupe × matière). */
-export async function teacherWorkScope(actor: EspaceActor): Promise<Record<string, unknown> | null> {
-  if (actor.role === 'ADMIN') return {};
+export async function teacherWorkScope(actor: EspaceActor, opts: ValidationScopeOptions = {}): Promise<Record<string, unknown> | null> {
+  if (actor.role === 'ADMIN') return opts.includeValidation ? {} : { student: notValidationStudent };
   const assignments = await prisma.espaceTeacherAssignment.findMany({
     where: { teacherId: actor.id },
     select: { groupId: true, subject: true },

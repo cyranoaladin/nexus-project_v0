@@ -148,7 +148,8 @@ async function resolveWorkIds(actor: EspaceActor, scope: ExportScope): Promise<s
 
   // Élève : on valide d'abord la visibilité, puis on borne aux travaux de la portée de l'enseignant.
   await getStudentFile(actor, scope.id); // NOT_FOUND si l'élève n'est pas visible
-  const teacherScope = await teacherWorkScope(actor);
+  // Accès explicite à un élève par identifiant : l'audit d'un compte de validation n'est pas bloqué.
+  const teacherScope = await teacherWorkScope(actor, { includeValidation: true });
   if (teacherScope === null) throw new EspaceError('NOT_FOUND', 'Élève introuvable');
   const works = await prisma.espaceWork.findMany({
     where: { studentId: scope.id, ...(Object.keys(teacherScope).length > 0 ? teacherScope : {}) },

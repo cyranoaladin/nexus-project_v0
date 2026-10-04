@@ -3,13 +3,19 @@
 #
 #   switch-release.sh --new /var/www/nexus-releases/<release> --expected-current /var/www/nexus-releases/<release actuelle vérifiée>
 #   switch-release.sh --check /var/www/nexus-releases/<release>      # préparation (rollback readiness) : ne bascule RIEN
+#   switch-release.sh --audit-only --catalog <espace-catalog.json> --db-json <lignes.json>   # preflight seul (tests)
 #
 # Garanties :
 #  1. VERROU : un seul déploiement à la fois (flock non bloquant sur /var/lock/nexus-production-deploy.lock). Si le verrou
 #     est pris, on s'arrête (LOCK_BUSY) ; on n'attend pas, on ne contourne pas.
 #  2. COMPARE-AND-SWAP : on ne bascule que si la release servie est TOUJOURS celle que l'opérateur a vérifiée
 #     (--expected-current). Sinon CAS_MISMATCH : arrêt, réévaluation humaine, jamais d'écrasement d'une release plus récente.
-#  3. Pré-vol (artefact, Node embarqué exact, garde de pointeur), bascule atomique du SEUL pointeur canonique,
+#  3. PREFLIGHT CATALOGUE ↔ BASE (lecture seule, fail closed) : le catalogue d'activités du code de la release
+#     (<release>/espace-catalog.json, produit par scripts/espace/export-catalog.ts) doit correspondre au miroir
+#     `espace_activities`. Activité absente, slug dupliqué, matière / type / titre / étapes / version incohérents →
+#     DEPLOYMENT_BLOCKED, aucune bascule, AUCUNE mutation automatique : corriger explicitement par
+#     `provision.ts sync-activities --execute`, puis relancer.
+#  4. Pré-vol (artefact, Node embarqué exact, garde de pointeur), bascule atomique du SEUL pointeur canonique,
 #     garde avec --expected-release, redémarrage pm2, santé ; retour arrière automatique si la santé n'est pas confirmée.
 # Ne supprime rien. Ne touche ni à la base ni aux données.
 set -u
@@ -22,12 +28,15 @@ GUARD=/usr/local/libexec/nexus-release-pointer-guard
 HEALTH_URL=${NEXUS_HEALTH_URL:-http://127.0.0.1:3001/api/health}
 NODE_VERSION=v22.23.1
 
-NEW=""; EXPECTED=""; CHECK=""
+NEW=""; EXPECTED=""; CHECK=""; AUDIT_ONLY=""; CATALOG=""; DBJSON_FILE=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --new) NEW=${2:-}; shift 2;;
     --expected-current) EXPECTED=${2:-}; shift 2;;
     --check) CHECK=${2:-}; shift 2;;
+    --audit-only) AUDIT_ONLY=1; shift;;
+    --catalog) CATALOG=${2:-}; shift 2;;
+    --db-json) DBJSON_FILE=${2:-}; shift 2;;
     *) echo "Argument inconnu : $1"; exit 64;;
   esac
 done
@@ -45,6 +54,73 @@ check_release() {
   [ "$(stat -c %U "$r/.runtime/node/bin/node")" = root ] || { echo "NODE_PROPRIETAIRE $r"; return 1; }
   echo "RELEASE_OK $r build=$(cat "$r/.next/standalone/.next/BUILD_ID") sha=$(tr -d '\n' < "$r/RELEASE_SOURCE_SHA" 2>/dev/null) node=$v"
 }
+
+# ─── Preflight catalogue (code) ↔ miroir en base : lecture seule, fail closed ───
+audit_catalog() { # $1 = espace-catalog.json, $2 = fichier JSON des lignes de espace_activities
+  python3 - "$1" "$2" <<'PY'
+import json, sys
+catalog = json.load(open(sys.argv[1], encoding='utf8'))
+raw = open(sys.argv[2], encoding='utf8').read().strip()
+rows = json.loads(raw) if raw and raw != 'null' else []
+errors, warnings, seen = [], [], set()
+for a in catalog:
+    if a['slug'] in seen:
+        errors.append(f"DUPLICATE_SLUG {a['slug']} : slug dupliqué dans le catalogue du code")
+    seen.add(a['slug'])
+by_slug = {r['slug']: r for r in rows}
+for a in catalog:
+    r = by_slug.get(a['slug'])
+    if r is None:
+        errors.append(f"MISSING_IN_DB {a['slug']} : présente dans le code, absente de espace_activities")
+        continue
+    for field in ('subject', 'moduleSlug', 'title', 'kind', 'stepsTotal', 'contentVersion'):
+        if r.get(field) != a.get(field):
+            errors.append(f"MISMATCH {a['slug']}.{field} : code={a.get(field)!r} base={r.get(field)!r}")
+for r in rows:
+    if r['slug'] not in seen:
+        warnings.append(f"EXTRA_IN_DB {r['slug']} : en base, absente du catalogue du code")
+for w in warnings:
+    print('AVERTISSEMENT', w)
+for e in errors:
+    print('ERREUR', e)
+if errors:
+    print(f"CATALOGUE_DB_SYNC=FAIL ({len(errors)} écart(s))")
+    sys.exit(1)
+print(f"CATALOGUE_DB_SYNC=PASS ({len(catalog)} activités)")
+PY
+}
+
+fetch_activities_json() { # lecture seule, identifiants lus sur le serveur (jamais affichés)
+  ( set -a; . /etc/nexus/nexus-migrator.env; set +a
+    docker exec -i -e PGPASSWORD="${NEXUS_MIGRATOR_PASSWORD}" nexus-postgres-db psql -U nexus_admin -d nexus_prod -X -At -c \
+      "SELECT json_agg(row_to_json(t)) FROM (SELECT slug, subject::text AS subject, \"moduleSlug\", title, kind::text AS kind, \"stepsTotal\", \"contentVersion\" FROM espace_activities ORDER BY slug) t;" )
+}
+
+catalog_preflight() { # $1 = release candidate
+  local cat="$1/espace-catalog.json" tmp rc
+  if [ ! -f "$cat" ]; then
+    echo "DEPLOYMENT_BLOCKED : $cat absent (générer avec scripts/espace/export-catalog.ts avant l'envoi)"; return 1
+  fi
+  tmp=$(mktemp) || return 1
+  if ! fetch_activities_json > "$tmp" 2>/dev/null; then
+    rm -f "$tmp"; echo "DEPLOYMENT_BLOCKED : lecture de espace_activities impossible (fail closed)"; return 1
+  fi
+  audit_catalog "$cat" "$tmp"; rc=$?
+  rm -f "$tmp"
+  if [ $rc -ne 0 ]; then
+    echo "DEPLOYMENT_BLOCKED : le catalogue du code et la base diffèrent. Aucune mutation automatique : exécuter explicitement"
+    echo "  npx tsx scripts/espace/provision.ts sync-activities --execute   (puis audit-activities), puis relancer ce déploiement."
+    return 1
+  fi
+}
+
+if [ -n "$AUDIT_ONLY" ]; then
+  [ -f "$CATALOG" ] && [ -f "$DBJSON_FILE" ] || { echo "--audit-only exige --catalog et --db-json (fichiers existants)"; exit 64; }
+  if audit_catalog "$CATALOG" "$DBJSON_FILE"; then exit 0; fi
+  echo "DEPLOYMENT_BLOCKED : le catalogue du code et la base diffèrent. Aucune mutation automatique : exécuter explicitement"
+  echo "  npx tsx scripts/espace/provision.ts sync-activities --execute   (puis audit-activities), puis relancer ce déploiement."
+  exit 17
+fi
 
 if [ -n "$CHECK" ]; then
   check_release "$CHECK" || exit 1
@@ -68,6 +144,7 @@ fi
 echo "CAS_OK current=$CURRENT"
 
 check_release "$NEW" || exit 12
+catalog_preflight "$NEW" || exit 17
 guard || { echo "GARDE_PREVOL_KO"; exit 13; }
 
 rollback() {
