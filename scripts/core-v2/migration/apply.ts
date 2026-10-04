@@ -3,7 +3,8 @@
  * migrator. Identity/enrollment/assignment rows go in ONE transaction (all or
  * nothing); each planning series is then created in its own transaction so a
  * slot conflict rejects that series alone (reported) and never the roster.
- * Every write is an upsert on a deterministic id; the existing row's
+ * Identity creation is insert-only: a rerun cannot overwrite Core credentials,
+ * permissions, profile or account state. Other writes use deterministic ids; the existing row's
  * canonical payload is hashed with the same function as the plan, so a rerun
  * reports UNCHANGED / UPDATED truthfully. Dry run computes the same report
  * without writing anything.
@@ -28,7 +29,7 @@ export interface ApplyOptions {
   readonly correlationId: string;
 }
 
-type Outcome = { id: string; result: ObjectResult; reason?: string };
+type Outcome = { id: string; result: ObjectResult; reason?: string; hash?: string };
 
 function decide(existingHash: string | null, plannedHash: string, execute: boolean): ObjectResult {
   if (existingHash === plannedHash) return 'UNCHANGED';
@@ -65,7 +66,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
   const startedAt = new Date();
   const targetFingerprint = await assertTargetCompatible(client, plan, options.actorUserId);
   const outcomes = new Map<string, Outcome>(); // `${entity}:${targetId}` → outcome
-  const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason });
+  const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string, hash?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason, hash });
 
   const yearStartYear = plan.academicYear.startYear;
   const academicYearId = await client.$transaction(async (tx) => {
@@ -92,12 +93,13 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
             phone: existing.phone, accountStatus: existing.accountStatus, activatedAt: existing.activatedAt, sessionVersion: existing.sessionVersion,
           })
         : null;
-      const result = decide(existingHash, objectHash(u), options.execute);
-      record('User', u.id, result);
-      if (options.execute && result !== 'UNCHANGED') {
-        const { id, ...data } = u;
-        // A rerun that changes identity data also revokes sessions (same contract as every other credential write).
-        await tx.user.upsert({ where: { id }, create: { id, ...data }, update: { ...data, sessionVersion: existing ? { increment: 1 } : data.sessionVersion } });
+      const result = existing ? 'UNCHANGED' : decide(null, objectHash(u), options.execute);
+      record('User', u.id, result, existing ? 'CORE_IDENTITY_PRESERVED' : undefined, existingHash ?? undefined);
+      if (options.execute && !existing) {
+        // A copied roster is never authority to roll back a canonical identity.
+        // A concurrent creator or an email collision fails this transaction;
+        // there is deliberately no upsert update path.
+        await tx.user.create({ data: u });
       }
     }
 
@@ -226,7 +228,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
   const objects: ObjectManifestEntry[] = plan.entries.map((e) => {
     if (e.result !== 'PLANNED' || !e.targetId) return e;
     const outcome = outcomes.get(`${e.entity}:${e.targetId}`);
-    return outcome ? { ...e, result: outcome.result, reason: outcome.reason } : e;
+    return outcome ? { ...e, result: outcome.result, reason: outcome.reason, hash: outcome.hash ?? e.hash } : e;
   });
   objects.unshift({
     entity: 'AcademicYear',

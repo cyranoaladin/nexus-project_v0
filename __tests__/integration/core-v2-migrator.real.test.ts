@@ -1,5 +1,6 @@
 import { createServiceContext } from '@/lib/core-v2/services/context';
 import { verifyHouseholdParent, revokeHouseholdParent } from '@/lib/core-v2/services/household-verification';
+import { changePassword, suspendAccount, disableAccount } from '@/lib/core-v2/services/account';
 /**
  * Migrator rehearsal against TWO real databases (go-live §AP / §AR):
  *   source = a disposable Core v1 database seeded with a synthetic family,
@@ -32,7 +33,7 @@ import { resetCoreV2Database } from '@/__tests__/core-v2/helpers/reset-db';
 import { approvalDigest, parseApprovalFile } from '@/scripts/core-v2/migration/approval';
 import { applyPlan } from '@/scripts/core-v2/migration/apply';
 import { readSourceSnapshot } from '@/scripts/core-v2/migration/source';
-import { buildTargetPlan } from '@/scripts/core-v2/migration/transform';
+import { buildTargetPlan, objectHash } from '@/scripts/core-v2/migration/transform';
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= 'Africa/Tunis';
@@ -44,6 +45,7 @@ let v2: Awaited<ReturnType<typeof requireCoreV2Client>>;
 const ids = { admin: '', parent: '', parentProfile: '', studentA: '', studentB: '', coachUser: '', coachProfile: '', assignment: '', series: '' };
 const migratedAt = new Date('2026-09-12T08:00:00Z');
 const proofClock = new Date('2026-09-12T07:55:00Z');
+const initialFixture = 'change_me_migration_fixture';
 const originalAuthMode = process.env.CORE_V2_AUTH_MODE;
 let emailProof: string;
 let phoneProof: string;
@@ -58,7 +60,7 @@ beforeAll(async () => {
   process.env.CORE_V2_AUTH_MODE = 'HYBRID';
 
   // Synthetic Core v1 family: an ADMIN (the migrating actor), one parent with two students, one coach.
-  const pw = await bcrypt.hash('change_me_migration_fixture', 4);
+  const pw = await bcrypt.hash(initialFixture, 4);
   const admin = await v1.user.create({ data: { email: `${prefix}-admin@synthetic.test`, role: 'ADMIN', password: pw, activatedAt: new Date(), firstName: 'Admin', lastName: prefix } });
   const phone = `+2162${randomInt(0, 10_000_000).toString().padStart(7, '0')}`;
   const parentUser = await v1.user.create({ data: {
@@ -333,4 +335,41 @@ test('11. rerunning an approved student roster cannot reactivate a revoked famil
   expect(results(manifest, 'HouseholdParent')).toEqual(['UNCHANGED']);
   expect(await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } })).toEqual(before);
   expect(before).toMatchObject({ verificationStatus: 'REVOKED', isPrimaryContact: false, revision: 2 });
+});
+
+test('12. a roster rerun preserves a password changed in the canonical Core identity', async () => {
+  const nextPassword = randomUUID().concat('!aA1');
+  const ctx = createServiceContext({ userId: ids.parent, role: 'PARENT' }, { now: () => migratedAt });
+  await changePassword(v2, ctx, { currentPassword: initialFixture, newPassword: nextPassword });
+  const before = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  const { manifest } = await run(true);
+  const after = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  // Boolean assertions keep credential hashes out of failure logs.
+  expect(after.password === before.password).toBe(true);
+  expect(after.sessionVersion).toBe(before.sessionVersion);
+  expect(await bcrypt.compare(nextPassword, after.password!)).toBe(true);
+  expect(await bcrypt.compare(initialFixture, after.password!)).toBe(false);
+  const entry = manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent);
+  const canonicalHash = objectHash({
+    id: before.id, email: before.email, password: before.password, role: before.role,
+    firstName: before.firstName, lastName: before.lastName, phone: before.phone,
+    accountStatus: before.accountStatus, activatedAt: before.activatedAt, sessionVersion: before.sessionVersion,
+  });
+  expect(entry?.result).toBe('UNCHANGED');
+  expect(entry?.reason).toBe('CORE_IDENTITY_PRESERVED');
+  expect(entry?.hash === canonicalHash).toBe(true);
+  const dryRun = await run(false);
+  expect(dryRun.manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent)?.hash === canonicalHash).toBe(true);
+});
+
+test.each(['SUSPENDED', 'DISABLED'] as const)('a roster rerun cannot reactivate a Core %s account', async (status) => {
+  const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+  if (status === 'SUSPENDED') await suspendAccount(v2, ctx, ids.parent);
+  else await disableAccount(v2, ctx, ids.parent);
+  const before = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  await run(true);
+  const after = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  expect(after.accountStatus).toBe(status);
+  expect(after.sessionVersion).toBe(before.sessionVersion);
+  expect(after.password === before.password).toBe(true);
 });
