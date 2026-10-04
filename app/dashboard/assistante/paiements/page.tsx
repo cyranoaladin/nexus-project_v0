@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CreditCard, ArrowLeft, Check, X, Clock, Filter, RefreshCw, Landmark } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { can } from '@/lib/rbac'
+import { can } from '@/lib/rbac/permissions'
 
 interface PendingPayment {
   id: string

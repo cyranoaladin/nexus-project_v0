@@ -14,7 +14,7 @@
  */
 
 import { UserRole } from '@prisma/client';
-import { can } from '@/lib/rbac';
+import { can } from '@/lib/rbac/permissions';
 import type { InvoiceStatusType } from './types';
 import { assertMillimes, MillimesValidationError } from './types';
 

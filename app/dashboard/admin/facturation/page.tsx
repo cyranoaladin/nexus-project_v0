@@ -18,7 +18,7 @@ import {
   XCircle,
   CreditCard,
 } from 'lucide-react';
-import { can } from '@/lib/rbac';
+import { can } from '@/lib/rbac/permissions';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
