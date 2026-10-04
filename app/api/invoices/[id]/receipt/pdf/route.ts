@@ -1,4 +1,3 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/receipt/pdf — Stream payment receipt PDF.
  *
@@ -109,8 +108,8 @@ export async function GET(
     prisma.invoice.update({
       where: { id: invoice.id },
       data: { events: JSON.parse(JSON.stringify(events)) },
-    }).catch((err: unknown) => {
-      console.error('[Receipt] Failed to append RECEIPT_RENDERED event:', serializeError(err));
+    }).catch(() => {
+      console.error('INVOICE_RECEIPT_AUDIT_APPEND_FAILED');
     });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
@@ -124,8 +123,8 @@ export async function GET(
       },
     });
 
-  } catch (error) {
-    console.error('[GET /api/invoices/:id/receipt/pdf]', serializeError(error));
+  } catch {
+    console.error('INVOICE_RECEIPT_READ_FAILED');
     return notFoundResponse();
   }
 }
