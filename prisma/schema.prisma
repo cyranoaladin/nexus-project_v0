@@ -226,6 +226,7 @@ model User {
   registrationCompletedAt DateTime?
   parentPhoneChallenges   ParentPhoneChallenge[]
   accountSecurityEvents   AccountSecurityEvent[]
+  stageReservationDecisions StageReservationDecisionAudit[] @relation("StageDecisionActor")
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
 
@@ -2102,12 +2103,35 @@ model StageReservation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  decisions StageReservationDecisionAudit[]
+
   @@unique([email, academyId]) // Anti-duplicate: one reservation per email per academy
   @@index([status])
   @@index([academyId])
   @@index([stageId])
   @@index([studentId])
   @@map("stage_reservations")
+}
+
+
+// Append-only decision history; contains no contact, payment proof or document.
+model StageReservationDecisionAudit {
+  id String @id @default(cuid())
+  reservationId String
+  reservation StageReservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  actorUserId String
+  actor User @relation("StageDecisionActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  requestKey String @unique
+  action String
+  previousStatus String
+  nextStatus String
+  previousRichStatus StageReservationStatus?
+  nextRichStatus StageReservationStatus
+  occurredAt DateTime @default(now())
+
+  @@index([reservationId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@map("stage_reservation_decision_audits")
 }
 
 model ContactLead {

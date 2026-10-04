@@ -899,5 +899,12 @@
     "parentTable": "users",
     "onDelete": "RESTRICT",
     "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "stage_reservation_decision_audits_actorUserId_fkey",
+    "childTable": "stage_reservation_decision_audits",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT"
   }
 ]

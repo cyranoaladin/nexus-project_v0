@@ -1,6 +1,8 @@
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
+import { can } from '@/lib/rbac/permissions';
+import { declineLegacyStageLead, legacyStageDecisionSchema } from '@/lib/stages/decline-legacy-lead';
 import { auth } from '@/auth';
 import { readBoundedRequestBody, RequestBodyTooLargeError } from '@/lib/http/bounded-request-body';
 import { canAcceptPreRentreeCampaignSubmission } from '@/lib/campaigns/pre-rentree-2026/release-gate';
@@ -252,79 +254,47 @@ export async function GET(request: NextRequest) {
 /**
  * PATCH /api/reservation
  *
- * Staff-only: validate or reject a bank transfer reservation.
- * Body: { reservationId, action: 'approve' | 'reject', note? }
- * - approve → sets status to CONFIRMED
- * - reject  → sets status to CANCELLED
+ * Staff-only: decline an unlinked lead; financial approval requires its canonical workflow.
+ * Body: { reservationId, action: 'approve' | 'reject', requestId: UUID }
+ * - approve → fails closed; never claims activation or settlement
+ * - reject → CAS + append-only audit only for an unlinked, uncommitted lead
  */
-export async function PATCH(request: NextRequest) {
-  try {
-    const session = await auth();
-    const userRole = session?.user?.role;
 
-    if (!session || (userRole !== 'ADMIN' && userRole !== 'ASSISTANTE')) {
-      return NextResponse.json(
-        { success: false, error: 'Accès non autorisé.' },
-        { status: 403 }
-      );
-    }
-
-    const body = await request.json();
-    const { reservationId, action } = body as {
-      reservationId?: string;
-      action?: 'approve' | 'reject';
-      note?: string;
-    };
-
-    if (!reservationId || !action || !['approve', 'reject'].includes(action)) {
-      return NextResponse.json(
-        { success: false, error: 'Paramètres invalides. Requis: reservationId, action (approve|reject).' },
-        { status: 400 }
-      );
-    }
-
-    const reservation = await prisma.stageReservation.findUnique({
-      where: { id: reservationId },
-    });
-
-    if (!reservation) {
-      return NextResponse.json(
-        { success: false, error: 'Réservation non trouvée.' },
-        { status: 404 }
-      );
-    }
-
-    if (reservation.status !== 'PENDING_BANK_TRANSFER' && reservation.status !== 'PENDING') {
-      return NextResponse.json(
-        { success: false, error: `Réservation déjà traitée (statut: ${reservation.status}).` },
-        { status: 409 }
-      );
-    }
-
-    const newStatus = action === 'approve' ? 'CONFIRMED' : 'CANCELLED';
-
-    await prisma.stageReservation.update({
-      where: { id: reservationId },
-      data: {
-        status: newStatus,
-        updatedAt: new Date(),
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: action === 'approve'
-        ? 'Réservation validée — formule activée.'
-        : 'Réservation rejetée.',
-      newStatus,
-    });
-  } catch (error) {
-    console.error('[reservation] PATCH error:', error instanceof Error ? error.message : 'unknown');
-    return NextResponse.json(
-      { success: false, error: 'Erreur interne du serveur' },
-      { status: 500 }
-    );
+async function decideLegacyReservation(request: NextRequest): Promise<NextResponse> {
+  const session = await auth();
+  if (!session?.user?.id || session.user.id.length > 128 ||
+    !can(session.user.role, 'UPDATE', 'RESERVATION')) {
+    return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
   }
+  if (checkCsrf(request)) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+  let raw: unknown;
+  try { raw = JSON.parse(await readBoundedRequestBody(request, 2048)); }
+  catch (error) { return NextResponse.json({ error: 'Corps de requête invalide' },
+    { status: error instanceof RequestBodyTooLargeError ? 413 : 400 }); }
+  const parsed = legacyStageDecisionSchema.safeParse(raw);
+  if (!parsed.success) return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+  const { reservationId, requestId, action } = parsed.data;
+  if (action === 'approve') {
+    if (!can(session.user.role, 'VALIDATE', 'PAYMENT')) return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    // This legacy lead endpoint cannot activate a pupil or reconcile a bank transfer.
+    return NextResponse.json({ error: 'CANONICAL_CONFIRMATION_REQUIRED',
+      message: 'Utilisez le parcours de confirmation lié à un élève ou le rapprochement financier.' }, { status: 409 });
+  }
+  const limited = await guardSensitiveRateLimit(request, { scope: 'reservation-decision',
+    identity: session.user.id, resource: reservationId });
+  if (limited) return limited;
+  const result = await declineLegacyStageLead({ actorUserId: session.user.id, reservationId, requestId });
+  if (result === 'DECLINED') return NextResponse.json({ success: true, message: 'Demande déclinée.', newStatus: 'CANCELLED' });
+  return NextResponse.json({ error: result }, { status: result === 'NOT_FOUND' ? 404 : 409 });
+}
+
+export async function PATCH(request: NextRequest): Promise<NextResponse> {
+  let response: NextResponse;
+  try { response = await decideLegacyReservation(request); }
+  catch { response = NextResponse.json({ error: 'Décision indisponible.' }, { status: 503 }); }
+  response.headers.set('Cache-Control', 'private, no-store');
+  response.headers.set('Vary', 'Cookie, Authorization');
+  return response;
 }
 
 function reservationAcknowledgement(): NextResponse {

@@ -82,6 +82,8 @@ describe('S3 final distributed rate-limit contract', () => {
     expectedScopes.push('reservation-verify', 'stage-confirmation');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-verify']).toEqual({ ipPreset: 'readIp', identityPreset: 'readIdentity' });
     expect(SENSITIVE_RATE_LIMIT_POLICIES['stage-confirmation']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' });
+    expectedScopes.push('reservation-decision');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-decision']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
