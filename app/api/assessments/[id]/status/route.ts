@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { assessmentStatusSchema, type AssessmentStatus } from '../../submit/types';
 import { auth } from '@/auth';
-import { buildAssessmentAccessWhere } from '@/lib/security/ownership';
+import { resolveAssessmentReadAuthority } from '@/lib/security/academic-read-authority';
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +23,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const where = buildAssessmentAccessWhere(id, session.user);
+    const access = await resolveAssessmentReadAuthority(id, session.user);
+    if (access.response) return access.response;
+    const where = access.where;
     if (!where) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }

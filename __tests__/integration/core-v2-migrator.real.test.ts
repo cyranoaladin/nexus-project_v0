@@ -36,6 +36,7 @@ import { applyPlan } from '@/scripts/core-v2/migration/apply';
 import { readSourceSnapshot } from '@/scripts/core-v2/migration/source';
 import { buildTargetPlan, objectHash } from '@/scripts/core-v2/migration/transform';
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
+import { resolveAssessmentReadAuthority, resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= 'Africa/Tunis';
 process.env[INVITATION_TTL_ENV] ??= '72';
@@ -383,4 +384,73 @@ test.each(['SUSPENDED', 'DISABLED'] as const)('a roster rerun cannot reactivate 
   expect(after.accountStatus).toBe(status);
   expect(after.sessionVersion).toBe(before.sessionVersion);
   expect(after.password === before.password).toBe(true);
+});
+
+describe('legacy academic reads use real Core family authority after migration', () => {
+  let assessmentId: string;
+  let publishedBilanId: string;
+  let draftBilanId: string;
+  const guardianIds = new Set<string>();
+
+  beforeAll(async () => {
+    const student = await v1.student.findUniqueOrThrow({ where: { id: ids.studentA }, include: { user: true } });
+    const assessment = await v1.assessment.create({ data: {
+      studentId: student.id, studentEmail: student.user.email!, studentName: 'Synthetic fixture',
+      subject: 'MATHS', grade: 'PREMIERE', answers: {},
+    } });
+    assessmentId = assessment.id;
+    const report = { studentId: student.id, studentEmail: student.user.email!, studentName: 'Synthetic fixture', subject: 'MATHS', type: 'ASSESSMENT_QCM' as const };
+    publishedBilanId = (await v1.bilan.create({ data: { ...report, isPublished: true, status: 'COMPLETED', publishedAt: migratedAt } })).id;
+    draftBilanId = (await v1.bilan.create({ data: report })).id;
+  });
+
+  afterAll(async () => {
+    if (assessmentId) await v1.assessment.deleteMany({ where: { id: assessmentId } });
+    const reportIds = [publishedBilanId, draftBilanId].filter(Boolean);
+    if (reportIds.length) await v1.bilan.deleteMany({ where: { id: { in: reportIds } } });
+    if (guardianIds.size) await v2.user.deleteMany({ where: { id: { in: [...guardianIds] } } });
+  });
+
+  async function newGuardian() {
+    const household = await v2.student.findUniqueOrThrow({ where: { id: ids.studentA }, select: { householdId: true } });
+    const parent = await v2.user.create({ data: { role: 'PARENT', accountStatus: 'ACTIVE',
+      email: `${prefix}-guardian-${randomUUID()}@synthetic.test`, password: await bcrypt.hash(randomUUID(), 10) } });
+    guardianIds.add(parent.id);
+    const membership = await v2.householdParent.create({ data: { userId: parent.id, householdId: household.householdId } });
+    const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+    return { subject: { id: parent.id, role: 'PARENT' }, membership, ctx };
+  }
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s refuses the stale V1 parent when its canonical account is disabled', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const subject = { id: ids.parent, role: 'PARENT' };
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s permits only verified membership and refuses it immediately after canonical revocation', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'b'.repeat(64) });
+    const assessment = await resolveAssessmentReadAuthority(assessmentId, subject);
+    const report = await resolveBilanReadAuthority(publishedBilanId, subject);
+    expect(assessment).toEqual({ where: { id: assessmentId, studentId: ids.studentA } });
+    expect(report).toEqual({ where: { id: publishedBilanId, studentId: ids.studentA, isPublished: true } });
+    expect(await v1.assessment.findFirst({ where: assessment.where! })).not.toBeNull();
+    expect(await v1.bilan.findFirst({ where: report.where! })).not.toBeNull();
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 1 });
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s does not expose a draft to a verified Core guardian', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'c'.repeat(64) });
+    const access = await resolveBilanReadAuthority(draftBilanId, subject);
+    expect(access.where).toEqual({ id: draftBilanId, studentId: ids.studentA, isPublished: true });
+    expect(await v1.bilan.findFirst({ where: access.where! })).toBeNull();
+  });
 });

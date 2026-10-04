@@ -14,7 +14,7 @@ import { COMPLETED_STATUSES,isCompletedAssessmentStatus } from '@/lib/core/asses
 import { computeCohortStats } from '@/lib/core/statistics/cohort';
 import { computePercentile } from '@/lib/core/statistics/normalize';
 import { prisma } from '@/lib/prisma';
-import { buildAssessmentAccessWhere } from '@/lib/security/ownership';
+import { resolveAssessmentReadAuthority } from '@/lib/security/academic-read-authority';
 import { AssessmentStatus } from '@prisma/client';
 import { NextRequest,NextResponse } from 'next/server';
 
@@ -29,7 +29,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const where = buildAssessmentAccessWhere(id, session.user);
+    const access = await resolveAssessmentReadAuthority(id, session.user);
+    if (access.response) return access.response;
+    const where = access.where;
     if (!where) {
       return NextResponse.json({ error: 'Assessment not found' }, { status: 404 });
     }

@@ -9,7 +9,8 @@ import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { BilanGenerator } from '@/lib/bilan/generator';
 import type { BilanGenerationContext } from '@/lib/bilan/generator';
-import { buildBilanWriteWhere, buildBilanReadWhere } from '@/lib/security/ownership';
+import { buildBilanWriteWhere } from '@/lib/security/ownership';
+import { resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 import { parseJsonBody } from '@/lib/api/helpers';
 import { z } from 'zod';
 
@@ -157,7 +158,9 @@ export async function GET(request: NextRequest) {
     const { bilanId } = parsedQuery.data;
 
     // Ownership-scoped fetch (same clause as /api/bilans/[id])
-    const readWhere = buildBilanReadWhere(bilanId, authResponse.user);
+    const access = await resolveBilanReadAuthority(bilanId, authResponse.user);
+    if (access.response) return access.response;
+    const readWhere = access.where;
     if (!readWhere) {
       return NextResponse.json(
         { success: false, error: 'Bilan not found' },
