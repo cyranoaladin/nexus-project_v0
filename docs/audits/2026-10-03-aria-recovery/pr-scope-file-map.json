@@ -1,5 +1,5 @@
 {
-  "sourceSha": "cb3665fc68be6ae9652f386f64ba3c206a72e3ea",
+  "sourceSha": "5a18830d3f8e20dbb3931f6b1509a7665f32fd0e",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -291,6 +291,21 @@
     {
       "path": "__tests__/api/quotes.student-ownership.route.test.ts",
       "domain": "famille-academique",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/reservation-public-integrity.test.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/reservation-staff-decision.test.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/reservation.route.test.ts",
+      "domain": "stages-reservations",
       "highRisk": false
     },
     {
@@ -654,6 +669,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/helpers/stage-decision-migration-fixture.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/integration/bank-transfer-declaration.real.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -684,6 +704,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/integration/public-reservation-integrity.real.test.ts",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/integration/saisie-papier-normalisation.real.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -691,6 +716,11 @@
     {
       "path": "__tests__/integration/saisie-papier-visibilite-sans-email.real.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/stage-lead-decision.real.test.ts",
+      "domain": "stages-reservations",
       "highRisk": false
     },
     {
@@ -1204,6 +1234,11 @@
       "highRisk": true
     },
     {
+      "path": "app/api/reservation/route.ts",
+      "domain": "stages-reservations",
+      "highRisk": true
+    },
+    {
       "path": "app/api/reservation/verify/route.ts",
       "domain": "securite-transversale",
       "highRisk": true
@@ -1496,6 +1531,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/chat-transport-failure-observation.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/checkpoint-client-access-20261004.md",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -1839,6 +1879,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/public-reservation-integrity.md",
+      "domain": "stages-reservations",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/qualification-fixture-followup.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1846,6 +1891,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/quotes-student-ownership.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/rate-limit-inventory-ci.md",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -1916,6 +1966,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-confirm-payment-separation.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-lead-decision-audit.md",
+      "domain": "stages-reservations",
       "highRisk": false
     },
     {
@@ -2464,6 +2519,11 @@
       "highRisk": false
     },
     {
+      "path": "lib/stages/decline-legacy-lead.ts",
+      "domain": "stages-reservations",
+      "highRisk": true
+    },
+    {
       "path": "lib/stages/family-read-projection.ts",
       "domain": "planning-stages",
       "highRisk": true
@@ -2534,6 +2594,11 @@
       "highRisk": true
     },
     {
+      "path": "prisma/migrations/20261004214500_stage_reservation_decision_audit/migration.sql",
+      "domain": "stages-reservations",
+      "highRisk": true
+    },
+    {
       "path": "prisma/schema.prisma",
       "domain": "schema-migration",
       "highRisk": true
@@ -2587,6 +2652,11 @@
       "path": "scripts/core-v2/migration/types.ts",
       "domain": "schema-migration",
       "highRisk": false
+    },
+    {
+      "path": "scripts/db/rehearse-stage-decision-migration.py",
+      "domain": "stages-reservations",
+      "highRisk": true
     },
     {
       "path": "scripts/github/lib/aria-ci-contract.mjs",
