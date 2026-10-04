@@ -1,7 +1,6 @@
 import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
-import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
 import { readAuthorizedDocument } from '@/lib/documents/read-authority';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
@@ -68,8 +67,8 @@ export async function GET(
       await secureDoc.handle.close().catch(() => {});
       return new NextResponse('File content not found', { status: 404 });
     }
-  } catch (error) {
-    console.error('[Download Error]', serializeError(error));
+  } catch {
+    console.error('[documents] unexpected download error', { code: 'DOCUMENT_READ_UNEXPECTED_ERROR', route: 'document' });
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

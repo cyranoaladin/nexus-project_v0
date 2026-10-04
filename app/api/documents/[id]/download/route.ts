@@ -2,7 +2,6 @@ import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, realpath, stat } from 'fs/promises';
 import { resolve, sep } from 'path';
-import { serializeError } from '@/lib/utils/serialize-error';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 import { readAuthorizedDocument } from '@/lib/documents/read-authority';
@@ -130,8 +129,8 @@ export async function GET(
       console.error('[Document Download] File not found on disk', { documentId: id, code });
       return new NextResponse('File content not found', { status: 404 });
     }
-  } catch (error) {
-    console.error('[Document Download] Error:', serializeError(error));
+  } catch {
+    console.error('[documents] unexpected download error', { code: 'DOCUMENT_READ_UNEXPECTED_ERROR', route: 'download' });
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

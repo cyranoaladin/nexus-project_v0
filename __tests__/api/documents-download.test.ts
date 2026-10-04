@@ -354,4 +354,15 @@ describe('GET /api/documents/[id]/download', () => {
     expect(mockReadFile).not.toHaveBeenCalled();
   });
 
+  it('does not log a raw private database failure at the download boundary', async () => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      mockAuth.mockResolvedValue({ user: { id: 'admin-boundary-fixture', role: 'ADMIN' } });
+      mockFindUnique.mockRejectedValueOnce(new Error('PRIVATE_DOCUMENT_EXCEPTION_CANARY'));
+      expect((await GET(request(), params())).status).toBe(500);
+      expect(log).toHaveBeenCalled();
+      expect(JSON.stringify(log.mock.calls)).not.toContain('PRIVATE_DOCUMENT_EXCEPTION_CANARY');
+    } finally { log.mockRestore(); }
+  });
+
 });
