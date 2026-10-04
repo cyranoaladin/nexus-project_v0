@@ -6,6 +6,9 @@
  *     (codes émis TEMPORAIRES : l'élève choisit le sien à la première connexion ; --keep-codes pour les rendre définitifs)
  *   npx tsx scripts/espace/provision.ts reset-pin --username adam.c --execute --credentials-out /chemin/codes.txt
  *   npx tsx scripts/espace/provision.ts disable   --username adam.c --execute
+ *   npx tsx scripts/espace/provision.ts audit-activities                                # preflight : catalogue code ↔ base (lecture seule, code 1 si écart)
+ *   npx tsx scripts/espace/provision.ts sync-activities [--execute]                     # miroir DB du catalogue (nouveau parcours)
+ *   npx tsx scripts/espace/provision.ts enable-technical --username val.b --execute --credentials-out /chemin/codes.txt   # réactive un compte val.* (jamais un vrai compte)
  *
  * Dry-run par défaut. Les codes personnels ne sont JAMAIS affichés : ils sont
  * écrits une seule fois dans un fichier 0600 créé hors du dépôt.
@@ -19,12 +22,16 @@ import { prisma } from '@/lib/prisma';
 import { formatPin } from '@/lib/espace/pin';
 import {
   applyProvisioning,
+  auditActivities,
   disableAccount,
+  enableTechnicalAccount,
   parseRoster,
   planProvisioning,
   resetStudentPin,
+  syncActivities,
   type IssuedCredential,
 } from '@/lib/espace/provisioning';
+import { ACTIVITIES } from '@/lib/espace/catalog';
 
 function fail(message: string): never {
   process.stderr.write(`ERREUR : ${message}\n`);
@@ -110,7 +117,49 @@ async function main() {
     return;
   }
 
-  fail('Commande inconnue. Utilisez : apply | reset-pin | disable');
+  if (command === 'audit-activities') {
+    const audit = await auditActivities(prisma);
+    for (const w of audit.warnings) process.stdout.write(`AVERTISSEMENT ${w}\n`);
+    for (const e of audit.errors) process.stdout.write(`ERREUR ${e}\n`);
+    process.stdout.write(audit.errors.length === 0 ? 'CATALOGUE_DB_SYNC=PASS (aucun écart bloquant)\n' : `CATALOGUE_DB_SYNC=FAIL (${audit.errors.length} écart(s))\n`);
+    if (audit.errors.length > 0) process.exitCode = 1;
+    return;
+  }
+
+  if (command === 'enable-technical') {
+    if (!values.username) fail('--username est obligatoire');
+    if (!values.execute) {
+      process.stdout.write(`DRY-RUN : le compte technique ${values.username} serait réactivé avec de nouveaux identifiants (réservé à val.*). Ajoutez --execute.\n`);
+      return;
+    }
+    const file = await openCredentialsFile(values['credentials-out']);
+    try {
+      const issued = await enableTechnicalAccount(prisma, values.username);
+      await writeCredentials(file, [issued]);
+      process.stdout.write(`OK. ${values.username} réactivé ; identifiants écrits dans ${file.resolved} (0600). Refermer avec disable.\n`);
+    } catch (e) {
+      await file.handle.close().catch(() => undefined);
+      await rm(file.resolved, { force: true });
+      throw e;
+    }
+    return;
+  }
+
+  if (command === 'sync-activities') {
+    // Le contenu reste dans le code ; la base ne porte qu'un miroir (clés étrangères des travaux). Un nouveau parcours
+    // publié dans le code exige donc cette ligne avant la première ouverture par un élève. Idempotent, sans suppression.
+    const present = new Set((await prisma.espaceActivity.findMany({ select: { slug: true } })).map((a) => a.slug));
+    for (const a of ACTIVITIES) process.stdout.write(`${present.has(a.slug) ? 'présente ' : 'À CRÉER  '} ${a.slug}  (${a.stepsTotal} étapes, v${a.contentVersion})\n`);
+    if (!values.execute) {
+      process.stdout.write('DRY-RUN : aucune écriture. Ajoutez --execute pour synchroniser le miroir.\n');
+      return;
+    }
+    const count = await syncActivities(prisma);
+    process.stdout.write(`OK. ${count} activité(s) synchronisée(s) (création ou mise à jour des titres et du nombre d’étapes).\n`);
+    return;
+  }
+
+  fail('Commande inconnue. Utilisez : apply | reset-pin | disable | enable-technical | audit-activities | sync-activities');
 }
 
 main()

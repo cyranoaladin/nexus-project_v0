@@ -377,3 +377,66 @@ export async function disableAccount(db: Db, username: string): Promise<void> {
   });
   if (res.count !== 1) throw new Error('Aucun compte avec cet identifiant');
 }
+
+export interface CatalogAudit {
+  /** Écarts bloquants : à corriger avant d'ouvrir le parcours aux élèves. */
+  errors: string[];
+  /** Observations non bloquantes (ligne en base absente du code : parcours retiré ou autre version). */
+  warnings: string[];
+}
+
+/**
+ * Contrôle catalogue (code) ↔ miroir en base (`espace_activities`), en LECTURE SEULE : à lancer comme étape de
+ * déploiement (preflight). Détecte : activité du code absente de la base, slug dupliqué dans le code, type, matière,
+ * module, titre, nombre d'étapes ou version différents. Ne modifie rien ; la correction passe par `syncActivities`.
+ */
+export async function auditActivities(db: Db): Promise<CatalogAudit> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const seen = new Set<string>();
+  for (const a of ACTIVITIES) {
+    if (seen.has(a.slug)) errors.push(`DUPLICATE_SLUG ${a.slug} : slug dupliqué dans le catalogue du code`);
+    seen.add(a.slug);
+  }
+  const rows = await db.espaceActivity.findMany();
+  const bySlug = new Map(rows.map((r) => [r.slug, r]));
+  for (const a of ACTIVITIES) {
+    const row = bySlug.get(a.slug);
+    if (!row) {
+      errors.push(`MISSING_IN_DB ${a.slug} : présente dans le code, absente de espace_activities (lancer sync-activities)`);
+      continue;
+    }
+    const expected: Record<string, string | number> = {
+      subject: a.subject, moduleSlug: a.moduleSlug, title: a.title, kind: a.kind, stepsTotal: a.stepsTotal, contentVersion: a.contentVersion,
+    };
+    for (const [field, want] of Object.entries(expected)) {
+      const got = (row as unknown as Record<string, string | number>)[field];
+      if (got !== want) errors.push(`MISMATCH ${a.slug}.${field} : code=${JSON.stringify(want)} base=${JSON.stringify(got)}`);
+    }
+  }
+  for (const r of rows) if (!seen.has(r.slug)) warnings.push(`EXTRA_IN_DB ${r.slug} : en base, absente du catalogue du code`);
+  return { errors, warnings };
+}
+
+/**
+ * Réactive TEMPORAIREMENT un compte technique de validation (identifiant `val.*` uniquement : jamais un vrai compte)
+ * et émet de nouveaux identifiants (code d'élève définitif ou mot de passe enseignant). À refermer avec `disableAccount`.
+ */
+export async function enableTechnicalAccount(db: Db, username: string): Promise<IssuedCredential> {
+  const u = normalizeUsername(username);
+  if (!u || !/^val\./.test(u)) throw new Error('Réservé aux comptes techniques de validation (identifiant val.*)');
+  const user = await db.user.findUnique({ where: { username: u }, select: { id: true, role: true } });
+  if (!user || (user.role !== 'ELEVE' && user.role !== 'COACH')) throw new Error('Aucun compte technique élève ou enseignant avec cet identifiant');
+  if (user.role === 'ELEVE') {
+    const pin = generatePin();
+    await db.user.update({
+      where: { id: user.id },
+      data: { disabledAt: null, pinHash: await hashPin(pin), pinSetAt: new Date(), pinMustChange: false, sessionVersion: { increment: 1 } },
+    });
+    return { username: u, kind: 'ELEVE', secret: pin };
+  }
+  const bcrypt = (await import('bcryptjs')).default;
+  const initial = randomBytes(15).toString('base64url');
+  await db.user.update({ where: { id: user.id }, data: { disabledAt: null, password: await bcrypt.hash(initial, 12), sessionVersion: { increment: 1 } } });
+  return { username: u, kind: 'COACH', secret: initial };
+}

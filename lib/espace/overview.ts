@@ -49,9 +49,32 @@ export function fullName(u: { firstName: string | null; lastName: string | null 
 
 // ─── Élève ──────────────────────────────────────────────────────────────────
 
+export interface StudentActivityEntry {
+  slug: string;
+  title: string;
+  moduleSlug: string;
+  kind: string;
+  /** Regroupement d'affichage dans la matière (ex. NSI : « Algorithmique et programmation »). */
+  theme: string | null;
+}
+
+/**
+ * Regroupe les activités d'une matière par thème, dans l'ordre du catalogue. Sans aucun thème (maths), une seule
+ * liste sans titre : l'affichage reste celui d'avant.
+ */
+export function groupActivitiesByTheme<T extends { theme: string | null }>(activities: T[]): { theme: string | null; activities: T[] }[] {
+  const groups: { theme: string | null; activities: T[] }[] = [];
+  for (const a of activities) {
+    const group = groups.find((g) => g.theme === a.theme);
+    if (group) group.activities.push(a);
+    else groups.push({ theme: a.theme, activities: [a] });
+  }
+  return groups;
+}
+
 export interface StudentDashboard {
   firstName: string;
-  subjects: { subject: Subject; label: string; activities: { slug: string; title: string; moduleSlug: string; kind: string }[] }[];
+  subjects: { subject: Subject; label: string; activities: StudentActivityEntry[] }[];
   /** « À faire maintenant » : séance publiée en premier, sinon travail en cours. */
   next: {
     activitySlug: string;
@@ -100,7 +123,7 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
     .map((subject) => ({
       subject,
       label: SUBJECT_LABELS[subject],
-      activities: ACTIVITIES.filter((a) => a.subject === subject).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind })),
+      activities: ACTIVITIES.filter((a) => a.subject === subject).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind, theme: a.theme ?? null })),
     }))
     .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
 

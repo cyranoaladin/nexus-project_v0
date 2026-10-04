@@ -75,6 +75,15 @@ figure.sim { border: 1px solid var(--line); background: var(--card); border-radi
 .sim-items li.hl { border-color: var(--gold); background: #fdf6e3; }
 .sim-items li.sim-empty { border: 0; background: none; font-style: italic; color: var(--muted); font-family: inherit; }
 .sim-tag { margin-left: 10px; font: .75rem system-ui, sans-serif; color: var(--muted); }
+.tr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 14px; }
+.tr-title { margin: 4px 0; font-weight: 600; }
+.tr-events { list-style: none; margin: 0; padding: 0; max-height: 18rem; overflow-y: auto; font: .9rem ui-monospace, "DejaVu Sans Mono", monospace; }
+.tr-events li { margin: 2px 0; }
+.tr-call { color: #0b5394; }
+.tr-return { color: #1a6b3a; }
+.tr-last { font-weight: 700; }
+.sim-controls label { display: inline-flex; align-items: center; gap: 6px; }
+.sim-controls input[type=number] { width: 5rem; }
 .sim-message { min-height: 1.6rem; margin: 6px 0 0; }
 .stepnav { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-wrap: wrap; gap: 10px; }
 .katex-display { overflow-x: auto; overflow-y: hidden; padding: 2px 0; max-width: 100%; }

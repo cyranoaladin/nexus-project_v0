@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { StatusBadge } from '@/components/espace/shared/StatusBadge';
 import { formatClock } from '@/lib/espace/format';
-import { getStudentDashboard } from '@/lib/espace/overview';
+import { getStudentDashboard, groupActivitiesByTheme } from '@/lib/espace/overview';
 import { requireActorForPage } from '@/lib/espace/page-guard';
 import { activityHref } from '@/components/espace/student/links';
 import { getOrganizationTimezone } from '@/lib/timezone';
@@ -58,16 +58,21 @@ export default async function EleveAccueil() {
             {dashboard.subjects.map((s) => (
               <li key={s.subject} className="rounded-xl border border-white/10 bg-surface-card p-4" data-testid="matiere">
                 <p className="font-medium text-neutral-50">{s.label}</p>
-                <ul className="mt-2 space-y-1">
-                  {s.activities.map((a) => (
-                    <li key={a.slug}>
-                      <Link href={activityHref(a.slug)} className="text-sm text-brand-accent underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
-                        {a.title}
-                      </Link>
-                    </li>
-                  ))}
-                  {s.activities.length === 0 && <li className="text-sm text-neutral-300">Aucune activité pour le moment.</li>}
-                </ul>
+                {groupActivitiesByTheme(s.activities).map((g) => (
+                  <div key={g.theme ?? 'sans-theme'} className="mt-2">
+                    {g.theme && <p className="text-xs font-semibold uppercase tracking-wide text-neutral-300">{g.theme}</p>}
+                    <ul className="mt-1 space-y-1">
+                      {g.activities.map((a) => (
+                        <li key={a.slug}>
+                          <Link href={activityHref(a.slug)} className="text-sm text-brand-accent underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
+                            {a.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+                {s.activities.length === 0 && <p className="mt-2 text-sm text-neutral-300">Aucune activité pour le moment.</p>}
               </li>
             ))}
           </ul>

@@ -130,3 +130,18 @@ Enseignant : compte COACH de l'adresse du propriétaire. Yassine : compte Termin
 8. **Comptes techniques de validation** `val.a`, `val.b`, `val.prof` (groupe `validation-technique`) : à désactiver après les séances (`provision.ts disable --username … --execute`).
 
 Rollback disponible : pointeur canonique vers `/var/www/nexus-releases/724f8982d-security-2026-09-20260909T181734Z`, puis `pm2 restart nexus-prod`. Tables et colonnes de l'espace restent en place.
+
+## 9. Déroulé du 2026-10-04 — parcours « Récursivité et programmation récursive »
+
+Ajout d'un troisième parcours NSI (thème « Algorithmique et programmation »), sans migration de schéma.
+
+1. **Pré-vol (lecture seule)** : pointeur canonique sur `d7f041c1c-espace-credentials-20261003T0900Z`, garde vert, aucune opération concurrente (`pm2`, `rsync`, pointeurs), disque 61 %.
+2. **Build** : clone propre hors `.worktrees` du commit `a35be9fde` (`npm ci`, `npm run build`, `ARTIFACT VALID`, `BUILD_ID` `AyxLRAp0A4nhjMiwnYltB`).
+3. **Release** : `/var/www/nexus-releases/a35be9fde-espace-recursivite-20261004T1512Z` (`rsync` du standalone, `.runtime` copié de la release précédente, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). `runner.py` du parcours présent dans le standalone.
+4. **Corrigé privé** : `corrige.pdf` (sha256 `ecac3ad4…94d0`) installé dans `/var/www/nexus-shared/espace/resources/recursivite/` (`nexusapp`, 750/640).
+5. **Miroir de catalogue** : une ligne `espace_activities` (`nsi-recursivite`, 9 étapes, `PYTHON_TP`), en une transaction (`ON CONFLICT DO NOTHING`). Les 4 lignes existantes sont inchangées. Équivalent de `provision.ts sync-activities --execute`. **Sans cette ligne, l'ouverture du parcours échoue** : à faire pour tout nouveau parcours.
+6. **Bascule** : un seul pointeur (`mv -T`), garde avec `--expected-release`, `pm2 restart nexus-prod` ; retour arrière automatique prévu (non déclenché), santé 200, cinq identités concordantes (canonique, alias résolu, args PM2, cmdline, exécutable Node).
+7. **Contrôles anonymes en production** : 8 pages publiques, `/espace/connexion`, `/ateliers/poo/`, `/api/health` en 200 ; `/espace/nsi/recursivite` redirige vers la connexion ; corrigé et aperçu enseignant en 401 ; `BUILD_ID` servi conforme ; journaux sans erreur ; empreinte du legacy POO inchangée (`dd6c60e9…`).
+8. **Fumée authentifiée en production : NON exécutée** — la création de comptes techniques de validation en base de production a été refusée par le garde-fou de la session (voir le rapport d'audit). Spec prête : `e2e/prod/espace-prod-recursivite.spec.ts` (validée 5/5 sur la pile locale).
+
+Rollback : pointeur canonique vers `/var/www/nexus-releases/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart nexus-prod`. La ligne `espace_activities` et le PDF restent en place (inertes sans le code).

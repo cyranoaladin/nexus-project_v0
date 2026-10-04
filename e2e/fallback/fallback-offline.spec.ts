@@ -13,12 +13,14 @@ import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 const ROOT = process.cwd();
 const NSI = 'NSI_TP2_LISTES_PILES_FILES';
 const MATHS = 'MATHS_FONCTIONS_LIMITES';
+const REC = 'NSI_RECURSIVITE';
 
 let tmp = '';
 let pkgDir = '';
 let server: ChildProcess | undefined;
 let base = '';
 let solutions: Record<string, string> = {};
+let recSolutions: Record<string, string> = {};
 
 async function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -38,6 +40,10 @@ test.beforeAll(async () => {
   execFileSync('npx', ['tsx', 'scripts/espace/build-fallback.ts', '--out', pkg], { cwd: ROOT, stdio: 'pipe', timeout: 240_000 });
   solutions = JSON.parse(
     execFileSync('python3', ['-c', 'import json,sys; sys.path.insert(0,"content/espace/nsi-structures-lineaires"); from solutions import SOLUTIONS; print(json.dumps(SOLUTIONS))'], { cwd: ROOT }).toString(),
+  );
+
+  recSolutions = JSON.parse(
+    execFileSync('python3', ['-c', 'import json,sys; sys.path.insert(0,"content/espace/nsi-recursivite"); from solutions import SOLUTIONS, STARTERS; print(json.dumps(SOLUTIONS))'], { cwd: ROOT }).toString(),
   );
 
   const port = await freePort();
@@ -240,4 +246,60 @@ test('file:// : le parcours Maths fonctionne sans serveur, la page NSI explique 
   await expect(page.getByTestId('code-editor')).toBeEditable(); // l'éditeur et la sauvegarde restent utilisables
 
   expect(blocked).toEqual([]);
+});
+
+test('Récursivité : RecursionError maîtrisée, solution validée, récursion trop longue interrompue, trace, rechargement — hors ligne', async ({ page, context }) => {
+  test.setTimeout(240_000);
+  const blocked = await blockExternal(context);
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(e.message));
+  await open(page, REC);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Récursivité et programmation récursive');
+  const nav = page.getByRole('navigation', { name: 'Étapes du TP' });
+
+  // Programme défectueux de l'étape « Découvrir » : erreur pédagogique lisible, pas de gel.
+  await nav.getByRole('button', { name: /Découvrir/ }).click();
+  const editor = page.getByTestId('code-editor');
+  const results = page.getByTestId('run-results');
+  await page.getByRole('button', { name: 'Exécuter' }).click();
+  await expect(results).toContainText('RecursionError', { timeout: 120_000 });
+  await expect(results).toContainText('Nexus limite volontairement la profondeur à 200 appels');
+  await editor.fill(recSolutions.decouverte!);
+  await page.getByRole('button', { name: 'Vérifier mon code' }).click();
+  await expect(results).toContainText('Réussi', { timeout: 60_000 });
+  await expect(results).not.toContainText('À revoir');
+
+  // Trace APPEL / RETOUR : descente puis remontée, sans réseau.
+  await nav.getByRole('button', { name: /Pile d’appels/ }).click();
+  const trace = page.getByTestId('trace-trace-somme');
+  for (let i = 0; i < 5; i += 1) await trace.getByRole('button', { name: 'Étape suivante' }).click();
+  await expect(trace.getByTestId('trace-phase')).toContainText('Descente');
+  await expect(trace.getByTestId('trace-stack').locator('li').first()).toContainText('somme(0)');
+  for (let i = 0; i < 5; i += 1) await trace.getByRole('button', { name: 'Étape suivante' }).click();
+  await expect(trace.getByTestId('trace-events')).toContainText('RETOUR 10');
+  await expect(trace.getByTestId('trace-phase')).toContainText('Terminé');
+
+  // Solution complète des trois fonctions.
+  await nav.getByRole('button', { name: /Écrire/ }).click();
+  await page.getByTestId('code-editor').fill(recSolutions.ecrire!);
+  await page.getByRole('button', { name: 'Vérifier mon code' }).click();
+  await expect(results).toContainText('Réussi', { timeout: 60_000 });
+  await expect(results).not.toContainText('À revoir');
+
+  // Récursion exponentielle : le Worker est interrompu et l'interface répond ensuite.
+  await page.getByTestId('code-editor').fill('def f(n):\n    if n == 0:\n        return 1\n    return f(n - 1) + f(n - 1)\n\n\nprint(f(60))\n');
+  await page.getByRole('button', { name: 'Exécuter' }).click();
+  await expect(results).toContainText('Temps d’exécution dépassé', { timeout: 90_000 });
+  await page.getByTestId('code-editor').fill('print("interface récupérée")');
+  await page.getByRole('button', { name: 'Exécuter' }).click();
+  await expect(results).toContainText('interface récupérée', { timeout: 90_000 });
+
+  // Rechargement : code et étape restaurés.
+  await page.getByTestId('code-editor').fill('# restauré hors ligne\nprint(7)\n');
+  await page.reload();
+  await expect(page.getByTestId('code-editor')).toHaveValue('# restauré hors ligne\nprint(7)\n');
+  await expect(nav.getByRole('button', { name: /Écrire/ })).toHaveAttribute('aria-current', 'step');
+
+  expect(blocked, 'requêtes externes bloquées').toEqual([]);
+  expect(pageErrors).toEqual([]);
 });

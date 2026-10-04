@@ -88,6 +88,50 @@ describe('CorrectionWorkspace', () => {
     expect(screen.getByLabelText('Commentaire')).toHaveValue('Vérifie le cas limite.');
   });
 
+  describe('compétences suivies (facultatif)', () => {
+    const skills = [{ id: 'cas-de-base', label: 'Identifier le cas de base' }, { id: 'tracer', label: 'Tracer des appels récursifs' }];
+
+    it('sans compétences, aucun sélecteur n’est affiché (les autres parcours sont inchangés)', async () => {
+      await mount();
+      expect(screen.queryByLabelText('Compétence')).not.toBeInTheDocument();
+    });
+
+    it('une compétence « Acquise » ou « À consolider » pré-remplit le commentaire existant, rien n’est enregistré tout seul', async () => {
+      await mount({ skills });
+      const select = screen.getByLabelText('Compétence');
+      expect(screen.getByRole('button', { name: 'À consolider' })).toBeDisabled();
+      fireEvent.change(select, { target: { value: 'cas-de-base' } });
+      fireEvent.click(screen.getByRole('button', { name: 'À consolider' }));
+      expect(screen.getByLabelText('Commentaire')).toHaveValue('Compétence «\u00a0Identifier le cas de base\u00a0»\u00a0: à consolider.');
+      fireEvent.change(select, { target: { value: 'tracer' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Acquise' }));
+      expect(screen.getByLabelText('Commentaire')).toHaveValue(
+        'Compétence «\u00a0Identifier le cas de base\u00a0»\u00a0: à consolider.\nCompétence «\u00a0Tracer des appels récursifs\u00a0»\u00a0: acquise.',
+      );
+      expect(api.addAnnotation).not.toHaveBeenCalled();
+    });
+  });
+
+  it('une compétence choisie n’écrase JAMAIS un commentaire déjà rédigé (ni à la première, ni aux suivantes)', async () => {
+    await mount({ skills: [{ id: 'cas-de-base', label: 'Identifier le cas de base' }, { id: 'tracer', label: 'Tracer des appels récursifs' }] });
+    const manual = 'Très bon raisonnement sur la descente.\nPense à relire la valeur retournée.';
+    fireEvent.change(screen.getByLabelText('Commentaire'), { target: { value: manual } });
+
+    fireEvent.change(screen.getByLabelText('Compétence'), { target: { value: 'cas-de-base' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Acquise' }));
+    fireEvent.change(screen.getByLabelText('Compétence'), { target: { value: 'tracer' } });
+    fireEvent.click(screen.getByRole('button', { name: 'À consolider' }));
+
+    const value = (screen.getByLabelText('Commentaire') as HTMLTextAreaElement).value;
+    expect(value.startsWith(manual)).toBe(true);
+    expect(value).toContain('Compétence «\u00a0Identifier le cas de base\u00a0»\u00a0: acquise.');
+    expect(value).toContain('Compétence «\u00a0Tracer des appels récursifs\u00a0»\u00a0: à consolider.');
+    // Changer seulement le menu ne touche pas au texte.
+    fireEvent.change(screen.getByLabelText('Compétence'), { target: { value: 'cas-de-base' } });
+    expect((screen.getByLabelText('Commentaire') as HTMLTextAreaElement).value).toBe(value);
+    expect(api.addAnnotation).not.toHaveBeenCalled();
+  });
+
   it('« Corrigé » enregistre d’abord le commentaire en cours puis change le statut', async () => {
     api.addAnnotation.mockResolvedValue({ annotation: { id: 'a2', kind: 'GENERAL', body: 'OK', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 4, authorName: 'Prof T', mine: true, createdAt: '2026-10-02T10:00:00Z' } });
     api.review.mockResolvedValue({ work: { status: 'CORRECTED' } });

@@ -57,3 +57,47 @@ Voir `docs/legacy-poo/LEGACY_POO_LINKING.md`. Le service et l'archive historique
 2. **Ne pas** supprimer les tables `espace_*` ni les colonnes `users.username/pinHash/pinSetAt/disabledAt` : elles contiennent des travaux d'élèves et sont inertes sans le nouveau code.
 3. Vérifier `/`, `/auth/signin`, `/ateliers/poo/` (legacy inchangé).
 4. Les travaux déjà enregistrés restent en base ; un redéploiement ultérieur les retrouve.
+
+## 8. Ajouter un parcours guidé (exemple : Récursivité)
+
+1. Contenu : `content/espace/<module>/` (`build_content.py` → `content.json` + corrigé `docs/espace/corriges/<module>/corrige.html`, `runner.py` si Python, `solutions.py`). Enregistrer le slug dans `lib/espace/lesson-routes.ts`, l'activité dans `lib/espace/catalog.ts` (champ `theme` pour le regroupement affiché), une page `app/espace/<matière>/<module>/page.tsx`, l'inclusion du `runner.py` dans `next.config.mjs` (`outputFileTracingIncludes`).
+2. Tests : unitaires (contenu, harnais), intégration vraie base, E2E, puis fumée de production.
+3. Corrigé : `npx tsx scripts/espace/build-corriges.ts --only <module>` puis `install-resources.ts --module <module>` (ou copie vérifiée par empreinte vers `<DOCUMENT_STORAGE_ROOT>/espace/resources/<moduleSlug>/`).
+4. **Miroir de catalogue en base** (obligatoire avant la première ouverture par un élève) : `npx tsx scripts/espace/provision.ts sync-activities` (dry-run) puis `--execute`.
+5. Compétences annotables côté enseignant : champ `skills` du contenu (réutilise les annotations existantes, aucun nouveau stockage).
+
+
+## 9. Déployer une release (verrou + compare-and-swap)
+
+Toute bascule passe par `scripts/espace/switch-release.sh`, exécuté **sur le serveur** (copié par `ssh … 'bash -s -- <args>' < scripts/espace/switch-release.sh`).
+
+1. Préparer la release hors ligne (build en clone propre hors `.worktrees`, `rsync` du standalone, `.runtime` copié d'une release vivante, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). Ressources privées et miroir de catalogue **avant** la bascule (§8).
+2. Relever la release servie : `readlink -f /var/www/nexus-project_v0`. C'est la valeur **vérifiée** à passer en `--expected-current`.
+3. `switch-release.sh --new <release> --expected-current <release servie vérifiée>` :
+   - **verrou** `flock -n /var/lock/nexus-production-deploy.lock` : si un autre déploiement le tient → `LOCK_BUSY`, arrêt (jamais d'attente ni de contournement) ;
+   - **compare-and-swap** : si la release servie n'est plus celle vérifiée → `CAS_MISMATCH`, arrêt, réévaluation humaine ; on n'écrase jamais une release plus récente ;
+   - pré-vol (artefact, Node embarqué `v22.23.1`, garde de pointeur), bascule atomique du seul pointeur canonique, garde `--expected-release`, `pm2 restart`, santé ; **retour arrière automatique** si la santé n'est pas confirmée.
+4. Vérifier ensuite : `GARDE_FINAL=OK`, `CANON`, `ALIAS`, `CMDLINE`, exécutable Node, santé, journaux.
+5. **Rollback readiness** (sans rien basculer) : `switch-release.sh --check <release précédente saine>` — dossier, `server.js`, `BUILD_ID`, Node, propriétaire, commande pm2, pointeur modifiable, garde de l'état courant. Compatibilité base : comparer `prisma/` entre les deux commits (diff vide = aucun schéma à défaire).
+6. Rollback réel : `switch-release.sh --new <release précédente saine> --expected-current <release servie>`.
+
+## 10. Comptes techniques de validation (jamais de vrai compte)
+
+Les comptes `val.*` (désactivés, non supprimés) servent aux fumées de production. Réutiliser, ne pas recréer :
+
+```bash
+# réactivation TEMPORAIRE (refuse tout identifiant hors val.*) ; identifiants dans un fichier 0600 hors dépôt
+npx tsx scripts/espace/provision.ts enable-technical --username val.b --execute --credentials-out ~/Documents/Nexus_Conservation/<fichier>
+# après la fumée : fermeture + sessions révoquées
+npx tsx scripts/espace/provision.ts disable --username val.b --execute
+```
+
+Les travaux techniques peuvent rester (traces) mais le compte doit être désactivé : la connexion doit être refusée.
+
+## 11. Contrôle catalogue ↔ base (étape de déploiement)
+
+`npx tsx scripts/espace/provision.ts audit-activities` — lecture seule, code de sortie 1 en cas d'écart bloquant (activité absente de la base, type, matière, module, titre, nombre d'étapes ou version différents). Aucune mutation au démarrage de l'application. Correction : `sync-activities` (ne touche qu'à `espace_activities`, jamais aux comptes, codes ou inscriptions).
+
+## 12. Plan de secours hors ligne
+
+`~/Documents/Nexus_Conservation/espace-terminale-fallback/` (TP POO 2, Récursivité, Maths ; l'ancien `urgence-seances-2026-10-03/` est conservé tel quel). Reconstruction : `build-corriges.ts` puis `build-fallback.ts --out … --corriges …`. Lancement : voir `LIRE_DABORD.md`.

@@ -58,6 +58,13 @@ Exécuté **uniquement dans le navigateur** (Pyodide, Web Worker détruit au dé
 ### 10. Legacy
 `/ateliers/poo/` n'est ni modifié ni redirigé. Le pont (`lib/espace/legacy`, `scripts/espace/legacy-poo.ts`) lit l'archive en lecture seule, ne lie rien automatiquement, exige un plan puis un jeton de confirmation, refuse les cas ambigus, ne supprime rien. Voir `docs/legacy-poo/LEGACY_POO_LINKING.md`.
 
+### 11. Parcours « Récursivité et programmation récursive » (2026-10-04)
+Même moteur que les autres leçons guidées (autosave, instantanés, remise, annotations, Pyodide en Web Worker) : aucune infrastructure parallèle. Spécificités :
+- **Thème d'affichage** (`ActivityDef.theme`) : NSI = « Programmation orientée objet » (TP 1, TP 2) puis « Algorithmique et programmation » ; les activités sans thème (maths) s'affichent comme avant.
+- **Harnais comportemental** (`content/espace/nsi-recursivite/runner.py`) : la récursivité est *observée* — le nom de la fonction de l'élève est remplacé par un enveloppeur qui compte les appels ; une version à boucle donne les bonnes valeurs mais échoue au contrôle « s'appelle elle-même ». Limite de profondeur volontairement basse (200) : une `RecursionError` lisible, jamais un blocage ; une récursion exponentielle est interrompue par le délai du Worker (recréé à l'essai suivant).
+- **Figure `call-trace`** (`lib/espace/recursion-trace.ts`, composant `CallTrace`) : trace APPEL / RETOUR et pile d'appels (sommet en premier), purement pédagogique, n'écrit rien dans le travail.
+- **Compétences suivies** : liste `skills` du contenu ; côté correction, elles pré-remplissent le commentaire existant (annotation d'étape), sans nouveau stockage.
+
 ## Limitations connues
 
 - **Core v2** : sur `main`, `CORE_V2_AUTH_MODE=V2_ONLY` rejetterait tout jeton issu du Core v1, donc ces comptes. L'espace suppose `V1_ONLY` ou `HYBRID` tant que ses identités n'existent pas dans Core v2.

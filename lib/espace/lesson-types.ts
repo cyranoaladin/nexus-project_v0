@@ -84,7 +84,17 @@ export interface StaticSvgSpec {
   svg: string;
 }
 
-export type FigureSpec = FunctionFigureSpec | StructureSimSpec | StaticSvgSpec;
+/** Trace pas à pas d'un calcul récursif : APPEL / RETOUR et pile d'appels (modèle : lib/espace/recursion-trace.ts). */
+export interface CallTraceSpec {
+  type: 'call-trace';
+  id: string;
+  caption?: string;
+  fn: 'somme' | 'factorielle' | 'puissance' | 'fibonacci';
+  /** Paramètres initiaux (modifiables par l'élève dans des bornes sûres). */
+  args: number[];
+}
+
+export type FigureSpec = FunctionFigureSpec | StructureSimSpec | StaticSvgSpec | CallTraceSpec;
 
 export interface LessonStep {
   id: string;
@@ -118,5 +128,7 @@ export interface LessonContent {
   duration: number;
   /** `phases` : affiche la hiérarchie Je comprends / J'observe / J'essaie / Je vérifie / Je retiens. */
   ui?: { phases?: boolean };
+  /** Compétences que l'enseignant peut annoter sur le travail d'un élève (annotations existantes, aucun nouveau stockage). */
+  skills?: { id: string; label: string; steps: string[] }[];
   steps: LessonStep[];
 }

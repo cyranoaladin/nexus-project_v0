@@ -10,6 +10,7 @@ import type { Subject } from '@prisma/client';
 import pooContentJson from '@/content/espace/nsi-poo/content.json';
 import maths2ContentJson from '@/content/espace/maths-fonctions-limites/content.json';
 import poo2ContentJson from '@/content/espace/nsi-structures-lineaires/content.json';
+import recursiviteContentJson from '@/content/espace/nsi-recursivite/content.json';
 
 import type { LessonContent, LessonField, LessonQuestion, LessonStep } from './lesson-types';
 import {
@@ -17,9 +18,10 @@ import {
   MATHS_SUITES_ACTIVITY_SLUG,
   POO2_ACTIVITY_SLUG,
   POO_ACTIVITY_SLUG,
+  RECURSIVITE_ACTIVITY_SLUG,
 } from './lesson-routes';
 
-export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG };
+export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG };
 
 // Noms historiques conservés (TP 1) : ce sont désormais des alias du contrat commun.
 export type PooQuestion = LessonQuestion;
@@ -50,6 +52,7 @@ export interface LessonDef {
 const LESSONS: Record<string, LessonDef> = {
   [POO_ACTIVITY_SLUG]: { content: getPooContent(), runnerPath: 'content/espace/nsi-poo/runner.py' },
   [POO2_ACTIVITY_SLUG]: { content: poo2ContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-structures-lineaires/runner.py' },
+  [RECURSIVITE_ACTIVITY_SLUG]: { content: recursiviteContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-recursivite/runner.py' },
   [MATHS_LIMITES_ACTIVITY_SLUG]: { content: maths2ContentJson as unknown as LessonContent, runnerPath: null },
 };
 
@@ -83,6 +86,8 @@ export interface ActivityDef {
   subject: Subject;
   moduleSlug: string;
   moduleTitle: string;
+  /** Regroupement d'affichage dans la matière (ex. NSI : « Programmation orientée objet » / « Algorithmique et programmation »). */
+  theme?: string;
   title: string;
   kind: ActivityKind;
   stepsTotal: number;
@@ -98,6 +103,7 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     subject: 'NSI',
     moduleSlug: 'poo',
     moduleTitle: 'Programmation orientée objet',
+    theme: 'Programmation orientée objet',
     // Libellé d'affichage seulement : le contenu du TP 1 (content.json) n'est pas modifié.
     title: 'TP POO 1 — Des objets qui agissent',
     kind: 'PYTHON_TP',
@@ -125,10 +131,23 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     subject: 'NSI',
     moduleSlug: 'poo-structures',
     moduleTitle: 'Programmation orientée objet',
+    theme: 'Programmation orientée objet',
     title: 'TP POO 2 — Listes, piles et files',
     kind: 'PYTHON_TP',
     stepsTotal: getLessonRequiredSteps(POO2_ACTIVITY_SLUG).length,
     contentVersion: poo2ContentJson.version,
+    resources: [{ key: 'corrige', label: 'Corrigé enseignant', audience: 'TEACHER', file: 'corrige.pdf', mimeType: 'application/pdf' }],
+  },
+  {
+    slug: RECURSIVITE_ACTIVITY_SLUG,
+    subject: 'NSI',
+    moduleSlug: 'recursivite',
+    moduleTitle: 'Algorithmique et programmation',
+    theme: 'Algorithmique et programmation',
+    title: 'Récursivité et programmation récursive',
+    kind: 'PYTHON_TP',
+    stepsTotal: getLessonRequiredSteps(RECURSIVITE_ACTIVITY_SLUG).length,
+    contentVersion: recursiviteContentJson.version,
     resources: [{ key: 'corrige', label: 'Corrigé enseignant', audience: 'TEACHER', file: 'corrige.pdf', mimeType: 'application/pdf' }],
   },
   {

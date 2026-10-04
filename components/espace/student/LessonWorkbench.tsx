@@ -510,7 +510,7 @@ export function LessonWorkbench({ userId, work, content, runnerSource, annotatio
                   return (
                     <div
                       key={i}
-                      className="space-y-3 text-neutral-100 [&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1 [&_h3]:mt-4 [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-black/40 [&_pre]:p-3 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-white/15 [&_td]:p-2 [&_th]:border [&_th]:border-white/15 [&_th]:p-2 [&_ul]:list-disc"
+                      className="space-y-3 text-neutral-100 [&_.method-box]:rounded-lg [&_.method-box]:border [&_.method-box]:border-brand-accent/40 [&_.method-box]:bg-brand-accent/10 [&_.method-box]:p-4 [&_ol]:mt-2 [&_code]:rounded [&_code]:bg-white/10 [&_code]:px-1 [&_h3]:mt-4 [&_h3]:font-semibold [&_li]:ml-5 [&_ol]:list-decimal [&_p]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-black/40 [&_pre]:p-3 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-white/15 [&_td]:p-2 [&_th]:border [&_th]:border-white/15 [&_th]:p-2 [&_ul]:list-disc"
                       dangerouslySetInnerHTML={{ __html: seg.html }}
                     />
                   );

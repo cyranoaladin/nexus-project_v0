@@ -7,6 +7,7 @@
  * Produit, sous --out :
  *   LIRE_DABORD.md
  *   NSI_TP2_LISTES_PILES_FILES/   index.html autonome + katex/ + pyodide/ + python/ (+ corrige_enseignant.*)
+ *   NSI_RECURSIVITE/              idem (parcours « Récursivité et programmation récursive », trace APPEL/RETOUR comprise)
  *   MATHS_FONCTIONS_LIMITES/      index.html autonome + katex/            (+ corrige_enseignant.*)
  *
  * Chaque index.html fonctionne en file:// (sauf l'exécution Python, voir ci-dessous) ou via
@@ -263,33 +264,35 @@ export async function buildLessonPackage(opts: LessonPackageOptions): Promise<Le
 
 const PACKAGE_MODULES = [
   { dir: 'NSI_TP2_LISTES_PILES_FILES', content: 'content/espace/nsi-structures-lineaires', corrige: 'poo-structures' },
+  { dir: 'NSI_RECURSIVITE', content: 'content/espace/nsi-recursivite', corrige: 'recursivite' },
   { dir: 'MATHS_FONCTIONS_LIMITES', content: 'content/espace/maths-fonctions-limites', corrige: 'fonctions-limites' },
 ] as const;
 
-export function lireDabord(packageName: string, firstStarter: string, corriges: { nsi: string[]; maths: string[] }): string {
+export function lireDabord(packageName: string, firstStarter: string, corriges: { nsi: string[]; maths: string[]; rec?: string[] }): string {
   const where = (files: string[], dir: string) => (files.length ? files.map((f) => `${dir}/${f}`).join(' + ') : `${dir} : ABSENT (lancer scripts/espace/build-corriges.ts puis reconstruire)`);
   return `${[
-    '# LIRE D’ABORD — plan de secours des séances du 3 octobre 2026',
+    '# LIRE D’ABORD — plan de secours de l’espace Terminale (hors ligne)',
     '',
     '## 1. Lancer (copier-coller dans un terminal)',
     `cd ~/Documents/Nexus_Conservation/${packageName} && python3 -m http.server 8765 --directory .`,
     '',
     '## 2. Ouvrir dans le navigateur (laisser le terminal ouvert)',
     '- NSI, TP POO 2 : http://localhost:8765/NSI_TP2_LISTES_PILES_FILES/',
+    '- NSI, Récursivité : http://localhost:8765/NSI_RECURSIVITE/',
     '- Maths, fonctions et limites : http://localhost:8765/MATHS_FONCTIONS_LIMITES/',
     '(Un double-clic sur index.html marche aussi, mais le bouton Python exige l’adresse http://localhost ci-dessus.)',
     '',
     '## 3. Python sans navigateur (NSI)',
-    `cd NSI_TP2_LISTES_PILES_FILES/python && python3 verifier.py ${firstStarter}`,
+    `cd NSI_TP2_LISTES_PILES_FILES/python && python3 verifier.py ${firstStarter}   (Récursivité : cd NSI_RECURSIVITE/python && python3 verifier.py etape_5_ecrire.py)`,
     '',
     '## 4. Corrigés enseignant (NE PAS distribuer aux élèves)',
     `- ${where(corriges.nsi, 'NSI_TP2_LISTES_PILES_FILES')}`,
+    `- ${where(corriges.rec ?? [], 'NSI_RECURSIVITE')}`,
     `- ${where(corriges.maths, 'MATHS_FONCTIONS_LIMITES')}`,
     '',
     '## 5. Plateforme',
     '- Production : https://nexusreussite.academy/espace',
     '- STATUT_PRODUCTION: à compléter',
-    '',
     'Les réponses sont enregistrées dans ce navigateur (indicateur en haut de page). Bouton « Imprimer » dans chaque page.',
   ].join('\n')}\n`;
 }
@@ -305,12 +308,13 @@ export async function buildFallback(opts: FallbackOptions): Promise<void> {
   const log = opts.log ?? (() => undefined);
   const out = path.resolve(opts.out);
   await mkdir(out, { recursive: true });
-  const present: { nsi: string[]; maths: string[] } = { nsi: [], maths: [] };
+  const present: { nsi: string[]; maths: string[]; rec: string[] } = { nsi: [], maths: [], rec: [] };
   let firstStarter = 'etape_3_pile.py';
   for (const mod of PACKAGE_MODULES) {
     const corrigeDir = opts.corriges ? path.join(path.resolve(opts.corriges), mod.corrige) : undefined;
     const result = await buildLessonPackage({ contentDir: mod.content, outDir: path.join(out, mod.dir), pyodideCache: opts.pyodideCache, corrigeDir, log });
-    if (mod.dir.startsWith('NSI')) {
+    if (mod.dir === 'NSI_RECURSIVITE') present.rec = result.corrigeFiles;
+    else if (mod.dir.startsWith('NSI')) {
       present.nsi = result.corrigeFiles;
       firstStarter = result.pythonFiles.find((f) => f.includes('_pile')) ?? result.pythonFiles[0] ?? firstStarter;
     } else present.maths = result.corrigeFiles;

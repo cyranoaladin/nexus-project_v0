@@ -5,7 +5,7 @@ import { CorrectionWorkspace, type AnnotationView } from '@/components/espace/te
 import type { ViewerStepContent, ViewerStepDef } from '@/components/espace/teacher/WorkViewer';
 import { loadWorkForActor } from '@/lib/espace/access';
 import { listAnnotations } from '@/lib/espace/annotations';
-import { getLessonSteps } from '@/lib/espace/catalog';
+import { getLesson, getLessonSteps } from '@/lib/espace/catalog';
 import { EspaceError } from '@/lib/espace/errors';
 import { listAttachments } from '@/lib/espace/files';
 import { fullName, getTeacherOverview } from '@/lib/espace/overview';
@@ -61,6 +61,7 @@ export default async function CorrectPage({ params }: { params: Promise<{ workId
           progress: overview.activity.stepsTotal > 0 ? `${r.progressSteps}/${overview.activity.stepsTotal}` : '—',
         }))}
         isAdmin={actor.role === 'ADMIN'}
+        skills={getLesson(work.activity.slug)?.content.skills?.map((s) => ({ id: s.id, label: s.label }))}
       />
     );
   } catch (e) {

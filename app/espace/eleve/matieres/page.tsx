@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { requireActorForPage } from '@/lib/espace/page-guard';
-import { getStudentDashboard } from '@/lib/espace/overview';
+import { getStudentDashboard, groupActivitiesByTheme } from '@/lib/espace/overview';
 
 import { activityHref } from '@/components/espace/student/links';
 
@@ -26,15 +26,20 @@ export default async function MesMatieres() {
             {s.activities.length === 0 ? (
               <p className="mt-2 text-neutral-300">Aucun contenu publié pour le moment.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
-                {s.activities.map((a) => (
-                  <li key={a.slug}>
-                    <Link href={activityHref(a.slug)} className="text-brand-accent underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
-                      {a.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              groupActivitiesByTheme(s.activities).map((g) => (
+                <div key={g.theme ?? 'sans-theme'} className="mt-3" data-testid={g.theme ? 'theme' : undefined}>
+                  {g.theme && <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-300">{g.theme}</h3>}
+                  <ul className="mt-2 space-y-2">
+                    {g.activities.map((a) => (
+                      <li key={a.slug}>
+                        <Link href={activityHref(a.slug)} className="text-brand-accent underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
+                          {a.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
             )}
           </section>
         ))
