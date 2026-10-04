@@ -136,3 +136,25 @@ test.each(['invalid-json', 'consumer-failure'])('cancels an open native transpor
   expect(onDone).not.toHaveBeenCalled();
   expect(cancelled).toHaveBeenCalledTimes(1);
 });
+
+
+test('cancels before the next read when the consumer aborts synchronously during a delta', async () => {
+  const abort = new AbortController();
+  const cancelled = jest.fn();
+  const onDone = jest.fn();
+  const onProtocolError = jest.fn();
+  const onDelta = jest.fn(() => abort.abort());
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(new TextEncoder().encode(formatAriaSSEEvent(start)
+        + formatAriaSSEEvent({ event: 'delta', data: { text: 'synthetic partial response' } })));
+    },
+    cancel: cancelled,
+  });
+  await expect(parseAriaSSEResponse(new Response(body, { headers: { 'content-type': 'text/event-stream' } }),
+    { onDelta, onDone, onProtocolError }, { signal: abort.signal })).rejects.toMatchObject({ code: 'ABORTED' });
+  expect(onDelta).toHaveBeenCalledTimes(1);
+  expect(cancelled).toHaveBeenCalledTimes(1);
+  expect(onDone).not.toHaveBeenCalled();
+  expect(onProtocolError).toHaveBeenCalledTimes(1);
+});

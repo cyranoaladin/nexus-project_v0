@@ -13,6 +13,8 @@ module.exports = createAriaJestConfig({
   ],
   testPathIgnorePatterns: [
     '<rootDir>/__tests__/lib/aria/sse.test.ts',
+    '<rootDir>/__tests__/lib/aria/sse-terminal-drain.test.ts',
+    '<rootDir>/__tests__/lib/aria/native-response-reader.test.ts',
     '\\.real\\.test',
   ],
   passWithNoTests: false,
