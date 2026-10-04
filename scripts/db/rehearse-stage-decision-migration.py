@@ -6,6 +6,7 @@ parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expa
 parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
+parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
 args=parser.parse_args()
 if not re.fullmatch(r'[a-f0-9]{40}',args.old_ref): raise SystemExit('OLD_COMMIT_SHA_REQUIRED')
 if subprocess.run(['git','merge-base','--is-ancestor',args.old_ref,'HEAD'],capture_output=True).returncode: raise SystemExit('OLD_REF_NOT_ANCESTOR')
@@ -30,6 +31,8 @@ try:
  # Encode credentials as URL components; no literal or inherited DSN is used.
  url=urlunsplit(('postgresql', f'postgres:{quote(password, safe="")}@127.0.0.1:{port}', '/nexus_disposable_owner_test', '', ''))
  env=os.environ.copy(); env['DATABASE_URL']=url;env['TEST_DATABASE_URL']=url;env['NODE_ENV']='test';env['NEXUS_DISPOSABLE_POSTGRES']='1'
+ env['EMAIL_OUTBOX_WORKER_ENABLED']='false';env['EMAIL_OUTBOX_ENCRYPTION_KEY']=secrets.token_hex(32)
+ env['INTERNAL_NOTIFICATION_EMAIL']='synthetic-internal@example.test'
  snapshot=out/'old-schema'; (snapshot/'migrations').mkdir(parents=True,mode=0o700)
  old_schema=subprocess.check_output(['git','show',args.old_ref+':prisma/schema.prisma'])
  (snapshot/'schema.prisma').write_bytes(old_schema)
@@ -74,6 +77,35 @@ try:
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
  if p.returncode: raise RuntimeError('REAL_TEST_FAILED')
+ if args.include_core_account_handoff:
+  subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_disposable_core_account_handoff_test'],capture_output=True,check=True)
+  core_env=env.copy(); core_env['CORE_V2_DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_disposable_core_account_handoff_test'
+  core_env['CORE_V2_AUTH_MODE']='HYBRID';core_env['CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID']='synthetic-handoff-key'
+  core_env['CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS']=json.dumps({'synthetic-handoff-key':secrets.token_hex(32)})
+  for key_name in ['ACCOUNT_EMAIL_HANDOFF_ENCRYPTION_CURRENT_KEY_ID','ACCOUNT_EMAIL_HANDOFF_ENCRYPTION_KEYS']: core_env.pop(key_name,None)
+  core_snapshot=out/'old-core-schema'; (core_snapshot/'migrations').mkdir(parents=True,mode=0o700)
+  (core_snapshot/'schema.prisma').write_bytes(subprocess.check_output(['git','show',args.old_ref+':core-v2/prisma/schema.prisma']))
+  core_migrations=subprocess.check_output(['git','ls-tree','-d','--name-only',args.old_ref+':core-v2/prisma/migrations'],text=True).splitlines()
+  if '0024_core_v2_account_email_handoff' in core_migrations: raise RuntimeError('OLD_CORE_REF_ALREADY_HAS_HANDOFF')
+  for entry in core_migrations:
+   assert '/' not in entry and entry not in ('.','..')
+   source=root/'core-v2/prisma/migrations'/entry/'migration.sql'
+   if source.read_bytes()!=subprocess.check_output(['git','show',args.old_ref+':core-v2/prisma/migrations/'+entry+'/migration.sql']): raise RuntimeError('OLD_CORE_MIGRATION_BYTES_CHANGED')
+   (core_snapshot/'migrations'/entry).mkdir(mode=0o700)
+   (core_snapshot/'migrations'/entry/'migration.sql').symlink_to(source)
+  (core_snapshot/'migrations'/'migration_lock.toml').write_bytes((root/'core-v2/prisma/migrations/migration_lock.toml').read_bytes())
+  run_private('core-old-schema-deploy',['npx','--no-install','prisma','migrate','deploy','--schema='+str(core_snapshot/'schema.prisma')],core_env)
+  core_fixture=['npx','--no-install','tsx','__tests__/core-v2/helpers/account-handoff-migration-fixture.ts']
+  core_hash=str(out/'old-core-native-rows.sha256')
+  run_private('core-old-native-seed',core_fixture+['seed',core_hash],core_env)
+  run_private('core-interrupted-ddl',core_fixture+['interrupt',core_hash],core_env)
+  run_private('core-handoff-schema-deploy',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
+  run_private('core-expanded-native-rows',core_fixture+['verify',core_hash],core_env)
+  run_private('core-expanded-schema-replay',['npx','--no-install','prisma','migrate','deploy','--schema=core-v2/prisma/schema.prisma'],core_env)
+  with open(out/'core-account-handoff-private.log','w') as f:
+   p=subprocess.run(['npx','--no-install','jest','--config','jest.core-v2.config.js','--runInBand','--testPathPatterns=account-email-handoff.test'],env=core_env,stdout=f,stderr=subprocess.STDOUT)
+  print('CORE_ACCOUNT_HANDOFF_TEST_EXIT='+str(p.returncode))
+  if p.returncode: raise RuntimeError('CORE_ACCOUNT_HANDOFF_TEST_FAILED')
 finally:
  info=json.loads(subprocess.check_output(['docker','inspect',name]))[0]
  assert info['Config']['Labels']['nexus.recovery.owner']=='stage-lead-decision-rehearsal'

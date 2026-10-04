@@ -24,15 +24,36 @@ import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
 import { newPasswordSchema as passwordSchema } from '@/lib/security/password-policy';
+import { sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { CoreV2JobType } from '../client';
 
 const BCRYPT_COST = 12;
+
+async function persistAccountEmailHandoff(tx: Tx, user: User, issuance: Invitation, rawToken: string, at: Date): Promise<string> {
+  if (!user.email) throw new InvalidStateError('Account email is required.');
+  const envelope = sealAccountEmailHandoff({
+    purpose: issuance.purpose, userId: user.id, issuanceId: issuance.id,
+    role: user.role, email: user.email,
+    displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
+    rawToken, expiresAt: issuance.expiresAt.toISOString(),
+  });
+  const job = await tx.coreV2JobOutbox.create({
+    data: {
+      jobType: CoreV2JobType.ACCOUNT_EMAIL_HANDOFF,
+      aggregateType: 'ACCOUNT_EMAIL_HANDOFF', aggregateId: issuance.id,
+      idempotencyKey: `account-email-handoff:v1:${issuance.id}`,
+      payload: envelope, availableAt: at,
+    }, select: { id: true },
+  });
+  return job.id;
+}
 
 async function issueInvitation(
   tx: Tx,
   ctx: ServiceContext,
   user: User,
   action: 'account.invited' | 'account.invitation_resent',
-): Promise<{ invitation: Invitation; rawToken: string; revokedCount: number }> {
+): Promise<{ invitation: Invitation; rawToken: string; revokedCount: number; handoffId: string }> {
   if (user.accountStatus !== 'PENDING_ACTIVATION') {
     throw new InvalidStateError(`Only a PENDING_ACTIVATION account can be invited (is ${user.accountStatus}).`, {
       userId: user.id,
@@ -73,10 +94,11 @@ async function issueInvitation(
     correlationId: ctx.correlationId,
     metadata: { userId: user.id, revokedPrior: revoked.count, expiresAt: invitation.expiresAt.toISOString() },
   });
-  return { invitation, rawToken, revokedCount: revoked.count };
+  const handoffId = await persistAccountEmailHandoff(tx, user, invitation, rawToken, now);
+  return { invitation, rawToken, revokedCount: revoked.count, handoffId };
 }
 
-export type IssuedInvitation = { invitation: Invitation; rawToken: string; email: string };
+export type IssuedInvitation = { invitation: Invitation; rawToken: string; email: string; handoffId: string };
 
 export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
@@ -89,11 +111,11 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
       throw new InvalidStateError('An open invitation already exists; use resendInvitation.', { userId });
     }
     const issued = await issueInvitation(tx, ctx, user, 'account.invited');
-    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string };
+    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
 }
 
-/** Idempotent resend: always revokes any prior open invitation and issues exactly one new token. */
+/** A new resend revokes the prior invitation; command-level retry identity is separate. */
 export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
@@ -101,7 +123,7 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
     const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent');
-    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string };
+    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
 }
 
@@ -309,6 +331,7 @@ export interface IssuedPasswordReset {
   readonly rawToken: string;
   readonly resetId: string;
   readonly expiresAt: Date;
+  readonly handoffId: string;
 }
 
 const requestResetSchema = z.object({ email: z.string().trim().min(3).max(320) });
@@ -363,6 +386,7 @@ export async function requestPasswordReset(
       correlationId: options.correlationId ?? reset.id,
       metadata: { userId: user.id, expiresAt: reset.expiresAt.toISOString() },
     });
+    const handoffId = await persistAccountEmailHandoff(tx, user, reset, rawToken, at);
     return {
       userId: user.id,
       email: user.email,
@@ -370,6 +394,7 @@ export async function requestPasswordReset(
       rawToken,
       resetId: reset.id,
       expiresAt: reset.expiresAt,
+      handoffId,
     };
   });
 }

@@ -1467,6 +1467,7 @@ enum AriaConversationMessageRole {
 
 enum CoreV2JobType {
   RECOVER_ARIA_TURN
+  ACCOUNT_EMAIL_HANDOFF
 }
 
 enum CoreV2JobStatus {
