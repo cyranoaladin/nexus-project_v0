@@ -95,3 +95,9 @@ Evidence: six route regressions failed before correction; eight final operation 
 This is synthetic local integration evidence, not SMTP delivery, an anonymized production restoration, old application coexistence or final-SHA CI qualification. No production database or recipient was contacted.
 
 Final expanded local selection: 287 tests in 21 suites pass; the two PostgreSQL suites pass 16 tests. Typecheck, targeted lint and diff-check pass. Both exact owned tmpfs fixtures were stopped after ownership, tmpfs configuration and absence of active queries were verified. Docker reports these tmpfs entries under HostConfig.Tmpfs rather than Mounts; the initial stricter inspection refused teardown until this was checked. No persistent volume, production base or historical worktree was deleted. Private synthetic credentials and metadata remain outside versioned content.
+
+### Published-link real fixture reconciliation — 4 October 2026
+
+The 29c31ba2d Integration Tests lane reports 350 successes and one failure: its DRAFT fixture transitioned to SENT without an explicit payer, so the corrected route rightly returned 404. The fixture now assigns its synthetic parent as payer at creation. Publication still must occur explicitly, and the successful signed download is additionally checked against one persisted PDF_READ audit. Added anonymous and third-parent cases both refuse the same published token without artifact reading. All five cases pass on a fresh owned pgvector instance after all migrations; typecheck and targeted lint pass; exact-SHA CI remains required.
+
+The fixture no longer attempts to delete immutable financial audit history during teardown. Randomly namespaced synthetic identities and records remain only in the positively guarded disposable database; the owned instance is disposed by the harness. No trigger is disabled, no audit deletion is enabled, and no production retention policy is inferred.

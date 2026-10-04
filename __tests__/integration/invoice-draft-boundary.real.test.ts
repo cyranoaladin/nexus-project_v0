@@ -13,32 +13,25 @@ import { GET } from '@/app/api/invoices/[id]/pdf/route';
 import { createAccessToken } from '@/lib/invoice/access-token';
 import { buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
-import { cleanupDisposableTestFixture } from '@/__tests__/helpers/real-db-fixture-cleanup';
 
 const prefix = `draft-boundary-${randomUUID()}`;
 const userId = `${prefix}-parent`;
 const email = `${prefix}@synthetic.test`;
 let invoiceId: string;
 let rawToken: string;
-let verified = false;
 beforeAll(async () => {
-  assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''); verified = true;
+  assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
   await prisma.user.create({ data: { id: userId, role: 'PARENT', email, emailVerifiedAt: new Date(), lastName: prefix } });
   await prisma.parentProfile.create({ data: { userId } });
-  invoiceId = (await prisma.invoice.create({ data: { number: prefix, customerName: 'Synthetic', customerEmail: email, createdByUserId: userId, status: 'DRAFT', pdfPath: `${prefix}.pdf` } })).id;
+  invoiceId = (await prisma.invoice.create({ data: { number: prefix, customerName: 'Synthetic', customerEmail: email, createdByUserId: userId, payerUserId: userId, status: 'DRAFT', pdfPath: `${prefix}.pdf` } })).id;
   rawToken = (await createAccessToken(invoiceId, userId)).rawToken;
   mockAuth.mockResolvedValue({ user: { id: userId, role: 'PARENT', email } });
   mockRead.mockResolvedValue(Buffer.from('%PDF-synthetic'));
 });
 afterAll(async () => {
-  if (verified) {
-    if (invoiceId) {
-      await prisma.invoiceAccessToken.deleteMany({ where: { invoiceId } });
-      await prisma.invoice.deleteMany({ where: { id: invoiceId } });
-    }
-    await cleanupDisposableTestFixture(prisma, { userIds: [userId] });
-    await prisma.$disconnect();
-  }
+  // These uniquely named synthetic records live only in the guarded disposable DB.
+  // Preserve append-only download evidence; the harness disposes the instance.
+  await prisma.$disconnect();
 });
 test.each([false, true])('real DRAFT stays private despite PDF and token path=%s', async token => {
   mockRead.mockClear();
@@ -57,4 +50,19 @@ test('the same persisted token reads only after explicit publication', async () 
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toBe('private, no-store');
   expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+  expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId, actorUserId: userId, action: 'PDF_READ' } })).toBe(1);
+});
+test('a published signed link still refuses an anonymous reader', async () => {
+  mockAuth.mockResolvedValue(null); mockRead.mockClear();
+  const response = await GET(new NextRequest(`http://localhost/api/invoices/${invoiceId}/pdf?token=${rawToken}`), { params: Promise.resolve({ id: invoiceId }) });
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+  expect(mockRead).not.toHaveBeenCalled();
+});
+test('a published signed link still refuses an out-of-scope parent', async () => {
+  mockAuth.mockResolvedValue({ user: { id: `${prefix}-unrelated`, role: 'PARENT' } }); mockRead.mockClear();
+  const response = await GET(new NextRequest(`http://localhost/api/invoices/${invoiceId}/pdf?token=${rawToken}`), { params: Promise.resolve({ id: invoiceId }) });
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+  expect(mockRead).not.toHaveBeenCalled();
 });
