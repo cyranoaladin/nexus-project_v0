@@ -182,6 +182,7 @@ describe('GET /api/coach/sessions/[sessionId]/report', () => {
   it('should return null report when none exists', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
     prisma.sessionReport.findUnique.mockResolvedValue(null);
+    prisma.sessionBooking.findUnique.mockResolvedValue({ id: 's1', coachId: 'c1', studentId: 'stu-1' });
 
     const res = await GET(...makeGetRequest('s1'));
     const body = await res.json();
