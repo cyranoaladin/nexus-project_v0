@@ -90,6 +90,8 @@ export async function sendFromComposerAndFinishTransport(page: Page, content: st
           observation.dialogPresent ? 'dialog-present' : 'dialog-missing',
           observation.composerEnabled ? 'composer-enabled' : 'composer-disabled',
           observation.alertPresent ? 'alert-present' : 'no-alert',
+          observation.bodyEof ? 'body-eof' : 'body-not-eof',
+          observation.bodyReadFailed ? 'body-read-failed' : 'body-read-ok',
         ];
         for (const observationPhase of observations) {
           await test.step(`ARIA_PHASE:transport:probe:${observationPhase}`, async () => {});

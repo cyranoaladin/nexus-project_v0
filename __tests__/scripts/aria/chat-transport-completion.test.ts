@@ -9,7 +9,7 @@ jest.mock('../../../e2e/helpers/aria-transport-probe', () => ({
   installAriaTransportProbe: jest.fn(async (page: { probeDisposed: () => void }) => ({
     snapshot: async () => ({
       selected: true, headersReceived: true, signalAborted: false,
-      fetchRejected: false, dialogPresent: true, composerEnabled: true, alertPresent: false,
+      fetchRejected: false, bodyEof: false, bodyReadFailed: false, dialogPresent: true, composerEnabled: true, alertPresent: false,
     }),
     dispose: async () => page.probeDisposed(),
   })),

@@ -117,7 +117,7 @@ test('privacy publisher retains only fixed ARIA phase timings and redacts nested
  test('sealing retains fixed abort attribution and rejects arbitrary probe labels', () => {
   const labels = ['signal-aborted', 'no-signal-abort', 'headers-received', 'no-headers',
     'dialog-present', 'dialog-missing', 'composer-enabled', 'composer-disabled',
-    'alert-present', 'no-alert'];
+    'alert-present', 'no-alert', 'body-eof', 'body-not-eof', 'body-read-failed', 'body-read-ok'];
   const phases = labels.map(label => `ARIA_PHASE:transport:probe:${label}`);
   const raw = { config: { rootDir: '/isolated/e2e/aria' }, errors: [], stats: {}, suites: [{
     title: 'synthetic', specs: [{ title: 'E025 synthetic', tests: [{ projectName: 'aria-desktop', results: [{
