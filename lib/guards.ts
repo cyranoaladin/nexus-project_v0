@@ -206,6 +206,28 @@ export async function requireStudentOwnsResource(
   );
 }
 
+/** Resolve Student.id from the authenticated User.id before attaching a resource. */
+export async function requireStudentOwnsStudent(
+  studentUserId: string,
+  studentId: string
+): Promise<true | NextResponse> {
+  let student: { id: string } | null;
+  try {
+    student = await prisma.student.findUnique({
+      where: { userId: studentUserId }, select: { id: true },
+    });
+  } catch {
+    return NextResponse.json(
+      { error: 'ServiceUnavailable', message: 'La vérification des droits est temporairement indisponible.' },
+      { status: 503 }
+    );
+  }
+  if (!student || student.id !== studentId) {
+    return NextResponse.json({ error: 'Forbidden', message: 'Accès refusé à cette ressource.' }, { status: 403 });
+  }
+  return true;
+}
+
 /**
  * Verify that a parent owns the invoice (via their userId on the payment).
  * Returns true if ownership is confirmed, otherwise a 403 NextResponse.
