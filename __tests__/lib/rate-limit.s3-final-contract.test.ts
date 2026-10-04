@@ -78,6 +78,10 @@ describe('S3 final distributed rate-limit contract', () => {
     expectedScopes.push('core-v2-password-change', 'v1-password-change');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['v1-password-change']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-change']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    // Staff lookup is a read; stage confirmation is a credential-issuing mutation.
+    expectedScopes.push('reservation-verify', 'stage-confirmation');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-verify']).toEqual({ ipPreset: 'readIp', identityPreset: 'readIdentity' });
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['stage-confirmation']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' });
     expect(Object.keys(SENSITIVE_RATE_LIMIT_POLICIES).sort()).toEqual(expectedScopes.sort())
     expect(SENSITIVE_RATE_LIMIT_POLICIES['parent-phone-reservation-release']).toEqual({
       ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite',
