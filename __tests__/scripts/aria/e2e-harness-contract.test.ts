@@ -48,6 +48,16 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(runtimeSecrets).toMatch(/openssl\s+rand\s+-hex\s+32/);
   });
 
+  it('runs queued diagnostic processing with the same explicit worker as CI', () => {
+    const compose = source('docker-compose.e2e.yml');
+    const app = compose.slice(compose.indexOf('  app-e2e:'), compose.indexOf('  playwright:'));
+    expect(app).toMatch(/DIAGNOSTIC_DEMO_MODE:\s*"true"/);
+    expect(app).toMatch(/DIAGNOSTIC_DEMO_STUDENT_IDS:\s*e2e-bilan-journey-fixed-student-001/);
+    expect(app).toMatch(/DIAGNOSTIC_PROCESSING_WORKER_ENABLED:\s*"true"/);
+    expect(app).toMatch(/DIAGNOSTIC_PROCESSING_WORKER_POLL_INTERVAL_MS:\s*"1000"/);
+    expect(app).toMatch(/E2E_DISPOSABLE_STACK:\s*"1"/);
+  });
+
   it('keeps the disposable PostgreSQL boundary private to its Docker network', () => {
     const compose = source('docker-compose.e2e.yml');
     const postgresBlock = compose.slice(

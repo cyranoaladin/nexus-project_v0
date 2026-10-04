@@ -183,6 +183,12 @@ services:
       # Exercise the real in-process scheduler with deterministic floor
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
+      # Match the HTTP CI diagnostic lane: real scheduler, one synthetic
+      # allowlisted student, no provider and no wildcard demonstration scope.
+      DIAGNOSTIC_PROCESSING_WORKER_ENABLED: "true"
+      DIAGNOSTIC_PROCESSING_WORKER_POLL_INTERVAL_MS: "1000"
+      DIAGNOSTIC_DEMO_MODE: "true"
+      DIAGNOSTIC_DEMO_STUDENT_IDS: e2e-bilan-journey-fixed-student-001
       ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
       # Core v2 conversation is enabled only in this disposable fixture stack;
       # production/preview remain capability=false until the integrated release.
