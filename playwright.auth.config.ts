@@ -57,7 +57,7 @@ export default defineConfig({
         'planning-studio-smoke.spec.ts',
         'core-golden-family.spec.ts',
         'core-v2-staff-golden.spec.ts',
-        'auth-client-lifecycle.spec.ts',
+        'auth-client-lifecycle.spec.ts', 'session-boundary-logout.spec.ts',
         'session-video-join.spec.ts',
         'password-change.spec.ts',
         'password-change-v1.spec.ts',
@@ -70,7 +70,7 @@ export default defineConfig({
         'planning-studio-smoke.spec.ts',
         'core-golden-family.spec.ts',
         'core-v2-staff-golden.spec.ts',
-        'auth-client-lifecycle.spec.ts',
+        'auth-client-lifecycle.spec.ts', 'session-boundary-logout.spec.ts',
         'session-video-join.spec.ts',
         'password-change.spec.ts',
         'password-change-v1.spec.ts',
@@ -82,7 +82,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'password-change.spec.ts', 'password-change-v1.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'session-boundary-logout.spec.ts', 'password-change.spec.ts', 'password-change-v1.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],
