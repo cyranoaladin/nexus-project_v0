@@ -694,37 +694,22 @@ test('golden family: full lifecycle, then every role-isolation and denial invari
     expect(childrenCount).toBe(2);
   });
 
-  // ── 15. Cleanup and zero-synthetic-rows verification ────────────────────
-  await test.step('cleanup removes every synthetic row this scenario created', async () => {
-    await cleanupGoldenFamily(ids);
-    const remainingUsers = await prisma.user.count({
-      where: {
-        id: {
-          in: [
-            ids.parent1UserId!, ids.parent2UserId!,
-            ids.childAUserId!, ids.childBUserId!, ids.child2UserId!,
-            ids.coach1UserId!, ids.coach2UserId!,
-          ],
-        },
-      },
-    });
-    expect(remainingUsers).toBe(0);
-    const remainingAssignments = await prisma.coachStudentAssignment.count({
-      where: { id: { in: [ids.assignmentAId!, ids.assignmentBId!] } },
-    });
-    expect(remainingAssignments).toBe(0);
-    const remainingSeries = await prisma.planningSeries.count({
-      where: { id: { in: [ids.seriesAId!, ids.seriesBId!, ...(ids.selfServiceSeriesIds ?? [])] } },
-    });
-    expect(remainingSeries).toBe(0);
-    // CanonicalApiIdempotencyKey has no FK relation to User (plain String
-    // column) — nothing at the DB level would force this cleanup, so it
-    // needs its own explicit check rather than relying on the User count.
-    if (ids.idempotencyOwners && ids.idempotencyOwners.length > 0) {
-      const remainingIdempotencyKeys = await prisma.canonicalApiIdempotencyKey.count({
-        where: { userId: { in: ids.idempotencyOwners } },
-      });
-      expect(remainingIdempotencyKeys).toBe(0);
-    }
+  // ── 15. Revoke fixture access while preserving immutable history ──────
+  await test.step('fixture teardown revokes credentials and retains audited history until stack disposal', async () => {
+    const userIds = [ids.parent1UserId!, ids.parent2UserId!, ids.childAUserId!, ids.childBUserId!, ids.child2UserId!, ids.coach1UserId!, ids.coach2UserId!];
+    const before = await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, sessionVersion: true, password: true, activatedAt: true, activationToken: true } });
+    const versions = new Map(before.map(user => [user.id, { version: user.sessionVersion, active: user.password !== null || user.activatedAt !== null || user.activationToken !== null }]));
+    expect(before.length).toBe(userIds.length);
+    const keyCount = await prisma.canonicalApiIdempotencyKey.count({ where: { userId: { in: ids.idempotencyOwners ?? [] } } });
+    expect(await cleanupGoldenFamily(ids)).toBe('AUDIT_RETAINED');
+    const after = await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, sessionVersion: true, password: true, activatedAt: true, activationToken: true } });
+    expect(after.length).toBe(userIds.length);
+    expect(after.every(user => user.password === null && user.activatedAt === null && user.activationToken === null)).toBe(true);
+    expect(after.every(user => user.sessionVersion === versions.get(user.id)!.version + (versions.get(user.id)!.active ? 1 : 0))).toBe(true);
+    expect(await prisma.coachStudentAssignment.count({ where: { id: { in: [ids.assignmentAId!, ids.assignmentBId!] } } })).toBe(2);
+    const seriesIds = [ids.seriesAId!, ids.seriesBId!, ...(ids.selfServiceSeriesIds ?? [])];
+    expect(await prisma.planningSeries.count({ where: { id: { in: seriesIds } } })).toBe(new Set(seriesIds).size);
+    expect(await prisma.sessionBookingCancellationAudit.count({ where: { sessionBooking: { studentProfileId: { in: [ids.childAStudentId!, ids.childBStudentId!] } } } })).toBeGreaterThan(0);
+    expect(await prisma.canonicalApiIdempotencyKey.count({ where: { userId: { in: ids.idempotencyOwners ?? [] } } })).toBe(keyCount);
   });
 });

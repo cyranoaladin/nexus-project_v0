@@ -7,6 +7,7 @@ parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
 parser.add_argument('--include-session-cancel',action='store_true',help='Verify conditional cancellation on the isolated restored database')
+parser.add_argument('--include-golden-family-cleanup',action='store_true',help='Verify immutable family teardown on a separate owned nexus_e2e database')
 parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
 parser.add_argument('--include-core-account-foundations',action='store_true',help='Also run related real-Core account and HTTP suites with aggregate-only logs')
 os.umask(0o077)
@@ -109,6 +110,12 @@ try:
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
  if p.returncode: raise RuntimeError('REAL_TEST_FAILED')
+ if args.include_golden_family_cleanup:
+  subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_e2e'],capture_output=True,check=True)
+  golden_env=env.copy(); golden_env['DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_e2e';golden_env['TEST_DATABASE_URL']=golden_env['DATABASE_URL'];golden_env['E2E_DISPOSABLE_STACK']='1'
+  run_private('golden-empty-schema-deploy',['npx','--no-install','prisma','migrate','deploy'],golden_env)
+  run_private('golden-audit-teardown-real',['npm','run','test:integration','--','--testPathPatterns=golden-family-cleanup.real'],golden_env)
+  print('GOLDEN_AUDIT_TEARDOWN_REAL_EXIT=0')
  if args.include_core_account_handoff:
   subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_disposable_core_account_handoff_test'],capture_output=True,check=True)
   core_env=env.copy(); core_env['CORE_V2_DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_disposable_core_account_handoff_test'
