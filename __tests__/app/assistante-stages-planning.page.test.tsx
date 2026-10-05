@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AssistantePlanningPage from '@/app/dashboard/assistante/stages/planning/page';
 
 const mockRouter = { push: jest.fn() };
@@ -31,13 +31,13 @@ const COACH_USER_ID = 'coach-user-1';
 const ASSIGNMENT_ID = 'assignment-1';
 const COURSE_KEY = 'eds-maths-terminale';
 
-function installFetchMock() {
+function installFetchMock(events: unknown[] = []) {
   return jest.spyOn(global, 'fetch').mockImplementation(((input: RequestInfo | URL, init?: RequestInit) => {
     const url = typeof input === 'string' ? input : input.toString();
     const method = init?.method ?? 'GET';
 
     if (url.startsWith('/api/assistante/planning')) {
-      return Promise.resolve({ ok: true, json: async () => ({ events: [] }) } as Response);
+      return Promise.resolve({ ok: true, json: async () => ({ events }) } as Response);
     }
     if (url.startsWith('/api/assistante/students')) {
       return Promise.resolve({
@@ -196,4 +196,56 @@ it('shows the override control only for ADMIN, never for ASSISTANTE', async () =
 
   fireEvent.click(await screen.findByRole('button', { name: /Nouvelle séance/i }));
   expect(await screen.findByText(/Dérogation ADMIN/)).toBeInTheDocument();
+});
+
+it.each(['network', 'body'])('retains the cancellation command after an uncertain %s failure', async failure => {
+  jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const alert = jest.spyOn(window, 'alert').mockImplementation(() => undefined);
+  const now = new Date();
+  const fetchMock = installFetchMock([{ id: 'sessionBooking:clh1234567890abcdefghij', source: 'SESSION_BOOKING', title: 'Synthetic retry session', subject: 'MATHEMATIQUES', startAt: now.toISOString(), endAt: new Date(now.getTime() + 3600000).toISOString(), location: null }]);
+  const original = fetchMock.getMockImplementation()!;
+  let attempts = 0;
+  fetchMock.mockImplementation((input, init) => {
+    if (input === '/api/sessions/cancel') {
+      attempts++;
+      if (attempts === 1) return failure === 'network'
+        ? Promise.reject(new Error('Synthetic network failure'))
+        : Promise.resolve({ ok: true, status: 200, json: async () => { throw new Error('Synthetic body failure'); } } as unknown as Response);
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ success: true }) } as Response);
+    }
+    return original(input, init);
+  });
+  render(<AssistantePlanningPage />);
+  fireEvent.click(await screen.findByRole('button', { name: /Synthetic retry session/i }));
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler la séance' }));
+  await waitFor(() => expect(alert).toHaveBeenCalled());
+  const retry = await screen.findByRole('button', { name: 'Annuler la séance' });
+  await waitFor(() => expect(retry).toBeEnabled());
+  fireEvent.click(retry);
+  await waitFor(() => expect(attempts).toBe(2));
+  const calls = fetchMock.mock.calls.filter(([url]) => url === '/api/sessions/cancel');
+  const first = new Headers(calls[0][1]?.headers).get('Idempotency-Key');
+  const second = new Headers(calls[1][1]?.headers).get('Idempotency-Key');
+  expect(first).toMatch(/^[0-9a-f-]{36}$/i);
+  expect(second).toBe(first);
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Annuler la séance' })).not.toBeInTheDocument());
+});
+
+it('blocks a second cancellation while the first command is pending', async () => {
+  jest.spyOn(window, 'confirm').mockReturnValue(true);
+  const now = new Date();
+  const fetchMock = installFetchMock([{ id: 'sessionBooking:clh1234567890abcdefghij', source: 'SESSION_BOOKING', title: 'Synthetic pending session', subject: 'MATHEMATIQUES', startAt: now.toISOString(), endAt: new Date(now.getTime() + 3600000).toISOString(), location: null }]);
+  const original = fetchMock.getMockImplementation()!;
+  let finish!: (response: Response) => void;
+  const pending = new Promise<Response>(resolve => { finish = resolve; });
+  fetchMock.mockImplementation((input, init) => input === '/api/sessions/cancel' ? pending : original(input, init));
+  render(<AssistantePlanningPage />);
+  fireEvent.click(await screen.findByRole('button', { name: /Synthetic pending session/i }));
+  const cancel = screen.getByRole('button', { name: 'Annuler la séance' });
+  fireEvent.click(cancel);
+  fireEvent.click(cancel);
+  expect(fetchMock.mock.calls.filter(([url]) => url === '/api/sessions/cancel')).toHaveLength(1);
+  expect(await screen.findByRole('button', { name: 'Annulation en cours…' })).toBeDisabled();
+  await act(async () => { finish({ ok: true, status: 200, json: async () => ({ success: true }) } as Response); });
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Annulation en cours…' })).not.toBeInTheDocument());
 });
