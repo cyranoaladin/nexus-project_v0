@@ -1,5 +1,5 @@
 {
-  "sourceSha": "cb372cf2dac8a2f9cb97ecb8f50dd0d22bca787e",
+  "sourceSha": "fb03be7be51379001fa3e82d799bcf034a122941",
   "migrations": [
     {
       "path": "core-v2/prisma/migrations/0023_core_v2_household_membership_verification/migration.sql",
@@ -55,6 +55,11 @@
       "path": "prisma/migrations/20261004214500_stage_reservation_decision_audit/migration.sql",
       "sha256": "9d75987c97df6a03db99f6152d801d56be9e2b988e4c8719fe03f23f8ccb101d",
       "introducedCommit": "5a18830d3f8e20dbb3931f6b1509a7665f32fd0e"
+    },
+    {
+      "path": "prisma/migrations/20261005010000_session_booking_cancellation_audit/migration.sql",
+      "sha256": "f163833ae6576d5e92345c2d741025d09700b8f706ef146398a5be9b006351e9",
+      "introducedCommit": "08aed405387f2e8e881cb6a5318455930e8c98fd"
     }
   ],
   "caveat": "Inventory and content fingerprints, not proof of compatibility, restore, or production qualification."

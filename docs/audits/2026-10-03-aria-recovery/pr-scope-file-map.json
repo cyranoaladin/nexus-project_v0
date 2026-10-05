@@ -1,5 +1,5 @@
 {
-  "sourceSha": "cb372cf2dac8a2f9cb97ecb8f50dd0d22bca787e",
+  "sourceSha": "fb03be7be51379001fa3e82d799bcf034a122941",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -12,6 +12,11 @@
       "path": ".env.production.example",
       "domain": "transversal-a-revoir",
       "highRisk": true
+    },
+    {
+      "path": ".github/governance/container-images.json",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
     },
     {
       "path": ".github/workflows/ci.yml",
@@ -61,6 +66,11 @@
     {
       "path": "__tests__/api/assistante.coaches.manage.route.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/api/assistante.planning-series.test.ts",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -329,6 +339,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/api/session-cancel-audit.route.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/api/session-report-family-authority.test.ts",
       "domain": "auth-securite",
       "highRisk": false
@@ -406,6 +421,11 @@
     {
       "path": "__tests__/api/student.stages.identity.test.ts",
       "domain": "tests",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/app/assistante-stages-planning.page.test.tsx",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -759,6 +779,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/integration/golden-family-cleanup.real.test.ts",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/integration/invoice-draft-boundary.real.test.ts",
       "domain": "finance",
       "highRisk": false
@@ -789,6 +814,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/integration/session-cancel-audit.real.test.ts",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/integration/session-cancel-state-race.real.test.ts",
       "domain": "planning",
       "highRisk": false
@@ -816,6 +846,11 @@
     {
       "path": "__tests__/integration/student-stage-ownership.real.test.ts",
       "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/api-error-log-privacy.test.ts",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -899,8 +934,18 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/lib/error-logging.test.ts",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/lib/family-student-access-authority.test.ts",
       "domain": "auth-securite",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/golden-family-audit-retention.test.ts",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -966,6 +1011,11 @@
     {
       "path": "__tests__/lib/pdf-text-extraction-runtime.test.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/planning/cancel-series-occurrences.test.ts",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -1131,6 +1181,11 @@
     {
       "path": "app/api/assistante/coaches/manage/route.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/assistante/planning/series/[seriesId]/route.ts",
+      "domain": "planning",
       "highRisk": true
     },
     {
@@ -1449,6 +1504,11 @@
       "highRisk": false
     },
     {
+      "path": "app/dashboard/assistante/stages/planning/page.tsx",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
       "path": "app/dashboard/parent/abonnements/page.tsx",
       "domain": "famille-academique",
       "highRisk": false
@@ -1624,6 +1684,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/api-error-log-privacy.md",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/aria-browser-artifact-isolation.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -1676,6 +1741,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/browser-report-path.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/cancellation-client-command-acceptance.md",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -1756,6 +1826,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/console-domain-exemption-removal.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/container-av-registry-qualification.md",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -1891,6 +1966,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/financial-review-lot-20261004.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/golden-family-audit-retention.md",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -2144,8 +2224,18 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/series-cancellation-audit-acceptance.md",
+      "domain": "planning",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/session-cancel-concurrency.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/session-cancellation-audit-acceptance.md",
+      "domain": "planning",
       "highRisk": false
     },
     {
@@ -2329,6 +2419,11 @@
       "highRisk": false
     },
     {
+      "path": "e2e/auth/core-golden-family.spec.ts",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "e2e/auth/core-v2-staff-golden.spec.ts",
       "domain": "auth-securite",
       "highRisk": false
@@ -2371,6 +2466,11 @@
     {
       "path": "e2e/helpers/core-v2-mail-link.ts",
       "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "e2e/helpers/golden-family.ts",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -2442,6 +2542,11 @@
       "path": "lib/api-guard.ts",
       "domain": "auth-securite",
       "highRisk": false
+    },
+    {
+      "path": "lib/api/errors.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
     },
     {
       "path": "lib/aria/application/workshop/register-for-workshop.ts",
@@ -2764,6 +2869,11 @@
       "highRisk": false
     },
     {
+      "path": "lib/planning/cancel-series-occurrences.ts",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
       "path": "lib/quote/pdf.ts",
       "domain": "rendu-securite",
       "highRisk": true
@@ -2905,6 +3015,11 @@
     },
     {
       "path": "prisma/migrations/20261004214500_stage_reservation_decision_audit/migration.sql",
+      "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261005010000_session_booking_cancellation_audit/migration.sql",
       "domain": "planning",
       "highRisk": true
     },
