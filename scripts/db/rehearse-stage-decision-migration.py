@@ -6,6 +6,7 @@ parser=argparse.ArgumentParser(description='Disposable synthetic PostgreSQL expa
 parser.add_argument('--old-ref',required=True)
 parser.add_argument('--include-staff-list',action='store_true',help='Also verify staff-list pagination against the restored disposable database')
 parser.add_argument('--include-public-reservations',action='store_true',help='Also verify public lead/outbox atomicity against the restored disposable database')
+parser.add_argument('--include-stage-session-schedule',action='store_true',help='Verify stage-session scheduling constraints on the isolated restored database')
 parser.add_argument('--include-session-cancel',action='store_true',help='Verify conditional cancellation on the isolated restored database')
 parser.add_argument('--include-golden-family-cleanup',action='store_true',help='Verify immutable family teardown on a separate owned nexus_e2e database')
 parser.add_argument('--include-core-account-handoff',action='store_true',help='Also verify account handoff on a distinct disposable Core database')
@@ -19,6 +20,9 @@ root=Path.cwd(); out=root/'.artifacts/recovery'/('stage-lead-decision-green-'+st
 out.mkdir(mode=0o700)
 def source_identity():
  paths=[
+  '__tests__/integration/stage-session-schedule.real.test.ts',
+  'lib/stages/schedule-conflict.ts',
+  'prisma/migrations/20261005014000_stage_session_coach_conflicts/migration.sql',
   'lib/core-v2/services/account.ts', 'lib/core-v2/audit.ts',
   'lib/core-v2/accounts/email-handoff-schema.ts', 'lib/core-v2/accounts/email-handoff-scheduler.ts', 'instrumentation.ts',
   'lib/auth/password-reset-authority.ts',
@@ -95,6 +99,29 @@ try:
  run_private('interrupted-ddl-connection',fixture+['interrupt',hash_path])
  if args.include_session_cancel:
   run_private('interrupted-session-cancellation-ddl',fixture+['interrupt-session-cancellation',hash_path])
+ if args.include_stage_session_schedule:
+  stage_sql=(root/'prisma/migrations/20261005014000_stage_session_coach_conflicts/migration.sql').read_text()
+  if not stage_sql.rstrip().endswith('COMMIT;'): raise RuntimeError('STAGE_MIGRATION_TRANSACTION_REQUIRED')
+  for kind,values,expected_rows in [
+   ('overlap', "('synthetic-coach','2099-01-01 10:00','2099-01-01 11:00'),('synthetic-coach','2099-01-01 10:30','2099-01-01 11:30')",2),
+   ('invalid', "('synthetic-coach','2099-01-01 10:00','2099-01-01 10:00')",1),
+   ('interrupted', "('synthetic-coach','2099-01-01 10:00','2099-01-01 11:00'),('synthetic-coach','2099-01-01 11:00','2099-01-01 12:00')",2),
+  ]:
+   database='nexus_disposable_stage_schedule_'+kind
+   subprocess.run(['docker','exec',name,'createdb','-U','postgres',database],capture_output=True,check=True)
+   def stage_psql(sql_text):
+    return subprocess.run(['docker','exec','-i',name,'psql','-U','postgres','-d',database,'-v','ON_ERROR_STOP=1','-At'],input=sql_text,text=True,capture_output=True)
+   setup=stage_psql('CREATE TABLE stage_sessions ("coachId" text, "startAt" timestamp(3), "endAt" timestamp(3)); INSERT INTO stage_sessions VALUES '+values+';')
+   if setup.returncode: raise RuntimeError('STAGE_PREFLIGHT_FIXTURE_FAILED')
+   attempted=stage_psql(stage_sql.rsplit('COMMIT;',1)[0] if kind=='interrupted' else stage_sql)
+   if (kind=='interrupted') != (attempted.returncode==0): raise RuntimeError('STAGE_PREFLIGHT_OUTCOME_INVALID')
+   verify=stage_psql("SELECT count(*) FROM stage_sessions; SELECT count(*) FROM pg_constraint WHERE conrelid='stage_sessions'::regclass;")
+   if verify.returncode or verify.stdout.strip().splitlines()!=[str(expected_rows),'0']: raise RuntimeError('STAGE_PREFLIGHT_LOST_ROWS_OR_PARTIAL_DDL')
+   if kind=='interrupted':
+    if stage_psql(stage_sql).returncode: raise RuntimeError('STAGE_INTERRUPTED_REPLAY_FAILED')
+    replay=stage_psql("SELECT count(*) FROM stage_sessions; SELECT count(*) FROM pg_constraint WHERE conrelid='stage_sessions'::regclass;")
+    if replay.returncode or replay.stdout.strip().splitlines()!=[str(expected_rows),'2']: raise RuntimeError('STAGE_REPLAY_INVARIANT_FAILED')
+  print('STAGE_SCHEDULE_LEGACY_PREFLIGHT_VERIFIED=1;STAGE_SCHEDULE_INTERRUPTION_REPLAY_VERIFIED=1')
  run_private('current-schema-validation',['npx','--no-install','prisma','validate'])
  run_private('expanded-schema-deploy',['npx','--no-install','prisma','migrate','deploy'])
  run_private('expanded-schema-old-rows',fixture+['verify-new',hash_path])
@@ -105,6 +132,7 @@ try:
  with open(out/'stage-list-real-tests-private.log','w') as f:
   pattern='stage-lead-decision.real|reservation-staff-list.real' if args.include_staff_list else 'stage-lead-decision.real'
   if args.include_public_reservations: pattern+='|public-reservation-integrity.real'
+  if args.include_stage_session_schedule: pattern+='|stage-session-schedule.real'
   if args.include_session_cancel: pattern+='|session-cancel-state-race.real|session-cancel-audit.real'
   p=subprocess.run(['npm','run','test:integration','--','--testPathPatterns='+pattern],env=env,stdout=f,stderr=subprocess.STDOUT)
  print('REAL_DATABASE_TEST_EXIT='+str(p.returncode))

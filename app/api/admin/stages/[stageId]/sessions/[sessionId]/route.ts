@@ -5,6 +5,7 @@ import { UserRole } from '@prisma/client';
 
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { isStageSessionScheduleConflict } from '@/lib/stages/schedule-conflict';
 import { updateSessionSchema } from '@/lib/stages/admin-schemas';
 
 export async function PATCH(
@@ -89,6 +90,9 @@ export async function PATCH(
 
     return NextResponse.json({ session: updatedSession });
   } catch (error) {
+    if (isStageSessionScheduleConflict(error)) {
+      return NextResponse.json({ error: 'Ce coach a déjà une séance de stage sur ce créneau' }, { status: 409 });
+    }
     console.error('[PATCH /api/admin/stages/[stageId]/sessions/[sessionId]]', error instanceof Error ? error.name : 'unknown');
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
