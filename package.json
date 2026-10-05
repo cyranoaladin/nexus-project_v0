@@ -176,7 +176,9 @@
     "docker:prod:local:up": "bash scripts/start-prod-local.sh",
     "docker:prod:local:down": "docker compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml down",
     "docker:prod:domain:up": "bash scripts/start-prod-local-domain.sh",
-    "docker:prod:domain:down": "docker compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml -f docker-compose.prod.local-domain.override.yml down"
+    "docker:prod:domain:down": "docker compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml -f docker-compose.prod.local-domain.override.yml down",
+    "test:golden-family:real": "jest --config jest.golden-family-real.config.js --runInBand",
+    "test:golden-family:disposable": "tsx scripts/testing/run-golden-family-real-tests.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.11.3",

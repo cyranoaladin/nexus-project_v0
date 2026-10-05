@@ -451,6 +451,15 @@ jobs:
             DATABASE_URL="postgresql://postgres:postgres@localhost:5432/$db" npx prisma migrate deploy
           done
 
+      - name: Qualify Golden Family cleanup on a separate fresh E2E database
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test?schema=public
+          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
+          NODE_ENV: test
+        run: npm run test:golden-family:disposable
+
       - name: Run integration tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test

@@ -21,6 +21,8 @@ out.mkdir(mode=0o700)
 def source_identity():
  paths=[
   '__tests__/integration/stage-session-schedule.real.test.ts',
+  '__tests__/e2e/golden-family-cleanup.real.test.ts',
+  'scripts/testing/run-golden-family-real-tests.ts', 'jest.golden-family-real.config.js',
   'lib/stages/schedule-conflict.ts',
   'prisma/migrations/20261005014000_stage_session_coach_conflicts/migration.sql',
   'lib/core-v2/services/account.ts', 'lib/core-v2/audit.ts',
@@ -139,10 +141,7 @@ try:
  print('PRIVATE_PROOF_DIRECTORY='+str(out))
  if p.returncode: raise RuntimeError('REAL_TEST_FAILED')
  if args.include_golden_family_cleanup:
-  subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_e2e'],capture_output=True,check=True)
-  golden_env=env.copy(); golden_env['DATABASE_URL']=url.rsplit('/',1)[0]+'/nexus_e2e';golden_env['TEST_DATABASE_URL']=golden_env['DATABASE_URL'];golden_env['E2E_DISPOSABLE_STACK']='1'
-  run_private('golden-empty-schema-deploy',['npx','--no-install','prisma','migrate','deploy'],golden_env)
-  run_private('golden-audit-teardown-real',['npm','run','test:integration','--','--testPathPatterns=golden-family-cleanup.real'],golden_env)
+  run_private('golden-audit-teardown-real',['npm','run','test:golden-family:disposable'])
   print('GOLDEN_AUDIT_TEARDOWN_REAL_EXIT=0')
  if args.include_core_account_handoff:
   subprocess.run(['docker','exec',name,'createdb','-U','postgres','nexus_disposable_core_account_handoff_test'],capture_output=True,check=True)
