@@ -5,6 +5,8 @@ const mockDatabaseProbe = jest.fn();
 const mockRagConfiguration = jest.fn();
 const mockAuthorityReadiness = jest.fn();
 const mockRateLimitReadiness = jest.fn();
+const mockStorageReadiness = jest.fn();
+const mockReleaseIdentity = jest.fn();
 jest.mock('@/lib/rbac', () => ({ enforcePolicy: (...args: unknown[]) => mockPolicy(...args) }));
 jest.mock('@/lib/guards', () => ({ isErrorResponse: (value: unknown) => value instanceof NextResponse }));
 jest.mock('@/lib/prisma', () => ({ prisma: { $queryRaw: (...args: unknown[]) => mockDatabaseProbe(...args) } }));
@@ -14,6 +16,9 @@ jest.mock('@/lib/rate-limit', () => ({
 }));
 jest.mock('@/lib/aria/rag', () => ({ isProductionAriaRagRuntimeFullyConfigured: () => mockRagConfiguration() }));
 jest.mock('@/lib/auth/auth-rollout-startup', () => ({ checkAuthAuthorityReadiness: () => mockAuthorityReadiness() }));
+
+jest.mock('@/lib/health/document-storage-readiness', () => ({ probeDocumentStorageReadiness: () => mockStorageReadiness() }));
+jest.mock('@/lib/core-v2/diagnostics/release-identity', () => ({ readRunningReleaseSha: () => mockReleaseIdentity() }));
 
 import { GET } from '@/app/api/internal/health/route';
 
@@ -28,6 +33,8 @@ beforeEach(() => {
   mockRagConfiguration.mockReturnValue(false);
   mockAuthorityReadiness.mockResolvedValue({ mode: 'HYBRID', coreV2: 'ready' });
   mockRateLimitReadiness.mockResolvedValue(undefined);
+  mockStorageReadiness.mockResolvedValue({ ok: true, detail: 'directory-access-verified', scope: 'runtime' });
+  mockReleaseIdentity.mockResolvedValue('5'.repeat(40));
 });
 afterEach(() => { process.env = originalEnvironment; });
 
@@ -73,6 +80,8 @@ test('unauthorized monitoring requests trigger no dependency probes', async () =
   expect(mockRagConfiguration).not.toHaveBeenCalled();
   expect(mockAuthorityReadiness).not.toHaveBeenCalled();
   expect(mockRateLimitReadiness).not.toHaveBeenCalled();
+  expect(mockStorageReadiness).not.toHaveBeenCalled();
+  expect(mockReleaseIdentity).not.toHaveBeenCalled();
 });
 
 test('an unreachable Redis store blocks Core even when its environment is configured', async () => {
@@ -84,4 +93,36 @@ test('an unreachable Redis store blocks Core even when its environment is config
   const body = await response.json();
   expect(body.checks.redis).toMatchObject({ ok: false, detail: 'rate-limit-unavailable', scope: 'runtime' });
   expect(JSON.stringify(body)).not.toContain('synthetic-private-redis-detail');
+});
+
+test('an unavailable document root blocks Core instead of qualifying the process cwd', async () => {
+  mockStorageReadiness.mockResolvedValue({ ok: false, detail: 'document-storage-unavailable', scope: 'runtime' });
+  const response = await GET();
+  expect(response.status).toBe(503);
+  const body = await response.json();
+  expect(body.readiness.core.ok).toBe(false);
+  expect(body.checks.documentStorage).toMatchObject({ ok: false, scope: 'runtime' });
+});
+test('monitoring replies cannot be cached publicly', async () => {
+  expect((await GET()).headers.get('Cache-Control')).toBe('private, no-store');
+});
+test('release identity comes from the verified immutable artifact manifest', async () => {
+  const body = await (await GET()).json();
+  expect(body.release).toEqual({ sha: '5'.repeat(40), verified: true });
+});
+test('missing release identity is reported honestly without an environment SHA fallback', async () => {
+  process.env.GITHUB_SHA = '6'.repeat(40);
+  mockReleaseIdentity.mockResolvedValue(null);
+  const body = await (await GET()).json();
+  expect(body.release).toEqual({ sha: null, verified: false });
+  expect(body.status).toBe('degraded');
+});
+
+test('an unavailable runtime cwd returns controlled 503 without claiming a release identity', async () => {
+  const cwd = jest.spyOn(process, 'cwd').mockImplementation(() => { throw new Error('synthetic-private-cwd-detail'); });
+  const response = await GET().finally(() => cwd.mockRestore());
+  expect(response.status).toBe(503);
+  const body = await response.json();
+  expect(body.release).toEqual({ sha: null, verified: false });
+  expect(JSON.stringify(body)).not.toContain('synthetic-private-cwd-detail');
 });

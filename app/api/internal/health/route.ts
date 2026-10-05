@@ -17,11 +17,14 @@ import { assertRateLimitStoreReady, getRateLimitRuntimeMode } from '@/lib/rate-l
 import { isProductionAriaRagRuntimeFullyConfigured } from '@/lib/aria/rag';
 import { resolveDeploymentRagProfile } from '@/lib/deployment/rag-profile';
 import { checkAuthAuthorityReadiness } from '@/lib/auth/auth-rollout-startup';
+import { probeDocumentStorageReadiness } from '@/lib/health/document-storage-readiness';
+import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
 
 export async function GET() {
   // 1. Auth check
   const sessionOrResponse = await enforcePolicy('admin.dashboard');
   if (isErrorResponse(sessionOrResponse)) {
+    sessionOrResponse.headers.set('Cache-Control', 'private, no-store');
     return sessionOrResponse;
   }
 
@@ -74,13 +77,22 @@ export async function GET() {
     scope: 'runtime',
   };
 
-  // 6. Disk (basic check via cwd access)
+  // 6. Runtime root metadata; persistent document storage is probed separately.
+  let runtimeRoot: string | null = null;
   try {
-    process.cwd();
-    checks.disk = { ok: true, detail: 'process-cwd-only; storage-not-probed', scope: 'process' };
+    runtimeRoot = process.cwd();
+    checks.disk = { ok: true, detail: 'process-cwd-only', scope: 'process' };
   } catch {
     checks.disk = { ok: false, detail: 'process-cwd-unavailable', scope: 'process' };
   }
+
+  checks.documentStorage = runtimeRoot === null
+    ? { ok: false, detail: 'document-storage-unavailable', scope: 'runtime' }
+    : await probeDocumentStorageReadiness(runtimeRoot);
+  const releaseSha = runtimeRoot === null ? null : await readRunningReleaseSha(runtimeRoot);
+  checks.releaseIdentity = {
+    ok: releaseSha !== null, detail: releaseSha !== null ? 'manifest-build-id-verified' : 'release-identity-unverified', scope: 'runtime',
+  };
 
   // 7. Worker queue (NPC — basic env check)
   checks.npc = {
@@ -90,15 +102,16 @@ export async function GET() {
   };
 
   const allOk = Object.values(checks).every((c) => c.ok);
-  const coreReady = checks.db.ok && checks.authAuthority.ok && checks.redis.ok && checks.disk.ok;
+  const coreReady = checks.db.ok && checks.authAuthority.ok && checks.redis.ok && checks.disk.ok && checks.documentStorage.ok;
 
   return NextResponse.json(
     {
       status: allOk ? 'healthy' : 'degraded',
+      release: { sha: releaseSha, verified: releaseSha !== null },
       readiness: { core: { ok: coreReady }, rag: { profile: ragProfile, configured: ragConfigured, runtimeVerified: false } },
       checks,
       timestamp: new Date().toISOString(),
     },
-    { status: coreReady ? 200 : 503 }
+    { status: coreReady ? 200 : 503, headers: { 'Cache-Control': 'private, no-store' } }
   );
 }
