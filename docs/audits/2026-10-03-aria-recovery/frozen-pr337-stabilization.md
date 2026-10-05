@@ -27,3 +27,9 @@ La policy actuelle vise un ancien lock et 39 packages impactés, donc elle n'est
 La première tentative locale Core complète était mal configurée (Africa/Tunis à la place de Europe/Paris, destination V1 au mauvais nom, ClamAV absent) : 785 verts / 14 rouges, non qualifiée. Le harnais remis aux contrats CI (bases distinctes au nom canonique, Europe/Paris et vrai ClamAV) passe : 81 suites / 799 tests, zéro échec et zéro ignoré, code applicatif 9c1364c4c. Les refus du seeder et des préflights n'ont pas été contournés. Les campagnes E2E utilisent une stack fraîche, SMTP local et données synthétiques uniquement.
 
 Aucun push tant que le lot cohérent et le gate dépendances ne sont pas fermés. PR Draft, statut NOT_READY. Aucun déploiement, fusion, revue invalidée réutilisée ou écriture dans les anciens worktrees. Les 31 capacités restantes sont reportées hors de #337.
+
+## Fermeture locale ciblée
+
+La suite dialog-all-roles-proof complète passe : 17/17, zéro échec, skip ou flaky, en 59,11 s ; source des tests ebaf9f893485ca820a13b687fe066b3f950b95c0, artefact applicatif 9c1364c4c (aucune différence de code applicatif entre ces deux commits). Ce résultat ne remplace pas la lane Chromium complète distante finale.
+
+Le contrôle local de reachability a révélé une différence de syntaxe de runner : node --test scripts/testing/error-log-summary.test.mjs était réellement exécuté par CI, mais le détecteur ne reconnaît que node {fichier}. Invocation alignée sur les autres tests Node directs du workflow ; mêmes six tests Node natifs effectivement exécutés et verts, sans exclusion, changement d'assertion ou modification du détecteur. Le contrôle de reachability est relancé avant publication.
