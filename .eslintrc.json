@@ -1,8 +1,7 @@
 {
   "root": true,
   "extends": [
-    "next/core-web-vitals",
-    "next/typescript"
+    "./.eslint/next-compat.cjs"
   ],
   "rules": {
     "@typescript-eslint/no-empty-object-type": "off",
