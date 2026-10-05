@@ -292,6 +292,9 @@ jobs:
           npx prisma generate
           npx prisma generate --schema=core-v2/prisma/schema.prisma
 
+      - name: Verify shared error-log privacy boundary
+        run: node --test scripts/testing/error-log-summary.test.mjs
+
       - name: Run unit tests
         run: npm test -- --ci --coverage --maxWorkers=2
         env:
