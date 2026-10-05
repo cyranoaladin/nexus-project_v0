@@ -159,6 +159,12 @@ async function activateAndSignIn(page: import('@playwright/test').Page, token: s
 }
 
 test('golden staff workflow on Core v2: family → enrollment → coach → planning → invitation → activation → RBAC', async ({ page }) => {
+  // One end-to-end journey (six role logins, mail round-trips, axe scans). CI
+  // wall times measured on the shared runner: Firefox 34–39 s, WebKit 56.9 s
+  // (passed) then 61.5 s (timed out on its last step, still progressing) against
+  // the 60 s default. The budget is sized to the journey, not to hide a hang:
+  // every step keeps its own explicit assertion timeout.
+  test.setTimeout(120_000);
   useProjectSlot(test.info().project.name);
   await test.step('assistante opens Familles', async () => {
     await loginAsUser(page, 'assistante', { navigate: false });
