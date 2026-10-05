@@ -1,5 +1,5 @@
 {
-  "sourceSha": "fb03be7be51379001fa3e82d799bcf034a122941",
+  "sourceSha": "301ffe43bce8b317359059f245441804d891db9b",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -734,6 +734,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/e2e/golden-family-cleanup.real.test.ts",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/governance/account-security-qualification.test.js",
       "domain": "auth-securite",
       "highRisk": false
@@ -776,11 +781,6 @@
     {
       "path": "__tests__/integration/email-issuance-outbox.real.test.ts",
       "domain": "auth-securite",
-      "highRisk": false
-    },
-    {
-      "path": "__tests__/integration/golden-family-cleanup.real.test.ts",
-      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -836,6 +836,11 @@
     {
       "path": "__tests__/integration/stage-reservation-richstatus-nullsafe.real.test.ts",
       "domain": "planning",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/integration/stage-session-schedule.real.test.ts",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -1054,6 +1059,11 @@
       "highRisk": false
     },
     {
+      "path": "__tests__/lib/stage-session-schedule-conflict.test.ts",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "__tests__/marketing/unicode-escape-guard.test.ts",
       "domain": "rendu-securite",
       "highRisk": false
@@ -1156,6 +1166,16 @@
     {
       "path": "app/api/admin/invoices/route.ts",
       "domain": "finance",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/admin/stages/[stageId]/sessions/[sessionId]/route.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
+      "path": "app/api/admin/stages/[stageId]/sessions/route.ts",
+      "domain": "transversal-a-revoir",
       "highRisk": true
     },
     {
@@ -1974,6 +1994,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/golden-family-ci-database-lane.md",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/household-verification.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -2179,6 +2204,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/public-production-observation-20261005.md",
+      "domain": "preuves-tests",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/public-reservation-integrity.md",
       "domain": "planning",
       "highRisk": false
@@ -2216,6 +2246,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/reset-password-error-boundary.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/retention-approval-matrix.md",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -2326,6 +2361,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/stage-reservation-atomic-notifications.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/stage-session-schedule-acceptance.md",
+      "domain": "preuves-tests",
       "highRisk": false
     },
     {
@@ -2526,6 +2566,11 @@
     {
       "path": "jest.core-v2.config.js",
       "domain": "ci-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "jest.golden-family-real.config.js",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -2949,6 +2994,11 @@
       "highRisk": true
     },
     {
+      "path": "lib/stages/schedule-conflict.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
+    },
+    {
       "path": "lib/validation/common.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
@@ -3021,6 +3071,11 @@
     {
       "path": "prisma/migrations/20261005010000_session_booking_cancellation_audit/migration.sql",
       "domain": "planning",
+      "highRisk": true
+    },
+    {
+      "path": "prisma/migrations/20261005014000_stage_session_coach_conflicts/migration.sql",
+      "domain": "transversal-a-revoir",
       "highRisk": true
     },
     {
@@ -3117,6 +3172,11 @@
       "path": "scripts/testing/e2e-execution-evidence.mjs",
       "domain": "ci-exploitation",
       "highRisk": false
+    },
+    {
+      "path": "scripts/testing/run-golden-family-real-tests.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": true
     },
     {
       "path": "scripts/testing/safe-playwright-report.mjs",
