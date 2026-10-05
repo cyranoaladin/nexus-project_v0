@@ -41,6 +41,7 @@ function baseBody(overrides: Record<string, unknown> = {}) {
 function buildFakeTx(overrides: { coachSubjects?: string[] } = {}) {
   const createdByKey = new Map<string, any>();
   return {
+    $queryRaw: jest.fn().mockResolvedValue([{ id: 'series-1' }]),
     student: {
       findUnique: jest.fn().mockResolvedValue({
         id: STUDENT_PROFILE_ID,
@@ -115,6 +116,7 @@ function buildFakeTx(overrides: { coachSubjects?: string[] } = {}) {
       create: jest.fn().mockResolvedValue({ id: 'series-1' }),
       findUnique: jest.fn().mockResolvedValue({
         id: 'series-1',
+        status: 'ACTIVE',
         studentProfileId: STUDENT_PROFILE_ID,
         coachProfileId: COACH_PROFILE_ID,
         assignmentId: ASSIGNMENT_ID,
@@ -124,6 +126,7 @@ function buildFakeTx(overrides: { coachSubjects?: string[] } = {}) {
       update: jest.fn().mockResolvedValue({ id: 'series-1' }),
     },
     planningOverrideAudit: { create: jest.fn().mockResolvedValue({ id: 'audit-1' }) },
+    sessionBookingCancellationAudit: { create: jest.fn().mockResolvedValue({ id: 'cancellation-audit-1' }) },
     createdByKey,
   };
 }
@@ -320,7 +323,11 @@ describe('DELETE /api/assistante/planning/series/[seriesId] — annulation futur
 
   it('annule uniquement les occurrences futures actives et marque la série CANCELLED', async () => {
     const tx = buildFakeTx();
-    tx.sessionBooking.updateMany.mockResolvedValue({ count: 2 });
+    tx.sessionBooking.findMany.mockResolvedValueOnce([
+      { id: 'booking-a', status: 'SCHEDULED', studentId: 'student-user-1', coachId: 'coach-user-1' },
+      { id: 'booking-b', status: 'CONFIRMED', studentId: 'student-user-1', coachId: 'coach-user-1' },
+    ]);
+    tx.sessionBooking.updateMany.mockResolvedValue({ count: 1 });
     mockRoleAndTx('ASSISTANTE', tx);
 
     const response = await DELETE(makeJsonRequest({ reason: 'Famille indisponible' }), {
@@ -339,10 +346,20 @@ describe('DELETE /api/assistante/planning/series/[seriesId] — annulation futur
         data: expect.objectContaining({ status: 'CANCELLED' }),
       }),
     );
+    expect(tx.sessionBooking.updateMany.mock.calls[0][0].data).not.toHaveProperty('coachNotes');
     expect(tx.planningSeries.update).toHaveBeenCalledWith({
       where: { id: 'series-1' },
       data: { status: 'CANCELLED' },
     });
+  });
+
+  it.each(['{invalid-json', JSON.stringify({ reason: 42 })])('rejects malformed cancellation body without a transaction: %s', async raw => {
+    const tx = buildFakeTx();
+    mockRoleAndTx('ASSISTANTE', tx);
+    const request = { text: async () => raw } as unknown as import('next/server').NextRequest;
+    const response = await DELETE(request, { params: Promise.resolve({ seriesId: 'series-1' }) });
+    expect(response.status).toBe(400);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('404 quand la série est introuvable', async () => {
@@ -367,7 +384,7 @@ describe('DELETE /api/assistante/planning/series/[seriesId] — annulation futur
 
         await DELETE(makeJsonRequest({}), { params: Promise.resolve({ seriesId: 'series-1' }) });
 
-        expect(tx.sessionBooking.updateMany).toHaveBeenCalledWith(
+        expect(tx.sessionBooking.findMany).toHaveBeenCalledWith(
           expect.objectContaining({
             where: expect.objectContaining({
               scheduledDate: { gte: new Date('2026-09-08T00:00:00.000Z') },
@@ -407,6 +424,8 @@ describe('PUT /api/assistante/planning/series/[seriesId] — édition future-onl
 
   it('CAS réussi : annule le futur existant puis rematérialise, révision incrémentée', async () => {
     const tx = buildFakeTx();
+    tx.sessionBooking.findMany.mockResolvedValueOnce([{ id: 'booking-a', status: 'SCHEDULED', studentId: 'student-user-1', coachId: 'coach-user-1' }]);
+    tx.sessionBooking.updateMany.mockResolvedValue({ count: 1 });
     tx.sessionBooking.count.mockResolvedValue(3); // 3 occurrences déjà matérialisées pour cette série
     mockRoleAndTx('ASSISTANTE', tx);
 
@@ -415,15 +434,26 @@ describe('PUT /api/assistante/planning/series/[seriesId] — édition future-onl
 
     expect(response.status).toBe(200);
     expect(json.revision).toBe(1);
+    expect(tx.sessionBooking.updateMany.mock.calls[0][0].data).not.toHaveProperty('coachNotes');
     expect(json.sessions).toHaveLength(2);
     expect(json.sessions.map((s: any) => s.occurrenceKey)).toEqual(['series-1:3', 'series-1:4']);
 
     expect(tx.planningSeries.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'series-1', revision: 0 }, data: expect.objectContaining({ revision: 1 }) }),
+      expect.objectContaining({ where: { id: 'series-1', revision: 0, status: 'ACTIVE' }, data: expect.objectContaining({ revision: 1 }) }),
     );
     expect(tx.sessionBooking.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: 'CANCELLED' }) }),
     );
+  });
+
+  it('cannot rematerialize a cancelled series even with its current revision', async () => {
+    const tx = buildFakeTx();
+    tx.planningSeries.findUnique.mockResolvedValue({ id: 'series-1', status: 'CANCELLED', studentProfileId: STUDENT_PROFILE_ID, coachProfileId: COACH_PROFILE_ID, assignmentId: ASSIGNMENT_ID, academicCourseKey: COURSE_KEY });
+    mockRoleAndTx('ASSISTANTE', tx);
+    const response = await PUT(makeJsonRequest(editBody()), { params: Promise.resolve({ seriesId: 'series-1' }) });
+    expect(response.status).toBe(409);
+    expect(tx.sessionBooking.create).not.toHaveBeenCalled();
+    expect(tx.planningSeries.updateMany).not.toHaveBeenCalled();
   });
 
   it('409 PLANNING_SERIES_REVISION_CONFLICT quand la révision est périmée', async () => {

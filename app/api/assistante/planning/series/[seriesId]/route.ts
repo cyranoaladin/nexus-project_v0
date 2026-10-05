@@ -6,8 +6,9 @@ import { Prisma } from '@prisma/client';
 import { isErrorResponse, requireAnyRole } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { can } from '@/lib/rbac';
+import { cancelSeriesOccurrences, PlanningSeriesCancellationConflictError } from '@/lib/planning/cancel-series-occurrences';
 import { planningSeriesCancelSchema, planningSeriesEditSchema } from '@/lib/validation';
-import { ACTIVE_BOOKING_STATUSES, type PlanningInvariantRequester } from '@/lib/planning/invariants';
+import { type PlanningInvariantRequester } from '@/lib/planning/invariants';
 import {
   PlanningCourseWithoutLegacySubjectError,
   PlanningInvariantViolationError,
@@ -59,6 +60,9 @@ function mapPlanningErrorToResponse(error: unknown, routeLabel: string): NextRes
   if (error instanceof PlanningSeriesNotFoundError) {
     return NextResponse.json({ error: 'Not Found', message: error.message }, { status: 404 });
   }
+  if (error instanceof PlanningSeriesCancellationConflictError) {
+    return NextResponse.json({ error: 'Conflict', message: error.message }, { status: 409 });
+  }
   if (error instanceof PlanningSeriesRevisionConflictError) {
     return NextResponse.json({ error: error.code, message: error.message }, { status: 409 });
   }
@@ -80,7 +84,7 @@ function mapPlanningErrorToResponse(error: unknown, routeLabel: string): NextRes
     );
   }
 
-  console.error(routeLabel, error instanceof Error ? error.message : 'unknown');
+  console.error(routeLabel, 'PLANNING_OPERATION_FAILED');
   if (isPlanningConflictDatabaseError(error)) {
     return NextResponse.json(
       { error: 'Conflict', message: 'Conflit détecté : créneau déjà occupé ou sérialisation concurrente. Réessayez.' },
@@ -110,39 +114,35 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: 'Forbidden', message: 'Permission insuffisante' }, { status: 403 });
   }
 
-  let reason: string | undefined;
+  let reason = 'Annulation de série';
   try {
     const rawBody = await request.text();
     if (rawBody) {
       const parsedBody = planningSeriesCancelSchema.safeParse(JSON.parse(rawBody));
-      reason = parsedBody.success ? parsedBody.data.reason : undefined;
+      if (!parsedBody.success) return NextResponse.json({ error: 'Bad Request', message: 'Motif invalide' }, { status: 400 });
+      reason = parsedBody.data.reason ?? reason;
     }
   } catch {
-    reason = undefined;
+    return NextResponse.json({ error: 'Bad Request', message: 'Requête invalide' }, { status: 400 });
   }
 
   try {
     const result = await prisma.$transaction(async (tx) => {
-      const series = await tx.planningSeries.findUnique({ where: { id: seriesId }, select: { id: true } });
+      await tx.$queryRaw`SELECT id FROM planning_series WHERE id = ${seriesId} FOR UPDATE`;
+      const series = await tx.planningSeries.findUnique({ where: { id: seriesId }, select: { id: true, status: true } });
       if (!series) throw new PlanningSeriesNotFoundError();
+      if (series.status === 'CANCELLED') return { cancelledCount: 0 };
+      if (series.status === 'ENDED') throw new PlanningSeriesRevisionConflictError();
 
       const boundary = todayUtcMidnight();
-      const cancelled = await tx.sessionBooking.updateMany({
-        where: {
-          planningSeriesId: seriesId,
-          scheduledDate: { gte: boundary },
-          status: { in: [...ACTIVE_BOOKING_STATUSES] },
-        },
-        data: {
-          status: 'CANCELLED',
-          cancelledAt: new Date(),
-          coachNotes: reason ? `Cancelled: ${reason}` : 'Cancelled',
-        },
+      const cancelledCount = await cancelSeriesOccurrences(tx, {
+        seriesId, boundary, actorUserId: session.user.id, actorRole: session.user.role,
+        action: 'SERIES_CANCELLED', reason,
       });
 
       await tx.planningSeries.update({ where: { id: seriesId }, data: { status: 'CANCELLED' } });
 
-      return { cancelledCount: cancelled.count };
+      return { cancelledCount };
     });
 
     return NextResponse.json({ success: true, cancelledCount: result.cancelledCount });
@@ -223,10 +223,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const result = await prisma.$transaction(
       async (tx) => {
+        await tx.$queryRaw`SELECT id FROM planning_series WHERE id = ${seriesId} FOR UPDATE`;
         const series = await tx.planningSeries.findUnique({
           where: { id: seriesId },
           select: {
             id: true,
+            status: true,
             studentProfileId: true,
             coachProfileId: true,
             assignmentId: true,
@@ -234,12 +236,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
           },
         });
         if (!series) throw new PlanningSeriesNotFoundError();
+        if (series.status !== 'ACTIVE') throw new PlanningSeriesRevisionConflictError();
 
         const intervalWeeks = input.recurrence?.intervalWeeks ?? 1;
         const count = input.recurrence ? input.recurrence.count : 1;
 
         const cas = await tx.planningSeries.updateMany({
-          where: { id: seriesId, revision: input.expectedRevision },
+          where: { id: seriesId, revision: input.expectedRevision, status: 'ACTIVE' },
           data: {
             revision: input.expectedRevision + 1,
             startDate: requestedStartDate,
@@ -259,13 +262,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         const boundary = todayUtcMidnight();
         const rematerializationStart = requestedStartDate > boundary ? requestedStartDate : boundary;
 
-        await tx.sessionBooking.updateMany({
-          where: {
-            planningSeriesId: seriesId,
-            scheduledDate: { gte: boundary },
-            status: { in: [...ACTIVE_BOOKING_STATUSES] },
-          },
-          data: { status: 'CANCELLED', cancelledAt: new Date(), coachNotes: 'Cancelled: série révisée' },
+        await cancelSeriesOccurrences(tx, {
+          seriesId, boundary, actorUserId: session.user.id, actorRole: session.user.role,
+          action: 'SERIES_REVISED', reason: 'Série révisée',
         });
 
         const occurrences = await rematerializeFutureOccurrences(
