@@ -177,7 +177,7 @@ function runFullAudit(current: ReturnType<typeof fixture>, report: object) {
 }
 
 describe('full npm audit transitive exception', () => {
-  it('allows only dev-only transitive impacts of the exact two root advisories', () => {
+  it('allows only dev-only transitive impacts of the exact single root advisory', () => {
     const current = fixture();
     try {
       expect(runFullAudit(current, fullAuditFixture(current)).status).toBe(0);
