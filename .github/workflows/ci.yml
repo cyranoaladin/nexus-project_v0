@@ -1438,7 +1438,7 @@ jobs:
           BASE_URL: http://localhost:3000
           E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
         run: |
-          npx playwright test --config=playwright.auth.config.ts --project=chromium dialog-all-roles-proof.spec.ts --grep='^admin: users detail dialog$' --repeat-each=20 --workers=1 --retries=0
+          npx playwright test --config=playwright.auth.config.ts --project=chromium dialog-all-roles-proof.spec.ts --grep='admin: users detail dialog$' --repeat-each=20 --workers=1 --retries=0
           node scripts/testing/safe-playwright-report.mjs playwright-report/auth-admin-dialog-repeat20/results.json .artifacts/publish/auth-admin-dialog-repeat20/report.json
           node --input-type=module <<'NODE'
           import { readFileSync } from 'node:fs';
