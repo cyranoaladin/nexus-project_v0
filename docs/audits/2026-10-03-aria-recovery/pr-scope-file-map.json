@@ -1,5 +1,5 @@
 {
-  "sourceSha": "301ffe43bce8b317359059f245441804d891db9b",
+  "sourceSha": "2b275e6bd6d9a5adf8247300a22bd27169157456",
   "baseSha": "5ffd4dd8e1fb91b0eea42398670a260402660699",
   "classification": "path-based review aid, not security clearance",
   "files": [
@@ -915,6 +915,11 @@
     },
     {
       "path": "__tests__/lib/diagnostics/candidat-libre/storage.test.ts",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
+      "path": "__tests__/lib/document-storage-readiness.test.ts",
       "domain": "transversal-a-revoir",
       "highRisk": false
     },
@@ -2064,6 +2069,11 @@
       "highRisk": false
     },
     {
+      "path": "docs/audits/2026-10-03-aria-recovery/literal-subprocess-lane-discovery.md",
+      "domain": "transversal-a-revoir",
+      "highRisk": false
+    },
+    {
       "path": "docs/audits/2026-10-03-aria-recovery/logout-navigation-ownership.md",
       "domain": "documentation-preuve",
       "highRisk": false
@@ -2191,6 +2201,11 @@
     {
       "path": "docs/audits/2026-10-03-aria-recovery/private-build-discovery.md",
       "domain": "documentation-preuve",
+      "highRisk": false
+    },
+    {
+      "path": "docs/audits/2026-10-03-aria-recovery/protected-storage-release-health.md",
+      "domain": "transversal-a-revoir",
       "highRisk": false
     },
     {
@@ -2859,6 +2874,11 @@
       "highRisk": false
     },
     {
+      "path": "lib/health/document-storage-readiness.ts",
+      "domain": "ci-exploitation",
+      "highRisk": true
+    },
+    {
       "path": "lib/invoice/access-token.ts",
       "domain": "finance",
       "highRisk": true
@@ -3164,12 +3184,27 @@
       "highRisk": false
     },
     {
+      "path": "scripts/testing/check-ci-test-lane-coverage.mjs",
+      "domain": "ci-exploitation",
+      "highRisk": false
+    },
+    {
       "path": "scripts/testing/chromium-private-stream-diagnostic.mjs",
       "domain": "ci-exploitation",
       "highRisk": false
     },
     {
       "path": "scripts/testing/e2e-execution-evidence.mjs",
+      "domain": "ci-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/npm-runner-invocations.mjs",
+      "domain": "ci-exploitation",
+      "highRisk": false
+    },
+    {
+      "path": "scripts/testing/npm-runner-invocations.test.mjs",
       "domain": "ci-exploitation",
       "highRisk": false
     },
