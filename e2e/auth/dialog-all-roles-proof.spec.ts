@@ -150,16 +150,44 @@ test('admin: users detail dialog', async ({ page }) => {
   test.setTimeout(60000);
   await loginAsUser(page, 'admin');
   await page.goto(`${BASE}/dashboard/admin/users`, { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
 
-  // Table row action buttons are icon-only (Eye icon) — click first action button in table
-  const trigger = page.locator('table button, [role="table"] button, tr button').first();
-  await expect(trigger).toBeVisible({ timeout: 5000 });
+  // The real seed owns this staff identity. New family accounts may be first
+  // in the default createdAt order, and their generic editor is deliberately refused.
+  const usersLoaded = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return url.pathname === '/api/admin/users'
+      && url.searchParams.get('role') === 'ASSISTANTE'
+      && response.request().method() === 'GET';
+  });
+  await page.getByRole('combobox', { name: 'Filtrer par rôle', exact: true }).click();
+  await page.getByRole('option', { name: 'Assistantes', exact: true }).click();
+  expect((await usersLoaded).status()).toBe(200);
+
+  const row = page.getByRole('row').filter({
+    has: page.getByRole('button', { name: 'Modifier Ines Assistante', exact: true }),
+  });
+  await expect(row).toHaveCount(1);
+  const trigger = row.getByRole('button', { name: 'Modifier Ines Assistante', exact: true });
+  await expect(trigger).toBeEnabled();
   await trigger.click();
-  await page.waitForTimeout(500);
 
+  const dialog = page.getByRole('dialog', { name: 'Modifier Utilisateur', exact: true });
+  await expect(dialog).toBeVisible();
+  await expect.poll(() => dialog.evaluate(element => getComputedStyle(element).opacity)).toBe('1');
+  await expect(dialog.getByLabel('Prénom *', { exact: true })).toHaveValue('Ines');
+  await expect(dialog.getByLabel('Nom *', { exact: true })).toHaveValue('Assistante');
+  await expect(dialog.getByRole('combobox', { name: 'Rôle *', exact: true })).toHaveText('Assistante');
+  await expect(dialog.locator('input[type="password"]')).toHaveCount(0);
   await assertDialogCharte(page, 'admin/users');
-  await assertDialogCloses(page, trigger, 'admin/users');
+
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(trigger).toBeFocused();
 });
 
 test('admin: subscriptions edit dialog', async ({ page }) => {

@@ -1432,6 +1432,29 @@ jobs:
           NEXUS_BILAN_PACK_ENTREE_SECONDE_MATHS_V1_ENABLED: 'true'
         run: npx playwright test --config=playwright.auth.config.ts --project=chromium
 
+      - name: Repeat deterministic administrator dialog 20 times
+        env:
+          AUTH_E2E_REPORT_LABEL: auth-admin-dialog-repeat20
+          BASE_URL: http://localhost:3000
+          E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
+        run: |
+          npx playwright test --config=playwright.auth.config.ts --project=chromium dialog-all-roles-proof.spec.ts --grep='^admin: users detail dialog$' --repeat-each=20 --workers=1 --retries=0
+          node scripts/testing/safe-playwright-report.mjs playwright-report/auth-admin-dialog-repeat20/results.json .artifacts/publish/auth-admin-dialog-repeat20/report.json
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const report = JSON.parse(readFileSync('playwright-report/auth-admin-dialog-repeat20/results.json', 'utf8'));
+          const { expected, unexpected, skipped, flaky } = report.stats;
+          if (expected !== 20 || unexpected !== 0 || skipped !== 0 || flaky !== 0) throw new Error('ADMIN_DIALOG_REPEAT20_NOT_QUALIFIED');
+          NODE
+
+      - name: Upload administrator dialog repetition evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: admin-dialog-repeat20-${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/publish/auth-admin-dialog-repeat20/
+          retention-days: 7
+          if-no-files-found: error
+
       - name: Seal auth E2E execution evidence
         if: always()
         run: |
