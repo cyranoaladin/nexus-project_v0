@@ -18,4 +18,6 @@ function serializeError(error) {
   return summary;
 }
 
-module.exports = { serializeError };
+function isSafeLogErrorName(value) { return typeof value === 'string' && (safeNames.has(value) || value === 'UnknownError'); }
+function isSafeLogErrorCode(value) { return typeof value === 'string' && safeDatabaseCodes.has(value); }
+module.exports = { serializeError, isSafeLogErrorName, isSafeLogErrorCode };

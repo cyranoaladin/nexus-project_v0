@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { createHmac, timingSafeEqual } from 'crypto';
 import { logger } from '@/lib/logger';
-import { redactForLogging } from '@/lib/security/redact-for-logging';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 /**
  * POST /api/payments/clictopay/webhook
@@ -66,10 +66,7 @@ export async function POST(request: NextRequest) {
       { status: 501 }
     );
   } catch (error) {
-    const safeErr = error instanceof Error
-      ? { name: error.name, message: error.message }
-      : { message: 'Unknown error' };
-    logger.error(redactForLogging(safeErr), '[ClicToPay Webhook] Erreur');
+    logger.error({ errorSummary: serializeError(error) }, '[ClicToPay Webhook] Erreur');
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }

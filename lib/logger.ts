@@ -1,5 +1,6 @@
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
+import { pinoPrivacyOptions, projectLogRecord, protectPinoChildren } from '@/lib/security/pino-log-privacy';
 
 const isDev = process.env.NODE_ENV === 'development';
 const isTest = process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
@@ -16,15 +17,17 @@ const prettyStream = isDev && !disableWorker
 
 const destination = disableWorker ? pino.destination({ sync: true }) : undefined;
 
-export const logger = pino(
+export const logger = protectPinoChildren(pino(
   {
+    ...pinoPrivacyOptions,
+    formatters: { bindings: projectLogRecord },
     level: isTest ? 'silent' : logLevel,
     base: {
       env: process.env.NODE_ENV
     }
   },
   prettyStream ?? destination
-);
+));
 
 export function createRequestLogger(context: {
   requestId: string;

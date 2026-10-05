@@ -11,6 +11,8 @@ import { NextRequest } from 'next/server';
 import { AuthSession } from '@/lib/guards';
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
+import { pinoPrivacyOptions, projectLogRecord, protectPinoChildren, logRouteTemplate } from '@/lib/security/pino-log-privacy';
+import { serializeError } from '@/lib/utils/serialize-error';
 
 export enum LogLevel {
   DEBUG = 'debug',
@@ -46,15 +48,17 @@ const prettyStream = !isProd && !disableWorker
   : undefined;
 const destination = disableWorker ? pino.destination({ sync: true }) : undefined;
 
-const pinoLogger = pino(
+const pinoLogger = protectPinoChildren(pino(
   {
+    ...pinoPrivacyOptions,
     level: isProd ? 'info' : 'debug',
     formatters: {
+      bindings: projectLogRecord,
       level: (label) => ({ level: label }),
     },
   },
   prettyStream ?? destination
-);
+));
 
 /**
  * Default logger instance for use outside request context
@@ -83,7 +87,7 @@ export class Logger {
       requestId: generateRequestId(),
       timestamp: new Date().toISOString(),
       method: request.method,
-      path: request.nextUrl.pathname,
+      path: logRouteTemplate(request.nextUrl.pathname),
       ...(session && {
         userId: session.user.id,
         userRole: session.user.role,
@@ -128,10 +132,7 @@ export class Logger {
   error(message: string, error?: Error | unknown, meta?: Record<string, unknown>): void {
     const errorContext = {
       ...meta,
-      ...(error instanceof Error && {
-        error: error.message,
-        stack: error.stack,
-      }),
+      ...(error !== undefined && { errorSummary: serializeError(error) }),
     };
 
     this.logger.error(errorContext, message);
