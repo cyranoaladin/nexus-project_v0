@@ -661,6 +661,9 @@ jobs:
             '${{ github.sha }}' '${{ github.run_id }}' '${{ github.run_attempt }}' | tee db-core-jest.log
           npm run test:db:core -- --json --outputFile=db-core-jest-results.json 2>&1 | tee -a db-core-jest.log
 
+      - name: Verify literal subprocess test-lane discovery
+        run: node scripts/testing/npm-runner-invocations.test.mjs
+
       - name: Prove every test lane is reachable from a workflow
         run: npm run test:lanes:check
 
