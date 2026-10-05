@@ -26,14 +26,6 @@ function fixture() {
       'node_modules/micromatch': {
         version: '4.0.8', dev: true, dependencies: { braces: '^3.0.3' },
       },
-      'node_modules/http-cache-semantics': {
-        version: '4.2.0', dev: true, optional: true,
-        integrity: 'sha512-http-cache-fixture',
-      },
-      'node_modules/make-fetch-happen': {
-        version: '14.0.3', dev: true,
-        dependencies: { 'http-cache-semantics': '^4.1.1' },
-      },
     },
   };
   const lockText = JSON.stringify(lock);
@@ -49,10 +41,9 @@ function fixture() {
     expiresAt: '2026-10-10T00:00:00Z',
     maximumExpiry: '2026-10-10T00:00:00Z',
     maximumDurationDays: 7,
-    fullAuditImpactedPackageCount: 3,
+    fullAuditImpactedPackageCount: 2,
     fullAuditImpactSha256: createHash('sha256').update(JSON.stringify([
       ['braces', ['node_modules/braces']],
-      ['http-cache-semantics', ['node_modules/http-cache-semantics']],
       ['micromatch', ['node_modules/micromatch']],
     ])).digest('hex'),
     lockfileSha256: digest,
@@ -67,17 +58,6 @@ function fixture() {
           'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N',
         ],
         integrity: 'sha512-braces-fixture',
-      },
-      {
-        id: 'GHSA-ch52-4w7c-c8xp', package: 'http-cache-semantics',
-        version: '4.2.0', severity: 'HIGH',
-        lockPaths: ['node_modules/http-cache-semantics'],
-        parentPaths: ['node_modules/make-fetch-happen'],
-        cvssVectors: [
-          'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N',
-          'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N',
-        ],
-        integrity: 'sha512-http-cache-fixture',
       },
     ],
     revocationConditions: [
@@ -171,7 +151,7 @@ function fullAuditFixture(current: ReturnType<typeof fixture>) {
   return {
     auditReportVersion: 2,
     metadata: { vulnerabilities: {
-      info: 0, low: 0, moderate: 0, high: 3, critical: 0, total: 3,
+      info: 0, low: 0, moderate: 0, high: 2, critical: 0, total: 2,
     } },
     vulnerabilities: {
       braces: { name: 'braces', severity: 'high', via: [{
@@ -180,12 +160,6 @@ function fullAuditFixture(current: ReturnType<typeof fixture>) {
         range: '<=3.0.3', cvss: { score: 7.5,
           vectorString: current.data.policy.advisories[0].cvssVectors[0] },
       }], nodes: ['node_modules/braces'] },
-      'http-cache-semantics': { name: 'http-cache-semantics', severity: 'high', via: [{
-        name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
-        url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
-        range: '<=4.2.0', cvss: { score: 7.5,
-          vectorString: current.data.policy.advisories[1].cvssVectors[0] },
-      }], nodes: ['node_modules/http-cache-semantics'] },
       micromatch: { name: 'micromatch', severity: 'high', via: ['braces'],
         nodes: ['node_modules/micromatch'] },
     },
@@ -230,15 +204,21 @@ describe('full npm audit transitive exception', () => {
     ['dangling via', (audit: any) => {
       audit.vulnerabilities.micromatch.via = ['missing-package'];
     }],
-    ['missing second advisory', (audit: any) => {
-      delete audit.vulnerabilities['http-cache-semantics'];
-      audit.metadata.vulnerabilities.high = 2;
-      audit.metadata.vulnerabilities.total = 2;
+    ['resurrected advisory already fixed upstream (http-cache-semantics)', (audit: any) => {
+      audit.vulnerabilities['http-cache-semantics'] = {
+        name: 'http-cache-semantics', severity: 'high', via: [{
+          name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
+          url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
+          range: '<=4.2.0', cvss: { score: 7.5,
+            vectorString: 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N' },
+        }], nodes: ['node_modules/http-cache-semantics'] };
+      audit.metadata.vulnerabilities.high = 3;
+      audit.metadata.vulnerabilities.total = 3;
     }],
     ['truncated transitive impacts with coherent counters', (audit: any) => {
       delete audit.vulnerabilities.micromatch;
-      audit.metadata.vulnerabilities.high = 2;
-      audit.metadata.vulnerabilities.total = 2;
+      audit.metadata.vulnerabilities.high = 1;
+      audit.metadata.vulnerabilities.total = 1;
     }],
   ] as const) {
     it(`refuses ${name}`, () => {
@@ -290,7 +270,7 @@ describe('clean OSV report proof', () => {
 });
 
 describe('exact temporary OSV development-tooling exception', () => {
-  it('accepts only the exact two advisories with three independent runtime absence proofs', () => {
+  it('accepts only the exact single advisory with three independent runtime absence proofs', () => {
     const current = fixture();
     try {
       const result = run(current);
@@ -398,8 +378,17 @@ describe('exact temporary OSV development-tooling exception', () => {
     {
       name: 'package physically present in standalone', code: 'RUNTIME_PRESENCE',
       mutate: ({ files }) => {
-        mkdirSync(join(files.standalone, 'node_modules/http-cache-semantics'), { recursive: true });
+        mkdirSync(join(files.standalone, 'node_modules/braces'), { recursive: true });
       },
+    },
+    {
+      name: 'OSV report resurrecting the fixed http-cache-semantics advisory',
+      code: 'ADDITIONAL_ADVISORY',
+      mutate: ({ data }) => { data.osv.results[0].packages.push({
+        package: { name: 'http-cache-semantics', version: '4.2.0', ecosystem: 'npm' },
+        vulnerabilities: [{ id: 'GHSA-ch52-4w7c-c8xp',
+          database_specific: { severity: 'HIGH' }, severity: [] }],
+      }); },
     },
     {
       name: 'artifact built for another SHA', code: 'ARTIFACT_PROVENANCE_MISMATCH',

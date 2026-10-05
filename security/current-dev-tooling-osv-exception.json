@@ -7,9 +7,9 @@
   "expiresAt": "2026-10-10T00:00:00Z",
   "maximumExpiry": "2026-10-10T00:00:00Z",
   "maximumDurationDays": 7,
-  "fullAuditImpactedPackageCount": 39,
-  "fullAuditImpactSha256": "27072afb1280e062d26b3c32ce2806454da96fac2f9cb31672b5a6567a4c29b2",
-  "lockfileSha256": "b5aaa205c437a091b6487ca6f1f131d0697bb9c79ae988d6736e759880dea29a",
+  "fullAuditImpactedPackageCount": 5,
+  "fullAuditImpactSha256": "a04193cc03c969eac11555332d7d10bc2831f34355d920c93febb279757b0b40",
+  "lockfileSha256": "6d436e41ac5c7f202e1d9923fc260a763a08d43cceb940a550a537e0bffa7bca",
   "remediationIssue": "https://github.com/cyranoaladin/nexus-project_v0/issues/335",
   "advisories": [
     {
@@ -21,16 +21,6 @@
       "lockPaths": ["node_modules/braces"],
       "parentPaths": ["node_modules/micromatch"],
       "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA=="
-    },
-    {
-      "id": "GHSA-ch52-4w7c-c8xp",
-      "package": "http-cache-semantics",
-      "version": "4.2.0",
-      "severity": "HIGH",
-      "cvssVectors": ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N", "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"],
-      "lockPaths": ["node_modules/http-cache-semantics"],
-      "parentPaths": ["node_modules/make-fetch-happen"],
-      "integrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ=="
     }
   ],
   "revocationConditions": [

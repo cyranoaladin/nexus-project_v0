@@ -6,7 +6,7 @@
       "name": "@img/sharp-wasm32",
       "version": "0.35.4",
       "path": "node_modules/@img/sharp-wasm32",
-      "reason": "sharp optional WASM32 platform binary pulled by npm overrides",
+      "reason": "sharp 0.35.x publishes @img/sharp-wasm32 without cpu/os restriction while its only parents (@img/sharp-freebsd-wasm32 os=freebsd, @img/sharp-webcontainers-wasm32 cpu=wasm32) are skipped on linux/x64; npm ci still installs it, so npm ls reports it extraneous. Verified identical in sharp 0.35.5; not removable from the lockfile (npm re-adds it).",
       "upstreamIssue": "npm/cli#8128",
       "platform": {
         "node": "22.23.1",
@@ -25,7 +25,7 @@
       "name": "@emnapi/runtime",
       "version": "1.11.3",
       "path": "node_modules/@emnapi/runtime",
-      "reason": "npm optional WASM dependency materialization bug",
+      "reason": "Sole dependency of the extraneous @img/sharp-wasm32 (see that entry); installed only because its parent is installed.",
       "upstreamIssue": "npm/cli#8128",
       "platform": {
         "node": "22.23.1",

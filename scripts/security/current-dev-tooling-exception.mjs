@@ -20,16 +20,6 @@ const REQUIRED_FINDINGS = [
       'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N',
     ],
   },
-  {
-    id: 'GHSA-ch52-4w7c-c8xp', package: 'http-cache-semantics',
-    version: '4.2.0', severity: 'HIGH',
-    lockPaths: ['node_modules/http-cache-semantics'],
-    parentPaths: ['node_modules/make-fetch-happen'],
-    cvssVectors: [
-      'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N',
-      'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N',
-    ],
-  },
 ];
 
 function assert(condition, code) {
