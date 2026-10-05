@@ -13,3 +13,7 @@ Après résolution d’une erreur initiale de résolution du module de test, qua
 
 ## Limites
 Les droits FS ne prouvent ni écriture effective, durabilité, espace libre, restauration ou téléchargement. Les workers et autres stockages ne sont pas qualifiés par cette probe. Aucun SHA servi en production n’est connu par ce test local ; aucune production modifiée. La CI et la qualification opérationnelle restent à renouveler. Rollback par commit inverse ; aucune migration ou suppression de données.
+
+## Frontière de runtime — correction supplémentaire
+
+La suite unitaire complète du checkpoint retourne 1344 suites réussies et une échouée, 14901 tests réussis et un échoué, aucun ignoré, en 589,7 secondes. Cause : le nouvel endpoint historique importait le helper générique depuis Core-v2. Le guard ciblé reproduit 38 réussites/1 échec. L’implémentation du lecteur de manifeste est déplacée sans changement de logique dans `lib/deployment/release-identity.ts`, avec réexport compatible au chemin Core-v2 ; endpoint et mock importent le module neutre. Aucun guard ou allowlist affaibli. Vérification ciblée : quatre suites, 78 tests verts ; compatibilité Core vérifiée séparément. Une nouvelle suite complète reste nécessaire, le précédent résultat n’est pas vert.

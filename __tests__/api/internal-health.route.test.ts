@@ -18,7 +18,7 @@ jest.mock('@/lib/aria/rag', () => ({ isProductionAriaRagRuntimeFullyConfigured: 
 jest.mock('@/lib/auth/auth-rollout-startup', () => ({ checkAuthAuthorityReadiness: () => mockAuthorityReadiness() }));
 
 jest.mock('@/lib/health/document-storage-readiness', () => ({ probeDocumentStorageReadiness: () => mockStorageReadiness() }));
-jest.mock('@/lib/core-v2/diagnostics/release-identity', () => ({ readRunningReleaseSha: () => mockReleaseIdentity() }));
+jest.mock('@/lib/deployment/release-identity', () => ({ readRunningReleaseSha: () => mockReleaseIdentity() }));
 
 import { GET } from '@/app/api/internal/health/route';
 

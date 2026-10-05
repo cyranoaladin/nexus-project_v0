@@ -18,7 +18,7 @@ import { isProductionAriaRagRuntimeFullyConfigured } from '@/lib/aria/rag';
 import { resolveDeploymentRagProfile } from '@/lib/deployment/rag-profile';
 import { checkAuthAuthorityReadiness } from '@/lib/auth/auth-rollout-startup';
 import { probeDocumentStorageReadiness } from '@/lib/health/document-storage-readiness';
-import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
+import { readRunningReleaseSha } from '@/lib/deployment/release-identity';
 
 export async function GET() {
   // 1. Auth check
