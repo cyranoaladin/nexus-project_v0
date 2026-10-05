@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 
@@ -151,12 +151,14 @@ describe('ephemeral E2E bootstrap contract', () => {
     const config = read('playwright.config.e2e.ts');
 
     expect(config).toContain("'e2e/**/*.spec.ts'");
-    // `__tests__/e2e/` was a second hermetic tree until its four specs were
-    // deleted: `playwright.config.e2e.ts` collected them, but no workflow
-    // invokes that configuration, so nothing in CI ever ran them. The
-    // contract now asserts the tree is gone rather than that it is collected,
-    // so the entry cannot come back without the directory.
-    expect(existsSync(join(root, '__tests__/e2e'))).toBe(false);
+    // Historical unexecuted Playwright specs must stay absent. The Golden
+    // PostgreSQL fixture is a Jest test in a mandatory dedicated CI lane.
+    const fixtureTree = join(root, '__tests__/e2e');
+    const files = existsSync(fixtureTree) ? readdirSync(fixtureTree, { recursive: true, encoding: 'utf8' }) : [];
+    expect(files.filter(file => file.endsWith('.spec.ts'))).toEqual([]);
+    expect(files.filter(file => file.endsWith('.test.ts'))).toEqual(['golden-family-cleanup.real.test.ts']);
+    expect(read('jest.golden-family-real.config.js')).toContain('**/__tests__/e2e/golden-family-cleanup.real.test.ts');
+    expect(read('.github/workflows/ci.yml')).toContain('npm run test:golden-family:disposable');
     expect(config).not.toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(existsSync(join(root, 'e2e/candidate-diagnostic.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/real/coach-resource-student.spec.ts'))).toBe(false);
