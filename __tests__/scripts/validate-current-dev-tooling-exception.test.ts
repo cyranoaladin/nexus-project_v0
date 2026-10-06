@@ -365,6 +365,34 @@ describe('exact temporary OSV development-tooling exception', () => {
     } finally { rmSync(current.directory, { recursive: true, force: true }); }
   });
 
+  it('tolère un advisory LOW dans l\u2019audit de production', () => {
+    const current = fixture();
+    try {
+      Object.assign(current.data.productionAudit, {
+        vulnerabilities: { katex: { name: 'katex', severity: 'low', via: [], nodes: ['node_modules/katex'] } },
+        metadata: { vulnerabilities: { info: 0, low: 1, moderate: 0, high: 0, critical: 0, total: 1 } },
+      });
+      current.save();
+      expect(run(current).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  for (const severity of ['moderate', 'high', 'critical'] as const) {
+    it(`refuse un advisory ${severity} dans l\u2019audit de production`, () => {
+      const current = fixture();
+      try {
+        Object.assign(current.data.productionAudit, {
+          vulnerabilities: { bad: { name: 'bad', severity, via: [], nodes: ['node_modules/bad'] } },
+          metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 1, [severity]: 1 } },
+        });
+        current.save();
+        const result = run(current);
+        expect(result.status).not.toBe(0);
+        expect(result.stderr).toContain('PRODUCTION_AUDIT_NOT_GREEN');
+      } finally { rmSync(current.directory, { recursive: true, force: true }); }
+    });
+  }
+
   it('refuses an empty production tree as insufficient absence evidence', () => {
     const current = fixture();
     try {
