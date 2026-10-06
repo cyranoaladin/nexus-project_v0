@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Bascule de release de production — À EXÉCUTER SUR LE SERVEUR (root), jamais en local.
 #
-#   switch-release.sh --new /var/www/nexus-releases/<release> --expected-current /var/www/nexus-releases/<release actuelle vérifiée>
-#   switch-release.sh --check /var/www/nexus-releases/<release>      # préparation (rollback readiness) : ne bascule RIEN
+#   switch-release.sh --new <RELEASES_DIR>/<release> --expected-current <RELEASES_DIR>/<release actuelle vérifiée>
+#   switch-release.sh --check <RELEASES_DIR>/<release>      # préparation (rollback readiness) : ne bascule RIEN
 #   switch-release.sh --audit-only --catalog <espace-catalog.json> --db-json <lignes.json>   # comparaison seule (tests)
 #   switch-release.sh --preflight-only <release>                      # preflight complet (lecture base), sans verrou ni bascule
 #
 # Garanties :
-#  1. VERROU : un seul déploiement à la fois (flock non bloquant sur /var/lock/nexus-production-deploy.lock). Si le verrou
+#  1. VERROU : un seul déploiement à la fois (flock non bloquant sur /var/lock/nexus-release-switch.lock). Si le verrou
 #     est pris, on s'arrête (LOCK_BUSY) ; on n'attend pas, on ne contourne pas.
 #  2. COMPARE-AND-SWAP : on ne bascule que si la release servie est TOUJOURS celle que l'opérateur a vérifiée
 #     (--expected-current). Sinon CAS_MISMATCH : arrêt, réévaluation humaine, jamais d'écrasement d'une release plus récente.
@@ -21,11 +21,13 @@
 # Ne supprime rien. Ne touche ni à la base ni aux données.
 set -u
 
-CANON=/var/www/nexus-project_v0
-ALIAS=/var/www/nexus-releases/current
-RELEASE_ROOT=/var/www/nexus-releases
-LOCK=/var/lock/nexus-production-deploy.lock
-GUARD=/usr/local/libexec/nexus-release-pointer-guard
+# Topologie fournie par l'environnement (politique « no-public-infrastructure » du dépôt) ;
+# les valeurs réelles vivent dans le runbook privé du serveur.
+CANON=${NEXUS_CANONICAL_POINTER:?NEXUS_CANONICAL_POINTER requis (ex: <APP_DIR>)}
+ALIAS=${NEXUS_RELEASES_ALIAS:?NEXUS_RELEASES_ALIAS requis (ex: <RELEASES_DIR>/current)}
+RELEASE_ROOT=${NEXUS_RELEASE_ROOT:?NEXUS_RELEASE_ROOT requis (ex: <RELEASES_DIR>)}
+LOCK=${NEXUS_DEPLOY_LOCK:-/var/lock/nexus-release-switch.lock}
+GUARD=${NEXUS_POINTER_GUARD:?NEXUS_POINTER_GUARD requis}
 HEALTH_URL=${NEXUS_HEALTH_URL:-http://127.0.0.1:3001/api/health}
 NODE_VERSION=v22.23.1
 
@@ -135,7 +137,7 @@ fi
 if [ -n "$CHECK" ]; then
   check_release "$CHECK" || exit 1
   echo "POINTEUR_MODIFIABLE=$([ -L "$CANON" ] && [ -w "$(dirname "$CANON")" ] && echo YES || echo NO)"
-  echo "COMMANDE_PM2=$(pm2 jlist | python3 -c "import sys,json; p=[x for x in json.load(sys.stdin) if x['name']=='nexus-prod'][0]['pm2_env']; print(p.get('pm_exec_path'), p.get('args'))")"
+  echo "COMMANDE_PM2=$(pm2 jlist | python3 -c "import sys,json; p=[x for x in json.load(sys.stdin) if x['name']=='${NEXUS_PM2_APP:?NEXUS_PM2_APP requis}'][0]['pm2_env']; print(p.get('pm_exec_path'), p.get('args'))")"
   guard && echo "GARDE_ETAT_COURANT=OK"
   exit 0
 fi
@@ -165,13 +167,13 @@ rollback() {
 ln -sfn "$NEW" "$CANON.new" && mv -T "$CANON.new" "$CANON" || { echo "BASCULE_KO"; exit 14; }
 if ! guard --expected-release "$NEW"; then echo "GARDE_POST_BASCULE_KO"; rollback; exit 15; fi
 
-pm2 restart nexus-prod >/dev/null 2>&1
+pm2 restart ${NEXUS_PM2_APP:?NEXUS_PM2_APP requis} >/dev/null 2>&1
 sleep 12
 code=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 echo "SANTE=$code"
 if [ "$code" != 200 ]; then
   echo "SANTE_KO -> retour arrière"
-  rollback; pm2 restart nexus-prod >/dev/null 2>&1; sleep 10
+  rollback; pm2 restart ${NEXUS_PM2_APP:?NEXUS_PM2_APP requis} >/dev/null 2>&1; sleep 10
   curl -s -o /dev/null -w "SANTE_APRES_ROLLBACK=%{http_code}\n" "$HEALTH_URL"
   exit 16
 fi
@@ -179,7 +181,7 @@ pm2 save >/dev/null 2>&1
 guard --expected-release "$NEW" && echo "GARDE_FINAL=OK"
 echo "CANON=$(readlink "$CANON")"
 echo "ALIAS=$(readlink "$ALIAS") => $(readlink -f "$ALIAS")"
-PID=$(pm2 jlist | python3 -c "import sys,json; print([x for x in json.load(sys.stdin) if x['name']=='nexus-prod'][0]['pid'])")
+PID=$(pm2 jlist | python3 -c "import sys,json; print([x for x in json.load(sys.stdin) if x['name']=='${NEXUS_PM2_APP:?NEXUS_PM2_APP requis}'][0]['pid'])")
 echo "CMDLINE=$(tr '\0' ' ' < /proc/"$PID"/cmdline | cut -c1-300)"
 for c in $(pgrep -P "$PID"); do echo "ENFANT $c EXE=$(readlink /proc/"$c"/exe)"; done
 echo "DEPLOY_DONE new=$NEW previous=$CURRENT"

@@ -46,7 +46,7 @@ Ajout, à l'espace pédagogique Terminale, d'un troisième parcours NSI autonome
 
 ## Résultats
 
-Release en production : `/var/www/nexus-releases/a35be9fde-espace-recursivite-20261004T1512Z` (commit `a35be9fde`), santé 200, cinq identités concordantes, pm2 en ligne, 0 redémarrage instable. Précédente : `d7f041c1c-espace-credentials-20261003T0900Z`.
+Release en production : `<RELEASES_DIR>/a35be9fde-espace-recursivite-20261004T1512Z` (commit `a35be9fde`), santé 200, cinq identités concordantes, pm2 en ligne, 0 redémarrage instable. Précédente : `d7f041c1c-espace-credentials-20261003T0900Z`.
 
 ## Risques restants
 
@@ -56,7 +56,7 @@ Release en production : `/var/www/nexus-releases/a35be9fde-espace-recursivite-20
 
 ## Rollback
 
-Pointeur canonique vers `/var/www/nexus-releases/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart nexus-prod`. La ligne `espace_activities` et le PDF restent (inertes sans le code) ; ne rien supprimer.
+Pointeur canonique vers `<RELEASES_DIR>/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart <PM2_APP>`. La ligne `espace_activities` et le PDF restent (inertes sans le code) ; ne rien supprimer.
 
 ## Clôture (2026-10-04, soir)
 

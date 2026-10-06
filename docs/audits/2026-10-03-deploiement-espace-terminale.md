@@ -55,4 +55,4 @@ Branche `release/espace-terminale-2026-10-03` : espace (`lib/espace`, `app/espac
 
 ## Rollback
 
-Pointeur canonique `/var/www/nexus-project_v0` vers `/var/www/nexus-releases/f50d531b6-espace-terminale-20261003T0720Z` (précédente) ou `/var/www/nexus-releases/724f8982d-security-2026-09-20260909T181734Z` (avant l'espace), garde, `pm2 restart nexus-prod`. Ne jamais supprimer les tables ni colonnes `espace_*`. Sauvegarde PostgreSQL : `/var/backups/nexus-espace-20261003/nexus_prod-AVANT-espace-20261002T232218Z.dump` (dernier recours).
+Pointeur canonique `<APP_DIR>` vers `<RELEASES_DIR>/f50d531b6-espace-terminale-20261003T0720Z` (précédente) ou `<RELEASES_DIR>/724f8982d-security-2026-09-20260909T181734Z` (avant l'espace), garde, `pm2 restart <PM2_APP>`. Ne jamais supprimer les tables ni colonnes `espace_*`. Sauvegarde PostgreSQL : `/var/backups/nexus-espace-20261003/nexus_prod-AVANT-espace-20261002T232218Z.dump` (dernier recours).

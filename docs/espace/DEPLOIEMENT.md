@@ -1,3 +1,6 @@
+> Topologie neutralisée pour le dépôt public (politique « no-public-infrastructure ») :
+> `<PROD_HOST>`, `<APP_DIR>`, `<RELEASES_DIR>`, `<PM2_APP>` sont documentés dans le runbook privé du serveur.
+
 # Espace pédagogique — plan de déploiement en production
 
 > **Statut au 2026-10-03 : DÉPLOYÉ en production** (release `f50d531b6-espace-terminale-20261003T0720Z`). Le déroulé réel, avec les écarts par rapport au plan, est au §8.
@@ -87,12 +90,12 @@ La migration est additive : 12 tables, 5 types, 4 colonnes nullables sur `users`
 3. **Migration** selon §4.
 4. **Ressources de Maths** : `install-resources.ts --module suites` (empreintes vérifiées contre le manifeste d'origine).
 5. **Comptes** : `provision.ts apply` en dry-run, revue du plan, puis `--execute --credentials-out` (fichier 0600 hors dépôt) ; transmettre les codes par un canal privé, détruire le fichier.
-6. **Bascule de release** selon `/etc/nexus/runbooks/release-deployment.md` (release-dir, deux pointeurs, garde, `pm2 restart nexus-prod`, vérification des 5 identités).
+6. **Bascule de release** selon `/etc/nexus/runbooks/release-deployment.md` (release-dir, deux pointeurs, garde, `pm2 restart <PM2_APP>`, vérification des 5 identités).
 7. **Tests de fumée** : `/api/health`, `/`, `/espace/connexion`, `/auth/signin`, connexion d'un élève et de l'enseignant, tableau de bord, un autosave réel, permissions (401 anonyme, 404 sur le travail d'autrui), ressources (sujet 200, corrigé 404 pour un élève), `/ateliers/poo/` (200), journaux applicatifs, **empreinte du legacy identique**.
 
 ## 6. Rollback
 
-1. Rebasculer les deux pointeurs de release vers la release précédente, `pm2 restart nexus-prod`, vérification des 5 identités.
+1. Rebasculer les deux pointeurs de release vers la release précédente, `pm2 restart <PM2_APP>`, vérification des 5 identités.
 2. **Laisser les tables et colonnes en place.** Elles sont inertes sans le nouveau code et contiendront des travaux d'élèves : ne jamais les supprimer pour « revenir en arrière ».
 3. Vérifier `/`, `/auth/signin`, `/ateliers/poo/`.
 4. Les comptes créés restent (désactivables : `provision.ts disable --username … --execute`).
@@ -110,7 +113,7 @@ La migration est additive : 12 tables, 5 types, 4 colonnes nullables sur `users`
 | Migration | `20261002210000_add_espace_pedagogique` : 338 lignes, 0 instruction destructive, somme de contrôle = SHA-256 du fichier ; privilèges par défaut de `nexus_runtime` déjà en place |
 
 ### Défaut préexistant à réparer avant la bascule
-Le garde de pointeur échoue **avant toute action** : `ALIAS_NOT_CHAINED` (le pointeur canonique `/var/www/nexus-project_v0` vise l'alias `/var/www/nexus-releases/current`, qui vise directement la release `724f8982d` ; le runbook exige l'inverse). Réparation sans changer la release servie : canonique → release courante, puis alias → canonique, puis garde.
+Le garde de pointeur échoue **avant toute action** : `ALIAS_NOT_CHAINED` (le pointeur canonique `<APP_DIR>` vise l'alias `<RELEASES_DIR>/current`, qui vise directement la release `724f8982d` ; le runbook exige l'inverse). Réparation sans changer la release servie : canonique → release courante, puis alias → canonique, puis garde.
 
 ### Comptes (décisions prises, liste privée hors dépôt)
 Enseignant : compte COACH de l'adresse du propriétaire. Yassine : compte Terminale. Ines et Rostom : identifiant et code ajoutés **sans** consommer leur activation familiale (la session d'espace n'exige plus `activatedAt` pour un ÉLÈVE possédant un code personnel).
@@ -129,7 +132,7 @@ Enseignant : compte COACH de l'adresse du propriétaire. Yassine : compte Termin
 7. **Release** : `rsync` du `standalone` construit dans un clone propre hors `.worktrees`, `.runtime` copié de la release précédente, `RELEASE_SOURCE_SHA` écrit. Bascule atomique, garde, `pm2 restart`, 5 identités concordantes ; retour arrière automatique prévu si la santé n'était pas confirmée (non déclenché).
 8. **Comptes techniques de validation** `val.a`, `val.b`, `val.prof` (groupe `validation-technique`) : à désactiver après les séances (`provision.ts disable --username … --execute`).
 
-Rollback disponible : pointeur canonique vers `/var/www/nexus-releases/724f8982d-security-2026-09-20260909T181734Z`, puis `pm2 restart nexus-prod`. Tables et colonnes de l'espace restent en place.
+Rollback disponible : pointeur canonique vers `<RELEASES_DIR>/724f8982d-security-2026-09-20260909T181734Z`, puis `pm2 restart <PM2_APP>`. Tables et colonnes de l'espace restent en place.
 
 ## 9. Déroulé du 2026-10-04 — parcours « Récursivité et programmation récursive »
 
@@ -137,22 +140,22 @@ Ajout d'un troisième parcours NSI (thème « Algorithmique et programmation »)
 
 1. **Pré-vol (lecture seule)** : pointeur canonique sur `d7f041c1c-espace-credentials-20261003T0900Z`, garde vert, aucune opération concurrente (`pm2`, `rsync`, pointeurs), disque 61 %.
 2. **Build** : clone propre hors `.worktrees` du commit `a35be9fde` (`npm ci`, `npm run build`, `ARTIFACT VALID`, `BUILD_ID` `AyxLRAp0A4nhjMiwnYltB`).
-3. **Release** : `/var/www/nexus-releases/a35be9fde-espace-recursivite-20261004T1512Z` (`rsync` du standalone, `.runtime` copié de la release précédente, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). `runner.py` du parcours présent dans le standalone.
+3. **Release** : `<RELEASES_DIR>/a35be9fde-espace-recursivite-20261004T1512Z` (`rsync` du standalone, `.runtime` copié de la release précédente, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). `runner.py` du parcours présent dans le standalone.
 4. **Corrigé privé** : `corrige.pdf` (sha256 `ecac3ad4…94d0`) installé dans `/var/www/nexus-shared/espace/resources/recursivite/` (`nexusapp`, 750/640).
 5. **Miroir de catalogue** : une ligne `espace_activities` (`nsi-recursivite`, 9 étapes, `PYTHON_TP`), en une transaction (`ON CONFLICT DO NOTHING`). Les 4 lignes existantes sont inchangées. Équivalent de `provision.ts sync-activities --execute`. **Sans cette ligne, l'ouverture du parcours échoue** : à faire pour tout nouveau parcours.
-6. **Bascule** : un seul pointeur (`mv -T`), garde avec `--expected-release`, `pm2 restart nexus-prod` ; retour arrière automatique prévu (non déclenché), santé 200, cinq identités concordantes (canonique, alias résolu, args PM2, cmdline, exécutable Node).
+6. **Bascule** : un seul pointeur (`mv -T`), garde avec `--expected-release`, `pm2 restart <PM2_APP>` ; retour arrière automatique prévu (non déclenché), santé 200, cinq identités concordantes (canonique, alias résolu, args PM2, cmdline, exécutable Node).
 7. **Contrôles anonymes en production** : 8 pages publiques, `/espace/connexion`, `/ateliers/poo/`, `/api/health` en 200 ; `/espace/nsi/recursivite` redirige vers la connexion ; corrigé et aperçu enseignant en 401 ; `BUILD_ID` servi conforme ; journaux sans erreur ; empreinte du legacy POO inchangée (`dd6c60e9…`).
 8. **Fumée authentifiée en production : NON exécutée** — la création de comptes techniques de validation en base de production a été refusée par le garde-fou de la session (voir le rapport d'audit). Spec prête : `e2e/prod/espace-prod-recursivite.spec.ts` (validée 5/5 sur la pile locale).
 
-Rollback : pointeur canonique vers `/var/www/nexus-releases/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart nexus-prod`. La ligne `espace_activities` et le PDF restent en place (inertes sans le code).
+Rollback : pointeur canonique vers `<RELEASES_DIR>/d7f041c1c-espace-credentials-20261003T0900Z`, garde, `pm2 restart <PM2_APP>`. La ligne `espace_activities` et le PDF restent en place (inertes sans le code).
 
 ## 10. Clôture du parcours Récursivité — 2026-10-04 (soir)
 
 Aucun compte réel recréé ni reprovisionné ; aucun travail réel modifié (empreintes SQL avant/après identiques : 12 travaux, 106 versions, 14 comptes réels).
 
-- **Release finale** : `/var/www/nexus-releases/cabf20ce1-espace-recursivite-cloture-20261004T1718Z`, `BUILD_ID` `xn0iUwo3EQGN24uuPiQLq`, source = commit `cabf20ce1` (`RELEASE_SOURCE_SHA`). Précédente saine : `a35be9fde-espace-recursivite-20261004T1512Z` (`BUILD_ID` `AyxLRAp0A4nhjMiwnYltB`). Avant Récursivité : `d7f041c1c-espace-credentials-20261003T0900Z`. Les deux ont passé `switch-release.sh --check` ; aucun écart de schéma Prisma entre `d7f041c1c` et `cabf20ce1`.
+- **Release finale** : `<RELEASES_DIR>/cabf20ce1-espace-recursivite-cloture-20261004T1718Z`, `BUILD_ID` `xn0iUwo3EQGN24uuPiQLq`, source = commit `cabf20ce1` (`RELEASE_SOURCE_SHA`). Précédente saine : `a35be9fde-espace-recursivite-20261004T1512Z` (`BUILD_ID` `AyxLRAp0A4nhjMiwnYltB`). Avant Récursivité : `d7f041c1c-espace-credentials-20261003T0900Z`. Les deux ont passé `switch-release.sh --check` ; aucun écart de schéma Prisma entre `d7f041c1c` et `cabf20ce1`.
 - **Pourquoi une seconde release** : la première n'était pas alignée sur ce qui devait être servi — détection « récursive » durcie (appels imbriqués exigés), limite de 200 appels présentée comme limite du bac à sable Nexus (jamais comme propriété de Python), terminaison contrôlée à 60 (la récursion indirecte consomme deux cadres par niveau). Les commits `643acca16` (premier lot) ne contenaient que documentation et tests.
-- **Bascule** : `switch-release.sh` — verrou `flock` sur `/var/lock/nexus-production-deploy.lock`, compare-and-swap (`--expected-current`), garde, santé 200, cinq identités concordantes. Les cas `CAS_MISMATCH` et `LOCK_BUSY` ont été exercés sans effet sur le pointeur.
+- **Bascule** : `switch-release.sh` — verrou `flock` sur `/var/lock/nexus-release-switch.lock`, compare-and-swap (`--expected-current`), garde, santé 200, cinq identités concordantes. Les cas `CAS_MISMATCH` et `LOCK_BUSY` ont été exercés sans effet sur le pointeur.
 - **Corrigé privé** remplacé (ancien conservé : `corrige.pdf.avant-20261004`, non servi).
 - **Catalogue ↔ base** : 5 activités, aucun écart (équivalent SQL lecture seule de `audit-activities`). La ligne insérée à la main correspond donc à la source canonique ; plus aucun INSERT manuel : `provision.ts audit-activities` puis `sync-activities`.
 - **Fumée authentifiée de production** (comptes techniques existants `val.b`, `val.d`, `val.p`, `val.prof`, réactivés puis refermés ; sessions révoquées, connexion refusée 4/4) : `e2e/prod/espace-prod-recursivite.spec.ts` 8/8 (Pyodide réel : programme erroné lisible, solution à boucle refusée, `RecursionError` du bac à sable, non-terminaison interrompue puis interface récupérée, solution validée ; autosave, rafraîchissement, remise ; correction, compétence, « À reprendre », retour élève ; RBAC croisé, anonyme, élève sur routes enseignant, corrigé PDF). Compte enseignant réel `alaeddine` (lecture seule) : `espace-prod-teacher.spec.ts` 2/2 (13 élèves, Récursivité et 4 corrigés dont `nsi-recursivite`). Élève réel NSI : connexion et tableau de bord seulement (thème « Algorithmique et programmation » visible), activité non ouverte.
@@ -161,7 +164,7 @@ Aucun compte réel recréé ni reprovisionné ; aucun travail réel modifié (em
 
 ## 11. Clôture d'ingénierie — 2026-10-04 (nuit)
 
-**Release servie** : `/var/www/nexus-releases/e8a81cba0-espace-validation-scope-20261004T1827Z`, `BUILD_ID` `Q83ltYG_UJ8P1SV6vt8qZ`, source `e8a81cba0e693c48c20c6edfa10ef2911ff48c18` (`RELEASE_SOURCE_SHA`, `release-manifest.json` et arbre git concordent). Précédente saine (rollback) : `cabf20ce1-espace-recursivite-cloture-20261004T1718Z` (`BUILD_ID` `xn0iUwo3EQGN24uuPiQLq`), puis `a35be9fde-…` et `d7f041c1c-…` ; aucun écart de schéma Prisma entre `cabf20ce1` et `e8a81cba0` (0 ligne). Pourquoi une nouvelle release : un correctif runtime réel (point suivant).
+**Release servie** : `<RELEASES_DIR>/e8a81cba0-espace-validation-scope-20261004T1827Z`, `BUILD_ID` `Q83ltYG_UJ8P1SV6vt8qZ`, source `e8a81cba0e693c48c20c6edfa10ef2911ff48c18` (`RELEASE_SOURCE_SHA`, `release-manifest.json` et arbre git concordent). Précédente saine (rollback) : `cabf20ce1-espace-recursivite-cloture-20261004T1718Z` (`BUILD_ID` `xn0iUwo3EQGN24uuPiQLq`), puis `a35be9fde-…` et `d7f041c1c-…` ; aucun écart de schéma Prisma entre `cabf20ce1` et `e8a81cba0` (0 ligne). Pourquoi une nouvelle release : un correctif runtime réel (point suivant).
 
 - **Comptes de validation exclus des vues d'ensemble d'un ADMIN** (`lib/espace/validation.ts`). Constat : un enseignant réel (COACH) ne les voyait déjà pas (périmètre = ses affectations ; vérifié en production : 13 élèves, aucune trace technique), mais un ADMIN (portée « tout ») voyait le groupe `validation-technique` dans les effectifs, la file « À corriger », l'activité récente et les séances. Mécanisme retenu : le **groupe** `validation-technique` (attribut de domaine existant), pas un préfixe d'identifiant, et sans migration (une colonne aurait exigé la procédure manuelle de migration en production, disproportionnée pour un drapeau). Option `includeValidation` pour l'audit ; accès par identifiant et export explicite inchangés. Test d'intégration rouge sur l'ancien code (5 échecs), vert sur le nouveau. Aucun CSV n'existe ; l'export JSON est ciblé (travail, élève, séance).
 - **Preflight catalogue ↔ base intégré à la bascule** (`switch-release.sh`) : lecture seule, fail closed, `DEPLOYMENT_BLOCKED` (code 17) si activité absente, slug dupliqué, matière / type / module / titre / étapes / version incohérents ; **aucune mutation automatique** (correction explicite : `provision.ts sync-activities --execute`). Exécuté pour de bon avant cette bascule : `CATALOGUE_DB_SYNC=PASS (5 activités)`. Au premier essai réel, le script s'est arrêté en silence après le preflight : `docker exec -i` avalait la suite du script lu sur l'entrée standard (`ssh … bash -s`). Aucune bascule n'avait eu lieu. Corrigé (stdin fermé), mode `--preflight-only` ajouté, régression testée avec un faux `docker` qui lit stdin.

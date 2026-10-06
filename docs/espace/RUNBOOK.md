@@ -1,3 +1,6 @@
+> Topologie neutralisée pour le dépôt public (politique « no-public-infrastructure ») :
+> `<PROD_HOST>`, `<APP_DIR>`, `<RELEASES_DIR>`, `<PM2_APP>` sont documentés dans le runbook privé du serveur.
+
 # Espace pédagogique — exploitation
 
 Toutes les commandes écrivent **uniquement avec `--execute`**. Les codes personnels ne sont jamais affichés ni versionnés.
@@ -72,9 +75,9 @@ Voir `docs/legacy-poo/LEGACY_POO_LINKING.md`. Le service et l'archive historique
 Toute bascule passe par `scripts/espace/switch-release.sh`, exécuté **sur le serveur** (copié par `ssh … 'bash -s -- <args>' < scripts/espace/switch-release.sh`).
 
 1. Préparer la release hors ligne (build en clone propre hors `.worktrees`, `rsync` du standalone, `.runtime` copié d'une release vivante, `release-manifest.json`, `RELEASE_SOURCE_SHA`, `root:root` 755/644). Ressources privées et miroir de catalogue **avant** la bascule (§8). Générer le catalogue du code : `npx tsx scripts/espace/export-catalog.ts > <release>/espace-catalog.json` (fichier lu par le preflight, §11).
-2. Relever la release servie : `readlink -f /var/www/nexus-project_v0`. C'est la valeur **vérifiée** à passer en `--expected-current`.
+2. Relever la release servie : `readlink -f <APP_DIR>`. C'est la valeur **vérifiée** à passer en `--expected-current`.
 3. `switch-release.sh --new <release> --expected-current <release servie vérifiée>` :
-   - **verrou** `flock -n /var/lock/nexus-production-deploy.lock` : si un autre déploiement le tient → `LOCK_BUSY`, arrêt (jamais d'attente ni de contournement) ;
+   - **verrou** `flock -n /var/lock/nexus-release-switch.lock` : si un autre déploiement le tient → `LOCK_BUSY`, arrêt (jamais d'attente ni de contournement) ;
    - **compare-and-swap** : si la release servie n'est plus celle vérifiée → `CAS_MISMATCH`, arrêt, réévaluation humaine ; on n'écrase jamais une release plus récente ;
    - **preflight catalogue ↔ base** (lecture seule, fail closed, avant tout changement) : catalogue du code ≠ `espace_activities` → `DEPLOYMENT_BLOCKED` (code 17), **aucune mutation automatique** — corriger explicitement par `provision.ts sync-activities --execute` puis relancer ;
    - pré-vol (artefact, Node embarqué `v22.23.1`, garde de pointeur), bascule atomique du seul pointeur canonique, garde `--expected-release`, `pm2 restart`, santé ; **retour arrière automatique** si la santé n'est pas confirmée.
