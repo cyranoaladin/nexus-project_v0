@@ -5,6 +5,8 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { DOCUMENTED_EXCLUSIONS } from './e2e-ownership.mjs';
+
 export const INVOCATIONS = {
   public: { root: 'e2e', owner: 'public', prefixes: ['e2e/public/', 'e2e/real/pages/'], projects: ['chromium'] },
   'auth-chromium': { root: 'e2e/auth', owner: 'auth', prefixes: ['e2e/auth/'], projects: ['chromium'] },
@@ -26,6 +28,11 @@ function* specs(suites, ancestors = []) {
     for (const spec of suite.specs ?? []) yield { spec, titlePath: [...titlePath, spec.title] };
     yield* specs(suite.suites, titlePath);
   }
+}
+
+/** Specs CI must execute: every tracked spec except the documented manual-lane exclusions. */
+export function executionTrackedSpecs(files, exclusions = DOCUMENTED_EXCLUSIONS) {
+  return files.filter(file => file.endsWith('.spec.ts') && !exclusions.has(file)).sort();
 }
 
 /** Count actual Playwright records, not directory membership or console totals. */
@@ -206,7 +213,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (mode === 'seal') {
       writeJson(third, sealReport(first, JSON.parse(readFileSync(second, 'utf8')), identity));
     } else if (mode === 'aggregate') {
-      const tracked = execFileSync('git', ['ls-files', 'e2e'], { encoding: 'utf8' }).split('\n').filter(file => file.endsWith('.spec.ts')).sort();
+      const tracked = executionTrackedSpecs(execFileSync('git', ['ls-files', 'e2e'], { encoding: 'utf8' }).split('\n'));
       const evidence = readEvidenceDirectoryOrThrow(first);
       const result = auditExecutionEvidence(tracked, evidence, identity);
       writeJson(second, result);
