@@ -351,6 +351,20 @@ describe('exact temporary OSV development-tooling exception', () => {
     }
   });
 
+  it('tolère une entrée OSV sous le seuil (LOW/MODERATE) sans épinglage', () => {
+    const current = fixture();
+    try {
+      current.data.osv.results[0].packages.push({
+        package: { name: 'some-low', version: '1.0.0', ecosystem: 'npm' },
+        vulnerabilities: [{ id: 'GHSA-low1-low1-low1',
+          database_specific: { severity: 'LOW' }, severity: [] }],
+      });
+      current.save();
+      const result = run(current);
+      expect(result.status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
   it('refuses an empty production tree as insufficient absence evidence', () => {
     const current = fixture();
     try {

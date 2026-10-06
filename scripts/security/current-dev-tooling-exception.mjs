@@ -122,7 +122,13 @@ function validateOsvReport(report, policy) {
       for (const vulnerability of packageResult.vulnerabilities) {
         assert(typeof vulnerability?.id === 'string' &&
           Array.isArray(vulnerability.aliases ?? []), 'OSV_REPORT_INVALID');
-        assert(vulnerability.database_specific?.severity === 'HIGH', 'SEVERITY_ESCALATED');
+        const osvSeverity = vulnerability.database_specific?.severity;
+        // Même seuil canonique que l'audit npm : CRITICAL est toujours refusé ;
+        // LOW/MODERATE sont sous le gate et ne sont pas couverts par l'exception
+        // (première occurrence 2026-10-06 : katex LOW, sprintf-js MODERATE sans
+        // correctif publié) — ils sont ignorés ici, jamais suivis ni épinglés.
+        assert(osvSeverity !== 'CRITICAL', 'SEVERITY_ESCALATED');
+        if (osvSeverity !== 'HIGH') continue;
         const expectedAdvisory = policy.advisories.find((entry) => entry.id === vulnerability.id);
         assert(expectedAdvisory, 'ADDITIONAL_ADVISORY');
         assert(Array.isArray(vulnerability.severity) &&

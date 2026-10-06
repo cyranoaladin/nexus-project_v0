@@ -1832,6 +1832,11 @@ jobs:
           non_blocking_prefixes = (
               '__tests__/', 'e2e/', 'scripts/release/', 'scripts/seed-',
               'scripts/gate-', 'test-results/', 'playwright-report/',
+              # Runners Pyodide de l'espace pédagogique : exécuter le code de
+              # l'élève dans le navigateur (WASM, builtins en liste blanche,
+              # AST filtré) EST leur fonction ; leurs octets sont épinglés par
+              # des gardes d'empreinte dédiés, donc pas d'annotation inline.
+              'content/espace/',
           )
 
           def is_blocking_path(path):
