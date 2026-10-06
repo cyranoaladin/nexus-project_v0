@@ -28,7 +28,8 @@
  * hosted runner) and the offline fallback-package drill (downloads Pyodide
  * at build time). Both run only through the dispatch-only
  * `.github/workflows/manual-rehearsals.yml` (playwright.prod-smoke.config.ts,
- * playwright.fallback.config.ts). (A previous entry,
+ * playwright.fallback.config.ts). Owner, frequency and required evidence of
+ * each entry: docs/qa/manual-e2e-registry.md. (A previous entry,
  * e2e/auth/entitlements-chat-gate-blocked.spec.ts, was removed once
  * re-verification against a real disposable stack showed the underlying
  * "422 instead of 403" belief was a false positive from an incomplete
