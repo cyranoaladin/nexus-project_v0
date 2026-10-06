@@ -20,8 +20,11 @@ function readCreds(env: string): Record<string, string> {
   return out;
 }
 
-const validation = readCreds('ESPACE_VALIDATION_CREDENTIALS');
-const real = readCreds('ESPACE_REAL_CREDENTIALS');
+// Lecture différée (voir espace-prod-credentials.spec.ts).
+let validationCache: Record<string, string> | undefined;
+let realCache: Record<string, string> | undefined;
+const validation = new Proxy({} as Record<string, string>, { get: (_t, k: string) => (validationCache ??= readCreds('ESPACE_VALIDATION_CREDENTIALS'))[k] });
+const real = new Proxy({} as Record<string, string>, { get: (_t, k: string) => (realCache ??= readCreds('ESPACE_REAL_CREDENTIALS'))[k] });
 const run = Date.now().toString(36);
 /** Paire d'élèves techniques NEUVE à chaque campagne (un travail remis est en lecture seule : le test n'est pas rejouable sur le même compte). */
 const A = process.env.ESPACE_STUDENT_A ?? 'val.a';

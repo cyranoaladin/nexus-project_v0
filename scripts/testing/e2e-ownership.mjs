@@ -43,7 +43,12 @@ function listAllSpecs() {
     .sort();
 }
 
-const COVERED_PREFIXES = ['e2e/real/pages/', 'e2e/public/', 'e2e/auth/', 'e2e/aria/'];
+// e2e/prod/** et e2e/fallback/** appartiennent à la lane manuelle déclarée
+// `.github/workflows/manual-rehearsals.yml` (workflow_dispatch uniquement) :
+// fumées de production de l'Espace pédagogique (credentials opérateur hors
+// dépôt, jamais exécutables sur un runner hébergé) et drill du paquet de
+// secours hors-ligne (playwright.fallback.config.ts / prod-smoke.config.ts).
+const COVERED_PREFIXES = ['e2e/real/pages/', 'e2e/public/', 'e2e/auth/', 'e2e/aria/', 'e2e/prod/', 'e2e/fallback/'];
 
 /**
  * @returns {{

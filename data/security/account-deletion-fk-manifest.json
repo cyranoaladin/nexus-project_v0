@@ -837,5 +837,165 @@
     "parentTable": "users",
     "onDelete": "RESTRICT",
     "category": "AUDIT_RETAIN"
+  },
+  {
+    "conname": "espace_enrollments_userId_fkey",
+    "childTable": "espace_enrollments",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": true,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None: pure membership link student↔espace group.",
+      "whyCascadeIsSafe": "Deployed behaviour of the Espace lineage (prod since 2026-10-03): the row only expresses group membership; the pedagogical history itself lives in espace_works (RESTRICT)."
+    }
+  },
+  {
+    "conname": "espace_teacher_assignments_teacherId_fkey",
+    "childTable": "espace_teacher_assignments",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "PURE_MEMBERSHIP_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": true,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None: teacher↔group assignment link.",
+      "whyCascadeIsSafe": "Deployed Espace behaviour; authored history (sessions, annotations, snippets referenced by works) is protected by its own RESTRICT relations."
+    }
+  },
+  {
+    "conname": "espace_session_participants_userId_fkey",
+    "childTable": "espace_session_participants",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None beyond the session's live use.",
+      "whyCascadeIsSafe": "Deployed Espace behaviour: participant rows are live-session membership; the durable pedagogical evidence is the student's espace_works (RESTRICT), not the attendance link."
+    }
+  },
+  {
+    "conname": "espace_comment_snippets_teacherId_fkey",
+    "childTable": "espace_comment_snippets",
+    "parentTable": "users",
+    "onDelete": "CASCADE",
+    "category": "EPHEMERAL_CASCADE_ALLOWED",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": true,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "None: personal re-usable comment snippets of the teacher.",
+      "whyCascadeIsSafe": "Deployed Espace behaviour: snippets are the teacher's private tooling; annotations actually placed on works are separate rows under RESTRICT."
+    }
+  },
+  {
+    "conname": "espace_sessions_teacherId_fkey",
+    "childTable": "espace_sessions",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Session history of the Espace pédagogique (what was taught, when, by whom).",
+      "whyCascadeIsSafe": "n/a — RESTRICT: deleting a teacher must not erase held sessions."
+    }
+  },
+  {
+    "conname": "espace_works_studentId_fkey",
+    "childTable": "espace_works",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Student work (code, versions, grades context) is the core pedagogical record of the Espace.",
+      "whyCascadeIsSafe": "n/a — RESTRICT."
+    }
+  },
+  {
+    "conname": "espace_annotations_authorId_fkey",
+    "childTable": "espace_annotations",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Teacher feedback placed on student works.",
+      "whyCascadeIsSafe": "n/a — RESTRICT."
+    }
+  },
+  {
+    "conname": "espace_work_attachments_uploadedById_fkey",
+    "childTable": "espace_work_attachments",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": false,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Files attached to graded works.",
+      "whyCascadeIsSafe": "n/a — RESTRICT."
+    }
+  },
+  {
+    "conname": "espace_legacy_links_studentId_fkey",
+    "childTable": "espace_legacy_links",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": true,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Mapping between legacy POO records and Espace students.",
+      "whyCascadeIsSafe": "n/a — RESTRICT."
+    }
+  },
+  {
+    "conname": "espace_legacy_links_linkedById_fkey",
+    "childTable": "espace_legacy_links",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "HISTORICAL_RESTRICT",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Who performed the legacy linking (operator accountability).",
+      "whyCascadeIsSafe": "n/a — RESTRICT."
+    }
   }
 ]

@@ -1,0 +1,45 @@
+name: Manual rehearsals (dispatch only)
+
+# Lanes STRICTEMENT manuelles : jamais déclenchées par push/PR.
+# - prod-smoke : fumées de l'Espace pédagogique contre la VRAIE production, après un
+#   déploiement, avec les fichiers de credentials fournis par l'opérateur (hors Git).
+#   Ce workflow hébergé ne peut PAS fournir ces fichiers : le job échoue proprement si
+#   on le lance sans eux ; l'exécution réelle se fait depuis le poste de l'opérateur
+#   (`npx playwright test --config=playwright.prod-smoke.config.ts`). Il existe pour
+#   que ces specs aient une lane déclarée et restent sous le garde de couverture.
+# - fallback-offline : le paquet de secours hors-ligne (CLI réelle + serveur local,
+#   toute requête externe bloquée et comptée).
+on:
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: prod-smoke ou fallback-offline
+        required: true
+        type: choice
+        options: [fallback-offline, prod-smoke]
+
+permissions:
+  contents: read
+
+jobs:
+  rehearsal:
+    name: Rehearsal (${{ inputs.lane }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.1'
+          cache: 'npm'
+      - run: npm install -g npm@10.9.8
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run the selected rehearsal lane
+        run: |
+          if [ "${{ inputs.lane }}" = "fallback-offline" ]; then
+            npx playwright test --config=playwright.fallback.config.ts
+          else
+            # Volontairement sans credentials : refuse de tourner ici (voir en-tête).
+            npx playwright test --config=playwright.prod-smoke.config.ts
+          fi

@@ -6,6 +6,12 @@ const allowed: Record<string, readonly string[]> = {
   'components/providers.tsx': ['SessionProvider'],
   'app/auth/signin/SignInForm.tsx': ['getSession', 'signIn'],
   'app/auth/activate/page.tsx': ['signIn'],
+  // Espace pédagogique (lignée de production réconciliée) : mêmes classes de surface que
+  // les entrées ci-dessus — formulaire de connexion dédié (provider 'espace') et
+  // déconnexions explicites (bouton de nav ; re-login forcé après changement de code).
+  'app/espace/connexion/ConnexionForm.tsx': ['signIn'],
+  'components/espace/shared/EspaceNav.tsx': ['signOut'],
+  'components/espace/shared/CredentialForm.tsx': ['signOut'],
 };
 
 /** All runtime modules are scanned, including barrels. Aliasing never grants capabilities. */

@@ -23,7 +23,10 @@ function readCreds(env: string): Record<string, string> {
   return out;
 }
 
-const creds = readCreds('ESPACE_VALIDATION_CREDENTIALS');
+// Lecture différée : la découverte (`--list`, garde de couverture) n'exige pas les fichiers ;
+// l'exécution sans eux échoue au premier accès, même message.
+let credsCache: Record<string, string> | undefined;
+const creds = new Proxy({} as Record<string, string>, { get: (_t, k: string) => (credsCache ??= readCreds('ESPACE_VALIDATION_CREDENTIALS'))[k] });
 const STUDENT = process.env.ESPACE_CRED_STUDENT ?? 'val.h';
 const STUDENT_RESET = process.env.ESPACE_CRED_STUDENT_RESET ?? 'val.i';
 const TEACHER = process.env.ESPACE_TEACHER ?? 'val.prof2';
@@ -33,8 +36,13 @@ const SECOND_CODE = `Pomme${tag.slice(-3)}Kiwi`.replace(/[^A-Za-z0-9]/g, 'x');
 // Mot de passe jetable généré à l'exécution (jamais écrit dans le dépôt) : 12 caractères au moins, hors valeurs triviales.
 const NEW_PASSWORD = `${randomBytes(9).toString('hex')}-${tag}`;
 
-let studentSecret = creds[STUDENT]!;
-let teacherSecret = creds[TEACHER]!;
+// Initialisés au premier test (lecture différée des credentials, cf. ci-dessus).
+let studentSecret = '';
+let teacherSecret = '';
+test.beforeAll(() => {
+  studentSecret = creds[STUDENT]!;
+  teacherSecret = creds[TEACHER]!;
+});
 
 async function login(page: Page, username: string, secret: string) {
   await page.goto('/espace/connexion');

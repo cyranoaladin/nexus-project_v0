@@ -30,7 +30,9 @@ function readCreds(env: string): Record<string, string> {
   return out;
 }
 
-const creds = readCreds('ESPACE_VALIDATION_CREDENTIALS');
+// Lecture différée (voir espace-prod-credentials.spec.ts).
+let credsCache: Record<string, string> | undefined;
+const creds = new Proxy({} as Record<string, string>, { get: (_t, k: string) => (credsCache ??= readCreds('ESPACE_VALIDATION_CREDENTIALS'))[k] });
 const STUDENT = process.env.ESPACE_REC_STUDENT ?? 'val.r1';
 const OTHER = process.env.ESPACE_REC_OTHER ?? 'val.r2';
 const STUDENT2 = process.env.ESPACE_REC_STUDENT2 ?? 'val.r3';
