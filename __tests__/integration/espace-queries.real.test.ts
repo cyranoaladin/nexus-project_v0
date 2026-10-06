@@ -153,4 +153,3 @@ describe('accueil enseignant : activité par défaut', () => {
     await expect(overview.latestActiveActivitySlug(ctx.student as never)).rejects.toThrow();
   }, 60_000);
 });
-

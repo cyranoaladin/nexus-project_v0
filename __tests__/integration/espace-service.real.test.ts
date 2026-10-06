@@ -671,4 +671,3 @@ describe('séances', () => {
     await expectCode(publishSession(otherTeacher, s.id), 'NOT_FOUND');
   });
 });
-
