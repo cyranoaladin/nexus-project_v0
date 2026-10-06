@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+"""Publish verified backup artifact atomically to the configured private Storage Box."""
+import argparse,pathlib,json,os,re,subprocess,sys,hashlib,tarfile,shlex,datetime
+ROOT=pathlib.Path("/var/backups/nexus-verified")
+CONFIG=pathlib.Path("/opt/nexus-ops/remediation/20260905/originals/opt__eaf_backup.sh")
+class Failure(Exception):pass
+def command(cmd):
+ r=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=600)
+ if r.returncode:raise Failure('remote operation failed exit='+str(r.returncode))
+ return r.stdout.decode().strip()
+def publish(runpath):
+ runpath=pathlib.Path(runpath).resolve();root=ROOT
+ if not runpath.is_relative_to(root) or not runpath.is_dir() or runpath.name.endswith('.partial'):raise Failure('invalid completed run path')
+ meta=json.loads((runpath/'result.json').read_text())
+ if not(meta.get('backup_complete') or meta.get('restoration_verified')):raise Failure('run not completed')
+ s_conf=CONFIG.read_text()
+ user=re.search(r'^SB_USER="([^"]+)"',s_conf,re.M).group(1);key=re.search(r'^SB_KEY="([^"]+)"',s_conf,re.M).group(1)
+ host=user+'@'+user+'.your-storagebox.de';remote='backups/nexus-remediation/'+runpath.parent.name
+ # Validate the encryption recipient BEFORE any plaintext artifact is created (fail fast, nothing to clean).
+ m_fpr=re.search(r'^SB_ENC_FPR="([^"]+)"',s_conf,re.M)
+ recipient=os.environ.get('NEXUS_BACKUP_ENC_FPR') or (m_fpr.group(1) if m_fpr else '')
+ if not re.fullmatch(r'[0-9A-Fa-f]{40}',recipient):raise Failure('encryption recipient fingerprint missing or invalid')
+ export=root/'exports';export.mkdir(mode=0o700,exist_ok=True);name=runpath.parent.name+'-'+runpath.name+'.tar.gz';partial=export/(name+'.partial');archive=export/name
+ if not archive.exists():
+  with tarfile.open(partial,'w:gz',compresslevel=1) as tar:
+   for p in sorted(runpath.rglob('*')):
+    rel=p.relative_to(runpath)
+    if rel.parts[0]=='restored' or p.name.endswith('.stderr') or p.name=='offsite.json':continue
+    tar.add(p,arcname=str(rel),recursive=False)
+  partial.chmod(0o600)
+  with partial.open('rb') as f:os.fsync(f.fileno())
+  os.replace(partial,archive)
+ # Encrypt-before-offsite: GPG public key only on this host; the private key lives offline.
+ # The plaintext tar.gz never leaves this directory and is removed on success AND on failure.
+ enc=export/(name+'.gpg');encpartial=export/(name+'.gpg.partial')
+ try:
+  if not enc.exists():
+   encpartial.unlink(missing_ok=True)
+   command(['gpg','--batch','--yes','--trust-model','always','--cipher-algo','AES256','--recipient',recipient,'--output',str(encpartial),'--encrypt',str(archive)])
+   encpartial.chmod(0o600)
+   with encpartial.open('rb') as f:os.fsync(f.fileno())
+   os.replace(encpartial,enc)
+ finally:
+  encpartial.unlink(missing_ok=True)
+  archive.unlink(missing_ok=True)  # no plaintext left after encryption attempt
+ if not enc.exists() or not enc.stat().st_size:raise Failure('encrypted artifact missing or empty')
+ archive=enc;name=name+'.gpg'
+ with archive.open('rb') as f:sha=hashlib.file_digest(f,'sha256').hexdigest()
+ ssh=['ssh','-i',key,'-p','23','-o','StrictHostKeyChecking=yes','-o','BatchMode=yes','-o','ConnectTimeout=15',host]
+ command(ssh+['mkdir -p '+shlex.quote(remote)])
+ target=remote+'/'+name
+ # Unique UTC/UUID run names prevent collisions with previous backup generations.
+ command(['scp','-q','-P','23','-i',key,'-o','StrictHostKeyChecking=yes','-o','BatchMode=yes',str(archive),host+':'+target+'.partial'])
+ got=command(ssh+['sha256sum '+shlex.quote(target+'.partial')]).split()[0]
+ if got!=sha:raise Failure('offsite checksum mismatch')
+ command(ssh+['chmod 600 '+shlex.quote(target+'.partial')])
+ command(ssh+['mv '+shlex.quote(target+'.partial')+' '+shlex.quote(target)])
+ got=command(ssh+['sha256sum '+shlex.quote(target)]).split()[0]
+ if got!=sha:raise Failure('published offsite checksum mismatch')
+ result={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'offsite_sha256_verified':True,'sha256':sha,'bytes':archive.stat().st_size,'remote_path':target,'source_restore_verified':bool(meta.get('restore_verified') or meta.get('restoration_verified'))}
+ temp=runpath/'offsite.json.partial';temp.write_text(json.dumps(result,indent=2));temp.chmod(0o600);os.replace(temp,runpath/'offsite.json')
+ print(json.dumps({'status':'offsite_checksum_verified','bytes':result['bytes'],'source_restore_verified':result['source_restore_verified']}))
+if __name__=='__main__':
+ os.umask(0o077);p=argparse.ArgumentParser();p.add_argument('run');a=p.parse_args()
+ try:publish(a.run)
+ except Exception as e:print(json.dumps({'status':'failed','error_type':type(e).__name__,'reason':str(e) if isinstance(e,Failure) else 'inspect private evidence'}),file=sys.stderr);sys.exit(1)

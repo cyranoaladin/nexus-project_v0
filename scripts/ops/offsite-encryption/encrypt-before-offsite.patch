@@ -1,0 +1,40 @@
+--- scripts/ops/offsite-encryption/publish_backup.py.reference	2026-10-06 05:21:41.848229889 +0100
++++ scripts/ops/offsite-encryption/publish_backup.py.patched	2026-10-06 05:21:41.849229888 +0100
+@@ -13,9 +13,13 @@
+  if not runpath.is_relative_to(root) or not runpath.is_dir() or runpath.name.endswith('.partial'):raise Failure('invalid completed run path')
+  meta=json.loads((runpath/'result.json').read_text())
+  if not(meta.get('backup_complete') or meta.get('restoration_verified')):raise Failure('run not completed')
+- s=CONFIG.read_text()
+- user=re.search(r'^SB_USER="([^"]+)"',s,re.M).group(1);key=re.search(r'^SB_KEY="([^"]+)"',s,re.M).group(1)
++ s_conf=CONFIG.read_text()
++ user=re.search(r'^SB_USER="([^"]+)"',s_conf,re.M).group(1);key=re.search(r'^SB_KEY="([^"]+)"',s_conf,re.M).group(1)
+  host=user+'@'+user+'.your-storagebox.de';remote='backups/nexus-remediation/'+runpath.parent.name
++ # Validate the encryption recipient BEFORE any plaintext artifact is created (fail fast, nothing to clean).
++ m_fpr=re.search(r'^SB_ENC_FPR="([^"]+)"',s_conf,re.M)
++ recipient=os.environ.get('NEXUS_BACKUP_ENC_FPR') or (m_fpr.group(1) if m_fpr else '')
++ if not re.fullmatch(r'[0-9A-Fa-f]{40}',recipient):raise Failure('encryption recipient fingerprint missing or invalid')
+  export=root/'exports';export.mkdir(mode=0o700,exist_ok=True);name=runpath.parent.name+'-'+runpath.name+'.tar.gz';partial=export/(name+'.partial');archive=export/name
+  if not archive.exists():
+   with tarfile.open(partial,'w:gz',compresslevel=1) as tar:
+@@ -26,6 +30,21 @@
+   partial.chmod(0o600)
+   with partial.open('rb') as f:os.fsync(f.fileno())
+   os.replace(partial,archive)
++ # Encrypt-before-offsite: GPG public key only on this host; the private key lives offline.
++ # The plaintext tar.gz never leaves this directory and is removed on success AND on failure.
++ enc=export/(name+'.gpg');encpartial=export/(name+'.gpg.partial')
++ try:
++  if not enc.exists():
++   encpartial.unlink(missing_ok=True)
++   command(['gpg','--batch','--yes','--trust-model','always','--cipher-algo','AES256','--recipient',recipient,'--output',str(encpartial),'--encrypt',str(archive)])
++   encpartial.chmod(0o600)
++   with encpartial.open('rb') as f:os.fsync(f.fileno())
++   os.replace(encpartial,enc)
++ finally:
++  encpartial.unlink(missing_ok=True)
++  archive.unlink(missing_ok=True)  # no plaintext left after encryption attempt
++ if not enc.exists() or not enc.stat().st_size:raise Failure('encrypted artifact missing or empty')
++ archive=enc;name=name+'.gpg'
+  with archive.open('rb') as f:sha=hashlib.file_digest(f,'sha256').hexdigest()
+  ssh=['ssh','-i',key,'-p','23','-o','StrictHostKeyChecking=yes','-o','BatchMode=yes','-o','ConnectTimeout=15',host]
+  command(ssh+['mkdir -p '+shlex.quote(remote)])
