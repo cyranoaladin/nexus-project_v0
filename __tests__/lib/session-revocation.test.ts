@@ -38,9 +38,28 @@ describe('versioned JWT session validation', () => {
     await expect(validateSessionToken(current, db)).resolves.toBe(current)
     expect(db.user.findUnique).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      select: { id: true, role: true, activatedAt: true, sessionVersion: true },
+      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true },
     })
   })
+
+  describe('espace pédagogique : code personnel et activation familiale en attente', () => {
+    const pending = { id: 'user-1', role: 'ELEVE', activatedAt: null, sessionVersion: 0 };
+
+    it('un élève avec code personnel garde sa session, activation familiale non consommée', async () => {
+      const current = token({ role: 'ELEVE' });
+      await expect(validateSessionToken(current, database({ ...pending, pinHash: '$2b$hash' }))).resolves.toBe(current);
+    });
+
+    it('un élève non activé SANS code personnel reste refusé', async () => {
+      await expect(validateSessionToken(token({ role: 'ELEVE' }), database({ ...pending, pinHash: null }))).resolves.toBeNull();
+      await expect(validateSessionToken(token({ role: 'ELEVE' }), database(pending))).resolves.toBeNull();
+    });
+
+    it('le contournement est réservé au rôle ELEVE : un parent non activé reste refusé même avec un pinHash', async () => {
+      const parent = { id: 'user-1', role: 'PARENT', activatedAt: null, sessionVersion: 0, pinHash: '$2b$hash' };
+      await expect(validateSessionToken(token(), database(parent))).resolves.toBeNull();
+    });
+  });
 
   it.each([
     ['legacy versionless token', token({ sessionVersion: undefined })],

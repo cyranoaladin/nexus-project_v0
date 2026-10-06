@@ -76,7 +76,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "img-src 'self' data: https: blob:",
-        `connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com${jitsiWebSocket ? ` ${jitsiWebSocket}` : ''} data:`,
+        `connect-src 'self' https://api.openai.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com https://cdn.jsdelivr.net${jitsiWebSocket ? ` ${jitsiWebSocket}` : ''} data:`,
         "worker-src 'self' blob: https://cdn.jsdelivr.net",
         `frame-src 'self'${jitsiOrigin ? ` ${jitsiOrigin}` : ''}${legacyJitsi ? ' https://*.jitsi.net' : ''} https://www.google.com https://maps.google.com`,
         "frame-ancestors 'none'",

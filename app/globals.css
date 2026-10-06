@@ -1555,3 +1555,29 @@ html {
     transform: none !important;
   }
 }
+
+/* Espace pédagogique : seule la fiche imprimable (#print-sheet) sort à l'impression, en noir sur blanc. */
+@media print {
+  body:has(#print-sheet) * {
+    visibility: hidden !important;
+  }
+
+  body:has(#print-sheet) #print-sheet,
+  body:has(#print-sheet) #print-sheet * {
+    visibility: visible !important;
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body:has(#print-sheet) #print-sheet {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+
+  body:has(#print-sheet) #print-sheet svg {
+    max-width: 100%;
+    break-inside: avoid;
+  }
+}
