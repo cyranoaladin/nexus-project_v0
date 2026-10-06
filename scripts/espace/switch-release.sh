@@ -23,11 +23,20 @@ set -u
 
 # Topologie fournie par l'environnement (politique « no-public-infrastructure » du dépôt) ;
 # les valeurs réelles vivent dans le runbook privé du serveur.
-CANON=${NEXUS_CANONICAL_POINTER:?NEXUS_CANONICAL_POINTER requis (ex: <APP_DIR>)}
-ALIAS=${NEXUS_RELEASES_ALIAS:?NEXUS_RELEASES_ALIAS requis (ex: <RELEASES_DIR>/current)}
-RELEASE_ROOT=${NEXUS_RELEASE_ROOT:?NEXUS_RELEASE_ROOT requis (ex: <RELEASES_DIR>)}
+CANON=${NEXUS_CANONICAL_POINTER:-}
+ALIAS=${NEXUS_RELEASES_ALIAS:-}
+RELEASE_ROOT=${NEXUS_RELEASE_ROOT:-}
 LOCK=${NEXUS_DEPLOY_LOCK:-/var/lock/nexus-release-switch.lock}
-GUARD=${NEXUS_POINTER_GUARD:?NEXUS_POINTER_GUARD requis}
+GUARD=${NEXUS_POINTER_GUARD:-}
+# La topologie n'est exigée que sur les chemins qui touchent les pointeurs/PM2 ;
+# --audit-only et --preflight-only (lecture seule) tournent sans elle (tests, CI).
+require_topology() {
+  : "${NEXUS_CANONICAL_POINTER:?NEXUS_CANONICAL_POINTER requis (ex: <APP_DIR>)}"
+  : "${NEXUS_RELEASES_ALIAS:?NEXUS_RELEASES_ALIAS requis (ex: <RELEASES_DIR>/current)}"
+  : "${NEXUS_RELEASE_ROOT:?NEXUS_RELEASE_ROOT requis (ex: <RELEASES_DIR>)}"
+  : "${NEXUS_POINTER_GUARD:?NEXUS_POINTER_GUARD requis}"
+  : "${NEXUS_PM2_APP:?NEXUS_PM2_APP requis}"
+}
 HEALTH_URL=${NEXUS_HEALTH_URL:-http://127.0.0.1:3001/api/health}
 NODE_VERSION=v22.23.1
 
@@ -135,6 +144,7 @@ if [ -n "$PREFLIGHT_ONLY" ]; then   # preflight complet (lecture en base compris
 fi
 
 if [ -n "$CHECK" ]; then
+  require_topology
   check_release "$CHECK" || exit 1
   echo "POINTEUR_MODIFIABLE=$([ -L "$CANON" ] && [ -w "$(dirname "$CANON")" ] && echo YES || echo NO)"
   echo "COMMANDE_PM2=$(pm2 jlist | python3 -c "import sys,json; p=[x for x in json.load(sys.stdin) if x['name']=='${NEXUS_PM2_APP:?NEXUS_PM2_APP requis}'][0]['pm2_env']; print(p.get('pm_exec_path'), p.get('args'))")"
@@ -143,6 +153,7 @@ if [ -n "$CHECK" ]; then
 fi
 
 [ -n "$NEW" ] && [ -n "$EXPECTED" ] || { echo "--new et --expected-current sont obligatoires (ou --check)"; exit 64; }
+require_topology
 
 exec 9>>"$LOCK" || { echo "VERROU_ILLISIBLE $LOCK"; exit 10; }
 flock -n 9 || { echo "LOCK_BUSY : un autre déploiement tient $LOCK — arrêt"; exit 10; }
