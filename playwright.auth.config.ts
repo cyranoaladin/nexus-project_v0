@@ -58,6 +58,7 @@ export default defineConfig({
         'core-golden-family.spec.ts',
         'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
+        'logout-session-resurrection.spec.ts',
         'session-video-join.spec.ts',
       ],
       use: { ...devices['Desktop Firefox'] },
@@ -69,6 +70,7 @@ export default defineConfig({
         'core-golden-family.spec.ts',
         'core-v2-staff-golden.spec.ts',
         'auth-client-lifecycle.spec.ts',
+        'logout-session-resurrection.spec.ts',
         'session-video-join.spec.ts',
       ],
       use: { ...devices['Desktop Safari'] },
@@ -78,7 +80,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'logout-session-resurrection.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],
