@@ -162,7 +162,7 @@ jobs:
           NEXT_PUBLIC_JITSI_SERVER_URL: ${{ inputs.preview_jitsi_server_url }}
           RELEASE_SHA: ${{ github.sha }}
           NODE_ENV: production
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run build
 
       - name: Audit forbidden artifacts and runtime test configuration
