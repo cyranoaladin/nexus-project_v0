@@ -4,7 +4,7 @@
     {
       "type": "extraneous",
       "name": "@img/sharp-wasm32",
-      "version": "0.35.4",
+      "version": "0.35.5",
       "path": "node_modules/@img/sharp-wasm32",
       "reason": "sharp optional WASM32 platform binary pulled by npm overrides",
       "upstreamIssue": "npm/cli#8128",

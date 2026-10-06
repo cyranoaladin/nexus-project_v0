@@ -9,7 +9,7 @@
   "maximumDurationDays": 7,
   "fullAuditImpactedPackageCount": 34,
   "fullAuditImpactSha256": "8639e88339e3a2b33e45b37a1b09ba6f7f6c6118b6691b3b778a1b78ba230ca7",
-  "lockfileSha256": "a5792263992f5bf2278451b74f6a37be06c5df668ce5b428f160494ffe417c3f",
+  "lockfileSha256": "758900deb826f937044558475ff887c50a9581b69034907faa36cca36207daa6",
   "remediationIssue": "https://github.com/cyranoaladin/nexus-project_v0/issues/335",
   "advisories": [
     {
