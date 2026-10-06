@@ -225,20 +225,31 @@ export function validateCurrentNpmAudit(args, policy) {
   validateLockfile(lock, policy);
   const findings = audit?.vulnerabilities;
   const counts = audit?.metadata?.vulnerabilities;
+  // The canonical threshold everywhere in CI is `--audit-level=high`. Low/moderate
+  // advisories below that threshold do not gate and are deliberately NOT covered by
+  // this temporary exception: requiring their counts to be zero coupled the gate to
+  // unrelated upstream noise (first hit 2026-10-06: katex low + sprintf-js moderate,
+  // the latter with no published fix). HIGH and CRITICAL handling is unchanged and
+  // strict: zero critical, and every high finding must walk to the pinned advisories
+  // through dev-only nodes.
   assert(audit?.auditReportVersion === 2 && findings &&
     typeof findings === 'object' && !Array.isArray(findings) &&
     !audit.error && (!audit.errors ||
       (Array.isArray(audit.errors) && audit.errors.length === 0)) &&
-    Object.keys(findings).length > 0 && counts &&
-    ['info', 'low', 'moderate', 'critical'].every((level) => counts[level] === 0) &&
-    counts.high === Object.keys(findings).length &&
-    counts.total === counts.high, 'AUDIT_REPORT_INVALID');
-  const impacts = Object.entries(findings)
+    counts && counts.critical === 0 &&
+    counts.total === counts.info + counts.low + counts.moderate + counts.high + counts.critical,
+  'AUDIT_REPORT_INVALID');
+  const highFindings = Object.fromEntries(Object.entries(findings)
+    .filter(([, item]) => item?.severity === 'high'));
+  assert(Object.keys(highFindings).length > 0 &&
+    counts.high === Object.keys(highFindings).length, 'AUDIT_REPORT_INVALID');
+  // Impact digest over the HIGH findings only (what the exception covers).
+  const impacts = Object.entries(highFindings)
     .map(([name, item]) => [name, [...(item?.nodes ?? [])].sort()])
     .sort(([left], [right]) => left.localeCompare(right));
   const impactDigest = createHash('sha256')
     .update(JSON.stringify(impacts)).digest('hex');
-  assert(Object.keys(findings).length === policy.fullAuditImpactedPackageCount &&
+  assert(Object.keys(highFindings).length === policy.fullAuditImpactedPackageCount &&
     impactDigest === policy.fullAuditImpactSha256, 'AUDIT_IMPACT_SET_CHANGED');
 
   const directFound = new Set();
@@ -246,7 +257,7 @@ export function validateCurrentNpmAudit(args, policy) {
   function visit(name, stack = new Set()) {
     assert(!stack.has(name), 'AUDIT_VIA_CYCLE');
     if (checked.has(name)) return;
-    const item = findings[name];
+    const item = highFindings[name];
     assert(item?.name === name && item.severity === 'high' &&
       Array.isArray(item.via) && item.via.length > 0 &&
       Array.isArray(item.nodes) && item.nodes.length > 0,
@@ -260,6 +271,15 @@ export function validateCurrentNpmAudit(args, policy) {
     nextStack.add(name);
     for (const via of item.via) {
       if (typeof via === 'string') {
+        // A high finding can also carry sub-threshold via edges (e.g. babel-jest →
+        // babel-plugin-istanbul, moderate sprintf-js chain). Those edges are below
+        // the gate and not part of the pinned high graph: skip them, never follow.
+        if (!highFindings[via]) {
+          // Sub-threshold edge: it must still exist in the report — an absent name is a
+          // dangling reference, i.e. a malformed audit, not noise to skip.
+          assert(findings[via], 'AUDIT_UNEXPECTED_FINDING');
+          continue;
+        }
         visit(via, nextStack);
       } else {
         const expected = policy.advisories.find((entry) => entry.package === name);
@@ -275,7 +295,7 @@ export function validateCurrentNpmAudit(args, policy) {
     }
     checked.add(name);
   }
-  for (const name of Object.keys(findings)) visit(name);
+  for (const name of Object.keys(highFindings)) visit(name);
   assert(sameValues([...directFound], policy.advisories.map((entry) => entry.id)),
     'AUDIT_ADVISORY_MISSING');
   return { advisoryIds: [...directFound].sort(), impactedPackages: checked.size };

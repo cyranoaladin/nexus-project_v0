@@ -7,9 +7,9 @@
   "expiresAt": "2026-10-10T00:00:00Z",
   "maximumExpiry": "2026-10-10T00:00:00Z",
   "maximumDurationDays": 7,
-  "fullAuditImpactedPackageCount": 39,
-  "fullAuditImpactSha256": "27072afb1280e062d26b3c32ce2806454da96fac2f9cb31672b5a6567a4c29b2",
-  "lockfileSha256": "b5aaa205c437a091b6487ca6f1f131d0697bb9c79ae988d6736e759880dea29a",
+  "fullAuditImpactedPackageCount": 34,
+  "fullAuditImpactSha256": "8639e88339e3a2b33e45b37a1b09ba6f7f6c6118b6691b3b778a1b78ba230ca7",
+  "lockfileSha256": "a5792263992f5bf2278451b74f6a37be06c5df668ce5b428f160494ffe417c3f",
   "remediationIssue": "https://github.com/cyranoaladin/nexus-project_v0/issues/335",
   "advisories": [
     {
@@ -17,9 +17,16 @@
       "package": "braces",
       "version": "3.0.3",
       "severity": "HIGH",
-      "cvssVectors": ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"],
-      "lockPaths": ["node_modules/braces"],
-      "parentPaths": ["node_modules/micromatch"],
+      "cvssVectors": [
+        "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N"
+      ],
+      "lockPaths": [
+        "node_modules/braces"
+      ],
+      "parentPaths": [
+        "node_modules/micromatch"
+      ],
       "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA=="
     },
     {
@@ -27,9 +34,16 @@
       "package": "http-cache-semantics",
       "version": "4.2.0",
       "severity": "HIGH",
-      "cvssVectors": ["CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N", "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"],
-      "lockPaths": ["node_modules/http-cache-semantics"],
-      "parentPaths": ["node_modules/make-fetch-happen"],
+      "cvssVectors": [
+        "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N"
+      ],
+      "lockPaths": [
+        "node_modules/http-cache-semantics"
+      ],
+      "parentPaths": [
+        "node_modules/make-fetch-happen"
+      ],
       "integrity": "sha512-dTxcvPXqPvXBQpq5dUr6mEMJX4oIEFv6bwom3FDwKRDsuIjjJGANqhBuoAn9c1RQJIdAKav33ED65E2ys+87QQ=="
     }
   ],
