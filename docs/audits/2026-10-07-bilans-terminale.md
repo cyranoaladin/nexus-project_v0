@@ -27,7 +27,21 @@ Les énoncés sont autonomes ; calculs et cinq programmes Python vérifiés. Cor
 
 ## Affectations
 
-L’espace contient actuellement les groupes `terminale-principal` et `jean-racine`, dont les inscriptions ont été inspectées en lecture seule. Une question précise sur les groupes/élèves destinataires a été posée. Les séances réelles de Terminale ne sont pas publiées sans confirmation de cette population, notamment pour distinguer spécialité et autres parcours de maths. Aucun code réel n’est réinitialisé et aucun compte réel n’est utilisé pour les tests.
+L’utilisateur a confirmé que les groupes, les comptes et les identifiants Terminale existants constituent la population à utiliser. Le 7 octobre 2026, trois séances ont été publiées par les services officiels `createSession` et `publishSession`, sous l’enseignant déjà affecté à ces groupes et matières :
+
+| Groupe | Bilan | Participants | État |
+|---|---|---:|---|
+| `terminale-principal` | Terminale mathématiques | 9 | Publié |
+| `terminale-principal` | Terminale NSI | 5 | Publié |
+| `jean-racine` | Terminale mathématiques | 3 | Publié |
+
+Cela représente 12 élèves distincts en maths, 5 en NSI et 13 élèves distincts au total (4 suivent les deux matières). Aucune attribution spécifique en maths expertes. Tous les destinataires et l’enseignant étaient actifs, sans compte fusionné. Aucun nouveau compte ni changement d’identifiant ou de code.
+
+Sauvegarde préalable supplémentaire : `/var/backups/nexus/terminale-assignment-20261007-p4UnNu/before.dump`, 13 100 618 octets, mode0600, catalogue d’archive relu avec succès. L’opération conserve un instantané privé et ne contient aucun secret dans ses journaux.
+
+Vérifications après publication : égalité exacte des participants avec les inscriptions groupe × matière ; autorisation de lecture du bilan et accès enseignant pour chaque destinataire ; listes professeur contenant exactement les 12 et 5 élèves attendus ; comparaison des activités visibles sur les tableaux de bord des 22 élèves réels, avec seuls les bilans prévus ajoutés. Empreintes identiques avant/après pour les comptes et leurs justificatifs de connexion, groupes, inscriptions, affectations enseignants, catalogue, toutes les copies et séances hors périmètre. Les 50 travaux de la base (dont les travaux techniques historiques) restent inchangés. Aucune copie réelle n’a été ouverte pour les contrôles. Une nouvelle simulation reconnaît les trois séances existantes et prévoit leur réutilisation, sans doublon.
+
+Preuves opérationnelles privées : `/root/nexus-ops/bilan-terminale-20261007/assignment/`. Ces contrôles ne nécessitent ni modification du code applicatif ni redéploiement.
 
 ## Artefact et campagne navigateur
 
@@ -49,7 +63,7 @@ Release active : `c481fc985-espace-bilan-terminale-20261007`, build `DSeStcoHpnl
 
 Les contrôles de production emploient exclusivement deux nouveaux comptes `val.*`, isolés dans `validation-technique`, et deux séances n’attribuant le bilan qu’à l’élève technique concerné. Fumée réussie pour les deux matières : aperçus mobiles et questions effectives, huit rubriques, essai/aide/reprise, sauvegarde après rechargement, transmission, correction, export JSON privé et PDF familial, retours visibles par l’élève. La copie maths conserve son état et sa révision après le parcours NSI. Captures mobiles inspectées, texte des deux PDF vérifié, aucune balise de code brute restante.
 
-Les deux comptes techniques sont désactivés et les deux séances clôturées ; une relecture de la base confirme la fermeture. Les groupes réels gardent leurs effectifs et leurs séances antérieures. Le compteur de travaux réels reste14 avant/après ; aucune écriture n’a ciblé une réponse réelle. Les groupes Terminale réels restent sans séance de bilan publiée en attente de confirmation de la population.
+Les deux comptes techniques sont désactivés et les deux séances clôturées ; une relecture de la base confirme la fermeture. Les groupes réels gardent leurs effectifs et leurs séances antérieures. Le compteur de travaux réels reste14 avant/après ; aucune écriture n’a ciblé une réponse réelle. À l’issue de cette première vérification technique, les groupes Terminale réels n’avaient pas encore de séance de bilan publiée ; la publication après clarification utilisateur est documentée dans la section Affectations ci-dessus.
 
 Le harnais local et ses conteneurs jetables sont arrêtés et supprimés. Dernier contrôle public : HTTP200. Aucun identifiant, secret ou contenu réel d’élève n’est versionné.
 
