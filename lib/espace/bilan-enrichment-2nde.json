@@ -455,7 +455,7 @@
           "hint": "Précise la compétence, ce que l’essai t’a appris et l’aide utilisée. Ta première réponse reste conservée."
         }
       ],
-      "intro": "Les essais sont proposés séparément avec ton professeur, sur les notions réellement travaillées. Distingue ton ressenti avant de chercher et ce que tu souhaites préciser après. Une recherche incomplète reste utile et aucun score global n’est calculé."
+      "intro": "Les essais sont proposés séparément avec ton professeur, sur les notions réellement travaillées. Distingue ton ressenti avant de chercher et ce que tu souhaites préciser après. Une recherche incomplète reste utile et aucun score global n’est calculé. Pour ton premier essai, travaille sans cours ni calculatrice ; garde tes recherches, même incomplètes."
     }
   ],
   "appendQuestions": {
