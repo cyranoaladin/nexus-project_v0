@@ -2,7 +2,7 @@
 
 ## Objectif et méthode
 
-Vérifier le parcours réellement utilisé par l’élève et le professeur : connexion et changement de code, questionnaire des deux niveaux, sauvegarde/reprise, transmission, lecture, annotation, correction, export, rapport familial et réouverture. Des tests unitaires reproductibles, des tests HTTP sur PostgreSQL réel et des scénarios Chromium complètent la vérification de l’artefact de production.
+Vérifier le parcours réellement utilisé par l’élève et le professeur : connexion et changement de code, questionnaire des deux niveaux, sauvegarde/reprise, transmission, lecture, annotation, correction, export, rapport familial et réouverture. Des tests unitaires reproductibles, des tests HTTP sur PostgreSQL réel et des scénarios Chromium, Firefox et WebKit complètent la vérification de l’artefact de production.
 
 Les essais modifiant des réponses utilisent uniquement des personnes fictives sur une base PostgreSQL jetable, avec Redis dédié. Aucune donnée ni aucun code des neuf élèves inscrits ne sont utilisés dans cette campagne. Les fixtures vérifient l’origine locale et le nom de la base avant toute écriture, puis suppriment leurs données. Le harnais reproductible est documenté dans `e2e/bilan-validation/README.md`.
 
@@ -34,7 +34,23 @@ Les formulaires de connexion et de changement de code attendent l’initialisati
 
 ## Résultats et livraison
 
-Campagne en cours. Les nombres définitifs, l’identifiant de release et les contrôles après déploiement seront inscrits ici après leur exécution.
+- Suite unitaire complète : **1 162 suites, 13 658 tests et 7 snapshots réussis**. La vérification finale ciblée du moteur de synchronisation passe également (25 tests).
+- Intégration Espace sur PostgreSQL jetable : **11 suites et 178 tests réussis**, dont les limites de validation et le cycle complet de remise, correction et réouverture.
+- TypeScript, lint et compilation de production réussis ; avertissements historiques du lint sans erreur. Vérification de l’artefact : 655 fichiers statiques contrôlés.
+- La récupération de deux rubriques hors connexion après fermeture réelle de l’onglet et réouverture via IndexedDB, ainsi que la connexion avec JavaScript retardé, passent sur les trois moteurs (6 scénarios).
+- E2E sur l’artefact compilé : **47 scénarios réussis** (19 Chromium, 14 Firefox, 14 WebKit), sans nouvelle tentative automatique après échec. Les quatre parcours intégraux Chromium/Firefox ont aussi été rejoués après stabilisation du geste de sélection : 4/4 réussis.
+- Publication effectuée : source applicative `c8e52e68720509c9dbc5c897e9a5ccdc33027dc5`, build `SOcbVfH-9HsiWgaKydsal`, release `c8e52e687-espace-bilan-fiabilite-20261007T1039Z`. Le catalogue de 7 activités, les sommes de contrôle du transfert, le garde de bascule et la santé HTTP 200 ont été vérifiés. Sauvegarde préalable conservée ; aucune migration de schéma nécessaire.
+- Après déploiement, deux parcours réels sur `nexusreussite.academy` ont réussi avec des comptes techniques : saisie sur mobile, sauvegarde et rechargement, remise, lecture exacte par le professeur, commentaire, correction, export, PDF familial et lecture seule avec retour visible côté élève. Le compte technique sans attribution ne peut ouvrir aucun bilan.
+- Les quatre comptes techniques ont été désactivés et leurs deux séances clôturées après le test. Le contrôle en lecture seule confirme les groupes réels de 4 élèves de troisième et 5 de seconde, leurs séances publiées et zéro copie réelle créée par cette campagne. Les neuf comptes réels et leurs codes n’ont pas été employés.
+- Les pages protégées redirigent les visiteurs vers la connexion ; les deux PDF de production contiennent les réponses et commentaires attendus. Les rapports PDF sont issus uniquement des données fictives.
+
+Les journaux, résultats techniques et PDF de test sont conservés dans le dossier privé local `~/.local/state/nexus-bilan-validation-deep-20261007/`. Le code des tests et le harnais sont versionnés ; les secrets et fichiers de codes ne le sont pas.
+
+## Diagnostic des navigateurs
+
+Un échec intermittent du clic automatisé WebKit a été instrumenté : le pointeur était pressé sur un petit bouton radio au bord de l’écran puis relâché sur un autre élément après déplacement de la page. Aucun événement de changement n’atteignait le champ ; il ne s’agissait pas d’une réponse enregistrée puis perdue. Le parcours affiche désormais la carte entière, attend sa stabilité géométrique puis effectue un seul clic, suivi de l’assertion de sélection. Trois répétitions complètes du scénario de seconde ont réussi. Aucun second clic automatique ni changement des assertions métier n’a été ajouté. Les autres interactions restent testées normalement.
+
+Le test de JavaScript retardé retient puis libère les téléchargements dans la même page. Il ne simule plus un téléchargement annulé, que WebKit pouvait conserver en échec lors de la navigation suivante. Un ancien verrou Firefox sans processus actif a été archivé avant exécution ; il s’agissait d’un incident de préparation locale.
 
 ## Limites d’interprétation
 

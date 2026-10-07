@@ -1,6 +1,27 @@
+import type { Locator } from '@playwright/test';
 import { test, expect, login, goStep, waitSaved, bilanPath } from './fixtures';
 import { bilanData } from '../../lib/espace/bilan-data';
 import { prisma } from '../../lib/prisma';
+
+// Reveal the complete choice card before one pointer click. WebKit can focus-scroll
+// a 16px radio at the viewport edge between pointerdown and pointerup.
+async function selectChoice(input: Locator) {
+  const label=input.locator('..');
+  await label.evaluate(async element=>{
+    element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
+    let previous='', stable=0;
+    for(let frame=0;frame<120;frame++) {
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      const r=element.getBoundingClientRect();
+      const current=[r.top,r.left,r.width,r.height].join(',');
+      stable=current===previous && r.top>=0 && r.bottom<=innerHeight ? stable+1 : 0;
+      if(stable>=3) return;
+      previous=current;
+    }
+    throw new Error('Choice card did not settle inside viewport');
+  });
+  await label.click(); await expect(input).toBeChecked();
+}
 
 for (const level of ['3e','2nde'] as const) {
   test(`${level} : huit étapes, toutes les questions, aides, reprise et transmission`,async({page,cohort},testInfo)=>{
@@ -9,10 +30,10 @@ for (const level of ['3e','2nde'] as const) {
     await expect(page.getByRole('heading',{name:'Mon bilan du premier mois'})).toBeVisible();
     await expect(page.locator('a[href*="chatgpt"]')).toHaveCount(0);
     await expect(page.locator('#bilan-step option')).toHaveCount(8);
-    for(const module of bilanData.modules[level]) await page.getByRole('group',{name:module.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}).check();
+    for(const module of bilanData.modules[level]) await selectChoice(page.getByRole('group',{name:module.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
     await page.getByLabel('Une autre notion ou une trace').fill(`Trace ${level} : exercice revu pendant la séance de septembre.`);
     await waitSaved(page); await goStep(page,1);
-    for(const module of bilanData.modules[level]) for(const skill of module.skills) await page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true}).check();
+    for(const module of bilanData.modules[level]) for(const skill of module.skills) await selectChoice(page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true}));
     await goStep(page,2);
     const selection=page.getByRole('group',{name:/Les essais choisis/});
     const choices=selection.getByRole('checkbox');
@@ -31,8 +52,8 @@ for (const level of ['3e','2nde'] as const) {
       await goStep(page,i+3);
       for(const q of section.questions) {
         if(q.type==='text') await page.getByRole('textbox',{name:q.text}).fill(`Mon exemple pour ${q.id} : j’ai progressé avec une reprise précise.`);
-        else if(q.type==='multi') await page.getByRole('group',{name:q.text,exact:true}).getByLabel(q.options![0],{exact:true}).check();
-        else await page.getByRole('group',{name:q.text,exact:true}).getByLabel(q.options![0],{exact:true}).check();
+        else if(q.type==='multi') await selectChoice(page.getByRole('group',{name:q.text,exact:true}).getByLabel(q.options![0],{exact:true}));
+        else await selectChoice(page.getByRole('group',{name:q.text,exact:true}).getByLabel(q.options![0],{exact:true}));
       }
     }
     await waitSaved(page); await page.reload();
@@ -104,6 +125,41 @@ test('coupure réseau : brouillon honnête, retour réseau puis reprise sur une 
   const other=await browser.newContext(); const fresh=await other.newPage();
   try { await login(fresh,cohort.third); await fresh.goto(bilanPath('3e')); await expect(fresh.getByLabel('Une autre notion ou une trace')).toHaveValue('Saisie pendant une coupure réseau.'); }
   finally {await other.close();}
+});
+
+test('IndexedDB réel : deux rubriques hors connexion survivent à la fermeture de l’onglet',async({page,context,cohort})=>{
+  const scopeAnswer='Trace conservée sur cet appareil avant fermeture.';
+  const methodAnswer='Je reprends ma méthode après la coupure réseau.';
+  await login(page,cohort.third);await page.goto(bilanPath('3e'));await waitSaved(page);
+  const work=await prisma.espaceWork.findFirstOrThrow({where:{studentId:cohort.third.id,activity:{slug:'maths-bilan-septembre-2026-3e'}}});
+  await context.setOffline(true);
+  await page.getByLabel('Une autre notion ou une trace').fill(scopeAnswer);
+  await goStep(page,3);
+  await page.getByRole('textbox',{name:'Décris un blocage concret, ou une méthode qui t’a aidé à le dépasser.'}).fill(methodAnswer);
+  await expect(page.getByTestId('save-indicator')).toHaveAttribute('data-state','offline');
+  await expect.poll(()=>page.evaluate(async({key,scopeAnswer,methodAnswer})=>{
+    const record=await new Promise<{pending?:Record<string,{fields?:Record<string,string>}>}|undefined>((resolve,reject)=>{
+      const open=indexedDB.open('nexus-espace',1);
+      open.onerror=()=>reject(open.error);
+      open.onsuccess=()=>{
+        const db=open.result;const transaction=db.transaction('drafts','readonly');
+        const get=transaction.objectStore('drafts').get(key);
+        get.onsuccess=()=>resolve(get.result);get.onerror=()=>reject(get.error);
+        transaction.oncomplete=()=>db.close();
+      };
+    });
+    return {scope:record?.pending?.scope?.fields?.other===scopeAnswer,methods:record?.pending?.methods?.fields?.['block-example']===methodAnswer};
+  },{key:`${cohort.third.id}:${work.id}`,scopeAnswer,methodAnswer})).toEqual({scope:true,methods:true});
+  await page.close();
+  await context.setOffline(false);
+  const restored=await context.newPage();await restored.goto(bilanPath('3e'));
+  await expect(restored.getByLabel('Une autre notion ou une trace')).toHaveValue(scopeAnswer);
+  await waitSaved(restored);await goStep(restored,3);
+  await expect(restored.getByRole('textbox',{name:'Décris un blocage concret, ou une méthode qui t’a aidé à le dépasser.'})).toHaveValue(methodAnswer);
+  await waitSaved(restored);await restored.reload();
+  await expect(restored.getByRole('textbox',{name:'Décris un blocage concret, ou une méthode qui t’a aidé à le dépasser.'})).toHaveValue(methodAnswer);
+  await goStep(restored,0);await expect(restored.getByLabel('Une autre notion ou une trace')).toHaveValue(scopeAnswer);
+  await waitSaved(restored);
 });
 
 for(const resolution of ['Prendre l’autre version','Garder ma version']) {

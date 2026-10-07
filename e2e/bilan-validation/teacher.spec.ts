@@ -110,7 +110,7 @@ test('panne pendant un commentaire : brouillon conservé, statut inchangé, repr
     const url=`**/api/espace/works/${workId}/annotations`;
     await teacher.route(url,route=>route.request().method()==='POST'?route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'UNAVAILABLE',message:'Indisponibilité simulée.'})}):route.continue());
     await teacher.getByRole('button',{name:'Corrigé',exact:true}).click();
-    await expect(teacher.getByRole('alert')).toContainText('Indisponibilité simulée.');
+    await expect(teacher.getByRole('alert').filter({hasText:'Indisponibilité simulée.'})).toBeVisible();
     await expect(teacher.getByLabel('Commentaire',{exact:true})).toHaveValue(feedback);
     expect(await prisma.espaceWork.findUniqueOrThrow({where:{id:workId}})).toMatchObject({status:'SUBMITTED'});
     expect(await prisma.espaceAnnotation.count({where:{workId}})).toBe(0);

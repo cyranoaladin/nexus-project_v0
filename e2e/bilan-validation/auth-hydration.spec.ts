@@ -6,17 +6,29 @@ test('JavaScript retardé : aucune connexion native ni secret dans une URL',asyn
     const url=new URL(request.url());
     if(['secret','username','credential-current','credential-next'].some(key=>url.searchParams.has(key))) unsafeUrls.push(url.pathname);
   });
-  await page.route('**/*',route=>route.request().resourceType()==='script'?route.abort():route.continue());
-  await page.goto('/espace/connexion',{waitUntil:'domcontentloaded'});
-  await expect(page.locator('form')).toHaveAttribute('method','post');
-  await expect(page.getByTestId('btn-connexion')).toBeDisabled();
-  await expect(page.getByTestId('input-username')).toBeDisabled();
-  await expect(page.getByTestId('input-secret')).toBeDisabled();
-  await expect(page).toHaveURL(/\/espace\/connexion$/);
-  expect(unsafeUrls).toEqual([]);
-  await page.unroute('**/*');
-  await login(page,cohort.third);
-  expect(unsafeUrls).toEqual([]);
+  let releaseScripts!:()=>void;
+  const scriptsReady=new Promise<void>(resolve=>{releaseScripts=resolve;});
+  await page.route('**/*',async route=>{
+    if(route.request().resourceType()==='script') await scriptsReady;
+    await route.continue();
+  });
+  try {
+    // Hold the downloads rather than aborting them: WebKit retains failed preload entries across navigations.
+    await page.goto('/espace/connexion',{waitUntil:'commit'});
+    await expect(page.locator('form')).toHaveAttribute('method','post');
+    await expect(page.getByTestId('btn-connexion')).toBeDisabled();
+    await expect(page.getByTestId('input-username')).toBeDisabled();
+    await expect(page.getByTestId('input-secret')).toBeDisabled();
+    await expect(page).toHaveURL(/\/espace\/connexion$/);
+    expect(unsafeUrls).toEqual([]);
+    releaseScripts();
+    await expect(page.getByTestId('input-username')).toBeEnabled();
+    await page.getByTestId('input-username').fill(cohort.third.username);
+    await page.getByTestId('input-secret').fill(cohort.third.secret);
+    await page.getByTestId('btn-connexion').click();
+    await page.waitForURL(/\/espace\/eleve(?:\/|\?|$)/);
+    expect(unsafeUrls).toEqual([]);
+  }finally{releaseScripts();await page.unroute('**/*');}
 });
 
 test('sans JavaScript : changement du code et mot de passe désactivé, méthode POST',async({browser,cohort})=>{
