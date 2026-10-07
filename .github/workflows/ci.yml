@@ -434,6 +434,27 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
         run: npx prisma migrate deploy
 
+      # KNOWN_BOUNDED_LEGACY_DIVERGENCE: the maths_progress_track fingerprints are bound
+      # to the migration phase. From an empty database the reconciliation must be
+      # POST_APPLIED with the final catalog; a second deploy must be a no-op that stays
+      # ALREADY_RECONCILED. Read-only checks (scripts/db/verify-migration-checksum-exceptions.mjs).
+      - name: Verify maths_progress_track reconciliation phase (from empty, then second deploy)
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test
+        run: |
+          set -euo pipefail
+          bash scripts/db/postflight-2026-10-go-live.sh legacy "$DATABASE_URL" --from-empty
+          state="$RUNNER_TEMP/maths-reconciliation-phase.json"
+          pre="$(node scripts/db/verify-migration-checksum-exceptions.mjs preflight --database-url "$DATABASE_URL" --state-out "$state")"
+          echo "$pre"
+          case "$pre" in MATHS_RECONCILIATION_PHASE=ALREADY_RECONCILED*) ;; *) echo 'expected ALREADY_RECONCILED before the second deploy' >&2; exit 1 ;; esac
+          second="$(npx prisma migrate deploy 2>&1)"
+          echo "$second"
+          case "$second" in *'No pending migrations to apply'*) ;; *) echo 'second migrate deploy was not a no-op' >&2; exit 1 ;; esac
+          post="$(bash scripts/db/postflight-2026-10-go-live.sh legacy "$DATABASE_URL" "$state")"
+          echo "$post"
+          case "$post" in *'MATHS_RECONCILIATION_PHASE=ALREADY_RECONCILED'*) ;; *) echo 'expected ALREADY_RECONCILED after the second deploy' >&2; exit 1 ;; esac
+
       - name: Verify database tables
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_disposable_test

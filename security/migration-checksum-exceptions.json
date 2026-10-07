@@ -12,16 +12,40 @@
       "productionBodyEvidence": "docs/migrations/legacy-divergence/20260425113000_add_maths_progress_track.prod-applied.sql",
       "cause": "Historical inversion of the table-creation order: production applied the ADD COLUMN while public.maths_progress already existed, whereas the Git order only creates the table later; a guarded variant was introduced in-tree afterwards to keep from-empty rebuilds green, producing a checksum drift against the body actually applied.",
       "forwardReconciliationMigration": "20261007120000_reconcile_maths_progress_track",
-      "expectedFinalSchema": {
-        "object": "public.maths_progress",
-        "catalogReference": "docs/migrations/legacy-divergence/maths_progress.canonical-catalog.txt",
-        "catalogSha256": "b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9",
-        "trackColumn": { "type": "AcademicTrack", "nullable": false, "default": "'EDS_GENERALE'::\"AcademicTrack\"" }
-      },
       "owner": "abenrhouma",
       "trackingIssue": "NEXUS-MIGRATION-DRIFT-maths_progress_track",
       "remediationDeadline": "2026-11-07",
-      "blocksGoLive": false
+      "blocksGoLive": false,
+      "phaseFingerprints": {
+        "description": "Fingerprints are bound to the migration phase; none is accepted outside its phase. PRE_PENDING: production lineage recognized, the single historical divergence present, the forward reconciliation NOT yet applied. POST_APPLIED: the reconciliation was applied by this deploy (from the PRE_PENDING state, or on a from-empty rebuild). ALREADY_RECONCILED: the reconciliation was already applied before this deploy. Catalogs are produced read-only by catalogQuery; journals are the sorted name|checksum lines of applied (finished, not rolled back) migrations.",
+        "catalogQuery": "docs/migrations/legacy-divergence/maths_progress.catalog.sql",
+        "states": [
+          "PRE_PENDING",
+          "POST_APPLIED",
+          "ALREADY_RECONCILED"
+        ],
+        "PRE_PENDING": {
+          "catalogReference": "docs/migrations/legacy-divergence/maths_progress.production-predeploy-catalog.txt",
+          "catalogSha256": "b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9",
+          "journalReference": "docs/migrations/legacy-divergence/production-predeploy-journal.txt",
+          "journalSha256": "c2145ffc9f88f1f41e93d180f8cbf1d384a93e7b262984415aa9ac4c8535dddc",
+          "historicalChecksum": "26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4",
+          "lineage": "PRODUCTION"
+        },
+        "POST": {
+          "appliesTo": [
+            "POST_APPLIED",
+            "ALREADY_RECONCILED"
+          ],
+          "catalogReference": "docs/migrations/legacy-divergence/maths_progress.final-catalog.txt",
+          "catalogSha256": "f45583f91f5dd4db3285e38ffd06ae07a32711ca96d841c330eeb0140b96c70d",
+          "journal": "Applied migration names must equal the repository migration set exactly; checksums must equal the repository bodies except the declared historical tuple.",
+          "historicalChecksumByLineage": {
+            "PRODUCTION": "26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4",
+            "REBUILD": "f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893"
+          }
+        }
+      }
     }
   ]
 }

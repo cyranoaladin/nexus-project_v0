@@ -211,18 +211,30 @@ is **exactly one** and is now declared and machine-enforced:
   (canonical `AcademicTrack NOT NULL DEFAULT 'EDS_GENERALE'`); otherwise asserts type, nullability,
   default and the two canonical indexes; non-destructive; idempotent.
 - **Machine-readable exception**: `security/migration-checksum-exceptions.json` (single bounded
-  tuple, provenance of both bodies, cause, expected final-schema fingerprint
-  `b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9`, owner, tracking issue,
-  remediation deadline **2026-11-07**, `blocksGoLive: false`).
-- **Guard**: `scripts/db/verify-migration-checksum-exceptions.mjs` fails closed on any other
-  divergent migration, any checksum mutation, a missing historical/evidence/catalog file, or a
-  non-canonical live schema. Wired into the governance lane
-  (`__tests__/governance/migration-checksum-exceptions.test.js`, `npm run test:governance`) and into
-  `scripts/db/preflight-2026-10-go-live.sh` (legacy mode, read-only DB checks).
-- **Evidence (out of the active migrations tree)**: the exact production body is preserved at
-  `docs/migrations/legacy-divergence/20260425113000_add_maths_progress_track.prod-applied.sql`
-  and the canonical `maths_progress` catalog at
-  `docs/migrations/legacy-divergence/maths_progress.canonical-catalog.txt` (38 objects).
+  tuple, provenance of both bodies, cause, owner, tracking issue, remediation deadline
+  **2026-11-07**, `blocksGoLive: false`) with **phase-bound fingerprints** — no fingerprint is
+  accepted outside its phase:
+  - `PRE_PENDING` (production lineage recognized, divergence present, reconciliation not applied):
+    exact pre-deploy journal `c2145ffc9f88f1f41e93d180f8cbf1d384a93e7b262984415aa9ac4c8535dddc`
+    (107 applied migrations, name|checksum) **and** pre-deploy catalog
+    `b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9`
+    (`maths_progress_userId_fkey` still ON DELETE CASCADE);
+  - `POST_APPLIED` / `ALREADY_RECONCILED`: applied migrations == repository set, only the declared
+    divergence, lineage unchanged, final catalog
+    `f45583f91f5dd4db3285e38ffd06ae07a32711ca96d841c330eeb0140b96c70d` (ON DELETE RESTRICT); the
+    pre-deploy catalog is explicitly refused after application.
+  Both PRE fingerprints were re-measured read-only on live production (PostgreSQL 15.17) on
+  2026-10-07 and match byte for byte; the same query reproduces them on 15.19 rehearsals.
+- **Guard**: `scripts/db/verify-migration-checksum-exceptions.mjs` (`preflight` / `postflight`
+  against a read-only database snapshot, plus `--static`, `--journal`, `--catalog-sha … --phase`).
+  Wired into `scripts/db/preflight-2026-10-go-live.sh` (legacy mode, writes the phase state),
+  `scripts/db/postflight-2026-10-go-live.sh` (consumes it), the CI Integration job (from-empty
+  POST_APPLIED, then ALREADY_RECONCILED across a no-op second deploy) and the governance lane
+  (`__tests__/governance/migration-checksum-exceptions.test.js`).
+- **Evidence (out of the active migrations tree)**, under `docs/migrations/legacy-divergence/`: the
+  exact production body (`20260425113000_add_maths_progress_track.prod-applied.sql`), the
+  reproducible catalog query (`maths_progress.catalog.sql`), the pre-deploy and final catalogs
+  (38 objects each) and the production pre-deploy journal.
 
 Verified 2026-10-07 against the real production `_prisma_migrations` journal: the **only** migration
 whose journal checksum differs from the Git tree body is this one tuple (guard `--journal` = PASS).

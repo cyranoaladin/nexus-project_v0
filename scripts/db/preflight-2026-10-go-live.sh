@@ -3,7 +3,7 @@
 # Pré-vol LECTURE SEULE des 13 migrations du lot go-live 2026-10 (PR #337).
 #
 # Usage :
-#   scripts/db/preflight-2026-10-go-live.sh legacy  "$DATABASE_URL"
+#   scripts/db/preflight-2026-10-go-live.sh legacy  "$DATABASE_URL" [fichier-état-phase]
 #   scripts/db/preflight-2026-10-go-live.sh core-v2 "$CORE_V2_DATABASE_URL"
 #
 # Chaque session est ouverte avec default_transaction_read_only=on : toute
@@ -61,16 +61,15 @@ if [ "$MODE" = legacy ]; then
   #    diverge entre l'arbre Git (corps gardé, f861…) et le journal de production
   #    (corps non gardé réellement exécuté, 26c3…). Divergence unique, bornée et
   #    déclarée dans security/migration-checksum-exceptions.json ; réconciliée
-  #    forward-only par 20261007120000_reconcile_maths_progress_track. La garde est
-  #    fermée : toute autre valeur de checksum, ou un maths_progress.track non
-  #    canonique, échoue. (Couverture « aucune autre migration divergente » :
-  #    scripts/db/verify-migration-checksum-exceptions.mjs --journal <journal exporté>.)
-  check 1 "maths_progress.track canonique (AcademicTrack, NOT NULL, défaut EDS_GENERALE)" \
-    "select count(*) from pg_attribute a join pg_type t on t.oid=a.atttypid left join pg_attrdef ad on ad.adrelid=a.attrelid and ad.adnum=a.attnum where a.attrelid='public.maths_progress'::regclass and a.attname='track' and t.typname='AcademicTrack' and a.attnotnull and pg_get_expr(ad.adbin,ad.adrelid)='''EDS_GENERALE''::\"AcademicTrack\"'"
-  check 2 "maths_progress: index canoniques track présents (userId_level_track_key + track_idx)" \
-    "select count(*) from pg_indexes where schemaname='public' and indexname in ('maths_progress_userId_level_track_key','maths_progress_track_idx')"
-  check 0 "journal: 20260425113000 ne diverge que selon l'exception bornée déclarée" \
-    "select count(*) from _prisma_migrations where migration_name='20260425113000_add_maths_progress_track' and checksum not in ('26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4','f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893')"
+  #    forward-only par 20261007120000_reconcile_maths_progress_track.
+  #    Garde liée à la PHASE (jamais « pré ou post » générique) : PRE_PENDING exige le
+  #    journal production exact + le catalogue maths_progress pré-déploiement ;
+  #    ALREADY_RECONCILED exige le jeu de migrations du dépôt + le catalogue final.
+  #    Tout le reste échoue. L'état est écrit (3e argument) pour le postflight :
+  #    scripts/db/postflight-2026-10-go-live.sh legacy "$URL" <état>.
+  phase_out="$(node "$SQL_DIR/verify-migration-checksum-exceptions.mjs" preflight --database-url "$URL" ${3:+--state-out "$3"} 2>&1)" \
+    && echo "PASS   phase maths_progress_track: ${phase_out}" \
+    || { echo "FAIL   phase maths_progress_track:"; echo "$phase_out" | sed 's/^/       /'; fail=1; }
 
   # -- Objets du lot déjà présents = application manuelle antérieure : deploy
   #    échouerait « already exists ». Doit être 0 AVANT migration.
