@@ -159,7 +159,7 @@
       "id": "tn-essai-alias",
       "module": "tn-objets",
       "title": "Deux noms, combien d’objets ?",
-      "prompt": "Préconditions : quantités et ajouts entiers positifs ou nuls. Ce programme est complet ; il ne reprend aucun objet d’un autre exercice. Sans exécuter d’abord, écris la ligne affichée et explique pourquoi c est ou n’est pas modifié.\n\n```python\nclass Reserve:\n    def __init__(self, quantite):\n        self.quantite = quantite\n    def ajouter(self, k):\n        self.quantite += k\n\na = Reserve(4)\nb = a\nc = Reserve(4)\nr = b.ajouter(2)\nprint(a.quantite, c.quantite, r)\n```",
+      "prompt": "Préconditions : quantités et ajouts entiers positifs ou nuls. Ce programme est complet ; il ne reprend aucun objet d’un autre exercice. Sans exécuter d’abord, écris la ligne affichée et explique pourquoi c est ou n’est pas modifié.\n\nCode Python :\n\nclass Reserve:\n    def __init__(self, quantite):\n        self.quantite = quantite\n    def ajouter(self, k):\n        self.quantite += k\n\na = Reserve(4)\nb = a\nc = Reserve(4)\nr = b.ajouter(2)\nprint(a.quantite, c.quantite, r)",
       "source": "tn-poo-pdf",
       "pages": "8–9",
       "skills": [
@@ -183,7 +183,7 @@
       "id": "tn-essai-test",
       "module": "tn-contrats",
       "title": "Un test qui révèle le défaut",
-      "prompt": "Préconditions : secondes et k entiers positifs ou nuls. Le contrat impose un couple (minutes, reste) avec 0 ≤ reste < 60. Le programme complet suivant contient une erreur. Prévois les deux lignes affichées. Le test « total égal à 61 » suffit-il ? Propose une assertion supplémentaire et explique ce qu’elle détecte.\n\n```python\nclass Duree:\n    def __init__(self, secondes):\n        self.minutes = secondes // 60\n        self.reste = secondes % 60\n    def ajouter(self, k):\n        self.reste += k\n    def en_secondes(self):\n        return 60 * self.minutes + self.reste\n    def en_minutes_secondes(self):\n        return (self.minutes, self.reste)\n\nd = Duree(59)\nd.ajouter(2)\nprint(d.en_secondes())\nprint(d.en_minutes_secondes())\n```",
+      "prompt": "Préconditions : secondes et k entiers positifs ou nuls. Le contrat impose un couple (minutes, reste) avec 0 ≤ reste < 60. Le programme complet suivant contient une erreur. Prévois les deux lignes affichées. Le test « total égal à 61 » suffit-il ? Propose une assertion supplémentaire et explique ce qu’elle détecte.\n\nCode Python :\n\nclass Duree:\n    def __init__(self, secondes):\n        self.minutes = secondes // 60\n        self.reste = secondes % 60\n    def ajouter(self, k):\n        self.reste += k\n    def en_secondes(self):\n        return 60 * self.minutes + self.reste\n    def en_minutes_secondes(self):\n        return (self.minutes, self.reste)\n\nd = Duree(59)\nd.ajouter(2)\nprint(d.en_secondes())\nprint(d.en_minutes_secondes())",
       "source": "tn-tad-pdf",
       "pages": "9",
       "skills": [
@@ -218,7 +218,7 @@
       "id": "tn-essai-trace-rec",
       "module": "tn-recursion",
       "title": "Descendre puis remonter",
-      "prompt": "Précondition : n est un entier positif ou nul ; on étudie seulement les petits appels ci-dessous. Sans exécuter d’abord, indique les arguments des appels successifs pour somme(3), puis les valeurs renvoyées en remontant et la ligne affichée. Pourquoi le cas de base sera-t-il atteint ?\n\n```python\ndef somme(n):\n    if n == 0:\n        return 0\n    return n + somme(n - 1)\n\nprint(somme(3))\n```",
+      "prompt": "Précondition : n est un entier positif ou nul ; on étudie seulement les petits appels ci-dessous. Sans exécuter d’abord, indique les arguments des appels successifs pour somme(3), puis les valeurs renvoyées en remontant et la ligne affichée. Pourquoi le cas de base sera-t-il atteint ?\n\nCode Python :\n\ndef somme(n):\n    if n == 0:\n        return 0\n    return n + somme(n - 1)\n\nprint(somme(3))",
       "source": "tn-rec",
       "pages": "6–9",
       "skills": [
@@ -231,7 +231,7 @@
       "id": "tn-essai-return",
       "module": "tn-recursion",
       "title": "Un calcul sans résultat transmis",
-      "prompt": "Précondition : n est un entier positif ou nul. Ce programme est complet mais la fonction ne respecte pas son objectif : renvoyer la somme de 1 à n. Prévois la ligne affichée pour somme(1), puis corrige une seule ligne. Vérifie sur papier le cas n = 0 et le cas n = 2 avec ta correction.\n\n```python\ndef somme(n):\n    if n == 0:\n        return 0\n    n + somme(n - 1)\n\nprint(somme(1))\n```",
+      "prompt": "Précondition : n est un entier positif ou nul. Ce programme est complet mais la fonction ne respecte pas son objectif : renvoyer la somme de 1 à n. Prévois la ligne affichée pour somme(1), puis corrige une seule ligne. Vérifie sur papier le cas n = 0 et le cas n = 2 avec ta correction.\n\nCode Python :\n\ndef somme(n):\n    if n == 0:\n        return 0\n    n + somme(n - 1)\n\nprint(somme(1))",
       "source": "tn-rec",
       "pages": "6–7, 11–12",
       "skills": [
@@ -242,7 +242,7 @@
       "id": "tn-essai-liste-rec",
       "module": "tn-rec-structures",
       "title": "La liste est-elle modifiée ?",
-      "prompt": "Précondition : tab est une liste finie de nombres ; on utilise ici seulement une liste de deux entiers. Le programme est complet. Prévois les deux lignes affichées. Explique le rôle du cas vide et de tab[1:] ; la liste valeurs est-elle raccourcie par cette instruction ?\n\n```python\ndef somme_liste(tab):\n    if tab == []:\n        return 0\n    return tab[0] + somme_liste(tab[1:])\n\nvaleurs = [2, 5]\nprint(somme_liste(valeurs))\nprint(valeurs)\n```",
+      "prompt": "Précondition : tab est une liste finie de nombres ; on utilise ici seulement une liste de deux entiers. Le programme est complet. Prévois les deux lignes affichées. Explique le rôle du cas vide et de tab[1:] ; la liste valeurs est-elle raccourcie par cette instruction ?\n\nCode Python :\n\ndef somme_liste(tab):\n    if tab == []:\n        return 0\n    return tab[0] + somme_liste(tab[1:])\n\nvaleurs = [2, 5]\nprint(somme_liste(valeurs))\nprint(valeurs)",
       "source": "tn-rec",
       "pages": "14–16",
       "skills": [
