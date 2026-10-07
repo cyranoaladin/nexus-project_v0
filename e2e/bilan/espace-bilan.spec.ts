@@ -66,7 +66,13 @@ test('enseignant : aperçu non enregistré et accès à la relecture',async({pag
  await page.goto(`/espace/enseignant/bilans/${workId}`);
  await expect(page.getByRole('heading',{name:'Bilan individuel du premier mois'})).toBeVisible();
  await expect(page.getByText('Projet de bilan :',{exact:false})).toBeVisible();
+ for(const heading of await page.locator('#bilan-family-report h1, #bilan-family-report h2, #bilan-family-report h3').all()){
+  await expect(heading).toHaveCSS('color','rgb(15, 23, 42)');
+ }
  await page.emulateMedia({media:'print'});
+ for(const heading of await page.locator('#bilan-family-report h1, #bilan-family-report h2, #bilan-family-report h3').all()){
+  await expect(heading).toHaveCSS('color','rgb(15, 23, 42)');
+ }
  await page.pdf({path:'test-results/bilan/rapport-famille.pdf',format:'A4',printBackground:true});
  await page.screenshot({path:'test-results/bilan/teacher-report.png',fullPage:true});
 });

@@ -108,7 +108,6 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     subject: 'MATHEMATIQUES',
     moduleSlug: `bilan-septembre-2026-${level}`,
     moduleTitle: 'Bilan du premier mois',
-    theme: 'Mon accompagnement',
     title: getBilanLesson(level).title,
     kind: 'RESOURCE_PACK',
     stepsTotal: getBilanLesson(level).steps.length,

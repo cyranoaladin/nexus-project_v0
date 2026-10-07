@@ -32,9 +32,9 @@ const real = exportCatalog();
 const copy = () => real.map((a) => ({ ...a }));
 
 describe('catalogue réel du code', () => {
-  it('contient les 5 activités et le parcours Récursivité', () => {
-    expect(real.map((a) => a.slug)).toContain('nsi-recursivite');
-    expect(real).toHaveLength(5);
+  it('contient les 7 activités, dont les deux bilans et la Récursivité', () => {
+    expect(real.map((a) => a.slug)).toEqual(expect.arrayContaining(['nsi-recursivite', 'maths-bilan-septembre-2026-3e', 'maths-bilan-septembre-2026-2nde']));
+    expect(real).toHaveLength(7);
   });
 });
 
@@ -42,7 +42,7 @@ describe('preflight : scénarios', () => {
   it('catalogue = base → PASS, code 0', () => {
     const r = audit(real, copy());
     expect(r.code).toBe(0);
-    expect(r.out).toContain('CATALOGUE_DB_SYNC=PASS (5 activités)');
+    expect(r.out).toContain('CATALOGUE_DB_SYNC=PASS (7 activités)');
     expect(r.out).not.toContain('DEPLOYMENT_BLOCKED');
   });
 
@@ -131,7 +131,7 @@ describe('préflight complet lu sur stdin (ssh … bash -s) — régression : do
   it('base synchronisée : le script va jusqu’au bout (PREFLIGHT_ONLY_DONE)', () => {
     const { dir, rel } = fake(JSON.stringify(copy()));
     const r = viaStdin(dir, rel);
-    expect(r.stdout).toContain('CATALOGUE_DB_SYNC=PASS (5 activités)');
+    expect(r.stdout).toContain('CATALOGUE_DB_SYNC=PASS (7 activités)');
     expect(r.stdout).toContain('PREFLIGHT_ONLY_DONE');
     expect(r.status).toBe(0);
   });

@@ -10,4 +10,7 @@ it('separates student declarations from teacher observations without inventing p
   expect(container.textContent).not.toContain('"answer"');
   expect(container.textContent).not.toContain('347 = 16 × 21 + 11');
   expect(container.textContent).not.toContain('Note globale');
+  for (const heading of container.querySelectorAll('h1, h2, h3')) {
+    expect(heading).toHaveClass('text-slate-900');
+  }
 });
