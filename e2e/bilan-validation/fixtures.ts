@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { test as base, expect, type Page } from '@playwright/test';
+import { getBilanLesson, type BilanLevel } from '../../lib/espace/bilan-data';
 import { prisma } from '../../lib/prisma';
 import { applyProvisioning, parseRoster } from '../../lib/espace/provisioning';
 import { createSession, publishSession } from '../../lib/espace/sessions';
@@ -31,9 +32,28 @@ export async function login(page: Page, account: Account) {
   await page.getByTestId('btn-connexion').click();
   await page.waitForURL(/\/espace\/(eleve|enseignant)(?:\/|\?|$)/);
 }
-export async function goStep(page: Page, index: number) {
-  await page.locator('#bilan-step').selectOption(String(index));
-  await expect(page.locator('#bilan-step')).toHaveValue(String(index));
+const LEGACY_STEP_IDS = ['scope', 'mastery', 'evidence', 'methods', 'experience', 'growth', 'next', 'review'] as const;
+export function pageLevel(page: Page): BilanLevel {
+  const url = new URL(page.url());
+  const value = url.searchParams.get('niveau') ?? url.pathname.split('/').at(-1);
+  if (!['3e', '2nde', 'tle-maths', 'tle-nsi'].includes(value ?? '')) throw new Error('BILAN_LEVEL_MISSING');
+  return value as BilanLevel;
+}
+export function stepIndex(page: Page, step: number | string): string {
+  const id = typeof step === 'number' ? LEGACY_STEP_IDS[step] : step;
+  const index = getBilanLesson(pageLevel(page)).steps.findIndex(def => def.id === id);
+  if(index < 0) throw new Error(`BILAN_STEP_MISSING:${id}`);
+  return id;
+}
+export async function goStep(page: Page, step: number | string) {
+  const index = stepIndex(page, step);
+  await page.locator('#bilan-step').selectOption(index);
+  await expect(page.locator('#bilan-step')).toHaveValue(index);
+}
+export async function goSkill(page: Page, skillId: string) {
+  const step = getBilanLesson(pageLevel(page)).steps.find(def => def.id.startsWith('mastery') && def.fields.some(f => f.id === skillId));
+  if(!step) throw new Error(`BILAN_SKILL_MISSING:${skillId}`);
+  if(await page.locator('#bilan-step').inputValue() !== stepIndex(page, step.id)) await goStep(page, step.id);
 }
 export async function waitSaved(page: Page) {
   await expect(page.getByTestId('save-indicator')).toHaveAttribute('data-state','saved');

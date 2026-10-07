@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test';
-import { test, expect, login, goStep, waitSaved, bilanPath } from './fixtures';
-import { bilanData } from '../../lib/espace/bilan-data';
+import { test, expect, login, goStep, goSkill, stepIndex, waitSaved, bilanPath } from './fixtures';
+import { bilanData, getBilanLesson } from '../../lib/espace/bilan-data';
 import { prisma } from '../../lib/prisma';
 
 // Reveal the complete choice card before one pointer click. WebKit can focus-scroll
@@ -24,16 +24,16 @@ async function selectChoice(input: Locator) {
 }
 
 for (const level of ['3e','2nde'] as const) {
-  test(`${level} : huit étapes, toutes les questions, aides, reprise et transmission`,async({page,cohort},testInfo)=>{
+  test(`${level} : étapes adaptées, toutes les questions, aides, reprise et transmission`,async({page,cohort},testInfo)=>{
     const account=level==='3e'?cohort.third:cohort.second;
     await login(page,account); await page.goto(bilanPath(level));
     await expect(page.getByRole('heading',{name:'Mon bilan du premier mois'})).toBeVisible();
     await expect(page.locator('a[href*="chatgpt"]')).toHaveCount(0);
-    await expect(page.locator('#bilan-step option')).toHaveCount(8);
+    await expect(page.locator('#bilan-step option')).toHaveCount(getBilanLesson(level).steps.length);
     for(const theme of bilanData.modules[level]) await selectChoice(page.getByRole('group',{name:theme.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
     await page.getByLabel('Une autre notion ou une trace').fill(`Trace ${level} : exercice revu pendant la séance de septembre.`);
     await waitSaved(page); await goStep(page,1);
-    for(const theme of bilanData.modules[level]) for(const skill of theme.skills) await selectChoice(page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true}));
+    for(const theme of bilanData.modules[level]) for(const skill of theme.skills) { await goSkill(page, skill.id); await selectChoice(page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true})); }
     await goStep(page,2);
     const selection=page.getByRole('group',{name:/Les essais choisis/});
     const choices=selection.getByRole('checkbox');
@@ -57,7 +57,7 @@ for (const level of ['3e','2nde'] as const) {
       }
     }
     await waitSaved(page); await page.reload();
-    await expect(page.locator('#bilan-step')).toHaveValue('6');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 6));
     await expect(page.getByRole('textbox',{name:'Quelle petite action réaliste choisis-tu avant la prochaine séance ?'})).toHaveValue(/Mon exemple pour commitment/);
     await goStep(page,7);
     await expect(page.getByRole('button',{name:'Transmettre mon bilan',exact:true})).toBeDisabled();
@@ -113,10 +113,10 @@ test('fractions : un prérequis non travaillé retire l’essai et sa trace, y c
   await page.getByRole('checkbox',{name:'Simplifier jusqu’au bout',exact:true}).check();
   await expect(page.getByLabel('Mon premier essai et mon explication')).toHaveValue('');
   await goStep(page,0); await page.getByRole('group',{name:'Divisibilité, nombres premiers et division',exact:true}).getByLabel('Non travaillé',{exact:true}).check();
-  await expect(page.locator('#bilan-step option[value="2"]')).toBeDisabled();
+  await expect(page.locator(`#bilan-step option[value=\"${stepIndex(page, 2)}\"]`)).toBeDisabled();
   await page.getByRole('button',{name:'Continuer',exact:true}).click();
   await page.getByRole('button',{name:'Continuer',exact:true}).click();
-  await expect(page.locator('#bilan-step')).toHaveValue('3');
+  await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 1));
   await expect(page.getByRole('checkbox',{name:'Simplifier jusqu’au bout',exact:true})).toHaveCount(0);
   await waitSaved(page);
 });
@@ -201,22 +201,23 @@ test('niveau, élève voisin et compte non attribué : les copies restent privé
 for (const level of ['3e','2nde'] as const) {
   test(`${level} : aucune rubrique vide avant de choisir les thèmes, puis questions et énoncé visibles`, async ({page,cohort}) => {
     await login(page,level==='3e'?cohort.third:cohort.second);await page.goto(bilanPath(level));
-    await expect(page.locator('#bilan-step option[value="1"]')).toBeDisabled();
-    await expect(page.locator('#bilan-step option[value="2"]')).toBeDisabled();
+    await expect(page.locator(`#bilan-step option[value=\"${stepIndex(page, 1)}\"]`)).toBeDisabled();
+    await expect(page.locator(`#bilan-step option[value=\"${stepIndex(page, 2)}\"]`)).toBeDisabled();
     await page.getByRole('button',{name:'Continuer',exact:true}).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('3');
-    await expect(page.getByRole('group',{name:bilanData.sections[0].questions[0].text,exact:true})).toBeVisible();
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
+    await expect(page.getByRole('textbox').first()).toBeVisible();
     await waitSaved(page);await page.reload();
-    await expect(page.locator('#bilan-step')).toHaveValue('3');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
     await page.getByRole('button',{name:'Revoir les thèmes travaillés',exact:true}).click();
     await expect(page.getByRole('radio',{checked:true})).toHaveCount(0);
     const theme=bilanData.modules[level][0];
     await selectChoice(page.getByRole('group',{name:theme.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
     await page.getByRole('button',{name:'Continuer',exact:true}).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('1');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
+    await goStep(page, 'mastery');
     await expect(page.getByRole('group',{name:theme.skills[0].text,exact:true})).toBeVisible();
-    await page.getByRole('button',{name:'Continuer',exact:true}).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('2');
+    await goStep(page, 'evidence');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 2));
     await page.getByRole('group',{name:/Les essais choisis/}).getByRole('checkbox').first().check();
     await expect(page.getByRole('article')).toHaveCount(1);
     await expect(page.getByLabel('Mon premier essai et mon explication')).toBeVisible();

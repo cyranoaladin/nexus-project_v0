@@ -1,3 +1,4 @@
+import { goStep } from '../bilan-validation/fixtures';
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
 const creds = JSON.parse(readFileSync(process.env.BILAN_TEST_CREDENTIALS!, 'utf8')) as Record<string,{username:string;secret:string}>;
@@ -19,13 +20,13 @@ test('troisième : parcours, reprise, transmission et lecture seule',async({page
  await page.reload();
  await expect(page.getByRole('group',{name:'Divisibilité, nombres premiers et division',exact:true}).getByLabel('Oui, travaillé en séance')).toBeChecked();
  await page.screenshot({path:'test-results/bilan/third-desktop.png',fullPage:true});
- await page.getByLabel('Étape',{exact:false}).selectOption('1');
+ await goStep(page,1);
  await expect(page.getByRole('heading',{name:'Où j’en suis',exact:true})).toBeVisible();
  await expect(page.getByRole('group').filter({hasText:'Je vérifie le quotient'})).toBeVisible();
- await page.getByLabel('Étape',{exact:false}).selectOption('3');
+ await goStep(page,3);
  await page.getByRole('group').first().getByLabel('Je ne souhaite pas répondre').check();
  await saved(page);
- await page.getByLabel('Étape',{exact:false}).selectOption('7');
+ await goStep(page,7);
  await page.getByLabel('J’ai relu mes réponses').check();
  await saved(page);
  await page.getByRole('button',{name:'Transmettre mon bilan',exact:true}).click();

@@ -7,7 +7,7 @@ import { BILAN_PROFILES } from '../../lib/espace/bilan-profiles';
 import type { EspaceActor } from '../../lib/espace/guards';
 import { assertLocalHarness, type Account } from './fixtures';
 
-export { expect, login, goStep, waitSaved } from './fixtures';
+export { expect, login, goStep, stepIndex, waitSaved } from './fixtures';
 export type TerminaleLevel = 'tle-maths' | 'tle-nsi';
 export interface TerminaleCohort {
   mathsTeacher: Account; nsiTeacher: Account;

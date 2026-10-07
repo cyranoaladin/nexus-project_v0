@@ -1,8 +1,8 @@
-import { test,expect,login,goStep,waitSaved,bilanPath,makeCredentialTemporary } from './fixtures';
+import { test,expect,login,goStep,stepIndex,waitSaved,bilanPath,makeCredentialTemporary } from './fixtures';
 import { prisma } from '../../lib/prisma';
-import { bilanData } from '../../lib/espace/bilan-data';
+import { bilanData, getBilanLesson } from '../../lib/espace/bilan-data';
 
-test('390 px tactile et clavier : les huit étapes restent lisibles et utilisables',async({browser,browserName,cohort},testInfo)=>{
+test('390 px tactile et clavier : les étapes adaptées restent lisibles et utilisables',async({browser,browserName,cohort},testInfo)=>{
   // Firefox does not implement mobile user-agent emulation; viewport and touch remain exercised.
   const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:browserName!=='firefox',hasTouch:true});
   const page=await ctx.newPage();
@@ -12,18 +12,19 @@ test('390 px tactile et clavier : les huit étapes restent lisibles et utilisabl
     const yes=scope.getByLabel('Oui, travaillé en séance',{exact:true});
     await yes.focus();await yes.press('Space');await expect(yes).toBeChecked();
     await waitSaved(page);
-    for(let index=0;index<8;index++) {
-      await goStep(page,index);
+    for(const [index,step] of getBilanLesson('2nde').steps.entries()) {
+      if(await page.locator(`#bilan-step option[value="${step.id}"]`).isDisabled()) continue;
+      await goStep(page,step.id);
       await expect(page.locator('#bilan-heading')).toBeVisible();
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
       await page.screenshot({path:testInfo.outputPath(`mobile-student-step-${index+1}.png`),fullPage:true});
     }
     await goStep(page,0);await page.getByRole('button',{name:'Continuer',exact:true}).tap();
-    await expect(page.locator('#bilan-step')).toHaveValue('1');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
   }finally{await ctx.close();}
 });
 
-test('390 px enseignant : aperçu par niveau, tableau et huit étapes sans débordement',async({page,cohort},testInfo)=>{
+test('390 px enseignant : aperçu par niveau, tableau et étapes adaptées sans débordement',async({page,cohort},testInfo)=>{
   await page.setViewportSize({width:390,height:844});await login(page,cohort.teacher);
   await page.goto('/espace/enseignant');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
@@ -32,18 +33,18 @@ test('390 px enseignant : aperçu par niveau, tableau et huit étapes sans débo
     await page.goto(`/espace/enseignant/bilans?niveau=${level}`);
     await expect(page.getByText('Aperçu enseignant :',{exact:false})).toBeVisible();
     await expect(page.getByRole('radio',{checked:true})).toHaveCount(bilanData.modules[level].length);
-    for(let index=0;index<8;index++) {
-      await goStep(page,index);
-      if(index===1) {
-        for(const theme of bilanData.modules[level]) for(const skill of theme.skills) await expect(page.getByRole('group',{name:skill.text,exact:true})).toBeAttached();
+    for(const [index,step] of getBilanLesson(level).steps.entries()) {
+      await goStep(page,step.id);
+      if(step.id.startsWith('mastery')) {
+        for(const field of step.fields) await expect(page.getByRole('group',{name:field.label,exact:true})).toBeAttached();
       }
-      if(index===2) {
+      if(step.id==='evidence') {
         await page.getByRole('group',{name:/Les essais choisis/}).getByRole('checkbox').first().check();
         await expect(page.getByRole('article')).toHaveCount(1);
         await expect(page.getByLabel('Mon premier essai et mon explication')).toBeVisible();
       }
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-      if(index===1 || index===2) await page.screenshot({path:testInfo.outputPath(`teacher-mobile-preview-${level}-step-${index+1}.png`),fullPage:true});
+      if(step.id.startsWith('mastery') || step.id==='evidence') await page.screenshot({path:testInfo.outputPath(`teacher-mobile-preview-${level}-step-${index+1}.png`),fullPage:true});
     }
     await page.screenshot({path:testInfo.outputPath(`teacher-mobile-preview-${level}.png`),fullPage:true});
   }

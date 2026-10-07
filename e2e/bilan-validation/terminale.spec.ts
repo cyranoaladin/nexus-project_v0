@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
-import { test, expect, login, goStep, waitSaved, terminalePath, type TerminaleLevel } from './terminale-fixtures';
-import { bilanData, getBilanSections } from '../../lib/espace/bilan-data';
+import { test, expect, login, goStep, stepIndex, waitSaved, terminalePath, type TerminaleLevel } from './terminale-fixtures';
+import { bilanData, getBilanSections, getBilanLesson } from '../../lib/espace/bilan-data';
 import { BILAN_PROFILES } from '../../lib/espace/bilan-profiles';
 import { prisma } from '../../lib/prisma';
 import type { ExportEnvelope } from '../../lib/espace/export';
@@ -36,11 +36,11 @@ async function workOf(studentId: string, level: TerminaleLevel) {
 }
 
 for (const level of ['tle-maths', 'tle-nsi'] as const) {
-  test(`${level} : huit étapes, sauvegarde serveur, reprise, transmission, correction et rapport exporté`, async ({ page, browser, browserName, terminale }, testInfo) => {
+  test(`${level} : étapes adaptées, sauvegarde serveur, reprise, transmission, correction et rapport exporté`, async ({ page, browser, browserName, terminale }, testInfo) => {
     await login(page, terminale.dual);
     await page.goto(terminalePath(level));
     await expect(page.getByTestId('bilan-workbench')).toBeVisible();
-    await expect(page.locator('#bilan-step option')).toHaveCount(8);
+    await expect(page.locator('#bilan-step option')).toHaveCount(getBilanLesson(level).steps.length);
     const modules = bilanData.modules[level];
     const theme = modules[0];
     await choose(page.getByRole('group', { name: theme.label, exact: true }).getByLabel('Oui, travaillé en séance', { exact: true }));
@@ -55,17 +55,19 @@ for (const level of ['tle-maths', 'tle-nsi'] as const) {
     await page.getByLabel('Mon premier essai et mon explication').fill(attempt);
     await page.getByRole('combobox', { name: 'Aide utilisée', exact: true }).selectOption({ label: 'Un indice' });
     await page.getByLabel('Après une aide ou une reprise').fill(retry);
-    for (const [index, section] of getBilanSections(level).entries()) {
-      await goStep(page, index + 3);
+    for (const section of getBilanSections(level)) {
+      await goStep(page, section.id);
       expect(section.questions.length).toBeGreaterThan(0);
       for (const question of section.questions) {
         if (question.type === 'text') await page.getByRole('textbox', { name: question.text }).fill(`Réponse ${level} ${question.id} : une reprise personnelle.`);
+        else if(question.type === 'scale' || question.priorityOf) await page.getByRole('combobox', { name: question.text, exact: true }).selectOption({ label: question.options![0] });
         else await choose(page.getByRole('group', { name: question.text, exact: true }).getByLabel(question.options![0], { exact: true }));
       }
     }
+    await goStep(page, 'next');
     await waitSaved(page);
     await page.reload();
-    await expect(page.locator('#bilan-step')).toHaveValue('6');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 6));
     await goStep(page, 2);
     await expect(page.getByLabel('Mon premier essai et mon explication')).toHaveValue(attempt);
     await expect(page.getByLabel('Après une aide ou une reprise')).toHaveValue(retry);
@@ -221,19 +223,20 @@ for (const level of ['tle-maths', 'tle-nsi'] as const) {
     await page.setViewportSize({ width: 390, height: 844 });
     await login(page, level === 'tle-maths' ? terminale.mathsOnly : terminale.nsiOnly);
     await page.goto(terminalePath(level));
-    await expect(page.locator('#bilan-step option[value="1"]')).toBeDisabled();
-    await expect(page.locator('#bilan-step option[value="2"]')).toBeDisabled();
+    await expect(page.locator(`#bilan-step option[value=\"${stepIndex(page, 1)}\"]`)).toBeDisabled();
+    await expect(page.locator(`#bilan-step option[value=\"${stepIndex(page, 2)}\"]`)).toBeDisabled();
     await page.getByRole('button', { name: 'Continuer', exact: true }).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('3');
-    await expect(page.getByRole('group', { name: getBilanSections(level)[0].questions[0].text, exact: true })).toBeVisible();
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
+    await expect(page.getByRole('textbox').first()).toBeVisible();
     await page.getByRole('button', { name: 'Revoir les thèmes travaillés', exact: true }).click();
     const theme = bilanData.modules[level][0];
     await choose(page.getByRole('group', { name: theme.label, exact: true }).getByLabel('Oui, travaillé en séance', { exact: true }));
     await page.getByRole('button', { name: 'Continuer', exact: true }).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('1');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 'journey'));
+    await goStep(page, 'mastery');
     await expect(page.getByRole('group', { name: theme.skills[0].text, exact: true })).toBeVisible();
-    await page.getByRole('button', { name: 'Continuer', exact: true }).click();
-    await expect(page.locator('#bilan-step')).toHaveValue('2');
+    await goStep(page, 'evidence');
+    await expect(page.locator('#bilan-step')).toHaveValue(stepIndex(page, 2));
     await page.getByRole('group', { name: /Les essais choisis/ }).getByRole('checkbox').first().check();
     await expect(page.getByRole('article')).toHaveCount(1);
     await expect(page.getByLabel('Mon premier essai et mon explication')).toBeVisible();

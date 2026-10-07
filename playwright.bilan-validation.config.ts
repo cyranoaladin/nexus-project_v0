@@ -13,8 +13,8 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     ...(process.env.BILAN_VALIDATION_CROSS_BROWSER === '1' ? [
-      { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: ['student.spec.ts','mobile-account.spec.ts','auth-hydration.spec.ts','terminale.spec.ts'] },
-      { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: ['student.spec.ts','mobile-account.spec.ts','auth-hydration.spec.ts','terminale.spec.ts'] },
+      { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testMatch: ['student.spec.ts','mobile-account.spec.ts','auth-hydration.spec.ts','terminale.spec.ts','enrichment.spec.ts'] },
+      { name: 'webkit', use: { ...devices['Desktop Safari'] }, testMatch: ['student.spec.ts','mobile-account.spec.ts','auth-hydration.spec.ts','terminale.spec.ts','enrichment.spec.ts'] },
     ] : []),
   ],
 });
