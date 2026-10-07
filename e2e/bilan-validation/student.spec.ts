@@ -30,10 +30,10 @@ for (const level of ['3e','2nde'] as const) {
     await expect(page.getByRole('heading',{name:'Mon bilan du premier mois'})).toBeVisible();
     await expect(page.locator('a[href*="chatgpt"]')).toHaveCount(0);
     await expect(page.locator('#bilan-step option')).toHaveCount(8);
-    for(const module of bilanData.modules[level]) await selectChoice(page.getByRole('group',{name:module.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
+    for(const theme of bilanData.modules[level]) await selectChoice(page.getByRole('group',{name:theme.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
     await page.getByLabel('Une autre notion ou une trace').fill(`Trace ${level} : exercice revu pendant la séance de septembre.`);
     await waitSaved(page); await goStep(page,1);
-    for(const module of bilanData.modules[level]) for(const skill of module.skills) await selectChoice(page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true}));
+    for(const theme of bilanData.modules[level]) for(const skill of theme.skills) await selectChoice(page.getByRole('group',{name:skill.text,exact:true}).getByLabel(bilanData.mastery.alone,{exact:true}));
     await goStep(page,2);
     const selection=page.getByRole('group',{name:/Les essais choisis/});
     const choices=selection.getByRole('checkbox');
@@ -113,7 +113,12 @@ test('fractions : un prérequis non travaillé retire l’essai et sa trace, y c
   await page.getByRole('checkbox',{name:'Simplifier jusqu’au bout',exact:true}).check();
   await expect(page.getByLabel('Mon premier essai et mon explication')).toHaveValue('');
   await goStep(page,0); await page.getByRole('group',{name:'Divisibilité, nombres premiers et division',exact:true}).getByLabel('Non travaillé',{exact:true}).check();
-  await goStep(page,2); await expect(page.getByRole('checkbox',{name:'Simplifier jusqu’au bout',exact:true})).toHaveCount(0);
+  await expect(page.locator('#bilan-step option[value="2"]')).toBeDisabled();
+  await page.getByRole('button',{name:'Continuer',exact:true}).click();
+  await page.getByRole('button',{name:'Continuer',exact:true}).click();
+  await expect(page.locator('#bilan-step')).toHaveValue('3');
+  await expect(page.getByRole('checkbox',{name:'Simplifier jusqu’au bout',exact:true})).toHaveCount(0);
+  await waitSaved(page);
 });
 
 test('coupure réseau : brouillon honnête, retour réseau puis reprise sur une autre session',async({page,context,browser,cohort})=>{
@@ -191,3 +196,30 @@ test('niveau, élève voisin et compte non attribué : les copies restent privé
     } finally {await ctx.close();}
   }
 });
+
+
+for (const level of ['3e','2nde'] as const) {
+  test(`${level} : aucune rubrique vide avant de choisir les thèmes, puis questions et énoncé visibles`, async ({page,cohort}) => {
+    await login(page,level==='3e'?cohort.third:cohort.second);await page.goto(bilanPath(level));
+    await expect(page.locator('#bilan-step option[value="1"]')).toBeDisabled();
+    await expect(page.locator('#bilan-step option[value="2"]')).toBeDisabled();
+    await page.getByRole('button',{name:'Continuer',exact:true}).click();
+    await expect(page.locator('#bilan-step')).toHaveValue('3');
+    await expect(page.getByRole('group',{name:bilanData.sections[0].questions[0].text,exact:true})).toBeVisible();
+    await waitSaved(page);await page.reload();
+    await expect(page.locator('#bilan-step')).toHaveValue('3');
+    await page.getByRole('button',{name:'Revoir les thèmes travaillés',exact:true}).click();
+    await expect(page.getByRole('radio',{checked:true})).toHaveCount(0);
+    const theme=bilanData.modules[level][0];
+    await selectChoice(page.getByRole('group',{name:theme.label,exact:true}).getByLabel('Oui, travaillé en séance',{exact:true}));
+    await page.getByRole('button',{name:'Continuer',exact:true}).click();
+    await expect(page.locator('#bilan-step')).toHaveValue('1');
+    await expect(page.getByRole('group',{name:theme.skills[0].text,exact:true})).toBeVisible();
+    await page.getByRole('button',{name:'Continuer',exact:true}).click();
+    await expect(page.locator('#bilan-step')).toHaveValue('2');
+    await page.getByRole('group',{name:/Les essais choisis/}).getByRole('checkbox').first().check();
+    await expect(page.getByRole('article')).toHaveCount(1);
+    await expect(page.getByLabel('Mon premier essai et mon explication')).toBeVisible();
+    await waitSaved(page);
+  });
+}

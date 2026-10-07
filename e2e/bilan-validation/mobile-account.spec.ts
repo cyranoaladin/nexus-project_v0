@@ -1,5 +1,6 @@
 import { test,expect,login,goStep,waitSaved,bilanPath,makeCredentialTemporary } from './fixtures';
 import { prisma } from '../../lib/prisma';
+import { bilanData } from '../../lib/espace/bilan-data';
 
 test('390 px tactile et clavier : les huit étapes restent lisibles et utilisables',async({browser,browserName,cohort},testInfo)=>{
   // Firefox does not implement mobile user-agent emulation; viewport and touch remain exercised.
@@ -27,12 +28,22 @@ test('390 px enseignant : aperçu par niveau, tableau et huit étapes sans débo
   await page.goto('/espace/enseignant');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.screenshot({path:testInfo.outputPath('teacher-mobile-dashboard.png'),fullPage:true});
-  for(const level of ['3e','2nde']) {
+  for(const level of ['3e','2nde'] as const) {
     await page.goto(`/espace/enseignant/bilans?niveau=${level}`);
     await expect(page.getByText('Aperçu enseignant :',{exact:false})).toBeVisible();
+    await expect(page.getByRole('radio',{checked:true})).toHaveCount(bilanData.modules[level].length);
     for(let index=0;index<8;index++) {
       await goStep(page,index);
+      if(index===1) {
+        for(const theme of bilanData.modules[level]) for(const skill of theme.skills) await expect(page.getByRole('group',{name:skill.text,exact:true})).toBeAttached();
+      }
+      if(index===2) {
+        await page.getByRole('group',{name:/Les essais choisis/}).getByRole('checkbox').first().check();
+        await expect(page.getByRole('article')).toHaveCount(1);
+        await expect(page.getByLabel('Mon premier essai et mon explication')).toBeVisible();
+      }
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+      if(index===1 || index===2) await page.screenshot({path:testInfo.outputPath(`teacher-mobile-preview-${level}-step-${index+1}.png`),fullPage:true});
     }
     await page.screenshot({path:testInfo.outputPath(`teacher-mobile-preview-${level}.png`),fullPage:true});
   }

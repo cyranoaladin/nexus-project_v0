@@ -25,15 +25,15 @@ it('uses the server identity without asking for a name or a level', () => {
 
 it('saves a declared worked topic through the existing server synchronization', () => {
   setup();
-  const module = bilanData.modules['3e'][0];
-  const group = screen.getByRole('group', { name: module.label });
+  const theme = bilanData.modules['3e'][0];
+  const group = screen.getByRole('group', { name: theme.label });
   fireEvent.click(within(group).getByRole('radio', { name: 'Oui, travaillé en séance' }));
-  expect(edit).toHaveBeenCalledWith('scope', { fields: { [module.id]: 'yes' } }, expect.objectContaining({ currentStep: 0 }));
+  expect(edit).toHaveBeenCalledWith('scope', { fields: { [theme.id]: 'yes' } }, expect.objectContaining({ currentStep: 0 }));
 });
 
 it('never proposes mini tasks for an undeclared topic', () => {
   setup({}, { currentStep: 2 });
-  expect(screen.getByText(/Aucune notion déclarée travaillée/)).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Mes façons de travailler' })).toBeInTheDocument();
   expect(screen.queryByText(bilanData.tasks[0].prompt)).not.toBeInTheDocument();
 });
 
@@ -119,4 +119,70 @@ it('explains that a concurrently changed copy must be reread before transmission
   fireEvent.click(screen.getByRole('button', { name: 'Transmettre mon bilan' }));
   fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Transmettre' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('Relisez la version actualisée');
+});
+
+
+it.each(['3e', '2nde'] as const)('skips unavailable rubrics for a fresh %s student without inventing worked topics', level => {
+  setup({}, {}, { level, preview: true });
+  expect(screen.getByRole('option', { name: /Où j’en suis/ })).toBeDisabled();
+  expect(screen.getByRole('option', { name: /Mes essais/ })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+  expect(screen.getByRole('heading', { name: 'Mes façons de travailler' })).toBeInTheDocument();
+  expect(screen.getAllByRole('radio').length).toBeGreaterThan(0);
+  fireEvent.click(screen.getByRole('button', { name: 'Précédent' }));
+  expect(screen.getByRole('heading', { name: 'Ce que nous avons travaillé' })).toBeInTheDocument();
+  expect(screen.getAllByRole('radio').every(input => !(input as HTMLInputElement).checked)).toBe(true);
+});
+
+it.each(['no', 'unsure'])('keeps non-worked or uncertain topics excluded (%s) without a blank step', value => {
+  const scope = Object.fromEntries(bilanData.modules['3e'].map(m => [m.id, value]));
+  setup({ scope: { fields: scope } }, {}, { preview: true });
+  fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+  expect(screen.getByRole('heading', { name: 'Mes façons de travailler' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Revoir les thèmes travaillés' }));
+  expect(screen.getByRole('heading', { name: 'Ce que nous avons travaillé' })).toBeInTheDocument();
+  for (const m of bilanData.modules['3e']) expect(within(screen.getByRole('group', { name: m.label })).getByRole('radio', { name: value === 'no' ? 'Non travaillé' : 'Je ne sais plus' })).toBeChecked();
+});
+
+it('unlocks actual mastery questions and tasks after declaring a worked topic', () => {
+  setup({}, {}, { preview: true });
+  const theme = bilanData.modules['3e'][0];
+  fireEvent.click(within(screen.getByRole('group', { name: theme.label })).getByRole('radio', { name: 'Oui, travaillé en séance' }));
+  expect(screen.getByRole('option', { name: /Où j’en suis/ })).toBeEnabled();
+  expect(screen.getByRole('option', { name: /Mes essais/ })).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+  expect(screen.getByRole('group', { name: theme.skills[0].text })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+  expect(screen.getByRole('group', { name: /Les essais choisis/ })).toBeInTheDocument();
+});
+
+it('skips only the trials when worked-theme skills exclude all eligible tasks', () => {
+  const theme = bilanData.modules['3e'][0];
+  setup({ scope: { fields: { [theme.id]: 'yes' } }, mastery: { fields: Object.fromEntries(theme.skills.map(s => [s.id, 'notworked'])) } }, { currentStep: 1 }, { preview: true });
+  expect(screen.getByRole('option', { name: /Où j’en suis/ })).toBeEnabled();
+  expect(screen.getByRole('option', { name: /Mes essais/ })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+  expect(screen.getByRole('heading', { name: 'Mes façons de travailler' })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Précédent' }));
+  expect(screen.getByRole('heading', { name: 'Où j’en suis' })).toBeInTheDocument();
+});
+
+it('does not list empty inapplicable rubrics in the review', () => {
+  setup({}, { currentStep: 7 }, { preview: true });
+  expect(screen.queryByText('Où j’en suis', { selector: 'summary' })).not.toBeInTheDocument();
+  expect(screen.queryByText('Mes essais', { selector: 'summary' })).not.toBeInTheDocument();
+});
+
+it('explains a voluntarily skipped trial in the review instead of an empty rubric', () => {
+  setup({ scope: { fields: { '3-arith': 'yes' } } }, { currentStep: 7 }, { preview: true });
+  fireEvent.click(screen.getByText('Mes essais', { selector: 'summary' }));
+  expect(screen.getByText('Aucun essai choisi. Cette étape est facultative ; tu peux en parler avec ton professeur.')).toBeInTheDocument();
+});
+
+
+it('keeps teacher feedback on skipped rubrics visible in the review', () => {
+  setup({}, { currentStep: 7, status: 'CORRECTED' }, { annotations: [
+    { id: 'note-hidden', stepId: 'mastery', body: 'Nous reprendrons ensemble ce point.', scope: 'STEP', kind: 'COMMENT', createdAt: '2026-10-07T12:00:00Z' } as never,
+  ] });
+  expect(screen.getByText('Nous reprendrons ensemble ce point.')).toBeInTheDocument();
 });
