@@ -29,8 +29,8 @@ export function bilanViewerSteps(level: BilanLevel): ViewerStepDef[] {
       const question = bilanData.sections.find(section => section.id === s.id)?.questions.find(q => q.id === f.id);
       const format: BilanAnswerFormat | undefined = s.id === 'scope' && f.id !== 'other' ? 'scope' : s.id === 'mastery' ? 'mastery' : s.id === 'evidence' ? 'evidence' : s.id === 'review' ? 'review' : question?.type === 'multi' ? 'multi' : undefined;
       const task = s.id === 'evidence' ? bilanData.tasks.find(t => t.id === f.id) : undefined;
-      const module = s.id === 'mastery' ? bilanData.modules[level].find(m => m.skills.some(skill => skill.id === f.id)) : undefined;
-      return { id: f.id, label: task ? `${f.label} — ${task.prompt}` : f.label, format, scopeModule: task?.module ?? module?.id, requiredSkills: task?.skills };
+      const skillModule = s.id === 'mastery' ? bilanData.modules[level].find(m => m.skills.some(skill => skill.id === f.id)) : undefined;
+      return { id: f.id, label: task ? `${f.label} — ${task.prompt}` : f.label, format, scopeModule: task?.module ?? skillModule?.id, requiredSkills: task?.skills };
     }),
   }));
 }

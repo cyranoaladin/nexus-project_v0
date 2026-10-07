@@ -25,9 +25,9 @@ export function SaveIndicator({ state, lastSavedAt }: Props) {
       case 'syncing':
         return { icon: <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />, text: 'Synchronisation…', tone: 'text-neutral-300' };
       case 'offline':
-        return { icon: <CloudOff className="h-4 w-4" aria-hidden="true" />, text: 'Hors connexion — votre travail reste conservé sur cet appareil.', tone: 'text-amber-300' };
+        return { icon: <CloudOff className="h-4 w-4" aria-hidden="true" />, text: 'Hors connexion — gardez cette page ouverte jusqu’à la synchronisation.', tone: 'text-amber-300' };
       case 'error':
-        return { icon: <AlertTriangle className="h-4 w-4" aria-hidden="true" />, text: 'La sauvegarde serveur a échoué. Votre travail reste conservé sur cet appareil.', tone: 'text-amber-300' };
+        return { icon: <AlertTriangle className="h-4 w-4" aria-hidden="true" />, text: 'La sauvegarde serveur a échoué. Gardez cette page ouverte et vérifiez votre connexion ou votre accès.', tone: 'text-amber-300' };
       case 'conflict':
         return { icon: <AlertTriangle className="h-4 w-4" aria-hidden="true" />, text: 'Ce travail a été modifié ailleurs : choisissez quelle version garder.', tone: 'text-amber-300' };
       case 'locked':

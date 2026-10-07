@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Eye, EyeOff, Loader2, LogIn } from 'lucide-react';
 
 /** Seules les destinations internes de l'espace sont acceptées après connexion. */
@@ -18,6 +18,8 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
   const [showSecret, setShowSecret] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -52,7 +54,7 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
         <p className="mt-2 text-neutral-300">Connecte-toi pour retrouver ton travail.</p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-5 rounded-xl border border-white/10 bg-surface-card p-6" aria-describedby={error ? 'connexion-erreur' : undefined}>
+      <form method="post" onSubmit={onSubmit} className="space-y-5 rounded-xl border border-white/10 bg-surface-card p-6" aria-describedby={error ? 'connexion-erreur' : undefined}>
         <div>
           <label htmlFor="username" className="text-sm font-medium text-neutral-200">
             Identifiant
@@ -67,6 +69,7 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
             autoCorrect="off"
             spellCheck={false}
             required
+            disabled={!ready || pending}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="exemple : prenom.n"
@@ -89,12 +92,14 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
               autoCorrect="off"
               spellCheck={false}
               required
+              disabled={!ready || pending}
               value={secret}
               onChange={(e) => setSecret(e.target.value)}
               className={`${input} pr-12`}
             />
             <button
               type="button"
+              disabled={!ready}
               onClick={() => setShowSecret((v) => !v)}
               aria-label={showSecret ? 'Masquer le code' : 'Afficher le code'}
               aria-pressed={showSecret}
@@ -120,7 +125,7 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
 
         <button
           type="submit"
-          disabled={pending}
+          disabled={!ready || pending}
           data-testid="btn-connexion"
           className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-accent font-medium text-neutral-950 hover:opacity-90 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >

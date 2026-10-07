@@ -14,30 +14,40 @@ interface Options {
 }
 
 export function useWorkSync({ workId, userId, initial }: Options) {
-  const [state, setState] = useState<SaveState>(initial.locked ? 'locked' : 'saved');
+  const [state, setState] = useState<SaveState>(initial.locked ? 'locked' : 'syncing');
   const [steps, setSteps] = useState<Steps>(initial.steps);
   const [conflict, setConflict] = useState<ConflictInfo | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(initial.lastSavedAt ? new Date(initial.lastSavedAt) : null);
   const engineRef = useRef<WorkSyncEngine | null>(null);
 
   useEffect(() => {
+    setSteps(initial.steps);
+    setConflict(null);
+    setLastSavedAt(initial.lastSavedAt ? new Date(initial.lastSavedAt) : null);
+    setState(initial.locked ? 'locked' : 'syncing');
     if (initial.locked) return undefined;
+    let active = true;
     const engine = new WorkSyncEngine({
       key: `${userId}:${workId}`,
       api: createSaveApi(workId),
       store: createIdbDraftStore(),
       initial: { revision: initial.revision, steps: initial.steps },
       onState: (next) => {
+        if (!active) return;
         setState(next);
         if (next === 'saved') setLastSavedAt(new Date());
         setConflict(engine.getConflict());
       },
-      onSteps: setSteps,
+      onSteps: next => { if (active) setSteps(next); },
     });
     engineRef.current = engine;
     void engine.init().then(() => {
+      if (!active) return;
       setSteps(engine.getSteps());
       setConflict(engine.getConflict());
+      setState(engine.getState());
+    }).catch(() => {
+      if (active) setState('error');
     });
 
     const online = () => engine.notifyOnline();
@@ -54,6 +64,7 @@ export function useWorkSync({ workId, userId, initial }: Options) {
     document.addEventListener('visibilitychange', hide);
     window.addEventListener('beforeunload', beforeUnload);
     return () => {
+      active = false;
       window.removeEventListener('online', online);
       document.removeEventListener('visibilitychange', hide);
       window.removeEventListener('beforeunload', beforeUnload);
@@ -62,7 +73,7 @@ export function useWorkSync({ workId, userId, initial }: Options) {
     };
     // L'état initial ne sert qu'à la création du moteur : le recréer effacerait la file d'attente.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workId, userId]);
+  }, [workId, userId, initial.locked]);
 
   const edit = useCallback((stepId: string, step: Step, meta?: { currentStep?: number; snapshot?: 'STEP_CHANGE' | 'RUN' }) => {
     const engine = engineRef.current;

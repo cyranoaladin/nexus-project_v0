@@ -82,7 +82,10 @@ export function createSaveApi(workId: string): SaveApi {
         }),
       }); // une coupure réseau lève TypeError : le moteur la traite comme « hors connexion »
       const body = await res.json().catch(() => null);
-      if (res.ok) return { kind: 'ok', revision: body.revision, replayed: body.replayed };
+      if (res.ok) {
+        if (!Number.isInteger(body?.revision) || body.revision < 0) throw new Error('Réponse de sauvegarde invalide');
+        return { kind: 'ok', revision: body.revision, replayed: body.replayed, ...(body.content?.steps ? { steps: body.content.steps as Steps } : {}) };
+      }
       if (res.status === 409 && body?.error === 'REVISION_CONFLICT') {
         const current = body.details?.current;
         return { kind: 'conflict', current: { revision: current.revision, steps: (current.content?.steps ?? {}) as Steps } };
@@ -90,6 +93,7 @@ export function createSaveApi(workId: string): SaveApi {
       if (res.status === 423) return { kind: 'locked' };
       if (res.status === 400) return { kind: 'rejected', message: body?.message ?? 'Contenu refusé', code: body?.error };
       if (res.status === 401) return { kind: 'rejected', message: 'Votre session a expiré : reconnectez-vous.', code: 'UNAUTHENTICATED' };
+      if (res.status === 403 || res.status === 404) return { kind: 'rejected', message: 'Ce travail n’est plus accessible. Contactez votre professeur.', code: 'NOT_FOUND' };
       throw new Error(`HTTP ${res.status}`); // 5xx, 429… : réessai avec temporisation
     },
     async submit(input) {
@@ -100,8 +104,16 @@ export function createSaveApi(workId: string): SaveApi {
         body: JSON.stringify({ baseRevision: input.baseRevision }),
       });
       const body = await res.json().catch(() => null);
-      if (res.ok) return { kind: 'ok' as const, revision: body.work.revision };
-      if (res.status === 409) return { kind: 'conflict' as const, message: body?.message };
+      if (res.ok) {
+        if (!Number.isInteger(body?.work?.revision) || body.work.revision < 0) throw new Error('Réponse de remise invalide');
+        return { kind: 'ok' as const, revision: body.work.revision };
+      }
+      if (res.status === 409) {
+        const current = body?.details?.current;
+        return { kind: 'conflict' as const, message: body?.message,
+          ...(current && Number.isInteger(current.revision) && current.content?.steps
+            ? { current: { revision: current.revision, steps: current.content.steps as Steps } } : {}) };
+      }
       if (res.status === 423) return { kind: 'locked' as const, message: body?.message };
       return { kind: 'rejected' as const, message: body?.message };
     },

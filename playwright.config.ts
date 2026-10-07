@@ -22,7 +22,7 @@ export default defineConfig({
   // credentials et greps dedies (@visual, @a11y).
   // La voie generique Playwright exclut explicitement ARIA pour eviter les collisions.
   // prod/ et fallback/ ont leur propre configuration (playwright.prod-smoke.config.ts, playwright.fallback.config.ts).
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**', '**/prod/**', '**/fallback/**', '**/bilan/**'],
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**', '**/prod/**', '**/fallback/**', '**/bilan/**', '**/bilan-validation/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

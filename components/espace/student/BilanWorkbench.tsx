@@ -39,7 +39,13 @@ function evidenceOf(value?: string): Evidence {
   try { const v = JSON.parse(value ?? '') as Partial<Evidence>; return { answer: typeof v.answer === 'string' ? v.answer : '', retry: typeof v.retry === 'string' ? v.retry : '', aid: typeof v.aid === 'string' ? v.aid : '', skipped: v.skipped === true }; } catch { return empty; }
 }
 
-export function BilanWorkbench({ userId, studentName, level, work, annotations, preview = false }: BilanWorkbenchProps) {
+export function BilanWorkbench(props: BilanWorkbenchProps) {
+  // Une nouvelle identité ou une réouverture serveur recrée la session locale,
+  // sans conserver le verrou ou les réponses de la copie précédente.
+  return <BilanSession key={`${props.userId}:${props.work.id}:${props.work.status}:${props.level}`} {...props} />;
+}
+
+function BilanSession({ userId, studentName, level, work, annotations, preview = false }: BilanWorkbenchProps) {
   const defs = getBilanLesson(level).steps;
   const [status, setStatus] = useState<WorkStatus>(work.status);
   const serverSync = useWorkSync({ userId, workId: work.id, initial: { revision: work.revision, steps: work.steps, lastSavedAt: work.lastSavedAt, locked: preview || !isStudentEditable(work.status) } });
@@ -100,7 +106,7 @@ export function BilanWorkbench({ userId, studentName, level, work, annotations, 
     try {
       const result = await serverSync.submit();
       if (result.kind === 'ok') { setStatus('SUBMITTED'); setConfirming(false); }
-      else setError(result.kind === 'blocked' ? submitBlockedMessage(result.reason) : 'La transmission a échoué. Tes réponses restent disponibles : réessaie dans un instant.');
+      else setError(result.kind === 'blocked' ? submitBlockedMessage(result.reason) : (result.message || 'La transmission a échoué. Tes réponses restent disponibles : réessaie dans un instant.'));
     } catch { setError('La transmission a échoué. Vérifie ta connexion puis réessaie.'); }
     finally { setSubmitting(false); }
   }

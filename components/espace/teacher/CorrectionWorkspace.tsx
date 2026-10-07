@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, Download, History, Trash2 } from 'lucide-react';
 
 import { StatusBadge } from '@/components/espace/shared/StatusBadge';
@@ -81,7 +81,12 @@ const KIND_LABEL: Record<AnnotationKind, string> = {
 const inputClass = 'mt-1 block w-full rounded-md border border-white/15 bg-white/5 px-2 py-2 text-sm text-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 const btn = 'rounded-md border border-white/15 px-3 py-2 text-sm text-neutral-100 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 
-export function CorrectionWorkspace({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin, skills, bilan = false }: Props) {
+export function CorrectionWorkspace(props: Props) {
+  // Une navigation entre copies doit isoler brouillon, historique et requêtes en cours.
+  return <CorrectionWorkspaceBody key={props.work.id} {...props} />;
+}
+
+function CorrectionWorkspaceBody({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin, skills, bilan = false }: Props) {
   const router = useRouter();
   const timezone = useEspaceTimezone();
   const [status, setStatus] = useState<WorkStatus>(work.status);
@@ -92,6 +97,7 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
   const [skillId, setSkillId] = useState('');
   const [snippets, setSnippets] = useState<{ id: string; body: string }[]>([]);
   const [versions, setVersions] = useState<{ id: string; revision: number; reason: string; createdAt: string }[]>([]);
+  const historyRequest = useRef(0);
   const [viewing, setViewing] = useState<{ label: string; content: { steps: Record<string, ViewerStepContent> } } | null>(null);
 
   useEffect(() => setStatus(work.status), [work.status]);
@@ -124,7 +130,7 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
     try {
       const { annotation } = await espaceApi.addAnnotation(work.id, built.payload);
       setAnnotations((list) => [...list, annotation as AnnotationView]);
-      setDraft((d) => ({ ...EMPTY_DRAFT, kind: d.kind, stepId: d.stepId }));
+      setDraft((d) => d === draft ? { ...EMPTY_DRAFT, kind: d.kind, stepId: d.stepId } : d);
       note('ok', 'Annotation enregistrée.');
       return true;
     } catch (e) {
@@ -170,15 +176,17 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
   }
 
   async function onPickVersion(id: string) {
+    const request = ++historyRequest.current;
     if (!id) return setViewing(null);
     try {
       const { version } = await espaceApi.version(work.id, id);
+      if (request !== historyRequest.current) return;
       setViewing({
         label: `révision ${version.revision} · ${REASON_LABEL[version.reason] ?? version.reason} · ${formatDateTime(version.createdAt, timezone)}`,
         content: { steps: (version.content?.steps ?? {}) as Record<string, ViewerStepContent> },
       });
     } catch (e) {
-      note('error', describeError(e));
+      if (request === historyRequest.current) note('error', describeError(e));
     }
   }
 
