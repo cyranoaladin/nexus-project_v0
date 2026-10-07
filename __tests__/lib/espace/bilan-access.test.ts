@@ -104,3 +104,23 @@ describe('bilan — catalogue et tableau de bord personnels', () => {
     expect(dashboard.next).toMatchObject({ activitySlug: slug, sessionId: 'session-test' });
   });
 });
+
+describe.each([
+  ['maths-bilan-septembre-2026-3e','MATHEMATIQUES'],
+  ['maths-bilan-septembre-2026-2nde','MATHEMATIQUES'],
+  ['maths-bilan-septembre-2026-terminale','MATHEMATIQUES'],
+  ['nsi-bilan-septembre-2026-terminale','NSI'],
+])('retrait de l’inscription pour %s', (activitySlug, subject) => {
+  beforeEach(() => {
+    sessionFind.mockResolvedValue({id:'session-test'});
+    enrollmentFind.mockResolvedValue(null);
+    workFind.mockResolvedValue({...work,activity:{...activity,slug:activitySlug,subject}});
+  });
+  it('refuse lecture, modification et transmission même si une place publiée subsiste', async () => {
+    await expect(loadWorkForActor(actor,work.id)).rejects.toMatchObject({code:'NOT_FOUND'});
+    await expect(saveWork(actor,work.id,{baseRevision:0,patch:{stepId:'scope',step:{fields:{other:'après retrait'}}}})).rejects.toMatchObject({code:'NOT_FOUND'});
+    await expect(submitWork(actor,work.id,0)).rejects.toMatchObject({code:'NOT_FOUND'});
+    expect(enrollmentFind).toHaveBeenCalledWith(expect.objectContaining({where:{userId:actor.id,subject}}));
+    expect(transaction).not.toHaveBeenCalled();
+  });
+});

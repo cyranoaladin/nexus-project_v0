@@ -9,7 +9,7 @@ export interface ViewerStepDef {
   short: string;
   starter: string | null;
   questions: { id: string; text: string; choices: string[]; correct: number }[];
-  fields: { id: string; label: string; format?: BilanAnswerFormat; scopeModule?: string; requiredSkills?: string[] }[];
+  fields: { id: string; label: string; format?: BilanAnswerFormat; scopeModule?: string; requiredSkills?: string[]; requiredScopeModules?: string[] }[];
 }
 
 export interface ViewerStepContent {
@@ -75,10 +75,11 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
 
       {steps.map((def) => {
         const step = content.steps[def.id];
-        const visibleFields = def.fields.filter(f => !f.scopeModule || (
-          content.steps.scope?.fields?.[f.scopeModule] === 'yes' &&
+        const visibleFields = def.fields.filter(f =>
+          (!f.scopeModule || content.steps.scope?.fields?.[f.scopeModule] === 'yes') &&
+          (f.requiredScopeModules ?? []).every(id => content.steps.scope?.fields?.[id] === 'yes') &&
           (f.requiredSkills ?? []).every(id => content.steps.mastery?.fields?.[id] !== 'notworked')
-        ));
+        );
         const hasQuestions = def.questions.length > 0;
         const hasFields = visibleFields.length > 0;
         const empty = !step || (!step.code?.trim() && !Object.keys(step.fields ?? {}).length && !Object.keys(step.choices ?? {}).length);
@@ -179,7 +180,7 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
               <dl className="mt-3 space-y-3">
                 {visibleFields.map((f) => (
                   <div key={f.id} className="rounded-md border border-white/10 p-3">
-                    <dt className="text-sm font-medium text-neutral-100"><RichText text={f.label} /></dt>
+                    <dt className="whitespace-pre-wrap text-sm font-medium text-neutral-100"><RichText text={f.label} /></dt>
                     <dd className="mt-1 text-sm text-neutral-200">
                       <div className="whitespace-pre-wrap break-words" data-testid={`field-${def.id}-${f.id}`}>
                         {step?.fields?.[f.id]?.trim() ? formatBilanAnswer(f.format, step.fields[f.id]) : <span className="text-neutral-400">Pas de réponse.</span>}

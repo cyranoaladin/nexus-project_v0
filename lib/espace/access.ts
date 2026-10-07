@@ -84,6 +84,9 @@ export async function loadWorkForActor(
     if (work.studentId !== actor.id) throw new EspaceError('NOT_FOUND', 'Travail introuvable');
     if (require === 'teacher') throw new EspaceError('FORBIDDEN', 'Accès refusé');
     if (isBilanActivitySlug(work.activity.slug)) {
+      if (!(await isStudentEnrolled(actor.id, work.activity.subject))) {
+        throw new EspaceError('NOT_FOUND', 'Travail introuvable');
+      }
       await requireBilanAssignment(actor.id, work.activityId);
     }
     return { work, mode: 'student' };

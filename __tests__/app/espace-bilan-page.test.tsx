@@ -34,3 +34,10 @@ it('la page refuse un élève sans attribution sans lire ses annotations', async
   await expect(Page({ params: Promise.resolve({ level: '2nde' }), searchParams: Promise.resolve({}) })).rejects.toThrow('NEXT_NOT_FOUND');
   expect(annotations).not.toHaveBeenCalled();
 });
+
+it.each(['tle-maths', 'tle-nsi'])('ouvre le profil terminale %s dans le parcours existant avec sa séance', async level => {
+  const page = await Page({ params: Promise.resolve({ level }), searchParams: Promise.resolve({ seance: 'terminal-session' }) });
+  expect(guard).toHaveBeenCalledWith(['ELEVE'], `/espace/bilan/${level}?seance=terminal-session`);
+  expect(page).toMatchObject({ props: { level, userId: 'student-test' } });
+  expect(open).toHaveBeenCalledWith(expect.anything(), { activitySlug: expect.stringMatching(level === 'tle-nsi' ? /^nsi-bilan-/ : /^maths-bilan-/), sessionId: 'terminal-session' });
+});

@@ -6,7 +6,7 @@ let syncMock: Record<string, unknown>;
 jest.mock('@/components/espace/shared/useWorkSync', () => ({ useWorkSync: () => syncMock }));
 
 import { BilanWorkbench, type BilanWorkbenchProps } from '@/components/espace/student/BilanWorkbench';
-import { bilanData } from '@/lib/espace/bilan-data';
+import { bilanData, getBilanSections } from '@/lib/espace/bilan-data';
 
 function setup(steps: Record<string, unknown> = {}, over: Partial<BilanWorkbenchProps['work']> = {}, extra: Partial<BilanWorkbenchProps> = {}) {
   const work = { id: 'bilan-work', status: 'IN_PROGRESS' as const, revision: 2, currentStep: 0, lastSavedAt: '2026-10-07T09:00:00Z', steps: steps as never, ...over };
@@ -185,4 +185,34 @@ it('keeps teacher feedback on skipped rubrics visible in the review', () => {
     { id: 'note-hidden', stepId: 'mastery', body: 'Nous reprendrons ensemble ce point.', scope: 'STEP', kind: 'COMMENT', createdAt: '2026-10-07T12:00:00Z' } as never,
   ] });
   expect(screen.getByText('Nous reprendrons ensemble ce point.')).toBeInTheDocument();
+});
+
+it.each([['tle-maths', 'Mathématiques'], ['tle-nsi', 'NSI']] as const)('identifies the %s questionnaire by its subject and Terminale level', (level, subject) => {
+  setup({}, {}, { level, preview: true });
+  expect(screen.getByText(`${subject} · Terminale · Septembre 2026`)).toBeVisible();
+  expect(screen.queryByText(/Mathématiques · Seconde/)).not.toBeInTheDocument();
+});
+
+it.each(['tle-maths', 'tle-nsi'] as const)('renders the specific reflection questions for %s', level => {
+  setup({}, {}, { level, preview: true });
+  for (const [index, section] of getBilanSections(level).entries()) {
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: String(index + 3) } });
+    for (const question of section.questions) expect(screen.getByText(question.text, { exact: true })).toBeVisible();
+  }
+});
+
+it('keeps the NSI no-aid and uncertain answers exclusive in both directions', () => {
+  setup({}, {}, { level: 'tle-nsi', preview: true });
+  fireEvent.change(screen.getByRole('combobox'), { target: { value: '3' } });
+  const question = getBilanSections('tle-nsi')[0].questions.find(q => q.id === 'tn-aides')!;
+  const group = screen.getByRole('group', { name: question.text });
+  const noAid = question.exclusiveOptions![0];
+  fireEvent.click(within(group).getByLabelText('Mémo ou livret', {exact:true}));
+  fireEvent.click(within(group).getByLabelText(noAid, {exact:true}));
+  expect(within(group).getAllByRole('checkbox', {checked:true})).toHaveLength(1);
+  expect(within(group).getByLabelText(noAid, {exact:true})).toBeChecked();
+  fireEvent.click(within(group).getByLabelText('Indice du professeur', {exact:true}));
+  expect(within(group).getByLabelText(noAid, {exact:true})).not.toBeChecked();
+  fireEvent.click(within(group).getByLabelText('Je ne sais plus', {exact:true}));
+  expect(within(group).getAllByRole('checkbox', {checked:true})).toHaveLength(1);
 });

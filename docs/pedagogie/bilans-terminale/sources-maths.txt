@@ -1,0 +1,98 @@
+AUDIT PÉDAGOGIQUE — TERMINALE GÉNÉRALE, SPÉCIALITÉ MATHÉMATIQUES
+Bilan de septembre 2026 — préparation de contenu, aucune écriture de code ou de données métier.
+Corpus local : /home/alaeddine/Documents/Nexus_Reussite/LIVRETS_SEANCES_MATHS_NSI/04_SEANCES_ET_LIVRETS_ACCOMPAGNEMENT
+
+1. PORTÉE ET STATUT DES SOURCES
+Les pages indiquées ci-dessous sont les pages physiques du PDF ; pour les sources principales elles correspondent à la pagination imprimée. Texte extrait avec pdftotext -layout ; contrôle visuel de S2 p.21 pour formule, hypothèses et statut du bilan.
+Le seul support principal explicitement daté de septembre est la séance du 12 septembre. Cette date date le document, pas une preuve d'exécution de chaque activité. S1 V3 et S2 ne fournissent pas de date de réalisation ; leur présence dans le dossier ne prouve ni leur remise, ni leur traitement intégral, ni leur appartenance effective aux séances de septembre. Le préambule n'est pas une feuille de présence ou un compte rendu. Aucun cahier renseigné ni production d'élève n'est utilisé ici.
+Les six thèmes sont donc des contenus CANDIDATS, à confirmer individuellement. Les thèmes de limites/convergence et précision doivent être désactivés si leur traitement en septembre n'est pas confirmé. Chaque compétence doit garder une option non travaillée ; aucun essai ne doit être proposé si un prérequis est déclaré non travaillé, hors périmètre ou incertain.
+Ce contenu est conçu pour Terminale générale spécialité mathématiques. Il ne doit pas être attribué automatiquement à STMG ou à l'option mathématiques complémentaires.
+
+2. SOURCES RETENUES ET PAGES
+[tm-sept12] Nexus_Reussite_Seance_1_Terminale_Maths_12-09-2026_PREMIUM_LATEX.pdf — 6 pages.
+p.1 : daté samedi12/09/2026, groupe de cinq, deux heures ; objectifs et recherche individuelle puis confrontation.
+p.2 : diagnostic suites usuelles, sommes, variations, statut de l'hérédité ; critère et justification demandés.
+p.3 : rédaction d'une récurrence, analyse d'une preuve sans initialisation.
+p.4 : suite affine, borne, signe de la différence, point fixe ; le comportement est seulement conjecturé à cette étape.
+p.5 : suite auxiliaire, formule explicite, deux méthodes de variations et relecture de la chaîne logique.
+p.6 : synthèse, auto-positionnement, objectif de reprise ; Bernoulli est un prolongement facultatif, pas un acquis collectif présumé.
+
+[tm-s1] Nexus_Tle_Maths_S1_Suites_Livret_Eleve_V3.pdf — 16 pages.
+p.1 : support/réserve de révision, cahier pour les réponses. Cœur proposé : ex.1 q.1–2, ex.2–3 q.1–3, puis ex.9. Les limites et la convergence sont explicitement annoncées pour plus tard et non requises ici.
+p.2 : formule explicite/récurrence, premier rang, arithmétique/géométrique, raisons, sommes, nombre de termes, signes.
+p.3–4 : récurrence complète, cible au rang suivant, encadrement, existence, ordre, intervalle stable, borne uniforme ; Bernoulli comme référence.
+p.5 : différence, quotient avec positivité, f(n) versus f(u_n), initialisation d'une comparaison.
+p.6 : point fixe d'une relation affine, suite auxiliaire, retour à u_n, sommes, seuil et minimalité sans logarithme.
+p.7 : ex.1 termes et sommes ; dépassement et persistance sont des prolongements.
+p.8 : ex.2 encadrement, variations et suite auxiliaire (cœur q.1–3) ; somme et seuil sont complémentaires.
+p.9 : ex.3 racine, existence, encadrement et variations (cœur q.1–3) ; contrôle d'erreur en prolongement.
+p.10–12 : entraînements après la séance et réserves ciblées : sommes, variations, inégalités, modèle de réservoir et boucle de seuil. Ne pas les présumer traités.
+p.13 : bilan individuel20min, sans aide ni calculatrice, ex.9 ; barème du livret non repris dans le questionnaire.
+p.14 : devoir d'entraînement après la séance ; ne pas assimiler à du travail accompagné en séance.
+p.15 : prolongement coefficient négatif et analyse d'erreurs.
+p.16 : synthèse de choix de méthodes.
+
+[tm-s2] Nexus_Terminale_S2_Limites_Suites_Livret_Eleve.pdf — 24 pages.
+p.1–2 : progression proposée et différence entre référence, cœur, entraînement et prolongement. Cœur : ex.1 p.3, ex.2 q.1–3 p.12, ex.3 q.1–3 p.14, bilan sans aide p.21. Le récit de continuité avec S1 n'est pas une observation individuelle datée.
+p.3 : bornes, variation, convergence, contre-exemples.
+p.4–5 : définitions de limite, bornes uniformes et théorème de convergence monotone ; implications à ne pas inverser.
+p.6 : limites usuelles, puissances q^n, opérations sous conditions, formes indéterminées, facteur dominant et conjugué.
+p.7 : gendarmes, distance à une valeur et comparaison pour limites infinies.
+p.8–9 : propriété adaptée à la récurrence ; existence de la limite avant équation ; opérations sur une identité et élimination des solutions non admissibles.
+p.10 : majorant d'erreur, seuil garanti versus premier seuil effectif, boucle et terminaison en calcul exact.
+p.11 : erreurs logiques de convergence.
+p.12 : problème central de suite avec racine, convergence puis limite.
+p.13 : prolongement de ce problème : contrôle d'erreur et boucle. Conditionnel à son traitement réel.
+p.14 : problème central rationnel, borne inférieure et décroissance, convergence et limite.
+p.15–18 : entraînements/réserves (oscillations, divergence, calculs de limites, Bernoulli, sommes). Leur présence ne suffit pas à déclarer ces méthodes travaillées.
+p.19 : suites couplées, approfondissement facultatif — non ajouté comme thème propre au bilan.
+p.20 : indices à consulter après un premier essai.
+p.21 : bilan individuel de20min sans aide ; hypothèses, rédaction et besoin de reprise ; barème non importé.
+p.22–23 : devoir de synthèse, donc non présumé fait en séance.
+p.24 : synthèse et bilan personnel.
+
+[tm-preamble] Preambule_Suites_Terminale_Nexus_v2.pdf — 4 pages.
+p.1–2 : données/objectif/obstacle/outil/contrôle, conjecture et preuve, existence et valeur, borne et seuil, ordre logique.
+p.3 : carte d'un sujet de synthèse de3h utilisé comme réserve pour2h ; ni exécution intégrale ni date attestées. La somme mobile et les approfondissements ne sont pas ajoutés comme thèmes obligatoires.
+p.4 : erreurs, checklist de relecture. Source de méthodologie, pas preuve que le sujet associé a été travaillé.
+La variante Preambule_Suites_Terminale_Nexus_corrige.pdf (4p) a été consultée comme variante ; pas de deuxième séance déduite de deux fichiers proches.
+
+3. GUIDES ENSEIGNANT CONSULTÉS — NON INTÉGRÉS À LA BANQUE ÉLÈVE
+Nexus_Tle_Maths_S1_Suites_Corriges_Enseignant_V3.pdf — 12p : p.1 conduite et priorités ; p.2 ex.1 ; p.3 ex.2 ; p.6 ex.6–7. Ces pages permettent de contrôler les essais somme, récurrence, suite auxiliaire, différence et quotient négatif.
+Nexus_Terminale_S2_Limites_Suites_Guide_Professeur.pdf — 20p : p.1–2 conduite ; p.5–6 encadrement, variation, convergence et majorant d'erreur ; p.10 calculs de limites ; p.13 bilan autonome ; p.18 suivi individuel ; p.19 reprise ; p.20 périmètre. Ces pages permettent de vérifier les essais limite, convergence et seuil.
+Le guide S2 p.18 distingue autonome, après indice, après guidage et non observé : ce sont les conditions d'une production, non une aptitude permanente. Le prolongement précision ne doit pas pénaliser un élève qui n'a pas eu le temps de le traiter.
+Aucun corrigé, résultat attendu, barème, indice correctif ou validation automatique n'est inclus dans nexus-terminale-maths-content.json.
+
+4. TRAÇABILITÉ DES ESSAIS ET VÉRIFICATION
+Tous les essais sont ouverts, limités à une démarche courte, sans score. En proposer au maximum deux, choisis avec le professeur parmi les compétences réellement travaillées. Un essai facultatif non fait n'est ni un échec ni une preuve de non-maîtrise. Les temps peuvent varier ; environ3–5min chacun, sans sacrifier une explication.
+tm-sum-task : adaptation courte de S1 p.2,7, ex.1. Premier et dernier rang explicites ; somme de quatre termes vérifiée exactement. Corrigé guideS1 p.2.
+tm-induction-task : S1 p.3–4,8, ex.2 q.1. Deux bornes, inégalité stricte et rang0 contrôlés. GuideS1 p.3.
+tm-difference-task : S1 p.5,11, ex.6 première suite. Différence symbolique, dénominateurs et stricte monotonie pour n≥0 vérifiés. GuideS1 p.6.
+tm-quotient-task : S1 p.5,11, ex.6 troisième suite. L'argument proposé est à examiner, non un résultat présenté comme vrai. Signe négatif des termes et différence exacts vérifiés. GuideS1 p.6.
+tm-auxiliary-task : S1 p.6,8, ex.2 q.3. Raison, terme initial, signe de la translation et retour à u_n contrôlés. Demande aussi les compétences usuelles tm-nature/tm-explicit ; ne pas l'afficher si ce thème est hors périmètre. GuideS1 p.3.
+tm-quotient-limit-task : S2 p.6,17, ex.6 q.1. Domaine n≥0, transformation valable dès n≥1 et dénominateur de limite non nul contrôlés. Réserve d'entraînement : seulement si ce travail a été effectivement fait en séance. GuideS2 p.10.
+tm-convergence-task : S2 p.9,21, ex.10 q.3 avec résultats précédents explicitement admis pour isoler convergence et identification. Ne permet aucune conclusion sur la capacité à démontrer les bornes ou les variations, qui ne sont pas demandées. GuideS2 p.13 ; page21 élève vérifiée visuellement.
+tm-threshold-task : adaptation de S2 p.10,13 : précision0,01 au lieu de0,001 pour un essai court. Calculs rationnels exacts aux rangs frontières, garantie pour tous les rangs suivants et distinction majorant/erreur réelle contrôlés. GuideS2 p.6 et p.16 pour la logique du test strict. Réserve/prolongement, jamais imposé sans confirmation de traitement.
+Les huit corrections ont été vérifiées par calcul exact ou algèbre symbolique en local. Les solutions ne figurent pas dans la banque élève. Un fichier de corrections séparé, réservé au professeur, a été ajouté à la demande du responsable de l’intégration.
+
+5. EXCLUSIONS DOCUMENTÉES
+- nexus_suites_premium_v2.pdf (8p) : titre interne PREMIÈRE GÉNÉRALE ; non retenu comme preuve du parcours de Terminale. Les réinvestissements pertinents ont déjà leur source dans S1, sans importer ses exercices supplémentaires.
+- 06_Impression_6_Eleves.pdf (60p) : première page datée4octobre2026, limites de fonctions ; hors mois de septembre et hors limites de suites.
+- MATHS_limites_corrige_enseignant.pdf (9p) : fonctions, limites et lecture graphique ; corrigé seul et sans rattachement attesté à septembre ; exclu.
+- Nexus_S01_Livret_eleve.pdf et Nexus_S01_Guide_enseignant_corriges.pdf : accompagnement individuel en visioconférence, autre public que le groupe demandé ; non assimilé au groupe.
+- Nexus_Seance1_Guide_enseignant_et_corriges.pdf et Nexus_Seance2_Guide_enseignant_et_corriges.pdf : binôme personnalisé STMG/mathématiques complémentaires ; exclus sans recopier les identités.
+- 01_plan_de_seance.pdf : Première spécialité, produit scalaire/exponentielle.
+- 01_support_eleve_seance.pdf, 02_guide_professeur_tableau.pdf, 03_travail_autonomie_apres_seance.pdf : Seconde, droites/systèmes/probabilités/échantillonnage.
+- Documents NSI, collège, Seconde et Première explicitement intitulés : hors niveau ou discipline.
+- Stages de prérentrée et printemps, annales et programme annuel : non utilisés ; aucun chapitre annuel ajouté parce qu'il figure au programme.
+
+6. CONDITIONS D'EXPLOITATION DANS LE BILAN
+6 thèmes,24 compétences,8 essais et30 questions transversales : methods8, experience9, growth7, next6. Les IDs thèmes/compétences/essais/questions et sources commencent par tm-. Les quatre IDs de section methods/experience/growth/next restent ceux du contrat existant pour intégration.
+Le parent du questionnaire doit conserver périmètre oui/non/incertain, auto-positionnement avec non travaillé, refus/saut, aide et reprise séparées, deux essais maximum, relecture avant transmission. Le libellé d'autonomie doit désigner une réussite sans modèle ni aide ; « je pourrais expliquer » est une déclaration, pas une observation enseignant.
+Les questions méthodologiques et de ressenti sont une construction d'expertise à partir des pratiques prévues, jamais présentées comme extraites d'un cahier rempli. Les modalités (entretien individuel, comparaison de preuves, indices, bilan sans aide) possèdent une réponse non vécu/non applicable quand nécessaire. La reprise à domicile peut être interrogée comme habitude liée aux séances mais ne valide pas à elle seule le périmètre travaillé en séance.
+La synthèse familiale distinguera parole de l'élève, traces observées et appréciation du professeur. Sans deux traces comparables datées et conditions d'aide documentées, parler d'état des lieux et de progrès ressentis, pas de progression mesurée. Ne pas reprendre les barèmes des livrets ni transformer les auto-positionnements en note de maîtrise.
+
+7. RELECTURE COMPLÉMENTAIRE ET FICHIER PROFESSEUR
+Le fichier /tmp/nexus-terminale-maths-corrections.json contient exactement les huit IDs des essais avec expected/focus. Il est destiné exclusivement à un module serveur réservé aux enseignants authentifiés ; ne pas le fusionner dans la banque client, la synthèse familiale ou les réponses élève.
+La relecture a rendu explicites les conditions septembre/travail réellement effectué dans les descriptions restantes, retiré de la description élève le renvoi technique à S1 V3, remplacé « on a déjà démontré » par une hypothèse admise propre à l’essai de seuil, rendu conditionnelles les questions de blocage/réussite/difficulté et remplacé la présomption de bénéfice d’une action par « vérifier si ». Des options sans situation vécue ont été ajoutées pour la stratégie initiale et la confiance ; la comparaison de deux traces admet aussi des aides comparables. Les IDs, nombres de thèmes/compétences/essais/questions et contenus mathématiques sont inchangés.
+Les focus empêchent les inférences excessives : pas de validation du choix d’une suite auxiliaire fournie, des bornes et variations admises, de la démonstration d’un majorant donné, ni d’un chapitre entier à partir d’une seule réponse. Une résolution aidée reste distincte d’une résolution autonome.

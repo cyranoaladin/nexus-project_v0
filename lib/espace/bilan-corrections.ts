@@ -1,7 +1,9 @@
 import 'server-only';
+import terminale from './bilan-terminale-corrections.json';
 
 /** Réservé à la relecture pédagogique authentifiée. */
 export const bilanCorrections: Record<string, { expected: string; focus: string }> = {
+  ...terminale,
   "3-div": {
     "expected": "Égalité vraie, mais 27 ≥ 16. La division euclidienne est 347 = 16 × 21 + 11, avec 0 ≤ 11 < 16.",
     "focus": "Distinguer égalité exacte et division euclidienne ; contrôler la borne du reste."

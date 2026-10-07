@@ -1,4 +1,4 @@
-import { bilanData, getBilanLesson, type BilanLevel } from './bilan-data';
+import { bilanData, getBilanLesson, getBilanSections, type BilanLevel } from './bilan-data';
 import type { ViewerStepDef } from '@/components/espace/teacher/WorkViewer';
 
 export type BilanAnswerFormat = 'scope' | 'mastery' | 'evidence' | 'multi' | 'review';
@@ -26,11 +26,11 @@ export function bilanViewerSteps(level: BilanLevel): ViewerStepDef[] {
   return getBilanLesson(level).steps.map(s => ({
     id: s.id, title: s.title, short: 'Bilan', starter: null, questions: [],
     fields: s.fields.map(f => {
-      const question = bilanData.sections.find(section => section.id === s.id)?.questions.find(q => q.id === f.id);
+      const question = getBilanSections(level).find(section => section.id === s.id)?.questions.find(q => q.id === f.id);
       const format: BilanAnswerFormat | undefined = s.id === 'scope' && f.id !== 'other' ? 'scope' : s.id === 'mastery' ? 'mastery' : s.id === 'evidence' ? 'evidence' : s.id === 'review' ? 'review' : question?.type === 'multi' ? 'multi' : undefined;
       const task = s.id === 'evidence' ? bilanData.tasks.find(t => t.id === f.id) : undefined;
       const skillModule = s.id === 'mastery' ? bilanData.modules[level].find(m => m.skills.some(skill => skill.id === f.id)) : undefined;
-      return { id: f.id, label: task ? `${f.label} — ${task.prompt}` : f.label, format, scopeModule: task?.module ?? skillModule?.id, requiredSkills: task?.skills };
+      return { id: f.id, label: task ? `${f.label} — ${task.prompt}` : f.label, format, scopeModule: task?.module ?? skillModule?.id, requiredSkills: task?.skills, requiredScopeModules: task ? bilanData.modules[level].filter(m => m.skills.some(skill => task.skills.includes(skill.id))).map(m => m.id) : undefined };
     }),
   }));
 }

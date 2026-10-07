@@ -70,3 +70,19 @@ describe('WorkViewer — texte d’élève jamais interprété', () => {
     expect(render({ agir: { code: 'x' } })).not.toContain('<button');
   });
 });
+
+it('preserves multiline code inside a pedagogical field label', () => {
+  const multiline = 'Observer le programme :\ndef f(n):\n    return n + 1';
+  const html = renderToStaticMarkup(<WorkViewer workId="synthetic-work" steps={[{ ...defs[0], fields:[{id:'trace', label:multiline}] }]} content={{steps:{}}} attachments={[]} />);
+  const container = document.createElement('div'); container.innerHTML = html;
+  const label = container.querySelector('dt')!;
+  expect(label.textContent).toBe(multiline);
+  expect(label).toHaveClass('whitespace-pre-wrap');
+});
+
+it.each(['no', 'unsure', undefined])('hides a task when its other prerequisite module is not confirmed (%s)', status => {
+  const steps = [{...defs[0], id:'evidence', fields:[{id:'cross-module',label:'Essai avec prérequis',scopeModule:'primary',requiredScopeModules:['primary','prerequisite']}]}];
+  const markup = (value: string | undefined) => renderToStaticMarkup(<WorkViewer workId="synthetic-cross-module" steps={steps} content={{steps:{scope:{fields:{primary:'yes', ...(value ? {prerequisite:value} : {})}},evidence:{fields:{'cross-module':'ancienne trace'}}}}} attachments={[]} />);
+  expect(markup(status)).not.toContain('Essai avec prérequis');
+  expect(markup('yes')).toContain('Essai avec prérequis');
+});

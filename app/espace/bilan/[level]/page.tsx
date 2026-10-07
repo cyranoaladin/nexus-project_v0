@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { BilanWorkbench } from '@/components/espace/student/BilanWorkbench';
 import { listAnnotations } from '@/lib/espace/annotations';
 import { EspaceError } from '@/lib/espace/errors';
-import { BILAN_2NDE_ACTIVITY_SLUG, BILAN_3E_ACTIVITY_SLUG, lessonHref } from '@/lib/espace/lesson-routes';
+import { lessonHref } from '@/lib/espace/lesson-routes';
+import { getBilanProfile, isBilanLevel } from '@/lib/espace/bilan-profiles';
 import { fullName } from '@/lib/espace/overview';
 import { requireActorForPage } from '@/lib/espace/page-guard';
 import { openWork } from '@/lib/espace/works';
@@ -13,9 +14,9 @@ export const metadata = { title: 'Mon bilan de septembre — Nexus Réussite' };
 
 export default async function BilanPage({ params, searchParams }: { params: Promise<{ level: string }>; searchParams: Promise<{ seance?: string }> }) {
   const { level } = await params;
-  if (level !== '3e' && level !== '2nde') notFound();
+  if (!isBilanLevel(level)) notFound();
   const { seance } = await searchParams;
-  const slug = level === '3e' ? BILAN_3E_ACTIVITY_SLUG : BILAN_2NDE_ACTIVITY_SLUG;
+  const slug = getBilanProfile(level).slug;
   const actor = await requireActorForPage(['ELEVE'], lessonHref(slug, seance)!);
   try {
     const work = await openWork(actor, { activitySlug: slug, sessionId: seance ?? null });

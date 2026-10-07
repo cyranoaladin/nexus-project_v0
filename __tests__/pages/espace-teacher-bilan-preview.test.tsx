@@ -18,8 +18,10 @@ beforeEach(() => {
   jest.mocked(requireActorForPage).mockResolvedValue({ id: 'synthetic-preview-teacher', role: 'COACH' } as never);
 });
 
-it.each<BilanLevel>(['3e', '2nde'])('shows all %s questions in the clearly identified teacher demonstration', async level => {
+it.each<BilanLevel>(['3e', '2nde', 'tle-maths', 'tle-nsi'])('shows all %s questions in the clearly identified teacher demonstration', async level => {
   render(await TeacherBilansPage({ searchParams: Promise.resolve({ niveau: level }) }));
+  expect(screen.getByRole('link', { name: 'Aperçu Terminale — Mathématiques' })).toHaveAttribute('href', '/espace/enseignant/bilans?niveau=tle-maths');
+  expect(screen.getByRole('link', { name: 'Aperçu Terminale — NSI' })).toHaveAttribute('href', '/espace/enseignant/bilans?niveau=tle-nsi');
   expect(screen.getByText(/Dans cet aperçu, tous les thèmes sont présélectionnés pour afficher les questions/)).toBeVisible();
   for (const theme of bilanData.modules[level]) {
     expect(within(screen.getByRole('group', { name: theme.label })).getByRole('radio', { name: 'Oui, travaillé en séance' })).toBeChecked();

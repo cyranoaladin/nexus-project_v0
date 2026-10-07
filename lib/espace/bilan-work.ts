@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { bilanData, getBilanLesson, getEligibleBilanTasks, type BilanLevel } from './bilan-data';
+import { bilanData, getBilanLesson, getBilanSections, getExclusiveBilanChoices, getEligibleBilanTasks, type BilanLevel } from './bilan-data';
 import { EspaceError } from './errors';
 import { MAX_FIELD_CHARS, type StepContent, type WorkContent } from './work-content';
 
@@ -40,13 +40,13 @@ export function validateBilanStep(level: BilanLevel, stepId: string, step: StepC
     } else if (stepId === 'review') {
       if (!['yes', 'no'].includes(value)) invalid();
     } else {
-      const question = bilanData.sections.find(s => s.id === stepId)?.questions.find(q => q.id === id);
+      const question = getBilanSections(level).find(s => s.id === stepId)?.questions.find(q => q.id === id);
       if (!question) invalid();
       if (question.type === 'radio' && value !== DECLINED && !question.options?.includes(value)) invalid();
       if (question.type === 'multi') {
         const choices = json(value);
         if (!Array.isArray(choices) || choices.length > (question.max ?? 3) || new Set(choices).size !== choices.length || choices.some(choice => typeof choice !== 'string' || (choice !== DECLINED && !question.options?.includes(choice)))) invalid();
-        if (choices.length > 1 && choices.some(choice => ['Aucune difficulté précise', 'Je ne sais pas encore', DECLINED].includes(choice))) invalid();
+        if (choices.length > 1 && choices.some(choice => getExclusiveBilanChoices(question).includes(choice))) invalid();
       }
     }
   }

@@ -13,10 +13,9 @@ import poo2ContentJson from '@/content/espace/nsi-structures-lineaires/content.j
 import recursiviteContentJson from '@/content/espace/nsi-recursivite/content.json';
 
 import type { LessonContent, LessonField, LessonQuestion, LessonStep } from './lesson-types';
-import { getBilanLesson, BILAN_CONTENT_VERSION } from './bilan-data';
+import { getBilanLesson } from './bilan-data';
+import { BILAN_LEVELS, getBilanProfile } from './bilan-profiles';
 import {
-  BILAN_3E_ACTIVITY_SLUG,
-  BILAN_2NDE_ACTIVITY_SLUG,
   MATHS_LIMITES_ACTIVITY_SLUG,
   MATHS_SUITES_ACTIVITY_SLUG,
   POO2_ACTIVITY_SLUG,
@@ -53,8 +52,7 @@ export interface LessonDef {
 }
 
 const LESSONS: Record<string, LessonDef> = {
-  [BILAN_3E_ACTIVITY_SLUG]: { content: getBilanLesson('3e'), runnerPath: null },
-  [BILAN_2NDE_ACTIVITY_SLUG]: { content: getBilanLesson('2nde'), runnerPath: null },
+  ...Object.fromEntries(BILAN_LEVELS.map(level => [getBilanProfile(level).slug, { content: getBilanLesson(level), runnerPath: null }])),
   [POO_ACTIVITY_SLUG]: { content: getPooContent(), runnerPath: 'content/espace/nsi-poo/runner.py' },
   [POO2_ACTIVITY_SLUG]: { content: poo2ContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-structures-lineaires/runner.py' },
   [RECURSIVITE_ACTIVITY_SLUG]: { content: recursiviteContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-recursivite/runner.py' },
@@ -103,15 +101,15 @@ export interface ActivityDef {
 
 
 export const ACTIVITIES: readonly ActivityDef[] = [
-  ...(['3e', '2nde'] as const).map((level): ActivityDef => ({
-    slug: level === '3e' ? BILAN_3E_ACTIVITY_SLUG : BILAN_2NDE_ACTIVITY_SLUG,
-    subject: 'MATHEMATIQUES',
+  ...BILAN_LEVELS.map((level): ActivityDef => ({
+    slug: getBilanProfile(level).slug,
+    subject: getBilanProfile(level).subject,
     moduleSlug: `bilan-septembre-2026-${level}`,
     moduleTitle: 'Bilan du premier mois',
     title: getBilanLesson(level).title,
     kind: 'RESOURCE_PACK',
     stepsTotal: getBilanLesson(level).steps.length,
-    contentVersion: BILAN_CONTENT_VERSION,
+    contentVersion: getBilanProfile(level).contentVersion,
     resources: [],
   })),
   {

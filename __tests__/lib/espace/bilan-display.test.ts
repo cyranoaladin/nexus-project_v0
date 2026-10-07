@@ -16,3 +16,7 @@ it('keeps preferences unscored and maps multiple choices to readable text', () =
   expect(formatBilanAnswer('multi', '["Relire","Refaire seul"]')).toBe('Relire ; Refaire seul');
   expect(bilanViewerSteps('3e').every(s => s.questions.length === 0)).toBe(true);
 });
+it('transmet les thèmes de tous les prérequis pour masquer un essai non applicable chez le professeur', () => {
+  const field=bilanViewerSteps('tle-maths').find(s=>s.id==='evidence')?.fields.find(f=>f.id==='tm-auxiliary-task');
+  expect(field).toMatchObject({requiredScopeModules:expect.arrayContaining(['tm-usual','tm-affine'])});
+});

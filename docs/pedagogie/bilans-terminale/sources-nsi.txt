@@ -1,0 +1,88 @@
+BILAN TERMINALE NSI — SEPTEMBRE 2026
+Analyse documentaire du 7 octobre 2026. Pagination PDF physique, identique aux numéros imprimés dans les livrets retenus.
+
+STATUT DES INFORMATIONS
+Les documents prouvent l’existence d’un parcours proposé et de ses attendus, pas la présence d’un élève, la date de réalisation ni l’achèvement d’une activité. Aucune feuille de présence ou trace nominative n’a été utilisée. Le titre « septembre » définit la période du bilan ; il ne date pas les séances des fichiers. La mention « références vérifiées le 12 septembre 2026 » du guide TAD V5 p.12 date une vérification éditoriale seulement. Les parcours web portent version1.0.0 et durée120min, sans date de réalisation.
+Avant auto-positionnement, demander quels thèmes ont réellement été travaillés. Un thème déclaré travaillé ne signifie pas que toutes ses compétences ou missions l’ont été. Prévoir « non travaillé », « je ne sais plus », refus et omission ; ne pas les traiter comme des erreurs. Ne pas ouvrir d’essai hors thème déclaré ou dont une compétence préalable est déclarée non travaillée. Deux essais volontaires maximum par passation parmi les huit proposés ; conserver premier essai, aide et éventuelle reprise séparément. Aucun score automatique.
+
+CORPUS ET MATRICE PAGES → COMPÉTENCES
+1. 01_Livret_TP_POO_Clarifie.pdf —14p — source élève principale POO.
+ p.2–3 : dictionnaire et paramètre, observation et résultat ; situation Reserve.
+ p.4–5 : classe, instance, attributs, __init__, self ; deux objets indépendants. tn-classe, tn-self.
+ p.6–7 : contrat Reserve : ajout renvoieNone ; retrait tout ou rien renvoiebool ; zéro autorisé ; état et tests de frontières.
+ p.8–9 : alias versus nouvelle instance ; trace et faux retrait renvoyantTrue sans mutation. tn-alias, tn-trace-objet, tn-retour-effet, tn-test-contrat.
+ p.10–11 : transfert Minuteur ; simulation et non horloge réelle ; avancer borne le temps restant à zéro ; indépendance.
+ p.12 : bilan individuel, puis correction ; aides déclarées ; situations neuves.
+ p.13 : mémo ; p.14 aides graduées après première tentative et reprise avec autres données.
+ 02_Guide_POO_Clarifie.pdf —10p — enseignant exclusivement.
+ p.1 conduite/2h/4élèves ; p.2–7 corrigés correspondant aux pages élève2–12 ; p.8 adaptations temporelles ; p.9 relances ; p.10 cohérence. Ces prescriptions ne sont pas des observations de séances réalisées.
+
+2. 01_Livret_eleve_TAD_Parcours_actif_V5.pdf —15p — source élève principale TAD.
+ p.2 : même durée, deux représentations ; interface publique ; tn-interface.
+ p.3–4 : signature ≠ contrat ; types non contrôlés automatiquement par annotations ; préconditions, résultats, effets, cas limites ; tn-contrat, tn-retour-effet.
+ p.5–6 : observateur/mutateur/nouvel objet versus type du résultat ; self ; __init__ initialise sans renvoyer l’objet.
+ p.7–8 : schéma puis trace d’alias et objet indépendant ; résultatsNone/int/bool et états séparés.
+ p.9 : normalisation minutes/reste ; test au passage59→61s, contrôle public du couple ; tests d’indépendance ; tn-test-contrat.
+ p.10 : interface EnsembleEntiers, unicité, contient/retirer ; tn-ensemble, tn-ensemble-effet.
+ p.11 : nombre_distincts, liste d’entrée inchangée, faux retirer ; tn-ensemble-client.
+ p.12 : bilan individuel sans fiche, enseignant peut apprécier ; le barème/10 de ce livret n’est pas repris dans le bilan mensuel.
+ p.13 : contrat complet Durée : retrait partiel min(k,t), augmentee indépendante même pour k=0. Ne pas importer le contrat Reserve tout-ou-rien.
+ p.14–15 : annexes explicitement facultatives ; exclues des compétences communes (méthodes statiques/de classe, TAD Rationnel).
+ 02_Guide_enseignant_TAD_Parcours_actif_V5.pdf —12p — enseignant exclusivement.
+ p.1 : groupe5, progression proposée ; précise que ce support ne devance pas piles/files.
+ p.2 : PlanB ; p.3 contrats ; p.4 rôles ; p.5 alias ; p.6 tests ; p.7 ensemble ; p.8 bilan ; p.9–10 relances ; p.11 annexes ; p.12 fichiers/sources et référence vérifiée12/09/2026.
+
+3. NSI_TP2_corrige_enseignant.pdf —19p — guide privé ; référence de provenance et non document à distribuer.
+ p.1–2 : réactivation POO et indépendance des instances.
+ p.2–4 : TAD liste/pile/file, interface versus implémentation, LIFO/FIFO.
+ p.4–5 : Liste.element indice0≤i<longueur ; indices négatifs interdits par ce contrat malgré list Python ; IndexError. tn-liste-indice.
+ p.5–8 : Pile, sommet consulte, depiler renvoie et modifie ; vide→IndexError ; autre représentation valide. tn-lifo-fifo, tn-consulter-retirer.
+ p.9–11 : File, premier, defiler, FIFO et vide→IndexError.
+ p.12–13 : traces comparatives ; p.13–16 mission centre d’impression et historique d’annulation ; p.16–17 choix justifié de structure. tn-choix-structure.
+ p.17–19 : bonus deque, coût/implémentation et vigilance ; aucune compétence obligatoire spécifique deque dans le bilan.
+ Attention rédaction source p.5 « ne rien renvoyer » est reformulée précisément « renvoyerNone » ; ce n’est pas l’absence d’une valeur Python. La liste concrète n’est pas le TAD pile ; l’interface choisit les opérations exposées.
+
+4. recursivite-corrige.pdf —26p — guide privé ; provenance et correction enseignant seulement.
+ p.1–2 : parcours et compétences ; p.2–5 compte à rebours, cas de base, progression, RecursionError.
+ p.6–7 : somme, return/print/None, retours oubliés. tn-base, tn-ecrire-rec.
+ p.8–10 : pile d’appels, descente/remontée, traces ; tn-trace-rec.
+ p.10–13 : somme, factorielle, puissance, préconditions et décroissance ; tn-terminaison, tn-ecrire-rec.
+ p.13–16 : longueur, palindrome, somme_liste, cas vide et tranches sans mutation de l’entrée ; tn-rec-liste.
+ p.16–19 : itération/récursion, pile d’appels, limites et choix sans hiérarchie automatique ; tn-iteration.
+ p.19–22 : dossier imaginaire imbriqué, fichier=chaîne/dossier=liste, parcours et inverse ; tn-rec-imbrique. Mission à déclarer réellement travaillée ; pas déduite de l’étude de la seule somme récursive.
+ p.22–23 : synthèse ; p.23–25 bonus dichotomie/Fibonacci/maximum, exclu du socle proposé ; p.25–26 relances enseignant.
+ Le code récursif est donné sur de petites données explicites ; les listes du modèle sont finies, non cycliques. Aucun essai ne prétend que la récursion Python accepte arbitrairement de grandes profondeurs.
+
+COMPARAISON AVEC LES PARCOURS GUIDÉS DU DÉPÔT
+- content/espace/nsi-poo/content.json : étapes reperes/instances/consulter/agir/references/mission/bilan/bonus. Livre dans bibliothèque puis Salle ; concepts communs aux PDF Reserve/Minuteur mais scénarios distincts. Ni copie exacte ni preuve que les deux parcours furent faits. Bonus attribut de classe/liste partagée exclu du socle. La question tn-supports distingue les scénarios.
+- content/espace/nsi-structures-lineaires/content.json : reactivation/types-abstraits/liste/pile/file/comparer/mission/synthese/bonus. Concordance directe avec TP2corrigé, notamment classesListe/Pile/File, IndexError, centre impression, dequebonus. Identifiants et titres vérifiés. Ne pas importer les champs correct/feedback dans la banque élève.
+- content/espace/nsi-recursivite/content.json : diagnostic/decouverte/cas-de-base/pile-appels/ecrire/structures/iteratif/mission/synthese/bonus. Concordance avec récursivitécorrigé : somme, puissance, traces, chaînes/listes, dossiers ; bonus distinct. La présence de champs tests ou correct décrit l’exercice disponible, pas sa réussite par un élève.
+
+PROVENANCE DES HUIT ESSAIS ADAPTÉS (pas des preuves de réalisations passées)
+ tn-essai-alias : POO p.8–9 ; code autonome avec seules méthodes nécessaires, nouveaux paramètres4/2 ; sortie6 4 None.
+ tn-essai-contrat : TAD p.3–4,13 + POO p.6–7 ; comparer Reserve(False,4) et Durée(4,0) pour demande6 depuis4. Les deux contrats sont intégralement rappelés, aucune classe externe requise.
+ tn-essai-test : TAD p.9 ; programme volontairement fautif complet ; sorties61 et(0,61), assertion publique attendue(1,1).
+ tn-essai-ensemble : TAD p.10–11 ; contrats rappelés, raisonnement ouvert, aucun import nécessaire.
+ tn-essai-pile-file : TP2 p.5–12 ; trace ouverte, conventions explicites, pas de classes non fournies.
+ tn-essai-trace-rec : récursivité p.6–9 ; code complet somme(3), appels3,2,1,0 et retours0,1,3,6.
+ tn-essai-return : récursivité p.6–7,11–12 ; omission volontaire return ; somme(1) renvoieNone ; correction vérifiée pour0,1,2,3.
+ tn-essai-liste-rec : récursivité p.14–16 ; code complet somme_liste([2,5])=7, entrée inchangée.
+ Les corrections détaillées sont dans nexus-terminale-nsi-corrections.json, à garder exclusivement côté serveur/enseignant. Le JSON de contenu demandé ne contient aucune clé expected/focus/correct ni corrigé séparé des énoncés. Les consignes peuvent nécessairement rappeler des règles, puisqu’il s’agit d’un bilan formatif accompagné et non d’un contrôle de mémorisation.
+
+EXCLUSIONS APRÈS IDENTIFICATION
+- 01_Livret_eleve_TAD_Parcours_actif.pdf et 02_Guide_enseignant_TAD_Parcours_actif.pdf : version antérieure ; V5 retenue pour pagination/consignes ; ne pas compter comme séance supplémentaire.
+- 06_Impression_6_Eleves.pdf :60p de Terminale mathématiques, limites de fonctions, six parcours d’impression ; aucun lien avec la mission NSI « centre d’impression » malgré le nom.
+- 01_plan_de_seance.pdf :3p Première mathématiques, produit scalaire/exponentielle.
+- Nexus_S01_Livret_eleve.pdf :10p Terminale mathématiques suites/récurrence ; pas récursivité NSI.
+- Nexus_Seance1/2_Guide_enseignant_et_corriges et autres livrets suites/limites : domaine mathématiques ; non utilisés pour inférer NSI.
+- Sous-dossier Premiere_NSI_Algorithmes_Python, notamment versions26/09/2026 : explicitement Première ; non assimilé à Terminale malgré présence dans accompagnement.
+- Dossiers prérentrée/printemps et documents nominatifs : hors périmètre, non utilisés.
+- Héritage, polymorphisme, arbres comme chapitre autonome, graphes, SQL, réseaux, systèmes : aucune inclusion par simple appartenance au programme officiel. Le bonus récursivité mentionne des arbres ; cela n’établit pas un travail effectif de ce chapitre.
+
+PASSATION ET RESTITUTION
+30 questions communes réparties en8méthodes/8vécu/6évolution/8suite ; 6thèmes,22auto-positionnements filtrés ;8essais disponibles, max2choisis. Les échelles/options structurées facilitent l’entretien sans fournir de pseudo-mesure psychométrique. Les réponses libres précisent contexte, aide, action et trace. Les questions binôme, professeur et matériel restent descriptives ; pas de jugement sur la personnalité.
+Respecter trois niveaux séparés : déclaration de l’élève / observation actuelle sur une trace / progrès documenté par comparaison de traces comparables. Les souvenirs d’autonomie et de confiance restent déclaratifs. Ne pas déduire une progression d’une seule réussite actuelle, ni généraliser un essai réussi à tout le thème. Une omission/refus/nonfait/nontravaillé est une absence de preuve, pas un échec. Le professeur choisit deux priorités et une action observable, avec l’élève. Les aides utilisées sont explicitables sans pénalité ; reprise après aide distincte du premier essai. Les extraits sensibles ou concernant autrui ne doivent pas être automatiquement repris dans un rapport familial.
+
+VÉRIFICATIONS LOCALES
+JSON valide, IDs pédagogiques tn-* uniques, références source/module/skills vérifiables ;4ids structurels sections conservés methods/experience/growth/next pour compatibilité.
+5programmes Python complets exécutés localement et sorties attendues comparées : alias, normalisation fautive, somme correcte, return oublié, somme_liste. Correctif de somme vérifié sur0,1,2,3. Contrats de retrait Reserve/Durée, traces pile/file et unicité d’ensemble vérifiés dans un contrôle Python séparé. Aucun code exécuté via le web, aucun fichier applicatif ni production modifié.

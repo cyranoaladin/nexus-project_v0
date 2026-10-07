@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { SaveIndicator } from '@/components/espace/shared/SaveIndicator';
 import { useWorkSync } from '@/components/espace/shared/useWorkSync';
-import { bilanData, getBilanLesson, getEligibleBilanTasks, type BilanLevel, type BilanQuestion } from '@/lib/espace/bilan-data';
+import { bilanData, getBilanLesson, getBilanProfile, getBilanSections, getExclusiveBilanChoices, getEligibleBilanTasks, type BilanLevel, type BilanQuestion } from '@/lib/espace/bilan-data';
 import type { AnnotationDto } from '@/lib/espace/annotations';
 import type { Step, Steps } from '@/lib/espace/client/sync-engine';
 import { isStudentEditable, type WorkStatus } from '@/lib/espace/work-state';
@@ -47,6 +47,7 @@ export function BilanWorkbench(props: BilanWorkbenchProps) {
 
 function BilanSession({ userId, studentName, level, work, annotations, preview = false }: BilanWorkbenchProps) {
   const defs = getBilanLesson(level).steps;
+  const profile = getBilanProfile(level);
   const [status, setStatus] = useState<WorkStatus>(work.status);
   const serverSync = useWorkSync({ userId, workId: work.id, initial: { revision: work.revision, steps: work.steps, lastSavedAt: work.lastSavedAt, locked: preview || !isStudentEditable(work.status) } });
   const [previewSteps, setPreviewSteps] = useState<Steps>(work.steps);
@@ -131,7 +132,7 @@ function BilanSession({ userId, studentName, level, work, annotations, preview =
     if (q.type !== 'multi') return <div className={CARD} key={q.id}>{choices(q.id, q.text, Object.fromEntries(options.map(x => [x, x])))}</div>;
     const values = multiValues(fieldsOf(steps, current.id)[q.id] ?? '');
     return <fieldset className={`${CARD} space-y-3`} key={q.id}><legend className="float-left mb-3 w-full font-medium text-neutral-100">{q.text}</legend><p className="clear-both text-sm text-neutral-400">{q.hint ?? `${q.max ?? 3} choix maximum.`}</p><div className="grid gap-2 sm:grid-cols-2">{options.map(option => <label key={option} className="flex min-h-11 items-start gap-3 rounded-lg border border-white/15 p-3 text-sm text-neutral-200"><input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand-accent" checked={values.includes(option)} disabled={!editable} onChange={e => {
-      const exclusive = [REFUSE, 'Aucune difficulté précise', 'Je ne sais pas encore'];
+      const exclusive = getExclusiveBilanChoices(q);
       let next = values.filter(x => x !== option);
       if (e.target.checked) {
         next = exclusive.includes(option) ? [option] : [...next.filter(x => !exclusive.includes(x)), option];
@@ -141,10 +142,10 @@ function BilanSession({ userId, studentName, level, work, annotations, preview =
     }} /><span>{option}</span></label>)}</div></fieldset>;
   }
 
-  const section = bilanData.sections.find(s => s.id === current.id);
+  const section = getBilanSections(level).find(s => s.id === current.id);
   const notes = annotations.filter(a => current.id === 'review' || !a.stepId || a.stepId === current.id);
   return <div className="mx-auto max-w-4xl space-y-6 pb-8" data-testid="bilan-workbench">
-    <header className="space-y-3 border-b border-white/10 pb-5"><p className="text-sm text-brand-accent">Mathématiques · {level === '3e' ? 'Troisième' : 'Seconde'} · Septembre 2026</p><h1 className="text-2xl font-semibold text-neutral-50 sm:text-3xl">Mon bilan du premier mois</h1><p className="text-neutral-200">{studentName}</p><p className="max-w-2xl text-sm leading-relaxed text-neutral-300">Tes apprentissages, tes façons de travailler et ton avis sur les séances : prenons le temps de préparer la suite. Ce questionnaire ne donne pas de note.</p>{preview ? <p role="status" className="text-sm text-amber-200">Aperçu enseignant : les réponses d’essai ne sont ni enregistrées ni transmises.</p> : <SaveIndicator state={!editable && !submitting ? 'locked' : serverSync.state} lastSavedAt={serverSync.lastSavedAt} />}</header>
+    <header className="space-y-3 border-b border-white/10 pb-5"><p className="text-sm text-brand-accent">{profile.subjectLabel} · {profile.levelLabel} · Septembre 2026</p><h1 className="text-2xl font-semibold text-neutral-50 sm:text-3xl">Mon bilan du premier mois</h1><p className="text-neutral-200">{studentName}</p><p className="max-w-2xl text-sm leading-relaxed text-neutral-300">Tes apprentissages, tes façons de travailler et ton avis sur les séances : prenons le temps de préparer la suite. Ce questionnaire ne donne pas de note.</p>{preview ? <p role="status" className="text-sm text-amber-200">Aperçu enseignant : les réponses d’essai ne sont ni enregistrées ni transmises.</p> : <SaveIndicator state={!editable && !submitting ? 'locked' : serverSync.state} lastSavedAt={serverSync.lastSavedAt} />}</header>
     {!editable && !submitting && <p className={`${CARD} text-neutral-100`}>Ton bilan a été transmis. Tu peux relire tes réponses et les retours de ton professeur. Lui seul peut rouvrir le bilan.</p>}
     {status === 'REOPENED' && <p className="text-amber-200">Ton professeur t’invite à reprendre ce bilan.</p>}
     <div className="space-y-2"><label htmlFor="bilan-step" className="text-sm text-neutral-300">Étape {index + 1} sur {defs.length}</label><select id="bilan-step" className={FIELD} value={index} onChange={e => go(Number(e.target.value))}>{defs.map((s, i) => <option key={s.id} value={i} disabled={!availableIndexes.includes(i)}>{i + 1}. {s.title}{!availableIndexes.includes(i) ? (modules.length === 0 ? ' — choisir les thèmes d’abord' : ' — aucun essai applicable') : ''}</option>)}</select></div>

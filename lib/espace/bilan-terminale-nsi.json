@@ -1,0 +1,664 @@
+{
+  "sources": {
+    "tn-poo-pdf": "01_Livret_TP_POO_Clarifie.pdf",
+    "tn-poo-guide": "02_Guide_POO_Clarifie.pdf",
+    "tn-tad-pdf": "01_Livret_eleve_TAD_Parcours_actif_V5.pdf",
+    "tn-tad-guide": "02_Guide_enseignant_TAD_Parcours_actif_V5.pdf",
+    "tn-tp2": "NSI_TP2_corrige_enseignant.pdf",
+    "tn-rec": "recursivite-corrige.pdf",
+    "tn-poo-web": "nsi-poo/content.json",
+    "tn-tp2-web": "nsi-structures-lineaires/content.json",
+    "tn-rec-web": "nsi-recursivite/content.json"
+  },
+  "modules": [
+    {
+      "id": "tn-objets",
+      "label": "Classes, instances et références",
+      "description": "Si tu as travaillé ces activités : réserves de matériel et minuteurs dans le livret, ou livres et salle dans le parcours guidé. Seules les parties effectivement abordées te concernent.",
+      "source": "tn-poo-pdf",
+      "pages": "4–5, 8–12",
+      "skills": [
+        {
+          "id": "tn-classe",
+          "text": "Je distingue une classe, une instance, un attribut et une méthode dans un code court."
+        },
+        {
+          "id": "tn-self",
+          "text": "J’explique quel objet reçoit self et ce que __init__ initialise."
+        },
+        {
+          "id": "tn-alias",
+          "text": "Je distingue deux instances indépendantes de deux noms désignant le même objet."
+        },
+        {
+          "id": "tn-trace-objet",
+          "text": "Je prévois les états des objets et les valeurs renvoyées après quelques appels."
+        }
+      ]
+    },
+    {
+      "id": "tn-contrats",
+      "label": "TAD, interfaces, contrats et tests",
+      "description": "Durée, Reserve ou Minuteur : distinguer ce qu’une opération promet de la manière dont elle est programmée. Leurs règles de retrait ne sont pas interchangeables.",
+      "source": "tn-tad-pdf",
+      "pages": "2–6, 9, 13",
+      "skills": [
+        {
+          "id": "tn-interface",
+          "text": "Je distingue un TAD, son interface avec ses contrats et son implémentation."
+        },
+        {
+          "id": "tn-contrat",
+          "text": "Je précise les entrées autorisées, le résultat, les effets et un cas limite d’une opération."
+        },
+        {
+          "id": "tn-retour-effet",
+          "text": "Je distingue une valeur renvoyée, un affichage et une modification d’état."
+        },
+        {
+          "id": "tn-test-contrat",
+          "text": "Je choisis un test qui peut révéler une erreur de résultat ou d’état, et j’explique ce qu’il contrôle."
+        }
+      ]
+    },
+    {
+      "id": "tn-ensembles",
+      "label": "Un ensemble d’entiers, sans doublons",
+      "description": "Transfert du livret TAD : concevoir puis utiliser EnsembleEntiers sans dépendre de son stockage interne. À retenir seulement si ce transfert a été abordé.",
+      "source": "tn-tad-pdf",
+      "pages": "10–11",
+      "skills": [
+        {
+          "id": "tn-ensemble",
+          "text": "J’explique pourquoi un ajout répété ne change pas le nombre d’éléments distincts."
+        },
+        {
+          "id": "tn-ensemble-effet",
+          "text": "Je distingue contient et retirer, même si les deux renvoient un booléen."
+        },
+        {
+          "id": "tn-ensemble-client",
+          "text": "J’utilise les opérations publiques d’un ensemble pour compter des valeurs distinctes sans modifier la liste de départ."
+        }
+      ]
+    },
+    {
+      "id": "tn-lineaires",
+      "label": "Listes, piles et files",
+      "description": "Accès par indice, ordre LIFO et FIFO, consultation ou retrait ; les cas vides et indices invalides suivent le contrat annoncé.",
+      "source": "tn-tp2",
+      "pages": "2–13, 16–17",
+      "skills": [
+        {
+          "id": "tn-liste-indice",
+          "text": "Je lis un élément à un indice autorisé et je reconnais un indice invalide selon le contrat de la classe Liste."
+        },
+        {
+          "id": "tn-lifo-fifo",
+          "text": "Je prévois l’ordre de sortie d’une pile et d’une file après une courte suite d’opérations."
+        },
+        {
+          "id": "tn-consulter-retirer",
+          "text": "Je distingue consulter le sommet ou le premier élément de retirer cet élément, y compris sur une structure vide."
+        },
+        {
+          "id": "tn-choix-structure",
+          "text": "Je choisis entre liste, pile et file à partir de la règle d’accès souhaitée, et je justifie."
+        }
+      ]
+    },
+    {
+      "id": "tn-recursion",
+      "label": "Cas de base, terminaison et pile d’appels",
+      "description": "Fonctions récursives sur de petits entiers : appel plus simple, retour des valeurs, descente et remontée.",
+      "source": "tn-rec",
+      "pages": "3–13",
+      "skills": [
+        {
+          "id": "tn-base",
+          "text": "Je repère le cas de base et l’appel récursif d’une fonction courte."
+        },
+        {
+          "id": "tn-terminaison",
+          "text": "J’explique pourquoi les arguments progressent vers le cas de base sous les préconditions annoncées."
+        },
+        {
+          "id": "tn-trace-rec",
+          "text": "Je déroule la descente des appels puis la remontée des valeurs renvoyées."
+        },
+        {
+          "id": "tn-ecrire-rec",
+          "text": "J’écris ou complète une fonction récursive simple en reliant cas de base et cas général."
+        }
+      ]
+    },
+    {
+      "id": "tn-rec-structures",
+      "label": "Récursivité sur chaînes, listes et structures imbriquées",
+      "description": "Reprendre une liste plus courte, traiter un mot ou explorer un dossier imaginaire. Les missions et comparaisons ne sont à déclarer que si elles ont été travaillées.",
+      "source": "tn-rec",
+      "pages": "13–23",
+      "skills": [
+        {
+          "id": "tn-rec-liste",
+          "text": "J’explique le cas vide et le rôle d’une tranche dans une fonction récursive sur une liste ou une chaîne."
+        },
+        {
+          "id": "tn-rec-imbrique",
+          "text": "Je distingue élément simple et sous-structure dans le modèle d’un dossier imbriqué."
+        },
+        {
+          "id": "tn-iteration",
+          "text": "Je compare une écriture itérative et une écriture récursive sans supposer que l’une est toujours meilleure."
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "tn-essai-alias",
+      "module": "tn-objets",
+      "title": "Deux noms, combien d’objets ?",
+      "prompt": "Préconditions : quantités et ajouts entiers positifs ou nuls. Ce programme est complet ; il ne reprend aucun objet d’un autre exercice. Sans exécuter d’abord, écris la ligne affichée et explique pourquoi c est ou n’est pas modifié.\n\n```python\nclass Reserve:\n    def __init__(self, quantite):\n        self.quantite = quantite\n    def ajouter(self, k):\n        self.quantite += k\n\na = Reserve(4)\nb = a\nc = Reserve(4)\nr = b.ajouter(2)\nprint(a.quantite, c.quantite, r)\n```",
+      "source": "tn-poo-pdf",
+      "pages": "8–9",
+      "skills": [
+        "tn-alias",
+        "tn-trace-objet"
+      ]
+    },
+    {
+      "id": "tn-essai-contrat",
+      "module": "tn-contrats",
+      "title": "Le nom retirer ne suffit pas",
+      "prompt": "Deux opérations portent le même nom. Contrat Reserve : retirer(k) accepte tout le retrait si le stock suffit, renvoie True et modifie le stock ; sinon renvoie False sans rien changer. Contrat Durée : retirer(k) consomme au plus le disponible et renvoie la quantité réellement retirée. Les quantités et k sont des entiers positifs ou nuls. On part séparément d’un stock de 4 et d’une durée de 4 secondes, puis on demande 6. Donne, pour chaque contrat, le résultat et l’état final. Quelle confusion faut-il éviter ?",
+      "source": "tn-tad-pdf",
+      "pages": "3–4, 13",
+      "skills": [
+        "tn-contrat",
+        "tn-retour-effet"
+      ]
+    },
+    {
+      "id": "tn-essai-test",
+      "module": "tn-contrats",
+      "title": "Un test qui révèle le défaut",
+      "prompt": "Préconditions : secondes et k entiers positifs ou nuls. Le contrat impose un couple (minutes, reste) avec 0 ≤ reste < 60. Le programme complet suivant contient une erreur. Prévois les deux lignes affichées. Le test « total égal à 61 » suffit-il ? Propose une assertion supplémentaire et explique ce qu’elle détecte.\n\n```python\nclass Duree:\n    def __init__(self, secondes):\n        self.minutes = secondes // 60\n        self.reste = secondes % 60\n    def ajouter(self, k):\n        self.reste += k\n    def en_secondes(self):\n        return 60 * self.minutes + self.reste\n    def en_minutes_secondes(self):\n        return (self.minutes, self.reste)\n\nd = Duree(59)\nd.ajouter(2)\nprint(d.en_secondes())\nprint(d.en_minutes_secondes())\n```",
+      "source": "tn-tad-pdf",
+      "pages": "9",
+      "skills": [
+        "tn-test-contrat"
+      ]
+    },
+    {
+      "id": "tn-essai-ensemble",
+      "module": "tn-ensembles",
+      "title": "Retour vrai, suppression réelle ?",
+      "prompt": "On utilise seulement ce contrat : EnsembleEntiers() crée un ensemble vide ; ajouter(x) garantit la présence de l’entier x sans doublon ; contient(x) renvoie son appartenance sans modifier ; retirer(x) doit supprimer x s’il est présent et renvoyer True, sinon renvoyer False sans effet ; cardinal() renvoie la taille. On ajoute 4 deux fois, puis 7. Quelle taille attend-on ? On appelle ensuite retirer(4), qui renvoie True. Quel contrôle supplémentaire permet de vérifier que 4 a réellement été supprimé ? Explique pourquoi le booléen seul ne suffit pas.",
+      "source": "tn-tad-pdf",
+      "pages": "10–11",
+      "skills": [
+        "tn-ensemble",
+        "tn-ensemble-effet"
+      ]
+    },
+    {
+      "id": "tn-essai-pile-file",
+      "module": "tn-lineaires",
+      "title": "Même entrée, ordre différent",
+      "prompt": "Deux structures sont initialement vides. On insère A, puis B, puis C dans chacune. La pile retire le dernier élément entré (LIFO) ; la file retire le premier entré (FIFO). On retire une fois, puis on insère D, puis on retire encore une fois. Donne les deux résultats successifs pour la pile, puis pour la file. Après ces retraits, que donne une simple consultation du prochain élément de chaque structure ? Explique si cette consultation change la taille.",
+      "source": "tn-tp2",
+      "pages": "5–12",
+      "skills": [
+        "tn-lifo-fifo",
+        "tn-consulter-retirer"
+      ]
+    },
+    {
+      "id": "tn-essai-trace-rec",
+      "module": "tn-recursion",
+      "title": "Descendre puis remonter",
+      "prompt": "Précondition : n est un entier positif ou nul ; on étudie seulement les petits appels ci-dessous. Sans exécuter d’abord, indique les arguments des appels successifs pour somme(3), puis les valeurs renvoyées en remontant et la ligne affichée. Pourquoi le cas de base sera-t-il atteint ?\n\n```python\ndef somme(n):\n    if n == 0:\n        return 0\n    return n + somme(n - 1)\n\nprint(somme(3))\n```",
+      "source": "tn-rec",
+      "pages": "6–9",
+      "skills": [
+        "tn-base",
+        "tn-terminaison",
+        "tn-trace-rec"
+      ]
+    },
+    {
+      "id": "tn-essai-return",
+      "module": "tn-recursion",
+      "title": "Un calcul sans résultat transmis",
+      "prompt": "Précondition : n est un entier positif ou nul. Ce programme est complet mais la fonction ne respecte pas son objectif : renvoyer la somme de 1 à n. Prévois la ligne affichée pour somme(1), puis corrige une seule ligne. Vérifie sur papier le cas n = 0 et le cas n = 2 avec ta correction.\n\n```python\ndef somme(n):\n    if n == 0:\n        return 0\n    n + somme(n - 1)\n\nprint(somme(1))\n```",
+      "source": "tn-rec",
+      "pages": "6–7, 11–12",
+      "skills": [
+        "tn-ecrire-rec"
+      ]
+    },
+    {
+      "id": "tn-essai-liste-rec",
+      "module": "tn-rec-structures",
+      "title": "La liste est-elle modifiée ?",
+      "prompt": "Précondition : tab est une liste finie de nombres ; on utilise ici seulement une liste de deux entiers. Le programme est complet. Prévois les deux lignes affichées. Explique le rôle du cas vide et de tab[1:] ; la liste valeurs est-elle raccourcie par cette instruction ?\n\n```python\ndef somme_liste(tab):\n    if tab == []:\n        return 0\n    return tab[0] + somme_liste(tab[1:])\n\nvaleurs = [2, 5]\nprint(somme_liste(valeurs))\nprint(valeurs)\n```",
+      "source": "tn-rec",
+      "pages": "14–16",
+      "skills": [
+        "tn-rec-liste"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Comment je travaille en NSI",
+      "intro": "Décris tes habitudes réelles sur les activités travaillées chez Nexus. Il n’y a pas de réponse à donner pour faire plaisir au professeur ; les questions peuvent rester sans réponse.",
+      "questions": [
+        {
+          "id": "tn-reprises",
+          "text": "Entre deux séances Nexus, à quelle fréquence reprends-tu une activité NSI ?",
+          "type": "radio",
+          "options": [
+            "Pas encore",
+            "Une fois",
+            "Deux ou trois fois",
+            "Plus souvent",
+            "Cela varie beaucoup",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-pratiques",
+          "text": "Quelles façons de travailler utilises-tu le plus ?",
+          "type": "multi",
+          "options": [
+            "Relire le livret ou le cours",
+            "Prévoir un résultat sur papier",
+            "Reprogrammer sans regarder le modèle",
+            "Modifier un exemple et tester",
+            "Relire une correction",
+            "Expliquer à quelqu’un",
+            "Je ne sais pas comment reprendre",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum.",
+          "max": 3,
+          "exclusiveOptions": [
+            "Je ne sais pas comment reprendre"
+          ]
+        },
+        {
+          "id": "tn-prediction",
+          "text": "Avant de lancer un programme court, prévois-tu son résultat ou les états qu’il modifie ?",
+          "type": "radio",
+          "options": [
+            "Jamais ou pas encore",
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Pas vécu / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-debug",
+          "text": "Quand un programme ne fait pas ce que tu attends, quelle est le plus souvent ta première démarche ?",
+          "type": "radio",
+          "options": [
+            "Relire le contrat et mon résultat attendu",
+            "Lire le message d’erreur et repérer la ligne",
+            "Tracer les valeurs sur un petit exemple",
+            "Modifier plusieurs lignes sans savoir laquelle pose problème",
+            "Demander une aide tout de suite",
+            "M’arrêter car je ne sais pas commencer",
+            "Cela dépend / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-tests",
+          "text": "Quels cas penses-tu à vérifier après avoir écrit une fonction ou une méthode ?",
+          "type": "multi",
+          "options": [
+            "Un cas ordinaire",
+            "Un cas vide ou nul autorisé",
+            "Une frontière du contrat",
+            "L’état après l’appel",
+            "L’indépendance de deux objets",
+            "Les données qui doivent rester inchangées",
+            "Je teste seulement l’exemple donné",
+            "Je ne sais pas encore",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum ; réponds seulement pour des pratiques rencontrées.",
+          "max": 3
+        },
+        {
+          "id": "tn-modele",
+          "text": "Avant de coder, reformules-tu les données, le résultat attendu et ce qui peut changer ?",
+          "type": "radio",
+          "options": [
+            "Jamais ou pas encore",
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Pas vécu / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-aide-reprise",
+          "text": "Après un indice ou une correction, arrives-tu à refaire seul un petit essai avec d’autres données ?",
+          "type": "radio",
+          "options": [
+            "Jamais ou pas encore",
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Pas vécu / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-aides",
+          "text": "Quelles aides as-tu réellement utilisées pendant les séances ou pour reprendre ces activités ?",
+          "type": "multi",
+          "options": [
+            "Mémo ou livret",
+            "Indice du professeur",
+            "Explication d’un camarade",
+            "Code fourni ou corrigé",
+            "Documentation Python",
+            "Assistant numérique",
+            "Aucune de ces aides sur cette période",
+            "Je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum. Une aide n’annule pas un travail : préciser son rôle permet de comprendre ton autonomie.",
+          "max": 3,
+          "exclusiveOptions": [
+            "Aucune de ces aides sur cette période",
+            "Je ne sais plus"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Comment je vis les séances",
+      "intro": "Ton avis sert à ajuster le rythme, les explications et les conditions de travail. Un support disponible ou une activité prévue n’est pas forcément une activité que tu as faite.",
+      "questions": [
+        {
+          "id": "tn-supports",
+          "text": "De quelles activités te souviens-tu avoir travaillé en séance ?",
+          "type": "multi",
+          "options": [
+            "Reserve et Minuteur",
+            "Durée et EnsembleEntiers",
+            "Livre et Salle dans le parcours guidé",
+            "Listes, piles et files",
+            "Fonctions récursives",
+            "Autre activité à préciser avec le professeur",
+            "Je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Ce souvenir complète la déclaration des thèmes ; il ne valide pas un livret entier.",
+          "max": 6,
+          "exclusiveOptions": [
+            "Je ne sais plus"
+          ]
+        },
+        {
+          "id": "tn-rythme",
+          "text": "Le rythme des séances te paraît…",
+          "type": "radio",
+          "options": [
+            "Trop lent",
+            "Plutôt lent",
+            "Adapté",
+            "Plutôt rapide",
+            "Trop rapide",
+            "Variable selon les moments",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-consignes",
+          "text": "Les consignes et les contrats te permettent-ils de comprendre ce que tu dois produire ?",
+          "type": "radio",
+          "options": [
+            "Jamais ou pas encore",
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Pas vécu / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-temps-recherche",
+          "text": "As-tu assez de temps pour chercher personnellement avant une aide ou la correction ?",
+          "type": "radio",
+          "options": [
+            "Jamais ou pas encore",
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Pas vécu / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-binome",
+          "text": "Quand tu travailles avec un camarade ou en groupe, quelle situation te ressemble le plus ?",
+          "type": "radio",
+          "options": [
+            "Je peux chercher puis expliquer ma démarche",
+            "Nous échangeons réellement les rôles et les idées",
+            "Je comprends en regardant mais je code peu",
+            "Je fais surtout le travail à la place des autres",
+            "Je me sens parfois empêché de chercher",
+            "Pas de travail à plusieurs / je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-questions",
+          "text": "Peux-tu dire que tu ne comprends pas et obtenir une aide utilisable ?",
+          "type": "radio",
+          "options": [
+            "Oui, facilement",
+            "Oui, mais je n’ose pas toujours",
+            "Parfois seulement",
+            "Rarement",
+            "Je n’ai pas eu besoin d’aide",
+            "Je préfère en parler au professeur",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-materiel",
+          "text": "Des conditions matérielles ont-elles gêné ton travail ?",
+          "type": "multi",
+          "options": [
+            "Aucune difficulté précise",
+            "Connexion ou chargement",
+            "Clavier ou saisie du code",
+            "Lecture des consignes ou de l’écran",
+            "Exécution ou messages difficiles à comprendre",
+            "Manque de temps sur l’ordinateur",
+            "Autre difficulté à préciser oralement",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum. Ne communique aucun mot de passe ni information personnelle.",
+          "max": 3
+        },
+        {
+          "id": "tn-ajustement",
+          "text": "Un fonctionnement à conserver ou à changer dans les séances ?",
+          "type": "text",
+          "hint": "Tu peux citer un moment précis, sans nommer un autre élève, ou préférer en parler oralement."
+        }
+      ]
+    },
+    {
+      "id": "growth",
+      "title": "Mes progrès, mes difficultés et ma confiance",
+      "intro": "Distingue ce que tu ressens de ce que tu peux montrer sur un essai. « Je ne peux pas encore comparer » est une réponse utile.",
+      "questions": [
+        {
+          "id": "tn-confiance",
+          "text": "Aujourd’hui, comment te sens-tu pour commencer un petit problème sur une notion réellement travaillée ?",
+          "type": "radio",
+          "options": [
+            "Très peu confiant",
+            "Plutôt peu confiant",
+            "Cela dépend beaucoup de la notion",
+            "Plutôt confiant",
+            "Très confiant",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-autonomie",
+          "text": "Par rapport au début de l’accompagnement, pour une activité semblable, tu as l’impression d’avoir besoin…",
+          "type": "radio",
+          "options": [
+            "De davantage d’aide",
+            "D’à peu près autant d’aide",
+            "De moins d’aide",
+            "Cela varie selon la notion",
+            "Je ne peux pas encore comparer",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-exemple-progres",
+          "text": "As-tu identifié un progrès que tu pourrais illustrer par un exemple de code, d’explication ou de test ?",
+          "type": "text",
+          "hint": "Décris ce que tu fais maintenant, ce qui était difficile avant et l’aide utilisée. Tu peux répondre « pas encore identifié ». Aucun nom de camarade ni donnée personnelle."
+        },
+        {
+          "id": "tn-obstacle",
+          "text": "Quelle difficulté te demande encore le plus d’effort ?",
+          "type": "multi",
+          "options": [
+            "Comprendre la situation ou le contrat",
+            "Lire un code et suivre ses valeurs",
+            "Écrire la syntaxe Python",
+            "Distinguer retour et modification",
+            "Choisir une structure de données",
+            "Comprendre les appels récursifs",
+            "Trouver des tests utiles",
+            "Expliquer mon raisonnement",
+            "Aucune difficulté précise",
+            "Je ne sais pas encore",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Deux choix maximum, seulement sur des activités abordées.",
+          "max": 2
+        },
+        {
+          "id": "tn-erreur-utile",
+          "text": "Peux-tu raconter une erreur qui t’a aidé à comprendre quelque chose ?",
+          "type": "text",
+          "hint": "Le résultat attendu, ce qui s’est passé et ce que tu as changé suffisent. Une tentative incomplète est utile."
+        },
+        {
+          "id": "tn-transfert",
+          "text": "As-tu réutilisé une démarche travaillée chez Nexus dans une autre activité ?",
+          "type": "radio",
+          "options": [
+            "Oui, seul sur un exemple proche",
+            "Oui, avec une aide",
+            "J’ai essayé sans encore y arriver",
+            "Pas encore eu l’occasion",
+            "Je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "title": "Deux priorités et une reprise possible",
+      "intro": "Choisis des objectifs modestes et vérifiables. Ils seront discutés avec ton professeur ; aucune réponse ne constitue une promesse de résultat.",
+      "questions": [
+        {
+          "id": "tn-priorites",
+          "text": "Quelles sont tes deux priorités pour la suite ?",
+          "type": "multi",
+          "options": [
+            "Mieux comprendre une notion déjà travaillée",
+            "Lire et tracer du code avant de lancer",
+            "Écrire seul une fonction ou une classe courte",
+            "Choisir et expliquer mes tests",
+            "Distinguer les contrats et les effets",
+            "Reprendre une erreur sans recopier",
+            "Mieux utiliser une aide",
+            "Expliquer mon raisonnement",
+            "Approfondir un thème déjà travaillé",
+            "Je ne sais pas encore",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Deux choix maximum.",
+          "max": 2
+        },
+        {
+          "id": "tn-notion-cible",
+          "text": "Quelle notion ou quelle activité précise voudrais-tu reprendre ou approfondir ?",
+          "type": "text",
+          "hint": "Nomme un thème, un objet, un exercice ou un obstacle. Ne cite pas une activité comme faite si elle a seulement été annoncée."
+        },
+        {
+          "id": "tn-aide-prof",
+          "text": "Quelle aide concrète attends-tu du professeur ?",
+          "type": "text",
+          "hint": "Par exemple : une trace d’appels guidée, une relance courte, un autre contrat à comparer ou davantage de temps pour expliquer."
+        },
+        {
+          "id": "tn-action",
+          "text": "Quelle petite action réaliste pourrais-tu faire avant la prochaine séance ?",
+          "type": "text",
+          "hint": "Par exemple : refaire la trace d’un programme de dix lignes, puis comparer ma prédiction à son exécution."
+        },
+        {
+          "id": "tn-moment",
+          "text": "À quel moment pourrais-tu faire cette reprise, et de quel matériel ou soutien aurais-tu besoin ?",
+          "type": "text",
+          "hint": "Un moment approximatif suffit. Tu peux signaler qu’une reprise à la maison n’est pas possible actuellement."
+        },
+        {
+          "id": "tn-verification",
+          "text": "Comment pourrions-nous vérifier si cette reprise t’a aidé ?",
+          "type": "text",
+          "hint": "Par exemple : réussir un autre petit cas sans modèle, expliquer chaque retour ou choisir un test et dire quelle erreur il détecte."
+        },
+        {
+          "id": "tn-parler",
+          "text": "Souhaites-tu un court échange individuel au sujet de ce bilan ?",
+          "type": "radio",
+          "options": [
+            "Oui, volontiers",
+            "Peut-être",
+            "Pas pour le moment",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tn-remarque",
+          "text": "Une attente ou une remarque que les questions précédentes n’ont pas permis d’exprimer ?",
+          "type": "text",
+          "hint": "Tu peux laisser vide. Évite les informations personnelles sensibles ; demande plutôt un échange individuel si nécessaire."
+        }
+      ]
+    }
+  ]
+}
