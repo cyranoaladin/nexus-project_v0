@@ -31,7 +31,9 @@ Après réception de la liste : rapprochement de comptes existants, dry-run `scr
 - PostgreSQL jetable : neuf suites historiques, 156 tests réussis ; quatre tests nouveaux d’attribution, isolation, sauvegarde, révision, remise et fermeture réussis.
 - Navigateur Chromium : quatre scénarios réussis (troisième complet avec rechargement et transmission ; seconde mobile sans débordement ; élève sans attribution ; aperçu enseignant).
 - Captures de validation conservées hors livraison publique dans `test-results/bilan/`.
-- Suite globale et build autonome : résultats à compléter après exécution finale.
+- Suite unitaire globale : 1 156 suites / 13 565 tests exécutés. Quatre suites ont signalé six écarts liés aux ajouts (comptage du catalogue, charte des pages protégées, collecte du scénario dédié). Les quatre suites ont été corrigées et rejouées : 154 tests réussis. Les 1 152 autres suites étaient vertes.
+- Scénario enseignant étendu : aperçu, consultation de la copie remise, rapport A4 et contraste des titres à l’écran/à l’impression ; réussi.
+- Build autonome et validation après bascule : à consigner après exécution finale.
 
 ## Déploiement et rollback
 

@@ -8,7 +8,7 @@ import { applyProvisioning, parseRoster } from '@/lib/espace/provisioning';
 import { createSession, publishSession, closeSession } from '@/lib/espace/sessions';
 import { openWork, saveWork, submitWork } from '@/lib/espace/works';
 import { loadWorkForActor } from '@/lib/espace/access';
-import { getStudentDashboard } from '@/lib/espace/overview';
+import { getStudentDashboard, getTeacherOverview } from '@/lib/espace/overview';
 
 const run = randomUUID().slice(0,8);
 const username = (id:string) => `bilan.${id}.${run}`;
@@ -58,6 +58,8 @@ it('attribue une seule page par niveau et refuse l’URL du niveau voisin',async
  const dashboard=await getStudentDashboard(actors['3e']);
  const slugs=dashboard.subjects.flatMap(s=>s.activities.map(a=>a.slug));
  expect(slugs).toContain(activity('3e')); expect(slugs).not.toContain(activity('2nde'));
+ const teacherOverview=await getTeacherOverview(actors.prof,activity('3e'));
+ expect(teacherOverview.rows.map(r=>r.studentId)).toEqual([actors['3e'].id]);
  await expect(loadWorkForActor(actors['2nde'],workId)).rejects.toMatchObject({code:'NOT_FOUND'});
 });
 it('enregistre durablement, bloque les révisions concurrentes et exige la relecture',async()=>{

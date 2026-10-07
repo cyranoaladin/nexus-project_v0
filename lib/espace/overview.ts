@@ -218,7 +218,10 @@ export async function getTeacherOverview(actor: EspaceActor, activitySlug: strin
   if (!def || !activity) throw new EspaceError('NOT_FOUND', 'Activité introuvable');
 
   const enrollments = await prisma.espaceEnrollment.findMany({
-    where: await teacherRosterWhere(actor, activity.subject, opts),
+    where: {
+      ...await teacherRosterWhere(actor, activity.subject, opts),
+      ...(isBilanActivitySlug(activitySlug) ? { user: { espaceSessionSeats: { some: { session: { activityId: activity.id, status: { in: ['PUBLISHED', 'CLOSED'] } } } } } } : {}),
+    },
     select: { user: { select: { id: true, firstName: true, lastName: true } }, group: { select: { name: true } } },
   });
   const studentIds = [...new Set(enrollments.map((e) => e.user.id))];
