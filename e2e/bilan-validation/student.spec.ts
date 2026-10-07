@@ -63,7 +63,7 @@ for (const level of ['3e','2nde'] as const) {
     await expect(page.getByRole('button',{name:'Transmettre mon bilan',exact:true})).toBeDisabled();
     await page.locator('details').filter({has:page.locator('summary').getByText('Mes essais',{exact:true})}).locator('summary').click();
     await expect(page.getByText(/Premier essai : Premier essai : je détaille/)).toBeVisible();
-    await expect(page.getByText('Essai non fait',{exact:true})).toBeVisible();
+    await expect(page.getByText('Essai non fait — aucune conclusion de maîtrise.',{exact:true})).toBeVisible();
     await page.getByLabel('J’ai relu mes réponses').check(); await waitSaved(page);
     await page.screenshot({path:testInfo.outputPath(`${level}-review.png`),fullPage:true});
     await page.getByRole('button',{name:'Transmettre mon bilan',exact:true}).click();

@@ -111,6 +111,20 @@ Avant : `trial-reflection.*before-trials`. Après : `*after-trials`, réponse ex
 
 Les fichiers historiques ne sont pas modifiés. Les nouveaux IDs ne remplacent pas d'ancien énoncé. Les anciennes options restent disponibles ; seulement appendOptions. Les anciennes copies doivent rester lisibles et ne pas être rouvertes automatiquement. L'absence de réponse à une question ajoutée n'est pas une absence de compétence.
 
-TDD `__tests__/lib/espace/bilan__pdf3e-data.test.ts` : RED4échecs (fichiers non encore créés), puis GREEN4/4 après implémentation. Vérifications : forme exacte, collisions IDs, limites, sections non vides, priorityOf pointant vers multichoixmax3, références tâches/skills/sources, conservation tâches, dix fréquences compactes, avant/après, six corrections, mesures intégrales figure, pas de correction dans JSON public, Terminale sans nouveaux chapitres.
+TDD `__tests__/lib/espace/bilan__pdf3e-data.test.ts` : RED : 4 échecs (fichiers non encore créés), puis GREEN : 4/4 après implémentation. Vérifications : forme exacte, collisions IDs, limites, sections non vides, priorityOf pointant vers multichoix limité à trois, références tâches/skills/sources, conservation tâches, dix fréquences compactes, avant/après, six corrections, mesures intégrales figure, pas de correction dans JSON public, Terminale sans nouveaux chapitres.
 
-Intégration, persistance, UI et tests de bout en bout sont coordonnés séparément par le parent. Aucun commit ni déploiement réalisé par cet agent.
+Les vérifications d’intégration, de persistance et d’interface sont détaillées dans le compte rendu d’audit de la publication.
+
+## Parcours navigateur vérifiés sur le harnais local
+
+`enrichment.spec.ts` : quatre parcours Chromium passent (troisième, seconde, Terminale maths, Terminale NSI), en 2,6 minutes. Chaque parcours vérifie un essai du profil, les nouvelles rubriques parcours/habitudes/famille, le maximum de trois aides et la priorité liée aux aides sélectionnées, l'invalidation de cette priorité si l'aide est retirée, la persistance après rechargement, difficulté distincte de l'ancien premier niveau, confiance et conditions de l'essai, complément après essai sans effacement du positionnement initial, transmission, commentaire enseignant, export privé complet, synthèse familiale et copie élève en lecture seule.
+
+Premier lancement : un sélecteur de test exigeait le nom accessible exact d'un champ texte sans inclure son aide associée. Corrigé en recherche par libellé, conformément aux autres tests ; le second lancement passe intégralement. Aucun assouplissement du délai ni modification de production pour contourner cet échec. Tests exécutés avec comptes synthétiques et base locale jetable uniquement.
+
+Les anciens tests E2E ont été adaptés aux identifiants stables d'étape, aux nombres d'étapes par profil et à la séparation des compétences complémentaires. Leur campagne complète et le contrôle sur l'artefact compilé relèvent du rapport d'intégration principal.
+
+## Validation sur l’artefact final compilé
+
+Les campagnes finales passent entièrement : Chromium **35/35**, Firefox **30/30**, WebKit **30/30**, soit **95 exécutions E2E réussies**. Toutes utilisent le même artefact `d743d2fb10567eaabab5b4325743d108ff65010d`, BUILD_ID `k90hnlhrcZWshgRWbc6uF`. Répertoire effectif du serveur et identifiant de build contrôlés, base locale jetable et comptes synthétiques, espace de clés Redis neuf par navigateur. Logs, captures et quatre PDF Chromium conservés séparément dans les preuves privées de l’opération.
+
+Une première campagne sur l’artefact précédent avait révélé deux assertions anciennes attendant le libellé exact « Essai non fait » ; le rendu complet « Essai non fait — aucune conclusion de maîtrise. » était bien présent. Les assertions ont été actualisées. Une tentative antérieure de démarrage du harnais utilisait un nom d’espace Redis trop long, provoquant le refus sécurisé des connexions ; la configuration locale a été corrigée. Ces observations sont conservées dans les logs initiaux ; aucune protection applicative n’a été désactivée. Aucun échec n’est présent dans les trois campagnes finales.
