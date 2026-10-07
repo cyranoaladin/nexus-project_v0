@@ -346,6 +346,26 @@ model User {
   // ARIA periodic bilan reviews (P7b-2)
   bilansReviewed Bilan[] @relation("BilanReviewedBy")
 
+  // Espace pédagogique Terminale — identité sans email (élèves) et rattachements.
+  // `username` est stocké normalisé (minuscules). `pinHash` = bcrypt du code
+  // personnel élève ; il n'est JAMAIS accepté comme mot de passe du flux email.
+  username              String?                    @unique
+  pinHash               String?
+  pinSetAt              DateTime?
+  // Vrai = code personnel TEMPORAIRE (émis par un opérateur) : l'élève doit en choisir un autre avant tout le reste.
+  pinMustChange         Boolean                    @default(false)
+  disabledAt            DateTime? // non-null = compte désactivé (connexion refusée)
+  espaceEnrollments     EspaceEnrollment[]         @relation("EspaceEnrollmentStudent")
+  espaceTeaching        EspaceTeacherAssignment[]  @relation("EspaceTeacherAssignmentTeacher")
+  espaceSessionsTaught  EspaceSession[]            @relation("EspaceSessionTeacher")
+  espaceSessionSeats    EspaceSessionParticipant[] @relation("EspaceSessionParticipantUser")
+  espaceWorks           EspaceWork[]               @relation("EspaceWorkStudent")
+  espaceAnnotations     EspaceAnnotation[]         @relation("EspaceAnnotationAuthor")
+  espaceSnippets        EspaceCommentSnippet[]     @relation("EspaceSnippetTeacher")
+  espaceAttachments     EspaceWorkAttachment[]     @relation("EspaceAttachmentUploader")
+  espaceLegacyLinks     EspaceLegacyLink[]         @relation("EspaceLegacyLinkStudent")
+  espaceLegacyLinksMade EspaceLegacyLink[]         @relation("EspaceLegacyLinkAuthor")
+
   @@index([role])
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
@@ -411,23 +431,23 @@ model Student {
   completedSessions Int @default(0)
 
   // Relations
-  subscriptions         Subscription[]
-  creditTransactions    CreditTransaction[]
-  sessions              Session[]
-  ariaConversations     AriaConversation[]
-  ariaConversationTurns AriaConversationTurn[] @relation("AriaTurnSubject")
-  ariaProfile           AriaLearningProfile?
-  ariaCockpitProfile    AriaCockpitProfile?
-  ariaFeedbacks         AriaFeedback[]
-  learningEvidence      LearningEvidence[]
-  activityAttempts      ActivityAttempt[]
+  subscriptions           Subscription[]
+  creditTransactions      CreditTransaction[]
+  sessions                Session[]
+  ariaConversations       AriaConversation[]
+  ariaConversationTurns   AriaConversationTurn[] @relation("AriaTurnSubject")
+  ariaProfile             AriaLearningProfile?
+  ariaCockpitProfile      AriaCockpitProfile?
+  ariaFeedbacks           AriaFeedback[]
+  learningEvidence        LearningEvidence[]
+  activityAttempts        ActivityAttempt[]
   ariaWorkshopAttendances AriaWorkshopAttendee[]
-  badges                StudentBadge[]
-  reports               StudentReport[]
-  subscriptionRequests  SubscriptionRequest[]
-  sessionReports        SessionReport[]
-  trajectories          Trajectory[]
-  survivalProgress      SurvivalProgress?
+  badges                  StudentBadge[]
+  reports                 StudentReport[]
+  subscriptionRequests    SubscriptionRequest[]
+  sessionReports          SessionReport[]
+  trajectories            Trajectory[]
+  survivalProgress        SurvivalProgress?
 
   // Learning Graph v2 relations
   assessments        Assessment[] // Linked assessments (optional FK from Assessment)
@@ -974,8 +994,8 @@ model Activity {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
-  versions          ActivityVersion[]
-  attempts          ActivityAttempt[]
+  versions ActivityVersion[]
+  attempts ActivityAttempt[]
 
   @@index([courseKey, skillId])
   @@map("aria_activities")
@@ -998,7 +1018,7 @@ model ActivityVersion {
   retiredAt           DateTime?
   createdAt           DateTime              @default(now())
 
-  attempts            ActivityAttempt[]
+  attempts ActivityAttempt[]
 
   @@unique([activityId, versionLabel])
   @@map("aria_activity_versions")
@@ -1023,8 +1043,8 @@ model ActivityAttempt {
   startedAt         DateTime              @default(now())
   submittedAt       DateTime?
 
-  response          ActivityResponse?
-  result            ActivityResult?
+  response ActivityResponse?
+  result   ActivityResult?
 
   @@index([studentId, courseKey])
   @@map("aria_activity_attempts")
@@ -4663,4 +4683,296 @@ model PlanningStudioRevision {
   @@unique([documentId, revision])
   @@index([documentId, createdAt])
   @@map("planning_studio_revisions")
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// Espace pédagogique Terminale (élèves + enseignant)
+//
+// Migration strictement additive. Les travaux d'élèves, annotations, pièces
+// jointes et liens de provenance legacy sont en ON DELETE RESTRICT : supprimer
+// un utilisateur ne doit jamais effacer un travail. La configuration
+// (inscriptions, affectations, participants) est en CASCADE.
+// Les élèves de l'espace n'ont PAS de ligne `Student` (parentId obligatoire) :
+// l'identité est `User(role = ELEVE)` + `username` + `pinHash`.
+// ════════════════════════════════════════════════════════════════════════════
+
+enum EspaceActivityKind {
+  PYTHON_TP // TP avec exécution Python dans le navigateur
+  RESOURCE_PACK // ressources à consulter (sujet, corrigé…)
+  UPLOAD_EXERCISE // exercice rendu sous forme de fichier (PDF/photo)
+}
+
+enum EspaceSessionStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum EspaceWorkStatus {
+  DRAFT // ouvert, rien d'enregistré
+  IN_PROGRESS
+  SUBMITTED // remis par l'élève = à corriger
+  CORRECTED
+  REOPENED // à reprendre
+  DONE
+}
+
+enum EspaceVersionReason {
+  STEP_CHANGE
+  RUN
+  SUBMIT
+  REOPEN
+  CORRECTION
+  INTERVAL
+  LEGACY_IMPORT
+}
+
+enum EspaceAnnotationKind {
+  GENERAL
+  QUESTION
+  STEP
+  CODE
+}
+
+model EspaceGroup {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  enrollments EspaceEnrollment[]
+  teachers    EspaceTeacherAssignment[]
+  sessions    EspaceSession[]
+
+  @@map("espace_groups")
+}
+
+// Un élève suit une matière dans un groupe.
+model EspaceEnrollment {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation("EspaceEnrollmentStudent", fields: [userId], references: [id], onDelete: Cascade)
+  groupId   String
+  group     EspaceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  subject   Subject
+  createdAt DateTime    @default(now())
+
+  @@unique([userId, groupId, subject])
+  @@index([groupId, subject])
+  @@index([userId])
+  @@map("espace_enrollments")
+}
+
+// Un enseignant (User COACH/ADMIN) enseigne une matière à un groupe.
+model EspaceTeacherAssignment {
+  id        String      @id @default(cuid())
+  teacherId String
+  teacher   User        @relation("EspaceTeacherAssignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  groupId   String
+  group     EspaceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  subject   Subject
+  createdAt DateTime    @default(now())
+
+  @@unique([teacherId, groupId, subject])
+  @@index([groupId, subject])
+  @@map("espace_teacher_assignments")
+}
+
+// Miroir en base d'une activité définie dans lib/espace/catalog.ts (le
+// contenu reste dans le code ; la base ne porte que ce dont les clés
+// étrangères ont besoin).
+model EspaceActivity {
+  id             String             @id @default(cuid())
+  slug           String             @unique
+  subject        Subject
+  moduleSlug     String
+  title          String
+  kind           EspaceActivityKind
+  stepsTotal     Int                @default(0)
+  contentVersion String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  sessions EspaceSession[]
+  works    EspaceWork[]
+
+  @@index([subject, moduleSlug])
+  @@map("espace_activities")
+}
+
+// Séance réelle : publiée, elle apparaît automatiquement chez les participants.
+model EspaceSession {
+  id          String              @id @default(cuid())
+  groupId     String
+  group       EspaceGroup         @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  subject     Subject
+  activityId  String
+  activity    EspaceActivity      @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  teacherId   String
+  teacher     User                @relation("EspaceSessionTeacher", fields: [teacherId], references: [id], onDelete: Restrict)
+  title       String?
+  scheduledAt DateTime?
+  status      EspaceSessionStatus @default(DRAFT)
+  publishedAt DateTime?
+  closedAt    DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  participants EspaceSessionParticipant[]
+  works        EspaceWork[]
+
+  @@index([groupId, status])
+  @@index([teacherId, status])
+  @@index([activityId])
+  @@map("espace_sessions")
+}
+
+model EspaceSessionParticipant {
+  sessionId String
+  session   EspaceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation("EspaceSessionParticipantUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, userId])
+  @@index([userId])
+  @@map("espace_session_participants")
+}
+
+// Travail d'un élève sur une activité. `revision` = verrou optimiste : toute
+// écriture porte la révision sur laquelle elle s'appuie.
+model EspaceWork {
+  id            String           @id @default(cuid())
+  studentId     String
+  student       User             @relation("EspaceWorkStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  activityId    String
+  activity      EspaceActivity   @relation(fields: [activityId], references: [id], onDelete: Restrict)
+  sessionId     String?
+  session       EspaceSession?   @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  status        EspaceWorkStatus @default(DRAFT)
+  content       Json             @default("{}")
+  currentStep   Int              @default(0)
+  progressSteps Int              @default(0)
+  revision      Int              @default(0)
+  startedAt     DateTime         @default(now())
+  lastSavedAt   DateTime         @default(now())
+  submittedAt   DateTime?
+  correctedAt   DateTime?
+  reopenedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  versions    EspaceWorkVersion[]
+  annotations EspaceAnnotation[]
+  attachments EspaceWorkAttachment[]
+  legacyLinks EspaceLegacyLink[]
+
+  @@unique([studentId, activityId])
+  @@index([activityId, status])
+  @@index([status, lastSavedAt])
+  @@index([sessionId])
+  @@map("espace_works")
+}
+
+model EspaceWorkVersion {
+  id        String              @id @default(cuid())
+  workId    String
+  work      EspaceWork          @relation(fields: [workId], references: [id], onDelete: Restrict)
+  revision  Int
+  reason    EspaceVersionReason
+  content   Json
+  createdAt DateTime            @default(now())
+
+  // Un instantané par (révision, motif) : une remise ou une correction ne change
+  // pas le contenu, donc partage la révision du dernier enregistrement.
+  @@unique([workId, revision, reason])
+  @@index([workId, createdAt])
+  @@map("espace_work_versions")
+}
+
+model EspaceAnnotation {
+  id           String               @id @default(cuid())
+  workId       String
+  work         EspaceWork           @relation(fields: [workId], references: [id], onDelete: Restrict)
+  authorId     String
+  author       User                 @relation("EspaceAnnotationAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  kind         EspaceAnnotationKind
+  stepId       String?
+  questionId   String?
+  workRevision Int? // révision du travail à laquelle l'annotation se rapporte
+  lineStart    Int?
+  lineEnd      Int?
+  body         String               @db.Text
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([workId, createdAt])
+  @@index([authorId])
+  @@map("espace_annotations")
+}
+
+// Bibliothèque de commentaires réutilisables d'un enseignant.
+model EspaceCommentSnippet {
+  id        String   @id @default(cuid())
+  teacherId String
+  teacher   User     @relation("EspaceSnippetTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([teacherId])
+  @@map("espace_comment_snippets")
+}
+
+// Fichier déposé par l'élève (copie manuscrite photographiée, PDF). Stockage
+// privé sous DOCUMENT_STORAGE_ROOT ; jamais servi depuis un dossier public.
+model EspaceWorkAttachment {
+  id           String     @id @default(cuid())
+  workId       String
+  work         EspaceWork @relation(fields: [workId], references: [id], onDelete: Restrict)
+  uploadedById String
+  uploadedBy   User       @relation("EspaceAttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+  storagePath  String // relatif à la racine de stockage
+  mimeType     String
+  sizeBytes    Int
+  sha256       String
+  originalName String // nom d'origine assaini, affichage uniquement
+  createdAt    DateTime   @default(now())
+
+  @@index([workId])
+  @@map("espace_work_attachments")
+}
+
+// Provenance d'une trace legacy rattachée par décision humaine explicite.
+// Aucune ligne n'est créée automatiquement ; `legacyTraceId` et `sourceSha`
+// uniques empêchent un double import.
+model EspaceLegacyLink {
+  id             String      @id @default(cuid())
+  legacyTraceId  String      @unique
+  sourceSha      String      @unique
+  sourceAlias    String // valeur legacy (ex. POO01), informative
+  sourceDbSha256 String // empreinte du fichier source au moment du lien
+  studentId      String
+  student        User        @relation("EspaceLegacyLinkStudent", fields: [studentId], references: [id], onDelete: Restrict)
+  workId         String?
+  work           EspaceWork? @relation(fields: [workId], references: [id], onDelete: Restrict)
+  linkedById     String
+  linkedBy       User        @relation("EspaceLegacyLinkAuthor", fields: [linkedById], references: [id], onDelete: Restrict)
+  note           String?
+  linkedAt       DateTime    @default(now())
+
+  @@index([studentId])
+  @@map("espace_legacy_links")
+}
+
+/// Journal des événements de sécurité de l'espace (changement/réinitialisation de code). Jamais de secret ni de hash.
+/// Pas de clé étrangère volontairement : la trace survit à la suppression du compte.
+model EspaceSecurityEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  actorId   String?
+  type      String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("espace_security_events")
 }

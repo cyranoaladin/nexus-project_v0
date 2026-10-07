@@ -20,7 +20,16 @@
  * use only -- no CI workflow invokes them -- so specs reachable only
  * through those are NOT considered covered.
  *
- * No documented exceptions currently apply. (The previous single entry,
+ * Documented exclusions are exact files, never prefixes, so a new spec added
+ * next to them is still an orphan until someone decides its lane. They are
+ * excluded from BOTH this check and e2e-execution-evidence.mjs (single list).
+ * Current entries: the Espace pédagogique production smokes (e2e/prod/**,
+ * operator credentials kept outside the repository, never runnable on a
+ * hosted runner) and the offline fallback-package drill (downloads Pyodide
+ * at build time). Both run only through the dispatch-only
+ * `.github/workflows/manual-rehearsals.yml` (playwright.prod-smoke.config.ts,
+ * playwright.fallback.config.ts). Owner, frequency and required evidence of
+ * each entry: docs/qa/manual-e2e-registry.md. (A previous entry,
  * e2e/auth/entitlements-chat-gate-blocked.spec.ts, was removed once
  * re-verification against a real disposable stack showed the underlying
  * "422 instead of 403" belief was a false positive from an incomplete
@@ -32,7 +41,13 @@ import { execFileSync } from 'node:child_process';
 
 const repoRoot = process.cwd();
 
-const DOCUMENTED_EXCLUSIONS = new Set();
+export const DOCUMENTED_EXCLUSIONS = new Set([
+  'e2e/fallback/fallback-offline.spec.ts',
+  'e2e/prod/espace-prod-credentials.spec.ts',
+  'e2e/prod/espace-prod-recursivite.spec.ts',
+  'e2e/prod/espace-prod-smoke.spec.ts',
+  'e2e/prod/espace-prod-teacher.spec.ts',
+]);
 
 /** All tracked Playwright spec files under e2e/**, repo-relative, sorted. */
 function listAllSpecs() {

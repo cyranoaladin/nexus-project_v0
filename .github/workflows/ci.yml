@@ -300,6 +300,15 @@ jobs:
           NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
           NEXTAUTH_URL: http://localhost:3000
 
+      # Voie lourde déterministe : construit un Program TypeScript complet (≈ 3,4 Go). Un seul worker, sans couverture.
+      - name: Run heavy architecture lane (single worker)
+        run: npm run test:unit:heavy -- --ci
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_test
+          NEXTAUTH_SECRET: test-secret-min-32-chars-long-for-ci-environment
+          NEXTAUTH_URL: http://localhost:3000
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -468,6 +477,7 @@ jobs:
           --testPathIgnorePatterns='parent-registration-atomicity\.real\.test\.ts'
           --testPathIgnorePatterns='parent-email-onboarding\.real\.test\.ts'
           --testPathIgnorePatterns='npc-.*\.real\.test\.ts'
+          --testPathIgnorePatterns='espace-.*\.real\.test\.ts'
 
       # NPC real-database suites deliberately require UID 0 and their own
       # PostgreSQL 15 runtime. Keep them in the required Integration job, but
@@ -628,6 +638,12 @@ jobs:
             __tests__/integration/enrollment-integrity.real.test.ts \
             __tests__/integration/assignment-concurrency.real.test.ts \
             __tests__/integration/session-video-join-state-race.real.test.ts \
+            __tests__/integration/espace-service.real.test.ts \
+            __tests__/integration/espace-api.real.test.ts \
+            __tests__/integration/espace-legacy-link.real.test.ts \
+            __tests__/integration/espace-export.real.test.ts \
+            __tests__/integration/espace-queries.real.test.ts \
+            __tests__/integration/espace-credentials.real.test.ts \
             __tests__/security/idor-real.test.ts
 
       # The `__tests__/{concurrency,database,db,transactions}` suites were
@@ -902,7 +918,7 @@ jobs:
           # confirmed via the OOM log itself ("Scavenge 2042.9 (2084.5)").
           # This is a memory ceiling, not a type error: raising the ceiling
           # is correct here, disabling type-checking would not be.
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run build:e2e
 
       - name: Start Next.js server in background
@@ -1268,7 +1284,7 @@ jobs:
           # NEXT_PUBLIC_* is inlined into the client bundle at build time —
           # see the matching comment on the other job's build step.
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run build:e2e
 
       - name: Start Next.js server in background (worker bilan actif)
@@ -1613,7 +1629,7 @@ jobs:
           # NEXT_PUBLIC_* is inlined into the client bundle at build time —
           # see the matching comment on the other job's build step.
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run build:e2e
 
       - name: Start Next.js server in background (worker bilan actif)
@@ -1816,6 +1832,11 @@ jobs:
           non_blocking_prefixes = (
               '__tests__/', 'e2e/', 'scripts/release/', 'scripts/seed-',
               'scripts/gate-', 'test-results/', 'playwright-report/',
+              # Runners Pyodide de l'espace pédagogique : exécuter le code de
+              # l'élève dans le navigateur (WASM, builtins en liste blanche,
+              # AST filtré) EST leur fonction ; leurs octets sont épinglés par
+              # des gardes d'empreinte dédiés, donc pas d'annotation inline.
+              'content/espace/',
           )
 
           def is_blocking_path(path):
@@ -2053,7 +2074,7 @@ jobs:
           NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           # See the matching comment on the E2E job's "Build Next.js for
           # E2E" step -- same OOM, same fix, same reasoning.
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
         run: npm run build
 
       - name: Validate Next.js traces
@@ -2211,7 +2232,7 @@ jobs:
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
           NEXT_PUBLIC_VIDEO_MODE: DISABLED
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=6144
           RELEASE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: npm run build
 

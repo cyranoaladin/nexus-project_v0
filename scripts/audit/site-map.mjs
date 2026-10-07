@@ -153,6 +153,8 @@ function classifyAccess(route, source, kind) {
   if (route.startsWith('/dashboard/eleve')) return 'auth eleve';
   if (route === '/dashboard') return 'auth routeur role';
   if (route.startsWith('/dashboard/')) return 'auth dashboard';
+  if (route === '/espace/connexion') return 'public auth';
+  if (route === '/espace' || route.startsWith('/espace/')) return 'auth espace';
   if (route.startsWith('/auth')) return 'public auth';
   if (route.startsWith('/assessments') || route.startsWith('/session')) return 'auth/session';
   return kind === 'page' ? 'public' : 'technique';
@@ -584,6 +586,7 @@ function collectSitemapFindings(routes, edges, sitemapEntries) {
 function isNoindexRequiredRoute(route) {
   return (
     route.startsWith('/dashboard') ||
+    route.startsWith('/espace') ||
     route.startsWith('/auth') ||
     route.startsWith('/admin/directeur') ||
     route.startsWith('/assessments') ||

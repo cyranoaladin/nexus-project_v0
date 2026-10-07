@@ -203,6 +203,56 @@ function runFullAudit(current: ReturnType<typeof fixture>, report: object) {
 }
 
 describe('full npm audit transitive exception', () => {
+  it('tolère des findings low/moderate sous le seuil canonique, hautes inchangées', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['some-low'] = {
+        name: 'some-low', severity: 'low',
+        via: [{ name: 'some-low', dependency: 'some-low', severity: 'low', url: 'https://github.com/advisories/GHSA-low1-low1-low1', range: '<1.0.1' }],
+        nodes: ['node_modules/some-low'],
+      };
+      (audit.vulnerabilities as Record<string, unknown>)['some-moderate'] = {
+        name: 'some-moderate', severity: 'moderate', via: ['some-low'], nodes: ['node_modules/some-moderate'],
+      };
+      audit.metadata.vulnerabilities.low = 1;
+      audit.metadata.vulnerabilities.moderate = 1;
+      audit.metadata.vulnerabilities.total = 5;
+      expect(runFullAudit(current, audit).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('ignore une arête via pointant vers un finding sous le seuil (jamais suivie)', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['sub-threshold'] = {
+        name: 'sub-threshold', severity: 'moderate',
+        via: [{ name: 'sub-threshold', dependency: 'sub-threshold', severity: 'moderate', url: 'https://github.com/advisories/GHSA-mod1-mod1-mod1', range: '<2' }],
+        nodes: ['node_modules/sub-threshold'],
+      };
+      audit.vulnerabilities.micromatch.via = ['braces', 'sub-threshold'];
+      audit.metadata.vulnerabilities.moderate = 1;
+      audit.metadata.vulnerabilities.total = 4;
+      expect(runFullAudit(current, audit).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('refuse toujours tout finding critical, même accompagné de bruit sous-seuil', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['bad-critical'] = {
+        name: 'bad-critical', severity: 'critical',
+        via: [{ name: 'bad-critical', dependency: 'bad-critical', severity: 'critical', url: 'https://github.com/advisories/GHSA-crit-crit-crit', range: '*' }],
+        nodes: ['node_modules/bad-critical'],
+      };
+      audit.metadata.vulnerabilities.critical = 1;
+      audit.metadata.vulnerabilities.total = 4;
+      expect(runFullAudit(current, audit).status).not.toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
   it('allows only dev-only transitive impacts of the exact two root advisories', () => {
     const current = fixture();
     try {
@@ -300,6 +350,48 @@ describe('exact temporary OSV development-tooling exception', () => {
       rmSync(current.directory, { recursive: true, force: true });
     }
   });
+
+  it('tolère une entrée OSV sous le seuil (LOW/MODERATE) sans épinglage', () => {
+    const current = fixture();
+    try {
+      current.data.osv.results[0].packages.push({
+        package: { name: 'some-low', version: '1.0.0', ecosystem: 'npm' },
+        vulnerabilities: [{ id: 'GHSA-low1-low1-low1',
+          database_specific: { severity: 'LOW' }, severity: [] }],
+      });
+      current.save();
+      const result = run(current);
+      expect(result.status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('tolère un advisory LOW dans l\u2019audit de production', () => {
+    const current = fixture();
+    try {
+      Object.assign(current.data.productionAudit, {
+        vulnerabilities: { katex: { name: 'katex', severity: 'low', via: [], nodes: ['node_modules/katex'] } },
+        metadata: { vulnerabilities: { info: 0, low: 1, moderate: 0, high: 0, critical: 0, total: 1 } },
+      });
+      current.save();
+      expect(run(current).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  for (const severity of ['moderate', 'high', 'critical'] as const) {
+    it(`refuse un advisory ${severity} dans l\u2019audit de production`, () => {
+      const current = fixture();
+      try {
+        Object.assign(current.data.productionAudit, {
+          vulnerabilities: { bad: { name: 'bad', severity, via: [], nodes: ['node_modules/bad'] } },
+          metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 1, [severity]: 1 } },
+        });
+        current.save();
+        const result = run(current);
+        expect(result.status).not.toBe(0);
+        expect(result.stderr).toContain('PRODUCTION_AUDIT_NOT_GREEN');
+      } finally { rmSync(current.directory, { recursive: true, force: true }); }
+    });
+  }
 
   it('refuses an empty production tree as insufficient absence evidence', () => {
     const current = fixture();
