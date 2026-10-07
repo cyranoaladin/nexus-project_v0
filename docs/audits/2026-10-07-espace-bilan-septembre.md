@@ -53,4 +53,12 @@ Release servie : `2d4b0c16d-espace-bilan-20261007T0958Z`. Source applicative : `
 
 Quatre comptes techniques dédiés, affectés uniquement au groupe de validation exclu des effectifs réels, ont servi au test en ligne. Leurs codes ne sont jamais versionnés. Après validation, comptes désactivés et séances de test clôturées. Aucun travail réel d’élève n’a été créé pour ce test.
 
-Les pages sont livrées et testées ; l’ouverture nominative des bilans aux vrais élèves de troisième/seconde reste conditionnée à la réception de leur liste. Aucun compte historique n’a été affecté par supposition.
+La liste nominative a ensuite été fournie explicitement par le propriétaire. L’affectation a été réalisée pour les neuf élèves demandés, sans inscription déduite des comptes historiques.
+
+## Affectation nominative — 7 octobre 2026
+
+Liste autorisée : quatre élèves de troisième et cinq élèves de seconde. Six correspondances exactes ont permis de réutiliser les comptes existants sans modifier leur activation familiale ni leur mot de passe ; trois comptes d’espace ont été créés après contrôle des correspondances proches. Deux groupes de mathématiques et deux affectations au professeur déjà responsable de l’espace ont été ajoutés par le provisioning officiel. Sauvegarde PostgreSQL préalable.
+
+Les deux séances du bilan sont publiées. Les ensembles d’inscrits et de participants ont été comparés exactement, pas seulement par leur taille. Les tableaux de bord élèves affichent chacun le seul bilan attribué à leur niveau ; la liste enseignant compte exactement quatre et cinq élèves.
+
+Neuf codes temporaires ont été émis dans un fichier privé hors dépôt, lisible seulement par son propriétaire. Les neuf authentifications sur le site ont réussi et conduisent à la page obligatoire de choix du code personnel. Aucun code n’a été changé pendant la vérification. Aucune page de bilan n’a été ouverte lors de ces connexions : aucune copie ni réponse d’élève n’a été créée. Les identifiants, noms et codes ne figurent pas dans cet audit versionné.
