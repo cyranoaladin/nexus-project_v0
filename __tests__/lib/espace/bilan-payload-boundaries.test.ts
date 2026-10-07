@@ -49,6 +49,6 @@ describe.each(['3e', '2nde'] as BilanLevel[])('contrat payload %s', level => {
 
   it('une absence de réponse donne zéro rubrique renseignée, aucun échec', () => {
     const content = { v: 1 as const, steps: Object.fromEntries(defs.map(d => [d.id, { fields: {} }])) };
-    expect(computeBilanProgress(level, content)).toEqual({ completedSteps: 0, requiredSteps: 8 });
+    expect(computeBilanProgress(level, content)).toEqual({ completedSteps: 0, requiredSteps: 13 });
   });
 });

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import TeacherBilansPage from '@/app/espace/enseignant/bilans/page';
-import { bilanData, type BilanLevel } from '@/lib/espace/bilan-data';
+import { bilanData, getBilanLesson, getBilanSkillStep, type BilanLevel } from '@/lib/espace/bilan-data';
 import { requireActorForPage } from '@/lib/espace/page-guard';
 
 const mockEdit = jest.fn();
@@ -26,11 +26,15 @@ it.each<BilanLevel>(['3e', '2nde', 'tle-maths', 'tle-nsi'])('shows all %s questi
   for (const theme of bilanData.modules[level]) {
     expect(within(screen.getByRole('group', { name: theme.label })).getByRole('radio', { name: 'Oui, travaillé en séance' })).toBeChecked();
   }
-  fireEvent.change(screen.getByLabelText('Étape 1 sur 8'), { target: { value: '1' } });
-  for (const theme of bilanData.modules[level]) for (const skill of theme.skills) {
-    expect(screen.getByRole('group', { name: skill.text })).toBeVisible();
+  const defs=getBilanLesson(level).steps;
+  for(const id of ['mastery','mastery-extra']) {
+    if(!defs.some(s=>s.id===id)) continue;
+    fireEvent.change(screen.getByRole('combobox', {name:/Étape/}), {target:{value:id}});
+    for(const theme of bilanData.modules[level]) for(const skill of theme.skills) {
+      if(getBilanSkillStep(level,skill.id)===id) expect(screen.getByRole('group',{name:skill.text})).toBeVisible();
+    }
   }
-  fireEvent.change(screen.getByLabelText('Étape 2 sur 8'), { target: { value: '2' } });
+  fireEvent.change(screen.getByRole('combobox', {name:/Étape/}), {target:{value:'evidence'}});
   expect(screen.getByRole('group', { name: /Les essais choisis/ })).toBeVisible();
   expect(mockEdit).not.toHaveBeenCalled();
   expect(mockSubmit).not.toHaveBeenCalled();

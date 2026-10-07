@@ -6,8 +6,8 @@ import type { WorkContent } from '@/lib/espace/work-content';
 describe('contrat des bilans', () => {
   it.each(['3e', '2nde'] as const)('enregistre le catalogue et la destination %s sans nouvelles tables', (level) => {
     const slug = `maths-bilan-septembre-2026-${level}`;
-    expect(getActivityDef(slug)).toMatchObject({ kind: 'RESOURCE_PACK', stepsTotal: 8 });
-    expect(getLessonSteps(slug).map(s => s.id)).toEqual(['scope', 'mastery', 'evidence', 'methods', 'experience', 'growth', 'next', 'review']);
+    expect(getActivityDef(slug)).toMatchObject({ kind: 'RESOURCE_PACK', stepsTotal: 13 });
+    expect(getLessonSteps(slug).map(s => s.id)).toEqual(['scope','journey','mastery','mastery-extra','habits','methods','experience','growth','next','family','trial-reflection','evidence','review']);
     expect(lessonHref(slug, 'assigned-seat')).toBe(`/espace/bilan/${level}?seance=assigned-seat`);
   });
 
@@ -60,6 +60,6 @@ describe('contrat des bilans', () => {
       methods: { fields: { frequency: 'Je ne souhaite pas répondre' } },
       evidence: { fields: {} },
     } };
-    expect(computeBilanProgress('3e', content)).toEqual({ completedSteps: 3, requiredSteps: 8 });
+    expect(computeBilanProgress('3e', content)).toEqual({ completedSteps: 3, requiredSteps: 13 });
   });
 });

@@ -322,3 +322,23 @@ describe('routes API réelles — session simulée et stockage PostgreSQL réel'
     expect((await submitRoute(request('POST', { baseRevision: 0 }), ctx(work.id))).status).toBe(404);
   });
 });
+
+describe('compléments PDF conservés en base et récupérables',()=>{
+ it('sauvegarde la maîtrise supplémentaire et les conditions puis transmet et exporte sans altérer la trace',async()=>{
+  const work=await start();
+  let r=(await save(work.id,work.revision,'scope',{'3-thales':'yes'})).revision;
+  const extra=bilanData.modules['3e'].find(m=>m.id==='3-thales')!.skills[0].id;
+  r=(await save(work.id,r,'mastery-extra',{[extra]:'difficulty'})).revision;
+  const task=bilanData.tasks.find(t=>t.id==='3-pdf-thales')!;
+  const value=proof('Rapports conservés et figure relue',{conditions:'Sans cours ni calculatrice',confidence:'Moyenne'});
+  r=(await save(work.id,r,'evidence',{[task.id]:value})).revision;
+  r=(await save(work.id,r,'review',{confirmed:'yes'})).revision;
+  await submitWork(actors.student,work.id,r);
+  const fresh=await loadWorkForActor(actors.coach,work.id,'teacher');
+  expect(parseWorkContent(fresh.work.content).steps['mastery-extra'].fields?.[extra]).toBe('difficulty');
+  expect(parseWorkContent(fresh.work.content).steps.evidence.fields?.[task.id]).toBe(value);
+  const exported=serializeExport(await buildExport(actors.coach,{kind:'work',id:work.id}));
+  expect(exported).toContain('Rapports conservés');expect(exported).toContain('Moyenne');expect(exported).toContain('Sans cours ni calculatrice');
+  await expect(save(work.id,fresh.work.revision,'mastery-extra',{[extra]:'alone'})).rejects.toMatchObject({code:'WORK_LOCKED'});
+ });
+});

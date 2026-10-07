@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle, XCircle } from 'lucide-react';
 
+import { getBilanMastery } from '@/lib/espace/bilan-data';
 import { RichText } from '@/components/espace/shared/RichText';
 import { formatBilanAnswer, type BilanAnswerFormat } from '@/lib/espace/bilan-display';
 
@@ -78,7 +79,7 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
         const visibleFields = def.fields.filter(f =>
           (!f.scopeModule || content.steps.scope?.fields?.[f.scopeModule] === 'yes') &&
           (f.requiredScopeModules ?? []).every(id => content.steps.scope?.fields?.[id] === 'yes') &&
-          (f.requiredSkills ?? []).every(id => content.steps.mastery?.fields?.[id] !== 'notworked')
+          (f.requiredSkills ?? []).every(id => getBilanMastery(content.steps)[id] !== 'notworked')
         );
         const hasQuestions = def.questions.length > 0;
         const hasFields = visibleFields.length > 0;

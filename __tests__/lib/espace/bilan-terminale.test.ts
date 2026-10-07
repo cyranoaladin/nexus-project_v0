@@ -19,7 +19,7 @@ describe('bilans Terminale distincts et conditionnels', () => {
     const lesson = getBilanLesson(level);
     expect(lesson.title).toContain('Terminale');
     expect(lesson.title).toContain(subject);
-    expect(lesson.steps.map(s => s.id)).toEqual(['scope','mastery','evidence','methods','experience','growth','next','review']);
+    expect(lesson.steps.map(s => s.id)).toEqual(['scope','journey','mastery','habits','methods','experience','growth','next','family','trial-reflection','evidence','review']);
     for (const step of lesson.steps) {
       expect(step.fields.length).toBeGreaterThan(0);
       expect(step.fields.length).toBeLessThanOrEqual(24);
@@ -59,20 +59,20 @@ describe('bilans Terminale distincts et conditionnels', () => {
     const viewer = bilanViewerSteps(level);
     expect(viewer.find(s=>s.id==='mastery')?.fields[0].scopeModule).toBe(module.id);
   });
-  it('préserve intégralement les définitions historiques et leur version', () => {
+  it('préserve les définitions historiques dans la version enrichie', () => {
     for (const level of ['3e','2nde'] as const) {
-      expect(bilanData.modules[level]).toEqual(legacy.modules[level]);
-      expect(getBilanLesson(level).version).toBe('2026-09.1');
-      for (const section of legacy.sections) expect(getBilanLesson(level).steps.find(s=>s.id===section.id)?.fields).toEqual(section.questions.map(q=>({id:q.id,label:q.text})));
+      for (const original of legacy.modules[level]) { const actual=bilanData.modules[level].find(m=>m.id===original.id)!; expect({...actual,skills:original.skills}).toEqual(original); expect(actual.skills).toEqual(expect.arrayContaining(original.skills)); }
+      expect(getBilanLesson(level).version).toBe('2026-09.2');
+      for (const section of legacy.sections) expect(getBilanLesson(level).steps.find(s=>s.id===section.id)?.fields).toEqual(expect.arrayContaining(section.questions.map(q=>({id:q.id,label:q.text}))));
     }
-    expect(bilanData.tasks.filter(t=>!t.id.startsWith('tm-')&&!t.id.startsWith('tn-'))).toEqual(legacy.tasks);
+    expect(bilanData.tasks).toEqual(expect.arrayContaining(legacy.tasks));
   });
 });
 
 describe('réponses transversales Terminale', () => {
   it.each(['tle-maths','tle-nsi'] as const)('valide tous les choix %s et refuse les choix de l’autre matière', level => {
     for (const section of getBilanSections(level)) for (const q of section.questions) {
-      expect(q.type).toMatch(/^(radio|multi|text)$/);
+      expect(q.type).toMatch(/^(radio|multi|text|scale)$/);
       for (const option of q.options ?? []) {
         expect(()=>validateBilanStep(level,section.id,{fields:{[q.id]:q.type === 'multi' ? JSON.stringify([option]) : option}})).not.toThrow();
       }

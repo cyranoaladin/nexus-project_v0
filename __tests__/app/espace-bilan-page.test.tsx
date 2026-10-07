@@ -1,3 +1,5 @@
+const context = jest.fn();
+jest.mock('@/lib/prisma', () => ({ prisma: { espaceWork: { findUniqueOrThrow: (...a: unknown[]) => context(...a) } } }));
 const guard = jest.fn();
 const open = jest.fn();
 const annotations = jest.fn();
@@ -15,6 +17,7 @@ beforeEach(() => {
   guard.mockResolvedValue({ id: 'student-test', role: 'ELEVE', firstName: 'Élève', lastName: 'Test' });
   open.mockResolvedValue({ id: 'work-test', status: 'DRAFT', revision: 0, currentStep: 0, lastSavedAt: '2026-10-01T12:00:00Z', content: { v: 1, steps: {} } });
   annotations.mockResolvedValue([]);
+  context.mockResolvedValue({startedAt:new Date('2026-10-07T12:00:00Z'),session:{group:{name:'Groupe attribué'}}});
 });
 
 it('la page ouvre le bilan attribué et utilise uniquement l’identité de la session', async () => {
@@ -40,4 +43,10 @@ it.each(['tle-maths', 'tle-nsi'])('ouvre le profil terminale %s dans le parcours
   expect(guard).toHaveBeenCalledWith(['ELEVE'], `/espace/bilan/${level}?seance=terminal-session`);
   expect(page).toMatchObject({ props: { level, userId: 'student-test' } });
   expect(open).toHaveBeenCalledWith(expect.anything(), { activitySlug: expect.stringMatching(level === 'tle-nsi' ? /^nsi-bilan-/ : /^maths-bilan-/), sessionId: 'terminal-session' });
+});
+
+it('affiche le groupe de la copie autorisée sans utiliser une identité fournie par le navigateur', async()=>{
+ const page=await Page({params:Promise.resolve({level:'3e'}),searchParams:Promise.resolve({})});
+ expect(page.props.context).toEqual({groupName:'Groupe attribué',startedAt:'2026-10-07T12:00:00.000Z'});
+ expect(context).toHaveBeenCalledWith(expect.objectContaining({where:{id:'work-test'}}));
 });

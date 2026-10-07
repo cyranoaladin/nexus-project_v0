@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { bilanData, getBilanLesson, getBilanSections, getExclusiveBilanChoices, getEligibleBilanTasks, type BilanLevel } from './bilan-data';
+import { bilanData, getBilanLesson, getBilanSections, getExclusiveBilanChoices, getEligibleBilanTasks, getBilanMastery, isBilanMasteryStep, type BilanLevel } from './bilan-data';
 import { EspaceError } from './errors';
 import { MAX_FIELD_CHARS, type StepContent, type WorkContent } from './work-content';
 
@@ -9,6 +9,8 @@ const evidenceSchema = z.object({
   aid: z.string().max(160).optional(),
   retry: z.string().max(MAX_FIELD_CHARS).optional(),
   skipped: z.boolean().optional(),
+  confidence: z.enum(['Faible', 'Moyenne', 'Forte', 'Je ne souhaite pas répondre']).optional(),
+  conditions: z.enum(['Sans cours ni calculatrice', 'Avec les outils autorisés par l’énoncé', 'Avec une aide ou une ressource', 'Je ne sais plus', 'Je ne souhaite pas répondre']).optional(),
 }).strict();
 const DECLINED = 'Je ne souhaite pas répondre';
 
@@ -33,7 +35,7 @@ export function validateBilanStep(level: BilanLevel, stepId: string, step: StepC
     if (!value.trim()) continue; // Une réponse omise n’est pas un échec.
     if (stepId === 'scope') {
       if (id !== 'other' && !['yes', 'no', 'unsure'].includes(value)) invalid();
-    } else if (stepId === 'mastery') {
+    } else if (isBilanMasteryStep(stepId)) {
       if (!Object.hasOwn(bilanData.mastery, value)) invalid();
     } else if (stepId === 'evidence') {
       if (!evidenceSchema.safeParse(json(value)).success) invalid();
@@ -42,7 +44,7 @@ export function validateBilanStep(level: BilanLevel, stepId: string, step: StepC
     } else {
       const question = getBilanSections(level).find(s => s.id === stepId)?.questions.find(q => q.id === id);
       if (!question) invalid();
-      if (question.type === 'radio' && value !== DECLINED && !question.options?.includes(value)) invalid();
+      if ((question.type === 'radio' || question.type === 'scale') && value !== DECLINED && !question.options?.includes(value)) invalid();
       if (question.type === 'multi') {
         const choices = json(value);
         if (!Array.isArray(choices) || choices.length > (question.max ?? 3) || new Set(choices).size !== choices.length || choices.some(choice => typeof choice !== 'string' || (choice !== DECLINED && !question.options?.includes(choice)))) invalid();
@@ -55,9 +57,25 @@ export function validateBilanStep(level: BilanLevel, stepId: string, step: StepC
 /** Un changement de parcours retire les essais désormais hors périmètre, sans bloquer la sauvegarde. */
 export function normalizeBilanContent(level: BilanLevel, content: WorkContent): WorkContent {
   for (const [id, step] of Object.entries(content.steps)) validateBilanStep(level, id, step);
-  if (!content.steps.evidence) return content;
-  const eligible = new Set(getEligibleBilanTasks(level, content.steps.scope?.fields ?? {}, content.steps.mastery?.fields ?? {}).map(t => t.id));
-  return { ...content, steps: { ...content.steps, evidence: { fields: Object.fromEntries(Object.entries(content.steps.evidence.fields ?? {}).filter(([id, value]) => eligible.has(id) && value.trim())) } } };
+  const steps = { ...content.steps };
+  for (const section of getBilanSections(level)) {
+    const fields = steps[section.id]?.fields;
+    if (!fields) continue;
+    for (const q of section.questions.filter(q => q.priorityOf)) {
+      const value = fields[q.id];
+      if (!value || value === DECLINED) continue;
+      const raw = fields[q.priorityOf!];
+      const selected: unknown = raw?.trim() ? json(raw) : [];
+      if (!Array.isArray(selected) || !selected.includes(value)) {
+        steps[section.id] = { fields: { ...steps[section.id].fields, [q.id]: '' } };
+      }
+    }
+  }
+  if (steps.evidence) {
+    const eligible = new Set(getEligibleBilanTasks(level, steps.scope?.fields ?? {}, getBilanMastery(steps)).map(t => t.id));
+    steps.evidence = { fields: Object.fromEntries(Object.entries(steps.evidence.fields ?? {}).filter(([id, value]) => eligible.has(id) && value.trim())) };
+  }
+  return { ...content, steps };
 }
 
 export function assertBilanReadyToSubmit(level: BilanLevel, content: WorkContent): void {

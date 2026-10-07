@@ -1,0 +1,659 @@
+{
+  "sources": {
+    "pdf-seconde-2026": "Nexus_Bilan_Septembre_2026_Seconde.pdf"
+  },
+  "appendModules": [
+    {
+      "id": "2-literal",
+      "label": "Calcul littéral",
+      "description": "Traduction, substitution, réduction, développement et factorisation, uniquement si effectivement travaillés en septembre.",
+      "source": "pdf-seconde-2026",
+      "pages": "3",
+      "skills": [
+        {
+          "id": "2-literal-translate",
+          "text": "Je traduis une situation simple par une expression littérale."
+        },
+        {
+          "id": "2-literal-substitute",
+          "text": "Je substitue une valeur, y compris négative, dans une expression."
+        },
+        {
+          "id": "2-literal-reduce",
+          "text": "Je réduis une expression et je gère les parenthèses."
+        },
+        {
+          "id": "2-literal-expand",
+          "text": "Je développe par distributivité simple ou double."
+        },
+        {
+          "id": "2-literal-identity",
+          "text": "Je reconnais et j’utilise une identité remarquable."
+        },
+        {
+          "id": "2-literal-factor",
+          "text": "Je factorise par facteur commun ou identité remarquable."
+        }
+      ]
+    }
+  ],
+  "appendSkills": {
+    "2-arith": [
+      {
+        "id": "2-divisibility-criteria",
+        "text": "J’utilise et je justifie un critère de divisibilité."
+      },
+      {
+        "id": "2-euclid",
+        "text": "J’interprète une division euclidienne et je contrôle le reste."
+      },
+      {
+        "id": "2-factor-fraction",
+        "text": "J’utilise une décomposition en facteurs premiers pour simplifier une fraction jusqu’à une forme irréductible."
+      },
+      {
+        "id": "2-divisibility-proof",
+        "text": "Je justifie une propriété de divisibilité."
+      }
+    ],
+    "2-sets": [
+      {
+        "id": "2-sets-recognize",
+        "text": "Je reconnais les ensembles ℕ, ℤ, 𝔻, ℚ et ℝ."
+      },
+      {
+        "id": "2-sets-symbols",
+        "text": "J’utilise les inclusions entre ensembles et les symboles ∈ et ∉."
+      },
+      {
+        "id": "2-sets-nature",
+        "text": "Je distingue un nombre décimal, un nombre rationnel et un nombre irrationnel."
+      },
+      {
+        "id": "2-sets-counterexample",
+        "text": "Je justifie une affirmation sur les nombres ou je donne un contre-exemple."
+      }
+    ]
+  },
+  "appendTasks": [
+    {
+      "id": "2-pdf-L1",
+      "module": "2-literal",
+      "title": "Développer puis contrôler",
+      "prompt": "Développe et réduis A = (2x − 3)(x + 4) − 2x(x + 1). Calcule A pour x = −1 à partir de ta forme réduite, puis vérifie avec la forme initiale.",
+      "source": "pdf-seconde-2026",
+      "pages": "7",
+      "skills": [
+        "2-literal-expand",
+        "2-literal-reduce",
+        "2-literal-substitute"
+      ]
+    },
+    {
+      "id": "2-pdf-L2",
+      "module": "2-literal",
+      "title": "Choisir une factorisation",
+      "prompt": "Factorise B = 9x² − 25 et C = (x + 2)(3x − 1) + 4(x + 2). Indique ce qui te permet de choisir chaque méthode.",
+      "source": "pdf-seconde-2026",
+      "pages": "7",
+      "skills": [
+        "2-literal-identity",
+        "2-literal-factor"
+      ]
+    },
+    {
+      "id": "2-pdf-A1",
+      "module": "2-arith",
+      "title": "Exploiter les facteurs premiers",
+      "prompt": "Décompose 180 et 252 en produits de facteurs premiers. Utilise ces décompositions pour rendre 180/252 irréductible et justifie.",
+      "source": "pdf-seconde-2026",
+      "pages": "7",
+      "skills": [
+        "2-factors",
+        "2-factor-fraction"
+      ]
+    },
+    {
+      "id": "2-pdf-A2",
+      "module": "2-proof",
+      "title": "Passer du calcul au raisonnement",
+      "prompt": "La somme de deux entiers impairs est-elle toujours paire ? Justifie pour tous les entiers impairs, et pas seulement avec des exemples.",
+      "source": "pdf-seconde-2026",
+      "pages": "8",
+      "skills": [
+        "2-proof-s",
+        "2-parity"
+      ]
+    },
+    {
+      "id": "2-pdf-E1",
+      "module": "2-sets",
+      "title": "Reconnaître la nature d’un nombre",
+      "prompt": "Pour −7, 0,125, 1/3, √49 et √2, donne le plus petit ensemble qui contient chaque nombre parmi ℕ, ℤ, 𝔻, ℚ et ℝ. Justifie brièvement. Ici ℕ contient 0 et 𝔻 désigne les écritures décimales finies.",
+      "source": "pdf-seconde-2026",
+      "pages": "8",
+      "skills": [
+        "2-sets-s",
+        "2-sets-nature"
+      ]
+    },
+    {
+      "id": "2-pdf-E2",
+      "module": "2-sets",
+      "title": "Examiner deux affirmations",
+      "prompt": "a. « Tout nombre rationnel est un nombre décimal. » Vrai ou faux ? Justifie. b. « 0,333 est exactement égal à un tiers. » Vrai ou faux ? Justifie.",
+      "source": "pdf-seconde-2026",
+      "pages": "8",
+      "skills": [
+        "2-sets-nature",
+        "2-exact"
+      ]
+    }
+  ],
+  "newSections": [
+    {
+      "id": "journey",
+      "title": "Mon parcours et mes attentes",
+      "questions": [
+        {
+          "id": "pdf-school-class",
+          "text": "Si tu souhaites le préciser : quel est ton établissement et ta classe ?",
+          "type": "text",
+          "hint": "Facultatif. Si ces informations sont déjà connues du professeur, tu peux laisser vide. Ne donne ni adresse ni coordonnées."
+        },
+        {
+          "id": "pdf-start",
+          "text": "Quand as-tu commencé tes séances de mathématiques chez Nexus ?",
+          "type": "text",
+          "hint": "Une date approximative ou « je ne me souviens pas » convient."
+        },
+        {
+          "id": "pdf-attendance",
+          "text": "Combien de séances de septembre penses-tu avoir suivies, et combien as-tu manquées ?",
+          "type": "text",
+          "hint": "Indique les deux nombres si tu les connais ; « je ne me souviens pas » convient. Ce sont tes indications, à préciser avec le professeur."
+        },
+        {
+          "id": "pdf-initial-expectations",
+          "text": "En venant chez Nexus pour les mathématiques, que souhaitais-tu surtout ?",
+          "type": "multi",
+          "options": [
+            "Comprendre le cours",
+            "Consolider les bases",
+            "Mieux réussir les contrôles",
+            "Savoir travailler seul",
+            "Reprendre confiance",
+            "Approfondir les mathématiques",
+            "Mieux organiser mon travail",
+            "Autre attente"
+          ],
+          "max": 3
+        },
+        {
+          "id": "pdf-initial-other",
+          "text": "Si tu as choisi une autre attente, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "pdf-current-expectation",
+          "text": "Aujourd’hui, quelle attente est la plus importante pour toi ?",
+          "type": "text"
+        }
+      ],
+      "intro": "Pense uniquement aux séances de septembre. Tes attentes peuvent avoir changé. Tu peux donner des indications approximatives, ne pas te souvenir ou laisser une question vide."
+    },
+    {
+      "id": "habits",
+      "title": "Mes habitudes au quotidien",
+      "questions": [
+        {
+          "id": "pdf-habit-instruction",
+          "text": "Je relis la consigne et repère ce que je dois chercher.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-first-trace",
+          "text": "Je conserve une trace de mon premier essai avant de demander de l’aide.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-resource",
+          "text": "Quand je bloque, je cherche une propriété, une méthode ou un exemple utile.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-locate",
+          "text": "Je peux préciser exactement où se situe ma difficulté.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-explain",
+          "text": "J’explique mes étapes, même quand je connais déjà le résultat.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-prepare",
+          "text": "Je prépare mes questions et j’apporte les documents nécessaires.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-helpful-habit",
+          "text": "Quelle habitude t’aide vraiment à progresser ? Donne un exemple.",
+          "type": "text"
+        },
+        {
+          "id": "pdf-resistance",
+          "text": "Quand un exercice de mathématiques te résiste, quelles sont tes deux réactions les plus fréquentes ?",
+          "type": "multi",
+          "options": [
+            "Je relis et j’essaie autrement",
+            "Je consulte une aide ou le cours",
+            "Je demande tout de suite une explication",
+            "J’attends la correction",
+            "Je passe à une autre question puis je reviens",
+            "J’abandonne",
+            "Autre réaction"
+          ],
+          "max": 2
+        },
+        {
+          "id": "pdf-resistance-other",
+          "text": "Si tu as une autre réaction fréquente, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "pdf-home-blockers",
+          "text": "Qu’est-ce qui limite ton travail personnel entre deux séances ?",
+          "type": "multi",
+          "options": [
+            "Le temps",
+            "La fatigue",
+            "Je ne sais pas quoi faire",
+            "Je ne comprends pas seul",
+            "L’organisation",
+            "Rien de particulier",
+            "Autre obstacle"
+          ],
+          "max": 7,
+          "exclusiveOptions": [
+            "Rien de particulier"
+          ]
+        },
+        {
+          "id": "pdf-home-other",
+          "text": "Si un autre obstacle limite ton travail, lequel ?",
+          "type": "text",
+          "hint": "Facultatif ; ne donne pas de détails personnels sensibles."
+        },
+        {
+          "id": "pdf-practice-outside-homework",
+          "text": "En septembre, à quelle fréquence retravaillais-tu les mathématiques hors des devoirs obligatoires ?",
+          "type": "scale",
+          "options": [
+            "Jamais",
+            "Une fois par semaine",
+            "Deux fois par semaine",
+            "Trois fois par semaine ou plus",
+            "Cela varie"
+          ]
+        },
+        {
+          "id": "pdf-habit-error-note",
+          "text": "Après une erreur, je note ce qui était faux et pourquoi.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-agreed-practice",
+          "text": "Entre deux séances, je m’entraîne sur ce qui a été décidé avec le professeur.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-redo",
+          "text": "Je refais plus tard un exercice corrigé sans regarder la correction.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        },
+        {
+          "id": "pdf-habit-check",
+          "text": "Je contrôle une réponse, un calcul, une unité ou la cohérence de mon résultat.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion / non concerné"
+          ]
+        }
+      ],
+      "intro": "Décris ce que tu fais réellement pendant les séances et entre deux séances. Une difficulté ou un avis critique ne sont pas des fautes ; ces réponses servent à choisir une aide utile."
+    },
+    {
+      "id": "family",
+      "title": "Préparer le bilan avec ma famille",
+      "questions": [
+        {
+          "id": "pdf-family-understand",
+          "text": "Qu’aimerais-tu que tes parents comprennent de ton travail ?",
+          "type": "text"
+        },
+        {
+          "id": "pdf-family-support",
+          "text": "Pour t’aider, que pourraient-ils faire ?",
+          "type": "multi",
+          "options": [
+            "M’encourager",
+            "M’aider à organiser mes horaires",
+            "Me laisser chercher avant d’aider",
+            "Vérifier avec moi mon plan de travail",
+            "Autre aide"
+          ],
+          "max": 5
+        },
+        {
+          "id": "pdf-family-other",
+          "text": "Si tu souhaites une autre forme d’aide de tes parents, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "pdf-individual-talk",
+          "text": "Souhaites-tu préciser un point avec ton professeur lors d’un échange individuel ?",
+          "type": "radio",
+          "options": [
+            "Oui",
+            "Peut-être",
+            "Pas pour le moment"
+          ]
+        }
+      ],
+      "intro": "Prépare avec ton professeur ce que tu souhaites expliquer à tes parents et la façon dont ils peuvent soutenir ton travail. Ces questions sont facultatives."
+    },
+    {
+      "id": "trial-reflection",
+      "title": "Ce que mes essais m’apprennent",
+      "questions": [
+        {
+          "id": "pdf-before-trials",
+          "text": "Avant les essais choisis avec ton professeur, comment te sens-tu ?",
+          "type": "radio",
+          "options": [
+            "Confiant",
+            "Partagé",
+            "Inquiet",
+            "Difficile à dire"
+          ]
+        },
+        {
+          "id": "pdf-after-position",
+          "text": "Après ces essais, souhaites-tu préciser une réponse de ton auto-positionnement ?",
+          "type": "text",
+          "hint": "Précise la compétence, ce que l’essai t’a appris et l’aide utilisée. Ta première réponse reste conservée."
+        }
+      ],
+      "intro": "Les essais sont proposés séparément avec ton professeur, sur les notions réellement travaillées. Distingue ton ressenti avant de chercher et ce que tu souhaites préciser après. Une recherche incomplète reste utile et aucun score global n’est calculé."
+    }
+  ],
+  "appendQuestions": {
+    "experience": [
+      {
+        "id": "pdf-workload",
+        "text": "La quantité de travail proposée te paraît…",
+        "type": "radio",
+        "options": [
+          "Trop faible",
+          "Adaptée",
+          "Trop forte",
+          "Variable"
+        ]
+      },
+      {
+        "id": "pdf-search-fit",
+        "text": "Le temps laissé pour chercher seul te paraît…",
+        "type": "radio",
+        "options": [
+          "Insuffisant",
+          "Adapté",
+          "Trop long",
+          "Variable"
+        ]
+      },
+      {
+        "id": "pdf-booklet-agency",
+        "text": "Je sais utiliser mes livrets et retrouver une aide utile.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      },
+      {
+        "id": "pdf-needs-fit",
+        "text": "Les exercices choisis répondent à mes besoins.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      },
+      {
+        "id": "pdf-safe-error",
+        "text": "Je peux poser une question ou me tromper sans gêne.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      },
+      {
+        "id": "pdf-group-focus",
+        "text": "Le fonctionnement du groupe me permet de me concentrer.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      },
+      {
+        "id": "pdf-clear-objectives",
+        "text": "Les objectifs de mon travail sont clairs.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      },
+      {
+        "id": "pdf-adjustment-reasons",
+        "text": "Pourquoi souhaites-tu conserver certains aspects des séances et en changer ou en essayer d’autres ?",
+        "type": "text",
+        "hint": "Tu peux préciser une idée déjà exprimée, proposer un fonctionnement à essayer ou laisser vide si tu as déjà expliqué tes raisons."
+      },
+      {
+        "id": "pdf-corrections-useful",
+        "text": "Les corrections m’aident à comprendre mes erreurs et la démarche.",
+        "type": "scale",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné / pas d’avis"
+        ]
+      }
+    ],
+    "growth": [
+      {
+        "id": "pdf-understanding-change",
+        "text": "Depuis le début de septembre, comment ta compréhension en mathématiques a-t-elle évolué, selon toi ?",
+        "type": "radio",
+        "options": [
+          "Moins bonne",
+          "À peu près la même",
+          "Meilleure",
+          "Je ne peux pas encore comparer"
+        ]
+      },
+      {
+        "id": "pdf-persistent-attempt",
+        "text": "Face à une difficulté qui persiste, qu’as-tu déjà essayé pour la dépasser ?",
+        "type": "text",
+        "hint": "Un passage précis suffit. Tu peux laisser vide si tu l’as déjà indiqué dans ton exemple de blocage."
+      }
+    ],
+    "next": [
+      {
+        "id": "pdf-needed-supports",
+        "text": "Quelles aides seraient les plus utiles pour la suite ?",
+        "type": "multi",
+        "options": [
+          "Revoir une notion de base",
+          "Disposer d’exemples expliqués",
+          "Avoir plus de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur"
+        ],
+        "max": 3
+      },
+      {
+        "id": "pdf-top-support",
+        "text": "Parmi les aides choisies, laquelle serait la plus utile ?",
+        "type": "scale",
+        "hint": "Choisis d’abord jusqu’à trois aides, puis indique ici la plus utile parmi celles-ci. Cette priorité reste facultative.",
+        "options": [
+          "Revoir une notion de base",
+          "Disposer d’exemples expliqués",
+          "Avoir plus de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur",
+          "Je ne souhaite pas répondre"
+        ],
+        "priorityOf": "pdf-needed-supports"
+      },
+      {
+        "id": "pdf-method-goal",
+        "text": "Quelle habitude de travail voudrais-tu installer comme deuxième objectif ?",
+        "type": "text",
+        "hint": "Un seul objectif peut suffire ; cette seconde priorité reste facultative."
+      },
+      {
+        "id": "pdf-method-action",
+        "text": "Quelle action précise essaieras-tu pour cette habitude, à quel moment et avec quelle aide ?",
+        "type": "text"
+      },
+      {
+        "id": "pdf-next-check-date",
+        "text": "Quand proposes-tu de faire le prochain point avec ton professeur ?",
+        "type": "text",
+        "hint": "Une date ou une période souhaitée ; elle sera confirmée avec ton professeur."
+      },
+      {
+        "id": "pdf-verification",
+        "text": "Comment pourrions-nous vérifier que tu as progressé sur ton premier objectif ?",
+        "type": "text",
+        "hint": "Par exemple : refaire seul un exercice proche, expliquer la méthode et vérifier le résultat."
+      },
+      {
+        "id": "pdf-priority-reason",
+        "text": "Pourquoi la compétence ou l’activité que tu souhaites reprendre est-elle prioritaire pour toi ?",
+        "type": "text",
+        "hint": "Relie ton choix à une difficulté, à un besoin ou à une envie d’approfondir. Tu peux ne pas encore savoir."
+      }
+    ]
+  },
+  "appendOptions": {
+    "methods.blockers": [
+      "Lire une figure, si une activité de ce type a été travaillée",
+      "Je ne sais pas encore"
+    ]
+  }
+}

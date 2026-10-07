@@ -3,13 +3,13 @@ import { bilanData, getBilanLesson, getEligibleBilanTasks } from '@/lib/espace/b
 describe('banque du bilan de septembre', () => {
   it.each(['3e', '2nde'] as const)('respecte stockage et niveau %s', level => {
     const lesson = getBilanLesson(level);
-    expect(lesson.steps).toHaveLength(8);
-    expect(new Set(lesson.steps.map(s => s.id)).size).toBe(8);
+    expect(lesson.steps).toHaveLength(13);
+    expect(new Set(lesson.steps.map(s => s.id)).size).toBe(13);
     for (const step of lesson.steps) {
       expect(step.fields.length).toBeLessThanOrEqual(24);
       expect(new Set(step.fields.map(f => f.id)).size).toBe(step.fields.length);
     }
-    expect(bilanData.modules[level].flatMap(m => m.skills)).toHaveLength(16);
+    expect(bilanData.modules[level].flatMap(m => m.skills)).toHaveLength(30);
   });
   it('ne déduit jamais le travail réalisé de la présence du livret', () => {
     expect(getEligibleBilanTasks('3e', {}, {})).toEqual([]);

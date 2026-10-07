@@ -1,0 +1,26 @@
+{
+  "2-pdf-L1": {
+    "expected": "A = 3x − 12 ; A(−1) = −15 par les deux formes.",
+    "focus": "Observer la double distributivité, le signe devant 2x(x+1), la réduction puis la substitution négative. Le calcul dans les deux formes constitue un contrôle ; ne pas déduire toute la maîtrise du calcul littéral de cet essai."
+  },
+  "2-pdf-L2": {
+    "expected": "B = (3x−5)(3x+5) ; C = 3(x+2)(x+1). Différence de carrés et facteur commun.",
+    "focus": "Identifier séparément différence de deux carrés et facteur commun. Accepter (x+2)(3x+3) comme factorisation correcte de C ; la forme entièrement factorisée est 3(x+2)(x+1). Demander pourquoi la méthode s’applique."
+  },
+  "2-pdf-A1": {
+    "expected": "180 = 2²×3²×5 ; 252 = 2²×3²×7 ; 180/252 = 5/7, sans facteur premier commun.",
+    "focus": "Contrôler les produits des facteurs premiers puis la simplification commune par 36. La conclusion irréductible demande de constater que 5 et 7 n’ont aucun facteur premier commun ; ne pas confondre valeur décimale approchée et fraction exacte."
+  },
+  "2-pdf-A2": {
+    "expected": "Oui : (2p+1)+(2q+1)=2(p+q+1) avec p,q entiers.",
+    "focus": "Utiliser deux entiers éventuellement différents, p et q. Une liste d’exemples ne prouve pas la propriété générale ; 2(2p+1) ne traite que deux nombres impairs identiques."
+  },
+  "2-pdf-E1": {
+    "expected": "Respectivement ℤ,𝔻,ℚ,ℕ,ℝ ; −7 entier négatif,0,125 décimal fini,1/3 rationnel non décimal,√49=7,√2 irrationnel.",
+    "focus": "Distinguer appartenance et plus petit ensemble parmi ceux proposés. Simplifier √49 avant classement ; 1/3 est rationnel non décimal, tandis que √2 est irrationnel. Le choix ℝ pour √2 ne signifie pas que les autres nombres ne sont pas réels."
+  },
+  "2-pdf-E2": {
+    "expected": "Deux affirmations fausses : 1/3 est rationnel non décimal ; 0,333 =333/1000 ≠1/3 puisque999 ≠1000.",
+    "focus": "Un contre-exemple suffit à réfuter la première affirmation. Pour la seconde, distinguer valeur exacte et approximation : 0,333 est inférieur à 1/3 et l’égalité échoue par produit en croix. Ne pas confondre une suite infinie de 3 avec une écriture à trois décimales."
+  }
+}

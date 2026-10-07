@@ -1,0 +1,26 @@
+{
+  "3-pdf-fractions": {
+    "expected": "(3/4) × (2/3) = 1/2 ; A = 5/6 − 1/2 = 5/6 − 3/6 = 2/6 = 1/3. Les entiers 1 et 3 sont premiers entre eux.",
+    "focus": "Respecter la priorité du produit ; dénominateur commun pour la soustraction ; simplification finale. Ne pas confondre calcul juste et justification complète."
+  },
+  "3-pdf-sharing": {
+    "expected": "Le nombre de lots divise 84 et 126. Leur PGCD vaut 42 : 84 = 42 × 2 et 126 = 42 × 3. On obtient 42 lots, chacun avec 2 crayons et 3 gommes. Tout diviseur commun de 84 et 126 divise 126 − 84 = 42 ; aucun nombre de lots supérieur à 42 n’est donc possible. Une décomposition en facteurs premiers convient aussi.",
+    "focus": "Contrôler les deux stocks, la composition et la maximalité. Ne pas considérer la seule proposition de 42 lots comme preuve de maximalité."
+  },
+  "3-pdf-literal": {
+    "expected": "B = 6x − 15 − 2x − 2 = 4x − 17. Pour x = −2, B = −8 − 17 = −25. C = 5(x + 3).",
+    "focus": "Distribuer le signe moins à tous les termes ; distinguer développer/réduire, substituer et factoriser. Observer séparément chaque sous-compétence."
+  },
+  "3-pdf-similarity": {
+    "expected": "Les triangles ont deux angles respectivement égaux (40° et 65°), donc sont semblables ; leurs troisièmes angles mesurent 75°. Correspondances A ↔ D, B ↔ E, C ↔ F. Le coefficient de ABC vers DEF vaut DE/AB = 6/4 = 1,5. DF = 1,5 × AC = 7,5 cm.",
+    "focus": "Justifier la similitude par les angles, fixer les correspondances puis le sens du coefficient. Ne pas confondre coefficient de longueur et coefficient d’aire."
+  },
+  "3-pdf-thales": {
+    "expected": "M ∈ [AB], N ∈ [AC] et (MN) ∥ (BC). Par Thalès, AM/AB = AN/AC = MN/BC. Ainsi 3/6 = 4/AC = MN/10 = 1/2. AC = 8 cm et MN = 5 cm.",
+    "focus": "Citer les alignements et le parallélisme ; comparer côtés correspondants et contrôler que AC > AN et MN < BC. Le schéma ne donne pas des mesures à lire à la règle."
+  },
+  "3-pdf-converse": {
+    "expected": "AM/AB = 3/5 = 0,6 et AN/AC = 4,2/7 = 0,6. Les points A, M, B et A, N, C sont alignés dans le même ordre. La réciproque du théorème de Thalès permet de conclure que (MN) ∥ (BC).",
+    "focus": "Vérifier égalité des rapports et ordre des points ; nommer la réciproque plutôt que le théorème direct. Une impression visuelle ne suffit pas."
+  }
+}
