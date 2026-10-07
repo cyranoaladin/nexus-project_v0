@@ -1,6 +1,7 @@
 import { CheckCircle2, Circle, XCircle } from 'lucide-react';
 
 import { RichText } from '@/components/espace/shared/RichText';
+import { formatBilanAnswer, type BilanAnswerFormat } from '@/lib/espace/bilan-display';
 
 export interface ViewerStepDef {
   id: string;
@@ -8,7 +9,7 @@ export interface ViewerStepDef {
   short: string;
   starter: string | null;
   questions: { id: string; text: string; choices: string[]; correct: number }[];
-  fields: { id: string; label: string }[];
+  fields: { id: string; label: string; format?: BilanAnswerFormat; scopeModule?: string; requiredSkills?: string[] }[];
 }
 
 export interface ViewerStepContent {
@@ -74,8 +75,12 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
 
       {steps.map((def) => {
         const step = content.steps[def.id];
+        const visibleFields = def.fields.filter(f => !f.scopeModule || (
+          content.steps.scope?.fields?.[f.scopeModule] === 'yes' &&
+          (f.requiredSkills ?? []).every(id => content.steps.mastery?.fields?.[id] !== 'notworked')
+        ));
         const hasQuestions = def.questions.length > 0;
-        const hasFields = def.fields.length > 0;
+        const hasFields = visibleFields.length > 0;
         const empty = !step || (!step.code?.trim() && !Object.keys(step.fields ?? {}).length && !Object.keys(step.choices ?? {}).length);
         return (
           <section key={def.id} aria-labelledby={`step-${def.id}`} className="rounded-lg border border-white/10 bg-surface-card p-4">
@@ -91,6 +96,7 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
             </div>
 
             {empty && <p className="mt-2 text-sm text-neutral-400">Étape non renseignée.</p>}
+            {!hasFields && def.fields.some(f => f.scopeModule) && <p className="mt-2 text-sm text-neutral-400">Aucun contenu retenu dans le périmètre de cette version. Aucun échec n’est déduit.</p>}
             {(step?.hints ?? 0) > 0 && (
               <p className="mt-2 text-xs text-neutral-400" data-testid={`hints-${def.id}`}>
                 Aides ouvertes : {step?.hints} (information, jamais une pénalité)
@@ -171,12 +177,12 @@ export function WorkViewer({ workId, steps, content, attachments, onPickStep, on
 
             {hasFields && (
               <dl className="mt-3 space-y-3">
-                {def.fields.map((f) => (
+                {visibleFields.map((f) => (
                   <div key={f.id} className="rounded-md border border-white/10 p-3">
                     <dt className="text-sm font-medium text-neutral-100"><RichText text={f.label} /></dt>
                     <dd className="mt-1 text-sm text-neutral-200">
                       <div className="whitespace-pre-wrap break-words" data-testid={`field-${def.id}-${f.id}`}>
-                        {step?.fields?.[f.id]?.trim() ? step.fields[f.id] : <span className="text-neutral-400">Pas de réponse.</span>}
+                        {step?.fields?.[f.id]?.trim() ? formatBilanAnswer(f.format, step.fields[f.id]) : <span className="text-neutral-400">Pas de réponse.</span>}
                       </div>
                       {step?.tries?.[f.id] !== undefined && (
                         <p className="mt-1 text-xs text-neutral-400" data-testid={`tries-${def.id}-${f.id}`}>

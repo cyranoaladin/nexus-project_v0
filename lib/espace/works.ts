@@ -14,7 +14,10 @@ import { Prisma, type EspaceVersionReason, type EspaceWorkStatus } from '@prisma
 
 import { prisma } from '@/lib/prisma';
 
-import { loadWorkForActor, isStudentEnrolled, type WorkWithActivity } from './access';
+import { loadWorkForActor, isStudentEnrolled, requireBilanAssignment, type WorkWithActivity } from './access';
+import { isBilanActivitySlug } from './lesson-routes';
+import { getBilanLevel } from './bilan-data';
+import { assertBilanReadyToSubmit, computeBilanProgress, normalizeBilanContent, validateBilanStep } from './bilan-work';
 import { getActivityDef, getLessonRequiredSteps, getLessonSteps, POO_ACTIVITY_SLUG } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
@@ -98,7 +101,9 @@ export async function openWork(
   }
 
   let sessionId: string | null = null;
-  if (input.sessionId) {
+  if (isBilanActivitySlug(activity.slug)) {
+    sessionId = await requireBilanAssignment(actor.id, activity.id, input.sessionId);
+  } else if (input.sessionId) {
     const seat = await prisma.espaceSession.findFirst({
       where: {
         id: input.sessionId,
@@ -198,6 +203,8 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
   let patch;
   try {
     patch = parseStepPatch(input.patch, defs.map((s) => s.id));
+    const level = getBilanLevel(work.activity.slug);
+    if (level) validateBilanStep(level, patch.stepId, patch.step);
   } catch (e) {
     if (e instanceof WorkContentError) throw new EspaceError('INVALID_INPUT', e.message);
     throw e;
@@ -224,12 +231,15 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
   let next: WorkContent;
   try {
     next = parseWorkContent(mergeStep(current, patch.stepId, patch.step));
+    const level = getBilanLevel(work.activity.slug);
+    if (level) next = normalizeBilanContent(level, next);
   } catch (e) {
     if (e instanceof WorkContentError) throw new EspaceError('INVALID_INPUT', e.message);
     throw e;
   }
 
-  const progress = computeProgress(defs, next);
+  const bilanLevel = getBilanLevel(work.activity.slug);
+  const progress = bilanLevel ? computeBilanProgress(bilanLevel, next) : computeProgress(defs, next);
   const status = applyAction(work.status, 'SAVE');
   const maxStep = Math.max(0, defs.length - 1);
   const currentStep = Math.min(Math.max(Math.trunc(input.currentStep ?? work.currentStep), 0), maxStep);
@@ -284,6 +294,9 @@ export async function submitWork(actor: EspaceActor, workId: string, baseRevisio
     throw e;
   }
   if (work.revision !== baseRevision) throw conflict(work);
+
+  const bilanLevel = getBilanLevel(work.activity.slug);
+  if (bilanLevel) assertBilanReadyToSubmit(bilanLevel, parseWorkContent(work.content));
 
   if (work.activity.kind === 'UPLOAD_EXERCISE') {
     const files = await prisma.espaceWorkAttachment.count({ where: { workId: work.id } });

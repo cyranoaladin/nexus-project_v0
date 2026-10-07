@@ -25,6 +25,7 @@ const TEACHER_NAV: NavItem[] = [
   { href: '/espace/enseignant/eleves', label: 'Élèves' },
   { href: '/espace/enseignant/seances', label: 'Séances' },
   { href: '/espace/enseignant/a-corriger', label: 'À corriger' },
+  { href: '/espace/enseignant/bilans', label: 'Bilans' },
   { href: '/espace/enseignant/ressources', label: 'Ressources' },
   { href: '/espace/enseignant/compte', label: 'Mon compte' },
 ];

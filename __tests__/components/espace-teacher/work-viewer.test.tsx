@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { WorkViewer, type ViewerStepDef } from '@/components/espace/teacher/WorkViewer';
+import { bilanViewerSteps } from '@/lib/espace/bilan-display';
 
 const PAYLOAD = '<img src=x onerror=alert(1)>';
 const defs: ViewerStepDef[] = [
@@ -18,6 +19,11 @@ const render = (content: Record<string, unknown>, attachments = [] as { id: stri
   renderToStaticMarkup(<WorkViewer workId="w1" steps={defs} content={{ steps: content as never }} attachments={attachments} />);
 
 describe('WorkViewer — texte d’élève jamais interprété', () => {
+  it('exclut les anciennes autoévaluations selon le périmètre de la version consultée', () => {
+    const markup = (status: string) => renderToStaticMarkup(<WorkViewer workId="b1" steps={bilanViewerSteps('3e')} attachments={[]} content={{ steps: { scope: { fields: { '3-arith': status } }, mastery: { fields: { '3-div-s': 'alone' } } } }} />);
+    expect(markup('no')).not.toContain('data-testid="field-mastery-3-div-s"');
+    expect(markup('yes')).toContain('data-testid="field-mastery-3-div-s"');
+  });
   it('échappe le code, les réponses libres et les noms de fichiers', () => {
     const html = render(
       { agir: { code: `print("${PAYLOAD}")`, fields: { caslimite: `${PAYLOAD}<script>alert(2)</script>` }, choices: { echec: 0 } } },

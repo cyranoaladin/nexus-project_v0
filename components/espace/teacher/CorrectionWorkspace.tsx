@@ -57,6 +57,8 @@ interface Props {
   isAdmin: boolean;
   /** Compétences annotables de la leçon (facultatif) : elles pré-remplissent le commentaire, rien de plus. */
   skills?: { id: string; label: string }[];
+  /** Bilan de suivi : parole de l’élève et constat enseignant séparés, sans score. */
+  bilan?: boolean;
 }
 
 const REASON_LABEL: Record<string, string> = {
@@ -79,7 +81,7 @@ const KIND_LABEL: Record<AnnotationKind, string> = {
 const inputClass = 'mt-1 block w-full rounded-md border border-white/15 bg-white/5 px-2 py-2 text-sm text-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 const btn = 'rounded-md border border-white/15 px-3 py-2 text-sm text-neutral-100 hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent';
 
-export function CorrectionWorkspace({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin, skills }: Props) {
+export function CorrectionWorkspace({ work, studentName, steps, attachments, annotations: initialAnnotations, queue, isAdmin, skills, bilan = false }: Props) {
   const router = useRouter();
   const timezone = useEspaceTimezone();
   const [status, setStatus] = useState<WorkStatus>(work.status);
@@ -227,6 +229,7 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
           </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={status} audience="teacher" />
+            {bilan && <Link href={`/espace/enseignant/bilans/${work.id}`} className={btn}>Synthèse familiale</Link>}
             <a href={`/api/espace/teacher/export?workId=${work.id}`} className={`${btn} inline-flex items-center gap-1.5`}>
               <Download className="h-4 w-4" aria-hidden="true" /> Exporter
             </a>
@@ -275,6 +278,7 @@ export function CorrectionWorkspace({ work, studentName, steps, attachments, ann
           className="space-y-3 rounded-xl border border-white/10 bg-surface-card p-4"
         >
           <h2 className="text-base font-semibold text-neutral-50">Votre retour</h2>
+          {bilan && <div className="space-y-2 text-sm text-neutral-300"><p>Le ressenti ne constitue pas une preuve de maîtrise. Citez les tâches, les conditions et l’aide observée ; retenez deux priorités au maximum.</p><button type="button" className={btn} onClick={() => set({ kind: 'GENERAL', stepId: '', questionId: '', lineStart: '', lineEnd: '', body: `${draft.body ? `${draft.body.trimEnd()}\n\n` : ''}BILAN INDIVIDUEL — SEPTEMBRE 2026\nAcquis observés (tâche, date, démarche, aide) :\nPoints à consolider :\nÉvolution documentée (deux traces comparables) ou état des lieux :\nPriorité 1 — objectif, action et aide, échéance, vérification sans aide :\nPriorité 2, si utile — objectif, action et aide, échéance, vérification sans aide :\nAjustement des séances et appui possible de la famille :\nProchain point :` })}>Ajouter la trame du bilan individuel</button><p className="text-xs">Complétez les rubriques puis enregistrez le commentaire. La synthèse imprimable reprendra vos observations enregistrées.</p></div>}
 
           <div className="block text-sm text-neutral-200">
             <label htmlFor="ann-kind">Porte sur</label>

@@ -1,0 +1,833 @@
+{
+  "sources": {
+    "T1": "Nexus_3e_Arithmetique_Livret_Eleve.pdf",
+    "T2": "Nexus_3e_Seance_Suivante_Eleve.pdf",
+    "T3": "Livret_Eleve1_3e_Arithmetique_Fractions.pdf",
+    "T4": "Livret_Eleve2_3e_Triangles_semblables_Logique.pdf",
+    "TD": "Diagnostic_Bilan_Troisieme.pdf",
+    "S1": "Nexus_Seconde_Nombres_Calculs_Livret_Eleve.pdf",
+    "S2": "Nexus_Seconde_Seance_Suivante_Eleve.pdf",
+    "SD": "Diagnostic_Bilan_Seconde.pdf"
+  },
+  "modules": {
+    "3e": [
+      {
+        "id": "3-arith",
+        "label": "Divisibilité, nombres premiers et division",
+        "description": "Diviseurs, critères, division euclidienne, nombres premiers, carrés parfaits, décomposition et lots identiques.",
+        "source": "T2",
+        "pages": "3–6, 8",
+        "skills": [
+          {
+            "id": "3-div-s",
+            "text": "Je vérifie le quotient et le reste d’une division euclidienne."
+          },
+          {
+            "id": "3-criteria",
+            "text": "Je justifie la divisibilité par 2, 3, 5 ou 9."
+          },
+          {
+            "id": "3-prime",
+            "text": "Je justifie qu’un entier est premier ou qu’il ne l’est pas."
+          },
+          {
+            "id": "3-square",
+            "text": "Je reconnais un carré parfait et je justifie ma réponse."
+          },
+          {
+            "id": "3-factors",
+            "text": "Je décompose un entier en facteurs premiers et je contrôle le produit."
+          },
+          {
+            "id": "3-lots-s",
+            "text": "Je vérifie toutes les quantités dans un problème de lots identiques."
+          }
+        ]
+      },
+      {
+        "id": "3-reduce",
+        "label": "Fractions irréductibles",
+        "description": "Décomposer, simplifier et justifier pourquoi on ne peut plus simplifier.",
+        "source": "T2",
+        "pages": "7",
+        "skills": [
+          {
+            "id": "3-reduce-s",
+            "text": "Je simplifie une fraction en utilisant des facteurs communs."
+          },
+          {
+            "id": "3-irreducible",
+            "text": "J’explique pourquoi ma fraction finale est irréductible."
+          }
+        ]
+      },
+      {
+        "id": "3-fractions",
+        "label": "Calcul avec les fractions",
+        "description": "Sommes, produits, quotients et fraction du reste, si travaillés.",
+        "source": "T3",
+        "pages": "4–9",
+        "skills": [
+          {
+            "id": "3-operations",
+            "text": "Je calcule avec des fractions en respectant les priorités."
+          },
+          {
+            "id": "3-remainder",
+            "text": "Je repère de quelle quantité je prends une fraction, notamment une fraction du reste."
+          }
+        ]
+      },
+      {
+        "id": "3-powers",
+        "label": "Puissances",
+        "description": "Signes, parenthèses et puissances d’exposant naturel, si travaillés.",
+        "source": "T1",
+        "pages": "4–5",
+        "skills": [
+          {
+            "id": "3-powers-s",
+            "text": "Je distingue un signe moins devant un carré d’un nombre négatif entre parenthèses."
+          },
+          {
+            "id": "3-powers-rules",
+            "text": "J’applique les règles de puissances en distinguant produit et somme."
+          }
+        ]
+      },
+      {
+        "id": "3-geo",
+        "label": "Triangles semblables",
+        "description": "Correspondances, rapport de longueurs et effet sur les aires, si travaillés.",
+        "source": "T4",
+        "pages": "3–8",
+        "skills": [
+          {
+            "id": "3-geo-s",
+            "text": "Je justifie la similitude et j’associe les côtés correspondants."
+          },
+          {
+            "id": "3-scale",
+            "text": "Je distingue le coefficient appliqué aux longueurs de celui appliqué aux aires."
+          }
+        ]
+      },
+      {
+        "id": "3-logic",
+        "label": "Logique et contre-exemples",
+        "description": "Implication, réciproque et réfutation, si travaillées.",
+        "source": "T4",
+        "pages": "5–8",
+        "skills": [
+          {
+            "id": "3-logic-s",
+            "text": "Je distingue une implication de sa réciproque."
+          },
+          {
+            "id": "3-counter",
+            "text": "Je donne un contre-exemple pour réfuter une affirmation générale."
+          }
+        ]
+      }
+    ],
+    "2nde": [
+      {
+        "id": "2-calc",
+        "label": "Calcul numérique et fractions",
+        "description": "Signes, priorités, opposé, inverse et contrôle du résultat.",
+        "source": "S1",
+        "pages": "4–7",
+        "skills": [
+          {
+            "id": "2-priority",
+            "text": "Je respecte les priorités et le rôle des parenthèses."
+          },
+          {
+            "id": "2-inverse",
+            "text": "Je distingue l’opposé d’un nombre de son inverse."
+          },
+          {
+            "id": "2-fraction",
+            "text": "Je calcule avec des fractions et je repère une simplification interdite."
+          },
+          {
+            "id": "2-control",
+            "text": "Je contrôle le signe et l’ordre de grandeur de mon résultat."
+          }
+        ]
+      },
+      {
+        "id": "2-sets",
+        "label": "Ensembles et écritures des nombres",
+        "description": "Classer après simplification ; distinguer valeur exacte et approximation.",
+        "source": "S1",
+        "pages": "8–11",
+        "skills": [
+          {
+            "id": "2-sets-s",
+            "text": "Je simplifie un nombre avant de choisir le plus petit ensemble auquel il appartient."
+          },
+          {
+            "id": "2-exact",
+            "text": "Je distingue une valeur exacte d’une valeur approchée."
+          }
+        ]
+      },
+      {
+        "id": "2-arith",
+        "label": "Arithmétique",
+        "description": "Multiples, diviseurs, nombres premiers et décomposition.",
+        "source": "S1",
+        "pages": "12–14",
+        "skills": [
+          {
+            "id": "2-divisors",
+            "text": "Je traduis « multiple de » ou « diviseur de » par une égalité."
+          },
+          {
+            "id": "2-prime",
+            "text": "Je justifie la primalité et l’arrêt de mes essais."
+          },
+          {
+            "id": "2-factors",
+            "text": "Je décompose complètement un entier en facteurs premiers."
+          }
+        ]
+      },
+      {
+        "id": "2-proof",
+        "label": "Raisonnement et premières démonstrations",
+        "description": "Exemples, contre-exemples et preuves de parité, si travaillés.",
+        "source": "S1",
+        "pages": "15–17",
+        "skills": [
+          {
+            "id": "2-proof-s",
+            "text": "Je distingue vérifier des exemples et démontrer une propriété générale."
+          },
+          {
+            "id": "2-parity",
+            "text": "Je justifie une propriété de parité en précisant le sens de mes lettres."
+          }
+        ]
+      },
+      {
+        "id": "2-powers",
+        "label": "Puissances entières",
+        "description": "Signe, exposant négatif et règles des puissances, si travaillés.",
+        "source": "S2",
+        "pages": "3–4",
+        "skills": [
+          {
+            "id": "2-powers-s",
+            "text": "Je distingue base négative, signe extérieur et exposant négatif."
+          },
+          {
+            "id": "2-power-rules",
+            "text": "Je simplifie un produit ou un quotient de puissances en justifiant la règle."
+          }
+        ]
+      },
+      {
+        "id": "2-roots",
+        "label": "Racines carrées",
+        "description": "Carrés parfaits, signe, simplification et comparaison exacte, si travaillés.",
+        "source": "S2",
+        "pages": "6–7",
+        "skills": [
+          {
+            "id": "2-roots-s",
+            "text": "Je simplifie une racine en faisant apparaître un carré parfait."
+          },
+          {
+            "id": "2-root-sign",
+            "text": "J’explique pourquoi une racine carrée est positive ou nulle."
+          },
+          {
+            "id": "2-compare",
+            "text": "Je compare exactement deux nombres positifs à l’aide de leurs carrés."
+          }
+        ]
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "id": "3-div",
+      "module": "3-arith",
+      "title": "Une égalité à vérifier",
+      "prompt": "Un élève écrit : 347 = 16 × 20 + 27. L’égalité est-elle vraie ? Donne-t-elle la division euclidienne de 347 par 16 ? Corrige si nécessaire et explique.",
+      "source": "TD",
+      "pages": "2, 7 (adaptation 3-S1)",
+      "skills": [
+        "3-div-s"
+      ]
+    },
+    {
+      "id": "3-prime-task",
+      "module": "3-arith",
+      "title": "Premier ou carré ?",
+      "prompt": "143 est-il un nombre premier ? 144 est-il un carré parfait ? Justifie chaque réponse.",
+      "source": "T2",
+      "pages": "5–6",
+      "skills": [
+        "3-prime",
+        "3-square"
+      ]
+    },
+    {
+      "id": "3-lots",
+      "module": "3-arith",
+      "title": "Des sachets identiques",
+      "prompt": "On dispose de 72 crayons et de 48 gommes. Peut-on faire 18 sachets identiques en utilisant tout ? Et 24 sachets ? Explique et précise le contenu d’un sachet lorsque c’est possible.",
+      "source": "TD",
+      "pages": "2, 7 (3-S4)",
+      "skills": [
+        "3-lots-s"
+      ]
+    },
+    {
+      "id": "3-reduce-task",
+      "module": "3-reduce",
+      "title": "Simplifier jusqu’au bout",
+      "prompt": "Décompose 84 et 126 en facteurs premiers, puis rends 84/126 irréductible. Explique pourquoi tu peux arrêter la simplification.",
+      "source": "TD",
+      "pages": "2, 7 (3-S3)",
+      "skills": [
+        "3-reduce-s",
+        "3-irreducible",
+        "3-factors"
+      ]
+    },
+    {
+      "id": "3-fraction-task",
+      "module": "3-fractions",
+      "title": "Une fraction du reste",
+      "prompt": "Lundi, Lina lit 2/5 d’un livre. Mardi, elle lit 1/3 de ce qui restait. Quelle fraction du livre reste après mardi ? Écris les étapes.",
+      "source": "TD",
+      "pages": "3, 7 (3-C1b)",
+      "skills": [
+        "3-remainder"
+      ]
+    },
+    {
+      "id": "3-power-task",
+      "module": "3-powers",
+      "title": "Les parenthèses comptent",
+      "prompt": "Calcule −3² puis (−3)². Les résultats sont-ils égaux ? Explique.",
+      "source": "T1",
+      "pages": "4–5 (adaptation)",
+      "skills": [
+        "3-powers-s"
+      ]
+    },
+    {
+      "id": "3-geo-task",
+      "module": "3-geo",
+      "title": "Longueurs et aires",
+      "prompt": "AB = 3 cm, AC = 4 cm, BC = 5 cm ; DE = 4,5 cm, DF = 6 cm, EF = 7,5 cm. Justifie que ABC et DEF sont semblables en précisant les correspondances. L’aire de ABC vaut 6 cm² : quelle est celle de DEF ?",
+      "source": "TD",
+      "pages": "3, 7 (3-C2a)",
+      "skills": [
+        "3-geo-s",
+        "3-scale"
+      ]
+    },
+    {
+      "id": "3-logic-task",
+      "module": "3-logic",
+      "title": "Une réciproque à discuter",
+      "prompt": "« Si un entier est divisible par 6, alors il est divisible par 3. » Écris la réciproque. Est-elle vraie ? Justifie.",
+      "source": "TD",
+      "pages": "3, 7 (3-C2b)",
+      "skills": [
+        "3-logic-s",
+        "3-counter"
+      ]
+    },
+    {
+      "id": "2-sign",
+      "module": "2-calc",
+      "title": "Corriger un raisonnement",
+      "prompt": "Un élève écrit : (6 + 3)/3 = 6 + 1. Corrige et explique pourquoi son calcul ne convient pas.",
+      "source": "S1",
+      "pages": "3–4 (C.d3)",
+      "skills": [
+        "2-fraction"
+      ]
+    },
+    {
+      "id": "2-sets-task",
+      "module": "2-sets",
+      "title": "Une écriture, un nombre",
+      "prompt": "Donne le plus petit ensemble parmi ℕ, ℤ, 𝔻, ℚ et ℝ contenant chacun des nombres : √49 ; −3 ; 2/5 ; √2. Justifie. Ici 𝔻 désigne les nombres à écriture décimale finie.",
+      "source": "SD",
+      "pages": "2, 7 (2S-04)",
+      "skills": [
+        "2-sets-s"
+      ]
+    },
+    {
+      "id": "2-arith-task",
+      "module": "2-arith",
+      "title": "Justifier la primalité",
+      "prompt": "Décompose 180 en facteurs premiers. Le nombre 97 est-il premier ? Explique pourquoi tes essais suffisent.",
+      "source": "SD",
+      "pages": "2, 7 (2S-02)",
+      "skills": [
+        "2-factors",
+        "2-prime"
+      ]
+    },
+    {
+      "id": "2-proof-task",
+      "module": "2-proof",
+      "title": "Prouver pour tout entier",
+      "prompt": "Démontre que n² + n est pair pour tout entier naturel n. Quelques exemples ne suffisent pas.",
+      "source": "SD",
+      "pages": "3, 7 (2M-A2)",
+      "skills": [
+        "2-proof-s",
+        "2-parity"
+      ]
+    },
+    {
+      "id": "2-power-task",
+      "module": "2-powers",
+      "title": "Signes et puissances",
+      "prompt": "a) Calcule −3² + 2⁴. b) Écris (10³ × 10⁻⁵)/10⁻⁴ sous la forme d’une seule puissance de 10. Justifie.",
+      "source": "SD",
+      "pages": "2, 7 (2S-01)",
+      "skills": [
+        "2-powers-s",
+        "2-power-rules"
+      ]
+    },
+    {
+      "id": "2-roots-task",
+      "module": "2-roots",
+      "title": "Racines et signes",
+      "prompt": "Simplifie √50. Calcule √((−7)²) et explique le signe du résultat.",
+      "source": "SD",
+      "pages": "2–3, 7 (2S-03 et 2M-R2)",
+      "skills": [
+        "2-roots-s",
+        "2-root-sign"
+      ]
+    },
+    {
+      "id": "2-compare-task",
+      "module": "2-roots",
+      "title": "Comparer exactement",
+      "prompt": "Compare √7 et 2,6 sans utiliser une valeur approchée de √7. Explique pourquoi ta méthode permet de conclure.",
+      "source": "SD",
+      "pages": "2, 7 (2S-04b)",
+      "skills": [
+        "2-compare"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Mes façons de travailler",
+      "intro": "Pense à ce que tu fais réellement depuis septembre, même si cela varie selon les semaines.",
+      "questions": [
+        {
+          "id": "frequency",
+          "text": "Entre deux séances Nexus, combien de fois reprends-tu les mathématiques ?",
+          "type": "radio",
+          "options": [
+            "Pas encore",
+            "Une fois par semaine",
+            "Deux ou trois fois par semaine",
+            "Plus souvent",
+            "Cela dépend beaucoup"
+          ]
+        },
+        {
+          "id": "practice",
+          "text": "Que fais-tu le plus souvent pour travailler ?",
+          "type": "multi",
+          "options": [
+            "Je relis le cours",
+            "Je récite une définition ou une propriété",
+            "Je refais sans regarder le modèle",
+            "Je cherche un exercice nouveau",
+            "Je lis ou recopie une correction",
+            "Je ne sais pas comment m’y prendre"
+          ],
+          "hint": "Choisis jusqu’à trois réponses.",
+          "max": 3
+        },
+        {
+          "id": "correction",
+          "text": "Après avoir corrigé une erreur, que fais-tu le plus souvent ?",
+          "type": "radio",
+          "options": [
+            "Je passe à la suite",
+            "Je recopie la correction",
+            "Je cherche pourquoi je me suis trompé",
+            "Je refais la question seul plus tard",
+            "Je n’ai pas encore repris de correction"
+          ]
+        },
+        {
+          "id": "stuck",
+          "text": "Quand tu bloques, quelle est généralement ta première réaction ?",
+          "type": "radio",
+          "options": [
+            "Je relis et je fais un essai",
+            "Je cherche une propriété ou un exemple",
+            "Je demande un indice précis",
+            "Je regarde directement le corrigé",
+            "Je n’arrive pas à poursuivre",
+            "Cela dépend"
+          ]
+        },
+        {
+          "id": "checking",
+          "text": "Avant de terminer, vérifies-tu le résultat ou les étapes ?",
+          "type": "radio",
+          "options": [
+            "Presque jamais",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Je ne sais pas comment vérifier"
+          ]
+        },
+        {
+          "id": "blockers",
+          "text": "Qu’est-ce qui te gêne le plus en ce moment ?",
+          "type": "multi",
+          "options": [
+            "Comprendre la consigne",
+            "Retrouver le cours utile",
+            "Choisir une méthode",
+            "Faire les calculs",
+            "Expliquer ou rédiger",
+            "Gérer le temps",
+            "Rester concentré",
+            "Oser commencer",
+            "Aucune difficulté précise"
+          ],
+          "hint": "Deux choix maximum. Ne choisis « aucune difficulté » qu’en l’absence d’autre choix.",
+          "max": 2
+        },
+        {
+          "id": "block-example",
+          "text": "Décris un blocage concret, ou une méthode qui t’a aidé à le dépasser.",
+          "type": "text",
+          "options": null,
+          "hint": "Un exercice ou un passage suffit. Tu peux écrire « pas d’exemple pour le moment »."
+        },
+        {
+          "id": "home-obstacle",
+          "text": "Qu’est-ce qui facilite ou empêche le travail entre les séances ?",
+          "type": "text",
+          "options": null,
+          "hint": "Par exemple : savoir quoi faire, temps disponible, fatigue, accès au livret. Réponse facultative."
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Les séances, de mon point de vue",
+      "intro": "Ton avis sert à ajuster les séances. Tu peux signaler ce qui fonctionne et ce qui te convient moins.",
+      "questions": [
+        {
+          "id": "pace",
+          "text": "Le rythme des séances te paraît…",
+          "type": "radio",
+          "options": [
+            "Trop lent",
+            "Plutôt lent",
+            "Adapté",
+            "Plutôt rapide",
+            "Trop rapide",
+            "Variable selon les moments"
+          ]
+        },
+        {
+          "id": "level-fit",
+          "text": "Les exercices proposés te paraissent…",
+          "type": "radio",
+          "options": [
+            "Trop faciles",
+            "Plutôt faciles",
+            "Adaptés",
+            "Plutôt difficiles",
+            "Trop difficiles",
+            "Variables selon les exercices"
+          ]
+        },
+        {
+          "id": "clarity",
+          "text": "Les explications te permettent-elles de comprendre la démarche ?",
+          "type": "radio",
+          "options": [
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Je ne sais pas"
+          ]
+        },
+        {
+          "id": "search-time",
+          "text": "As-tu assez de temps pour chercher avant la correction ?",
+          "type": "radio",
+          "options": [
+            "Jamais",
+            "Rarement",
+            "Souvent",
+            "À chaque séance",
+            "Pas vécu / je ne sais pas"
+          ]
+        },
+        {
+          "id": "help-time",
+          "text": "Peux-tu obtenir de l’aide lorsque tu en as besoin ?",
+          "type": "radio",
+          "options": [
+            "Jamais",
+            "Rarement",
+            "Souvent",
+            "À chaque séance",
+            "Pas vécu / je ne sais pas"
+          ]
+        },
+        {
+          "id": "ask",
+          "text": "Arrives-tu à dire « je n’ai pas compris » pendant les séances ?",
+          "type": "radio",
+          "options": [
+            "Facilement",
+            "Cela dépend des moments",
+            "Difficilement",
+            "Je n’en ai pas eu besoin",
+            "Je préfère ne pas répondre"
+          ]
+        },
+        {
+          "id": "group",
+          "text": "Comment vis-tu les échanges avec les autres élèves ?",
+          "type": "radio",
+          "options": [
+            "Ils m’aident à comprendre",
+            "Ils me distraient",
+            "Les deux, selon les moments",
+            "Ils ont peu d’effet sur mon travail",
+            "Nous avons peu échangé",
+            "Je préfère ne pas répondre"
+          ]
+        },
+        {
+          "id": "fatigue",
+          "text": "Quand la concentration devient-elle la plus difficile pendant les deux heures ?",
+          "type": "radio",
+          "options": [
+            "Dès le début",
+            "Vers le milieu",
+            "Plutôt à la fin",
+            "Cela varie",
+            "Pas de difficulté particulière"
+          ]
+        },
+        {
+          "id": "supports",
+          "text": "Quels moments t’aident le plus ?",
+          "type": "multi",
+          "options": [
+            "Chercher seul",
+            "Voir un exemple expliqué",
+            "Recevoir un indice progressif",
+            "Comparer des démarches",
+            "Discuter une erreur",
+            "M’entraîner sur plusieurs questions",
+            "Faire un bilan sans aide",
+            "Je ne sais pas encore"
+          ],
+          "hint": "Trois choix maximum, uniquement pour les moments vécus.",
+          "max": 3
+        },
+        {
+          "id": "booklet",
+          "text": "Comment utilises-tu ton livret ?",
+          "type": "radio",
+          "options": [
+            "Pendant la séance seulement",
+            "Pendant et entre les séances",
+            "Surtout entre les séances",
+            "Je le consulte difficilement",
+            "Je ne sais pas bien comment l’utiliser"
+          ]
+        },
+        {
+          "id": "format-feedback",
+          "text": "Une chose à conserver et une chose à améliorer dans les séances ?",
+          "type": "text",
+          "options": null,
+          "hint": "Tu peux parler des explications, du livret, des échanges, du temps de recherche ou de la pause."
+        }
+      ]
+    },
+    {
+      "id": "growth",
+      "title": "Ce qui change pour moi",
+      "intro": "Une impression compte ; un exemple aide à la comprendre. Il est aussi possible de ne pas encore voir de changement.",
+      "questions": [
+        {
+          "id": "confidence-now",
+          "text": "Aujourd’hui, comment te sens-tu pour commencer un exercice sur les notions travaillées ?",
+          "type": "radio",
+          "options": [
+            "Très peu confiant",
+            "Plutôt peu confiant",
+            "Cela dépend de la notion",
+            "Plutôt confiant",
+            "Très confiant",
+            "Je préfère ne pas répondre"
+          ]
+        },
+        {
+          "id": "confidence-change",
+          "text": "Depuis le début de l’accompagnement, ta confiance te semble…",
+          "type": "radio",
+          "options": [
+            "Moins forte",
+            "À peu près la même",
+            "Plus forte",
+            "Très variable",
+            "Je ne sais pas encore"
+          ]
+        },
+        {
+          "id": "autonomy-change",
+          "text": "Par rapport au début, quelle aide te semble nécessaire pour un exercice semblable ?",
+          "type": "radio",
+          "options": [
+            "Davantage d’aide",
+            "À peu près autant d’aide",
+            "Moins d’aide",
+            "Cela dépend des notions",
+            "Je ne peux pas comparer"
+          ]
+        },
+        {
+          "id": "progress-example",
+          "text": "Une réussite récente dont tu peux parler ?",
+          "type": "text",
+          "options": null,
+          "hint": "Indique si possible le code de l’exercice, ce que tu as réussi et si tu étais seul ou aidé. « Pas encore identifié » convient."
+        },
+        {
+          "id": "persistent",
+          "text": "Une difficulté que tu aimerais encore comprendre ?",
+          "type": "text",
+          "options": null,
+          "hint": "Précise le passage qui te bloque plutôt que le nom de tout un chapitre."
+        },
+        {
+          "id": "transfer",
+          "text": "As-tu réutilisé une méthode des séances au collège ou au lycée ?",
+          "type": "radio",
+          "options": [
+            "Oui, seul",
+            "Oui, avec une aide",
+            "J’ai essayé, mais cela reste difficile",
+            "Pas encore eu l’occasion",
+            "Je ne sais pas"
+          ]
+        },
+        {
+          "id": "transfer-example",
+          "text": "Si tu as essayé, dans quelle situation ?",
+          "type": "text",
+          "options": null,
+          "hint": "Facultatif. Un exercice en classe ou à la maison suffit ; aucune note scolaire n’est demandée."
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "title": "Mes deux prochains pas",
+      "intro": "Choisis au plus deux priorités. Un petit objectif précis sera plus facile à vérifier.",
+      "questions": [
+        {
+          "id": "priorities",
+          "text": "Sur quoi souhaites-tu concentrer la suite ?",
+          "type": "multi",
+          "options": [
+            "Comprendre une notion travaillée",
+            "Choisir la bonne méthode",
+            "Calculer avec plus de sûreté",
+            "Expliquer et rédiger",
+            "Vérifier mes réponses",
+            "Réussir sans modèle",
+            "Mieux organiser mes reprises",
+            "Poser mes questions",
+            "Approfondir une notion déjà travaillée"
+          ],
+          "hint": "Deux priorités maximum.",
+          "max": 2
+        },
+        {
+          "id": "target-topic",
+          "text": "Quelle notion ou quel exercice voudrais-tu reprendre ou approfondir ?",
+          "type": "text"
+        },
+        {
+          "id": "teacher-help",
+          "text": "Quelle aide précise attends-tu du professeur ?",
+          "type": "text",
+          "options": null,
+          "hint": "Par exemple : un autre exemple, un indice, plus de temps, une question plus exigeante."
+        },
+        {
+          "id": "commitment",
+          "text": "Quelle petite action réaliste choisis-tu avant la prochaine séance ?",
+          "type": "text",
+          "options": null,
+          "hint": "Exemple : refaire une question de fractions sans regarder, puis vérifier mes étapes."
+        },
+        {
+          "id": "when",
+          "text": "Quand pourrais-tu faire cette action ?",
+          "type": "text",
+          "options": null,
+          "hint": "Un moment précis ou une fréquence réaliste."
+        },
+        {
+          "id": "support-needed",
+          "text": "De quoi aurais-tu besoin pour y arriver ?",
+          "type": "text",
+          "options": null,
+          "hint": "Indique aussi un obstacle possible. Facultatif."
+        },
+        {
+          "id": "free",
+          "text": "Y a-t-il quelque chose d’important que tu souhaites ajouter ?",
+          "type": "text",
+          "options": null,
+          "hint": "Remarque, attente ou sujet que tu préfères expliquer à l’oral. Facultatif."
+        }
+      ]
+    }
+  ],
+  "mastery": {
+    "start": "Je ne sais pas encore commencer",
+    "help": "J’y arrive avec une aide",
+    "alone": "J’y arrive seul sur un exercice proche",
+    "explain": "J’y arrive seul et je peux expliquer et vérifier",
+    "unsure": "Je ne sais pas me situer",
+    "notworked": "Cette compétence n’a pas été travaillée"
+  },
+  "results": {
+    "success": "Réussi et justifié",
+    "partial": "Partiel",
+    "retry": "À reprendre",
+    "unevaluated": "Travaillé, non évalué"
+  }
+}
