@@ -5,10 +5,23 @@ import { BILAN_PROFILES } from '../../lib/espace/bilan-profiles';
 import { prisma } from '../../lib/prisma';
 import type { ExportEnvelope } from '../../lib/espace/export';
 
+// Comme le parcours historique, centrer la carte évite un déplacement de focus pendant le clic WebKit.
 async function choose(input: Locator) {
-  await input.locator('..').scrollIntoViewIfNeeded();
-  await input.check();
-  await expect(input).toBeChecked();
+  const label=input.locator('..');
+  await label.evaluate(async element=>{
+    element.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});
+    let previous='', stable=0;
+    for(let frame=0;frame<120;frame++) {
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      const r=element.getBoundingClientRect();
+      const current=[r.top,r.left,r.width,r.height].join(',');
+      stable=current===previous && r.top>=0 && r.bottom<=innerHeight ? stable+1 : 0;
+      if(stable>=3) return;
+      previous=current;
+    }
+    throw new Error('Choice card did not settle inside viewport');
+  });
+  await label.click(); await expect(input).toBeChecked();
 }
 async function transmit(page: Page) {
   await goStep(page, 7);
