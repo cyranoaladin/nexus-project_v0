@@ -195,3 +195,36 @@ resolved by any command available today. It is, however, **empirically confirmed
 current or near-term `prisma migrate deploy`**, so it does not need to hold up this PR or any other
 in-flight work. It closes only via the Option B baseline, after an explicit schema freeze the
 owner calls.
+
+## Update 2026-10-07 — KEEP_GUARDED_PLUS_FORWARD_RECONCILIATION (`KNOWN_BOUNDED_LEGACY_DIVERGENCE=1`)
+
+Owner decision (2026-10-07): the unguarded 418-byte production body must **not** be restored into
+the executable tree — doing so breaks any from-empty rebuild (the historical `ALTER TABLE
+maths_progress` runs before the table is created by `20260501000000`). The historical migration
+`20260425113000_add_maths_progress_track` stays **byte-identical** in Git (guarded,
+`f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893`); production keeps its applied
+checksum (`26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4`). The divergence count
+is **exactly one** and is now declared and machine-enforced:
+
+- **Forward-only reconciliation**: `prisma/migrations/20261007120000_reconcile_maths_progress_track`
+  runs after the table exists; fails closed if the table is absent; adds `track` only if missing
+  (canonical `AcademicTrack NOT NULL DEFAULT 'EDS_GENERALE'`); otherwise asserts type, nullability,
+  default and the two canonical indexes; non-destructive; idempotent.
+- **Machine-readable exception**: `security/migration-checksum-exceptions.json` (single bounded
+  tuple, provenance of both bodies, cause, expected final-schema fingerprint
+  `b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9`, owner, tracking issue,
+  remediation deadline **2026-11-07**, `blocksGoLive: false`).
+- **Guard**: `scripts/db/verify-migration-checksum-exceptions.mjs` fails closed on any other
+  divergent migration, any checksum mutation, a missing historical/evidence/catalog file, or a
+  non-canonical live schema. Wired into the governance lane
+  (`__tests__/governance/migration-checksum-exceptions.test.js`, `npm run test:governance`) and into
+  `scripts/db/preflight-2026-10-go-live.sh` (legacy mode, read-only DB checks).
+- **Evidence (out of the active migrations tree)**: the exact production body is preserved at
+  `docs/migrations/legacy-divergence/20260425113000_add_maths_progress_track.prod-applied.sql`
+  and the canonical `maths_progress` catalog at
+  `docs/migrations/legacy-divergence/maths_progress.canonical-catalog.txt` (38 objects).
+
+Verified 2026-10-07 against the real production `_prisma_migrations` journal: the **only** migration
+whose journal checksum differs from the Git tree body is this one tuple (guard `--journal` = PASS).
+The Option B squash/baseline remediation remains a separate, owner-scheduled workstream (deadline
+2026-11-07) and is deliberately not improvised in this convergence.

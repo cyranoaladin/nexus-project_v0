@@ -1,0 +1,27 @@
+{
+  "policy": "KNOWN_BOUNDED_LEGACY_DIVERGENCE",
+  "status": "KNOWN_BOUNDED_LEGACY_DIVERGENCE=1",
+  "description": "Registry of declared, bounded divergences between the Git-tracked body of an ALREADY-APPLIED production migration and the checksum recorded in production's _prisma_migrations journal. The historical migration is never edited, renamed or moved; each divergence is closed forward-only. The governance guard (scripts/db/verify-migration-checksum-exceptions.mjs) must FAIL CLOSED on any divergence not declared here, on any checksum mismatch (one-byte mutation), on a missing file, or on a non-canonical final schema.",
+  "exceptions": [
+    {
+      "migrationName": "20260425113000_add_maths_progress_track",
+      "repoChecksum": "f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893",
+      "productionChecksum": "26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4",
+      "repoBodyProvenance": "Git HEAD tree — guarded no-op variant (DO $$ IF to_regclass('public.maths_progress') IS NOT NULL ...), required so a from-empty rebuild stays green because public.maths_progress is only created later by 20260501000000_add_maths_progress.",
+      "productionBodyProvenance": "Unguarded 418-byte body actually executed in production on 2026-04-25 (git object ddf0d7111), preserved verbatim out of the active migrations tree.",
+      "productionBodyEvidence": "docs/migrations/legacy-divergence/20260425113000_add_maths_progress_track.prod-applied.sql",
+      "cause": "Historical inversion of the table-creation order: production applied the ADD COLUMN while public.maths_progress already existed, whereas the Git order only creates the table later; a guarded variant was introduced in-tree afterwards to keep from-empty rebuilds green, producing a checksum drift against the body actually applied.",
+      "forwardReconciliationMigration": "20261007120000_reconcile_maths_progress_track",
+      "expectedFinalSchema": {
+        "object": "public.maths_progress",
+        "catalogReference": "docs/migrations/legacy-divergence/maths_progress.canonical-catalog.txt",
+        "catalogSha256": "b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9",
+        "trackColumn": { "type": "AcademicTrack", "nullable": false, "default": "'EDS_GENERALE'::\"AcademicTrack\"" }
+      },
+      "owner": "abenrhouma",
+      "trackingIssue": "NEXUS-MIGRATION-DRIFT-maths_progress_track",
+      "remediationDeadline": "2026-11-07",
+      "blocksGoLive": false
+    }
+  ]
+}

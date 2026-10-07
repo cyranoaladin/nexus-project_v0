@@ -57,6 +57,21 @@ info "dernière migration appliquée" \
   "select coalesce(max(migration_name),'(aucune)') from _prisma_migrations where finished_at is not null and rolled_back_at is null"
 
 if [ "$MODE" = legacy ]; then
+  # -- KNOWN_BOUNDED_LEGACY_DIVERGENCE=1 : la migration 20260425113000_add_maths_progress_track
+  #    diverge entre l'arbre Git (corps gardé, f861…) et le journal de production
+  #    (corps non gardé réellement exécuté, 26c3…). Divergence unique, bornée et
+  #    déclarée dans security/migration-checksum-exceptions.json ; réconciliée
+  #    forward-only par 20261007120000_reconcile_maths_progress_track. La garde est
+  #    fermée : toute autre valeur de checksum, ou un maths_progress.track non
+  #    canonique, échoue. (Couverture « aucune autre migration divergente » :
+  #    scripts/db/verify-migration-checksum-exceptions.mjs --journal <journal exporté>.)
+  check 1 "maths_progress.track canonique (AcademicTrack, NOT NULL, défaut EDS_GENERALE)" \
+    "select count(*) from pg_attribute a join pg_type t on t.oid=a.atttypid left join pg_attrdef ad on ad.adrelid=a.attrelid and ad.adnum=a.attnum where a.attrelid='public.maths_progress'::regclass and a.attname='track' and t.typname='AcademicTrack' and a.attnotnull and pg_get_expr(ad.adbin,ad.adrelid)='''EDS_GENERALE''::\"AcademicTrack\"'"
+  check 2 "maths_progress: index canoniques track présents (userId_level_track_key + track_idx)" \
+    "select count(*) from pg_indexes where schemaname='public' and indexname in ('maths_progress_userId_level_track_key','maths_progress_track_idx')"
+  check 0 "journal: 20260425113000 ne diverge que selon l'exception bornée déclarée" \
+    "select count(*) from _prisma_migrations where migration_name='20260425113000_add_maths_progress_track' and checksum not in ('26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4','f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893')"
+
   # -- Objets du lot déjà présents = application manuelle antérieure : deploy
   #    échouerait « already exists ». Doit être 0 AVANT migration.
   check 0 "aucune table du lot déjà présente (application manuelle)" \
