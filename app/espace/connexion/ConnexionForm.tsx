@@ -28,8 +28,8 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
     try {
       const result = await signIn('espace', { username, secret, redirect: false });
       if (!result || result.error) {
-        // Message volontairement unique : on ne dit pas si c'est l'identifiant, le code, ou une limite d'essais.
-        setError('Identifiant ou code incorrect. Après plusieurs essais, patientez quelques minutes.');
+        // Message volontairement unique : on ne distingue pas identifiant, secret, rôle du compte ou limite d’essais.
+        setError('Identifiant, code personnel ou mot de passe incorrect. Après plusieurs essais, patientez quelques minutes.');
         return;
       }
       router.replace(safeDestination(callbackUrl));
@@ -79,7 +79,7 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
 
         <div>
           <label htmlFor="secret" className="text-sm font-medium text-neutral-200">
-            Code personnel
+            Code personnel ou mot de passe
           </label>
           <div className="relative">
             <input
@@ -88,7 +88,7 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
               data-testid="input-secret"
               type={showSecret ? 'text' : 'password'}
               autoComplete="current-password"
-              autoCapitalize="characters"
+              autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
               required
@@ -101,14 +101,17 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
               type="button"
               disabled={!ready}
               onClick={() => setShowSecret((v) => !v)}
-              aria-label={showSecret ? 'Masquer le code' : 'Afficher le code'}
+              aria-label={showSecret ? 'Masquer le code ou le mot de passe' : 'Afficher le code ou le mot de passe'}
               aria-pressed={showSecret}
               className="absolute right-1 top-1/2 -translate-y-1/2 rounded-md p-2 text-neutral-300 hover:text-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent"
             >
               {showSecret ? <EyeOff className="h-5 w-5" aria-hidden="true" /> : <Eye className="h-5 w-5" aria-hidden="true" />}
             </button>
           </div>
-          <p className="mt-2 text-xs text-neutral-400">Majuscules ou minuscules, avec ou sans tiret : peu importe.</p>
+          <div className="mt-2 space-y-1 text-xs text-neutral-400">
+            <p>Élèves : pour le code personnel, majuscules, minuscules et tirets sont indifférents.</p>
+            <p>Enseignants : saisissez votre mot de passe exact, en respectant majuscules, minuscules, espaces et tirets.</p>
+          </div>
         </div>
 
         {credentialChanged && !error && (
@@ -134,9 +137,10 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-neutral-400">
-        Code oublié ou perdu ? Demande-en un nouveau à ton enseignant.
-      </p>
+      <div className="mt-6 space-y-2 text-center text-sm text-neutral-400">
+        <p>Élèves : code oublié ou perdu ? Demandez-en un nouveau à votre enseignant.</p>
+        <p>Enseignants : pour un mot de passe oublié, contactez l’administrateur.</p>
+      </div>
     </div>
   );
 }
