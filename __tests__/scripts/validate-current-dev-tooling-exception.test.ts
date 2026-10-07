@@ -26,6 +26,14 @@ function fixture() {
       'node_modules/micromatch': {
         version: '4.0.8', dev: true, dependencies: { braces: '^3.0.3' },
       },
+      'node_modules/http-cache-semantics': {
+        version: '4.2.0', dev: true, optional: true,
+        integrity: 'sha512-http-cache-fixture',
+      },
+      'node_modules/make-fetch-happen': {
+        version: '14.0.3', dev: true,
+        dependencies: { 'http-cache-semantics': '^4.1.1' },
+      },
     },
   };
   const lockText = JSON.stringify(lock);
@@ -41,9 +49,10 @@ function fixture() {
     expiresAt: '2026-10-10T00:00:00Z',
     maximumExpiry: '2026-10-10T00:00:00Z',
     maximumDurationDays: 7,
-    fullAuditImpactedPackageCount: 2,
+    fullAuditImpactedPackageCount: 3,
     fullAuditImpactSha256: createHash('sha256').update(JSON.stringify([
       ['braces', ['node_modules/braces']],
+      ['http-cache-semantics', ['node_modules/http-cache-semantics']],
       ['micromatch', ['node_modules/micromatch']],
     ])).digest('hex'),
     lockfileSha256: digest,
@@ -58,6 +67,17 @@ function fixture() {
           'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N',
         ],
         integrity: 'sha512-braces-fixture',
+      },
+      {
+        id: 'GHSA-ch52-4w7c-c8xp', package: 'http-cache-semantics',
+        version: '4.2.0', severity: 'HIGH',
+        lockPaths: ['node_modules/http-cache-semantics'],
+        parentPaths: ['node_modules/make-fetch-happen'],
+        cvssVectors: [
+          'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N',
+          'CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N',
+        ],
+        integrity: 'sha512-http-cache-fixture',
       },
     ],
     revocationConditions: [
@@ -151,7 +171,7 @@ function fullAuditFixture(current: ReturnType<typeof fixture>) {
   return {
     auditReportVersion: 2,
     metadata: { vulnerabilities: {
-      info: 0, low: 0, moderate: 0, high: 2, critical: 0, total: 2,
+      info: 0, low: 0, moderate: 0, high: 3, critical: 0, total: 3,
     } },
     vulnerabilities: {
       braces: { name: 'braces', severity: 'high', via: [{
@@ -160,6 +180,12 @@ function fullAuditFixture(current: ReturnType<typeof fixture>) {
         range: '<=3.0.3', cvss: { score: 7.5,
           vectorString: current.data.policy.advisories[0].cvssVectors[0] },
       }], nodes: ['node_modules/braces'] },
+      'http-cache-semantics': { name: 'http-cache-semantics', severity: 'high', via: [{
+        name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
+        url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
+        range: '<=4.2.0', cvss: { score: 7.5,
+          vectorString: current.data.policy.advisories[1].cvssVectors[0] },
+      }], nodes: ['node_modules/http-cache-semantics'] },
       micromatch: { name: 'micromatch', severity: 'high', via: ['braces'],
         nodes: ['node_modules/micromatch'] },
     },
@@ -177,7 +203,57 @@ function runFullAudit(current: ReturnType<typeof fixture>, report: object) {
 }
 
 describe('full npm audit transitive exception', () => {
-  it('allows only dev-only transitive impacts of the exact single root advisory', () => {
+  it('tolère des findings low/moderate sous le seuil canonique, hautes inchangées', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['some-low'] = {
+        name: 'some-low', severity: 'low',
+        via: [{ name: 'some-low', dependency: 'some-low', severity: 'low', url: 'https://github.com/advisories/GHSA-low1-low1-low1', range: '<1.0.1' }],
+        nodes: ['node_modules/some-low'],
+      };
+      (audit.vulnerabilities as Record<string, unknown>)['some-moderate'] = {
+        name: 'some-moderate', severity: 'moderate', via: ['some-low'], nodes: ['node_modules/some-moderate'],
+      };
+      audit.metadata.vulnerabilities.low = 1;
+      audit.metadata.vulnerabilities.moderate = 1;
+      audit.metadata.vulnerabilities.total = 5;
+      expect(runFullAudit(current, audit).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('ignore une arête via pointant vers un finding sous le seuil (jamais suivie)', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['sub-threshold'] = {
+        name: 'sub-threshold', severity: 'moderate',
+        via: [{ name: 'sub-threshold', dependency: 'sub-threshold', severity: 'moderate', url: 'https://github.com/advisories/GHSA-mod1-mod1-mod1', range: '<2' }],
+        nodes: ['node_modules/sub-threshold'],
+      };
+      audit.vulnerabilities.micromatch.via = ['braces', 'sub-threshold'];
+      audit.metadata.vulnerabilities.moderate = 1;
+      audit.metadata.vulnerabilities.total = 4;
+      expect(runFullAudit(current, audit).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('refuse toujours tout finding critical, même accompagné de bruit sous-seuil', () => {
+    const current = fixture();
+    try {
+      const audit = fullAuditFixture(current);
+      (audit.vulnerabilities as Record<string, unknown>)['bad-critical'] = {
+        name: 'bad-critical', severity: 'critical',
+        via: [{ name: 'bad-critical', dependency: 'bad-critical', severity: 'critical', url: 'https://github.com/advisories/GHSA-crit-crit-crit', range: '*' }],
+        nodes: ['node_modules/bad-critical'],
+      };
+      audit.metadata.vulnerabilities.critical = 1;
+      audit.metadata.vulnerabilities.total = 4;
+      expect(runFullAudit(current, audit).status).not.toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('allows only dev-only transitive impacts of the exact two root advisories', () => {
     const current = fixture();
     try {
       expect(runFullAudit(current, fullAuditFixture(current)).status).toBe(0);
@@ -204,21 +280,15 @@ describe('full npm audit transitive exception', () => {
     ['dangling via', (audit: any) => {
       audit.vulnerabilities.micromatch.via = ['missing-package'];
     }],
-    ['resurrected advisory already fixed upstream (http-cache-semantics)', (audit: any) => {
-      audit.vulnerabilities['http-cache-semantics'] = {
-        name: 'http-cache-semantics', severity: 'high', via: [{
-          name: 'http-cache-semantics', dependency: 'http-cache-semantics', severity: 'high',
-          url: 'https://github.com/advisories/GHSA-ch52-4w7c-c8xp',
-          range: '<=4.2.0', cvss: { score: 7.5,
-            vectorString: 'CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N' },
-        }], nodes: ['node_modules/http-cache-semantics'] };
-      audit.metadata.vulnerabilities.high = 3;
-      audit.metadata.vulnerabilities.total = 3;
+    ['missing second advisory', (audit: any) => {
+      delete audit.vulnerabilities['http-cache-semantics'];
+      audit.metadata.vulnerabilities.high = 2;
+      audit.metadata.vulnerabilities.total = 2;
     }],
     ['truncated transitive impacts with coherent counters', (audit: any) => {
       delete audit.vulnerabilities.micromatch;
-      audit.metadata.vulnerabilities.high = 1;
-      audit.metadata.vulnerabilities.total = 1;
+      audit.metadata.vulnerabilities.high = 2;
+      audit.metadata.vulnerabilities.total = 2;
     }],
   ] as const) {
     it(`refuses ${name}`, () => {
@@ -270,7 +340,7 @@ describe('clean OSV report proof', () => {
 });
 
 describe('exact temporary OSV development-tooling exception', () => {
-  it('accepts only the exact single advisory with three independent runtime absence proofs', () => {
+  it('accepts only the exact two advisories with three independent runtime absence proofs', () => {
     const current = fixture();
     try {
       const result = run(current);
@@ -280,6 +350,48 @@ describe('exact temporary OSV development-tooling exception', () => {
       rmSync(current.directory, { recursive: true, force: true });
     }
   });
+
+  it('tolère une entrée OSV sous le seuil (LOW/MODERATE) sans épinglage', () => {
+    const current = fixture();
+    try {
+      current.data.osv.results[0].packages.push({
+        package: { name: 'some-low', version: '1.0.0', ecosystem: 'npm' },
+        vulnerabilities: [{ id: 'GHSA-low1-low1-low1',
+          database_specific: { severity: 'LOW' }, severity: [] }],
+      });
+      current.save();
+      const result = run(current);
+      expect(result.status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  it('tolère un advisory LOW dans l\u2019audit de production', () => {
+    const current = fixture();
+    try {
+      Object.assign(current.data.productionAudit, {
+        vulnerabilities: { katex: { name: 'katex', severity: 'low', via: [], nodes: ['node_modules/katex'] } },
+        metadata: { vulnerabilities: { info: 0, low: 1, moderate: 0, high: 0, critical: 0, total: 1 } },
+      });
+      current.save();
+      expect(run(current).status).toBe(0);
+    } finally { rmSync(current.directory, { recursive: true, force: true }); }
+  });
+
+  for (const severity of ['moderate', 'high', 'critical'] as const) {
+    it(`refuse un advisory ${severity} dans l\u2019audit de production`, () => {
+      const current = fixture();
+      try {
+        Object.assign(current.data.productionAudit, {
+          vulnerabilities: { bad: { name: 'bad', severity, via: [], nodes: ['node_modules/bad'] } },
+          metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0, total: 1, [severity]: 1 } },
+        });
+        current.save();
+        const result = run(current);
+        expect(result.status).not.toBe(0);
+        expect(result.stderr).toContain('PRODUCTION_AUDIT_NOT_GREEN');
+      } finally { rmSync(current.directory, { recursive: true, force: true }); }
+    });
+  }
 
   it('refuses an empty production tree as insufficient absence evidence', () => {
     const current = fixture();
@@ -378,17 +490,8 @@ describe('exact temporary OSV development-tooling exception', () => {
     {
       name: 'package physically present in standalone', code: 'RUNTIME_PRESENCE',
       mutate: ({ files }) => {
-        mkdirSync(join(files.standalone, 'node_modules/braces'), { recursive: true });
+        mkdirSync(join(files.standalone, 'node_modules/http-cache-semantics'), { recursive: true });
       },
-    },
-    {
-      name: 'OSV report resurrecting the fixed http-cache-semantics advisory',
-      code: 'ADDITIONAL_ADVISORY',
-      mutate: ({ data }) => { data.osv.results[0].packages.push({
-        package: { name: 'http-cache-semantics', version: '4.2.0', ecosystem: 'npm' },
-        vulnerabilities: [{ id: 'GHSA-ch52-4w7c-c8xp',
-          database_specific: { severity: 'HIGH' }, severity: [] }],
-      }); },
     },
     {
       name: 'artifact built for another SHA', code: 'ARTIFACT_PROVENANCE_MISMATCH',

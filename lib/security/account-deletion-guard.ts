@@ -25,6 +25,12 @@ import { ApiError } from '@/lib/api/errors';
 
 const RESTRICT_CONSTRAINT_LABELS: Readonly<Record<string, string>> = Object.freeze({
   account_security_events_userId_fkey: 'un historique de sécurité du compte',
+  espace_sessions_teacherId_fkey: 'des séances de l\'espace pédagogique qu\'il a animées',
+  espace_works_studentId_fkey: 'des travaux déposés dans l\'espace pédagogique',
+  espace_annotations_authorId_fkey: 'des annotations d\'enseignant dans l\'espace pédagogique',
+  espace_work_attachments_uploadedById_fkey: 'des pièces jointes de travaux de l\'espace pédagogique',
+  espace_legacy_links_studentId_fkey: 'des rattachements d\'historique POO le concernant',
+  espace_legacy_links_linkedById_fkey: 'des rattachements d\'historique POO qu\'il a effectués',
   subscriptions_studentId_fkey: 'un historique d\'abonnement',
   student_academic_enrollments_studentId_fkey: 'un historique d\'inscription académique',
   aria_learning_evidence_studentId_fkey: 'des preuves d\'apprentissage ARIA',

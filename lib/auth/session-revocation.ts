@@ -9,13 +9,15 @@ type SessionUserState = {
   role: string
   activatedAt: Date | null
   sessionVersion: number
+  /** Code personnel de l'espace pédagogique (présent = compte provisionné par un opérateur). */
+  pinHash?: string | null
 }
 
 export type SessionDatabase = {
   user: {
     findUnique(args: {
       where: { id: string }
-      select: { id: true; role: true; activatedAt: true; sessionVersion: true }
+      select: { id: true; role: true; activatedAt: true; sessionVersion: true; pinHash: true }
     }): Promise<SessionUserState | null>
     update(args: {
       where: { id: string }
@@ -90,11 +92,14 @@ export async function validateSessionToken(
   try {
     const user = await database.user.findUnique({
       where: { id: userId },
-      select: { id: true, role: true, activatedAt: true, sessionVersion: true },
+      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true },
     })
 
     if (!user || user.role !== role || user.sessionVersion !== sessionVersion) return null
-    if (isAccountActivationRequired(user.role, user.activatedAt)) return null
+    // L'activation FAMILIALE (lien d'activation, mot de passe) reste requise pour les sessions du flux email.
+    // Un compte qui n'a qu'un code personnel d'espace (pas de mot de passe) ne peut avoir obtenu sa session que
+    // par ce code : son activation familiale en attente n'a pas à bloquer l'espace, et n'est surtout pas consommée.
+    if (isAccountActivationRequired(user.role, user.activatedAt) && !(user.role === 'ELEVE' && user.pinHash)) return null
     return token
   } catch {
     recordSessionVerificationUnavailable()

@@ -49,6 +49,17 @@ it('returns unavailable without deleting or renewing cookies, then accepts the s
   expect((await recovered.json()).user.id).toBe('synthetic-parent-a');
 });
 
+// A session read must never write the session cookie back. When such a
+// response lands after POST /api/auth/signout deleted the cookie, it would
+// resurrect the session the user just closed (logout-session-resurrection.spec.ts).
+it('a valid session read never re-issues the session cookie', async () => {
+  lookup.mockResolvedValueOnce(user());
+  const result = await GET(await request());
+  expect(result.status).toBe(200);
+  expect((await result.json()).user.id).toBe('synthetic-parent-a');
+  expect(result.headers.getSetCookie().filter(value => value.startsWith(`${cookieName}`))).toEqual([]);
+});
+
 it.each([null, user('synthetic-parent-a', 1)])('preserves positive revocation and normal cookie retirement', async row => {
   lookup.mockResolvedValueOnce(row);
   const result = await GET(await request());

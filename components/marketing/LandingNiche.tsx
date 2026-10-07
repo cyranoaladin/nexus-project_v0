@@ -129,8 +129,11 @@ export function LandingNiche({
 
   return (
     <main className="luxury min-h-screen bg-lux-paper" id="main-content">
+      {/* JSON-LD statique construit par JSON.stringify sur des données du dépôt (aucune entrée utilisateur) — même motif que app/layout.tsx. */}
+      {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {faq.length > 0 ? (
+        // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml — même justification : JSON-LD FAQ statique.
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       ) : null}
       <CorporateNavbar />

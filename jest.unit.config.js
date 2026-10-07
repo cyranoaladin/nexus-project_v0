@@ -51,6 +51,8 @@ const customJestConfig = {
     // running these here too would either fail closed (no
     // CORE_V2_DATABASE_URL in this job) or duplicate coverage pointlessly.
     '<rootDir>/__tests__/core-v2/',
+    // Voie lourde déterministe (un seul worker) : voir jest.heavy.config.js
+    '<rootDir>/__tests__/architecture/npc-storage-contract\\.test\\.ts$',
   ],
 };
 

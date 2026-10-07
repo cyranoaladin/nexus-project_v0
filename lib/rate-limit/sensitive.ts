@@ -86,6 +86,13 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'candidate-profile-create': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'candidate-profile-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'candidate-profile-update': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
+  // Espace pédagogique Terminale.
+  'espace-login': { ipPreset: 'espaceLoginIp', identityPreset: 'authIdentity' },
+  'espace-autosave': { ipPreset: 'espaceSaveIp', identityPreset: 'espaceSaveIdentity' },
+  'espace-upload': { ipPreset: 'writeIp', identityPreset: 'espaceUploadIdentity' },
+  'espace-teacher-write': { ipPreset: 'writeIp', identityPreset: 'espaceTeacherWriteIdentity' },
+  'espace-credential': { ipPreset: 'writeIp', identityPreset: 'espaceCredentialIdentity' },
+  'espace-credential-reset': { ipPreset: 'writeIp', identityPreset: 'espaceCredentialResetIdentity' },
 } as const satisfies Record<string, SensitivePolicy>
 
 export type SensitiveRateLimitScope = keyof typeof SENSITIVE_RATE_LIMIT_POLICIES

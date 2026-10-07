@@ -1,9 +1,10 @@
 /** @jest-environment node */
-let auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow;
+let auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow, executionTrackedSpecs, DOCUMENTED_EXCLUSIONS;
 let mkdtempSync, mkdirSync, writeFileSync, rmSync, tmpdir, path;
 beforeAll(async () => {
-  ({ auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow } =
+  ({ auditExecutionEvidence, sealReport, INVOCATIONS, readEvidenceDirectoryOrThrow, executionTrackedSpecs } =
     await import('../../scripts/testing/e2e-execution-evidence.mjs'));
+  ({ DOCUMENTED_EXCLUSIONS } = await import('../../scripts/testing/e2e-ownership.mjs'));
   ({ mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs'));
   ({ tmpdir } = await import('node:os'));
   ({ default: path } = await import('node:path'));
@@ -231,5 +232,26 @@ describe('readEvidenceDirectoryOrThrow — partial-rerun attempt mismatch (obser
     writeFileSync(path.join(nested, 'auth-chromium.evidence.json'), JSON.stringify(sealed));
     const result = readEvidenceDirectoryOrThrow(dir);
     expect(result).toEqual([sealed]);
+  });
+});
+
+describe('execution inventory and documented manual-lane exclusions', () => {
+  test('drops only the exact documented exclusions from the specs CI must execute', () => {
+    const files = ['e2e/auth/a.spec.ts', 'e2e/prod/espace-prod-smoke.spec.ts', 'e2e/fallback/fallback-offline.spec.ts', 'e2e/helpers/x.ts', ''];
+    expect(executionTrackedSpecs(files)).toEqual(['e2e/auth/a.spec.ts']);
+  });
+
+  test('a new spec next to an exclusion is still required (exact files, never prefixes)', () => {
+    expect(executionTrackedSpecs(['e2e/prod/espace-prod-new.spec.ts', 'e2e/fallback/other.spec.ts']))
+      .toEqual(['e2e/fallback/other.spec.ts', 'e2e/prod/espace-prod-new.spec.ts']);
+  });
+
+  test('every documented exclusion is a tracked spec of the manual lane', async () => {
+    const { execFileSync } = await import('node:child_process');
+    const tracked = execFileSync('git', ['ls-files', 'e2e'], { encoding: 'utf8' }).split('\n');
+    for (const file of DOCUMENTED_EXCLUSIONS) {
+      expect(tracked).toContain(file);
+      expect(file).toMatch(/^e2e\/(prod|fallback)\//);
+    }
   });
 });

@@ -36,6 +36,17 @@ const authenticatedMiddleware = auth((req) => {
     });
   }
 
+  // Espace pédagogique Terminale : tout est privé sauf la page de connexion.
+  // Contrôle grossier ici (session présente) ; les rôles et les rattachements
+  // sont vérifiés côté serveur dans chaque page et chaque route d'API.
+  const isEspacePath = pathname === '/espace' || pathname.startsWith('/espace/');
+  const isEspaceLogin = pathname === '/espace/connexion' || pathname.startsWith('/espace/connexion/');
+  if (isEspacePath && !isEspaceLogin && !isLoggedIn) {
+    const loginUrl = new URL('/espace/connexion', req.nextUrl);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
   const isProtectedPath =
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/admin') ||
@@ -102,7 +113,7 @@ const authenticatedMiddleware = auth((req) => {
     }
   }
 
-  if (isProtectedPath) {
+  if (isProtectedPath || isEspacePath) {
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
   }
 

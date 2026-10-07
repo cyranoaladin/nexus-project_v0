@@ -21,7 +21,8 @@ export default defineConfig({
   // (desktop 1366x768, mobile 390x844, a11y 1440x900, smoke), avec leurs viewports,
   // credentials et greps dedies (@visual, @a11y).
   // La voie generique Playwright exclut explicitement ARIA pour eviter les collisions.
-  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**'],
+  // prod/ et fallback/ ont leur propre configuration (playwright.prod-smoke.config.ts, playwright.fallback.config.ts).
+  testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**', '**/prod/**', '**/fallback/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,

@@ -12,6 +12,10 @@ const nextConfig = {
       './data/bilans/cps/*.yaml',
       './data/bilans/reviews/*.review.yaml',
       './content/bilans/prompts/**/*.md',
+      // Espace pédagogique : harnais Python du TP POO, lu par fs côté serveur puis envoyé au navigateur.
+      './content/espace/nsi-poo/runner.py',
+      './content/espace/nsi-structures-lineaires/runner.py',
+      './content/espace/nsi-recursivite/runner.py',
       './app/fonts/Fraunces-Variable.woff2',
       './app/fonts/DMSans-Variable.woff2',
       './lib/bilans/render/pdf-text-extraction-child.mjs',
