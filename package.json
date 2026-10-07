@@ -225,7 +225,7 @@
     "framer-motion": "^11.18.2",
     "js-yaml": "^4.1.1",
     "jsonwebtoken": "^9.0.2",
-    "katex": "^0.16.28",
+    "katex": "0.18.2",
     "lucide-react": "^0.536.0",
     "mafs": "^0.21.0",
     "mathlive": "^0.110.0",
@@ -325,6 +325,7 @@
     "ws": "8.21.0",
     "fast-uri": "3.1.8",
     "ip-address": "10.7.2",
+    "katex": "0.18.2",
     "moment": "2.31.0"
   },
   "engines": {
