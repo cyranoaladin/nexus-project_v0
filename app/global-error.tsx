@@ -35,7 +35,7 @@ export default function GlobalError({
               >
                 Recharger la page
               </button>
-              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- global error boundary cannot use next/link (root layout crashed) */}
+              {/* Plain anchor on purpose: the global error boundary cannot use next/link (root layout crashed). */}
               <a
                 href="/"
                 className="rounded-lg border px-6 py-3 text-sm font-semibold transition min-h-[44px]"
