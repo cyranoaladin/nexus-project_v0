@@ -33,7 +33,11 @@ Après réception de la liste : rapprochement de comptes existants, dry-run `scr
 - Captures de validation conservées hors livraison publique dans `test-results/bilan/`.
 - Suite unitaire globale : 1 156 suites / 13 565 tests exécutés. Quatre suites ont signalé six écarts liés aux ajouts (comptage du catalogue, charte des pages protégées, collecte du scénario dédié). Les quatre suites ont été corrigées et rejouées : 154 tests réussis. Les 1 152 autres suites étaient vertes.
 - Scénario enseignant étendu : aperçu, consultation de la copie remise, rapport A4 et contraste des titres à l’écran/à l’impression ; réussi.
-- Build autonome et validation après bascule : à consigner après exécution finale.
+- Build autonome : réussi, ARTIFACT VALID, 655 fichiers statiques identiques source/standalone, absence de fuite runtime.
+- Vérification finale des suites corrigées et du contraste : cinq suites, 155 tests réussis.
+- Filtrage de la liste enseignant par attribution : échec reproduit, puis trois suites PostgreSQL rejouées, 17 tests réussis.
+- Après bascule : quatre scénarios Chromium réussis directement sur le domaine de production ; troisième sauvegardé/rechargé/transmis/verrouillé, seconde mobile, niveau interdit, élève non attribué, aperçu et rapport enseignant avec PDF et contraste.
+- Onze routes publiques/techniques, dont les huit pages publiques prioritaires, santé, connexion et ancien atelier POO : HTTP 200. Les deux nouvelles entrées anonymes redirigent vers la connexion (307).
 
 ## Déploiement et rollback
 
@@ -42,3 +46,11 @@ Le chantier part de `5f1bd5135`, dont le code applicatif est identique à la rel
 Sauvegarde PostgreSQL réalisée avant mutation. Le catalogue est synchronisé par l’outil officiel `provision.ts sync-activities --execute`, puis audité. Artefact construit dans un clone propre extérieur aux worktrees, avec Node 22.23.1. Bascule par `switch-release.sh` avec verrou, comparaison de la release attendue, audit du catalogue, contrôle des pointeurs et rollback automatique sur défaut de santé.
 
 Rollback applicatif : pointer, via le même script et avec la nouvelle release en valeur attendue, vers `e8a81cba0-espace-validation-scope-20261004T1827Z`. Les deux lignes de catalogue supplémentaires peuvent rester en base ; aucune suppression des réponses n’est nécessaire.
+
+## Livraison effective
+
+Release servie : `2d4b0c16d-espace-bilan-20261007T0958Z`. Source applicative : `2d4b0c16d42691075ab944f2336b5392c78959d0`. BUILD_ID : `IkM0QNithwWdw6krvH_Xx`. Les cinq identités de release concordent ; santé HTTP 200 après bascule et contrôle des pointeurs réussi. Catalogue de sept activités audité sans écart.
+
+Quatre comptes techniques dédiés, affectés uniquement au groupe de validation exclu des effectifs réels, ont servi au test en ligne. Leurs codes ne sont jamais versionnés. Après validation, comptes désactivés et séances de test clôturées. Aucun travail réel d’élève n’a été créé pour ce test.
+
+Les pages sont livrées et testées ; l’ouverture nominative des bilans aux vrais élèves de troisième/seconde reste conditionnée à la réception de leur liste. Aucun compte historique n’a été affecté par supposition.
