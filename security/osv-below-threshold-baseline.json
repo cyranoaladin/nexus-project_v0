@@ -3,7 +3,7 @@
   "policy": "OSV_THRESHOLD_AWARE_FAIL_CLOSED",
   "description": "Exact, temporary baseline of OSV findings that are strictly below the canonical blocking threshold (--audit-level=high), strictly dev-only, absent from the production standalone artifact, with no published fix. Any finding not listed here, any HIGH/CRITICAL, any production-reachable finding, any published fix, any lockfile change, or an expired entry FAILS the gate (scripts/security/osv-threshold-gate.mjs). No wildcards, no advisory families.",
   "scanner": { "name": "osv-scanner", "version": "v1.9.0" },
-  "lockfileSha256": "60ee3efe712efdab225ca0f1111f1c069b274280016cff2c19f194cbbfb995d9",
+  "lockfileSha256": "dd482396486359246427c276b2b425161d82bdf433093c18ad6cbd0a06444c00",
   "owner": "abenrhouma",
   "trackingIssue": "NEXUS-OSV-BELOW-THRESHOLD-sprintf-js",
   "reviewDate": "2026-10-14",
@@ -33,7 +33,7 @@
         "sprintf-js@1.0.3"
       ],
       "productionReachable": false,
-      "artifactAbsenceProof": "Verified on the 214bb6f1 standalone build: 0 node_modules/sprintf-js directories under .next/standalone, 0 code references to 'sprintf-js' in the bundled server, and 0 sprintf-js components in the runtime CycloneDX SBOM (security/sbom/runtime.cdx.json).",
+      "artifactAbsenceProof": "Re-verified on the standalone build of the candidate pinned to this lockfile (next 15.5.27): 0 node_modules/sprintf-js directories under .next/standalone, 0 code references to sprintf-js in the bundled server, 0 sprintf-js components in the runtime CycloneDX SBOM (security/sbom/runtime.cdx.json).",
       "userControlledFormatString": false,
       "reachabilityRationale": "sprintf-js is loaded only by argparse's help/usage text formatting, which runs inside Jest's coverage tooling at test time. It is never imported by the application, never present in the .next/standalone artifact, and never receives a user-controlled format string (argparse formats its own internal templates).",
       "compensatingControls": [

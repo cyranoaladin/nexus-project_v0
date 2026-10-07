@@ -229,7 +229,7 @@
     "lucide-react": "^0.536.0",
     "mafs": "^0.21.0",
     "mathlive": "^0.110.0",
-    "next": "15.5.25",
+    "next": "15.5.27",
     "next-auth": "5.0.0-beta.32",
     "nodemailer9": "npm:nodemailer@10.0.13",
     "openai": "^4.104.0",
