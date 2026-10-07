@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "description": "Versioned allowlist of machine event codes that may cross the Pino privacy projector in the `event` field. Exact match only; any other value is omitted. Every code passed to a Pino logger call in app/ and lib/ must be declared here, and every declared code must still be emitted (bounded cardinality). See __tests__/lib/security/pino-log-privacy-event-codes.test.ts.",
+  "maxLength": 64,
+  "grammar": "^[A-Za-z][A-Za-z0-9]*(?:[._][A-Za-z0-9]+)*$",
+  "eventCodes": [
+    "A86_SCORE_JOB_COMPLETED",
+    "A86_SCORE_JOB_FAILED",
+    "A88_GENERATE_REPORT_JOB_COMPLETED",
+    "A88_GENERATE_REPORT_JOB_FAILED",
+    "A90_REPORT_MATERIALIZATION_CHECKSUM_INVALID",
+    "A90_REPORT_MATERIALIZATION_MISSING",
+    "A90_REPORT_PUBLIC_ARTIFACT_REJECTED",
+    "ARIA_TURN_RECOVERY_DRAIN_FAILED",
+    "ARIA_TURN_RECOVERY_DRAIN_METRICS",
+    "ARIA_TURN_RECOVERY_FAILED",
+    "ARIA_TURN_RECOVERY_PROCESSED",
+    "BILAN_OPENROUTER_CALL_COMPLETED",
+    "BILAN_OPENROUTER_CALL_FAILED",
+    "CORE_V2_ROUTE_UNEXPECTED_ERROR",
+    "EMAIL_OUTBOX_COMPLETED",
+    "EMAIL_OUTBOX_DELIVERY_FAILED",
+    "PASSWORD_RESET_PROCESSING_FAILED",
+    "account.password_change_failed",
+    "legacy_parent_pdf_failed",
+    "request"
+  ]
+}

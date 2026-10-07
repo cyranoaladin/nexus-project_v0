@@ -1,5 +1,11 @@
 import type { Logger, LogFn, LoggerOptions, Bindings, ChildLoggerOptions } from 'pino';
 import { serializeError, isSafeLogErrorName, isSafeLogErrorCode } from '@/lib/utils/serialize-error';
+import eventCodeRegistry from '@/lib/security/log-event-codes.json';
+
+/** Versioned allowlist of machine event codes; exact membership only, closed grammar, bounded length. */
+const eventCodeGrammar = new RegExp(eventCodeRegistry.grammar);
+const registeredEventCodes: ReadonlySet<string> = new Set(eventCodeRegistry.eventCodes.filter(
+  code => code.length <= eventCodeRegistry.maxLength && eventCodeGrammar.test(code)));
 
 const numericMetrics = new Set(['statusCode', 'duration', 'durationMs', 'elapsedMs', 'count', 'total', 'page', 'limit', 'offset', 'retryAfter', 'attempt', 'latencyMs', 'tokens', 'inputTokens', 'outputTokens', 'totalTokens', 'tokenCount', 'cost', 'costUsd', 'queueSize', 'bytes', 'size', 'records', 'successCount', 'failureCount', 'affectedRows', 'deletedCount', 'remainingCount', 'pid']);
 const booleanFlags = new Set(['success', 'allowed', 'retryable', 'duplicate', 'verified', 'enabled', 'active', 'created', 'completed', 'cancelled', 'degraded', 'runtimeVerified']);
@@ -7,7 +13,7 @@ const labels = new Set(['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE', 'PEND
 const labelFields = new Set(['role', 'userRole', 'env', 'status', 'state', 'category', 'event', 'operation', 'action', 'phase', 'reason', 'feature']);
 const methods = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']);
 const routeSegments = new Set(['api', 'v2', 'admin', 'users', 'aria', 'parent', 'children', 'student', 'sessions', 'book', 'cancel', 'next-best-action', 'resources', 'versions', 'content', 'conversations', 'messages', 'mastery', 'course', 'profile', 'practice', 'attempts', 'submit', 'correct', 'bilans', 'periodic', 'feedback', 'curriculum', 'chat', 'workshops', 'register', 'attendees', 'attendance', 'assistante', 'recent-activity', 'turns', 'internal', 'health', 'staff', 'auth', 'signup', 'activate', 'reset-password', 'signin']);
-const privateField = /password|token|secret|authorization|cookie|email|phone|telephone|firstname|lastname|fullname|address|(^|_)ip($|_)|dsn|body|payload|stack|cause|headers|api.?key/i;
+const privateField = /password|token|secret|authorization|cookie|email|phone|telephone|firstname|lastname|fullname|address|(^|_)ip($|_)|dsn|body|payload|stack|cause|headers|query|sql|api.?key/i;
 
 /** Routing vocabulary only: this never authorizes a route or exposes resource parameters. */
 export function logRouteTemplate(path: string): string {
@@ -30,6 +36,10 @@ export function projectLogRecord(input: unknown): Record<string, unknown> {
       if (key === 'path' || key === 'route') return logRouteTemplate(value);
       if (/Ids?$/.test(key) && /^[A-Za-z0-9_-]{1,128}$/.test(value)) return value;
       if (key === 'courseKey' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value)) return value;
+      if (key === 'event' && registeredEventCodes.has(value)) return value;
+      // Same closed vocabularies as serialize-error, plus the explicit non-Error marker of core-v2 routes.
+      if (key === 'errorKind' && (isSafeLogErrorName(value) || value === 'NonErrorThrown')) return value;
+      if (key === 'errorCode' && isSafeLogErrorCode(value)) return value;
       if (labelFields.has(key) && labels.has(value)) return value;
       if (key === 'err' || key === 'error' || key === 'exception') return serializeError(value);
       return undefined;
