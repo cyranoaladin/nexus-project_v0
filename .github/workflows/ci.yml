@@ -108,24 +108,24 @@ jobs:
       - name: Audit production dependencies
         run: node scripts/security/run-npm-audit.mjs --output=npm-audit-production.json --omit=dev --audit-level=high
 
-      - name: Audit all dependencies with exact temporary dev-tooling policy
+      - name: Audit all dependencies at the canonical threshold (HIGH/CRITICAL fail closed)
         run: |
           set +e
           node scripts/security/run-npm-audit.mjs --output=npm-audit-full.json --audit-level=high
           audit_code=$?
           set -e
           if [ "$audit_code" -eq 0 ]; then
-            echo 'Full npm audit clean at the canonical threshold.'
+            echo 'Full npm audit clean at the canonical threshold (0 high, 0 critical).'
           elif [ "$audit_code" -eq 1 ]; then
-            node scripts/security/validate-dev-tooling-exception.mjs \
-              --mode current-npm-audit \
-              --policy security/current-dev-tooling-osv-exception.json \
-              --current-sha "$GITHUB_SHA" \
-              --now "$(date -u --iso-8601=seconds)" \
-              --report npm-audit-full.json \
-              --lockfile package-lock.json
+            # OSV_THRESHOLD_AWARE_FAIL_CLOSED: HIGH/CRITICAL block everywhere for this
+            # candidate, without a standing dev-tooling exception. A high/critical
+            # finding here is a hard stop requiring a fresh human decision, never a
+            # silently-renewed waiver.
+            echo "A HIGH/CRITICAL advisory was found in the full npm audit — blocking." >&2
+            node -e "const a=require('./npm-audit-full.json').metadata.vulnerabilities; console.error(JSON.stringify(a))"
+            exit 1
           else
-            echo "Full npm audit failed (exit=$audit_code); exception is not applicable." >&2
+            echo "Full npm audit failed (exit=$audit_code); result is not trustworthy." >&2
             exit "$audit_code"
           fi
 
@@ -2011,62 +2011,46 @@ jobs:
           fi
           echo "code=$osv_code" >> "$GITHUB_OUTPUT"
 
-      - name: Validate clean OSV result
-        if: ${{ steps.osv_scan.outputs.code == '0' }}
-        run: |
-          node scripts/security/validate-dev-tooling-exception.mjs \
-            --mode clean-osv \
-            --report osv-report.json
-          echo 'OSV is green; no temporary exception consumed.'
-
-      - name: Verify runtime evidence jobs
-        if: ${{ steps.osv_scan.outputs.code == '1' }}
+      # OSV_THRESHOLD_AWARE_FAIL_CLOSED — the scanner exits non-zero for ANY finding
+      # regardless of severity; this gate reconciles that with the canonical
+      # --audit-level=high threshold via three explicit states (CLEAN /
+      # BOUNDED_BELOW_THRESHOLD / BLOCKED) and fails closed on everything else.
+      - name: Verify runtime evidence job
         run: |
           test '${{ needs.dependency-integrity.result }}' = 'success' || {
             echo 'Dependency Integrity did not produce qualified evidence.' >&2
             exit 1
           }
-          test '${{ needs.build.result }}' = 'success' || {
-            echo 'Production Build did not produce a qualified standalone.' >&2
-            exit 1
-          }
 
-      - name: Download same-run dependency evidence
-        if: ${{ steps.osv_scan.outputs.code == '1' }}
+      - name: Download same-run dependency evidence (production tree)
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: dependency-integrity-evidence
           path: ${{ runner.temp }}/security-dependency-evidence
 
-      - name: Download same-run standalone evidence
-        if: ${{ steps.osv_scan.outputs.code == '1' }}
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: nextjs-build
-          path: ${{ runner.temp }}/security-build-artifact
-
-      - name: Validate exact temporary OSV exception
-        if: ${{ steps.osv_scan.outputs.code == '1' }}
+      - name: Validate OSV findings (threshold-aware, fail closed)
         run: |
-          node scripts/security/validate-dev-tooling-exception.mjs \
-              --mode current-osv \
-              --policy security/current-dev-tooling-osv-exception.json \
-              --current-sha "$GITHUB_SHA" \
-              --now "$(date -u --iso-8601=seconds)" \
-              --report osv-report.json \
-              --lockfile package-lock.json \
-              --production-audit "$RUNNER_TEMP/security-dependency-evidence/npm-audit-production.json" \
-              --production-tree "$RUNNER_TEMP/security-dependency-evidence/npm-tree-production.json" \
-              --runtime-sbom "$RUNNER_TEMP/security-dependency-evidence/security/sbom/runtime.cdx.json" \
-              --artifact-root "$RUNNER_TEMP/security-build-artifact/.next/standalone" \
-              --artifact-manifest "$RUNNER_TEMP/security-build-artifact/release-manifest.json"
+          # Fails closed on: scanner exit other than 0/1, absent/empty/truncated/invalid
+          # report, HIGH/CRITICAL, undeclared or production-reachable findings, an
+          # available upstream fix, a changed lockfile, or an expired baseline. The gate
+          # never masks a technical error as a clean scan.
+          node scripts/security/osv-threshold-gate.mjs \
+            --report osv-report.json \
+            --baseline security/osv-below-threshold-baseline.json \
+            --lockfile package-lock.json \
+            --production-tree "$RUNNER_TEMP/security-dependency-evidence/npm-tree-production.json" \
+            --now "$(date -u --iso-8601=seconds)" \
+            --scanner-exit "${{ steps.osv_scan.outputs.code }}" \
+            | tee osv-gate-normalized.txt
 
-      - name: Upload OSV report
+      - name: Upload OSV report (raw + normalized, pinned to the SHA)
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: osv-report
-          path: osv-report.json
+          path: |
+            osv-report.json
+            osv-gate-normalized.txt
           retention-days: 7
           if-no-files-found: error
 

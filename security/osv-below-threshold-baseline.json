@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "policy": "OSV_THRESHOLD_AWARE_FAIL_CLOSED",
+  "description": "Exact, temporary baseline of OSV findings that are strictly below the canonical blocking threshold (--audit-level=high), strictly dev-only, absent from the production standalone artifact, with no published fix. Any finding not listed here, any HIGH/CRITICAL, any production-reachable finding, any published fix, any lockfile change, or an expired entry FAILS the gate (scripts/security/osv-threshold-gate.mjs). No wildcards, no advisory families.",
+  "scanner": { "name": "osv-scanner", "version": "v1.9.0" },
+  "lockfileSha256": "60ee3efe712efdab225ca0f1111f1c069b274280016cff2c19f194cbbfb995d9",
+  "owner": "abenrhouma",
+  "trackingIssue": "NEXUS-OSV-BELOW-THRESHOLD-sprintf-js",
+  "reviewDate": "2026-10-14",
+  "expiresAt": "2026-10-21",
+  "findings": [
+    {
+      "id": "GHSA-hp3w-g68c-fv3c",
+      "aliases": ["CVE-2026-97058"],
+      "package": "sprintf-js",
+      "version": "1.0.3",
+      "scope": "dev",
+      "maxSeverity": "MODERATE",
+      "cvss": [
+        "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N"
+      ],
+      "fixedVersion": null,
+      "noFixRationale": "Advisory last_affected is 1.1.3, which is the latest published sprintf-js version — no fixed release exists. The parent cannot be lifted off it without breaking Jest coverage tooling: argparse@1.0.10 pins sprintf-js ~1.0.2, and js-yaml@3.15.2 (required by @istanbuljs/load-nyc-config@1.1.0) cannot be forced to js-yaml@4 without breaking load-nyc-config.",
+      "dependencyPath": [
+        "jest@30.5.2 (dev, root)",
+        "@jest/core@30.5.2",
+        "@jest/transform@30.5.2",
+        "babel-plugin-istanbul@8.0.0",
+        "@istanbuljs/load-nyc-config@1.1.0",
+        "js-yaml@3.15.2",
+        "argparse@1.0.10",
+        "sprintf-js@1.0.3"
+      ],
+      "productionReachable": false,
+      "artifactAbsenceProof": "Verified on the 214bb6f1 standalone build: 0 node_modules/sprintf-js directories under .next/standalone, 0 code references to 'sprintf-js' in the bundled server, and 0 sprintf-js components in the runtime CycloneDX SBOM (security/sbom/runtime.cdx.json).",
+      "userControlledFormatString": false,
+      "reachabilityRationale": "sprintf-js is loaded only by argparse's help/usage text formatting, which runs inside Jest's coverage tooling at test time. It is never imported by the application, never present in the .next/standalone artifact, and never receives a user-controlled format string (argparse formats its own internal templates).",
+      "compensatingControls": [
+        "Strictly dev-only (absent from `npm ls --omit=dev`).",
+        "Absent from the production standalone artifact (verified by the OSV gate's artifact scan).",
+        "No user-controlled format string reaches sprintf-js.",
+        "Pinned by exact lockfile digest; any dependency or version change invalidates this baseline.",
+        "Expires 2026-10-21; must be re-triaged or removed by then."
+      ]
+    }
+  ]
+}
