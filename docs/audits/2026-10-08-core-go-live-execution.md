@@ -17,9 +17,10 @@ Vérifié le 8 octobre à 20:00–20:12 UTC :
 - GitGuardian natif NEUTRAL ; workflow scan en échec faute de secret, pas une détection.
   Présence de `GITGUARDIAN_API_KEY` vérifiée sans lecture de valeur : absent.
 - Copilot a relu ce SHA ; aucune approbation humaine valide d'abenrhouma sur ce SHA.
-- Production : release `d743d2fb1-espace-bilan-enrichissement-20261007`, processus
-  `nexus-prod` via launcher sous PM2 root, worker applicatif sous nexusapp, port 3001.
-  Le SHA complet servi reste à attester indépendamment du nom du dossier.
+- Production : manifeste de release rattaché au SHA
+  `d743d2fb10567eaabab5b4325743d108ff65010d`. La topologie et les identifiants
+  opérationnels restent dans les preuves privées. L'identité du processus
+  réellement servi reste à recouper au moment de la bascule.
 - Huit pages publiques, connexion et health : HTTP 200, mesures ponctuelles
   0,203–0,560 s. Ces mesures ne sont pas des percentiles ni une surveillance prolongée.
 
@@ -73,6 +74,29 @@ atomique et push fast-forward. Toute nouvelle tête exige nouvelle CI et approba
 - Restauration initiale : garde canonique migrations PASS, 110 appliquées,
   PRE_PENDING / PRODUCTION ; seule divergence bornée admise, 30 migrations
   legacy restantes. Aucune migration de cette session encore exécutée.
+- Après cette mesure initiale : sauvegarde chiffrée avec snapshot partagé entre
+  pg_dump et inventaire, restauration isolée, 121 comptages égaux, 337 contraintes,
+  429 index, 29 triggers et 110 entrées Prisma identiques. Seuls les trous de
+  numérotation physique des colonnes supprimées sont normalisés en rangs,
+  sans changer leur ordre ni ignorer leur type ou définition.
+- Sur cette restauration : 30 migrations appliquées, second passage sans
+  opération, postflight POST_APPLIED PASS, aucun comptage métier modifié,
+  aucune contrainte ni index invalide. Aucun changement de base production.
+- Core-v2 isolé : migrations puis second passage sans opération réussis.
+- Rôle limité isolé : lecture/DML autorisés après grants ; rôle admin, création
+  de base/rôle/schéma/table et écriture journal Prisma refusés. Règle HBA ciblée
+  prouvée nécessaire pour empêcher CONNECT hérité de PUBLIC vers une autre base.
+- CI du premier correctif : gate de sécurité documentaire en échec sur un alias
+  d'infrastructure dans ce rapport. Reproduit localement ; alias retiré.
+
+## Décisions humaines encore indispensables
+
+Le générateur de roster exécuté en lecture seule sur la restauration compte
+194 élèves historiques et aucun candidat portant les signaux contractuels
+2026/2027 requis. Aucun élève n'a été auto-approuvé. L'ADMIN initial et le roster
+réel restent à valider par le propriétaire avant la migration Core-v2.
+La révocation des anciens identifiants SMTP/PAT et le retrait des clés historiques
+restent à attester ; aucune valeur de secret n'est requise dans la conversation.
 
 ## Preuves privées et risques
 
