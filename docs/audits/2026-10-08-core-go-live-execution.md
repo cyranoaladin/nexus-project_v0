@@ -301,3 +301,11 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - RED : deux échecs réels de résolution retrieval/prompt, deux échecs de refus niveau/voie, deux actions UI indûment actives. GREEN : 6 tests alias/prompt ; 16 tests Core purs dont projection ; 46 tests Core sur une base de test neuve et isolée ; 87 tests ciblés UI/bouton/alias ; 39 contrôles de frontière Core. Lint et typecheck sans erreur.
 - Borne de lancement sans RAG : droits explicitement limités aux seuls cours non-RAG qualifiés, jamais grant global. Les autres capacités restent fermées. Deux nouveaux élèves techniques Terminale générale sont créés et activés par les parcours canoniques sur la restauration isolée ; les scolarités Première existantes restent intactes.
 - Production : aucune fusion, migration de production, promotion ou ouverture client. Nouveau SHA/CI/revue et smokes de l'artefact corrigé restent nécessaires.
+
+### Contraste des boutons lors de la reprise de session
+
+- CI du SHA 527314d5 : WebKit, 85/86 tests passent ; trois boutons planning réactivés échouent `color-contrast` (ratios 2,89 et 3,95).
+- Cause reproduite dans WebKit avec le CSS Tailwind compilé depuis la classe réelle : `transition-all` anime l'opacité de 0,5 à 1 après retrait de `disabled`, alors que le bouton est déjà actif. Pas de défaut auth/RBAC identifié sur cet échec.
+- Correction produit : conserver les transitions couleur/fond/bordure/ombre/transformation ; exclure l'opacité. Contre-épreuve avec classe corrigée : opacité immédiatement 1, aucune violation axe. Aucun délai ajouté au test et aucune règle axe supprimée.
+- Régression durable ajoutée à `auth-client-lifecycle.spec.ts` : clonage des classes du vrai bouton servi, transition disabled/active, lecture immédiate de l'opacité et contrôle axe ciblé du contraste. Les audits complets existants restent inchangés.
+- La CI complète sur le prochain HEAD reste requise.
