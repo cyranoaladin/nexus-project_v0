@@ -350,3 +350,13 @@ describe('AriaCourseWorkspace', () => {
     expect(onBack).toHaveBeenCalled();
   });
 });
+
+
+test('an existing workspace cannot start an unsupported canonical chat or blame the subscription', () => {
+ const view=minimalCourseView({}, {productSupported:false});
+ const payload={...minimalCockpit(),curriculum:{...minimalCockpit().curriculum,courses:[view]}};
+ render(<AriaCourseWorkspace cockpit={payload} courseKey={view.course.key} onBack={jest.fn()} onWorkWithAria={jest.fn()}/>);
+ expect(screen.getByTestId('aria-work-with-aria')).toBeDisabled();
+ expect(screen.getByText('ARIA ne prend pas encore en charge cette matière.')).toBeInTheDocument();
+ expect(screen.queryByText('Cette matière n’est pas incluse dans ton abonnement.')).not.toBeInTheDocument();
+});

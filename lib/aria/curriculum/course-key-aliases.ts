@@ -22,6 +22,8 @@
  */
 
 const COCKPIT_TO_CANONICAL_COURSE_KEY: Readonly<Record<string, string>> = Object.freeze({
+  'philosophie-terminale': 'tc-philosophie-terminale',
+  'histoire-geo-terminale': 'tc-histoire-geo-terminale',
   'maths-premiere-eds': 'eds-maths-premiere',
   'maths-terminale-eds': 'eds-maths-terminale',
   'nsi-premiere-eds': 'eds-nsi-premiere',

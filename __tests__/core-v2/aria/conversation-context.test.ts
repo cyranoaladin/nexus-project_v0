@@ -1,3 +1,5 @@
+import { qualifyCoreV2AriaCurriculum } from '@/lib/core-v2/aria/course-support';
+import { resolveAriaCurriculum } from '@/lib/aria/curriculum/resolver';
 import { buildCoreV2AriaConversationAuthorization } from '@/lib/core-v2/aria/conversation-context';
 import type { CoreV2AriaStudentContext } from '@/lib/core-v2/aria/student-context';
 import type { Subject } from '@prisma/client';
@@ -79,8 +81,8 @@ describe('Core v2 native conversation authorization adapter', () => {
     }).courseKey).toBe('maths-expertes-terminale');
   });
 
-  test('derives a STMG track module without inventing an enrollment row', () => {
-    expect(buildCoreV2AriaConversationAuthorization({
+  test('keeps an unregistered STMG module unavailable without inventing a canonical identity', () => {
+    expect(() => buildCoreV2AriaConversationAuthorization({
       actor: { userId: student.userId, role: 'ELEVE' },
       student: {
         ...student,
@@ -89,7 +91,7 @@ describe('Core v2 native conversation authorization adapter', () => {
       },
       courseKey: 'parcours-rhc-terminale-stmg',
       entitlementContext: globalEntitlement,
-    }).courseKey).toBe('parcours-rhc-terminale-stmg');
+    })).toThrow('pas encore disponible');
   });
 
   test.each([
@@ -127,5 +129,33 @@ describe('Core v2 native conversation authorization adapter', () => {
       courseKey: 'philosophie-terminale',
       entitlementContext: { ...globalEntitlement, tier: null },
     })).toThrow('chat ARIA');
+  });
+});
+
+
+describe('canonical course execution scope', () => {
+  test.each([
+    ['histoire-geo-premiere', 'PREMIERE', 'EDS_GENERALE'],
+    ['philosophie-terminale', 'TERMINALE', 'STMG'],
+  ] as const)('%s does not advertise unsupported canonical execution for %s/%s', (courseKey, gradeLevel, academicTrack) => {
+    expect(()=>buildCoreV2AriaConversationAuthorization({actor:{userId:student.userId,role:'ELEVE'},student:{...student,gradeLevel,academicTrack},courseKey,entitlementContext:globalEntitlement})).toThrow('pas encore disponible');
+  });
+});
+
+
+describe('Core cockpit execution availability', () => {
+  test.each([
+    ['PREMIERE','EDS_GENERALE','histoire-geo-premiere',false],
+    ['TERMINALE','STMG','philosophie-terminale',false],
+    ['TERMINALE','EDS_GENERALE','philosophie-terminale',true],
+    ['TERMINALE','EDS_GENERALE','histoire-geo-terminale',true],
+  ] as const)('projects %s/%s/%s without an unavailable chat action', (gradeLevel,academicTrack,courseKey,supported) => {
+    const curriculum=qualifyCoreV2AriaCurriculum(resolveAriaCurriculum({gradeLevel,academicTrack,specialties:[],stmgPathway:null,pinnedCourseKeys:[courseKey],access:{kind:'CANONICAL_BY_FEATURE',contexts:new Map([['aria_maths',globalEntitlement]])}}));
+    const view=curriculum.courses.find(v=>v.course.key===courseKey)!;
+    expect(view.access.productSupported).toBe(supported);
+    expect(view.course.capabilities.chat).toBe(supported);
+    expect(curriculum.availableCourseKeys.includes(courseKey)).toBe(supported);
+    expect(curriculum.unsupportedCourseKeys.includes(courseKey)).toBe(!supported);
+    if(!supported){expect(view.course.support).toBe('COMING_SOON');expect(view.course.supportNote).toContain('pas encore disponible');}
   });
 });

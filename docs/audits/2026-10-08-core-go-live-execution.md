@@ -289,3 +289,15 @@ réussi ; une suite et un test ont échoué. L'échec est reproduit localement, 
 la liste et les presets `expensiveIp`/`expensiveIdentity` sont vérifiés explicitement.
 GREEN : les trois tests du contrat passent. Aucun code applicatif modifié.
 Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
+
+### Qualification du candidat 527314d5 et correction ARIA bornée
+
+- Artefact CI `11582165498`, SHA complet `527314d559c8383216abdb019cb0ad5e085256a0`, ZIP SHA-256 `be798117cff92e77d81455988507a9e8042cbdb4e657f95e339ece4afcf1f600`, manifeste concordant. Même ZIP vérifié dans les deux environnements isolés.
+- Sur cet artefact : auth/RBAC cinq rôles, isolation familiale, reset via Mailpit avec révocation de deux sessions et jeton à usage unique, changement de mot de passe, suspension/réactivation passent. Chromium, Firefox, WebKit et mobile passent les smokes de dashboard, logout et retour arrière.
+- Documents : antivirus HTTP réel, document propre, lecture propriétaire, refus inter-familles, page élève et facture synthétique/PDF privé passent. Espace : changement obligatoire du code et révocation, propriété du travail, professeur affecté, documents propres et EICAR PDF embarqué passent.
+- Scan artefact : 11 identifiants UI/curriculum faux positifs et quatre occurrences de deux clés Next générées côté serveur ; aucune occurrence de ces clés dans les fichiers publics. Artefact conservé privé. La révocation des anciens identifiants reste à attester ; aucun check compensatoire publié.
+- ARIA réel échoue avant appel fournisseur : `COURSE_NOT_FOUND`. Reproduction indépendante : les 18 cours annoncés chat sans RAG n'ont aucune identité canonique exécutable après conversion. Ne pas déclarer le fournisseur ou le parcours opérationnel sur cette preuve.
+- Correction limitée aux deux correspondances déjà exactes : Philosophie et Histoire-Géographie Terminale vers leurs identités canoniques. La garde vérifie niveau et voie canoniques après les contrôles d'identité, cursus et droits. Le cockpit Core et ses actions affichent les autres cours comme indisponibles. Pas de correspondance approximative Première/Terminale, langue A/B ou Histoire/HGGSP.
+- RED : deux échecs réels de résolution retrieval/prompt, deux échecs de refus niveau/voie, deux actions UI indûment actives. GREEN : 6 tests alias/prompt ; 16 tests Core purs dont projection ; 46 tests Core sur une base de test neuve et isolée ; 87 tests ciblés UI/bouton/alias ; 39 contrôles de frontière Core. Lint et typecheck sans erreur.
+- Borne de lancement sans RAG : droits explicitement limités aux seuls cours non-RAG qualifiés, jamais grant global. Les autres capacités restent fermées. Deux nouveaux élèves techniques Terminale générale sont créés et activés par les parcours canoniques sur la restauration isolée ; les scolarités Première existantes restent intactes.
+- Production : aucune fusion, migration de production, promotion ou ouverture client. Nouveau SHA/CI/revue et smokes de l'artefact corrigé restent nécessaires.

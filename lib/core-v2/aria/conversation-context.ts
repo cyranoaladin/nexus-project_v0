@@ -18,6 +18,7 @@ import { assertSelfServiceRole, type Actor } from '@/lib/core-v2/rbac';
 import { loadCoreV2AriaStudentContext } from './student-context';
 import { resolveCoreV2AriaEntitlements } from './access-grants';
 import { getAriaCourse } from '@/lib/aria/curriculum/catalog';
+import { isCoreV2AriaCourseExecutionSupported } from './course-support';
 import type { AriaConversationContext } from '@/lib/aria/application/conversation/build-context';
 
 export interface CoreV2AriaConversationAuthorization {
@@ -62,6 +63,10 @@ export function buildCoreV2AriaConversationAuthorization(input: {
   const capabilities = resolveAriaCapabilities(input.entitlementContext.tier);
   if (!capabilities.chat) {
     throw new AriaError('UNSUPPORTED', 422, 'Le chat ARIA n’est pas disponible pour ce profil.');
+  }
+  if (!isCoreV2AriaCourseExecutionSupported(input.courseKey,
+    input.student.gradeLevel, input.student.academicTrack)) {
+    throw new AriaError('UNSUPPORTED', 422, 'Le chat ARIA n’est pas encore disponible pour ce cours.');
   }
 
   return Object.freeze({

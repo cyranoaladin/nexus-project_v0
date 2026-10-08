@@ -1,3 +1,4 @@
+import { qualifyCoreV2AriaCurriculum } from '@/lib/core-v2/aria/course-support';
 export const dynamic = 'force-dynamic';
 
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
@@ -25,7 +26,7 @@ export const GET = defineStaffRoute({
         select: { courseKey: true },
       }),
     ]);
-    const curriculum = resolveAriaCurriculum({ gradeLevel: student.gradeLevel, academicTrack: student.academicTrack, specialties: student.specialties, hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment, stmgPathway: student.stmgPathway, school: student.school, pinnedCourseKeys: profile.pinnedCourseKeys, enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext), access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey } });
+    const curriculum = qualifyCoreV2AriaCurriculum(resolveAriaCurriculum({ gradeLevel: student.gradeLevel, academicTrack: student.academicTrack, specialties: student.specialties, hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment, stmgPathway: student.stmgPathway, school: student.school, pinnedCourseKeys: profile.pinnedCourseKeys, enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext), access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey } }));
     // The browser conversation client consumes the shared V1 preference
     // projection. The storage remains Core v2-native; this is only a
     // transport shape adapter, never a V1 persistence fallback.

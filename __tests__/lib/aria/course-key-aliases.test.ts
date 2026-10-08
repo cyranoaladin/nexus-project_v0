@@ -1,3 +1,5 @@
+import { resolveAriaRetrievalPolicy } from '@/lib/aria/domain/retrieval/policy';
+import { buildAriaPromptEnvelope } from '@/lib/aria/application/conversation/build-prompt';
 import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 
 describe('toCanonicalAriaCourseKey', () => {
@@ -27,5 +29,19 @@ describe('toCanonicalAriaCourseKey', () => {
 
   it('returns an empty string unchanged', () => {
     expect(toCanonicalAriaCourseKey('')).toBe('');
+  });
+});
+
+
+describe('exact general-chat curriculum bridge', () => {
+  test.each([
+    ['philosophie-terminale', 'tc-philosophie-terminale'],
+    ['histoire-geo-terminale', 'tc-histoire-geo-terminale'],
+  ])('%s resolves retrieval and the real pedagogical prompt without a corpus', (courseKey, canonicalKey) => {
+    const policy = resolveAriaRetrievalPolicy({courseKey, task:'METHODOLOGY',agentRole:'TUTOR',visibility:'STUDENT_PRIVATE',capabilities:{hasChat:true,hasRagCorpus:false,chatPolicy:'GENERAL_CHAT'}});
+    expect(policy).toMatchObject({courseKey:canonicalKey,kind:'GENERAL_CHAT'});
+    const messages=buildAriaPromptEnvelope({courseKey,pedagogicalMode:'METHODOLOGY',retrievalPolicy:policy.kind,ragStatus:'NOT_CONFIGURED',citations:[],userMessage:'Exercice synthétique.'});
+    expect(messages[0].content).toContain('Terminale');
+    expect(messages.at(-1)).toEqual({role:'user',content:'Exercice synthétique.'});
   });
 });
