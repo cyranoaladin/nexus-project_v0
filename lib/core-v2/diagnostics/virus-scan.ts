@@ -41,6 +41,15 @@ const MAX_INSTREAM_CHUNK_BYTES = 64 * 1024;
  * clamd's own documented wire format, not something this module invents.
  */
 export async function scanDiagnosticSubmissionFile(relativePath: string): Promise<{ clean: true; engine: string }> {
+  return scanFile(() => resolve(diagnosticsStorageRoot(), relativePath));
+}
+
+/** Internal callers supply a private, generated quarantine path, never a client path. */
+export async function scanPrivateFile(absolutePath: string): Promise<{ clean: true; engine: string }> {
+  return scanFile(() => absolutePath);
+}
+
+async function scanFile(resolvePath: () => string): Promise<{ clean: true; engine: string }> {
   const mode = process.env.DIAGNOSTIC_AV_MODE ?? (process.env.NODE_ENV === 'production' ? 'required' : 'disabled');
   if (mode === 'disabled') {
     // `disabled` in a NODE_ENV=production context is refused UNLESS this
@@ -59,7 +68,7 @@ export async function scanDiagnosticSubmissionFile(relativePath: string): Promis
   }
   if (mode !== 'clamdscan') throw new Error('AV_NOT_CONFIGURED');
 
-  const absolutePath = resolve(diagnosticsStorageRoot(), relativePath);
+  const absolutePath = resolvePath();
   const tcpHost = process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST;
   const tcpPort = process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT;
 

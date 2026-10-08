@@ -4,10 +4,12 @@ import { UserRole } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
-import { mkdir, writeFile } from 'fs/promises';
-import { serializeError } from '@/lib/utils/serialize-error';
+import { mkdir, writeFile, unlink } from 'fs/promises';
+import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
+import { checkCsrf } from '@/lib/csrf';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
 // Lazy : la racine de stockage lève en production quand DOCUMENT_STORAGE_ROOT
 // manque, et ce fail-closed doit frapper à la requête — jamais au chargement
@@ -40,23 +42,16 @@ function sanitizeOriginalName(value: string): string {
   return value.replace(/[\\/\r\n"]/g, '_').slice(0, 200) || 'document';
 }
 
-function safeErrorSummary(error: unknown) {
-  const serialized = serializeError(error);
-  if (serialized && typeof serialized === 'object' && !Array.isArray(serialized)) {
-    return {
-      name: typeof serialized.name === 'string' ? serialized.name : 'Error',
-      message: typeof serialized.message === 'string' ? serialized.message : 'unknown',
-    };
-  }
-  return { name: 'Error', message: String(serialized) };
-}
-
 export async function POST(request: NextRequest) {
   try {
     // 1. RBAC Check (Admin or Assistant only)
     const sessionOrResponse = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
     if (isErrorResponse(sessionOrResponse)) return sessionOrResponse;
     const session = sessionOrResponse;
+    const csrf = checkCsrf(request);
+    if (csrf) return csrf;
+    const limited = await guardSensitiveRateLimit(request, { scope: 'document-upload', identity: session.user.id });
+    if (limited) return limited;
 
     // 2. Parse FormData
     const formData = await request.formData();
@@ -68,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
     const userId = parsedUserId.data;
 
-    if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size > MAX_UPLOAD_BYTES) {
+    if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
       return NextResponse.json({ error: 'Type ou taille de fichier invalide' }, { status: 400 });
     }
 
@@ -98,7 +93,17 @@ export async function POST(request: NextRequest) {
 
     // Write file to disk
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(localPath, buffer);
+    await writeFile(localPath, buffer, { mode: 0o600, flag: 'wx' });
+
+    // No metadata or download is published until the private file is clean.
+    try {
+      await scanPrivateFile(localPath);
+    } catch (error) {
+      try { await unlink(localPath); }
+      catch { console.error('[Upload Error]', { code: 'DOCUMENT_QUARANTINE_CLEANUP_FAILED' }); }
+      const malware = error instanceof Error && error.message.startsWith('MALWARE_DETECTED');
+      return NextResponse.json({ error: malware ? 'DOCUMENT_REJECTED' : 'DOCUMENT_SCAN_UNAVAILABLE' }, { status: malware ? 422 : 503 });
+    }
 
     // 5. Save Metadata to DB
     const document = await prisma.userDocument.create({
@@ -120,8 +125,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, document: safeDocument }, { status: 201 });
 
-  } catch (error) {
-    console.error('[Upload Error]', safeErrorSummary(error));
+  } catch {
+    console.error('[Upload Error]', { code: 'DOCUMENT_UPLOAD_FAILED' });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

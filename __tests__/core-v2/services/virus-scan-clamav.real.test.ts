@@ -14,14 +14,16 @@
  * pattern from the mocked unit lane on purpose).
  */
 import { randomUUID } from 'node:crypto';
-import { scanDiagnosticSubmissionFile } from '@/lib/core-v2/diagnostics/virus-scan';
-import { writeDiagnosticStorageFile } from '@/lib/core-v2/diagnostics/storage';
+import { resolve } from 'node:path';
+import { scanDiagnosticSubmissionFile, scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { writeDiagnosticStorageFile, diagnosticsStorageRoot } from '@/lib/core-v2/diagnostics/storage';
 
 const previousMode = process.env.DIAGNOSTIC_AV_MODE;
 
 const EICAR = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
 
-describe('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP (DIAGNOSTIC_AV_CLAMD_TCP_HOST configured)', () => {
+describe.each(['diagnostic', 'general'] as const)('%s private file — real ClamAV daemon over INSTREAM/TCP', kind => {
+  const scan = (path: string) => kind === 'diagnostic' ? scanDiagnosticSubmissionFile(path) : scanPrivateFile(resolve(diagnosticsStorageRoot(), path));
   beforeAll(() => {
     if (!process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST || !process.env.DOCUMENT_STORAGE_ROOT) throw new Error('DIAGNOSTIC_AV_REAL_TEST_CONFIGURATION_REQUIRED');
     process.env.DIAGNOSTIC_AV_MODE = 'clamdscan';
@@ -34,7 +36,7 @@ describe('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP 
   test('a harmless synthetic file is genuinely scanned and reported clean by the real engine', async () => {
     const path = `real-av-clean-${randomUUID()}.bin`;
     await writeDiagnosticStorageFile(path, Buffer.from('%PDF-1.0\nharmless synthetic content, no signature match expected\n%%EOF'));
-    const result = await scanDiagnosticSubmissionFile(path);
+    const result = await scan(path);
     expect(result.clean).toBe(true);
     expect(result.engine).toMatch(/^clamd-instream-tcp:/);
   });
@@ -42,7 +44,7 @@ describe('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP 
   test('the official EICAR test signature is genuinely detected by the real engine — not a fabricated verdict', async () => {
     const path = `real-av-eicar-${randomUUID()}.bin`;
     await writeDiagnosticStorageFile(path, Buffer.from(EICAR));
-    await expect(scanDiagnosticSubmissionFile(path)).rejects.toThrow(/^MALWARE_DETECTED:/);
+    await expect(scan(path)).rejects.toThrow(/^MALWARE_DETECTED:/);
   });
 
   test('an unreachable/misconfigured engine fails closed (AV_SCAN_FAILED), never a false "clean"', async () => {
@@ -53,7 +55,7 @@ describe('scanDiagnosticSubmissionFile — real ClamAV daemon over INSTREAM/TCP 
     process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST = '127.0.0.1';
     process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT = '39999'; // nothing listens here
     try {
-      await expect(scanDiagnosticSubmissionFile(path)).rejects.toThrow();
+      await expect(scan(path)).rejects.toThrow();
     } finally {
       process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST = previousHost;
       process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT = previousPort;

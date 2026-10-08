@@ -3,6 +3,13 @@
  */
 
 import { NextRequest } from 'next/server';
+import { writeFile, unlink } from 'fs/promises';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+
+jest.mock('fs/promises', () => ({ mkdir: jest.fn().mockResolvedValue(undefined), writeFile: jest.fn().mockResolvedValue(undefined), unlink: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('@/lib/core-v2/diagnostics/virus-scan', () => ({ scanPrivateFile: jest.fn() }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 
 // ── Mocks ───────────────────────────────────────────────────────────────────
 
@@ -114,6 +121,41 @@ describe('Documents Access Control', () => {
   });
 
   describe('Coach Documents API', () => {
+    it.each(['csrf', 'rate'])('refuses %s before coach upload parsing and assignment lookup', async kind => {
+      coachSession();
+      const previous = process.env.NODE_ENV;
+      Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'development' });
+      try {
+        const request = { method: 'POST', headers: new Headers({ Origin: kind === 'csrf' ? 'https://attacker.example' : 'https://nexusreussite.academy' }), formData: jest.fn() } as unknown as NextRequest;
+        if (kind === 'rate') (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(new Response('{}', { status: 429 }));
+        expect((await CoachDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) })).status).toBe(kind === 'csrf' ? 403 : 429);
+        expect(request.formData).not.toHaveBeenCalled();
+        expect(assertCoachCanAccessStudent).not.toHaveBeenCalled();
+        expect(writeFile).not.toHaveBeenCalled();
+      } finally { Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: previous }); }
+    });
+
+    it.each([['clean', 201], ['MALWARE_DETECTED:synthetic', 422], ['AV_SCAN_TIMEOUT', 503]])('scans multipart before publication and fails closed: %s', async (verdict, status) => {
+      coachSession();
+      (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
+      mockPrisma.userDocument.create.mockResolvedValue(mockDocument);
+      (scanPrivateFile as jest.Mock).mockReset().mockImplementation(async (filePath: string) => {
+        expect(writeFile).toHaveBeenCalledWith(filePath, expect.any(Buffer), { mode: 0o600, flag: 'wx' });
+        expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+        if (verdict !== 'clean') throw new Error(verdict);
+        return { clean: true, engine: 'synthetic-test-double' };
+      });
+      const file = { name: 'synthetic.pdf', type: 'application/pdf', size: 8, arrayBuffer: async () => Uint8Array.from(Buffer.from('%PDF-1.4')).buffer };
+      const request = { method: 'POST', headers: new Headers({ 'Content-Type': 'multipart/form-data', Origin: 'https://nexusreussite.academy' }), formData: async () => new Map<string, unknown>([['file', file], ['documentType', 'COURS']]) } as unknown as NextRequest;
+      const response = await CoachDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) });
+      expect(response.status).toBe(status);
+      expect(scanPrivateFile).toHaveBeenCalledTimes(1);
+      if (status !== 201) {
+        expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+        expect(unlink).toHaveBeenCalledWith((writeFile as jest.Mock).mock.calls[0][0]);
+      }
+    });
     it('documentSafeSelect includes localPath (shape lock)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);

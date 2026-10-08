@@ -1,5 +1,9 @@
-import { NextResponse } from 'next/server';
-import { mkdir, writeFile } from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server';
+import { mkdir, writeFile, unlink } from 'fs/promises';
+import { randomUUID } from 'node:crypto';
+import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { checkCsrf } from '@/lib/csrf';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import path from 'path';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { requireRole, isErrorResponse } from '@/lib/guards';
@@ -184,6 +188,10 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    const csrf = checkCsrf(request as NextRequest);
+    if (csrf) return csrf;
+    const limited = await guardSensitiveRateLimit(request, { scope: 'document-upload', identity: session.user.id });
+    if (limited) return limited;
 
     // Verify coach is assigned to this student
     try {
@@ -232,7 +240,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         );
       }
 
-      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size > MAX_UPLOAD_BYTES) {
+      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
         return NextResponse.json(
           { error: 'Bad Request', message: 'Type ou taille de fichier invalide' },
           { status: 400 }
@@ -249,10 +257,8 @@ export async function POST(request: Request, { params }: RouteParams) {
       });
 
       // Generate a unique filename
-      const timestamp = Date.now();
-      const sanitizedTitle = sanitizeFilenamePart(validatedMeta.title);
       const extension = sanitizeFilenamePart(file.name.split('.').pop() || 'pdf');
-      const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
+      const filename = `${randomUUID()}.${extension}`;
       // Write to STORAGE_ROOT and store a relative path in DB
       const storageRoot = getDocumentStorageRoot();
       const uploadDir = path.join(storageRoot, student.userId);
@@ -260,7 +266,15 @@ export async function POST(request: Request, { params }: RouteParams) {
       await mkdir(uploadDir, { recursive: true });
 
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(absolutePath, buffer);
+      await writeFile(absolutePath, buffer, { mode: 0o600, flag: 'wx' });
+      try {
+        await scanPrivateFile(absolutePath);
+      } catch (error) {
+        try { await unlink(absolutePath); }
+        catch { console.error('[Coach Upload]', { code: 'DOCUMENT_QUARANTINE_CLEANUP_FAILED' }); }
+        const malware = error instanceof Error && error.message.startsWith('MALWARE_DETECTED');
+        return NextResponse.json({ error: malware ? 'DOCUMENT_REJECTED' : 'DOCUMENT_SCAN_UNAVAILABLE' }, { status: malware ? 422 : 503 });
+      }
 
       documentData = {
         title: validatedMeta.title,
@@ -332,7 +346,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    console.error('[API Coach Documents POST] Error:', serializeError(error));
+    console.error('[API Coach Documents POST]', { code: 'DOCUMENT_UPLOAD_FAILED' });
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

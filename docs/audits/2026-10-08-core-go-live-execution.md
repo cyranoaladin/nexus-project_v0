@@ -194,3 +194,29 @@ Ces changements exigent un nouveau SHA, une nouvelle CI et un nouvel artefact.
 Les anciens smokes ne constituent pas la preuve finale. L'artefact de repli de1c935
 réouvrirait les virements ; il n'est donc plus un rollback qualifié pour cette
 configuration. Les trois cycles authentifiés restent à prouver avec un repli sûr.
+
+## Fermeture antivirus des uploads documentaires historiques
+
+Le contrôle de couverture a confirmé deux entrées non scannées : upload admin et
+upload coach multipart. Le transport ClamAV existant est réutilisé via un helper
+interne de fichier privé ; le wrapper diagnostique conserve sa résolution paresseuse
+du stockage, ses modes et ses refus en production.
+
+- Écriture exclusive du nouveau fichier, permissions 0600 ; nom coach aléatoire.
+- Scan avant toute création de métadonnées téléchargeables.
+- Malware : 422 ; scanner indisponible : 503 ; nettoyage borné au nouveau fichier.
+- Aucun détail scanner, chemin ou nom original dans les erreurs journalisées.
+- CSRF et limiteur par acteur/IP avant parsing ; bornes MIME/taille conservées,
+  fichiers vides refusés. La borne du corps HTTP total reste à vérifier au proxy.
+- RED : quatre défauts admin, puis cinq défauts coach/gates reproduits.
+- GREEN : cinq suites, 53 tests ; ClamAV réel : six tests, couvrant les wrappers
+  diagnostic et général (sain, EICAR, moteur injoignable).
+
+Deux invocations de qualification ont été corrigées : une suite de pipeline DB
+appelée sans sa configuration Core a refusé avant connexion ; la suite `.real`
+appelée avec le projet Jest unitaire a été exclue par ses règles. Elle a ensuite
+été exécutée sans exclusion avec `jest.core-v2.config.js`, six succès. Aucune suite
+ignorée n'est comptée comme preuve et aucun reset de restauration n'a été lancé.
+
+L'artefact c46ea1af6 ne contient pas ce correctif ; une nouvelle tête et une nouvelle
+CI sont donc nécessaires avant qualification finale ou ouverture documentaire.

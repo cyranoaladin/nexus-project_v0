@@ -13,6 +13,7 @@ type SensitivePolicy = {
 }
 
 export const SENSITIVE_RATE_LIMIT_POLICIES = {
+  'document-upload': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'family-create': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'parent-whatsapp-manual-invitation': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'parent-phone-reservation-release': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
