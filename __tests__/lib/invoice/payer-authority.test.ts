@@ -16,7 +16,10 @@ it('requires payer or explicit active financial delegation, never beneficiary or
   expect(serialized).not.toContain('customerEmail');
   expect(serialized).toContain('payerUserId');
   expect(serialized).toContain('financialDelegations');
-  expect(scope).toMatchObject({ status: { not: 'DRAFT' } });
+  expect(scope).toMatchObject({ AND: [{ OR: [
+    { status: { in: ['SENT', 'PAID'] } },
+    { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+  ] }] });
   expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
   expect(prisma.user.findUnique).not.toHaveBeenCalled();
 });
@@ -39,7 +42,10 @@ it('bounds delegation by the server clock and excludes revoked grants before the
   jest.setSystemTime(now);
   try {
     await expect(buildInvoiceListAccessWhere({ id: 'synthetic-delegate', role: 'PARENT' })).resolves.toEqual({
-      status: { not: 'DRAFT' }, OR: [
+      AND: [{ OR: [
+        { status: { in: ['SENT', 'PAID'] } },
+        { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+      ] }], OR: [
         { payerUserId: 'synthetic-delegate' },
         { financialDelegations: { some: { delegateUserId: 'synthetic-delegate', revokedAt: null,
           startsAt: { lte: now }, expiresAt: { gt: now } } } },

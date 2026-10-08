@@ -17,7 +17,10 @@ describe('buildInvoiceAccessWhere', () => {
 
   it.each([null, 'parent@test.tn'])('scopes parents by payer/delegation even with email=%s', async email => {
     const scope = await buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email });
-    expect(scope).toMatchObject({ id: 'inv-1', status: { not: 'DRAFT' }, OR: [
+    expect(scope).toMatchObject({ id: 'inv-1', AND: [{ OR: [
+      { status: { in: ['SENT', 'PAID'] } },
+      { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+    ] }], OR: [
       { payerUserId: 'parent-user-1' },
       { financialDelegations: { some: { delegateUserId: 'parent-user-1', revokedAt: null,
         startsAt: { lte: expect.any(Date) }, expiresAt: { gt: expect.any(Date) } } } },

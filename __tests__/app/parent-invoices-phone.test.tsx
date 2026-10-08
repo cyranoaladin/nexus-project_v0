@@ -13,7 +13,10 @@ it.each([true, false])('phone-only parent uses payer/delegation scope independen
     (prisma.parentProfile.findUnique as jest.Mock).mockResolvedValue({ children: hasChild ? [{ userId: 'child1' }] : [] });
     await ParentInvoicesPage();
     expect(prisma.invoice.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {
-      status: { not: 'DRAFT' },
+      AND: [{ OR: [
+        { status: { in: ['SENT', 'PAID'] } },
+        { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+      ] }],
       OR: [
         { payerUserId: 'parent1' },
         { financialDelegations: { some: {

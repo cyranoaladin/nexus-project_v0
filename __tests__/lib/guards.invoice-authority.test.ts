@@ -22,7 +22,10 @@ test('queries canonical payer/delegation scope and excludes DRAFT before reading
   jest.mocked(prisma.invoice.findFirst).mockResolvedValue({ id: 'synthetic-invoice' } as never);
   await expect(requireParentOwnsInvoice('synthetic-parent', 'synthetic-invoice')).resolves.toBe(true);
   expect(prisma.invoice.findFirst).toHaveBeenCalledWith({
-    where: { id: 'synthetic-invoice', status: { not: 'DRAFT' }, OR: [
+    where: { id: 'synthetic-invoice', AND: [{ OR: [
+      { status: { in: ['SENT', 'PAID'] } },
+      { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+    ] }], OR: [
       { payerUserId: 'synthetic-parent' },
       { financialDelegations: { some: {
         delegateUserId: 'synthetic-parent', revokedAt: null,

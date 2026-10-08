@@ -10,6 +10,7 @@
 
 import { NextResponse } from 'next/server';
 import type { Prisma } from '@prisma/client';
+import { PUBLISHED_INVOICE_WHERE } from './publication';
 
 /** Canonical 404 JSON body — frozen, never varies. */
 const NOT_FOUND_BODY = { error: 'NOT_FOUND' } as const;
@@ -83,7 +84,7 @@ export async function buildInvoiceListAccessWhere(
 
   const now = new Date();
   return {
-    status: { not: 'DRAFT' },
+    AND: [PUBLISHED_INVOICE_WHERE],
     OR: [
       { payerUserId: user.id },
       { financialDelegations: { some: {

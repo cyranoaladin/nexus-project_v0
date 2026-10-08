@@ -64,12 +64,33 @@ test.each([false, true])('DRAFT cannot be downloaded through token path=%s', asy
   expect(mockReadPdf).not.toHaveBeenCalled();
 });
 
-test.each(['SENT', 'PAID', 'CANCELLED'])('published %s can be read but cannot be cached or leak token referrers', async status => {
-  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status });
+const sentEvidence = [{ type: 'INVOICE_SENT' }, { type: 'INVOICE_CANCELLED' }];
+const neverSent = [{ type: 'INVOICE_CREATED' }, { type: 'PDF_RENDERED' }, { type: 'INVOICE_CANCELLED' }];
+
+test.each([['SENT', []], ['PAID', []], ['CANCELLED', sentEvidence]])('published %s can be read but cannot be cached or leak token referrers', async (status, events) => {
+  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status, events });
   const response = await GET(request(true), params);
   expect(response.status).toBe(200);
   expect(response.headers.get('cache-control')).toBe('private, no-store');
   expect(response.headers.get('referrer-policy')).toBe('no-referrer');
+});
+
+test.each([false, true])('a draft cancelled before any send stays private token path=%s', async token => {
+  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', number: 'SYNTHETIC', pdfPath: 'synthetic.pdf', status: 'CANCELLED', events: neverSent });
+  const response = await GET(request(token), params);
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+  expect(mockReadPdf).not.toHaveBeenCalled();
+  expect(mockFindFirst).toHaveBeenCalledWith(expect.objectContaining({ select: expect.objectContaining({ events: true }) }));
+});
+
+test('a parent cannot turn a cancelled draft receipt lookup into a financial status disclosure', async () => {
+  mockFindFirst.mockResolvedValue({ id: 'synthetic-invoice', status: 'CANCELLED', events: neverSent });
+  const response = await receipt(request(), params);
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
+  expect(mockReceipt).not.toHaveBeenCalled();
+  expect(mockFindFirst).toHaveBeenCalledWith(expect.objectContaining({ select: expect.objectContaining({ events: true }) }));
 });
 
 test('a parent cannot turn DRAFT receipt lookup into a financial status disclosure', async () => {

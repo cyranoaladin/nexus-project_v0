@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { GET } from '@/app/api/invoices/[id]/pdf/route';
 import { createAccessToken } from '@/lib/invoice/access-token';
-import { buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { buildInvoiceAccessWhere, buildInvoiceListAccessWhere } from '@/lib/invoice/not-found';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
 
 const prefix = `draft-boundary-${randomUUID()}`;
@@ -51,6 +51,27 @@ test('the same persisted token reads only after explicit publication', async () 
   expect(response.headers.get('cache-control')).toBe('private, no-store');
   expect(response.headers.get('referrer-policy')).toBe('no-referrer');
   expect(await prisma.invoiceFinancialAccessAudit.count({ where: { invoiceId, actorUserId: userId, action: 'PDF_READ' } })).toBe(1);
+});
+test('a draft cancelled before any send stays out of the family list and PDF', async () => {
+  mockAuth.mockResolvedValue({ user: { id: userId, role: 'PARENT', email } }); mockRead.mockClear();
+  const events = [{ type: 'INVOICE_CREATED' }, { type: 'PDF_RENDERED' }, { type: 'INVOICE_CANCELLED' }];
+  const id = (await prisma.invoice.create({ data: { number: `${prefix}-cd`, customerName: 'Synthetic', customerEmail: email,
+    createdByUserId: userId, payerUserId: userId, status: 'CANCELLED', pdfPath: `${prefix}-cd.pdf`, events } })).id;
+  const response = await GET(new NextRequest(`http://localhost/api/invoices/${id}/pdf`), { params: Promise.resolve({ id }) });
+  expect(response.status).toBe(404);
+  expect(mockRead).not.toHaveBeenCalled();
+  const listed = await prisma.invoice.findMany({ where: (await buildInvoiceListAccessWhere({ id: userId, role: 'PARENT', email }))!, select: { id: true } });
+  expect(listed.map(row => row.id)).not.toContain(id);
+});
+test('an invoice cancelled after being sent stays readable by its payer', async () => {
+  mockAuth.mockResolvedValue({ user: { id: userId, role: 'PARENT', email } }); mockRead.mockClear();
+  const events = [{ type: 'INVOICE_CREATED' }, { type: 'INVOICE_SENT' }, { type: 'INVOICE_CANCELLED' }];
+  const id = (await prisma.invoice.create({ data: { number: `${prefix}-cs`, customerName: 'Synthetic', customerEmail: email,
+    createdByUserId: userId, payerUserId: userId, status: 'CANCELLED', pdfPath: `${prefix}-cs.pdf`, events } })).id;
+  const response = await GET(new NextRequest(`http://localhost/api/invoices/${id}/pdf`), { params: Promise.resolve({ id }) });
+  expect(response.status).toBe(200);
+  const listed = await prisma.invoice.findMany({ where: (await buildInvoiceListAccessWhere({ id: userId, role: 'PARENT', email }))!, select: { id: true } });
+  expect(listed.map(row => row.id)).toContain(id);
 });
 test('a published signed link still refuses an anonymous reader', async () => {
   mockAuth.mockResolvedValue(null); mockRead.mockClear();

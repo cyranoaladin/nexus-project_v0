@@ -16,7 +16,7 @@ import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
 import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
-import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
+import { isPublishedInvoice } from '@/lib/invoice/publication';
 
 /**
  * Stream a PDF response from a buffer.
@@ -76,11 +76,12 @@ export async function GET(
         number: true,
         pdfPath: true,
         status: true,
+        events: true,
       },
     });
 
     if (!invoice || !invoice.pdfPath
-      || (session.user.role === 'PARENT' && !isPublishedInvoiceStatus(invoice.status))) {
+      || (session.user.role === 'PARENT' && !isPublishedInvoice(invoice))) {
       return notFoundResponse();
     }
 

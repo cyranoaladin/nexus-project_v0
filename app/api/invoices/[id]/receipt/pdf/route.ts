@@ -18,7 +18,7 @@ import { prisma } from '@/lib/prisma';
 import { renderReceiptPDF } from '@/lib/invoice';
 import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
-import { isPublishedInvoiceStatus } from '@/lib/invoice/publication';
+import { isPublishedInvoice } from '@/lib/invoice/publication';
 import type { ReceiptData } from '@/lib/invoice';
 
 export async function GET(
@@ -61,10 +61,11 @@ export async function GET(
         paidAmount: true,
         paymentMethod: true,
         paymentReference: true,
+        events: true,
       },
     });
 
-    if (!invoice || (session.user.role === 'PARENT' && !isPublishedInvoiceStatus(invoice.status))) {
+    if (!invoice || (session.user.role === 'PARENT' && !isPublishedInvoice(invoice))) {
       return notFoundResponse();
     }
 
