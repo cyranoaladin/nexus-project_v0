@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, expectCoachDashboardReady } from '../helpers/auth';
 
 /**
  * Accessibility — Dashboards authentifiés
@@ -21,11 +21,10 @@ async function openRenderedDashboard(page: Page, role: typeof DASHBOARD_PAGES[nu
   // A loading shell can already contain a <main> and zero images. Audit the
   // actual role page only after its canonical identity and content are ready.
   await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
+  if (role === 'coach') { await expectCoachDashboardReady(page); return; }
   const content = role === 'parent'
     ? page.getByRole('heading', { name: 'Espace Famille', exact: true })
-    : role === 'coach'
-      ? page.getByRole('heading', { name: /^Coach — / })
-      : page.getByText('Espace Élève', { exact: true });
+    : page.getByText('Espace Élève', { exact: true });
   await expect(content).toBeVisible();
 }
 
@@ -62,7 +61,7 @@ test.describe('Accessibility — dashboards', () => {
     // cohort on 403/404. Inspect that completed destination, not its loader.
     await expect(page).toHaveURL(/\/dashboard\/coach$/);
     await expect(page.locator('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED');
-    await expect(page.getByRole('heading', { name: /^Coach — / })).toBeVisible();
+    await expectCoachDashboardReady(page);
     await expect(page.locator('main')).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   });

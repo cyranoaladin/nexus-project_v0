@@ -309,3 +309,10 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - Correction produit : conserver les transitions couleur/fond/bordure/ombre/transformation ; exclure l'opacité. Contre-épreuve avec classe corrigée : opacité immédiatement 1, aucune violation axe. Aucun délai ajouté au test et aucune règle axe supprimée.
 - Régression durable ajoutée à `auth-client-lifecycle.spec.ts` : clonage des classes du vrai bouton servi, transition disabled/active, lecture immédiate de l'opacité et contrôle axe ciblé du contraste. Les audits complets existants restent inchangés.
 - La CI complète sur le prochain HEAD reste requise.
+
+### Contrats E2E alignés sur l'autorité et la protection CSRF
+
+- CI Chromium du SHA 527314d5 : 562/569 tests passent. Cinq tests coach attendent le titre exclusivement V1, alors que la session HYBRID possède l'autorité Core v2 et affiche son dashboard natif. Le helper corrigé vérifie le rôle COACH et l'autorité signée, puis le titre et les affectations correspondant à cette autorité ; aucune alternative de titre aveugle.
+- Les deux autres échecs surviennent avant les assertions documentaires : le helper multipart omet `Origin` et est refusé par CSRF. Il transmet maintenant l'origine réelle de la page via le helper canonique ; les assertions IDOR et nosniff restent intactes.
+- Contre-épreuves : dashboard coach Core réellement rendu ; APIRequestContext n'émet pas spontanément Origin/Referer, ajout explicite confirmé ; dépôt propre avec Origin et refus inter-familles déjà passés sur l'artefact exact. La tentative additionnelle de vérification est arrêtée par le limiteur de connexion normal après les nombreux smokes : aucune purge Redis ou usurpation d'IP, rejeu après expiration normale.
+- Typecheck sans erreur. Les scénarios complets et la régression déterministe du contraste seront rejoués par la nouvelle CI ; les échecs de 527314d5 ne sont pas reclassés verts.
