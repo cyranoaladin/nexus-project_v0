@@ -52,6 +52,17 @@ export async function authorizeParentStudentRecords(
   }
 }
 
+/** ID-independent outage probe: the same Core read as a decision, carrying no student identity. */
+export async function familyAuthorityAvailable(parentUserId: string): Promise<boolean> {
+  try {
+    if (getFamilyAuthorityMode() === 'V1_ONLY') return true;
+    await readCoreFamilyAuthority(parentUserId, []);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function resolveParentStudentAccess(
   parentUserId: string,
   studentId: string,
@@ -61,7 +72,10 @@ export async function resolveParentStudentAccess(
     where: { id: studentId },
     select: { id: true, userId: true, parent: { select: { userId: true } } },
   });
-  if (!student) return { id: studentId, status: 'DENIED' };
+  if (!student) {
+    // An unknown ID must answer like a known one while the authority is down.
+    return { id: studentId, status: await familyAuthorityAvailable(parentUserId) ? 'DENIED' : 'AUTHORITY_UNAVAILABLE' };
+  }
   const decisions = await authorizeParentStudentRecords(parentUserId, [student], action);
   return decisions[0] ?? { id: studentId, status: 'DENIED' };
 }

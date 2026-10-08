@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import {
-  authorizeParentStudentRecords, familyReadAllowed, resolveParentStudentAccess,
+  authorizeParentStudentRecords, familyAuthorityAvailable, familyReadAllowed, resolveParentStudentAccess,
 } from '@/lib/families/student-access-authority';
 import { getFamilyAuthorityMode, readCoreFamilyAuthority } from '@/lib/core-v2/queries/family-authority';
 import { prisma } from '@/lib/prisma';
@@ -96,4 +96,29 @@ test('the public resolver reads only server-owned identity facts before authoriz
   });
   jest.mocked(prisma.student.findUnique).mockResolvedValue(null);
   expect(await resolveParentStudentAccess('synthetic-parent', 'missing-student')).toEqual({ id: 'missing-student', status: 'DENIED' });
+});
+
+test('the outage probe opens Core without any student identity', async () => {
+  expect(await familyAuthorityAvailable('synthetic-parent')).toBe(true);
+  expect(core).toHaveBeenCalledWith('synthetic-parent', []);
+  core.mockRejectedValue(new Error('SYNTHETIC_PRIVATE_DRIVER_DIAGNOSTIC'));
+  expect(await familyAuthorityAvailable('synthetic-parent')).toBe(false);
+});
+
+test('V1_ONLY has no Core authority to lose', async () => {
+  mode.mockReturnValue('V1_ONLY');
+  expect(await familyAuthorityAvailable('synthetic-parent')).toBe(true);
+  jest.mocked(prisma.student.findUnique).mockResolvedValue(null);
+  expect(await resolveParentStudentAccess('synthetic-parent', 'missing-student')).toEqual({ id: 'missing-student', status: 'DENIED' });
+  expect(core).not.toHaveBeenCalled();
+});
+
+test('during an outage an unknown student answers exactly like a known one', async () => {
+  core.mockRejectedValue(new Error('SYNTHETIC_PRIVATE_DRIVER_DIAGNOSTIC'));
+  jest.mocked(prisma.student.findUnique).mockResolvedValue(record as never);
+  const known = await resolveParentStudentAccess('synthetic-parent', record.id);
+  jest.mocked(prisma.student.findUnique).mockResolvedValue(null);
+  const unknown = await resolveParentStudentAccess('synthetic-parent', 'missing-student');
+  expect(known.status).toBe('AUTHORITY_UNAVAILABLE');
+  expect(unknown.status).toBe(known.status);
 });
