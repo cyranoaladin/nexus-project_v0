@@ -322,6 +322,12 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - La qualification documentaire et facture de 527314d5 utilise des comptes techniques V1. Elle ne prouve pas la bibliothèque générale ou le rattachement de factures aux comptes Core-only : ces objets référencent encore User V1. Les diagnostics natifs Core sont un parcours distinct.
 - Navigation Core : ressources/factures parent et documents généraux admin masqués, comme les documents généraux élève déjà masqués. Les accès directs affichent une indisponibilité explicite avant toute lecture V1 ou formulaire de dépôt. Aucun adaptateur de facturation ni utilisateur miroir artificiel n'est créé.
 - Dépôt général : un opérateur Core-only est refusé avant parsing, écriture ou scan ; un miroir V1 préexistant conserve le contrat API autorisé. L'autorisation de rôle reste celle de la session canonique.
-- RED : cinq échecs navigation/pages/dépôt. GREEN : 23 tests couvrant ces fermetures, les documents existants, les factures V1 et les accès élève ; lint/typecheck sans erreur.
+- RED : cinq échecs navigation/pages/dépôt. GREEN : 23 tests couvrant ces fermetures, les documents existants, les factures V1 et les accès élève ; lint sans erreur. Rectification : le journal local du typecheck contenait déjà deux erreurs TS2339, contrairement au compte rendu initial ; la CI du SHA d7716d1a les a confirmées.
 - Rejeu des contrats E2E après expiration normale du limiteur : coach Core et affectations visibles ; upload sans Origin refusé403, avec Origin accepté201, lecture propriétaire200 avec nosniff et accès étranger404. Aucune purge de limiteur.
 - Les capacités non implémentées restent indisponibles. La vérification du diagnostic natif exige un instrument autorisé et son PDF réel ; une fixture de démonstration ne sera pas présentée comme diagnostic pédagogique qualifié.
+
+### Autorité signée dans le type des guards
+
+- RED sans compilation incrémentale : deux TS2339 sur `session.user.authority`, dans l'API et la page de documents admin. `requireAuth` conserve la session mais son type exporté omettait ce champ déjà déclaré dans NextAuth.
+- Correction : réutilisation du type `Session['user']['authority']`, sans changer le contrôle d'identité à l'exécution ni ajouter de cast aux consommateurs.
+- GREEN : 17 tests de guards, dont préservation explicite des autorités Core/V1 ; compilation complète `tsc --noEmit --incremental false`, exit 0. Aucun résultat local antérieur erroné n'est retenu comme gate.

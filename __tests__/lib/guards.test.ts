@@ -36,6 +36,17 @@ describe('Auth Guards', () => {
   });
 
   describe('requireAuth()', () => {
+    it.each(['CORE_V2', 'V1'] as const)('preserves the signed %s identity authority', async (authority) => {
+      const session: AuthSession = {
+        user: { id: 'technical-admin', email: 'admin@example.test', role: 'ADMIN', authority },
+        expires: '2026-10-09T00:00:00.000Z',
+      };
+      (auth as jest.Mock).mockResolvedValue(session);
+      const result = await requireAnyRole(['ADMIN']);
+      expect(isErrorResponse(result)).toBe(false);
+      if (!isErrorResponse(result)) expect(result.user.authority).toBe(authority);
+    });
+
     it('should return session when user is authenticated', async () => {
       const mockSession = {
         user: {

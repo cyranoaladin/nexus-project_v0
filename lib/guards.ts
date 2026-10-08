@@ -6,6 +6,7 @@
  */
 
 import { auth } from '@/auth';
+import type { Session } from 'next-auth';
 import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
@@ -17,6 +18,7 @@ export type AuthSession = {
     id: string;
     email: string | null;
     role: UserRole;
+    authority?: Session['user']['authority'];
     firstName?: string;
     lastName?: string;
     name?: string | null;
