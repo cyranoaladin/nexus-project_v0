@@ -1,3 +1,4 @@
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 import { randomBytes, createHash } from 'node:crypto';
 import {
   accessSync,
@@ -629,6 +630,9 @@ export async function writeNpcStorageFileAtomic(
           context.expectedDirectory,
           context.root,
         );
+        // Scan the open quarantine inode before publishing its final name.
+        // Parent PID also works for an external scanner with close-on-exec FDs.
+        await scanPrivateFile(`/proc/${process.pid}/fd/${temporaryHandle.fd}`);
         await verifyOpenedEntry(temporaryContext, temporaryHandle);
         await link(temporaryPath, finalPath);
         published = true;

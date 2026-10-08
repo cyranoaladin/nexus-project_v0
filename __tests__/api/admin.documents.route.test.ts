@@ -3,10 +3,10 @@ import { POST } from '@/app/api/admin/documents/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir, unlink } from 'fs/promises';
-import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
-jest.mock('@/lib/core-v2/diagnostics/virus-scan', () => ({ scanPrivateFile: jest.fn() }));
+jest.mock('@/lib/security/private-file-antivirus', () => ({ scanPrivateFile: jest.fn() }));
 jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn() }));
 
 jest.mock('@/lib/guards', () => ({

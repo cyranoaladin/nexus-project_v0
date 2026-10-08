@@ -220,3 +220,32 @@ ignorée n'est comptée comme preuve et aucun reset de restauration n'a été la
 
 L'artefact c46ea1af6 ne contient pas ce correctif ; une nouvelle tête et une nouvelle
 CI sont donc nécessaires avant qualification finale ou ouverture documentaire.
+
+## Extension de la couverture antivirus et correction de la frontière de modules
+
+CI `d3397f4930c7cd93874c8ffdada27083a7e44bc9` : le garde d'architecture a
+rejeté les imports directs du scanner Core depuis les routes documentaires V1.
+Le transport est extrait dans `lib/security/private-file-antivirus.ts` sans
+changer le contrat Core ni importer son stockage depuis le module partagé.
+
+L'inventaire complet des entrées binaires a aussi identifié Espace et les deux
+uploads NPC. Espace scanne le fichier privé avant transaction. NPC scanne l'inode
+ouvert de quarantaine avant le hardlink de publication, puis revalide l'identité
+et conserve son nettoyage borné. L'API assistante refuse désormais tout chemin
+local fourni par le client ; son parcours URL est conservé.
+
+- RED Espace : trois défauts reproduits, ownership déjà correct.
+- RED NPC/assistante : quatre défauts reproduits ; RED erreurs publiques NPC : six.
+- GREEN stockage/routes NPC : six suites, 99 tests.
+- GREEN documents/Espace/frontière architecture : cinq suites, 78 tests.
+- ClamAV réel : huit tests, dont écriture NPC via descripteur ouvert, fichier sain
+  publié et EICAR refusé sans fichier final.
+- Borne Nginx actuelle vérifiée sans données client : requête annonçant plus de
+  50 Mio rejetée HTTP 413 avant corps ; aucune écriture ni reconfiguration proxy.
+- Diagnostic candidat-libre V1 : son scan porte sur le fichier chiffré ; cette
+  capacité reste fermée par `CANDIDATE_DIAGNOSTIC_ENABLED=false`. Elle n'est pas
+  qualifiée pour ouverture par ces tests.
+- Revue indépendante : aucun nouveau bloquant dans le diff de publication.
+
+Ces preuves restent isolées. Elles ne qualifient ni la production, ni un rollback
+compatible, ni l'artefact final encore à construire et vérifier.

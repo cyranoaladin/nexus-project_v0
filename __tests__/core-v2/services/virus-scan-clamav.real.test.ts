@@ -14,8 +14,12 @@
  * pattern from the mocked unit lane on purpose).
  */
 import { randomUUID } from 'node:crypto';
-import { resolve } from 'node:path';
-import { scanDiagnosticSubmissionFile, scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { resolve, join } from 'node:path';
+import { mkdtemp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { writeNpcStorageFileAtomic } from '@/lib/npc/storage-root';
+import { scanDiagnosticSubmissionFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 import { writeDiagnosticStorageFile, diagnosticsStorageRoot } from '@/lib/core-v2/diagnostics/storage';
 
 const previousMode = process.env.DIAGNOSTIC_AV_MODE;
@@ -69,3 +73,32 @@ describe.each(['diagnostic', 'general'] as const)('%s private file — real Clam
 // happens to have a real clamdscan on PATH would make that specific
 // assertion flaky in exactly the opposite direction this file exists to
 // avoid (a mocked "always clean" double masquerading as a real verdict).
+
+// Exercise the actual atomic writer: scanner reads /proc/<parent-pid>/fd/<fd>
+// while the final pathname is still unpublished.
+describe('NPC atomic writer with real ClamAV', () => {
+  let root: string;
+  const priorRoot = process.env.NPC_STORAGE_ROOT;
+  beforeEach(async () => {
+    if (!process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST) throw new Error('DIAGNOSTIC_AV_REAL_TEST_CONFIGURATION_REQUIRED');
+    process.env.DIAGNOSTIC_AV_MODE = 'clamdscan';
+    root = await mkdtemp(join(tmpdir(), 'nexus-npc-real-av-'));
+    process.env.NPC_STORAGE_ROOT = join(root, 'private');
+    await mkdir(process.env.NPC_STORAGE_ROOT, { mode: 0o750 });
+  });
+  afterEach(async () => {
+    await rm(root, { recursive: true, force: true });
+    if (priorRoot === undefined) delete process.env.NPC_STORAGE_ROOT; else process.env.NPC_STORAGE_ROOT = priorRoot;
+    if (previousMode === undefined) delete process.env.DIAGNOSTIC_AV_MODE; else process.env.DIAGNOSTIC_AV_MODE = previousMode;
+  });
+  test('publishes harmless bytes from the scanned open inode', async () => {
+    const bytes = Buffer.from('synthetic harmless document');
+    const result = await writeNpcStorageFileAtomic('student/clean.pdf', bytes, bytes.length);
+    expect(await readFile(result.filePath)).toEqual(bytes);
+  });
+  test('real EICAR verdict removes only the quarantine file and publishes nothing', async () => {
+    const bytes = Buffer.from(EICAR);
+    await expect(writeNpcStorageFileAtomic('student/rejected.pdf', bytes, bytes.length)).rejects.toThrow(/^MALWARE_DETECTED:/);
+    expect(await readdir(join(process.env.NPC_STORAGE_ROOT!, 'student'))).toEqual([]);
+  });
+});

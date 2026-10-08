@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { mkdir, writeFile, unlink } from 'fs/promises';
 import { randomUUID } from 'node:crypto';
-import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 import { checkCsrf } from '@/lib/csrf';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import path from 'path';

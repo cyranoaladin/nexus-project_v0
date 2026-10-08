@@ -427,7 +427,8 @@ export async function POST(
       if (error.publicCode === 'INVENTORY_CHANGED') {
         return NextResponse.json(NPC_INVENTORY_FROZEN_CONFLICT, { status: 409 });
       }
-      return NextResponse.json({ error: error.publicCode }, { status: 500 });
+      const status = error.publicCode === 'DOCUMENT_REJECTED' ? 422 : error.publicCode === 'DOCUMENT_SCAN_UNAVAILABLE' ? 503 : 500;
+      return NextResponse.json({ error: error.publicCode }, { status });
     }
     console.error('[NPC Documents] Upload error:', serializeError(error));
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

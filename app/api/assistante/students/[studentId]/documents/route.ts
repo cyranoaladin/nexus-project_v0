@@ -12,9 +12,8 @@ const createDocumentSchema = z.object({
   title: z.string().min(1, 'Titre requis').max(200),
   description: z.string().max(1000).optional(),
   url: z.string().url().optional(),
-  localPath: z.string().optional(),
   visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
-});
+}).strict();
 
 const documentSafeSelect = {
   id: true,
@@ -129,16 +128,16 @@ export async function POST(request: Request, { params }: RouteParams) {
     const body = await request.json();
     const validated = createDocumentSchema.parse(body);
 
-    // Require either url or localPath
-    if (!validated.url && !validated.localPath) {
+    // Private paths are reserved for server-side scanned uploads.
+    if (!validated.url) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'URL ou chemin local requis' },
+        { error: 'Bad Request', message: 'URL requise' },
         { status: 400 }
       );
     }
 
     // Build data ensuring localPath is always provided (required by Prisma schema)
-    const localPath = validated.localPath || validated.url || `/app/storage/documents/${student.userId}/${Date.now()}-${validated.title.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    const localPath = validated.url;
     
     const document = await prisma.userDocument.create({
       data: {

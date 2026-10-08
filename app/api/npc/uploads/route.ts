@@ -327,7 +327,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
     if (error instanceof InitialUploadStorageError) {
-      return NextResponse.json({ error: error.publicCode }, { status: 500 });
+      const status = error.publicCode === 'DOCUMENT_REJECTED' ? 422 : error.publicCode === 'DOCUMENT_SCAN_UNAVAILABLE' ? 503 : 500;
+      return NextResponse.json({ error: error.publicCode }, { status });
     }
     console.error('[NPC Upload] Error:', serializeError(error));
     return NextResponse.json(

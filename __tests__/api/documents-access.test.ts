@@ -5,10 +5,10 @@
 import { NextRequest } from 'next/server';
 import { writeFile, unlink } from 'fs/promises';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
-import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 
 jest.mock('fs/promises', () => ({ mkdir: jest.fn().mockResolvedValue(undefined), writeFile: jest.fn().mockResolvedValue(undefined), unlink: jest.fn().mockResolvedValue(undefined) }));
-jest.mock('@/lib/core-v2/diagnostics/virus-scan', () => ({ scanPrivateFile: jest.fn() }));
+jest.mock('@/lib/security/private-file-antivirus', () => ({ scanPrivateFile: jest.fn() }));
 jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 
 // ── Mocks ───────────────────────────────────────────────────────────────────
@@ -441,6 +441,17 @@ describe('Documents Access Control', () => {
       });
 
       expect(response.status).toBe(404);
+    });
+
+    it('refuses client-supplied private paths instead of publishing an unscanned file', async () => {
+      assistanteSession();
+      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      const request = new NextRequest('http://localhost/api/assistante/students/student-1/documents', {
+        method: 'POST', body: JSON.stringify({ documentType: 'COURS', title: 'Synthetic', localPath: 'private/unscanned.pdf' }),
+      });
+      const response = await AssistanteDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) });
+      expect(response.status).toBe(400);
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
     });
 
     it('should allow ASSISTANTE to POST document for any student', async () => {

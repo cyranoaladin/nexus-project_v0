@@ -141,7 +141,13 @@ export async function saveUploadedFile(
     if (hasErrorCode(error, 'NPC_STORAGE_SIZE_MISMATCH')) {
       return { success: false, error: 'SIZE_MISMATCH_AFTER_WRITE' };
     }
-    console.error('[NPC Storage] Save failed:', serializeError(error));
+    if (error instanceof Error && error.message.startsWith('MALWARE_DETECTED')) {
+      return { success: false, error: 'DOCUMENT_REJECTED' };
+    }
+    if (error instanceof Error && error.message.startsWith('AV_')) {
+      return { success: false, error: 'DOCUMENT_SCAN_UNAVAILABLE' };
+    }
+    console.error('[NPC Storage] Save failed:', { code: 'SAVE_FAILED' });
     return { success: false, error: 'SAVE_FAILED' };
   }
 }

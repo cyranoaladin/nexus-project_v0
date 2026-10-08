@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
 import { mkdir, writeFile, unlink } from 'fs/promises';
-import { scanPrivateFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
