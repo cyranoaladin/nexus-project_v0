@@ -48,7 +48,7 @@ exports[`ReflexCard matches snapshot for state ACQUIS 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >
@@ -107,7 +107,7 @@ exports[`ReflexCard matches snapshot for state PAS_VU 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >
@@ -166,7 +166,7 @@ exports[`ReflexCard matches snapshot for state REVOIR 1`] = `
       </p>
       <button
         aria-busy="false"
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
+        class="inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-[color,background-color,border-color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border bg-transparent hover:bg-brand-primary hover:text-white h-10 md:h-12 px-4 md:px-6 py-2 md:py-3 text-sm md:text-base min-h-11 w-full border-eaf-indigo/30 text-eaf-orange"
         tabindex="0"
         type="button"
       >

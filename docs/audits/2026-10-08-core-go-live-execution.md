@@ -339,3 +339,8 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - Correction : réutilisation du transport SSE canonique avec executor/repository Core injectés, après les mêmes gates auth, CSRF, actor, contexte et ownership. Le wrapper accepte cette réponse privée après ses vérifications et conserve la corrélation. Le client négocie SSE ; les clients JSON restent compatibles. La mention sans base documentaire Nexus est explicite dans le dialogue.
 - GREEN : 212 tests UI/transport, 85 contrôles de frontière, 33 tests HTTP dont annulation sur PostgreSQL isolé avant le premier token. Ce dernier test utilise un fournisseur contrôlé respectant le contrat typé du gateway : `202 CANCELLATION_REQUESTED`, arrêt par heartbeat, puis état durable `CANCELLED` et deux messages, sans token généré. Les premières versions du test omettaient la configuration de limiteur synthétique, attendaient 200 au lieu de 202, puis simulaient un AbortError brut au lieu du contrat gateway ; elles ne sont pas des preuves vertes.
 - Lint exit 0 avec warnings préexistants ; compilation sans cache exit 0. Revue indépendante en lecture seule : aucun défaut bloquant identifié dans ce delta. Le fournisseur réel et le proxy restent à vérifier sur le prochain artefact CI.
+
+### Snapshots du bouton corrigé
+
+- CI d7716d1a : 1 388 suites et 15 749 tests unitaires passent ; six snapshots de deux suites échouent uniquement sur la classe de transition du bouton corrigé pour le contraste WebKit.
+- RED reproduit localement. Les six lignes attendues sont actualisées après revue du diff : aucun contenu, attribut ARIA ou comportement modifié. Rejeu sans mise à jour : six tests et six snapshots passent.
