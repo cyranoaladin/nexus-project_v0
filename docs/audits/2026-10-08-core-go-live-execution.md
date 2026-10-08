@@ -356,3 +356,28 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - **RED CI** : run `37855055785`, job Chromium `113577914540`, 569/570 passent. Le test Core ARIA lit encore `sent.json()` après HTTP 200 alors que le client utilise désormais SSE. Le test est corrigé pour exiger HTTP 200, Content-Type SSE et fin du transport, puis rattacher le résultat au couple acteur/UUID et lire l’historique natif paginé du tour exact. Les assertions COMPLETED/SUCCESS/citations, feedback, invocation unique et absence de routes V1 sont conservées.
 - **GREEN ciblé** : le bloc de contrôle corrigé a été exécuté contre l’artefact 47ec et le fournisseur réel, avec les seules attentes RAG adaptées au mode sans RAG : transport FINISHED, un tour exact COMPLETED et deux messages persistés. Le harness initial omettait son baseURL et a échoué Invalid URL ; il a été corrigé avant le résultat GREEN. Typecheck complet non incrémental, lint ciblé et revue indépendante PASS. Le scénario complet avec fixture RAG reste à confirmer par la nouvelle CI ; aucun vert de cette CI n’est anticipé.
 - La revue Copilot du nouveau candidat reste indisponible : GitHub affiche épuisement des crédits jusqu’au 1er novembre 2026. L’intervention opérateur a été demandée ; aucune dépense engagée. Approbation humaine finale, fusion, déploiement et ouverture client non effectués.
+# Confidentialité des artefacts — contrôle du 2026-10-08 23:30 UTC
+
+- Le dépôt GitHub est public. Les artefacts Actions ne sont donc pas un stockage
+  privé. Le scan du standalone `1377f2178970579c5c9a67f08b931244d2c363c2`
+  identifie 11 faux positifs et quatre occurrences de deux clés Next réelles.
+  `previewModeId` et la clé AES Server Actions sont également présents.
+  Aucune valeur n'a été imprimée ou copiée dans les preuves.
+- Aucun usage applicatif preview/draftMode, closure ou argument lié n'est trouvé.
+  Les 13 Server Actions appliquent auth() et leurs gardes métier. Aucun bypass
+  d'authentification démontré ; le jeton Next de revalidation/bypass demeure
+  néanmoins fonctionnel. Les artefacts exposés sont exclus de la promotion.
+- Correction minimale des deux producteurs : CI et Preview chiffrent leur
+  archive avec GPG avant upload, sous une clé publique de release dédiée. Seuls
+  le ciphertext et les sidecars publics explicitement listés sont publiés.
+  La clé privée demeure dans le stockage opérateur local protégé, hors serveur.
+- RED : les deux workflows publiaient du runtime clair et le wrapper de
+  chiffrement manquait. GREEN : aller-retour réel GPG, octets et modes conservés,
+  absence de clé privée et archive altérée refusées, clé invalide sans résultat
+  publiable, sortie existante préservée ; garde des deux listes d'upload.
+- Les preuves d'authentification, documents, Espace et invitation Mailpit du SHA
+  `1377f2178` restent des preuves fonctionnelles intermédiaires. Aucun nouveau
+  déploiement de production, aucune migration de production et aucun mail client.
+- À fermer après la nouvelle CI : téléchargement/déchiffrement/digests, rotation
+  des clés Next en mémoire, smokes du nouveau bundle et trois rollbacks. L'artefact
+  de repli local a été construit en privé ; il n'a pas été publié dans Actions.

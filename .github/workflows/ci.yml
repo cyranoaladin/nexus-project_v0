@@ -2342,14 +2342,28 @@ jobs:
       - name: Generate build dependency SBOM
         run: npm run sbom:runtime
 
+      - name: Encrypt deployable build archive
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          umask 077
+          install -d -m 0700 "$RUNNER_TEMP/nexus-build-delivery"
+          tar --sort=name --owner=0 --group=0 --numeric-owner -czf "$RUNNER_TEMP/nexus-build.tar.gz" .next/standalone release-manifest.json security/sbom/runtime.cdx.json
+          node scripts/release/encrypt-release-archive.mjs "$RUNNER_TEMP/nexus-build.tar.gz" security/release-recipient.asc "$RUNNER_TEMP/nexus-build-delivery/nexus-build.tar.gz.gpg"
+          (cd "$RUNNER_TEMP" && sha256sum nexus-build.tar.gz) > "$RUNNER_TEMP/nexus-build-delivery/archive.sha256"
+          (cd "$RUNNER_TEMP/nexus-build-delivery" && sha256sum nexus-build.tar.gz.gpg) > "$RUNNER_TEMP/nexus-build-delivery/ciphertext.sha256"
+          cp release-manifest.json security/sbom/runtime.cdx.json "$RUNNER_TEMP/nexus-build-delivery/"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: nextjs-build
           path: |
-            .next/standalone/
-            release-manifest.json
-            security/sbom/runtime.cdx.json
+            ${{ runner.temp }}/nexus-build-delivery/nexus-build.tar.gz.gpg
+            ${{ runner.temp }}/nexus-build-delivery/archive.sha256
+            ${{ runner.temp }}/nexus-build-delivery/ciphertext.sha256
+            ${{ runner.temp }}/nexus-build-delivery/release-manifest.json
+            ${{ runner.temp }}/nexus-build-delivery/runtime.cdx.json
           retention-days: 7
           include-hidden-files: true
           if-no-files-found: error

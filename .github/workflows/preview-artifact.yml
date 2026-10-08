@@ -384,7 +384,7 @@ jobs:
             exit 1
           fi
           echo 'RUNTIME_STORAGE_EXCLUDED_FROM_ARCHIVE=PASS'
-          sha256sum "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz" > "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz.sha256"
+          (cd "$RUNNER_TEMP/preview-delivery" && sha256sum preview-standalone.tar.gz) > "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz.sha256"
           echo "BUILD_ID=$build_id" >> "$GITHUB_STEP_SUMMARY"
           echo "APPLICATION_SOURCE_SHA=$APPLICATION_SOURCE_SHA" >> "$GITHUB_STEP_SUMMARY"
           echo "BUILDER_WORKFLOW_SHA=$BUILDER_WORKFLOW_SHA" >> "$GITHUB_STEP_SUMMARY"
@@ -392,11 +392,25 @@ jobs:
           echo "RUN_ATTEMPT=$BUILD_RUN_ATTEMPT" >> "$GITHUB_STEP_SUMMARY"
           cat "$RUNNER_TEMP/preview-delivery/delivery-provenance.json" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Encrypt deployable Preview archive
+        shell: bash
+        working-directory: app
+        run: |
+          set -Eeuo pipefail
+          umask 077
+          node scripts/release/encrypt-release-archive.mjs "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz" security/release-recipient.asc "$RUNNER_TEMP/preview-delivery/preview-standalone.tar.gz.gpg"
+          (cd "$RUNNER_TEMP/preview-delivery" && sha256sum preview-standalone.tar.gz.gpg) > "$RUNNER_TEMP/preview-delivery/ciphertext.sha256"
+
       - name: Upload deployable Preview artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: preview-standalone-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/preview-delivery/
+          path: |
+            ${{ runner.temp }}/preview-delivery/preview-standalone.tar.gz.gpg
+            ${{ runner.temp }}/preview-delivery/preview-standalone.tar.gz.sha256
+            ${{ runner.temp }}/preview-delivery/ciphertext.sha256
+            ${{ runner.temp }}/preview-delivery/release-manifest.json
+            ${{ runner.temp }}/preview-delivery/delivery-provenance.json
           retention-days: 14
           include-hidden-files: true
           if-no-files-found: error
