@@ -721,3 +721,20 @@ describe('POST /api/payments/validate — sale suspension (P0-ARIA-03)', () => {
     });
   });
 });
+
+
+describe('payment approval release gate', () => {
+  const previous = process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+  afterEach(() => { if (previous === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER; else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = previous; });
+  it('refuses approval before loading payment or granting entitlements when disabled', async () => {
+    jest.clearAllMocks();
+    process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = 'false';
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN' } });
+    const response = await POST(makeRequest({ paymentId: 'synthetic-payment', action: 'approve' }));
+    expect(response.status).toBe(403);
+    expect((await response.json()).code).toBe('BANK_TRANSFER_DISABLED');
+    expect(prisma.payment.findUnique).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(activateEntitlements).not.toHaveBeenCalled();
+  });
+});

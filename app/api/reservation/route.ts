@@ -1,3 +1,4 @@
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 export const dynamic = 'force-dynamic';
 
@@ -109,6 +110,7 @@ async function submitReservation(request: NextRequest) {
     });
     if (existing) return reservationAcknowledgement();
     const isBankTransfer = data.paymentMethod === 'bank_transfer';
+    if (isBankTransfer && !isBankTransferEnabled()) return NextResponse.json({ success: false, error: 'Paiements indisponibles.', code: 'BANK_TRANSFER_DISABLED' }, { status: 403 });
     try {
       await prisma.$transaction(async transaction => {
         const locked = await transaction.$queryRaw<Array<{ id: string }>>`

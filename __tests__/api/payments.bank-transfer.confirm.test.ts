@@ -323,3 +323,24 @@ it('preserves the accepted historical CGV version when an existing transfer is r
   expect(historicalPayment.termsVersion).toBe('CGV v1.0 – 2026-03-01');
   expect(historicalPayment.termsAcceptedAt.toISOString()).toBe('2026-03-10T12:00:00.000Z');
 });
+
+
+describe('bank transfer release gate', () => {
+  const previous = process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+  afterEach(() => { if (previous === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER; else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = previous; });
+  it.each([undefined, 'false', 'TRUE'])('refuses unqualified transfers with flag %s before business access', async value => {
+    jest.clearAllMocks();
+    if (value === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER; else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = value;
+    mockAuth.mockResolvedValue(mockSession('PARENT'));
+    const { POST } = await import('@/app/api/payments/bank-transfer/confirm/route');
+    const { prisma } = await import('@/lib/prisma');
+    const response = await POST(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+    }));
+    expect(response.status).toBe(403);
+    expect((await response.json()).code).toBe('BANK_TRANSFER_DISABLED');
+    expect(prisma.$transaction).not.toHaveBeenCalled();
+    expect(prisma.parentProfile.findUnique).not.toHaveBeenCalled();
+    expect(prisma.notification.create).not.toHaveBeenCalled();
+  });
+});

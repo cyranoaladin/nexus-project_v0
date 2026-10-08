@@ -98,3 +98,22 @@ test('a stage removed before its lock cannot create a lead', async () => {
   expect(mockLockedStage).not.toHaveBeenCalled();
   expect(mockCreate).not.toHaveBeenCalled();
 });
+
+test('disabled bank transfers create neither a reservation nor a notification, while ordinary requests remain available', async () => {
+  const previous = process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+  process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = 'false';
+  try {
+    const response = await POST(request('bank_transfer'));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ code: 'BANK_TRANSFER_DISABLED' });
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockCreate).not.toHaveBeenCalled();
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockDrain).not.toHaveBeenCalled();
+    expect((await POST(request())).status).toBe(201);
+    expect(mockEnqueue).toHaveBeenCalledTimes(1);
+  } finally {
+    if (previous === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+    else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = previous;
+  }
+});

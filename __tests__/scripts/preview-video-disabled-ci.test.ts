@@ -92,6 +92,7 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(effective.NEXT_PUBLIC_JITSI_SERVER_URL || '').toBe('');
     expect(effective.NEXT_PUBLIC_APP_URL).toBe('https://nexusreussite.academy');
     expect(effective.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC).toBe('false');
+    expect(effective.NEXT_PUBLIC_ENABLE_BANK_TRANSFER).toBe('false');
     const checkout = build.steps.find((step: { uses?: string }) => step.uses?.startsWith('actions/checkout@'));
     expect(checkout.with.ref).toBe('${{ github.event.pull_request.head.sha || github.sha }}');
     expect(build.env.RELEASE_SHA).toBe(checkout.with.ref);

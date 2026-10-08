@@ -1,3 +1,6 @@
+// Disposable test fixtures explicitly exercise the qualified bank-transfer path.
+// Production defaults to closed; disabled-capability tests override this fixture setting.
+process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = 'true';
 // Set NODE_ENV before any imports
 process.env.NODE_ENV = 'development';
 // S3: unit tests use the deterministic in-process adapter by explicit opt-in.

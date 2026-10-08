@@ -1,5 +1,6 @@
 "use client"
 
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation"
@@ -242,7 +243,7 @@ export default function PaiementsAssistantePage() {
 
                     {/* Server RBAC remains authoritative; read-only staff get no mutation controls. */}
                     {canUpdatePayment ? <div className="flex items-center space-x-4">
-                      <Button
+                      {isBankTransferEnabled() && <Button
                         onClick={() => handleValidatePayment(payment.id, 'approve')}
                         disabled={isValidating}
                         className="bg-emerald-500/80 hover:bg-emerald-500 text-white"
@@ -253,7 +254,7 @@ export default function PaiementsAssistantePage() {
                           <Check className="w-4 h-4 mr-2" />
                         )}
                         Valider le Paiement
-                      </Button>
+                      </Button>}
                       
                       <Button
                         onClick={() => {

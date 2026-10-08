@@ -1,5 +1,7 @@
 "use client";
 
+import { PaymentsUnavailable } from '@/components/checkout/PaymentsUnavailable';
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -558,6 +560,7 @@ function PaiementPageLoading() {
 }
 
 export default function PaiementPage() {
+  if (!isBankTransferEnabled()) return <PaymentsUnavailable />;
   return (
     <Suspense fallback={<PaiementPageLoading />}>
       <PaiementContent />

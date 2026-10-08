@@ -1,3 +1,4 @@
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { checkCsrf } from '@/lib/csrf';
 import { privateFinancialJson } from '@/lib/invoice/private-response';
 import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
@@ -213,6 +214,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { paymentId, action, note } = validatePaymentSchema.parse(body);
+    if (action === 'approve' && !isBankTransferEnabled()) return privateFinancialJson({ error: 'Paiements indisponibles.', code: 'BANK_TRANSFER_DISABLED' }, { status: 403 });
 
     // Récupérer le paiement
     const payment = await prisma.payment.findUnique({

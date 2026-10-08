@@ -1,5 +1,7 @@
 "use client"
 
+import { PaymentsUnavailable } from '@/components/checkout/PaymentsUnavailable';
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,6 +10,7 @@ import Link from "next/link"
 import { LEGAL } from "@/lib/legal"
 
 export default function PaymentConfirmationPage() {
+  if (!isBankTransferEnabled()) return <PaymentsUnavailable />;
   return (
     <div className="min-h-screen bg-transparent">
       <main className="py-20">

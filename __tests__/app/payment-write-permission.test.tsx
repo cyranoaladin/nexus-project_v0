@@ -31,3 +31,18 @@ it('staff with canonical PAYMENT UPDATE permission retains mutation controls', a
   expect(await screen.findByRole('button', { name: 'Valider le Paiement' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Rejeter' })).toBeInTheDocument();
 });
+
+it('ADMIN cannot approve a payment while bank transfers are disabled but can still reject it', async () => {
+  const previous = process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+  process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = 'false';
+  try {
+    mockSession.mockReturnValue({ status: 'authenticated', data: { user: { id: 'synthetic-admin', role: 'ADMIN' } } });
+    render(<PaymentPage />);
+    expect(await screen.findByText('Synthetic pending payment')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Valider le Paiement' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rejeter' })).toBeInTheDocument();
+  } finally {
+    if (previous === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
+    else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = previous;
+  }
+});

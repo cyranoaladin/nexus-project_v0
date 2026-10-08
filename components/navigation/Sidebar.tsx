@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth';
-import { navigationConfig } from './navigation-config';
+import { getNavigationItems } from './navigation-config';
 import { NavigationItem } from './NavigationItem';
 import UserProfile from './UserProfile';
 import { LogoutButton } from './LogoutButton';
@@ -7,7 +7,7 @@ import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Sidebar({ user }: { user: Session['user'] }) {
   const navigationItems = await filterNsiPratiqueNavigation(
-    navigationConfig[user.role],
+    getNavigationItems(user),
     {
       userId: user.id,
       email: user.email,

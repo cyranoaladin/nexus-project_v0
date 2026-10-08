@@ -1,3 +1,4 @@
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    if (!isBankTransferEnabled()) return NextResponse.json({ error: 'Paiements indisponibles.', code: 'BANK_TRANSFER_DISABLED' }, { status: 403, headers: { 'Cache-Control': 'private, no-store' } });
 
     const body = await request.json();
     const data = confirmBankTransferSchema.parse(body);

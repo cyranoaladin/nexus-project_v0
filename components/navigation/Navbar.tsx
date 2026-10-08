@@ -1,12 +1,12 @@
 import type { Session } from 'next-auth';
 import Link from 'next/link';
-import { navigationConfig } from './navigation-config';
+import { getNavigationItems } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Navbar({ user }: { user: Session['user'] }) {
   const navigationItems = await filterNsiPratiqueNavigation(
-    navigationConfig[user.role],
+    getNavigationItems(user),
     {
       userId: user.id,
       email: user.email,

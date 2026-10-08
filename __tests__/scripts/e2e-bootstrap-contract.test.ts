@@ -8,6 +8,11 @@ const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
 
 describe('ephemeral E2E bootstrap contract', () => {
+  it('explicitly enables bank-transfer fixtures only in the disposable build', () => {
+    const builder = read('Dockerfile.e2e').split('FROM base AS runner')[0];
+    expect(builder).toContain('ENV NEXT_PUBLIC_ENABLE_BANK_TRANSFER=true');
+    expect(builder.indexOf('ENV NEXT_PUBLIC_ENABLE_BANK_TRANSFER=true')).toBeLessThan(builder.indexOf('RUN npm run build:base'));
+  });
   it('shares diagnostic fixture storage between the writer and the standalone reader', () => {
     const compose = parse(read('docker-compose.e2e.yml')) as { services: Record<string, { environment: Record<string, string>; volumes: string[] }> };
     const app = compose.services['app-e2e'];

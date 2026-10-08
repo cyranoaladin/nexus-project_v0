@@ -37,6 +37,8 @@ ENV E2E_DISPOSABLE_STACK=1
 # NEXT_PUBLIC values must be compiled, not only supplied to the runner.
 # This dedicated .test origin is intercepted by the isolated Jitsi E2E fixture.
 ENV NEXT_PUBLIC_JITSI_SERVER_URL=https://jitsi-e2e-compose.nexus-e2e.test
+# Only disposable fixtures exercise the bank-transfer approval flow.
+ENV NEXT_PUBLIC_ENABLE_BANK_TRANSFER=true
 RUN npm run build:base
 
 # === Stage 4: Runner ===

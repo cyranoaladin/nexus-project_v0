@@ -2178,6 +2178,7 @@ jobs:
       NEXT_PUBLIC_VIDEO_MODE: DISABLED
       NEXT_PUBLIC_APP_URL: https://nexusreussite.academy
       NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: 'false'
+      NEXT_PUBLIC_ENABLE_BANK_TRANSFER: 'false'
 
     services:
       postgres:

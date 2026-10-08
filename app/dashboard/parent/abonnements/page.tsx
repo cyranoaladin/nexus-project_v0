@@ -1,5 +1,6 @@
 "use client";
 
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -241,13 +242,13 @@ export default function AbonnementsPage() {
                             </li>
                           )}
                         </ul>
-                        <Button
+                        {isBankTransferEnabled() && <Button
                           onClick={() => handleSpecialPack(key)}
                           className="w-full text-sm sm:text-base"
                           variant="outline"
                         >
                           Acheter ce Pack
-                        </Button>
+                        </Button>}
                       </CardContent>
                     </Card>
                   ))}

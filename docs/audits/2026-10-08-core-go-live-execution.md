@@ -126,8 +126,8 @@ La seconde sauvegarde partage le snapshot de son inventaire et sa restauration
 est comparée avec succès. Elle devra être renouvelée avant la migration réelle
 pour couvrir les écritures de production intervenues depuis.
 
-Le conteneur historique de répétition sans mot de passe a été identifié. Il reste
-à arrêter et déconnecter avant ouverture, sans supprimer son volume.
+Le conteneur historique de répétition sans mot de passe a été identifié exactement,
+arrêté et déconnecté. Son volume est conservé ; la santé production est restée HTTP 200.
 
 ## Rollback
 
@@ -140,3 +140,57 @@ Le nouveau drill doit conserver schéma et données et utiliser les mêmes artef
 
 GO_LIVE_NON_ACCOMPLI. Cette matrice décrit les preuves disponibles et les gates
 restants ; elle n'autorise ni fusion ni ouverture tant qu'ils ne sont pas fermés.
+
+
+## Qualification isolée du candidat 510efc0
+
+- SHA : `510efc0f37de99683c92d9c4a581ae7737e4c2ca` ; artefact CI unique,
+  digest ZIP `ccd9e779a748f447c63c014ebdd94731c3876ce51a21cc2880ace38e07c924fd`.
+  Manifeste et SBOM présents ; vidéo désactivée ; origine publique production.
+- Exécution isolée avec le même Node 22.23.1 et OpenSSL 3 que la cible, montage
+  de l'artefact en lecture seule, identité système non privilégiée.
+- Sept identités synthétiques activées via invitations natives : ADMIN, ASSISTANTE,
+  COACH, deux PARENT et deux ELEVE ; deux familles distinctes. Année et inscriptions,
+  affectation coach et trois séances créées via les API canoniques.
+- Perte d'acquittement après persistance du handoff simulée : reprise réussie,
+  un seul intent et un seul message Mailpit, puis drain sans travail.
+- Mailpit filtre les destinataires synthétiques ; aucun message client envoyé.
+- ClamAV isolé : document sain, EICAR refusé et indisponibilité fermée vérifiés.
+  Cela qualifie le pipeline diagnostic, pas les anciens documents généraux.
+- Le runtime Core limité a besoin de SELECT sur quatre colonnes du journal Prisma
+  (migration_name, checksum, finished_at, rolled_back_at). Droit borné accordé
+  uniquement sur restauration ; écritures journal et SELECT global refusés.
+  TEMP hérité de PUBLIC a aussi été retiré sur les seules bases isolées testées.
+- DNS MX/SPF/DKIM/DMARC concordants avec les paramètres Hostinger transmis.
+  DMARC reste en observation (`p=none`). Transport modèle réel vérifié par une
+  requête synthétique ; ce résultat ne qualifie pas le parcours ARIA complet.
+
+## Défauts fonctionnels reproduits et correction en qualification
+
+1. Coach d'autorité Core-v2 : appels répétés aux API dashboard/cohorte V1 en 404.
+   Le home utilise maintenant exclusivement les affectations/plannings Core.
+   Les liens V1 confirmés incompatibles sont retirés de la navigation Core.
+   Cette restriction inclut les identités miroirs portant l'autorité Core.
+2. Documents élève : anciennes API inexistantes et téléchargement non implémenté.
+   La page V1 réutilise la liste propriétaire et le téléchargement autorisé existants.
+   Le partage général Core demeure indisponible, sans miroir improvisé ; les
+   diagnostics natifs restent accessibles. Les liens et ancres non disponibles
+   sont retirés pour ces identités.
+3. Paiement : le flag ClicToPay ne fermait pas les virements. Nouveau flag distinct
+   `NEXT_PUBLIC_ENABLE_BANK_TRANSFER`, fermé par défaut et compilé à false dans
+   l'artefact de production. Pages, confirmation, navigation, achat de packs et
+   approbation sont fermés ; API de déclaration, validation et réservation
+   refusent les mutations bancaires. Consultation, factures et rejet restent
+   soumis aux autorisations existantes. Les builds E2E isolés activent explicitement
+   les fixtures bancaires, sans modifier le build de production.
+
+Preuves RED/GREEN : coach 1 échec puis 2 succès ; documents 3 échecs puis 26 succès
+avec les suites d'ownership/téléchargement ; gates paiement API/UI et configuration
+CI reproduits en échec avant correction. Vérification consolidée : 11 suites,
+80 tests réussis, lint et typecheck exit 0. Revue indépendante en lecture seule :
+aucun nouveau bloquant ; landmarks main imbriqués corrigés.
+
+Ces changements exigent un nouveau SHA, une nouvelle CI et un nouvel artefact.
+Les anciens smokes ne constituent pas la preuve finale. L'artefact de repli de1c935
+réouvrirait les virements ; il n'est donc plus un rollback qualifié pour cette
+configuration. Les trois cycles authentifiés restent à prouver avec un repli sûr.
