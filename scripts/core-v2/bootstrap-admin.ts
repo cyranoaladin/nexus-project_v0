@@ -33,7 +33,7 @@ import { createServiceContext } from '@/lib/core-v2/services/context';
 import { inviteAccount, resendInvitation } from '@/lib/core-v2/services/account';
 import { bootstrapFirstAdmin } from '@/lib/core-v2/services/staff-account';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
-import { deliverCoreV2Invitation } from '@/lib/email/core-v2-invitation';
+import { assertAccountEmailHandoffRuntimeConfiguration } from '@/lib/core-v2/accounts/email-handoff-scheduler';
 
 function arg(name: string): string | undefined {
   const match = process.argv.find((a) => a.startsWith(`--${name}=`));
@@ -69,6 +69,7 @@ async function main(): Promise<number> {
   // never be queued, the account could not sign in to resend it, and the
   // bootstrap would already have closed itself because an ADMIN now exists.
   const origin = getTrustedApplicationOrigin();
+  assertAccountEmailHandoffRuntimeConfiguration();
 
   const client = await requireCoreV2Client();
 
@@ -101,18 +102,9 @@ async function main(): Promise<number> {
     }
     const ctx = createServiceContext({ userId: admin.id, role: 'ADMIN' }, { correlationId: `bootstrap-admin-resend:${admin.id}` });
     const reissued = await resendInvitation(client, ctx, admin.id);
-    await deliverCoreV2Invitation({
-      userId: admin.id,
-      role: 'ADMIN',
-      email: reissued.email,
-      displayName: `${firstName} ${lastName}`.trim(),
-      rawToken: reissued.rawToken,
-      tokenHash: reissued.invitation.tokenHash,
-      expiresAt: reissued.invitation.expiresAt,
-    });
     console.log(
-      `[bootstrap-admin] re-issued the activation e-mail for ADMIN ${admin.id}. Any previous link is now revoked. ` +
-        `Token not shown here by design. Expires ${reissued.invitation.expiresAt.toISOString()}.`,
+      `[bootstrap-admin] durably queued a new activation e-mail for ADMIN ${admin.id}. Any previous link is now revoked. ` +
+        `Delivery requires the running Core account e-mail worker. Token not shown here by design. Expires ${reissued.invitation.expiresAt.toISOString()}.`,
     );
     return 0;
   }
@@ -143,19 +135,13 @@ async function main(): Promise<number> {
   // lifecycle takes over: invitation, then activation sets the password.
   const ctx = createServiceContext({ userId: created.id, role: 'ADMIN' }, { correlationId: `bootstrap-admin:${created.id}` });
   const issued = await inviteAccount(client, ctx, created.id);
-  await deliverCoreV2Invitation({
-    userId: created.id,
-    role: 'ADMIN',
-    email: issued.email,
-    displayName: `${firstName} ${lastName}`.trim(),
-    rawToken: issued.rawToken,
-    tokenHash: issued.invitation.tokenHash,
-    expiresAt: issued.invitation.expiresAt,
-  });
+  // inviteAccount commits its encrypted handoff alongside the issuance. The
+  // running application's worker checks eligibility and transfers it idempotently
+  // to the destination outbox. A CLI-side send would bypass that worker.
 
   console.log(
-    `[bootstrap-admin] created ADMIN ${created.id} (PENDING_ACTIVATION) and enqueued its activation e-mail. ` +
-      `Token not shown here by design. Expires ${issued.invitation.expiresAt.toISOString()}. ` +
+    `[bootstrap-admin] created ADMIN ${created.id} (PENDING_ACTIVATION) and durably queued its activation e-mail. ` +
+      `Delivery requires the running Core account e-mail worker. Token not shown here by design. Expires ${issued.invitation.expiresAt.toISOString()}. ` +
       'BOOTSTRAP_ADMIN_DISABLED_FOREVER=YES.',
   );
   return 0;

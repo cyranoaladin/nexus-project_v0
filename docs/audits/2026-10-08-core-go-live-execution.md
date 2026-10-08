@@ -73,7 +73,7 @@ atomique et push fast-forward. Toute nouvelle tête exige nouvelle CI et approba
 - `npm run typecheck` : exit 0.
 - Restauration initiale : garde canonique migrations PASS, 110 appliquées,
   PRE_PENDING / PRODUCTION ; seule divergence bornée admise, 30 migrations
-  legacy restantes. Aucune migration de cette session encore exécutée.
+  legacy restantes à cet instant, avant les opérations isolées ci-dessous.
 - Après cette mesure initiale : sauvegarde chiffrée avec snapshot partagé entre
   pg_dump et inventaire, restauration isolée, 121 comptages égaux, 337 contraintes,
   429 index, 29 triggers et 110 entrées Prisma identiques. Seuls les trous de
@@ -89,6 +89,25 @@ atomique et push fast-forward. Toute nouvelle tête exige nouvelle CI et approba
 - CI du premier correctif : gate de sécurité documentaire en échec sur un alias
   d'infrastructure dans ce rapport. Reproduit localement ; alias retiré.
 
+## Correctif bootstrap découvert pendant la qualification
+
+Le CLI du premier ADMIN appelait directement un ancien adaptateur de livraison
+avec `tokenHash` au lieu de `invitationId`, alors que le service d'invitation
+persistait déjà un handoff durable. Cela pouvait doubler l'envoi et dédupliquer
+une réinvitation vers un ancien lien révoqué. La validation regex acceptait aussi
+les types non chaîne par coercition.
+
+- RED : 6 échecs, 3 succès, reproduisant les deux chemins CLI, le préflight absent
+  et les identifiants undefined/null/number.
+- Correctif : préflight runtime avant création, suppression des deux envois
+  directs, utilisation exclusive du handoff durable, garde de type stricte.
+- GREEN : 3 suites, 11 tests ; revue indépendante sans bloquant.
+- Lint, typecheck et gate de sécurité du dépôt réussis.
+- CLI réel exécuté sur Core-v2 isolé avec le rôle limité : ADMIN technique
+  créé, invitation durable persistée, aucun envoi direct.
+- Le worker applicatif reste nécessaire à la livraison ; le CLI annonce une
+  mise en file durable et ne prétend pas avoir livré le message.
+
 ## Décisions humaines encore indispensables
 
 Le générateur de roster exécuté en lecture seule sur la restauration compte
@@ -103,8 +122,9 @@ restent à attester ; aucune valeur de secret n'est requise dans la conversation
 Rapports opérationnels conservés hors dépôt dans le dossier de preuves local.
 Aucun secret, dump déchiffré ou donnée de famille ajouté à ce rapport.
 La clé privée de sauvegarde demeure sur la machine opérateur, permissions privées.
-La sauvegarde initiale a été restaurée, mais la comparaison au snapshot source
-reste nécessaire avant d'en faire le point de restauration de la release.
+La seconde sauvegarde partage le snapshot de son inventaire et sa restauration
+est comparée avec succès. Elle devra être renouvelée avant la migration réelle
+pour couvrir les écritures de production intervenues depuis.
 
 Le conteneur historique de répétition sans mot de passe a été identifié. Il reste
 à arrêter et déconnecter avant ouverture, sans supprimer son volume.

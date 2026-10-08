@@ -184,7 +184,7 @@ export async function enqueueEmailIntentForIssuance(
     now?: Date;
   }>,
 ): Promise<Readonly<{ id: string; sourceEventKey: string; messageId: string }>> {
-  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(input.issuanceId)) throw new Error('EMAIL_ISSUANCE_ID_INVALID');
+  if (typeof input.issuanceId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(input.issuanceId)) throw new Error('EMAIL_ISSUANCE_ID_INVALID');
   const eventKey = createHmac('sha256', dedicatedSecret())
     .update(JSON.stringify([EMAIL_OUTBOX_SCHEMA_VERSION, 'issuance', input.aggregateType,
       input.aggregateId, input.messageType, input.issuanceId])).digest('hex');

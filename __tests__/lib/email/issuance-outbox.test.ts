@@ -37,9 +37,9 @@ test('distinct durable issuances have distinct identities and no raw credential 
   expect(keys[0]).toMatch(/^email:issuance:v1:[a-f0-9]{64}$/);
 });
 
-test('rejects an empty event identity before touching the outbox', async () => {
+test.each(['', undefined, null, 42])('rejects invalid event identity %s before touching the outbox', async (issuanceId) => {
   const upsert = jest.fn();
-  await expect(enqueueEmailIntentForIssuance({ jobOutbox: { upsert } } as never, { ...input, issuanceId: '' }))
+  await expect(enqueueEmailIntentForIssuance({ jobOutbox: { upsert } } as never, { ...input, issuanceId: issuanceId as string }))
     .rejects.toThrow('EMAIL_ISSUANCE_ID_INVALID');
   expect(upsert).not.toHaveBeenCalled();
 });
