@@ -1,0 +1,79 @@
+name: apt archive cache
+description: >-
+  Keeps the .deb archives of one apt-dependent step across runs and bounds apt's
+  network waits, so a slow Ubuntu mirror cannot stall a job. Use mode=restore
+  before the apt step and mode=save after it; the apt step itself is unchanged.
+
+inputs:
+  mode:
+    description: restore (before the apt step) or save (after it).
+    required: true
+  id:
+    description: Stable name of the package set installed by the wrapped step.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve apt archive cache key
+      id: key
+      shell: bash
+      env:
+        MODE: ${{ inputs.mode }}
+        CACHE_ID: ${{ inputs.id }}
+      run: |
+        case "$MODE" in restore|save) ;; *) echo "apt-archive-cache: unknown mode '$MODE'" >&2; exit 1 ;; esac
+        case "$CACHE_ID" in ''|*[!a-z0-9-]*) echo "apt-archive-cache: invalid id '$CACHE_ID'" >&2; exit 1 ;; esac
+        # A new runner image gets a new key: its package versions may differ.
+        echo "key=apt-archives-v1-${ImageOS:-unknown}-${ImageVersion:-unknown}-${CACHE_ID}" >> "$GITHUB_OUTPUT"
+
+    - name: Restore cached apt archives
+      if: inputs.mode == 'restore'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ci-apt-archives
+        key: ${{ steps.key.outputs.key }}
+
+    - name: Bound apt network waits and seed the archive directory
+      if: inputs.mode == 'restore'
+      shell: bash
+      run: |
+        set -euo pipefail
+        # A stalled mirror connection is retried after 30 s instead of being waited on for minutes.
+        printf '%s\n' 'Acquire::Retries "5";' 'Acquire::http::Timeout "30";' 'Acquire::https::Timeout "30";' \
+          'APT::Keep-Downloaded-Packages "true";' 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
+          | sudo tee /etc/apt/apt.conf.d/80-ci-bounded-network > /dev/null
+        if compgen -G "$HOME/.cache/ci-apt-archives/*.deb" > /dev/null; then
+          sudo cp "$HOME"/.cache/ci-apt-archives/*.deb /var/cache/apt/archives/
+        fi
+        echo "apt-archive-cache: $(find "$HOME/.cache/ci-apt-archives" -name '*.deb' 2>/dev/null | wc -l) archive(s) restored"
+
+    - name: Check whether this package set is already cached
+      id: lookup
+      if: inputs.mode == 'save'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ci-apt-archives
+        key: ${{ steps.key.outputs.key }}
+        lookup-only: true
+
+    - name: Collect downloaded apt archives
+      id: collect
+      if: inputs.mode == 'save' && steps.lookup.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p "$HOME/.cache/ci-apt-archives"
+        if compgen -G '/var/cache/apt/archives/*.deb' > /dev/null; then
+          cp /var/cache/apt/archives/*.deb "$HOME/.cache/ci-apt-archives/"
+        fi
+        count=$(find "$HOME/.cache/ci-apt-archives" -name '*.deb' | wc -l)
+        echo "apt-archive-cache: ${count} archive(s) to save"
+        echo "count=${count}" >> "$GITHUB_OUTPUT"
+
+    - name: Save apt archives
+      if: inputs.mode == 'save' && steps.lookup.outputs.cache-hit != 'true' && steps.collect.outputs.count != '0'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ci-apt-archives
+        key: ${{ steps.key.outputs.key }}

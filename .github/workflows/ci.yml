@@ -268,7 +268,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore apt archives (pdf-tooling)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: pdf-tooling
+
       - name: Install PDF tooling
+        timeout-minutes: 10
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends poppler-utils texlive-latex-base texlive-latex-recommended
@@ -277,6 +284,12 @@ jobs:
           pdftotext -v
           pdfimages -v
 
+      - name: Save apt archives (pdf-tooling)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: pdf-tooling
+
       # __tests__/bilans/render-pdf.test.ts, group-plan-render.test.ts,
       # pdf-renderer-session.test.ts and rendered-examples.test.ts drive a
       # real headless Chromium via lib/bilans/render/pdf.ts
@@ -284,8 +297,21 @@ jobs:
       # coverage -- there is no mock path. Without this, resolveChromiumExecutable
       # throws ENOENT scanning ~/.cache/ms-playwright and the whole suite fails
       # to even boot (beforeAll throws before any test body runs).
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Playwright Chromium
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Generate Prisma Client
         run: |
@@ -389,8 +415,21 @@ jobs:
       # canonical PDF for all three audiences. The renderer is deliberately
       # soft-fail when Chromium is absent, so this job must provision the
       # package-pinned browser before running that integration contract.
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Playwright Chromium
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Wait for Postgres to be ready
         run: |
@@ -787,8 +826,21 @@ jobs:
       # never installed a browser before, which this exact job run
       # exposed for the first time (mission "TERMINER #316" §1: a real,
       # diagnosed CI failure, not a guess).
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Playwright browsers (Chromium)
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Create isolated legacy destination database
         run: |
@@ -962,8 +1014,21 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Playwright browsers
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Build Next.js for E2E
         env:
@@ -1339,8 +1404,21 @@ jobs:
           echo 'Disposable ARIA fixture failed to start' >&2
           exit 1
 
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Playwright browsers (Chromium)
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Build Next.js for E2E
         env:
@@ -1714,8 +1792,21 @@ jobs:
           npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
           npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
 
+      - name: Restore apt archives (playwright-all-browsers)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-all-browsers
+
       - name: Install Playwright browsers (Chromium + Firefox + WebKit smoke)
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Save apt archives (playwright-all-browsers)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-all-browsers
 
       - name: Build Next.js for E2E
         env:
@@ -2310,8 +2401,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Restore apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: playwright-chromium
+
       - name: Install Chromium for authenticated browser smoke
+        timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      - name: Save apt archives (playwright-chromium)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: playwright-chromium
 
       - name: Prepare isolated runtime storage
         shell: bash
@@ -2977,7 +3081,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Restore apt archives (pdf-verification)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: pdf-verification
+
       - name: Install PDF verification tools
+        timeout-minutes: 10
         run: |
           sudo apt-get update
           sudo apt-get install --yes python3-venv qpdf
@@ -2985,6 +3096,12 @@ jobs:
           "$RUNNER_TEMP/pre-rentree-verify/bin/python" -m pip install \
             -r scripts/pre-rentree/requirements.lock
           echo "$RUNNER_TEMP/pre-rentree-verify/bin" >> "$GITHUB_PATH"
+
+      - name: Save apt archives (pdf-verification)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: pdf-verification
 
       - name: Verify frozen public PDFs
         run: |
