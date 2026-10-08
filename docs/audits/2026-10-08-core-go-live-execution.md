@@ -331,3 +331,11 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - RED sans compilation incrémentale : deux TS2339 sur `session.user.authority`, dans l'API et la page de documents admin. `requireAuth` conserve la session mais son type exporté omettait ce champ déjà déclaré dans NextAuth.
 - Correction : réutilisation du type `Session['user']['authority']`, sans changer le contrôle d'identité à l'exécution ni ajouter de cast aux consommateurs.
 - GREEN : 17 tests de guards, dont préservation explicite des autorités Core/V1 ; compilation complète `tsc --noEmit --incremental false`, exit 0. Aucun résultat local antérieur erroné n'est retenu comme gate.
+
+### ARIA Core : arrêt de la première génération et mode sans RAG
+
+- Défaut confirmé sur le dialogue réellement monté : le POST Core attendait le modèle avant de retourner les identifiants en JSON. Le bouton restait en démarrage et ne pouvait annuler cette première génération. La mention sans RAG existait sur la carte mais pas dans le dialogue.
+- RED : le client ne reçoit pas l'identité avant la fin, la route ne retourne pas le flux réservé, et `NOT_CONFIGURED` ne produit aucun libellé explicite.
+- Correction : réutilisation du transport SSE canonique avec executor/repository Core injectés, après les mêmes gates auth, CSRF, actor, contexte et ownership. Le wrapper accepte cette réponse privée après ses vérifications et conserve la corrélation. Le client négocie SSE ; les clients JSON restent compatibles. La mention sans base documentaire Nexus est explicite dans le dialogue.
+- GREEN : 212 tests UI/transport, 85 contrôles de frontière, 33 tests HTTP dont annulation sur PostgreSQL isolé avant le premier token. Ce dernier test utilise un fournisseur contrôlé respectant le contrat typé du gateway : `202 CANCELLATION_REQUESTED`, arrêt par heartbeat, puis état durable `CANCELLED` et deux messages, sans token généré. Les premières versions du test omettaient la configuration de limiteur synthétique, attendaient 200 au lieu de 202, puis simulaient un AbortError brut au lieu du contrat gateway ; elles ne sont pas des preuves vertes.
+- Lint exit 0 avec warnings préexistants ; compilation sans cache exit 0. Revue indépendante en lecture seule : aucun défaut bloquant identifié dans ce delta. Le fournisseur réel et le proxy restent à vérifier sur le prochain artefact CI.

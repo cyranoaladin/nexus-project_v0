@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { ariaChatRequestSchema } from '@/lib/aria/transport/contracts';
 import { toAriaJsonResponse } from '@/lib/aria/transport/json';
+import { prepareAriaSSEConversation } from '@/lib/aria/transport/sse';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import { serializeAriaPublicError } from '@/lib/aria/application/public-error';
 import { makeCanonicalAriaConversationExecutor } from '@/lib/aria/application/conversation/execute';
@@ -44,7 +45,7 @@ function mapChatError(error: unknown, correlationId: string): NextResponse | und
 export const POST = defineStaffRoute({
   body: ariaChatRequestSchema,
   mapError: mapChatError,
-  handler: async ({ client, ctx, body }) => {
+  handler: async ({ client, ctx, body, request }) => {
     if (!isCoreV2AriaConversationEnabled()) {
       throw new ForbiddenError('Le chat ARIA Core v2 n’est pas encore disponible pour ce profil.');
     }
@@ -55,13 +56,30 @@ export const POST = defineStaffRoute({
     });
     const repository = new CoreV2AriaConversationRepository(client);
     const execute = makeCanonicalAriaConversationExecutor(repository);
-    const result = await execute({
+    const executionInput = {
       requestId: ctx.correlationId,
       context,
       clientRequestId: body!.clientRequestId,
       message: body!.content,
       pedagogicalMode: body!.pedagogicalMode,
-    });
+    };
+    if (request.headers.get('accept')?.includes('text/event-stream')) {
+      const prepared = await prepareAriaSSEConversation({
+        executionInput,
+        requestId: ctx.correlationId,
+        execute,
+        logger: { error: (message, _ignored, metadata) => logger.error(metadata ?? {}, message) },
+      });
+      if (prepared.kind === 'IN_PROGRESS') {
+        return { data: { turnId: prepared.result.turnId, status: prepared.result.status, disposition: prepared.result.disposition, retryAfterMs: 1_000 }, status: 202 };
+      }
+      return new NextResponse(prepared.stream, { headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'private, no-store, no-transform',
+        'X-Accel-Buffering': 'no',
+      } });
+    }
+    const result = await execute(executionInput);
     if (result.status === 'ERROR') throw new AriaError(result.failureCode ?? 'INTERNAL_ERROR', 500, 'L’exécution ARIA s’est terminée en erreur.');
     if (result.disposition === 'IN_PROGRESS') {
       return { data: { turnId: result.turnId, status: result.status, disposition: result.disposition, retryAfterMs: 1_000 }, status: 202 };

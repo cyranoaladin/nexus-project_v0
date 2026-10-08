@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { randomBytes } from 'node:crypto';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/aria/gateway', () => ({
@@ -18,6 +19,7 @@ import * as conversationsRoute from '@/app/api/v2/aria/conversations/route';
 import * as messagesRoute from '@/app/api/v2/aria/conversations/[conversationId]/messages/route';
 import * as cancelRoute from '@/app/api/v2/aria/turns/[turnId]/cancel/route';
 import * as feedbackRoute from '@/app/api/v2/aria/feedback/route';
+import { AriaError } from '@/lib/aria/kernel/errors';
 
 const h = setupServiceHarness();
 const mockedAuth = auth as unknown as jest.Mock;
@@ -72,6 +74,77 @@ describe('Core v2 ARIA conversation route guards', () => {
   afterEach(() => {
     delete process.env.CORE_V2_ARIA_CONVERSATION_ENABLED;
     delete process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED;
+  });
+
+  test('first streamed Core generation is cancellable before the provider produces a token', async () => {
+    const owner = await seedStudent('stream-cancel@synthetic.test');
+    await grantCoreV2AriaAccess(h.client, h.admin, {
+      studentId: owner.student.id, featureKey: 'aria_maths', ariaTier: 'ARIA_AUTONOMIE',
+      courseScopes: ['philosophie-terminale'],
+    });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true';
+    process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED = 'true';
+    const previousBackend = process.env.RATE_LIMIT_BACKEND;
+    const previousKey = process.env.RATE_LIMIT_KEY_SECRET;
+    const previousNamespace = process.env.RATE_LIMIT_KEY_NAMESPACE;
+    process.env.RATE_LIMIT_BACKEND = 'memory';
+    process.env.RATE_LIMIT_KEY_SECRET = randomBytes(32).toString('hex');
+    process.env.RATE_LIMIT_KEY_NAMESPACE = 'core-stream-test';
+    signInAs({ id: owner.user.id, role: 'ELEVE' });
+    let started!: () => void;
+    let stopProvider: (() => void) | undefined;
+    const providerStarted = new Promise<void>((resolve) => { started = resolve; });
+    const provider = ariaGateway.streamChatCompletion as jest.Mock;
+    provider.mockImplementationOnce(async function* (_messages, options: { signal: AbortSignal }) {
+      await new Promise<void>((_resolve, reject) => {
+        // Match the canonical gateway's typed cancellation contract, including
+        // refusal to misclassify lease loss as a user cancellation.
+        stopProvider = () => reject(new AriaError(
+          options.signal.reason === 'USER_CANCELLED' ? 'USER_CANCELLED' : 'INTERNAL_ERROR',
+          499, 'Synthetic provider stopped.',
+        ));
+        options.signal.addEventListener('abort', stopProvider, { once: true });
+        started();
+        if (options.signal.aborted) stopProvider();
+      });
+      yield 'UNREACHABLE';
+    });
+    const request = new NextRequest('http://localhost:3000/api/v2/aria/chat', {
+      method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', accept: 'text/event-stream' },
+      body: JSON.stringify({ courseKey: 'philosophie-terminale', clientRequestId, content: 'Question synthétique', pedagogicalMode: 'DISCOVERY' }),
+    });
+    try {
+      const response = await chatRoute.POST(request, NO_PARAMS);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toContain('text/event-stream');
+      const reader = response.body!.getReader();
+      const first = new TextDecoder().decode((await reader.read()).value);
+      expect(first).toContain('event: start');
+      const start = JSON.parse(first.split('\n').find((line) => line.startsWith('data: '))!.slice(6));
+      await providerStarted;
+      const cancelled = await call('POST', `/api/v2/aria/turns/${start.turnId}/cancel`, { clientRequestId }, { turnId: start.turnId });
+      expect(cancelled.status).toBe(202);
+      expect(cancelled.body.data.disposition).toBe('CANCELLATION_REQUESTED');
+      let remaining = '';
+      for (;;) {
+        const part = await reader.read();
+        if (part.done) break;
+        remaining += new TextDecoder().decode(part.value);
+      }
+      expect(remaining).toContain('"status":"CANCELLED"');
+      expect(remaining).not.toContain('UNREACHABLE');
+      const stored = await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: start.turnId } });
+      expect(stored.status).toBe('CANCELLED');
+      expect(await h.client.ariaMessageCoreV2.count({ where: { turnId: start.turnId } })).toBe(2);
+    } finally {
+      stopProvider?.();
+      if (previousBackend === undefined) delete process.env.RATE_LIMIT_BACKEND;
+      else process.env.RATE_LIMIT_BACKEND = previousBackend;
+      if (previousKey === undefined) delete process.env.RATE_LIMIT_KEY_SECRET;
+      else process.env.RATE_LIMIT_KEY_SECRET = previousKey;
+      if (previousNamespace === undefined) delete process.env.RATE_LIMIT_KEY_NAMESPACE;
+      else process.env.RATE_LIMIT_KEY_NAMESPACE = previousNamespace;
+    }
   });
 
   test('disabled chat refuses before any Turn, message, watchdog or provider execution', async () => {

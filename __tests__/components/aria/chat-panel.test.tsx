@@ -313,6 +313,15 @@ describe('AriaChatPanel — one authenticated product engine', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('ARIA met trop de temps');
   });
 
+  it('explicitly labels the mode without a documentary base', () => {
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ ragStatus: 'NOT_CONFIGURED' }));
+    const { rerender } = render(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.getByText(/sans base documentaire Nexus/i)).toBeInTheDocument();
+    (useAriaConversation as jest.Mock).mockReturnValue(conversationState({ ragStatus: 'SUCCESS' }));
+    rerender(<AriaChatPanel open onClose={jest.fn()} />);
+    expect(screen.queryByText(/sans base documentaire Nexus/i)).not.toBeInTheDocument();
+  });
+
   function stubScrollGeometry(main: HTMLElement, input: { scrollTop: number; distanceFromBottom: number }) {
     const clientHeight = 400;
     const scrollHeight = clientHeight + input.scrollTop + input.distanceFromBottom;

@@ -115,6 +115,37 @@ describe('Core v2 chat public errors', () => {
     expectPublicError(await callChat(), 503, 'MODEL_UNAVAILABLE', true);
   });
 
+  it('opens an authenticated Core stream with its reserved identity before provider completion', async () => {
+    let complete!: () => void;
+    const waiting = new Promise<void>((resolve) => { complete = resolve; });
+    (makeCanonicalAriaConversationExecutor as jest.Mock).mockReturnValueOnce(async (input: {
+      onStart?: (event: unknown) => void;
+    }) => {
+      input.onStart?.({ turnId: 'turn-1', conversationId: 'conversation-1', messageId: 'message-1', status: 'RUNNING', disposition: 'EXECUTED' });
+      await waiting;
+      return { turnId: 'turn-1', conversationId: 'conversation-1', messageId: 'message-1', status: 'CANCELLED', disposition: 'EXECUTED', fullText: '', citations: [], ragStatus: 'NOT_CONFIGURED' };
+    });
+    const request = new NextRequest('http://localhost:3000/api/v2/aria/chat', {
+      method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', accept: 'text/event-stream', 'x-correlation-id': requestId },
+      body: JSON.stringify(validBody),
+    });
+    const pending = POST(request, NO_PARAMS);
+    try {
+      const response = await Promise.race([pending, new Promise<null>((resolve) => setTimeout(() => resolve(null), 100))]);
+      expect(response).not.toBeNull();
+      expect(response!.headers.get('content-type')).toContain('text/event-stream');
+      expect(response!.headers.get('x-correlation-id')).toBe(requestId);
+      const reader = response!.body!.getReader();
+      const first = await reader.read();
+      expect(new TextDecoder().decode(first.value)).toContain('"turnId":"turn-1"');
+      expect(new TextDecoder().decode(first.value)).toContain('event: start');
+      await reader.cancel();
+    } finally {
+      complete();
+      await pending;
+    }
+  });
+
   it('maps malformed chat bodies to BAD_REQUEST without exposing validation details', async () => {
     expectPublicError(await callChat({ ...validBody, content: '' }), 400, 'BAD_REQUEST', false);
     expect(buildCoreV2AriaConversationContext).not.toHaveBeenCalled();

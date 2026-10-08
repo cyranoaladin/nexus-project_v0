@@ -60,6 +60,37 @@ function historyConversation(activeTurn: typeof activeHistoryTurn | null = null)
 describe('ARIA browser client transport ownership', () => {
   beforeEach(() => jest.restoreAllMocks());
 
+  it('receives the Core turn identity before the first generation completes', async () => {
+    let controller!: ReadableStreamDefaultController<Uint8Array>;
+    const body = new ReadableStream<Uint8Array>({ start(value) { controller = value; } });
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce(new Response(body, {
+      headers: { 'content-type': 'text/event-stream' },
+    }));
+    const onStart = jest.fn();
+    const onDone = jest.fn();
+    const running = streamAriaConversation({ ...request, authority: 'CORE_V2' }, { onStart, onDone }, new AbortController().signal);
+    const outcome = running.catch((error: unknown) => error);
+    controller.enqueue(new TextEncoder().encode(formatAriaSSEEvent({ event: 'start', data: {
+      turnId: 'turn-1', conversationId: 'conversation-1', messageId: 'message-1',
+      courseKey: request.courseKey, status: 'RUNNING', disposition: 'EXECUTED',
+    } })));
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(onStart).toHaveBeenCalledWith(expect.objectContaining({ turnId: 'turn-1', status: 'RUNNING' }));
+      expect(onDone).not.toHaveBeenCalled();
+      expect(fetchMock).toHaveBeenCalledWith('/api/v2/aria/chat', expect.objectContaining({
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
+      }));
+    } finally {
+      controller.enqueue(new TextEncoder().encode(formatAriaSSEEvent({ event: 'done', data: {
+        turnId: 'turn-1', messageId: 'message-1', status: 'CANCELLED', fullText: '',
+      } })));
+      controller.close();
+      await outcome;
+    }
+    expect(onDone).toHaveBeenCalledWith(expect.objectContaining({ status: 'CANCELLED' }));
+  });
+
   it('keeps Core v2 authority client-side while sending a strict canonical chat payload', async () => {
     const coreRequest = createAriaClientRequest({
       courseKey: 'eds-nsi-terminale', content: 'Explique une pile.',
@@ -78,7 +109,7 @@ describe('ARIA browser client transport ownership', () => {
 
     expect(fetchMock).toHaveBeenCalledWith('/api/v2/aria/chat', expect.objectContaining({
       method: 'POST',
-      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
     }));
     const sent = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
     expect(ariaChatRequestSchema.safeParse(sent).success).toBe(true);

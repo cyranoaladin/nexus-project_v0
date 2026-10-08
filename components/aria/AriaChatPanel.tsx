@@ -307,6 +307,11 @@ export function AriaChatPanel({ open, onClose, initialCourseKey, recoveryOnly = 
             Les sources pédagogiques sont temporairement indisponibles.
           </p>
         )}
+        {conversation.ragStatus === 'NOT_CONFIGURED' && !errorLabel && (
+          <p className="mx-4 mb-2 rounded-lg border border-border-gold/25 p-3 text-sm text-text-secondary">
+            ARIA répond sans base documentaire Nexus. Vérifiez les explications avec vos cours et votre enseignant.
+          </p>
+        )}
 
         <footer className="shrink-0 border-t border-border-gold/20 bg-surface-dark p-3 pb-[max(.75rem,env(safe-area-inset-bottom))] sm:p-4">
           <label htmlFor="aria-message" className="sr-only">Message à ARIA</label>
