@@ -18,3 +18,7 @@ Les URLs HTTP absolues de même origine sont désormais contrôlées. Les origin
 ## Limites
 
 Pas de qualification des huit pages réelles par ces seuls tests de classification. Leur campagne navigateur et CodeQL doivent confirmer le prochain SHA. Aucune requête vers un prestataire externe ni modification de production.
+
+## Révision du 2026-10-08 (revue Copilot sur ec4984256)
+
+Un lien externe porteur d'identifiants (`https://user:pass@externe/`) était classé `EXTERNAL` donc ignoré : une page publique exposant des identifiants n'aurait pas été signalée. Le contrôle user-info précède désormais la comparaison d'origine : tout lien HTTP avec user-info, interne ou externe, est `UNSAFE`. RED 3 → GREEN 22. Aucune source publique ne contient de tel lien (recherche `https?://…@` sur app, components, content, lib, data : 0).

@@ -15,7 +15,7 @@ export function resolvePublicLinkTarget(href: string, pageUrl: string): PublicLi
   }
   if (target.protocol === 'mailto:' || target.protocol === 'tel:') return { kind: 'SKIP' };
   if (target.protocol !== 'http:' && target.protocol !== 'https:') return { kind: 'UNSAFE' };
-  if (target.origin !== base.origin) return { kind: 'EXTERNAL' };
   if (target.username || target.password) return { kind: 'UNSAFE' };
+  if (target.origin !== base.origin) return { kind: 'EXTERNAL' };
   return { kind: 'INTERNAL', url: target.toString() };
 }
