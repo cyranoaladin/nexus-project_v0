@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { reportSubmissionSchema } from '@/lib/validation/session-report';
 import { NotificationType, SessionStatus } from '@prisma/client';
 import { hasUserEmail } from '@/lib/contact/user-email';
-import { familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
+import { familyAuthorityAvailable, familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 
 function sanitizeSessionReport(report: Record<string, unknown>) {
   const {
@@ -223,7 +223,13 @@ export async function GET(
       where: { id: sessionId },
       select: { studentId: true, coachId: true },
     });
-    if (!booking) return privateReportResponse({ error: 'Session not found' }, 404);
+    if (!booking) {
+      // While family authority is down, a parent cannot tell an unknown session from a known one.
+      if (session.user.role === 'PARENT' && !(await familyAuthorityAvailable(session.user.id))) {
+        return privateReportResponse({ error: 'Family authority unavailable' }, 503);
+      }
+      return privateReportResponse({ error: 'Session not found' }, 404);
+    }
     const role = session.user.role;
     let allowed = role === 'ADMIN' || role === 'ASSISTANTE'
       || (role === 'COACH' && booking.coachId === session.user.id)

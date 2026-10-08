@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { tunisWallClockToUtcInstant } from '@/lib/planning/invariants';
 import { resolveJitsiRoomNameForSession } from '@/lib/jitsi-server';
 import { getVideoMode } from '@/lib/video-mode';
-import { familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
+import { familyAuthorityAvailable, familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 
 /**
  * /api/sessions/[sessionId] — the real backend for the video join flow
@@ -90,7 +90,10 @@ async function resolveJoinableBooking(
       where: { userId: identity.studentId }, select: { id: true },
     }) : null;
     if (!student || !identity) {
-      return { ok: false, response: videoJson({ error: 'Session non trouvée' }, { status: 404 }) };
+      // While family authority is down, an unknown session answers like a known one.
+      return { ok: false, response: await familyAuthorityAvailable(subject.id)
+        ? videoJson({ error: 'Session non trouvée' }, { status: 404 })
+        : videoJson({ error: 'Family authority unavailable' }, { status: 503 }) };
     }
     const decision = await resolveParentStudentAccess(subject.id, student.id, action);
     if (decision.status === 'AUTHORITY_UNAVAILABLE') {
