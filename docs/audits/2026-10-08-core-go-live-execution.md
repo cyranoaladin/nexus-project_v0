@@ -279,3 +279,13 @@ compatible, ni l'artefact final encore à construire et vérifier.
 
 Aucune fusion ni migration ou bascule de production. Les gates humains, le
 rollback dégradé, la recette de l'artefact final et l'observation restent ouverts.
+
+## Contrat exhaustif du limiteur après CI a7a0a04
+
+La CI `a7a0a04c37dd097756e5fd8f481782d5d9f5ef2e` a validé Core v2 et le build,
+mais son unité a révélé une omission du contrat de scopes : `document-upload`
+n'était pas attendu dans la liste exhaustive. 1 388 suites et 15 745 tests ont
+réussi ; une suite et un test ont échoué. L'échec est reproduit localement, puis
+la liste et les presets `expensiveIp`/`expensiveIdentity` sont vérifiés explicitement.
+GREEN : les trois tests du contrat passent. Aucun code applicatif modifié.
+Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.

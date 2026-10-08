@@ -66,6 +66,8 @@ describe('S3 final distributed rate-limit contract', () => {
       'quotes-lead-search', 'quotes-history-read',
       'candidate-profile-create', 'candidate-profile-read', 'candidate-profile-update',
     ]
+    expectedScopes.push('document-upload');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['document-upload']).toEqual({ ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' });
     expectedScopes.push('family-create');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['family-create']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity' });
     // Core v2 public activation (POST /api/v2/auth/activate): same posture as the other credential endpoints.
