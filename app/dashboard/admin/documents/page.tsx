@@ -16,6 +16,13 @@ export default async function AdminDocumentsPage() {
     redirect('/dashboard');
   }
 
+  if (sessionOrResponse.user.authority === 'CORE_V2') {
+    return <section className="max-w-3xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Documents &amp; Ressources</h1>
+      <p>Le partage de documents depuis cette page n’est pas encore disponible pour votre espace.</p>
+    </section>;
+  }
+
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col gap-2">

@@ -316,3 +316,12 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - Les deux autres échecs surviennent avant les assertions documentaires : le helper multipart omet `Origin` et est refusé par CSRF. Il transmet maintenant l'origine réelle de la page via le helper canonique ; les assertions IDOR et nosniff restent intactes.
 - Contre-épreuves : dashboard coach Core réellement rendu ; APIRequestContext n'émet pas spontanément Origin/Referer, ajout explicite confirmé ; dépôt propre avec Origin et refus inter-familles déjà passés sur l'artefact exact. La tentative additionnelle de vérification est arrêtée par le limiteur de connexion normal après les nombreux smokes : aucune purge Redis ou usurpation d'IP, rejeu après expiration normale.
 - Typecheck sans erreur. Les scénarios complets et la régression déterministe du contraste seront rejoués par la nouvelle CI ; les échecs de 527314d5 ne sont pas reclassés verts.
+
+### Fermeture des capacités V1 non raccordées aux nouveaux comptes Core
+
+- La qualification documentaire et facture de 527314d5 utilise des comptes techniques V1. Elle ne prouve pas la bibliothèque générale ou le rattachement de factures aux comptes Core-only : ces objets référencent encore User V1. Les diagnostics natifs Core sont un parcours distinct.
+- Navigation Core : ressources/factures parent et documents généraux admin masqués, comme les documents généraux élève déjà masqués. Les accès directs affichent une indisponibilité explicite avant toute lecture V1 ou formulaire de dépôt. Aucun adaptateur de facturation ni utilisateur miroir artificiel n'est créé.
+- Dépôt général : un opérateur Core-only est refusé avant parsing, écriture ou scan ; un miroir V1 préexistant conserve le contrat API autorisé. L'autorisation de rôle reste celle de la session canonique.
+- RED : cinq échecs navigation/pages/dépôt. GREEN : 23 tests couvrant ces fermetures, les documents existants, les factures V1 et les accès élève ; lint/typecheck sans erreur.
+- Rejeu des contrats E2E après expiration normale du limiteur : coach Core et affectations visibles ; upload sans Origin refusé403, avec Origin accepté201, lecture propriétaire200 avec nosniff et accès étranger404. Aucune purge de limiteur.
+- Les capacités non implémentées restent indisponibles. La vérification du diagnostic natif exige un instrument autorisé et son PDF réel ; une fixture de démonstration ne sera pas présentée comme diagnostic pédagogique qualifié.

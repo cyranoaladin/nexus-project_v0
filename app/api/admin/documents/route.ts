@@ -53,6 +53,14 @@ export async function POST(request: NextRequest) {
     const limited = await guardSensitiveRateLimit(request, { scope: 'document-upload', identity: session.user.id });
     if (limited) return limited;
 
+    // Legacy document metadata references its uploader in the V1 database.
+    // A Core-only actor cannot publish here; never fabricate a V1 identity or
+    // discover the missing FK after a file has already been scanned/written.
+    if (session.user.authority === 'CORE_V2') {
+      const uploader = await prisma.user.findUnique({ where: { id: session.user.id }, select: { id: true } });
+      if (!uploader) return NextResponse.json({ error: 'Documents indisponibles pour cet espace.' }, { status: 403 });
+    }
+
     // 2. Parse FormData
     const formData = await request.formData();
     const file = formData.get('file') as File | null;

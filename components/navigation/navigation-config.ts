@@ -365,6 +365,7 @@ export function getNavigationItems(user: { role: `${UserRole}`; authority?: stri
   const unavailableForCore = new Set([
     '/dashboard/coach/sessions', '/dashboard/coach/students', '/dashboard/coach/availability',
     '/dashboard/parent/abonnements', '/dashboard/eleve/documents',
+    '/dashboard/parent/ressources', '/dashboard/parent/factures', '/dashboard/admin/documents',
   ]);
   return navigationConfig[user.role].filter(item => {
     if (item.href === '/dashboard/parent/paiement' && !isBankTransferEnabled()) return false;

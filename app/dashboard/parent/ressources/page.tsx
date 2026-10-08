@@ -33,6 +33,13 @@ export default async function StudentResourcesPage() {
     redirect('/auth/signin');
   }
 
+  if (session.user.authority === 'CORE_V2') {
+    return <section className="max-w-3xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Mes Ressources</h1>
+      <p>Le partage de documents depuis cette page n’est pas encore disponible pour votre espace.</p>
+    </section>;
+  }
+
   // Fetch documents securely via Prisma (Server Component)
   const documents = await prisma.userDocument.findMany({
     where: {

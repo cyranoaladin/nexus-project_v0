@@ -76,6 +76,17 @@ describe('POST /api/admin/documents', () => {
     });
   });
 
+  it('refuses a Core-only uploader before parsing, writing or scanning legacy documents', async () => {
+    (requireAnyRole as jest.Mock).mockResolvedValue({user:{id:'core-only-admin',role:'ADMIN',authority:'CORE_V2'}});
+    (prisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    const request=uploadRequest(mockFile('bulletin.pdf','application/pdf'));
+    expect((await POST(request)).status).toBe(403);
+    expect(request.formData).not.toHaveBeenCalled();
+    expect(writeFile).not.toHaveBeenCalled();
+    expect(scanPrivateFile).not.toHaveBeenCalled();
+    expect(prisma.userDocument.create).not.toHaveBeenCalled();
+  });
+
   it('requires ADMIN or ASSISTANTE role', async () => {
     const guardResponse = new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 });
     (requireAnyRole as jest.Mock).mockResolvedValue(guardResponse);

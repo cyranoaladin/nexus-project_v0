@@ -1,6 +1,6 @@
 import { getNavigationItems } from '@/components/navigation/navigation-config';
 
-const user = (role: 'PARENT' | 'COACH' | 'ELEVE', authority: 'CORE_V2' | 'V1') => ({ role, authority });
+const user = (role: 'PARENT' | 'COACH' | 'ELEVE' | 'ADMIN', authority: 'CORE_V2' | 'V1') => ({ role, authority });
 const previous = process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER;
 afterEach(() => { if (previous === undefined) delete process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER; else process.env.NEXT_PUBLIC_ENABLE_BANK_TRANSFER = previous; });
 
@@ -24,4 +24,13 @@ test('Core family navigation excludes confirmed unavailable legacy paths and anc
   expect(links.some(href => href.includes('#'))).toBe(false);
   expect(links).not.toContain('/dashboard/eleve/documents');
   expect(links).toContain('/dashboard/eleve/diagnostics-libres');
+});
+
+
+test('Core navigation does not advertise unimplemented general documents or parent billing', () => {
+ const parent=getNavigationItems(user('PARENT','CORE_V2')).map(item=>item.href);
+ expect(parent).not.toContain('/dashboard/parent/ressources');
+ expect(parent).not.toContain('/dashboard/parent/factures');
+ expect(getNavigationItems(user('ADMIN','CORE_V2')).map(item=>item.href)).not.toContain('/dashboard/admin/documents');
+ expect(getNavigationItems(user('ADMIN','V1')).map(item=>item.href)).toContain('/dashboard/admin/documents');
 });
