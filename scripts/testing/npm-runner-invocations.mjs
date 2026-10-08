@@ -5,7 +5,13 @@ const fullLaneOptions = new Set(['--', '--ci', '--json', '--silent', '--runInBan
 /** Discover only statically literal, unrestricted npm subprocesses; never evaluate wrapper source. */
 export function discoverRunnerNpmScripts(source, format = 'typescript') {
   if (format === 'shell') {
-    return [...new Set([...source.matchAll(/(?:^|[;&|\n])\s*npm run ([\w:.-]+)/g)].map(match => match[1]))];
+    const commands = source.replace(/\\\r?\n/g, ' ');
+    const found = new Set();
+    for (const match of commands.matchAll(/(?:^|[;&|\n])[ \t]*npm run ([\w:.-]+)([^;&|\n]*)(?=$|[;&|\n])/g)) {
+      const args = match[2].trim().split(/\s+/).filter(Boolean);
+      if (args.every(argument => fullLaneOptions.has(argument))) found.add(match[1]);
+    }
+    return [...found];
   }
   const ast = ts.createSourceFile('runner.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   if (ast.parseDiagnostics.length > 0) return [];

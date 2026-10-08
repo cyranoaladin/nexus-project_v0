@@ -15,3 +15,17 @@ test('computed commands, comments, a different executable and restricted subproc
     assert.deepEqual(discoverRunnerNpmScripts(source), []);
   }
 });
+test('shell restrictions and computed arguments never imply a complete test lane', () => {
+  for (const source of [
+    'npm run test:unit -- --runTestsByPath one.test.ts',
+    'npm run test:unit -- --testNamePattern=single',
+    'npm run test:unit -- $TEST_FILTER',
+    'npm run test:unit -- --shard=1/4',
+    'npm run test:unit -- --listTests',
+    'npm run test:unit -- --ci \\\n --runTestsByPath one.test.ts',
+  ]) assert.deepEqual(discoverRunnerNpmScripts(source, 'shell'), []);
+});
+test('shell full-lane options remain discoverable and restrictions do not consume following commands', () => {
+  assert.deepEqual(discoverRunnerNpmScripts('npm run test:unit -- --ci --runInBand && npm run test:integration -- --json', 'shell'), ['test:unit', 'test:integration']);
+  assert.deepEqual(discoverRunnerNpmScripts('npm run test:unit -- --runTestsByPath one.test.ts; npm run test:integration', 'shell'), ['test:integration']);
+});

@@ -268,6 +268,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@cyclonedx/cyclonedx-npm": "6.0.0",
+    "@next/eslint-plugin-next": "15.5.27",
     "@playwright/test": "1.58.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/dom": "^9.3.4",
@@ -326,7 +327,10 @@
     "fast-uri": "3.1.8",
     "ip-address": "10.7.2",
     "katex": "0.18.2",
-    "moment": "2.31.0"
+    "moment": "2.31.0",
+    "@next/eslint-plugin-next": {
+      "fast-glob": "npm:tinyglobby@0.2.17"
+    }
   },
   "engines": {
     "node": ">=22.13.0 <23",

@@ -249,3 +249,33 @@ local fourni par le client ; son parcours URL est conservé.
 
 Ces preuves restent isolées. Elles ne qualifient ni la production, ni un rollback
 compatible, ni l'artefact final encore à construire et vérifier.
+
+## Revue Copilot d339 : deux observations confirmées et corrigées
+
+- `CONFIRMED_MAJOR` : le parseur des commandes shell comptait une exécution
+  restreinte comme voie complète. RED reproduit `--runTestsByPath` et filtre de
+  nom ; tous les arguments sont désormais vérifiés, continuations comprises.
+  GREEN : six tests ; contrôle de couverture : zéro fichier orphelin.
+- `CONFIRMED_MAJOR` : aucune règle Next active après l'ancien retrait du plugin
+  pour sa dépendance vulnérable. RED : deux tests échouent. Le plugin officiel
+  15.5.27 est réactivé avec les niveaux core-web-vitals ; seule sa dépendance
+  fast-glob est remplacée par tinyglobby 0.2.17. Dans cette configuration
+  monoracine, la branche de glob n'est jamais appelée. Un test impose l'absence
+  de `settings.next.rootDir` dans la configuration effective des pages, API,
+  composants et bibliothèques. Toute future configuration multiracine devra
+  fournir un adaptateur qualifié avant de modifier cet invariant.
+- Deux sentinelles réelles prouvent le warning client async et l'erreur script
+  synchrone. Aucune dépendance upstream braces/micromatch/fast-glob dans le lock.
+  Le lien natif de la page d'erreur globale conserve une exemption locale motivée
+  par le rechargement complet lorsque le routeur a planté.
+- Lint exit 0 ; typecheck exit 0 après déplacement du test ESLint en JavaScript
+  (première exécution TypeScript refusée faute de déclarations ESLint).
+- Audit npm complet : zéro HIGH/CRITICAL ; 19 alertes MODERATE transitives issues
+  de sprintf-js dans la chaîne de tests Jest. Elles ne sont pas comptées comme
+  audit sans alerte. Propriétaire : mainteneur dépendances Nexus ; revue et
+  qualification d'une correction sous 24 heures, sans rétrograder Jest.
+- Mention account-deletion dans le résumé Copilot : aucune nouvelle preuve,
+  pas de correctif ajouté sur cette seule mention.
+
+Aucune fusion ni migration ou bascule de production. Les gates humains, le
+rollback dégradé, la recette de l'artefact final et l'observation restent ouverts.

@@ -1,9 +1,10 @@
-// Local replacement for `next/core-web-vitals` + `next/typescript` (eslint-config-next 15.5.25), minus
-// `plugin:@next/next/*`. Reason: @next/eslint-plugin-next depends on fast-glob 3.3.1 -> micromatch -> braces,
-// and braces <= 3.0.3 (GHSA-vfj7-8cjw-p6xm) has no patched release. Rules, plugins, settings and parser options
-// below are copied from eslint-config-next@15.5.25 (index.js, typescript.js), so the other findings are unchanged.
+// Preserve the Next 15 framework gates with the official pinned plugin.
+// Its unused monorepo glob dependency is overridden to tinyglobby to avoid
+// vulnerable braces. This single-root project MUST leave settings.next.rootDir
+// unset; next-lint-gate.test.js enforces that boundary and a real rule sentinel.
+// Introducing rootDir globbing requires a tested adapter before changing it.
 module.exports = {
-  extends: ['plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:@typescript-eslint/recommended'],
+  extends: ['plugin:@next/next/core-web-vitals', 'plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:@typescript-eslint/recommended'],
   plugins: ['import', 'react', 'jsx-a11y'],
   rules: {
     'import/no-anonymous-default-export': 'warn',
