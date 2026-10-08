@@ -2173,6 +2173,11 @@ jobs:
     name: Production Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      RELEASE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      NEXT_PUBLIC_VIDEO_MODE: DISABLED
+      NEXT_PUBLIC_APP_URL: https://nexusreussite.academy
+      NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC: 'false'
 
     services:
       postgres:
@@ -2201,6 +2206,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -2261,14 +2269,12 @@ jobs:
       - name: Build Next.js production bundle
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/nexus_prod
-          NEXTAUTH_URL: http://localhost:3000
+          NEXTAUTH_URL: https://nexusreussite.academy
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-min-32-chars-long-for-ci-environment' }}
           OPENAI_API_KEY: sk-test-mock-key-for-ci-build-only
           NODE_ENV: production
-          # NEXT_PUBLIC_* is inlined into the client bundle at build time —
-          # see the matching comment on the E2E job's "Build Next.js for
-          # E2E" step.
-          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
+          # Public configuration is compiled into this promotable artifact.
+          # Unqualified video and payment capabilities remain disabled.
           # See the matching comment on the E2E job's "Build Next.js for
           # E2E" step -- same OOM, same fix, same reasoning.
           NODE_OPTIONS: --max-old-space-size=6144
@@ -2306,8 +2312,6 @@ jobs:
           RATE_LIMIT_KEY_SECRET: ci-build-rate-limit-key-secret-placeholder-32ch
           RATE_LIMIT_KEY_NAMESPACE: nexus-ci-build
           RATE_LIMIT_TRUST_PROXY_HOPS: '1'
-          JITSI_ROOM_SECRET: ci-build-jitsi-room-secret-placeholder-32chars
-          NEXT_PUBLIC_JITSI_SERVER_URL: https://jitsi-ci.nexus-e2e.test
           NEXUS_ORGANIZATION_TIMEZONE: Africa/Tunis
           # Same fail-fast reason for the email outbox scheduler -- see the
           # matching comment on the E2E job's "Start Next.js server in
@@ -2334,6 +2338,9 @@ jobs:
           kill $SERVER_PID || true
           exit 1
 
+      - name: Generate build dependency SBOM
+        run: npm run sbom:runtime
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -2341,6 +2348,7 @@ jobs:
           path: |
             .next/standalone/
             release-manifest.json
+            security/sbom/runtime.cdx.json
           retention-days: 7
           include-hidden-files: true
           if-no-files-found: error

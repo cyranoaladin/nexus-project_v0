@@ -224,7 +224,7 @@ describe('PR #79 complete CI evidence workflow', () => {
       commands.indexOf('node .next/standalone/server.js'),
     );
     expect(new Set(String(upload.with.path).trim().split(/\s+/))).toEqual(
-      new Set(['.next/standalone/', 'release-manifest.json']),
+      new Set(['.next/standalone/', 'release-manifest.json', 'security/sbom/runtime.cdx.json']),
     );
     expect(upload.with['include-hidden-files']).toBe(true);
     expect(upload.with['if-no-files-found']).toBe('error');
