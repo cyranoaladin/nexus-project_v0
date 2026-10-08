@@ -105,6 +105,10 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(sbom).toBeGreaterThan(-1);
     expect(sbom).toBeLessThan(upload);
     expect(audit).toBeLessThan(upload);
-    expect(build.steps[upload].with.path).toContain('security/sbom/runtime.cdx.json');
+    const encryption = build.steps.findIndex((step: { name: string }) => step.name === 'Encrypt deployable build archive');
+    expect(encryption).toBeGreaterThan(sbom);
+    expect(encryption).toBeLessThan(upload);
+    expect(build.steps[encryption].run).toContain('cp release-manifest.json security/sbom/runtime.cdx.json "$RUNNER_TEMP/nexus-build-delivery/"');
+    expect(build.steps[upload].with.path).toContain('${{ runner.temp }}/nexus-build-delivery/runtime.cdx.json');
   });
 });

@@ -381,3 +381,15 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - À fermer après la nouvelle CI : téléchargement/déchiffrement/digests, rotation
   des clés Next en mémoire, smokes du nouveau bundle et trois rollbacks. L'artefact
   de repli local a été construit en privé ; il n'a pas été publié dans Actions.
+
+## Alignement des contrats CI du bundle chiffré
+
+- CI `37860688580`, SHA `ad1a856f8` : deux tests attendent encore le standalone
+  publié en clair ou l'ancien chemin du SBOM. RED reproduit localement : deux
+  assertions en échec, 31 tests ciblés déjà verts.
+- Les assertions vérifient désormais les cinq fichiers explicitement publiés,
+  les expressions GitHub conservées par découpage en lignes, et la copie du
+  SBOM canonique après sa génération et avant upload. Aucun runtime modifié.
+- GREEN : quatre suites, 50 tests ; typecheck complet sans erreur ; lint
+  canonique sans erreur. Le lint direct du test JS ancien signale trois imports
+  `require` inchangés ; aucun contournement ajouté à ces règles.
