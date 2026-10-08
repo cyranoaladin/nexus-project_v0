@@ -1,0 +1,64 @@
+name: GitGuardian scan
+
+# Authoritative secret scan of every commit of a pull request with the official
+# GitGuardian ggshield action. The GitGuardian GitHub App check skips pull
+# requests above its commit limit ("Pull request too large to scan"), which is
+# not a security result; this job scans the full commit range instead.
+#
+# Fails closed: a detected secret, a missing/invalid API key, an API or quota
+# error, or a timeout all fail the job. Never --exit-zero, never --show-secrets;
+# the report keeps ggshield's default redaction. `pull_request` only (never
+# `pull_request_target`): the key is a repository secret, unavailable to forks,
+# so a fork PR fails closed instead of exposing it.
+on:
+  pull_request:
+    branches:
+      - main
+      - release/pre-rentree-2026-public-ready
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitguardian-scan:
+    name: GitGuardian scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Require the GitGuardian API key (fail closed)
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        run: |
+          if [ -z "$GITGUARDIAN_API_KEY" ]; then
+            echo 'GITGUARDIAN_API_KEY is not configured: the secret scan cannot run.' >&2
+            exit 1
+          fi
+
+      - name: Scan every commit of the pull request (ggshield v1.55.0)
+        uses: GitGuardian/ggshield/actions/secret@94571a547a8a2f314a094d142729ee88c6ed0a3b # v1.55.0
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        with:
+          args: --json --output ggshield-report.json
+
+      - name: Upload redacted scan report (pinned to the scanned SHA)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: gitguardian-scan-${{ github.event.pull_request.head.sha }}
+          path: ggshield-report.json
+          retention-days: 30
+          if-no-files-found: error
