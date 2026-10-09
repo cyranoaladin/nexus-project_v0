@@ -44,6 +44,7 @@ const repoRoot = process.cwd();
 export const DOCUMENTED_EXCLUSIONS = new Set([
   'e2e/bilan-validation/auth-hydration.spec.ts',
   'e2e/bilan-validation/enrichment.spec.ts',
+  'e2e/bilan-validation/entrainement-nsi.spec.ts',
   'e2e/bilan-validation/espace-bilan.spec.ts',
   'e2e/bilan-validation/mobile-account.spec.ts',
   'e2e/bilan-validation/student.spec.ts',
