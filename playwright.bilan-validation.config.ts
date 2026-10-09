@@ -1,11 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const origin = process.env.BILAN_VALIDATION_BASE_URL ?? 'http://127.0.0.1:3017';
-const url = new URL(origin);
-if (process.env.BILAN_VALIDATION_LOCAL !== '1' || url.protocol !== 'http:' || !['127.0.0.1', 'localhost'].includes(url.hostname) || url.port !== '3017') {
-  throw new Error('BILAN_VALIDATION_LOCAL_HARNESS_REQUIRED');
-}
+// Le garde harnais local vit dans globalSetup : `--list` (garde de couverture des
+// lanes) doit pouvoir charger cette config sans harnais, comme pour prod-smoke.
 export default defineConfig({
+  globalSetup: './e2e/bilan-validation/global-setup.ts',
   testDir: './e2e/bilan-validation', fullyParallel: false, workers: 1, retries: 0,
   timeout: 120_000, expect: { timeout: 20_000 }, reporter: [['list']],
   outputDir: 'test-results/bilan-validation',

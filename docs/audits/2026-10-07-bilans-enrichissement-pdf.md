@@ -55,7 +55,7 @@ Empreintes avant bascule : comptes, secrets de connexion, groupes, inscriptions,
 ## Publication et vérification en ligne
 
 - Site : https://nexusreussite.academy/espace.
-- Release active : `/var/www/nexus-releases/d743d2fb1-espace-bilan-enrichissement-20261007`, SHA et BUILD_ID conformes à l’artefact testé.
+- Release active : répertoire `d743d2fb1-espace-bilan-enrichissement-20261007` sous la racine des releases du serveur, SHA et BUILD_ID conformes à l’artefact testé.
 - Archive transférée vérifiée par SHA-256. Catalogue de neuf activités synchronisé par la commande officielle, puis audité sans écart ; les quatre bilans sont en version `2026-09.2`, avec 13/13/12/12 étapes.
 - Bascule par le script officiel, verrou et comparaison de la release précédente `c481fc985-espace-bilan-terminale-20261007`. Gardes avant/après réussies ; santé interne et publique HTTP 200, connexion publique HTTP 200.
 - Deux nouveaux comptes exclusivement techniques, quatre séances avec un unique participant fictif. Le premier plan a refusé une homonymie avec d’anciennes identités techniques, avant toute écriture ; des noms techniques distincts ont été utilisés, sans adopter ni réinitialiser de compte existant.

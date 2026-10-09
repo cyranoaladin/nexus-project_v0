@@ -24,11 +24,11 @@ name='nexus-bilan-validation-'+suffix; db='nexus_disposable_bilan_'+suffix+'_tes
 docker_env=p/'postgres.env'
 db_env={'POSTGRES_USER':'nexus_bilan_test','POSTGRES_PASSWORD':password,'POSTGRES_DB':db}
 docker_env.write_text(''.join(f'{key}={value}\n' for key,value in db_env.items()));docker_env.chmod(0o600)
-subprocess.run(['docker','run','-d','--name',name,'--env-file',str(docker_env),'--publish','127.0.0.1::5432','--tmpfs','/var/lib/postgresql/data:rw,noexec,nosuid,size=512m','--health-cmd','pg_isready -U nexus_bilan_test -d '+db,'--health-interval','1s','--health-retries','30','pgvector/pgvector:pg15'],check=True,stdout=subprocess.DEVNULL)
+subprocess.run(['docker','run','-d','--name',name,'--env-file',str(docker_env),'--publish','127.0.0.1::5432','--tmpfs','/var/lib/postgresql/data:rw,noexec,nosuid,size=512m','--health-cmd','pg_isready -U nexus_bilan_test -d '+db,'--health-interval','1s','--health-retries','30','pgvector/pgvector@sha256:a947c45cdc5906a1bc951f20a8709e321256343ee0f251e4ae00b5e7def4e6da'],check=True,stdout=subprocess.DEVNULL)  # pg15, registre .github/governance/container-images.json
 (p/'container').write_text(name)
 port=subprocess.check_output(['docker','port',name,'5432/tcp'],text=True).strip().rsplit(':',1)[1]
 redis_name=name+'-redis'
-subprocess.run(['docker','run','-d','--name',redis_name,'--publish','127.0.0.1::6379','redis:7-alpine','redis-server','--save','','--appendonly','no'],check=True,stdout=subprocess.DEVNULL)
+subprocess.run(['docker','run','-d','--name',redis_name,'--publish','127.0.0.1::6379','redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf','redis-server','--save','','--appendonly','no'],check=True,stdout=subprocess.DEVNULL)  # 7-alpine, registre .github/governance/container-images.json
 (p/'redis-container').write_text(redis_name)
 redis_port=subprocess.check_output(['docker','port',redis_name,'6379/tcp'],text=True).strip().rsplit(':',1)[1]
 url='postgresql://nexus_bilan_test:'+password+'@127.0.0.1:'+port+'/'+db+'?schema=public'

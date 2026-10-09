@@ -1,7 +1,11 @@
-import { goStep } from '../bilan-validation/fixtures';
+import { goStep } from './fixtures';
 import { readFileSync } from 'node:fs';
 import { expect, test, type Page } from '@playwright/test';
-const creds = JSON.parse(readFileSync(process.env.BILAN_TEST_CREDENTIALS!, 'utf8')) as Record<string,{username:string;secret:string}>;
+// Lecture différée : `--list` (garde de couverture des lanes) charge ce module sans harnais.
+let credsCache: Record<string, { username: string; secret: string }> | undefined;
+const creds = new Proxy({} as Record<string, { username: string; secret: string }>, {
+  get: (_t, k: string) => (credsCache ??= JSON.parse(readFileSync(process.env.BILAN_TEST_CREDENTIALS!, 'utf8')))[k],
+});
 async function login(page:Page,key:string){
  await page.goto('/espace/connexion');
  await page.getByTestId('input-username').fill(creds[key]!.username);

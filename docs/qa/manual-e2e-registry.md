@@ -19,6 +19,13 @@ MANUAL_EVIDENCE_BOUND_TO_SHA=YES
 | `e2e/prod/espace-prod-smoke.spec.ts` | Idem | Idem | Idem | Propriétaire produit | Idem | Idem | 2026-10-20 |
 | `e2e/prod/espace-prod-teacher.spec.ts` | Idem | Idem | Production, compte enseignant, lecture seule | Propriétaire produit | Idem | Idem | 2026-10-20 |
 | `e2e/fallback/fallback-offline.spec.ts` | Télécharge Pyodide pendant la construction du paquet | `manual-rehearsals.yml`, lane `fallback-offline`, ou `npx playwright test -c playwright.fallback.config.ts` | Local / runner hébergé, sans base ni serveur applicatif, tout trafic externe bloqué | Responsable technique | Avant chaque release qui touche l'Espace ou son paquet de secours | Rapport Playwright + SHA testé | 2026-10-20 |
+| `e2e/bilan-validation/student.spec.ts` | Exige le harnais local jetable des bilans (base dédiée, serveur :3017, credentials de banc hors Git) | Poste opérateur : `scripts/espace/bilan-validation-local.sh up` puis `test` (`npx playwright test --config=playwright.bilan-validation.config.ts` ; `manual-rehearsals.yml`, lane `bilan-validation`, refuse de tourner sans harnais) | Local, stack jetable `bilan-validation-local` | Équipe Espace | Avant chaque release qui touche les bilans de septembre ou l'Espace élève | Rapport Playwright + SHA testé | 2026-11-09 |
+| `e2e/bilan-validation/teacher.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/terminale.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/enrichment.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/auth-hydration.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/mobile-account.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/espace-bilan.spec.ts` | Idem (lecture différée des credentials `BILAN_TEST_CREDENTIALS`) | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
 
 ## Écarts connus (à arbitrer, non corrigés ici)
 
