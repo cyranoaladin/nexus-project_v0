@@ -573,3 +573,19 @@ CI ; ces résultats ne sont pas déclarés verts par anticipation.
 
 Manifest expurgé hors dépôt : `manifest-coach-v1-fixture-delta.json`, SHA-256
 `c37acae5ec62264331fbf7b0c4e195e7348fc9b8ba8ad8a28497f8ac5b2118ab`.
+
+## 9 octobre — dernière fixture assistante et suite unitaire complète
+
+CI du candidat `e3005ef983b759a3b5f2b0f2fd8a18e78fd052f8`, run
+`37870695206`, job unitaire `113628817923` : une attente Documents élève
+échoue, car la session mockée ASSISTANTE ne porte pas l’autorité V1.
+RED local confirmé (1 échec, 7 succès). La fixture précise maintenant V1
+et distingue Student.id de Student.userId ; les assertions métier sont conservées.
+
+GREEN local complet : 1398 suites, 15826 tests et 7 snapshots, code 0
+(600,673 secondes). Lint et typecheck complets terminent également avec code 0.
+Preuves hors dépôt : `assistante-authority-fixture-red.log`,
+`final-unit-authority-fixtures.log`, `assistante-final-fixture-lint.log`,
+`assistante-final-fixture-typecheck.log`. Nouvelle CI exacte-SHA, nouveau
+scellement d’artefact et smokes restent requis après ce commit de fixture.
+Aucun code applicatif, schéma ou état de production modifié par ce delta.

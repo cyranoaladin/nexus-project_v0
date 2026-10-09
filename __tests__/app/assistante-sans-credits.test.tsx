@@ -7,7 +7,7 @@ import SubscriptionsPage from '@/app/dashboard/assistante/subscriptions/page';
 import StudentProfilePage from '@/app/dashboard/assistante/students/[studentId]/page';
 import { redirect } from 'next/navigation';
 const mockRouter = { push: jest.fn() };
-const mockSession = { data: { user: { role: 'ASSISTANTE' } }, status: 'authenticated' };
+const mockSession = { data: { user: { role: 'ASSISTANTE', authority: 'V1' } }, status: 'authenticated' };
 jest.mock('next/navigation', () => ({ useRouter: () => mockRouter, useSearchParams: () => new URLSearchParams(), useParams: () => ({ studentId: 's1' }), redirect: jest.fn() }));
 jest.mock('next-auth/react', () => ({ useSession: () => mockSession, signOut: jest.fn() }));
 it.each([CreditsPage, CreditRequestsPage])('redirects old credit screens to payments', async Page => {
@@ -26,13 +26,13 @@ it('loads the student directory without credit data and exposes profile links', 
 
 jest.mock('@/components/dashboard/assistante/StudentDocumentsManager', () => ({ __esModule: true, default: () => <div>Documents élève</div> }));
 it('shows admission requests without allocating or displaying credits', async () => {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ pendingSubscriptions: [{ id: 'sub1', planName: 'Accompagnement', monthlyPrice: 300, creditsPerMonth: 8, catalogCreditsPerMonth: 8, status: 'PENDING', createdAt: '2026-09-06', student: { id: 's1', firstName: 'Nora', lastName: 'Test', grade: 'Première' }, parent: { firstName: 'Parent', lastName: 'Test', email: 'parent@example.test' } }], allSubscriptions: [] }) });
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ pendingSubscriptions: [{ id: 'sub1', planName: 'Accompagnement', monthlyPrice: 300, creditsPerMonth: 8, catalogCreditsPerMonth: 8, status: 'PENDING', createdAt: '2026-09-06', student: { id: 's1', userId: 'student-user-1', firstName: 'Nora', lastName: 'Test', grade: 'Première' }, parent: { firstName: 'Parent', lastName: 'Test', email: 'parent@example.test' } }], allSubscriptions: [] }) });
   render(<SubscriptionsPage />);
   expect(await screen.findByText('Accompagnement — Nora Test')).toBeInTheDocument();
   expect(screen.queryByText(/crédits\/mois/i)).not.toBeInTheDocument();
 });
 it('shows a student profile with assignments and documents, without a credit balance', async () => {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ student: { id: 's1', gradeLevel: 'PREMIERE', academicTrack: 'GENERAL', user: { firstName: 'Nora', lastName: 'Test', email: 'nora@example.test', activatedAt: '2026-09-06' }, parent: { user: { firstName: 'Parent', lastName: 'Test' } }, subscriptions: [] }, assignments: [], creditBalance: 8, recentTransactions: [] }) });
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ student: { id: 's1', userId: 'student-user-1', gradeLevel: 'PREMIERE', academicTrack: 'GENERAL', user: { firstName: 'Nora', lastName: 'Test', email: 'nora@example.test', activatedAt: '2026-09-06' }, parent: { user: { firstName: 'Parent', lastName: 'Test' } }, subscriptions: [] }, assignments: [], creditBalance: 8, recentTransactions: [] }) });
   render(<StudentProfilePage />);
   expect(await screen.findByText('Documents élève')).toBeInTheDocument();
   expect(screen.queryByText('Crédits')).not.toBeInTheDocument();
@@ -60,7 +60,7 @@ it('proposes family creation with required phone, optional email and several chi
 });
 
 it('distinguishes a queued invitation from verified registration on the student profile', async () => {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ student: { id: 's1', gradeLevel: 'PREMIERE', academicTrack: 'GENERAL', user: { firstName: 'Nora', lastName: 'Test', email: 'nora@example.test' }, parent: { user: { firstName: 'Parent', lastName: 'Test', parentPhoneState: 'RESERVED', registrationCompletedAt: null, activatedAt: null } }, subscriptions: [] }, assignments: [], parentInvitation: { status: 'PENDING', queuedAt: '2026-09-06T00:00:00.000Z', updatedAt: '2026-09-06T00:00:00.000Z' } }) });
+  global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ student: { id: 's1', userId: 'student-user-1', gradeLevel: 'PREMIERE', academicTrack: 'GENERAL', user: { firstName: 'Nora', lastName: 'Test', email: 'nora@example.test' }, parent: { user: { firstName: 'Parent', lastName: 'Test', parentPhoneState: 'RESERVED', registrationCompletedAt: null, activatedAt: null } }, subscriptions: [] }, assignments: [], parentInvitation: { status: 'PENDING', queuedAt: '2026-09-06T00:00:00.000Z', updatedAt: '2026-09-06T00:00:00.000Z' } }) });
   render(<StudentProfilePage />);
   expect(await screen.findByText('Invitation en attente d’envoi')).toBeInTheDocument();
   expect(screen.getByText('Inscription à compléter')).toBeInTheDocument();
