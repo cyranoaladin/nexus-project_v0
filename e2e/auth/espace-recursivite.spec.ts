@@ -99,16 +99,18 @@ test.afterAll(async () => {
 });
 
 test.describe('tableau de bord élève', () => {
-  test('NSI est organisé en deux thèmes : POO (TP 1 et 2) puis Algorithmique et programmation (Récursivité)', async ({ browser }) => {
+  test('NSI est organisé en trois thèmes : POO (TP 1 et 2), Algorithmique et programmation (Récursivité), Préparation de l’évaluation', async ({ browser }) => {
     const { ctx, page } = await pageAs(browser, 'lea');
     try {
       await page.goto('/espace/eleve/matieres');
       const themes = page.getByTestId('theme');
-      await expect(themes).toHaveCount(2);
+      await expect(themes).toHaveCount(3);
       await expect(themes.nth(0)).toContainText('Programmation orientée objet');
       await expect(themes.nth(0).getByRole('link')).toHaveText(['TP POO 1 — Des objets qui agissent', 'TP POO 2 — Listes, piles et files']);
       await expect(themes.nth(1)).toContainText('Algorithmique et programmation');
       await expect(themes.nth(1).getByRole('link')).toHaveText(['Récursivité et programmation récursive']);
+      await expect(themes.nth(2)).toContainText('Préparation de l’évaluation');
+      await expect(themes.nth(2).getByRole('link')).toHaveText(['TAD, POO et récursivité — sujets d’entraînement corrigés']);
       // Les maths restent sans thème et gardent leurs liens.
       await expect(page.locator('a[href="/espace/maths/suites"]')).toBeVisible();
       await expect(page.locator('a[href^="/espace/maths/fonctions-limites"]')).toBeVisible();
