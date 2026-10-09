@@ -75,6 +75,8 @@ export function AriaCourseWorkspace({
     cockpit.capabilities.chat &&
     access.academicallyRelevant &&
     course.chatSubject !== null &&
+    course.capabilities.chat &&
+    access.productSupported &&
     access.commerciallyEntitled &&
     onWorkWithAria !== undefined;
 
@@ -127,7 +129,7 @@ export function AriaCourseWorkspace({
               </span>
             ) : !canChat ? (
               <span className="self-center text-xs text-amber-200">
-                {course.chatSubject === null
+                {course.chatSubject === null || !course.capabilities.chat || !access.productSupported
                   ? 'ARIA ne prend pas encore en charge cette matière.'
                   : 'Cette matière n’est pas incluse dans ton abonnement.'}
               </span>

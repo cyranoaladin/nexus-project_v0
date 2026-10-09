@@ -1,17 +1,4 @@
-/**
- * Real notification, P7c: fires exactly once per real registration — the
- * caller (`register-for-workshop.ts`) only invokes this after its own
- * `ariaWorkshopAttendee.create`, never on the idempotent early-return path
- * for an already-registered student. `enqueueEmailIntent`'s own
- * `idempotencyKey` (derived from aggregateId + messageType + dedupeKey) is
- * a second, DB-level backstop against a genuine concurrent double-fire:
- * a duplicate insert is caught here and treated as "already queued", never
- * surfaced as a registration failure.
- *
- * Uses the real, already-connected `lib/email/outbox.ts` — never the
- * dormant `NotificationOutbox` (confirmed by the P7b audit fork to have no
- * producer or consumer anywhere in the codebase).
- */
+/** One durable email intent per workshop admission; delivery is retried separately. */
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
@@ -21,7 +8,7 @@ import { buildWorkshopRegisteredEmail } from './workshop-registered-email';
 
 const PRISMA_UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
 
-export async function notifyParentWorkshopRegistered(input: {
+type WorkshopRegisteredNotificationInput = {
   readonly studentId: string;
   readonly sessionId: string;
   readonly workshopTitle: string;
@@ -29,8 +16,14 @@ export async function notifyParentWorkshopRegistered(input: {
   readonly startTime: string;
   readonly endTime: string;
   readonly location: string | null;
-}): Promise<void> {
-  const student = await prisma.student.findUnique({
+};
+
+/** Caller owns the admission transaction; enqueue errors must roll it back. */
+export async function enqueueParentWorkshopRegistered(
+  transaction: Pick<Prisma.TransactionClient, 'student' | 'jobOutbox'>,
+  input: WorkshopRegisteredNotificationInput,
+): Promise<void> {
+  const student = await transaction.student.findUnique({
     where: { id: input.studentId },
     select: {
       user: { select: { firstName: true } },
@@ -54,32 +47,30 @@ export async function notifyParentWorkshopRegistered(input: {
     parentDisplayName,
     studentFirstName,
     workshopTitle: input.workshopTitle,
-    scheduledDateLabel: input.scheduledDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+    scheduledDateLabel: input.scheduledDate.toLocaleDateString('fr-FR', { timeZone: 'Africa/Tunis', day: 'numeric', month: 'long', year: 'numeric' }),
     startTime: input.startTime,
     endTime: input.endTime,
     location: input.location,
     dashboardUrl: `${origin}/dashboard/parent/enfant/${input.studentId}`,
   });
 
+  await enqueueEmailIntent(transaction, {
+    aggregateId: parentUser.id,
+    messageType: 'TRANSACTIONAL_NOTIFICATION',
+    dedupeKey: `aria-workshop-registered:${input.sessionId}:${input.studentId}`,
+    to: parentEmail,
+    subject: message.subject,
+    html: message.html,
+    text: message.text,
+  });
+}
+
+/** Standalone retry producer retained for existing callers. */
+export async function notifyParentWorkshopRegistered(input: WorkshopRegisteredNotificationInput): Promise<void> {
   try {
-    await prisma.$transaction(async (transaction) => {
-      await enqueueEmailIntent(transaction, {
-        aggregateId: parentUser.id,
-        messageType: 'TRANSACTIONAL_NOTIFICATION',
-        dedupeKey: `aria-workshop-registered:${input.sessionId}:${input.studentId}`,
-        to: parentEmail,
-        subject: message.subject,
-        html: message.html,
-        text: message.text,
-      });
-    });
+    await prisma.$transaction(tx => enqueueParentWorkshopRegistered(tx, input));
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError
-      && error.code === PRISMA_UNIQUE_CONSTRAINT_VIOLATION
-    ) {
-      return; // already queued — a genuine concurrent double-fire, not a failure.
-    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === PRISMA_UNIQUE_CONSTRAINT_VIOLATION) return;
     throw error;
   }
   kickEmailOutboxDrain();

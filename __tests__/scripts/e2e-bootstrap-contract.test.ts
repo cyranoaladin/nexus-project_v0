@@ -1,6 +1,6 @@
 /** @jest-environment node */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 
@@ -8,6 +8,31 @@ const root = process.cwd();
 const read = (relativePath: string) => readFileSync(join(root, relativePath), 'utf8');
 
 describe('ephemeral E2E bootstrap contract', () => {
+  it('explicitly enables bank-transfer fixtures only in the disposable build', () => {
+    const builder = read('Dockerfile.e2e').split('FROM base AS runner')[0];
+    expect(builder).toContain('ENV NEXT_PUBLIC_ENABLE_BANK_TRANSFER=true');
+    expect(builder.indexOf('ENV NEXT_PUBLIC_ENABLE_BANK_TRANSFER=true')).toBeLessThan(builder.indexOf('RUN npm run build:base'));
+  });
+  it('shares diagnostic fixture storage between the writer and the standalone reader', () => {
+    const compose = parse(read('docker-compose.e2e.yml')) as { services: Record<string, { environment: Record<string, string>; volumes: string[] }> };
+    const app = compose.services['app-e2e'];
+    const runner = compose.services['playwright'];
+    expect(runner.environment.DOCUMENT_STORAGE_ROOT).toBe(app.environment.DOCUMENT_STORAGE_ROOT);
+    const volume = app.volumes.find(value => value.endsWith(`:${app.environment.DOCUMENT_STORAGE_ROOT}`));
+    expect(volume).toBeDefined();
+    expect(runner.volumes).toContain(volume);
+    expect(app.environment.E2E_DISPOSABLE_STACK).toBe('1');
+    expect(app.environment.DIAGNOSTIC_AV_MODE).toBe('disabled');
+  });
+
+  it('compiles the same Jitsi fixture origin used by the isolated runtime', () => {
+    const compose = parse(read('docker-compose.e2e.yml')) as { services: Record<string, { environment: Record<string, string> }> };
+    const origin = compose.services['app-e2e'].environment.NEXT_PUBLIC_JITSI_SERVER_URL;
+    const builder = read('Dockerfile.e2e').split('FROM base AS runner')[0];
+    expect(builder).toContain(`ENV NEXT_PUBLIC_JITSI_SERVER_URL=${origin}`);
+    expect(builder.indexOf('ENV NEXT_PUBLIC_JITSI_SERVER_URL=')).toBeLessThan(builder.indexOf('RUN npm run build:base'));
+  });
+
   it('pins the Playwright runner to the same approved Node and npm contract', () => {
     const dockerfile = read('Dockerfile.playwright');
 
@@ -131,12 +156,14 @@ describe('ephemeral E2E bootstrap contract', () => {
     const config = read('playwright.config.e2e.ts');
 
     expect(config).toContain("'e2e/**/*.spec.ts'");
-    // `__tests__/e2e/` was a second hermetic tree until its four specs were
-    // deleted: `playwright.config.e2e.ts` collected them, but no workflow
-    // invokes that configuration, so nothing in CI ever ran them. The
-    // contract now asserts the tree is gone rather than that it is collected,
-    // so the entry cannot come back without the directory.
-    expect(existsSync(join(root, '__tests__/e2e'))).toBe(false);
+    // Historical unexecuted Playwright specs must stay absent. The Golden
+    // PostgreSQL fixture is a Jest test in a mandatory dedicated CI lane.
+    const fixtureTree = join(root, '__tests__/e2e');
+    const files = existsSync(fixtureTree) ? readdirSync(fixtureTree, { recursive: true, encoding: 'utf8' }) : [];
+    expect(files.filter(file => file.endsWith('.spec.ts'))).toEqual([]);
+    expect(files.filter(file => file.endsWith('.test.ts'))).toEqual(['golden-family-cleanup.real.test.ts']);
+    expect(read('jest.golden-family-real.config.js')).toContain('**/__tests__/e2e/golden-family-cleanup.real.test.ts');
+    expect(read('.github/workflows/ci.yml')).toContain('npm run test:golden-family:disposable');
     expect(config).not.toContain("'__tests__/e2e/**/*.spec.ts'");
     expect(existsSync(join(root, 'e2e/candidate-diagnostic.spec.ts'))).toBe(false);
     expect(existsSync(join(root, 'e2e/real/coach-resource-student.spec.ts'))).toBe(false);

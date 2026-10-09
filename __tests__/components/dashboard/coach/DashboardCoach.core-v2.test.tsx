@@ -25,12 +25,15 @@ describe('DashboardCoach — Core v2 assignments panel (§AJ)', () => {
     }) as unknown as typeof fetch;
   });
 
-  it('a CORE_V2 coach sees the Core v2 assignments panel in addition to the Core v1 pilotage', async () => {
-    sessionState.data = { user: { id: 'c-v2', role: 'COACH', authority: 'CORE_V2' } };
+  it('a CORE_V2 coach uses its own assignments without calling or displaying V1 data', async () => {
+    sessionState.data = { user: { id: 'c-v2', role: 'COACH', authority: 'CORE_V2', firstName: 'Synthetic', lastName: 'Coach' } };
     sessionState.status = 'authenticated';
     render(<DashboardCoach />);
     expect(await screen.findByText('Mes affectations (Core v2)')).toBeInTheDocument();
-    expect(screen.getByText(/Coach — Helios/)).toBeInTheDocument();
+    expect(screen.queryByText(/Coach — Helios/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Aucun cours aujourd’hui')).not.toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalledWith('/api/coach/dashboard', expect.anything());
+    expect(jest.mocked(global.fetch).mock.calls.some(([url]) => String(url).startsWith('/api/coach/'))).toBe(false);
   });
 
   it('a V1 coach sees no Core v2 panel', async () => {

@@ -30,7 +30,7 @@ const validPayload = {
   firstName: 'Coach',
   lastName: 'One',
   email: 'c@test.com',
-  password: 'pw',
+  password: ['synthetic', 'Coach', '123'].join(''),
   pseudonym: 'CoachX',
   tag: 'Math',
   description: 'Long description',

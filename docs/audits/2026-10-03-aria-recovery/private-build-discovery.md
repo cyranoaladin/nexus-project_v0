@@ -1,0 +1,9 @@
+# Distinguer sources actives et preuves privées
+
+La suite unitaire sur 6a9b635f9 a révélé que le scanner de surfaces NPC parcourait aussi les copies Git immuables sous .artifacts. La configuration canonique ne violait pas son invariant ; les archives étaient prises pour des sources actives. Un test synthétique de découverte a reproduit le défaut : deux échecs et 22 réussites avant correction, puis 24 réussites après exclusion du seul répertoire privé .artifacts. Les assertions sur tous les Dockerfiles/Compose actifs restent inchangées.
+
+L’inventaire exécuté de Jest Core sélectionnait 219 fichiers, dont 146 copies privées. La racine de découverte est désormais le dossier canonique __tests__/core-v2 ; les mocks privés sont exclus de la carte de modules Core et gouvernance. Ce changement ne désactive aucun fichier canonique, scénario, seuil ou lane CI. Le lancement Core initial est conservé et ne vaut pas qualification canonique ; la campagne doit être renouvelée.
+
+La même vérification de `jest.integration.config.js` sur f12201789c2600e7d1256cf504f7cf4c6b8a8682 sélectionnait 268 fichiers, dont 201 copies privées. Les exclusions de chemins de tests et de modules couvrent désormais `.artifacts`. L’inventaire après correction contient exactement les 67 fichiers canoniques précédemment découverts, sans ajout ni suppression de scénario actif. Les inventaires JSON avant/après sont conservés dans les preuves privées.
+
+L’exécution globale sur l’hôte ne remplace pas la répartition de la CI : les trois suites NPC exigent explicitement UID 0 dans leur conteneur jetable, fourni par `scripts/testing/run-npc-real-db-tests.sh`. Leur échec avec UID 1000 sur l’hôte est conservé comme preuve d’un environnement non conforme ; la contrainte ne doit pas être retirée. Les suites à bases isolées doivent aussi être exécutées par leurs lanes officielles.

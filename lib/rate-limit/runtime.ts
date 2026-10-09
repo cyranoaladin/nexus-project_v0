@@ -98,6 +98,15 @@ function getStore(): DistributedRateLimitStore {
   return current.store
 }
 
+/** Production readiness requires the configured distributed store to respond. */
+export async function assertRateLimitStoreReady(): Promise<void> {
+  assertRateLimitRuntimeConfiguration()
+  if (getRateLimitRuntimeMode() !== 'redis') throw new Error('RATE_LIMIT_DISTRIBUTED_STORE_REQUIRED')
+  const store = getStore()
+  if (!(store instanceof RedisStore)) throw new Error('RATE_LIMIT_DISTRIBUTED_STORE_REQUIRED')
+  await store.probe()
+}
+
 function registerShutdownHandlers(): void {
   registerProcessShutdownOnce('rate-limit-runtime', () => {
     void shutdownRateLimitRuntime()

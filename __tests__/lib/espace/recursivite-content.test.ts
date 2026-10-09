@@ -54,7 +54,7 @@ describe('position dans la progression NSI', () => {
   });
 
   it('l’ordre pédagogique du catalogue NSI est POO 1, POO 2, puis Récursivité', () => {
-    expect(ACTIVITIES.filter((a) => a.subject === 'NSI').map((a) => a.slug)).toEqual([POO_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG]);
+    expect(ACTIVITIES.filter((a) => a.subject === 'NSI' && a.kind === 'PYTHON_TP').map((a) => a.slug)).toEqual([POO_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG]);
   });
 
   it('les activités de maths n’ont pas de thème (affichage inchangé)', () => {

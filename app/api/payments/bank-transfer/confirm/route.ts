@@ -1,12 +1,14 @@
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { PaymentType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { resolveSellablePaymentCatalogItem } from '@/lib/security/payment-catalog';
+import { resolveParentStudentAccess } from '@/lib/families/student-access-authority';
+import { BankTransferOwnershipError, declarePendingBankTransfer } from '@/lib/payments/bank-transfer-declaration';
 
 /**
  * POST /api/payments/bank-transfer/confirm
@@ -38,6 +40,8 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    if (!isBankTransferEnabled()) return NextResponse.json({ error: 'Paiements indisponibles.', code: 'BANK_TRANSFER_DISABLED' }, { status: 403, headers: { 'Cache-Control': 'private, no-store' } });
 
     const body = await request.json();
     const data = confirmBankTransferSchema.parse(body);
@@ -77,6 +81,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (data.studentId) {
+      const authority = await resolveParentStudentAccess(session.user.id, data.studentId, 'mutation');
+      if (authority.status === 'AUTHORITY_UNAVAILABLE') {
+        return NextResponse.json(
+          { error: 'Autorisation temporairement indisponible', code: 'FAMILY_AUTHORITY_UNAVAILABLE' },
+          { status: 503, headers: { 'cache-control': 'private, no-store' } },
+        );
+      }
+      // Core membership grants reads only until a cross-store write fence exists.
+      if (authority.status !== 'LEGACY_ALLOWED') {
+        return NextResponse.json(
+          { error: 'Élève introuvable ou non autorisé' },
+          { status: 404 },
+        );
+      }
       const parentProfile = await prisma.parentProfile.findUnique({
         where: { userId: session.user.id },
         select: { id: true },
@@ -105,96 +123,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Map frontend type to Prisma PaymentType
-    const paymentType: PaymentType =
-      data.type === 'subscription'
-        ? PaymentType.SUBSCRIPTION
-        : PaymentType.SPECIAL_PACK;
-
-    // Vérifier qu'il n'y a pas déjà un paiement PENDING identique (anti-doublon)
-    const existingPending = await prisma.payment.findFirst({
-      where: {
-        userId: session.user.id,
-        method: 'bank_transfer',
-        status: 'PENDING',
-        type: data.type === 'pack' ? { in: [PaymentType.SPECIAL_PACK, PaymentType.CREDIT_PACK] } : paymentType,
-        amount: catalogItem.amount,
-        description: catalogItem.description,
-      },
-    });
-
-    if (existingPending) {
-      return NextResponse.json({
-        success: true,
-        paymentId: existingPending.id,
-        message: 'Un virement est déjà en attente de validation pour cette commande.',
-        alreadyExists: true,
-      });
-    }
-
-    // Extract client IP for audit trail
     const forwarded = request.headers.get('x-forwarded-for');
     const clientIp = forwarded?.split(',')[0]?.trim() ?? request.headers.get('x-real-ip') ?? 'unknown';
-
-    // Créer le Payment en statut PENDING
-    const payment = await prisma.payment.create({
-      data: {
-        userId: session.user.id,
-        type: paymentType,
-        amount: catalogItem.amount,
-        currency: 'TND',
-        description: catalogItem.description,
-        status: 'PENDING',
-        method: 'bank_transfer',
-        termsVersion: data.termsVersion,
-        termsAcceptedAt: new Date(),
-        termsAcceptedIp: clientIp,
-        immediateExecution: data.immediateExecution,
-        metadata: {
-          itemKey: data.key,
-          itemType: data.type,
-          studentId: data.studentId ?? null,
-          declaredAt: new Date().toISOString(),
-          declaredBy: session.user.id,
-        },
-      },
+    const parentName = [session.user.firstName, session.user.lastName].filter(Boolean).join(' ') || session.user.email || 'Parent';
+    const declaration = await declarePendingBankTransfer({
+      parentUserId: session.user.id, parentName, studentId: data.studentId ?? null,
+      itemType: data.type, itemKey: data.key, catalog: catalogItem,
+      termsVersion: data.termsVersion, clientIp, immediateExecution: data.immediateExecution, now: new Date(),
     });
-
-    // Notifier tous les ADMIN et ASSISTANTE
-    const staffUsers = await prisma.user.findMany({
-      where: { role: { in: ['ADMIN', 'ASSISTANTE'] } },
-      select: { id: true, role: true },
-    });
-
-    if (staffUsers.length > 0) {
-      const parentName = [session.user.firstName, session.user.lastName]
-        .filter(Boolean)
-        .join(' ') || session.user.email;
-
-      await prisma.notification.createMany({
-        data: staffUsers.map((staff) => ({
-          userId: staff.id,
-          userRole: staff.role,
-          type: 'BANK_TRANSFER_DECLARED',
-          title: 'Nouveau virement déclaré',
-        message: `${parentName} a déclaré un virement de ${catalogItem.amount} TND pour « ${catalogItem.description} ». En attente de validation.`,
-        data: {
-          paymentId: payment.id,
-          parentId: session.user.id,
-          parentName,
-            amount: catalogItem.amount,
-            description: catalogItem.description,
-          },
-        })),
-      });
-    }
-
     return NextResponse.json({
-      success: true,
-      paymentId: payment.id,
-      message: 'Votre déclaration de virement a été transmise. Elle sera validée sous 24/48h.',
+      success: true, paymentId: declaration.paymentId,
+      message: declaration.alreadyExists
+        ? 'Un virement est déjà en attente de validation pour cette commande.'
+        : 'Votre déclaration de virement a été transmise. Elle sera validée sous 24/48h.',
+      ...(declaration.alreadyExists ? { alreadyExists: true } : {}),
     });
   } catch (error) {
+    if (error instanceof BankTransferOwnershipError) {
+      return NextResponse.json({ error: 'Élève introuvable ou non autorisé' }, { status: 404 });
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Données invalides', details: error.errors },

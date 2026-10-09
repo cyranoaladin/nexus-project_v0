@@ -394,7 +394,7 @@ export async function streamAriaConversation(
       const base = resolveAriaApiBase(authority);
       response = await fetch(`${base}/chat`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json', accept: authority === 'CORE_V2' ? 'application/json' : 'text/event-stream' },
+        headers: { 'content-type': 'application/json', accept: 'text/event-stream' },
         body: JSON.stringify(chatPayload),
         signal,
       });
@@ -411,7 +411,7 @@ export async function streamAriaConversation(
       await waitForRetry(pending.data.retryAfterMs, signal);
       continue;
     }
-    if (authority === 'CORE_V2') {
+    if (authority === 'CORE_V2' && !response.headers.get('content-type')?.includes('text/event-stream')) {
       const envelope = object(await requireOk(response));
       const parsed = ariaCoreV2JsonResponseSchema.safeParse(envelope.data);
       if (!parsed.success) throw new AriaClientError('INVALID_RESPONSE', 500, false);

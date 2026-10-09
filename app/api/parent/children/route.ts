@@ -1,7 +1,7 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { resolveParentStudentListAccess } from '@/lib/families/list-access-authority';
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { normalizeStudentLevelAndTrack } from '@/lib/utils/grade-utils';
@@ -37,7 +37,7 @@ export async function GET(_request: NextRequest) {
   try {
     const session = await auth();
 
-    if (!session || session.user.role !== 'PARENT') {
+    if (!session?.user?.id || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -58,23 +58,27 @@ export async function GET(_request: NextRequest) {
       );
     }
 
+    const access = await resolveParentStudentListAccess(userId, parentProfile.id);
+    if (access.unavailable) {
+      return NextResponse.json({ error: 'Family authority unavailable' },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+    if (access.studentIds.length === 0) {
+      return NextResponse.json([],
+        { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+
     const children = await prisma.student.findMany({
-      where: { parentId: parentProfile.id },
+      where: { parentId: parentProfile.id, id: { in: [...access.studentIds] } },
       include: {
-        user: true,
+        user: { select: { firstName: true, lastName: true, email: true } },
         sessions: {
           where: {
             scheduledAt: {
               gte: new Date()
             }
           },
-          include: {
-            coach: {
-              include: {
-                user: true
-              }
-            }
-          },
+          select: { id: true },
           orderBy: {
             scheduledAt: 'asc'
           }
@@ -96,10 +100,10 @@ export async function GET(_request: NextRequest) {
       };
     });
 
-    return NextResponse.json(formattedChildren);
+    return NextResponse.json(formattedChildren, { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
 
-  } catch (error) {
-    console.error('Error fetching children:', serializeError(error));
+  } catch {
+    console.error('PARENT_CHILDREN_READ_FAILED');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -8,14 +8,25 @@
  * - Sensitive data sanitization
  */
 
-import { NextRequest } from 'next/server';
 import { handleApiError, ApiError, ErrorCode, HttpStatus } from '@/lib/api/errors';
 import { logger } from '@/lib/logger';
 import { ZodError } from 'zod';
 
 describe('API Error Logging Integration', () => {
   beforeEach(() => {
+    jest.spyOn(logger, 'warn');
+    jest.spyOn(logger, 'error');
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    for (const method of ['warn', 'error'] as const) {
+      for (const [fields] of jest.mocked(logger[method]).mock.calls) {
+        for (const forbidden of ['message', 'details', 'stack', 'validationErrors']) {
+          expect(fields).not.toHaveProperty(forbidden);
+        }
+      }
+    }
   });
 
   describe('handleApiError with logger integration', () => {
@@ -35,8 +46,6 @@ describe('API Error Logging Integration', () => {
         {
           errorCode: ErrorCode.NOT_FOUND,
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'User not found',
-          details: { userId: 'user-123' },
           context: 'GET /api/users/123',
         },
         `API Error: ${ErrorCode.NOT_FOUND}`
@@ -45,7 +54,7 @@ describe('API Error Logging Integration', () => {
       expect(response.status).toBe(HttpStatus.NOT_FOUND);
     });
 
-    it('should log unexpected errors with logger.error and include stack trace', async () => {
+    it('should log unexpected errors with logger.error without exception payloads', async () => {
       const loggerErrorSpy = jest.spyOn(logger, 'error');
       
       const unexpectedError = new Error('Database connection failed');
@@ -56,8 +65,6 @@ describe('API Error Logging Integration', () => {
         {
           errorCode: ErrorCode.INTERNAL_ERROR,
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Database connection failed',
-          stack: expect.any(String),
           context: 'POST /api/sessions/book',
         },
         'Unexpected error'
@@ -85,7 +92,7 @@ describe('API Error Logging Integration', () => {
         {
           errorCode: ErrorCode.VALIDATION_ERROR,
           statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          validationErrors: zodError.errors,
+          validationIssueCount: zodError.errors.length,
           context: 'POST /api/users',
         },
         'Validation error'
@@ -180,8 +187,6 @@ describe('API Error Logging Integration', () => {
         {
           errorCode: ErrorCode.FORBIDDEN,
           statusCode: HttpStatus.FORBIDDEN,
-          message: 'Insufficient credits',
-          details: undefined,
           context: 'POST /api/sessions/book',
         },
         `API Error: ${ErrorCode.FORBIDDEN}`
@@ -198,7 +203,6 @@ describe('API Error Logging Integration', () => {
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           errorCode: ErrorCode.INTERNAL_ERROR,
-          message: 'Unexpected error',
           context: 'DELETE /api/sessions/123',
         }),
         'Unexpected error'
@@ -210,7 +214,7 @@ describe('API Error Logging Integration', () => {
     it('should capture exception in simulated API route and log with correct context', async () => {
       const loggerErrorSpy = jest.spyOn(logger, 'error');
       
-      async function simulatedApiRoute(request: NextRequest) {
+      async function simulatedApiRoute() {
         try {
           throw new Error('Simulated database failure');
         } catch (error) {
@@ -218,19 +222,13 @@ describe('API Error Logging Integration', () => {
         }
       }
 
-      const request = new NextRequest('http://localhost:3000/api/test', {
-        method: 'GET',
-      });
-
-      const response = await simulatedApiRoute(request);
+      const response = await simulatedApiRoute();
       const data = await response.json();
 
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           errorCode: ErrorCode.INTERNAL_ERROR,
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Simulated database failure',
-          stack: expect.any(String),
           context: 'GET /api/test',
         }),
         'Unexpected error'
@@ -263,7 +261,6 @@ describe('API Error Logging Integration', () => {
       expect(loggerWarnSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           errorCode: ErrorCode.UNAUTHORIZED,
-          message: 'Session expired',
         }),
         expect.any(String)
       );
@@ -277,7 +274,6 @@ describe('API Error Logging Integration', () => {
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           errorCode: ErrorCode.INTERNAL_ERROR,
-          message: 'Unhandled exception',
         }),
         expect.any(String)
       );
@@ -332,7 +328,6 @@ describe('API Error Logging Integration', () => {
         expect.objectContaining({
           errorCode: ErrorCode.NOT_FOUND,
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'Session not found',
         }),
         expect.any(String)
       );
@@ -348,7 +343,6 @@ describe('API Error Logging Integration', () => {
         expect.objectContaining({
           errorCode: ErrorCode.CONFLICT,
           statusCode: HttpStatus.CONFLICT,
-          message: 'Email already exists',
         }),
         expect.any(String)
       );
@@ -364,7 +358,6 @@ describe('API Error Logging Integration', () => {
         expect.objectContaining({
           errorCode: ErrorCode.SERVICE_UNAVAILABLE,
           statusCode: HttpStatus.SERVICE_UNAVAILABLE,
-          message: 'Payment gateway unavailable',
         }),
         expect.any(String)
       );
@@ -381,7 +374,6 @@ describe('API Error Logging Integration', () => {
       expect(loggerErrorSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           errorCode: ErrorCode.INTERNAL_ERROR,
-          message: 'No context error',
           context: undefined,
         }),
         'Unexpected error'

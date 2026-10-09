@@ -11,13 +11,15 @@ const createJestConfig = nextJest({
 // has no reason to depend on. Requires CORE_V2_DATABASE_URL to point at a
 // disposable PostgreSQL database; never DATABASE_URL, never production.
 const customJestConfig = {
+  roots: ['<rootDir>/__tests__/core-v2'],
+  setupFiles: ['<rootDir>/__tests__/setup/core-v2-token-env.js'],
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testMatch: ['**/__tests__/core-v2/**/*.test.ts'],
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/.worktrees/'],
-  modulePathIgnorePatterns: ['<rootDir>/.worktrees/'],
+  modulePathIgnorePatterns: ['<rootDir>/.worktrees/', '<rootDir>/.artifacts/'],
   testTimeout: 30_000,
   // All Core v2 test files share ONE disposable Postgres database and each
   // resets it in beforeEach — running test FILES in parallel would race

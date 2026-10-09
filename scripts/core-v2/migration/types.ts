@@ -15,13 +15,14 @@
  *   - Manifest evidence per object: entity, source id, target id, transform
  *     version, hash, result, warnings — and a reconciliation with UNKNOWN =
  *     SILENT_DROPPED = DUPLICATE_TARGET = UNMAPPED_APPROVED = 0 expected.
- *   - Idempotent rerun: every write is an upsert keyed on a deterministic id;
- *     an unchanged object is reported UNCHANGED, a changed one UPDATED.
+ *   - Idempotent rerun: Core identities are created only when absent and are
+ *     thereafter preserved. Other objects use deterministic ids; an unchanged
+ *     object is reported UNCHANGED, a changed one UPDATED.
  *   - No silent coercion: anything the rules cannot map is REJECTED or SKIPPED
  *     with a reason, never guessed.
  */
 
-export const TRANSFORM_VERSION = 'core-v2-migration/1';
+export const TRANSFORM_VERSION = 'core-v2-migration/4';
 
 export type MigrationEntity =
   | 'AcademicYear'

@@ -13,6 +13,7 @@ type SensitivePolicy = {
 }
 
 export const SENSITIVE_RATE_LIMIT_POLICIES = {
+  'document-upload': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
   'family-create': { ipPreset: 'writeIp', identityPreset: 'writeIdentity' },
   'parent-whatsapp-manual-invitation': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'parent-phone-reservation-release': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
@@ -30,8 +31,12 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'test-email': { ipPreset: 'emailIp', identityPreset: 'emailIdentity' },
   'contact-submit': { ipPreset: 'writeIp', identityPreset: 'emailIdentity' },
   'newsletter-subscribe': { ipPreset: 'writeIp', identityPreset: 'emailIdentity' },
+  'stage-confirmation': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'stage-registration': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'assessment-submit': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity', resourcePreset: 'resourceWrite' },
+  'reservation-list': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'reservation-verify': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
+  'reservation-decision': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'reservation-submit': { ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' },
   'notification-email': { ipPreset: 'emailIp', identityPreset: 'emailIdentity' },
   'quotes-pdf': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },
@@ -47,6 +52,8 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   'core-v2-activation': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'core-v2-password-reset-request': { ipPreset: 'emailIp', identityPreset: 'emailIdentity' },
   'core-v2-password-reset-confirm': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
+  'core-v2-password-change': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
+  'v1-password-change': { ipPreset: 'authIp', identityPreset: 'authIdentity' },
   'student-credits': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'student-sessions': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'programme-rag-v2': { ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' },

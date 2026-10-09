@@ -79,6 +79,7 @@ model User {
   sessionVersion          Int       @default(0)
   registrationCompletedAt DateTime?
 
+  householdMembershipsVerified HouseholdParent[] @relation("HouseholdMembershipVerifier")
   householdParent HouseholdParent?
   student         Student?
   coachProfile    CoachProfile?
@@ -116,7 +117,7 @@ enum AccountStatus {
 //   EXPIRED  = consumedAt IS NULL AND revokedAt IS NULL AND expiresAt <= now
 //   CONSUMED = consumedAt IS NOT NULL
 //   REVOKED  = revokedAt IS NOT NULL
-// Only the token HASH is stored (sha256 of a 32-byte random token) — the raw
+// Only the versioned token HMAC is stored (dedicated key; 32-byte random entropy) — the raw
 // token exists only in the service return value handed to the mail layer.
 // One-time, hashed tokens with two purposes: ACTIVATION (set the first
 // password on a PENDING_ACTIVATION account) and PASSWORD_RESET (replace the
@@ -204,6 +205,12 @@ model Household {
 // `userId @unique` = one parent user belongs to at most one household.
 // At most one primary contact per household — race-safe via partial unique
 // index household_parents_primary_contact_key (migration 0006).
+enum HouseholdMembershipStatus {
+  PENDING
+  VERIFIED
+  REVOKED
+}
+
 model HouseholdParent {
   id               String    @id @default(cuid())
   householdId      String
@@ -211,6 +218,13 @@ model HouseholdParent {
   userId           String    @unique
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   isPrimaryContact Boolean   @default(false)
+  verificationStatus HouseholdMembershipStatus @default(PENDING)
+  verifiedAt DateTime?
+  verifiedById String?
+  verifiedBy User? @relation("HouseholdMembershipVerifier", fields: [verifiedById], references: [id], onDelete: Restrict)
+  verificationEvidenceDigest String?
+  revokedAt DateTime?
+  revision Int @default(0)
   createdAt        DateTime  @default(now())
 
   @@unique([householdId, userId])
@@ -1453,6 +1467,7 @@ enum AriaConversationMessageRole {
 
 enum CoreV2JobType {
   RECOVER_ARIA_TURN
+  ACCOUNT_EMAIL_HANDOFF
 }
 
 enum CoreV2JobStatus {

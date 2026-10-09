@@ -199,7 +199,7 @@ export function handleZodError(error: ZodError): NextResponse<ApiErrorResponse> 
  * Catches all errors and returns appropriate responses:
  * - ApiError: Convert to response
  * - ZodError: Format validation errors
- * - Other: Generic 500 error (logs full error server-side)
+ * - Other: Generic 500 error (logs structural metadata only)
  *
  * @param error - Any error thrown in API route
  * @param context - Optional context for logging (e.g., endpoint name)
@@ -229,8 +229,6 @@ export async function handleApiError(
       {
         errorCode: error.code,
         statusCode: error.statusCode,
-        message: error.message,
-        details: error.details,
         context,
       },
       `API Error: ${error.code}`
@@ -244,7 +242,7 @@ export async function handleApiError(
       {
         errorCode: ErrorCode.VALIDATION_ERROR,
         statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        validationErrors: error.errors,
+        validationIssueCount: error.errors.length,
         context,
       },
       'Validation error'
@@ -253,15 +251,10 @@ export async function handleApiError(
   }
 
   // Unexpected error, log at error level (but don't expose details to client)
-  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-  const errorStack = error instanceof Error ? error.stack : undefined;
-
   log.error(
     {
       errorCode: ErrorCode.INTERNAL_ERROR,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: errorMessage,
-      stack: errorStack,
       context,
     },
     'Unexpected error'

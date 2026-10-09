@@ -26,6 +26,12 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+      return NextResponse.json({ error: 'Forbidden' }, {
+        status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+      });
+    }
+
     const coach = await prisma.coachProfile.findUnique({
       where: { userId: session.user.id },
       select: { id: true },

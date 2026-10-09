@@ -33,26 +33,28 @@ jest.mock('@/lib/credits', () => ({
 }));
 
 jest.mock('@/lib/prisma', () => ({
-  prisma: {
+  prisma: (() => { const database = {
     sessionBooking: {
       findUnique: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
-  },
+    sessionBookingCancellationAudit: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn().mockResolvedValue({}) },
+  }; return { ...database, $transaction: jest.fn((operation: (tx: typeof database) => Promise<unknown>) => operation(database)) }; })(),
 }));
 
 const mockStudentSession = {
   user: {
     id: 'student-1',
-    email: 'student@nexus.com',
+    email: 'student@example.test',
     role: 'ELEVE' as const,
   },
 };
 
 const VALID_SESSION_ID = 'clh1234567890abcdefghij';
 
-function createMockRequest(url: string, options?: RequestInit): NextRequest {
-  const request = new NextRequest(url, options as any);
+function createMockRequest(url: string, options?: ConstructorParameters<typeof NextRequest>[1]): NextRequest {
+  const request = new NextRequest(url, options);
   Object.defineProperty(request, 'nextUrl', {
     value: new URL(url),
     writable: false,
@@ -71,7 +73,7 @@ function mockLogger() {
 
 let activeLogger: ReturnType<typeof mockLogger>;
 
-function buildSession(overrides: Partial<Record<string, any>> = {}) {
+function buildSession(overrides: Partial<{ studentId: string; coachId: string; status: string; planningSeriesId: string; occurrenceKey: string }> = {}) {
   return {
     id: VALID_SESSION_ID,
     studentId: 'student-1',
@@ -99,11 +101,26 @@ describe('POST /api/sessions/cancel', () => {
     (createLogger as jest.Mock).mockReturnValue(activeLogger);
     (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession());
     (prisma.sessionBooking.update as jest.Mock).mockResolvedValue({});
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
     (canCancelBooking as jest.Mock).mockReturnValue(true);
   });
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it.each(['completed', 'reassigned'])('refuses cancellation when the session was %s after its read', async () => {
+    (prisma.sessionBooking.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
+    expect(response.status).toBe(409);
+    expect(prisma.sessionBooking.update).not.toHaveBeenCalled();
+  });
+
+  it.each(['NO_SHOW', 'RESCHEDULED'])('preserves the historical %s state instead of cancelling it', async status => {
+    (prisma.sessionBooking.findUnique as jest.Mock).mockResolvedValue(buildSession({ status }));
+    const response = await POST(createMockRequest('http://localhost:3000/api/sessions/cancel'));
+    expect(response.status).toBe(400);
+    expect(prisma.sessionBooking.updateMany).not.toHaveBeenCalled();
   });
 
   it('returns 429 when rate limited', async () => {
@@ -226,9 +243,9 @@ describe('POST /api/sessions/cancel', () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
-    expect(prisma.sessionBooking.update).toHaveBeenCalledWith(
+    expect(prisma.sessionBooking.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id: VALID_SESSION_ID },
+        where: { id: VALID_SESSION_ID, status: 'SCHEDULED', studentId: 'student-1', coachId: 'coach-1' },
         data: expect.objectContaining({ status: 'CANCELLED' }),
       }),
     );

@@ -24,6 +24,7 @@ import { Prisma } from '@prisma/client';
 import { ApiError } from '@/lib/api/errors';
 
 const RESTRICT_CONSTRAINT_LABELS: Readonly<Record<string, string>> = Object.freeze({
+  account_security_events_userId_fkey: 'un historique de sécurité du compte',
   espace_sessions_teacherId_fkey: 'des séances de l\'espace pédagogique qu\'il a animées',
   espace_works_studentId_fkey: 'des travaux déposés dans l\'espace pédagogique',
   espace_annotations_authorId_fkey: 'des annotations d\'enseignant dans l\'espace pédagogique',

@@ -54,7 +54,7 @@ describe('POST /api/coach/students/[studentId]/survival-mode', () => {
   });
 
   it('rejects a coach not assigned to the student', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-pk-1',
       userId: 'student-1',
@@ -70,7 +70,7 @@ describe('POST /api/coach/students/[studentId]/survival-mode', () => {
   });
 
   it('rejects a coach when only a historical COMPLETED SessionBooking links them (no active assignment)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-pk-1',
       userId: 'student-1',
@@ -87,7 +87,7 @@ describe('POST /api/coach/students/[studentId]/survival-mode', () => {
   });
 
   it('enables survival mode for a STMG student and logs a CoachNote', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({

@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { reportSubmissionSchema } from '@/lib/validation/session-report';
 import { NotificationType, SessionStatus } from '@prisma/client';
 import { hasUserEmail } from '@/lib/contact/user-email';
+import { familyAuthorityAvailable, familyReadAllowed, resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 
 function sanitizeSessionReport(report: Record<string, unknown>) {
   const {
@@ -26,10 +27,17 @@ export async function POST(
   try {
     const session = await auth();
 
-    if (!session || session.user.role !== 'COACH') {
+    if (!session?.user || session.user.role !== 'COACH') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
       );
     }
 
@@ -202,72 +210,63 @@ export async function POST(
   }
 }
 
+function privateReportResponse(body: unknown, status = 200) {
+  return NextResponse.json(body, { status, headers: {
+    'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization',
+  } });
+}
+
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const session = await auth();
-
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    if (!session?.user?.id) return privateReportResponse({ error: 'Unauthorized' }, 401);
+    if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+      return privateReportResponse({ error: 'Ce parcours nécessite un compte coach V1.' }, 403);
     }
-
     const { sessionId } = await params;
 
-    const report = await prisma.sessionReport.findUnique({
-      where: { sessionId },
-      include: {
-        student: true,
-        coach: true,
-        session: true,
+    // Only participant identifiers are read before the authorization decision.
+    const booking = await prisma.sessionBooking.findUnique({
+      where: { id: sessionId },
+      select: { studentId: true, coachId: true },
+    });
+    if (!booking) {
+      // While family authority is down, a parent cannot tell an unknown session from a known one.
+      if (session.user.role === 'PARENT' && !(await familyAuthorityAvailable(session.user.id))) {
+        return privateReportResponse({ error: 'Family authority unavailable' }, 503);
       }
+      return privateReportResponse({ error: 'Session not found' }, 404);
+    }
+    const role = session.user.role;
+    let allowed = role === 'ADMIN' || role === 'ASSISTANTE'
+      || (role === 'COACH' && booking.coachId === session.user.id)
+      || (role === 'ELEVE' && booking.studentId === session.user.id);
+    if (role === 'PARENT') {
+      // A historical booking.parentId never grants current family authority.
+      const student = await prisma.student.findUnique({
+        where: { userId: booking.studentId }, select: { id: true },
+      });
+      if (student) {
+        const decision = await resolveParentStudentAccess(session.user.id, student.id, 'read');
+        if (decision.status === 'AUTHORITY_UNAVAILABLE') {
+          return privateReportResponse({ error: 'Family authority unavailable' }, 503);
+        }
+        allowed = familyReadAllowed(decision);
+      }
+    }
+    if (!allowed) return privateReportResponse({ error: 'Forbidden: You do not have access to this report' }, 403);
+
+    // Duplicated report participant identifiers cannot override the booking identity.
+    const report = await prisma.sessionReport.findUnique({
+      where: { sessionId, student: { userId: booking.studentId } },
     });
-
-    if (!report) {
-      return NextResponse.json(
-        { report: null },
-        { status: 200 }
-      );
-    }
-
-    const sessionBooking = await prisma.sessionBooking.findUnique({
-      where: { id: sessionId }
-    });
-
-    if (!sessionBooking) {
-      return NextResponse.json(
-        { error: 'Session not found' },
-        { status: 404 }
-      );
-    }
-
-    if (
-      sessionBooking.coachId !== session.user.id &&
-      sessionBooking.studentId !== session.user.id &&
-      sessionBooking.parentId !== session.user.id &&
-      session.user.role !== 'ADMIN' &&
-      session.user.role !== 'ASSISTANTE'
-    ) {
-      return NextResponse.json(
-        { error: 'Forbidden: You do not have access to this report' },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json(
-      { report: sanitizeSessionReport(report as unknown as Record<string, unknown>) },
-      { status: 200 }
-    );
-
-  } catch (error) {
-    console.error('Error fetching session report:', error instanceof Error ? error.name : 'unknown');
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return privateReportResponse({ report: report
+      ? sanitizeSessionReport(report as unknown as Record<string, unknown>) : null });
+  } catch {
+    console.error('SESSION_REPORT_READ_FAILED');
+    return privateReportResponse({ error: 'Internal server error' }, 500);
   }
 }

@@ -58,7 +58,23 @@ test.describe.serial('Paiements -> validation -> facture PDF -> coffre-fort', ()
   test('staff valide le paiement puis génération facture/doc', async ({ page }) => {
     await loginAsUser(page, 'admin');
 
+    // APIRequestContext is a server-side driver: unlike browser fetch it does
+    // not automatically send Origin. Prove refusals before the valid call.
+    const forbiddenHeaders: readonly Record<string, string>[] = [{}, { Origin: 'https://hostile.example' }];
+    for (const headers of forbiddenHeaders) {
+      const refused = await page.request.post('/api/payments/validate', {
+        headers, data: { paymentId, action: 'approve' }, failOnStatusCode: false,
+      });
+      expect(refused.status()).toBe(403);
+      expect(refused.headers()['cache-control']).toBe('private, no-store, max-age=0, must-revalidate');
+      const pending = await page.request.get('/api/payments/pending');
+      expect(pending.status()).toBe(200);
+      expect(await pending.json()).toEqual(expect.objectContaining({ payments: expect.arrayContaining([
+        expect.objectContaining({ id: paymentId, status: 'PENDING' }),
+      ]) }));
+    }
     const validate = await page.request.post('/api/payments/validate', {
+      headers: { Origin: new URL(page.url()).origin },
       data: {
         paymentId,
         action: 'approve',

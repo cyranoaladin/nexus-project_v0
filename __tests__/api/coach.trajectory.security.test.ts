@@ -27,7 +27,7 @@ describe('POST /api/coach/trajectory — security', () => {
   });
 
   it('rejects unexpected payload fields before any mutation', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
 
     const response = await POST(request({
       studentId: 'student-1',
@@ -44,7 +44,7 @@ describe('POST /api/coach/trajectory — security', () => {
   });
 
   it('prevents a coach from creating a trajectory for an unassigned student', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (isCoachAssignedToStudent as jest.Mock).mockResolvedValue(false);
 
     const response = await POST(request({
@@ -63,7 +63,7 @@ describe('POST /api/coach/trajectory — security', () => {
   });
 
   it('allows an assigned coach and persists a projected trajectory', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (isCoachAssignedToStudent as jest.Mock).mockResolvedValue(true);
     (prisma.trajectory.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
     (prisma.trajectory.create as jest.Mock).mockResolvedValue({

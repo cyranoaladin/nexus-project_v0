@@ -1,3 +1,5 @@
+import { createNativeResponseReader } from './native-response-reader';
+import { toCanonicalAriaCourseKey } from '../curriculum/course-key-aliases';
 import {
   ariaSSEEventSchema,
   type AriaSSECitationPayload,
@@ -14,7 +16,10 @@ export type AriaSSEProtocolErrorCode =
   | 'INVALID_CONTENT_TYPE' | 'INVALID_EVENT' | 'INVALID_JSON' | 'INVALID_PAYLOAD'
   | 'UNKNOWN_EVENT' | 'START_EVENT_REQUIRED' | 'START_EVENT_DUPLICATED'
   | 'TERMINAL_EVENT_DUPLICATED' | 'TERMINAL_EVENT_MISSING' | 'EVENT_AFTER_TERMINAL'
-  | 'EVENT_IDENTITY_MISMATCH' | 'ABORTED';
+  | 'EVENT_IDENTITY_MISMATCH' | 'ABORTED' | 'TERMINAL_DRAIN_TIMEOUT';
+
+const TERMINAL_DRAIN_TIMEOUT_MS = 5_000;
+const TERMINAL_DRAIN_TIMEOUT_REASON = Symbol('ARIA_TERMINAL_DRAIN_TIMEOUT');
 
 export class AriaSSEParseError extends Error {
   readonly code: AriaSSEProtocolErrorCode;
@@ -96,25 +101,29 @@ function nextMessage(buffer: string): { message: string; rest: string } | null {
   };
 }
 
+function abortCode(signal: AbortSignal): AriaSSEProtocolErrorCode {
+  return signal.reason === TERMINAL_DRAIN_TIMEOUT_REASON ? 'TERMINAL_DRAIN_TIMEOUT' : 'ABORTED';
+}
+
 async function readWithAbort(
   reader: ReadableStreamDefaultReader<Uint8Array>,
-  signal: AbortSignal | undefined,
+  signal: AbortSignal,
   callbacks: AriaSSECallbacks,
+  cancel: () => Promise<boolean>,
 ): Promise<ReadableStreamReadResult<Uint8Array>> {
-  if (!signal) return reader.read();
   if (signal.aborted) {
-    await reader.cancel();
-    return fail('ABORTED', callbacks);
+    await cancel();
+    return fail(abortCode(signal), callbacks);
   }
   return new Promise<ReadableStreamReadResult<Uint8Array>>((resolve, reject) => {
     const abort = () => {
-      reject(new AriaSSEParseError('ABORTED'));
-      void reader.cancel().then(undefined, reject);
+      reject(new AriaSSEParseError(abortCode(signal)));
+      void cancel().then(undefined, reject);
     };
     signal.addEventListener('abort', abort, { once: true });
     reader.read().then(resolve, reject).finally(() => signal.removeEventListener('abort', abort));
   }).catch((error: unknown) => {
-    if (error instanceof AriaSSEParseError && error.code === 'ABORTED') {
+    if (error instanceof AriaSSEParseError && ['ABORTED', 'TERMINAL_DRAIN_TIMEOUT'].includes(error.code)) {
       callbacks.onProtocolError?.(error);
     }
     throw error;
@@ -129,11 +138,23 @@ export async function parseAriaSSEResponse(
   const contentType = response.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
   if (contentType !== 'text/event-stream') fail('INVALID_CONTENT_TYPE', callbacks);
   if (!response.body) fail('INVALID_EVENT', callbacks);
-  const reader = response.body.getReader();
+  if (options.signal?.aborted) {
+    await response.body.cancel();
+    fail('ABORTED', callbacks);
+  }
+  const transport = createNativeResponseReader(response);
+  const reader = transport.reader;
+  let ended = false;
+  const drainController = new AbortController();
+  const forwardAbort = () => drainController.abort(options.signal?.reason);
+  if (options.signal?.aborted) forwardAbort();
+  else options.signal?.addEventListener('abort', forwardAbort, { once: true });
+  let drainTimer: ReturnType<typeof setTimeout> | undefined;
   const decoder = new TextDecoder('utf-8', { fatal: true });
   let buffer = '';
   let started = false;
   let terminal = false;
+  let terminalEvent: AriaSSEEvent | undefined;
   let identity: AriaSSEStartPayload | undefined;
   const consume = (message: string) => {
     if (!message.trim()) return;
@@ -164,15 +185,22 @@ export async function parseAriaSSEResponse(
       fail('EVENT_IDENTITY_MISMATCH', callbacks, event.event);
     }
     if (identity && event.event === 'citation'
-      && event.data.citation.courseKey !== identity.courseKey) {
+      && toCanonicalAriaCourseKey(event.data.citation.courseKey) !== toCanonicalAriaCourseKey(identity.courseKey)) {
       fail('EVENT_IDENTITY_MISMATCH', callbacks, event.event);
     }
-    if (event.event === 'done' || event.event === 'error') terminal = true;
+    if (event.event === 'done' || event.event === 'error') {
+      terminal = true;
+      terminalEvent = event;
+      // The server closes after its terminal frame. A proxy/transport which
+      // fails to forward EOF must not leave the composer blocked indefinitely.
+      drainTimer = setTimeout(() => drainController.abort(TERMINAL_DRAIN_TIMEOUT_REASON), TERMINAL_DRAIN_TIMEOUT_MS);
+      return;
+    }
     dispatch(event, callbacks);
   };
   try {
     while (true) {
-      const next = await readWithAbort(reader, options.signal, callbacks);
+      const next = await readWithAbort(reader, drainController.signal, callbacks, transport.cancel);
       if (next.done) {
         buffer += decoder.decode();
         break;
@@ -184,14 +212,25 @@ export async function parseAriaSSEResponse(
         buffer = extracted.rest;
         consume(extracted.message);
       }
+      transport.acknowledge();
     }
+    await transport.finish();
+    if (drainController.signal.aborted) fail(abortCode(drainController.signal), callbacks);
+    ended = true;
     if (buffer.trim()) consume(buffer);
     if (!started) fail('START_EVENT_REQUIRED', callbacks);
-    if (!terminal) fail('TERMINAL_EVENT_MISSING', callbacks);
+    if (!terminal || !terminalEvent) fail('TERMINAL_EVENT_MISSING', callbacks);
+    // A terminal frame is not yet an EOF. Announcing READY before the body
+    // finishes lets the next send/unmount abort a still-attached fetch, and
+    // incorrectly announces completion for an invalid trailing frame.
+    dispatch(terminalEvent, callbacks);
   } catch (error: unknown) {
     if (error instanceof AriaSSEParseError) throw error;
     fail('INVALID_EVENT', callbacks);
   } finally {
-    reader.releaseLock();
+    if (drainTimer !== undefined) clearTimeout(drainTimer);
+    options.signal?.removeEventListener('abort', forwardAbort);
+    if (!ended) await transport.cancel();
+    transport.release();
   }
 }

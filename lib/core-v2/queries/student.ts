@@ -1,3 +1,4 @@
+import { verifiedHouseholdMembershipWhere } from '../repositories/household-verification';
 /**
  * Student read model (go-live §AI): a student sees exactly their own
  * enrollments, resolved from the actor's identity (Student.userId). No id
@@ -16,7 +17,7 @@ export async function getOwnStudent(client: PrismaClient, ctx: ServiceContext) {
     where: { userId: ctx.actor.userId },
     include: {
       user: { select: publicUserSelect },
-      household: { include: { parents: { include: { user: { select: { id: true, firstName: true, lastName: true } } }, orderBy: { createdAt: 'asc' } } } },
+      household: { include: { parents: { where: verifiedHouseholdMembershipWhere, include: { user: { select: { id: true, firstName: true, lastName: true } } }, orderBy: { createdAt: 'asc' } } } },
       academicYearEnrollments: enrollmentsInclude,
     },
   });

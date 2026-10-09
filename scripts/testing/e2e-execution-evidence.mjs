@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { sanitizePlaywrightReport } from './safe-playwright-report.mjs';
 
 import { DOCUMENTED_EXCLUSIONS } from './e2e-ownership.mjs';
 
@@ -19,7 +20,8 @@ const hashReport = report => createHash('sha256').update(JSON.stringify(report))
 
 export function sealReport(lane, report, identity) {
   if (!Object.hasOwn(INVOCATIONS, lane)) throw new Error('UNKNOWN_INVOCATION');
-  return { schemaVersion: 1, ...identity, lane, reportSha256: hashReport(report), report };
+  const safeReport = sanitizePlaywrightReport(report);
+  return { schemaVersion: 1, ...identity, lane, reportSha256: hashReport(safeReport), report: safeReport };
 }
 
 function* specs(suites, ancestors = []) {

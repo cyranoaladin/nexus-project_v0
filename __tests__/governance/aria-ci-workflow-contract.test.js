@@ -1,13 +1,18 @@
-const path = require('node:path');
+let path;
+let fs;
 
-const REPOSITORY_ROOT = path.resolve(__dirname, '../..');
-const WORKFLOW_PATH = path.join(REPOSITORY_ROOT, '.github/workflows/ci.yml');
+let REPOSITORY_ROOT;
+let WORKFLOW_PATH;
 
 describe('ARIA GitHub CI qualification contract', () => {
   let inspectAriaCiWorkflow;
   let loadWorkflow;
 
   beforeAll(async () => {
+    path = await import('node:path');
+    fs = await import('node:fs');
+    REPOSITORY_ROOT = path.resolve(__dirname, '../..');
+    WORKFLOW_PATH = path.join(REPOSITORY_ROOT, '.github/workflows/ci.yml');
     ({ inspectAriaCiWorkflow, loadWorkflow } = await import(
       '../../scripts/github/lib/aria-ci-contract.mjs'
     ));
@@ -23,6 +28,25 @@ describe('ARIA GitHub CI qualification contract', () => {
 
   test('ARIA_CI_EXECUTES_EVERY_QUALIFICATION_LANE_ON_EVERY_PR_AND_UPLOADS_EVIDENCE_ALWAYS', () => {
     expect(inspectRealWorkflow().findings).toEqual([]);
+  });
+
+  test('ARIA_CI_BROWSER_REPORT_PATH_MATCHES_CANONICAL_PRODUCER_FOR_EVERY_LANE', () => {
+    const scripts = JSON.parse(fs.readFileSync(path.join(REPOSITORY_ROOT, 'package.json'), 'utf8')).scripts;
+    const runner = fs.readFileSync(path.join(REPOSITORY_ROOT, 'scripts/aria/run-e2e-suite.sh'), 'utf8');
+    expect(runner).toContain('.artifacts/aria/playwright/${project}');
+    const lanes = loadWorkflow(WORKFLOW_PATH).jobs['aria-browser'].strategy.matrix.include;
+    for (const entry of lanes) {
+      const command = scripts[entry.script];
+      expect(command).toMatch(/^bash scripts\/aria\/run-e2e-suite\.sh aria-(desktop|mobile|a11y|smoke)$/);
+      const project = command.split(' ').at(-1);
+      expect(entry.artifactPath).toBe(`.artifacts/aria/playwright/${project}`);
+    }
+  });
+
+  test.each(['desktop', 'mobile', 'a11y', 'smoke'])('ARIA_CI_REJECTS_STALE_BROWSER_REPORT_ROOT_%s', (lane) => {
+    const document = passingDocument();
+    document.jobs['aria-browser'].strategy.matrix.include.find(entry => entry.lane === lane).artifactPath = '.artifacts/aria';
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_MATRIX_CONTRACT_MISMATCH:aria-browser');
   });
 
   test('ARIA_CI_REJECTS_UNSCOPED_OR_DUPLICATED_UNIFIED_EXECUTION_EXPORT', () => {
@@ -107,6 +131,13 @@ describe('ARIA GitHub CI qualification contract', () => {
       structuredClone(duplicated.jobs['aria-jest'].strategy.matrix.include[0]),
     );
     expect(inspectAriaCiWorkflow(duplicated).findings).toContain('ARIA_CI_MATRIX_CONTRACT_MISMATCH:aria-jest');
+  });
+
+  test('ARIA_CI_REJECTS_BROWSER_REPORT_WITHOUT_PRIVACY_PUBLISHER', () => {
+    const document = passingDocument();
+    document.jobs['aria-browser'].steps = document.jobs['aria-browser'].steps.filter(step =>
+      !String(step.run ?? '').startsWith('node scripts/testing/safe-playwright-report.mjs '));
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_BROWSER_PRIVACY_PUBLISHER_INVALID');
   });
 
   test('ARIA_CI_REJECTS_UNEXPECTED_MATRIX_LANE', () => {
@@ -207,6 +238,48 @@ describe('ARIA GitHub CI qualification contract', () => {
 
     expect(inspectAriaCiWorkflow(document).findings)
       .toContain('ARIA_CI_COMMAND_STEP_INVALID:aria-coverage:npm run test:aria:coverage');
+  });
+
+  test('ARIA_CI_RESTORES_EACH_PUBLIC_BROWSER_ARTIFACT_TO_ITS_CANONICAL_PROJECT_ROOT', () => {
+    const document = passingDocument();
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
+    expect(downloads).toHaveLength(4);
+    for (const lane of ['desktop', 'mobile', 'a11y', 'smoke']) {
+      const download = downloads.find((step) => step.with.name?.startsWith(`aria-browser-${lane}-`));
+      expect(download?.with.path).toBe(`.artifacts/aria/playwright/aria-${lane}`);
+      expect(download?.with.name).toContain('${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}');
+      expect(download?.with['merge-multiple']).not.toBe(true);
+    }
+  });
+
+  test.each(['missing lane', 'wrong head', 'merged root', 'duplicate lane'])('ARIA_CI_REJECTS_BROWSER_DOWNLOAD_%s', (fault) => {
+    const document = passingDocument();
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
+    if (fault === 'missing lane') document.jobs['aria-evidence'].steps = document.jobs['aria-evidence'].steps.filter((step) => step !== downloads[0]);
+    if (fault === 'wrong head') downloads[0].with.name = 'aria-browser-desktop-stale';
+    if (fault === 'merged root') downloads[0].with['merge-multiple'] = true;
+    if (fault === 'duplicate lane') document.jobs['aria-evidence'].steps.push(structuredClone(downloads[0]));
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
+  });
+
+  test('CORE_ACCOUNT_CI_CREATES_AND_MIGRATES_A_DISTINCT_DISPOSABLE_V1_DESTINATION', () => {
+    const job = loadWorkflow(WORKFLOW_PATH).jobs['core-v2-foundation'];
+    expect(job.env.NEXUS_DISPOSABLE_POSTGRES).toBe('1');
+    expect(job.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST).toBe('127.0.0.1');
+    expect(job.env.DOCUMENT_STORAGE_ROOT).toBeUndefined();
+    const avStorage = job.steps.find(step => step.name === 'Create private synthetic AV storage');
+    const coreTests = job.steps.find(step => String(step.run ?? '').includes('--config jest.core-v2.config.js'));
+    expect(avStorage.env.DOCUMENT_STORAGE_ROOT).toBe('${{ runner.temp }}/nexus-core-synthetic-av-storage');
+    expect(coreTests.env.DOCUMENT_STORAGE_ROOT).toBe(avStorage.env.DOCUMENT_STORAGE_ROOT);
+    expect(job.services.clamav.image).toMatch(/^clamav\/clamav@sha256:/);
+    expect(job.env.DATABASE_URL).toMatch(/\/nexus_disposable_core_legacy_test$/);
+    expect(job.env.DATABASE_URL).not.toBe(job.env.CORE_V2_DATABASE_URL);
+    expect(job.services.postgres.image).toMatch(/^pgvector\/pgvector@sha256:/);
+    const commands = job.steps.map(step => step.run).filter(Boolean);
+    expect(commands).toContain('npx prisma migrate deploy --schema=prisma/schema.prisma');
+    expect(commands.indexOf('npx prisma migrate deploy --schema=prisma/schema.prisma')).toBeLessThan(commands.indexOf('npx jest --config jest.core-v2.config.js --ci'));
   });
 
   test('ARIA_CI_REQUALIFIES_THE_SEALED_VISUAL_MATRIX_BEFORE_TRACEABILITY', () => {

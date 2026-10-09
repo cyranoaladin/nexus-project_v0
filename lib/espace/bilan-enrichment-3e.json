@@ -1,0 +1,703 @@
+{
+  "sources": {
+    "pdf3e-bilan": "Nexus_Bilan_Septembre_2026_Troisieme.pdf"
+  },
+  "appendModules": [
+    {
+      "id": "3-literal",
+      "label": "Calcul littéral",
+      "description": "Substitution, réduction, développement et facteur commun : à sélectionner seulement si ces notions ont réellement été travaillées en septembre.",
+      "source": "pdf3e-bilan",
+      "pages": "3, 7",
+      "skills": [
+        {
+          "id": "3-literal-value",
+          "text": "Je calcule la valeur d’une expression pour une valeur donnée de la lettre."
+        },
+        {
+          "id": "3-literal-reduce",
+          "text": "Je réduis une expression en regroupant les termes semblables."
+        },
+        {
+          "id": "3-literal-expand",
+          "text": "Je développe un produit en respectant les signes."
+        },
+        {
+          "id": "3-literal-factor",
+          "text": "Je factorise une expression en repérant un facteur commun."
+        }
+      ]
+    },
+    {
+      "id": "3-thales",
+      "label": "Théorème de Thalès et réciproque",
+      "description": "Conditions, rapports, calcul de longueurs et parallélisme : uniquement les éléments réellement travaillés en séance en septembre.",
+      "source": "pdf3e-bilan",
+      "pages": "4, 8",
+      "skills": [
+        {
+          "id": "3-thales-conditions",
+          "text": "Je repère et j’écris les conditions d’application du théorème de Thalès."
+        },
+        {
+          "id": "3-thales-ratios",
+          "text": "J’écris les rapports de longueurs dans un ordre cohérent."
+        },
+        {
+          "id": "3-thales-length",
+          "text": "Je calcule une longueur avec le théorème de Thalès."
+        },
+        {
+          "id": "3-thales-converse",
+          "text": "J’utilise la réciproque du théorème de Thalès pour justifier un parallélisme."
+        }
+      ]
+    }
+  ],
+  "appendSkills": {
+    "3-fractions": [
+      {
+        "id": "3-fraction-add",
+        "text": "J’additionne ou je soustrais deux fractions en choisissant un dénominateur commun."
+      },
+      {
+        "id": "3-fraction-multiply",
+        "text": "Je multiplie ou je divise deux fractions en justifiant la méthode."
+      }
+    ],
+    "3-arith": [
+      {
+        "id": "3-multiple-divisor",
+        "text": "Je reconnais un multiple et un diviseur et j’explique le lien entre les deux."
+      },
+      {
+        "id": "3-euclidean-use",
+        "text": "J’effectue ou j’interprète une division euclidienne en contrôlant le quotient et le reste."
+      },
+      {
+        "id": "3-common-divisors",
+        "text": "Je choisis des diviseurs communs pour résoudre un partage et je justifie si leur choix est maximal."
+      }
+    ],
+    "3-geo": [
+      {
+        "id": "3-similarity-length",
+        "text": "J’utilise un coefficient de similitude pour calculer une longueur entre côtés correspondants."
+      }
+    ]
+  },
+  "appendTasks": [
+    {
+      "id": "3-pdf-fractions",
+      "module": "3-fractions",
+      "title": "Calculer avec des fractions",
+      "prompt": "Calcule A = 5/6 − (3/4) × (2/3) et donne le résultat sous forme de fraction irréductible. Écris les étapes.",
+      "source": "pdf3e-bilan",
+      "pages": "7",
+      "skills": [
+        "3-operations",
+        "3-fraction-multiply",
+        "3-fraction-add",
+        "3-reduce-s",
+        "3-irreducible"
+      ]
+    },
+    {
+      "id": "3-pdf-sharing",
+      "module": "3-arith",
+      "title": "Organiser un partage maximal",
+      "prompt": "On répartit 84 crayons et 126 gommes dans des lots identiques, sans reste. Quel est le plus grand nombre de lots possible ? Donne leur composition et justifie que ce nombre est maximal.",
+      "source": "pdf3e-bilan",
+      "pages": "7",
+      "skills": [
+        "3-common-divisors",
+        "3-lots-s"
+      ]
+    },
+    {
+      "id": "3-pdf-literal",
+      "module": "3-literal",
+      "title": "Transformer une expression",
+      "prompt": "Développe et réduis B = 3(2x − 5) − 2(x + 1). Calcule ensuite B pour x = −2. Factorise C = 5x + 15. Écris les étapes.",
+      "source": "pdf3e-bilan",
+      "pages": "7",
+      "skills": [
+        "3-literal-value",
+        "3-literal-reduce",
+        "3-literal-expand",
+        "3-literal-factor"
+      ]
+    },
+    {
+      "id": "3-pdf-similarity",
+      "module": "3-geo",
+      "title": "Relier deux triangles semblables",
+      "prompt": "Dans ABC, les angles en A et B mesurent 40° et 65°. Dans DEF, les angles en D et E mesurent 40° et 65°. On sait AB = 4 cm, DE = 6 cm et AC = 5 cm. Explique pourquoi les triangles sont semblables, indique les sommets correspondants et calcule DF.",
+      "source": "pdf3e-bilan",
+      "pages": "8",
+      "skills": [
+        "3-geo-s",
+        "3-similarity-length"
+      ]
+    },
+    {
+      "id": "3-pdf-thales",
+      "module": "3-thales",
+      "title": "Utiliser le théorème de Thalès",
+      "prompt": "Dans le triangle ABC, M appartient à [AB], N appartient à [AC] et la droite (MN) est parallèle à (BC). On donne AM = 3 cm, AB = 6 cm, AN = 4 cm et BC = 10 cm. Écris les rapports utiles, puis calcule AC et MN. Tu peux tracer un schéma, sans supposer qu’il est à l’échelle.",
+      "source": "pdf3e-bilan",
+      "pages": "8 (mesures transcrites de la figure)",
+      "skills": [
+        "3-thales-conditions",
+        "3-thales-ratios",
+        "3-thales-length"
+      ]
+    },
+    {
+      "id": "3-pdf-converse",
+      "module": "3-thales",
+      "title": "Justifier un parallélisme",
+      "prompt": "A, M, B sont alignés dans cet ordre ; A, N, C sont alignés dans cet ordre. AM = 3 cm, AB = 5 cm, AN = 4,2 cm et AC = 7 cm. Les droites (MN) et (BC) sont-elles parallèles ? Justifie.",
+      "source": "pdf3e-bilan",
+      "pages": "8",
+      "skills": [
+        "3-thales-converse",
+        "3-thales-ratios"
+      ]
+    }
+  ],
+  "newSections": [
+    {
+      "id": "journey",
+      "title": "Mon parcours et mes attentes",
+      "intro": "Pense uniquement aux séances de septembre. Les repères que tu donnes seront précisés avec le professeur si nécessaire.",
+      "questions": [
+        {
+          "id": "pdf3-q-school-class",
+          "text": "Quel est ton établissement et ta classe cette année ?",
+          "type": "text",
+          "hint": "Facultatif ; inutile de préciser une adresse ou un nom de professeur."
+        },
+        {
+          "id": "pdf3-q-start-date",
+          "text": "Quand as-tu commencé les séances Nexus ?",
+          "type": "text",
+          "hint": "Une date approximative ou « je ne me souviens pas » convient."
+        },
+        {
+          "id": "pdf3-q-attendance",
+          "text": "Combien de séances de septembre as-tu suivies ?",
+          "type": "text",
+          "hint": "Un nombre ou « je ne me souviens pas ». Ton professeur pourra préciser ce repère avec toi."
+        },
+        {
+          "id": "pdf3-q-absences",
+          "text": "Combien de séances de septembre as-tu manquées ?",
+          "type": "text",
+          "hint": "Un nombre ou « je ne me souviens pas ». Il s’agit d’un repère déclaré, pas d’un justificatif."
+        },
+        {
+          "id": "pdf3-q-initial-expectations",
+          "text": "En venant chez Nexus, que souhaitais-tu surtout ?",
+          "type": "multi",
+          "options": [
+            "Comprendre le cours",
+            "Consolider mes bases",
+            "Mieux réussir les contrôles",
+            "Savoir travailler seul",
+            "Reprendre confiance",
+            "Approfondir les mathématiques",
+            "Mieux organiser mon travail",
+            "Autre attente",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois attentes maximum.",
+          "max": 3
+        },
+        {
+          "id": "pdf3-q-initial-expectations-other",
+          "text": "Si tu as choisi une autre attente, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "pdf3-q-expectation-now",
+          "text": "Aujourd’hui, quelle attente est la plus importante pour toi ?",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "habits",
+      "title": "Mes habitudes de travail",
+      "intro": "Pour chaque habitude, indique sa fréquence réelle en septembre, pendant les séances ou entre deux séances. Il ne s’agit pas d’évaluer ta valeur ou tes efforts.",
+      "questions": [
+        {
+          "id": "pdf3-q-habit-instruction",
+          "text": "Je relis la consigne et je repère ce que je dois chercher.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-first-trace",
+          "text": "Je conserve une trace de mon premier essai avant de demander une aide.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-resource",
+          "text": "Je recherche une propriété, une méthode ou un exemple utile avant de poursuivre.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-localize",
+          "text": "Quand je bloque, je peux désigner précisément le passage qui pose problème.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-explain",
+          "text": "J’explique les étapes de mon raisonnement, même lorsque je connais déjà le résultat.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-check",
+          "text": "Je vérifie un calcul, une unité ou la cohérence de ma réponse.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-error",
+          "text": "Après une erreur, je note ce qui était faux et pourquoi.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-retry",
+          "text": "Je refais plus tard une question corrigée sans regarder la solution.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-plan",
+          "text": "Entre deux séances, je m’entraîne sur ce qui a été décidé avec le professeur.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-habit-prepare",
+          "text": "Je prépare mes questions et les documents nécessaires pour la séance.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-second-reaction",
+          "text": "Après ta première réaction face à un blocage, quelle autre réaction revient le plus souvent ?",
+          "type": "radio",
+          "options": [
+            "Je relis et j’essaie autrement",
+            "Je consulte une aide ou le cours",
+            "Je demande une explication",
+            "J’attends la correction",
+            "Je passe à une autre question puis je reviens",
+            "J’arrête ma recherche",
+            "Une autre réaction",
+            "Je n’identifie pas de deuxième réaction",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Une seule réponse supplémentaire. Tu peux préciser une autre réaction dans l’exemple ci-dessous."
+        },
+        {
+          "id": "pdf3-q-helpful-habit",
+          "text": "Quelle habitude t’aide vraiment à progresser ? Donne un exemple.",
+          "type": "text",
+          "hint": "Tu peux aussi préciser une autre réaction face à un blocage ou indiquer que tu n’as pas encore identifié d’habitude utile."
+        },
+        {
+          "id": "pdf3-q-outside-homework",
+          "text": "Hors devoirs obligatoires, à quelle fréquence as-tu retravaillé les mathématiques en septembre ?",
+          "type": "radio",
+          "options": [
+            "Jamais",
+            "Une fois par semaine",
+            "Deux fois par semaine",
+            "Trois fois par semaine ou davantage",
+            "Cela varie",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-home-barriers",
+          "text": "Qu’est-ce qui limite ce travail personnel ?",
+          "type": "multi",
+          "options": [
+            "Le temps disponible",
+            "La fatigue",
+            "Je ne sais pas quoi faire",
+            "Je ne comprends pas seul",
+            "L’organisation",
+            "Rien de particulier",
+            "Autre",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Tu peux cocher plusieurs réponses. « Rien de particulier » se choisit seul.",
+          "max": 7,
+          "exclusiveOptions": [
+            "Rien de particulier"
+          ]
+        },
+        {
+          "id": "pdf3-q-home-barriers-other",
+          "text": "Si tu as choisi « Autre », que souhaites-tu préciser ?",
+          "type": "text",
+          "hint": "Facultatif ; évite les informations personnelles sensibles."
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "title": "Préparer le bilan avec mes parents",
+      "intro": "Tes réponses aideront le professeur à préparer une synthèse avec toi et pour tes parents. Tu peux préférer préciser un point individuellement.",
+      "questions": [
+        {
+          "id": "pdf3-q-family-understand",
+          "text": "Qu’aimerais-tu que tes parents comprennent de ton travail en mathématiques ?",
+          "type": "text"
+        },
+        {
+          "id": "pdf3-q-family-support",
+          "text": "Pour t’aider, tes parents pourraient…",
+          "type": "multi",
+          "options": [
+            "M’encourager",
+            "M’aider à organiser mes horaires",
+            "Me laisser chercher avant de proposer une aide",
+            "Vérifier avec moi mon plan de travail",
+            "Autre aide",
+            "Je préfère en parler avec le professeur",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Choisis seulement les formes d’aide qui te conviendraient.",
+          "max": 5,
+          "exclusiveOptions": [
+            "Je préfère en parler avec le professeur"
+          ]
+        },
+        {
+          "id": "pdf3-q-family-other",
+          "text": "Si tu souhaites une autre aide de tes parents, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "pdf3-q-individual-followup",
+          "text": "Souhaites-tu préciser un point lors d’un échange individuel avec ton professeur ?",
+          "type": "radio",
+          "options": [
+            "Oui",
+            "Non pour le moment",
+            "Je déciderai après avoir relu mon bilan",
+            "Je ne souhaite pas répondre"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trial-reflection",
+      "title": "Avant et après mes essais",
+      "intro": "Avec ton professeur, choisis un ou deux essais portant sur des notions travaillées. Au premier essai, travaille sans cours ni calculatrice ; garde tes recherches, même incomplètes. Tu peux passer cette étape. Aucun score global n’est calculé.",
+      "questions": [
+        {
+          "id": "pdf3-q-before-trials",
+          "text": "Si tu vas réaliser un essai avec ton professeur, comment te sens-tu avant de commencer ?",
+          "type": "radio",
+          "options": [
+            "Confiant",
+            "Partagé",
+            "Inquiet",
+            "Difficile à dire",
+            "Je ne réalise pas d’essai pour le moment",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "pdf3-q-after-trials",
+          "text": "Après tes essais, quelle compétence souhaites-tu préciser et que comprends-tu mieux de ton positionnement ?",
+          "type": "text",
+          "hint": "À compléter après les essais, si tu en as réalisé. Précise la compétence, ce qui a changé dans ton ressenti et pourquoi. Conserve ton positionnement initial : ce complément et les traces permettront d’en discuter avec le professeur."
+        }
+      ]
+    }
+  ],
+  "appendQuestions": {
+    "experience": [
+      {
+        "id": "pdf3-q-workload",
+        "text": "La quantité de travail proposée pendant les séances te paraît…",
+        "type": "radio",
+        "options": [
+          "Trop faible",
+          "Adaptée",
+          "Trop importante",
+          "Variable selon les séances",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-objectives-clear",
+        "text": "Les objectifs de mon travail sont clairs.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-needs-fit",
+        "text": "Les questions choisies répondent à mes besoins.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-group-focus",
+        "text": "Le fonctionnement du groupe me permet de me concentrer.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-feedback-reason",
+        "text": "Pourquoi souhaites-tu conserver ce moment ou proposer cet ajustement ?",
+        "type": "text",
+        "hint": "Facultatif : précise seulement ce que tu n’as pas déjà expliqué dans ton avis sur les séances."
+      },
+      {
+        "id": "pdf3-q-booklet-navigation",
+        "text": "Je sais utiliser les livrets et retrouver une aide.",
+        "type": "scale",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-corrections-useful",
+        "text": "Les corrections m’aident à comprendre mes erreurs et la démarche.",
+        "type": "scale",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      }
+    ],
+    "growth": [
+      {
+        "id": "pdf3-q-understanding-change",
+        "text": "Depuis le début de septembre, comment perçois-tu ta compréhension des notions effectivement travaillées ?",
+        "type": "radio",
+        "options": [
+          "Moins bonne",
+          "À peu près stable",
+          "Meilleure",
+          "Très variable selon les notions",
+          "Je ne peux pas comparer",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "pdf3-q-already-tried",
+        "text": "Pour le passage encore fragile que tu as décrit, qu’as-tu déjà essayé ?",
+        "type": "text",
+        "hint": "Une action ou une aide suffit. Tu peux laisser cette réponse vide si tu n’as pas identifié de difficulté."
+      }
+    ],
+    "next": [
+      {
+        "id": "pdf3-q-help-needs",
+        "text": "De quelles aides aurais-tu besoin pour la suite ?",
+        "type": "multi",
+        "options": [
+          "Revoir une notion de base",
+          "Disposer d’exemples expliqués",
+          "Avoir davantage de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis sur les notions travaillées",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur",
+          "Je ne souhaite pas répondre"
+        ],
+        "hint": "Trois aides maximum ; uniquement pour les contenus déjà travaillés.",
+        "max": 3
+      },
+      {
+        "id": "pdf3-q-help-priority",
+        "text": "Parmi les aides que tu viens de choisir, laquelle serait la plus utile ?",
+        "type": "radio",
+        "hint": "Choisis, parmi les aides sélectionnées ci-dessus, celle qui serait la plus utile. Tu peux laisser cette question sans réponse.",
+        "options": [
+          "Revoir une notion de base",
+          "Disposer d’exemples expliqués",
+          "Avoir davantage de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis sur les notions travaillées",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur",
+          "Je ne souhaite pas répondre"
+        ],
+        "priorityOf": "pdf3-q-help-needs"
+      },
+      {
+        "id": "pdf3-q-method-goal",
+        "text": "Quelle petite habitude veux-tu installer dès la semaine prochaine, avec quelle action, à quel moment et avec quelle aide ?",
+        "type": "text",
+        "hint": "Il s’agit de ton objectif de méthode, en complément de la question de mathématiques choisie. Exemple : préparer une question précise après avoir conservé un essai personnel."
+      },
+      {
+        "id": "pdf3-q-review-date",
+        "text": "Quand souhaites-tu faire le prochain point avec ton professeur ?",
+        "type": "text",
+        "hint": "Une date envisagée ou « à convenir ensemble ». Ce souhait ne fixe pas automatiquement un rendez-vous."
+      },
+      {
+        "id": "pdf3-q-priority-reason",
+        "text": "Pourquoi la question que tu souhaites reprendre est-elle prioritaire pour toi ?",
+        "type": "text",
+        "hint": "Réponds seulement si cela apporte une précision à ton objectif."
+      },
+      {
+        "id": "pdf3-q-progress-check",
+        "text": "Comment vérifierons-nous que tu as progressé sur ton objectif de mathématiques ?",
+        "type": "radio",
+        "options": [
+          "Refaire une question comparable sans aide",
+          "Expliquer les étapes à quelqu’un",
+          "Repérer et corriger une erreur",
+          "Montrer une trace datée au professeur",
+          "À choisir avec le professeur",
+          "Je ne souhaite pas répondre"
+        ]
+      }
+    ]
+  },
+  "appendOptions": {
+    "methods.stuck": [
+      "Je consulte une aide ou le cours",
+      "J’attends la correction",
+      "Je passe à une autre question puis je reviens"
+    ],
+    "methods.blockers": [
+      "Lire la figure",
+      "Je ne sais pas encore"
+    ],
+    "experience.search-time": [
+      "Le temps de recherche est parfois trop long",
+      "Cela varie selon les questions"
+    ],
+    "experience.ask": [
+      "Je peux poser une question ou me tromper sans gêne"
+    ]
+  }
+}

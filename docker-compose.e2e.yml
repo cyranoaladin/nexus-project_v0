@@ -133,6 +133,8 @@ services:
       # Core v2 (go-live): separate disposable server, organization
       # configuration provided explicitly (lib/core-v2/config.ts has no defaults).
       CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e
+      CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID: ${CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID:?Generate dedicated E2E account-token keys}
+      CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS: ${CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS:?Generate dedicated E2E account-token keys}
       CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
       CORE_V2_INVITATION_TTL_HOURS: "72"
       CORE_V2_PASSWORD_RESET_TTL_MINUTES: "60"
@@ -146,6 +148,9 @@ services:
       # DOCUMENT_STORAGE_ROOT est fail-closed quand NODE_ENV=production :
       # fourni ici comme en prod (racine hors release), volume jetable dédié.
       DOCUMENT_STORAGE_ROOT: /mnt/document-storage-e2e
+      # HTTP-boundary fixture tier only; real-engine AV has its own lane.
+      # Production without E2E_DISPOSABLE_STACK explicitly refuses this mode.
+      DIAGNOSTIC_AV_MODE: disabled
       # Disable external services
       OLLAMA_URL: ""
       NEXT_PUBLIC_SUPABASE_URL: ""
@@ -178,6 +183,12 @@ services:
       # Exercise the real in-process scheduler with deterministic floor
       # generation: no provider key is present in this isolated stack.
       BILAN_WORKER_ENABLED: "true"
+      # Match the HTTP CI diagnostic lane: real scheduler, one synthetic
+      # allowlisted student, no provider and no wildcard demonstration scope.
+      DIAGNOSTIC_PROCESSING_WORKER_ENABLED: "true"
+      DIAGNOSTIC_PROCESSING_WORKER_POLL_INTERVAL_MS: "1000"
+      DIAGNOSTIC_DEMO_MODE: "true"
+      DIAGNOSTIC_DEMO_STUDENT_IDS: e2e-bilan-journey-fixed-student-001
       ARIA_TURN_RECOVERY_WORKER_ENABLED: "true"
       # Core v2 conversation is enabled only in this disposable fixture stack;
       # production/preview remain capability=false until the integrated release.
@@ -239,16 +250,20 @@ services:
     volumes:
       - e2e-shared:/app/e2e-shared
       - e2e-storage:/app/storage
+      - e2e-document-storage:/mnt/document-storage-e2e
       - ./e2e:/app/e2e
       - ./data:/app/data:ro
     environment:
       BASE_URL: http://app-e2e:3000
+      DOCUMENT_STORAGE_ROOT: /mnt/document-storage-e2e
       CI: "true"
       PLAYWRIGHT_CONFIG: "${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
       PLAYWRIGHT_PROJECT: "${PLAYWRIGHT_PROJECT:-}"
       E2E_CREDENTIALS_PATH: /app/e2e-shared/.credentials.json
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
       CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e
+      CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID: ${CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID:?Generate dedicated E2E account-token keys}
+      CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS: ${CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS:?Generate dedicated E2E account-token keys}
       MAILPIT_API_URL: http://mailpit-e2e:8025
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       E2E_DISPOSABLE_STACK: "1"

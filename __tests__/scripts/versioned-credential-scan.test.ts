@@ -100,6 +100,20 @@ describe('versioned credential scanner', () => {
     }
   });
 
+  it('recognizes an unquoted CSPRNG expression without accepting a lookalike literal', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'nexus-csprng-scan-'));
+    try {
+      const file = join(directory, 'runtime.js');
+      writeFileSync(file, "process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = randomBytes(32).toString('hex');\n");
+      const generated = spawnSync(process.execPath, [scanner, '--root', directory], { encoding: 'utf8' });
+      expect(generated.status).toBe(0);
+      writeFileSync(file, `process.env.EMAIL_OUTBOX_ENCRYPTION_KEY = 'randomBytes(32).toString("hex")';\n`);
+      const literal = spawnSync(process.execPath, [scanner, '--root', directory], { encoding: 'utf8' });
+      expect(literal.status).toBe(1);
+      expect(literal.stdout + literal.stderr).toContain('SERVICE_SECRET_LITERAL');
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+  });
+
   it('keeps the tracked repository free of versioned credentials', () => {
     expect(() => execFileSync(process.execPath, [scanner], {
       encoding: 'utf8',
@@ -176,3 +190,4 @@ describe('versioned credential scanner', () => {
     });
   });
 });
+

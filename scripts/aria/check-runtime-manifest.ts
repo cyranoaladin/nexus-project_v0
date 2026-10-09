@@ -8,6 +8,8 @@ import servableCorpusManifestSchema from '../../data/aria/generated/rag-contract
 import { ARIA_RESOURCE_REGISTRY_SHA256 } from '../../lib/aria/manifests/resource-registry';
 import { getRequiredAriaCorpusIds } from '../../lib/aria/manifests/course-capabilities';
 import { sha256AriaRagJson } from '../../lib/aria/infrastructure/rag/internal-identity';
+import { resolveDeploymentRagProfile } from '../../lib/deployment/rag-profile';
+export { resolveDeploymentRagProfile } from '../../lib/deployment/rag-profile';
 
 type JsonRecord = Record<string, unknown>;
 const MAX_RUNTIME_MANIFEST_BYTES = 2 * 1024 * 1024;
@@ -247,13 +249,6 @@ function readMode(argv: readonly string[]): 'static' | 'runtime' {
  * that real requirement) keeps exactly one source of truth for "is RAG
  * targeted by this release".
  */
-export function resolveDeploymentRagProfile(
-  environment: Readonly<Record<string, string | undefined>>,
-): 'CORE_ONLY' | 'RAG_ENABLED' {
-  const baseUrl = environment.RAG_API_BASE_URL?.trim();
-  return baseUrl ? 'RAG_ENABLED' : 'CORE_ONLY';
-}
-
 export function resolveAriaRuntimeManifestConfiguration(
   environment: Readonly<Record<string, string | undefined>>,
 ): Readonly<{ baseUrl: string; serviceToken: string; apiKey: string }> {

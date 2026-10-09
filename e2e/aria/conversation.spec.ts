@@ -22,6 +22,7 @@ import {
   postConversation,
   resetFixture,
   sendFromComposer,
+  sendFromComposerAndFinishTransport,
 } from './helpers';
 
 const nsiPremiereCorpus = manifest.corpora.find(({ corpus_id }) => corpus_id === 'aria-nsi-premiere')!;
@@ -405,7 +406,8 @@ test.describe.serial('ARIA-B real disposable conversation foundation', () => {
     await loginAndOpenAria(page, 'ariaNsi');
     await chooseCourse(page, 'eds-nsi-premiere');
     const failures = captureBrowserFailures(page);
-    await sendFromComposer(page, 'Flux de qualité runtime.');
+    await sendFromComposerAndFinishTransport(page, 'Flux de qualité runtime.');
+    await expect(page.getByRole('status')).toHaveText('Réponse ARIA terminée.');
     await expect(page.getByText(/Une pile fonctionne/)).toBeVisible();
     expect(failures).toEqual([]);
   });

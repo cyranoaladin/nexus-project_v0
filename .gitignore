@@ -86,6 +86,9 @@ backup_*.sql.gz
 # But keep Prisma migration SQL files
 !prisma/migrations/**/*.sql
 !core-v2/prisma/migrations/**/*.sql
+# Bounded legacy-divergence evidence (KNOWN_BOUNDED_LEGACY_DIVERGENCE): the exact
+# production-applied migration body, kept out of the active migrations tree but versioned.
+!docs/migrations/legacy-divergence/*.sql
 
 # Core v2 generated Prisma Client (isolated output, never committed — see
 # core-v2/prisma/schema.prisma's generator block)

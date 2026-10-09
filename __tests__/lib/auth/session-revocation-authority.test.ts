@@ -126,12 +126,28 @@ describe('revokeAllUserSessions — every store that can still validate', () => 
   test('a Core-v2-owned identity is revoked in Core v2 as well as Core v1', async () => {
     const { db, update } = revocationDb();
     const ownedByCoreV2 = jest.fn().mockResolvedValue(true);
-    const revokeCoreV2 = jest.fn().mockResolvedValue(undefined);
+    const revokeCoreV2 = jest.fn().mockResolvedValue({ sessionVersion: 3 });
 
     await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2, revokeCoreV2 })).resolves.toEqual({ sessionVersion: 3 });
 
     expect(update).toHaveBeenCalledTimes(1);
     expect(revokeCoreV2).toHaveBeenCalledWith('u1');
+  });
+
+  test('a Core-only identity is revoked despite a missing legacy mirror', async () => {
+    const { db, update } = revocationDb();
+    update.mockRejectedValue(Object.assign(new Error('Synthetic missing legacy identity'), { code: 'P2025' }));
+    const revokeCoreV2 = jest.fn().mockResolvedValue({ sessionVersion: 4 });
+    await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2: jest.fn().mockResolvedValue(true), revokeCoreV2 })).resolves.toEqual({ sessionVersion: 4 });
+    expect(revokeCoreV2).toHaveBeenCalledTimes(1);
+  });
+
+  test('a legacy transport failure is never mistaken for an absent mirror', async () => {
+    const { db, update } = revocationDb();
+    update.mockRejectedValue(Object.assign(new Error('SYNTHETIC_V1_UNAVAILABLE'), { code: 'P1001' }));
+    const revokeCoreV2 = jest.fn().mockResolvedValue({ sessionVersion: 4 });
+    await expect(revokeAllUserSessions('u1', db, { ownedByCoreV2: jest.fn().mockResolvedValue(true), revokeCoreV2 })).rejects.toThrow('SYNTHETIC_V1_UNAVAILABLE');
+    expect(revokeCoreV2).toHaveBeenCalledTimes(1);
   });
 
   test('an identity Core v2 does not own is revoked in Core v1 only', async () => {

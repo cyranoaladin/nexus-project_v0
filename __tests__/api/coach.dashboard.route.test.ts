@@ -58,7 +58,7 @@ describe('GET /api/coach/dashboard', () => {
 
   it('returns 404 when coach profile missing', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -71,7 +71,7 @@ describe('GET /api/coach/dashboard', () => {
 
   it('returns dashboard data for coach', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
       id: 'coach-profile-1',
@@ -150,7 +150,7 @@ describe('GET /api/coach/dashboard', () => {
 
   it('never adds a student to the roster from a recent SessionBooking alone (no active assignment)', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
       id: 'coach-profile-1',
@@ -179,7 +179,7 @@ describe('GET /api/coach/dashboard', () => {
 
   it('overlays recent booking recency onto a student already in the roster, without changing their canonical subject', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
       id: 'coach-profile-1',
@@ -222,7 +222,7 @@ describe('GET /api/coach/dashboard', () => {
 
   it('exposes the canonical academicCourseKeys as course labels, not the legacy subjects join', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({
       id: 'coach-profile-1',

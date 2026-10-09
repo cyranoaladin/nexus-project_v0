@@ -148,6 +148,8 @@ describe('GET /api/parent/dashboard', () => {
         children: [
           {
             id: 'student-123',
+            userId: 'student-user-123',
+            parent: { userId: 'parent-123' },
             user: {
               firstName: 'Student',
               lastName: 'One',
@@ -234,6 +236,7 @@ describe('GET /api/parent/dashboard', () => {
           {
             id: 'student-123',
             userId: 'student-user-123',
+            parent: { userId: 'parent-123' },
             grade: 'Terminale',
             school: 'Test School',
             user: {
@@ -250,6 +253,7 @@ describe('GET /api/parent/dashboard', () => {
           {
             id: 'student-456',
             userId: 'student-user-456',
+            parent: { userId: 'parent-123' },
             grade: 'Première',
             school: 'Test School',
             user: {
@@ -279,7 +283,14 @@ describe('GET /api/parent/dashboard', () => {
       expect(data.children[1].id).toBe('student-456');
 
       // Verify the API queries used the correct parent ID
-      expect(prisma.parentProfile.findUnique).toHaveBeenCalledTimes(1);
+      expect(prisma.parentProfile.findUnique).toHaveBeenCalledTimes(2);
+      expect(prisma.parentProfile.findUnique).toHaveBeenNthCalledWith(1, {
+        where: { userId: 'parent-123' },
+        select: { id: true, children: { select: { id: true, userId: true, parent: { select: { userId: true } } } } },
+      });
+      expect(prisma.parentProfile.findUnique).toHaveBeenNthCalledWith(2, expect.objectContaining({
+        include: expect.objectContaining({ children: expect.objectContaining({ where: { id: { in: ['student-123', 'student-456'] } } }) }),
+      }));
       expect(prisma.parentProfile.findUnique).toHaveBeenCalledWith(expect.objectContaining({
         where: { userId: 'parent-123' }
       }));
@@ -310,6 +321,7 @@ describe('GET /api/parent/dashboard', () => {
           {
             id: 'student-123',
             userId: 'student-user-123',
+            parent: { userId: 'parent-123' },
             grade: 'Terminale',
             school: 'Test School',
             user: {
@@ -369,6 +381,7 @@ describe('GET /api/parent/dashboard', () => {
           {
             id: 'student-1',
             userId: 'student-user-1',
+            parent: { userId: 'parent-123' },
             grade: 'Terminale',
             school: 'School A',
             user: {
@@ -394,6 +407,7 @@ describe('GET /api/parent/dashboard', () => {
           {
             id: 'student-2',
             userId: 'student-user-2',
+            parent: { userId: 'parent-123' },
             grade: 'Première',
             school: 'School B',
             user: {

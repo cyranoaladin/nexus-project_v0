@@ -13,6 +13,7 @@ import { prisma } from '@/lib/prisma';
 
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
+import { isBilanActivitySlug } from './lesson-routes';
 import { notValidationStudent, type ValidationScopeOptions } from './validation';
 
 export async function studentSubjects(userId: string): Promise<Subject[]> {
@@ -51,6 +52,22 @@ export async function teacherTeachesStudent(
 export type WorkWithActivity = EspaceWork & { activity: EspaceActivity };
 export type WorkMode = 'student' | 'teacher';
 
+/** Une inscription en maths ne suffit pas : les bilans sont attribués par séance publiée. */
+export async function requireBilanAssignment(userId: string, activityId: string, sessionId?: string | null): Promise<string> {
+  const seat = await prisma.espaceSession.findFirst({
+    where: {
+      ...(sessionId ? { id: sessionId } : {}),
+      activityId,
+      status: 'PUBLISHED',
+      participants: { some: { userId } },
+    },
+    select: { id: true },
+    orderBy: { publishedAt: 'desc' },
+  });
+  if (!seat) throw new EspaceError('NOT_FOUND', 'Travail introuvable');
+  return seat.id;
+}
+
 /**
  * Charge un travail pour un acteur, ou lève NOT_FOUND (inexistant OU interdit).
  * `require` impose le mode : une route réservée à l'élève refuse le mode enseignant.
@@ -66,6 +83,12 @@ export async function loadWorkForActor(
   if (actor.role === 'ELEVE') {
     if (work.studentId !== actor.id) throw new EspaceError('NOT_FOUND', 'Travail introuvable');
     if (require === 'teacher') throw new EspaceError('FORBIDDEN', 'Accès refusé');
+    if (isBilanActivitySlug(work.activity.slug)) {
+      if (!(await isStudentEnrolled(actor.id, work.activity.subject))) {
+        throw new EspaceError('NOT_FOUND', 'Travail introuvable');
+      }
+      await requireBilanAssignment(actor.id, work.activityId);
+    }
     return { work, mode: 'student' };
   }
 

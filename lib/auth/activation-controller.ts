@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { newPasswordSchema } from '@/lib/security/password-policy'
 
 import type { ActivationPurpose } from '@/lib/auth/activation-token'
 import { withActivationSecurityHeaders } from '@/lib/auth/parent-activation'
@@ -13,7 +14,7 @@ const purposeSchema = z.enum(['parent', 'student'])
 const tokenSchema = z.string().min(32).max(512).regex(/^[A-Za-z0-9_-]+$/)
 const setPasswordSchema = z.object({
   token: tokenSchema,
-  password: z.string().min(8),
+  password: newPasswordSchema,
   purpose: purposeSchema.optional(),
 }).strict()
 

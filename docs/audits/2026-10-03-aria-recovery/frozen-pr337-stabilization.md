@@ -1,0 +1,51 @@
+# Gel de #337 — stabilisation des trois causes CI
+
+Date : 2026-10-05. Distant de départ : 16ae686d5b54cc70fbc57ffc16f883e9650036c1 (207 commits / 644 fichiers, 46 succès / 6 échecs). Local accepté : 972083daa9a910a3bf4075a35537e026b6d19299, deux commits non publiés et huit fichiers de logs. Aucun merge dans la plage main…HEAD. Le périmètre est désormais limité aux trois racines CI et au lot de logs déjà commencé ; aucune nouvelle capacité ni migration.
+
+## Cause A : frontière Core-v2
+
+Import runtime du health endpoint déplacé vers lib/deployment/release-identity.ts, avec réexport de compatibilité Core-v2 ; aucun changement de garde/allowlist. Garde + health + stockage : 66 tests verts en lane unitaire ; helper release en lane Core-v2 : 6 verts. Build E2E sur 9c1364c4c : exit 0 en 284,5 s. Ce build est un artefact de qualification synthétique, pas une release production. Son manifeste généré est conservé dans le répertoire local ignoré ; seule l'écriture du build dans le manifeste source, auparavant propre, a été annulée depuis HEAD.
+
+## Cause C : dialogue administrateur
+
+Le premier bouton générique peut appartenir à PARENT/ELEVE : openEditDialog refuse volontairement leur édition générique. Le tri createdAt descendant rend le résultat dépendant des créations de comptes précédentes. Le bouton possède déjà un nom accessible Modifier {prénom} {nom} : aucune modification produit requise.
+
+Reproduction locale : état seed seul = succès ; création d'une famille synthétique via POST /api/assistante/families = 201 ; ancien sélecteur vise l'enfant familial ; même test = échec, 1 inattendu / 0 ignoré. Trace locale inspectée : clic table button,… >> nth=0. Sur les mêmes données, le test corrigé passe : filtre ASSISTANTE et réponse 200, ligne unique Ines Assistante, bouton exact, dialogue Modifier Utilisateur, valeurs attendues et absence de mot de passe, charte/focus trap, fermeture Échap et Annuler avec retour focus. Aucun waitForTimeout dans ce scénario. Les attentes arbitraires des autres scénarios restent hors de ce lot.
+
+Une étape obligatoire Chromium répète ce scénario 20 fois sans retries et refuse tout échec, skip ou flaky. Elle publie uniquement le rapport expurgé associé au SHA exact. Résultat local sur le test corrigé avant commit : 20/20 en 78,99 s, zéro inattendu, zéro skip, zéro flaky, sans retries. Empreinte SHA256 du scénario source : 22959d8af12ec2f2d60056fa6b332a8e646850c44e5d0b9055c124bd65a275b8. Le build applicatif est 9c1364c4c ; le correctif ne modifie que le test et sa preuve CI. La campagne distante finale reste à renouveler sur le candidat publié.
+
+## Cause B : installation et policy
+
+npm ci --no-audit --no-fund : succès, 1282 packages, Node 22.23.1 / npm 10.9.8. npm ls complet et production : exit 0 avec deux findings extraneous ; validateur canonique : exit 0 sous les exceptions EXISTANTES, aucune exception ajoutée. Chemin exact : sharp 0.35.4 → optional @img/sharp-webcontainers-wasm32 0.35.4 (cpu wasm32, absent sur Linux x64) → @img/sharp-wasm32 0.35.4 → @emnapi/runtime 1.11.3. npm matérialise les enfants sans leur parent ; ces nœuds sont référencés dans le lock, pas des nœuds orphelins à supprimer à la main.
+
+Régénération npm package-lock-only/ignore-scripts : aucun nœud changé et SHA256 inchangé 6d436e41ac5c7f202e1d9923fc260a763a08d43cceb940a550a537e0bffa7bca. Audit production : zéro vulnérabilité toutes sévérités. Audit complet : cinq HIGH (@next/eslint-plugin-next 15.5.25, eslint-config-next 15.5.25, fast-glob 3.3.1, micromatch 4.0.8, braces 3.0.3), un advisory causal GHSA-vfj7-8cjw-p6xm. Derniers packages compatibles Next ESLint 15.5.26/15.5.27 : fast-glob inchangé. npm audit fix dry-run conserve les cinq HIGH ; downgrade majeur proposé non appliqué. L'advisory officiel ne publie aucun correctif : https://github.com/advisories/GHSA-vfj7-8cjw-p6xm.
+
+La policy actuelle vise un ancien lock et 39 packages impactés, donc elle n'est pas applicable. Pas de remplacement d'empreinte ni d'approbation inventée. Une décision sécurité étroite, avec propriétaire, échéance et ticket #335, reste nécessaire si aucune correction compatible ne devient disponible. Security Scan dépend de cette preuve amont.
+
+## Limites de qualification
+
+La première tentative locale Core complète était mal configurée (Africa/Tunis à la place de Europe/Paris, destination V1 au mauvais nom, ClamAV absent) : 785 verts / 14 rouges, non qualifiée. Le harnais remis aux contrats CI (bases distinctes au nom canonique, Europe/Paris et vrai ClamAV) passe : 81 suites / 799 tests, zéro échec et zéro ignoré, code applicatif 9c1364c4c. Les refus du seeder et des préflights n'ont pas été contournés. Les campagnes E2E utilisent une stack fraîche, SMTP local et données synthétiques uniquement.
+
+Aucun push tant que le lot cohérent et le gate dépendances ne sont pas fermés. PR Draft, statut NOT_READY. Aucun déploiement, fusion, revue invalidée réutilisée ou écriture dans les anciens worktrees. Les 31 capacités restantes sont reportées hors de #337.
+
+## Fermeture locale ciblée
+
+La suite dialog-all-roles-proof complète passe : 17/17, zéro échec, skip ou flaky, en 59,11 s ; source des tests ebaf9f893485ca820a13b687fe066b3f950b95c0, artefact applicatif 9c1364c4c (aucune différence de code applicatif entre ces deux commits). Ce résultat ne remplace pas la lane Chromium complète distante finale.
+
+Le contrôle local de reachability a révélé une différence de syntaxe de runner : node --test scripts/testing/error-log-summary.test.mjs était réellement exécuté par CI, mais le détecteur ne reconnaît que node {fichier}. Invocation alignée sur les autres tests Node directs du workflow ; mêmes six tests Node natifs effectivement exécutés et verts, sans exclusion, changement d'assertion ou modification du détecteur. Le contrôle de reachability est relancé avant publication.
+
+## Lot C — fermeture (qualification locale de a7e10dc3c, 2026-10-05)
+
+Source de vérité : clone `nexus-aria-go-live-recovery-20261003`, HEAD récupéré `a7e10dc3ce4002a92eb0dd0404465e095d7114e7` (5 commits au-dessus de `16ae686d…`, sauvegarde distante `recovery/aria-unpublished-a7e10dc3c-20261005`). Installation `npm ci` sous Node 22.23.1 / npm 10.9.8 (versions de la CI).
+
+**Paquets extraneous (`@img/sharp-wasm32`, `@emnapi/runtime`).** Cause établie : `@img/sharp-wasm32` ne déclare aucune restriction `cpu`/`os` alors que ses deux seuls parents (`@img/sharp-freebsd-wasm32` os=freebsd, `@img/sharp-webcontainers-wasm32` cpu=wasm32) sont ignorés sur linux/x64. `npm ci` installe l'enfant sans parent, d'où « extraneous ». Identique en sharp 0.35.5 (vérifié au registre) ; retirer les deux nœuds du lockfile est inopérant (`npm install --package-lock-only` les rétablit). Les deux exceptions de `security/npm-tree-exceptions.json` (échéance 2026-10-15, revue 2026-10-08, `artifactAllowed: false`) restent donc les seules applicables ; seul leur texte `reason` est corrigé. Preuve que rien n'atteint la production : `validate-npm-tree.js --artifact .next/standalone` sort 0 sur l'artefact construit à `a7e10dc3c` ; `sharp` fonctionne (binaire linux-x64, création et redimensionnement PNG).
+
+**Vulnérabilités du rapport complet.** Audit production : zéro (toutes sévérités). Audit complet : 5 HIGH, une seule cause, GHSA-vfj7-8cjw-p6xm (`braces` ≤ 3.0.3, DoS par épuisement de pile, CVSS 3.1 7.5, **aucune version corrigée** : `first_patched_version` nul, 3.0.3 est la dernière publiée). Chemin unique, `dev: true` : `eslint-config-next@15.5.25` → `@next/eslint-plugin-next@15.5.25` → `fast-glob@3.3.1` → `micromatch@4.0.8` → `braces@3.0.3`. Aucune mise à niveau compatible n'existe (le plugin 16.x dépend aussi de `fast-glob@3.3.1`).
+
+**Pourquoi `LOCKFILE_DIGEST_CHANGED` était légitime.** La politique schéma 2 (PR #336, approuvée par le propriétaire du dépôt, échéance absolue 2026-10-10) épinglait l'ancien lockfile `b5aaa205…` et deux advisories. Le commit `3ce315bae` (Jest 30 et outils de cache) a ensuite fait passer `http-cache-semantics` de 4.2.0 à 4.3.0, ce qui corrige GHSA-ch52-4w7c-c8xp et retire 34 des 39 paquets impactés.
+
+**Ce qui est modifié (réduction stricte, aucune extension).** `security/current-dev-tooling-osv-exception.json` : suppression de l'advisory GHSA-ch52 (corrigé), lockfile `6d436e41…`, 5 paquets impactés, empreinte d'impact recalculée depuis le rapport réel ; `approvedAt`, `expiresAt` (2026-10-10), issue #335 et conditions de révocation sont inchangés. `scripts/security/current-dev-tooling-exception.mjs` : `REQUIRED_FINDINGS` ne contient plus que `braces`, de sorte qu'un retour de GHSA-ch52 est refusé (`ADDITIONAL_ADVISORY`). Tests : deux cas de refus ajoutés (GHSA-ch52 ressuscité dans l'audit complet et dans le rapport OSV) ; 39 tests verts sur les deux suites du validateur. Le validateur CI (`--mode current-npm-audit`) sort 0 sur l'audit réel : `advisory_ids=GHSA-vfj7-8cjw-p6xm impacted_packages=5`. Cette exception n'est PAS renouvelée : elle expire le 2026-10-10 et reste soumise à la revue humaine du SHA de la PR ; si aucun correctif amont n'existe à cette date, l'arbitrage est une décision humaine (remplacer `eslint-config-next`, ou retirer `next lint`).
+
+**Défaut du pas de répétition CI.** Le pas « Repeat deterministic administrator dialog 20 times » utilisait `--grep='^admin: users detail dialog$'` ; Playwright préfixe le titre testé avec le nom du fichier, donc le motif ancré ne sélectionnait **aucun** test (`--list` : 0 test ; sans ancre de début : 1 test) et le pas aurait échoué en « No tests found ». Corrigé dans un commit distinct (`9a853a70f`).
+
+**Qualification locale de a7e10dc3c.** Rouge d'origine reproduit : ancien spec (`16ae686d`) exécuté sur la base laissée par la lane Chromium complète → `[role="dialog"]` introuvable en 5 s (même défaut que la CI). Spec corrigé sur la même base : 20/20 (expected 20, unexpected 0, skipped 0, flaky 0, sans retries), suite `dialog-all-roles-proof` 17/17, lane Chromium complète 528/528 (13,9 min), lane cross-browser Firefox/WebKit/mobile 80/80 (6,8 min), répétition mobile ×20 de sécurité des comptes 40/40 et `ACCOUNT_SECURITY_REPEAT20_VERIFIED`. Le scénario admin, absent des projets cross-browser de la CI, a en plus été exécuté une fois sur Firefox, WebKit et Pixel 7 : vert. Ces résultats locaux ne remplacent pas la CI distante du SHA publié.

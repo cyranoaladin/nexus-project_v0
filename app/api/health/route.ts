@@ -19,9 +19,9 @@ export async function GET() {
       status: 'ok',
       timestamp: new Date().toISOString()
     });
-  } catch (error) {
-    // Log error server-side (sanitized)
-    console.error('Health check error:', error instanceof Error ? error.message : 'Unknown error');
+  } catch {
+    console.error(JSON.stringify({ event: 'HEALTH_DATABASE_UNAVAILABLE', level: 'error',
+      service: 'nexus', route: '/api/health', timestamp: new Date().toISOString() }));
 
     // SECURITY: Return minimal info to client (no stack traces or internals)
     return NextResponse.json({

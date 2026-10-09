@@ -117,9 +117,9 @@ export async function validateSessionToken(
  * believed the session was gone (`auth-client-lifecycle.spec.ts:211`, all four
  * browser projects). Revocation must be at least as broad as validation.
  *
- * Core v1 is always bumped: a V1 token may exist regardless of who owns the
- * identity now. Core v2 is bumped when it owns the identity, and a failure
- * there propagates rather than being swallowed — reporting "revoked" for a
+ * Core v2 is bumped first when it owns the identity. An existing Core v1
+ * mirror is also bumped; exact P2025 absence is allowed only after successful
+ * Core revocation. Any other store failure propagates rather than being swallowed — reporting "revoked" for a
  * session that is still live is the worse outcome.
  */
 export async function revokeAllUserSessions(
@@ -130,15 +130,36 @@ export async function revokeAllUserSessions(
     revokeCoreV2: typeof revokeCoreV2UserSessions
   } = { ownedByCoreV2: isIdentityOwnedByCoreV2, revokeCoreV2: revokeCoreV2UserSessions },
 ): Promise<{ sessionVersion: number }> {
-  const revoked = await database.user.update({
-    where: { id: userId },
-    data: { sessionVersion: { increment: 1 } },
-    select: { sessionVersion: true },
-  })
-
-  if (await authority.ownedByCoreV2(userId)) {
-    await authority.revokeCoreV2(userId)
+  const coreOwned = await authority.ownedByCoreV2(userId)
+  // Revoke the actual validator first; a missing compatibility mirror must
+  // never prevent a Core-only account from invalidating its active cookies.
+  const coreRevoked = coreOwned ? await authority.revokeCoreV2(userId) : null
+  try {
+    const legacyRevoked = await database.user.update({
+      where: { id: userId },
+      data: { sessionVersion: { increment: 1 } },
+      select: { sessionVersion: true },
+    })
+    return coreRevoked ?? legacyRevoked
+  } catch (error) {
+    if (coreRevoked && typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2025') {
+      return coreRevoked
+    }
+    throw error
   }
+}
 
-  return revoked
+/** Read only the same encrypted cookie validated by auth(), never a Bearer token.
+ * The caller binds identity/role to its canonical authenticated session; the
+ * mutation rechecks V1 role/version while holding the User row lock.
+ * Inter-database authority transitions require migration coordination. */
+export async function readPrivateSessionSnapshot(
+  request: Readonly<{ headers: Headers }>,
+  options: Readonly<{ secret: string; secureCookie: boolean }>,
+): Promise<JWT | null> {
+  const { getToken } = await import('next-auth/jwt')
+  return getToken({
+    req: { headers: new Headers({ cookie: request.headers.get('cookie') ?? '' }) },
+    secret: options.secret, secureCookie: options.secureCookie,
+  })
 }

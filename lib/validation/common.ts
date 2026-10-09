@@ -6,6 +6,7 @@
 
 import { z } from 'zod';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 /**
  * Common ID validation (CUID format from Prisma)
@@ -64,10 +65,9 @@ export const phoneSchema = z.string().regex(
 /**
  * Password validation (min 8 chars, at least one letter and one number)
  */
-export const passwordSchema = z.string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
-  .regex(/[0-9]/, 'Password must contain at least one number');
+export const passwordSchema = newPasswordSchema
+  .refine((password) => /[a-zA-Z]/.test(password), 'Password must contain at least one letter')
+  .refine((password) => /[0-9]/.test(password), 'Password must contain at least one number');
 
 /**
  * Optional string that trims whitespace and treats empty as undefined

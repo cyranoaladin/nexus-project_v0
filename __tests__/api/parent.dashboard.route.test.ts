@@ -51,6 +51,8 @@ describe('GET /api/parent/dashboard', () => {
   function baseChild(overrides: Partial<{ id: string; firstName: string; lastName: string }> = {}) {
     return {
       id: overrides.id ?? 'stu-1',
+      userId: `u-${overrides.id ?? 'stu-1'}`,
+      parent: { userId: 'p1' },
       grade: 'Terminale',
       school: 'Lycée Pilote',
       credits: 4,
@@ -59,7 +61,7 @@ describe('GET /api/parent/dashboard', () => {
       gradeLevel: 'TERMINALE',
       academicTrack: 'EDS_GENERALE',
       user: {
-        id: 'u-stu-1',
+        id: `u-${overrides.id ?? 'stu-1'}`,
         firstName: overrides.firstName ?? 'Ahmed',
         lastName: overrides.lastName ?? 'Ben Ali',
         email: 'ahmed@test.com',

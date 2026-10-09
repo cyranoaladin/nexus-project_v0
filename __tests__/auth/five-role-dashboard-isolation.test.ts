@@ -52,3 +52,22 @@ it('preserves the shared authenticated trajectory and unknown-role landing fallb
  (auth as jest.Mock).mockResolvedValue({ user: { role: 'UNKNOWN' } });
  await expect(DashboardRedirect()).rejects.toThrow('REDIRECT:/auth/signin');
 });
+
+// The account page is shared, but its sibling routes are not exceptions.
+it.each(roles)('%s reaches its own account security page through both routing guards', async role => {
+ const path = '/dashboard/account/security';
+ expect(authorization(role, path)).toBe(true);
+ const response = await access(role, path);
+ expect(response.status).toBe(200);
+ expect(response.headers.get('location')).toBeNull();
+});
+it('requires login for the common account security page', async () => {
+ expect(authorization(null, '/dashboard/account/security')).toBe(false);
+ expect((await access(null, '/dashboard/account/security')).headers.get('location')).toContain('/auth/signin?callbackUrl=');
+});
+it.each(['/dashboard/account', '/dashboard/account/security-extra', '/dashboard/account/security/admin', '/dashboard/account/payments'])('does not open a common account subtree at %s', async path => {
+ const authorized = authorization('PARENT', path);
+ expect(authorized).toBeInstanceOf(Response);
+ expect((authorized as Response).headers.get('location')).toBe('https://nexus.test/dashboard/parent');
+ expect((await access('PARENT', path)).headers.get('location')).toBe('https://nexus.test/dashboard/parent');
+});

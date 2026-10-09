@@ -263,7 +263,25 @@ export function useAriaConversation(input: Readonly<{
           ? 'PENDING'
           : 'STARTING');
     try {
-      await streamAriaConversation(active.request, active.callbacks, controller.signal);
+      const callbacks = active.callbacks;
+      const retireFinalizedController = () => {
+        if (activeTurn.current !== active && activeController.current === controller) {
+          activeController.current = null;
+        }
+      };
+      await streamAriaConversation(active.request, {
+        ...callbacks,
+        onDone(done) {
+          callbacks.onDone?.(done);
+          // The transport only publishes terminal callbacks after validated EOF.
+          // Release this controller before READY can trigger a close or new send.
+          retireFinalizedController();
+        },
+        onError(error) {
+          callbacks.onError?.(error);
+          retireFinalizedController();
+        },
+      }, controller.signal);
       if (token === generation.current && activeTurn.current === active) {
         throw new AriaClientError('INVALID_RESPONSE', 500, false);
       }

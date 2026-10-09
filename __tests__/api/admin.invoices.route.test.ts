@@ -166,6 +166,17 @@ describe('GET /api/admin/invoices', () => {
 // ─── POST /api/admin/invoices ────────────────────────────────────────────────
 
 describe('POST /api/admin/invoices', () => {
+  it('denies read-only assistant creation before invoice/PDF writes', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'synthetic-read-only-staff', role: 'ASSISTANTE' } });
+    const response = await POST(new NextRequest('http://localhost/api/admin/invoices', {
+      method: 'POST', body: JSON.stringify({ customer: { name: 'Synthetic fixture' }, items: [{ label: 'Synthetic', qty: 1, unitPrice: 100 }] }),
+      headers: { 'Content-Type': 'application/json' },
+    }));
+    expect(response.status).toBe(403);
+    expect(prisma.invoice.create).not.toHaveBeenCalled();
+    expect(mockRenderInvoicePDF).not.toHaveBeenCalled();
+  });
+
   function makePostRequest(body: Record<string, unknown>): NextRequest {
     return new NextRequest('http://localhost:3000/api/admin/invoices', {
       method: 'POST',
@@ -257,8 +268,8 @@ describe('POST /api/admin/invoices', () => {
     expect(body.pdfUrl).toBeTruthy();
   });
 
-  it('should allow ASSISTANTE to create invoices through the existing admin invoice API', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'assistante-1', role: 'ASSISTANTE' } } as any);
+  it('allows authorized ADMIN to create invoices through the existing admin invoice API', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } } as any);
     prisma.invoice.create.mockResolvedValue({
       id: 'inv-assistante-1',
       number: 'NXS-2026-0001',
@@ -312,7 +323,7 @@ describe('POST /api/admin/invoices', () => {
     expect(prisma.invoice.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          createdByUserId: 'assistante-1',
+          createdByUserId: 'admin-1',
           discountTotal: 50_000,
           taxTotal: 62_208,
           taxRegime: 'TVA_INCLUSE',

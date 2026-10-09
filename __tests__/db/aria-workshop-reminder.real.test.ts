@@ -9,6 +9,8 @@ import {
   queueDueAriaWorkshopReminders,
 } from '@/lib/aria/application/workshop/queue-due-workshop-reminders';
 import { notifyParentWorkshopReminder } from '@/lib/aria/notifications/notify-parent-workshop-reminder';
+import { scheduleAriaWorkshopSession } from '@/lib/aria/application/workshop/schedule-workshop';
+import { registerForAriaWorkshop } from '@/lib/aria/application/workshop/register-for-workshop';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -201,12 +203,26 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
     }
   });
 
-  it('never sends a reminder for a real, cancelled workshop (cancellation handled by construction, no active hook needed)', async () => {
+  it('never sends a reminder after a scheduled workshop with a real registration is cancelled', async () => {
     const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
-      const sessionId = await createSession(staffUserId, { status: 'CANCELLED', title: 'Atelier annulé' });
-      await createRegisteredAttendee(sessionId, family.student);
+      const session = await scheduleAriaWorkshopSession({
+        actor: { userId: staffUserId, role: 'ASSISTANTE' }, courseKey: REAL_COURSE_KEY,
+        title: 'Atelier annulé', scheduledDate: SESSION_SCHEDULED_DATE,
+        startTime: '14:00', endTime: '15:00', modality: 'IN_PERSON',
+      });
+      const sessionId = session.id;
+      await registerForAriaWorkshop({ actor: { userId: family.studentUser, role: 'ELEVE' },
+        workshopSessionId: sessionId, now: BEFORE_DUE });
+      // This minimal fixture has no names: admission commits without a
+      // registration email. A cancelled session must not add a reminder.
+      expect(await outboxCountForUser(pool, family.parentUser)).toBe(0);
+      // There is no public cancellation service in this V1 workshop module.
+      // Set the terminal fixture state only after the public admission commits.
+      await prisma.ariaWorkshopSession.update({ where: { id: sessionId }, data: { status: 'CANCELLED' } });
+      await expect(registerForAriaWorkshop({ actor: { userId: family.studentUser, role: 'ELEVE' },
+        workshopSessionId: sessionId, now: REMINDER_DUE_AT })).rejects.toMatchObject({ status: 404 });
 
       const result = await queueDueAriaWorkshopReminders(REMINDER_DUE_AT);
 
@@ -217,6 +233,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
       // the scan's own WHERE clause, never reached at all.
       expect(attendee?.reminderQueuedAt).toBeNull();
     } finally {
+      await pool.query(`DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`, [family.parentUser]);
       await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
       await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title: 'Atelier annulé' } });
       await cleanupAriaRealDbFixture(pool, family);

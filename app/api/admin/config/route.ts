@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireRole, requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
+import { checkCsrf } from '@/lib/csrf';
 import { z } from 'zod';
 import {
   getAllEntries,
@@ -83,6 +84,8 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   const auth = await requireRole('ADMIN');
   if (isErrorResponse(auth)) return auth;
+  const csrfResponse = checkCsrf(request);
+  if (csrfResponse) return csrfResponse;
   const session = auth as AuthSession;
 
   let json: unknown;

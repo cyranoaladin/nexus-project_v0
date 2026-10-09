@@ -1,3 +1,5 @@
+import { reloadDocument } from '@/lib/browser-navigation';
+jest.mock('@/lib/browser-navigation', () => ({ navigateDocument: jest.fn(), reloadDocument: jest.fn() }));
 import { ErrorBoundary } from '@/components/error-boundary';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -88,11 +90,8 @@ describe('ErrorBoundary', () => {
 
   describe('Reload Button', () => {
     it('reloads the page when reload button is clicked', async () => {
-      const reloadMock = jest.fn();
-      Object.defineProperty(window, 'location', {
-        value: { reload: reloadMock },
-        writable: true,
-      });
+      const reloadMock = jest.mocked(reloadDocument);
+      reloadMock.mockClear();
 
       const user = userEvent.setup();
 

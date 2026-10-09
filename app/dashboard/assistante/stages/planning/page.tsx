@@ -16,7 +16,7 @@ Video,
 import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback,useEffect,useState } from 'react';
+import { useCallback,useEffect,useRef,useState } from 'react';
 
 import { courseLabel } from '@/lib/curriculum/catalog';
 
@@ -144,6 +144,9 @@ export default function AssistantePlanningPage() {
   const [loading, setLoading] = useState(true);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [selected, setSelected] = useState<PlanningEvent | null>(null);
+  const cancellationCommands = useRef(new Map<string, string>());
+  const cancellationBusy = useRef(false);
+  const [cancelSubmitting, setCancelSubmitting] = useState(false);
   const [showStages, setShowStages] = useState(true);
   const [showSessions, setShowSessions] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
@@ -391,28 +394,40 @@ export default function AssistantePlanningPage() {
   };
 
   const cancelSelectedSession = async () => {
-    if (!selected || selected.source !== 'SESSION_BOOKING') return;
+    if (cancellationBusy.current || !selected || selected.source !== 'SESSION_BOOKING') return;
     const id = selected.id.startsWith('sessionBooking:') ? selected.id.replace('sessionBooking:', '') : selected.id;
     const ok = window.confirm('Annuler cette séance ?');
     if (!ok) return;
+    cancellationBusy.current = true;
+    setCancelSubmitting(true);
     try {
+      let command = cancellationCommands.current.get(id);
+      if (!command) {
+        command = crypto.randomUUID();
+        cancellationCommands.current.set(id, command);
+      }
       const res = await fetch('/api/sessions/cancel', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': command },
         body: JSON.stringify({
           sessionId: id,
           reason: 'Annulé par assistante (planning)',
         }),
       });
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json();
       if (!res.ok) {
+        if (res.status >= 400 && res.status < 500 && res.status !== 429) cancellationCommands.current.delete(id);
         alert(data?.message || 'Annulation impossible.');
         return;
       }
+      cancellationCommands.current.delete(id);
       setSelected(null);
       await load();
     } catch {
-      alert('Annulation impossible.');
+      alert('Annulation impossible. Réessayez pour vérifier son état.');
+    } finally {
+      cancellationBusy.current = false;
+      setCancelSubmitting(false);
     }
   };
 
@@ -654,9 +669,11 @@ export default function AssistantePlanningPage() {
                   <button
                     type="button"
                     onClick={cancelSelectedSession}
+                    disabled={cancelSubmitting}
+                    aria-busy={cancelSubmitting}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-200 hover:bg-rose-500/20"
                   >
-                    Annuler la séance
+                    {cancelSubmitting ? 'Annulation en cours…' : 'Annuler la séance'}
                   </button>
                   <Link
                     href={`/dashboard/assistante/students`}

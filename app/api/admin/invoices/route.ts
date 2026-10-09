@@ -1,15 +1,19 @@
+import { randomUUID } from 'node:crypto';
+import { checkCsrf } from '@/lib/csrf';
+import { privateFinancialJson } from '@/lib/invoice/private-response';
 /**
  * POST /api/admin/invoices — Create invoice + atomic number + PDF + store.
  * GET  /api/admin/invoices — List invoices (paginated).
  *
- * Access: ADMIN, ASSISTANTE only.
+ * Read: authorized staff. Write: canonical PAYMENT UPDATE permission.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import path from 'node:path';
 import { auth } from '@/auth';
+import { canPerformStatusAction } from '@/lib/invoice/transitions';
 import { prisma } from '@/lib/prisma';
-import { UserRole, type InvoiceItem, type Prisma } from '@prisma/client';
+import { UserRole, Prisma, type InvoiceItem } from '@prisma/client';
 import { z } from 'zod';
 import { civilDateSchema } from '@/lib/validation/common';
 import {
@@ -95,13 +99,7 @@ function hasStaffAccess(role?: string | null) {
 }
 
 function validationFailed() {
-  return NextResponse.json({ error: 'Données invalides' }, { status: 400 });
-}
-
-function safeErrorSummary(error: unknown) {
-  return error instanceof Error
-    ? { name: error.name, message: error.message }
-    : { name: 'UnknownError', message: 'Unknown error' };
+  return privateFinancialJson({ error: 'Données invalides' }, { status: 400 });
 }
 
 // ─── POST: Create Invoice ───────────────────────────────────────────────────
@@ -111,13 +109,16 @@ export async function POST(request: NextRequest) {
     // Auth check
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return privateFinancialJson({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const userRole = (session.user as { role?: string }).role;
-    if (!hasStaffAccess(userRole)) {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+    if (!canPerformStatusAction(userRole)) {
+      return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
+
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
 
     // Parse body
     const parsedBody = createInvoiceBodySchema.safeParse(await request.json());
@@ -147,6 +148,14 @@ export async function POST(request: NextRequest) {
     const subtotal = computedItems.reduce((sum, item) => sum + item.total, 0);
     const discountTotal = body.discountTotal ?? 0;
     const taxRegime: TaxRegime = body.taxRegime ?? 'TVA_NON_APPLICABLE';
+    // Prisma Int maps to signed PostgreSQL int4. Reject invalid derived amounts
+    // before allocating a number, starting a transaction or rendering a PDF.
+    const maxStoredAmount = 2_147_483_647;
+    if (computedItems.some(item => !Number.isSafeInteger(item.total) || item.total > maxStoredAmount)
+      || !Number.isSafeInteger(subtotal) || subtotal > maxStoredAmount
+      || discountTotal > subtotal) {
+      return validationFailed();
+    }
     const totalBeforeTaxDisplay = subtotal - discountTotal;
     const taxTotal = taxRegime === 'TVA_INCLUSE'
       ? totalBeforeTaxDisplay - Math.round(totalBeforeTaxDisplay / 1.06)
@@ -158,7 +167,7 @@ export async function POST(request: NextRequest) {
     if (requestedNumber) {
       const existing = await prisma.invoice.findUnique({ where: { number: requestedNumber } });
       if (existing) {
-        return NextResponse.json({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
+        return privateFinancialJson({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
       }
     }
     const invoiceNumber = requestedNumber || await generateInvoiceNumber();
@@ -169,36 +178,46 @@ export async function POST(request: NextRequest) {
       ...body.issuer,
     };
 
-    // Create invoice in DB
-    const invoice = await prisma.invoice.create({
-      data: {
-        number: invoiceNumber,
-        status: 'DRAFT',
-        issuedAt: body.issuedAt ? new Date(body.issuedAt) : new Date(),
-        dueAt: body.dueAt ? new Date(body.dueAt) : null,
-        customerName: body.customer.name,
-        customerEmail: body.customer.email ?? null,
-        customerAddress: body.customer.address ?? null,
-        customerId: body.customer.customerId ?? null,
-        issuerName: issuer.name,
-        issuerAddress: issuer.address,
-        issuerMF: issuer.mf,
-        issuerRNE: issuer.rne ?? null,
-        currency: 'TND',
-        subtotal,
-        discountTotal,
-        taxTotal,
-        total,
-        taxRegime,
-        paymentMethod: body.paymentMethod ?? null,
-        createdByUserId: session.user.id,
-        notes: body.notes ?? null,
-        events: JSON.parse(JSON.stringify([createInvoiceEvent('INVOICE_CREATED', session.user.id, `Facture ${invoiceNumber} créée`)])) as Prisma.InputJsonValue,
-        items: {
-          create: computedItems,
+    // Invoice, nested items and immutable creation evidence commit together.
+    const actorUserId = session.user.id;
+    const invoice = await prisma.$transaction(async tx => {
+      const created = await tx.invoice.create({
+        data: {
+          number: invoiceNumber,
+          status: 'DRAFT',
+          issuedAt: body.issuedAt ? new Date(body.issuedAt) : new Date(),
+          dueAt: body.dueAt ? new Date(body.dueAt) : null,
+          customerName: body.customer.name,
+          customerEmail: body.customer.email ?? null,
+          customerAddress: body.customer.address ?? null,
+          customerId: body.customer.customerId ?? null,
+          issuerName: issuer.name,
+          issuerAddress: issuer.address,
+          issuerMF: issuer.mf,
+          issuerRNE: issuer.rne ?? null,
+          currency: 'TND',
+          subtotal,
+          discountTotal,
+          taxTotal,
+          total,
+          taxRegime,
+          paymentMethod: body.paymentMethod ?? null,
+          createdByUserId: actorUserId,
+          notes: body.notes ?? null,
+          events: JSON.parse(JSON.stringify([createInvoiceEvent('INVOICE_CREATED', actorUserId, `Facture ${invoiceNumber} créée`)])) as Prisma.InputJsonValue,
+          items: {
+            create: computedItems,
+          },
         },
-      },
-      include: { items: true },
+        include: { items: true },
+      });
+      await tx.invoiceFinancialAccessAudit.create({ data: {
+        invoiceId: created.id,
+        actorUserId,
+        action: 'INVOICE_CREATED',
+        requestKey: `invoice-create:${randomUUID()}`,
+      } });
+      return created;
     });
 
     // Build InvoiceData for PDF rendering
@@ -264,25 +283,30 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    return privateFinancialJson({
       invoiceId: invoice.id,
       number: invoice.number,
       pdfUrl,
     }, { status: 201 });
 
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+      && error.meta?.modelName === 'Invoice' && Array.isArray(error.meta.target)
+      && error.meta.target.length === 1 && error.meta.target[0] === 'number') {
+      return privateFinancialJson({ error: 'Numéro de facture déjà utilisé' }, { status: 409 });
+    }
     if (error instanceof MillimesValidationError) {
-      return NextResponse.json({ error: error.message }, { status: 422 });
+      return privateFinancialJson({ error: error.message }, { status: 422 });
     }
     if (error instanceof InvoiceOverflowError) {
-      return NextResponse.json({
+      return privateFinancialJson({
         error: 'Dépassement de page',
         details: error.message,
       }, { status: 422 });
     }
 
-    console.error('[POST /api/admin/invoices] Error:', safeErrorSummary(error));
-    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
+    console.error('INVOICE_CREATE_FAILED');
+    return privateFinancialJson({ error: 'Erreur interne' }, { status: 500 });
   }
 }
 
@@ -292,12 +316,12 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+      return privateFinancialJson({ error: 'Non authentifié' }, { status: 401 });
     }
 
     const userRole = (session.user as { role?: string }).role;
     if (!hasStaffAccess(userRole)) {
-      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 });
+      return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -361,7 +385,7 @@ export async function GET(request: NextRequest) {
       prisma.invoice.count({ where }),
     ]);
 
-    return NextResponse.json({
+    return privateFinancialJson({
       invoices,
       pagination: {
         page,
@@ -371,8 +395,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
-  } catch (error) {
-    console.error('[GET /api/admin/invoices] Error:', safeErrorSummary(error));
-    return NextResponse.json({ error: 'Erreur interne' }, { status: 500 });
+  } catch {
+    console.error('STAFF_INVOICE_LIST_FAILED');
+    return privateFinancialJson({ error: 'Erreur interne' }, { status: 500 });
   }
 }

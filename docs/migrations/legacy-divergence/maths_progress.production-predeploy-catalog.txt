@@ -1,0 +1,38 @@
+col|bacChecklistCompletions|int4|YES|
+col|badges|_text|NO|'{}'::text[]
+col|bestCombo|int4|NO|0
+col|comboCount|int4|NO|0
+col|completedChapters|_text|NO|'{}'::text[]
+col|createdAt|timestamp|NO|CURRENT_TIMESTAMP
+col|dailyChallenge|jsonb|NO|'{}'::jsonb
+col|diagnosticResults|jsonb|YES|
+col|errorTags|jsonb|YES|
+col|eulerMaxSteps|int4|NO|0
+col|exerciseResults|jsonb|NO|'{}'::jsonb
+col|formulaireViewed|bool|NO|false
+col|grandOralSeen|int4|NO|0
+col|hintPenaltyXp|int4|YES|
+col|hintUsage|jsonb|NO|'{}'::jsonb
+col|id|text|NO|
+col|labArchimedeOpened|bool|NO|false
+col|lastActivityDate|text|YES|
+col|level|MathsLevel|NO|
+col|masteredChapters|_text|NO|'{}'::text[]
+col|newtonBestIterations|int4|YES|
+col|printedFiche|bool|NO|false
+col|quizScore|int4|NO|0
+col|srsQueue|jsonb|NO|'{}'::jsonb
+col|streakFreezes|int4|NO|0
+col|streak|int4|NO|0
+col|timePerChapter|jsonb|YES|
+col|totalXp|int4|NO|0
+col|track|AcademicTrack|NO|'EDS_GENERALE'::"AcademicTrack"
+col|updatedAt|timestamp|NO|
+col|userId|text|NO|
+con|maths_progress_pkey|PRIMARY KEY (id)
+con|maths_progress_userId_fkey|FOREIGN KEY ("userId") REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE
+enum|AcademicTrack|EDS_GENERALE,STMG,STI2D,ST2S,STL,STD2A,STMG_NON_LYCEEN,COLLEGE
+idx|maths_progress_pkey|CREATE UNIQUE INDEX maths_progress_pkey ON public.maths_progress USING btree (id)
+idx|maths_progress_track_idx|CREATE INDEX maths_progress_track_idx ON public.maths_progress USING btree (track)
+idx|maths_progress_userId_idx|CREATE INDEX "maths_progress_userId_idx" ON public.maths_progress USING btree ("userId")
+idx|maths_progress_userId_level_track_key|CREATE UNIQUE INDEX "maths_progress_userId_level_track_key" ON public.maths_progress USING btree ("userId", level, track)

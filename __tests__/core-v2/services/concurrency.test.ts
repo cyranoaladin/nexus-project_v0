@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * §AB — concurrent attempts against a real PostgreSQL Core v2 database. Each
  * case runs two conflicting operations at the same time and proves that
@@ -84,6 +85,8 @@ describe('§AB concurrency matrix', () => {
     const ctx = h.ctx();
     const { household, parent } = await createHousehold(client, ctx, { parent: { firstName: 'A', lastName: 'B', email: 'a@example.com' } });
     const { parent: parent2 } = await createParent(client, ctx, { householdId: household.id, parent: { firstName: 'C', lastName: 'D', email: 'c@example.com' } });
+    await verifyHouseholdParent(client, ctx, { householdId: household.id, parentUserId: parent.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
+    await verifyHouseholdParent(client, ctx, { householdId: household.id, parentUserId: parent2.id, expectedRevision: 0, evidenceDigest: 'b'.repeat(64) });
     const { fulfilled } = await race(
       () => setPrimaryContact(client, h.ctx(), { householdId: household.id, parentUserId: parent.id }),
       () => setPrimaryContact(client, h.ctx(), { householdId: household.id, parentUserId: parent2.id }),

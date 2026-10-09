@@ -1,3 +1,5 @@
+import { navigateDocument } from '@/lib/browser-navigation';
+jest.mock('@/lib/browser-navigation', () => ({ navigateDocument: jest.fn(), reloadDocument: jest.fn() }));
 /**
  * P2 §8/§10, hotfix branding salon §8/§9 — reset manuel toujours
  * accessible (désormais via le menu Options desktop / bouton direct
@@ -27,7 +29,7 @@ describe('DemoChrome — reset manuel (menu Options desktop)', () => {
     fireEvent.click(screen.getByLabelText('Options'));
     const resetButton = screen.getByRole('menuitem', { name: /réinitialiser l'espace/i });
     fireEvent.click(resetButton);
-    expect(window.location.href).toContain('/demo/utica-2026');
+    expect(navigateDocument).toHaveBeenCalledWith('/demo/utica-2026');
   });
 
   test('le menu Options ouvre la transparence sur les données affichées', () => {

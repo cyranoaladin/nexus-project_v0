@@ -110,6 +110,14 @@ export async function register() {
     const { startDiagnosticProcessingScheduler } = await import('./lib/core-v2/diagnostics/processing-scheduler');
     startDiagnosticProcessingScheduler();
 
+    const { startAccountEmailHandoffScheduler } = await import('./lib/core-v2/accounts/email-handoff-scheduler');
+    try {
+      await startAccountEmailHandoffScheduler();
+    } catch {
+      console.error('ACCOUNT_EMAIL_HANDOFF_STARTUP_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
+
     const { startCoreV2AriaRecoveryScheduler } = await import('./lib/core-v2/aria/recovery-scheduler');
     try {
       startCoreV2AriaRecoveryScheduler();

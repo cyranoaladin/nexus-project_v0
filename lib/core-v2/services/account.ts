@@ -5,30 +5,47 @@
  *   PENDING_ACTIVATION --activate(token)--> ACTIVE --suspend--> SUSPENDED --reactivate--> ACTIVE
  *   {PENDING_ACTIVATION, ACTIVE, SUSPENDED} --disable--> DISABLED (terminal)
  *
- * Invitation tokens: 32 random bytes, base64url on the wire, sha256 at rest;
+ * Invitation tokens: 32 random bytes, version/key-id plus base64url on the wire, dedicated HMAC-SHA256 at rest;
  * the raw token is returned ONCE to the caller (mail layer) and never logged
  * or audited. Password hashes: bcrypt, same cost as the live app so a
  * migrated hash stays verifiable without a forced reset.
  */
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
+import { accountTokenDigest, createAccountToken } from '../account-token';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import type { Invitation, PrismaClient, User } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { getInvitationTtlMs, getPasswordResetTtlMs } from '../config';
 import { normalizeEmail } from '../contact';
-import { ConflictError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
-import { assertCapability } from '../rbac';
+import { ConflictError, ForbiddenError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
+import { assertActorOwnsIdentity, assertCapability } from '../rbac';
 import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
+import { newPasswordSchema as passwordSchema } from '@/lib/security/password-policy';
+import { openAccountEmailHandoff, sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { CoreV2JobType } from '../client';
 
 const BCRYPT_COST = 12;
-const INVITATION_TOKEN_BYTES = 32;
-const passwordSchema = z.string().min(8).max(200);
 
-function hashInvitationToken(rawToken: string): string {
-  return createHash('sha256').update(rawToken).digest('hex');
+async function persistAccountEmailHandoff(tx: Tx, user: User, issuance: Invitation, rawToken: string, at: Date, commandKey?: string): Promise<string> {
+  if (!user.email) throw new InvalidStateError('Account email is required.');
+  const envelope = sealAccountEmailHandoff({
+    purpose: issuance.purpose, userId: user.id, issuanceId: issuance.id,
+    role: user.role, email: user.email,
+    displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
+    rawToken, expiresAt: issuance.expiresAt.toISOString(),
+  });
+  const job = await tx.coreV2JobOutbox.create({
+    data: {
+      jobType: CoreV2JobType.ACCOUNT_EMAIL_HANDOFF,
+      aggregateType: 'ACCOUNT_EMAIL_HANDOFF', aggregateId: issuance.id,
+      idempotencyKey: commandKey ?? `account-email-handoff:v1:${issuance.id}`,
+      payload: envelope, availableAt: at,
+    }, select: { id: true },
+  });
+  return job.id;
 }
 
 async function issueInvitation(
@@ -36,7 +53,8 @@ async function issueInvitation(
   ctx: ServiceContext,
   user: User,
   action: 'account.invited' | 'account.invitation_resent',
-): Promise<{ invitation: Invitation; rawToken: string; revokedCount: number }> {
+  commandKey?: string,
+): Promise<{ invitation: Invitation; rawToken: string; revokedCount: number; handoffId: string }> {
   if (user.accountStatus !== 'PENDING_ACTIVATION') {
     throw new InvalidStateError(`Only a PENDING_ACTIVATION account can be invited (is ${user.accountStatus}).`, {
       userId: user.id,
@@ -51,14 +69,14 @@ async function issueInvitation(
     where: { userId: user.id, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null },
     data: { revokedAt: now },
   });
-  const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
+  const { rawToken, tokenHash } = createAccountToken('ACTIVATION');
   let invitation: Invitation;
   try {
     invitation = await tx.invitation.create({
       data: {
         userId: user.id,
         purpose: 'ACTIVATION',
-        tokenHash: hashInvitationToken(rawToken),
+        tokenHash,
         expiresAt: new Date(now.getTime() + getInvitationTtlMs()),
         issuedById: ctx.actor.userId,
       },
@@ -77,15 +95,17 @@ async function issueInvitation(
     correlationId: ctx.correlationId,
     metadata: { userId: user.id, revokedPrior: revoked.count, expiresAt: invitation.expiresAt.toISOString() },
   });
-  return { invitation, rawToken, revokedCount: revoked.count };
+  const handoffId = await persistAccountEmailHandoff(tx, user, invitation, rawToken, now, commandKey);
+  return { invitation, rawToken, revokedCount: revoked.count, handoffId };
 }
 
-export type IssuedInvitation = { invitation: Invitation; rawToken: string; email: string };
+export type IssuedInvitation = { invitation: Invitation; rawToken: string; email: string; handoffId: string };
 
 export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
   return inTransaction(client, async (tx) => {
+    await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
     const open = await tx.invitation.count({ where: { userId, purpose: 'ACTIVATION', consumedAt: null, revokedAt: null, expiresAt: { gt: ctx.now() } } });
@@ -93,19 +113,41 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
       throw new InvalidStateError('An open invitation already exists; use resendInvitation.', { userId });
     }
     const issued = await issueInvitation(tx, ctx, user, 'account.invited');
-    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string };
+    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
 }
 
-/** Idempotent resend: always revokes any prior open invitation and issues exactly one new token. */
-export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
+/** A new resend revokes the prior invitation; command-level retry identity is separate. */
+export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string } = {}): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
+  const commandId = options.commandId === undefined ? undefined : parseInput(z.string().uuid(), options.commandId);
+  const commandKey = commandId === undefined ? undefined : `account-resend-command:v1:${ctx.actor.userId}:${commandId}`;
   return inTransaction(client, async (tx) => {
+    const openWhere = { userId, purpose: 'ACTIVATION' as const, consumedAt: null, revokedAt: null };
+    const before = await tx.invitation.findFirst({ where: openWhere, select: { id: true } });
+    await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
-    const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent');
-    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string };
+    if (commandKey) {
+      const prior = await tx.coreV2JobOutbox.findUnique({ where: { idempotencyKey: commandKey } });
+      if (prior) {
+        const content = openAccountEmailHandoff(prior.payload, prior.aggregateId);
+        if (content.purpose !== 'ACTIVATION' || content.userId !== userId) throw new ConflictError('Command identity is already bound to another request.');
+        const invitation = await tx.invitation.findUnique({ where: { id: content.issuanceId } });
+        if (!invitation || invitation.userId !== userId || invitation.purpose !== 'ACTIVATION' ||
+          invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= ctx.now() ||
+          user.accountStatus !== 'PENDING_ACTIVATION' || user.email !== content.email || user.role !== content.role ||
+          invitation.tokenHash !== accountTokenDigest(content.rawToken, 'ACTIVATION') || prior.status === 'FAILED_FINAL') {
+          throw new InvalidStateError('The prior resend command is no longer eligible.');
+        }
+        return { invitation, rawToken: content.rawToken, email: content.email, handoffId: prior.id };
+      }
+    }
+    const current = await tx.invitation.findFirst({ where: openWhere, select: { id: true } });
+    if (current?.id !== before?.id) throw new ConflictError('The invitation changed while this resend was waiting.');
+    const issued = await issueInvitation(tx, ctx, user, 'account.invitation_resent', commandKey);
+    return { invitation: issued.invitation, rawToken: issued.rawToken, email: user.email as string, handoffId: issued.handoffId };
   });
 }
 
@@ -126,8 +168,10 @@ export async function inspectInvitation(
   now: () => Date = () => new Date(),
 ): Promise<InvitationPreview | null> {
   if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return null;
+  const tokenHash = accountTokenDigest(rawToken, 'ACTIVATION');
+  if (!tokenHash) return null;
   const invitation = await client.invitation.findUnique({
-    where: { tokenHash: hashInvitationToken(rawToken) },
+    where: { tokenHash },
     include: { user: { select: { email: true, role: true, firstName: true, accountStatus: true } } },
   });
   if (!invitation || invitation.purpose !== 'ACTIVATION' || invitation.consumedAt || invitation.revokedAt || invitation.expiresAt <= now()) return null;
@@ -152,9 +196,13 @@ export async function activateAccount(
 ): Promise<User> {
   const input = parseInput(activateSchema, rawInput);
   const now = options.now ?? (() => new Date());
-  const tokenHash = hashInvitationToken(input.rawToken);
+  const tokenHash = accountTokenDigest(input.rawToken, 'ACTIVATION');
+  if (!tokenHash) throw new NotFoundError('Invitation not found or no longer valid.');
 
   return inTransaction(client, async (tx) => {
+    const initial = await tx.invitation.findUnique({ where: { tokenHash }, select: { userId: true } });
+    if (!initial) throw new NotFoundError('Invitation not found or no longer valid.');
+    await lockAccountLifecycle(tx, initial.userId);
     const invitation = await tx.invitation.findUnique({ where: { tokenHash } });
     if (!invitation || invitation.purpose !== 'ACTIVATION') throw new NotFoundError('Invitation not found or no longer valid.');
     const at = now();
@@ -251,33 +299,54 @@ export async function disableAccount(client: PrismaClient, ctx: ServiceContext, 
   });
 }
 
-const changePasswordSchema = z.object({ userId: idSchema, newPassword: passwordSchema });
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1).max(200),
+  newPassword: passwordSchema,
+}).strict();
 
-/** Sets a new password and revokes every existing session (sessionVersion bump) in the same write. */
+/** Self-service only: the authenticated actor owns the identity, never the body. */
 export async function changePassword(
   client: PrismaClient,
+  ctx: ServiceContext,
   rawInput: z.input<typeof changePasswordSchema>,
-  options: { correlationId?: string } = {},
 ): Promise<{ sessionVersion: number }> {
   const input = parseInput(changePasswordSchema, rawInput);
+  const user = await client.user.findUnique({ where: { id: ctx.actor.userId } });
+  const matches = await bcrypt.compare(input.currentPassword, user?.password ?? (await dummyHash()));
+  if (!user || !user.password || !matches || user.accountStatus !== 'ACTIVE') {
+    throw new ForbiddenError('Current credentials could not be verified.');
+  }
+  assertActorOwnsIdentity(ctx.actor, user);
   const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
   return inTransaction(client, async (tx) => {
     const moved = await tx.user.updateMany({
-      where: { id: input.userId, accountStatus: 'ACTIVE' },
+      where: {
+        id: user.id, accountStatus: 'ACTIVE', role: user.role,
+        password: user.password, sessionVersion: user.sessionVersion,
+      },
       data: { password, sessionVersion: { increment: 1 } },
     });
-    if (moved.count !== 1) throw new InvalidStateError('Password can only be changed on an ACTIVE account.', { userId: input.userId });
-    const user = await tx.user.findUniqueOrThrow({ where: { id: input.userId }, select: { sessionVersion: true } });
+    if (moved.count !== 1) throw new ConflictError('Credentials changed concurrently. Please sign in again.');
+    await tx.invitation.updateMany({
+      where: { userId: user.id, purpose: 'PASSWORD_RESET', consumedAt: null, revokedAt: null },
+      data: { revokedAt: ctx.now() },
+    });
+    const sessionVersion = user.sessionVersion + 1;
     await appendAuditEvent(tx, {
-      actorUserId: input.userId,
+      actorUserId: user.id,
       action: 'account.password_changed',
       subjectType: 'User',
-      subjectId: input.userId,
-      correlationId: options.correlationId ?? `password-change:${input.userId}:${user.sessionVersion}`,
-      metadata: { sessionVersion: user.sessionVersion },
+      subjectId: user.id,
+      correlationId: ctx.correlationId,
+      metadata: { sessionVersion, sessionsRevoked: true },
     });
-    return user;
+    return { sessionVersion };
   });
+}
+
+/** Account lifecycle writers lock User before Invitation, matching handoff recovery. */
+async function lockAccountLifecycle(tx: Tx, userId: string): Promise<void> {
+  await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${userId} FOR UPDATE`;
 }
 
 // ── Password reset (§AL/§AT) ─────────────────────────────────────────────────
@@ -287,8 +356,9 @@ export interface IssuedPasswordReset {
   readonly email: string;
   readonly displayName: string;
   readonly rawToken: string;
-  readonly tokenHash: string;
+  readonly resetId: string;
   readonly expiresAt: Date;
+  readonly handoffId: string;
 }
 
 const requestResetSchema = z.object({ email: z.string().trim().min(3).max(320) });
@@ -315,15 +385,17 @@ export async function requestPasswordReset(
   const now = options.now ?? (() => new Date());
   const ttl = getPasswordResetTtlMs();
   return inTransaction(client, async (tx) => {
-    const user = await tx.user.findUnique({ where: { email } });
+    const found = await tx.user.findUnique({ where: { email }, select: { id: true } });
+    if (!found) return null;
+    await lockAccountLifecycle(tx, found.id);
+    const user = await tx.user.findUnique({ where: { id: found.id } });
     if (!user || user.accountStatus !== 'ACTIVE' || !user.password || !user.email) return null;
     const at = now();
     await tx.invitation.updateMany({
       where: { userId: user.id, purpose: 'PASSWORD_RESET', consumedAt: null, revokedAt: null },
       data: { revokedAt: at },
     });
-    const rawToken = randomBytes(INVITATION_TOKEN_BYTES).toString('base64url');
-    const tokenHash = hashInvitationToken(rawToken);
+    const { rawToken, tokenHash } = createAccountToken('PASSWORD_RESET');
     let reset: Invitation;
     try {
       reset = await tx.invitation.create({
@@ -341,13 +413,15 @@ export async function requestPasswordReset(
       correlationId: options.correlationId ?? reset.id,
       metadata: { userId: user.id, expiresAt: reset.expiresAt.toISOString() },
     });
+    const handoffId = await persistAccountEmailHandoff(tx, user, reset, rawToken, at);
     return {
       userId: user.id,
       email: user.email,
       displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
       rawToken,
-      tokenHash,
+      resetId: reset.id,
       expiresAt: reset.expiresAt,
+      handoffId,
     };
   });
 }
@@ -355,8 +429,10 @@ export async function requestPasswordReset(
 /** `true` only for an open, unexpired PASSWORD_RESET token of an ACTIVE account; never consumes anything. */
 export async function inspectPasswordReset(client: PrismaClient, rawToken: string, now: () => Date = () => new Date()): Promise<boolean> {
   if (typeof rawToken !== 'string' || rawToken.length < 16 || rawToken.length > 128) return false;
+  const tokenHash = accountTokenDigest(rawToken, 'PASSWORD_RESET');
+  if (!tokenHash) return false;
   const reset = await client.invitation.findUnique({
-    where: { tokenHash: hashInvitationToken(rawToken) },
+    where: { tokenHash },
     include: { user: { select: { accountStatus: true } } },
   });
   if (!reset || reset.purpose !== 'PASSWORD_RESET' || reset.consumedAt || reset.revokedAt || reset.expiresAt <= now()) return false;
@@ -379,10 +455,14 @@ export async function confirmPasswordReset(
 ): Promise<User> {
   const input = parseInput(confirmResetSchema, rawInput);
   const now = options.now ?? (() => new Date());
-  const tokenHash = hashInvitationToken(input.rawToken);
+  const tokenHash = accountTokenDigest(input.rawToken, 'PASSWORD_RESET');
+  if (!tokenHash) throw new NotFoundError('Reset not found or no longer valid.');
   const password = await bcrypt.hash(input.newPassword, BCRYPT_COST);
 
   return inTransaction(client, async (tx) => {
+    const found = await tx.invitation.findUnique({ where: { tokenHash }, select: { userId: true } });
+    if (!found) throw new NotFoundError('Reset link not found or no longer valid.');
+    await lockAccountLifecycle(tx, found.userId);
     const reset = await tx.invitation.findUnique({ where: { tokenHash } });
     if (!reset || reset.purpose !== 'PASSWORD_RESET') throw new NotFoundError('Reset link not found or no longer valid.');
     const at = now();

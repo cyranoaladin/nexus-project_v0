@@ -1,14 +1,17 @@
-import { auth } from '@/auth';
-jest.mock('@/lib/prisma', () => ({
-  prisma: {
+import { NextRequest } from 'next/server';
+jest.mock('@/lib/prisma', () => {
+  const client = {
+    $queryRaw: jest.fn(async () => [{ id: 'stage-1' }]),
+    stage: { findUnique: jest.fn() },
     stageReservation: {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
     },
-  },
-}));
+  };
+  return { prisma: { ...client, $transaction: jest.fn(async (callback: (tx: typeof client) => Promise<unknown>) => callback(client)) } };
+});
 
 jest.mock('@/lib/email', () => ({
   sendStageDiagnosticInvitation: jest.fn().mockResolvedValue(undefined),
@@ -41,13 +44,10 @@ import { POST } from '@/app/api/reservation/route';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 
-function makeRequest(body?: any) {
-  return {
-    json: async () => body,
-    headers: new Headers({ 'x-forwarded-for': '127.0.0.1' }),
-    url: 'http://localhost:3000/api/reservation',
-    nextUrl: { searchParams: new URLSearchParams() },
-  } as any;
+function makeRequest(body?: unknown) {
+  return new NextRequest('http://localhost:3000/api/reservation', {
+    method: 'POST', headers: { 'x-forwarded-for': '127.0.0.1' }, body: JSON.stringify(body),
+  });
 }
 
 const validBody = {
@@ -63,7 +63,7 @@ const validBody = {
 describe('POST /api/reservation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global as any).fetch = jest.fn();
+    jest.mocked(prisma.stage.findUnique).mockResolvedValue({ id: 'stage-1', slug: 'academy-1', title: 'Canonical stage', priceAmount: 150 } as never);
     // No existing reservation by default
     (prisma.stageReservation.findUnique as jest.Mock).mockResolvedValue(null);
     (prisma.stageReservation.create as jest.Mock).mockResolvedValue({ id: 'res-1' });
@@ -90,7 +90,7 @@ describe('POST /api/reservation', () => {
     await POST(makeRequest(validBody));
 
     expect(enqueueEmailIntent).toHaveBeenCalledWith(
-      prisma,
+      expect.objectContaining({ stageReservation: prisma.stageReservation }),
       expect.objectContaining({
         aggregateId: 'res-1',
         subject: expect.stringContaining('Nouveau lead chaud'),

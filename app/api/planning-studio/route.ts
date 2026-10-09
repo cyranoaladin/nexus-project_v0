@@ -24,7 +24,7 @@ const putSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const guard = await apiGuard({ policy: 'planning-studio.read' });
+  const guard = await apiGuard({ policy: 'planning-studio.read', action: 'read' });
   if (isErrorResponse(guard)) return guard;
   try {
     const doc = await planningService.getOrInitDocument(guard.user.id);
@@ -59,7 +59,7 @@ export async function PUT(request: NextRequest) {
   const csrfError = checkCsrf(request);
   if (csrfError) return csrfError;
 
-  const guard = await apiGuard({ policy: 'planning-studio.write' });
+  const guard = await apiGuard({ policy: 'planning-studio.write', action: 'mutation' });
   if (isErrorResponse(guard)) return guard;
   let body: unknown;
   try {

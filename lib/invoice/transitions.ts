@@ -13,6 +13,8 @@
  *   CANCELLED → (terminal)
  */
 
+import { UserRole } from '@prisma/client';
+import { can } from '@/lib/rbac/permissions';
 import type { InvoiceStatusType } from './types';
 import { assertMillimes, MillimesValidationError } from './types';
 
@@ -164,10 +166,11 @@ export function validateTransition(
 
 /**
  * Check if a role can perform status actions on invoices.
- * Only ADMIN and ASSISTANTE can change invoice status.
+ * Invoice writes require the canonical PAYMENT UPDATE permission.
  */
 export function canPerformStatusAction(role: string | undefined): boolean {
-  return role === 'ADMIN' || role === 'ASSISTANTE';
+  const canonicalRole = Object.values(UserRole).find(candidate => candidate === role);
+  return canonicalRole !== undefined && can(canonicalRole, 'UPDATE', 'PAYMENT');
 }
 
 /**

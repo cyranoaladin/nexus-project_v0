@@ -1,6 +1,7 @@
 /** @jest-environment node */
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { basename, join, relative } from 'node:path';
 import ts from 'typescript';
 import { parse as parseYaml } from 'yaml';
@@ -36,6 +37,7 @@ const EXPECTED_CONTAINER_SURFACES = [
 ] as const;
 
 const SCAN_EXCLUDED_DIRECTORIES = new Set([
+  '.artifacts', // Private proof/build copies are not active deployment sources.
   '.git',
   '.next',
   '.worktrees',
@@ -729,6 +731,19 @@ describe('NPC storage and unavailable-state architecture contract', () => {
       /\b(?:DROP|RENAME|TRUNCATE|UPDATE|INSERT|DELETE|MERGE)\b|\bALTER\s+COLUMN\b/i,
     );
     expect(migration).not.toMatch(/\bc[a-z0-9]{24}\b/i);
+  });
+
+  test('keeps private build evidence out of active container discovery', () => {
+    const isolated = mkdtempSync(join(tmpdir(), 'npc-container-discovery-'));
+    try {
+      mkdirSync(join(isolated, '.artifacts', 'private-build'), { recursive: true });
+      writeFileSync(join(isolated, 'Dockerfile'), '# active synthetic fixture');
+      writeFileSync(join(isolated, '.artifacts', 'private-build', 'Dockerfile'), '# frozen proof');
+      const surfaces = discoverContainerSurfaces(isolated);
+      expect(surfaces.some(file => file.includes('/.artifacts/'))).toBe(false);
+      expect(surfaces).toHaveLength(1);
+      expect(basename(surfaces[0])).toBe('Dockerfile');
+    } finally { rmSync(isolated, { recursive: true, force: true }); }
   });
 
   test('scans every active container surface for legacy NPC storage contracts', () => {

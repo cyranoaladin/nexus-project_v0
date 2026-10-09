@@ -14,6 +14,7 @@ const expectedRoles = {
   student2: UserRole.ELEVE,
   studentSurvival: UserRole.ELEVE,
   coach: UserRole.COACH,
+  coachV1: UserRole.COACH,
   coach2: UserRole.COACH,
   assistante: UserRole.ASSISTANTE,
   zenon: UserRole.COACH,

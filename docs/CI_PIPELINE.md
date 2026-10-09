@@ -501,8 +501,29 @@ GitHub Repo → Security → Code scanning alerts
 ### Build Artifacts
 
 **Artifacts**:
-- `nextjs-build` - `.next/` folder
+- `nextjs-build` - archive serveur `nexus-build.tar.gz.gpg` chiffrée pour
+  `security/release-recipient.asc`, checksums SHA-256 de l'archive claire et du
+  ciphertext, manifeste de release et SBOM. Le dépôt et ses artefacts Actions
+  sont publics : les manifestes serveur Next contiennent des clés et ne doivent
+  jamais être téléversés en clair. Le workflow Preview applique le même contrat.
 - Build size report (Step Summary)
+
+La clé privée de déchiffrement est conservée hors GitHub et hors serveur de
+production dans le stockage opérateur protégé. La clé publique de release du
+8 octobre 2026 a pour empreinte `F5C389FD736C9245E138053E37904E99C9919CF5`.
+La clé publique ne constitue pas une signature : avant déchiffrement, vérifier
+le run GitHub, le SHA approuvé, les checks et le digest du téléchargement.
+Déchiffrer dans un emplacement privé, exiger un retour GPG zéro, puis comparer
+le SHA-256 de l'archive claire avant extraction. Ne jamais ouvrir les clés Next
+dans les logs. Vérifier les chemins et modes de l'archive, le manifeste et les
+fichiers avant de démarrer exactement ce bundle.
+
+Les anciens artefacts publiés en clair sont inéligibles à une nouvelle promotion,
+y compris comme repli. Leur chiffrement rétroactif ne révoque pas les clés
+exposées. Le prochain build doit partir d'un runner propre, sans cache `.next`
+ni ancien `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`. La rotation des clés Next doit
+être comparée en mémoire avec un résultat booléen seulement. La qualification
+et le rollback portent sur les octets déchiffrés du nouvel artefact immuable.
 
 ---
 

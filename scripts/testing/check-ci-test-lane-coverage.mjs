@@ -39,6 +39,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { discoverRunnerNpmScripts } from './npm-runner-invocations.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const workflowDir = path.join(repoRoot, '.github', 'workflows');
@@ -123,7 +124,11 @@ function resolveCommands() {
 
     for (const [, runner] of command.matchAll(RUNNER_SCRIPT)) {
       const runnerPath = path.join(repoRoot, runner);
-      if (existsSync(runnerPath)) commands.push(readFileSync(runnerPath, 'utf8'));
+      if (existsSync(runnerPath)) {
+        const source = readFileSync(runnerPath, 'utf8');
+        commands.push(source);
+        for (const nested of discoverRunnerNpmScripts(source, runner.endsWith('.sh') ? 'shell' : 'typescript')) pending.push(nested);
+      }
     }
   }
 

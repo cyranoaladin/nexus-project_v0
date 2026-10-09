@@ -86,6 +86,14 @@ describe('POST /api/npc/uploads', () => {
     });
   });
 
+  it.each([['DOCUMENT_REJECTED', 422], ['DOCUMENT_SCAN_UNAVAILABLE', 503]])('fails closed for scanner outcome %s', async (code, status) => {
+    (npcStorage.saveUploadedFile as jest.Mock).mockResolvedValue({ success: false, error: code });
+    const response = await POST(makeUploadRequest({ studentId: 'student-1', title: 'Copie bac blanc', subject: 'MATHEMATIQUES', documentType: 'STUDENT_COPY', file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }) }));
+    expect(response.status).toBe(status);
+    expect(await response.json()).toEqual({ error: code });
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+  });
+
   it('authenticates before parsing multipart data', async () => {
     (auth as jest.Mock).mockResolvedValue(null);
     const request = {

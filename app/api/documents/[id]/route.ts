@@ -1,10 +1,8 @@
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
-import { UserRole } from '@prisma/client';
-import { serializeError } from '@/lib/utils/serialize-error';
 import { z } from 'zod';
+import { readAuthorizedDocument } from '@/lib/documents/read-authority';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import {
   openSecureDocument,
@@ -16,17 +14,6 @@ import {
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
 });
-
-function isStaffRole(role: string | undefined): boolean {
-  return role === UserRole.ADMIN || role === UserRole.ASSISTANTE;
-}
-
-function buildDocumentOwnershipWhere(id: string, userId: string, role: string | undefined) {
-  if (isStaffRole(role)) {
-    return { id };
-  }
-  return { id, userId };
-}
 
 export async function GET(
   _request: NextRequest,
@@ -43,28 +30,10 @@ export async function GET(
       return new NextResponse('Bad Request', { status: 400 });
     }
     const { id } = parsedParams.data;
-    const userRole = session.user.role as UserRole | undefined;
-
-    const document = await prisma.userDocument.findFirst({
-      where: buildDocumentOwnershipWhere(id, session.user.id, userRole),
-      select: {
-        id: true,
-        userId: true,
-        localPath: true,
-        mimeType: true,
-        originalName: true,
-        sizeBytes: true,
-      },
-    });
-
-    if (!document) {
-      return new NextResponse('Document not found', { status: 404 });
-    }
-
-    // Ownership check: staff can access any; others only their own
-    if (!isStaffRole(userRole) && document.userId !== session.user.id) {
-      return new NextResponse('Document not found', { status: 404 });
-    }
+    const access = await readAuthorizedDocument(id, session.user);
+    if (access.status === 'DENIED') return access.response;
+    const document = access.document;
+    if (document.unavailableReason) return new NextResponse(document.unavailableReason, { status: 410 });
 
     let secureDoc;
     try {
@@ -98,8 +67,8 @@ export async function GET(
       await secureDoc.handle.close().catch(() => {});
       return new NextResponse('File content not found', { status: 404 });
     }
-  } catch (error) {
-    console.error('[Download Error]', serializeError(error));
+  } catch {
+    console.error('[documents] unexpected download error', { code: 'DOCUMENT_READ_UNEXPECTED_ERROR', route: 'document' });
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

@@ -12,6 +12,7 @@ jest.mock('@/auth', () => ({
 
 import { GET } from '@/app/api/student/documents/route';
 import { auth } from '@/auth';
+import { STUDENT_DOCUMENT_SCOPES } from '@/lib/documents/student-visibility';
 
 const mockAuth = auth as jest.Mock;
 
@@ -62,7 +63,7 @@ describe('GET /api/student/documents', () => {
     expect(body.documents[0].title).toBe('Bilan Maths');
     expect(prisma.userDocument.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { userId: 'u1' },
+        where: { userId: 'u1', visibilityScope: { in: [...STUDENT_DOCUMENT_SCOPES] } },
         orderBy: { createdAt: 'desc' },
       })
     );

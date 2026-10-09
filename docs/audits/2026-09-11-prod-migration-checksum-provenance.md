@@ -195,3 +195,48 @@ resolved by any command available today. It is, however, **empirically confirmed
 current or near-term `prisma migrate deploy`**, so it does not need to hold up this PR or any other
 in-flight work. It closes only via the Option B baseline, after an explicit schema freeze the
 owner calls.
+
+## Update 2026-10-07 — KEEP_GUARDED_PLUS_FORWARD_RECONCILIATION (`KNOWN_BOUNDED_LEGACY_DIVERGENCE=1`)
+
+Owner decision (2026-10-07): the unguarded 418-byte production body must **not** be restored into
+the executable tree — doing so breaks any from-empty rebuild (the historical `ALTER TABLE
+maths_progress` runs before the table is created by `20260501000000`). The historical migration
+`20260425113000_add_maths_progress_track` stays **byte-identical** in Git (guarded,
+`f861094720e680a4a3da7bf8930d7252a6f3df2fc86f322c5029fd246acb7893`); production keeps its applied
+checksum (`26c3aea41f0c83a272ee73658630b14e2229bc28295a4733da2522232a04c2d4`). The divergence count
+is **exactly one** and is now declared and machine-enforced:
+
+- **Forward-only reconciliation**: `prisma/migrations/20261007120000_reconcile_maths_progress_track`
+  runs after the table exists; fails closed if the table is absent; adds `track` only if missing
+  (canonical `AcademicTrack NOT NULL DEFAULT 'EDS_GENERALE'`); otherwise asserts type, nullability,
+  default and the two canonical indexes; non-destructive; idempotent.
+- **Machine-readable exception**: `security/migration-checksum-exceptions.json` (single bounded
+  tuple, provenance of both bodies, cause, owner, tracking issue, remediation deadline
+  **2026-11-07**, `blocksGoLive: false`) with **phase-bound fingerprints** — no fingerprint is
+  accepted outside its phase:
+  - `PRE_PENDING` (production lineage recognized, divergence present, reconciliation not applied):
+    exact pre-deploy journal `c2145ffc9f88f1f41e93d180f8cbf1d384a93e7b262984415aa9ac4c8535dddc`
+    (107 applied migrations, name|checksum) **and** pre-deploy catalog
+    `b4bb929830fcf4e6660e4065ff05feef2149e21d662f6c5f04ad8955960c6af9`
+    (`maths_progress_userId_fkey` still ON DELETE CASCADE);
+  - `POST_APPLIED` / `ALREADY_RECONCILED`: applied migrations == repository set, only the declared
+    divergence, lineage unchanged, final catalog
+    `f45583f91f5dd4db3285e38ffd06ae07a32711ca96d841c330eeb0140b96c70d` (ON DELETE RESTRICT); the
+    pre-deploy catalog is explicitly refused after application.
+  Both PRE fingerprints were re-measured read-only on live production (PostgreSQL 15.17) on
+  2026-10-07 and match byte for byte; the same query reproduces them on 15.19 rehearsals.
+- **Guard**: `scripts/db/verify-migration-checksum-exceptions.mjs` (`preflight` / `postflight`
+  against a read-only database snapshot, plus `--static`, `--journal`, `--catalog-sha … --phase`).
+  Wired into `scripts/db/preflight-2026-10-go-live.sh` (legacy mode, writes the phase state),
+  `scripts/db/postflight-2026-10-go-live.sh` (consumes it), the CI Integration job (from-empty
+  POST_APPLIED, then ALREADY_RECONCILED across a no-op second deploy) and the governance lane
+  (`__tests__/governance/migration-checksum-exceptions.test.js`).
+- **Evidence (out of the active migrations tree)**, under `docs/migrations/legacy-divergence/`: the
+  exact production body (`20260425113000_add_maths_progress_track.prod-applied.sql`), the
+  reproducible catalog query (`maths_progress.catalog.sql`), the pre-deploy and final catalogs
+  (38 objects each) and the production pre-deploy journal.
+
+Verified 2026-10-07 against the real production `_prisma_migrations` journal: the **only** migration
+whose journal checksum differs from the Git tree body is this one tuple (guard `--journal` = PASS).
+The Option B squash/baseline remediation remains a separate, owner-scheduled workstream (deadline
+2026-11-07) and is deliberately not improvised in this convergence.

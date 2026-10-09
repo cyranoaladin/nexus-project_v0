@@ -21,6 +21,7 @@ import type { Subject } from '@prisma/client';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { SecureFileAccessError, openSecureDocument, type SecureDocument } from '@/lib/documents/secure-file-access';
 import { prisma } from '@/lib/prisma';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
 
 import { loadWorkForActor } from './access';
 import { getActivityDef } from './catalog';
@@ -97,6 +98,13 @@ export async function saveAttachment(
   await writeFile(absolute, file.bytes, { mode: 0o600, flag: 'wx' });
 
   try {
+    try { await scanPrivateFile(absolute); }
+    catch (error) {
+      if (error instanceof Error && error.message.startsWith('MALWARE_DETECTED')) {
+        throw new EspaceError('UPLOAD_REJECTED', 'Fichier refusé par le contrôle de sécurité.');
+      }
+      throw new EspaceError('UPLOAD_SCAN_UNAVAILABLE', 'Vérification du fichier indisponible. Réessayez ultérieurement.');
+    }
     const now = new Date();
     const row = await prisma.$transaction(async (tx) => {
       const created = await tx.espaceWorkAttachment.create({

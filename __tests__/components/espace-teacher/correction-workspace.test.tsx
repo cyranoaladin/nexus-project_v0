@@ -65,6 +65,62 @@ beforeEach(() => {
 });
 
 describe('CorrectionWorkspace', () => {
+  it('conserve une nouvelle saisie pendant l’enregistrement du commentaire précédent', async () => {
+    let resolve!: (value: unknown) => void;
+    api.addAnnotation.mockReturnValue(new Promise(r => { resolve = r; }));
+    await mount();
+    fireEvent.change(screen.getByLabelText('Commentaire'), { target: { value: 'Premier constat.' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+    fireEvent.change(screen.getByLabelText('Commentaire'), { target: { value: 'Deuxième constat à conserver.' } });
+    await act(async () => resolve({ annotation: { id: 'a1', kind: 'GENERAL', body: 'Premier constat.', stepId: null, questionId: null, lineStart: null, lineEnd: null, workRevision: 4, authorName: 'Prof T', mine: true, createdAt: '2026-10-02T10:00:00Z' } }));
+    expect(screen.getByLabelText('Commentaire')).toHaveValue('Deuxième constat à conserver.');
+    expect(screen.getByTestId('annotation')).toHaveTextContent('Premier constat.');
+  });
+
+  it('une réponse historique tardive ne remplace pas le retour à la version actuelle', async () => {
+    api.versions.mockResolvedValue({ versions: [{ id: 'v1', revision: 1, reason: 'SUBMIT', createdAt: '2026-10-01T10:00:00Z' }] });
+    let resolve!: (value: unknown) => void;
+    api.version.mockReturnValue(new Promise(r => { resolve = r; }));
+    await mount();
+    const select = await screen.findByLabelText(/Version affichée/);
+    fireEvent.change(select, { target: { value: 'v1' } });
+    fireEvent.change(select, { target: { value: '' } });
+    await act(async () => resolve({ version: { revision: 1, reason: 'SUBMIT', createdAt: '2026-10-01T10:00:00Z', content: { steps: { agir: { code: 'ancienne_trace = 1' } } } } }));
+    expect(screen.queryByText(/Vous consultez une ancienne version/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ancienne_trace/)).not.toBeInTheDocument();
+  });
+
+  it('isole le commentaire en cours quand la navigation affiche un autre élève', async () => {
+    const view = await mount();
+    fireEvent.change(screen.getByLabelText('Commentaire'), { target: { value: 'Observation réservée à Ada.' } });
+    await act(async () => {
+      view.rerender(<EspaceProvider timezone="Africa/Tunis"><CorrectionWorkspace
+        work={{ id: 'w2', status: 'SUBMITTED', revision: 2, activityTitle: 'Bilan', content: { steps: {} } }}
+        studentName="Bob B" steps={steps} attachments={[]} annotations={[]} queue={queue} isAdmin={false}
+      /></EspaceProvider>);
+    });
+    expect(screen.getByLabelText('Commentaire')).toHaveValue('');
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+    expect(api.addAnnotation).not.toHaveBeenCalled();
+  });
+
+  it('quitte la version historique du premier élève quand un autre travail est affiché', async () => {
+    api.versions.mockResolvedValue({ versions: [{ id: 'v1', revision: 1, reason: 'SUBMIT', createdAt: '2026-10-01T10:00:00Z' }] });
+    api.version.mockResolvedValue({ version: { content: { steps: { agir: { code: 'ancienne_trace_ada = 1' } } } } });
+    const view = await mount();
+    fireEvent.change(await screen.findByLabelText(/Version affichée/), { target: { value: 'v1' } });
+    expect(await screen.findByText(/Vous consultez une ancienne version/)).toBeInTheDocument();
+    await act(async () => {
+      view.rerender(<EspaceProvider timezone="Africa/Tunis"><CorrectionWorkspace
+        work={{ id: 'w2', status: 'SUBMITTED', revision: 2, activityTitle: 'Bilan', content: { steps: { agir: { code: 'trace_bob = 2' } } } }}
+        studentName="Bob B" steps={steps} attachments={[]} annotations={[]} queue={queue} isAdmin={false}
+      /></EspaceProvider>);
+    });
+    expect(screen.queryByText(/Vous consultez une ancienne version/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ancienne_trace_ada/)).not.toBeInTheDocument();
+    expect(screen.getByText(/trace_bob/)).toBeInTheDocument();
+  });
+
   it('refuse d’enregistrer un commentaire vide, avec une alerte accessible, sans appel réseau', async () => {
     await mount();
     fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));

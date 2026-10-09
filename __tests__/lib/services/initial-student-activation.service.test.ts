@@ -1,5 +1,10 @@
 jest.mock('@/lib/prisma', () => ({
-  prisma: { $transaction: jest.fn() },
+  prisma: {
+    $transaction: jest.fn(),
+    user: { findFirst: jest.fn() },
+    student: { findUnique: jest.fn() },
+    stageReservation: { findFirst: jest.fn() },
+  },
 }));
 
 import { prisma } from '@/lib/prisma';
@@ -7,6 +12,14 @@ import * as activationService from '@/lib/services/student-activation.service';
 import crypto from 'crypto';
 
 describe('initial student activation owned by a parent', () => {
+  it.each([`A1${'x'.repeat(71)}`, `A1${'é'.repeat(36)}`])(
+    'rejects a password over 72 UTF-8 bytes before looking up an activation', async (password) => {
+      await expect(activationService.completeStudentActivation(`sact_${'A'.repeat(43)}`, password))
+        .resolves.toMatchObject({ success: false, error: expect.stringContaining('72') });
+      expect(prisma.user.findFirst).not.toHaveBeenCalled();
+      expect(prisma.stageReservation.findFirst).not.toHaveBeenCalled();
+    },
+  );
   const transaction = {
     parentProfile: { findUnique: jest.fn() },
     student: { findFirst: jest.fn() },
@@ -18,6 +31,7 @@ describe('initial student activation owned by a parent', () => {
     jest.clearAllMocks();
     process.env.NEXTAUTH_URL = 'http://localhost:3000';
     (prisma.$transaction as jest.Mock).mockImplementation(async (action) => action(transaction));
+    (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-1', userId: 'child-user-1', parent: { userId: 'parent-user-1' } });
     transaction.parentProfile.findUnique.mockResolvedValue({ id: 'parent-profile-1' });
     transaction.$queryRaw.mockResolvedValue([{ id: 'student-1' }]);
     transaction.student.findFirst.mockResolvedValue({
@@ -35,15 +49,16 @@ describe('initial student activation owned by a parent', () => {
   });
 
   it('stores only the token hash and returns the raw token to the owning parent', async () => {
-    const initiate = (activationService as Record<string, unknown>).initiateParentOwnedStudentActivation;
+    const initiate = activationService.initiateParentOwnedStudentActivation;
     expect(typeof initiate).toBe('function');
 
-    const result = await (initiate as Function)({
+    const result = await initiate({
       parentUserId: 'parent-user-1',
       studentId: 'student-1',
     });
 
     expect(result.success).toBe(true);
+    if (!result.success || !result.activationUrl) throw new Error('Expected a successful activation invitation');
     const rawToken = new URL(result.activationUrl).searchParams.get('token');
     expect(rawToken).toMatch(/^sact_/);
     const storedHash = transaction.user.updateMany.mock.calls[0][0].data.activationToken;

@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Request } from '@playwright/test';
+import { observeSubmittedRequest } from '../helpers/request-completion';
 import { loginAsUser } from '../helpers/auth';
 import { resetCoreV2AriaFoundationProfile } from '../helpers/core-v2-aria-foundation';
 import { fixtureState, resetFixture } from '../aria/helpers';
@@ -130,7 +131,7 @@ test.describe('Core v2 ARIA foundation', () => {
         const sessionResponse = await page.request.get('/api/auth/session');
         expect(sessionResponse.status()).toBe(200);
         const session = (await sessionResponse.json()) as {
-          user?: { role?: string; authority?: string };
+          user?: { id?: string; role?: string; authority?: string };
         };
         expect(session.user).toMatchObject({ role: 'ELEVE', authority: 'CORE_V2' });
 
@@ -179,24 +180,65 @@ test.describe('Core v2 ARIA foundation', () => {
         await page.getByLabel('Cours ARIA').selectOption(PINNED_COURSE_KEY);
         await expect(page.getByLabel('Cours ARIA')).toHaveValue(PINNED_COURSE_KEY);
         await page.getByLabel('Message à ARIA').fill('Explique le lien entre le signe de la dérivée et les variations.');
-        const sendResponse = page.waitForResponse((response) =>
-          new URL(response.url()).pathname === '/api/v2/aria/chat' && response.request().method() === 'POST');
-        await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
-        const sent = await sendResponse;
-        expect(sent.status()).toBe(200);
-        const sentBody = (await sent.json()) as { data: {
-          conversation: { id: string };
-          turn: { status: string };
-          message: { content: string; citations: Array<{ sourceTitle: string; resourceId: string; chunkId: string }> };
-          metadata: { ragStatus?: string };
-        } };
-        expect(sentBody.data.turn.status).toBe('COMPLETED');
-        expect(sentBody.data.metadata.ragStatus).toBe('SUCCESS');
-        expect(sentBody.data.message.citations).toHaveLength(1);
+        const transport = observeSubmittedRequest<Request>(page, (request) =>
+          new URL(request.url()).pathname === '/api/v2/aria/chat' && request.method() === 'POST');
+        let clientRequestId: string;
+        try {
+          await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
+          const submitted = await transport.request;
+          clientRequestId = (submitted.postDataJSON() as { clientRequestId: string }).clientRequestId;
+          const sent = await submitted.response();
+          expect(sent?.status()).toBe(200);
+          expect(sent?.headers()['content-type']).toContain('text/event-stream');
+          const completed = await transport.completion;
+          expect(completed.request).toBe(submitted);
+          expect(completed.status).toBe('FINISHED');
+        } finally {
+          transport.dispose();
+        }
+        // The browser consumes SSE. Read business evidence through the native
+        // history API, bound to this exact submitted request, not response.json().
+        expect(session.user?.id).toBeTruthy();
+        const core = new CoreV2PrismaClient({ datasources: { db: { url: process.env.CORE_V2_DATABASE_URL } } });
+        let submittedTurn: { id: string; conversationId: string; status: string; ragStatus: string | null };
+        try {
+          const turns = await core.ariaConversationTurnCoreV2.findMany({
+            where: { actorUserId: session.user!.id!, clientRequestId, useCase: 'CONVERSATION' },
+            select: { id: true, conversationId: true, status: true, ragStatus: true },
+          });
+          expect(turns).toHaveLength(1);
+          submittedTurn = turns[0]!;
+        } finally {
+          await core.$disconnect();
+        }
+        expect(submittedTurn.status).toBe('COMPLETED');
+        expect(submittedTurn.ragStatus).toBe('SUCCESS');
+        type PersistedMessage = {
+          turnId: string; role: string; content: string; status: string; ragStatus?: string;
+          citations: Array<{ sourceTitle: string; resourceId: string; chunkId: string }>;
+        };
+        async function readSubmittedMessages(): Promise<PersistedMessage[]> {
+          const messages: PersistedMessage[] = [];
+          let cursor: string | null = null;
+          do {
+            const query = new URLSearchParams({ limit: '100', ...(cursor ? { cursor } : {}) });
+            const response = await page.request.get(`/api/v2/aria/conversations/${submittedTurn.conversationId}/messages?${query}`);
+            expect(response.status()).toBe(200);
+            const body = (await response.json()) as { data: { messages: PersistedMessage[]; nextCursor: string | null } };
+            messages.push(...body.data.messages.filter(({ turnId }) => turnId === submittedTurn.id));
+            cursor = body.data.nextCursor;
+          } while (cursor);
+          return messages;
+        }
+        const submittedMessages = await readSubmittedMessages();
+        expect(submittedMessages).toHaveLength(2);
+        const persistedAssistant = submittedMessages.find(({ role }) => role === 'ASSISTANT')!;
+        expect(persistedAssistant).toMatchObject({ status: 'COMPLETED', ragStatus: 'SUCCESS' });
+        expect(persistedAssistant.citations).toHaveLength(1);
         const chat = page.getByRole('main', { name: 'Conversation ARIA' });
         await expect(chat)
           .toContainText('Une dérivée positive sur un intervalle signifie que la fonction y est croissante.');
-        const sourceTitle = sentBody.data.message.citations[0]!.sourceTitle;
+        const sourceTitle = persistedAssistant.citations[0]!.sourceTitle;
         const liveSource = chat.getByText('1 source', { exact: true });
         await expect(liveSource).toHaveCount(1);
         await liveSource.click();
@@ -216,18 +258,15 @@ test.describe('Core v2 ARIA foundation', () => {
         await expect(reloadedSource).toHaveCount(1);
         await reloadedSource.click();
         await expect(chat.getByText(sourceTitle)).toBeVisible();
-        const historyResponse = await page.request.get(`/api/v2/aria/conversations/${sentBody.data.conversation.id}/messages`);
-        expect(historyResponse.status()).toBe(200);
-        const historyBody = (await historyResponse.json()) as { data: {
-          messages: Array<{ role: string; content: string; status: string; ragStatus?: string; citations: Array<{ sourceTitle: string; resourceId: string; chunkId: string }> }>;
-        } };
-        const reloadedAssistant = historyBody.data.messages.find(({ role }) => role === 'ASSISTANT');
+        const reloadedMessages = await readSubmittedMessages();
+        expect(reloadedMessages).toHaveLength(2);
+        const reloadedAssistant = reloadedMessages.find(({ role }) => role === 'ASSISTANT');
         expect(reloadedAssistant).toMatchObject({
-          content: sentBody.data.message.content, status: sentBody.data.turn.status,
-          ragStatus: sentBody.data.metadata.ragStatus,
+          content: persistedAssistant.content, status: submittedTurn.status,
+          ragStatus: submittedTurn.ragStatus,
         });
         expect(reloadedAssistant?.citations.map(({ sourceTitle, resourceId, chunkId }) => ({ sourceTitle, resourceId, chunkId })))
-          .toEqual(sentBody.data.message.citations.map(({ sourceTitle, resourceId, chunkId }) => ({ sourceTitle, resourceId, chunkId })));
+          .toEqual(persistedAssistant.citations.map(({ sourceTitle, resourceId, chunkId }) => ({ sourceTitle, resourceId, chunkId })));
         await expect(page.getByRole('button', { name: 'Réponse utile' })).toHaveAttribute('aria-pressed', 'true');
         await expect.poll(async () => (await fixtureState(page.request)).modelInvocations).toBe(1);
         await page.waitForLoadState('networkidle');

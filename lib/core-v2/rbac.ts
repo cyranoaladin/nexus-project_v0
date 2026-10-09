@@ -156,6 +156,11 @@ export function roleHasCapability(role: UserRole, capability: Capability): boole
   return CAPABILITY_MATRIX[role]?.has(capability) ?? false;
 }
 
+/** Boolean role decision for fail-closed read models; role comparisons stay centralized. */
+export function subjectHasRole(subject: { readonly role: UserRole }, expected: UserRole): boolean {
+  return subject.role === expected;
+}
+
 export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return CAPABILITIES.filter((c) => roleHasCapability(role, c));
 }
@@ -197,5 +202,15 @@ export function assertSubjectRole(
       expectedRole: expected,
       actualRole: subject.role,
     });
+  }
+}
+
+/** Self-service credential changes never accept a different account or role. */
+export function assertActorOwnsIdentity(
+  actor: Actor,
+  subject: { readonly id: string; readonly role: UserRole },
+): void {
+  if (actor.userId !== subject.id || actor.role !== subject.role) {
+    throw new ForbiddenError('The authenticated identity does not match this account.');
   }
 }

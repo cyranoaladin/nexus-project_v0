@@ -56,7 +56,7 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
   });
 
   it('returns 403 when COACH has no active assignment for the student', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
 
     const res = await GET(new Request('http://localhost/'), makeContext('student-other'));
@@ -64,7 +64,7 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
   });
 
   it('returns 403 when the only link is a historical COMPLETED SessionBooking (no active assignment)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.sessionBooking.findFirst as jest.Mock).mockResolvedValue({ id: 'sb-1', status: 'COMPLETED' });
 
@@ -73,7 +73,7 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
   });
 
   it('returns 404 when the URL param does not resolve to a genuine Student.id (no User.id fallback)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     // The URL param does not match any Student.id — even if it happens to be
     // a valid User.id elsewhere, this route must NOT retry the lookup by
     // userId (that ambiguous fallback was removed: every canonical route on
@@ -90,7 +90,7 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
   });
 
   it('returns 404 when the student User does not exist (assigned coach)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
@@ -99,7 +99,7 @@ describe('GET /api/coach/students/[studentId]/dossier', () => {
   });
 
   it('returns full dossier for an assigned COACH', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
     (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       id: 'student-1',

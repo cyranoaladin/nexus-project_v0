@@ -42,10 +42,10 @@ export const ARIA_CI_MATRIX_JOBS = Object.freeze({
     lane('source-artifact', 'aria:artifact:source-check'),
   ]),
   'aria-browser': Object.freeze([
-    lane('desktop', 'test:aria:e2e:desktop', '.artifacts/aria'),
-    lane('mobile', 'test:aria:e2e:mobile', '.artifacts/aria'),
-    lane('a11y', 'test:aria:a11y', '.artifacts/aria'),
-    lane('smoke', 'aria:smoke:production-artifact', '.artifacts/aria'),
+    lane('desktop', 'test:aria:e2e:desktop', '.artifacts/aria/playwright/aria-desktop'),
+    lane('mobile', 'test:aria:e2e:mobile', '.artifacts/aria/playwright/aria-mobile'),
+    lane('a11y', 'test:aria:a11y', '.artifacts/aria/playwright/aria-a11y'),
+    lane('smoke', 'aria:smoke:production-artifact', '.artifacts/aria/playwright/aria-smoke'),
   ]),
 });
 
@@ -142,11 +142,17 @@ function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
   if (protectedSteps.some((step) => Object.prototype.hasOwnProperty.call(step, 'if'))) {
     findings.push(`ARIA_CI_PROTECTED_STEP_CONDITIONAL:${jobKey}`);
   }
+  if (jobKey === 'aria-browser') {
+    const publishers = exactRunSteps(job, 'node scripts/testing/safe-playwright-report.mjs ${{ matrix.artifactPath }}/report.json .artifacts/publish/aria-${{ matrix.lane }}/report.json');
+    if (publishers.length !== 1 || publishers[0]?.if !== 'always()') {
+      findings.push('ARIA_CI_BROWSER_PRIVACY_PUBLISHER_INVALID');
+    }
+  }
   inspectArtifact(
     jobKey,
     job,
     `aria-${jobKey.slice('aria-'.length)}-${'${{ matrix.lane }}'}-${PR_HEAD_REF}-${RUN_ATTEMPT}`,
-    MATRIX_ARTIFACT_PATH,
+    jobKey === 'aria-browser' ? '.artifacts/publish/aria-${{ matrix.lane }}/' : MATRIX_ARTIFACT_PATH,
     findings,
   );
 }
@@ -224,13 +230,13 @@ export function inspectAriaCiWorkflow(document) {
     || !['aria-jest', 'aria-postgres', 'aria-browser'].every((job) => evidenceNeeds.includes(job))) {
     findings.push('ARIA_CI_EVIDENCE_DEPENDENCIES_INVALID');
   }
-  const download = (document?.jobs?.['aria-evidence']?.steps ?? []).find((step) =>
+  const downloads = (document?.jobs?.['aria-evidence']?.steps ?? []).filter((step) =>
     typeof step?.uses === 'string' && step.uses.startsWith('actions/download-artifact@'));
-  if (download?.with?.pattern !== `aria-browser-*-${PR_HEAD_REF}-${RUN_ATTEMPT}`
-    || download?.with?.path !== '.artifacts/aria'
-    || download?.with?.['merge-multiple'] !== true) {
-    findings.push('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
-  }
+  const validDownloads = downloads.length === 4 && ['desktop', 'mobile', 'a11y', 'smoke'].every((lane) =>
+    downloads.filter((step) => step?.with?.name === `aria-browser-${lane}-${PR_HEAD_REF}-${RUN_ATTEMPT}`
+      && step?.with?.path === `.artifacts/aria/playwright/aria-${lane}`
+      && step?.with?.pattern === undefined && step?.with?.['merge-multiple'] !== true).length === 1);
+  if (!validDownloads) findings.push('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
 
   const aggregate = document?.jobs?.['ci-success'];
   const needs = Array.isArray(aggregate?.needs) ? aggregate.needs : [];

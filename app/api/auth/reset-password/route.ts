@@ -13,7 +13,8 @@ import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { normalizeUserEmail, requireUserEmail } from '@/lib/contact/user-email';
-import { requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
+import { canApplyV1CredentialProof, requestPasswordResetByAuthority } from '@/lib/auth/password-reset-authority';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 /** Common weak passwords to reject */
 const COMMON_PASSWORDS = new Set([
@@ -30,8 +31,7 @@ const requestSchema = z.object({
 /** Schema for confirming a password reset */
 const confirmSchema = z.object({
   token: z.string().min(1, 'Token requis'),
-  newPassword: z.string()
-    .min(8, 'Le mot de passe doit contenir au moins 8 caractères')
+  newPassword: newPasswordSchema
     .refine(
       (pw) => !COMMON_PASSWORDS.has(pw.toLowerCase()),
       'Ce mot de passe est trop courant. Choisissez un mot de passe plus sécurisé.'
@@ -95,12 +95,12 @@ export async function POST(request: NextRequest) {
 
     // Determine action: request or confirm
     if (isConfirmation) {
-      return handleConfirmReset(body);
+      return await handleConfirmReset(body);
     }
-    return handleRequestReset(body, request);
-  } catch (error) {
+    return await handleRequestReset(body, request);
+  } catch {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('[reset-password] Error:', error instanceof Error ? error.message : 'unknown');
+      console.error('PASSWORD_RESET_REQUEST_FAILED');
     }
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
@@ -163,9 +163,9 @@ async function handleRequestReset(body: unknown, request: NextRequest) {
       return true;
     });
     if (queued) kickEmailOutboxDrain();
-  } catch (dbError) {
+  } catch {
     if (process.env.NODE_ENV !== 'test') {
-      console.error('[reset-password] DB error:', dbError instanceof Error ? dbError.message : 'unknown');
+      console.error('PASSWORD_RESET_DISPATCH_FAILED');
     }
   }
 
@@ -226,6 +226,15 @@ async function handleConfirmReset(body: unknown) {
       { error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' },
       { status: 400 }
     );
+  }
+
+  try {
+    if (!await canApplyV1CredentialProof({ userId: user.id, email: user.email })) {
+      return NextResponse.json({ error: 'Token invalide ou expiré. Veuillez demander un nouveau lien.' }, { status: 400 });
+    }
+  } catch {
+    // Authority failure is an explicit refusal, without exposing provider errors.
+    return NextResponse.json({ error: 'Service temporairement indisponible. Veuillez réessayer.' }, { status: 503 });
   }
 
   // Hash new password and update

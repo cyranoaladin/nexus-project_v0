@@ -1,9 +1,8 @@
-import { serializeError } from '@/lib/utils/serialize-error';
+import { privateFinancialJson } from '@/lib/invoice/private-response';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
 
 /**
  * GET /api/payments/pending
@@ -18,7 +17,7 @@ export async function GET() {
       !session?.user?.id ||
       !['ADMIN', 'ASSISTANTE'].includes(session.user.role)
     ) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Accès non autorisé' },
         { status: 401 }
       );
@@ -42,10 +41,10 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     });
 
-    return NextResponse.json({ payments });
-  } catch (error) {
-    console.error('[Payments Pending] Erreur:', serializeError(error));
-    return NextResponse.json(
+    return privateFinancialJson({ payments });
+  } catch {
+    console.error('PENDING_PAYMENTS_READ_FAILED');
+    return privateFinancialJson(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
     );

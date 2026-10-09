@@ -26,6 +26,7 @@ jest.mock('@/lib/documents/secure-file-access', () => {
 
 import { GET } from '@/app/api/documents/[id]/route';
 import { auth } from '@/auth';
+import { prisma } from '@/lib/prisma';
 import { openSecureDocument, SecureFileAccessError } from '@/lib/documents/secure-file-access';
 import { NextRequest } from 'next/server';
 
@@ -42,9 +43,9 @@ function makeHandle() {
   };
 }
 
-let prisma: any;
-beforeEach(async () => {
-  prisma = (await import('@/lib/prisma') as any).prisma;
+const mockDocumentScope = prisma.userDocument.findUnique as unknown as jest.Mock<Promise<unknown>, [unknown?]>;
+const mockDocumentFile = prisma.userDocument.findFirst as unknown as jest.Mock<Promise<unknown>, [unknown?]>;
+beforeEach(() => {
   jest.clearAllMocks();
   mockOpen.mockResolvedValue(makeHandle());
 });
@@ -54,7 +55,9 @@ function req(id: string): [NextRequest, { params: Promise<{ id: string }> }] {
 }
 
 function mockDoc(doc: unknown) {
-  prisma.userDocument.findFirst.mockResolvedValue(doc);
+  const complete = doc && typeof doc === 'object' ? { visibilityScope: 'STUDENT_ONLY', ...doc } : doc;
+  mockDocumentScope.mockResolvedValue(complete);
+  mockDocumentFile.mockResolvedValue(complete);
 }
 
 describe('GET /api/documents/[id]', () => {
@@ -124,7 +127,35 @@ describe('GET /api/documents/[id]', () => {
 
   it('500 on DB error', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } });
-    prisma.userDocument.findFirst.mockRejectedValue(new Error('DB'));
+    mockDocumentScope.mockRejectedValue(new Error('DB'));
     expect((await GET(...req('d1'))).status).toBe(500);
   });
+  it.each(['ADMIN_ONLY'])('refuses a student-owned document with forbidden scope %s on the alternate URL', async visibilityScope => {
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } });
+    mockDoc({ id: 'd1', userId: 'u1', visibilityScope, localPath: 'private.pdf',
+      mimeType: 'application/pdf', originalName: 'private.pdf', sizeBytes: 7 });
+    const response = await GET(...req('d1'));
+    expect(response.status).toBe(404);
+    expect(mockOpen).not.toHaveBeenCalled();
+  });
+
+  it.each(['STUDENT_ONLY', 'STUDENT_AND_PARENT', 'STUDENT_AND_COACH', 'STUDENT_PARENT_COACH'])('serves the owned student document only under the existing student-visible scope %s', async visibilityScope => {
+    mockAuth.mockResolvedValue({ user: { id: 'u1', role: 'ELEVE' } });
+    mockDoc({ id: 'd1', userId: 'u1', visibilityScope, localPath: 'visible.pdf',
+      mimeType: 'application/pdf', originalName: 'visible.pdf', sizeBytes: 7 });
+    expect((await GET(...req('d1'))).status).toBe(200);
+    expect(mockOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not log a raw private database failure at the alternate download boundary', async () => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      mockAuth.mockResolvedValue({ user: { id: 'admin-boundary-fixture', role: 'ADMIN' } });
+      mockDocumentScope.mockRejectedValueOnce(new Error('PRIVATE_DOCUMENT_EXCEPTION_CANARY'));
+      expect((await GET(...req('d1'))).status).toBe(500);
+      expect(log).toHaveBeenCalled();
+      expect(JSON.stringify(log.mock.calls)).not.toContain('PRIVATE_DOCUMENT_EXCEPTION_CANARY');
+    } finally { log.mockRestore(); }
+  });
+
 });

@@ -5,7 +5,7 @@
  * (CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME) and never logs the token.
  */
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
-import { enqueueEmailIntent } from '@/lib/email/outbox';
+import { enqueueEmailIntentForIssuance } from '@/lib/email/outbox';
 import { kickEmailOutboxDrain } from '@/lib/email/outbox-scheduler';
 import { escapeHtml } from '@/lib/email/templates';
 import { prisma } from '@/lib/prisma';
@@ -56,30 +56,33 @@ export function buildCoreV2InvitationMessage(input: {
 }
 
 export interface DeliverCoreV2InvitationInput {
+  /** Durable Core handoff triggers delivery only after its acknowledgment. */
+  readonly deferDrain?: boolean;
   readonly userId: string;
   readonly role: 'PARENT' | 'ELEVE' | 'COACH' | 'ADMIN' | 'ASSISTANTE';
   readonly email: string;
   readonly displayName: string;
   readonly rawToken: string;
-  readonly tokenHash: string;
+  readonly invitationId: string;
   readonly expiresAt: Date;
 }
 
-/** Enqueues the invitation email; dedupe on the token hash so a retried request never sends twice. */
+/** Enqueues the invitation email; dedupe on the durable issuance so its retry preserves the original message. */
 export async function deliverCoreV2Invitation(input: DeliverCoreV2InvitationInput): Promise<{ messageId: string }> {
   const message = buildCoreV2InvitationMessage(input);
   const intent = await prisma.$transaction((tx) =>
-    enqueueEmailIntent(tx, {
+    enqueueEmailIntentForIssuance(tx, {
       aggregateId: input.userId,
       aggregateType: 'core-v2-invitation',
       messageType: input.role === 'ELEVE' ? 'STUDENT_ACTIVATION' : 'PARENT_ACTIVATION',
-      dedupeKey: input.tokenHash,
+      issuanceId: input.invitationId,
       to: input.email,
       subject: message.subject,
       html: message.html,
       text: message.text,
     }),
+    { maxWait: 2_000, timeout: 5_000 },
   );
-  kickEmailOutboxDrain();
-  return { messageId: (intent as { messageId?: string }).messageId ?? '' };
+  if (!input.deferDrain) kickEmailOutboxDrain();
+  return { messageId: intent.messageId };
 }

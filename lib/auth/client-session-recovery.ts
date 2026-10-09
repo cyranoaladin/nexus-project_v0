@@ -42,6 +42,8 @@ export class SessionRecoveryController {
   private confirmation: Session | null = null;
   private logoutIntent = false;
   private logoutDestination = '/auth/signin';
+  private logoutRedirect = true;
+  private redirectClaimed = false;
   private view: SessionProjection;
   private observation: SessionObservation;
 
@@ -60,8 +62,16 @@ export class SessionRecoveryController {
   getView = () => this.view;
   getSnapshot = () => this.observation;
   getRedirectDestination = () => this.logoutDestination;
+  /** Boundary and explicit logout share one navigation claim per confirmation. */
+  claimConfirmedRedirect = (): string | null => {
+    if (!this.observation.state.endsWith('_CONFIRMED') || this.redirectClaimed
+      || (this.logoutIntent && !this.logoutRedirect)) return null;
+    this.redirectClaimed = true;
+    return this.logoutDestination;
+  };
 
   private publish(state: SessionObservationState, data = this.view.data) {
+    if (!state.endsWith('_CONFIRMED')) this.redirectClaimed = false;
     const changedIdentity = sessionIdentity(data) !== sessionIdentity(this.view.data);
     const status = data ? 'authenticated' : state.endsWith('_CONFIRMED') ? 'unauthenticated' : 'loading';
     // Preserve object identity during recovery AND same-identity provider refresh.
@@ -174,8 +184,9 @@ export class SessionRecoveryController {
     this.logoutIntent = false;
     this.start();
   };
-  beginLogout = (destination = '/auth/signin') => {
+  beginLogout = (destination = '/auth/signin', redirect = true) => {
     this.logoutDestination = destination;
+    this.logoutRedirect = redirect;
     this.logoutIntent = true; this.cancel(); this.publish('RECOVERING');
     return this.generation;
   };
@@ -183,8 +194,8 @@ export class SessionRecoveryController {
     if (!this.logoutIntent || operation !== this.generation) return;
     this.cancel(); this.publish('UNAUTHENTICATED_CONFIRMED', null);
   };
-  runLogout = async <T>(perform: () => Promise<T>, destination: string): Promise<T> => {
-    const operation = this.beginLogout(destination);
+  runLogout = async <T>(perform: () => Promise<T>, destination: string, redirect = true): Promise<T> => {
+    const operation = this.beginLogout(destination, redirect);
     const abort = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const current = () => {

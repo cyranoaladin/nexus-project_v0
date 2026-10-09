@@ -2,12 +2,15 @@
  * §U/§V/§W/§X — account lifecycle, invitation lifecycle, credential check and
  * session revocation, against a real Core v2 database.
  */
-import { createHash } from 'node:crypto';
+import { accountTokenDigest } from '@/lib/core-v2/account-token';
 import bcrypt from 'bcryptjs';
 import { CoreV2DomainError } from '@/lib/core-v2/errors';
 import {
   activateAccount,
   changePassword,
+  confirmPasswordReset,
+  inspectPasswordReset,
+  requestPasswordReset,
   createHousehold,
   disableAccount,
   inviteAccount,
@@ -41,7 +44,7 @@ describe('Invitation → activation', () => {
     const { client } = h;
     const parent = await pendingParent();
     const issued = await inviteAccount(client, h.ctx(), parent.id);
-    expect(issued.invitation.tokenHash).toBe(createHash('sha256').update(issued.rawToken).digest('hex'));
+    expect(issued.invitation.tokenHash).toBe(accountTokenDigest(issued.rawToken, 'ACTIVATION'));
     expect(issued.email).toBe('parent@example.com');
 
     const activated = await activateAccount(client, { rawToken: issued.rawToken, password: PW.first });
@@ -54,6 +57,20 @@ describe('Invitation → activation', () => {
     await expect(activateAccount(client, { rawToken: issued.rawToken, password: PW.second })).rejects.toMatchObject({ code: 'INVALID_STATE' });
     const again = await client.user.findUniqueOrThrow({ where: { id: parent.id } });
     expect(again.password).toBe(activated.password);
+  });
+
+  test('overlong activation input leaves the single-use invitation available', async () => {
+    const parent = await pendingParent();
+    const issued = await inviteAccount(h.client, h.ctx(), parent.id);
+    await expect(activateAccount(h.client, {
+      rawToken: issued.rawToken, password: 'é'.repeat(37),
+    })).rejects.toMatchObject({ code: 'VALIDATION' });
+    expect(await h.client.invitation.findUniqueOrThrow({ where: { id: issued.invitation.id } }))
+      .toMatchObject({ consumedAt: null });
+    expect(await h.client.user.findUniqueOrThrow({ where: { id: parent.id } }))
+      .toMatchObject({ accountStatus: 'PENDING_ACTIVATION', password: null });
+    expect(await activateAccount(h.client, { rawToken: issued.rawToken, password: PW.first }))
+      .toMatchObject({ accountStatus: 'ACTIVE' });
   });
 
   test('inviting an already-invited account requires resend; resend revokes the prior token', async () => {
@@ -149,12 +166,142 @@ describe('Login / suspension / revocation', () => {
     const { client } = h;
     const user = await activeParent();
     const claims = { userId: user.id, role: user.role, sessionVersion: user.sessionVersion };
-    const { sessionVersion } = await changePassword(client, { userId: user.id, newPassword: PW.changed });
+    const { sessionVersion } = await changePassword(client, h.ctx({ userId: user.id, role: user.role }), { currentPassword: PW.initial, newPassword: PW.changed });
     expect(sessionVersion).toBe(user.sessionVersion + 1);
     expect(await isSessionStillValid(client, claims)).toBe(false);
     expect(await verifyCredentials(client, { email: 'parent@example.com', password: PW.initial })).toBeNull();
     expect(await verifyCredentials(client, { email: 'parent@example.com', password: PW.changed })).toMatchObject({ sessionVersion });
     expect(await auditTrail(client, user.id)).toContain('account.password_changed');
+  });
+
+  test.each([
+    ['ASCII beyond bcrypt boundary', 'change_' + 'x'.repeat(66)],
+    ['UTF-8 beyond bcrypt boundary', 'é'.repeat(37)],
+  ])('refuses %s without modifying credentials, sessions or audit', async (_label, newPassword) => {
+    const user = await activeParent();
+    const beforeAudit = await auditTrail(h.client, user.id);
+    await expect(changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), { currentPassword: PW.initial, newPassword }))
+      .rejects.toMatchObject({ code: 'VALIDATION' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await auditTrail(h.client, user.id)).toEqual(beforeAudit);
+  });
+
+  test.each([
+    ['ASCII at bcrypt boundary', 'change_' + 'x'.repeat(65)],
+    ['UTF-8 at bcrypt boundary', 'é'.repeat(36)],
+  ])('accepts %s without truncation', async (_label, newPassword) => {
+    const user = await activeParent();
+    const result = await changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), { currentPassword: PW.initial, newPassword });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(result.sessionVersion).toBe(user.sessionVersion + 1);
+    expect(await bcrypt.compare(newPassword, after.password as string)).toBe(true);
+  });
+
+  test('overlong reset input preserves the token, password and session version', async () => {
+    const user = await activeParent();
+    const issued = await requestPasswordReset(h.client, { email: 'parent@example.com' });
+    expect(issued).not.toBeNull();
+    if (issued === null) throw new Error('Synthetic active account did not receive a reset token.');
+    await expect(confirmPasswordReset(h.client, {
+      rawToken: issued.rawToken, newPassword: 'change_' + 'x'.repeat(66),
+    })).rejects.toMatchObject({ code: 'VALIDATION' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await inspectPasswordReset(h.client, issued.rawToken)).toBe(true);
+    await expect(confirmPasswordReset(h.client, { rawToken: issued.rawToken, newPassword: PW.changed }))
+      .resolves.toMatchObject({ sessionVersion: user.sessionVersion + 1 });
+  });
+
+  test('wrong current password cannot change an active account or revoke its sessions', async () => {
+    const user = await activeParent();
+    const input = { currentPassword: 'change_me_wrong', newPassword: PW.changed };
+    await expect(changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), input)).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await auditTrail(h.client, user.id)).not.toContain('account.password_changed');
+  });
+
+  test('simultaneous password changes using the same current password have one winner', async () => {
+    const user = await activeParent();
+    const results = await Promise.allSettled([
+      changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), { currentPassword: PW.initial, newPassword: PW.changed }),
+      changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), { currentPassword: PW.initial, newPassword: PW.second }),
+    ]);
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.sessionVersion).toBe(user.sessionVersion + 1);
+    expect((await auditTrail(h.client, user.id)).filter((action) => action === 'account.password_changed'))
+      .toHaveLength(1);
+  });
+
+  test('password change revokes every outstanding reset token atomically', async () => {
+    const user = await activeParent();
+    const reset = await requestPasswordReset(h.client, { email: 'parent@example.com' });
+    if (!reset) throw new Error('Synthetic reset token missing.');
+    await changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), {
+      currentPassword: PW.initial, newPassword: PW.changed,
+    });
+    expect(await inspectPasswordReset(h.client, reset.rawToken)).toBe(false);
+    await expect(confirmPasswordReset(h.client, { rawToken: reset.rawToken, newPassword: PW.second }))
+      .rejects.toMatchObject({ code: 'INVALID_STATE' });
+  });
+
+  test('reset and self-service change cannot both overwrite the same old credential', async () => {
+    const user = await activeParent();
+    const reset = await requestPasswordReset(h.client, { email: 'parent@example.com' });
+    if (!reset) throw new Error('Synthetic reset token missing.');
+    const results = await Promise.allSettled([
+      changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), {
+        currentPassword: PW.initial, newPassword: PW.changed,
+      }),
+      confirmPasswordReset(h.client, { rawToken: reset.rawToken, newPassword: PW.second }),
+    ]);
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    expect((await h.client.user.findUniqueOrThrow({ where: { id: user.id } })).sessionVersion)
+      .toBe(user.sessionVersion + 1);
+  });
+
+  test('audit failure rolls back credentials, sessions and reset-token revocation', async () => {
+    const user = await activeParent();
+    const reset = await requestPasswordReset(h.client, { email: 'parent@example.com' });
+    if (!reset) throw new Error('Synthetic reset token missing.');
+    try {
+      await h.client.$executeRaw`CREATE FUNCTION recovery_test_password_audit_failure() RETURNS trigger
+        LANGUAGE plpgsql AS $$ BEGIN
+          IF NEW.action = 'account.password_changed' THEN
+            RAISE EXCEPTION 'SYNTHETIC_AUDIT_UNAVAILABLE';
+          END IF;
+          RETURN NEW;
+        END; $$`;
+      await h.client.$executeRaw`CREATE TRIGGER recovery_test_password_audit_failure
+        BEFORE INSERT ON audit_events FOR EACH ROW
+        EXECUTE FUNCTION recovery_test_password_audit_failure()`;
+      await expect(changePassword(h.client, h.ctx({ userId: user.id, role: user.role }), {
+        currentPassword: PW.initial, newPassword: PW.changed,
+      })).rejects.toThrow('SYNTHETIC_AUDIT_UNAVAILABLE');
+    } finally {
+      await h.client.$executeRaw`DROP TRIGGER IF EXISTS recovery_test_password_audit_failure ON audit_events`;
+      await h.client.$executeRaw`DROP FUNCTION IF EXISTS recovery_test_password_audit_failure()`;
+    }
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
+    expect(await inspectPasswordReset(h.client, reset.rawToken)).toBe(true);
+    expect(await auditTrail(h.client, user.id)).not.toContain('account.password_changed');
+  });
+
+  test('a stale role cannot authorize a password change even with the correct password', async () => {
+    const user = await activeParent();
+    await expect(changePassword(h.client, h.ctx({ userId: user.id, role: 'COACH' }), {
+      currentPassword: PW.initial, newPassword: PW.changed,
+    })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    const after = await h.client.user.findUniqueOrThrow({ where: { id: user.id } });
+    expect(after.password).toBe(user.password);
+    expect(after.sessionVersion).toBe(user.sessionVersion);
   });
 
   test('role changed while a session is live invalidates that session', async () => {

@@ -225,6 +225,8 @@ model User {
   phoneVerifiedAt         DateTime?
   registrationCompletedAt DateTime?
   parentPhoneChallenges   ParentPhoneChallenge[]
+  accountSecurityEvents   AccountSecurityEvent[]
+  stageReservationDecisions StageReservationDecisionAudit[] @relation("StageDecisionActor")
   createdAt               DateTime               @default(now())
   updatedAt               DateTime               @updatedAt
 
@@ -250,6 +252,10 @@ model User {
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   payments         Payment[]
+  payerInvoices    Invoice[] @relation("InvoicePayer")
+  subscriptionRequests SubscriptionRequest[] @relation("SubscriptionRequester")
+  invoiceFinancialDelegations InvoiceFinancialDelegation[] @relation("InvoiceFinancialDelegate")
+  invoiceFinancialAudits InvoiceFinancialAccessAudit[] @relation("InvoiceFinancialAuditActor")
 
   // Documents
   documents         UserDocument[] @relation("UserDocuments")
@@ -370,6 +376,25 @@ model User {
   @@index([phoneNormalized])
   @@index([mergedIntoUserId])
   @@map("users")
+}
+
+enum AccountSecurityEventKind {
+  PASSWORD_CHANGED
+}
+
+/// Append-only security evidence, without credentials, contact details or payloads.
+model AccountSecurityEvent {
+  id             String                   @id @default(cuid())
+  userId         String
+  user           User                     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  kind           AccountSecurityEventKind
+  sessionVersion Int
+  correlationId  String
+  createdAt      DateTime                 @default(now())
+
+  @@unique([userId, sessionVersion])
+  @@index([correlationId])
+  @@map("account_security_events")
 }
 
 // Profil Parent
@@ -1262,6 +1287,10 @@ model AriaWorkshopSession {
   location String?
   capacity Int?
 
+  // Technical MVCC fence for admission/count integrity under stale snapshots.
+  // Business updatedAt is preserved; this is not an attendance counter.
+  admissionRevision Int @default(0)
+
   status AriaWorkshopSessionStatus @default(SCHEDULED)
 
   createdById String
@@ -1516,6 +1545,8 @@ model SubscriptionRequest {
   status           String // PENDING, APPROVED, REJECTED
   requestedBy      String
   requestedByEmail String?
+  requestedByUserId String?
+  requester User? @relation("SubscriptionRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
   processedBy      String?
   processedAt      DateTime?
   rejectionReason  String?
@@ -1525,6 +1556,7 @@ model SubscriptionRequest {
   // Relations
   student Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
 
+  @@index([studentId, requestedByUserId, createdAt])
   @@map("subscription_requests")
 }
 
@@ -1660,6 +1692,7 @@ model SessionBooking {
   // Relations
   notifications SessionNotification[]
   reminders     SessionReminder[]
+  cancellationAudits SessionBookingCancellationAudit[]
   report        SessionReport?
 
   // Note: Database has EXCLUDE constraint "SessionBooking_no_overlap_excl" to prevent
@@ -2091,12 +2124,35 @@ model StageReservation {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  decisions StageReservationDecisionAudit[]
+
   @@unique([email, academyId]) // Anti-duplicate: one reservation per email per academy
   @@index([status])
   @@index([academyId])
   @@index([stageId])
   @@index([studentId])
   @@map("stage_reservations")
+}
+
+
+// Append-only decision history; contains no contact, payment proof or document.
+model StageReservationDecisionAudit {
+  id String @id @default(cuid())
+  reservationId String
+  reservation StageReservation @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  actorUserId String
+  actor User @relation("StageDecisionActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  requestKey String @unique
+  action String
+  previousStatus String
+  nextStatus String
+  previousRichStatus StageReservationStatus?
+  nextRichStatus StageReservationStatus
+  occurredAt DateTime @default(now())
+
+  @@index([reservationId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@map("stage_reservation_decision_audits")
 }
 
 model ContactLead {
@@ -3388,6 +3444,12 @@ model Invoice {
   // Beneficiary (the student/user who receives the entitlements)
   beneficiaryUserId String?
 
+  // Financial authority is explicit; beneficiary/email never establish a payer.
+  payerUserId String?
+  payer User? @relation("InvoicePayer", fields: [payerUserId], references: [id], onDelete: Restrict)
+  financialDelegations InvoiceFinancialDelegation[]
+  financialAccessAudits InvoiceFinancialAccessAudit[]
+
   // Relations
   items        InvoiceItem[]
   accessTokens InvoiceAccessToken[]
@@ -3396,11 +3458,50 @@ model Invoice {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([id, payerUserId])
+  @@index([payerUserId, status])
   @@index([status])
   @@index([customerEmail])
   @@index([issuedAt])
   @@index([createdByUserId])
   @@map("invoices")
+}
+
+// Explicit invoice-only financial delegation. Composite FK pins the payer.
+model InvoiceFinancialDelegation {
+  id String @id @default(cuid())
+  invoiceId String
+  payerUserId String
+  delegateUserId String
+  requestKey String @unique
+  startsAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  invoice Invoice @relation(fields: [invoiceId, payerUserId], references: [id, payerUserId], onDelete: Restrict, onUpdate: Restrict)
+  delegate User @relation("InvoiceFinancialDelegate", fields: [delegateUserId], references: [id], onDelete: Restrict)
+  audits InvoiceFinancialAccessAudit[]
+
+  @@unique([id, invoiceId])
+  @@index([invoiceId, delegateUserId, revokedAt, expiresAt])
+  @@map("invoice_financial_delegations")
+}
+
+// Append-only events; no payload, email, token or document content.
+model InvoiceFinancialAccessAudit {
+  id String @id @default(cuid())
+  invoiceId String
+  delegationId String?
+  actorUserId String
+  action String
+  requestKey String @unique
+  occurredAt DateTime @default(now())
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  delegation InvoiceFinancialDelegation? @relation(fields: [delegationId, invoiceId], references: [id, invoiceId], onDelete: Restrict, onUpdate: Restrict)
+  actor User @relation("InvoiceFinancialAuditActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId, occurredAt])
+  @@map("invoice_financial_access_audits")
 }
 
 // InvoiceItem — Ligne de facture
@@ -4191,6 +4292,28 @@ model ReportFeedback {
   @@index([reportId, type])
   @@index([submittedById])
   @@map("report_feedback")
+}
+
+// Session subjects may belong to Core v2 without a V1 User mirror. The actor
+// is the verified server-session subject, never a client-supplied owner. A
+// cross-database actor FK is impossible; retain the opaque subject and role,
+// without copying names/contact data. The booking FK protects real history.
+model SessionBookingCancellationAudit {
+  id String @id @default(cuid())
+  sessionBookingId String
+  sessionBooking SessionBooking @relation(fields: [sessionBookingId], references: [id], onDelete: Restrict)
+  actorUserId String @db.VarChar(128)
+  actorRole String
+  requestKey String @unique
+  action String @default("BOOKING_CANCELLED")
+  previousStatus SessionStatus
+  nextStatus SessionStatus @default(CANCELLED)
+  reason String @db.VarChar(500)
+  occurredAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([sessionBookingId, occurredAt], map: "session_booking_cancellation_audits_booking_time_idx")
+  @@index([actorUserId, occurredAt], map: "session_booking_cancellation_audits_actor_time_idx")
+  @@map("session_booking_cancellation_audits")
 }
 
 model NpcAuditLog {

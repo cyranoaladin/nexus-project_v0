@@ -16,7 +16,7 @@ import StudentProfilePage from '@/app/dashboard/assistante/students/[studentId]/
 
 const mockRouter = { push: jest.fn() };
 const mockParams = { studentId: 's1' };
-const mockSession = { data: { user: { role: 'ASSISTANTE' } }, status: 'authenticated' };
+const mockSession = { data: { user: { role: 'ASSISTANTE', authority: 'V1' } }, status: 'authenticated' };
 jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
   useParams: () => mockParams,
@@ -24,7 +24,7 @@ jest.mock('next/navigation', () => ({
 jest.mock('next-auth/react', () => ({ useSession: () => mockSession, signOut: jest.fn() }));
 jest.mock('@/components/dashboard/assistante/StudentDocumentsManager', () => ({
   __esModule: true,
-  default: () => React.createElement('div', null, 'Documents élève'),
+  default: ({ userId }: { userId: string }) => React.createElement('div', { 'data-testid': 'document-target', 'data-user-id': userId }, 'Documents élève'),
 }));
 jest.mock('@/components/dashboard/assistante/StudentAcademicMap', () => ({
   StudentAcademicMap: () => React.createElement('div', null, 'Carte académique'),
@@ -33,6 +33,7 @@ jest.mock('@/components/dashboard/assistante/StudentAcademicMap', () => ({
 const overviewResponse = {
   student: {
     id: 's1',
+    userId: 'user-for-s1',
     gradeLevel: 'PREMIERE',
     academicTrack: 'GENERAL',
     user: { firstName: 'Nora', lastName: 'Test', email: 'nora@example.test' },
@@ -49,6 +50,7 @@ const LOADED_PAGE_QUERY = { timeout: 10_000 } as const;
 
 describe('Assistante student page — operational sequence', () => {
   beforeEach(() => {
+    mockSession.data.user.authority = 'V1';
     global.fetch = jest.fn().mockResolvedValue({ ok: true, json: async () => overviewResponse });
   });
 
@@ -56,6 +58,7 @@ describe('Assistante student page — operational sequence', () => {
     render(React.createElement(StudentProfilePage));
     const planningLink = await screen.findByRole('link', { name: 'Voir planning' }, LOADED_PAGE_QUERY);
     expect(planningLink).toHaveAttribute('href', '/dashboard/assistante/planning');
+    expect(screen.getByTestId('document-target')).toHaveAttribute('data-user-id', 'user-for-s1');
   });
 
   it('still links out to assignments (existing connective navigation, unchanged)', async () => {
@@ -64,6 +67,13 @@ describe('Assistante student page — operational sequence', () => {
     expect(assignmentsLink).toHaveAttribute('href', '/dashboard/assistante/assignments?studentId=s1');
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 20)); });
     expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not advertise legacy document upload to a Core assistant', async () => {
+    mockSession.data.user.authority = 'CORE_V2';
+    render(React.createElement(StudentProfilePage));
+    await screen.findByRole('link', { name: 'Voir planning' }, LOADED_PAGE_QUERY);
+    expect(screen.queryByTestId('document-target')).not.toBeInTheDocument();
   });
 
   it('never embeds a generic PARENT/ELEVE user-creation form on this page (Amendement 6)', () => {

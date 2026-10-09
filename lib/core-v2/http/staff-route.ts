@@ -75,7 +75,7 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
   readonly mapError?: (error: unknown, correlationId: string) => NextResponse | undefined;
   readonly handler: (
     args: RouteArgs<B extends z.ZodTypeAny ? z.infer<B> : undefined, Q extends z.ZodTypeAny ? z.infer<Q> : undefined>,
-  ) => Promise<RouteResult>;
+  ) => Promise<RouteResult | NextResponse>;
 }): RouteHandler {
   return async (request, context) => {
     const correlationId = correlationIdFrom(request);
@@ -106,6 +106,12 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
         params: rawParams,
         request,
       });
+      // Streaming routes pass through the same authentication, CSRF, actor and
+      // validation boundary before returning their authenticated response.
+      if (result instanceof NextResponse) {
+        result.headers.set(CORRELATION_HEADER, correlationId);
+        return result;
+      }
       return NextResponse.json(
         { ok: true, data: result.data },
         { status: result.status ?? 200, headers: { [CORRELATION_HEADER]: correlationId } },

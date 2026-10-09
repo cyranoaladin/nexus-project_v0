@@ -67,10 +67,10 @@ describe('ParentHousehold (§AH)', () => {
     expect(global.fetch).toHaveBeenCalledWith('/api/v2/parent/household', expect.objectContaining({ method: 'GET' }));
   });
 
-  it('explains a 404 (account not attached to any household) without an error tone', async () => {
+  it('explains a 404 (no verified family membership) without an error tone', async () => {
     mockApi(404, { ok: false, error: { code: 'NOT_FOUND', message: 'No household is attached to this account.' } });
     render(<ParentHousehold />);
-    const status = await screen.findByText(/Aucun foyer n’est encore rattaché à votre compte\./);
+    const status = await screen.findByText(/Aucun rattachement familial vérifié n’est disponible\. Contactez l’équipe Nexus Réussite\./);
     expect(status).toHaveAttribute('role', 'status');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });

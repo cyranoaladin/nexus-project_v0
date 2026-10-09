@@ -117,7 +117,7 @@ describe('GET /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('🔴 COACH ne peut PAS accéder à un stage non assigné (GET) — DOIT ÉCHOULER AVANT CORRECTION', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     // Le coach est assigné à STAGE_ASSIGNED, pas à STAGE_OTHER
@@ -144,7 +144,7 @@ describe('GET /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('✅ COACH peut accéder à son stage assigné (GET)', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(COACH_PROFILE);
@@ -160,7 +160,7 @@ describe('GET /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('🔴 COACH tente accès stage inexistant — DOIT retourner 404', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(COACH_PROFILE);
@@ -202,7 +202,7 @@ describe('POST /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('🔴 COACH ne peut PAS créer bilan dans stage non assigné (POST) — DOIT ÉCHOULER', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     // Coach assigné à STAGE_ASSIGNED, tente de créer dans STAGE_OTHER
@@ -224,7 +224,7 @@ describe('POST /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('✅ COACH peut créer bilan dans son stage assigné (POST)', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(COACH_PROFILE);
@@ -309,7 +309,7 @@ describe('POST /api/stages/[stageSlug]/bilans — IDOR Prevention', () => {
 
   it('🔴 Validation: studentId manquant → 400', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: COACH_PROFILE.userId, role: 'COACH', email: 'coach@test.com' },
+      user: { id: COACH_PROFILE.userId, role: 'COACH', authority: 'V1', email: 'coach@test.com' },
     });
 
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue(COACH_PROFILE);
@@ -336,7 +336,7 @@ describe('Edge Cases — Traversée de ressources', () => {
 
     // Coach A est authentifié
     mockAuth.mockResolvedValue({
-      user: { id: COACH_A.userId, role: 'COACH', email: 'coach-a@test.com' },
+      user: { id: COACH_A.userId, role: 'COACH', authority: 'V1', email: 'coach-a@test.com' },
     });
 
     // Coach A n'est pas assigné au stage de Coach B
@@ -360,7 +360,7 @@ describe('Edge Cases — Traversée de ressources', () => {
     const COACH_UNASSIGNED = { id: 'coach-unassigned', userId: 'coach-unassigned-user', pseudonym: 'Coach Unassigned' };
 
     mockAuth.mockResolvedValue({
-      user: { id: COACH_UNASSIGNED.userId, role: 'COACH', email: 'coach-unassigned@test.com' },
+      user: { id: COACH_UNASSIGNED.userId, role: 'COACH', authority: 'V1', email: 'coach-unassigned@test.com' },
     });
 
     // Le coach n'est assigné à aucun stage

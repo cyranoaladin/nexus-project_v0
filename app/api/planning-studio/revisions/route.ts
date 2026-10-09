@@ -10,7 +10,7 @@ import { isErrorResponse } from '@/lib/guards';
 import { planningErrorResponse, planningService } from '../_shared';
 
 export async function GET(request: NextRequest) {
-  const guard = await apiGuard({ policy: 'planning-studio.history' });
+  const guard = await apiGuard({ policy: 'planning-studio.history', action: 'read' });
   if (isErrorResponse(guard)) return guard;
   const limitParam = request.nextUrl.searchParams.get('limit');
   let limit = 50;

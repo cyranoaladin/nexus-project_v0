@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   const csrfError = checkCsrf(request);
   if (csrfError) return csrfError;
 
-  const guard = await apiGuard({ policy: 'planning-studio.restore' });
+  const guard = await apiGuard({ policy: 'planning-studio.restore', action: 'mutation' });
   if (isErrorResponse(guard)) return guard;
   let body: unknown;
   try {

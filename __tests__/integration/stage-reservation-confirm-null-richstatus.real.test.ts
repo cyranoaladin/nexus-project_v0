@@ -26,6 +26,7 @@ jest.mock('@/lib/email/outbox-scheduler', () => ({
 }));
 
 import { POST } from '@/app/api/stages/[stageSlug]/reservations/[reservationId]/confirm/route';
+import { decryptEmailIntent } from '@/lib/email/outbox';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { NextRequest } from 'next/server';
@@ -73,7 +74,9 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
     await prisma.$disconnect();
   });
 
-  it('confirme avec succès une réservation dont richStatus est NULL (jamais initialisé)', async () => {
+  beforeEach(async () => { await cleanup(); });
+
+  it.each([null, 'PENDING', 'FAILED', 'COMPLETED'] as const)('confirme richStatus NULL sans modifier le paiement source %s', async paymentStatus => {
     const stage = await prisma.stage.create({
       data: {
         slug: `${PREFIX}-stage`,
@@ -116,6 +119,7 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
         price: 0,
         status: 'PENDING',
         richStatus: null,
+        paymentStatus,
       },
     });
     expect(reservation.richStatus).toBeNull();
@@ -133,5 +137,10 @@ describe('POST confirm reservation — CAS null-safe sur richStatus (PostgreSQL 
     expect(updated.richStatus).toBe('CONFIRMED');
     expect(updated.status).toBe('CONFIRMED');
     expect(updated.studentId).toBe(student.id);
+    expect(updated.paymentStatus).toBe(reservation.paymentStatus);
+    const jobs = await prisma.jobOutbox.findMany({ where: { aggregateType: 'STAGE_RESERVATION', aggregateId: reservation.id } });
+    expect(jobs).toHaveLength(1);
+    expect(decryptEmailIntent(jobs[0].payload).content.to).toBe(studentUser.email);
+    expect(decryptEmailIntent(jobs[0].payload).content.to).not.toBe(reservation.email);
   });
 });

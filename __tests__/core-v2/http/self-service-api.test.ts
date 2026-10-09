@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * Self-service reads for students (§AI) and coaches (§AJ) against a real
  * Core v2 database: each actor reads exactly their own rows; nothing on these
@@ -31,6 +32,7 @@ async function seedFamilyWithTwoStudents() {
   const year = await seedAcademicYear(h.client, 2026);
   const parent = await h.client.user.create({ data: { role: 'PARENT', email: 'family@synthetic.test', firstName: 'Amel', lastName: 'Synthetic', accountStatus: 'ACTIVE' } });
   const household = await h.client.household.create({ data: { parents: { create: { userId: parent.id, isPrimaryContact: true } } } });
+  await verifyHouseholdParent(h.client, h.ctx(), { householdId: household.id, parentUserId: parent.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
   const mk = async (first: string, grade: 'PREMIERE' | 'TERMINALE') => {
     const user = await h.client.user.create({ data: { role: 'ELEVE', firstName: first, lastName: 'Synthetic', accountStatus: 'ACTIVE', email: `${first.toLowerCase()}@synthetic.test`, password: 'change_me_hash' } });
     const student = await h.client.student.create({ data: { userId: user.id, householdId: household.id } });

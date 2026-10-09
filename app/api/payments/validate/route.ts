@@ -1,8 +1,11 @@
+import { isBankTransferEnabled } from '@/lib/payments/availability';
+import { checkCsrf } from '@/lib/csrf';
+import { privateFinancialJson } from '@/lib/invoice/private-response';
 import { assertNoRetiredCreditProducts, LegacyCreditPurchaseError } from '@/lib/entitlement/credit-retirement';
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { can } from '@/lib/rbac';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { activateEntitlements } from '@/lib/entitlement/engine';
 import type { InvoiceData,TaxRegime } from '@/lib/invoice';
@@ -22,7 +25,7 @@ import { ARIA_SUSPENSION_REASON } from '@/lib/commerce/sale-suspension';
 import { mergePaymentMetadata,parsePaymentMetadata } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { mkdir,writeFile } from 'fs/promises';
-import { NextRequest,NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import path from 'path';
 import { z } from 'zod';
 
@@ -137,8 +140,8 @@ async function generateInvoicePDFAndDocument(
     let pdfBuffer: Buffer;
     try {
       pdfBuffer = await renderInvoicePDF(pdfData);
-    } catch (pdfError) {
-      console.error('[Validate] PDF render failed, using minimal fallback PDF:', serializeError(pdfError));
+    } catch {
+      console.error('PAYMENT_INVOICE_PDF_RENDER_FAILED');
       pdfBuffer = buildMinimalPdfBuffer(`Facture ${invoice.number}`);
     }
 
@@ -179,9 +182,9 @@ async function generateInvoicePDFAndDocument(
     });
 
     return { invoiceId: invoice.id, documentId: userDocument.id };
-  } catch (err) {
+  } catch {
     // Non-blocking: log error but don't fail the payment validation
-    console.error('[Validate] Erreur génération facture/document:', serializeError(err));
+    console.error('PAYMENT_INVOICE_DOCUMENT_FAILED');
     return null;
   }
 }
@@ -195,15 +198,23 @@ export async function POST(request: NextRequest) {
       // auth() can throw UntrustedHost in standalone mode — treat as unauthenticated
     }
 
-    if (!session?.user || !['ASSISTANTE', 'ADMIN'].includes(session.user.role)) {
-      return NextResponse.json(
+    if (!session?.user?.id) {
+      return privateFinancialJson(
         { error: 'Accès non autorisé' },
         { status: 401 }
       );
     }
 
+    if (!can(session.user.role, 'UPDATE', 'PAYMENT')) {
+      return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
+    }
+
+    const csrfRefusal = checkCsrf(request);
+    if (csrfRefusal) return privateFinancialJson({ error: 'Accès refusé' }, { status: 403 });
+
     const body = await request.json();
     const { paymentId, action, note } = validatePaymentSchema.parse(body);
+    if (action === 'approve' && !isBankTransferEnabled()) return privateFinancialJson({ error: 'Paiements indisponibles.', code: 'BANK_TRANSFER_DISABLED' }, { status: 403 });
 
     // Récupérer le paiement
     const payment = await prisma.payment.findUnique({
@@ -222,14 +233,14 @@ export async function POST(request: NextRequest) {
     });
 
     if (!payment) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Paiement non trouvé' },
         { status: 404 }
       );
     }
 
     if (payment.status !== 'PENDING') {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: `Ce paiement est déjà traité (statut: ${payment.status})` },
         { status: 409 }
       );
@@ -245,7 +256,7 @@ export async function POST(request: NextRequest) {
       const missingRequiredStudent = payment.type === 'SUBSCRIPTION' && !metadata.studentId;
       const foreignReferencedStudent = !!metadata.studentId && !beneficiaryStudent;
       if (missingRequiredStudent || foreignReferencedStudent) {
-        return NextResponse.json(
+        return privateFinancialJson(
           { error: 'Paiement hors périmètre parent/élève' },
           { status: 404 }
         );
@@ -267,7 +278,7 @@ export async function POST(request: NextRequest) {
       itemKey: metadata.itemKey,
       itemType: metadata.itemType,
     })) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
         { status: 409 }
       );
@@ -331,6 +342,8 @@ export async function POST(request: NextRequest) {
             paidAmount: amountMillimes,
             createdByUserId: session.user.id,
             beneficiaryUserId: beneficiaryUserId,
+            payerUserId: payment.userId,
+            financialAccessAudits: { create: { actorUserId: session.user.id, action: 'PAYER_ASSIGNED', requestKey: `payment:${payment.id}:payer` } },
             events: JSON.parse(JSON.stringify([
               createInvoiceEvent('INVOICE_CREATED', session.user.id, `Facture auto-générée pour paiement ${payment.id}`),
               createInvoiceEvent('INVOICE_PAID', session.user.id, `Paiement validé — virement bancaire`),
@@ -411,7 +424,7 @@ export async function POST(request: NextRequest) {
           )
         : null;
 
-      return NextResponse.json({
+      return privateFinancialJson({
         success: true,
         message: 'Paiement validé avec succès',
         invoiceId: invoiceResult?.invoiceId ?? null,
@@ -434,7 +447,7 @@ export async function POST(request: NextRequest) {
       });
 
 
-      return NextResponse.json({
+      return privateFinancialJson({
         success: true,
         message: 'Paiement rejeté avec succès'
       });
@@ -442,17 +455,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     if (error instanceof LegacyCreditPurchaseError) {
-      return NextResponse.json({ code: error.code, error: error.message }, { status: 409 });
+      return privateFinancialJson({ code: error.code, error: error.message }, { status: 409 });
     }
     if (error instanceof AlreadyProcessedPaymentError) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Paiement déjà traité' },
         { status: 409 }
       );
     }
 
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
+      return privateFinancialJson(
         { error: 'Données invalides', details: error.errors },
         { status: 400 }
       );
@@ -474,7 +487,7 @@ export async function POST(request: NextRequest) {
       // "just retry" 409 instead of surfacing it).
       if (prismaError.code === 'P2034'
         || (prismaError.code === 'P2002' && isCanonicalAriaAccessUniquenessConflict(error))) {
-        return NextResponse.json(
+        return privateFinancialJson(
           { error: 'Conflit de validation concurrent détecté. Veuillez réessayer.' },
           { status: 409 }
         );
@@ -482,16 +495,16 @@ export async function POST(request: NextRequest) {
 
       // P2025: Record not found
       if (prismaError.code === 'P2025') {
-        return NextResponse.json(
+        return privateFinancialJson(
           { error: 'Ressource non trouvée lors de la validation' },
           { status: 404 }
         );
       }
     }
 
-    console.error('Erreur validation paiement:', serializeError(error));
+    console.error('PAYMENT_VALIDATION_FAILED');
 
-    return NextResponse.json(
+    return privateFinancialJson(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
     );

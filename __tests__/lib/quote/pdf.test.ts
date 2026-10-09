@@ -92,6 +92,12 @@ function runPdfTool(command: string, args: string[]) {
 }
 
 describe('renderQuotePDF', () => {
+  it('normalizes typographic apostrophes without changing ordinary apostrophes', async () => {
+    const pdf = await renderQuotePDF({ ...SAMPLE_QUOTE, studentName: 'Élève d’aujourd’hui', parentName: "Parent d'essai" });
+    const text = await extractPdfText(pdf);
+    expect(text.includes("Élève d'aujourd'hui")).toBe(true);
+    expect(text.includes("Parent d'essai")).toBe(true);
+  });
   it('renders a real A4 quote PDF without client-side HTML capture artifacts', async () => {
     const pdf = await renderQuotePDF(SAMPLE_QUOTE);
 

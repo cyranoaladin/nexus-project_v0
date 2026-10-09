@@ -83,6 +83,7 @@ export function renderInvoiceEmailHtml(data: InvoiceEmailData): string {
 
               <!-- Expiry notice -->
               <p style="margin:0 0 8px;font-size:13px;color:#888888;line-height:1.5;text-align:center;">
+                Connectez-vous à votre espace Nexus Réussite avant d’ouvrir ce lien.
                 Ce lien est valable <strong>${expiryHours} heures</strong>.
                 Passé ce délai, veuillez nous contacter pour un nouvel envoi.
               </p>
@@ -121,6 +122,7 @@ export function renderInvoiceEmailText(data: InvoiceEmailData): string {
     '',
     `Veuillez trouver ci-dessous votre facture ${invoiceNumber} d'un montant de ${formattedTotal}.`,
     '',
+    "Connectez-vous à votre espace Nexus Réussite avant d’ouvrir ce lien.",
     `Télécharger la facture : ${pdfUrl}`,
     '',
     `Ce lien est valable ${expiryHours} heures.`,

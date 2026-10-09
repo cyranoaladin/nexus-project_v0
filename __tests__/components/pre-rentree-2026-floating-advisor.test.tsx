@@ -19,10 +19,7 @@ class IntersectionObserverStub implements IntersectionObserver {
 
 describe('FloatingAdvisorBubble on the Pré-rentrée campaign', () => {
   beforeEach(() => {
-    Object.defineProperty(window.location, 'pathname', {
-      configurable: true,
-      value: '/stages/pre-rentree-2026',
-    });
+    window.history.replaceState(null, '', '/stages/pre-rentree-2026');
     window.IntersectionObserver = IntersectionObserverStub;
   });
 

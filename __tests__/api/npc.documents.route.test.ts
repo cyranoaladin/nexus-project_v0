@@ -110,6 +110,14 @@ describe('NPC correction documents API', () => {
     });
   });
 
+  it.each([['DOCUMENT_REJECTED', 422], ['DOCUMENT_SCAN_UNAVAILABLE', 503]])('fails closed for scanner outcome %s', async (code, status) => {
+    (npcStorage.saveUploadedFile as jest.Mock).mockResolvedValue({ success: false, error: code });
+    const response = await POST(makeUploadRequest({ documentType: 'STUDENT_COPY', file: new File(['%PDF-1.4'], 'copie.pdf', { type: 'application/pdf' }) }), params());
+    expect(response.status).toBe(status);
+    expect(await response.json()).toEqual({ error: code });
+    expect(prisma.copyPage.create).not.toHaveBeenCalled();
+  });
+
   it('rejects upload without file', async () => {
     const response = await POST(
       makeUploadRequest({ documentType: 'STUDENT_COPY' }),

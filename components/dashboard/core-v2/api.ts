@@ -13,12 +13,12 @@ export type ApiFail = {
 };
 export type ApiResult<T> = ApiOk<T> | ApiFail;
 
-export async function v2<T>(path: string, init: { method?: string; json?: unknown } = {}): Promise<ApiResult<T>> {
+export async function v2<T>(path: string, init: { method?: string; json?: unknown; commandId?: string } = {}): Promise<ApiResult<T>> {
   let response: Response;
   try {
     response = await fetch(`/api/v2${path}`, {
       method: init.method ?? 'GET',
-      headers: init.json !== undefined ? { 'content-type': 'application/json' } : undefined,
+      headers: { ...(init.json !== undefined ? { 'content-type': 'application/json' } : {}), ...(init.commandId ? { 'idempotency-key': init.commandId } : {}) },
       body: init.json !== undefined ? JSON.stringify(init.json) : undefined,
       credentials: 'same-origin',
     });
@@ -82,7 +82,7 @@ export interface Page<T> {
 export interface HouseholdSummary {
   id: string;
   createdAt: string;
-  parents: Array<PublicUser & { isPrimaryContact: boolean }>;
+  parents: Array<PublicUser & { isPrimaryContact: boolean; verificationStatus: 'PENDING' | 'VERIFIED' | 'REVOKED'; membershipRevision: number }>;
   students: Array<{ id: string; user: PublicUser }>;
 }
 
@@ -132,7 +132,7 @@ export interface EnrollmentDetail {
 export interface HouseholdDetail {
   id: string;
   createdAt: string;
-  parents: Array<PublicUser & { isPrimaryContact: boolean }>;
+  parents: Array<PublicUser & { isPrimaryContact: boolean; verificationStatus: 'PENDING' | 'VERIFIED' | 'REVOKED'; membershipRevision: number }>;
   students: Array<{ id: string; birthDate: string | null; user: PublicUser; enrollments: EnrollmentDetail[] }>;
 }
 

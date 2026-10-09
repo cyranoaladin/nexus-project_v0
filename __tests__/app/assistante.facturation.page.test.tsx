@@ -4,8 +4,9 @@ import AssistanteFacturationPage from '@/app/dashboard/assistante/facturation/pa
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 
-jest.mock('@/components/facturation/NexusInvoiceGenerator', () => ({
-  NexusInvoiceGenerator: () => <div data-testid="nexus-invoice-generator" />,
+jest.mock('@/app/dashboard/admin/facturation/page', () => ({
+  __esModule: true,
+  default: () => <div data-testid="authorized-invoice-list" />,
 }));
 
 jest.mock('next/navigation', () => {
@@ -31,7 +32,7 @@ describe('/dashboard/assistante/facturation access', () => {
 
     render(await AssistanteFacturationPage());
 
-    expect(screen.getByTestId('nexus-invoice-generator')).toBeInTheDocument();
+    expect(screen.getByTestId('authorized-invoice-list')).toBeInTheDocument();
     expect(mockRedirect).not.toHaveBeenCalled();
   });
 
@@ -40,8 +41,14 @@ describe('/dashboard/assistante/facturation access', () => {
 
     render(await AssistanteFacturationPage());
 
-    expect(screen.getByTestId('nexus-invoice-generator')).toBeInTheDocument();
+    expect(screen.getByTestId('authorized-invoice-list')).toBeInTheDocument();
     expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it('redirects an allowed role without canonical user identity', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'ASSISTANTE' } });
+    await expect(AssistanteFacturationPage()).rejects.toThrow('NEXT_REDIRECT:/auth/signin');
+    expect(mockRedirect).toHaveBeenCalledWith('/auth/signin');
   });
 
   it('redirects unauthenticated users', async () => {
@@ -51,8 +58,8 @@ describe('/dashboard/assistante/facturation access', () => {
     expect(mockRedirect).toHaveBeenCalledWith('/auth/signin');
   });
 
-  it('redirects students and other unauthorized roles', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'student-1', role: 'ELEVE' } });
+  it.each(['ELEVE', 'PARENT', 'COACH', 'UNKNOWN'])('redirects unauthorized %s', async role => {
+    mockAuth.mockResolvedValue({ user: { id: 'synthetic-denied', role } });
 
     await expect(AssistanteFacturationPage()).rejects.toThrow('NEXT_REDIRECT:/auth/signin');
     expect(mockRedirect).toHaveBeenCalledWith('/auth/signin');

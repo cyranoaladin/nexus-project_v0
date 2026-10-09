@@ -70,13 +70,22 @@ describe('JWT session revocation architecture boundary', () => {
   it('forbids protected code from decoding or validating JWTs outside the canonical server primitive', () => {
     const files = [...sourceFiles('app'), ...sourceFiles('lib')]
     const legacyBypasses = files.filter((file) =>
-      /getServerSession\s*\(|getToken\s*\(|from ['"]@\/auth\.config['"]/.test(read(file))
+      /getServerSession\s*\(|from ['"]@\/auth\.config['"]/.test(read(file))
+      || (file !== 'lib/auth/session-revocation.ts' && /getToken\s*\(/.test(read(file)))
     )
     const directJwtImports = files.filter((file) =>
       /from ['"]next-auth\/jwt['"]/.test(read(file))
     ).sort()
 
     expect(legacyBypasses).toEqual([])
+    const privateSnapshot = read('lib/auth/session-revocation.ts')
+    expect(privateSnapshot).toContain('export async function readPrivateSessionSnapshot(')
+    expect(privateSnapshot).toContain("new Headers({ cookie: request.headers.get('cookie') ?? '' })")
+    const passwordRoute = read('app/api/auth/password-change/route.ts')
+    expect(passwordRoute).toContain('await auth()')
+    expect(passwordRoute).toContain('await readPrivateSessionSnapshot(request,')
+    expect(passwordRoute).toContain('token.id !== session.user.id')
+    expect(passwordRoute).toContain('token.role !== session.user.role')
     expect(directJwtImports).toEqual([
       'lib/auth/session-claims.ts',
       'lib/auth/session-revocation.ts',
@@ -178,6 +187,8 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/auth/pending-account-lifecycle.ts:deleteMany#1',
       'lib/auth/pending-account-lifecycle.ts:updateMany#1',
       'lib/auth/session-revocation.ts:update#1',
+      // Authenticated password CAS increments the version atomically with its audit.
+      'lib/auth/change-v1-password.ts:updateMany#1',
       'lib/bilans/family-landing/access.ts:update#1',
       ...Array.from({ length: 4 }, (_, i) => `lib/families/create-family.ts:update#${i + 1}`),
       'lib/bilans/staff/parent-contact-service.ts:update#1',
@@ -222,8 +233,7 @@ describe('exhaustive User security mutation inventory', () => {
       // (credentials copied, sessions revoked on re-seed).
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
-      // Core v2 migrator: identity rows are mirrored with the same id; a rerun that changes identity data bumps sessionVersion.
-      'scripts/core-v2/migration/apply.ts:upsert#1',
+      // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
       'scripts/seed-e2e-db.ts:upsert#1',
@@ -238,6 +248,7 @@ describe('exhaustive User security mutation inventory', () => {
     ].sort()
 
     expect(descriptors.sort()).toEqual(approved)
+    expect(descriptors.filter(descriptor => descriptor.startsWith('scripts/core-v2/migration/apply.ts:'))).toEqual([])
 
     const pendingLifecycle = read('lib/auth/pending-account-lifecycle.ts')
     expect(pendingLifecycle).toContain("plan.action === 'INVALIDATE_EXPIRED_TOKEN'")
@@ -254,6 +265,8 @@ describe('exhaustive User security mutation inventory', () => {
       'app/api/assistante/coaches/manage/[id]/route.ts:update#1',
       'app/api/auth/reset-password/route.ts:update#1',
       'lib/auth/session-revocation.ts:update#1',
+      // Authenticated password CAS increments the version atomically with its audit.
+      'lib/auth/change-v1-password.ts:updateMany#1',
       'lib/bilans/family-landing/access.ts:update#1',
       'lib/families/create-family.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#1',
@@ -279,8 +292,7 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 9 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
-      // Core v2 migrator: identity rows are mirrored with the same id; a rerun that changes identity data bumps sessionVersion.
-      'scripts/core-v2/migration/apply.ts:upsert#1',
+      // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',

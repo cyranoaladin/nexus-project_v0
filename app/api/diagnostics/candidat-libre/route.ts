@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const studentId = url.searchParams.get('studentId') ?? undefined;
   const targetSession = Number(url.searchParams.get('targetSession') ?? 2027);
-  const studentOrError = await getStudentForActor(sessionOrError, studentId);
+  const studentOrError = await getStudentForActor(sessionOrError, studentId, 'read');
   if (studentOrError instanceof NextResponse) return studentOrError;
   if (!studentOrError) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
 
   const parsed = createDiagnosticSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 });
-  const studentOrError = await getStudentForActor(sessionOrError, parsed.data.studentId);
+  const studentOrError = await getStudentForActor(sessionOrError, parsed.data.studentId, 'mutation');
   if (studentOrError instanceof NextResponse) return studentOrError;
   if (!studentOrError) return NextResponse.json({ error: 'Student not found' }, { status: 404 });
 

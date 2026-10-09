@@ -1,4 +1,4 @@
-import type { APIResponse, Page } from '@playwright/test';
+import { expect, type APIResponse, type Page } from '@playwright/test';
 import { CREDS } from './credentials';
 import { resetDisposableE2ERateLimits } from './rate-limit';
 
@@ -7,6 +7,7 @@ export type UserType =
     | 'student'
     | 'student2'
     | 'studentSurvival'
+    | 'coachV1'
     | 'coach'
     | 'coach2'
     | 'admin'
@@ -38,6 +39,7 @@ const ROLE_PATHS: Record<UserType, string> = {
     student: '/dashboard/eleve',
     student2: '/dashboard/eleve',
     studentSurvival: '/dashboard/eleve',
+    coachV1: '/dashboard/coach',
     coach: '/dashboard/coach',
     coach2: '/dashboard/coach',
     admin: '/dashboard/admin',
@@ -348,3 +350,21 @@ export async function logoutUser(page: Page) {
 }
 
 export { ROLE_PATHS };
+
+
+/** Wait for the dashboard owned by the verified authority, not a loading shell. */
+export async function expectCoachDashboardReady(page: Page): Promise<void> {
+    const response = await page.request.get('/api/auth/session');
+    expect(response.status()).toBe(200);
+    const session = await response.json();
+    expect(session.user?.role).toBe('COACH');
+    expect(['CORE_V2', 'V1']).toContain(session.user?.authority);
+    if (session.user.authority === 'CORE_V2') {
+        await expect(page.getByRole('heading', { level: 1, name: 'Espace coach', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Mes affectations', exact: true })).toBeVisible();
+        await expect(page.getByText('Chargement de vos affectations…', { exact: true })).toHaveCount(0);
+        await expect(page.getByText(/^Habilitations : /)).toBeVisible();
+    } else {
+        await expect(page.getByRole('heading', { level: 1, name: /^Coach — / })).toBeVisible();
+    }
+}

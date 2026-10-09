@@ -3,7 +3,8 @@
  * migrator. Identity/enrollment/assignment rows go in ONE transaction (all or
  * nothing); each planning series is then created in its own transaction so a
  * slot conflict rejects that series alone (reported) and never the roster.
- * Every write is an upsert on a deterministic id; the existing row's
+ * Identity creation is insert-only: a rerun cannot overwrite Core credentials,
+ * permissions, profile or account state. Other writes use deterministic ids; the existing row's
  * canonical payload is hashed with the same function as the plan, so a rerun
  * reports UNCHANGED / UPDATED truthfully. Dry run computes the same report
  * without writing anything.
@@ -15,8 +16,8 @@ import { createServiceContext, type Tx } from '@/lib/core-v2/services/context';
 import { loadPlanningParticipants, materializeSeriesOccurrences } from '@/lib/core-v2/services/planning';
 import { localDateFromDateColumn, compareLocalDates, zonedParts } from '@/lib/core-v2/time';
 import type { TargetPlan } from './transform';
-import { objectHash } from './transform';
-import { MIGRATION_ENTITIES, OBJECT_RESULTS, type MigrationEntity, type MigrationManifest, type ObjectManifestEntry, type ObjectResult, type Reconciliation } from './types';
+import { canonicalJson, objectHash, userIntegrityPayload } from './transform';
+import { MIGRATION_ENTITIES, OBJECT_RESULTS, TRANSFORM_VERSION, type MigrationEntity, type MigrationManifest, type ObjectManifestEntry, type ObjectResult, type Reconciliation } from './types';
 
 export interface ApplyOptions {
   readonly execute: boolean;
@@ -28,7 +29,7 @@ export interface ApplyOptions {
   readonly correlationId: string;
 }
 
-type Outcome = { id: string; result: ObjectResult; reason?: string };
+type Outcome = { id: string; result: ObjectResult; reason?: string; hash?: string };
 
 function decide(existingHash: string | null, plannedHash: string, execute: boolean): ObjectResult {
   if (existingHash === plannedHash) return 'UNCHANGED';
@@ -62,10 +63,25 @@ async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan, ac
 }
 
 export async function applyPlan(client: PrismaClient, plan: TargetPlan, options: ApplyOptions): Promise<MigrationManifest> {
+  if (options.transformVersion !== TRANSFORM_VERSION || plan.entries.some(entry => entry.transformVersion !== TRANSFORM_VERSION)) {
+    throw new Error('MIGRATION_PROOF_VERSION_UNSUPPORTED');
+  }
   const startedAt = new Date();
   const targetFingerprint = await assertTargetCompatible(client, plan, options.actorUserId);
+  // Slow integrity derivations must never extend the roster transaction's locks.
+  const plannedUserHashes = new Map(plan.users.map(user => [user.id, objectHash(userIntegrityPayload(user))]));
+  const userProofSelect = {
+    id: true, email: true, password: true, role: true, firstName: true, lastName: true,
+    phone: true, accountStatus: true, activatedAt: true, sessionVersion: true,
+  } as const;
+  const existingUsers = await client.user.findMany({
+    where: { id: { in: plan.users.map(user => user.id) } }, select: userProofSelect,
+  });
+  const existingUserProofs = new Map(existingUsers.map(user => [user.id, {
+    snapshot: user, hash: objectHash(userIntegrityPayload(user)),
+  }]));
   const outcomes = new Map<string, Outcome>(); // `${entity}:${targetId}` → outcome
-  const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason });
+  const record = (entity: MigrationEntity, id: string, result: ObjectResult, reason?: string, hash?: string) => outcomes.set(`${entity}:${id}`, { id, result, reason, hash });
 
   const yearStartYear = plan.academicYear.startYear;
   const academicYearId = await client.$transaction(async (tx) => {
@@ -85,19 +101,22 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
 
     for (const u of plan.users) {
-      const existing = await tx.user.findUnique({ where: { id: u.id } });
-      const existingHash = existing
-        ? objectHash({
-            id: existing.id, email: existing.email, password: existing.password, role: existing.role, firstName: existing.firstName, lastName: existing.lastName,
-            phone: existing.phone, accountStatus: existing.accountStatus, activatedAt: existing.activatedAt, sessionVersion: existing.sessionVersion,
-          })
-        : null;
-      const result = decide(existingHash, objectHash(u), options.execute);
-      record('User', u.id, result);
-      if (options.execute && result !== 'UNCHANGED') {
-        const { id, ...data } = u;
-        // A rerun that changes identity data also revokes sessions (same contract as every other credential write).
-        await tx.user.upsert({ where: { id }, create: { id, ...data }, update: { ...data, sessionVersion: existing ? { increment: 1 } : data.sessionVersion } });
+      await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${u.id} FOR UPDATE`;
+      const existing = await tx.user.findUnique({ where: { id: u.id }, select: userProofSelect });
+      const prepared = existingUserProofs.get(u.id);
+      if ((existing === null) !== (prepared === undefined)
+        || (existing && prepared && canonicalJson(existing) !== canonicalJson(prepared.snapshot))) {
+        throw new Error('MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK');
+      }
+      const plannedHash = plannedUserHashes.get(u.id);
+      if (!plannedHash) throw new Error('MIGRATION_USER_PROOF_MISSING');
+      const result = existing ? 'UNCHANGED' : decide(null, plannedHash, options.execute);
+      record('User', u.id, result, existing ? 'CORE_IDENTITY_PRESERVED' : undefined, prepared?.hash);
+      if (options.execute && !existing) {
+        // A copied roster is never authority to roll back a canonical identity.
+        // A concurrent creator or an email collision fails this transaction;
+        // there is deliberately no upsert update path.
+        await tx.user.create({ data: u });
       }
     }
 
@@ -109,11 +128,14 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
     for (const hp of plan.householdParents) {
       const existing = await tx.householdParent.findUnique({ where: { id: hp.id } });
-      const result = decide(existing ? objectHash({ id: existing.id, householdId: existing.householdId, userId: existing.userId, isPrimaryContact: existing.isPrimaryContact }) : null, objectHash(hp), options.execute);
-      record('HouseholdParent', hp.id, result);
-      if (options.execute && result !== 'UNCHANGED') {
-        await tx.householdParent.upsert({ where: { id: hp.id }, create: hp, update: { householdId: hp.householdId, isPrimaryContact: true } });
+      if (existing && (existing.householdId !== hp.householdId || existing.userId !== hp.userId)) {
+        throw new Error('HOUSEHOLD_MEMBERSHIP_REASSIGNMENT_REQUIRES_APPROVAL');
       }
+      // A roster is not authority to verify/reactivate a family or reset its
+      // primary contact. Preserve every existing administrative decision.
+      const result = existing ? 'UNCHANGED' : decide(null, objectHash(hp), options.execute);
+      record('HouseholdParent', hp.id, result);
+      if (options.execute && !existing) await tx.householdParent.create({ data: hp });
     }
     for (const s of plan.students) {
       const existing = await tx.student.findUnique({ where: { id: s.id } });
@@ -223,7 +245,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
   const objects: ObjectManifestEntry[] = plan.entries.map((e) => {
     if (e.result !== 'PLANNED' || !e.targetId) return e;
     const outcome = outcomes.get(`${e.entity}:${e.targetId}`);
-    return outcome ? { ...e, result: outcome.result, reason: outcome.reason } : e;
+    return outcome ? { ...e, result: outcome.result, reason: outcome.reason, hash: outcome.hash ?? e.hash } : e;
   });
   objects.unshift({
     entity: 'AcademicYear',

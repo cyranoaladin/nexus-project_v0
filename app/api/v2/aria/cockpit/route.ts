@@ -1,3 +1,4 @@
+import { qualifyCoreV2AriaCurriculum } from '@/lib/core-v2/aria/course-support';
 /**
  * GET /api/v2/aria/cockpit — ARIA cockpit for a Core v2 identity.
  *
@@ -70,7 +71,7 @@ export const GET = defineStaffRoute({
       }),
     ]);
 
-    const curriculum = resolveAriaCurriculum({
+    const curriculum = qualifyCoreV2AriaCurriculum(resolveAriaCurriculum({
       gradeLevel: student.gradeLevel,
       academicTrack: student.academicTrack,
       specialties: student.specialties,
@@ -80,7 +81,7 @@ export const GET = defineStaffRoute({
       pinnedCourseKeys: profile.pinnedCourseKeys,
       enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext),
       access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey },
-    });
+    }));
 
     const setup = buildSetup(
       profile.onboardingCompletedAt,

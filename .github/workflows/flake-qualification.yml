@@ -223,6 +223,17 @@ jobs:
           npx prisma generate
           npx prisma generate --schema=core-v2/prisma/schema.prisma
 
+      - name: Configure dedicated disposable Core account-token keys
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          source scripts/aria/e2e-runtime-secrets.sh
+          prepare_aria_e2e_runtime_secrets
+          for name in CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+            printf '::add-mask::%s\n' "${!name}"
+            printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
+          done
+
       - name: Seed E2E test data
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
@@ -393,16 +404,15 @@ jobs:
             rm .next-server.pid
           fi
 
+      - name: Prepare private-data-free qualification report
+        if: always()
+        run: node scripts/testing/safe-playwright-report.mjs playwright-report/r1-qualification/results.json .artifacts/publish/r1-qualification/report.json
+
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: playwright-auth-crossbrowser-report
-          # test-results/ carries the retain-on-failure traces (trace.zip,
-          # error-context.md) — without it a cross-engine failure leaves no
-          # evidence to classify (flake registry A4 had none).
-          path: |
-            playwright-report/
-            test-results/
+          path: .artifacts/publish/r1-qualification/
           retention-days: 7
           if-no-files-found: error

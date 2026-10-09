@@ -1,6 +1,5 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { execSync } from 'child_process';
+import { readFileSync, readdirSync } from 'fs';
+import { dirname, join } from 'path';
 
 /**
  * Guard: no literal \u00xx Unicode escapes in JSX of public surface files.
@@ -43,21 +42,28 @@ describe('Unicode escape guard', () => {
       'components/stages/StageInscriptionForm.tsx',
     ];
 
-    // Resolve globs
+    // Resolve the supported literal paths and directory/*.tsx patterns without
+    // a shell. Missing historical pages may be absent; other I/O errors fail.
     const files: string[] = [];
     for (const glob of publicGlobs) {
+      if (!glob.includes('*')) {
+        files.push(join(root, glob));
+        continue;
+      }
+      expect(glob.endsWith('/*.tsx')).toBe(true);
+      const directory = join(root, dirname(glob));
       try {
-        const result = execSync(`find ${join(root, glob.replace(/\*/g, ''))} -name "*.tsx" 2>/dev/null || true`, { encoding: 'utf-8' });
-        if (glob.includes('*')) {
-          result.trim().split('\n').filter(Boolean).forEach((f) => files.push(f));
-        } else {
-          const fullPath = join(root, glob);
-          files.push(fullPath);
+        for (const entry of readdirSync(directory, { withFileTypes: true })) {
+          if (entry.isFile() && entry.name.endsWith('.tsx')) files.push(join(directory, entry.name));
         }
-      } catch {
-        // File may not exist
+      } catch (error) {
+        if (!isMissingFile(error)) throw error;
       }
     }
+
+    // The wildcard must contribute real files; otherwise this guard silently
+    // misses the public stage components it claims to inspect.
+    expect(files).toContain(join(root, 'app/stages/_components/CTAButton.tsx'));
 
     const escapePattern = /\\u00[0-9a-fA-F]{2}/;
     const offenders: string[] = [];
@@ -72,11 +78,15 @@ describe('Unicode escape guard', () => {
             offenders.push(`${relPath}:${i + 1}: ${lines[i].trim().slice(0, 80)}`);
           }
         }
-      } catch {
-        // File doesn't exist — skip
+      } catch (error) {
+        if (!isMissingFile(error)) throw error;
       }
     }
 
     expect(offenders).toEqual([]);
   });
 });
+
+function isMissingFile(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT';
+}

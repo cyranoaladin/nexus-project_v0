@@ -1,3 +1,6 @@
+jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({ assertAccountEmailHandoffRuntimeConfiguration: jest.fn(), kickAccountEmailHandoffDrain: jest.fn() }));
+import { openAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
+import { kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
 /**
  * Core v2 staff API (§AD) against a real Core v2 database: the HTTP envelope,
  * session -> actor mapping, RBAC at the boundary, validation/conflict
@@ -70,6 +73,7 @@ async function json(response: Response) {
 
 beforeEach(() => {
   mockedDeliver.mockClear();
+  jest.mocked(kickAccountEmailHandoffDrain).mockClear();
   signInAs({ id: h.admin.userId, role: 'ADMIN', email: 'admin@synthetic.test' });
 });
 
@@ -234,13 +238,15 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect(detail.body.data.students[0].enrollments[0].assignments[0].planningSeries).toHaveLength(1);
     expect(JSON.stringify(detail.body)).not.toMatch(/"password"/);
 
-    // Invitation: delivered through the outbox adapter, token absent from the API response.
+    // Invitation: durable encrypted intent, token absent from the API response.
     const invited = await json(await accountInvite.POST(req('POST', '/x'), params(parentId)));
     expect(invited.status).toBe(201);
     expect(JSON.stringify(invited.body)).not.toMatch(/rawToken|tokenHash/);
-    expect(mockedDeliver).toHaveBeenCalledTimes(1);
-    const delivery = mockedDeliver.mock.calls[0][0];
-    expect(delivery).toMatchObject({ userId: parentId, role: 'PARENT', email: 'amel@example.com' });
+    expect(mockedDeliver).not.toHaveBeenCalled();
+    expect(kickAccountEmailHandoffDrain).toHaveBeenCalledTimes(1);
+    const handoff = await h.client.coreV2JobOutbox.findFirstOrThrow({ where: { aggregateId: invited.body.data.invitation.id } });
+    const delivery = openAccountEmailHandoff(handoff.payload, handoff.aggregateId);
+    expect({ userId: delivery.userId, role: delivery.role, email: delivery.email }).toMatchObject({ userId: parentId, role: 'PARENT', email: 'amel@example.com' });
     expect(delivery.rawToken.length).toBeGreaterThanOrEqual(40);
 
     // Public activation with that token, then replay refused, then login-ready account suspended by ADMIN.

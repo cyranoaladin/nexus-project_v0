@@ -19,6 +19,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { gotoSignInForm, loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
+import { extractCoreAccountMailToken, type CoreAccountLinkPath } from '../helpers/core-v2-mail-link';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -101,32 +102,22 @@ let rawToken = '';
 let studentToken = '';
 
 /**
- * One literal pattern per link, instead of building a regex from the path.
- * Escaping `/` was both unnecessary (it carries no meaning inside a `RegExp`
- * constructor) and incomplete (no other metacharacter was escaped) — CodeQL
- * flags that shape as `js/incomplete-sanitization`, and it is right to: a
- * path that later gains a `.` or a `+` would silently match too much. Literals
- * cannot drift that way.
+ * Parse exact paths and decoded query parameters, including versioned HMAC
+ * tokens and HTML ampersands. No dynamic regex and no raw token in errors.
  */
-const TOKEN_PATTERN = {
-  '/auth/activate': /\/auth\/activate\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
-  '/auth/reset-password': /\/auth\/reset-password\?purpose=core-v2&(?:amp;)?token=([A-Za-z0-9_-]{40,})/,
-} as const;
-
-async function findCoreV2Token(recipient: string, linkPath: keyof typeof TOKEN_PATTERN): Promise<string> {
-  const pattern = TOKEN_PATTERN[linkPath];
+async function findCoreV2Token(recipient: string, linkPath: CoreAccountLinkPath): Promise<string> {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
     for (const message of messages) {
       const detail = await fetch(`${MAILPIT_API_URL}/api/v1/message/${message.ID}`);
       const body = (await detail.json()) as { Text?: string; HTML?: string };
-      const match = pattern.exec(`${body.Text ?? ''}\n${body.HTML ?? ''}`);
-      if (match) return match[1]!;
+      const token = extractCoreAccountMailToken(`${body.Text ?? ''}\n${body.HTML ?? ''}`, linkPath);
+      if (token) return token;
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
-  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}:${recipient}`);
+  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}`);
 }
 const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
 
@@ -168,6 +159,12 @@ async function activateAndSignIn(page: import('@playwright/test').Page, token: s
 }
 
 test('golden staff workflow on Core v2: family → enrollment → coach → planning → invitation → activation → RBAC', async ({ page }) => {
+  // One end-to-end journey (six role logins, mail round-trips, axe scans). CI
+  // wall times measured on the shared runner: Firefox 34–39 s, WebKit 56.9 s
+  // (passed) then 61.5 s (timed out on its last step, still progressing) against
+  // the 60 s default. The budget is sized to the journey, not to hide a hang:
+  // every step keeps its own explicit assertion timeout.
+  test.setTimeout(120_000);
   useProjectSlot(test.info().project.name);
   await test.step('assistante opens Familles', async () => {
     await loginAsUser(page, 'assistante', { navigate: false });
@@ -220,6 +217,19 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(dialog.getByRole('button', { name: 'Créer la famille' })).toBeDisabled();
     await page.keyboard.press('Escape');
     await page.goto(`/dashboard/assistante/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
+  });
+
+  await test.step('explicitly verifies the household membership through the administrative confirmation', async () => {
+    await expect(page.getByText('Rattachement à vérifier', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Vérifier le rattachement', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByRole('button', { name: 'Confirmer la vérification' })).toBeDisabled();
+    await dialog.getByLabel('Empreinte du justificatif', { exact: true }).fill('a'.repeat(64));
+    await dialog.getByLabel('Je confirme avoir vérifié le rattachement de ce parent à ce foyer.').check();
+    await dialog.getByRole('button', { name: 'Confirmer la vérification' }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page.getByText('Rattachement vérifié', { exact: true })).toBeVisible();
+    await expectAccessible(page);
   });
 
   await test.step('adds a student', async () => {
@@ -326,7 +336,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
-    await expect(parents.getByRole('status').filter({ hasText: /^Invitation envoyée\.$/ })).toBeVisible();
+    await expect(parents.getByRole('status').filter({ hasText: /^Invitation mise en file d’envoi\.$/ })).toBeVisible();
 
     rawToken = await findActivationToken(parentEmail);
     // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
@@ -442,6 +452,12 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const session = await page.request.get(`${BASE_URL}/api/auth/session`);
     const claims = (await session.json()) as { user?: { role?: string; authority?: string } };
     expect(claims.user).toMatchObject({ role: 'COACH', authority: 'CORE_V2' });
+    // A mirrored identity grants no legacy coach ownership. Native Core panels remain usable.
+    for (const route of ['/api/coach/dashboard', '/api/coach/students', '/api/coaches/availability']) {
+      const denied = await page.request.get(`${BASE_URL}${route}`);
+      expect(denied.status()).toBe(403);
+      expect(denied.headers()['cache-control']).toContain('no-store');
+    }
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
     const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
@@ -457,7 +473,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
     await expect(row.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
-    // The coach page mixes Core v1 pilotage and the Core v2 panels: the Core v2 regions must be clean on their own.
+    // Core coach panels remain accessible while unqualified V1 capabilities stay closed.
     await expectAccessible(page, '[aria-labelledby="core-v2-coach-assignments"]');
     await expectAccessible(page, '[aria-labelledby="core-v2-upcoming-sessions"]');
     // A coach is not staff: the back-office surface stays closed.

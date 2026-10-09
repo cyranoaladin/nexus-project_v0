@@ -72,6 +72,15 @@ function setupCoach(outerSnapshotEmail: string, lockedRowEmail: string) {
 }
 
 describe('PUT /api/assistante/coaches/manage/[id] — atomic email-change session revocation', () => {
+  it.each(['short', `A1${'x'.repeat(71)}`, `A1${'é'.repeat(36)}`])(
+    'rejects invalid new credentials before any coach lookup or mutation', async (password) => {
+      setupCoach('same@example.com', 'same@example.com');
+      const response = await PUT(request(validBody({ password })), params());
+      expect(response.status).toBe(400);
+      expect(prisma.coachProfile.findUnique).not.toHaveBeenCalled();
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    },
+  );
   it('revokes sessions on a normal (non-concurrent) email change', async () => {
     setupCoach('old@example.com', 'old@example.com');
 

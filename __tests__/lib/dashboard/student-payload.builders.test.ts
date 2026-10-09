@@ -75,6 +75,31 @@ function setupMocks(studentOverride = {}) {
   (getNextStep as jest.Mock).mockResolvedValue(null);
 }
 
+describe('student financial boundary', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    setupMocks();
+  });
+
+  it.each(['DRAFT', 'SENT', 'PAID'])('does not query or expose %s invoices to an academic beneficiary', async (status) => {
+    (prisma.invoice.findMany as jest.Mock).mockResolvedValue([{
+      id: 'private-financial-invoice', number: 'PRIVATE-FINANCIAL-NUMBER', status,
+      issuedAt: new Date('2026-10-04T08:00:00Z'),
+      paidAt: status === 'PAID' ? new Date('2026-10-04T09:00:00Z') : null,
+      total: 987654, currency: 'TND', pdfUrl: '/private-financial.pdf',
+    }]);
+
+    const result = await buildStudentDashboardPayload('user-1');
+
+    expect(prisma.invoice.findMany).not.toHaveBeenCalled();
+    expect(result.hub.byCategory.INVOICE).toEqual([]);
+    expect(result.hub.byCategory.RECEIPT).toEqual([]);
+    expect(JSON.stringify(result)).not.toContain('PRIVATE-FINANCIAL-NUMBER');
+    expect(JSON.stringify(result)).not.toContain('/private-financial.pdf');
+    expect(JSON.stringify(result)).not.toContain('987.65');
+  });
+});
+
 // ─── toBilan ─────────────────────────────────────────────────────────────────
 
 describe('toBilan', () => {
@@ -160,6 +185,7 @@ describe('toResource', () => {
     (prisma.userDocument.findMany as jest.Mock).mockResolvedValue([{
       id: 'doc-abc', title: 'Cours Maths', originalName: 'cours.pdf',
       mimeType: 'application/pdf', sizeBytes: 51200, createdAt: new Date(),
+      visibilityScope: 'STUDENT_ONLY',
     }]);
 
     const result = await buildStudentDashboardPayload('user-1');
@@ -167,6 +193,28 @@ describe('toResource', () => {
     expect(result.resources[0].downloadUrl).toBe('/api/student/documents/doc-abc/download');
     expect(result.resources[0].type).toBe('USER_DOCUMENT');
     expect(result.resources[0].sizeBytes).toBe(51200);
+  });
+
+  it('excludes administrative and unknown document metadata from both student projections', async () => {
+    const scopes = ['STUDENT_ONLY', 'STUDENT_AND_PARENT', 'STUDENT_AND_COACH', 'STUDENT_PARENT_COACH', 'ADMIN_ONLY', 'UNKNOWN'];
+    (prisma.userDocument.findMany as jest.Mock).mockResolvedValue(scopes.map(scope => ({
+      id: scope, title: scope, originalName: `${scope}.pdf`, description: scope,
+      mimeType: 'application/pdf', sizeBytes: 32, createdAt: new Date('2026-10-04T08:00:00Z'),
+      documentType: 'AUTRE', visibilityScope: scope, subject: null,
+      uploadedById: null, uploadedBy: null,
+    })));
+
+    const result = await buildStudentDashboardPayload('user-1');
+
+    expect(prisma.userDocument.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { userId: 'user-1', visibilityScope: { in: scopes.slice(0, 4) } }, take: 10,
+    }));
+    expect(result.resources.map(resource => resource.id)).toEqual(scopes.slice(0, 4));
+    expect(JSON.stringify(result)).not.toContain('ADMIN_ONLY');
+    expect(JSON.stringify(result)).not.toContain('UNKNOWN');
+    for (const scope of scopes.slice(0, 4)) {
+      expect(JSON.stringify(result.hub)).toContain(`/api/student/documents/${scope}/download`);
+    }
   });
 });
 
@@ -176,6 +224,21 @@ describe('toStageItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     setupMocks();
+  });
+
+  it('requires explicit student ownership even when a foreign or unlinked reservation shares the email', async () => {
+    const stage = { id: 'synthetic-stage', slug: 'synthetic-stage', title: 'Synthetic stage',
+      startDate: new Date('2026-10-05T08:00:00Z'), endDate: new Date('2026-10-06T08:00:00Z'), location: 'Synthetic location' };
+    (prisma.stageReservation.findMany as jest.Mock).mockResolvedValue([
+      { id: 'owned-reservation', studentId: 'student-1', email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+      { id: 'FOREIGN-PRIVATE-RESERVATION', studentId: 'other-student', email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+      { id: 'UNLINKED-PRIVATE-RESERVATION', studentId: null, email: BASE_STUDENT.user.email, status: 'CONFIRMED', stage },
+    ]);
+    const result = await buildStudentDashboardPayload('user-1');
+    expect(prisma.stageReservation.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { studentId: 'student-1' } }));
+    expect([...result.upcomingStages, ...result.pastStages].map(item => item.reservationId)).toEqual(['owned-reservation']);
+    expect(JSON.stringify(result)).not.toContain('FOREIGN-PRIVATE-RESERVATION');
+    expect(JSON.stringify(result)).not.toContain('UNLINKED-PRIVATE-RESERVATION');
   });
 
   it('maps PAID reservation status to CONFIRMED', async () => {

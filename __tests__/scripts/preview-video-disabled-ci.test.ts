@@ -63,6 +63,13 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(smoke).toContain('prisma.sessionBooking.delete(');
   });
 
+  it('creates the canonical student profile and parent ownership before testing disabled video', () => {
+    const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
+    expect(smoke).toContain('parentProfile: { select: { id: true } }');
+    expect(smoke).toContain("fail('VIDEO_BROWSER_PARENT_PROFILE_MISSING')");
+    expect(smoke).toContain('student: { create: { parentId: user.parentProfile.id, gradeLevel:');
+  });
+
   it('keeps the disposable booking within one calendar day and always attempts user cleanup', () => {
     const smoke = readFileSync(resolve(__dirname, '../../scripts/testing/verify-video-disabled-browser.mjs'), 'utf8');
     expect(smoke).toContain('const endTime = `${hour}:59`');
@@ -75,12 +82,33 @@ describe('Preview DISABLED production-build CI lane', () => {
     expect(usersDelete).toBeGreaterThan(firstCleanupCatch);
   });
 
-  it('keeps the existing legacy JITSI Production Build job', () => {
+  it('builds the promotable artifact from the candidate with unqualified video disabled', () => {
     const workflow = yaml.load(readFileSync(workflowPath, 'utf8')) as any;
     const build = workflow.jobs.build;
     expect(build.name).toBe('Production Build');
     const buildStep = build.steps.find((step: { name: string }) => step.name === 'Build Next.js production bundle');
-    expect(buildStep.env.NEXT_PUBLIC_JITSI_SERVER_URL).toBe('https://jitsi-ci.nexus-e2e.test');
-    expect(buildStep.env.NEXT_PUBLIC_VIDEO_MODE).toBeUndefined();
+    const effective = { ...build.env, ...buildStep.env };
+    expect(effective.NEXT_PUBLIC_VIDEO_MODE).toBe('DISABLED');
+    expect(effective.NEXT_PUBLIC_JITSI_SERVER_URL || '').toBe('');
+    expect(effective.NEXT_PUBLIC_APP_URL).toBe('https://nexusreussite.academy');
+    expect(effective.NEXT_PUBLIC_ENABLE_CLICTOPAY_PUBLIC).toBe('false');
+    expect(effective.NEXT_PUBLIC_ENABLE_BANK_TRANSFER).toBe('false');
+    const checkout = build.steps.find((step: { uses?: string }) => step.uses?.startsWith('actions/checkout@'));
+    expect(checkout.with.ref).toBe('${{ github.event.pull_request.head.sha || github.sha }}');
+    expect(build.env.RELEASE_SHA).toBe(checkout.with.ref);
+    const smoke = build.steps.find((step: { name: string }) => step.name === 'Smoke test standalone server');
+    expect({ ...build.env, ...smoke.env }.NEXT_PUBLIC_VIDEO_MODE).toBe('DISABLED');
+    expect({ ...build.env, ...smoke.env }.NEXT_PUBLIC_JITSI_SERVER_URL || '').toBe('');
+    const audit = build.steps.findIndex((step: { run?: string }) => step.run === 'npm run artifact:audit');
+    const sbom = build.steps.findIndex((step: { run?: string }) => step.run === 'npm run sbom:runtime');
+    const upload = build.steps.findIndex((step: { name: string }) => step.name === 'Upload build artifacts');
+    expect(sbom).toBeGreaterThan(-1);
+    expect(sbom).toBeLessThan(upload);
+    expect(audit).toBeLessThan(upload);
+    const encryption = build.steps.findIndex((step: { name: string }) => step.name === 'Encrypt deployable build archive');
+    expect(encryption).toBeGreaterThan(sbom);
+    expect(encryption).toBeLessThan(upload);
+    expect(build.steps[encryption].run).toContain('cp release-manifest.json security/sbom/runtime.cdx.json "$RUNNER_TEMP/nexus-build-delivery/"');
+    expect(build.steps[upload].with.path).toContain('${{ runner.temp }}/nexus-build-delivery/runtime.cdx.json');
   });
 });

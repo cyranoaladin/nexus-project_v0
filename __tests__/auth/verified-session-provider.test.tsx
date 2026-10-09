@@ -11,7 +11,7 @@ const router = { replace };
 const search = new URLSearchParams();
 let mockPathname = '/dashboard/admin';
 jest.mock('next/navigation', () => ({ useRouter: () => router, usePathname: () => mockPathname, useSearchParams: () => search }));
-beforeEach(() => { replace.mockClear(); mockPathname = '/dashboard/admin'; });
+beforeEach(() => { replace.mockReset(); mockPathname = '/dashboard/admin'; });
 
 // Browser channel semantics: messages reach other instances, never their
 // sender. The actual installed SessionProvider and refresh code are unmocked.
@@ -111,6 +111,38 @@ function LogoutProbe({ redirect = false }: { redirect?: boolean }) {
     catch { setResult('logout-unavailable'); }
   }}>Logout transport</button><output>{result}</output></>;
 }
+
+it.each([false, true])('a confirmed protected logout has one navigation owner and honors redirect=%s', async redirect => {
+  let navigationBeforeShellRetirement = false;
+  replace.mockImplementation(() => {
+    navigationBeforeShellRetirement = screen.queryByRole('button', { name: 'Logout transport' }) !== null;
+  });
+  const originalFetch = global.fetch;
+  const originalChannel = global.BroadcastChannel;
+  global.BroadcastChannel = BrowserChannel as unknown as typeof BroadcastChannel;
+  const session = { user: { id: 'synthetic-admin', role: 'ADMIN' }, expires: '2099-01-01T00:00:00Z' };
+  let signedOut = false;
+  global.fetch = jest.fn(async input => {
+    const path = String(input);
+    if (path.endsWith('/csrf')) return { ok: true, json: async () => ({ csrfToken: 'synthetic-csrf' }) } as Response;
+    if (path.endsWith('/signout')) { signedOut = true; return { ok: true, json: async () => ({ url: '/auth/signin' }) } as Response; }
+    return { ok: true, json: async () => signedOut ? null : session } as Response;
+  });
+  const view = render(<SessionProvider session={session as Session}><SessionRecoveryProvider><LogoutProbe redirect={redirect} /></SessionRecoveryProvider></SessionProvider>);
+  try {
+    await waitFor(() => expect(document.querySelector('[data-session-observation]')).toHaveAttribute('data-session-observation', 'AUTHENTICATED'));
+    fireEvent.click(screen.getByRole('button', { name: 'Logout transport' }));
+    await screen.findByText('Session terminée.');
+    expect(screen.queryByText(/Redirection vers la connexion/)).not.toBeInTheDocument();
+    await act(async () => {});
+    expect(signedOut).toBe(true);
+    expect(replace).toHaveBeenCalledTimes(redirect ? 1 : 0);
+    if (redirect) expect(replace).toHaveBeenCalledWith('/auth/signin');
+    expect(navigationBeforeShellRetirement).toBe(false);
+  } finally {
+    view.unmount(); global.fetch = originalFetch; global.BroadcastChannel = originalChannel;
+  }
+});
 
 it.each([false, true])('does not confirm failed real signout (redirect=%s) or leak a button rejection', async redirect => {
   const originalFetch = global.fetch;

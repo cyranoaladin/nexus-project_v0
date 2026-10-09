@@ -14,6 +14,7 @@ export type EspaceErrorCode =
   | 'WORK_EMPTY'
   | 'REVISION_CONFLICT'
   | 'UPLOAD_REJECTED'
+  | 'UPLOAD_SCAN_UNAVAILABLE'
   | 'RATE_LIMITED';
 
 const STATUS: Record<EspaceErrorCode, number> = {
@@ -27,6 +28,7 @@ const STATUS: Record<EspaceErrorCode, number> = {
   WORK_EMPTY: 409,
   REVISION_CONFLICT: 409,
   UPLOAD_REJECTED: 400,
+  UPLOAD_SCAN_UNAVAILABLE: 503,
   RATE_LIMITED: 429,
 };
 

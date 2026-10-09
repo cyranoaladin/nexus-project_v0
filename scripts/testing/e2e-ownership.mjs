@@ -42,6 +42,13 @@ import { execFileSync } from 'node:child_process';
 const repoRoot = process.cwd();
 
 export const DOCUMENTED_EXCLUSIONS = new Set([
+  'e2e/bilan-validation/auth-hydration.spec.ts',
+  'e2e/bilan-validation/enrichment.spec.ts',
+  'e2e/bilan-validation/espace-bilan.spec.ts',
+  'e2e/bilan-validation/mobile-account.spec.ts',
+  'e2e/bilan-validation/student.spec.ts',
+  'e2e/bilan-validation/teacher.spec.ts',
+  'e2e/bilan-validation/terminale.spec.ts',
   'e2e/fallback/fallback-offline.spec.ts',
   'e2e/prod/espace-prod-credentials.spec.ts',
   'e2e/prod/espace-prod-recursivite.spec.ts',

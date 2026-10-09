@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   if (input.diagnosticId) {
     const session = await requireAuth();
     if (!isErrorResponse(session)) {
-      const loaded = await loadRawDomainScores(session, input.diagnosticId);
+      const loaded = await loadRawDomainScores(session, input.diagnosticId, 'read');
       // Ownership/not-found on the diagnostic must not break the whole
       // estimation — fall back to no-diagnostic rather than surfacing an
       // unrelated 403/404 from a public pricing endpoint.

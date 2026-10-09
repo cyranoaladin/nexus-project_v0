@@ -59,7 +59,7 @@ export async function GET(_request: Request, { params }: Params) {
 
   const sessionOrError = await requireDiagnosticActor();
   if (isErrorResponse(sessionOrError)) return sessionOrError;
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'read');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   if (!canEditAudience(sessionOrError.user.role, definition.audience) && sessionOrError.user.role !== UserRole.COACH) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -109,7 +109,7 @@ async function saveModule(request: Request, { params }: Params, forcedAction: 'd
   const identityLimited = await guardSensitiveRateLimit(request, { scope, identity: sessionOrError.user.id, dimensions: ['identity'] });
   if (identityLimited) return identityLimited;
   if (!canEditAudience(sessionOrError.user.role, definition.audience)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId);
+  const diagnosticOrError = await getDiagnosticForActor(sessionOrError, diagnosticId, 'mutation');
   if (diagnosticOrError instanceof NextResponse) return diagnosticOrError;
   // Hors allowlist, le dossier doit paraitre absent : 404 avant tout autre verdict.
   const notAllowed = guardCandidateDiagnosticForStudent(diagnosticOrError.studentId);

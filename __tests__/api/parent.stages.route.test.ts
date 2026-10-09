@@ -9,6 +9,8 @@ jest.mock('@/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('@/lib/families/list-access-authority', () => ({ resolveParentStudentListAccess: jest.fn() }));
+import { resolveParentStudentListAccess } from '@/lib/families/list-access-authority';
 import { auth } from '@/auth';
 import { GET } from '@/app/api/parent/stages/route';
 
@@ -46,8 +48,10 @@ function coachBilan(studentId: string) {
 describe('GET /api/parent/stages — coachBilans scoped to verified canonical link', () => {
   it('hides coachBilans for a legacy child with no canonical ParentStudentLink at all', async () => {
     prisma.parentProfile.findUnique.mockResolvedValue({
+      id: 'synthetic-parent-profile',
       children: [{ id: 'student-legacy-1', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } }],
     });
+    jest.mocked(resolveParentStudentListAccess).mockResolvedValue({ studentIds: ['student-legacy-1'], unavailable: false });
     prisma.parentStudentLink.findMany.mockResolvedValue([]);
     prisma.stageReservation.findMany.mockResolvedValue([]);
     prisma.stageBilan.findMany.mockResolvedValue([]);
@@ -65,8 +69,10 @@ describe('GET /api/parent/stages — coachBilans scoped to verified canonical li
     'hides coachBilans when the latest link is %s',
     async (state) => {
       prisma.parentProfile.findUnique.mockResolvedValue({
+        id: 'synthetic-parent-profile',
         children: [{ id: 'student-1', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } }],
       });
+      jest.mocked(resolveParentStudentListAccess).mockResolvedValue({ studentIds: ['student-1'], unavailable: false });
       prisma.parentStudentLink.findMany.mockResolvedValue([{
         id: 'link-1',
         studentId: 'student-1',
@@ -89,8 +95,10 @@ describe('GET /api/parent/stages — coachBilans scoped to verified canonical li
 
   it('shows coachBilans for a child with a currently VERIFIED canonical link', async () => {
     prisma.parentProfile.findUnique.mockResolvedValue({
+      id: 'synthetic-parent-profile',
       children: [{ id: 'student-verified-1', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } }],
     });
+    jest.mocked(resolveParentStudentListAccess).mockResolvedValue({ studentIds: ['student-verified-1'], unavailable: false });
     prisma.parentStudentLink.findMany.mockResolvedValue([{
       id: 'link-1',
       studentId: 'student-verified-1',
@@ -117,11 +125,13 @@ describe('GET /api/parent/stages — coachBilans scoped to verified canonical li
 
   it('shows only the verified child among several, taking the most recently updated link per student', async () => {
     prisma.parentProfile.findUnique.mockResolvedValue({
+      id: 'synthetic-parent-profile',
       children: [
         { id: 'student-verified', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } },
         { id: 'student-pending', user: { firstName: 'C', lastName: 'D', email: 'c@d.test' } },
       ],
     });
+    jest.mocked(resolveParentStudentListAccess).mockResolvedValue({ studentIds: ['student-verified', 'student-pending'], unavailable: false });
     prisma.parentStudentLink.findMany.mockResolvedValue([
       {
         id: 'link-verified',
@@ -157,8 +167,10 @@ describe('GET /api/parent/stages — coachBilans scoped to verified canonical li
 
   it('picks the most recently updated link when a single student has more than one', async () => {
     prisma.parentProfile.findUnique.mockResolvedValue({
+      id: 'synthetic-parent-profile',
       children: [{ id: 'student-1', user: { firstName: 'A', lastName: 'B', email: 'a@b.test' } }],
     });
+    jest.mocked(resolveParentStudentListAccess).mockResolvedValue({ studentIds: ['student-1'], unavailable: false });
     // Ordered exactly as currentParentLinkOrderBy() (updatedAt desc) would
     // return from the DB: the newest link is REVOKED, an older one is still
     // VERIFIED. The dedup must keep the first (newest) link per student, not

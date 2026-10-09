@@ -25,8 +25,9 @@ import { coreV1AuthEnabled, coreV2AuthEnabled, getAuthRolloutMode, type AuthRoll
 export type CredentialAuthority = 'CORE_V2' | 'V1';
 
 export class CoreV2AuthorityUnavailableError extends Error {
-  constructor(message: string) {
-    super(message);
+  readonly code = 'CORE_V2_AUTHORITY_UNAVAILABLE';
+  constructor() {
+    super('Core v2 authority is unavailable; authentication refused.');
     this.name = 'CoreV2AuthorityUnavailableError';
   }
 }
@@ -43,10 +44,10 @@ export type { AuthRolloutMode };
 async function coreV2ClientOrRefuse() {
   try {
     return await requireCoreV2Client();
-  } catch (error) {
-    throw new CoreV2AuthorityUnavailableError(
-      `Core v2 is required by ${getAuthRolloutMode()} and unavailable; refusing to authenticate. ${error instanceof Error ? error.message : String(error)}`,
-    );
+  } catch {
+    // Driver/configuration diagnostics can contain connection credentials.
+    // Preserve the actionable failure class, never its raw message or cause.
+    throw new CoreV2AuthorityUnavailableError();
   }
 }
 
@@ -141,11 +142,12 @@ export async function authenticateCoreV2ByPhone(rawPhone: string, password: stri
  * than answering "failed". Same posture as assertNpcStorageReady,
  * assertAuthRolloutStartup and verifyServerSession.
  */
-export async function revokeCoreV2UserSessions(userId: string): Promise<void> {
+export async function revokeCoreV2UserSessions(userId: string): Promise<{ sessionVersion: number }> {
   const client = await coreV2ClientOrRefuse();
-  await client.user.update({
+  return client.user.update({
     where: { id: userId },
     data: { sessionVersion: { increment: 1 } },
+    select: { sessionVersion: true },
   });
 }
 

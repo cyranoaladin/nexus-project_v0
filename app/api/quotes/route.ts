@@ -8,7 +8,7 @@
  */
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { requireAuth, requireParentOwnsStudent, requireAnyRole, isErrorResponse } from '@/lib/guards';
+import { requireAuth, requireParentOwnsStudent, requireStudentOwnsStudent, requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { UserRole } from '@prisma/client';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { buildRecommendation } from '@/lib/quotes/recommendation';
@@ -113,9 +113,11 @@ export async function POST(request: Request) {
 
     if (input.studentId) {
       if (session.user.role === UserRole.ELEVE) {
+        const ownership = await requireStudentOwnsStudent(session.user.id, input.studentId);
+        if (isErrorResponse(ownership)) return ownership;
         verifiedStudentId = input.studentId;
       } else if (session.user.role === UserRole.PARENT) {
-        const ownership = await requireParentOwnsStudent(session.user.id, input.studentId);
+        const ownership = await requireParentOwnsStudent(session.user.id, input.studentId, 'mutation');
         if (isErrorResponse(ownership)) return ownership;
         verifiedStudentId = input.studentId;
       } else if (session.user.role === UserRole.ADMIN || session.user.role === UserRole.ASSISTANTE) {
@@ -126,11 +128,13 @@ export async function POST(request: Request) {
     }
 
     if (input.diagnosticId) {
-      const loaded = await loadRawDomainScores(session, input.diagnosticId);
-      if (!isErrorResponse(loaded)) {
-        diagnosticDomainScores = loaded.raw;
-        overconfidentDomainKeys = loaded.overconfidentDomainKeys;
+      const loaded = await loadRawDomainScores(session, input.diagnosticId, 'mutation');
+      if (isErrorResponse(loaded)) return loaded;
+      if (verifiedStudentId && loaded.studentId !== verifiedStudentId) {
+        return NextResponse.json({ error: 'forbidden' }, { status: 403 });
       }
+      diagnosticDomainScores = loaded.raw;
+      overconfidentDomainKeys = loaded.overconfidentDomainKeys;
     }
   }
 

@@ -168,7 +168,7 @@ export async function bootstrapFirstAdmin(client: PrismaClient, rawInput: Bootst
   const email = normalizeEmail(input.email);
 
   return inTransaction(client, async (tx) => {
-    await tx.$executeRawUnsafe('SELECT pg_advisory_xact_lock($1::int, $2::int)', BOOTSTRAP_ADMIN_LOCK[0], BOOTSTRAP_ADMIN_LOCK[1]);
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(${BOOTSTRAP_ADMIN_LOCK[0]}::int, ${BOOTSTRAP_ADMIN_LOCK[1]}::int)`;
 
     const existing = await tx.user.count({ where: { role: 'ADMIN' } });
     if (existing > 0) {

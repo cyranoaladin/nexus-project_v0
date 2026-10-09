@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
@@ -44,6 +45,31 @@ test('static planning preserves its exact editor through unavailable canonical v
     await expect(draft).toHaveAttribute('data-retained-draft', 'original-node');
     expect(mutations).toEqual([]);
   } finally { await page.unrouteAll({ behavior: 'ignoreErrors' }); }
+});
+
+test('recovery form stays non-interactive until hydration', async ({ page }) => {
+  let releaseScripts!: () => void;
+  const scriptsReady = new Promise<void>(resolve => { releaseScripts = resolve; });
+  await page.route('**/_next/static/**/*.js', async route => {
+    await scriptsReady;
+    await route.continue();
+  });
+  try {
+    await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'commit' });
+    const input = page.getByLabel('Téléphone WhatsApp ou email', { exact: true });
+    const form = page.locator('form').filter({ has: input });
+    await expect(input).toBeVisible();
+    await expect(input).toBeDisabled();
+    await expect(form.locator('button[type="submit"]')).toBeDisabled();
+    releaseScripts();
+    await expect(input).toBeEnabled();
+    await input.fill('synthetic-recovery@example.test');
+    await expect(input).toHaveValue('synthetic-recovery@example.test');
+    await expect(form.locator('button[type="submit"]')).toBeEnabled();
+  } finally {
+    releaseScripts();
+    await page.unrouteAll({ behavior: 'wait' });
+  }
 });
 
 test('sign-in remains non-interactive until delayed JavaScript hydrates the controlled inputs', async ({ page }) => {
@@ -346,4 +372,35 @@ test('genuine logout confirms server absence and exits without a recovery loop',
   expect(await canonical.json()).toBeNull();
   await page.goto('/dashboard/admin');
   await expect(page).toHaveURL(/\/auth\/signin/);
+});
+
+
+test('reenabled shared buttons regain full contrast immediately', async ({ page }) => {
+  await page.goto('/auth/signin');
+  const source=page.getByRole('button',{name:/accéder à mon espace/i});
+  await expect(source).toBeEnabled();
+  // Clone the actual shipped Button classes, outside React, to isolate the
+  // disabled-to-enabled CSS transition without an account mutation.
+  await source.evaluate(element => {
+    const region=document.createElement('div');
+    region.id='reenabled-button-contrast';
+    region.style.cssText='background:#111826;padding:20px;position:fixed;top:0;left:0;z-index:99999';
+    for(const [index,color] of ['#8FAFC4','#FECACA'].entries()) {
+      const button=element.cloneNode(false) as HTMLButtonElement;
+      button.type='button';button.disabled=true;
+      button.textContent=`Synthetic contrast ${index}`;
+      button.style.cssText=`background:transparent;color:${color};font-size:14px`;
+      region.append(button);
+    }
+    document.body.append(region);
+  });
+  const region=page.locator('#reenabled-button-contrast');
+  await expect.poll(()=>region.locator('button').evaluateAll(buttons=>buttons.map(button=>getComputedStyle(button).opacity))).toEqual(['0.5','0.5']);
+  const immediate=await region.locator('button').evaluateAll(buttons=>buttons.map(element=>{
+    (element as HTMLButtonElement).disabled=false;
+    return getComputedStyle(element).opacity;
+  }));
+  expect(immediate).toEqual(['1','1']);
+  const results=await new AxeBuilder({page}).include('#reenabled-button-contrast').withRules(['color-contrast']).analyze();
+  expect(results.violations).toEqual([]);
 });

@@ -55,4 +55,11 @@ if [ -n "$PLAYWRIGHT_PROJECT" ]; then
   args+=(--project "$PLAYWRIGHT_PROJECT")
 fi
 echo "[playwright] Running allowlisted config ${PLAYWRIGHT_CONFIG} project ${PLAYWRIGHT_PROJECT:-all}."
+if [ "$PLAYWRIGHT_CONFIG" = 'playwright.aria.config.ts' ] && [ "$PLAYWRIGHT_PROJECT" = 'aria-mobile' ]; then
+  # Preserve the full E018–E021 campaign, then qualify E019 on the same stack.
+  npx playwright "${args[@]}"
+  export PLAYWRIGHT_PROJECT=aria-mobile-repeat20
+  exec npx playwright test --config playwright.aria.config.ts --project=aria-mobile \
+    visual-a11y.spec.ts --grep 'E019 ARIA_VISUAL_VIEWPORT_MATRIX' --repeat-each=20 --workers=1 --retries=0
+fi
 exec npx playwright "${args[@]}"

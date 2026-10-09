@@ -66,6 +66,8 @@ describe('S3 final distributed rate-limit contract', () => {
       'quotes-lead-search', 'quotes-history-read',
       'candidate-profile-create', 'candidate-profile-read', 'candidate-profile-update',
     ]
+    expectedScopes.push('document-upload');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['document-upload']).toEqual({ ipPreset: 'expensiveIp', identityPreset: 'expensiveIdentity' });
     expectedScopes.push('family-create');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['family-create']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity' });
     // Core v2 public activation (POST /api/v2/auth/activate): same posture as the other credential endpoints.
@@ -75,6 +77,16 @@ describe('S3 final distributed rate-limit contract', () => {
     expectedScopes.push('core-v2-password-reset-request', 'core-v2-password-reset-confirm');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-request']).toEqual({ ipPreset: 'emailIp', identityPreset: 'emailIdentity' });
     expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-reset-confirm']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    expectedScopes.push('core-v2-password-change', 'v1-password-change');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['v1-password-change']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['core-v2-password-change']).toEqual({ ipPreset: 'authIp', identityPreset: 'authIdentity' });
+    // Staff lookup is a read; stage confirmation is a credential-issuing mutation.
+    expectedScopes.push('reservation-list', 'reservation-verify', 'stage-confirmation');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-list']).toEqual({ ipPreset: 'readIp', identityPreset: 'readIdentity' });
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-verify']).toEqual({ ipPreset: 'readIp', identityPreset: 'readIdentity' });
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['stage-confirmation']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' });
+    expectedScopes.push('reservation-decision');
+    expect(SENSITIVE_RATE_LIMIT_POLICIES['reservation-decision']).toEqual({ ipPreset: 'writeIp', identityPreset: 'writeIdentity', resourcePreset: 'resourceWrite' });
     // Espace pédagogique Terminale : login (IP large, identifiant strict), autosave, dépôt, écritures enseignant.
     expectedScopes.push('espace-login', 'espace-autosave', 'espace-upload', 'espace-teacher-write', 'espace-credential', 'espace-credential-reset');
     expect(SENSITIVE_RATE_LIMIT_POLICIES['espace-login']).toEqual({ ipPreset: 'espaceLoginIp', identityPreset: 'authIdentity' });

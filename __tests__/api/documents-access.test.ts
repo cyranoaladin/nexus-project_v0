@@ -3,11 +3,18 @@
  */
 
 import { NextRequest } from 'next/server';
+import { writeFile, unlink } from 'fs/promises';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+
+jest.mock('fs/promises', () => ({ mkdir: jest.fn().mockResolvedValue(undefined), writeFile: jest.fn().mockResolvedValue(undefined), unlink: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('@/lib/security/private-file-antivirus', () => ({ scanPrivateFile: jest.fn() }));
+jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn(async () => null) }));
 
 // ── Mocks ───────────────────────────────────────────────────────────────────
 
-const mockSession: { user: { id: string; email: string; role: string } } | null = {
-  user: { id: 'user-coach-1', email: 'coach@example.com', role: 'COACH' },
+const mockSession: { user: { id: string; email: string; role: string; authority?: string } } | null = {
+  user: { id: 'user-coach-1', email: 'coach@example.com', role: 'COACH', authority: 'V1' },
 };
 
 function setSession(session: typeof mockSession) {
@@ -93,7 +100,7 @@ const mockDocument = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function coachSession() {
-  setSession({ user: { id: COACH_USER_ID, email: 'coach@example.com', role: 'COACH' } });
+  setSession({ user: { id: COACH_USER_ID, email: 'coach@example.com', role: 'COACH', authority: 'V1' } });
 }
 function studentSession() {
   setSession({ user: { id: STUDENT_USER_ID, email: 'student@example.com', role: 'ELEVE' } });
@@ -114,6 +121,41 @@ describe('Documents Access Control', () => {
   });
 
   describe('Coach Documents API', () => {
+    it.each(['csrf', 'rate'])('refuses %s before coach upload parsing and assignment lookup', async kind => {
+      coachSession();
+      const previous = process.env.NODE_ENV;
+      Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: 'development' });
+      try {
+        const request = { method: 'POST', headers: new Headers({ Origin: kind === 'csrf' ? 'https://attacker.example' : 'https://nexusreussite.academy' }), formData: jest.fn() } as unknown as NextRequest;
+        if (kind === 'rate') (guardSensitiveRateLimit as jest.Mock).mockResolvedValueOnce(new Response('{}', { status: 429 }));
+        expect((await CoachDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) })).status).toBe(kind === 'csrf' ? 403 : 429);
+        expect(request.formData).not.toHaveBeenCalled();
+        expect(assertCoachCanAccessStudent).not.toHaveBeenCalled();
+        expect(writeFile).not.toHaveBeenCalled();
+      } finally { Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: previous }); }
+    });
+
+    it.each([['clean', 201], ['MALWARE_DETECTED:synthetic', 422], ['AV_SCAN_TIMEOUT', 503]])('scans multipart before publication and fails closed: %s', async (verdict, status) => {
+      coachSession();
+      (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
+      mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
+      mockPrisma.userDocument.create.mockResolvedValue(mockDocument);
+      (scanPrivateFile as jest.Mock).mockReset().mockImplementation(async (filePath: string) => {
+        expect(writeFile).toHaveBeenCalledWith(filePath, expect.any(Buffer), { mode: 0o600, flag: 'wx' });
+        expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+        if (verdict !== 'clean') throw new Error(verdict);
+        return { clean: true, engine: 'synthetic-test-double' };
+      });
+      const file = { name: 'synthetic.pdf', type: 'application/pdf', size: 8, arrayBuffer: async () => Uint8Array.from(Buffer.from('%PDF-1.4')).buffer };
+      const request = { method: 'POST', headers: new Headers({ 'Content-Type': 'multipart/form-data', Origin: 'https://nexusreussite.academy' }), formData: async () => new Map<string, unknown>([['file', file], ['documentType', 'COURS']]) } as unknown as NextRequest;
+      const response = await CoachDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) });
+      expect(response.status).toBe(status);
+      expect(scanPrivateFile).toHaveBeenCalledTimes(1);
+      if (status !== 201) {
+        expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+        expect(unlink).toHaveBeenCalledWith((writeFile as jest.Mock).mock.calls[0][0]);
+      }
+    });
     it('documentSafeSelect includes localPath (shape lock)', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
@@ -243,7 +285,7 @@ describe('Documents Access Control', () => {
       expect([403, 404]).toContain(response.status);
     });
 
-    it('should allow assigned coach to POST document', async () => {
+    it('refuses coach URL-only publication without scanning or persistence', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
@@ -266,37 +308,27 @@ describe('Documents Access Control', () => {
         params: Promise.resolve({ studentId: STUDENT_ID }),
       });
 
-      expect(response.status).toBe(201);
-      const data = await response.json();
-      expect(data.success).toBe(true);
-      expect(data.document.title).toBe('New Exercise');
-      expect(data.document.localPath).toBe('https://example.com/exercise.pdf');
+      expect(response.status).toBe(410);
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+      expect(writeFile).not.toHaveBeenCalled();
+      expect(scanPrivateFile).not.toHaveBeenCalled();
     });
 
-    it('should validate documentType enum (400)', async () => {
+    it('validates documentType for multipart before writing or scanning', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
-
-      const request = new NextRequest(
-        `http://localhost/api/coach/students/${STUDENT_ID}/documents`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            documentType: 'INVALID_TYPE',
-            title: 'Invalid Document',
-            url: 'https://example.com/doc.pdf',
-          }),
-        }
-      );
-      const response = await CoachDocumentsRoute.POST(request, {
-        params: Promise.resolve({ studentId: STUDENT_ID }),
-      });
-
+      const file = { name: 'synthetic.pdf', type: 'application/pdf', size: 4, arrayBuffer: async () => new ArrayBuffer(4) };
+      const request = { method: 'POST', headers: new Headers({ 'Content-Type': 'multipart/form-data', Origin: 'https://nexusreussite.academy' }), formData: async () => new Map<string, unknown>([['file', file], ['documentType', 'INVALID_TYPE']]) } as unknown as NextRequest;
+      const response = await CoachDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) });
       expect(response.status).toBe(400);
+      expect(writeFile).not.toHaveBeenCalled();
+      expect(scanPrivateFile).not.toHaveBeenCalled();
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
     });
 
-    it('should require url for JSON metadata documents (400)', async () => {
+    it('requires a scanned file instead of accepting JSON metadata', async () => {
       coachSession();
       (assertCoachCanAccessStudent as jest.Mock).mockResolvedValue(undefined);
       mockPrisma.student.findFirst.mockResolvedValue(mockStudent);
@@ -315,9 +347,8 @@ describe('Documents Access Control', () => {
         params: Promise.resolve({ studentId: STUDENT_ID }),
       });
 
-      expect(response.status).toBe(400);
-      const data = await response.json();
-      expect(data.message).toContain('URL requise');
+      expect(response.status).toBe(410);
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
     });
   });
 
@@ -401,7 +432,20 @@ describe('Documents Access Control', () => {
       expect(response.status).toBe(404);
     });
 
-    it('should allow ASSISTANTE to POST document for any student', async () => {
+    it('refuses client-supplied private paths instead of publishing an unscanned file', async () => {
+      assistanteSession();
+      mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
+      const request = new NextRequest('http://localhost/api/assistante/students/student-1/documents', {
+        method: 'POST', body: JSON.stringify({ documentType: 'COURS', title: 'Synthetic', localPath: 'private/unscanned.pdf' }),
+      });
+      const response = await AssistanteDocumentsRoute.POST(request, { params: Promise.resolve({ studentId: STUDENT_ID }) });
+      expect(response.status).toBe(410);
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+    });
+
+    it('refuses URL-only publication instead of creating an undeliverable document', async () => {
       assistanteSession();
       mockPrisma.student.findUnique.mockResolvedValue({ id: OTHER_STUDENT_ID, userId: 'user-student-2' });
       const createdDoc = { ...mockDocument, documentType: 'PLANNING', title: 'Planning Stage' };
@@ -424,12 +468,13 @@ describe('Documents Access Control', () => {
         params: Promise.resolve({ studentId: OTHER_STUDENT_ID }),
       });
 
-      expect(response.status).toBe(201);
-      const data = await response.json();
-      expect(data.success).toBe(true);
+      expect(response.status).toBe(410);
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+      expect(mockPrisma.student.findUnique).not.toHaveBeenCalled();
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store');
     });
 
-    it('should validate visibilityScope enum (400)', async () => {
+    it('keeps the retired metadata endpoint closed for every payload', async () => {
       assistanteSession();
       mockPrisma.student.findUnique.mockResolvedValue(mockStudent);
 
@@ -449,7 +494,9 @@ describe('Documents Access Control', () => {
         params: Promise.resolve({ studentId: STUDENT_ID }),
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(410);
+      expect(mockPrisma.userDocument.create).not.toHaveBeenCalled();
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store');
     });
   });
 });

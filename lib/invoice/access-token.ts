@@ -1,5 +1,5 @@
 /**
- * InvoiceAccessToken — generate, hash, and verify tokens for external PDF access.
+ * InvoiceAccessToken — generate, hash, and verify supplemental nonces for authenticated PDF links.
  *
  * Design:
  * - Raw token = crypto.randomBytes(32).toString('hex') → 64-char hex string
@@ -57,13 +57,15 @@ export interface CreateTokenResult {
 export async function createAccessToken(
   invoiceId: string,
   createdByUserId: string,
-  expiryHours: number = TOKEN_EXPIRY_HOURS
+  expiryHours: number = TOKEN_EXPIRY_HOURS,
+  transaction?: Pick<typeof prisma, 'invoiceAccessToken'>,
+  now: Date = new Date(),
 ): Promise<CreateTokenResult> {
   const rawToken = generateRawToken();
   const tokenHash = hashToken(rawToken);
-  const expiresAt = computeExpiresAt(expiryHours);
+  const expiresAt = new Date(now.getTime() + expiryHours * 60 * 60 * 1000);
 
-  const record = await prisma.invoiceAccessToken.create({
+  const record = await (transaction ?? prisma).invoiceAccessToken.create({
     data: {
       invoiceId,
       tokenHash,
@@ -86,6 +88,7 @@ export interface VerifyTokenResult {
  * Single DB hit: lookup by hash, then check expiry + revocation in memory.
  */
 export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenResult> {
+  if (!/^[a-f0-9]{64}$/.test(rawToken)) return { valid: false, reason: 'NOT_FOUND' };
   const tokenHash = hashToken(rawToken);
 
   const record = await prisma.invoiceAccessToken.findUnique({
@@ -101,7 +104,7 @@ export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenRe
     return { valid: false, reason: 'REVOKED' };
   }
 
-  if (new Date() > record.expiresAt) {
+  if (new Date() >= record.expiresAt) {
     return { valid: false, reason: 'EXPIRED' };
   }
 
@@ -111,7 +114,7 @@ export async function verifyAccessToken(rawToken: string): Promise<VerifyTokenRe
 /**
  * Prisma transaction client type — accepts either the global prisma or a $transaction tx.
  */
-type PrismaTransactionClient = typeof prisma;
+type PrismaTransactionClient = Pick<typeof prisma, 'invoiceAccessToken'>;
 
 /**
  * Revoke all active tokens for an invoice (e.g. on payment or cancellation).

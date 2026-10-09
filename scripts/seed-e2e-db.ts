@@ -390,6 +390,22 @@ const student = await prisma.user.create({
   });
   console.log(`  ✓ Coach: ${coach.email}\n`);
 
+  // Dedicated legacy persona: deliberately excluded from the Core mirror below.
+  const coachV1 = await prisma.user.create({
+    data: {
+      email: 'coach-v1@e2e.nexus.test', password: hashedPassword, role: UserRole.COACH,
+      firstName: 'Coach', lastName: 'Legacy', activatedAt: new Date(),
+      coachProfile: { create: { pseudonym: 'Coach V1', subjects: ['MATHEMATIQUES', 'FRANCAIS'] } },
+    },
+    include: { coachProfile: true },
+  });
+  if (!primaryStudent || !coachV1.coachProfile) throw new Error('E2E_LEGACY_COACH_FIXTURE_INCOMPLETE');
+  await prisma.coachStudentAssignment.create({ data: {
+    coachId: coachV1.coachProfile.id, studentId: primaryStudent.id,
+    assignedById: admin.id, assignmentType: 'PRIMARY', status: 'ACTIVE',
+    subjects: [Subject.MATHEMATIQUES, Subject.FRANCAIS],
+  } });
+
   const assistante = await prisma.user.create({
     data: {
       email: `assistante.${timestamp}@test.com`,
@@ -753,6 +769,15 @@ const student = await prisma.user.create({
   });
   console.log(`  ✓ Booking Today: ${student.firstName} → ${bookingToday.title} (CONFIRMED)`);
 
+  const legacyReportDate = new Date();
+  legacyReportDate.setHours(17, 0, 0, 0);
+  await prisma.sessionBooking.create({ data: {
+    studentId: student.id, coachId: coachV1.id, parentId: parent.id,
+    subject: Subject.FRANCAIS, title: 'E2E V1 Report Session',
+    scheduledDate: legacyReportDate, startTime: '17:00', endTime: '18:00',
+    duration: 60, status: 'CONFIRMED', creditsUsed: 1,
+  } });
+
   const booking3 = await prisma.sessionBooking.create({
     data: {
       studentId: student2.id,
@@ -790,6 +815,7 @@ const student = await prisma.user.create({
     student: { email: studentEmail, password: runtimePassword }, // yasmine.dupont@test.com
     student2: { email: `student2.${timestamp}@test.com`, password: runtimePassword },
     studentSurvival: { email: `student-survival.${timestamp}@test.com`, password: runtimePassword },
+    coachV1: { email: coachV1.email, password: runtimePassword },
     coach: { email: coachEmail, password: runtimePassword }, // helios@test.com
     coach2: { email: `coach2.${timestamp}@test.com`, password: runtimePassword },
     assistante: { email: `assistante.${timestamp}@test.com`, password: runtimePassword },

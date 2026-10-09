@@ -11,6 +11,7 @@ const common = {
     '^.+\\.module\\.(css|sass|scss)$',
   ],
   modulePathIgnorePatterns: [
+    '<rootDir>/.artifacts/',
     '<rootDir>/.next/',
     '<rootDir>/.worktrees/',
   ],

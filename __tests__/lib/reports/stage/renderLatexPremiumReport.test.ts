@@ -2,6 +2,21 @@ import { escapeLatex, renderLatexPremiumReport } from '@/lib/reports/stage/rende
 import type { PremiumPedagogicalReportJson } from '@/lib/reports/stage/schema';
 
 describe('renderLatexPremiumReport', () => {
+  it.each([
+    ['\\', '\\textbackslash{}'],
+    ['{', '\\{'], ['}', '\\}'], ['%', '\\%'], ['_', '\\_'],
+    ['&', '\\&'], ['#', '\\#'], ['$', '\\$'],
+    ['^', '\\textasciicircum{}'], ['~', '\\textasciitilde{}'],
+    ['\n', '\\\\ '],
+  ])('escapes one input character without processing its replacement: %j', (input, expected) => {
+    expect(escapeLatex(input)).toBe(expected);
+  });
+
+  it('renders an attempted command as literal text in one pass', () => {
+    expect(escapeLatex('\\input{synthetic-file}%\\write18{synthetic-command}'))
+      .toBe('\\textbackslash{}input\\{synthetic-file\\}\\%\\textbackslash{}write18\\{synthetic-command\\}');
+  });
+
   it('escapes LaTeX special characters', () => {
     expect(escapeLatex('A&B_50% #1 $x$ {ok}')).toContain('A\\&B\\_50\\% \\#1 \\$x\\$ \\{ok\\}');
   });

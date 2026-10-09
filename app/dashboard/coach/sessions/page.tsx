@@ -63,14 +63,18 @@ export default function CoachSessionsPage() {
 
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || session.user.role !== 'COACH') {
+    if (!session?.user || session.user.role !== 'COACH') {
       router.push("/auth/signin");
+      return;
+    }
+    if (session.user.authority !== 'V1') {
+      router.push("/dashboard/coach");
       return;
     }
     fetchData();
   }, [session, status, router, fetchData]);
 
-  if (status === "loading" || loading) {
+  if (status === "loading" || loading || session?.user?.role !== 'COACH' || session.user.authority !== 'V1') {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />

@@ -1,10 +1,9 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/receipt/pdf — Stream payment receipt PDF.
  *
  * RBAC: same as invoice PDF (ADMIN sees all, PARENT scoped).
  * Precondition: invoice.status === 'PAID' with paidAt + paidAmount.
- * Appends RECEIPT_RENDERED audit event on success only.
+ * Records an awaited append-only access event after PDF preparation.
  *
  * No-leak design:
  * - ALL deny cases return canonical 404 (same as invoice PDF route).
@@ -16,13 +15,11 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import {
-  renderReceiptPDF,
-  createInvoiceEvent,
-  appendInvoiceEvent,
-} from '@/lib/invoice';
+import { renderReceiptPDF } from '@/lib/invoice';
+import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
-import type { InvoiceEvent, ReceiptData } from '@/lib/invoice';
+import { isPublishedInvoice } from '@/lib/invoice/publication';
+import type { ReceiptData } from '@/lib/invoice';
 
 export async function GET(
   _request: NextRequest,
@@ -68,7 +65,7 @@ export async function GET(
       },
     });
 
-    if (!invoice) {
+    if (!invoice || (session.user.role === 'PARENT' && !isPublishedInvoice(invoice))) {
       return notFoundResponse();
     }
 
@@ -100,17 +97,7 @@ export async function GET(
     // Render PDF
     const pdfBuffer = await renderReceiptPDF(receiptData);
 
-    // Append RECEIPT_RENDERED event (fire-and-forget, don't block response)
-    const events: InvoiceEvent[] = appendInvoiceEvent(
-      invoice.events,
-      createInvoiceEvent('RECEIPT_RENDERED', session.user.id, { by: 'session' })
-    );
-    prisma.invoice.update({
-      where: { id: invoice.id },
-      data: { events: JSON.parse(JSON.stringify(events)) },
-    }).catch((err: unknown) => {
-      console.error('[Receipt] Failed to append RECEIPT_RENDERED event:', serializeError(err));
-    });
+    await recordInvoiceDownload({ invoiceId: invoice.id, actorUserId: session.user.id, action: 'RECEIPT_READ' });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,
@@ -118,12 +105,13 @@ export async function GET(
         'Content-Type': 'application/pdf',
         'Content-Disposition': `inline; filename="recu_${invoice.number}.pdf"`,
         'Content-Length': String(pdfBuffer.length),
-        'Cache-Control': 'private, max-age=3600',
+        'Cache-Control': 'private, no-store',
+        'Referrer-Policy': 'no-referrer',
       },
     });
 
-  } catch (error) {
-    console.error('[GET /api/invoices/:id/receipt/pdf]', serializeError(error));
+  } catch {
+    console.error('INVOICE_RECEIPT_READ_FAILED');
     return notFoundResponse();
   }
 }

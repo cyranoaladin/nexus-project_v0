@@ -4,8 +4,7 @@ export function fail(code, details = '') {
   process.exit(1);
 }
 
-// Extends the repo's `--key value` pair convention (see
-// scripts/security/validate-dev-tooling-exception.mjs) with boolean flags
+// Extends the repo's `--key value` pair convention with boolean flags
 // (--apply, --offline, --live) that governance tooling needs and the
 // original strict-pairs parser cannot express.
 export function parseArguments(argv) {

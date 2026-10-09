@@ -92,3 +92,12 @@ describe('AriaAgentPanel', () => {
     expect(screen.queryByRole('button', { name: /Maths/ })).not.toBeInTheDocument();
   });
 });
+
+
+test('does not offer an entitled subject whose canonical execution is unavailable', () => {
+ const source=chattableCourse('histoire-geo-premiere','Histoire-Géo');
+ const unavailable={...source,course:{...source.course,capabilities:{...source.course.capabilities,chat:false}},access:{...source.access,productSupported:false}};
+ render(<AriaAgentPanel cockpit={cockpit([unavailable])} onOpenChat={jest.fn()} />);
+ expect(screen.queryByRole('button',{name:/Histoire-Géo/})).not.toBeInTheDocument();
+ expect(screen.getByText('Aucune matière ouverte pour ARIA')).toBeInTheDocument();
+});

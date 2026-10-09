@@ -1,0 +1,66 @@
+{
+  "tm-sum-task": {
+    "expected": "La relation définit une suite arithmétique de raison 18 : a_n = 120 + 18n. Ainsi a_3 = 174. Il y a 3 − 0 + 1 = 4 termes : S = 4 × (120 + 174)/2 = 588. Le calcul direct 120 + 138 + 156 + 174 = 588 est également recevable.",
+    "focus": "Contrôler le premier rang, la différence entre rang 3 et nombre de termes, et le résultat de la somme. Accepter une démarche directe expliquée ; ne pas exiger une formule non demandée. Cet essai n’observe ni les sommes géométriques ni toute la maîtrise des suites usuelles."
+  },
+  "tm-induction-task": {
+    "expected": "Poser P(n) : « 2 ≤ u_n < 8 ». Initialisation : u_0 = 2 vérifie les deux bornes. Pour un entier n ≥ 0 fixé, supposons P(n). Comme 3/4 > 0, 7/2 = (3/4) × 2 + 2 ≤ u_(n+1) < (3/4) × 8 + 2 = 8. Or 7/2 ≥ 2, donc 2 ≤ u_(n+1) < 8 : P(n+1) est vraie. Par récurrence, P(n) est vraie pour tout entier n ≥ 0.",
+    "focus": "Vérifier une hypothèse à un rang fixé, les deux bornes, la conservation du sens et du caractère strict, puis la conclusion universelle. Une hérédité seule ne suffit pas. Distinguer difficulté algébrique et défaut logique ; une propriété retrouvée à l’aide d’un modèle n’atteste pas une rédaction autonome."
+  },
+  "tm-difference-task": {
+    "expected": "Pour n ≥ 0, a_(n+1) − a_n = (n + 2)/(n + 4) − (n + 1)/(n + 3) = 2/((n + 3)(n + 4)). Les deux facteurs du dénominateur sont strictement positifs, donc la différence est strictement positive. La suite est strictement croissante dès le rang 0.",
+    "focus": "Observer le décalage de tous les termes au rang n+1, la mise au même dénominateur et la justification du signe pour tout rang. Des premiers termes croissants ne remplacent pas la preuve. Le calcul de la différence est demandé : une autre méthode correcte peut être reconnue sans prétendre que ce calcul a été observé."
+  },
+  "tm-quotient-task": {
+    "expected": "Pour tout n ≥ 0, c_n < 0 : le quotient est bien défini mais le critère habituel « quotient < 1 donc décroissante » suppose des termes positifs. Ici c_(n+1) = (4/5)c_n ; multiplier 4/5 < 1 par c_n < 0 inverse l’inégalité et donne c_(n+1) > c_n. Autre preuve : c_(n+1) − c_n = (3/5) × (4/5)^n > 0. La suite est strictement croissante dès le rang 0.",
+    "focus": "Le quotient annoncé est correct ; c’est l’interprétation du signe qui est erronée. Vérifier que l’élève explique le rôle des termes négatifs et conclut à tout rang. Ne pas confondre « raison inférieure à 1 » et décroissance ; accepter les deux preuves."
+  },
+  "tm-auxiliary-task": {
+    "expected": "v_(n+1) = u_(n+1) − 8 = (3/4)u_n + 2 − 8 = (3/4)(u_n − 8) = (3/4)v_n. La suite (v_n) est donc géométrique de raison 3/4 et de premier terme v_0 = 2 − 8 = −6. Pour n ≥ 0, v_n = −6(3/4)^n, puis u_n = v_n + 8 = 8 − 6(3/4)^n. Au rang 0, cette expression redonne 2.",
+    "focus": "Exiger la relation valable à tout rang, le terme initial et le retour correct à u_n. Une suite géométrique peut avoir des termes négatifs. La suite auxiliaire étant fournie, cet essai n’observe pas le choix autonome du point fixe. Aucune limite n’est demandée ni validée."
+  },
+  "tm-quotient-limit-task": {
+    "expected": "Pour n ≥ 0, 2n² + n + 4 > 0. Pour n ≥ 1, diviser numérateur et dénominateur par n² donne a_n = (3 − 5/n + 1/n²)/(2 + 1/n + 4/n²). Comme 1/n et 1/n² tendent vers 0, le numérateur tend vers 3 et le dénominateur vers 2, qui est non nul. La limite du quotient est donc 3/2. Ne pas traiter le rang 0 dans la transformation par n² ne change pas la limite.",
+    "focus": "Distinguer diagnostic ∞/∞, transformation exacte et opération sur les limites. Vérifier la condition sur le dénominateur limite et le rang n ≥ 1 de la transformation. Une valeur lue sur calculatrice ou le seul rapport des coefficients sans explication ne documente pas la justification demandée."
+  },
+  "tm-convergence-task": {
+    "expected": "D’après les résultats admis, (w_n) est décroissante et minorée par 3 ; le théorème de convergence monotone donne une limite réelle ℓ. Les bornes donnent ℓ ∈ [3,4], avec une inégalité large à la limite. Dans w_n × w_(n+1) = 4w_n − 3, le décalage d’indice et les opérations sur les limites donnent ℓ² = 4ℓ − 3, donc (ℓ − 1)(ℓ − 3) = 0. Comme ℓ ≥ 3, on écarte 1 : la limite est 3. Le passage direct dans le quotient convient aussi puisque ℓ ≥ 3 > 0.",
+    "focus": "Observer l’ordre existence puis identification, la minoration adaptée à une suite décroissante et l’élimination d’une racine. Ne pas conserver abusivement ℓ > 3 à partir de w_n > 3. Les bornes, la bonne définition et les variations sont admises : cet essai ne permet pas de valider leur démonstration par l’élève."
+  },
+  "tm-threshold-task": {
+    "expected": "Le majorant vaut 2/2^7 = 0,015625 au rang 7 et 2/2^8 = 0,0078125 au rang 8. Il est strictement décroissant ; 8 est donc le premier rang où ce majorant est strictement inférieur à 0,01. Pour tout n ≥ 8, |u_n − 3| = 3 − u_n ≤ 2/2^n ≤ 2/2^8 < 0,01 : N = 8 garantit la précision pour tous les rangs suivants. Cela ne prouve pas que 8 soit le premier rang effectif de l’erreur réelle : celle-ci peut être plus petite que son majorant et franchir le seuil auparavant.",
+    "focus": "Contrôler l’inégalité stricte, le rang précédent pour la minimalité du majorant, puis la garantie pour tous les rangs suivants. Refuser la confusion « majorant ≥ seuil donc erreur réelle ≥ seuil ». La borne est fournie : ne pas valider sa démonstration ni la programmation d’une boucle sur ce seul essai."
+  },
+  "tn-essai-alias": {
+    "expected": "6 4 None. a et b désignent la même instance ; c en désigne une autre. ajouter modifie la quantité mais ne contient pas de return explicite.",
+    "focus": "Distinguer alias et objets distincts, mutation et valeur renvoyée."
+  },
+  "tn-essai-contrat": {
+    "expected": "Reserve : False et stock4 ; Durée :4 et total0. Le nom et le type du résultat ne définissent pas seuls le contrat. Source complémentaire POOp6–7.",
+    "focus": "Comparer les contrats fournis sans importer celui d’une autre classe : valeur renvoyée et état final."
+  },
+  "tn-essai-test": {
+    "expected": "Affiche61 puis(0,61). assert d.en_minutes_secondes()==(1,1) échoue et révèle la non-normalisation. Le total seul ne contrôle pas tout le contrat.",
+    "focus": "Construire un test discriminant. L’observation du total ne prouve pas la normalisation de la représentation."
+  },
+  "tn-essai-ensemble": {
+    "expected": "Taille2 ; après retrait, contient(4) doit êtreFalse et cardinal() doit valoir1 ; 7 reste présent. Une implémentation fautive peut renvoyerTrue sans mutation.",
+    "focus": "Vérifier l’unicité et la mutation effective ; contrôler l’état après retrait, pas seulement son retour."
+  },
+  "tn-essai-pile-file": {
+    "expected": "Pile : C puisD, sommetB ; file : A puisB, premierC. Consultation sans mutation, taille2 dans chaque structure.",
+    "focus": "Tracer séparément LIFO et FIFO, distinguer consultation et retrait."
+  },
+  "tn-essai-trace-rec": {
+    "expected": "Arguments3,2,1,0 ; retours0,1,3,6 ; affiche6. L’entier naturel n décroît de1 jusqu’à0.",
+    "focus": "Distinguer descente des appels et remontée des retours ; expliciter le variant naturel décroissant."
+  },
+  "tn-essai-return": {
+    "expected": "AfficheNone ; remplacer n+somme(n-1) par return n+somme(n-1). Après correction : somme(0)=0, somme(2)=3.",
+    "focus": "Propager le résultat récursif avec return ; vérifier le cas de base et un cas non trivial."
+  },
+  "tn-essai-liste-rec": {
+    "expected": "Affiche7 puis[2,5]. Le cas vide renvoie0 sans accès tab[0]. La tranche crée une nouvelle liste plus courte ; l’entrée reste inchangée.",
+    "focus": "Contrôler le cas vide avant accès au premier élément, la décroissance et l’absence de mutation de l’entrée."
+  }
+}

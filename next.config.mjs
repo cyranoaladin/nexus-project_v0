@@ -33,6 +33,15 @@ const nextConfig = {
     '*': [
       '.env',
       '.env.*',
+      // Repository-local qualification artifacts and fixtures are never runtime
+      // resources. Dynamic manifest reads can otherwise trace them into routes.
+      '.artifacts/**/*',
+      '__mocks__/**/*',
+      '__tests__/**/*',
+      'coverage/**/*',
+      'e2e/**/*',
+      'playwright-report/**/*',
+      'test-results/**/*',
       'node_modules/@img/sharp-wasm32/**/*',
       'node_modules/@emnapi/runtime/**/*',
       // Données documentaires runtime, jamais du code. Le tracer peut les

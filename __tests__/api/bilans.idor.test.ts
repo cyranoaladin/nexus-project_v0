@@ -50,7 +50,7 @@ describe('/api/bilans — IDOR Prevention', () => {
   });
 
   it('✅ COACH ne voit que ses propres bilans même sans paramètre coachId', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', email: 'coach@test.com' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1', email: 'coach@test.com' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });
     (prisma.bilan.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.bilan.count as jest.Mock).mockResolvedValue(0);
@@ -65,7 +65,7 @@ describe('/api/bilans — IDOR Prevention', () => {
   });
 
   it('🔴 COACH tente de voir les bilans dun autre coach via paramètre — DOIT échouer (override)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', email: 'coach@test.com' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1', email: 'coach@test.com' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });
     (prisma.bilan.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.bilan.count as jest.Mock).mockResolvedValue(0);
@@ -91,7 +91,7 @@ describe('/api/bilans — IDOR Prevention', () => {
   });
 
   it('🔴 COACH tente de créer un bilan pour un autre coach — 403', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', email: 'coach@test.com' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1', email: 'coach@test.com' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });
 
     const res = await POST(makePostRequest({
@@ -108,7 +108,7 @@ describe('/api/bilans — IDOR Prevention', () => {
   });
 
   it('✅ COACH crée un bilan avec son propre coachId', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', email: 'coach@test.com' } });
+    mockAuth.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1', email: 'coach@test.com' } });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1', userId: 'coach-1' });
     (prisma.bilan.create as jest.Mock).mockResolvedValue({ id: 'bilan-new' });
 

@@ -8,12 +8,13 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { Subject } from '@/types/enums';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
+import { newPasswordSchema } from '@/lib/security/password-policy';
 
 const coachCreateSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   email: z.string().transform(normalizeUserEmail).pipe(z.string().email()),
-  password: z.string().min(8),
+  password: newPasswordSchema,
   pseudonym: z.string().min(1),
   tag: z.string().optional(),
   description: z.string().optional(),

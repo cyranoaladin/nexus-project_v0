@@ -90,6 +90,10 @@ describe('/api/bilans/[id] — ownership', () => {
     mockResolveNotificationIntent.mockResolvedValue(null);
     mockEnqueueNotification.mockResolvedValue(undefined);
     mockIsParentReportingEligible.mockResolvedValue(true);
+    jest.mocked(prisma.bilan.findUnique).mockResolvedValue({ studentId: 'student-1' } as never);
+    jest.mocked(prisma.student.findUnique).mockResolvedValue({
+      id: 'student-1', userId: 'student-user-1', parent: { userId: 'parent-1' },
+    } as never);
   });
 
   it('scopes parent reads to published bilans for their own children', async () => {
@@ -105,7 +109,7 @@ describe('/api/bilans/[id] — ownership', () => {
       where: {
         id: 'bilan-1',
         isPublished: true,
-        student: { is: { parent: { userId: 'parent-1' } } },
+        studentId: 'student-1',
       },
     }));
   });

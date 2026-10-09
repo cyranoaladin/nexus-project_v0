@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { type PublicUser, describeFailure, v2 } from './api';
 import { isStaleConflict, useAction } from './actions';
@@ -16,6 +17,14 @@ const STATUS_LABEL: Record<PublicUser['accountStatus'], string> = {
 export function AccountActions({ user, can, onChanged }: { user: PublicUser; can: (c: string) => boolean; onChanged: () => Promise<void> }) {
   const action = useAction(onChanged);
   const id = user.id;
+  const resendCommand = useRef<{ userId: string; id: string } | null>(null);
+  const resend = async () => {
+    if (resendCommand.current?.userId !== id) resendCommand.current = { userId: id, id: crypto.randomUUID() };
+    const result = await v2(`/staff/accounts/${id}/resend-invitation`, { method: 'POST', commandId: resendCommand.current.id });
+    // Retain identity on an unknown network/server outcome, including lost JSON.
+    if (result.ok || (result.status >= 400 && result.status < 500)) resendCommand.current = null;
+    return result;
+  };
   const post = (path: string) => v2(`/staff/accounts/${id}/${path}`, { method: 'POST' });
 
   return (
@@ -27,10 +36,10 @@ export function AccountActions({ user, can, onChanged }: { user: PublicUser; can
       <div className="flex flex-wrap gap-2">
         {can('ACCOUNT_INVITE') && user.accountStatus === 'PENDING_ACTIVATION' && (
           <>
-            <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('invite', () => post('invite'), 'Invitation envoyée.')}>
+            <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('invite', () => post('invite'), 'Invitation mise en file d’envoi.')}>
               Inviter
             </Button>
-            <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('resend', () => post('resend-invitation'), 'Nouvelle invitation envoyée ; l’ancienne est révoquée.')}>
+            <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('resend', resend, 'Nouvelle invitation mise en file d’envoi ; l’ancienne est révoquée.')}>
               Renvoyer l’invitation
             </Button>
           </>

@@ -1,3 +1,6 @@
+import { createServiceContext } from '@/lib/core-v2/services/context';
+import { verifyHouseholdParent, revokeHouseholdParent } from '@/lib/core-v2/services/household-verification';
+import { changePassword, suspendAccount, disableAccount } from '@/lib/core-v2/services/account';
 /**
  * Migrator rehearsal against TWO real databases (go-live §AP / §AR):
  *   source = a disposable Core v1 database seeded with a synthetic family,
@@ -12,29 +15,49 @@
  *   6. a target holding foreign rows is refused.
  */
 jest.unmock('@/lib/prisma');
+const mockBankTransferAuth = jest.fn();
+jest.mock('@/auth', () => ({ auth: () => mockBankTransferAuth() }));
 
-import { randomUUID } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
+import { NextRequest } from 'next/server';
+import { POST as confirmPasswordReset } from '@/app/api/auth/reset-password/route';
+import { generateResetToken, verifyResetToken } from '@/lib/password-reset-token';
+import { canApplyV1CredentialProof } from '@/lib/auth/password-reset-authority';
+import { normalizeParentPhone } from '@/lib/contact/parent-phone';
+import { issueParentPhoneChallenge, verifyParentPhoneChallenge, consumeParentPhoneChallenge } from '@/lib/auth/parent-phone';
 import { execFileSync } from 'node:child_process';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@/core-v2/generated/client';
 import { prisma as v1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { INVITATION_TTL_ENV, ORGANIZATION_TIMEZONE_ENV, PASSWORD_RESET_TTL_ENV } from '@/lib/core-v2/config';
 import { assertDisposablePostgresUrl } from '@/__tests__/helpers/disposable-postgres';
+import { cleanupDisposableTestFixture } from '../helpers/real-db-fixture-cleanup';
 import { resetCoreV2Database } from '@/__tests__/core-v2/helpers/reset-db';
 import { approvalDigest, parseApprovalFile } from '@/scripts/core-v2/migration/approval';
 import { applyPlan } from '@/scripts/core-v2/migration/apply';
 import { readSourceSnapshot } from '@/scripts/core-v2/migration/source';
-import { buildTargetPlan } from '@/scripts/core-v2/migration/transform';
+import { buildTargetPlan, objectHash, userIntegrityPayload } from '@/scripts/core-v2/migration/transform';
 import { TRANSFORM_VERSION } from '@/scripts/core-v2/migration/types';
+import { resolveAssessmentReadAuthority, resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
+import { readAuthorizedDocument } from '@/lib/documents/read-authority';
+import { POST as declareBankTransfer } from '@/app/api/payments/bank-transfer/confirm/route';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= 'Africa/Tunis';
 process.env[INVITATION_TTL_ENV] ??= '72';
 process.env[PASSWORD_RESET_TTL_ENV] ??= '60';
 
 const prefix = `mig-${randomUUID().slice(0, 8)}`;
+const fixtureUserIds = new Set<string>();
 let v2: Awaited<ReturnType<typeof requireCoreV2Client>>;
 const ids = { admin: '', parent: '', parentProfile: '', studentA: '', studentB: '', coachUser: '', coachProfile: '', assignment: '', series: '' };
 const migratedAt = new Date('2026-09-12T08:00:00Z');
+const proofClock = new Date('2026-09-12T07:55:00Z');
+const initialFixture = 'change_me_migration_fixture';
+const originalAuthMode = process.env.CORE_V2_AUTH_MODE;
+let emailProof: string;
+let phoneProof: string;
+let phoneChallengeId: string;
 
 beforeAll(async () => {
   assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
@@ -42,15 +65,39 @@ beforeAll(async () => {
   execFileSync('npx', ['prisma', 'migrate', 'deploy', '--schema=core-v2/prisma/schema.prisma'], { stdio: 'inherit', env: process.env });
   v2 = await requireCoreV2Client();
   await resetCoreV2Database(v2);
+  process.env.CORE_V2_AUTH_MODE = 'HYBRID';
 
   // Synthetic Core v1 family: an ADMIN (the migrating actor), one parent with two students, one coach.
-  const pw = await bcrypt.hash('change_me_migration_fixture', 4);
+  const pw = await bcrypt.hash(initialFixture, 10);
   const admin = await v1.user.create({ data: { email: `${prefix}-admin@synthetic.test`, role: 'ADMIN', password: pw, activatedAt: new Date(), firstName: 'Admin', lastName: prefix } });
-  const parentUser = await v1.user.create({ data: { email: `${prefix}-Parent@synthetic.test`, role: 'PARENT', password: pw, activatedAt: new Date(), firstName: 'Amel', lastName: prefix, phone: '+21620000001', sessionVersion: 4 } });
+  fixtureUserIds.add(admin.id);
+  const phone = `+2162${randomInt(0, 10_000_000).toString().padStart(7, '0')}`;
+  const parentUser = await v1.user.create({ data: {
+    email: `${prefix}-Parent@synthetic.test`, emailVerifiedAt: proofClock,
+    role: 'PARENT', password: pw, activatedAt: proofClock, firstName: 'Amel', lastName: prefix,
+    phone, phoneNormalized: normalizeParentPhone(phone).normalized, parentPhoneState: 'VERIFIED', phoneVerifiedAt: proofClock, sessionVersion: 4,
+  } });
+  fixtureUserIds.add(parentUser.id);
+  const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
+  try {
+    emailProof = generateResetToken(parentUser.id, parentUser.email!, parentUser.password);
+    expect(verifyResetToken(emailProof, parentUser.password)).toMatchObject({ userId: parentUser.id });
+    expect(await canApplyV1CredentialProof({ userId: parentUser.id, email: parentUser.email! })).toBe(true);
+  } finally {
+    clock.mockRestore();
+  }
+  const issuedPhone = await v1.$transaction(tx => issueParentPhoneChallenge(tx, {
+    userId: parentUser.id, purpose: 'RECOVERY', now: proofClock,
+  }));
+  phoneProof = issuedPhone.rawToken;
+  phoneChallengeId = issuedPhone.challengeId;
+  expect(await verifyParentPhoneChallenge(phoneProof, { now: proofClock })).toMatchObject({ valid: true });
   const parentProfile = await v1.parentProfile.create({ data: { userId: parentUser.id } });
   const studentAUser = await v1.user.create({ data: { email: `${prefix}-yasmine@synthetic.test`, role: 'ELEVE', password: pw, activatedAt: new Date(), firstName: 'Yasmine', lastName: prefix } });
+  fixtureUserIds.add(studentAUser.id);
   const studentA = await v1.student.create({ data: { userId: studentAUser.id, parentId: parentProfile.id, gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE', school: 'Lycée synthétique' } });
   const studentBUser = await v1.user.create({ data: { email: `${prefix}-ziad@synthetic.test`, role: 'ELEVE', firstName: 'Ziad', lastName: prefix } }); // never activated, no password
+  fixtureUserIds.add(studentBUser.id);
   const studentB = await v1.student.create({ data: { userId: studentBUser.id, parentId: parentProfile.id, gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE' } });
   await v1.studentAcademicEnrollment.createMany({
     data: [
@@ -60,6 +107,7 @@ beforeAll(async () => {
     ],
   });
   const coachUser = await v1.user.create({ data: { email: `${prefix}-coach@synthetic.test`, role: 'COACH', password: pw, activatedAt: new Date(), firstName: 'Coach', lastName: prefix } });
+  fixtureUserIds.add(coachUser.id);
   const coachProfile = await v1.coachProfile.create({ data: { userId: coachUser.id, pseudonym: `Coach-${prefix}`, subjects: ['MATHEMATIQUES'] } });
   const assignment = await v1.coachStudentAssignment.create({
     data: { coachId: coachProfile.id, studentId: studentA.id, status: 'ACTIVE', courseScopeState: 'STAFF_VERIFIED', academicCourseKeys: ['maths-premiere'], subjects: ['MATHEMATIQUES'], assignedById: admin.id },
@@ -78,9 +126,15 @@ beforeAll(async () => {
 }, 30_000); // `prisma migrate deploy` grows with every migration added (9 as of the candidat-libre diagnostics migration); the 5s Jest default no longer covers deploy + reset + fixture creation.
 
 afterAll(async () => {
-  await v1.user.deleteMany({ where: { lastName: prefix } }).catch(() => undefined);
-  await v1.$disconnect();
-  await disconnectCoreV2Client();
+  if (originalAuthMode === undefined) delete process.env.CORE_V2_AUTH_MODE;
+  else process.env.CORE_V2_AUTH_MODE = originalAuthMode;
+  try {
+    if (fixtureUserIds.size > 0) {
+      await cleanupDisposableTestFixture(v1, { userIds: [...fixtureUserIds] });
+    }
+  } finally {
+    await Promise.all([v1.$disconnect(), disconnectCoreV2Client()]);
+  }
 });
 
 function approval() {
@@ -138,6 +192,25 @@ async function runWithActor(execute: boolean, actorUserId: string) {
 
 const results = (m: Awaited<ReturnType<typeof run>>['manifest'], entity?: string) =>
   m.objects.filter((o) => !entity || o.entity === entity).map((o) => o.result);
+
+test.each(['options', 'entries'] as const)('incompatible proof versions in %s are refused before reading or writing the target', async mismatch => {
+  const source = await readSourceSnapshot(v1, approval());
+  const plan = buildTargetPlan(source, approval(), migratedAt);
+  const incompatiblePlan = mismatch === 'entries'
+    ? { ...plan, entries: plan.entries.map(entry => ({ ...entry, transformVersion: 'core-v2-migration/3' })) }
+    : plan;
+  const lookup = jest.spyOn(v2.user, 'findUnique');
+  try {
+    await expect(applyPlan(v2, incompatiblePlan, {
+      execute: true, actorUserId: ids.admin, migratedAt, approvalDigest: approvalDigest(approval()),
+      sourceFingerprint: source.fingerprint,
+      transformVersion: mismatch === 'options' ? 'core-v2-migration/3' : TRANSFORM_VERSION,
+      correlationId: 'synthetic-proof-version-check',
+    })).rejects.toThrow('MIGRATION_PROOF_VERSION_UNSUPPORTED');
+    expect(lookup).not.toHaveBeenCalled();
+    expect(await v2.user.count()).toBe(0);
+  } finally { lookup.mockRestore(); }
+});
 
 test('1. dry run on an empty target writes nothing and reports every roster object as PLANNED, the rest SKIPPED/REJECTED with reasons', async () => {
   const { manifest } = await run(false);
@@ -229,4 +302,272 @@ test('6. a target that holds rows outside the plan is refused before any write',
   await expect(runWithActor(true, `${prefix}-nobody`)).rejects.toThrow(/MIGRATION_ACTOR_ABSENT_FROM_TARGET/);
   // Un acteur present mais qui n'est pas ADMIN l'est aussi.
   await expect(runWithActor(true, ids.parent)).rejects.toThrow(/MIGRATION_ACTOR_NOT_ADMIN/);
+});
+
+
+async function credentialState() {
+  const select = { password: true, sessionVersion: true };
+  return {
+    source: await v1.user.findUniqueOrThrow({ where: { id: ids.parent }, select }),
+    target: await v2.user.findUniqueOrThrow({ where: { id: ids.parent }, select }),
+    challenge: await v1.parentPhoneChallenge.findUniqueOrThrow({
+      where: { id: phoneChallengeId }, select: { consumedAt: true, revokedAt: true, expiresAt: true },
+    }),
+  };
+}
+
+async function confirmStaleEmailProof() {
+  const newPassword = randomUUID().concat('-Synthetic-42!');
+  const clock = jest.spyOn(Date, 'now').mockReturnValue(proofClock.getTime());
+  try {
+    return await confirmPasswordReset(new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
+      body: JSON.stringify({ token: emailProof, newPassword }),
+    }));
+  } finally {
+    clock.mockRestore();
+  }
+}
+
+test('7. a still-valid V1 email proof is refused after the approved real migration without changing either credential store', async () => {
+  const before = await credentialState();
+  expect((await confirmStaleEmailProof()).status).toBe(400);
+  expect(await credentialState()).toEqual(before);
+});
+
+test('8. an unexpired V1 phone proof is no longer verifiable after the real identity transfer', async () => {
+  const before = await credentialState();
+  expect(await verifyParentPhoneChallenge(phoneProof, { now: proofClock })).toEqual({ valid: false });
+  expect(await credentialState()).toEqual(before);
+});
+
+test('9. consuming an unexpired V1 phone proof after transfer cannot change passwords, rotate sessions or consume the challenge', async () => {
+  const before = await credentialState();
+  expect(await consumeParentPhoneChallenge(phoneProof, 'Synthetic-new-credential-42!', { now: proofClock })).toEqual({ success: false });
+  expect(await credentialState()).toEqual(before);
+});
+
+test('10. losing the Core authority configuration fails closed even with a valid old V1 email proof', async () => {
+  const before = await credentialState();
+  const url = process.env.CORE_V2_DATABASE_URL;
+  await disconnectCoreV2Client();
+  delete process.env.CORE_V2_DATABASE_URL;
+  try {
+    expect((await confirmStaleEmailProof()).status).toBe(503);
+  } finally {
+    process.env.CORE_V2_DATABASE_URL = url;
+  }
+  expect(await credentialState()).toEqual(before);
+});
+
+
+test('11. rerunning an approved student roster cannot reactivate a revoked family or restore its primary contact', async () => {
+  const membership = await v2.householdParent.findUniqueOrThrow({ where: { userId: ids.parent } });
+  const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+  await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
+  await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 1 });
+  const before = await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } });
+  const { manifest } = await run(true);
+  expect(results(manifest, 'HouseholdParent')).toEqual(['UNCHANGED']);
+  expect(await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } })).toEqual(before);
+  expect(before).toMatchObject({ verificationStatus: 'REVOKED', isPrimaryContact: false, revision: 2 });
+});
+
+test('12. a roster rerun preserves a password changed in the canonical Core identity', async () => {
+  const nextPassword = randomUUID().concat('!aA1');
+  const ctx = createServiceContext({ userId: ids.parent, role: 'PARENT' }, { now: () => migratedAt });
+  await changePassword(v2, ctx, { currentPassword: initialFixture, newPassword: nextPassword });
+  const before = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  const { manifest } = await run(true);
+  const after = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  // Boolean assertions keep credential hashes out of failure logs.
+  expect(after.password === before.password).toBe(true);
+  expect(after.sessionVersion).toBe(before.sessionVersion);
+  expect(await bcrypt.compare(nextPassword, after.password!)).toBe(true);
+  expect(await bcrypt.compare(initialFixture, after.password!)).toBe(false);
+  const entry = manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent);
+  const canonicalHash = objectHash(userIntegrityPayload({
+    id: before.id, email: before.email, password: before.password, role: before.role,
+    firstName: before.firstName, lastName: before.lastName, phone: before.phone,
+    accountStatus: before.accountStatus, activatedAt: before.activatedAt, sessionVersion: before.sessionVersion,
+  }));
+  expect(entry?.result).toBe('UNCHANGED');
+  expect(entry?.reason).toBe('CORE_IDENTITY_PRESERVED');
+  expect(entry?.hash === canonicalHash).toBe(true);
+  const dryRun = await run(false);
+  expect(dryRun.manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent)?.hash === canonicalHash).toBe(true);
+});
+
+test('a credential rotation after proof capture refuses the roster transaction without overwriting Core', async () => {
+  const source = await readSourceSnapshot(v1, approval());
+  const plan = buildTargetPlan(source, approval(), migratedAt);
+  const rotated = await bcrypt.hash(randomUUID().concat('!aA1'), 12);
+  const auditCount = await v2.auditEvent.count();
+  const userCount = await v2.user.count();
+  let signalLocked!: (pid: number) => void;
+  let release!: () => void;
+  const locked = new Promise<number>(resolve => { signalLocked = resolve; });
+  const resume = new Promise<void>(resolve => { release = resolve; });
+  const writer = v2.$transaction(async tx => {
+    const [{ pid }] = await tx.$queryRaw<Array<{ pid: number }>>(Prisma.sql`SELECT pg_backend_pid() AS pid`);
+    await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "users" WHERE "id" = ${ids.parent} FOR UPDATE`);
+    signalLocked(pid);
+    await resume;
+    await tx.user.update({ where: { id: ids.parent }, data: { password: rotated, sessionVersion: { increment: 1 } } });
+  });
+  const writerPid = await locked;
+  const result = applyPlan(v2, plan, {
+    execute: true, actorUserId: ids.admin, migratedAt, approvalDigest: approvalDigest(approval()),
+    sourceFingerprint: source.fingerprint, transformVersion: TRANSFORM_VERSION, correlationId: 'synthetic-proof-rotation',
+  }).then(() => ({ refused: false, code: '' }), error => ({ refused: true, code: error instanceof Error ? error.message : 'UNKNOWN' }));
+  let blocked = false;
+  try {
+    // Database lock observation is the barrier, not an elapsed sleep.
+    for (let attempt = 0; attempt < 200 && !blocked; attempt++) {
+      const [row] = await v2.$queryRaw<Array<{ blocked: boolean }>>(Prisma.sql`
+        SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE ${writerPid} = ANY(pg_blocking_pids(pid))) AS blocked`);
+      blocked = row.blocked;
+    }
+    expect(blocked).toBe(true);
+  } finally { release(); }
+  await writer;
+  expect(await result).toEqual({ refused: true, code: 'MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK' });
+  expect((await v2.user.findUniqueOrThrow({ where: { id: ids.parent } })).password === rotated).toBe(true);
+  expect(await v2.user.count()).toBe(userCount);
+  expect(await v2.auditEvent.count()).toBe(auditCount);
+});
+
+test.each(['SUSPENDED', 'DISABLED'] as const)('a roster rerun cannot reactivate a Core %s account', async (status) => {
+  const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+  if (status === 'SUSPENDED') await suspendAccount(v2, ctx, ids.parent);
+  else await disableAccount(v2, ctx, ids.parent);
+  const before = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  await run(true);
+  const after = await v2.user.findUniqueOrThrow({ where: { id: ids.parent } });
+  expect(after.accountStatus).toBe(status);
+  expect(after.sessionVersion).toBe(before.sessionVersion);
+  expect(after.password === before.password).toBe(true);
+});
+
+describe('legacy academic reads use real Core family authority after migration', () => {
+  let assessmentId: string;
+  let publishedBilanId: string;
+  let draftBilanId: string;
+  let documentId: string;
+  const guardianIds = new Set<string>();
+
+  beforeAll(async () => {
+    const student = await v1.student.findUniqueOrThrow({ where: { id: ids.studentA }, include: { user: true } });
+    const assessment = await v1.assessment.create({ data: {
+      studentId: student.id, studentEmail: student.user.email!, studentName: 'Synthetic fixture',
+      subject: 'MATHS', grade: 'PREMIERE', answers: {},
+    } });
+    assessmentId = assessment.id;
+    const report = { studentId: student.id, studentEmail: student.user.email!, studentName: 'Synthetic fixture', subject: 'MATHS', type: 'ASSESSMENT_QCM' as const };
+    publishedBilanId = (await v1.bilan.create({ data: { ...report, isPublished: true, status: 'COMPLETED', publishedAt: migratedAt } })).id;
+    draftBilanId = (await v1.bilan.create({ data: report })).id;
+    documentId = (await v1.userDocument.create({ data: {
+      title: 'Synthetic authority fixture', originalName: 'synthetic.pdf', mimeType: 'application/pdf',
+      sizeBytes: 7, localPath: `${prefix}/authorization-fixture.pdf`, userId: student.userId,
+      visibilityScope: 'STUDENT_AND_PARENT',
+    } })).id;
+  });
+
+  afterAll(async () => {
+    if (documentId) await v1.userDocument.deleteMany({ where: { id: documentId } });
+    if (assessmentId) await v1.assessment.deleteMany({ where: { id: assessmentId } });
+    const reportIds = [publishedBilanId, draftBilanId].filter(Boolean);
+    if (reportIds.length) await v1.bilan.deleteMany({ where: { id: { in: reportIds } } });
+    if (guardianIds.size) await v2.user.deleteMany({ where: { id: { in: [...guardianIds] } } });
+  });
+
+  async function newGuardian() {
+    const household = await v2.student.findUniqueOrThrow({ where: { id: ids.studentA }, select: { householdId: true } });
+    const parent = await v2.user.create({ data: { role: 'PARENT', accountStatus: 'ACTIVE',
+      email: `${prefix}-guardian-${randomUUID()}@synthetic.test`, password: await bcrypt.hash(randomUUID(), 10) } });
+    guardianIds.add(parent.id);
+    const membership = await v2.householdParent.create({ data: { userId: parent.id, householdId: household.householdId } });
+    const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
+    return { subject: { id: parent.id, role: 'PARENT' }, membership, ctx };
+  }
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s refuses the stale V1 parent when its canonical account is disabled', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const subject = { id: ids.parent, role: 'PARENT' };
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s permits only verified membership and refuses it immediately after canonical revocation', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'b'.repeat(64) });
+    const assessment = await resolveAssessmentReadAuthority(assessmentId, subject);
+    const report = await resolveBilanReadAuthority(publishedBilanId, subject);
+    expect(assessment).toEqual({ where: { id: assessmentId, studentId: ids.studentA } });
+    expect(report).toEqual({ where: { id: publishedBilanId, studentId: ids.studentA, isPublished: true } });
+    expect(await v1.assessment.findFirst({ where: assessment.where! })).not.toBeNull();
+    expect(await v1.bilan.findFirst({ where: report.where! })).not.toBeNull();
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 1 });
+    expect(await resolveAssessmentReadAuthority(assessmentId, subject)).toEqual({ where: null });
+    expect(await resolveBilanReadAuthority(publishedBilanId, subject)).toEqual({ where: null });
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s does not expose a draft to a verified Core guardian', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'c'.repeat(64) });
+    const access = await resolveBilanReadAuthority(draftBilanId, subject);
+    expect(access.where).toEqual({ id: draftBilanId, studentId: ids.studentA, isPublished: true });
+    expect(await v1.bilan.findFirst({ where: access.where! })).toBeNull();
+  });
+  test.each(['HYBRID', 'V2_ONLY'])('%s applies real canonical membership to private child-document metadata', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    expect((await readAuthorizedDocument(documentId, { id: ids.parent, role: 'PARENT' })).status).toBe('DENIED');
+    const { subject, membership, ctx } = await newGuardian();
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('DENIED');
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'd'.repeat(64) });
+    const read = await readAuthorizedDocument(documentId, subject);
+    expect(read.status).toBe('ALLOWED');
+    if (read.status !== 'ALLOWED') throw new Error('DOCUMENT_AUTHORITY_EXPECTED_VERIFIED_READ');
+    expect(read.document.id).toBe(documentId);
+    expect(read.document.localPath).toBe(`${prefix}/authorization-fixture.pdf`);
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 1 });
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('DENIED');
+  });
+
+  test.each(['HYBRID', 'V2_ONLY'])('%s cannot declare a V1 child payment using migrated or revoked membership', async mode => {
+    process.env.CORE_V2_AUTH_MODE = mode;
+    const { subject, membership, ctx } = await newGuardian();
+    const declare = async (parentId: string) => {
+      mockBankTransferAuth.mockResolvedValue({ user: { id: parentId, role: 'PARENT' } });
+      return declareBankTransfer(new NextRequest('http://localhost/api/payments/bank-transfer/confirm', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ type: 'pack', key: 'GRAND_ORAL', studentId: ids.studentA,
+          termsAccepted: true, termsVersion: '2026-09' }),
+      }));
+    };
+    const parentIds = [ids.parent, subject.id];
+    const paymentsBefore = await v1.payment.count({ where: { userId: { in: parentIds } } });
+    const notificationsBefore = await v1.notification.count({ where: { type: 'BANK_TRANSFER_DECLARED',
+      OR: parentIds.map(parentId => ({ data: { path: ['parentId'], equals: parentId } })) } });
+    expect((await declare(ids.parent)).status).toBe(404);
+    expect((await declare(subject.id)).status).toBe(404);
+    await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 0, evidenceDigest: 'e'.repeat(64) });
+    expect((await readAuthorizedDocument(documentId, subject)).status).toBe('ALLOWED');
+    // Verified reads are not a cross-store financial write capability.
+    expect((await declare(subject.id)).status).toBe(404);
+    await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId,
+      parentUserId: subject.id, expectedRevision: 1 });
+    expect((await declare(subject.id)).status).toBe(404);
+    expect(await v1.payment.count({ where: { userId: { in: parentIds } } })).toBe(paymentsBefore);
+    expect(await v1.notification.count({ where: { type: 'BANK_TRANSFER_DECLARED',
+      OR: parentIds.map(parentId => ({ data: { path: ['parentId'], equals: parentId } })) } })).toBe(notificationsBefore);
+  });
+
 });

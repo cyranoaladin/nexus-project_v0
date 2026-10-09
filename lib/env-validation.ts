@@ -70,6 +70,8 @@ const ENV_CONTRACT: EnvVar[] = [
   // rollout preflight (lib/auth/auth-rollout-startup.ts), which knows the mode;
   // listing it here keeps it visible in the one canonical contract.
   { name: 'CORE_V2_PASSWORD_RESET_TTL_MINUTES', level: 'RECOMMENDED', description: 'Password-reset link validity, 5..1440 minutes. No default: REQUIRED whenever CORE_V2_AUTH_MODE is HYBRID or V2_ONLY, and proven at startup by assertAuthRolloutStartup — without it the public reset route still answers 202 and no mail is ever sent', prodOnly: true },
+  { name: 'CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID', level: 'RECOMMENDED', description: 'Public current account-token key identifier; REQUIRED in HYBRID/V2_ONLY, validated at startup with the dedicated keyring', prodOnly: true },
+  { name: 'CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS', level: 'RECOMMENDED', description: 'Private JSON keyring of dedicated 256-bit or stronger hex keys; REQUIRED in HYBRID/V2_ONLY, no fallback, validated at startup; provision through the approved secret store', prodOnly: true },
   { name: 'CLICTOPAY_API_KEY', level: 'RECOMMENDED', description: 'ClicToPay payment gateway API key (Banque Zitouna)' },
   // ─── OPTIONAL (silent if missing) ──────────────────────────────────
   { name: 'LLM_MODE', level: 'OPTIONAL', description: 'LLM behavior: live (default) | stub | off' },

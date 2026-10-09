@@ -6,15 +6,19 @@
  */
 
 import { auth } from '@/auth';
+import type { Session } from 'next-auth';
 import { UserRole } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from './prisma';
+import { buildInvoiceAccessWhere } from './invoice/not-found';
+import { familyReadAllowed, resolveParentStudentAccess } from './families/student-access-authority';
 
 export type AuthSession = {
   user: {
     id: string;
     email: string | null;
     role: UserRole;
+    authority?: Session['user']['authority'];
     firstName?: string;
     lastName?: string;
     name?: string | null;
@@ -78,6 +82,13 @@ export async function requireRole(requiredRole: UserRole): Promise<AuthSession |
 
   const session = result as AuthSession;
 
+  // These role guards authorize legacy resources; Core coach ownership is resolved by Core routes.
+  if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+    return NextResponse.json({ error: 'Forbidden' }, {
+      status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+    });
+  }
+
   if (session.user.role !== requiredRole) {
     return NextResponse.json(
       {
@@ -102,6 +113,13 @@ export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSess
   }
 
   const session = result as AuthSession;
+
+  // These role guards authorize legacy resources; Core coach ownership is resolved by Core routes.
+  if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+    return NextResponse.json({ error: 'Forbidden' }, {
+      status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+    });
+  }
 
   if (!allowedRoles.includes(session.user.role)) {
 
@@ -148,13 +166,17 @@ export function isErrorResponse(result: unknown): result is NextResponse {
  */
 export async function requireParentOwnsStudent(
   parentUserId: string,
-  studentId: string
+  studentId: string,
+  action: 'read' | 'mutation'
 ): Promise<true | NextResponse> {
-  const parentProfile = await prisma.parentProfile.findUnique({
-    where: { userId: parentUserId },
-    include: { children: { where: { id: studentId }, select: { id: true } } },
-  });
-  if (!parentProfile || parentProfile.children.length === 0) {
+  const decision = await resolveParentStudentAccess(parentUserId, studentId, action);
+  if (decision.status === 'AUTHORITY_UNAVAILABLE') {
+    return NextResponse.json(
+      { error: 'ServiceUnavailable', message: 'La vérification des droits est temporairement indisponible.' },
+      { status: 503 }
+    );
+  }
+  if (!familyReadAllowed(decision)) {
     return NextResponse.json(
       { error: 'Forbidden', message: 'Vous n\'êtes pas autorisé à accéder à cet élève.' },
       { status: 403 }
@@ -201,30 +223,36 @@ export async function requireStudentOwnsResource(
   );
 }
 
-/**
- * Verify that a parent owns the invoice (via their userId on the payment).
- * Returns true if ownership is confirmed, otherwise a 403 NextResponse.
- */
+/** Resolve Student.id from the authenticated User.id before attaching a resource. */
+export async function requireStudentOwnsStudent(
+  studentUserId: string,
+  studentId: string
+): Promise<true | NextResponse> {
+  let student: { id: string } | null;
+  try {
+    student = await prisma.student.findUnique({
+      where: { userId: studentUserId }, select: { id: true },
+    });
+  } catch {
+    return NextResponse.json(
+      { error: 'ServiceUnavailable', message: 'La vérification des droits est temporairement indisponible.' },
+      { status: 503 }
+    );
+  }
+  if (!student || student.id !== studentId) {
+    return NextResponse.json({ error: 'Forbidden', message: 'Accès refusé à cette ressource.' }, { status: 403 });
+  }
+  return true;
+}
+
+/** Require explicit payer or active delegated authority; family membership grants no finance access. */
 export async function requireParentOwnsInvoice(
   parentUserId: string,
   invoiceId: string
 ): Promise<true | NextResponse> {
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: invoiceId },
-    select: { beneficiaryUserId: true },
-  });
-  if (!invoice || !invoice.beneficiaryUserId) {
-    return NextResponse.json(
-      { error: 'Forbidden', message: 'Cette facture ne vous appartient pas.' },
-      { status: 403 }
-    );
-  }
-  // Verify the beneficiary is a student owned by this parent
-  const parentProfile = await prisma.parentProfile.findUnique({
-    where: { userId: parentUserId },
-    include: { children: { where: { userId: invoice.beneficiaryUserId }, select: { id: true } } },
-  });
-  if (!parentProfile || parentProfile.children.length === 0) {
+  const where = await buildInvoiceAccessWhere(invoiceId, { id: parentUserId, role: 'PARENT' });
+  const invoice = where ? await prisma.invoice.findFirst({ where, select: { id: true } }) : null;
+  if (!invoice) {
     return NextResponse.json(
       { error: 'Forbidden', message: 'Cette facture ne vous appartient pas.' },
       { status: 403 }
@@ -241,11 +269,12 @@ export async function requireParentOwnsInvoice(
 export async function enforceOwnership(
   policyKey: string,
   session: AuthSession,
-  resourceId?: string
+  resourceId: string | undefined,
+  action: 'read' | 'mutation'
 ): Promise<true | NextResponse> {
   // Parent ownership on student
   if (policyKey === 'parent.children' && resourceId) {
-    return requireParentOwnsStudent(session.user.id, resourceId);
+    return requireParentOwnsStudent(session.user.id, resourceId, action);
   }
   // Parent ownership on invoice
   if (policyKey.startsWith('parent.') && policyKey.includes('invoice') && resourceId) {

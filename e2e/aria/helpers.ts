@@ -1,6 +1,8 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page, type Request } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { loginAsUser, type UserType } from '../helpers/auth';
+import { observeSubmittedRequest } from '../helpers/request-completion';
+import { installAriaTransportProbe } from '../helpers/aria-transport-probe';
 
 const fixtureBaseUrl = process.env.ARIA_E2E_FIXTURE_BASE_URL ?? '';
 const fixtureAdminToken = process.env.ARIA_E2E_FIXTURE_ADMIN_TOKEN ?? '';
@@ -60,6 +62,51 @@ export async function chooseCourse(page: Page, courseKey: string): Promise<void>
 export async function sendFromComposer(page: Page, content: string): Promise<void> {
   await page.getByLabel('Message à ARIA').fill(content);
   await page.getByRole('button', { name: 'Envoyer à ARIA' }).click();
+}
+
+/** A normal turn must finish its own HTTP body before a navigation or next send. */
+export async function sendFromComposerAndFinishTransport(page: Page, content: string): Promise<void> {
+  const probe = await installAriaTransportProbe(page);
+  const transport = observeSubmittedRequest<Request>(page, (request) => {
+    const url = new URL(request.url());
+    return request.method() === 'POST' && url.pathname === '/api/aria/chat'
+      && url.origin === new URL(page.url()).origin
+      && request.postDataJSON()?.content === content;
+  });
+  try {
+    await test.step('ARIA_PHASE:transport:send', () => sendFromComposer(page, content));
+    const request = await test.step('ARIA_PHASE:transport:request', () => transport.request);
+    const response = await test.step('ARIA_PHASE:transport:response', () => request.response());
+    if (response === null) throw new Error('ARIA_CHAT_TRANSPORT_NO_HEADERS');
+    expect(response.status(), 'The normal ARIA transport must be accepted').toBe(200);
+    await test.step('ARIA_PHASE:transport:body', async () => {
+      const terminal = await transport.completion;
+      expect(terminal.request).toBe(request);
+      if (terminal.status === 'FAILED') {
+        const observation = await probe.snapshot();
+        const observations = [
+          observation.signalAborted ? 'signal-aborted' : 'no-signal-abort',
+          observation.headersReceived ? 'headers-received' : 'no-headers',
+          observation.dialogPresent ? 'dialog-present' : 'dialog-missing',
+          observation.composerEnabled ? 'composer-enabled' : 'composer-disabled',
+          observation.alertPresent ? 'alert-present' : 'no-alert',
+          observation.bodyEof ? 'body-eof' : 'body-not-eof',
+          observation.bodyReadFailed ? 'body-read-failed' : 'body-read-ok',
+        ];
+        for (const observationPhase of observations) {
+          await test.step(`ARIA_PHASE:transport:probe:${observationPhase}`, async () => {});
+        }
+        const phase = request.failure()?.errorText === 'net::ERR_ABORTED' ? 'aborted' : 'failed';
+        await test.step(`ARIA_PHASE:transport:${phase}`, async () => {
+          throw new Error(phase === 'aborted' ? 'ARIA_CHAT_TRANSPORT_ABORTED' : 'ARIA_CHAT_TRANSPORT_FAILED');
+        });
+      }
+      expect(terminal.status, 'The normal ARIA HTTP body must finish without a transport error').toBe('FINISHED');
+    });
+  } finally {
+    transport.dispose();
+    await probe.dispose();
+  }
 }
 
 export async function postConversation(
@@ -137,9 +184,40 @@ export async function conversationMessages(page: Page, conversationId: string) {
   };
 }
 
+const expectedPrefetchPaths = new Set([
+  '/dashboard/trajectoire', '/dashboard/eleve/aria', '/dashboard/eleve/nsi-pratique-2026',
+  '/dashboard/eleve/npc', '/dashboard/eleve/documents', '/dashboard/eleve/diagnostics-libres',
+  '/bilan-gratuit/assessment', '/dashboard/account/security',
+]);
+
+export interface BrowserNetworkFailure {
+  readonly method: string;
+  readonly pathname: string;
+  readonly resourceType: string;
+  readonly errorText: string;
+  readonly sameOrigin: boolean;
+  readonly rsc: boolean;
+  readonly prefetch: boolean;
+  readonly explicitChatCancellation: boolean;
+  readonly disposition: 'failure' | 'expected-chat-cancellation' | 'expected-rsc-prefetch';
+}
+
 export function captureBrowserDiagnostics(page: Page) {
   const failures: string[] = [];
   const aborts: string[] = [];
+  const networkFailures: BrowserNetworkFailure[] = [];
+  const activeChats = new Set<Request>();
+  const intentionalCancellations = new Set<Request>();
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (request.method() === 'POST' && url.pathname === '/api/aria/chat'
+      && url.origin === new URL(page.url()).origin
+      && ['fetch', 'xhr'].includes(request.resourceType())) activeChats.add(request);
+  });
+  page.on('requestfinished', request => {
+    activeChats.delete(request);
+    intentionalCancellations.delete(request);
+  });
   page.on('console', (message) => {
     const text = message.text();
     if (message.type() === 'error'
@@ -151,12 +229,29 @@ export function captureBrowserDiagnostics(page: Page) {
   page.on('requestfailed', (request) => {
     const url = new URL(request.url());
     const errorText = request.failure()?.errorText ?? 'UNKNOWN';
-    const diagnostic = `requestfailed:${request.method()}:${url.pathname}:${errorText}`;
-    if (errorText === 'net::ERR_ABORTED') {
-      aborts.push(diagnostic);
-    } else {
-      failures.push(diagnostic);
+    const headers = request.headers();
+    const method = request.method();
+    const resourceType = request.resourceType();
+    const sameOrigin = url.origin === new URL(page.url()).origin;
+    const rsc = headers.rsc === '1';
+    const prefetch = headers['next-router-prefetch'] === '1' || headers.purpose === 'prefetch';
+    const explicitChatCancellation = intentionalCancellations.has(request);
+    let disposition: BrowserNetworkFailure['disposition'] = 'failure';
+    if (errorText === 'net::ERR_ABORTED' && sameOrigin) {
+      if (method === 'POST' && url.pathname === '/api/aria/chat'
+        && ['fetch', 'xhr'].includes(resourceType) && explicitChatCancellation) {
+        disposition = 'expected-chat-cancellation';
+      } else if (method === 'GET' && resourceType === 'fetch' && rsc && prefetch
+        && expectedPrefetchPaths.has(url.pathname)) {
+        disposition = 'expected-rsc-prefetch';
+      }
     }
+    networkFailures.push({ method, pathname: url.pathname, resourceType, errorText,
+      sameOrigin, rsc, prefetch, explicitChatCancellation, disposition });
+    const diagnostic = `requestfailed:${method}:${url.pathname}:${errorText}`;
+    (disposition === 'failure' ? failures : aborts).push(diagnostic);
+    activeChats.delete(request);
+    intentionalCancellations.delete(request);
   });
   page.on('response', (response) => {
     const url = new URL(response.url());
@@ -165,7 +260,11 @@ export function captureBrowserDiagnostics(page: Page) {
       failures.push(`response:${response.status()}:${url.pathname}`);
     }
   });
-  return { failures, aborts } as const;
+  function expectChatCancellation() {
+    if (activeChats.size !== 1) throw new Error('ARIA_EXPECTED_CANCELLATION_REQUIRES_ONE_ACTIVE_CHAT');
+    intentionalCancellations.add([...activeChats][0]!);
+  }
+  return { failures, aborts, networkFailures, expectChatCancellation } as const;
 }
 
 export function captureBrowserFailures(page: Page) {

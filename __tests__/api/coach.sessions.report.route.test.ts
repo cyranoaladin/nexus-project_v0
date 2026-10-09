@@ -77,7 +77,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 400 for invalid input', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: false, error: { issues: [{ message: 'Required' }] } });
 
     const res = await POST(...makePostRequest('s1', {}));
@@ -85,7 +85,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 404 when session not found', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockResolvedValue(null);
 
@@ -94,7 +94,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 403 when coach does not own session', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockResolvedValue({
       id: 's1', coachId: 'other-coach', status: 'CONFIRMED',
@@ -106,7 +106,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 400 for invalid session status', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockResolvedValue({
       id: 's1', coachId: 'c1', status: 'COMPLETED',
@@ -118,7 +118,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 409 when report already exists', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockResolvedValue({
       id: 's1', coachId: 'c1', status: 'CONFIRMED',
@@ -131,7 +131,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should create report successfully', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockResolvedValue({
       id: 's1', coachId: 'c1', studentId: 'stu-u1', parentId: 'p1',
@@ -160,7 +160,7 @@ describe('POST /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return 500 on DB error', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     mockSafeParse.mockReturnValue({ success: true, data: validReport });
     prisma.sessionBooking.findFirst.mockRejectedValue(new Error('DB error'));
 
@@ -180,8 +180,9 @@ describe('GET /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return null report when none exists', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     prisma.sessionReport.findUnique.mockResolvedValue(null);
+    prisma.sessionBooking.findUnique.mockResolvedValue({ id: 's1', coachId: 'c1', studentId: 'stu-1' });
 
     const res = await GET(...makeGetRequest('s1'));
     const body = await res.json();
@@ -202,7 +203,7 @@ describe('GET /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('should return report for authorized coach', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     prisma.sessionReport.findUnique.mockResolvedValue({
       id: 'r1', summary: 'Good session',
     });
@@ -218,7 +219,7 @@ describe('GET /api/coach/sessions/[sessionId]/report', () => {
   });
 
   it('sanitizes nested user/session data for an authorized participant', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } } as any);
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } } as any);
     prisma.sessionReport.findUnique.mockResolvedValue({
       id: 'r1',
       summary: 'Good session',

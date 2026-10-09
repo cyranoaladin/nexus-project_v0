@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAsUser } from '../helpers/auth';
+import { loginAsUser, expectCoachDashboardReady } from '../helpers/auth';
 
 test.describe('Dashboard Coach — Audit Exhaustif', () => {
   test.beforeEach(async ({ page }) => {
@@ -16,7 +16,7 @@ test.describe('Dashboard Coach — Audit Exhaustif', () => {
     test('contenu principal est visible', async ({ page }) => {
       await page.goto('/dashboard/coach');
       await page.waitForLoadState('domcontentloaded');
-      await expect(page.getByRole('heading', { level: 1, name: /^Coach — / })).toBeVisible();
+      await expectCoachDashboardReady(page);
       // Coaching does not grant the parent's/student's booking affordance.
       await expect(page.getByRole('button', { name: /réserver une session|book a session/i })).toHaveCount(0);
     });

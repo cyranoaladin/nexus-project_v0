@@ -110,10 +110,8 @@ describe('PR #79 complete CI evidence workflow', () => {
     const security = workflow.jobs.security;
     expect(security.needs).toEqual(['dependency-integrity', 'build']);
     expect(security.if).toBe('${{ always() }}');
-    const verification = security.steps.find((step) => step.name === 'Verify runtime evidence jobs');
-    expect(verification.if).toContain("steps.osv_scan.outputs.code == '1'");
+    const verification = security.steps.find((step) => step.name === 'Verify runtime evidence job');
     expect(verification.run).toContain('needs.dependency-integrity.result');
-    expect(verification.run).toContain('needs.build.result');
   });
 
   test('keeps Dependency Integrity strict and unchanged in substance', () => {
@@ -137,7 +135,7 @@ describe('PR #79 complete CI evidence workflow', () => {
 
     // Full audit step must call the canonical wrapper with exact flags
     const fullStep = gate.steps.find((step) =>
-      step.name === 'Audit all dependencies with exact temporary dev-tooling policy');
+      step.name === 'Audit all dependencies at the canonical threshold (HIGH/CRITICAL fail closed)');
     expect(fullStep).toBeTruthy();
     expect(fullStep.run).toContain('node scripts/security/run-npm-audit.mjs');
     expect(fullStep.run).toContain('--output=npm-audit-full.json');
@@ -149,11 +147,11 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(runCommands).not.toMatch(/--audit-level\s+(?:low|moderate)/);
   });
 
-  test('keeps the full npm audit blocking except for the exact temporary policy', () => {
+  test('keeps the full npm audit blocking: HIGH/CRITICAL fail closed, no standing exception', () => {
     const gate = workflow.jobs['dependency-integrity'];
     const source = jobSource(gate);
     const fullAuditRun = gate.steps.find(
-      (step) => step.name === 'Audit all dependencies with exact temporary dev-tooling policy',
+      (step) => step.name === 'Audit all dependencies at the canonical threshold (HIGH/CRITICAL fail closed)',
     ).run;
 
     expect(fullAuditRun).toContain('node scripts/security/run-npm-audit.mjs');
@@ -162,9 +160,11 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(fullAuditRun).not.toContain('validate-brace-expansion-attestation');
     expect(fullAuditRun).not.toContain('--attestation');
     expect(fullAuditRun).toContain('elif [ "$audit_code" -eq 1 ]');
-    expect(fullAuditRun).toContain('--mode current-npm-audit');
-    expect(fullAuditRun).toContain('--policy security/current-dev-tooling-osv-exception.json');
-    expect(fullAuditRun).toContain('--lockfile package-lock.json');
+    // OSV_THRESHOLD_AWARE_FAIL_CLOSED: a HIGH/CRITICAL finding is a hard stop,
+    // not a policy-waived exception — the obsolete dev-tooling policy is removed.
+    expect(fullAuditRun).toContain('exit 1');
+    expect(fullAuditRun).not.toContain('--mode current-npm-audit');
+    expect(fullAuditRun).not.toContain('current-dev-tooling-osv-exception.json');
     expect(fullAuditRun).not.toContain('|| true');
     expect(source).toContain('npm-audit-production.json');
     expect(source).toContain('npm-audit-full.json');
@@ -184,22 +184,28 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(osvRun).not.toContain('--attestation');
     expect(security.steps.find((step) => step.name === 'Run OSV Scanner').id).toBe('osv_scan');
     expect(osvRun).toContain('osv_code');
-    const exception = security.steps.find((step) =>
-      step.name === 'Validate exact temporary OSV exception');
-    expect(exception.if).toContain("steps.osv_scan.outputs.code == '1'");
-    expect(exception.run).toContain('--mode current-osv');
-    expect(exception.run).toContain('--artifact-root');
-    expect(exception.run).toContain('--runtime-sbom');
-    expect(exception.run).toContain('--production-tree');
-    const clean = security.steps.find((step) => step.name === 'Validate clean OSV result');
-    expect(clean.if).toContain("steps.osv_scan.outputs.code == '0'");
-    expect(clean.run).toContain('--mode clean-osv');
+    // OSV_THRESHOLD_AWARE_FAIL_CLOSED: a single tri-state gate replaces the clean/
+    // exception branches. It fails closed on anything but CLEAN / BOUNDED_BELOW_THRESHOLD.
+    const gateStep = security.steps.find((step) =>
+      step.name === 'Validate OSV findings (threshold-aware, fail closed)');
+    expect(gateStep).toBeTruthy();
+    expect(gateStep.run).toContain('scripts/security/osv-threshold-gate.mjs');
+    expect(gateStep.run).toContain('--baseline security/osv-below-threshold-baseline.json');
+    expect(gateStep.run).toContain('--scanner-exit');
+    expect(gateStep.run).toContain('--production-tree');
+    expect(gateStep.run).not.toContain('|| true');
+    expect(gateStep.run).not.toContain('continue-on-error');
+    // The obsolete braces/http-cache-semantics exception and its validator are gone.
+    expect(security.steps.find((step) => step.name === 'Validate exact temporary OSV exception')).toBeUndefined();
+    expect(security.steps.find((step) => step.name === 'Validate clean OSV result')).toBeUndefined();
+    expect(source).not.toContain('current-dev-tooling-osv-exception.json');
+    // Only the production-tree evidence is downloaded now (no standalone needed by the gate).
     expect(security.steps.filter((step) => step.uses?.startsWith('actions/download-artifact@'))
-      .map((step) => step.with.name)).toEqual(['dependency-integrity-evidence', 'nextjs-build']);
-    expect(exception.run).not.toContain('|| true');
+      .map((step) => step.with.name)).toEqual(['dependency-integrity-evidence']);
     expect(source).toContain('osv-report.json');
+    expect(source).toContain('osv-gate-normalized.txt');
     expect(
-      security.steps.find((step) => step.name === 'Upload OSV report').if,
+      security.steps.find((step) => step.name?.startsWith('Upload OSV report')).if,
     ).toBe('always()');
   });
 
@@ -217,8 +223,14 @@ describe('PR #79 complete CI evidence workflow', () => {
     expect(commands.indexOf('npm run artifact:audit')).toBeLessThan(
       commands.indexOf('node .next/standalone/server.js'),
     );
-    expect(new Set(String(upload.with.path).trim().split(/\s+/))).toEqual(
-      new Set(['.next/standalone/', 'release-manifest.json']),
+    expect(new Set(String(upload.with.path).trim().split('\n').map((path) => path.trim()))).toEqual(
+      new Set([
+        '${{ runner.temp }}/nexus-build-delivery/nexus-build.tar.gz.gpg',
+        '${{ runner.temp }}/nexus-build-delivery/archive.sha256',
+        '${{ runner.temp }}/nexus-build-delivery/ciphertext.sha256',
+        '${{ runner.temp }}/nexus-build-delivery/release-manifest.json',
+        '${{ runner.temp }}/nexus-build-delivery/runtime.cdx.json',
+      ]),
     );
     expect(upload.with['include-hidden-files']).toBe(true);
     expect(upload.with['if-no-files-found']).toBe('error');

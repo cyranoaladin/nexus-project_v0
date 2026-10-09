@@ -1,10 +1,12 @@
-# Core v2 — greenfield foundation (not wired into the running app)
+# Core v2 — isolated data authority and explicit application rollout
 
-This directory holds the Core v2 schema (`prisma/schema.prisma`) and its baseline migrations. Since `feat/core-v2-greenfield-foundation`, this schema has a real, isolated Prisma Client, a real baseline migration, and a minimal repository layer (`lib/core-v2/`) — but it is still **not** referenced by the app's build, `prisma generate`, or any deploy step. The live app continues to use the repository-root `prisma/schema.prisma` exactly as before, and no `nexus_core_v2` database exists anywhere except a disposable one created and destroyed by tests/CI.
+This directory holds the Core v2 schema (`prisma/schema.prisma`), versioned migrations and its isolated generated Prisma Client. The application exposes native `/api/v2/**` routes and approved authentication bridges; see the HTTP section below and `lib/core-v2/auth/authority.ts`. Availability and identity ownership depend on explicit deployment configuration, not on the mere presence of this code. This repository does not prove which production rollout mode or databases are currently active.
+
+Core v1 remains the billing authority. Core v2 never falls back to `DATABASE_URL`; its configured target and database identity must both pass the client guards. A production data transition requires the reviewed roster and reconciliation procedure in `docs/core-v2/migration-runbook.md`.
 
 ## Bootstrapping a disposable Core v2 database
 
-Never point `CORE_V2_DATABASE_URL` at anything but a throwaway database — the client refuses to start if it equals `DATABASE_URL` (see `lib/core-v2/client.ts`).
+For this test sequence, point `CORE_V2_DATABASE_URL` only at a newly created throwaway database. Never use a production or shared preview target. The client also refuses colliding Core v1/Core v2 targets and invalid database identity markers (see `lib/core-v2/client.ts`).
 
 ```bash
 # 1. Start any empty, disposable PostgreSQL (example: Docker)
@@ -43,7 +45,7 @@ CI runs the exact same sequence in `core-v2-foundation` (`.github/workflows/ci.y
 
 ## Operational domain (migration 0006, `lib/core-v2/services/`)
 
-The foundation is now completed by the operational domain — still **not** wired into any user-facing route (the `CORE_V2_MUST_NOT_BE_IMPORTED_BY_LIVE_RUNTIME` guard is unchanged); the staff API layer is the next, dependent increment.
+The operational domain is exposed through the native HTTP surface described below. The architecture guards restrict runtime imports to approved V2 entry points and authentication bridges; they do not prohibit the integration already present in the application.
 
 - **Authorities**: `User.accountStatus` (PENDING_ACTIVATION / ACTIVE / SUSPENDED / DISABLED) is the account-state authority; `activatedAt` is a derived timestamp. `Invitation` has its own lifecycle (hashed token, TTL, single use, at most one open per user). `AuditEvent` is append-only at the DB level (trigger). Enrollment is created `PENDING` and only an explicit `approveEnrollment` makes it `ACTIVE`.
 - **Race-safe invariants** (partial unique indexes, migration 0006): one CURRENT academic year, one primary contact per household, one open invitation per user, case-insensitive email uniqueness — proven under real concurrency in `__tests__/core-v2/services/concurrency.test.ts` with an open-transaction barrier (no timing luck).

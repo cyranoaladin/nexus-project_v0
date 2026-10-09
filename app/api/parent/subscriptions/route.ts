@@ -1,10 +1,11 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
+import { resolveParentStudentListAccess } from '@/lib/families/list-access-authority';
 import { getOperationalSubscriptionPlan } from '@/lib/operational-catalog';
+import { ARIA_SUSPENSION_REASON, isSaleSuspended } from '@/lib/commerce/sale-suspension';
 import { z } from 'zod';
 
 const parentSubscriptionRequestSchema = z.object({
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'PARENT') {
+    if (!session?.user?.id || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -38,14 +39,23 @@ export async function GET(request: NextRequest) {
     }
 
     // Get children with their subscriptions
+    const access = await resolveParentStudentListAccess(userId, parentProfile.id);
+    if (access.unavailable) {
+      return NextResponse.json({ error: 'Family authority unavailable' },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+    if (access.studentIds.length === 0) {
+      return NextResponse.json({ children: [] },
+        { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+    }
+
     const children = await prisma.student.findMany({
-      where: { parentId: parentProfile.id },
+      where: { parentId: parentProfile.id, id: { in: [...access.studentIds] } },
       include: {
-        user: true,
+        user: { select: { firstName: true, lastName: true } },
         subscriptions: {
-          orderBy: {
-            createdAt: 'desc'
-          }
+          orderBy: { createdAt: 'desc' },
+          select: { planName: true, status: true, startDate: true, endDate: true }
         },
       }
     });
@@ -66,7 +76,6 @@ export async function GET(request: NextRequest) {
         subscriptionExpiry: activeSubscription?.endDate,
         subscriptionDetails: activeSubscription ? {
           planName: activeSubscription.planName,
-          monthlyPrice: activeSubscription.monthlyPrice ?? 0,
           status: activeSubscription.status,
           startDate: activeSubscription.startDate?.toISOString() ?? null,
           endDate: activeSubscription.endDate?.toISOString() ?? null,
@@ -77,10 +86,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       children: formattedChildren
-    });
+    }, { headers: { 'Cache-Control': 'private, no-store' } });
 
-  } catch (error) {
-    console.error('Error fetching parent subscriptions:', serializeError(error));
+  } catch {
+    console.error('PARENT_SUBSCRIPTIONS_READ_FAILED');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -92,7 +101,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'PARENT') {
+    if (!session?.user?.id || session.user.role !== 'PARENT') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -108,6 +117,13 @@ export async function POST(request: NextRequest) {
       );
     }
     const { studentId, planName } = parsedBody.data;
+
+    if (isSaleSuspended('SUBSCRIPTION_PLAN')) {
+      return NextResponse.json(
+        { error: ARIA_SUSPENSION_REASON, code: 'SALE_SUSPENDED' },
+        { status: 409, headers: { 'Cache-Control': 'private, no-store' } }
+      );
+    }
 
     const plan = getOperationalSubscriptionPlan(planName);
     if (!plan) {
@@ -156,6 +172,7 @@ export async function POST(request: NextRequest) {
         reason: '',
         status: 'PENDING',
         requestedBy: `${session.user.firstName} ${session.user.lastName}`,
+        requestedByUserId: session.user.id,
         requestedByEmail: session.user.email ?? null
       }
     });
@@ -190,8 +207,8 @@ export async function POST(request: NextRequest) {
       message: 'Demande d\'abonnement envoyée. En attente d\'approbation par l\'assistante.'
     });
 
-  } catch (error) {
-    console.error('Error creating subscription request:', serializeError(error));
+  } catch {
+    console.error('PARENT_SUBSCRIPTION_REQUEST_CREATE_FAILED');
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

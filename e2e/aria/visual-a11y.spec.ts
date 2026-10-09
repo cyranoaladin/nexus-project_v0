@@ -16,9 +16,11 @@ import {
   captureBrowserDiagnostics,
   captureBrowserFailures,
   chooseCourse,
+  fixtureState,
   loginAndOpenAria,
   resetFixture,
   sendFromComposer,
+  sendFromComposerAndFinishTransport,
 } from './helpers';
 
 const viewports = [
@@ -96,12 +98,12 @@ async function assertQualifiedLayout(page: Page) {
 }
 
 async function captureState(page: Page, testInfo: TestInfo, viewport: VisualViewport, state: string) {
-  await assertQualifiedLayout(page);
-  await assertNoSeriousOrCriticalA11y(page);
-  const screenshot = await page.screenshot({
+  await test.step(`ARIA_PHASE:capture:${state}:layout`, () => assertQualifiedLayout(page));
+  await test.step(`ARIA_PHASE:capture:${state}:axe`, () => assertNoSeriousOrCriticalA11y(page));
+  const screenshot = await test.step(`ARIA_PHASE:capture:${state}:screenshot`, () => page.screenshot({
     animations: 'disabled',
     scale: 'css',
-  });
+  }));
   await testInfo.attach(`aria-${viewport.id}-${state}`, {
     body: screenshot,
     contentType: 'image/png',
@@ -122,11 +124,13 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByText('Une pile', { exact: false })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Arrêter la réponse ARIA' })).toBeVisible();
     await captureState(page, testInfo, viewport, 'streaming');
+    diagnostics.expectChatCancellation();
     await page.getByRole('button', { name: 'Arrêter la réponse ARIA' }).click();
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA arrêtée.');
+    await expect.poll(async () => (await fixtureState(page.request)).activeModelStreams).toBe(0);
     await page.waitForLoadState('networkidle');
 
-    await sendFromComposer(page, 'Question avec citation visible.');
+    await sendFromComposerAndFinishTransport(page, 'Question avec citation visible.');
     await expect(page.getByRole('status')).toHaveText('Réponse ARIA terminée.');
     const citationSummary = page.getByText('1 source').last();
     await expect(citationSummary).toBeVisible();
@@ -146,14 +150,16 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(useful).toHaveAttribute('aria-pressed', 'true');
     await captureState(page, testInfo, viewport, 'feedback-submitted');
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
-    await expect(page.getByRole('dialog').getByRole('alert'))
-      .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
+    await test.step('ARIA_PHASE:rag:send', () =>
+      sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable));
+    await test.step('ARIA_PHASE:rag:alert', () =>
+      expect(page.getByRole('dialog').getByRole('alert')).toHaveText('Les sources pédagogiques sont temporairement indisponibles.'));
     await captureState(page, testInfo, viewport, 'rag-unavailable');
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.modelTimeout);
-    await expect(page.getByRole('dialog').getByRole('alert'))
-      .toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.');
+    await test.step('ARIA_PHASE:timeout:send', () =>
+      sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.modelTimeout));
+    await test.step('ARIA_PHASE:timeout:alert', () =>
+      expect(page.getByRole('dialog').getByRole('alert')).toHaveText('ARIA met trop de temps à répondre. Réessayez dans un instant.'));
     await captureState(page, testInfo, viewport, 'timeout-error');
     await page.waitForLoadState('networkidle');
 
@@ -163,18 +169,8 @@ async function qualifyVisualViewport(browser: Browser, viewport: VisualViewport,
     await expect(page.getByRole('main', { name: 'Conversation ARIA' })
       .getByText('Aucun cours ARIA avec chat n’est disponible.')).toBeVisible();
     await captureState(page, testInfo, viewport, 'course-unavailable');
-    expect(diagnostics.failures).toEqual([]);
-    const expectedAborts = new Set([
-      'requestfailed:POST:/api/aria/chat:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/trajectoire:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/aria:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/nsi-pratique-2026:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/npc:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/documents:net::ERR_ABORTED',
-      'requestfailed:GET:/dashboard/eleve/diagnostics-libres:net::ERR_ABORTED',
-      'requestfailed:GET:/bilan-gratuit/assessment:net::ERR_ABORTED',
-    ]);
-    expect(diagnostics.aborts.filter((abort) => !expectedAborts.has(abort))).toEqual([]);
+    expect(diagnostics.failures, JSON.stringify(diagnostics.networkFailures)).toEqual([]);
+    expect(diagnostics.networkFailures.filter(event => event.disposition === 'failure')).toEqual([]);
   } finally {
     await context.close();
   }
@@ -266,7 +262,7 @@ test.describe.serial('ARIA-B visual and accessibility qualification', () => {
     await expect(citationSummary.locator('..').getByText(canonicalNsiPremiereResource.title)).toBeVisible();
     await assertNoSeriousOrCriticalA11y(page);
 
-    await sendFromComposer(page, ARIA_E2E_SCENARIOS.ragUnavailable);
+    await sendFromComposerAndFinishTransport(page, ARIA_E2E_SCENARIOS.ragUnavailable);
     await expect(dialog.getByRole('alert'))
       .toHaveText('Les sources pédagogiques sont temporairement indisponibles.');
     await expect(page.getByRole('status')).toHaveText('La réponse ARIA a échoué.');

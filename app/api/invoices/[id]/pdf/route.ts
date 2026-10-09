@@ -1,10 +1,8 @@
-import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * GET /api/invoices/:id/pdf — Stream invoice PDF with RBAC + token access.
  *
- * Two access paths:
- * 1. Session-based (RBAC): ADMIN sees all, PARENT scoped by child beneficiary/email
- * 2. Token-based (?token=...): signed link from email, 72h expiry
+ * Every read requires session-based financial authority.
+ * A signed email link adds expiry/revocation checks; it never grants authority by itself.
  *
  * No-leak design:
  * - ALL deny cases (absent, out-of-scope, token invalid/expired/revoked, forbidden role)
@@ -17,6 +15,8 @@ import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { readInvoicePDF, verifyAccessToken } from '@/lib/invoice';
 import { notFoundResponse, buildInvoiceAccessWhere } from '@/lib/invoice/not-found';
+import { recordInvoiceDownload } from '@/lib/invoice/download-audit';
+import { isPublishedInvoice } from '@/lib/invoice/publication';
 
 /**
  * Stream a PDF response from a buffer.
@@ -28,7 +28,8 @@ function streamPdf(pdfBuffer: Buffer, invoiceNumber: string): NextResponse {
       'Content-Type': 'application/pdf',
       'Content-Disposition': `inline; filename="facture_${invoiceNumber}.pdf"`,
       'Content-Length': String(pdfBuffer.length),
-      'Cache-Control': 'private, max-age=3600',
+      'Cache-Control': 'private, no-store',
+      'Referrer-Policy': 'no-referrer',
     },
   });
 }
@@ -41,7 +42,7 @@ export async function GET(
     const { id } = await params;
     const token = request.nextUrl.searchParams.get('token');
 
-    // ─── Path 1: Token-based access (external link from email) ────────
+    // Optional signed-link constraint, never a replacement for session authority.
     if (token) {
       const verification = await verifyAccessToken(token);
 
@@ -49,20 +50,10 @@ export async function GET(
         return notFoundResponse();
       }
 
-      const invoice = await prisma.invoice.findUnique({
-        where: { id },
-        select: { id: true, number: true, pdfPath: true },
-      });
 
-      if (!invoice || !invoice.pdfPath) {
-        return notFoundResponse();
-      }
-
-      const pdfBuffer = await readInvoicePDF(invoice.pdfPath);
-      return streamPdf(pdfBuffer, invoice.number);
     }
 
-    // ─── Path 2: Session-based RBAC access ────────────────────────────
+    // Every successful read uses the same scoped session query and audit.
     const session = await auth();
     if (!session?.user?.id) {
       return notFoundResponse();
@@ -84,18 +75,22 @@ export async function GET(
         id: true,
         number: true,
         pdfPath: true,
+        status: true,
+        events: true,
       },
     });
 
-    if (!invoice || !invoice.pdfPath) {
+    if (!invoice || !invoice.pdfPath
+      || (session.user.role === 'PARENT' && !isPublishedInvoice(invoice))) {
       return notFoundResponse();
     }
 
     const pdfBuffer = await readInvoicePDF(invoice.pdfPath);
+    await recordInvoiceDownload({ invoiceId: invoice.id, actorUserId: session.user.id, action: 'PDF_READ' });
     return streamPdf(pdfBuffer, invoice.number);
 
-  } catch (error) {
-    console.error('[GET /api/invoices/:id/pdf]', serializeError(error));
+  } catch {
+    console.error('INVOICE_PDF_READ_FAILED');
     return notFoundResponse();
   }
 }

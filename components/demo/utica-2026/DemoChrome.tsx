@@ -1,5 +1,7 @@
 'use client';
 
+import { navigateDocument } from '@/lib/browser-navigation';
+
 /**
  * Navigation commune de l'espace candidat individuel (brief §33, P2 §7-§10,
  * hotfix branding salon) : mode kiosque — navigation contenue dans
@@ -37,7 +39,7 @@ const NAV_ITEMS = [
 ];
 
 function resetDemo() {
-  window.location.href = DEMO_HOME;
+  navigateDocument(DEMO_HOME);
 }
 
 export function DemoChrome({ children }: { children: React.ReactNode }) {

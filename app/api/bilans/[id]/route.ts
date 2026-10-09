@@ -1,3 +1,4 @@
+import { resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilan Individual API
@@ -12,7 +13,6 @@ import { Prisma } from '@prisma/client';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { parseJsonBody } from '@/lib/api/helpers';
 import {
-  buildBilanReadWhere,
   buildBilanWriteWhere,
   sanitizeBilanForRole,
 } from '@/lib/security/ownership';
@@ -102,7 +102,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const parsedParams = routeParamsSchema.safeParse(await params);
     if (!parsedParams.success) return validationFailed();
     const { id } = parsedParams.data;
-    const where = buildBilanReadWhere(id, authResponse.user);
+    const access = await resolveBilanReadAuthority(id, authResponse.user);
+    if (access.response) return access.response;
+    const where = access.where;
     if (!where) {
       return NextResponse.json(
         { success: false, error: 'Bilan not found' },
@@ -134,7 +136,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // ARIA_PERIODIC parent-reporting gate: ownership (checked above via
-    // buildBilanReadWhere) is necessary but not sufficient for this type —
+    // resolveBilanReadAuthority) is necessary but not sufficient for this type —
     // a parent whose child's ARIA tier doesn't include `parentReporting`
     // must not be able to read the detail either, even if they somehow
     // hold the bilan id (e.g. from a stale link, or one sent before a

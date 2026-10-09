@@ -1,9 +1,17 @@
+import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { GET, POST } from '@/app/api/parent/subscriptions/route';
 import { prisma } from '@/lib/prisma';
 
 jest.mock('@/auth', () => ({
   auth: jest.fn(),
+}));
+
+// Exercise the underlying request/ownership contract for a future qualified
+// reopening. The actual currently closed policy has a separate boundary test.
+jest.mock('@/lib/commerce/sale-suspension', () => ({
+  ...jest.requireActual('@/lib/commerce/sale-suspension'),
+  isSaleSuspended: jest.fn(() => false),
 }));
 
 jest.mock('@/lib/prisma', () => ({
@@ -17,10 +25,11 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-function makeRequest(body?: any) {
-  return {
-    json: async () => body,
-  } as any;
+function makeRequest(body?: unknown): NextRequest {
+  return new NextRequest('http://localhost/api/parent/subscriptions', {
+    method: body === undefined ? 'GET' : 'POST',
+    ...(body === undefined ? {} : { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } }),
+  });
 }
 
 describe('parent subscriptions', () => {
@@ -59,6 +68,7 @@ describe('parent subscriptions', () => {
     (prisma.student.findMany as jest.Mock).mockResolvedValue([
       {
         id: 'student-1',
+          userId: 'student-1-user', parent: { userId: 'parent-1' },
         grade: 'Seconde',
         school: 'Lycée',
         user: { firstName: 'Student', lastName: 'One' },
@@ -164,6 +174,7 @@ describe('parent subscriptions', () => {
     expect(prisma.subscriptionRequest.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
+          requestedByUserId: 'parent-1',
           requestType: 'PLAN_CHANGE',
           planName: 'HYBRIDE',
           monthlyPrice: 450,

@@ -24,7 +24,8 @@ interface AriaAgentPanelProps {
 export function AriaAgentPanel({ cockpit, onOpenChat }: AriaAgentPanelProps) {
   const canOpenChat = cockpit.capabilities.chat && onOpenChat !== undefined;
   const chattable = cockpit.curriculum.courses.filter(
-    (view) => view.access.academicallyRelevant && view.course.chatSubject !== null && view.access.commerciallyEntitled,
+    (view) => view.access.academicallyRelevant && view.course.chatSubject !== null && view.course.capabilities.chat
+      && view.access.productSupported && view.access.commerciallyEntitled,
   );
 
   return (

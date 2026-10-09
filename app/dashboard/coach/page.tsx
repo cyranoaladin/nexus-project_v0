@@ -72,10 +72,28 @@ export default function DashboardCoach() {
       router.push("/auth/signin")
       return
     }
+    if (session.user.authority === 'CORE_V2') {
+      setLoading(false)
+      return
+    }
     fetchDashboardData()
   }, [session, status, router, fetchDashboardData])
 
   if (loading) return <div className="min-h-screen bg-surface-darker flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand-accent" /></div>
+
+  if (session?.user.authority === 'CORE_V2') {
+    return (
+      <div className="min-h-screen bg-surface-darker text-neutral-100">
+        <header className="bg-surface-card border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+            <h1 className="font-semibold text-white">Espace coach</h1>
+            <Button variant="ghost" onClick={() => signOut()}>Déconnexion</Button>
+          </div>
+        </header>
+        <section className="max-w-7xl mx-auto px-4 py-8"><CoachAssignments /></section>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">
@@ -110,8 +128,6 @@ export default function DashboardCoach() {
         <TabsContent value="dashboard" className="mt-0">
           <DashboardPilotage role="COACH">
             <div className="space-y-6">
-              {/* §AJ: a coach whose identity is owned by Core v2 sees the assignments made there. Additive: the Core v1 cohort tooling below stays (§AK converges planning). */}
-              {session?.user.authority === 'CORE_V2' && <CoachAssignments />}
               {/* Rubriques Switcher */}
               <div className="mb-6 -mx-4 sm:mx-0">
                 <div className="flex gap-1.5 sm:gap-2 p-1 bg-white/5 border-y sm:border border-white/10 sm:rounded-xl overflow-x-auto scrollbar-none px-4 sm:px-1">

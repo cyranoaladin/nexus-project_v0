@@ -10,7 +10,7 @@ type DashboardPayload = Readonly<{
     lastName: string;
     gradeLevel: string;
     academicTrack: string;
-    subscriptionDetails: Readonly<{ monthlyPrice?: number }> | null;
+    subscriptionDetails: Readonly<{ planName: string; status: string }> | null;
   }>[];
   payments: readonly unknown[];
 }>;
@@ -167,23 +167,28 @@ test.describe('Parent dashboard — current production contract', () => {
       await expect(page.getByRole('heading', { name: 'Mes Enfants' })).toBeVisible();
     });
 
-    test('opens the grouped billing rubrique', async ({ page }) => {
+    test('opens the payer-scoped billing rubrique', async ({ page }) => {
       await page.getByRole('button', { name: 'Facturation', exact: true }).click();
-      await expect(page.getByRole('heading', { name: 'Facturation Groupée' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Vos factures' })).toBeVisible();
     });
 
-    test('derives the displayed monthly total from the API payload', async ({ page }) => {
+    test('does not expose subscription prices through a family link or invent a monthly total', async ({ page }) => {
       const payload = await dashboardPayload(page);
-      const total = payload.children.reduce((sum, child) => sum + (child.subscriptionDetails?.monthlyPrice ?? 0), 0);
+      expect(payload.children.length).toBeGreaterThan(0);
+      for (const child of payload.children) {
+        expect(child.subscriptionDetails ?? {}).not.toHaveProperty('monthlyPrice');
+        expect(child.subscriptionDetails ?? {}).not.toHaveProperty('ariaCost');
+      }
       await page.getByRole('button', { name: 'Facturation', exact: true }).click();
-      await expect(page.getByText(`${total} TND`, { exact: true })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Vos factures', exact: true })).toBeVisible();
+      await expect(page.getByText(/TND/)).toHaveCount(0);
     });
 
-    test('offers subscription management from billing', async ({ page }) => {
+    test('links billing to the canonical payer/delegation invoice list', async ({ page }) => {
       await page.getByRole('button', { name: 'Facturation', exact: true }).click();
-      // « Gérer mes abonnements » ne menait nulle part : remplacé par un lien réel
-      // vers la page des formules.
-      await expect(page.getByRole('link', { name: 'Voir les formules' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'Voir mes factures', exact: true }))
+        .toHaveAttribute('href', '/dashboard/parent/factures');
+      await expect(page.getByRole('link', { name: 'Voir les formules', exact: true })).toHaveCount(0);
     });
 
     test('does not leave child cards mounted in billing', async ({ page }) => {

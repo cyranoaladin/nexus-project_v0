@@ -1,7 +1,7 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Eye, EyeOff, KeyRound, Loader2 } from 'lucide-react';
 
 interface Props {
@@ -13,8 +13,8 @@ interface Props {
 const FIELD =
   'mt-2 block h-12 w-full rounded-lg border border-white/15 bg-white/5 px-3 pr-12 text-neutral-50 placeholder:text-neutral-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent';
 
-function SecretInput({ id, label, value, onChange, autoComplete, hint, testId }: {
-  id: string; label: string; value: string; onChange: (v: string) => void; autoComplete: string; hint?: string; testId: string;
+function SecretInput({ id, label, value, onChange, autoComplete, hint, testId, disabled }: {
+  id: string; label: string; value: string; onChange: (v: string) => void; autoComplete: string; hint?: string; testId: string; disabled: boolean;
 }) {
   const [shown, setShown] = useState(false);
   return (
@@ -31,6 +31,7 @@ function SecretInput({ id, label, value, onChange, autoComplete, hint, testId }:
           autoCorrect="off"
           spellCheck={false}
           required
+          disabled={disabled}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-describedby={hint ? `${id}-hint` : undefined}
@@ -38,6 +39,7 @@ function SecretInput({ id, label, value, onChange, autoComplete, hint, testId }:
         />
         <button
           type="button"
+          disabled={disabled}
           onClick={() => setShown((v) => !v)}
           aria-label={shown ? `Masquer : ${label}` : `Afficher : ${label}`}
           aria-pressed={shown}
@@ -61,6 +63,8 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -108,7 +112,7 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5 rounded-xl border border-white/10 bg-surface-card p-6" aria-describedby={error ? 'credential-erreur' : undefined}>
+    <form method="post" onSubmit={onSubmit} className="space-y-5 rounded-xl border border-white/10 bg-surface-card p-6" aria-describedby={error ? 'credential-erreur' : undefined}>
       {mandatory && (
         <p role="note" data-testid="credential-mandatory" className="rounded-lg border border-brand-accent/40 bg-brand-accent/10 p-3 text-sm text-neutral-100">
           Ton code actuel est temporaire. Choisis ton propre code personnel pour continuer : le code temporaire ne fonctionnera plus ensuite.
@@ -121,6 +125,7 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
         value={current}
         onChange={setCurrent}
         autoComplete="current-password"
+        disabled={!ready || pending}
       />
       <SecretInput
         id="credential-next"
@@ -129,6 +134,7 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
         value={next}
         onChange={setNext}
         autoComplete="new-password"
+        disabled={!ready || pending}
         hint={isCode ? '6 caractères au minimum, lettres et chiffres. Évite 123456, ton prénom ou ton identifiant.' : '12 caractères au minimum. Une phrase de passe longue et mémorisable convient très bien.'}
       />
       <SecretInput
@@ -138,6 +144,7 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
         value={confirm}
         onChange={setConfirm}
         autoComplete="new-password"
+        disabled={!ready || pending}
       />
 
       {error && (
@@ -148,7 +155,7 @@ export function CredentialForm({ kind, mandatory = false }: Props) {
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={!ready || pending}
         data-testid="btn-credential"
         className="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-accent font-medium text-neutral-950 hover:opacity-90 disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >

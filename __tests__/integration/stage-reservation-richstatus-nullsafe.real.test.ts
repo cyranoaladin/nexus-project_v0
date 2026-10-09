@@ -15,13 +15,14 @@ jest.unmock('@/lib/prisma');
  */
 
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
 const PREFIX = `richnull-${Date.now()}`;
-let dbReady = false;
 let stageId = '';
 
 beforeAll(async () => {
-  try { await prisma.$queryRaw`SELECT 1`; dbReady = true; } catch { dbReady = false; return; }
+  assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
+  await prisma.$queryRaw`SELECT 1`;
   const stage = await prisma.stage.create({
     data: {
       slug: `${PREFIX}-stage`,
@@ -50,15 +51,18 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  if (!dbReady) return;
-  await prisma.stageReservation.deleteMany({ where: { academyId: `${PREFIX}-academy` } });
-  await prisma.stage.deleteMany({ where: { slug: `${PREFIX}-stage` } });
-  await prisma.$disconnect();
+  try {
+    if (stageId) {
+      await prisma.stageReservation.deleteMany({ where: { stageId } });
+      await prisma.stage.deleteMany({ where: { id: stageId } });
+    }
+  } finally {
+    await prisma.$disconnect();
+  }
 });
 
 describe('richStatus nullable — prédicat null-safe (PostgreSQL réel)', () => {
   it('l’ancien prédicat écarte la réservation legacy, le nouveau la trouve', async () => {
-    if (!dbReady) { console.warn('DB indisponible'); return; }
 
     const oldPredicate = await prisma.stageReservation.findFirst({
       where: {
@@ -86,7 +90,6 @@ describe('richStatus nullable — prédicat null-safe (PostgreSQL réel)', () =>
   });
 
   it('une réservation réellement annulée (richStatus CANCELLED) reste exclue par le nouveau prédicat', async () => {
-    if (!dbReady) return;
     await prisma.stageReservation.create({
       data: {
         stageId,

@@ -1,5 +1,6 @@
 "use client"
 
+import { isBankTransferEnabled } from '@/lib/payments/availability';
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation"
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CreditCard, ArrowLeft, Check, X, Clock, Filter, RefreshCw, Landmark } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { can } from '@/lib/rbac/permissions'
 
 interface PendingPayment {
   id: string
@@ -32,6 +34,7 @@ interface PendingPayment {
 export default function PaiementsAssistantePage() {
   const fetch = useProtectedFetch();
   const { data: session, status } = useSession()
+  const canUpdatePayment = !!session?.user?.id && can(session.user.role, 'UPDATE', 'PAYMENT')
   const router = useRouter()
   const [pendingPayments, setPendingPayments] = useState<PendingPayment[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,6 +69,7 @@ export default function PaiementsAssistantePage() {
   }, [session, status, router, fetchPayments])
 
   const handleValidatePayment = async (paymentId: string, action: 'approve' | 'reject', note?: string) => {
+    if (!canUpdatePayment) return
     setValidatingId(paymentId)
     try {
       const response = await fetch('/api/payments/validate', {
@@ -123,7 +127,7 @@ export default function PaiementsAssistantePage() {
                 </Link>
               </Button>
               <div>
-                <h1 className="font-semibold text-white">Validation des Paiements</h1>
+                <h1 className="font-semibold text-white">{canUpdatePayment ? 'Validation des paiements' : 'Consultation des paiements'}</h1>
                 <p className="text-sm text-neutral-400">Virements bancaires en attente</p>
               </div>
             </div>
@@ -237,9 +241,9 @@ export default function PaiementsAssistantePage() {
                       </div>
                     </div>
 
-                    {/* Actions de validation */}
-                    <div className="flex items-center space-x-4">
-                      <Button
+                    {/* Server RBAC remains authoritative; read-only staff get no mutation controls. */}
+                    {canUpdatePayment ? <div className="flex items-center space-x-4">
+                      {isBankTransferEnabled() && <Button
                         onClick={() => handleValidatePayment(payment.id, 'approve')}
                         disabled={isValidating}
                         className="bg-emerald-500/80 hover:bg-emerald-500 text-white"
@@ -250,7 +254,7 @@ export default function PaiementsAssistantePage() {
                           <Check className="w-4 h-4 mr-2" />
                         )}
                         Valider le Paiement
-                      </Button>
+                      </Button>}
                       
                       <Button
                         onClick={() => {
@@ -264,7 +268,7 @@ export default function PaiementsAssistantePage() {
                         <X className="w-4 h-4 mr-2" />
                         Rejeter
                       </Button>
-                    </div>
+                    </div> : <p className="text-sm text-neutral-300">Consultation uniquement : la validation et le rejet nécessitent une permission financière.</p>}
                   </CardContent>
                 </Card>
               )

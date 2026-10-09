@@ -8,44 +8,27 @@
  * - Every deny case returns null → endpoint converts to identical 404.
  */
 
-// ─── Inline reimplementation of buildInvoiceScopeWhere for pure unit testing ─
-// (Importing from not-found.ts triggers NextResponse which needs Web API globals)
+import { buildInvoiceScopeWhere, notFoundResponse } from '@/lib/invoice/not-found';
 
-function buildInvoiceScopeWhere(
-  id: string,
-  role: string | undefined,
-  email: string | null | undefined
-): Record<string, unknown> | null {
-  if (role === 'ADMIN') {
-    return { id };
-  }
-  if (role === 'PARENT' && email) {
-    return { id, customerEmail: email };
-  }
-  return null;
-}
-
-// ─── Canonical NOT_FOUND body contract ───────────────────────────────────────
-
+// Exercise canonical response generation rather than a copy of its implementation.
 describe('NOT_FOUND canonical body contract', () => {
-  it('body is { error: "NOT_FOUND" }', () => {
-    const body = { error: 'NOT_FOUND' };
-    expect(body).toEqual({ error: 'NOT_FOUND' });
-    expect(Object.keys(body)).toHaveLength(1);
+  it('canonical response contains only NOT_FOUND and cannot expose auth state', async () => {
+    const response = notFoundResponse();
+    expect(response.status).toBe(404);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(await response.json()).toEqual({ error: 'NOT_FOUND' });
   });
-
-  it('body is identical regardless of deny reason', () => {
-    const reasons = ['absent', 'out-of-scope', 'token-invalid', 'token-expired', 'token-revoked', 'forbidden-role'];
-    const bodies = reasons.map(() => ({ error: 'NOT_FOUND' }));
-    const first = JSON.stringify(bodies[0]);
-    bodies.forEach((b) => expect(JSON.stringify(b)).toBe(first));
+  it('fresh deny responses have identical body, status and headers', async () => {
+    const responses = Array.from({ length: 6 }, () => notFoundResponse());
+    const bodies = await Promise.all(responses.map(response => response.json()));
+    expect(bodies).toEqual(Array(6).fill({ error: 'NOT_FOUND' }));
+    expect(responses.map(response => response.status)).toEqual(Array(6).fill(404));
+    const headers = responses.map(response => Array.from(response.headers.entries()));
+    headers.forEach(value => expect(value).toEqual(headers[0]));
   });
-
-  it('status is always 404', () => {
-    const status = 404;
-    expect(status).toBe(404);
-    expect(status).not.toBe(401);
-    expect(status).not.toBe(403);
+  it('deny response never substitutes 401 or 403', () => {
+    expect(notFoundResponse().status).not.toBe(401);
+    expect(notFoundResponse().status).not.toBe(403);
   });
 });
 
@@ -58,15 +41,12 @@ describe('buildInvoiceScopeWhere', () => {
     expect(buildInvoiceScopeWhere(id, 'ADMIN', null)).toEqual({ id });
   });
 
-  it('ASSISTANTE → returns null on public invoice scopes', () => {
-    expect(buildInvoiceScopeWhere(id, 'ASSISTANTE', null)).toBeNull();
+  it('ASSISTANTE → canonical staff scope permits private invoice management', () => {
+    expect(buildInvoiceScopeWhere(id, 'ASSISTANTE', null)).toEqual({ id });
   });
 
-  it('PARENT with email → returns { id, customerEmail }', () => {
-    expect(buildInvoiceScopeWhere(id, 'PARENT', 'parent@test.com')).toEqual({
-      id,
-      customerEmail: 'parent@test.com',
-    });
+  it('PARENT with email alone → denied without payer authority', () => {
+    expect(buildInvoiceScopeWhere(id, 'PARENT', 'parent@test.com')).toBeNull();
   });
 
   it('PARENT without email → returns null (no access)', () => {
@@ -97,7 +77,7 @@ describe('buildInvoiceScopeWhere', () => {
     const denyCases = [
       buildInvoiceScopeWhere(id, 'ELEVE', 'e@t.com'),
       buildInvoiceScopeWhere(id, 'COACH', 'c@t.com'),
-      buildInvoiceScopeWhere(id, 'ASSISTANTE', null),
+      buildInvoiceScopeWhere(id, 'UNKNOWN', null),
       buildInvoiceScopeWhere(id, 'PARENT', null),
       buildInvoiceScopeWhere(id, undefined, null),
       buildInvoiceScopeWhere(id, '', null),

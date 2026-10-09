@@ -7,14 +7,20 @@
  *    obsolète n'écrase silencieusement une version plus récente ;
  *  - après la remise l'élève est en lecture seule, y compris pour une requête
  *    déjà en vol ;
- *  - l'enseignant ne modifie JAMAIS le contenu d'un élève ;
+ *  - l'enseignant ne modifie JAMAIS les réponses pédagogiques d'un élève ;
+ *    rouvrir un bilan réinitialise seulement la confirmation de relecture ;
  *  - un rejeu exact d'une sauvegarde déjà appliquée réussit (réseau instable).
  */
+import { isDeepStrictEqual } from 'node:util';
+
 import { Prisma, type EspaceVersionReason, type EspaceWorkStatus } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 
-import { loadWorkForActor, isStudentEnrolled, type WorkWithActivity } from './access';
+import { loadWorkForActor, isStudentEnrolled, requireBilanAssignment, type WorkWithActivity } from './access';
+import { isBilanActivitySlug } from './lesson-routes';
+import { getBilanLevel } from './bilan-data';
+import { assertBilanReadyToSubmit, computeBilanProgress, normalizeBilanContent, validateBilanStep } from './bilan-work';
 import { getActivityDef, getLessonRequiredSteps, getLessonSteps, POO_ACTIVITY_SLUG } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
@@ -98,7 +104,9 @@ export async function openWork(
   }
 
   let sessionId: string | null = null;
-  if (input.sessionId) {
+  if (isBilanActivitySlug(activity.slug)) {
+    sessionId = await requireBilanAssignment(actor.id, activity.id, input.sessionId);
+  } else if (input.sessionId) {
     const seat = await prisma.espaceSession.findFirst({
       where: {
         id: input.sessionId,
@@ -182,6 +190,8 @@ export interface SaveResult {
   savedAt: string;
   /** true si la sauvegarde était déjà appliquée (rejeu après coupure réseau). */
   replayed: boolean;
+  /** Contenu canonique des bilans : la normalisation peut retirer une preuve hors périmètre. */
+  content?: WorkContent;
 }
 
 export async function saveWork(actor: EspaceActor, workId: string, input: SaveInput): Promise<SaveResult> {
@@ -198,6 +208,8 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
   let patch;
   try {
     patch = parseStepPatch(input.patch, defs.map((s) => s.id));
+    const level = getBilanLevel(work.activity.slug);
+    if (level) validateBilanStep(level, patch.stepId, patch.step);
   } catch (e) {
     if (e instanceof WorkContentError) throw new EspaceError('INVALID_INPUT', e.message);
     throw e;
@@ -206,30 +218,41 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
   if (!isStudentEditable(work.status)) throw new EspaceError('WORK_LOCKED', 'Ce travail est remis : lecture seule');
 
   const current = parseWorkContent(work.content);
+  const bilanLevel = getBilanLevel(work.activity.slug);
+  let next: WorkContent;
+  try {
+    next = parseWorkContent(mergeStep(current, patch.stepId, patch.step));
+    if (bilanLevel) next = normalizeBilanContent(bilanLevel, next);
+  } catch (e) {
+    if (e instanceof WorkContentError) throw new EspaceError('INVALID_INPUT', e.message);
+    throw e;
+  }
 
   if (work.revision !== input.baseRevision) {
-    // Rejeu d'une sauvegarde déjà appliquée : l'étape stockée est exactement celle envoyée.
-    if (JSON.stringify(current.steps[patch.stepId] ?? null) === JSON.stringify(patch.step)) {
+    // Pour un bilan, comparer le résultat normalisé : le serveur peut avoir retiré
+    // une preuve hors périmètre de la requête dont l'accusé de réception a été perdu.
+    const replayed = bilanLevel ? isDeepStrictEqual(current, next)
+      : JSON.stringify(current.steps[patch.stepId] ?? null) === JSON.stringify(patch.step);
+    if (replayed) {
       return {
         revision: work.revision,
         status: work.status,
         progressSteps: work.progressSteps,
         savedAt: work.lastSavedAt.toISOString(),
         replayed: true,
+        ...(bilanLevel ? { content: current } : {}),
       };
     }
     throw conflict(work);
   }
 
-  let next: WorkContent;
-  try {
-    next = parseWorkContent(mergeStep(current, patch.stepId, patch.step));
-  } catch (e) {
-    if (e instanceof WorkContentError) throw new EspaceError('INVALID_INPUT', e.message);
-    throw e;
+  // La confirmation porte sur les réponses relues. Une navigation inchangée la
+  // conserve ; toute modification effective exige une nouvelle confirmation.
+  if (bilanLevel && patch.stepId !== 'review' && !isDeepStrictEqual(bilanAnsweredFields(current), bilanAnsweredFields(next))) {
+    next = withoutBilanConfirmation(next);
   }
 
-  const progress = computeProgress(defs, next);
+  const progress = bilanLevel ? computeBilanProgress(bilanLevel, next) : computeProgress(defs, next);
   const status = applyAction(work.status, 'SAVE');
   const maxStep = Math.max(0, defs.length - 1);
   const currentStep = Math.min(Math.max(Math.trunc(input.currentStep ?? work.currentStep), 0), maxStep);
@@ -263,6 +286,7 @@ export async function saveWork(actor: EspaceActor, workId: string, input: SaveIn
       progressSteps: progress.completedSteps,
       savedAt: now.toISOString(),
       replayed: false,
+      ...(bilanLevel ? { content: next } : {}),
     };
   });
 }
@@ -284,6 +308,9 @@ export async function submitWork(actor: EspaceActor, workId: string, baseRevisio
     throw e;
   }
   if (work.revision !== baseRevision) throw conflict(work);
+
+  const bilanLevel = getBilanLevel(work.activity.slug);
+  if (bilanLevel) assertBilanReadyToSubmit(bilanLevel, parseWorkContent(work.content));
 
   if (work.activity.kind === 'UPLOAD_EXERCISE') {
     const files = await prisma.espaceWorkAttachment.count({ where: { workId: work.id } });
@@ -307,6 +334,19 @@ export async function submitWork(actor: EspaceActor, workId: string, baseRevisio
   });
 }
 
+/** Une rubrique visitée sans réponse et une rubrique omise sont équivalentes. */
+function bilanAnsweredFields(content: WorkContent): Record<string, Record<string, string>> {
+  return Object.fromEntries(Object.entries(content.steps).flatMap(([id, step]) => {
+    const fields = Object.entries(step.fields ?? {}).filter(([, value]) => value.trim());
+    return fields.length ? [[id, Object.fromEntries(fields)]] : [];
+  }));
+}
+
+function withoutBilanConfirmation(content: WorkContent): WorkContent {
+  if (!content.steps.review?.fields?.confirmed) return content;
+  return { ...content, steps: { ...content.steps, review: { fields: { ...content.steps.review.fields, confirmed: '' } } } };
+}
+
 // ─── Relecture enseignant ───────────────────────────────────────────────────
 
 export type ReviewAction = Extract<WorkAction, 'MARK_CORRECTED' | 'REOPEN' | 'MARK_DONE'>;
@@ -323,14 +363,24 @@ export async function reviewWork(actor: EspaceActor, workId: string, action: Rev
   }
 
   const now = new Date();
+  const bilanLevel = getBilanLevel(work.activity.slug);
+  // Invariant : les réponses pédagogiques restent intactes. Cette confirmation
+  // appartient au workflow de remise et doit être renouvelée après réouverture.
+  const reopenedContent = action === 'REOPEN' && bilanLevel
+    ? withoutBilanConfirmation(parseWorkContent(work.content)) : null;
   return prisma.$transaction(async (tx) => {
     const updated = await tx.espaceWork.updateMany({
-      // Le statut lu doit être encore le statut en base : sinon quelqu'un est intervenu entre-temps.
-      where: { id: work.id, status: work.status },
+      // Le statut et la révision lus doivent encore correspondre à la base.
+      where: { id: work.id, status: work.status, revision: work.revision },
       data: {
         status: to,
         ...(action === 'MARK_CORRECTED' ? { correctedAt: now } : {}),
         ...(action === 'REOPEN' ? { reopenedAt: now } : {}),
+        ...(reopenedContent && bilanLevel ? {
+          content: reopenedContent as Prisma.InputJsonValue,
+          revision: { increment: 1 },
+          progressSteps: computeBilanProgress(bilanLevel, reopenedContent).completedSteps,
+        } : {}),
       },
     });
     if (updated.count !== 1) throw new EspaceError('INVALID_TRANSITION', 'Le travail a changé entre-temps, rechargez la page');

@@ -74,6 +74,9 @@ function createMockSession(userId: string = 'user-123', role: UserRole = UserRol
 describe('Pino Logger', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Observe the privacy wrapper while retaining its real call-through behavior.
+    const instance = (pino as jest.MockedFunction<typeof pino>)();
+    if (!jest.isMockFunction(instance.child)) jest.spyOn(instance, 'child');
   });
 
   describe('Logger Initialization', () => {
@@ -171,7 +174,7 @@ describe('Pino Logger', () => {
       );
     });
 
-    it('should log error with Error object and stack trace', () => {
+    it('should log a bounded error summary without private text or stack', () => {
       const request = createMockRequest('/api/test');
       const logger = createLogger(request);
       const error = new Error('Test error');
@@ -187,8 +190,10 @@ describe('Pino Logger', () => {
       const [errorContext, message] = childInstance.error.mock.calls[0];
 
       expect(message).toBe('Error occurred');
-      expect(errorContext.error).toBe('Test error');
-      expect(errorContext.stack).toBeDefined();
+      expect(errorContext.errorSummary).toEqual({ name: 'Error', message: 'Operation failed' });
+      expect(errorContext.error).toBeUndefined();
+      expect(errorContext.stack).toBeUndefined();
+      expect(JSON.stringify(errorContext)).not.toContain('Test error');
       expect(errorContext.additional).toBe('info');
     });
   });

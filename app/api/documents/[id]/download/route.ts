@@ -1,36 +1,14 @@
 import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, realpath, stat } from 'fs/promises';
 import { resolve, sep } from 'path';
-import { UserRole, DocumentVisibilityScope } from '@prisma/client';
-import { serializeError } from '@/lib/utils/serialize-error';
-import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import { z } from 'zod';
+import { readAuthorizedDocument } from '@/lib/documents/read-authority';
 
 const routeParamsSchema = z.object({
   id: z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/),
 });
-
-const STAFF_ROLES = new Set<string>([UserRole.ADMIN, UserRole.ASSISTANTE]);
-
-const COACH_VISIBLE_SCOPES = new Set<string>([
-  DocumentVisibilityScope.STUDENT_AND_COACH,
-  DocumentVisibilityScope.STUDENT_PARENT_COACH,
-]);
-
-const PARENT_VISIBLE_SCOPES = new Set<string>([
-  DocumentVisibilityScope.STUDENT_AND_PARENT,
-  DocumentVisibilityScope.STUDENT_PARENT_COACH,
-]);
-
-const ELEVE_VISIBLE_SCOPES = new Set<string>([
-  DocumentVisibilityScope.STUDENT_ONLY,
-  DocumentVisibilityScope.STUDENT_AND_PARENT,
-  DocumentVisibilityScope.STUDENT_AND_COACH,
-  DocumentVisibilityScope.STUDENT_PARENT_COACH,
-]);
 
 function safeFilename(name: string): string {
   return encodeURIComponent(name.replace(/[\\/\r\n"]/g, '_'));
@@ -73,79 +51,9 @@ export async function GET(
       return new NextResponse('Bad Request', { status: 400 });
     }
     const { id } = parsedParams.data;
-    const role = (session.user.role as string) ?? '';
-
-    const document = await prisma.userDocument.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        userId: true,
-        localPath: true,
-        unavailableReason: true,
-        mimeType: true,
-        originalName: true,
-        sizeBytes: true,
-        visibilityScope: true,
-        user: {
-          select: {
-            id: true,
-            student: { select: { id: true, parentId: true } },
-          },
-        },
-      },
-    });
-
-    if (!document) {
-      return new NextResponse('Not Found', { status: 404 });
-    }
-
-    // ── RBAC checks ──
-    if (STAFF_ROLES.has(role)) {
-      // Staff can access any document
-    } else if (role === UserRole.COACH) {
-      if (!COACH_VISIBLE_SCOPES.has(document.visibilityScope)) {
-        return new NextResponse('Not Found', { status: 404 });
-      }
-      const studentProfile = document.user?.student;
-      if (!studentProfile) {
-        return new NextResponse('Not Found', { status: 404 });
-      }
-      try {
-        await assertCoachCanAccessStudent({
-          coachUserId: session.user.id,
-          studentId: studentProfile.id,
-        });
-      } catch {
-        return new NextResponse('Not Found', { status: 404 });
-      }
-    } else if (role === UserRole.PARENT) {
-      // Direct ownership: documents created FOR the parent (invoices, contracts)
-      // have userId = parent.id. Ownership implies access regardless of scope.
-      // Asymmetry with ELEVE is deliberate: for a student, documents are ABOUT them
-      // (scope gates, including their "own" ADMIN_ONLY docs); for a parent,
-      // owned documents are FOR them (invoices) — the legacy /api/documents/[id]
-      // route always allowed this via simple userId match.
-      if (document.userId !== session.user.id) {
-        // Not the owner — fall through to child-document scope check
-        if (!PARENT_VISIBLE_SCOPES.has(document.visibilityScope)) {
-          return new NextResponse('Not Found', { status: 404 });
-        }
-        const parentProfile = await prisma.parentProfile.findUnique({
-          where: { userId: session.user.id },
-          select: { id: true },
-        });
-        const studentProfile = document.user?.student;
-        if (!parentProfile || !studentProfile || studentProfile.parentId !== parentProfile.id) {
-          return new NextResponse('Not Found', { status: 404 });
-        }
-      }
-    } else if (role === UserRole.ELEVE) {
-      if (document.userId !== session.user.id || !ELEVE_VISIBLE_SCOPES.has(document.visibilityScope)) {
-        return new NextResponse('Not Found', { status: 404 });
-      }
-    } else {
-      return new NextResponse('Forbidden', { status: 403 });
-    }
+    const access = await readAuthorizedDocument(id, session.user);
+    if (access.status === 'DENIED') return access.response;
+    const document = access.document;
 
     // ── Serve file ──
     // Référence tombstonée : le fichier a été perdu lors de la migration Docker
@@ -221,8 +129,8 @@ export async function GET(
       console.error('[Document Download] File not found on disk', { documentId: id, code });
       return new NextResponse('File content not found', { status: 404 });
     }
-  } catch (error) {
-    console.error('[Document Download] Error:', serializeError(error));
+  } catch {
+    console.error('[documents] unexpected download error', { code: 'DOCUMENT_READ_UNEXPECTED_ERROR', route: 'download' });
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

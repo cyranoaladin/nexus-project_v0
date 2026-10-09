@@ -23,12 +23,14 @@ import { NextRequest } from 'next/server';
 
 import { createPaperEntryFamilyHandler } from '@/lib/bilans/saisie-papier/famille';
 import { prisma } from '@/lib/prisma';
+import { assertDisposablePostgresUrl } from '../helpers/disposable-postgres';
 
 const PREFIX = `norm-${Date.now()}-`;
 const NOW = new Date('2026-08-13T10:00:00.000Z');
 const STAFF_ID = `${PREFIX}staff`;
 
-let dbReady = false;
+const fixtureUserIds = new Set<string>();
+let cleanupReady = false;
 
 function handler() {
   process.env.NEXTAUTH_URL = 'http://localhost:3000';
@@ -62,34 +64,28 @@ async function seedParent(input: Readonly<{ firstName: string; lastName: string;
       activatedAt: null,
     },
   });
+  fixtureUserIds.add(user.id);
   await prisma.parentProfile.create({ data: { userId: user.id } });
   return user.id;
 }
 
 beforeAll(async () => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    // La fonction de normalisation doit exister (migration appliquée).
-    await prisma.$queryRaw`SELECT nexus_household_name_key('a', 'b')`;
-    dbReady = true;
-  } catch {
-    dbReady = false;
-  }
+  assertDisposablePostgresUrl(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '');
+  await prisma.$queryRaw`SELECT 1`;
+  await prisma.$queryRaw`SELECT nexus_household_name_key('a', 'b')`;
+  cleanupReady = true;
 });
 
 afterAll(async () => {
-  if (!dbReady) return;
-  // Order comes from the live schema via the canonical fixture cleanup,
-  // so this teardown no longer hand-maintains which relations are RESTRICT.
-  const fixtureUserIds = (await prisma.user.findMany({
-    where: { email: { startsWith: PREFIX } },
-    select: { id: true },
-  })).map((user) => user.id);
-  if (fixtureUserIds.length > 0) {
-    await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
+  try {
+    if (!cleanupReady) return;
+    if (fixtureUserIds.size > 0) {
+      await cleanupDisposableTestFixture(prisma, { userIds: [...fixtureUserIds] });
+    }
+    await prisma.canonicalApiIdempotencyKey.deleteMany({ where: { key: { startsWith: PREFIX } } });
+  } finally {
+    await prisma.$disconnect();
   }
-  await prisma.canonicalApiIdempotencyKey.deleteMany({ where: { key: { startsWith: PREFIX } } });
-  await prisma.$disconnect();
 });
 
 // Variantes qui DOIVENT toutes coller à « Alaeddine Ben Rhouma ».
@@ -115,10 +111,6 @@ describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)'
   });
 
   it('remonte le foyer stocké pour chaque variante saisie, avec un téléphone différent', async () => {
-    if (!dbReady) {
-      console.warn('DB indisponible — test de normalisation ignoré');
-      return;
-    }
     const storedId = await seedParent({ firstName: 'Alaeddine', lastName: 'Ben Rhouma', phoneNormalized: '55110011' });
 
     for (const variant of VARIANTS) {
@@ -139,7 +131,6 @@ describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)'
   });
 
   it('remonte un foyer stocké sous une variante quand la saisie est l’orthographe exacte (sens inverse)', async () => {
-    if (!dbReady) return;
     // Stocké NON normalisé, saisi normalisé : la clé indexée les rapproche
     // quand même, dans ce sens aussi.
     const storedId = await seedParent({ firstName: 'josé', lastName: "de l'Île", phoneNormalized: '55220022' });
@@ -159,7 +150,6 @@ describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)'
   });
 
   it('n’écrit rien sur un rattachement faible sans confirmation, même nom reconnu', async () => {
-    if (!dbReady) return;
     const storedId = await seedParent({ firstName: 'Amine', lastName: 'Trabelsi', phoneNormalized: '55330033' });
     const before = await prisma.user.count();
 
@@ -178,7 +168,6 @@ describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)'
   });
 
   it('ne relie pas deux noms dont seule la frontière prénom/nom diffère', async () => {
-    if (!dbReady) return;
     const storedId = await seedParent({ firstName: 'Ali Ben', lastName: 'Salah', phoneNormalized: '55440044' });
 
     const response = await handler()(familyRequest({
@@ -190,8 +179,16 @@ describe('Anti-doublon — correspondance de nom normalisée (PostgreSQL réel)'
 
     // « Ali Ben » + « Salah » ≠ « Ali » + « Ben Salah » : aucune correspondance,
     // donc création directe (201), pas de faux positif.
+    const payload = await response.json() as { parentUserId?: string; children?: Array<{ studentId: string }> };
+    if (response.status === 201 && payload.parentUserId) {
+      fixtureUserIds.add(payload.parentUserId);
+      const children = await prisma.student.findMany({
+        where: { id: { in: (payload.children ?? []).map(child => child.studentId) } },
+        select: { userId: true },
+      });
+      children.forEach(child => fixtureUserIds.add(child.userId));
+    }
     expect(response.status).toBe(201);
-    const payload = await response.json();
     expect(payload.parentUserId).not.toBe(storedId);
   });
 });

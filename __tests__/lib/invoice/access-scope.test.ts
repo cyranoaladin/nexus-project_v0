@@ -15,45 +15,18 @@ describe('buildInvoiceAccessWhere', () => {
     ).resolves.toEqual({ id: 'inv-1' });
   });
 
-  it('scopes PARENT invoices by child beneficiary ids and email fallback', async () => {
-    mockParentProfileFindUnique.mockResolvedValue({
-      children: [{ userId: 'child-user-1' }, { userId: 'child-user-2' }],
-    });
-
-    await expect(
-      buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: 'parent@test.tn' }),
-    ).resolves.toEqual({
-      id: 'inv-1',
-      OR: [
-        { beneficiaryUserId: { in: ['child-user-1', 'child-user-2'] } },
-        { customerEmail: 'parent@test.tn' },
-      ],
-    });
-  });
-
-  it('keeps a legacy email fallback for PARENT when no child beneficiary exists', async () => {
-    mockParentProfileFindUnique.mockResolvedValue({ children: [] });
-
-    await expect(
-      buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: 'parent@test.tn' }),
-    ).resolves.toEqual({
-      id: 'inv-1',
-      OR: [{ customerEmail: 'parent@test.tn' }],
-    });
-  });
-
-  it('denies PARENT when no beneficiary and no email scope is available', async () => {
-    mockParentProfileFindUnique.mockResolvedValue({ children: [] });
-
-    await expect(
-      buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email: null }),
-    ).resolves.toBeNull();
-  });
-
-  it.each(['VERIFIED', 'NONE'])('ignores an unverified secondary email for phone accounts in %s state', async (state) => {
-    mockParentProfileFindUnique.mockResolvedValue({ children: [{ userId: 'owned-child' }] });
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({ email: 'parent@test.tn', parentPhoneState: state, emailVerifiedAt: null, parentPhoneChallenges: [{ id: 'proof' }] });
-    await expect(buildInvoiceAccessWhere('inv-1', { id: 'parent1', role: 'PARENT', email: 'parent@test.tn' })).resolves.toEqual({ id: 'inv-1', OR: [{ beneficiaryUserId: { in: ['owned-child'] } }] });
+  it.each([null, 'parent@test.tn'])('scopes parents by payer/delegation even with email=%s', async email => {
+    const scope = await buildInvoiceAccessWhere('inv-1', { id: 'parent-user-1', role: 'PARENT', email });
+    expect(scope).toMatchObject({ id: 'inv-1', AND: [{ OR: [
+      { status: { in: ['SENT', 'PAID'] } },
+      { status: 'CANCELLED', events: { array_contains: [{ type: 'INVOICE_SENT' }] } },
+    ] }], OR: [
+      { payerUserId: 'parent-user-1' },
+      { financialDelegations: { some: { delegateUserId: 'parent-user-1', revokedAt: null,
+        startsAt: { lte: expect.any(Date) }, expiresAt: { gt: expect.any(Date) } } } },
+    ] });
+    expect(mockParentProfileFindUnique).not.toHaveBeenCalled();
+    expect(prisma.user.findUnique).not.toHaveBeenCalled();
   });
 
   it('grants ASSISTANTE full access and denies ELEVE, COACH and unknown roles on public invoice PDFs', async () => {
@@ -81,11 +54,8 @@ describe('buildInvoiceScopeWhere', () => {
     expect(buildInvoiceScopeWhere('inv-1', 'ASSISTANTE', null)).toEqual({ id: 'inv-1' });
   });
 
-  it('scopes PARENT by email', () => {
-    expect(buildInvoiceScopeWhere('inv-1', 'PARENT', 'parent@test.tn')).toEqual({
-      id: 'inv-1',
-      customerEmail: 'parent@test.tn',
-    });
+  it('denies parent email-only scope', () => {
+    expect(buildInvoiceScopeWhere('inv-1', 'PARENT', 'parent@test.tn')).toBeNull();
   });
 
   it('denies PARENT without email', () => {

@@ -2,18 +2,14 @@ import type { PremiumPedagogicalReportJson } from './schema';
 
 export function escapeLatex(text: string | null | undefined): string {
   if (!text) return '';
-  return text
-    .replace(/\\/g, '\\textbackslash{}')
-    .replace(/%/g, '\\%')
-    .replace(/_/g, '\\_')
-    .replace(/&/g, '\\&')
-    .replace(/#/g, '\\#')
-    .replace(/\{/g, '\\{')
-    .replace(/\}/g, '\\}')
-    .replace(/\$/g, '\\$')
-    .replace(/\^/g, '\\textasciicircum{}')
-    .replace(/~/g, '\\textasciitilde{}')
-    .replace(/\n/g, '\\\\ ');
+  // Escape input once; never reinterpret braces or slashes in replacements.
+  return text.replace(/[\\%_&#{}$^~\n]/g, character => {
+    if (character === '\\') return '\\textbackslash{}';
+    if (character === '^') return '\\textasciicircum{}';
+    if (character === '~') return '\\textasciitilde{}';
+    if (character === '\n') return '\\\\ ';
+    return `\\${character}`;
+  });
 }
 
 export function renderLatexPremiumReport(data: PremiumPedagogicalReportJson): string {

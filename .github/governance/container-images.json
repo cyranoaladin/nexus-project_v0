@@ -99,6 +99,19 @@
         "PRODUCTION_REFERENCE"
       ],
       "rationale": "Reference only. Production terminates TLS on a host Nginx under PM2, not in a container; the compose service that named this image is commented out. Registered so the reference cannot silently become executable without review."
+    },
+    {
+      "logicalName": "ci-clamav-native-instream",
+      "repository": "clamav/clamav",
+      "humanTag": "1.4.6",
+      "digest": "sha256:57deb108fc4c72778aa83eafbca7bb7153e28c3f57c005afd38d31f16da86f23",
+      "platforms": [
+        "linux/amd64"
+      ],
+      "purpose": [
+        "REQUIRED_CI"
+      ],
+      "rationale": "Pinned official ClamAV image for mandatory native INSTREAM tests using private synthetic CI storage. Observed local engine 1.4.6; this registration does not qualify production antivirus or image vulnerability clearance."
     }
   ]
 }

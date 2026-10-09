@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Readable } from 'stream';
 import { UserRole } from '@prisma/client';
 import { requireRole, isErrorResponse } from '@/lib/guards';
-import { prisma } from '@/lib/prisma';
+import { readAuthorizedDocument } from '@/lib/documents/read-authority';
 import { getDocumentStorageRoot, LEGACY_STORAGE_PREFIX } from '@/lib/documents/storage-root';
 import {
   openSecureDocument,
@@ -23,21 +23,22 @@ export async function GET(
   const session = sessionOrError;
   const { id } = await params;
 
-  const doc = await prisma.userDocument.findFirst({
-    where: {
-      id,
-      userId: session.user.id, // strict ownership
-    },
-    select: {
-      id: true,
-      originalName: true,
-      mimeType: true,
-      localPath: true,
-    },
-  });
-
-  if (!doc) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  let access: Awaited<ReturnType<typeof readAuthorizedDocument>>;
+  try {
+    access = await readAuthorizedDocument(id, session.user);
+  } catch {
+    console.error('STUDENT_DOCUMENT_AUTHORITY_READ_FAILED');
+    return NextResponse.json({ error: 'File unavailable' }, { status: 500,
+      headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+  }
+  if (access.status === 'DENIED') {
+    return NextResponse.json({ error: 'Not found' }, { status: access.response.status,
+      headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
+  }
+  const doc = access.document;
+  if (doc.unavailableReason) {
+    return NextResponse.json({ error: 'File unavailable' }, { status: 410,
+      headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
   }
 
   let secureDoc;
@@ -52,10 +53,10 @@ export async function GET(
         documentId: id,
         code: err.code,
       });
-      return NextResponse.json({ error: 'File unavailable' }, { status: 404 });
+      return NextResponse.json({ error: 'File unavailable' }, { status: 404, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
     }
     console.error('[student/documents/download] unexpected error', { documentId: id });
-    return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
+    return NextResponse.json({ error: 'File unavailable' }, { status: 500, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
   }
 
   try {
@@ -69,11 +70,16 @@ export async function GET(
         'Content-Length': secureDoc.sizeBytes.toString(),
         'X-Content-Type-Options': 'nosniff',
         'Cache-Control': 'private, no-store',
+        Vary: 'Cookie, Authorization',
       },
     });
   } catch {
-    await secureDoc.handle.close().catch(() => {});
+    try {
+      await secureDoc.handle.close();
+    } catch {
+      console.error('STUDENT_DOCUMENT_HANDLE_CLOSE_FAILED');
+    }
     console.error('[student/documents/download] stream error', { documentId: id });
-    return NextResponse.json({ error: 'File unavailable' }, { status: 500 });
+    return NextResponse.json({ error: 'File unavailable' }, { status: 500, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } });
   }
 }

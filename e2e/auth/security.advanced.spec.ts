@@ -1,3 +1,4 @@
+import { sameOriginHeaders } from '../helpers/same-origin';
 import { test, expect, type Page } from '@playwright/test';
 import { loginAsUser } from '../helpers/auth';
 import { CREDS } from '../helpers/credentials';
@@ -11,6 +12,7 @@ async function uploadDocumentAsAdmin(page: Page, ownerEmail: string, filename: s
   const { userId } = await getUserAndStudentIdsByEmail(ownerEmail);
   await loginAsUser(page, 'admin');
   const upload = await page.request.post('/api/admin/documents', {
+    headers: sameOriginHeaders(page.url()),
     multipart: {
       userId,
       file: {

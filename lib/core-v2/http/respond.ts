@@ -53,10 +53,15 @@ export function failFromError(error: unknown, correlationId: string): NextRespon
   if (error instanceof CoreV2ConfigError) {
     return fail(correlationId, 503, 'CORE_V2_MISCONFIGURED', error.message);
   }
-  // A non-domain error means an operator needs to see the real cause — the
-  // client only ever gets "Unexpected error", so without this the failure
-  // is unobservable server-side too.
-  logger.error({ correlationId, err: error }, '[core-v2] unexpected error in route handler');
+  // Raw messages, stacks and provider/database payloads may contain private
+  // data. Keep correlation and a bounded operational classification instead.
+  const errorKind = error instanceof TypeError ? 'TypeError'
+    : error instanceof RangeError ? 'RangeError'
+      : error instanceof Error ? 'Error' : 'NonErrorThrown';
+  const ownCode = error instanceof Error ? Object.getOwnPropertyDescriptor(error, 'code')?.value : undefined;
+  const errorCode = typeof ownCode === 'string' && /^P\d{4}$/.test(ownCode) ? ownCode : undefined;
+  logger.error({ correlationId, event: 'CORE_V2_ROUTE_UNEXPECTED_ERROR', errorKind,
+    ...(errorCode ? { errorCode } : {}) }, '[core-v2] unexpected error in route handler');
   return fail(correlationId, 500, 'INTERNAL_ERROR', 'Unexpected error.');
 }
 

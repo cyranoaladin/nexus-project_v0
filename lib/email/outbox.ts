@@ -164,3 +164,48 @@ export async function enqueueEmailIntent(
     select: { id: true, sourceEventKey: true },
   });
 }
+
+/** Durable issuance identity is separate from the proof used to authenticate it.
+ * Replaying the same issuance preserves the original encrypted envelope and Message-ID.
+ * Existing v1 jobs remain readable; they are drained without recomputing their keys.
+ */
+export async function enqueueEmailIntentForIssuance(
+  transaction: OutboxTransaction,
+  input: Readonly<{
+    aggregateId: string;
+    aggregateType: string;
+    messageType: EmailMessageType;
+    issuanceId: string;
+    to: string;
+    subject: string;
+    html: string;
+    text?: string;
+    replyTo?: string;
+    now?: Date;
+  }>,
+): Promise<Readonly<{ id: string; sourceEventKey: string; messageId: string }>> {
+  if (typeof input.issuanceId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(input.issuanceId)) throw new Error('EMAIL_ISSUANCE_ID_INVALID');
+  const eventKey = createHmac('sha256', dedicatedSecret())
+    .update(JSON.stringify([EMAIL_OUTBOX_SCHEMA_VERSION, 'issuance', input.aggregateType,
+      input.aggregateId, input.messageType, input.issuanceId])).digest('hex');
+  const intentId = randomUUID();
+  const messageId = `<${intentId}@${messageIdDomain()}>`;
+  const encrypted = encryptContent({
+    to: normalizeUserEmail(input.to), subject: input.subject, html: input.html,
+    text: input.text, replyTo: input.replyTo, messageId,
+  }, input.messageType);
+  const stored = await transaction.jobOutbox.upsert({
+    where: { idempotencyKey: `email:issuance:v1:${eventKey}` },
+    // A nonempty same-key update lets Prisma use PostgreSQL's atomic upsert.
+    // Empty update uses read-then-create and races on simultaneous retries.
+    update: { idempotencyKey: `email:issuance:v1:${eventKey}` },
+    create: {
+      jobType: 'SEND_EMAIL', aggregateType: input.aggregateType, aggregateId: input.aggregateId,
+      sourceEventKey: intentId, idempotencyKey: `email:issuance:v1:${eventKey}`,
+      status: 'PENDING', payload: encrypted as Prisma.InputJsonValue, availableAt: input.now ?? new Date(),
+    },
+    select: { id: true, sourceEventKey: true, payload: true },
+  });
+  const payload = encryptedPayloadSchema.parse(stored.payload);
+  return Object.freeze({ id: stored.id, sourceEventKey: z.string().min(1).parse(stored.sourceEventKey), messageId: payload.messageId });
+}

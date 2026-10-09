@@ -1,0 +1,638 @@
+{
+  "sources": {
+    "tm-s1": "Nexus_Tle_Maths_S1_Suites_Livret_Eleve_V3.pdf",
+    "tm-s2": "Nexus_Terminale_S2_Limites_Suites_Livret_Eleve.pdf",
+    "tm-sept12": "Nexus_Reussite_Seance_1_Terminale_Maths_12-09-2026_PREMIUM_LATEX.pdf",
+    "tm-preamble": "Preambule_Suites_Terminale_Nexus_v2.pdf"
+  },
+  "modules": [
+    {
+      "id": "tm-usual",
+      "label": "Suites usuelles, termes et sommes",
+      "description": "À retenir seulement si nous avons réellement repris les suites arithmétiques ou géométriques, les indices et les sommes pendant les séances de septembre.",
+      "source": "tm-s1",
+      "pages": "2, 7",
+      "skills": [
+        {
+          "id": "tm-definition",
+          "text": "Je distingue une formule explicite d’une relation de récurrence et je repère le premier rang."
+        },
+        {
+          "id": "tm-nature",
+          "text": "Je justifie qu’une suite est arithmétique ou géométrique par une relation valable à tout rang."
+        },
+        {
+          "id": "tm-explicit",
+          "text": "Je calcule un terme d’une suite usuelle en tenant compte du rang initial."
+        },
+        {
+          "id": "tm-sum",
+          "text": "Je calcule une somme de termes en identifiant ses bornes et son nombre de termes."
+        }
+      ]
+    },
+    {
+      "id": "tm-proof",
+      "label": "Récurrence et contrôle d’une preuve",
+      "description": "À retenir seulement pour les éléments réellement travaillés en séance en septembre. Formuler une propriété, l’initialiser, la transmettre et conclure ; justifier les opérations sur les inégalités. Ne pas confondre une conjecture et une preuve.",
+      "source": "tm-s1",
+      "pages": "3–4, 8–9, 15",
+      "skills": [
+        {
+          "id": "tm-induction",
+          "text": "Je rédige une récurrence avec le bon rang initial, une hypothèse à un rang fixé, l’hérédité et la conclusion."
+        },
+        {
+          "id": "tm-target",
+          "text": "Je formule précisément la propriété à démontrer et sa cible au rang suivant."
+        },
+        {
+          "id": "tm-invariant",
+          "text": "Je démontre qu’un encadrement est conservé, en vérifiant aussi que le terme suivant est défini."
+        },
+        {
+          "id": "tm-logic",
+          "text": "Je repère une hypothèse manquante ou un raisonnement circulaire, et je distingue observation, preuve et contre-exemple."
+        }
+      ]
+    },
+    {
+      "id": "tm-variation",
+      "label": "Variations : choisir et justifier une méthode",
+      "description": "À retenir seulement pour les éléments réellement travaillés en séance en septembre. Différence de deux termes, quotient sous condition de signe, fonction associée et rôle d’une borne déjà prouvée.",
+      "source": "tm-s1",
+      "pages": "5, 8–9, 11, 15",
+      "skills": [
+        {
+          "id": "tm-difference",
+          "text": "J’étudie le signe de u_(n+1) − u_n et je précise les rangs auxquels ma conclusion s’applique."
+        },
+        {
+          "id": "tm-quotient",
+          "text": "Je contrôle le signe des termes avant d’utiliser u_(n+1)/u_n pour étudier les variations."
+        },
+        {
+          "id": "tm-bound-sign",
+          "text": "Je réutilise un encadrement déjà démontré pour justifier le signe d’une expression."
+        },
+        {
+          "id": "tm-function",
+          "text": "Je distingue u_n = f(n) de u_(n+1) = f(u_n) ; je ne déduis pas les variations d’une suite récurrente de celles de f seules."
+        }
+      ]
+    },
+    {
+      "id": "tm-affine",
+      "label": "Suites arithmético-géométriques et modélisation",
+      "description": "Point fixe, suite auxiliaire et retour à la suite initiale : seulement les éléments réellement travaillés en séance en septembre. Si la modélisation n’a pas été abordée, indique « non travaillé » pour cette compétence.",
+      "source": "tm-s1",
+      "pages": "6, 8, 12",
+      "skills": [
+        {
+          "id": "tm-fixed",
+          "text": "Je détermine le point fixe d’une relation affine et j’explique l’intérêt de ce nombre."
+        },
+        {
+          "id": "tm-auxiliary",
+          "text": "Je démontre qu’une suite auxiliaire est géométrique et j’en donne le premier terme et la raison."
+        },
+        {
+          "id": "tm-return",
+          "text": "Je retrouve l’expression de la suite initiale à partir de la suite auxiliaire, sans perdre le signe ni le rang initial."
+        },
+        {
+          "id": "tm-model",
+          "text": "Je traduis une évolution répétée en relation de récurrence en respectant l’ordre des opérations et le sens des variables."
+        }
+      ]
+    },
+    {
+      "id": "tm-limits",
+      "label": "Limites et convergence des suites",
+      "description": "À sélectionner seulement si les limites ou la convergence des suites ont réellement été travaillées en séance en septembre. Calculer une limite et prouver qu’une suite converge sont deux démarches à distinguer.",
+      "source": "tm-s2",
+      "pages": "4–6, 9, 12, 14, 17, 21",
+      "skills": [
+        {
+          "id": "tm-limit-sense",
+          "text": "Je distingue suite bornée, suite monotone et suite convergente, et j’explique ce que signifie « à partir d’un certain rang »."
+        },
+        {
+          "id": "tm-limit-transform",
+          "text": "Je reconnais une forme indéterminée et je choisis une transformation justifiée pour calculer une limite."
+        },
+        {
+          "id": "tm-monotone",
+          "text": "Je prouve une convergence en citant le théorème de convergence monotone et la borne adaptée au sens de variation."
+        },
+        {
+          "id": "tm-limit-value",
+          "text": "Après avoir établi la convergence, je détermine la limite à partir de la relation de récurrence et j’écarte les solutions incompatibles avec les bornes."
+        }
+      ]
+    },
+    {
+      "id": "tm-precision",
+      "label": "Encadrement d’une erreur et recherche d’un seuil",
+      "description": "Prolongement conditionnel : seulement les encadrements, seuils ou boucles effectivement travaillés pendant les séances de septembre. Une estimation de l’erreur ne donne pas forcément son premier passage réel sous un seuil.",
+      "source": "tm-s2",
+      "pages": "7–8, 10, 13, 23",
+      "skills": [
+        {
+          "id": "tm-squeeze",
+          "text": "J’utilise un encadrement ou une majoration de la distance à une valeur pour justifier une convergence."
+        },
+        {
+          "id": "tm-error-bound",
+          "text": "Je distingue une erreur exacte d’un majorant et je sais exploiter une borne de la forme C × q^n, avec 0 < q < 1."
+        },
+        {
+          "id": "tm-threshold",
+          "text": "Je distingue un rang suffisant garanti d’un premier rang réel et je contrôle le sens de l’inégalité demandée."
+        },
+        {
+          "id": "tm-loop",
+          "text": "Dans une boucle de seuil fournie, j’explique les variables, la condition d’arrêt et la raison mathématique de la terminaison."
+        }
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "tm-sum-task",
+      "module": "tm-usual",
+      "title": "Compter les termes avant de sommer",
+      "prompt": "Une suite est définie pour tout entier n ≥ 0 par a_0 = 120 et a_(n+1) = a_n + 18. Calcule a_3 puis S = a_0 + a_1 + a_2 + a_3. Explique comment tu contrôles le nombre de termes. Aucun calcul de limite n’est demandé. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s1",
+      "pages": "2, 7",
+      "skills": [
+        "tm-definition",
+        "tm-nature",
+        "tm-explicit",
+        "tm-sum"
+      ]
+    },
+    {
+      "id": "tm-induction-task",
+      "module": "tm-proof",
+      "title": "Transmettre les deux bornes",
+      "prompt": "On définit u_0 = 2 et, pour tout entier n ≥ 0, u_(n+1) = (3/4)u_n + 2. Démontre par récurrence que 2 ≤ u_n < 8 pour tout n ≥ 0. Indique la propriété, le rang initial, l’hypothèse à un rang fixé, les deux bornes au rang suivant et la conclusion. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s1",
+      "pages": "3–4, 8",
+      "skills": [
+        "tm-induction",
+        "tm-target",
+        "tm-invariant"
+      ]
+    },
+    {
+      "id": "tm-difference-task",
+      "module": "tm-variation",
+      "title": "Justifier les variations à tout rang",
+      "prompt": "Pour tout entier n ≥ 0, on pose a_n = (n + 1)/(n + 3). Étudie ses variations en calculant a_(n+1) − a_n. Justifie le signe obtenu et précise si la monotonie est stricte dès le rang 0. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s1",
+      "pages": "5, 11",
+      "skills": [
+        "tm-difference"
+      ]
+    },
+    {
+      "id": "tm-quotient-task",
+      "module": "tm-variation",
+      "title": "Examiner un argument utilisant un quotient",
+      "prompt": "Pour tout entier n ≥ 0, on pose c_n = −3 × (4/5)^n. Une élève affirme : « c_(n+1)/c_n = 4/5 < 1, donc la suite est décroissante. » Examine son argument : quelle condition doit-elle contrôler ? Établis le sens de variation par un raisonnement valable à tout rang. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s1",
+      "pages": "5, 11",
+      "skills": [
+        "tm-quotient",
+        "tm-difference"
+      ]
+    },
+    {
+      "id": "tm-auxiliary-task",
+      "module": "tm-affine",
+      "title": "Passer à une suite auxiliaire",
+      "prompt": "Soit u_0 = 2 et u_(n+1) = (3/4)u_n + 2 pour tout entier n ≥ 0. On pose v_n = u_n − 8. Justifie la nature de (v_n), donne son premier terme et sa raison, puis exprime u_n en fonction de n. Aucune conclusion sur une limite n’est demandée. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s1",
+      "pages": "6, 8",
+      "skills": [
+        "tm-auxiliary",
+        "tm-return",
+        "tm-nature",
+        "tm-explicit"
+      ]
+    },
+    {
+      "id": "tm-quotient-limit-task",
+      "module": "tm-limits",
+      "title": "Lever une forme indéterminée",
+      "prompt": "Pour n ≥ 0, a_n = (3n² − 5n + 1)/(2n² + n + 4). Détermine la limite de (a_n) lorsque n tend vers +∞. Présente une transformation de l’expression et les conditions qui permettent de conclure. Un tableau de valeurs seul ne suffit pas. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s2",
+      "pages": "6, 17",
+      "skills": [
+        "tm-limit-transform"
+      ]
+    },
+    {
+      "id": "tm-convergence-task",
+      "module": "tm-limits",
+      "title": "Prouver l’existence, puis déterminer la limite",
+      "prompt": "On considère w_0 = 4 et w_(n+1) = 4 − 3/w_n. On admet que la suite est définie pour tout n ≥ 0, strictement décroissante et vérifie 3 < w_n ≤ 4. En utilisant ces résultats admis, démontre qu’elle converge, puis détermine sa limite en justifiant le choix parmi les solutions obtenues. Il n’est pas demandé de redémontrer les résultats admis. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s2",
+      "pages": "9, 21",
+      "skills": [
+        "tm-monotone",
+        "tm-limit-value"
+      ]
+    },
+    {
+      "id": "tm-threshold-task",
+      "module": "tm-precision",
+      "title": "Dire exactement ce qu’un seuil garantit",
+      "prompt": "Pour cet essai, on admet qu’une suite (u_n) vérifie, pour tout entier n ≥ 0 : 0 < 3 − u_n ≤ 2 × (1/2)^n. Détermine le plus petit entier N pour lequel ce majorant garantit |u_n − 3| < 0,01 pour tous les n ≥ N. La calculatrice est autorisée ; montre les valeurs utiles et explique pourquoi la garantie vaut ensuite à tous les rangs. Peut-on affirmer, avec cette seule information, que N est le premier rang où l’erreur réelle devient inférieure à 0,01 ? Justifie. Écris ta démarche, même incomplète. Indique séparément l’aide utilisée et garde ton premier essai si tu proposes ensuite une reprise.",
+      "source": "tm-s2",
+      "pages": "10, 13",
+      "skills": [
+        "tm-error-bound",
+        "tm-threshold"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "id": "methods",
+      "title": "Mes méthodes de recherche et de rédaction",
+      "intro": "Pense au travail réellement mené en septembre. Toutes les réponses sont facultatives ; distingue chercher seul, utiliser un indice et suivre une solution.",
+      "questions": [
+        {
+          "id": "tm-q-frequency",
+          "text": "Entre deux séances de septembre, à quelle fréquence as-tu repris une question des séances ?",
+          "type": "radio",
+          "options": [
+            "Pas encore",
+            "Une fois entre deux séances",
+            "Deux fois ou davantage",
+            "De façon très variable",
+            "Je ne sais plus",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-first-step",
+          "text": "Lorsque tu as étudié une suite en séance en septembre, que faisais-tu le plus souvent avant de calculer ?",
+          "type": "radio",
+          "options": [
+            "Je repère les données, le rang initial et ce qui est demandé",
+            "Je commence par calculer des termes",
+            "Je cherche un exercice modèle",
+            "Je demande comment démarrer",
+            "Cela dépend de la question",
+            "Je n’ai pas eu à étudier de suite en séance",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-practice",
+          "text": "Quelles façons de travailler as-tu réellement utilisées ?",
+          "type": "multi",
+          "options": [
+            "Relire une fiche de méthode",
+            "Refaire une preuve sans la regarder",
+            "Comparer ma rédaction au corrigé après un essai",
+            "Chercher une question de transfert",
+            "Expliquer oralement ma démarche",
+            "Lire une solution sans refaire la question",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum ; choisis uniquement des pratiques vécues.",
+          "max": 3
+        },
+        {
+          "id": "tm-q-stuck",
+          "text": "Quand tu bloques, quelle est généralement ta première réaction ?",
+          "type": "radio",
+          "options": [
+            "Je précise la cible et ce que je sais déjà",
+            "Je fais un essai ou un schéma de raisonnement",
+            "Je cherche un indice ciblé",
+            "Je lis directement une solution",
+            "Je n’arrive pas à poursuivre",
+            "Cela varie",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-check",
+          "text": "Que vérifies-tu le plus souvent avant de conclure ?",
+          "type": "multi",
+          "options": [
+            "Le rang initial et les indices",
+            "Les signes et les dénominateurs",
+            "Les hypothèses du théorème",
+            "Le lien entre chaque étape et la question",
+            "La différence entre exemple et preuve",
+            "Je ne sais pas encore",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois choix maximum. Si tu ne sais pas encore, garde seulement cette réponse.",
+          "max": 3
+        },
+        {
+          "id": "tm-q-correction",
+          "text": "Après une correction, que fais-tu le plus souvent ?",
+          "type": "radio",
+          "options": [
+            "Je passe à la question suivante",
+            "Je recopie la solution",
+            "Je localise et j’explique mon erreur",
+            "Je refais ensuite le passage sans modèle",
+            "Je n’ai pas encore repris de correction",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-block-example",
+          "text": "Si tu as rencontré cette situation, décris un passage où tu savais faire un calcul mais pas comment construire ou rédiger la preuve.",
+          "type": "text",
+          "hint": "Une étape suffit ; « aucun exemple identifié » convient."
+        },
+        {
+          "id": "tm-q-home",
+          "text": "Qu’est-ce qui facilite ou gêne tes reprises entre deux séances ?",
+          "type": "text",
+          "hint": "Par exemple : question ciblée, temps, accès au livret ou difficulté à identifier le point à reprendre. Évite les informations personnelles sensibles."
+        }
+      ]
+    },
+    {
+      "id": "experience",
+      "title": "Le fonctionnement des séances",
+      "intro": "Décris seulement les moments que tu as vécus. Les livrets prévoient plusieurs formats, mais aucun n’est supposé avoir eu lieu pour toi.",
+      "questions": [
+        {
+          "id": "tm-q-pace",
+          "text": "Comment as-tu vécu le rythme des séances de deux heures ?",
+          "type": "radio",
+          "options": [
+            "Trop lent",
+            "Plutôt lent",
+            "Adapté",
+            "Plutôt rapide",
+            "Trop rapide",
+            "Variable selon les moments",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-difficulty",
+          "text": "Comment as-tu vécu la difficulté des questions proposées ?",
+          "type": "radio",
+          "options": [
+            "Trop facile",
+            "Plutôt facile",
+            "Adaptée",
+            "Plutôt difficile",
+            "Trop difficile",
+            "Très variable",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-search-time",
+          "text": "Le temps de recherche avant un indice ou une correction te paraît-il suffisant ?",
+          "type": "radio",
+          "options": [
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Je ne peux pas juger",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-individual-help",
+          "text": "Lors d’un échange individuel avec le professeur, l’aide te permet-elle de reprendre ensuite la recherche ?",
+          "type": "radio",
+          "options": [
+            "Rarement",
+            "Parfois",
+            "Souvent",
+            "Presque toujours",
+            "Je n’ai pas vécu ce type d’échange",
+            "Je ne sais pas",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-ask",
+          "text": "Arrives-tu à montrer un essai inachevé ou à dire précisément ce qui te bloque ?",
+          "type": "radio",
+          "options": [
+            "Facilement",
+            "Avec une invitation du professeur",
+            "Difficilement",
+            "Cela dépend du groupe ou du moment",
+            "Je n’en ai pas eu besoin",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-group",
+          "text": "Quel effet les comparaisons de démarches avec les autres ont-elles sur ton travail ?",
+          "type": "radio",
+          "options": [
+            "Elles m’aident surtout à comprendre",
+            "Elles me distraient surtout",
+            "Les deux selon les moments",
+            "Peu d’effet pour moi",
+            "Nous avons peu ou pas comparé de démarches",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-fatigue",
+          "text": "À quel moment ta concentration devient-elle la plus difficile ?",
+          "type": "radio",
+          "options": [
+            "Dès le début",
+            "Vers le milieu",
+            "Plutôt à la fin",
+            "Cela varie",
+            "Pas de difficulté particulière",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-booklet",
+          "text": "Comment les fiches et le livret t’aident-ils à travailler ?",
+          "type": "radio",
+          "options": [
+            "Je retrouve facilement la ressource utile",
+            "Je les utilise avec une indication du professeur",
+            "Je les lis mais j’ai du mal à les appliquer",
+            "Je m’y repère difficilement",
+            "Je les ai peu ou pas utilisés",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-format-feedback",
+          "text": "Quel moment voudrais-tu conserver, et quel ajustement rendrait les séances plus utiles pour toi ?",
+          "type": "text",
+          "hint": "Recherche, indices, explications, comparaison de preuves, temps individuel, bilan sans aide ou organisation des deux heures : ne cite que ce que tu as vécu."
+        }
+      ]
+    },
+    {
+      "id": "growth",
+      "title": "Ressentis et traces de changement",
+      "intro": "Une impression est utile mais ne prouve pas une progression. Tu peux indiquer une stabilité, davantage de difficulté ou l’absence de comparaison possible.",
+      "questions": [
+        {
+          "id": "tm-q-confidence-now",
+          "text": "Comment te sens-tu aujourd’hui pour commencer seul une question sur les suites effectivement travaillées ?",
+          "type": "radio",
+          "options": [
+            "Très peu confiant",
+            "Plutôt peu confiant",
+            "Cela dépend de la question",
+            "Plutôt confiant",
+            "Très confiant",
+            "Je n’ai pas encore de situation à laquelle me référer",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-confidence-change",
+          "text": "Par rapport au début de septembre, ta confiance te paraît…",
+          "type": "radio",
+          "options": [
+            "Moins forte",
+            "À peu près identique",
+            "Plus forte",
+            "Très variable",
+            "Je ne peux pas comparer",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-help-change",
+          "text": "Pour une question comparable, quelle aide te semble nécessaire aujourd’hui ?",
+          "type": "radio",
+          "options": [
+            "Davantage d’aide",
+            "À peu près autant d’aide",
+            "Moins d’aide",
+            "Cela dépend du type de question",
+            "Je n’ai pas de situation comparable",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-trace",
+          "text": "Si tu en as identifié une, décris une réussite ou une démarche que tu comprends mieux ; précise ce que tu as réellement produit.",
+          "type": "text",
+          "hint": "Si possible : date, livret et question, première démarche, aide reçue ou absence d’aide. « Pas encore identifié » convient."
+        },
+        {
+          "id": "tm-q-comparison",
+          "text": "As-tu deux essais comparables qui permettraient au professeur de vérifier un changement ?",
+          "type": "radio",
+          "options": [
+            "Oui, deux traces réalisées sans aide",
+            "Oui, avec des aides comparables",
+            "Oui, mais les aides ou conditions diffèrent",
+            "J’ai seulement un essai exploitable",
+            "Pas de traces comparables pour le moment",
+            "Je ne sais pas",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-persistent",
+          "text": "Y a-t-il un passage qui reste fragile, même quand tu comprends une correction ?",
+          "type": "text",
+          "hint": "Par exemple : choisir la propriété de récurrence, justifier un signe ou vérifier les hypothèses. Une réponse précise suffit. « Aucun passage identifié » convient."
+        },
+        {
+          "id": "tm-q-transfer",
+          "text": "As-tu réutilisé au lycée une démarche travaillée pendant les séances ?",
+          "type": "radio",
+          "options": [
+            "Oui, sans aide",
+            "Oui, avec une aide",
+            "J’ai essayé sans parvenir à terminer",
+            "Pas encore eu l’occasion",
+            "Je ne sais pas",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Si tu le souhaites, ajoute ensuite l’exemple dans la remarque libre. Aucune note scolaire n’est demandée."
+        }
+      ]
+    },
+    {
+      "id": "next",
+      "title": "Deux priorités pour la suite",
+      "intro": "Choisis au plus deux priorités sur les contenus déjà travaillés, puis une action réaliste à discuter avec le professeur.",
+      "questions": [
+        {
+          "id": "tm-q-priorities",
+          "text": "Sur quoi veux-tu concentrer les prochaines reprises ?",
+          "type": "multi",
+          "options": [
+            "Distinguer conjecture et preuve",
+            "Construire une récurrence",
+            "Choisir une méthode de variations",
+            "Sécuriser les calculs et les signes",
+            "Justifier une convergence avant sa valeur",
+            "Interpréter un seuil ou une erreur",
+            "Rédiger de façon concise et complète",
+            "Réussir sans modèle",
+            "Approfondir une question déjà travaillée",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Deux choix maximum ; ne sélectionne pas une notion jamais travaillée.",
+          "max": 2
+        },
+        {
+          "id": "tm-q-target",
+          "text": "Quelle question précise souhaites-tu reprendre ou approfondir ?",
+          "type": "text",
+          "hint": "Indique le livret, la page ou l’étape si tu les connais. Tu peux demander à choisir avec le professeur."
+        },
+        {
+          "id": "tm-q-teacher-help",
+          "text": "Quelle aide concrète attends-tu du professeur pour cette reprise ?",
+          "type": "text",
+          "hint": "Par exemple : un indice, un échange sur ta preuve, un exercice comparable ou plus exigeant, davantage de temps."
+        },
+        {
+          "id": "tm-q-action",
+          "text": "Quelle petite action réaliste choisis-tu, et à quel moment pourrais-tu la faire ?",
+          "type": "text",
+          "hint": "Exemple : refaire une hérédité sans modèle avant la prochaine séance, puis comparer les deux rédactions. Tu peux préférer définir cette action à l’oral."
+        },
+        {
+          "id": "tm-q-verification",
+          "text": "Comment pourrions-nous vérifier si cette action t’a aidé ?",
+          "type": "radio",
+          "options": [
+            "Refaire une question comparable sans aide",
+            "Expliquer pourquoi une preuve est correcte",
+            "Repérer et corriger une erreur de raisonnement",
+            "Montrer une trace datée au professeur",
+            "À choisir avec le professeur",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-free",
+          "text": "Une attente, un obstacle, une remarque ou un sujet que tu préfères aborder à l’oral ?",
+          "type": "text",
+          "hint": "Facultatif. Tu peux préciser le soutien pratique que tu souhaites ou ce que tu aimerais expliquer au professeur et à ta famille."
+        }
+      ]
+    }
+  ]
+}

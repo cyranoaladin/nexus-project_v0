@@ -1,3 +1,4 @@
+import { resolveBilanReadAuthority } from '@/lib/security/academic-read-authority';
 import { serializeError } from '@/lib/utils/serialize-error';
 /**
  * Bilan Export API
@@ -9,7 +10,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import {
-  buildBilanReadWhere,
   buildBilanWriteWhere,
   canSeeInternalBilan,
 } from '@/lib/security/ownership';
@@ -56,7 +56,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (!parsedQuery.success) return validationFailed();
     const { id } = parsedParams.data;
     const { format, audience } = parsedQuery.data;
-    const where = buildBilanReadWhere(id, authResponse.user);
+    const access = await resolveBilanReadAuthority(id, authResponse.user);
+    if (access.response) return access.response;
+    const where = access.where;
     if (!where) {
       return NextResponse.json(
         { success: false, error: 'Bilan not found' },

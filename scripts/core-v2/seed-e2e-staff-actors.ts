@@ -161,8 +161,14 @@ async function main(): Promise<void> {
   // attempted until the actual parsed target, not only a marker, is proven.
   assertCoreV2E2eSeedTarget(process.env);
   const coreV2 = await requireCoreV2Client();
+  const credentials = JSON.parse(readFileSync(resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json'), 'utf8')) as Record<string, { email?: unknown }>;
+  const legacyCoachEmail = credentials.coachV1?.email;
+  if (legacyCoachEmail !== 'coach-v1@e2e.nexus.test') throw new Error('E2E_LEGACY_COACH_IDENTITY_INVALID');
+  if (await coreV2.user.findUnique({ where: { email: legacyCoachEmail }, select: { id: true } })) {
+    throw new Error('E2E_LEGACY_COACH_MUST_NOT_EXIST_IN_CORE');
+  }
   const staff = await coreV1.user.findMany({
-    where: { role: { in: [...MIRRORED_ROLES] } },
+    where: { role: { in: [...MIRRORED_ROLES] }, email: { not: legacyCoachEmail } },
     select: { id: true, email: true, role: true, firstName: true, lastName: true, phone: true, password: true, sessionVersion: true },
   });
 

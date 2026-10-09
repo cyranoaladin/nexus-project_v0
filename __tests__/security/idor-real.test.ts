@@ -128,7 +128,7 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
 
   it('✅ Coach A accède à son Stage A (BDD Réelle)', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: coachA.userId, role: 'COACH', email: 'coach-a@test.com' },
+      user: { id: coachA.userId, role: 'COACH', authority: 'V1', email: 'coach-a@test.com' },
     });
 
     const params = Promise.resolve({ stageSlug: stageA.slug });
@@ -139,7 +139,7 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
 
   it('🔴 Coach A tente d\'accéder au Stage B — DOIT être bloqué (403 BDD Réelle)', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: coachA.userId, role: 'COACH', email: 'coach-a@test.com' },
+      user: { id: coachA.userId, role: 'COACH', authority: 'V1', email: 'coach-a@test.com' },
     });
 
     const params = Promise.resolve({ stageSlug: stageB.slug });
@@ -152,7 +152,7 @@ describe('IDOR BDD Réelle — Coach Stage Isolation', () => {
 
   it('✅ Coach B accède à son Stage B (BDD Réelle)', async () => {
     mockAuth.mockResolvedValue({
-      user: { id: coachB.userId, role: 'COACH', email: 'coach-b@test.com' },
+      user: { id: coachB.userId, role: 'COACH', authority: 'V1', email: 'coach-b@test.com' },
     });
 
     const params = Promise.resolve({ stageSlug: stageB.slug });

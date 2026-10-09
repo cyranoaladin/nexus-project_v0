@@ -65,17 +65,18 @@ jest.mock('@/lib/diagnostics/types', () => ({
 import { POST } from '@/app/api/bilan-pallier2-maths/retry/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { generateBilans } from '@/lib/bilan-generator';
+import { bilanDiagnosticMathsSchema } from '@/lib/validations';
 import { NextRequest, NextResponse } from 'next/server';
 
 const mockRequireAnyRole = requireAnyRole as jest.Mock;
 const mockIsErrorResponse = isErrorResponse as unknown as jest.Mock;
 const mockGenerateBilans = generateBilans as jest.Mock;
 
-let prisma: any;
+let prisma: { diagnostic: { findUnique: jest.Mock; update: jest.Mock } };
 
 beforeEach(async () => {
   const mod = await import('@/lib/prisma');
-  prisma = (mod as any).prisma;
+  prisma = mod.prisma as unknown as typeof prisma;
   jest.clearAllMocks();
 });
 
@@ -88,9 +89,47 @@ function makeRequest(body: Record<string, unknown>): NextRequest {
 }
 
 describe('POST /api/bilan-pallier2-maths/retry', () => {
+  it('does not expose stored diagnostic validation details in the response or logs', async () => {
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN' } });
+    mockIsErrorResponse.mockReturnValue(false);
+    prisma.diagnostic.findUnique.mockResolvedValue({ id: 'synthetic-validation', status: 'SCORED', data: {} });
+    const validationError = new Error('synthetic-private-validation-detail');
+    validationError.name = 'ZodError';
+    jest.mocked(bilanDiagnosticMathsSchema.parse).mockImplementationOnce(() => { throw validationError; });
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const response = await POST(makeRequest({ diagnosticId: 'synthetic-validation' }));
+      expect(response.status).toBe(422);
+      expect(await response.json()).toEqual({ error: 'Données du diagnostic corrompues — validation échouée' });
+      expect(consoleError.mock.calls).toEqual([
+        ['Retry diagnostic rejected', { errorCode: 'DIAGNOSTIC_DATA_INVALID' }],
+      ]);
+      expect(prisma.diagnostic.update).not.toHaveBeenCalled();
+    } finally { consoleError.mockRestore(); }
+  });
+
+  it('logs a stable failure code without request identifiers or provider details', async () => {
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'synthetic-admin', role: 'ADMIN' } });
+    mockIsErrorResponse.mockReturnValue(false);
+    prisma.diagnostic.findUnique.mockResolvedValue({
+      id: 'synthetic-%s-%j', status: 'SCORED', data: { answers: [] },
+      definitionKey: 'maths-premiere-p2',
+    });
+    prisma.diagnostic.update.mockResolvedValue({});
+    mockGenerateBilans.mockRejectedValue(new Error('synthetic-provider-private-detail timeout'));
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const response = await POST(makeRequest({ diagnosticId: 'synthetic-%s-%j' }));
+      expect(response.status).toBe(502);
+      expect(consoleError.mock.calls).toEqual([
+        ['Retry diagnostic failed', { errorCode: 'OLLAMA_TIMEOUT' }],
+      ]);
+    } finally { consoleError.mockRestore(); }
+  });
+
   it('should return 403 for unauthorized role', async () => {
     const errorRes = NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    mockRequireAnyRole.mockResolvedValue(errorRes as any);
+    mockRequireAnyRole.mockResolvedValue(errorRes);
     mockIsErrorResponse.mockReturnValue(true);
 
     const res = await POST(makeRequest({ diagnosticId: 'd1' }));
@@ -98,7 +137,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should return 400 for missing diagnosticId', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
 
     const res = await POST(makeRequest({}));
@@ -109,7 +148,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should return 404 when diagnostic not found', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
     prisma.diagnostic.findUnique.mockResolvedValue(null);
 
@@ -121,7 +160,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should return 409 for non-retryable status', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
     prisma.diagnostic.findUnique.mockResolvedValue({
       id: 'd1',
@@ -137,7 +176,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should return 422 when diagnostic data is missing', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
     prisma.diagnostic.findUnique.mockResolvedValue({
       id: 'd1',
@@ -153,7 +192,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should retry and succeed for FAILED diagnostic', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
     prisma.diagnostic.findUnique.mockResolvedValue({
       id: 'd1',
@@ -166,7 +205,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
       eleve: '# Bilan Élève',
       parents: '# Bilan Parents',
       nexus: '# Bilan Nexus',
-    } as any);
+    });
 
     const res = await POST(makeRequest({ diagnosticId: 'd1' }));
     const body = await res.json();
@@ -179,7 +218,7 @@ describe('POST /api/bilan-pallier2-maths/retry', () => {
   });
 
   it('should return 502 when LLM generation fails', async () => {
-    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } } as any);
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'a1', role: 'ADMIN' } });
     mockIsErrorResponse.mockReturnValue(false);
     prisma.diagnostic.findUnique.mockResolvedValue({
       id: 'd1',

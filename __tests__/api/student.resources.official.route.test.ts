@@ -11,7 +11,7 @@ jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
 }));
 
-jest.mock('node:fs/promises', () => jest.requireMock('fs/promises'));
+// Jest normalizes node:fs/promises to fs/promises; one mock factory covers both.
 
 jest.mock('@/lib/guards', () => ({
   requireRole: jest.fn(),

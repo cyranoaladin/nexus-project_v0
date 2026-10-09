@@ -1,3 +1,4 @@
+import { verifiedHouseholdMembershipWhere } from '../repositories/household-verification';
 /**
  * Planning read models (§AK). Staff read any range (HOUSEHOLD_READ); a coach,
  * a student or a parent reads only the bookings of their own profile /
@@ -99,7 +100,7 @@ export async function listOwnStudentBookings(client: PrismaClient, ctx: ServiceC
 
 export async function listOwnHouseholdBookings(client: PrismaClient, ctx: ServiceContext, range: { from: Date; to: Date }): Promise<BookingView[]> {
   assertSelfServiceRole(ctx.actor, 'PARENT');
-  const membership = await client.householdParent.findUnique({ where: { userId: ctx.actor.userId }, select: { householdId: true } });
-  if (!membership) return [];
-  return loadRange(client, { student: { householdId: membership.householdId } }, range);
+  return loadRange(client, { student: { household: { parents: { some: {
+    userId: ctx.actor.userId, ...verifiedHouseholdMembershipWhere,
+  } } } } }, range);
 }

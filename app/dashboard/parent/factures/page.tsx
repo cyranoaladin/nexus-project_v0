@@ -29,6 +29,13 @@ export default async function ParentInvoicesPage() {
   if (!session?.user) redirect('/auth/signin');
   if (session.user.role !== 'PARENT') redirect('/dashboard');
 
+  if (session.user.authority === 'CORE_V2') {
+    return <section className="max-w-3xl mx-auto p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Mes factures</h1>
+      <p>La consultation des factures depuis cette page n’est pas encore disponible pour votre espace.</p>
+    </section>;
+  }
+
   const scope = await buildInvoiceListAccessWhere(session.user);
 
   const invoices = scope ? await prisma.invoice.findMany({

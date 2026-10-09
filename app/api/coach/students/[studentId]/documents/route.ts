@@ -1,5 +1,9 @@
-import { NextResponse } from 'next/server';
-import { mkdir, writeFile } from 'fs/promises';
+import { NextRequest, NextResponse } from 'next/server';
+import { mkdir, writeFile, unlink } from 'fs/promises';
+import { randomUUID } from 'node:crypto';
+import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { checkCsrf } from '@/lib/csrf';
+import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import path from 'path';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { requireRole, isErrorResponse } from '@/lib/guards';
@@ -15,7 +19,6 @@ const createDocumentSchema = z.object({
   subject: z.nativeEnum(Subject).optional(),
   title: z.string().min(1, 'Titre requis').max(200),
   description: z.string().max(1000).optional(),
-  url: z.string().url().optional(),
   visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
 }).strict();
 
@@ -102,6 +105,13 @@ export async function GET(request: Request, { params }: RouteParams) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
 
     // Verify coach is assigned to this student
     try {
@@ -173,7 +183,7 @@ export async function GET(request: Request, { params }: RouteParams) {
  *
  * Creates a document metadata for a student.
  * Requires: COACH role and active assignment to the student
- * Supports both JSON (for URL-based documents) and FormData (for file uploads)
+ * Only scanned FormData uploads can create new documents.
  */
 export async function POST(request: Request, { params }: RouteParams) {
   try {
@@ -184,6 +194,17 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
+    const csrf = checkCsrf(request as NextRequest);
+    if (csrf) return csrf;
+    const limited = await guardSensitiveRateLimit(request, { scope: 'document-upload', identity: session.user.id });
+    if (limited) return limited;
 
     // Verify coach is assigned to this student
     try {
@@ -216,7 +237,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Check if request is FormData (file upload) or JSON (URL)
+    // Only scanned multipart files can create deliverable private documents.
     const contentType = request.headers.get('content-type');
     let documentData: DocumentMutationData;
 
@@ -232,7 +253,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         );
       }
 
-      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size > MAX_UPLOAD_BYTES) {
+      if (!ALLOWED_UPLOAD_MIME_TYPES.has(file.type) || file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
         return NextResponse.json(
           { error: 'Bad Request', message: 'Type ou taille de fichier invalide' },
           { status: 400 }
@@ -245,14 +266,11 @@ export async function POST(request: Request, { params }: RouteParams) {
         subject: optionalFormString(formData.get('subject')),
         description: optionalFormString(formData.get('description')),
         visibilityScope: optionalFormString(formData.get('visibilityScope')) ?? DocumentVisibilityScope.STUDENT_AND_COACH,
-        url: 'https://nexusreussite.academy/internal-upload-placeholder',
       });
 
       // Generate a unique filename
-      const timestamp = Date.now();
-      const sanitizedTitle = sanitizeFilenamePart(validatedMeta.title);
       const extension = sanitizeFilenamePart(file.name.split('.').pop() || 'pdf');
-      const filename = `${sanitizedTitle}-${timestamp}.${extension}`;
+      const filename = `${randomUUID()}.${extension}`;
       // Write to STORAGE_ROOT and store a relative path in DB
       const storageRoot = getDocumentStorageRoot();
       const uploadDir = path.join(storageRoot, student.userId);
@@ -260,7 +278,15 @@ export async function POST(request: Request, { params }: RouteParams) {
       await mkdir(uploadDir, { recursive: true });
 
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(absolutePath, buffer);
+      await writeFile(absolutePath, buffer, { mode: 0o600, flag: 'wx' });
+      try {
+        await scanPrivateFile(absolutePath);
+      } catch (error) {
+        try { await unlink(absolutePath); }
+        catch { console.error('[Coach Upload]', { code: 'DOCUMENT_QUARANTINE_CLEANUP_FAILED' }); }
+        const malware = error instanceof Error && error.message.startsWith('MALWARE_DETECTED');
+        return NextResponse.json({ error: malware ? 'DOCUMENT_REJECTED' : 'DOCUMENT_SCAN_UNAVAILABLE' }, { status: malware ? 422 : 503 });
+      }
 
       documentData = {
         title: validatedMeta.title,
@@ -274,32 +300,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         sizeBytes: file.size,
       };
     } else {
-      // Handle JSON (URL-based)
-      const body = await request.json();
-      const validated = createDocumentSchema.parse(body);
-
-      // URL documents are metadata only; direct localPath is reserved for server-side uploads.
-      if (!validated.url) {
-        return NextResponse.json(
-          { error: 'Bad Request', message: 'URL requise' },
-          { status: 400 }
-        );
-      }
-
-      // Build data ensuring localPath is always provided (required by Prisma schema)
-      const localPath = validated.url;
-      
-      documentData = {
-        title: validated.title,
-        documentType: validated.documentType,
-        subject: validated.subject ?? null,
-        description: validated.description ?? null,
-        localPath,
-        originalName: validated.title,
-        mimeType: 'application/octet-stream',
-        sizeBytes: 0,
-        visibilityScope: validated.visibilityScope,
-      };
+      return NextResponse.json(
+        { error: 'DOCUMENT_FILE_UPLOAD_REQUIRED', message: 'Déposez un fichier depuis le formulaire de documents.' },
+        { status: 410, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
     }
 
     const document = await prisma.userDocument.create({
@@ -332,7 +336,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    console.error('[API Coach Documents POST] Error:', serializeError(error));
+    console.error('[API Coach Documents POST]', { code: 'DOCUMENT_UPLOAD_FAILED' });
     return NextResponse.json(
       { error: 'Internal Server Error', message: 'Erreur lors de la création' },
       { status: 500 }

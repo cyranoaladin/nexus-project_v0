@@ -4,6 +4,12 @@ import { listAriaRecentActivityForParent } from '@/lib/aria/application/evidence
 import { AriaError } from '@/lib/aria/errors';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
+// These transport-contract tests assume an authorized family; the separate
+// parent-aria-family-authority matrix exercises refusals before these services.
+jest.mock('@/lib/families/student-access-authority', () => ({
+  ...jest.requireActual('@/lib/families/student-access-authority'),
+  resolveParentStudentAccess: jest.fn().mockResolvedValue({ id: 'student-1', status: 'LEGACY_ALLOWED' }),
+}));
 jest.mock('@/lib/aria/application/evidence/list-recent-activity-for-parent', () => ({
   listAriaRecentActivityForParent: jest.fn(),
 }));

@@ -1,4 +1,5 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { loadConfiguredAriaServableManifest } from '@/lib/aria/infrastructure/rag/manifest';
@@ -6,6 +7,28 @@ import { loadConfiguredAriaServableManifest } from '@/lib/aria/infrastructure/ra
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 describe('ARIA disposable browser qualification harness', () => {
+  it('refuses an existing evidence tree before Docker or any overwrite', () => {
+    const isolated = mkdtempSync(join(tmpdir(), 'aria-preserve-evidence-'));
+    try {
+      const bin = join(isolated, 'bin');
+      const evidence = join(isolated, '.artifacts/aria/playwright/aria-mobile');
+      mkdirSync(bin); mkdirSync(evidence, { recursive: true });
+      writeFileSync(join(bin, 'git'), `#!/bin/sh\nprintf '%s\\n' '${'a'.repeat(40)}'\n`, { mode: 0o700 });
+      writeFileSync(join(bin, 'docker'), '#!/bin/sh\nprintf called > "$MOCK_DOCKER_CALL_FILE"\nexit 23\n', { mode: 0o700 });
+      const preserved = join(evidence, 'unique-proof.txt');
+      writeFileSync(preserved, 'unique synthetic evidence');
+      const dockerCall = join(isolated, 'docker-called');
+      const result = spawnSync('bash', [resolve(process.cwd(), 'scripts/aria/run-e2e-suite.sh'), 'aria-mobile'], {
+        cwd: isolated, encoding: 'utf8',
+        env: { NODE_ENV: 'test', PATH: `${bin}:${process.env.PATH}`, HOME: isolated, MOCK_DOCKER_CALL_FILE: dockerCall },
+      });
+      expect(result.status).toBe(2);
+      expect(existsSync(preserved)).toBe(true);
+      if (existsSync(preserved)) expect(readFileSync(preserved, 'utf8')).toBe('unique synthetic evidence');
+      expect(existsSync(dockerCall)).toBe(false);
+    } finally { rmSync(isolated, { recursive: true, force: true }); }
+  });
+
   it('wires fixture, app and browser containers in fail-closed dependency order', () => {
     const compose = source('docker-compose.e2e.yml');
     expect(compose).toMatch(/aria-fixture-e2e:/);
@@ -23,6 +46,16 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(compose).toMatch(/\$\{NEXUS_INTERNAL_TOKEN_SECRET:\?/);
     const runtimeSecrets = source('scripts/aria/e2e-runtime-secrets.sh');
     expect(runtimeSecrets).toMatch(/openssl\s+rand\s+-hex\s+32/);
+  });
+
+  it('runs queued diagnostic processing with the same explicit worker as CI', () => {
+    const compose = source('docker-compose.e2e.yml');
+    const app = compose.slice(compose.indexOf('  app-e2e:'), compose.indexOf('  playwright:'));
+    expect(app).toMatch(/DIAGNOSTIC_DEMO_MODE:\s*"true"/);
+    expect(app).toMatch(/DIAGNOSTIC_DEMO_STUDENT_IDS:\s*e2e-bilan-journey-fixed-student-001/);
+    expect(app).toMatch(/DIAGNOSTIC_PROCESSING_WORKER_ENABLED:\s*"true"/);
+    expect(app).toMatch(/DIAGNOSTIC_PROCESSING_WORKER_POLL_INTERVAL_MS:\s*"1000"/);
+    expect(app).toMatch(/E2E_DISPOSABLE_STACK:\s*"1"/);
   });
 
   it('keeps the disposable PostgreSQL boundary private to its Docker network', () => {
@@ -116,8 +149,11 @@ describe('ARIA disposable browser qualification harness', () => {
     );
     const wrapper = source('scripts/aria/run-e2e-suite.sh');
     expect(wrapper).toMatch(/--exit-code-from\s+playwright/);
-    expect(wrapper).toMatch(/docker\s+compose\s+-f\s+docker-compose\.e2e\.yml\s+cp/);
-    expect(wrapper).toMatch(/find\s+"\$artifact_dir"\s+-mindepth\s+1\s+-delete/);
+    expect(wrapper).toContain('"${compose[@]}" cp');
+    expect(wrapper).toContain('compose=(docker compose -p "$compose_project" -f docker-compose.e2e.yml)');
+    expect(wrapper).not.toMatch(/find\s+"\$artifact_dir".*-delete/);
+    expect(wrapper).toContain('ARIA_E2E_EXISTING_EVIDENCE_REFUSED');
+    expect(wrapper).toContain('"$private_artifact_dir/report.json" "$artifact_dir/report.json" "$run_head"');
     expect(wrapper).toContain('[ -L "$artifact_dir" ]');
     expect(wrapper).toContain('npm run aria:visual-evidence:write');
     expect(wrapper).toContain('if [ "$project" = "aria-mobile" ]');
@@ -128,12 +164,13 @@ describe('ARIA disposable browser qualification harness', () => {
     const wrapper = source('scripts/aria/run-e2e-suite.sh');
     const capturedHead = wrapper.indexOf('run_head="$(git rev-parse HEAD)"');
     const execution = wrapper.indexOf('up --build --abort-on-container-exit');
-    const sealedHead = wrapper.lastIndexOf('printf \'%s\\n\' "$run_head" > "$artifact_dir/head.sha"');
+    const sealedHead = wrapper.indexOf('node scripts/testing/safe-playwright-report.mjs');
     const primaryFailure = wrapper.indexOf('if [ "$test_status" -ne 0 ]');
     const visualSeal = wrapper.indexOf('npm run aria:visual-evidence:write');
     expect(capturedHead).toBeGreaterThanOrEqual(0);
     expect(execution).toBeGreaterThan(capturedHead);
     expect(sealedHead).toBeGreaterThan(execution);
+    expect(sealedHead).toBeGreaterThan(wrapper.indexOf('if [ "$source_status" -ne 0 ]'));
     expect(primaryFailure).toBeGreaterThan(sealedHead);
     expect(wrapper).toContain('[ "$current_head" != "$run_head" ]');
     expect(visualSeal).toBeGreaterThan(wrapper.indexOf('if [ "$source_status" -ne 0 ]'));
@@ -190,9 +227,9 @@ describe('ARIA disposable browser qualification harness', () => {
       visual.indexOf('async function captureState'),
       visual.indexOf('async function qualifyVisualViewport'),
     );
-    const layout = capture.indexOf('await assertQualifiedLayout(page)');
-    const axe = capture.indexOf('await assertNoSeriousOrCriticalA11y(page)');
-    const screenshot = capture.indexOf('await page.screenshot(');
+    const layout = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:layout`, () => assertQualifiedLayout(page))');
+    const axe = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:axe`, () => assertNoSeriousOrCriticalA11y(page))');
+    const screenshot = capture.indexOf('await test.step(`ARIA_PHASE:capture:${state}:screenshot`, () => page.screenshot(');
     const attachment = capture.indexOf('await testInfo.attach(');
     expect(layout).toBeGreaterThanOrEqual(0);
     expect(axe).toBeGreaterThan(layout);

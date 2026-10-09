@@ -41,10 +41,20 @@ class SessionRecoveryController {
         this.confirmation = null;
         this.logoutIntent = false;
         this.logoutDestination = '/auth/signin';
+        this.logoutRedirect = true;
+        this.redirectClaimed = false;
         this.subscribe = (listener) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
         this.getView = () => this.view;
         this.getSnapshot = () => this.observation;
         this.getRedirectDestination = () => this.logoutDestination;
+        /** Boundary and explicit logout share one navigation claim per confirmation. */
+        this.claimConfirmedRedirect = () => {
+            if (!this.observation.state.endsWith('_CONFIRMED') || this.redirectClaimed
+                || (this.logoutIntent && !this.logoutRedirect))
+                return null;
+            this.redirectClaimed = true;
+            return this.logoutDestination;
+        };
         this.stop = () => { this.cancel(); this.route = null; this.publish('RECOVERING'); };
         this.retry = () => {
             // Retrying observes the server; it never replays a pending logout write.
@@ -52,8 +62,9 @@ class SessionRecoveryController {
             this.logoutIntent = false;
             this.start();
         };
-        this.beginLogout = (destination = '/auth/signin') => {
+        this.beginLogout = (destination = '/auth/signin', redirect = true) => {
             this.logoutDestination = destination;
+            this.logoutRedirect = redirect;
             this.logoutIntent = true;
             this.cancel();
             this.publish('RECOVERING');
@@ -65,8 +76,8 @@ class SessionRecoveryController {
             this.cancel();
             this.publish('UNAUTHENTICATED_CONFIRMED', null);
         };
-        this.runLogout = async (perform, destination) => {
-            const operation = this.beginLogout(destination);
+        this.runLogout = async (perform, destination, redirect = true) => {
+            const operation = this.beginLogout(destination, redirect);
             const abort = new AbortController();
             let timer;
             const current = () => {
@@ -164,6 +175,8 @@ class SessionRecoveryController {
         this.observation = { state: serverSession ? 'AUTHENTICATED' : 'LOADING', canMutate: false, protectedScope: !!renderedScope?.().active, identityEpoch: 0 };
     }
     publish(state, data = this.view.data) {
+        if (!state.endsWith('_CONFIRMED'))
+            this.redirectClaimed = false;
         const changedIdentity = sessionIdentity(data) !== sessionIdentity(this.view.data);
         const status = data ? 'authenticated' : state.endsWith('_CONFIRMED') ? 'unauthenticated' : 'loading';
         // Preserve object identity during recovery AND same-identity provider refresh.

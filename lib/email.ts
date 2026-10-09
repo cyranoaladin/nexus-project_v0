@@ -1,5 +1,6 @@
 import { LEGAL, compactBankIdentifier } from '@/lib/legal';
 import { queueCommittedEmail } from '@/lib/email/queue';
+import { escapeHtml } from '@/lib/email/templates';
 
 type LegacyMailOptions = Readonly<{
   to: string;
@@ -256,16 +257,16 @@ export async function sendStageDiagnosticInvitation(
  * Template BT: Email de confirmation — Virement bancaire stage
  * Envoyé immédiatement après une réservation par virement bancaire
  */
-export async function sendStageBankTransferConfirmation(
-  email: string,
+export function buildStageBankTransferAcknowledgment(
   parentName: string,
   studentName: string | null,
   academyTitle: string,
   price: number
 ) {
+  const safeParentName = escapeHtml(parentName);
+  const safeStudentName = studentName === null ? null : escapeHtml(studentName);
+  const safeAcademyTitle = escapeHtml(academyTitle);
   const mailOptions = {
-    from: process.env.SMTP_FROM || `Nexus Réussite <${LEGAL.contact.email}>`,
-    to: email,
     subject: 'Réservation enregistrée – en attente de virement bancaire',
     html: `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc;">
@@ -278,12 +279,12 @@ export async function sendStageBankTransferConfirmation(
         <!-- Body -->
         <div style="padding: 40px 30px; background: white;">
           <p style="color: #475569; line-height: 1.7; margin: 0 0 20px 0;">
-            Bonjour ${parentName},
+            Bonjour ${safeParentName},
           </p>
 
           <p style="color: #475569; line-height: 1.7; margin: 0 0 20px 0;">
             Votre demande a bien été enregistrée pour la formule
-            <strong style="color: #1e293b;">${academyTitle}</strong>${studentName ? ` (élève : ${studentName})` : ''}.
+            <strong style="color: #1e293b;">${safeAcademyTitle}</strong>${studentName ? ` (élève : ${safeStudentName})` : ''}.
           </p>
 
           <!-- Amount -->
@@ -331,7 +332,7 @@ export async function sendStageBankTransferConfirmation(
         <!-- Footer -->
         <div style="padding: 20px 30px; background: #f8fafc; text-align: center; border-top: 1px solid #e2e8f0;">
           <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-            ${academyTitle}<br>
+            ${safeAcademyTitle}<br>
             Nexus Réussite © ${new Date().getFullYear()}
           </p>
         </div>
@@ -339,7 +340,13 @@ export async function sendStageBankTransferConfirmation(
     `
   };
 
-  await queueLegacyMail(mailOptions);
+  return mailOptions;
+}
+
+export async function sendStageBankTransferConfirmation(
+  email: string, parentName: string, studentName: string | null, academyTitle: string, price: number
+) {
+  await queueLegacyMail({ to: email, ...buildStageBankTransferAcknowledgment(parentName, studentName, academyTitle, price) });
 }
 
 /**

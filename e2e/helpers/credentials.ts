@@ -21,6 +21,7 @@ export type CredRole =
   | 'student'
   | 'student2'
   | 'studentSurvival'
+  | 'coachV1'
   | 'coach'
   | 'coach2'
   | 'admin'
@@ -48,6 +49,7 @@ const REQUIRED_ROLES: readonly CredRole[] = [
   'student',
   'student2',
   'studentSurvival',
+  'coachV1',
   'coach',
   'coach2',
   'admin',

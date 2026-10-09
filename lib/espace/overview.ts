@@ -14,6 +14,7 @@ import { loadWorkForActor, teacherWorkScope } from './access';
 import { ACTIVITIES, getActivityDef } from './catalog';
 import { EspaceError } from './errors';
 import type { EspaceActor } from './guards';
+import { isBilanActivitySlug } from './lesson-routes';
 import { listPublishedSessionsForStudent } from './sessions';
 import { notValidationGroup, type ValidationScopeOptions } from './validation';
 
@@ -120,17 +121,20 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
   ]);
 
   const subjectSet = new Set(enrollments.map((e) => e.subject));
+  const assignedSlugs = new Set(sessions.map((s) => s.activity.slug));
+  const visible = (slug: string) => !isBilanActivitySlug(slug) || assignedSlugs.has(slug);
+  const visibleWorks = works.filter((w) => visible(w.activity.slug));
   const subjects = [...subjectSet]
     .map((subject) => ({
       subject,
       label: SUBJECT_LABELS[subject],
-      activities: ACTIVITIES.filter((a) => a.subject === subject).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind, theme: a.theme ?? null })),
+      activities: ACTIVITIES.filter((a) => a.subject === subject && visible(a.slug)).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind, theme: a.theme ?? null })),
     }))
     .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
 
   const open = new Set<EspaceWorkStatus>(['DRAFT', 'IN_PROGRESS', 'REOPENED']);
   const pendingSession = sessions.find((s) => !s.works[0] || open.has(s.works[0].status));
-  const inProgress = works.find((w) => open.has(w.status) && subjectSet.has(w.activity.subject));
+  const inProgress = visibleWorks.find((w) => open.has(w.status) && subjectSet.has(w.activity.subject));
 
   let next: StudentDashboard['next'] = null;
   if (pendingSession) {
@@ -167,7 +171,7 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
     firstName: actor.firstName ?? '',
     subjects,
     next,
-    works: works.map((w) => ({
+    works: visibleWorks.map((w) => ({
       id: w.id,
       activitySlug: w.activity.slug,
       activityTitle: w.activity.title,
@@ -214,7 +218,10 @@ export async function getTeacherOverview(actor: EspaceActor, activitySlug: strin
   if (!def || !activity) throw new EspaceError('NOT_FOUND', 'Activité introuvable');
 
   const enrollments = await prisma.espaceEnrollment.findMany({
-    where: await teacherRosterWhere(actor, activity.subject, opts),
+    where: {
+      ...await teacherRosterWhere(actor, activity.subject, opts),
+      ...(isBilanActivitySlug(activitySlug) ? { user: { espaceSessionSeats: { some: { session: { activityId: activity.id, status: { in: ['PUBLISHED', 'CLOSED'] } } } } } } : {}),
+    },
     select: { user: { select: { id: true, firstName: true, lastName: true } }, group: { select: { name: true } } },
   });
   const studentIds = [...new Set(enrollments.map((e) => e.user.id))];

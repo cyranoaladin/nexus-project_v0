@@ -9,14 +9,19 @@ name: Manual rehearsals (dispatch only)
 #   que ces specs aient une lane déclarée et restent sous le garde de couverture.
 # - fallback-offline : le paquet de secours hors-ligne (CLI réelle + serveur local,
 #   toute requête externe bloquée et comptée).
+# - bilan-validation : banc de validation des bilans de septembre (harnais local jetable
+#   via scripts/espace/bilan-validation-local.sh, credentials de banc hors Git). Ce
+#   workflow hébergé ne peut PAS fournir ce harnais : le job échoue proprement si on le
+#   lance ici ; l'exécution réelle se fait depuis le poste de l'opérateur. Il existe pour
+#   que ces specs aient une lane déclarée et restent sous le garde de couverture.
 on:
   workflow_dispatch:
     inputs:
       lane:
-        description: prod-smoke ou fallback-offline
+        description: prod-smoke, fallback-offline ou bilan-validation
         required: true
         type: choice
-        options: [fallback-offline, prod-smoke]
+        options: [fallback-offline, prod-smoke, bilan-validation]
 
 permissions:
   contents: read
@@ -39,6 +44,9 @@ jobs:
         run: |
           if [ "${{ inputs.lane }}" = "fallback-offline" ]; then
             npx playwright test --config=playwright.fallback.config.ts
+          elif [ "${{ inputs.lane }}" = "bilan-validation" ]; then
+            # Volontairement sans harnais local : refuse de tourner ici (voir en-tête).
+            npx playwright test --config=playwright.bilan-validation.config.ts
           else
             # Volontairement sans credentials : refuse de tourner ici (voir en-tête).
             npx playwright test --config=playwright.prod-smoke.config.ts

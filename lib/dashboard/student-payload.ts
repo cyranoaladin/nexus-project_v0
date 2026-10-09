@@ -20,6 +20,7 @@ import { getNextStep } from '@/lib/next-step-engine';
 import { getUserEntitlements } from '@/lib/entitlement/engine';
 import { listOfficialPdfsForProfile } from '@/lib/programme/official-pdfs';
 import { getCourse } from '@/lib/curriculum/catalog';
+import { STUDENT_DOCUMENT_SCOPES, studentDocumentVisible } from '@/lib/documents/student-visibility';
 import type {
   EleveDashboardData,
   EleveBilan,
@@ -223,7 +224,7 @@ function userDocCategory(
  *   - COACH_RESOURCE | USER_DOCUMENT → derived from already-fetched userDocs (Q5).
  *   - RAG_REFERENCE → currently empty (requires schema extension to track
  *     consulted RAG sources per ARIA conversation; out-of-scope for Lot B).
- *   - INVOICE | RECEIPT → derived from userInvoices (Q10).
+ *   - Financial categories remain empty: an academic beneficiary is not a financial reader.
  *   - STAGE_BILAN → derived from already-computed stageItems (no extra query).
  *
  * Note: this builder does NOT issue any Prisma query of its own. It consumes
@@ -246,16 +247,6 @@ export function buildHub(input: {
     description: string | null;
     uploadedById: string | null;
     uploadedBy: { id: string; role: UserRole; firstName: string | null; lastName: string | null } | null;
-  }>;
-  invoices: ReadonlyArray<{
-    id: string;
-    number: string;
-    status: string;
-    issuedAt: Date;
-    paidAt: Date | null;
-    total: number;
-    currency: string;
-    pdfUrl: string | null;
   }>;
   stageItems: ReadonlyArray<EleveStageItem>;
 }): EleveHub {
@@ -291,7 +282,7 @@ export function buildHub(input: {
   addInteractiveProgramResources(hub, { level: input.level, track: input.track });
 
   // ── User documents → COACH_RESOURCE or USER_DOCUMENT ────────────────────
-  for (const doc of input.userDocs) {
+  for (const doc of input.userDocs.filter(doc => studentDocumentVisible(doc.visibilityScope))) {
     const cat = userDocCategory(doc, input.studentUserId);
     const isPdf = doc.mimeType === 'application/pdf';
     const isMd = doc.mimeType === 'text/markdown' || doc.mimeType === 'text/x-markdown';
@@ -322,24 +313,6 @@ export function buildHub(input: {
       uploaderRole: doc.uploadedBy?.role,
       uploaderName,
       badge: cat === 'COACH_RESOURCE' ? 'COACH' : isRecent ? 'NOUVEAU' : 'PERSONNEL',
-    });
-  }
-
-  // ── Invoices ─────────────────────────────────────────────────────────────
-  for (const inv of input.invoices) {
-    const isReceipt = inv.status === 'PAID' && inv.paidAt !== null;
-    const cat: EleveHubResourceCategory = isReceipt ? 'RECEIPT' : 'INVOICE';
-    hub.byCategory[cat].push({
-      id: `invoice:${inv.id}`,
-      category: cat,
-      title: isReceipt
-        ? `Reçu de paiement n°${inv.number}`
-        : `Facture n°${inv.number}`,
-      subtitle: `${(inv.total / 1000).toFixed(2)} ${inv.currency}`,
-      type: inv.pdfUrl ? 'PDF' : 'LINK',
-      uploadedAt: inv.issuedAt.toISOString(),
-      downloadUrl: inv.pdfUrl ?? undefined,
-      externalUrl: inv.pdfUrl ? undefined : `/dashboard/eleve/factures/${inv.id}`,
     });
   }
 
@@ -781,7 +754,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     academicTrack === AcademicTrack.STMG ||
     academicTrack === AcademicTrack.STMG_NON_LYCEEN;
 
-  // ── Q2–Q8 + Q10: Parallel independent queries ──────────────────────────────────
+  // ── Q2–Q8: Parallel independent queries ──────────────────────────────────
   const [
     mathsProgressForTrack,
     recentBilansRaw,
@@ -790,7 +763,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     userEntitlements,
     trajectoryData,
     nextStepResult,
-    userInvoices,
   ] = await Promise.all([
     // Q2: MathsProgress for this student's track
     prisma.mathsProgress.findFirst({
@@ -828,12 +800,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
     // Q4: All stage reservations for this student
     prisma.stageReservation.findMany({
-      where: {
-        OR: [
-          { studentId: student.id },
-          { email: studentEmail },
-        ],
-      },
+      where: { studentId: student.id },
       include: {
         stage: {
           select: {
@@ -851,7 +818,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
 
     // Q5: User documents
     prisma.userDocument.findMany({
-      where: { userId },
+      where: { userId, visibilityScope: { in: [...STUDENT_DOCUMENT_SCOPES] } },
       orderBy: { createdAt: 'desc' },
       take: 10,
       select: {
@@ -886,27 +853,11 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     // Q8: Next step engine
     getNextStep(userId).catch(() => null),
 
-    // Q10: Invoices addressed to this student (beneficiaryUserId)
-    // Used by the Hub to surface INVOICE / RECEIPT entries
-    prisma.invoice.findMany({
-      where: { beneficiaryUserId: userId },
-      orderBy: { issuedAt: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        number: true,
-        status: true,
-        issuedAt: true,
-        paidAt: true,
-        total: true,
-        currency: true,
-        pdfUrl: true,
-      },
-    }),
   ]);
 
   // Q9: Stage bilans lookup (only if reservations exist)
-  const stageIds = allStageReservations
+  const ownedStageReservations = allStageReservations.filter(reservation => reservation.studentId === student.id);
+  const stageIds = ownedStageReservations
     .map((r) => r.stage?.id)
     .filter((id): id is string => id !== undefined);
 
@@ -1022,7 +973,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   const recentBilans = recentBilansRaw.map(toBilan);
 
   // Stages
-  const stageItems = allStageReservations
+  const stageItems = ownedStageReservations
     .map((r) => toStageItem(r, stageBilansMap.get(r.stage?.id ?? '') ?? null))
     .filter((item): item is EleveStageItem => item !== null);
 
@@ -1037,7 +988,7 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
   );
 
   // Resources
-  const resources = userDocs.map(toResource);
+  const resources = userDocs.filter(doc => studentDocumentVisible(doc.visibilityScope)).map(toResource);
 
   // Track content
   const EDS_SKILL_GRAPH_BY_SUBJECT: Partial<Record<string, string>> = {
@@ -1173,7 +1124,6 @@ export async function buildStudentDashboardPayload(userId: string): Promise<Elev
     track: academicTrack,
     studentUserId: student.id,
     userDocs,
-    invoices: userInvoices,
     stageItems,
   });
 

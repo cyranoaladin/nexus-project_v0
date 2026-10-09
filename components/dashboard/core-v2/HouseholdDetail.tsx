@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type AcademicYear, type ApiFail, type CoachSummary, type HouseholdDetail as HouseholdDetailModel, type Page, type PublicUser, describeFailure, displayName, v2 } from './api';
 import { AccountActions } from './AccountActions';
+import { HouseholdMembershipActions } from './HouseholdMembershipActions';
 import { useAction } from './actions';
 import { StatusMessage } from './StatusMessage';
 import { StudentsSection } from './StudentsSection';
@@ -112,7 +113,7 @@ function ParentsSection({ household, can, refresh }: { household: HouseholdDetai
                 <p className="text-sm text-neutral-400">{parent.email ?? '—'} · {parent.phone ?? '—'}</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {can('HOUSEHOLD_EDIT') && !parent.isPrimaryContact && (
+                {can('HOUSEHOLD_EDIT') && parent.verificationStatus === 'VERIFIED' && !parent.isPrimaryContact && (
                   <Button
                     type="button"
                     size="sm"
@@ -126,6 +127,7 @@ function ParentsSection({ household, can, refresh }: { household: HouseholdDetai
                   </Button>
                 )}
                 {can('HOUSEHOLD_EDIT') && <CorrectParentDialog parent={parent} onDone={refresh} />}
+                {can('HOUSEHOLD_EDIT') && <HouseholdMembershipActions householdId={household.id} parent={parent} onChanged={refresh} />}
               </div>
             </div>
             <div className="mt-3">

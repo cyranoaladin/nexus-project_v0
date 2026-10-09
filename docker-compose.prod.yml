@@ -1,8 +1,10 @@
 # =============================================================================
 # DOCKER COMPOSE PRODUCTION - NEXUS RÉUSSITE
 # =============================================================================
-# IMPORTANT: Copy .env.production.example to .env.production and configure
-# Usage: docker compose -f docker-compose.prod.yml up -d --build
+# Historical alternative recipe — NOT QUALIFIED for the October 2026 go-live.
+# Missing mandatory Core auth/runtime wiring; do not deploy this recipe.
+# The qualified release uses the immutable CI artifact and protected launcher.
+# See docs/audits/2026-10-08-core-go-live-execution.md for release gates.
 # =============================================================================
 
 services:
@@ -78,6 +80,9 @@ services:
       # NextAuth (REQUIRED)
       NEXTAUTH_URL: ${NEXTAUTH_URL}  # e.g., https://nexus.example.com
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}  # openssl rand -base64 32
+      # Empty is permitted only in V1_ONLY. Core startup validates the keyring.
+      CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID: ${CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID:-}
+      CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS: ${CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS:-}
 
       # SMTP / Email
       SMTP_HOST: ${SMTP_HOST}

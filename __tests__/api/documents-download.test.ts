@@ -3,15 +3,20 @@
  */
 
 import { NextRequest } from 'next/server';
+import { resolve as pathResolve } from 'node:path';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────
 
 jest.mock('@/auth');
 jest.mock('@/lib/prisma', () => ({
   prisma: {
-    userDocument: { findUnique: jest.fn() },
+    userDocument: { findUnique: jest.fn(), findFirst: jest.fn() },
     parentProfile: { findUnique: jest.fn() },
   },
+}));
+jest.mock('@/lib/families/student-access-authority', () => ({
+  ...jest.requireActual('@/lib/families/student-access-authority'),
+  resolveParentStudentAccess: jest.fn(),
 }));
 jest.mock('@/lib/rbac/coach-student-access', () => ({
   assertCoachCanAccessStudent: jest.fn(),
@@ -27,16 +32,19 @@ jest.mock('node:fs/promises', () => ({
   realpath: jest.fn(),
 }));
 
+import { resolveParentStudentAccess } from '@/lib/families/student-access-authority';
 import { GET } from '@/app/api/documents/[id]/download/route';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { assertCoachCanAccessStudent } from '@/lib/rbac/coach-student-access';
 import { readFile, stat, realpath } from 'fs/promises';
 
+const mockFamilyAccess = jest.mocked(resolveParentStudentAccess);
 const mockAuth = auth as jest.Mock;
 const mockStat = stat as jest.Mock;
 const mockRealpath = realpath as jest.Mock;
 const mockFindUnique = prisma.userDocument.findUnique as jest.Mock;
+const mockPrivateDocument = prisma.userDocument.findFirst as unknown as jest.Mock<Promise<unknown>, []>;
 const mockParentFind = (prisma.parentProfile as unknown as { findUnique: jest.Mock }).findUnique;
 const mockAssert = assertCoachCanAccessStudent as jest.Mock;
 const mockReadFile = readFile as jest.Mock;
@@ -78,6 +86,10 @@ function params() {
 describe('GET /api/documents/[id]/download', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockPrivateDocument.mockImplementation(async () => await mockFindUnique.mock.results.at(-1)?.value);
+    mockFamilyAccess.mockImplementation(async (parentUserId, studentId) => ({
+      id: studentId, status: parentUserId === PARENT_USER_ID ? 'LEGACY_ALLOWED' : 'DENIED',
+    }));
     mockReadFile.mockResolvedValue(Buffer.from('PDF content'));
     mockStat.mockResolvedValue({ size: 1024 });
     // realpath: returns the resolved path as-is (no symlinks in test env)
@@ -85,7 +97,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 200 for assigned coach with correct visibilityScope', async () => {
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockResolvedValue(undefined); // assigned
 
@@ -101,7 +113,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 404 for non-assigned coach', async () => {
-    mockAuth.mockResolvedValue({ user: { id: OTHER_COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: OTHER_COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockRejectedValue(new Error('Not assigned'));
 
@@ -139,7 +151,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 404 for coach when visibilityScope is STUDENT_ONLY', async () => {
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_ONLY' });
 
     const res = await GET(request(), params());
@@ -205,6 +217,16 @@ describe('GET /api/documents/[id]/download', () => {
 
   // ── Parent direct ownership (P2 — invoices) ──
 
+  it('refuses ADMIN_ONLY even when the parent owns the document directly', async () => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, userId: PARENT_USER_ID,
+      visibilityScope: 'ADMIN_ONLY', user: { id: PARENT_USER_ID, student: null } });
+    const response = await GET(request(), params());
+    expect(response.status).toBe(404);
+    expect(mockPrivateDocument).not.toHaveBeenCalled();
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
   it('returns 200 for parent downloading their own document (invoice, STUDENT_ONLY scope)', async () => {
     // Invoices are created with userId = parent and default scope STUDENT_ONLY.
     // The parent owns the document directly — scope should NOT gate.
@@ -236,7 +258,6 @@ describe('GET /api/documents/[id]/download', () => {
 
   it('returns 404 on path traversal via /../ (P1 containment)', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'admin-1', role: 'ADMIN' } });
-    const { resolve: pathResolve } = require('path');
     const storageRoot = pathResolve(process.cwd(), 'storage', 'documents');
     const traversalPath = storageRoot + '/../../../.env.local';
     mockFindUnique.mockResolvedValue({ ...mockDocument, localPath: traversalPath });
@@ -266,7 +287,7 @@ describe('GET /api/documents/[id]/download', () => {
     const extractedId = match![1];
 
     // Now call the download route with that ID
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockResolvedValue(undefined);
     const fileContent = Buffer.from('%PDF-1.4 fake content');
@@ -279,8 +300,79 @@ describe('GET /api/documents/[id]/download', () => {
     const body = await res.arrayBuffer();
     expect(Buffer.from(body)).toEqual(fileContent);
     // Verify readFile was called with the RESOLVED path (legacy prefix stripped, rebased to cwd)
-    const { resolve: pathResolve } = require('path');
     const expectedPath = pathResolve(process.cwd(), 'storage', 'documents', 'student-user-1/test-doc.pdf');
     expect(mockReadFile).toHaveBeenCalledWith(expectedPath);
   });
+  it.each([
+    ['DENIED', 404], ['AUTHORITY_UNAVAILABLE', 503],
+  ] as const)('refuses child bytes when canonical family authority is %s despite the stale V1 relationship', async (status, expected) => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_AND_PARENT' });
+    mockParentFind.mockResolvedValue({ id: PARENT_PROFILE_ID });
+    mockFamilyAccess.mockResolvedValue({ id: STUDENT_PROFILE_ID, status });
+    const res = await GET(request(), params());
+    expect(res.status).toBe(expected);
+    expect(mockFamilyAccess).toHaveBeenCalledWith(PARENT_USER_ID, STUDENT_PROFILE_ID, 'read');
+    expect(mockReadFile).not.toHaveBeenCalled();
+    expect(mockStat).not.toHaveBeenCalled();
+  });
+
+  it('accepts the verified canonical guardian without requiring the former V1 parent profile', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'verified-new-guardian', role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_AND_PARENT' });
+    mockParentFind.mockResolvedValue(null);
+    mockFamilyAccess.mockResolvedValue({ id: STUDENT_PROFILE_ID, status: 'CORE_VERIFIED_READ' });
+    const res = await GET(request(), params());
+    expect(res.status).toBe(200);
+    expect(mockFamilyAccess).toHaveBeenCalledWith('verified-new-guardian', STUDENT_PROFILE_ID, 'read');
+  });
+
+  it('loads only authorization identifiers and visibility before the family decision', async () => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_AND_PARENT' });
+    mockParentFind.mockResolvedValue({ id: PARENT_PROFILE_ID });
+    mockFamilyAccess.mockResolvedValue({ id: STUDENT_PROFILE_ID, status: 'DENIED' });
+    await GET(request(), params());
+    expect(mockFindUnique).toHaveBeenCalledTimes(1);
+    expect(mockFindUnique).toHaveBeenCalledWith({ where: { id: DOC_ID }, select: {
+      id: true, userId: true, visibilityScope: true,
+      user: { select: { id: true, student: { select: { id: true } } } },
+    } });
+  });
+
+  it('refuses the file if its owner or visibility changed after the authorized metadata read', async () => {
+    mockAuth.mockResolvedValue({ user: { id: PARENT_USER_ID, role: 'PARENT' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_AND_PARENT' });
+    mockPrivateDocument.mockResolvedValue(null);
+    const res = await GET(request(), params());
+    expect(res.status).toBe(404);
+    expect(mockPrivateDocument).toHaveBeenCalledWith({
+      where: { id: DOC_ID, userId: STUDENT_USER_ID, visibilityScope: 'STUDENT_AND_PARENT' },
+      select: { id: true, userId: true, localPath: true, unavailableReason: true,
+        mimeType: true, originalName: true, sizeBytes: true },
+    });
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
+  it('refuses a coach-owned record without a student scope and assignment on the common download policy', async () => {
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
+    mockFindUnique.mockResolvedValue({ ...mockDocument, userId: COACH_USER_ID,
+      visibilityScope: 'ADMIN_ONLY', user: { id: COACH_USER_ID, student: null } });
+    const res = await GET(request(), params());
+    expect(res.status).toBe(404);
+    expect(mockPrivateDocument).not.toHaveBeenCalled();
+    expect(mockReadFile).not.toHaveBeenCalled();
+  });
+
+  it('does not log a raw private database failure at the download boundary', async () => {
+    const log = jest.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      mockAuth.mockResolvedValue({ user: { id: 'admin-boundary-fixture', role: 'ADMIN' } });
+      mockFindUnique.mockRejectedValueOnce(new Error('PRIVATE_DOCUMENT_EXCEPTION_CANARY'));
+      expect((await GET(request(), params())).status).toBe(500);
+      expect(log).toHaveBeenCalled();
+      expect(JSON.stringify(log.mock.calls)).not.toContain('PRIVATE_DOCUMENT_EXCEPTION_CANARY');
+    } finally { log.mockRestore(); }
+  });
+
 });

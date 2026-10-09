@@ -8,6 +8,7 @@
  *   const result = await apiGuard({
  *     policy: 'parent.children',
  *     resourceId: childId,
+ *     action: 'read',
  *     rateLimit: { key: 'parent-children', max: 30, window: 60 },
  *   });
  *   if (isErrorResponse(result)) return result;
@@ -22,6 +23,8 @@ import type { AuthSession } from '@/lib/guards';
 export interface ApiGuardOptions {
   /** RBAC policy key */
   policy: string;
+  /** Explicit access intent; Core-owned V1 mutations fail closed. */
+  action: 'read' | 'mutation';
   /** Resource ID for ownership check (e.g. studentId, invoiceId) */
   resourceId?: string;
 }
@@ -36,6 +39,7 @@ export interface ApiGuardOptions {
  *   const result = await apiGuard({
  *     policy: 'parent.children',
  *     resourceId: childId,
+ *     action: 'read',
  *   });
  *   if (isErrorResponse(result)) return result;
  *   const session = result;
@@ -45,7 +49,8 @@ export async function apiGuard(
 ): Promise<AuthSession | NextResponse> {
   const sessionOrResponse = await enforcePolicyWithOwnership(
     options.policy,
-    options.resourceId
+    options.resourceId,
+    options.action
   );
   if (isErrorResponse(sessionOrResponse)) {
     return sessionOrResponse;

@@ -12,10 +12,17 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     
-    if (!session || session.user.role !== 'COACH') {
+    if (!session?.user || session.user.role !== 'COACH') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
       );
     }
 

@@ -110,14 +110,34 @@ export async function createSyntheticCoach(input: {
   return { userId: user.id, coachProfileId: user.coachProfile!.id, email };
 }
 
-/** FK-safe, explicit cleanup — never relies on cascade configuration. */
-export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
+/** Explicit disposable-fixture teardown; immutable history is never erased. */
+export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<'DELETED' | 'AUDIT_RETAINED'> {
+  assertDisposableE2eDatabase(databaseUrl);
   const studentIds = compact([ids.childAStudentId, ids.childBStudentId, ids.child2StudentId]);
   const childUserIds = compact([ids.childAUserId, ids.childBUserId, ids.child2UserId]);
   const coachUserIds = compact([ids.coach1UserId, ids.coach2UserId]);
   const parentUserIds = compact([ids.parent1UserId, ids.parent2UserId]);
   const assignmentIds = compact([ids.assignmentAId, ids.assignmentBId]);
   const seriesIds = compact([ids.seriesAId, ids.seriesBId, ...(ids.selfServiceSeriesIds ?? [])]);
+  const allUserIds = [...new Set([...childUserIds, ...parentUserIds, ...coachUserIds])];
+  const retained = await prisma.$transaction(async tx => {
+    const auditCount = await tx.sessionBookingCancellationAudit.count({ where: { sessionBooking: { OR: [
+      ...(studentIds.length ? [{ studentProfileId: { in: studentIds } }] : []),
+      ...(childUserIds.length ? [{ studentId: { in: childUserIds } }] : []),
+      ...(coachUserIds.length ? [{ coachId: { in: coachUserIds } }] : []),
+    ] } } });
+    if (auditCount === 0) return false;
+    // Only tracked synthetic identities in the positively verified disposable
+    // database. Retain their FK graph until the owning stack is destroyed.
+    await tx.user.updateMany({
+      where: { id: { in: allUserIds }, OR: [{ password: { not: null } }, { activatedAt: { not: null } }, { activationToken: { not: null } }] },
+      data: { password: null, activatedAt: null, activationToken: null, activationExpiry: null,
+        sessionVersion: { increment: 1 }, parentPhoneVersion: { increment: 1 } },
+    });
+    return true;
+  });
+  if (retained) return 'AUDIT_RETAINED';
+
 
   if (studentIds.length > 0 || coachUserIds.length > 0) {
     await prisma.sessionBooking.deleteMany({
@@ -167,7 +187,6 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
   if (coachUserIds.length > 0) {
     await prisma.coachProfile.deleteMany({ where: { userId: { in: coachUserIds } } });
   }
-  const allUserIds = [...childUserIds, ...parentUserIds, ...coachUserIds];
   if (allUserIds.length > 0) {
     // Order comes from the live schema via the canonical fixture cleanup,
     // so this teardown no longer hand-maintains which relations are RESTRICT.
@@ -179,6 +198,7 @@ export async function cleanupGoldenFamily(ids: GoldenFamilyIds): Promise<void> {
       await cleanupDisposableTestFixture(prisma, { userIds: fixtureUserIds });
     }
   }
+  return 'DELETED';
 }
 
 /** Poll /api/auth/session until it belongs to the expected user id — the

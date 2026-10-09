@@ -25,6 +25,7 @@ function mockSession(role: string) {
       id: `${role.toLowerCase()}-1`,
       email: `${role.toLowerCase()}@nexus.test`,
       role,
+      authority: 'V1',
       firstName: 'Test',
       lastName: role,
     },

@@ -1,0 +1,7 @@
+# Rendering and tooling security checkpoint
+
+October 4, 2026. Source `d2584a8cc4b89b6887de79f55905a46716d60f35`: 162 PR commits / 550 changed files from verified main. Four local commits after published `28b692f60d99fc46522e6ef04bf612217f8f05d5` address the untrusted Markdown boundary, two test shell sinks and missing wildcard coverage, structured ephemeral database URL construction, and PDF apostrophe normalization. This subsequent documentation commit is additional.
+
+Verification: seven Markdown DOM tests passed after six RED failures; two shell/tooling suites passed 18 tests; four PDF/adapter/Markdown suites passed 22 tests after the PDF normalization RED failure. Counts overlap and are not added as distinct tests. Targeted lint, full npm run lint, typecheck, security:repo, versioned-credential scan and staged Gitleaks passed. Full lint retains existing warnings and its unchanged budget. The final structured-URL runner repeated the synthetic encrypted restore/migration rehearsal and all five real PostgreSQL tests successfully.
+
+These changes address the source causes associated with CodeQL #16, #50, #70 and #64; closure awaits analysis of the new published head. HIGH #114 remains open on the preceding head: no dismissal or exception was used. Dependency policy, exact-head final CI/review, TLS rotation, actual production restore, retention approval and operational rollback remain gates. Status NOT_READY; PR Draft; no deployment.

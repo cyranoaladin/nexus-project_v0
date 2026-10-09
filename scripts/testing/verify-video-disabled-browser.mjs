@@ -62,14 +62,16 @@ try {
       registrationCompletedAt: new Date(),
       parentProfile: { create: {} },
     },
-    select: { id: true },
+    select: { id: true, parentProfile: { select: { id: true } } },
   });
   fixtureUserIds.push(user.id);
+  if (!user.parentProfile) fail('VIDEO_BROWSER_PARENT_PROFILE_MISSING');
 
   // A real, currently joinable booking proves that the server rejects the
   // direct action after ownership/window checks, without changing its state.
   const student = await prisma.user.create({
-    data: { email: `video-student-${randomUUID()}@example.test`, role: 'ELEVE', firstName: 'CI', lastName: 'Student' },
+    data: { email: `video-student-${randomUUID()}@example.test`, role: 'ELEVE', firstName: 'CI', lastName: 'Student',
+      student: { create: { parentId: user.parentProfile.id, gradeLevel: 'PREMIERE' } } },
     select: { id: true },
   });
   fixtureUserIds.push(student.id);
@@ -198,7 +200,11 @@ try {
       process.exitCode = 1;
     }
     try {
-      if (fixtureUserIds.length) await prisma.user.deleteMany({ where: { id: { in: fixtureUserIds } } });
+      if (fixtureUserIds.length) {
+        // ParentProfile uses RESTRICT: remove only this smoke's student profiles first.
+        await prisma.student.deleteMany({ where: { userId: { in: fixtureUserIds } } });
+        await prisma.user.deleteMany({ where: { id: { in: fixtureUserIds } } });
+      }
     } catch {
       console.error('VIDEO_BROWSER_FIXTURE_CLEANUP_FAILED');
       process.exitCode = 1;

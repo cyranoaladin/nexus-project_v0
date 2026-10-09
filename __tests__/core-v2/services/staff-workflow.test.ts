@@ -1,3 +1,4 @@
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 /**
  * The golden staff workflow (§AF) executed end to end through the canonical
  * services against a real Core v2 database, with the audit trail asserted at
@@ -69,6 +70,7 @@ describe('Golden staff workflow through canonical services', () => {
     });
     const existing = await client.user.create({ data: { role: 'PARENT', email: 'grand@example.com' } });
     await attachExistingParent(client, ctx, { householdId: household.id, parentUserId: existing.id });
+    await verifyHouseholdParent(client, ctx, { householdId: household.id, parentUserId: parent2.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
     await setPrimaryContact(client, ctx, { householdId: household.id, parentUserId: parent2.id });
     const members = await client.householdParent.findMany({ where: { householdId: household.id } });
     expect(members).toHaveLength(3);
@@ -138,7 +140,7 @@ describe('Golden staff workflow through canonical services', () => {
     // Invitation for the parent account.
     const issued = await inviteAccount(client, ctx, parent.id);
     expect(issued.rawToken.length).toBeGreaterThanOrEqual(40);
-    expect(issued.invitation.tokenHash).not.toContain(issued.rawToken);
+    expect(issued.invitation.tokenHash.includes(issued.rawToken)).toBe(false);
     expect(await auditTrail(client, issued.invitation.id)).toEqual(['account.invited']);
 
     // Corrections are audited by field name only — never by value.
@@ -173,6 +175,7 @@ describe('Golden staff workflow through canonical services', () => {
         'parent.created',
         'household.created',
         'household.parent_attached',
+        'household.parent_verified',
         'household.primary_contact_changed',
         'student.created',
         'enrollment.created',
