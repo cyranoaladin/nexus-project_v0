@@ -82,6 +82,13 @@ export async function requireRole(requiredRole: UserRole): Promise<AuthSession |
 
   const session = result as AuthSession;
 
+  // These role guards authorize legacy resources; Core coach ownership is resolved by Core routes.
+  if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+    return NextResponse.json({ error: 'Forbidden' }, {
+      status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+    });
+  }
+
   if (session.user.role !== requiredRole) {
     return NextResponse.json(
       {
@@ -106,6 +113,13 @@ export async function requireAnyRole(allowedRoles: UserRole[]): Promise<AuthSess
   }
 
   const session = result as AuthSession;
+
+  // These role guards authorize legacy resources; Core coach ownership is resolved by Core routes.
+  if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+    return NextResponse.json({ error: 'Forbidden' }, {
+      status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+    });
+  }
 
   if (!allowedRoles.includes(session.user.role)) {
 

@@ -40,7 +40,7 @@ describe('coaches availability', () => {
 
   it('POST weekly creates slots', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
     (prisma.$transaction as jest.Mock).mockResolvedValue([{ count: 0 }, { count: 1 }]);
 
@@ -56,7 +56,7 @@ describe('coaches availability', () => {
 
   describe('atomic replace (delete + create in one transaction)', () => {
     it('weekly: bundles deleteMany and createMany inside a single prisma.$transaction call', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
       (prisma.$transaction as jest.Mock).mockResolvedValue([{ count: 2 }, { count: 1 }]);
 
       await POST(makeRequest({
@@ -76,7 +76,7 @@ describe('coaches availability', () => {
     });
 
     it('specific date: bundles deleteMany and createMany inside a single prisma.$transaction call', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
       (prisma.$transaction as jest.Mock).mockResolvedValue([{ count: 0 }, { count: 1 }]);
 
       await POST(makeRequest({
@@ -92,7 +92,7 @@ describe('coaches availability', () => {
     });
 
     it('weekly: rolls back (never reports success) when the createMany half of the transaction fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
       // Un tableau `$transaction` est tout-ou-rien côté Prisma réel : si l'un
       // des deux échoue, AUCUN n'est committé — la ligne existante n'est
       // donc jamais perdue. Ce mock simule cet échec global.
@@ -109,7 +109,7 @@ describe('coaches availability', () => {
     });
 
     it('specific date: rolls back (never reports success) when the createMany half of the transaction fails', async () => {
-      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+      (auth as jest.Mock).mockResolvedValue({ user: { id: 'coach-1', role: 'COACH', authority: 'V1' } });
       (prisma.$transaction as jest.Mock).mockRejectedValue(Object.assign(new Error('boom'), { code: 'P2002' }));
 
       const response = await POST(makeRequest({
@@ -136,7 +136,7 @@ describe('coaches availability', () => {
 
   it('DELETE returns 400 when missing id', async () => {
     (auth as jest.Mock).mockResolvedValue({
-      user: { id: 'coach-1', role: 'COACH' },
+      user: { id: 'coach-1', role: 'COACH', authority: 'V1' },
     });
 
     const response = await DELETE(makeRequest(undefined, 'http://localhost:3000/api/coaches/availability'));

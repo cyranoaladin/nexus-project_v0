@@ -56,7 +56,7 @@ describe('API Coach Students', () => {
     });
 
     it('3. Coach connecté avec assignations actives => retourne uniquement ses élèves', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findMany.mockResolvedValue([
         {
@@ -96,7 +96,7 @@ describe('API Coach Students', () => {
     });
 
     it('4. Coach connecté sans assignation => retourne liste vide', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findMany.mockResolvedValue([]);
 
@@ -111,7 +111,7 @@ describe('API Coach Students', () => {
 
   describe('GET /api/coach/students/[studentId]', () => {
     it('5. GET détail élève assigné => 200', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue({ id: 'assignment-1' });
       (prisma as any).student.findUnique.mockResolvedValue({
@@ -142,7 +142,7 @@ describe('API Coach Students', () => {
     });
 
     it('6. GET détail élève non assigné => 403', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue(null);
 
@@ -154,7 +154,7 @@ describe('API Coach Students', () => {
     });
 
     it('7. Assignation ENDED => ne donne pas accès', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue(null);
 
@@ -163,7 +163,7 @@ describe('API Coach Students', () => {
     });
 
     it('7. Assignation SUSPENDED => ne donne pas accès', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue(null);
 
@@ -172,7 +172,7 @@ describe('API Coach Students', () => {
     });
 
     it('7. Assignation future => ne donne pas accès', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue(null);
 
@@ -181,7 +181,7 @@ describe('API Coach Students', () => {
     });
 
     it('7. Assignation expirée => ne donne pas accès', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue(null);
 
@@ -190,7 +190,7 @@ describe('API Coach Students', () => {
     });
 
     it('returns 404 when student does not exist', async () => {
-      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH' } });
+      mockRequireRole.mockResolvedValue({ user: { id: 'coach-user-1', role: 'COACH', authority: 'V1' } });
       (prisma as any).coachProfile.findUnique.mockResolvedValue({ id: 'coach-1' });
       (prisma as any).coachStudentAssignment.findFirst.mockResolvedValue({ id: 'assignment-1' });
       (prisma as any).student.findUnique.mockResolvedValue(null);

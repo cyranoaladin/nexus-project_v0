@@ -97,7 +97,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 200 for assigned coach with correct visibilityScope', async () => {
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockResolvedValue(undefined); // assigned
 
@@ -113,7 +113,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 404 for non-assigned coach', async () => {
-    mockAuth.mockResolvedValue({ user: { id: OTHER_COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: OTHER_COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockRejectedValue(new Error('Not assigned'));
 
@@ -151,7 +151,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('returns 404 for coach when visibilityScope is STUDENT_ONLY', async () => {
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue({ ...mockDocument, visibilityScope: 'STUDENT_ONLY' });
 
     const res = await GET(request(), params());
@@ -287,7 +287,7 @@ describe('GET /api/documents/[id]/download', () => {
     const extractedId = match![1];
 
     // Now call the download route with that ID
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue(mockDocument);
     mockAssert.mockResolvedValue(undefined);
     const fileContent = Buffer.from('%PDF-1.4 fake content');
@@ -355,7 +355,7 @@ describe('GET /api/documents/[id]/download', () => {
   });
 
   it('refuses a coach-owned record without a student scope and assignment on the common download policy', async () => {
-    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: COACH_USER_ID, role: 'COACH', authority: 'V1' } });
     mockFindUnique.mockResolvedValue({ ...mockDocument, userId: COACH_USER_ID,
       visibilityScope: 'ADMIN_ONLY', user: { id: COACH_USER_ID, student: null } });
     const res = await GET(request(), params());

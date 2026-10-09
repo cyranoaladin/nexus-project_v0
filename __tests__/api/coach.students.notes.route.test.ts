@@ -55,7 +55,7 @@ describe('GET /api/coach/students/[studentId]/notes', () => {
   });
 
   it('403 when COACH has no active assignment for the student', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
@@ -66,7 +66,7 @@ describe('GET /api/coach/students/[studentId]/notes', () => {
   });
 
   it('403 when only a historical COMPLETED SessionBooking links the coach (no active assignment)', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
@@ -78,7 +78,7 @@ describe('GET /api/coach/students/[studentId]/notes', () => {
   });
 
   it('returns coach own notes when assigned', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
@@ -125,7 +125,7 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
   });
 
   it('403 when COACH not assigned', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-other' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue(null);
@@ -136,7 +136,7 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
   });
 
   it('400 on empty body', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
@@ -146,7 +146,7 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
   });
 
   it('400 on invalid JSON', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });
@@ -161,7 +161,7 @@ describe('POST /api/coach/students/[studentId]/notes', () => {
   });
 
   it('creates a note with sane defaults when COACH is assigned', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH' } });
+    mockAuth.mockResolvedValue({ user: { id: 'c1', role: 'COACH', authority: 'V1' } });
     (prisma.student.findUnique as jest.Mock).mockResolvedValue({ id: 'student-pk-1' });
     (prisma.coachProfile.findUnique as jest.Mock).mockResolvedValue({ id: 'coach-profile-1' });
     (prisma.coachStudentAssignment.findFirst as jest.Mock).mockResolvedValue({ id: 'assignment-1' });

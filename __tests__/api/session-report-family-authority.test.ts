@@ -51,7 +51,7 @@ it('refuses an unrelated student even if no report exists', async () => {
 });
 
 it.each([
-  { id: 'synthetic-coach', role: 'COACH' },
+  { id: 'synthetic-coach', role: 'COACH', authority: 'V1' },
   { id: 'synthetic-student-user', role: 'ELEVE' },
   { id: 'synthetic-admin', role: 'ADMIN' },
   { id: 'synthetic-assistant', role: 'ASSISTANTE' },

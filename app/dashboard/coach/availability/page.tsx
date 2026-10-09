@@ -11,12 +11,14 @@ export default function CoachAvailabilityPage() {
   const router = useRouter();
   useEffect(() => {
     if (status === "loading") return;
-    if (!session || session.user.role !== 'COACH') {
+    if (!session?.user || session.user.role !== 'COACH') {
       router.push("/auth/signin");
+      return;
     }
+    if (session.user.authority !== 'V1') router.push("/dashboard/coach");
   }, [session, status, router]);
 
-  if (status === "loading" || !session?.user?.id) {
+  if (status === "loading" || !session?.user?.id || session.user.role !== 'COACH' || session.user.authority !== 'V1') {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-brand-accent" />

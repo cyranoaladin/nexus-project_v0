@@ -1,19 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
-import { DocumentType, DocumentVisibilityScope, Subject } from '@prisma/client';
-import { z } from 'zod';
 import { serializeError } from '@/lib/utils/serialize-error';
-
-// Validation schema for creating documents
-const createDocumentSchema = z.object({
-  documentType: z.nativeEnum(DocumentType),
-  subject: z.nativeEnum(Subject).optional(),
-  title: z.string().min(1, 'Titre requis').max(200),
-  description: z.string().max(1000).optional(),
-  url: z.string().url().optional(),
-  visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
-}).strict();
 
 const documentSafeSelect = {
   id: true,
@@ -97,82 +85,12 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 }
 
-/**
- * POST /api/assistante/students/[studentId]/documents
- *
- * Creates a document metadata for a student.
- * Requires: ASSISTANTE or ADMIN role
- */
-export async function POST(request: Request, { params }: RouteParams) {
-  try {
-    const { studentId } = await params;
-    
-    const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
-    if (isErrorResponse(sessionOrError)) return sessionOrError;
-
-    const session = sessionOrError;
-
-    // Verify student exists with userId
-    const student = await prisma.student.findUnique({
-      where: { id: studentId },
-      select: { id: true, userId: true },
-    });
-
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Not Found', message: 'Élève non trouvé' },
-        { status: 404 }
-      );
-    }
-
-    const body = await request.json();
-    const validated = createDocumentSchema.parse(body);
-
-    // Private paths are reserved for server-side scanned uploads.
-    if (!validated.url) {
-      return NextResponse.json(
-        { error: 'Bad Request', message: 'URL requise' },
-        { status: 400 }
-      );
-    }
-
-    // Build data ensuring localPath is always provided (required by Prisma schema)
-    const localPath = validated.url;
-    
-    const document = await prisma.userDocument.create({
-      data: {
-        userId: student.userId,
-        uploadedById: session.user.id,
-        documentType: validated.documentType,
-        subject: validated.subject ?? null,
-        title: validated.title,
-        description: validated.description ?? null,
-        localPath,
-        originalName: validated.title,
-        mimeType: 'application/octet-stream',
-        sizeBytes: 0,
-        visibilityScope: validated.visibilityScope,
-      },
-      select: documentSafeSelect,
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'Document créé',
-      document: sanitizeDocument(document),
-    }, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Validation Error', message: error.errors },
-        { status: 400 }
-      );
-    }
-
-    console.error('[API Assistante Documents POST] Error:', serializeError(error));
-    return NextResponse.json(
-      { error: 'Internal Server Error', message: 'Erreur lors de la création' },
-      { status: 500 }
-    );
-  }
+/** URL-only metadata cannot be delivered by the private document reader. */
+export async function POST(_request: Request, _context: RouteParams) {
+  const sessionOrError = await requireAnyRole(['ADMIN', 'ASSISTANTE']);
+  if (isErrorResponse(sessionOrError)) return sessionOrError;
+  return NextResponse.json(
+    { error: 'DOCUMENT_FILE_UPLOAD_REQUIRED', message: 'Déposez un fichier depuis le formulaire de documents.' },
+    { status: 410, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+  );
 }

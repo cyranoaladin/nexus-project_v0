@@ -65,6 +65,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
     const body = (await req.json()) as { type?: 'weekly' | 'specific' } & Record<string, unknown>;
     const { type, ...data } = body;
 
@@ -250,6 +257,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
+      );
+    }
+
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
       );
     }
 
@@ -445,6 +459,13 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json(
         { error: 'Only coaches can delete availability' },
         { status: 403 }
+      );
+    }
+
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
       );
     }
 

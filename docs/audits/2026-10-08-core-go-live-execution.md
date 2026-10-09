@@ -451,3 +451,92 @@ parser = `EVENT_IDENTITY_MISMATCH`, zéro citation publiée, `requestfailed` ;
 parser corrigé = une citation canonique, `onDone` après EOF et `requestfinished`.
 Le rapport RED/GREEN expurgé est conservé hors dépôt. Il prouve le mécanisme de
 l'échec ; la CI Core native complète du prochain SHA reste obligatoire.
+
+## 9 octobre — revue du candidat `1b1d130d` et fermeture des capacités V1
+
+### État prouvé avant le nouveau correctif
+
+La CI exacte `1b1d130dc86dd7b65b29ea530c05e6810aa9bbb5`, run `37864929959`,
+termine avec 44 jobs réussis, aucun job annulé, ignoré ou en échec. Les rapports
+navigateur contrôlés n'ont aucun test inattendu, flaky, ignoré ou retenté.
+Le workflow GitGuardian distinct n'a pas exécuté de scan : secret API absent.
+Le statut `Secret Scan — Compensating Controls` reste honnêtement en attente.
+
+L'artefact CI chiffré `11587738444` a été vérifié et utilisé pour les smokes et
+les trois rollbacks isolés, sans rebuild : archive claire SHA-256
+`317cb17c845eeb54b724a6bf1db7800cceeb6f77baf20f0f1fe8e1e7799911b4`,
+archive publiée chiffrée SHA-256
+`9dcbcb887ed0bc68a3a06a6e80e73be2f7d2fb6833ab510414d046a4ab7f2ae9`.
+Les trois reprises du repli privé `a2ef1f1ef` mesurent 6806, 6802 et 7130 ms ;
+les contrôles authentifiés et empreintes schéma/données restent identiques.
+Le fournisseur ARIA réel a produit un 503 contrôlé, état durable ERROR sans tour
+actif, puis une reprise 200/COMPLETED dans la même conversation. Les quotas ont
+expiré naturellement ; aucun reset de quota. Les compteurs de motifs sensibles
+sur les sorties brutes isolées sont nuls ; ceci n'est pas une preuve exhaustive
+contre toute forme de PII.
+
+Manifestes expurgés conservés hors dépôt :
+
+- `manifest-1b1d13-final-rollback.json` :
+  `967088f32804e0a01ec3a2f15e50635708ea28b8552c8e7021970ff5566f4852`.
+- `manifest-1b1d13-terminal-ci-and-provider.json` :
+  `114e65ea79d02cf8b6599438f37718aa8f1e8bd5ce58599619d46c1bcad30d94`.
+
+### Défauts reproduits et décisions
+
+La revue Cubic `5464471281` ajoute 49 conversations ; elle ne remplace pas une
+revue Copilot ni l'approbation humaine. Deux défauts de capacités V1 sont confirmés :
+
+1. Les liens coach V1 étaient masqués pour Core, mais plusieurs API restaient
+   accessibles avec une affectation V1 portant le même identifiant. Les guards
+   de rôle historiques refusent maintenant les coachs sans autorité V1 explicite.
+   Les handlers directs, téléchargements documentaires et trois pages legacy
+   appliquent la même frontière avant lecture privée ou mutation. `requireAuth`
+   est conservé pour les authorizers Core natifs ; aucun droit Core n'est déduit
+   d'un miroir d'identifiants V1.
+2. Les formulaires documentaires pouvaient créer une métadonnée URL sans fichier
+   privé téléchargeable. L'assistante envoie maintenant un fichier avec le
+   `User.id` réel vers l'uploader canonique ; le coach conserve son multipart
+   soumis à ownership, CSRF, limitation et antivirus. Les anciens POST JSON
+   retournent 410 sans création. La fiche Core ne propose pas l'uploader V1.
+   Le formulaire assistante annonce son contrat réel : titre issu du nom du
+   fichier, type AUTRE, visibilité STUDENT_ONLY, 10 Mo maximum.
+
+### RED / GREEN et revue
+
+- Frontière dashboard/disponibilités/pages : RED 14 échecs, 4 succès ;
+  GREEN six suites, 38 tests.
+- Upload assistante : deux échecs UI causaux ; trois contrats API et transmission
+  d'identité échouent également avant correction. Upload coach : quatre échecs
+  causaux ; GREEN documentaire six suites, 43 tests, antivirus inclus.
+- Adjacence documents/comptes rendus : RED 13 échecs, 12 succès ;
+  GREEN neuf suites, 134 tests.
+- Frontière complète des guards et handlers directs : RED 16 échecs, 25 succès ;
+  GREEN huit suites, 113 tests. Reproduction indépendante après correction :
+  notes et mode survie refusés en 403 avec zéro lecture/écriture V1.
+- Vérification consolidée : 26 suites, 312 tests réussis, architecture Core,
+  droits familiaux et factures inclus. Revues indépendantes en lecture seule :
+  aucun défaut concret restant dans le delta coach et documentaire.
+
+Ces preuves locales qualifient le correctif source. Elles ne transfèrent pas la
+qualification de l'artefact `1b1d130d` au prochain SHA : nouvelle CI complète,
+artefact, smokes et rollback final requis. Aucun changement de schéma, aucune
+migration, aucun changement de rôle DB ni de trafic en production. Le go-live
+reste conditionné aux gates humains, secrets et opérationnels documentés.
+
+Lint canonique et typecheck complet non incrémental terminent tous deux avec
+code 0 sur ce delta. La recette alternative `docker-compose.prod.yml` manque
+encore le câblage d'authentification Core : son en-tête la marque explicitement
+non qualifiée et interdit son usage pour cette release. Elle ne constitue pas
+la procédure du launcher protégé utilisée pour qualifier l'artefact.
+
+La vérification des dépendants de `lib/guards.ts` a identifié 12 attentes
+historiques avec sessions mockées sans autorité. Les quatre fixtures concernées
+précisent maintenant V1, comme la projection réelle ; les nouvelles assertions
+Core/sans autorité restent refusées. GREEN : 168 suites, 1832 tests unitaires
+liés aux guards. La [classification des 49 commentaires Cubic](2026-10-09-cubic-candidate-triage.md)
+est consignée séparément, sans clôture implicite des gates de release.
+
+Manifest du delta source expurgé conservé hors dépôt :
+`manifest-cubic-source-delta.json`, SHA-256
+`71240579df353dda62d636a5527b9e0003563c395fd18acc7ecea73a87701c96`.

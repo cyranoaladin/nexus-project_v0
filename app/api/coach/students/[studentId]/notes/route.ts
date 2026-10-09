@@ -33,6 +33,12 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+      return NextResponse.json({ error: 'Forbidden' }, {
+        status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+      });
+    }
+
     const role = session.user.role;
     if (role !== 'COACH' && role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -102,6 +108,12 @@ export async function POST(
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+      return NextResponse.json({ error: 'Forbidden' }, {
+        status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' },
+      });
     }
 
     if (session.user.role !== 'COACH') {

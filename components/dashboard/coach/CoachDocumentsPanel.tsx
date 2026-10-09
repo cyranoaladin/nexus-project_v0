@@ -1,7 +1,7 @@
 "use client";
 
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useId } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +60,7 @@ const VISIBILITY_SCOPES = [
 
 export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPanelProps) {
   const fetch = useProtectedFetch();
+  const fileInputId = useId();
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState(false);
@@ -69,7 +70,6 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
   const [title, setTitle] = useState("");
   const [documentType, setDocumentType] = useState("COURS");
   const [subject, setSubject] = useState("MATHEMATIQUES");
-  const [url, setUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [visibilityScope, setVisibilityScope] = useState("STUDENT_AND_COACH");
 
@@ -114,8 +114,8 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    if (!url.trim() && !file) {
-      setError("Veuillez fournir une URL ou sélectionner un fichier.");
+    if (!file) {
+      setError("Veuillez sélectionner un fichier.");
       return;
     }
     if (selectedRecipientIds.length === 0) {
@@ -129,43 +129,24 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
     try {
       // Upload for each selected student
       for (const targetStudentId of selectedRecipientIds) {
-        if (file) {
-          // Upload file using FormData
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("title", title);
-          formData.append("documentType", documentType);
-          formData.append("subject", subject);
-          formData.append("visibilityScope", visibilityScope);
+        // Upload file using FormData
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("title", title);
+        formData.append("documentType", documentType);
+        formData.append("subject", subject);
+        formData.append("visibilityScope", visibilityScope);
 
-          const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
-            method: "POST",
-            body: formData,
-          });
+        const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
+          method: "POST",
+          body: formData,
+        });
 
-          if (!res.ok) {
-            const payload = await res.json().catch(() => ({}));
-            throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
-          }
-        } else {
-          // Upload using URL
-          const res = await fetch(`/api/coach/students/${targetStudentId}/documents`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title,
-              documentType,
-              subject,
-              url,
-              visibilityScope,
-            }),
-          });
-
-          if (!res.ok) {
-            const payload = await res.json().catch(() => ({}));
-            throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
-          }
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload.error || payload.message || `HTTP ${res.status}`);
         }
+
       }
 
       // Re-fetch documents to update current view
@@ -173,7 +154,6 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
 
       // Reset fields but keep recipients
       setTitle("");
-      setUrl("");
       setFile(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur d'enregistrement");
@@ -215,24 +195,14 @@ export function CoachDocumentsPanel({ studentId, className }: CoachDocumentsPane
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-neutral-400">URL du document (optionnel)</label>
+              <label htmlFor={fileInputId} className="text-xs text-neutral-400">Fichier</label>
               <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="Lien externe ou hébergé (Google Drive, Dropbox...)"
-                className="w-full bg-neutral-800 border border-white/10 rounded-lg p-2 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-accent/40"
-                disabled={submitting || !!file}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs text-neutral-400">Ou importer depuis votre machine</label>
-              <input
+                id={fileInputId}
                 type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                 className="w-full bg-neutral-800 border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-brand-accent/40"
-                disabled={submitting || !!url}
+                disabled={submitting}
               />
             </div>
 

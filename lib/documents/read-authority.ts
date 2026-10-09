@@ -28,9 +28,10 @@ const unavailable = (): ReadDecision => ({ status: 'DENIED',
 
 /** The two download URLs must share the same scope and family authority. */
 export async function readAuthorizedDocument(id: string, subject: {
-  readonly id: string; readonly role?: string | null;
+  readonly id: string; readonly role?: string | null; readonly authority?: string | null;
 }): Promise<ReadDecision> {
   if (!id || !subject.id) return deny();
+  if (subject.role === UserRole.COACH && subject.authority !== 'V1') return deny();
   // While family authority is down, a parent's denial must not reveal existence or visibility.
   const parentDeny = async (): Promise<ReadDecision> =>
     subject.role === UserRole.PARENT && !(await familyAuthorityAvailable(subject.id)) ? unavailable() : deny();

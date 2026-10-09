@@ -27,10 +27,17 @@ export async function POST(
   try {
     const session = await auth();
 
-    if (!session || session.user.role !== 'COACH') {
+    if (!session?.user || session.user.role !== 'COACH') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
       );
     }
 
@@ -216,6 +223,9 @@ export async function GET(
   try {
     const session = await auth();
     if (!session?.user?.id) return privateReportResponse({ error: 'Unauthorized' }, 401);
+    if (session.user.role === 'COACH' && session.user.authority !== 'V1') {
+      return privateReportResponse({ error: 'Ce parcours nécessite un compte coach V1.' }, 403);
+    }
     const { sessionId } = await params;
 
     // Only participant identifiers are read before the authorization decision.

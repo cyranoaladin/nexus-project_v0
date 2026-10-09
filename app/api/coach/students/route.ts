@@ -18,6 +18,13 @@ export async function GET() {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
 
     // RBAC check
     if (!can(session.user.role, 'READ_OWN', 'STUDENT')) {

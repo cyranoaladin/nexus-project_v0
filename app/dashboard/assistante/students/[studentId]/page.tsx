@@ -385,7 +385,9 @@ export default function AssistanteStudentProfilePage() {
           </Card>
 
           <div className="space-y-6">
-            <StudentDocumentsManager studentId={data.student.id} studentName={studentName} onDocumentCreated={fetchOverview} />
+            {session?.user.authority === 'V1' && (
+              <StudentDocumentsManager userId={data.student.userId} studentName={studentName} onDocumentCreated={fetchOverview} />
+            )}
           </div>
         </div>
       </div>

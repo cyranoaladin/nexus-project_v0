@@ -175,7 +175,7 @@ describe('/api/bilan-pallier2-maths', () => {
 
     it('should return 200 when authenticated as COACH', async () => {
       mockGetServerSession.mockResolvedValue({
-        user: { id: 'coach-1', email: 'coach@test.com', role: 'COACH' },
+        user: { id: 'coach-1', email: 'coach@test.com', role: 'COACH', authority: 'V1' },
       });
 
       prisma.diagnostic = {

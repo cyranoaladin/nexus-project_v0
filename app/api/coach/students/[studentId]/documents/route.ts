@@ -19,7 +19,6 @@ const createDocumentSchema = z.object({
   subject: z.nativeEnum(Subject).optional(),
   title: z.string().min(1, 'Titre requis').max(200),
   description: z.string().max(1000).optional(),
-  url: z.string().url().optional(),
   visibilityScope: z.nativeEnum(DocumentVisibilityScope).default(DocumentVisibilityScope.STUDENT_AND_COACH),
 }).strict();
 
@@ -106,6 +105,13 @@ export async function GET(request: Request, { params }: RouteParams) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
 
     // Verify coach is assigned to this student
     try {
@@ -177,7 +183,7 @@ export async function GET(request: Request, { params }: RouteParams) {
  *
  * Creates a document metadata for a student.
  * Requires: COACH role and active assignment to the student
- * Supports both JSON (for URL-based documents) and FormData (for file uploads)
+ * Only scanned FormData uploads can create new documents.
  */
 export async function POST(request: Request, { params }: RouteParams) {
   try {
@@ -188,6 +194,13 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (isErrorResponse(sessionOrError)) return sessionOrError;
 
     const session = sessionOrError;
+    if (session.user.authority !== 'V1') {
+      return NextResponse.json(
+        { error: 'Ce parcours nécessite un compte coach V1.' },
+        { status: 403, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
+    }
+
     const csrf = checkCsrf(request as NextRequest);
     if (csrf) return csrf;
     const limited = await guardSensitiveRateLimit(request, { scope: 'document-upload', identity: session.user.id });
@@ -224,7 +237,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       );
     }
 
-    // Check if request is FormData (file upload) or JSON (URL)
+    // Only scanned multipart files can create deliverable private documents.
     const contentType = request.headers.get('content-type');
     let documentData: DocumentMutationData;
 
@@ -253,7 +266,6 @@ export async function POST(request: Request, { params }: RouteParams) {
         subject: optionalFormString(formData.get('subject')),
         description: optionalFormString(formData.get('description')),
         visibilityScope: optionalFormString(formData.get('visibilityScope')) ?? DocumentVisibilityScope.STUDENT_AND_COACH,
-        url: 'https://nexusreussite.academy/internal-upload-placeholder',
       });
 
       // Generate a unique filename
@@ -288,32 +300,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         sizeBytes: file.size,
       };
     } else {
-      // Handle JSON (URL-based)
-      const body = await request.json();
-      const validated = createDocumentSchema.parse(body);
-
-      // URL documents are metadata only; direct localPath is reserved for server-side uploads.
-      if (!validated.url) {
-        return NextResponse.json(
-          { error: 'Bad Request', message: 'URL requise' },
-          { status: 400 }
-        );
-      }
-
-      // Build data ensuring localPath is always provided (required by Prisma schema)
-      const localPath = validated.url;
-      
-      documentData = {
-        title: validated.title,
-        documentType: validated.documentType,
-        subject: validated.subject ?? null,
-        description: validated.description ?? null,
-        localPath,
-        originalName: validated.title,
-        mimeType: 'application/octet-stream',
-        sizeBytes: 0,
-        visibilityScope: validated.visibilityScope,
-      };
+      return NextResponse.json(
+        { error: 'DOCUMENT_FILE_UPLOAD_REQUIRED', message: 'Déposez un fichier depuis le formulaire de documents.' },
+        { status: 410, headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie, Authorization' } }
+      );
     }
 
     const document = await prisma.userDocument.create({
