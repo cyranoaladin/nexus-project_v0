@@ -1,4 +1,5 @@
 import { createNativeResponseReader } from './native-response-reader';
+import { toCanonicalAriaCourseKey } from '../curriculum/course-key-aliases';
 import {
   ariaSSEEventSchema,
   type AriaSSECitationPayload,
@@ -184,7 +185,7 @@ export async function parseAriaSSEResponse(
       fail('EVENT_IDENTITY_MISMATCH', callbacks, event.event);
     }
     if (identity && event.event === 'citation'
-      && event.data.citation.courseKey !== identity.courseKey) {
+      && toCanonicalAriaCourseKey(event.data.citation.courseKey) !== toCanonicalAriaCourseKey(identity.courseKey)) {
       fail('EVENT_IDENTITY_MISMATCH', callbacks, event.event);
     }
     if (event.event === 'done' || event.event === 'error') {

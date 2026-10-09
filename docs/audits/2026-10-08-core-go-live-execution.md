@@ -393,3 +393,61 @@ Une nouvelle CI exacte-SHA reste requise ; le build a7a0a04 n'est pas promu.
 - GREEN : quatre suites, 50 tests ; typecheck complet sans erreur ; lint
   canonique sans erreur. Le lint direct du test JS ancien signale trois imports
   `require` inchangés ; aucun contournement ajouté à ces règles.
+
+## 9 octobre — identité du cours dans le flux SSE Core avec citations
+
+Le candidat `da55c2dda8630fe5778544873682059897bbd24d` échoue dans la CI
+`37862167895`, job auth Chromium `113600752289` : 569 tests passent, un échoue,
+zéro retry/flaky/skip dans la première passe. La répétition Chromium suivante
+n'est pas exécutée après cet échec. Le test Core ARIA reçoit bien HTTP 200/SSE,
+mais le navigateur signale `requestfailed` avant la fin du flux.
+
+Diagnostic reproduit avec le parser réel : le start Core porte l'alias cockpit
+`maths-terminale-eds`, tandis que la citation autorisée et persistée porte la clé
+canonique `eds-maths-terminale`. La comparaison brute déclenche
+`EVENT_IDENTITY_MISMATCH` et annule le flux. Un start canonique avec citation,
+ou un start alias sans citation, passent. Les smokes fournisseur réel sans RAG
+sur le même artefact ne prouvaient donc pas ce chemin avec citations.
+
+### Décision et plan ciblé
+
+1. Reproduire en RED deux couples alias/canonique et conserver quatre refus
+   pour autre matière, autre niveau, option et alias inconnu.
+2. Utiliser le mapping explicite existant `toCanonicalAriaCourseKey` uniquement
+   pour comparer l'identité de cours des citations dans le parser client.
+   Préserver les citations canoniques, les contrôles turn/message/metadata,
+   la validation EOF et l'assertion navigateur `FINISHED`.
+3. Exécuter les tests SSE/EOF/reader/alias, lint et typecheck, revue indépendante,
+   puis commit atomique et push fast-forward. Exiger nouvelle CI complète et
+   nouvelle qualification de l'artefact produit ; aucune fusion sur `da55`.
+
+### Preuves
+
+- RED : deux échecs `EVENT_IDENTITY_MISMATCH`, quatre refus attendus verts.
+  L'invocation initiale sans `--config` a été refusée pour double configuration
+  Jest ; la reproduction utilise explicitement `jest.config.js`.
+- GREEN : cinq suites, 64 tests, y compris EOF et transport natif.
+- Revue indépendante en lecture seule : aucun défaut bloquant ; module pur
+  compatible navigateur et aucun élargissement entre matières/niveaux/options.
+- Les smokes isolés `da55` documents, antivirus, factures, Espace, invitation,
+  ARIA sans RAG, annulation/reprise/timeout/récupération, trois moteurs desktop
+  et huit pages publiques mobiles sont conservés hors dépôt. Ils ne sont pas
+  requalifiés silencieusement pour le prochain SHA.
+- Auth `da55` : premier timeout UI au changement de mot de passe, essai ciblé
+  suivant vert ; cause encore non établie, preuve initiale conservée.
+- Artefact `da55` chiffré, clés Next renouvelées, archive claire SHA-256
+  `070656c6ccfee0920ab7b3f168a83e1ee311b7a807b624d399286c6f5f82d91c`.
+  Source/artefact scellés et rapports expurgés conservés hors dépôt.
+
+Aucune migration ni bascule production. Repli privé `a2ef1f1ef` conservé ; les
+scripts de bascule historiques ne sont pas utilisables tels quels pour le canari
+(repli implicite vers ancien build, secrets en argv, contrôles santé insuffisants).
+L'approbation humaine finale, la voie secrets/attestation et la revue Copilot
+(capacité du compte épuisée) restent des gates ouverts.
+
+Vérification finale du correctif : lint canonique et typecheck non incrémental
+terminent avec code 0. Reproduction Chromium sur un vrai flux HTTP local : ancien
+parser = `EVENT_IDENTITY_MISMATCH`, zéro citation publiée, `requestfailed` ;
+parser corrigé = une citation canonique, `onDone` après EOF et `requestfinished`.
+Le rapport RED/GREEN expurgé est conservé hors dépôt. Il prouve le mécanisme de
+l'échec ; la CI Core native complète du prochain SHA reste obligatoire.
