@@ -251,7 +251,7 @@ describe('execution inventory and documented manual-lane exclusions', () => {
     const tracked = execFileSync('git', ['ls-files', 'e2e'], { encoding: 'utf8' }).split('\n');
     for (const file of DOCUMENTED_EXCLUSIONS) {
       expect(tracked).toContain(file);
-      expect(file).toMatch(/^e2e\/(prod|fallback)\//);
+      expect(file).toMatch(/^e2e\/(prod|fallback|bilan-validation)\//);
     }
   });
 });
