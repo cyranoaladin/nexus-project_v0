@@ -14,7 +14,10 @@ import { loginAsUser } from '../helpers/auth';
 
 test.describe('Parcours coach cohorte + RBAC dossier', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsUser(page, 'coach');
+    await loginAsUser(page, 'coachV1');
+    const session = await page.request.get('/api/auth/session');
+    expect(session.ok()).toBeTruthy();
+    expect((await session.json()).user).toMatchObject({ role: 'COACH', authority: 'V1' });
   });
 
   test('arrive sur /dashboard/coach et l’API cohorte renvoie un payload', async ({ page }) => {
@@ -50,13 +53,7 @@ test.describe('Parcours coach cohorte + RBAC dossier', () => {
     expect(apiResponse.ok()).toBeTruthy();
     const json = await apiResponse.json();
     const firstStudent = json.students?.[0];
-    if (!firstStudent?.id) {
-      test.info().annotations.push({
-        type: 'skip-reason',
-        description: 'Aucun élève dans la cohorte du coach seed — drill-down non testable.',
-      });
-      return;
-    }
+    expect(firstStudent?.id, 'The dedicated V1 coach must have an assigned student').toBeTruthy();
 
     const response = await page.goto(`/dashboard/coach/eleve/${firstStudent.id}`);
     await page.waitForLoadState('domcontentloaded');

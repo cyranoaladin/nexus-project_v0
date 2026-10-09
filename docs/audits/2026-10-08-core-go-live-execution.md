@@ -540,3 +540,36 @@ est consignée séparément, sans clôture implicite des gates de release.
 Manifest du delta source expurgé conservé hors dépôt :
 `manifest-cubic-source-delta.json`, SHA-256
 `71240579df353dda62d636a5527b9e0003563c395fd18acc7ecea73a87701c96`.
+
+## 9 octobre — fixtures V1 distinctes du coach Core
+
+Candidat publié `823861d333dc6f6a1f3bc7111dd75083f3bec295`, CI `37870036583` :
+les jobs Integration Tests `113625766783` et Real DB Integration `113625766835`
+confirment trois échecs dans `idor-real.test.ts`. Les sessions mockées n'indiquent
+pas V1 ; le nouveau refus 403 intervient avant le contrôle d'affectation. Les
+assertions métier restent intactes (200 pour son stage, 403 pour l'autre).
+Après ajout de l'autorité explicite, les trois tests passent sur une nouvelle
+base isolée `nexus_idor_test_20261009`, créée vide puis migrée avec Prisma. Aucune
+restauration de qualification ni base existante n'est réinitialisée.
+
+La CI verte antérieure prouvait que `loginAsUser('coach')` produit une session
+CORE_V2 dans `core-v2-staff-golden`. Quatre attentes positives legacy utilisaient
+ce même acteur dans trois specs. Une persona `coachV1` distincte possède désormais
+son utilisateur, profil, affectation et réservation de test. Le miroir Core
+l'exclut explicitement et s'arrête si cette identité existe déjà dans Core ;
+aucune suppression ni modification de la politique d'authentification.
+
+Les parcours legacy exigent maintenant COACH/V1 avant leurs assertions métier.
+Le drill-down exige une cohorte non vide au lieu de sortir sans preuve. Le coach
+Core reste inchangé ; le golden Core exige aussi trois refus legacy en 403/no-store
+et conserve les assertions positives de ses panneaux natifs.
+
+RED causal du miroir réel exécuté avec doubles de stockage : promotion indue de
+la persona V1. GREEN : trois suites, 24 tests, incluant collision Core et guards
+contre les cibles non jetables. Revue indépendante : aucun défaut concret ni
+conflit de réservation/compteur identifié. Lint et typecheck complets terminent
+avec code 0. Les parcours navigateur complets restent à exécuter dans la nouvelle
+CI ; ces résultats ne sont pas déclarés verts par anticipation.
+
+Manifest expurgé hors dépôt : `manifest-coach-v1-fixture-delta.json`, SHA-256
+`c37acae5ec62264331fbf7b0c4e195e7348fc9b8ba8ad8a28497f8ac5b2118ab`.

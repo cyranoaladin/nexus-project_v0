@@ -452,6 +452,12 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const session = await page.request.get(`${BASE_URL}/api/auth/session`);
     const claims = (await session.json()) as { user?: { role?: string; authority?: string } };
     expect(claims.user).toMatchObject({ role: 'COACH', authority: 'CORE_V2' });
+    // A mirrored identity grants no legacy coach ownership. Native Core panels remain usable.
+    for (const route of ['/api/coach/dashboard', '/api/coach/students', '/api/coaches/availability']) {
+      const denied = await page.request.get(`${BASE_URL}${route}`);
+      expect(denied.status()).toBe(403);
+      expect(denied.headers()['cache-control']).toContain('no-store');
+    }
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
     const panel = page.getByRole('heading', { name: 'Mes affectations' }).locator('..').locator('..');
@@ -467,7 +473,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
     await expect(row.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
-    // The coach page mixes Core v1 pilotage and the Core v2 panels: the Core v2 regions must be clean on their own.
+    // Core coach panels remain accessible while unqualified V1 capabilities stay closed.
     await expectAccessible(page, '[aria-labelledby="core-v2-coach-assignments"]');
     await expectAccessible(page, '[aria-labelledby="core-v2-upcoming-sessions"]');
     // A coach is not staff: the back-office surface stays closed.

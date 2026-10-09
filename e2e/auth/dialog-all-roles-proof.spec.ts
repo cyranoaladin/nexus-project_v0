@@ -376,7 +376,10 @@ test('assistante: subscription request detail dialog', async ({ page }) => {
 
 test('coach: session report dialog', async ({ page }) => {
   test.setTimeout(60000);
-  await loginAsUser(page, 'coach');
+  await loginAsUser(page, 'coachV1');
+    const session = await page.request.get('/api/auth/session');
+    expect(session.ok()).toBeTruthy();
+    expect((await session.json()).user).toMatchObject({ role: 'COACH', authority: 'V1' });
   await page.goto(`${BASE}/dashboard/coach/sessions`, { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2000);
 

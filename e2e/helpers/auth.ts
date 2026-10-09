@@ -7,6 +7,7 @@ export type UserType =
     | 'student'
     | 'student2'
     | 'studentSurvival'
+    | 'coachV1'
     | 'coach'
     | 'coach2'
     | 'admin'
@@ -38,6 +39,7 @@ const ROLE_PATHS: Record<UserType, string> = {
     student: '/dashboard/eleve',
     student2: '/dashboard/eleve',
     studentSurvival: '/dashboard/eleve',
+    coachV1: '/dashboard/coach',
     coach: '/dashboard/coach',
     coach2: '/dashboard/coach',
     admin: '/dashboard/admin',

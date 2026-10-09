@@ -6,7 +6,10 @@ import { disconnectPrisma, getStudentId } from '../helpers/db';
 
 test('EAF preparation report persists on the disposable coach fixture', async ({ page }) => {
   const studentId = await getStudentId(CREDS.student.email);
-  await loginAsUser(page, 'coach');
+  await loginAsUser(page, 'coachV1');
+    const session = await page.request.get('/api/auth/session');
+    expect(session.ok()).toBeTruthy();
+    expect((await session.json()).user).toMatchObject({ role: 'COACH', authority: 'V1' });
 
   await page.goto(`/dashboard/coach/eleve/${studentId}`, { waitUntil: 'domcontentloaded' });
 
