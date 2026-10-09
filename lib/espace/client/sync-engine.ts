@@ -18,7 +18,7 @@ export type Steps = Record<string, Step>;
 export type SaveState = 'saved' | 'saving' | 'syncing' | 'offline' | 'error' | 'conflict' | 'locked';
 
 export type SaveResponse =
-  | { kind: 'ok'; revision: number; replayed?: boolean }
+  | { kind: 'ok'; revision: number; replayed?: boolean; steps?: Steps }
   | { kind: 'conflict'; current: { revision: number; steps: Steps } }
   | { kind: 'locked' }
   | { kind: 'rejected'; message: string; code?: string };
@@ -33,7 +33,7 @@ export interface SaveInput {
 
 export interface SaveApi {
   save(input: SaveInput): Promise<SaveResponse>;
-  submit(input: { baseRevision: number }): Promise<{ kind: 'ok'; revision: number } | { kind: 'conflict' | 'locked' | 'rejected'; message?: string }>;
+  submit(input: { baseRevision: number }): Promise<{ kind: 'ok'; revision: number } | { kind: 'conflict' | 'locked' | 'rejected'; message?: string; current?: { revision: number; steps: Steps } }>;
 }
 
 export interface DraftRecord {
@@ -41,6 +41,8 @@ export interface DraftRecord {
   /** Ce que cet appareil croit être la version serveur de chaque étape. */
   lastAcked: Steps;
   pending: Steps;
+  /** Base propre à chaque édition : une fusion d’une autre rubrique ne vaut pas consentement d’écrasement. */
+  pendingBase?: Steps;
   currentStep?: number;
   snapshots?: Record<string, 'STEP_CHANGE' | 'RUN'>;
 }
@@ -72,12 +74,24 @@ export interface SyncOptions {
 }
 
 const clone = <T>(v: T): T => (v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T));
-const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+/** JSONB peut réordonner les clés d’objet ; l’ordre des tableaux reste significatif. */
+const same = (a: unknown, b: unknown): boolean => {
+  if (a === b || (a == null && b == null)) return true;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((value, index) => same(value, b[index]));
+  }
+  if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return false;
+  const left = a as Record<string, unknown>;
+  const right = b as Record<string, unknown>;
+  const keys = Object.keys(left);
+  return keys.length === Object.keys(right).length && keys.every(key => Object.hasOwn(right, key) && same(left[key], right[key]));
+};
 
 export class WorkSyncEngine {
   private baseRevision: number;
   private lastAcked: Steps;
   private pending: Steps = {};
+  private pendingBase: Steps = {};
   private snapshots: Record<string, 'STEP_CHANGE' | 'RUN'> = {};
   private currentStep: number | undefined;
   private state: SaveState = 'saved';
@@ -86,6 +100,8 @@ export class WorkSyncEngine {
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private attempt = 0;
   private flushing = false;
+  private flushWaiters: (() => void)[] = [];
+  private initTask: Promise<void> | null = null;
   private again = false;
   private disposed = false;
   private readonly debounceMs: number;
@@ -101,17 +117,24 @@ export class WorkSyncEngine {
   // ─── API publique ─────────────────────────────────────────────────────────
 
   /** À appeler une fois, avec le travail tel que renvoyé par le serveur au chargement. */
-  async init(): Promise<void> {
+  init(): Promise<void> {
+    return this.initTask ??= this.restoreDraft();
+  }
+
+  private async restoreDraft(): Promise<void> {
     const record = await this.options.store.load(this.options.key);
+    if (this.disposed) return;
     if (!record || Object.keys(record.pending).length === 0) {
-      if (record) await this.options.store.clear(this.options.key);
+      if (record && !this.hasPending()) await this.options.store.clear(this.options.key);
       return;
     }
     const serverNow = this.options.initial.steps;
     for (const [stepId, mine] of Object.entries(record.pending)) {
+      if (Object.hasOwn(this.pending, stepId)) continue; // la frappe récente prime sur le brouillon chargé tardivement
       if (same(serverNow[stepId], mine)) continue; // déjà côté serveur
-      const knew = record.lastAcked[stepId];
-      if (!same(serverNow[stepId], knew)) {
+      const knew = (record.pendingBase ?? record.lastAcked)[stepId];
+      this.pendingBase[stepId] = clone(knew);
+      if (!same(serverNow[stepId], knew) && !this.conflict) {
         // L'étape a changé côté serveur depuis ce que cet appareil savait : jamais d'écrasement silencieux.
         this.conflict = {
           stepId,
@@ -125,8 +148,10 @@ export class WorkSyncEngine {
       }
       this.pending[stepId] = clone(mine);
     }
-    this.currentStep = record.currentStep;
-    this.snapshots = record.snapshots ?? {};
+    this.currentStep ??= record.currentStep;
+    this.snapshots = { ...record.snapshots, ...this.snapshots };
+    this.options.onSteps?.(this.getSteps());
+    await this.persist();
     if (this.conflict) {
       this.emit('conflict');
       return;
@@ -139,6 +164,7 @@ export class WorkSyncEngine {
 
   edit(stepId: string, step: Step, meta: { currentStep?: number; snapshot?: 'STEP_CHANGE' | 'RUN' } = {}): void {
     if (this.disposed || this.state === 'locked') return;
+    if (!Object.hasOwn(this.pending, stepId)) this.pendingBase[stepId] = clone(this.lastAcked[stepId]);
     this.pending[stepId] = clone(step);
     if (meta.currentStep !== undefined) this.currentStep = meta.currentStep;
     if (meta.snapshot) this.snapshots[stepId] = meta.snapshot;
@@ -193,9 +219,10 @@ export class WorkSyncEngine {
     this.lastAcked = clone(c.currentSteps);
     if (choice === 'take-theirs') {
       delete this.pending[c.stepId];
+      delete this.pendingBase[c.stepId];
       delete this.snapshots[c.stepId];
-      this.options.onSteps?.(this.getSteps());
-    }
+    } else this.pendingBase[c.stepId] = clone(c.theirs);
+    this.options.onSteps?.(this.getSteps());
     await this.persist();
     if (this.hasPending()) {
       this.emit('syncing');
@@ -217,6 +244,14 @@ export class WorkSyncEngine {
         await this.options.store.clear(this.options.key);
         this.emit('locked');
         return res;
+      }
+      if (res.kind === 'locked') this.emit('locked');
+      if (res.kind === 'conflict' && res.current) {
+        this.baseRevision = res.current.revision;
+        this.lastAcked = clone(res.current.steps);
+        this.options.onSteps?.(this.getSteps());
+        await this.persist();
+        return { kind: 'failed', message: 'Le travail a changé sur un autre appareil. Relisez la version actualisée avant de transmettre.' };
       }
       return { kind: 'failed', message: res.message };
     } catch {
@@ -259,6 +294,7 @@ export class WorkSyncEngine {
         baseRevision: this.baseRevision,
         lastAcked: clone(this.lastAcked),
         pending: clone(this.pending),
+        pendingBase: clone(this.pendingBase),
         currentStep: this.currentStep,
         snapshots: clone(this.snapshots),
       });
@@ -268,9 +304,11 @@ export class WorkSyncEngine {
   }
 
   private async flush(): Promise<void> {
+    if (this.initTask) await this.initTask;
     if (this.disposed) return;
     if (this.flushing) {
       this.again = true;
+      await new Promise<void>(resolve => this.flushWaiters.push(resolve));
       return;
     }
     this.flushing = true;
@@ -279,6 +317,18 @@ export class WorkSyncEngine {
       while (this.hasPending() && !this.conflict && this.state !== 'locked') {
         const stepId = Object.keys(this.pending)[0]!;
         const sent = clone(this.pending[stepId]!);
+        if (!same(this.lastAcked[stepId], this.pendingBase[stepId])) {
+          if (same(this.lastAcked[stepId], sent)) {
+            delete this.pending[stepId];
+            delete this.pendingBase[stepId];
+            delete this.snapshots[stepId];
+            await this.persist();
+            continue;
+          }
+          this.conflict = { stepId, mine: sent, theirs: clone(this.lastAcked[stepId] ?? {}), currentRevision: this.baseRevision, currentSteps: clone(this.lastAcked) };
+          this.emit('conflict');
+          return;
+        }
         if (this.state !== 'saving') this.emit('syncing');
         let res: SaveResponse;
         try {
@@ -298,11 +348,24 @@ export class WorkSyncEngine {
         if (res.kind === 'ok') {
           this.attempt = 0;
           this.baseRevision = res.revision;
-          this.lastAcked[stepId] = sent;
+          if (res.steps) {
+            // Une normalisation de notre propre écriture peut toucher une autre
+            // rubrique. Elle ne crée pas un conflit, sauf si cette rubrique
+            // avait déjà changé ailleurs par rapport à sa base locale.
+            for (const pendingId of Object.keys(this.pending)) {
+              if (!res.replayed && same(this.pendingBase[pendingId], this.lastAcked[pendingId])) {
+                this.pendingBase[pendingId] = clone(res.steps[pendingId]);
+              }
+            }
+            this.lastAcked = clone(res.steps);
+          }
+          else this.lastAcked[stepId] = sent;
           if (same(this.pending[stepId], sent)) {
             delete this.pending[stepId];
+            delete this.pendingBase[stepId];
             delete this.snapshots[stepId];
-          } // sinon : modifiée pendant l'envoi → repart au tour suivant
+          } else this.pendingBase[stepId] = clone(this.lastAcked[stepId]); // nouvelle frappe après la valeur acquittée
+          this.options.onSteps?.(this.getSteps());
           await this.persist();
           continue;
         }
@@ -323,14 +386,17 @@ export class WorkSyncEngine {
           this.baseRevision = res.current.revision;
           this.lastAcked = clone(res.current.steps);
           delete this.pending[stepId];
+          delete this.pendingBase[stepId];
+          this.options.onSteps?.(this.getSteps());
           await this.persist();
           continue;
         }
-        if (same(theirs, this.lastAcked[stepId]) && rebases < 3) {
+        if (same(theirs, this.pendingBase[stepId]) && rebases < 3) {
           // L'autre écriture portait sur d'autres étapes : on se recale et on renvoie.
           rebases += 1;
           this.baseRevision = res.current.revision;
           this.lastAcked = clone(res.current.steps);
+          this.options.onSteps?.(this.getSteps());
           continue;
         }
         this.conflict = {
@@ -346,6 +412,7 @@ export class WorkSyncEngine {
       if (this.state !== 'locked' && !this.conflict && !this.hasPending()) this.emit('saved');
     } finally {
       this.flushing = false;
+      for (const resolve of this.flushWaiters.splice(0)) resolve();
       if (this.again) {
         this.again = false;
         this.schedule(this.debounceMs);

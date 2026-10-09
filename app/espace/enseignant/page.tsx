@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { isBilanActivitySlug } from '@/lib/espace/lesson-routes';
 import { LiveRoster } from '@/components/espace/teacher/LiveRoster';
 import { getTeacherOverview, latestActiveActivitySlug } from '@/lib/espace/overview';
 import { requireActorForPage } from '@/lib/espace/page-guard';
@@ -45,7 +46,7 @@ export default async function TeacherHome({ searchParams }: { searchParams: Prom
                 aria-current={a.slug === activity.slug ? 'page' : undefined}
                 className={`rounded-md border px-3 py-1.5 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent ${a.slug === activity.slug ? 'border-brand-accent bg-white/10 text-neutral-50' : 'border-white/15 text-neutral-300 hover:bg-white/5'}`}
               >
-                {a.title.split(' — ')[0]}
+                {isBilanActivitySlug(a.slug) ? a.title : a.title.split(' — ')[0]}
               </Link>
             ))}
           </nav>

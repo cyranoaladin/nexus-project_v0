@@ -190,3 +190,4 @@ describe('versioned credential scanner', () => {
     });
   });
 });
+

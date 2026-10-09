@@ -137,7 +137,7 @@ test.afterAll(async () => {
 test.describe('connexion', () => {
   test('un mauvais code est refusé avec un message sobre, le bon code ouvre le tableau de bord', async ({ page }) => {
     await login(page, u('ada'), 'ZZZZ9999');
-    await expect(page.getByTestId('connexion-erreur')).toContainText('Identifiant ou code incorrect');
+    await expect(page.getByTestId('connexion-erreur')).toContainText('Identifiant, code personnel ou mot de passe incorrect');
     await expect(page).toHaveURL(/\/espace\/connexion/);
 
     await page.getByTestId('input-secret').fill(secrets[u('ada')].toLowerCase()); // casse indifférente

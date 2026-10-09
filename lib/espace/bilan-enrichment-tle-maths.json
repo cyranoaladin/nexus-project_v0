@@ -1,0 +1,556 @@
+{
+  "sources": {
+    "pdf3e-bilan": "Nexus_Bilan_Septembre_2026_Troisieme.pdf"
+  },
+  "appendModules": [],
+  "appendSkills": {},
+  "appendTasks": [],
+  "newSections": [
+    {
+      "id": "journey",
+      "title": "Mon parcours et mes attentes",
+      "intro": "Pense uniquement aux séances de septembre. Les repères que tu donnes seront précisés avec le professeur si nécessaire.",
+      "questions": [
+        {
+          "id": "tm-q-school-class",
+          "text": "Quel est ton établissement et ta classe cette année ?",
+          "type": "text",
+          "hint": "Facultatif ; inutile de préciser une adresse ou un nom de professeur."
+        },
+        {
+          "id": "tm-q-start-date",
+          "text": "Quand as-tu commencé les séances Nexus ?",
+          "type": "text",
+          "hint": "Une date approximative ou « je ne me souviens pas » convient."
+        },
+        {
+          "id": "tm-q-attendance",
+          "text": "Combien de séances de septembre as-tu suivies ?",
+          "type": "text",
+          "hint": "Un nombre ou « je ne me souviens pas ». Ton professeur pourra préciser ce repère avec toi."
+        },
+        {
+          "id": "tm-q-absences",
+          "text": "Combien de séances de septembre as-tu manquées ?",
+          "type": "text",
+          "hint": "Un nombre ou « je ne me souviens pas ». Il s’agit d’un repère déclaré, pas d’un justificatif."
+        },
+        {
+          "id": "tm-q-remembered-session",
+          "text": "Quel livret, exercice ou moment de septembre te revient en mémoire ?",
+          "type": "text",
+          "hint": "Par exemple un calcul de termes, une preuve ou une correction effectivement travaillée. Ne compte pas le stage de prérentrée."
+        },
+        {
+          "id": "tm-q-initial-expectations",
+          "text": "En venant chez Nexus, que souhaitais-tu surtout ?",
+          "type": "multi",
+          "options": [
+            "Comprendre le cours",
+            "Consolider mes bases",
+            "Mieux réussir les contrôles",
+            "Savoir travailler seul",
+            "Reprendre confiance",
+            "Approfondir les mathématiques",
+            "Mieux organiser mon travail",
+            "Autre attente",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Trois attentes maximum.",
+          "max": 3
+        },
+        {
+          "id": "tm-q-initial-expectations-other",
+          "text": "Si tu as choisi une autre attente, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "tm-q-expectation-now",
+          "text": "Aujourd’hui, quelle attente est la plus importante pour toi ?",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "id": "habits",
+      "title": "Mes habitudes de travail",
+      "intro": "Pour chaque habitude, indique sa fréquence réelle en septembre, pendant les séances ou entre deux séances. Il ne s’agit pas d’évaluer ta valeur ou tes efforts.",
+      "questions": [
+        {
+          "id": "tm-q-habit-instruction",
+          "text": "Je relis la consigne et je repère ce que je dois établir, les données et les rangs concernés.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-first-trace",
+          "text": "Je conserve une trace de mon premier essai avant de demander une aide.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-resource",
+          "text": "Je recherche une propriété, une méthode ou un exemple utile avant de poursuivre.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-localize",
+          "text": "Quand je bloque, je peux désigner précisément le passage qui pose problème.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-explain",
+          "text": "J’explique les étapes de mon raisonnement, même lorsque je connais déjà le résultat.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-check",
+          "text": "Je vérifie un calcul, un signe, les indices ou la cohérence de ma conclusion.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-error",
+          "text": "Après une erreur, je note ce qui était faux et pourquoi.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-retry",
+          "text": "Je refais plus tard une question corrigée sans regarder la solution.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-plan",
+          "text": "Entre deux séances, je m’entraîne sur ce qui a été décidé avec le professeur.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-habit-prepare",
+          "text": "Je prépare mes questions et les documents nécessaires pour la séance.",
+          "type": "scale",
+          "options": [
+            "Jamais ou presque",
+            "Parfois",
+            "Souvent",
+            "Toujours ou presque",
+            "Pas d’occasion ou non concerné",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-second-reaction",
+          "text": "Après ta première réaction face à un blocage, quelle autre réaction revient le plus souvent ?",
+          "type": "radio",
+          "options": [
+            "Je relis et j’essaie autrement",
+            "Je consulte une aide ou le cours",
+            "Je demande une explication",
+            "J’attends la correction",
+            "Je passe à une autre question puis je reviens",
+            "J’arrête ma recherche",
+            "Une autre réaction",
+            "Je n’identifie pas de deuxième réaction",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Une seule réponse supplémentaire. Tu peux préciser une autre réaction dans l’exemple ci-dessous."
+        },
+        {
+          "id": "tm-q-helpful-habit",
+          "text": "Quelle habitude t’aide vraiment à progresser ? Donne un exemple.",
+          "type": "text",
+          "hint": "Tu peux aussi préciser une autre réaction face à un blocage ou indiquer que tu n’as pas encore identifié d’habitude utile."
+        },
+        {
+          "id": "tm-q-outside-homework",
+          "text": "Hors devoirs obligatoires, à quelle fréquence as-tu retravaillé les mathématiques en septembre ?",
+          "type": "radio",
+          "options": [
+            "Jamais",
+            "Une fois par semaine",
+            "Deux fois par semaine",
+            "Trois fois par semaine ou davantage",
+            "Cela varie",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-home-barriers",
+          "text": "Qu’est-ce qui limite ce travail personnel ?",
+          "type": "multi",
+          "options": [
+            "Le temps disponible",
+            "La fatigue",
+            "Je ne sais pas quoi faire",
+            "Je ne comprends pas seul",
+            "L’organisation",
+            "Rien de particulier",
+            "Autre",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Tu peux cocher plusieurs réponses. « Rien de particulier » se choisit seul.",
+          "max": 7,
+          "exclusiveOptions": [
+            "Rien de particulier"
+          ]
+        },
+        {
+          "id": "tm-q-home-barriers-other",
+          "text": "Si tu as choisi « Autre », que souhaites-tu préciser ?",
+          "type": "text",
+          "hint": "Facultatif ; évite les informations personnelles sensibles."
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "title": "Préparer le bilan avec mes parents",
+      "intro": "Tes réponses aideront le professeur à préparer une synthèse avec toi et pour tes parents. Tu peux préférer préciser un point individuellement.",
+      "questions": [
+        {
+          "id": "tm-q-family-understand",
+          "text": "Qu’aimerais-tu que tes parents comprennent de ton travail en mathématiques ?",
+          "type": "text"
+        },
+        {
+          "id": "tm-q-family-support",
+          "text": "Pour t’aider, tes parents pourraient…",
+          "type": "multi",
+          "options": [
+            "M’encourager",
+            "M’aider à organiser mes horaires",
+            "Me laisser chercher avant de proposer une aide",
+            "Vérifier avec moi mon plan de travail",
+            "Autre aide",
+            "Je préfère en parler avec le professeur",
+            "Je ne souhaite pas répondre"
+          ],
+          "hint": "Choisis seulement les formes d’aide qui te conviendraient.",
+          "max": 5,
+          "exclusiveOptions": [
+            "Je préfère en parler avec le professeur"
+          ]
+        },
+        {
+          "id": "tm-q-family-other",
+          "text": "Si tu souhaites une autre aide de tes parents, laquelle ?",
+          "type": "text",
+          "hint": "Facultatif."
+        },
+        {
+          "id": "tm-q-individual-followup",
+          "text": "Souhaites-tu préciser un point lors d’un échange individuel avec ton professeur ?",
+          "type": "radio",
+          "options": [
+            "Oui",
+            "Non pour le moment",
+            "Je déciderai après avoir relu mon bilan",
+            "Je ne souhaite pas répondre"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trial-reflection",
+      "title": "Avant et après mes essais",
+      "intro": "Les essais sont proposés séparément avec le professeur, uniquement sur les contenus réellement travaillés. Garde ton premier essai, même incomplet, avant de consulter une correction. Suis la consigne de chaque essai pour la calculatrice. Aucun score global n’est calculé.",
+      "questions": [
+        {
+          "id": "tm-q-before-trials",
+          "text": "Si tu vas réaliser un essai avec ton professeur, comment te sens-tu avant de commencer ?",
+          "type": "radio",
+          "options": [
+            "Confiant",
+            "Partagé",
+            "Inquiet",
+            "Difficile à dire",
+            "Je ne réalise pas d’essai pour le moment",
+            "Je ne souhaite pas répondre"
+          ]
+        },
+        {
+          "id": "tm-q-after-trials",
+          "text": "Après tes essais, quelle compétence souhaites-tu préciser et que comprends-tu mieux de ton positionnement ?",
+          "type": "text",
+          "hint": "À compléter après les essais, si tu en as réalisé. Précise la compétence, ce qui a changé dans ton ressenti et pourquoi. Conserve ton positionnement initial : ce complément et les traces permettront d’en discuter avec le professeur."
+        }
+      ]
+    }
+  ],
+  "appendQuestions": {
+    "experience": [
+      {
+        "id": "tm-q-workload",
+        "text": "La quantité de travail proposée pendant les séances te paraît…",
+        "type": "radio",
+        "options": [
+          "Trop faible",
+          "Adaptée",
+          "Trop importante",
+          "Variable selon les séances",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-objectives-clear",
+        "text": "Les objectifs de mon travail sont clairs.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-needs-fit",
+        "text": "Les questions choisies répondent à mes besoins.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-explanations-useful",
+        "text": "Les explications et les corrections m’aident à comprendre la démarche.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-help-access",
+        "text": "Je peux obtenir l’aide du professeur lorsque j’en ai besoin.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-group-focus",
+        "text": "Le fonctionnement du groupe me permet de me concentrer.",
+        "type": "radio",
+        "options": [
+          "Pas du tout",
+          "Plutôt non",
+          "Plutôt oui",
+          "Tout à fait",
+          "Non concerné ou pas d’avis",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-feedback-reason",
+        "text": "Pourquoi souhaites-tu conserver ce moment ou proposer cet ajustement ?",
+        "type": "text",
+        "hint": "Facultatif : précise seulement ce que tu n’as pas déjà expliqué dans ton avis sur les séances."
+      }
+    ],
+    "growth": [
+      {
+        "id": "tm-q-understanding-change",
+        "text": "Depuis le début de septembre, comment perçois-tu ta compréhension des notions effectivement travaillées ?",
+        "type": "radio",
+        "options": [
+          "Moins bonne",
+          "À peu près stable",
+          "Meilleure",
+          "Très variable selon les notions",
+          "Je ne peux pas comparer",
+          "Je ne souhaite pas répondre"
+        ]
+      },
+      {
+        "id": "tm-q-difficulty-types",
+        "text": "Quand une question travaillée te bloque, quelles difficultés reviennent surtout ?",
+        "type": "multi",
+        "options": [
+          "Comprendre les mots ou les notations",
+          "Retrouver le cours utile",
+          "Choisir une méthode",
+          "Calculer sans erreur",
+          "Lire une représentation ou suivre les indices",
+          "Rédiger ou justifier",
+          "Rester concentré",
+          "Gérer le temps",
+          "Oser essayer",
+          "Je ne sais pas encore",
+          "Aucune difficulté précise",
+          "Je ne souhaite pas répondre"
+        ],
+        "max": 2,
+        "hint": "Deux choix maximum. « Je ne sais pas encore », « Aucune difficulté précise » et le refus de répondre se choisissent seuls.",
+        "exclusiveOptions": [
+          "Je ne sais pas encore",
+          "Aucune difficulté précise"
+        ]
+      },
+      {
+        "id": "tm-q-already-tried",
+        "text": "Pour le passage encore fragile que tu as décrit, qu’as-tu déjà essayé ?",
+        "type": "text",
+        "hint": "Une action ou une aide suffit. Tu peux laisser cette réponse vide si tu n’as pas identifié de difficulté."
+      }
+    ],
+    "next": [
+      {
+        "id": "tm-q-help-needs",
+        "text": "De quelles aides aurais-tu besoin pour la suite ?",
+        "type": "multi",
+        "options": [
+          "Revoir une notion de base utile aux questions travaillées",
+          "Disposer d’exemples expliqués",
+          "Avoir davantage de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis sur les contenus travaillés",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur",
+          "Je ne souhaite pas répondre"
+        ],
+        "hint": "Trois aides maximum ; uniquement pour les contenus déjà travaillés.",
+        "max": 3
+      },
+      {
+        "id": "tm-q-help-priority",
+        "text": "Parmi les aides que tu viens de choisir, laquelle serait la plus utile ?",
+        "type": "radio",
+        "hint": "Choisis, parmi les aides sélectionnées ci-dessus, celle qui serait la plus utile. Tu peux laisser cette question sans réponse.",
+        "options": [
+          "Revoir une notion de base utile aux questions travaillées",
+          "Disposer d’exemples expliqués",
+          "Avoir davantage de temps pour chercher",
+          "Être aidé à choisir une méthode",
+          "M’entraîner davantage",
+          "Apprendre à rédiger une justification",
+          "Recevoir un retour plus précis sur mes erreurs",
+          "Relever davantage de défis sur les contenus travaillés",
+          "Savoir quoi refaire entre deux séances",
+          "Parler individuellement au professeur",
+          "Je ne souhaite pas répondre"
+        ],
+        "priorityOf": "tm-q-help-needs"
+      },
+      {
+        "id": "tm-q-method-goal",
+        "text": "Quelle petite habitude veux-tu installer dès la semaine prochaine, avec quelle action, à quel moment et avec quelle aide ?",
+        "type": "text",
+        "hint": "Il s’agit de ton objectif de méthode, en complément de la question de mathématiques choisie. Exemple : préparer une question précise après avoir conservé un essai personnel."
+      },
+      {
+        "id": "tm-q-review-date",
+        "text": "Quand souhaites-tu faire le prochain point avec ton professeur ?",
+        "type": "text",
+        "hint": "Une date envisagée ou « à convenir ensemble ». Ce souhait ne fixe pas automatiquement un rendez-vous."
+      },
+      {
+        "id": "tm-q-priority-reason",
+        "text": "Pourquoi la question que tu souhaites reprendre est-elle prioritaire pour toi ?",
+        "type": "text",
+        "hint": "Réponds seulement si cela apporte une précision à ton objectif."
+      }
+    ]
+  },
+  "appendOptions": {
+    "methods.tm-q-stuck": [
+      "Je consulte une aide ou le cours",
+      "J’attends la correction",
+      "Je passe à une autre question puis je reviens"
+    ],
+    "experience.tm-q-search-time": [
+      "Le temps de recherche est parfois trop long",
+      "Cela varie beaucoup selon les questions"
+    ],
+    "experience.tm-q-ask": [
+      "Je peux poser une question ou me tromper sans gêne"
+    ]
+  }
+}

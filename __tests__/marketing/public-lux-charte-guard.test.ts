@@ -276,6 +276,9 @@ describe('Public lux-* charte guard', () => {
     'app/demo/utica-2026/ressources/[slug]/page.tsx',
     // Espace pédagogique Terminale (élèves + enseignant) : espace de travail authentifié, noindex,
     // qui réutilise les tokens brand-*/surface-* du dashboard — pas une page marketing lux-*.
+    'app/espace/bilan/[level]/page.tsx',
+    'app/espace/enseignant/bilans/page.tsx',
+    'app/espace/enseignant/bilans/[workId]/page.tsx',
     'app/espace/connexion/page.tsx',
     'app/espace/eleve/compte/page.tsx',
     'app/espace/eleve/matieres/page.tsx',

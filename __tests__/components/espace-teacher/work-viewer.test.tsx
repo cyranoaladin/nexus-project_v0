@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { WorkViewer, type ViewerStepDef } from '@/components/espace/teacher/WorkViewer';
+import { bilanViewerSteps } from '@/lib/espace/bilan-display';
 
 const PAYLOAD = '<img src=x onerror=alert(1)>';
 const defs: ViewerStepDef[] = [
@@ -18,6 +19,11 @@ const render = (content: Record<string, unknown>, attachments = [] as { id: stri
   renderToStaticMarkup(<WorkViewer workId="w1" steps={defs} content={{ steps: content as never }} attachments={attachments} />);
 
 describe('WorkViewer — texte d’élève jamais interprété', () => {
+  it('exclut les anciennes autoévaluations selon le périmètre de la version consultée', () => {
+    const markup = (status: string) => renderToStaticMarkup(<WorkViewer workId="b1" steps={bilanViewerSteps('3e')} attachments={[]} content={{ steps: { scope: { fields: { '3-arith': status } }, mastery: { fields: { '3-div-s': 'alone' } } } }} />);
+    expect(markup('no')).not.toContain('data-testid="field-mastery-3-div-s"');
+    expect(markup('yes')).toContain('data-testid="field-mastery-3-div-s"');
+  });
   it('échappe le code, les réponses libres et les noms de fichiers', () => {
     const html = render(
       { agir: { code: `print("${PAYLOAD}")`, fields: { caslimite: `${PAYLOAD}<script>alert(2)</script>` }, choices: { echec: 0 } } },
@@ -63,4 +69,20 @@ describe('WorkViewer — texte d’élève jamais interprété', () => {
   it('sans callbacks : aucun bouton (vue strictement passive)', () => {
     expect(render({ agir: { code: 'x' } })).not.toContain('<button');
   });
+});
+
+it('preserves multiline code inside a pedagogical field label', () => {
+  const multiline = 'Observer le programme :\ndef f(n):\n    return n + 1';
+  const html = renderToStaticMarkup(<WorkViewer workId="synthetic-work" steps={[{ ...defs[0], fields:[{id:'trace', label:multiline}] }]} content={{steps:{}}} attachments={[]} />);
+  const container = document.createElement('div'); container.innerHTML = html;
+  const label = container.querySelector('dt')!;
+  expect(label.textContent).toBe(multiline);
+  expect(label).toHaveClass('whitespace-pre-wrap');
+});
+
+it.each(['no', 'unsure', undefined])('hides a task when its other prerequisite module is not confirmed (%s)', status => {
+  const steps = [{...defs[0], id:'evidence', fields:[{id:'cross-module',label:'Essai avec prérequis',scopeModule:'primary',requiredScopeModules:['primary','prerequisite']}]}];
+  const markup = (value: string | undefined) => renderToStaticMarkup(<WorkViewer workId="synthetic-cross-module" steps={steps} content={{steps:{scope:{fields:{primary:'yes', ...(value ? {prerequisite:value} : {})}},evidence:{fields:{'cross-module':'ancienne trace'}}}}} attachments={[]} />);
+  expect(markup(status)).not.toContain('Essai avec prérequis');
+  expect(markup('yes')).toContain('Essai avec prérequis');
 });

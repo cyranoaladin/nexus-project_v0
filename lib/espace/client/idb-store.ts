@@ -25,18 +25,24 @@ function run<T>(db: IDBDatabase, mode: IDBTransactionMode, op: (store: IDBObject
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, mode);
     const req = op(tx.objectStore(STORE));
-    req.onsuccess = () => resolve(req.result);
+    let result: T;
+    req.onsuccess = () => { result = req.result; };
     req.onerror = () => reject(req.error);
+    tx.oncomplete = () => resolve(result);
+    tx.onabort = () => reject(tx.error ?? req.error ?? new Error('Transaction locale interrompue'));
+    tx.onerror = () => reject(tx.error ?? req.error);
   });
 }
 
 export function createIdbDraftStore(): DraftStore {
-  const memory = new Map<string, DraftRecord>();
+  const memory = new Map<string, DraftRecord | null>();
+  const clone = (record: DraftRecord | null): DraftRecord | null => record ? JSON.parse(JSON.stringify(record)) as DraftRecord : null;
   let dbPromise: Promise<IDBDatabase | null> | null = null;
   const db = () => (dbPromise ??= typeof indexedDB === 'undefined' ? Promise.resolve(null) : openDb().catch(() => null));
 
   return {
     async load(key) {
+      if (memory.has(key)) return clone(memory.get(key) ?? null);
       const handle = await db();
       if (!handle) return memory.get(key) ?? null;
       try {
@@ -46,13 +52,13 @@ export function createIdbDraftStore(): DraftStore {
       }
     },
     async save(key, record) {
-      memory.set(key, record);
+      memory.set(key, clone(record));
       const handle = await db();
       if (!handle) return;
       await run(handle, 'readwrite', (s) => s.put(record, key)).catch(() => undefined);
     },
     async clear(key) {
-      memory.delete(key);
+      memory.set(key, null); // une suppression refusée sur disque ne ressuscite pas la copie dans cette page
       const handle = await db();
       if (!handle) return;
       await run(handle, 'readwrite', (s) => s.delete(key)).catch(() => undefined);

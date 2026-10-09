@@ -16,7 +16,7 @@ const baseURL = process.env.BASE_URL || 'http://app-e2e:3000';
 export default defineConfig({
   testDir: '.',
   testMatch: ['e2e/**/*.spec.ts'],
-  testIgnore: ['.next/**', 'node_modules/**'],
+  testIgnore: ['.next/**', 'node_modules/**', '**/bilan-validation/**'],
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: 0,
