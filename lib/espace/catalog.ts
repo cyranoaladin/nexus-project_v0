@@ -18,12 +18,13 @@ import { BILAN_LEVELS, getBilanProfile } from './bilan-profiles';
 import {
   MATHS_LIMITES_ACTIVITY_SLUG,
   MATHS_SUITES_ACTIVITY_SLUG,
+  NSI_ENTRAINEMENT_ACTIVITY_SLUG,
   POO2_ACTIVITY_SLUG,
   POO_ACTIVITY_SLUG,
   RECURSIVITE_ACTIVITY_SLUG,
 } from './lesson-routes';
 
-export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG };
+export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, NSI_ENTRAINEMENT_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG };
 
 // Noms historiques conservés (TP 1) : ce sont désormais des alias du contrat commun.
 export type PooQuestion = LessonQuestion;
@@ -175,6 +176,26 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     stepsTotal: getLessonRequiredSteps(MATHS_LIMITES_ACTIVITY_SLUG).length,
     contentVersion: maths2ContentJson.version,
     resources: [{ key: 'corrige', label: 'Corrigé enseignant', audience: 'TEACHER', file: 'corrige.pdf', mimeType: 'application/pdf' }],
+  },
+  {
+    slug: NSI_ENTRAINEMENT_ACTIVITY_SLUG,
+    subject: 'NSI',
+    moduleSlug: 'entrainement-evaluation',
+    moduleTitle: 'Préparation de l’évaluation',
+    theme: 'Préparation de l’évaluation',
+    title: 'TAD, POO et récursivité — sujets d’entraînement corrigés',
+    kind: 'UPLOAD_EXERCISE',
+    stepsTotal: 0,
+    contentVersion: '2026-10.1',
+    // Choix pédagogique du 2026-10-09 : les corrigés détaillés sont d'audience STUDENT
+    // (auto-correction en autonomie), contrairement aux corrigés de TP (TEACHER).
+    resources: [
+      { key: 'sujet-1', label: 'Sujet d’entraînement n°1 — maîtrise du socle', audience: 'STUDENT', file: 'sujet-1.pdf', mimeType: 'application/pdf' },
+      { key: 'corrige-1', label: 'Corrigé détaillé du sujet n°1 (auto-correction)', audience: 'STUDENT', file: 'corrige-1.pdf', mimeType: 'application/pdf' },
+      { key: 'sujet-2', label: 'Sujet d’entraînement n°2 — approfondissement', audience: 'STUDENT', file: 'sujet-2.pdf', mimeType: 'application/pdf' },
+      { key: 'corrige-2', label: 'Corrigé détaillé du sujet n°2 (auto-correction)', audience: 'STUDENT', file: 'corrige-2.pdf', mimeType: 'application/pdf' },
+      { key: 'fiche-preparation', label: 'Fiche de préparation — méthodes et pièges', audience: 'STUDENT', file: 'fiche-preparation.pdf', mimeType: 'application/pdf' },
+    ],
   },
 ] as const;
 
