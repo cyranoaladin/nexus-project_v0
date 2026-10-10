@@ -71,12 +71,24 @@ if [ "$MODE" = legacy ]; then
     && echo "PASS   phase maths_progress_track: ${phase_out}" \
     || { echo "FAIL   phase maths_progress_track:"; echo "$phase_out" | sed 's/^/       /'; fail=1; }
 
-  # -- Objets du lot déjà présents = application manuelle antérieure : deploy
-  #    échouerait « already exists ». Doit être 0 AVANT migration.
-  check 0 "aucune table du lot déjà présente (application manuelle)" \
-    "select count(*) from information_schema.tables where table_schema='public' and table_name in ('account_security_events','invoice_financial_delegations','invoice_financial_access_audits','stage_reservation_decision_audits','session_booking_cancellation_audits')"
-  check 0 "aucune colonne du lot déjà présente" \
-    "select count(*) from information_schema.columns where table_schema='public' and ((table_name='invoices' and column_name='payerUserId') or (table_name='subscription_requests' and column_name='requestedByUserId') or (table_name='aria_workshop_sessions' and column_name='admissionRevision'))"
+  # -- Garde liée à la PHASE (le modèle de phase du script, ci-dessus) :
+  #    * PRE_PENDING        : le lot n'est PAS encore appliqué -> ses objets
+  #      doivent être ABSENTS (0), sinon application manuelle antérieure et
+  #      `migrate deploy` échouerait « already exists ».
+  #    * ALREADY_RECONCILED : le lot EST déjà appliqué (journal Prisma vérifié
+  #      ci-dessus : tous états terminaux, aucun rolled back) -> ses objets
+  #      doivent être PRÉSENTS (5 tables, 3 colonnes), et `migrate deploy` les
+  #      ignore (no-op). Exiger 0 ici serait un faux positif post-migration.
+  RECONCILED=0; printf '%s' "${phase_out:-}" | grep -q 'ALREADY_RECONCILED' && RECONCILED=1
+  _tbl_sql="select count(*) from information_schema.tables where table_schema='public' and table_name in ('account_security_events','invoice_financial_delegations','invoice_financial_access_audits','stage_reservation_decision_audits','session_booking_cancellation_audits')"
+  _col_sql="select count(*) from information_schema.columns where table_schema='public' and ((table_name='invoices' and column_name='payerUserId') or (table_name='subscription_requests' and column_name='requestedByUserId') or (table_name='aria_workshop_sessions' and column_name='admissionRevision'))"
+  if [ "$RECONCILED" = 1 ]; then
+    check 5 "lot déjà appliqué (ALREADY_RECONCILED): 5 tables du lot présentes" "$_tbl_sql"
+    check 3 "lot déjà appliqué (ALREADY_RECONCILED): 3 colonnes du lot présentes" "$_col_sql"
+  else
+    check 0 "aucune table du lot déjà présente (application manuelle)" "$_tbl_sql"
+    check 0 "aucune colonne du lot déjà présente" "$_col_sql"
+  fi
   # -- Extension requise par l'index d'exclusion des conflits coach.
   check 1 "extension btree_gist installée ou disponible" \
     "select least(1, (select count(*) from pg_extension where extname='btree_gist') + (select count(*) from pg_available_extensions where name='btree_gist'))"
