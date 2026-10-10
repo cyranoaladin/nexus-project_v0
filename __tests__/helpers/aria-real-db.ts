@@ -10,9 +10,27 @@ export interface AriaRealDbFixtureIds {
   readonly entitlement: string;
 }
 
+export interface SeedAriaRealDbFixtureOptions {
+  /**
+   * Instant the ARIA entitlement validity window is anchored to (`startsAt` =
+   * one day before, `endsAt` = thirty days after). Pass the SAME fixed instant
+   * a caller evaluates eligibility at (e.g. the workshop-reminder suite's
+   * "24h before the session" anchor) so the window always brackets it,
+   * independent of wall-clock. Omit it only when the caller genuinely evaluates
+   * at live time — the default stays real-now, preserving existing behaviour.
+   *
+   * Anchoring to an explicit instant (passed as a SQL parameter) instead of
+   * PostgreSQL `NOW()` is what defuses the time-bomb: mixing a fixed Node test
+   * anchor with the database clock made the window drift past the fixed test
+   * instants once real UTC passed them.
+   */
+  readonly now?: Date;
+}
+
 export async function seedAriaRealDbFixture(
   pool: Pool,
   courseKey = 'eds-maths-premiere',
+  options: SeedAriaRealDbFixtureOptions = {},
 ): Promise<AriaRealDbFixtureIds> {
   const ids = {
     parentUser: randomUUID(),
@@ -39,12 +57,17 @@ export async function seedAriaRealDbFixture(
      VALUES ($1, $2, $3, 'SPECIALTY', 'ADMIN', '2026-v1', NOW(), NOW())`,
     [randomUUID(), ids.student, courseKey],
   );
+  // Window anchored to an explicit instant passed as a SQL parameter, never
+  // PostgreSQL NOW() — see SeedAriaRealDbFixtureOptions.now. Interval maths stay
+  // in SQL (identical to the original `anchor ± INTERVAL`), only the anchor
+  // changes, so timezone handling is unchanged. Default anchor is real-now.
+  const entitlementAnchorIso = (options.now ?? new Date()).toISOString();
   await pool.query(
     `INSERT INTO entitlements
      (id, "userId", "productCode", label, status, "startsAt", "endsAt", "createdAt", "updatedAt")
-     VALUES ($1, $2, 'ARIA_ACCESS', 'ARIA', 'ACTIVE', NOW() - INTERVAL '1 day',
-             NOW() + INTERVAL '30 days', NOW(), NOW())`,
-    [ids.entitlement, ids.studentUser],
+     VALUES ($1, $2, 'ARIA_ACCESS', 'ARIA', 'ACTIVE', $3::timestamptz - INTERVAL '1 day',
+             $3::timestamptz + INTERVAL '30 days', NOW(), NOW())`,
+    [ids.entitlement, ids.studentUser, entitlementAnchorIso],
   );
   await pool.query(
     `INSERT INTO aria_entitlement_scopes
