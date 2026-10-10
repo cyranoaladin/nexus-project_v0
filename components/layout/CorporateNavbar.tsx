@@ -462,9 +462,12 @@ export function CorporateNavbar() {
             </div>
 
             {/* Menu Items */}
-            <div className="flex items-center justify-center flex-1">
+            {/* Le volet est plein écran sans défilement propre : sur un téléphone, le bas du menu (CTA
+                compris) devenait inatteignable. `min-h-0` + `overflow-y-auto` rendent la zone défilante ;
+                `my-auto` sur le contenu garde le centrage quand tout tient à l'écran. */}
+            <div className="flex-1 min-h-0 overflow-y-auto flex justify-center">
               {(isOpen || !reducedMotion) && (
-                <nav className="w-full max-w-5xl px-6 md:px-10" aria-label="Menu principal">
+                <nav className="w-full max-w-5xl px-6 md:px-10 my-auto py-8" aria-label="Menu principal">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                     {menuGroups.map((group, groupIndex) => (
                       <div key={group.title} className="space-y-6">

@@ -48,17 +48,25 @@ test.afterAll(async () => {
 
 test('depuis le site public, le menu Connexion propose « Espace élève » (desktop et mobile)', async ({ page }) => {
   await page.goto('/offres');
-  await page.getByRole('button', { name: /^Connexion$/ }).click();
   const item = page.getByRole('menuitem', { name: /Espace élève/ });
-  await expect(item).toBeVisible();
+  // Le clic ne compte qu'une fois la barre hydratée : on re-clique jusqu'à l'ouverture du menu.
+  await expect(async () => {
+    await page.getByRole('button', { name: /^Connexion$/ }).click();
+    await expect(item).toBeVisible({ timeout: 1_500 });
+  }).toPass({ timeout: 20_000 });
   await expect(item).toHaveAttribute('href', '/espace/connexion');
 
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/offres');
-  await page.getByRole('button', { name: /ouvrir le menu/i }).click();
-  const mobile = page.getByRole('link', { name: /Espace élève/ });
-  await expect(mobile).toBeVisible();
-  await mobile.click();
+  // Le lien du menu desktop existe aussi dans le DOM (caché à 360 px) : on ne vise que le visible.
+  const mobile = page.getByRole('link', { name: /Espace élève/ }).filter({ visible: true });
+  await expect(async () => {
+    await page.getByRole('button', { name: /ouvrir le menu/i }).click();
+    await expect(mobile).toBeVisible({ timeout: 1_500 });
+  }).toPass({ timeout: 20_000 });
+  // Le volet mobile défile (correctif du volet) ; l'animation d'ouverture ne se stabilise pas pour Playwright.
+  await mobile.scrollIntoViewIfNeeded();
+  await mobile.click({ force: true });
   await page.waitForURL(/\/espace\/connexion/);
   await expect(page.getByTestId('input-username')).toBeVisible();
 });
