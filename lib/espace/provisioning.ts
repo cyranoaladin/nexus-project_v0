@@ -469,14 +469,24 @@ export function classifyAccount(s: { active: boolean; hasPin: boolean; pinMustCh
 /**
  * Lit un fichier de distribution de codes — texte `nom;identifiant;code` (lignes `#` et vides ignorées)
  * ou JSON `[{ username, secret }]` — vers `identifiant → code`. Les codes ne sont jamais réaffichés.
- * Un même identifiant porté par deux codes différents est un conflit explicite.
+ * Dans un MÊME fichier, un identifiant porté par deux codes différents est un conflit fatal. Entre
+ * fichiers (fournis du plus ancien au plus récent), une réémission remplace l'entrée précédente avec
+ * `override: true` ; sans cette option, le conflit inter-fichiers reste fatal.
  */
-export function parseIssuedCredentialsFile(content: string, fileName: string, into: Map<string, string> = new Map()): Map<string, string> {
+export function parseIssuedCredentialsFile(
+  content: string,
+  fileName: string,
+  into: Map<string, string> = new Map(),
+  opts: { override?: boolean } = {},
+): Map<string, string> {
+  const inThisFile = new Set<string>();
   const put = (rawUsername: unknown, secret: unknown) => {
     const username = normalizeUsername(String(rawUsername ?? ''));
     if (!username || typeof secret !== 'string' || !secret.trim()) throw new Error(`Fichier de codes illisible (${fileName}) : entrée invalide`);
     const existing = into.get(username);
-    if (existing !== undefined && existing !== secret) throw new Error(`Codes contradictoires pour ${username} (dernier fichier : ${fileName})`);
+    const conflict = existing !== undefined && existing !== secret && (inThisFile.has(username) || !opts.override);
+    if (conflict) throw new Error(`Codes contradictoires pour ${username} (dernier fichier : ${fileName})`);
+    inThisFile.add(username);
     into.set(username, secret);
   };
   const trimmed = content.trim();
@@ -508,7 +518,7 @@ export async function auditAccounts(db: Db, issued: Map<string, string>): Promis
       username: true, firstName: true, lastName: true,
       pinHash: true, pinMustChange: true, pinSetAt: true, disabledAt: true,
       espaceEnrollments: { select: { subject: true, group: { select: { slug: true, name: true } } } },
-      espaceSessionSeats: { where: { session: { status: 'PUBLISHED' } }, select: { id: true } },
+      espaceSessionSeats: { where: { session: { status: 'PUBLISHED' } }, select: { sessionId: true } },
     },
   });
   const rows: AccountAuditRow[] = [];

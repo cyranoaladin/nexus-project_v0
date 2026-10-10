@@ -126,7 +126,8 @@ async function main() {
   if (command === 'audit-accounts') {
     // Lecture seule : aucun code n'est affiché ; ceux des fichiers fournis ne servent qu'à une comparaison bcrypt.
     const issued = new Map<string, string>();
-    for (const file of values.credentials ?? []) parseIssuedCredentialsFile(readFileSync(file, 'utf8'), path.basename(file), issued);
+    // Fichiers fournis du plus ancien au plus récent : une réémission (reset) remplace le code précédent.
+    for (const file of values.credentials ?? []) parseIssuedCredentialsFile(readFileSync(file, 'utf8'), path.basename(file), issued, { override: true });
     const { rows, unknownIssued } = await auditAccounts(prisma, issued);
     const shown = values['include-validation'] ? rows : rows.filter((r) => !r.validation);
     const order = ['CODE_EMIS_PERIME', 'SANS_CODE', 'DESACTIVE', 'JAMAIS_CONNECTE', 'CODE_CHANGE_PAR_ELEVE', 'CODE_EMIS_ACTIF', 'CODE_NON_FOURNI'] as const;

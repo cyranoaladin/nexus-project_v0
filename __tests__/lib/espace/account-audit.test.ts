@@ -45,11 +45,16 @@ describe('parseIssuedCredentialsFile — formats réels des fichiers 0600', () =
     expect(m.get('cleo.e')).toBe('MNPQ2345');
   });
 
-  it('un doublon d’identifiant entre fichiers est un conflit, pas un écrasement silencieux', () => {
+  it('un doublon contradictoire est un conflit — sauf réémission explicite entre fichiers (le plus récent gagne)', () => {
     const m = parseIssuedCredentialsFile('A;ada.e;ABCD-2345\n', 'f1.txt');
+    // Sans option : conflit inter-fichiers fatal ; le même code re-listé n'est pas un conflit.
     expect(() => parseIssuedCredentialsFile('A;ada.e;WXYZ-7777\n', 'f2.txt', m)).toThrow(/ada\.e/);
-    // Le même code re-listé n'est pas un conflit.
     expect(() => parseIssuedCredentialsFile('A;ada.e;ABCD-2345\n', 'f3.txt', m)).not.toThrow();
+    // Réémission (reset) : un fichier PLUS RÉCENT remplace l'entrée, en ordre chronologique.
+    parseIssuedCredentialsFile('A;ada.e;WXYZ-7777\n', 'f4.txt', m, { override: true });
+    expect(m.get('ada.e')).toBe('WXYZ-7777');
+    // Mais au sein d'un même fichier, deux codes différents restent un conflit, même avec override.
+    expect(() => parseIssuedCredentialsFile('A;bob.e;ABCD-2345\nB;bob.e;WXYZ-7777\n', 'f5.txt', new Map(), { override: true })).toThrow(/bob\.e/);
   });
 
   it('refuse une ligne illisible plutôt que de la deviner', () => {
@@ -71,7 +76,7 @@ describe('auditAccounts — lecture seule contre la base', () => {
       pinSetAt: u.pin === null ? null : new Date('2026-10-03T05:00:00Z'),
       disabledAt: u.disabledAt ?? null,
       espaceEnrollments: (u.groups ?? ['terminale-principal']).map((slug) => ({ subject: 'MATHEMATIQUES', group: { slug, name: slug } })),
-      espaceSessionSeats: Array.from({ length: u.published ?? 0 }, (_, i) => ({ id: `s${i}` })),
+      espaceSessionSeats: Array.from({ length: u.published ?? 0 }, (_, i) => ({ sessionId: `s${i}` })),
     });
     const users = [
       await mkUser({ username: 'jamais.c', firstName: 'Jamais', lastName: 'CONNECTE', pin: 'ABCD2345', pinMustChange: true, published: 1 }),
