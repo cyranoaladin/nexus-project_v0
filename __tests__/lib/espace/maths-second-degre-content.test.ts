@@ -133,6 +133,15 @@ describe('structure', () => {
     }
   });
 
+  it('tout en-tête de tableau contient du texte (pas seulement une formule) : sinon axe signale « empty-table-header »', () => {
+    for (const s of lesson.steps) {
+      for (const m of s.lesson.matchAll(/<th[^>]*>(.*?)<\/th>/g)) {
+        const plain = m[1]!.replace(/\\\(.*?\\\)|\\\[.*?\\\]/g, '').replace(/<[^>]+>/g, '').trim();
+        expect({ step: s.id, header: m[1], plain }).toEqual({ step: s.id, header: m[1], plain: expect.stringMatching(/\S/) });
+      }
+    }
+  });
+
   it('aucun reste d’échappement, de HTML brut dans les formules ni de « Faux. » nu', () => {
     const all = JSON.stringify(content);
     expect(all).not.toMatch(/\\\\u[0-9a-f]{4}/i);

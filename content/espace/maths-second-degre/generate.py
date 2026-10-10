@@ -471,8 +471,8 @@ steps.append(
             )
             + r"<p>Pour \(a\gt0\) et \(\Delta\gt0\), avec \(x_1\lt x_2\) :</p>"
             + table(
-                [r"\(x\)", r"\(]-\infty\,;x_1[\)", r"\(x_1\)", r"\(]x_1\,;x_2[\)", r"\(x_2\)", r"\(]x_2\,;+\infty[\)"],
-                [[r"signe de \(f(x)\)", r"\(+\)", r"\(0\)", r"\(-\)", r"\(0\)", r"\(+\)"]],
+                ["Valeurs de x", r"avant \(x_1\)", r"en \(x_1\)", r"entre \(x_1\) et \(x_2\)", r"en \(x_2\)", r"après \(x_2\)"],
+                [["Signe de f(x)", r"\(+\)", r"\(0\)", r"\(-\)", r"\(0\)", r"\(+\)"]],
             )
             + box(
                 "Méthode",
@@ -1295,7 +1295,7 @@ steps.append(
             )
             + r"<h4>Équation \(ax^2+bx+c=0\)</h4>"
             + table(
-                [r"\(\Delta=b^2-4ac\)", "Solutions", "Factorisation", r"Signe de \(ax^2+bx+c\)"],
+                [r"Discriminant \(\Delta=b^2-4ac\)", "Solutions", "Factorisation", r"Signe de \(ax^2+bx+c\)"],
                 [
                     [r"\(\gt0\)", r"\(\dfrac{-b\pm\sqrt\Delta}{2a}\)", r"\(a(x-x_1)(x-x_2)\)", r"signe de \(a\) à l'extérieur, contraire entre"],
                     [r"\(=0\)", r"\(-\dfrac b{2a}\)", r"\(a(x-x_0)^2\)", r"signe de \(a\), nul en \(x_0\)"],
