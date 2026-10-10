@@ -8,7 +8,9 @@
  * comme pour les QCM du TP 1 (le corrigé détaillé, lui, reste privé).
  */
 
-export type AnswerKind = 'number' | 'limit' | 'equation' | 'linear' | 'text';
+import { normalizePoly, parseConstant, parsePolynomial } from './poly-parse';
+
+export type AnswerKind = 'number' | 'limit' | 'equation' | 'linear' | 'text' | 'polynomial' | 'set' | 'interval';
 
 export interface AnswerRule {
   /** Réponses (écritures libres) qui déclenchent ce message ciblé. */
@@ -24,6 +26,8 @@ export interface AnswerCheck {
   success?: string;
   /** Message quand la réponse n'est ni correcte ni reconnue par une règle. */
   fallback?: string;
+  /** Correction détaillée, proposée à l'élève après une réponse fausse (le raisonnement complet, pas seulement le résultat). */
+  solution?: string;
 }
 
 export interface AnswerVerdict {
@@ -33,6 +37,8 @@ export interface AnswerVerdict {
   targeted: boolean;
   /** Réponse vide ou illisible pour ce type de champ. */
   empty: boolean;
+  /** Correction détaillée (réponse fausse seulement), si le contenu en fournit une. */
+  solution?: string;
 }
 
 // ─── Expressions affines en x : a·x + b ─────────────────────────────────────
@@ -181,6 +187,57 @@ function canonLinear(raw: string): string {
   return v ? `a=${round(v.a)};b=${round(v.b)}` : `raw:${s}`;
 }
 
+/** Polynôme en x (toute écriture équivalente : développée, factorisée, canonique). */
+function canonPolynomial(raw: string): string {
+  const p = parsePolynomial(raw);
+  return p ? `p:${p.map(round).join(',')}` : `raw:${normalizePoly(raw)}`;
+}
+
+const EMPTY_SET = /^(?:∅|ø|\{\}|vide|aucune|aucunesolution|pasdesolution|nexistepas)$/;
+
+/** Ensemble de nombres : `-2;3`, `S={-2;3}`, `x1=-2 et x2=3`, `∅` → valeurs distinctes triées. */
+function canonSet(raw: string): string {
+  let s = normalizePoly(raw).replace(/^s=/, '');
+  if (EMPTY_SET.test(s)) return 'set:';
+  s = s.replace(/^\{|\}$/g, '').replace(/x\d?=/g, '');
+  const values = s === '' ? [] : s.split(/;|\||et|ou/).filter((x) => x !== '').map((x) => parseConstant(x));
+  if (values.length === 0 || values.some((v) => v === null)) return `raw:${s}`;
+  const distinct = [...new Set((values as number[]).map(round))].sort((a, b) => Number(a) - Number(b));
+  return `set:${distinct.join(';')}`;
+}
+
+function canonBound(raw: string): string | null {
+  const t = raw.replace(/l'?infini|infini/g, 'inf').replace(/∞/g, 'inf');
+  if (/^\+?inf$/.test(t)) return '+inf';
+  if (/^-inf$/.test(t)) return '-inf';
+  const n = parseConstant(t);
+  return n === null ? null : round(n);
+}
+
+/** Réunion d'intervalles : `]-∞;-2[∪]3;+∞[`, `[1/2;+∞[`, `∅`, `ℝ` → liste triée de `(a;b)` / `[a;b]`. */
+function canonInterval(raw: string): string {
+  const s = normalizePoly(raw).replace(/^s=/, '');
+  if (EMPTY_SET.test(s)) return 'iv:';
+  if (s === 'r' || s === 'ℝ') return 'iv:](-inf;+inf)[';
+  const pieces = s.split(/(?<=[[\]])(?:∪|u|ou)(?=[[\]])/);
+  const out: { lo: number; key: string }[] = [];
+  for (const piece of pieces) {
+    const m = /^([[\]])(.+);(.+)([[\]])$/.exec(piece);
+    if (!m) return `raw:${s}`;
+    const lo = canonBound(m[2]!);
+    const hi = canonBound(m[3]!);
+    if (lo === null || hi === null) return `raw:${s}`;
+    const openLo = m[1] === ']';
+    const openHi = m[4] === '[';
+    // Un infini est toujours ouvert : `[-∞;…` est une écriture fautive, pas une réponse fausse.
+    if ((lo.endsWith('inf') && !openLo) || (hi.endsWith('inf') && !openHi)) return `raw:${s}`;
+    const bound = (b: string) => (b === '-inf' ? Number.NEGATIVE_INFINITY : b === '+inf' ? Number.POSITIVE_INFINITY : Number(b));
+    out.push({ lo: bound(lo), key: `${openLo ? '(' : '['}${lo};${hi}${openHi ? ')' : ']'}` });
+  }
+  const keys = out.sort((a, b) => a.lo - b.lo).map((x) => x.key);
+  return keys.length === 1 && keys[0] === '(-inf;+inf)' ? 'iv:](-inf;+inf)[' : `iv:${keys.join('U')}`;
+}
+
 function canon(kind: AnswerKind, raw: string): string {
   switch (kind) {
     case 'number': {
@@ -193,6 +250,12 @@ function canon(kind: AnswerKind, raw: string): string {
       return canonEquation(raw);
     case 'linear':
       return canonLinear(raw);
+    case 'polynomial':
+      return canonPolynomial(raw);
+    case 'set':
+      return canonSet(raw);
+    case 'interval':
+      return canonInterval(raw);
     default:
       return `raw:${normalizeMath(raw).replace(/[^a-z0-9àâçéèêëîïôûùüÿœ+\-*/=<>.]/g, '')}`;
   }
@@ -207,7 +270,7 @@ export function evaluateAnswer(check: AnswerCheck, raw: string): AnswerVerdict {
     return { ok: true, empty: false, targeted: false, feedback: check.success ?? 'Bonne réponse.' };
   }
   const rule = check.rules?.find((r) => r.when.some((w) => canon(check.kind, w) === given));
-  if (rule) return { ok: false, empty: false, targeted: true, feedback: rule.feedback };
+  if (rule) return { ok: false, empty: false, targeted: true, feedback: rule.feedback, ...(check.solution ? { solution: check.solution } : {}) };
   const unreadable = given.startsWith('raw:') && check.kind !== 'text';
   return {
     ok: false,
@@ -216,5 +279,6 @@ export function evaluateAnswer(check: AnswerCheck, raw: string): AnswerVerdict {
     feedback: unreadable
       ? 'Je ne reconnais pas cette écriture. ' + (check.fallback ?? 'Relis la consigne et écris la réponse sous la forme demandée.')
       : (check.fallback ?? 'Ce n’est pas la bonne réponse : reprends ton raisonnement étape par étape.'),
+    ...(check.solution ? { solution: check.solution } : {}),
   };
 }

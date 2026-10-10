@@ -107,7 +107,7 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
   if (actor.role !== 'ELEVE') throw new EspaceError('FORBIDDEN', 'Réservé aux élèves');
 
   const [enrollments, works, sessions] = await Promise.all([
-    prisma.espaceEnrollment.findMany({ where: { userId: actor.id }, select: { subject: true }, distinct: ['subject'] }),
+    prisma.espaceEnrollment.findMany({ where: { userId: actor.id }, select: { subject: true, group: { select: { slug: true } } } }),
     prisma.espaceWork.findMany({
       where: { studentId: actor.id },
       orderBy: { lastSavedAt: 'desc' },
@@ -121,6 +121,8 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
   ]);
 
   const subjectSet = new Set(enrollments.map((e) => e.subject));
+  const groupsOf = (subject: Subject) => new Set(enrollments.filter((e) => e.subject === subject).map((e) => e.group?.slug));
+  const inAudience = (a: { subject: Subject; groupSlugs?: readonly string[] }) => !a.groupSlugs || a.groupSlugs.some((g) => groupsOf(a.subject).has(g));
   const assignedSlugs = new Set(sessions.map((s) => s.activity.slug));
   const visible = (slug: string) => !isBilanActivitySlug(slug) || assignedSlugs.has(slug);
   const visibleWorks = works.filter((w) => visible(w.activity.slug));
@@ -128,7 +130,7 @@ export async function getStudentDashboard(actor: EspaceActor): Promise<StudentDa
     .map((subject) => ({
       subject,
       label: SUBJECT_LABELS[subject],
-      activities: ACTIVITIES.filter((a) => a.subject === subject && visible(a.slug)).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind, theme: a.theme ?? null })),
+      activities: ACTIVITIES.filter((a) => a.subject === subject && visible(a.slug) && inAudience(a)).map((a) => ({ slug: a.slug, title: a.title, moduleSlug: a.moduleSlug, kind: a.kind, theme: a.theme ?? null })),
     }))
     .sort((a, b) => a.label.localeCompare(b.label, 'fr'));
 
