@@ -7,6 +7,7 @@
  *   npx tsx scripts/espace/provision.ts reset-pin --username adam.c --execute --credentials-out /chemin/codes.txt
  *   npx tsx scripts/espace/provision.ts disable   --username adam.c --execute
  *   npx tsx scripts/espace/provision.ts audit-activities                                # preflight : catalogue code ↔ base (lecture seule, code 1 si écart)
+ *   npx tsx scripts/espace/provision.ts audit-accounts [--credentials /chemin/codes.txt]...   # état de connexion de TOUS les élèves (lecture seule ; les codes fournis ne sont jamais réaffichés)
  *   npx tsx scripts/espace/provision.ts sync-activities [--execute]                     # miroir DB du catalogue (nouveau parcours)
  *   npx tsx scripts/espace/provision.ts enable-technical --username val.b --execute --credentials-out /chemin/codes.txt   # réactive un compte val.* (jamais un vrai compte)
  *
@@ -22,9 +23,11 @@ import { prisma } from '@/lib/prisma';
 import { formatPin } from '@/lib/espace/pin';
 import {
   applyProvisioning,
+  auditAccounts,
   auditActivities,
   disableAccount,
   enableTechnicalAccount,
+  parseIssuedCredentialsFile,
   parseRoster,
   planProvisioning,
   resetStudentPin,
@@ -64,6 +67,8 @@ async function main() {
       'keep-codes': { type: 'boolean', default: false },
       execute: { type: 'boolean', default: false },
       'credentials-out': { type: 'string' },
+      credentials: { type: 'string', multiple: true },
+      'include-validation': { type: 'boolean', default: false },
     },
   });
 
@@ -114,6 +119,31 @@ async function main() {
     }
     await disableAccount(prisma, values.username);
     process.stdout.write('OK. Compte désactivé, sessions révoquées.\n');
+    return;
+  }
+
+
+  if (command === 'audit-accounts') {
+    // Lecture seule : aucun code n'est affiché ; ceux des fichiers fournis ne servent qu'à une comparaison bcrypt.
+    const issued = new Map<string, string>();
+    for (const file of values.credentials ?? []) parseIssuedCredentialsFile(readFileSync(file, 'utf8'), path.basename(file), issued);
+    const { rows, unknownIssued } = await auditAccounts(prisma, issued);
+    const shown = values['include-validation'] ? rows : rows.filter((r) => !r.validation);
+    const order = ['CODE_EMIS_PERIME', 'SANS_CODE', 'DESACTIVE', 'JAMAIS_CONNECTE', 'CODE_CHANGE_PAR_ELEVE', 'CODE_EMIS_ACTIF', 'CODE_NON_FOURNI'] as const;
+    for (const verdict of order) {
+      const group = shown.filter((r) => r.verdict === verdict);
+      if (group.length === 0) continue;
+      process.stdout.write(`\n${verdict} (${group.length})\n`);
+      for (const r of group) {
+        const seance = r.publishedSessions > 0 ? ` · ${r.publishedSessions} séance(s) publiée(s)` : '';
+        const setAt = r.pinSetAt ? ` · code posé le ${r.pinSetAt.toISOString().slice(0, 10)}` : '';
+        process.stdout.write(`  ${r.username.padEnd(18)} ${r.displayName.padEnd(24)} ${r.enrollments.join(', ')}${seance}${setAt}\n`);
+      }
+    }
+    for (const u of unknownIssued) process.stdout.write(`\nAVERTISSEMENT identifiant du fichier sans compte : ${u}\n`);
+    const problems = shown.filter((r) => r.verdict === 'CODE_EMIS_PERIME' || r.verdict === 'SANS_CODE').length;
+    process.stdout.write(`\n${shown.length} compte(s) élève · PROBLEMES=${problems} (CODE_EMIS_PERIME ou SANS_CODE)\n`);
+    if (problems > 0 || unknownIssued.length > 0) process.exitCode = 1;
     return;
   }
 

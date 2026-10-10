@@ -21,8 +21,9 @@ import { z } from 'zod';
 import { normalizeUserEmail } from '@/lib/contact/user-email';
 
 import { ACTIVITIES } from './catalog';
-import { generatePin, hashPin } from './pin';
+import { generatePin, hashPin, verifyPin } from './pin';
 import { normalizeUsername } from './username';
+import { VALIDATION_GROUP_SLUG } from './validation';
 
 type Db = PrismaClient | Prisma.TransactionClient;
 
@@ -416,6 +417,128 @@ export async function auditActivities(db: Db): Promise<CatalogAudit> {
   }
   for (const r of rows) if (!seen.has(r.slug)) warnings.push(`EXTRA_IN_DB ${r.slug} : en base, absente du catalogue du code`);
   return { errors, warnings };
+}
+
+
+// ─── Audit des comptes élèves (lecture seule) ───────────────────────────────
+
+export type AccountVerdict =
+  | 'DESACTIVE'
+  | 'SANS_CODE'
+  | 'JAMAIS_CONNECTE'
+  | 'CODE_EMIS_ACTIF'
+  | 'CODE_CHANGE_PAR_ELEVE'
+  | 'CODE_EMIS_PERIME'
+  | 'CODE_NON_FOURNI';
+
+export interface AccountAuditRow {
+  username: string;
+  displayName: string;
+  active: boolean;
+  hasPin: boolean;
+  /** true = le compte attend encore la première connexion (code temporaire non remplacé). */
+  pinMustChange: boolean;
+  pinSetAt: Date | null;
+  /** Le code du fichier de distribution ouvre-t-il encore le compte ? `null` = aucun code fourni. */
+  issuedCodeValid: boolean | null;
+  enrollments: string[];
+  /** Séances publiées auxquelles l'élève est attribué (bilans). */
+  publishedSessions: number;
+  /** Compte technique du groupe de validation. */
+  validation: boolean;
+  verdict: AccountVerdict;
+}
+
+/**
+ * Classement d'un compte à partir de son seul état (jamais d'oracle côté élève) :
+ *  - JAMAIS_CONNECTE : le code émis est valable et la première connexion n'a pas eu lieu → NE RIEN FAIRE ;
+ *  - CODE_EMIS_ACTIF : code émis définitif, toujours valable → NE RIEN FAIRE ;
+ *  - CODE_CHANGE_PAR_ELEVE : l'élève a posé son propre code (il le connaît) → NE RIEN FAIRE, le code émis est caduc ;
+ *  - CODE_EMIS_PERIME : le code émis n'ouvre plus le compte ET aucun code personnel n'a été posé → la famille est
+ *    bloquée, seul cas qui justifie un `reset-pin` ;
+ *  - SANS_CODE / DESACTIVE : injoignables par ce chemin, à traiter explicitement.
+ */
+export function classifyAccount(s: { active: boolean; hasPin: boolean; pinMustChange: boolean; issuedCodeValid: boolean | null }): AccountVerdict {
+  if (!s.active) return 'DESACTIVE';
+  if (!s.hasPin) return 'SANS_CODE';
+  if (s.issuedCodeValid === null) return 'CODE_NON_FOURNI';
+  if (s.issuedCodeValid) return s.pinMustChange ? 'JAMAIS_CONNECTE' : 'CODE_EMIS_ACTIF';
+  return s.pinMustChange ? 'CODE_EMIS_PERIME' : 'CODE_CHANGE_PAR_ELEVE';
+}
+
+/**
+ * Lit un fichier de distribution de codes — texte `nom;identifiant;code` (lignes `#` et vides ignorées)
+ * ou JSON `[{ username, secret }]` — vers `identifiant → code`. Les codes ne sont jamais réaffichés.
+ * Un même identifiant porté par deux codes différents est un conflit explicite.
+ */
+export function parseIssuedCredentialsFile(content: string, fileName: string, into: Map<string, string> = new Map()): Map<string, string> {
+  const put = (rawUsername: unknown, secret: unknown) => {
+    const username = normalizeUsername(String(rawUsername ?? ''));
+    if (!username || typeof secret !== 'string' || !secret.trim()) throw new Error(`Fichier de codes illisible (${fileName}) : entrée invalide`);
+    const existing = into.get(username);
+    if (existing !== undefined && existing !== secret) throw new Error(`Codes contradictoires pour ${username} (dernier fichier : ${fileName})`);
+    into.set(username, secret);
+  };
+  const trimmed = content.trim();
+  if (trimmed.startsWith('[')) {
+    const rows = JSON.parse(trimmed) as { username?: unknown; secret?: unknown }[];
+    for (const row of rows) put(row.username, row.secret);
+    return into;
+  }
+  for (const line of trimmed.split(/\r?\n/)) {
+    const l = line.trim();
+    if (!l || l.startsWith('#')) continue;
+    const parts = l.split(';');
+    if (parts.length < 3) throw new Error(`Fichier de codes illisible (${fileName}) : ligne sans trois champs`);
+    put(parts[1], parts[2]);
+  }
+  return into;
+}
+
+/**
+ * Audit en LECTURE SEULE de tous les comptes élèves de l'espace (role ELEVE avec identifiant).
+ * Les codes de `issued` ne servent qu'à une comparaison bcrypt locale ; ni code ni empreinte ne
+ * figurent dans le résultat. `unknownIssued` = identifiants présents dans les fichiers mais sans compte.
+ */
+export async function auditAccounts(db: Db, issued: Map<string, string>): Promise<{ rows: AccountAuditRow[]; unknownIssued: string[] }> {
+  const users = await db.user.findMany({
+    where: { role: 'ELEVE', username: { not: null } },
+    orderBy: { username: 'asc' },
+    select: {
+      username: true, firstName: true, lastName: true,
+      pinHash: true, pinMustChange: true, pinSetAt: true, disabledAt: true,
+      espaceEnrollments: { select: { subject: true, group: { select: { slug: true, name: true } } } },
+      espaceSessionSeats: { where: { session: { status: 'PUBLISHED' } }, select: { id: true } },
+    },
+  });
+  const rows: AccountAuditRow[] = [];
+  for (const u of users) {
+    const username = u.username!;
+    const issuedCode = issued.get(username);
+    const issuedCodeValid = issuedCode === undefined || !u.pinHash ? null : await verifyPin(issuedCode, u.pinHash);
+    const state = {
+      active: u.disabledAt === null,
+      hasPin: u.pinHash !== null,
+      pinMustChange: u.pinMustChange,
+      issuedCodeValid: issuedCode === undefined ? null : u.pinHash === null ? null : issuedCodeValid,
+    };
+    rows.push({
+      username,
+      displayName: [u.firstName, u.lastName].filter(Boolean).join(' '),
+      active: state.active,
+      hasPin: state.hasPin,
+      pinMustChange: u.pinMustChange,
+      pinSetAt: u.pinSetAt,
+      issuedCodeValid: state.issuedCodeValid,
+      enrollments: u.espaceEnrollments.map((e: { subject: string; group: { slug: string } }) => `${e.subject}/${e.group.slug}`),
+      publishedSessions: u.espaceSessionSeats.length,
+      validation: u.espaceEnrollments.some((e: { group: { slug: string } }) => e.group.slug === VALIDATION_GROUP_SLUG),
+      verdict: classifyAccount(state),
+    });
+  }
+  const known = new Set(rows.map((r) => r.username));
+  const unknownIssued = [...issued.keys()].filter((u) => !known.has(u)).sort();
+  return { rows, unknownIssued };
 }
 
 /**
