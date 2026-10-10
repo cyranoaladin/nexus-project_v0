@@ -35,6 +35,23 @@ describe('runOfflineAudit — the entrypoint CI actually runs', () => {
     }
   });
 
+  test('selective CODEOWNERS audit refuses a catch-all or missing sensitive path', () => {
+    const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'governance-codeowners-'));
+    try {
+      fs.cpSync(path.join(REAL_ROOT, '.github'), path.join(tmpRoot, '.github'), { recursive: true });
+      const codeownersPath = path.join(tmpRoot, '.github', 'CODEOWNERS');
+      const original = fs.readFileSync(codeownersPath, 'utf8');
+      fs.appendFileSync(codeownersPath, '* @abenrhouma @adammeg\n');
+      expect(runOfflineAudit({ root: tmpRoot }).findings.map((finding) => finding.code))
+        .toContain('CODEOWNERS_SENSITIVE_PATHS_MISMATCH');
+      fs.writeFileSync(codeownersPath, original.replace('/.github/governance/** @abenrhouma @adammeg\n', ''));
+      expect(runOfflineAudit({ root: tmpRoot }).findings.map((finding) => finding.code))
+        .toContain('CODEOWNERS_SENSITIVE_PATHS_MISMATCH');
+    } finally {
+      fs.rmSync(tmpRoot, { recursive: true, force: true });
+    }
+  });
+
   test('ARIA_CI_OFFLINE_AUDIT_FAILS_ON_WORKFLOW_DRIFT', () => {
     const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'governance-aria-ci-'));
     try {

@@ -24,6 +24,7 @@
         "filePath",
         "coverageModel",
         "principals",
+        "sensitivePatterns",
         "excludedAuthors",
         "eligibilityRequirement",
         "requireCodeOwnerReview",
@@ -31,12 +32,18 @@
       ],
       "properties": {
         "filePath": { "const": ".github/CODEOWNERS" },
-        "coverageModel": { "const": "CATCH_ALL" },
+        "coverageModel": { "const": "SENSITIVE_PATHS" },
         "principals": {
           "type": "array",
           "minItems": 1,
           "items": { "type": "string", "pattern": "^[A-Za-z0-9-]+$" },
           "uniqueItems": true
+        },
+        "sensitivePatterns": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^/[^\\s]+$" }
         },
         "excludedAuthors": {
           "type": "array",
@@ -74,7 +81,7 @@
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
         },
-        "agentArmingTool": { "const": "scripts/github/arm-auto-merge.mjs" },
+        "agentArmingTool": { "const": "scripts/github/review-gate/automation-entry.mjs" },
         "agentLoop": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 }

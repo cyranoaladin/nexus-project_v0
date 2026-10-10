@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "minimumBlockingCases": 20,
+  "minimumBenignCases": 20,
+  "minimumDetectionRecall": 0.9,
+  "minimumSecurityGovernanceRecall": 1,
+  "maximumFalsePositiveRate": 0.05,
+  "maximumMalformedOutputRate": 0.01,
+  "maximumTimeoutRate": 0.01,
+  "maximumP95RuntimeMs": 480000,
+  "maximumDiffBytes": 65536
+}
