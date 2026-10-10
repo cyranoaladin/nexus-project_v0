@@ -85,6 +85,9 @@ test.describe('Password reset flow', () => {
   test('signin page distingue explicitement les parcours Parent et Élève', async ({ page }) => {
     await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('Parent ?', { exact: false })).toBeVisible();
-    await expect(page.getByText('Élève ?', { exact: false })).toBeVisible();
+    // Depuis le correctif d'orientation (10/10) : le libellé élève nomme l'espace pédagogique
+    // et pointe vers sa connexion (identifiant + code personnel), plus vers un e-mail.
+    await expect(page.getByText("Élève de l'espace pédagogique ?", { exact: false })).toBeVisible();
+    await expect(page.getByRole('link', { name: /connectez-vous sur l'espace élève/i })).toHaveAttribute('href', '/espace/connexion');
   });
 });

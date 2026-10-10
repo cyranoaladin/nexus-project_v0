@@ -29,7 +29,7 @@ const lesson: LessonContent = {
       fields: [
         {
           id: 'lim', label: 'Limite de g en \\(1^+\\)', input: 'line',
-          check: { kind: 'limit', accept: ['+inf'], rules: [{ when: ['-inf'], feedback: 'Regarde le signe du dénominateur.' }], success: 'Oui.' },
+          check: { kind: 'limit', accept: ['+inf'], rules: [{ when: ['-inf'], feedback: 'Regarde le signe du dénominateur.' }], success: 'Oui.', solution: 'Correction : \\(x-1\\gt0\\) donc la limite est +∞.' },
         },
         { id: 'just', label: 'Justifie.' },
         { id: 'tang', label: 'Tangente', input: 'line', check: { kind: 'linear', accept: ['y=-3x-1'] } },
@@ -107,6 +107,38 @@ describe('vérification des réponses', () => {
     expect(screen.getAllByTestId('check-feedback')[0]).toHaveTextContent('Regarde le signe du dénominateur.');
     expect(screen.getAllByTestId('check-feedback')[0]).not.toHaveTextContent(/^Faux/);
     expect(edit).toHaveBeenCalledWith('s1', expect.objectContaining({ tries: { lim: 1 }, solved: { lim: false } }), expect.anything());
+  });
+
+  describe('correction détaillée', () => {
+    it('proposée après une réponse fausse (reconnue ou non), repliée par défaut, formules rendues', () => {
+      for (const wrong of ['−∞', '5']) {
+        const { container, unmount } = setup({ s1: { fields: { lim: wrong } } });
+        fireEvent.click(screen.getAllByRole('button', { name: 'Je vérifie' })[0]!);
+        const details = screen.getByTestId('check-solution');
+        expect(details.tagName).toBe('DETAILS');
+        expect(details).not.toHaveAttribute('open');
+        expect(within(details).getByText('Voir la correction détaillée')).toBeInTheDocument();
+        expect(details).toHaveTextContent('Correction :');
+        expect(details.querySelector('.katex')).not.toBeNull();
+        expect(container.textContent).not.toContain('\\(');
+        unmount();
+      }
+    });
+
+    it('absente après une bonne réponse, une réponse vide ou avant toute vérification', () => {
+      setup({ s1: { fields: { lim: '+∞' } } });
+      expect(screen.queryByTestId('check-solution')).toBeNull();
+      fireEvent.click(screen.getAllByRole('button', { name: 'Je vérifie' })[0]!);
+      expect(screen.queryByTestId('check-solution')).toBeNull();
+    });
+
+    it('disparaît dès que l’élève modifie sa réponse', () => {
+      setup({ s1: { fields: { lim: '5' } } });
+      fireEvent.click(screen.getAllByRole('button', { name: 'Je vérifie' })[0]!);
+      expect(screen.getByTestId('check-solution')).toBeInTheDocument();
+      fireEvent.change(screen.getByLabelText(/Limite de g/), { target: { value: '6' } });
+      expect(screen.queryByTestId('check-solution')).toBeNull();
+    });
   });
 
   it('une réponse vide ne compte pas comme un essai', () => {

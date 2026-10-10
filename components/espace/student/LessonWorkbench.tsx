@@ -311,6 +311,16 @@ export function LessonWorkbench({ userId, work, content, runnerSource, annotatio
                 <p className="text-sm text-neutral-300">Réponse déjà validée ({triesNow[f.id] ?? 1} essai{(triesNow[f.id] ?? 1) > 1 ? 's' : ''}).</p>
               ) : null}
             </div>
+            {verdict && !verdict.ok && !verdict.empty && verdict.solution && (
+              <details data-testid="check-solution" className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-neutral-100">
+                <summary className="cursor-pointer font-medium text-brand-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-accent">
+                  Voir la correction détaillée
+                </summary>
+                <div className="mt-2">
+                  <RichText text={verdict.solution} />
+                </div>
+              </details>
+            )}
           </div>
         )}
       </div>

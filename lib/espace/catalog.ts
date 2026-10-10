@@ -11,12 +11,14 @@ import pooContentJson from '@/content/espace/nsi-poo/content.json';
 import maths2ContentJson from '@/content/espace/maths-fonctions-limites/content.json';
 import poo2ContentJson from '@/content/espace/nsi-structures-lineaires/content.json';
 import recursiviteContentJson from '@/content/espace/nsi-recursivite/content.json';
+import secondDegreContentJson from '@/content/espace/maths-second-degre/content.json';
 
 import type { LessonContent, LessonField, LessonQuestion, LessonStep } from './lesson-types';
 import { getBilanLesson } from './bilan-data';
 import { BILAN_LEVELS, getBilanProfile } from './bilan-profiles';
 import {
   MATHS_LIMITES_ACTIVITY_SLUG,
+  MATHS_SECOND_DEGRE_ACTIVITY_SLUG,
   MATHS_SUITES_ACTIVITY_SLUG,
   NSI_ENTRAINEMENT_ACTIVITY_SLUG,
   POO2_ACTIVITY_SLUG,
@@ -24,7 +26,7 @@ import {
   RECURSIVITE_ACTIVITY_SLUG,
 } from './lesson-routes';
 
-export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, NSI_ENTRAINEMENT_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG };
+export { MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SECOND_DEGRE_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, NSI_ENTRAINEMENT_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, POO_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG };
 
 // Noms historiques conservés (TP 1) : ce sont désormais des alias du contrat commun.
 export type PooQuestion = LessonQuestion;
@@ -58,6 +60,7 @@ const LESSONS: Record<string, LessonDef> = {
   [POO2_ACTIVITY_SLUG]: { content: poo2ContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-structures-lineaires/runner.py' },
   [RECURSIVITE_ACTIVITY_SLUG]: { content: recursiviteContentJson as unknown as LessonContent, runnerPath: 'content/espace/nsi-recursivite/runner.py' },
   [MATHS_LIMITES_ACTIVITY_SLUG]: { content: maths2ContentJson as unknown as LessonContent, runnerPath: null },
+  [MATHS_SECOND_DEGRE_ACTIVITY_SLUG]: { content: secondDegreContentJson as unknown as LessonContent, runnerPath: null },
 };
 
 export function getLesson(slug: string): LessonDef | undefined {
@@ -98,6 +101,12 @@ export interface ActivityDef {
   contentVersion: string;
   /** Ressources privées éventuelles (RESOURCE_PACK / UPLOAD_EXERCISE). */
   resources: ResourceDef[];
+  /**
+   * Si présent, l'activité n'est PROPOSÉE (tableau de bord, « Mes matières ») qu'aux élèves inscrits à la matière dans l'un
+   * de ces groupes — pour ne pas montrer un parcours de Première à une classe de Terminale. Ce n'est pas un contrôle
+   * d'accès : l'inscription à la matière reste le critère d'ouverture.
+   */
+  groupSlugs?: readonly string[];
 }
 
 
@@ -176,6 +185,19 @@ export const ACTIVITIES: readonly ActivityDef[] = [
     stepsTotal: getLessonRequiredSteps(MATHS_LIMITES_ACTIVITY_SLUG).length,
     contentVersion: maths2ContentJson.version,
     resources: [{ key: 'corrige', label: 'Corrigé enseignant', audience: 'TEACHER', file: 'corrige.pdf', mimeType: 'application/pdf' }],
+  },
+  {
+    slug: MATHS_SECOND_DEGRE_ACTIVITY_SLUG,
+    subject: 'MATHEMATIQUES',
+    moduleSlug: 'second-degre',
+    moduleTitle: 'Le second degré',
+    title: 'Le second degré — équations, inéquations, variations et problèmes',
+    // Parcours guidé par étapes, vérification des réponses côté élève ; la valeur d'énumération existante évite toute migration.
+    kind: 'RESOURCE_PACK',
+    stepsTotal: getLessonRequiredSteps(MATHS_SECOND_DEGRE_ACTIVITY_SLUG).length,
+    contentVersion: secondDegreContentJson.version,
+    resources: [],
+    groupSlugs: ['premiere-generale'],
   },
   {
     slug: NSI_ENTRAINEMENT_ACTIVITY_SLUG,

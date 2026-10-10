@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useEffect, useState } from 'react';
@@ -140,6 +142,12 @@ export function ConnexionForm({ callbackUrl, credentialChanged = false }: { call
       <div className="mt-6 space-y-2 text-center text-sm text-neutral-400">
         <p>Élèves : code oublié ou perdu ? Demandez-en un nouveau à votre enseignant.</p>
         <p>Enseignants : pour un mot de passe oublié, contactez l’administrateur.</p>
+        <p>
+          Parent, ou accès du site par e-mail (administration)&nbsp;?{' '}
+          <Link href="/auth/signin" className="text-brand-accent underline underline-offset-2">
+            Connexion par e-mail ou téléphone
+          </Link>
+        </p>
       </div>
     </div>
   );
