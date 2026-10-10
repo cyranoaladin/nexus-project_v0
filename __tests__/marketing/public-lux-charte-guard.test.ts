@@ -294,6 +294,7 @@ describe('Public lux-* charte guard', () => {
     'app/espace/enseignant/ressources/page.tsx',
     'app/espace/enseignant/seances/page.tsx',
     'app/espace/maths/fonctions-limites/page.tsx',
+    'app/espace/maths/second-degre/page.tsx',
     'app/espace/maths/suites/page.tsx',
     'app/espace/nsi/poo/page.tsx',
     'app/espace/nsi/structures-lineaires/page.tsx',
