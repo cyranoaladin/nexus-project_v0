@@ -365,7 +365,21 @@ export function CorporateNavbar() {
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Se connecter</span>
                       <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
-                        Admin, coach, parent, élève…
+                        Parent, coach, administration (e-mail ou téléphone)
+                      </span>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/espace/connexion"
+                    onClick={() => setIsConnexionOpen(false)}
+                    className={chromeMenuItem}
+                    role="menuitem"
+                  >
+                    <LogIn className="w-5 h-5 mt-0.5 text-lux-evergreen flex-shrink-0" aria-hidden="true" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">Espace élève</span>
+                      <span className="text-xs text-neutral-500 group-hover/item:text-neutral-400 mt-0.5 transition-colors">
+                        Identifiant et code personnel
                       </span>
                     </div>
                   </Link>
@@ -530,6 +544,14 @@ export function CorporateNavbar() {
                     >
                       <LogIn className="w-4 h-4" aria-hidden="true" />
                       Se connecter
+                    </Link>
+                    <Link
+                      href="/espace/connexion"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition-all hover:border-lux-gold/40 hover:bg-white/10"
+                    >
+                      <LogIn className="w-4 h-4" aria-hidden="true" />
+                      Espace élève
                     </Link>
                     <Link
                       href="/bilan-gratuit"
