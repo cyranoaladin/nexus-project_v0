@@ -298,6 +298,7 @@ describe('Public lux-* charte guard', () => {
     'app/espace/nsi/poo/page.tsx',
     'app/espace/nsi/structures-lineaires/page.tsx',
     'app/espace/nsi/recursivite/page.tsx',
+    'app/espace/nsi/entrainement-evaluation/page.tsx',
     'app/espace/page.tsx',
   ];
 

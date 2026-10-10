@@ -26,6 +26,7 @@ MANUAL_EVIDENCE_BOUND_TO_SHA=YES
 | `e2e/bilan-validation/auth-hydration.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
 | `e2e/bilan-validation/mobile-account.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
 | `e2e/bilan-validation/espace-bilan.spec.ts` | Idem (lecture différée des credentials `BILAN_TEST_CREDENTIALS`) | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
+| `e2e/bilan-validation/entrainement-nsi.spec.ts` | Idem | Idem | Idem | Équipe Espace | Idem | Idem | 2026-11-09 |
 
 ## Écarts connus (à arbitrer, non corrigés ici)
 

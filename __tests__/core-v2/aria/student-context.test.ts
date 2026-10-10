@@ -72,7 +72,7 @@ describe('Core v2 ARIA student context minimization', () => {
     );
   });
 
-  it('serializes a generic 404 without exposing the actor user id or details', async () => {
+  it('returns a canonical 403 (no existence leak) when the actor has no Core v2 student', async () => {
     const findUnique = jest.fn().mockResolvedValue(null);
 
     let caught: unknown;
@@ -84,15 +84,33 @@ describe('Core v2 ARIA student context minimization', () => {
 
     expect(caught).toBeInstanceOf(CoreV2AriaStudentNotFoundError);
     const response = failFromError(caught, ctx.correlationId);
-    expect(response.status).toBe(404);
-    await expect(response.json()).resolves.toEqual({
+    // Contrat : 403 FORBIDDEN, jamais 404 (qui révélerait l'absence de dossier) ni 503.
+    expect(response.status).toBe(403);
+    const body = await response.json();
+    expect(body).toEqual({
       ok: false,
       error: {
-        code: 'NOT_FOUND',
-        message: 'No active Core v2 student enrollment was found.',
+        code: 'FORBIDDEN',
+        message: "ARIA n'est pas disponible pour ce compte.",
       },
       correlationId: 'corr-core-v2-aria',
     });
+    // Aucune fuite dans le message : ni « not found », ni mention d'inscription/dossier.
+    expect(body.error.message).not.toMatch(/not found|introuvable|enrollment|inscription|élève|student/i);
+  });
+
+  it('returns the same 403 (no existence leak) when the student has no active current-year enrollment', async () => {
+    const findUnique = jest.fn().mockResolvedValue({
+      id: 's1', user: { id: 'u1', firstName: 'T', lastName: 'T' }, academicYearEnrollments: [],
+    });
+    let caught: unknown;
+    try {
+      await loadCoreV2AriaStudentContext({ student: { findUnique } } as never, ctx);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(CoreV2AriaStudentNotFoundError);
+    expect(failFromError(caught, ctx.correlationId).status).toBe(403);
   });
 
   it('keeps the integrity error and its serialized response free of the student id', async () => {

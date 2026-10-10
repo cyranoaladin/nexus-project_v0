@@ -20,7 +20,7 @@ import type { AcademicTrack, GradeLevel, Prisma, SchoolingStatus, StmgPathway } 
 import type { ServiceContext } from '@/lib/core-v2/services/context';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { resolveLegacySubjectForCourse } from '@/lib/curriculum/legacy-migration-map';
-import { NotFoundError } from '@/lib/core-v2/errors';
+import { ForbiddenError } from '@/lib/core-v2/errors';
 import { assertSelfServiceRole } from '@/lib/core-v2/rbac';
 
 const coreV2AriaStudentSelect = {
@@ -70,13 +70,16 @@ export interface CoreV2AriaStudentContext {
 }
 
 /**
- * A `NotFoundError` (maps to HTTP 404 via `defineStaffRoute`'s
- * `failFromError`) — the exact analogue of the legacy path's
- * `AriaError('NOT_ENROLLED', 404, ...)`, never a generic 500.
+ * A `ForbiddenError` (maps to HTTP 403 via `defineStaffRoute`'s
+ * `failFromError`). Contrat ARIA Core v2 : un acteur authentifié mais SANS
+ * identité/inscription Core v2 provisionnée reçoit un 403 canonique, SANS
+ * fuite d'existence (le message ne révèle pas si un enregistrement élève
+ * existe ou non) — jamais un 404 (qui distinguerait « existe » de « n'existe
+ * pas ») ni un 503. Le nom historique est conservé pour les appelants.
  */
-export class CoreV2AriaStudentNotFoundError extends NotFoundError {
+export class CoreV2AriaStudentNotFoundError extends ForbiddenError {
   constructor() {
-    super('No active Core v2 student enrollment was found.');
+    super("ARIA n'est pas disponible pour ce compte.");
   }
 }
 

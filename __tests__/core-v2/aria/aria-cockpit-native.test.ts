@@ -381,12 +381,15 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
-  test('no Core v2 student -> 404, never a generic 500', async () => {
+  test('no Core v2 student -> 403 canonique sans fuite d\'existence, jamais 404/500', async () => {
     const orphan = await h.client.user.create({ data: { role: 'ELEVE', email: 'orphan-cockpit-v2@synthetic.test', accountStatus: 'ACTIVE' } });
     signInAs({ id: orphan.id, role: 'ELEVE' });
     const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
-    expect(r.status).toBe(404);
-    expect(r.body.error.code).toBe('NOT_FOUND');
+    // Contrat ARIA Core v2 : un compte non provisionné reçoit 403 FORBIDDEN,
+    // jamais 404 (qui distinguerait « dossier existant » de « absent » = fuite).
+    expect(r.status).toBe(403);
+    expect(r.body.error.code).toBe('FORBIDDEN');
+    expect(r.body.error.message).not.toMatch(/not found|introuvable|enrollment|inscription|élève|student/i);
   });
 
   test('another student is never returned — the actor is always self, never a client-supplied id', async () => {

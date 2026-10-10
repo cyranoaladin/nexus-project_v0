@@ -14,7 +14,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
-import { getActivityDef, MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG } from '@/lib/espace/catalog';
+import { getActivityDef, MATHS_LIMITES_ACTIVITY_SLUG, MATHS_SUITES_ACTIVITY_SLUG, NSI_ENTRAINEMENT_ACTIVITY_SLUG, POO2_ACTIVITY_SLUG, RECURSIVITE_ACTIVITY_SLUG } from '@/lib/espace/catalog';
 
 /** `manifest` : fichier d'empreintes attendu dans --from (Suites : manifeste d'origine ; corrigés : celui de build-corriges.ts). */
 const MODULES: Record<string, { slug: string; manifest: string }> = {
@@ -22,6 +22,7 @@ const MODULES: Record<string, { slug: string; manifest: string }> = {
   'fonctions-limites': { slug: MATHS_LIMITES_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
   'poo-structures': { slug: POO2_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
   recursivite: { slug: RECURSIVITE_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
+  'entrainement-evaluation': { slug: NSI_ENTRAINEMENT_ACTIVITY_SLUG, manifest: 'MANIFEST.json' },
 };
 // Ancien nom du brouillon : conservé comme alias de `poo-structures`.
 MODULES.structures = MODULES['poo-structures']!;
