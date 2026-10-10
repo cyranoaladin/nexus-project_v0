@@ -14,6 +14,18 @@ import { useRouter,useSearchParams } from "next/navigation";
 import { ManualParentWhatsAppHelp } from '@/components/auth/ManualParentWhatsAppHelp';
 import { useEffect, useState } from "react";
 
+/**
+ * Un identifiant d'ESPACE (élève/enseignant de l'espace pédagogique) ressemble à `prenom.nom` :
+ * ni e-mail (pas de @), ni téléphone (pas uniquement des chiffres, espaces, points, tirets, +).
+ * Sert uniquement à ORIENTER après un échec — jamais à révéler l'existence d'un compte.
+ */
+export function looksLikeEspaceUsername(raw: string): boolean {
+  const v = raw.trim().toLowerCase();
+  if (!v || v.includes('@')) return false;
+  if (/^[+0-9][0-9 .\-()]*$/.test(v)) return false; // téléphone
+  return /^[a-z0-9][a-z0-9._\-]*$/.test(v) && /[a-z]/.test(v);
+}
+
 export function SignInForm() {
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => { setIsHydrated(true); }, []);
@@ -198,6 +210,15 @@ export function SignInForm() {
               {error && (
                 <div className="bg-error/10 border border-error/20 rounded-lg p-4" role="alert">
                   <p className="text-error text-sm font-medium">{error}</p>
+                  {looksLikeEspaceUsername(email) && (
+                    <p className="mt-2 text-sm text-lux-on-dark-muted">
+                      Un identifiant comme « prenom.nom » est un accès à l'espace pédagogique : il se
+                      connecte avec un code personnel, pas ici.{" "}
+                      <Link href="/espace/connexion" className="text-lux-gold underline underline-offset-2">
+                        Aller à la connexion de l'espace élève
+                      </Link>
+                    </p>
+                  )}
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
                     <Link
                       href="/auth/mot-de-passe-oublie"
@@ -284,8 +305,12 @@ export function SignInForm() {
                 Connectez-vous avec votre téléphone WhatsApp activé ou votre email.
               </p>
               <p className="text-sm text-lux-on-dark-muted">
-                <span className="font-semibold text-emerald-400">Élève ?</span>{" "}
-                Connectez-vous avec l'email élève reçu lors de votre inscription.
+                <span className="font-semibold text-emerald-400">Élève de l'espace pédagogique ?</span>{" "}
+                Votre accès est un identifiant (prenom.nom) et un code personnel :{" "}
+                <Link href="/espace/connexion" className="text-lux-gold underline underline-offset-2">
+                  connectez-vous sur l'espace élève
+                </Link>
+                .
               </p>
             </div>
 

@@ -5,6 +5,7 @@ export const POO2_ACTIVITY_SLUG = 'nsi-poo-structures-lineaires';
 export const RECURSIVITE_ACTIVITY_SLUG = 'nsi-recursivite';
 export const MATHS_SUITES_ACTIVITY_SLUG = 'maths-suites-synthese';
 export const MATHS_LIMITES_ACTIVITY_SLUG = 'maths-fonctions-limites';
+export const MATHS_SECOND_DEGRE_ACTIVITY_SLUG = 'maths-second-degre';
 export const NSI_ENTRAINEMENT_ACTIVITY_SLUG = 'nsi-entrainement-evaluation';
 export const BILAN_3E_ACTIVITY_SLUG = BILAN_PROFILES['3e'].slug;
 export const BILAN_2NDE_ACTIVITY_SLUG = BILAN_PROFILES['2nde'].slug;
@@ -28,6 +29,8 @@ export function lessonHref(slug: string, sessionId?: string | null): string | nu
       return '/espace/maths/suites';
     case MATHS_LIMITES_ACTIVITY_SLUG:
       return `/espace/maths/fonctions-limites${q}`;
+    case MATHS_SECOND_DEGRE_ACTIVITY_SLUG:
+      return `/espace/maths/second-degre${q}`;
     case NSI_ENTRAINEMENT_ACTIVITY_SLUG:
       return '/espace/nsi/entrainement-evaluation';
     default:

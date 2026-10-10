@@ -308,7 +308,7 @@ test.describe('espace enseignant — Récursivité', () => {
     try {
       await page.goto('/espace/enseignant');
       const tabs = page.getByRole('navigation', { name: 'Choisir l’activité' });
-      await expect(tabs.getByRole('link')).toHaveCount(10); // POO 1, Suites, POO 2, Récursivité, Fonctions/limites, Entraînement évaluation NSI + 4 bilans de septembre (3e, 2nde, Tle maths, Tle NSI)
+      await expect(tabs.getByRole('link')).toHaveCount(11); // POO 1, Suites, POO 2, Récursivité, Fonctions/limites, Second degré, Entraînement évaluation NSI + 4 bilans de septembre (3e, 2nde, Tle maths, Tle NSI)
       await tabs.getByRole('link', { name: 'Récursivité et programmation récursive' }).click();
       await page.waitForURL(/activite=nsi-recursivite/);
       await expect(page.getByRole('heading', { level: 1 })).toContainText('Récursivité');
