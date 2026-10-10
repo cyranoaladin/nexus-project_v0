@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nexus-project-v0/schemas/diagnostics-content.schema.json",
+  "title": "Nexus diagnostics content contract",
+  "description": "Contrat de contenu que le moteur générique (docs/diagnostics-engine/) sait rendre. Ce schéma ne contient et ne doit jamais contenir de donnée opérationnelle (item réel, clé réelle, support réel) — voir __tests__/fixtures/diagnostic-demo/ pour un exemple entièrement synthétique. Le contenu opérationnel vit dans un dépôt privé séparé ; le moteur public consomme ce contrat, il ne le produit jamais.",
+  "type": "object",
+  "required": ["instrument", "version", "form_id", "metadata", "sections"],
+  "properties": {
+    "instrument": {"type": "string"},
+    "version": {"type": "string"},
+    "form_id": {"type": "string", "description": "ex. FORM_A, FORM_B, RESERVE_POOL"},
+    "metadata": {
+      "type": "object",
+      "required": ["target_duration_min", "score_total"],
+      "properties": {
+        "target_duration_min": {"type": "number"},
+        "score_total": {"type": "number"},
+        "content_commit": {"type": "string", "description": "commit du dépôt privé d'où vient ce contenu — jamais rempli par le moteur lui-même"},
+        "bank_version": {"type": "string"}
+      }
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "titre", "items"],
+        "properties": {
+          "id": {"type": "string"},
+          "titre": {"type": "string"},
+          "duree_conseillee_min": {"type": "number"},
+          "items": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/item"}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "support": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"enum": ["extrait_litteraire", "figure", "tableau", "code"]},
+        "titre": {"type": "string"},
+        "texte": {"type": "string", "description": "pour extrait_litteraire"},
+        "reference": {"type": "string"},
+        "chemin_image": {"type": "string", "description": "pour figure"},
+        "colonnes": {"type": "string", "description": "pour tableau, spec LaTeX tabular"},
+        "corps": {"type": "string", "description": "pour tableau"},
+        "code_lignes": {"type": "array", "items": {"type": "string"}, "description": "pour code, une entrée par ligne, jamais réindentée par le moteur"}
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["item_id", "type", "score_max", "duree_min", "enonce"],
+      "properties": {
+        "item_id": {"type": "string"},
+        "type": {"enum": ["QCM", "REPONSE_COURTE", "TACHE_OUVERTE", "PRODUCTION"]},
+        "score_max": {"type": "number"},
+        "duree_min": {"type": "number"},
+        "enonce": {"type": "string", "description": "balisage léger (**gras**, *italique*, `code`, puces -), jamais de LaTeX brut"},
+        "support": {"$ref": "#/$defs/support"},
+        "options": {
+          "type": "array",
+          "description": "QCM uniquement. Options sémantiques SANS position — la lettre A/B/C/D est assignée par scripts/qcm_position_assembler.py au moment de composer une forme, jamais à la rédaction.",
+          "items": {
+            "type": "object",
+            "required": ["id", "text"],
+            "properties": {
+              "id": {"type": "string"},
+              "text": {"type": "string"},
+              "error_code": {"type": ["string", "null"]}
+            }
+          }
+        },
+        "correct_option_id": {"type": "string", "description": "QCM uniquement"},
+        "lignes_reponse": {"type": "integer", "description": "REPONSE_COURTE/TACHE_OUVERTE : nombre de lignes de la zone de réponse"},
+        "solution_attendue": {"type": "string", "description": "REPONSE_COURTE/TACHE_OUVERTE uniquement : réponse ou raisonnement attendu. Jamais imprimé dans le PDF candidat, visible côté coach uniquement — même contrat que la clé QCM."},
+        "bareme": {"type": "string", "description": "REPONSE_COURTE/TACHE_OUVERTE uniquement : répartition des points. Jamais imprimé dans le PDF candidat, visible côté coach uniquement — même contrat que la clé QCM."},
+        "grille_notation": {
+          "type": "array",
+          "description": "PRODUCTION uniquement : critères séparés, jamais un score global opaque",
+          "items": {
+            "type": "object",
+            "required": ["code", "intitule", "descripteurs"],
+            "properties": {
+              "code": {"type": "string"},
+              "intitule": {"type": "string"},
+              "descripteurs": {
+                "type": "object",
+                "description": "clé = niveau (ex. '0'..'3'), valeur = description du niveau"
+              }
+            }
+          }
+        },
+        "notes_conception": {"type": "string", "description": "jamais imprimé dans le PDF candidat ; visible côté coach uniquement"}
+      }
+    }
+  }
+}
