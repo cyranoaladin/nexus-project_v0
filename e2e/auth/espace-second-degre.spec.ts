@@ -200,15 +200,23 @@ test.describe('Maths — le second degré (Première)', () => {
 
       const options = await page.getByLabel('Étape', { exact: true }).locator('option').allTextContents();
       expect(options).toHaveLength(10);
+      // Toutes les étapes sont contrôlées avant de conclure : un défaut ne doit pas en masquer un autre.
+      const findings: string[] = [];
       for (const label of options) {
         await page.getByLabel('Étape', { exact: true }).selectOption({ label });
         await expect(page.getByRole('heading', { level: 2 }).first()).toBeVisible();
         const { violations } = await new AxeBuilder({ page }).analyze();
-        expect({ etape: label, violations: violations.map((v) => `${v.id} [${v.impact}] : ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`) }).toEqual({ etape: label, violations: [] });
+        for (const v of violations) {
+          const detail = (n: (typeof v.nodes)[number]) => {
+            const d = n.any[0]?.data as { fgColor?: string; bgColor?: string; contrastRatio?: number } | undefined;
+            return d?.contrastRatio ? ` (${d.fgColor} sur ${d.bgColor}, ratio ${d.contrastRatio})` : '';
+          };
+          findings.push(`${label} — ${v.id} [${v.impact}] : ${v.nodes.map((n) => n.target.join(' ') + detail(n)).join(' | ')}`);
+        }
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-        expect({ etape: label, overflow }).toEqual({ etape: label, overflow: expect.any(Number) });
-        expect(overflow).toBeLessThanOrEqual(0);
+        if (overflow > 0) findings.push(`${label} — débordement horizontal de ${overflow}px`);
       }
+      expect(findings).toEqual([]);
     } finally {
       await ctx.close();
     }

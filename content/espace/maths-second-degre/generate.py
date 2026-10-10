@@ -117,7 +117,7 @@ steps.append(
             q(
                 "type",
                 r"Laquelle de ces fonctions est une fonction du second degré ?",
-                [r"\(f(x)=3x-2\)", r"\(g(x)=(x-1)^2+4\)", r"\(h(x)=x^3-x\)", r"\(k(x)=\dfrac{1}{x^2}\)"],
+                [r"Fonction \(f\) définie par \(f(x)=3x-2\)", r"Fonction \(g\) définie par \(g(x)=(x-1)^2+4\)", r"Fonction \(h\) définie par \(h(x)=x^3-x\)", r"Fonction \(k\) définie par \(k(x)=\dfrac{1}{x^2}\)"],
                 1,
                 r"En développant, \(g(x)=x^2-2x+5\) : c'est bien de la forme \(ax^2+bx+c\) avec \(a=1\ne0\).",
                 [
@@ -130,7 +130,7 @@ steps.append(
             q(
                 "abc",
                 r"Pour \(p(x)=2x^2-5x+1\), quelles sont les valeurs de \(a\), \(b\), \(c\) ?",
-                [r"\(a=2\), \(b=-5\), \(c=1\)", r"\(a=2\), \(b=5\), \(c=1\)", r"\(a=-5\), \(b=2\), \(c=1\)", r"\(a=1\), \(b=-5\), \(c=2\)"],
+                ["a = 2, b = −5, c = 1", "a = 2, b = 5, c = 1", "a = −5, b = 2, c = 1", "a = 1, b = −5, c = 2"],
                 0,
                 r"\(a\) est devant \(x^2\), \(b\) devant \(x\), \(c\) est le terme constant. Le signe fait partie du coefficient : \(b=-5\).",
                 [
@@ -786,7 +786,8 @@ steps.append(
         "concepts": ["forme canonique", "sommet de la parabole", "extremum", "tableau de variations", "image d'un intervalle"],
         "intro": "Tout trinôme peut s'écrire avec son sommet. C'est la clé pour les variations et pour trouver un maximum ou un minimum.",
         "lesson": (
-            r"<p>Tout trinôme \(f(x)=ax^2+bx+c\) s'écrit sous <strong>forme canonique</strong> \[f(x)=a(x-\alpha)^2+\beta\qquad\text{avec}\qquad\alpha=-\frac b{2a}\ \text{ et }\ \beta=f(\alpha).\]"
+            r"<p>Tout trinôme \(f(x)=ax^2+bx+c\) s'écrit sous <strong>forme canonique</strong> \[f(x)=a(x-\alpha)^2+\beta.\]"
+            r"Ici \(\alpha=-\dfrac b{2a}\) et \(\beta=f(\alpha)\). "
             r"Le point \(S(\alpha\,;\beta)\) est le <strong>sommet</strong> de la parabole.</p>"
             + box(
                 "Variations",
@@ -838,7 +839,7 @@ steps.append(
             q(
                 "compare",
                 r"Soit \(f(x)=x^2-6x+1\), de sommet d'abscisse \(\alpha=3\). Que peut-on dire de \(f(1)\) et \(f(2)\) ?",
-                [r"\(f(1)\gt f(2)\)", r"\(f(1)\lt f(2)\)", r"\(f(1)=f(2)\)"],
+                [r"On a \(f(1)\gt f(2)\)", r"On a \(f(1)\lt f(2)\)", r"On a \(f(1)=f(2)\)"],
                 0,
                 r"\(a=1\gt0\) : \(f\) est décroissante sur \(]-\infty\,;3]\). Comme \(1\lt2\le3\), on a \(f(1)\gt f(2)\) : en effet \(f(1)=-4\) et \(f(2)=-7\).",
                 [
@@ -968,12 +969,12 @@ steps.append(
                 r"<li>Résoudre (équation, inéquation ou recherche d'extremum).</li>"
                 r"<li>Vérifier que la solution est <em>possible</em> dans le problème, puis répondre par une phrase.</li></ol>",
             )
-            + r"<h4>Problème 1 — Le rectangle d'aire maximale</h4>"
+            + r"<h3>Problème 1 — Le rectangle d'aire maximale</h3>"
             r"<p>Un rectangle a un périmètre de 20 m. On note \(x\) (en m) sa longueur, avec \(0\lt x\lt10\) ; sa largeur est donc \(10-x\).</p>"
             r"{{f:aire}}{{f:xmax}}{{f:amax}}{{q:nature}}"
-            r"<h4>Problème 2 — Deux entiers consécutifs</h4>"
+            r"<h3>Problème 2 — Deux entiers consécutifs</h3>"
             r"<p>Le produit de deux entiers consécutifs vaut 156. Si \(n\) est le plus petit, l'équation est \(n(n+1)=156\), soit \(n^2+n-156=0\).</p>{{f:entiers}}"
-            r"<h4>Problème 3 — Un chemin autour d'une pelouse</h4>"
+            r"<h3>Problème 3 — Un chemin autour d'une pelouse</h3>"
             r"<p>Un terrain rectangulaire mesure 60 m sur 40 m. On trace tout autour, à l'intérieur, un chemin de largeur constante \(x\) (en m). "
             r"La pelouse restante est un rectangle de dimensions \(60-2x\) et \(40-2x\), et on veut qu'elle ait une aire de 1\u202f500\u00a0m².</p>"
             r"<p>L'équation est \((60-2x)(40-2x)=1\,500\), c'est-à-dire \(4x^2-200x+900=0\).</p>{{f:simplifie}}{{f:chemin}}{{q:rejet}}"
@@ -1114,10 +1115,10 @@ steps.append(
         "concepts": ["modélisation", "maximum", "inéquation", "interprétation"],
         "intro": "Deux modèles réels : la hauteur d'une balle et le bénéfice d'une entreprise. Mêmes outils, nouveaux contextes.",
         "lesson": (
-            r"<h4>Problème 4 — Une balle lancée</h4>"
+            r"<h3>Problème 4 — Une balle lancée</h3>"
             r"<p>Du toit d'un immeuble, on lance une balle vers le haut. Sa hauteur au-dessus du sol, en mètres, à l'instant \(t\) (en secondes) est \[h(t)=-5t^2+20t+25.\]</p>"
             r"{{fig:balle}}{{f:tmax}}{{f:hmaxb}}{{f:tsol}}{{f:t40}}"
-            r"<h4>Problème 5 — Un bénéfice</h4>"
+            r"<h3>Problème 5 — Un bénéfice</h3>"
             r"<p>Une entreprise fabrique et vend \(x\) centaines d'objets par mois (\(0\le x\le8\)). Son bénéfice mensuel, en milliers de dinars, est \[B(x)=-2x^2+12x-10.\]</p>"
             r"{{f:rentable}}{{f:xopt}}{{f:bmax}}{{f:perte}}{{q:conclusion}}"
         ),
@@ -1295,11 +1296,20 @@ steps.append(
             )
             + r"<h4>Équation \(ax^2+bx+c=0\)</h4>"
             + table(
-                [r"Discriminant \(\Delta=b^2-4ac\)", "Solutions", "Factorisation", r"Signe de \(ax^2+bx+c\)"],
+                [r"Discriminant \(\Delta=b^2-4ac\)", "Solutions", "Factorisation"],
                 [
-                    [r"\(\gt0\)", r"\(\dfrac{-b\pm\sqrt\Delta}{2a}\)", r"\(a(x-x_1)(x-x_2)\)", r"signe de \(a\) à l'extérieur, contraire entre"],
-                    [r"\(=0\)", r"\(-\dfrac b{2a}\)", r"\(a(x-x_0)^2\)", r"signe de \(a\), nul en \(x_0\)"],
-                    [r"\(\lt0\)", "aucune", "impossible dans \\(\\mathbb R\\)", r"signe de \(a\) partout"],
+                    [r"\(\gt0\)", r"\(\dfrac{-b\pm\sqrt\Delta}{2a}\)", r"\(a(x-x_1)(x-x_2)\)"],
+                    [r"\(=0\)", r"\(-\dfrac b{2a}\)", r"\(a(x-x_0)^2\)"],
+                    [r"\(\lt0\)", "aucune", "impossible dans \\(\\mathbb R\\)"],
+                ],
+            )
+            + r"<h4>Signe de \(ax^2+bx+c\)</h4>"
+            + table(
+                [r"Discriminant", "Signe du trinôme"],
+                [
+                    [r"\(\gt0\)", r"signe de \(a\) à l'extérieur des racines, signe contraire entre elles"],
+                    [r"\(=0\)", r"signe de \(a\), nul en \(x_0\)"],
+                    [r"\(\lt0\)", r"signe de \(a\) pour tout réel \(x\)"],
                 ],
             )
             + r"<h4>Somme et produit</h4><p>\(x_1+x_2=-\dfrac ba\), \(x_1x_2=\dfrac ca\). Racines évidentes : \(a+b+c=0\Rightarrow1\) ; \(a-b+c=0\Rightarrow-1\).</p>"

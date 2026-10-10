@@ -142,6 +142,28 @@ describe('structure', () => {
     }
   });
 
+  it('chaque choix de QCM et chaque libellé de champ contient du texte (pas seulement une formule) : sinon axe signale « label » (critique)', () => {
+    const noMath = (t: string) => t.replace(/\\\(.*?\\\)|\\\[.*?\\\]/g, '');
+    for (const s of lesson.steps) {
+      for (const qu of s.questions) {
+        expect({ step: s.id, q: qu.id, legend: noMath(qu.text) }).toEqual({ step: s.id, q: qu.id, legend: expect.stringMatching(/[A-Za-zÀ-ÿ0-9]/) });
+        for (const c of qu.choices) expect({ step: s.id, q: qu.id, choice: c, plain: noMath(c) }).toEqual({ step: s.id, q: qu.id, choice: c, plain: expect.stringMatching(/[A-Za-zÀ-ÿ0-9]/) });
+      }
+      for (const f of s.fields) expect({ step: s.id, f: f.id, label: noMath(f.label) }).toEqual({ step: s.id, f: f.id, label: expect.stringMatching(/[A-Za-zÀ-ÿ0-9]/) });
+    }
+  });
+
+  it('les titres du cours ne sautent aucun niveau (le titre d’étape est un h2) : sinon axe signale « heading-order »', () => {
+    for (const s of lesson.steps) {
+      let previous = 2;
+      for (const m of s.lesson.matchAll(/<h([1-6])\b/g)) {
+        const level = Number(m[1]);
+        expect({ step: s.id, level, ok: level >= 3 && level <= previous + 1 }).toEqual({ step: s.id, level, ok: true });
+        previous = level;
+      }
+    }
+  });
+
   it('aucun reste d’échappement, de HTML brut dans les formules ni de « Faux. » nu', () => {
     const all = JSON.stringify(content);
     expect(all).not.toMatch(/\\\\u[0-9a-f]{4}/i);
@@ -302,7 +324,7 @@ describe('variations', () => {
     const f: Trinome = [1, -6, 1];
     expect(alpha(f)).toBe(3);
     expect(ev(f, 1)).toBeGreaterThan(ev(f, 2));
-    expect(correctChoice('variations', 'compare')).toBe('\\(f(1)\\gt f(2)\\)');
+    expect(correctChoice('variations', 'compare')).toBe('On a \\(f(1)\\gt f(2)\\)');
   });
   it('image de [0 ; 5] par k', () => {
     const k: Trinome = [1, -4, 3];
