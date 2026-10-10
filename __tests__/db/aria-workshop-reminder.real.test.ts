@@ -11,6 +11,7 @@ import {
 import { notifyParentWorkshopReminder } from '@/lib/aria/notifications/notify-parent-workshop-reminder';
 import { scheduleAriaWorkshopSession } from '@/lib/aria/application/workshop/schedule-workshop';
 import { registerForAriaWorkshop } from '@/lib/aria/application/workshop/register-for-workshop';
+import { combineDateAndTime } from '@/lib/planning/invariants';
 import {
   cleanupAriaRealDbFixture,
   seedAriaRealDbFixture,
@@ -19,6 +20,16 @@ import {
 const databaseUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 const REAL_COURSE_KEY = 'eds-maths-premiere';
 
+// deterministic-clock: this suite never reads the wall clock. Every instant is
+// derived from a single fixed, injected clock (SESSION_START_INSTANT), and that
+// SAME clock is injected into the fixture's entitlement window via
+// `seedAriaRealDbFixture(..., { now: REMINDER_DUE_AT })`, so the window always
+// brackets the evaluation instant regardless of real UTC time. Previously the
+// fixture anchored its window to PostgreSQL NOW() while these instants were
+// fixed, so the suite silently turned red once real UTC passed the anchor — a
+// time-bomb. Shifting the clock by any offset (see the ±30d/±1y cases below)
+// must change nothing.
+//
 // A workshop starting at 14:00 on 2026-10-10 (pseudo-UTC, same convention as
 // combineDateAndTime) — its reminder is due exactly ARIA_WORKSHOP_REMINDER_OFFSET_HOURS
 // (24h) before that, and every test below anchors its own `now` off this.
@@ -94,7 +105,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('queues exactly one real reminder for a real, still-eligible, due registration', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Marie', family.parentUser]);
@@ -117,7 +128,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('does not queue a reminder before it is due', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier pas encore dû' });
@@ -137,7 +148,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never queues a second reminder for an already-claimed registration (idempotent across scans)', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Karim', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Sonia', family.parentUser]);
@@ -160,7 +171,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('a genuine concurrent double-scan hits the atomic claim and never double-queues', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Fatma', family.parentUser]);
@@ -184,7 +195,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder once the real session has already started (too late, claimed but suppressed)', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier déjà commencé' });
@@ -204,7 +215,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder after a scheduled workshop with a real registration is cancelled', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const session = await scheduleAriaWorkshopSession({
@@ -241,7 +252,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder for a real attendee whose registration was cancelled', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier inscription annulée' });
@@ -260,7 +271,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder for a real student whose tier no longer includes collective workshops (revoked/downgraded since registration)', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier tier révoqué' });
@@ -285,7 +296,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder for a real entitlement that expired since registration', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier entitlement expiré' });
@@ -311,7 +322,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
     // Only reachable by direct DB insertion, since the real registration
     // path itself would have refused this student in the first place —
     // proven here purely as a defense-in-depth boundary on the scan.
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier jamais éligible' });
       await createRegisteredAttendee(sessionId, family.student);
@@ -328,8 +339,8 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('scopes each real reminder to its own real family — never cross-mixes two different parents in the same scan', async () => {
-    const familyA = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
-    const familyB = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const familyA = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
+    const familyB = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, familyA.entitlement);
     await upgradeToSuiviTier(pool, familyB.entitlement);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', familyA.studentUser]);
@@ -356,6 +367,10 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('genuinely uses its real default `now` when none is supplied — a session long in the past is correctly skipped as too late', async () => {
+    // Intentionally seeds with the real-now default window (no injected clock):
+    // this is the one test that exercises queueDueAriaWorkshopReminders()'s live
+    // tunisNowAsPretendUtc() default, and the 2020 session is skipped as too
+    // late before eligibility is ever evaluated.
     const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
@@ -386,7 +401,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('never sends a reminder for a session filed under an unrecognized course key (defense-in-depth, only reachable via a corrupted/direct row)', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await prisma.ariaWorkshopSession.create({
@@ -415,7 +430,7 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
   });
 
   it('a losing racer whose atomic claim affects zero rows is a silent no-op, never a duplicate or an error', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await upgradeToSuiviTier(pool, family.entitlement);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier claim perdant' });
@@ -437,6 +452,97 @@ describe('queueDueAriaWorkshopReminders (P7c)', () => {
       await cleanupAriaRealDbFixture(pool, family);
     }
   });
+
+  // --- Time-bomb regression guards (see the deterministic-clock note at the top
+  //     of this file). These prove the suite's outcome depends only on the
+  //     injected clock, never on real UTC time. ---
+
+  // Standard session (due at REMINDER_DUE_AT), fixture window injected at the
+  // same anchor; only the `now` passed to the scan varies.
+  const runStandardScenarioAtNow = async (now: Date, title: string) => {
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
+    await upgradeToSuiviTier(pool, family.entitlement);
+    try {
+      const sessionId = await createSession(staffUserId, { title });
+      await createRegisteredAttendee(sessionId, family.student);
+      return await queueDueAriaWorkshopReminders(now);
+    } finally {
+      await pool.query(`DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`, [family.parentUser]);
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  };
+
+  // Whole scenario (session + fixture window + scan `now`) shifted by an
+  // arbitrary offset off the fixed clock — the result must be identical.
+  const runShiftedDueScenario = async (offsetMs: number, title: string) => {
+    const start = new Date(SESSION_START_INSTANT.getTime() + offsetMs);
+    const due = new Date(start.getTime() - ARIA_WORKSHOP_REMINDER_OFFSET_HOURS * 60 * 60 * 1000);
+    const scheduledDate = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const startTime = `${pad(start.getUTCHours())}:${pad(start.getUTCMinutes())}`;
+    const endTime = `${pad((start.getUTCHours() + 1) % 24)}:${pad(start.getUTCMinutes())}`;
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: due });
+    await upgradeToSuiviTier(pool, family.entitlement);
+    try {
+      const session = await prisma.ariaWorkshopSession.create({
+        data: { courseKey: REAL_COURSE_KEY, title, scheduledDate, startTime, endTime, status: 'SCHEDULED', createdById: staffUserId },
+        select: { id: true },
+      });
+      await createRegisteredAttendee(session.id, family.student);
+      return await queueDueAriaWorkshopReminders(due);
+    } finally {
+      await pool.query(`DELETE FROM canonical_job_outbox WHERE "aggregateId" = $1 AND "jobType" = 'SEND_EMAIL'`, [family.parentUser]);
+      await prisma.ariaWorkshopAttendee.deleteMany({ where: { studentId: family.student } });
+      await prisma.ariaWorkshopSession.deleteMany({ where: { courseKey: REAL_COURSE_KEY, title } });
+      await cleanupAriaRealDbFixture(pool, family);
+    }
+  };
+
+  it('does not queue at exactly 1 ms before the due instant (threshold − 1 ms)', async () => {
+    const result = await runStandardScenarioAtNow(new Date(REMINDER_DUE_AT.getTime() - 1), 'Atelier seuil -1ms');
+    expect(result).toEqual({ queued: 0, skippedNotYetEligible: 0, skippedTooLate: 0 });
+  });
+
+  it('queues exactly at the due instant (threshold exact)', async () => {
+    const result = await runStandardScenarioAtNow(REMINDER_DUE_AT, 'Atelier seuil exact');
+    expect(result).toEqual({ queued: 1, skippedNotYetEligible: 0, skippedTooLate: 0 });
+  });
+
+  it('queues at 1 ms after the due instant (threshold + 1 ms)', async () => {
+    const result = await runStandardScenarioAtNow(new Date(REMINDER_DUE_AT.getTime() + 1), 'Atelier seuil +1ms');
+    expect(result).toEqual({ queued: 1, skippedNotYetEligible: 0, skippedTooLate: 0 });
+  });
+
+  it('is unaffected by a +30 day clock shift (wall-clock independence)', async () => {
+    const result = await runShiftedDueScenario(30 * 24 * 60 * 60 * 1000, 'Atelier +30j');
+    expect(result).toEqual({ queued: 1, skippedNotYetEligible: 0, skippedTooLate: 0 });
+  });
+
+  it('is unaffected by a +1 year clock shift (wall-clock independence)', async () => {
+    const result = await runShiftedDueScenario(365 * 24 * 60 * 60 * 1000, 'Atelier +1an');
+    expect(result).toEqual({ queued: 1, skippedNotYetEligible: 0, skippedTooLate: 0 });
+  });
+
+  it('computes the reminder-due instant purely from UTC, identically under UTC and the Africa/Tunis server timezone', () => {
+    // combineDateAndTime (lib/planning/invariants.ts) is built on Date.UTC +
+    // getUTC* accessors, so it never reads the process timezone — proven here
+    // by toggling it. All scenario instants above are explicit UTC Dates, so
+    // the whole suite is timezone-independent by construction.
+    const originalTz = process.env.TZ;
+    try {
+      process.env.TZ = 'UTC';
+      const utc = combineDateAndTime(SESSION_SCHEDULED_DATE, '14:00').getTime();
+      process.env.TZ = 'Africa/Tunis';
+      const tunis = combineDateAndTime(SESSION_SCHEDULED_DATE, '14:00').getTime();
+      expect(tunis).toBe(utc);
+      expect(utc).toBe(SESSION_START_INSTANT.getTime());
+    } finally {
+      if (originalTz === undefined) delete process.env.TZ;
+      else process.env.TZ = originalTz;
+    }
+  });
 });
 
 describe('notifyParentWorkshopReminder — real parent notification, direct (P7c)', () => {
@@ -455,7 +561,7 @@ describe('notifyParentWorkshopReminder — real parent notification, direct (P7c
   });
 
   it('registration still succeeds in spirit — the notification itself simply queues nothing when the student has no real first name on file', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier rappel sans prénom élève' });
       await createRegisteredAttendee(sessionId, family.student);
@@ -478,7 +584,7 @@ describe('notifyParentWorkshopReminder — real parent notification, direct (P7c
   });
 
   it('queues nothing when the parent has no real name on file', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Yasmine', family.studentUser]);
     try {
       const sessionId = await createSession(staffUserId, { title: 'Atelier rappel sans prénom parent' });
@@ -503,7 +609,7 @@ describe('notifyParentWorkshopReminder — real parent notification, direct (P7c
   });
 
   it('a genuine concurrent double-fire hits the outbox\'s own unique constraint and is caught, not thrown', async () => {
-    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    const family = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY, { now: REMINDER_DUE_AT });
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Nadia', family.studentUser]);
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Fatma', family.parentUser]);
     try {
