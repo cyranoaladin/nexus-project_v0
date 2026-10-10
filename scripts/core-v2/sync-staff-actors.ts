@@ -146,7 +146,16 @@ export async function upsertStaffActors(
       } else {
         users.updated += 1;
         if (options.execute) {
-          await coreV2.user.update({ where: { id: r.id }, data: desired });
+          // Drift in a staff actor's identity/role/status is session-sensitive
+          // (mirror of lib/core-v2/services/household.ts / student.ts): bump
+          // sessionVersion so a changed login identifier, role, or a transition
+          // out of ACTIVE revokes any Core v2 session. This fires only on real
+          // drift (guarded by `matches` above), so idempotency is preserved —
+          // a re-run with no V1 change performs no update and no version bump.
+          await coreV2.user.update({
+            where: { id: r.id },
+            data: { ...desired, sessionVersion: { increment: 1 } },
+          });
         }
       }
     }

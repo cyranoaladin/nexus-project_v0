@@ -233,6 +233,10 @@ describe('exhaustive User security mutation inventory', () => {
       // (credentials copied, sessions revoked on re-seed).
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
+      // Production V1→Core v2 staff-actor sync: mirrors V1 ADMIN/ASSISTANTE/COACH identity,
+      // role and status onto the Core v2 actor row (never a password). Fires only on drift;
+      // any drift is session-sensitive and revokes Core v2 sessions (see the versioned list).
+      'scripts/core-v2/sync-staff-actors.ts:update#1',
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
@@ -295,6 +299,8 @@ describe('exhaustive User security mutation inventory', () => {
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
+      // Production staff-actor sync: a drift update revokes Core v2 sessions (sessionVersion increment).
+      'scripts/core-v2/sync-staff-actors.ts:update#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
     ]
