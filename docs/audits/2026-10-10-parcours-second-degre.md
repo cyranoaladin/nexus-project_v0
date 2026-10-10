@@ -1,3 +1,5 @@
+> Topologie neutralisée pour le dépôt public (politique « no-public-infrastructure ») : `<APP_DIR>`, `<RELEASES_DIR>`, `<PM2_APP>` sont documentés dans le runbook privé du serveur.
+
 # Parcours « Le second degré » (Première générale) — espace pédagogique
 
 ## Date
@@ -61,7 +63,7 @@ Contenu pédagogique = JSON versionné (`content/espace/<module>/content.json`, 
 1. **1er essai de bascule : échec contrôlé.** L'artefact avait été compilé avec l'ancien contrat vidéo (URL Jitsi présente, mode non posé) alors que la prod tourne en `VIDEO_MODE=DISABLED` : le préflight runtime (`lib/env-validation` + `assertStandaloneVideoMode`) a refusé le démarrage, santé 000 → **retour arrière automatique de `switch-release.sh`**, prod re-servie par `435bcb226` (santé 200). Aucune interruption au-delà de la fenêtre de redémarrage. Le dossier `91bef0925-espace-second-degre-20261010T1636Z` reste en place (politique de rétention : jamais de suppression sans second feu vert).
 2. **Rebuild conforme** (`NEXT_PUBLIC_VIDEO_MODE=DISABLED`, aucune URL Jitsi, manifeste `VIDEO_MODE: DISABLED`) : source `f829171bc`, `BUILD_ID Uqelh6Pyv8GBMeia27tMb`, revalidé en local (boot propre + e2e 3/3).
 3. **Miroir de catalogue** : `provision.ts sync-activities --execute` puis `audit-activities` → `CATALOGUE_DB_SYNC=PASS (11 activités)`.
-4. **Bascule** : `switch-release.sh` (flock, CAS sur `435bcb226-golive-20261010`, preflight catalogue PASS, garde, santé **200**, cinq identités concordantes). Release servie : `/var/www/nexus-releases/f829171bc-espace-second-degre-20261010T1652Z`. Rollback armé : `435bcb226-golive-20261010`.
+4. **Bascule** : `switch-release.sh` (flock, CAS sur `435bcb226-golive-20261010`, preflight catalogue PASS, garde, santé **200**, cinq identités concordantes). Release servie : `<RELEASES_DIR>/f829171bc-espace-second-degre-20261010T1652Z`. Rollback armé : `435bcb226-golive-20261010`.
 5. **Fumée publique** : `/`, `/offres`, `/bilan-gratuit`, `/espace/connexion`, `/ateliers/poo/`, `/api/health` en 200 ; `/espace/maths/second-degre` et `/espace/maths/fonctions-limites` en 307 vers la connexion (attendu).
 6. **Comptes** (`provision.ts apply --adopt`, dry-run relu avant exécution) : groupe `premiere-generale` créé ; compte élève existant **adopté** (identifiant `ahmad.b`, code personnel TEMPORAIRE — l'élève choisit le sien à la première connexion) ; enseignant = compte COACH réel `alaeddine` affecté au groupe en maths (compte inchangé par ailleurs). Code écrit UNE fois dans un fichier 0600 hors dépôt (`~/Documents/Nexus_Conservation/espace-code-ahmad-20261010.txt`) — à transmettre puis détruire. Second dry-run : tout `UNCHANGED`, 0 groupe à créer (idempotence vérifiée). Aucune fumée authentifiée avec le compte réel (le code temporaire est à usage de première connexion de l'élève).
 

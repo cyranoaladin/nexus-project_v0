@@ -1,3 +1,5 @@
+> Topologie neutralisée pour le dépôt public (politique « no-public-infrastructure ») : `<APP_DIR>`, `<RELEASES_DIR>`, `<PM2_APP>` sont documentés dans le runbook privé du serveur.
+
 # Connexion des élèves de l'espace — diagnostic Fares LAAJILI et correctif d'orientation
 
 ## Date
@@ -29,7 +31,7 @@ Retour d'un élève réel (Fares LAAJILI) : « je n'arrive pas à me connecter �
 
 ## Mise en ligne
 
-Release `/var/www/nexus-releases/093f538e9-espace-connexion-orientation-20261010T1801Z` (BUILD_ID `zAU0MuR_4Nq3LrtkeHmMl`, VIDEO_MODE=DISABLED), bascule `switch-release.sh` (CAS sur `f829171bc-…T1652Z`, preflight catalogue PASS 11 activités, santé 200, garde final OK, cinq identités concordantes). Rollback armé : `f829171bc-espace-second-degre-20261010T1652Z`.
+Release `<RELEASES_DIR>/093f538e9-espace-connexion-orientation-20261010T1801Z` (BUILD_ID `zAU0MuR_4Nq3LrtkeHmMl`, VIDEO_MODE=DISABLED), bascule `switch-release.sh` (CAS sur `f829171bc-…T1652Z`, preflight catalogue PASS 11 activités, santé 200, garde final OK, cinq identités concordantes). Rollback armé : `f829171bc-espace-second-degre-20261010T1652Z`.
 
 ## Risques restants
 
