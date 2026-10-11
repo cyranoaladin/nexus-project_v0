@@ -140,7 +140,13 @@ async function setUp(label: string): Promise<Fixture> {
 async function signIn(email: string, password: string): Promise<string> {
   const user = await authorizeCredentials({ identifier: email, password });
   if (!user) throw new Error('SIGN_IN_REFUSED');
-  const token = issueSessionToken({ name: null, email: user.email, sub: user.id }, user as unknown as User);
+  // `role` est OBLIGATOIRE sur le JWT augmenté du projet (types/next-auth.d.ts:28) :
+  // l'omettre rendait ce littéral non assignable à `JWT`, seule erreur relevée par
+  // le check TypeScript de la CI.
+  const token = issueSessionToken(
+    { name: null, email: user.email, sub: user.id, role: user.role },
+    user as unknown as User,
+  );
   const jwt = await encode({ secret: SECRET, salt: COOKIE, maxAge: 3600, token });
   return `${COOKIE}=${jwt}`;
 }
