@@ -57,7 +57,9 @@ async function scanFile(resolvePath: () => string): Promise<{ clean: true; engin
   const reply = await runClamdInstream(tcpHost, port, bytes);
   const trimmed = reply.replace(/\0+$/, '').trim();
   if (/FOUND$/.test(trimmed)) throw new Error(`MALWARE_DETECTED:${trimmed.slice(0, 200)}`);
-  if (/\bOK$/.test(trimmed)) return { clean: true, engine: `clamd-instream-tcp:${tcpHost}:${port}` };
+  // Exact clamd INSTREAM verdict only. A looser match (`\bOK$`) would accept
+  // any invalid reply that merely ends in "OK" (e.g. "stream: NOT OK") as clean.
+  if (trimmed === 'stream: OK') return { clean: true, engine: `clamd-instream-tcp:${tcpHost}:${port}` };
   throw new Error(`AV_SCAN_FAILED:${trimmed.slice(0, 200)}`);
 }
 
