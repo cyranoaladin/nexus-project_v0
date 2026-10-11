@@ -419,12 +419,18 @@ export async function getOwnPublishedBilan(client: PrismaClient, ctx: ServiceCon
  * doit pouvoir retrouver le bilan depuis son attribution ou sa copie").
  * Delegates to getOwnPublishedBilan for the actual ownership/audience
  * check — this wrapper only resolves the id, it adds no new logic.
+ *
+ * The role gate runs BEFORE the id is resolved: resolving first turned this
+ * wrapper into an existence oracle over minors' submissions, because any
+ * authenticated actor got 404 for an unknown submissionId and 403 for a real
+ * one. The two refusals must be indistinguishable to a non-ELEVE caller.
  */
 export async function getOwnPublishedBilanForSubmission(
   client: PrismaClient,
   ctx: ServiceContext,
   rawSubmissionId: string,
 ): Promise<OwnPublishedBilanView> {
+  assertSelfServiceRole(ctx.actor, 'ELEVE');
   const submissionId = parseInput(idSchema, rawSubmissionId);
   const processing = await client.diagnosticSubmissionProcessing.findUnique({ where: { submissionId } });
   if (!processing) throw new NotFoundError('No published bilan available yet.', { submissionId });
