@@ -228,6 +228,31 @@ jobs:
           npx prisma generate
           npx prisma generate --schema=core-v2/prisma/schema.prisma
 
+      # The threshold wrapper only prints a COUNT, so a failure gave no way to
+      # know which error it was. The raw compiler output is captured first and
+      # published as an artifact even on failure, so the diagnostic is never
+      # lost again. tsc's real exit code is preserved via PIPESTATUS — no
+      # tolerance, no continue-on-error, no exclusion.
+      - name: Run tsc and capture the raw diagnostic
+        id: tsc_raw
+        run: |
+          set +e
+          npx tsc --noEmit --pretty false --incremental false 2>&1 | tee typecheck.log
+          status=${PIPESTATUS[0]}
+          echo "errors=$(grep -c 'error TS' typecheck.log)" >> "$GITHUB_OUTPUT"
+          echo "--- first 50 diagnostics ---"
+          grep 'error TS' typecheck.log | head -50
+          exit "$status"
+
+      - name: Publish the TypeScript diagnostic
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: typecheck-log
+          path: typecheck.log
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Check TypeScript errors with threshold
         run: node .github/scripts/check-typescript-errors.js 0
 
