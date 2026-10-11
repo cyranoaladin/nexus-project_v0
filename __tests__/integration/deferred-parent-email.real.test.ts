@@ -350,11 +350,18 @@ describe('e-mail parent différé sur PostgreSQL réel', () => {
       }),
     ]);
 
+    // Le tombstone de fusion est ce qui neutralise le compte : les trois chemins
+    // de connexion le refusent déjà (lib/auth/credentials-authorize.ts:88,
+    // lib/auth/espace-authorize.ts:68, lib/auth/parent-phone.ts), et la session
+    // source est bien invalidée ci-dessous. Cette assertion exigeait auparavant
+    // `password: null` et `activatedAt: null` : elle figeait un défaut, car
+    // effacer le hash détruisait l'accès d'un parent authentifié par téléphone
+    // et supprimait une preuve. Le secret à usage unique, lui, ne survit pas.
     expect(sourceAfter).toEqual(expect.objectContaining({
       mergedIntoUserId: targetUser.id,
       mergedAt: NOW,
-      password: null,
-      activatedAt: null,
+      password: sourceUser.password,
+      activatedAt: sourceUser.activatedAt,
       activationToken: null,
       activationExpiry: null,
       sessionVersion: sourceUser.sessionVersion + 1,
