@@ -44,7 +44,17 @@ jest.mock('@/lib/core-v2/client', () => {
     requireCoreV2Client: async () => {
       calls.push('requireCoreV2Client');
       if (!coreClientAvailable) throw new actual.CoreV2DatabaseUrlError('unavailable');
-      return {} as never;
+      // Forme minimale réellement utilisée par les deux routes : sans elle le
+      // chemin de succès lève et rend 500, et toute assertion sur 201 ou sur
+      // l'absence de jeton serait vide.
+      return {
+        user: {
+          findUniqueOrThrow: async () => ({
+            id: 'u1', email: 'invitee@example.test', role: 'ASSISTANTE',
+            accountStatus: 'PENDING_ACTIVATION', activatedAt: null,
+          }),
+        },
+      } as never;
     },
   };
 });
@@ -65,9 +75,15 @@ jest.mock('@/lib/core-v2/http/actor', () => ({
   },
 }));
 
+// La configuration de remise doit pouvoir RÉUSSIR, sinon `inviteAccount`
+// n'est jamais atteint et toute assertion sur la réponse de succès serait
+// tautologique (défaut relevé en contre-revue indépendante).
+let deliveryConfigured = false;
+
 jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({
   assertAccountEmailHandoffRuntimeConfiguration: () => {
     calls.push('assertDeliveryConfiguration');
+    if (deliveryConfigured) return;
     // Comportement mesuré au SHA candidat sous V1_ONLY.
     const { CoreV2ConfigError } = jest.requireActual('@/lib/core-v2/config');
     throw new CoreV2ConfigError('ACCOUNT_EMAIL_CORE_AUTH_DISABLED');
@@ -112,10 +128,18 @@ async function callInvite() {
   return mod.POST(request(), context);
 }
 
+/** La route de renvoi porte la MÊME garde : elle doit être exercée, pas supposée. */
+async function callResend() {
+  jest.resetModules();
+  const mod = await import('@/app/api/v2/staff/accounts/[id]/resend-invitation/route');
+  return mod.POST(request(), context);
+}
+
 describe("contrat d'autorisation des routes d'invitation sous V1_ONLY", () => {
   beforeEach(() => {
     calls.length = 0;
     coreClientAvailable = true;
+    deliveryConfigured = false;
     actorState.role = 'ADMIN';
     actorState.accountStatus = 'ACTIVE';
   });
@@ -163,10 +187,48 @@ describe("contrat d'autorisation des routes d'invitation sous V1_ONLY", () => {
     expect(calls).not.toContain('resolveActor');
   });
 
-  test("aucun jeton brut n'apparaît dans la réponse d'un appel autorisé", async () => {
+  test("aucun jeton brut n'apparaît dans la réponse d'un appel RÉELLEMENT abouti", async () => {
     actorState.role = 'ADMIN';
+    deliveryConfigured = true; // sinon la route s'arrête en 503 et l'assertion est vide
     const response = await callInvite();
     const text = await response.text();
+    // Preuve que le chemin de succès a bien été parcouru :
+    expect(calls).toContain('inviteAccount');
+    expect(response.status).toBe(201);
     expect(text).not.toContain('never-returned-to-the-client');
+  });
+
+  // --- la route de RENVOI porte la même garde ------------------------------
+  test("resend : un acteur sans capacité reçoit 403, jamais 503", async () => {
+    actorState.role = 'COACH';
+    const response = await callResend();
+    const body = await response.json();
+    expect(response.status).toBe(403);
+    expect(body.error.code).toBe('FORBIDDEN');
+  });
+
+  test("resend : la configuration de remise n'est pas consultée pour un non autorisé", async () => {
+    actorState.role = 'ELEVE';
+    await callResend();
+    expect(calls).toContain('resolveActor');
+    expect(calls).not.toContain('assertDeliveryConfiguration');
+    expect(calls).not.toContain('resendInvitation');
+  });
+
+  test("resend : un appel autorisé aboutit et ne divulgue aucun jeton brut", async () => {
+    actorState.role = 'ASSISTANTE';
+    deliveryConfigured = true;
+    const response = await callResend();
+    const text = await response.text();
+    expect(calls).toContain('resendInvitation');
+    expect(response.status).toBe(201);
+    expect(text).not.toContain('never-returned-to-the-client');
+  });
+
+  test("resend : Core v2 réellement indisponible reste un 503 légitime", async () => {
+    coreClientAvailable = false;
+    const response = await callResend();
+    expect(response.status).toBe(503);
+    expect(calls).not.toContain('resolveActor');
   });
 });
