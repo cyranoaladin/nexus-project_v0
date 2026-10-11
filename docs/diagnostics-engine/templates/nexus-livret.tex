@@ -1,0 +1,227 @@
+% Gabarit éditorial des diagnostics Nexus Réussite.
+% Appliqué par scripts/livret.py ; les règles qu'il porte sont énoncées dans
+% DESIGN_SYSTEM_NEXUS_DIAGNOSTICS.md et vérifiées par tests/test_design.py.
+\documentclass[10.5pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{polyglossia}\setmainlanguage{french}
+\usepackage[left=18mm,right=18mm,top=16mm,bottom=20mm,headheight=14pt,
+            footskip=12mm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[most]{tcolorbox}
+\usepackage{needspace}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usetikzlibrary{calc}
+
+% ── palette ────────────────────────────────────────────────────────────────────
+\definecolor{navy}{HTML}{0B1F3A}
+\definecolor{navyclair}{HTML}{12294D}
+\definecolor{ivoire}{HTML}{F7F3EA}
+\definecolor{or}{HTML}{C9A227}
+\definecolor{gristech}{HTML}{8A8F98}
+\definecolor{griscadre}{HTML}{D9DCE1}
+\definecolor{bordeaux}{HTML}{7B1E28}
+\colorlet{accent}{\ACCENT}
+
+% ── polices ────────────────────────────────────────────────────────────────────
+\setmainfont{\POLICECORPS}[Ligatures=TeX]
+% Les faces de la serif sont épinglées par scripts/livret.py : fontconfig peut
+% servir l'italique en WOFF, que le pilote de sortie ne sait pas embarquer.
+\newfontfamily\serifdelecture{\POLICESERIF}[\OPTIONSSERIF]
+\newfontfamily\monolivret{DejaVu Sans Mono}[Scale=0.85]
+
+% ── veuves, orphelines, césures ────────────────────────────────────────────────
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+\setlength{\emergencystretch}{2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45\baselineskip}
+\linespread{1.12}          % ≈ 1,35 d'interligne apparent à 10,5 pt
+\raggedbottom
+
+% ── en-tête et pied ────────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\color{griscadre}\hrule height 0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\includegraphics[height=5mm]{\ICONE}}
+\fancyhead[R]{\footnotesize\color{gristech}\MATIERECOURANTE\ \textperiodcentered\ \PROFILCOURANT}
+\fancyfoot[C]{\footnotesize\color{gristech}\thepage\ / \pageref{LastPage}}
+\fancyfoot[R]{\footnotesize\color{gristech}\PIEDDROIT}
+\usepackage{lastpage}
+
+% ── titres ─────────────────────────────────────────────────────────────────────
+\titleformat{\section}{\needspace{6\baselineskip}\normalfont}{}{0pt}{}
+\titlespacing*{\section}{0pt}{1.2\baselineskip}{0.6\baselineskip}
+
+% ── bandeau de partie ──────────────────────────────────────────────────────────
+% \partienexus{numéro}{titre}{durée conseillée}
+\newcommand{\partienexus}[3]{%
+  % Partie 1 sans saut forcé ; toute Partie 2 et suivantes sur une nouvelle page.
+  \ifnum#1>1 \clearpage \fi
+  \needspace{13\baselineskip}%
+  \par\vspace{0.8\baselineskip}%
+  \noindent\begin{tcolorbox}[enhanced,colback=navy,colframe=navy,boxrule=0pt,
+      left=4mm,right=4mm,top=2.4mm,bottom=2.4mm,arc=0.8mm,
+      overlay={\node[anchor=east,text=or,font=\bfseries\Large]
+               at ([xshift=-4mm]frame.east) {#1};}]
+    {\color{white}\footnotesize\textsc{Partie #1}}\\[1pt]
+    {\color{white}\bfseries\large #2}%
+    \ifx\relax#3\relax\else\\[2pt]{\color{ivoire}\footnotesize Temps conseillé : #3}\fi
+  \end{tcolorbox}\par\vspace{0.4\baselineskip}}
+
+% ── sous-partie (micro-étape sans saut forcé) ──────────────────────────────────
+% \souspartienexus{titre}{durée conseillée}
+\newcommand{\souspartienexus}[2]{%
+  \needspace{6\baselineskip}%
+  \par\vspace{0.6\baselineskip}%
+  \noindent\begin{tcolorbox}[enhanced,colback=ivoire,colframe=griscadre,boxrule=0.5pt,
+      left=3mm,right=3mm,top=1.8mm,bottom=1.8mm,arc=0.6mm]
+    {\bfseries\color{navy}#1}%
+    \ifx\relax#2\relax\else\hfill{\color{gristech}\footnotesize Temps conseillé : #2}\fi
+  \end{tcolorbox}\par\vspace{0.3\baselineskip}}
+
+% ── cartouche de couverture ────────────────────────────────────────────────────
+\newcommand{\cartouche}[2]{%
+  \begin{tcolorbox}[enhanced,colback=ivoire,colframe=griscadre,boxrule=0.4pt,
+      left=3mm,right=3mm,top=2mm,bottom=2mm,arc=0.6mm,width=\linewidth,
+      % 17 mm : « Baccalauréat complet en une session » tient sur deux lignes, et
+      % débordait du cadre quand la hauteur était calée sur une seule.
+      valign=center,height=17mm]
+    % Pas de césure dans un cartouche : « ses-sion » coupé en deux se lit mal et donne
+    % au document un air de formulaire mal composé.
+    \hyphenpenalty=10000\exhyphenpenalty=10000\relax
+    {\scriptsize\color{gristech}\MakeUppercase{#1}}\\[1pt]{\small\bfseries\color{navy}#2}
+  \end{tcolorbox}}
+
+% ── question ───────────────────────────────────────────────────────────────────
+% \question{numéro}{barème}{durée}{code interne}
+\newcommand{\question}[4]{%
+  \needspace{4\baselineskip}%
+  \par\vspace{0.35\baselineskip}%
+  {\bfseries\color{navy}Question #1}\quad
+  {\footnotesize\color{gristech}#2\ \textperiodcentered\ #3}%
+  \hfill{\monolivret\scriptsize\color{gristech}#4}%
+  \par\vspace{0.15\baselineskip}}
+
+% ── zones de réponse ───────────────────────────────────────────────────────────
+% La case repose sur la ligne de base : posée à -0,6 ex elle flottait au-dessus du texte.
+\newcommand{\caseqcm}{\tikz[baseline=-0.15em]\draw[griscadre,line width=0.6pt]
+  (0,-0.15em) rectangle (4.5mm,4.5mm);}
+% Liste de propositions : serrée, sans le parskip du corps, chaque ligne sur sa ligne.
+\newenvironment{propositions}%
+  {\begin{list}{}{\setlength{\leftmargin}{6mm}\setlength{\itemsep}{2pt}%
+     \setlength{\parsep}{0pt}\setlength{\topsep}{3pt}\setlength{\partopsep}{0pt}%
+     \setlength{\labelwidth}{0pt}\setlength{\labelsep}{0pt}}}%
+  {\end{list}}
+\newcommand{\proposition}[2]{\item[]\caseqcm\hspace{1.5mm}\textbf{#1.}~#2}
+\newcommand{\ligneponse}[1][45mm]{\tikz[baseline=0pt]\draw[griscadre,line width=0.5pt]
+  (0,0) -- (#1,0);}
+% \cadreponse{lignes}
+\newcommand{\cadreponse}[1]{%
+  \par\vspace{0.25\baselineskip}%
+  \noindent\begin{tcolorbox}[enhanced,colback=white,colframe=griscadre,boxrule=0.4pt,
+      left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,arc=0.6mm,
+      height=\dimexpr #1\baselineskip + 3mm\relax]
+    \mbox{}
+  \end{tcolorbox}\par\vspace{0.2\baselineskip}}
+
+% ── question de formulaire ─────────────────────────────────────────────────────
+% Le dossier d'entrée pose des questions sans barème et sans durée : le gabarit de
+% question du diagnostic y afficherait deux séparateurs vides.
+% \demande{numéro}{code interne}
+\newcommand{\demande}[2]{%
+  \par\vspace{0.35\baselineskip}%
+  {\bfseries\color{navy}Question #1}%
+  \hfill{\monolivret\scriptsize\color{gristech}#2}%
+  \par\vspace{0.15\baselineskip}}
+
+% \echelle{intitulé de l'axe}{cases déjà composées}
+\newcommand{\echelle}[2]{\par\vspace{0.5mm}{\small #1~: #2}\par}
+
+% ── extrait littéraire ─────────────────────────────────────────────────────────
+% \extrait{titre}{texte}{référence}
+\newcommand{\extrait}[3]{%
+  \needspace{8\baselineskip}%
+  \par\vspace{0.5\baselineskip}%
+  {\footnotesize\bfseries\color{navy}\MakeUppercase{#1}}\par\vspace{0.2\baselineskip}%
+  % width et boxsep explicites : sans eux la boîte débordait du bloc de texte à droite.
+  \begin{tcolorbox}[enhanced,blank,width=\linewidth,boxsep=0pt,
+      borderline west={1.2pt}{0pt}{griscadre},
+      left=4mm,right=2mm,top=1mm,bottom=1mm,before skip=2pt,after skip=2pt]
+    {\serifdelecture\fontsize{11}{16}\selectfont
+     \setlength{\parskip}{0.5\baselineskip}\setlength{\parindent}{0pt}#2\par}
+  \end{tcolorbox}%
+  \par\vspace{0.1\baselineskip}{\footnotesize\color{gristech}#3}\par
+  \vspace{0.3\baselineskip}}
+
+% ── documents d'appui : figure et tableau ──────────────────────────────────────
+% Une figure n'est jamais réduite au point d'être illisible : sa hauteur est plafonnée,
+% jamais sa largeur au-delà du rapport. Le titre la précède, la provenance la suit, plus
+% discrète que le contenu. Le tout est réservé d'un bloc avec la question qui l'exploite.
+% \figurenexus{titre}{chemin}{provenance}
+\newcommand{\figurenexus}[3]{%
+  \par\vspace{0.4\baselineskip}%
+  {\footnotesize\bfseries\color{navy}#1}\par\vspace{0.25\baselineskip}%
+  \noindent\begin{tcolorbox}[enhanced,colback=white,colframe=griscadre,boxrule=0.4pt,
+      left=2mm,right=2mm,top=2mm,bottom=1.5mm,arc=0.6mm,width=\linewidth,halign=center]
+    \includegraphics[width=\linewidth,height=70mm,keepaspectratio]{#2}
+  \end{tcolorbox}%
+  \par\vspace{0.1\baselineskip}{\scriptsize\color{gristech}#3}\par
+  \vspace{0.3\baselineskip}}
+
+% \tableaunexus{titre}{colonnes}{corps}{provenance}
+\newcommand{\tableaunexus}[4]{%
+  \par\vspace{0.4\baselineskip}%
+  {\footnotesize\bfseries\color{navy}#1}\par\vspace{0.25\baselineskip}%
+  \noindent{\small\setlength{\tabcolsep}{4mm}\renewcommand{\arraystretch}{1.15}%
+   \begin{tabular}{#2}\toprule #3\bottomrule\end{tabular}}%
+  \par\vspace{0.1\baselineskip}{\scriptsize\color{gristech}#4}\par
+  \vspace{0.3\baselineskip}}
+
+% Un document déjà montré dans la même partie n'est pas réimprimé : il est rappelé.
+\newcommand{\rappelsupport}[1]{%
+  \par{\footnotesize\itshape\color{gristech}Voir «~#1~» ci-dessus.}\par}
+
+% ── bloc de code ───────────────────────────────────────────────────────────────
+% Un programme n'est pas un paragraphe : chaque ligne reste une ligne, chaque espace
+% d'indentation garde sa largeur, aucune typographie française ne s'y applique.
+% scripts/livret.py y compose les lignes une à une, échappées mais non « typographiées ».
+% Le bloc ne se coupe jamais entre deux pages : un programme se lit d'un seul regard.
+\newenvironment{codenexus}{%
+  \par\vspace{0.3\baselineskip}%
+  \begin{tcolorbox}[enhanced,colback=ivoire!60,colframe=griscadre,boxrule=0.4pt,
+      left=3mm,right=3mm,top=1.8mm,bottom=1.8mm,arc=0.6mm,before upper={\parindent0pt}]
+  \monolivret\small\raggedright\setlength{\parskip}{0pt}\setlength{\baselineskip}{1.2\baselineskip}%
+  \NoAutoSpacing\hyphenpenalty=10000\exhyphenpenalty=10000}%
+  {\end{tcolorbox}\par\vspace{0.2\baselineskip}}
+
+% ── encadré « avant de commencer » ─────────────────────────────────────────────
+\newenvironment{avantdecommencer}{%
+  \begin{tcolorbox}[enhanced,colback=ivoire,colframe=or,boxrule=0pt,
+      borderline west={2pt}{0pt}{or},left=4mm,right=4mm,top=3mm,bottom=3mm,arc=0mm]}%
+  {\end{tcolorbox}}
+
+% ── repère de profil ───────────────────────────────────────────────────────────
+% \reperprofil{étapes en or}{libellé}. Trois traits : le premier pour les épreuves
+% anticipées, le second pour les terminales, les deux pour un bac en une session. La
+% couleur ne porte rien seule — le libellé est écrit à côté.
+\newcommand{\reperprofil}[2]{%
+  \begin{tikzpicture}[baseline=0pt]
+    \foreach \i in {1,2} {
+      \pgfmathparse{\i<=#1 ? "or" : "ivoire!35"}
+      \fill[\pgfmathresult] ({(\i-1)*8mm},0) rectangle ({(\i-1)*8mm+6.5mm},1.2mm);
+    }
+    \node[anchor=north west,text=ivoire,font=\scriptsize] at (0,-1.2mm) {#2};
+  \end{tikzpicture}}
+
+\begin{document}
