@@ -4,9 +4,12 @@ import { publicUser } from '@/lib/core-v2/http/respond';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { resendInvitation } from '@/lib/core-v2/services';
 import { assertAccountEmailHandoffRuntimeConfiguration, kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
+import { assertCapability } from '@/lib/core-v2/rbac';
 
 export const POST = defineStaffRoute({
   handler: async ({ client, ctx, params, request }) => {
+    // Meme ordre que /invite : capacite d'abord, configuration de remise ensuite.
+    assertCapability(ctx.actor, 'ACCOUNT_INVITE');
     assertAccountEmailHandoffRuntimeConfiguration();
     const issued = await resendInvitation(client, ctx, params.id, { commandId: request.headers.get('idempotency-key') ?? undefined });
     const user = await client.user.findUniqueOrThrow({ where: { id: params.id } });
