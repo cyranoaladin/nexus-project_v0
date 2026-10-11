@@ -795,6 +795,13 @@ jobs:
       # The collision guard remains active; no production target is used.
       DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_core_legacy_test
       NEXUS_DISPOSABLE_POSTGRES: '1'
+      # Maintenance DSN used ONLY by the disposable-database registry
+      # (__tests__/core-v2/helpers/scratch-database.ts): it needs CREATE/DROP
+      # DATABASE, a privilege the least-privilege application role must never
+      # hold. The registry refuses any non-local host, any database other than
+      # `postgres`, and any name outside `nexus_disposable_*_test`, and it only
+      # ever drops a database carrying its own ownership marker.
+      CORE_V2_IDENTITY_TEST_ADMIN_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/postgres
       DIAGNOSTIC_AV_CLAMD_TCP_HOST: '127.0.0.1'
       DIAGNOSTIC_AV_CLAMD_TCP_PORT: '3310'
       # Organization configuration consumed by the Core v2 service layer
