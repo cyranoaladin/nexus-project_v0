@@ -29,4 +29,18 @@ const customJestConfig = {
   maxWorkers: 1,
 };
 
-module.exports = createJestConfig(customJestConfig);
+const resolveJestConfig = createJestConfig(customJestConfig);
+module.exports = async () => ({
+  ...(await resolveJestConfig()),
+  // next/jest prepends its own blanket node_modules ignore pattern, so the ESM
+  // allowlist cannot simply be appended. Suites that drive the REAL Auth.js
+  // pipeline (cookie -> jwt callback -> session; e.g.
+  // http/core-only-session-revocation.test.ts) must be able to load next-auth,
+  // @auth/core and their ESM-only dependencies. Same allowlist as
+  // jest.unit.config.js; nothing else is transformed.
+  transformIgnorePatterns: [
+    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|jose|oauth4webapi|preact|preact-render-to-string)/)',
+    '/node_modules/.pnpm/(?!(next-auth|@auth|jose|oauth4webapi|preact|preact-render-to-string)@)',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
+});
