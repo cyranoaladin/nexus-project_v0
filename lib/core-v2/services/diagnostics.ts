@@ -167,9 +167,62 @@ export async function revokeDiagnosticAssignment(
   });
 }
 
+/**
+ * Projection POSITIVE des copies traversant la frontiere HTTP.
+ *
+ * `storageKey` est le chemin de stockage PRIVE : il ne doit jamais sortir du
+ * serveur (cf. la promesse explicite de
+ * app/api/v2/student/diagnostics/assignments/[assignmentId]/subject/route.ts).
+ * Une liste blanche, et non une suppression apres coup : un champ sensible
+ * ajoute plus tard au modele n'est alors jamais expose par defaut.
+ *
+ * Les lectures INTERNES qui ont besoin du chemin (pipeline de depot,
+ * traitement) ne passent pas par ici et conservent l'acces complet.
+ */
+export const SUBMISSION_PUBLIC_FIELDS = {
+  id: true,
+  assignmentId: true,
+  version: true,
+  originalFilename: true,
+  mimeType: true,
+  sizeBytes: true,
+  sha256: true,
+  status: true,
+  reviewNote: true,
+  submittedById: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+/** Champs du modele qui ne doivent jamais traverser la frontiere HTTP. */
+const PRIVATE_STORAGE_FIELDS = Object.freeze(['storageKey'] as const);
+
+/**
+ * Garde de defense en profondeur : leve si une charge utile destinee au client
+ * porte encore un chemin de stockage prive, a n'importe quelle profondeur.
+ */
+export function assertNoPrivateStoragePath(payload: unknown, depth = 0): void {
+  if (depth > 12 || payload === null || typeof payload !== 'object') return;
+  if (Array.isArray(payload)) {
+    for (const item of payload) assertNoPrivateStoragePath(item, depth + 1);
+    return;
+  }
+  for (const field of PRIVATE_STORAGE_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(payload, field)) {
+      throw new Error(`PRIVATE_STORAGE_PATH_EXPOSED:${field}`);
+    }
+  }
+  for (const value of Object.values(payload as Record<string, unknown>)) {
+    assertNoPrivateStoragePath(value, depth + 1);
+  }
+}
+
+/** Copie telle qu'elle est exposee : sans le chemin de stockage prive. */
+export type PublicDiagnosticSubmission = Omit<DiagnosticSubmission, 'storageKey'>;
+
 export interface DiagnosticAssignmentWithSubmissions extends DiagnosticAssignment {
   instrumentRef: DiagnosticInstrumentRef;
-  submissions: DiagnosticSubmission[];
+  submissions: PublicDiagnosticSubmission[];
 }
 
 /** Staff dossier view: every assignment for one student, with its full submission history. */
@@ -182,7 +235,10 @@ export async function listDiagnosticAssignmentsForStudent(
   const id = parseInput(idSchema, studentId);
   return client.diagnosticAssignment.findMany({
     where: { studentId: id },
-    include: { instrumentRef: true, submissions: { orderBy: { version: 'asc' } } },
+    include: {
+      instrumentRef: true,
+      submissions: { orderBy: { version: 'asc' }, select: SUBMISSION_PUBLIC_FIELDS },
+    },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -202,7 +258,10 @@ export async function getOwnDiagnosticAssignments(
   const student = await loadOwnStudentOrThrow(client, ctx);
   return client.diagnosticAssignment.findMany({
     where: { studentId: student.id },
-    include: { instrumentRef: true, submissions: { orderBy: { version: 'asc' } } },
+    include: {
+      instrumentRef: true,
+      submissions: { orderBy: { version: 'asc' }, select: SUBMISSION_PUBLIC_FIELDS },
+    },
     orderBy: { createdAt: 'desc' },
   });
 }
@@ -222,7 +281,10 @@ export async function getOwnDiagnosticAssignmentForSubjectAccess(
   const id = parseInput(idSchema, assignmentId);
   const assignment = await client.diagnosticAssignment.findFirst({
     where: { id, studentId: student.id },
-    include: { instrumentRef: true, submissions: { orderBy: { version: 'asc' } } },
+    include: {
+      instrumentRef: true,
+      submissions: { orderBy: { version: 'asc' }, select: SUBMISSION_PUBLIC_FIELDS },
+    },
   });
   if (!assignment) throw new NotFoundError('Assignment not found.', { assignmentId: id });
   if (assignment.status === 'REVOKED') {
