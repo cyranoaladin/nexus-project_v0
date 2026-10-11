@@ -182,6 +182,25 @@ export function assertCapability(actor: Actor, capability: Capability): void {
  * their household). It grants nothing beyond the actor's own rows — the query
  * must still scope by actor.userId. Lives here so routes never compare roles.
  */
+/**
+ * Les profils staff (back-office). Defini ICI parce que rbac.ts est le seul
+ * endroit de Core v2 autorise a comparer une valeur de role
+ * (CORE_V2_NO_INLINE_RBAC) : un second ensemble ailleurs serait une seconde
+ * autorite. PARENT et ELEVE n'en font pas partie.
+ */
+export const STAFF_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
+export type StaffRole = (typeof STAFF_ROLES)[number];
+
+/**
+ * Garde des points d'entree back-office. Le refus ne revele ni le role de
+ * l'appelant, ni une ressource, ni un foyer, ni un proprietaire.
+ */
+export function assertStaffRole(actor: Actor): void {
+  if (!(STAFF_ROLES as readonly string[]).includes(actor.role)) {
+    throw new ForbiddenError('This resource is only available to staff accounts.');
+  }
+}
+
 export function assertSelfServiceRole(actor: Actor, expected: UserRole): void {
   if (actor.role !== expected) {
     throw new ForbiddenError(`This resource is only available to ${expected} accounts.`, { expectedRole: expected });

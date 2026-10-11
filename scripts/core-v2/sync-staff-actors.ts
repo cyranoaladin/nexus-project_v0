@@ -35,8 +35,12 @@ import { requireCoreV2Client, disconnectCoreV2Client } from '@/lib/core-v2/clien
 import { normalizeEmail } from '@/lib/core-v2/contact';
 import type { PrismaClient } from '@/core-v2/generated/client';
 
-export const STAFF_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
-export type StaffRole = (typeof STAFF_ROLES)[number];
+// Autorite unique : lib/core-v2/rbac.ts. On IMPORTE (pour l'usage local) puis on
+// reexporte (pour les consommateurs). Un simple `export ... from` exposerait le
+// binding sans l'amener dans la portee du module : isStaffRole leverait alors
+// ReferenceError.
+import { STAFF_ROLES, type StaffRole } from '@/lib/core-v2/rbac';
+export { STAFF_ROLES, type StaffRole };
 
 export interface SourceStaffUser {
   readonly id: string;
