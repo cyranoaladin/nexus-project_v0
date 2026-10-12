@@ -396,7 +396,12 @@ test('12. a roster rerun preserves a password changed in the canonical Core iden
   expect(entry?.hash === canonicalHash).toBe(true);
   const dryRun = await run(false);
   expect(dryRun.manifest.objects.find((item) => item.entity === 'User' && item.targetId === ids.parent)?.hash === canonicalHash).toBe(true);
-});
+  // Budget explicite, comme le `beforeAll` ci-dessus : `bcryptjs` est du JS pur
+  // mono-thread, et ce test enchaine quatre operations a cout 12 (255 ms chacune
+  // mesurees au repos, soit ~1 s de bcrypt seul) PLUS deux rejeux complets de
+  // cohorte. Le defaut de 5 s passait ou echouait selon la charge du runner —
+  // trois fois vert, une fois rouge, sans qu'aucun code ne change.
+}, 30_000);
 
 test('a credential rotation after proof capture refuses the roster transaction without overwriting Core', async () => {
   const source = await readSourceSnapshot(v1, approval());
@@ -435,7 +440,10 @@ test('a credential rotation after proof capture refuses the roster transaction w
   expect((await v2.user.findUniqueOrThrow({ where: { id: ids.parent } })).password === rotated).toBe(true);
   expect(await v2.user.count()).toBe(userCount);
   expect(await v2.auditEvent.count()).toBe(auditCount);
-});
+  // Meme raison que le test precedent : une operation bcrypt a cout 12 plus la
+  // construction du plan de cohorte ne tiennent pas de facon fiable dans les
+  // 5 s du defaut sur un runner partage.
+}, 30_000);
 
 test.each(['SUSPENDED', 'DISABLED'] as const)('a roster rerun cannot reactivate a Core %s account', async (status) => {
   const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
