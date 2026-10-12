@@ -6,11 +6,15 @@ import type { ActivationPurpose } from '@/lib/auth/activation-token'
 import { withActivationSecurityHeaders } from '@/lib/auth/parent-activation'
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive'
 import {
+  completeStaffActivation,
+  verifyStaffActivationToken,
+} from '@/lib/auth/staff-activation'
+import {
   completeStudentActivation,
   verifyActivationToken,
 } from '@/lib/services/student-activation.service'
 
-const purposeSchema = z.enum(['parent', 'student'])
+const purposeSchema = z.enum(['parent', 'student', 'staff'])
 const tokenSchema = z.string().min(32).max(512).regex(/^[A-Za-z0-9_-]+$/)
 const setPasswordSchema = z.object({
   token: tokenSchema,
@@ -29,6 +33,7 @@ function resolvePurpose(
 }
 
 async function verifyForPurpose(token: string, purpose: ActivationPurpose) {
+  if (purpose === 'staff') return verifyStaffActivationToken(token)
   return purpose === 'student'
     ? verifyActivationToken(token)
     : verifyActivationToken(token, purpose)
@@ -39,6 +44,7 @@ async function completeForPurpose(
   password: string,
   purpose: ActivationPurpose,
 ) {
+  if (purpose === 'staff') return completeStaffActivation(token, password)
   return purpose === 'student'
     ? completeStudentActivation(token, password)
     : completeStudentActivation(token, password, purpose)

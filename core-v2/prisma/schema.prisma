@@ -84,6 +84,7 @@ model User {
   student         Student?
   coachProfile    CoachProfile?
   invitations     Invitation[]     @relation("InvitationUser")
+  v1Provisioning  AccountV1Provisioning? @relation("AccountV1ProvisioningUser")
 
   createdAt                        DateTime                        @default(now())
   updatedAt                        DateTime                        @updatedAt
@@ -1441,6 +1442,50 @@ model CoreV2JobOutbox {
   @@map("core_v2_job_outbox")
 }
 
+// ── Core v1 credential authority: invitation provisioning saga ──────────────
+//
+// Under CORE_V2_AUTH_MODE=V1_ONLY, Core v1 is the SOLE authority for password,
+// bcrypt hash, activation token, reset, session and revocation. Core v2 keeps
+// ONLY what is below: a stable unique link to the v1 identity (`v1UserId`), the
+// provisioning state of that link, and non-secret saga data. There is no
+// password, hash, raw token or token digest column here, by design; the
+// payload of the driving CoreV2JobOutbox rows is constrained by a CHECK to the
+// same non-secret key set (migration 0026).
+//
+//   REQUESTED -> V1_ISSUE_PENDING -> SENT -> V1_ACTIVATED -> CORE_PROVISIONED
+//   plus DELIVERY_FAILED, PROVISIONING_RETRY, EXPIRED, CANCELLED.
+//
+// `generation` is a monotonic request counter: a resend increments it, which
+// rotates the v1 token and makes every older job a no-op.
+model AccountV1Provisioning {
+  id                  String                   @id @default(cuid())
+  userId              String                   @unique
+  user                User                     @relation("AccountV1ProvisioningUser", fields: [userId], references: [id], onDelete: Restrict)
+  v1UserId            String?                  @unique
+  state               AccountProvisioningState @default(REQUESTED)
+  generation          Int                      @default(1)
+  invitationExpiresAt DateTime?
+  lastErrorCode       String?
+  requestedById       String?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@index([state])
+  @@map("account_v1_provisioning")
+}
+
+enum AccountProvisioningState {
+  REQUESTED
+  V1_ISSUE_PENDING
+  SENT
+  V1_ACTIVATED
+  CORE_PROVISIONED
+  DELIVERY_FAILED
+  PROVISIONING_RETRY
+  EXPIRED
+  CANCELLED
+}
+
 enum AriaConversationTurnStatus {
   PENDING
   RUNNING
@@ -1468,6 +1513,7 @@ enum AriaConversationMessageRole {
 enum CoreV2JobType {
   RECOVER_ARIA_TURN
   ACCOUNT_EMAIL_HANDOFF
+  ACCOUNT_V1_PROVISIONING
 }
 
 enum CoreV2JobStatus {

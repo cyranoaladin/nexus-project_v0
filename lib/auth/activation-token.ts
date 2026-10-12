@@ -2,7 +2,14 @@ import { createHash, randomBytes } from 'node:crypto'
 
 import { ACCOUNT_ACTIVATION_TTL_MS } from '@/lib/auth/pending-account-policy'
 
-export type ActivationPurpose = 'parent' | 'student'
+export type ActivationPurpose = 'parent' | 'student' | 'staff'
+
+/**
+ * Roles a `staff` activation may ever bind to. The purpose is generic on
+ * purpose: it names an audience, never a privilege. ADMIN is deliberately not
+ * activatable through an e-mailed link.
+ */
+export const STAFF_ACTIVATION_ROLES = ['ASSISTANTE', 'COACH'] as const
 
 export type ActivationToken = Readonly<{
   rawToken: string
@@ -13,6 +20,7 @@ export type ActivationToken = Readonly<{
 const PURPOSE_PREFIX: Record<ActivationPurpose, string> = {
   parent: 'pact_',
   student: 'sact_',
+  staff: 'tact_',
 }
 
 export function hashActivationToken(rawToken: string): string {
@@ -37,6 +45,7 @@ export function activationTokenMatchesPurpose(
 ): boolean {
   if (rawToken.startsWith(PURPOSE_PREFIX.parent)) return purpose === 'parent'
   if (rawToken.startsWith(PURPOSE_PREFIX.student)) return purpose === 'student'
+  if (rawToken.startsWith(PURPOSE_PREFIX.staff)) return purpose === 'staff'
 
   // Legacy activation links were issued only for students. Parent email
   // onboarding did not exist before purpose-bound tokens.

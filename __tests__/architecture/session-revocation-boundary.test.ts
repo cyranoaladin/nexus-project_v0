@@ -213,6 +213,15 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
       'lib/services/student-activation.service.ts:updateMany#2',
+      // Activation staff dans Core v1 (premier mot de passe, incrément de version) — voir la liste versionnée.
+      'lib/auth/staff-activation.ts:updateMany#1',
+      // Invitation demandée par Core (V1_ONLY) : rotation ou retrait du jeton d'activation d'un compte
+      // PENDING. N'écrit ni credential ni version de session, et ne matche jamais un compte actif.
+      'lib/auth/v1-account-invitation.ts:updateMany#1',
+      'lib/auth/v1-account-invitation.ts:updateMany#2',
+      // Ligne Core v2 portée à ACTIVE une fois le credential détenu par Core v1 : pas de mot de passe,
+      // et aucune session n'existe encore.
+      'lib/core-v2/accounts/v1-provisioning-worker.ts:update#1',
       // Espace pédagogique (provisioning par un opérateur, lib/espace/provisioning.ts) :
       //  update#1 pose un identifiant sur un compte existant adopté et update#2 pose son PREMIER code
       //  personnel : aucun secret existant n'est remplacé, il n'y a donc aucune session à révoquer.
@@ -288,6 +297,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
       'lib/services/student-activation.service.ts:updateMany#2',
+      'lib/auth/staff-activation.ts:updateMany#1',
       // Réinitialisation d'un code personnel et désactivation d'un compte de l'espace pédagogique.
       'lib/espace/provisioning.ts:update#3',
       'lib/espace/provisioning.ts:update#4',
