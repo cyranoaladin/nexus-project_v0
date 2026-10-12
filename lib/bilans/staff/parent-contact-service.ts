@@ -67,12 +67,18 @@ export type ParentContactCompletionResult = Readonly<{
  * Garde d'integrite des credentials (§4).
  *
  * Une mise a jour de CONTACT ne doit jamais porter un champ de credential. La
- * neutralisation d'un compte passe par un statut dedie — `disabledAt`
- * (prisma/schema.prisma:363) ou le tombstone de fusion `mergedIntoUserId`, que
- * les trois chemins de connexion refusent deja (lib/auth/credentials-authorize.ts:88,
- * lib/auth/espace-authorize.ts:68, lib/auth/parent-phone.ts) — jamais par
- * effacement du hash, qui detruirait l'acces d'un parent authentifie par
- * telephone et supprimerait une preuve.
+ * neutralisation d'un compte passe par un statut dedie, jamais par effacement du
+ * hash, qui detruirait l'acces d'un parent authentifie par telephone et
+ * supprimerait une preuve.
+ *
+ * Ce qui refuse effectivement la connexion, verifie et non suppose :
+ *   - le tombstone de fusion `mergedIntoUserId` est refuse sur les TROIS chemins
+ *     (lib/auth/credentials-authorize.ts:88, lib/auth/espace-authorize.ts:68,
+ *     lib/auth/parent-phone.ts) ;
+ *   - `disabledAt` (prisma/schema.prisma:363) est refuse sur le chemin Espace et,
+ *     depuis le correctif de securite accompagnant ce fichier, sur le chemin
+ *     e-mail/mot de passe. Une revue independante a montre qu'il n'y etait PAS
+ *     impose : l'affirmation initiale de ce commentaire etait fausse.
  *
  * La liste blanche est appliquee a l'EXECUTION et pas seulement par le type :
  * un champ ajoute plus tard par inadvertance leve immediatement.
