@@ -194,6 +194,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      'lib/bilans/staff/parent-contact-service.ts:update#4',
       // Explicit session revocation in Core v2, the mirror of the Core v2 read in
       // validateSessionToken. A CORE_V2 token is never re-checked against Core v1,
       // so revoking there alone left a migrated identity signed in while the API
@@ -276,6 +277,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      'lib/bilans/staff/parent-contact-service.ts:update#4',
       'lib/core-v2/services/account.ts:updateMany#1',
       'lib/core-v2/services/account.ts:updateMany#2',
       'lib/core-v2/services/account.ts:updateMany#3',
