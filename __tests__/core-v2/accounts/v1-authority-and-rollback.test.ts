@@ -138,7 +138,10 @@ describe('the runtime availability check replaces the blanket refusal', () => {
       if (value === undefined) delete process.env[name]; else process.env[name] = value;
       expect(() => assertAccountInvitationRuntimeConfiguration()).toThrow(code);
     } finally {
-      process.env[name] = saved;
+      // `process.env[x] = undefined` écrit la CHAÎNE "undefined" ; il ne
+      // supprime pas la variable. La lane tourne à un seul worker, donc cette
+      // valeur polluait les fichiers suivants sans aucun signal.
+      if (saved === undefined) delete process.env[name]; else process.env[name] = saved;
     }
   });
 

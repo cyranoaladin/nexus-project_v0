@@ -178,13 +178,25 @@ describe('authorization and forgery', () => {
     expect(await prisma.user.findUnique({ where: { id: core.id } })).toBeNull();
   });
 
-  test('the role comes from the Core row: junk in the call cannot select another one', async () => {
-    const core = await f.coreUser('ASSISTANTE', 'forged-role');
-    // The service signature has no role parameter; extra arguments are ignored.
-    await (requestAccountInvitation as (...args: unknown[]) => Promise<unknown>)(h.client, h.ctx(), core.id, { role: 'ADMIN' }, 'ADMIN');
-    await f.settle();
-    expect((await prisma.user.findUniqueOrThrow({ where: { id: core.id } })).role).toBe('ASSISTANTE');
-  });
+  // The provisioned V1 role must TRACK the Core row, for every invitable role —
+  // that is the real invariant. (Asserting that JavaScript discards surplus
+  // arguments would only test the language, so the extra argument below is a
+  // secondary check: the weight is on the role actually written.)
+  test.each(['ASSISTANTE', 'COACH'] as const)(
+    'the provisioned V1 role is read from the Core row (%s), never from the call',
+    async (coreRole) => {
+      const core = await f.coreUser(coreRole, `role-from-core-${coreRole.toLowerCase()}`);
+      await (requestAccountInvitation as (...args: unknown[]) => Promise<unknown>)(
+        h.client, h.ctx(), core.id, { role: 'ADMIN' }, 'ADMIN',
+      );
+      await f.settle();
+      const provisioned = await prisma.user.findUniqueOrThrow({ where: { id: core.id } });
+      expect(provisioned.role).toBe(coreRole);
+      // And the saga itself recorded the Core role, not the forged one.
+      const saga = await h.client.accountV1Provisioning.findUnique({ where: { userId: core.id } });
+      expect(JSON.stringify(saga)).not.toContain('ADMIN');
+    },
+  );
 
   test.each([
     ['role', { role: 'ADMIN' }],

@@ -50,13 +50,52 @@ afterAll(async () => {
   await registry?.dropAll();
 });
 
+/**
+ * Les 25 migrations qui PRÉCÈDENT l'approvisionnement V1, par leur nom.
+ *
+ * Figées volontairement : l'invariant est qu'aucune n'est renommée,
+ * réordonnée ni remplacée. Une migration ajoutée APRÈS n'y figure pas et
+ * n'a pas à y figurer.
+ */
+const PRE_V1_PROVISIONING_MIGRATIONS = [
+  '0001_core_v2_baseline',
+  '0002_core_v2_sql_invariants',
+  '0003_core_v2_database_identity',
+  '0004_core_v2_drop_speculative_assignment_type',
+  '0005_core_v2_drop_speculative_curriculum_version',
+  '0006_core_v2_operational_domain',
+  '0007_core_v2_planning_engine',
+  '0008_core_v2_password_reset',
+  '0009_core_v2_candidat_libre_diagnostics_c1',
+  '0010_core_v2_diagnostic_subject_integrity',
+  '0011_core_v2_diagnostic_submission_processing',
+  '0012_core_v2_diagnostic_submission_processing_lease',
+  '0013_core_v2_diagnostic_extraction_truncation_flag',
+  '0014_core_v2_diagnostic_ai_budget_ledger',
+  '0015_core_v2_diagnostic_bilan_draft',
+  '0016_core_v2_diagnostic_bilan_published_content',
+  '0017_core_v2_diagnostic_ai_budget_ledger_carry_over',
+  '0018_core_v2_aria_foundation',
+  '0019_core_v2_aria_conversation',
+  '0020_core_v2_job_outbox',
+  '0021_core_v2_candidat_libre_schooling_status',
+  '0022_core_v2_diagnostic_processing_retry_authorization',
+  '0023_core_v2_household_membership_verification',
+  '0024_core_v2_account_email_handoff',
+  '0025_core_v2_account_email_payload_fail_closed',
+] as const;
+
 test('the migration list only grew: 0001..0025 are still present and 0026 keeps its rank', () => {
   const names = migrationNames();
   // The invariant is APPEND-ONLY, not "0026 is last". 0027 closes the key set of
   // the ARIA branch of the job-outbox payload check, so the tail has moved on.
   // Asserting a fixed tail would turn every future additive migration into a
   // failure — the guard must check rank and ordering, not length.
-  expect(names.slice(0, 25)).toHaveLength(25);
+  // `slice(0, 25)` a une longueur de 25 pour N'IMPORTE QUEL tableau d'au moins
+  // 25 éléments : l'assertion précédente ne vérifiait donc pas la présence
+  // qu'elle annonçait, et renommer les 25 premières migrations l'aurait laissée
+  // passer. On épingle les NOMS, qui sont le vrai invariant append-only.
+  expect(names.slice(0, 25)).toEqual(PRE_V1_PROVISIONING_MIGRATIONS);
   expect(names.indexOf(V1_PROVISIONING_MIGRATION)).toBe(25);
   expect(names).toEqual([...names].sort());
   expect(names.length).toBeGreaterThanOrEqual(26);

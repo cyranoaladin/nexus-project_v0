@@ -20,10 +20,13 @@ import { assertDisposablePostgresUrl } from '../../helpers/disposable-postgres';
  *   handed out; a database is dropped only if its comment still equals this
  *   registry's marker, so a database this registry did not create can never be
  *   dropped, even by a name collision.
- * - SCOPED TERMINATION. Connections are ended only by `DROP DATABASE ... WITH
- *   (FORCE)` on the named scratch database; there is no `pg_terminate_backend`
- *   sweep. After the drop, the registry verifies that the database and all its
- *   sessions are gone.
+ * - SCOPED TERMINATION. `dropAll()` does call `pg_terminate_backend`, but only
+ *   for backends whose `datname` is the named scratch database, and never for
+ *   its own backend: there is no global sweep, and no other project's sessions
+ *   can be reached. The drop itself is `DROP DATABASE ... WITH (FORCE)` under a
+ *   bounded `lock_timeout`/`statement_timeout`, retried a FINITE number of
+ *   times, rethrowing the last error so nothing is masked. After the drop, the
+ *   registry verifies that the database and all its sessions are gone.
  * - DETERMINISTIC TEARDOWN. `dropAll()` attempts every database, even after a
  *   failure, and throws one aggregate error at the end.
  */

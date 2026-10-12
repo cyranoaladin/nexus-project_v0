@@ -12,8 +12,29 @@
  * autorisé à comparer une valeur de rôle (CORE_V2_NO_INLINE_RBAC) — pas dans un
  * script, sinon deux autorités coexistent.
  */
+import { NextRequest } from 'next/server';
 import { ForbiddenError } from '@/lib/core-v2/errors';
 import { STAFF_ROLES, assertStaffRole } from '@/lib/core-v2/rbac';
+
+// Double minimal du pipeline, calque sur celui de
+// `invitation-authorization-order.test.ts` : il faut PILOTER la vraie route,
+// sinon la garde qu'elle porte n'est couverte par rien.
+const actorState: { role: string; accountStatus: string } = { role: 'ADMIN', accountStatus: 'ACTIVE' };
+
+jest.mock('@/lib/csrf', () => ({ checkBodySize: () => null, checkCsrf: () => null }));
+jest.mock('@/lib/guards', () => ({
+  isErrorResponse: (value: unknown) => value instanceof Response,
+  requireAuth: async () => ({ user: { id: 'session-user-1', email: 'staff@example.test' } }),
+}));
+jest.mock('@/lib/core-v2/client', () => {
+  const actual = jest.requireActual('@/lib/core-v2/client');
+  return {
+    ...actual,
+    requireCoreV2Client: async () => ({
+      user: { findUnique: async () => ({ id: 'session-user-1', role: actorState.role, accountStatus: actorState.accountStatus }) },
+    } as never),
+  };
+});
 
 describe('autorité des rôles staff dans rbac.ts', () => {
   test('STAFF_ROLES est défini par rbac.ts et vaut ADMIN, ASSISTANTE, COACH', () => {
@@ -52,5 +73,37 @@ describe('autorité des rôles staff dans rbac.ts', () => {
     // l'amener dans la portee du module. Il faut APPELER le code qui l'utilise.
     expect(script.isStaffRole('ADMIN')).toBe(true);
     expect(script.isStaffRole('PARENT')).toBe(false);
+  });
+});
+
+describe('GET /api/v2/staff/me — la garde est réellement portée par la route', () => {
+  async function call(role: string, accountStatus = 'ACTIVE') {
+    actorState.role = role;
+    actorState.accountStatus = accountStatus;
+    const { GET } = await import('@/app/api/v2/staff/me/route');
+    return GET(new NextRequest('http://localhost/api/v2/staff/me'), { params: Promise.resolve({}) } as never);
+  }
+
+  test.each(['ADMIN', 'ASSISTANTE', 'COACH'])('%s reçoit 200 et ses seules données', async (role) => {
+    const response = await call(role);
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.data.actor).toEqual({ userId: 'session-user-1', role });
+    // Uniquement le compte courant : aucune autre identité ne transparaît.
+    expect(JSON.stringify(body)).not.toContain('household');
+  });
+
+  test.each(['PARENT', 'ELEVE'])('%s reçoit 403, et non 200 avec des capacités vides', async (role) => {
+    const response = await call(role);
+    expect(response.status).toBe(403);
+    const body = await response.json();
+    // Le refus ne nomme ni le rôle, ni l'identifiant de l'appelant.
+    expect(JSON.stringify(body)).not.toContain(role);
+    expect(JSON.stringify(body)).not.toContain('session-user-1');
+  });
+
+  test('une adhésion Core non ACTIVE est refusée avant même la garde de rôle', async () => {
+    const response = await call('ADMIN', 'SUSPENDED');
+    expect(response.status).toBe(403);
   });
 });
