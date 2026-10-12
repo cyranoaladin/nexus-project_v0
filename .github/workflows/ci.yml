@@ -928,6 +928,27 @@ jobs:
           DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
         run: npx jest --config jest.core-v2.config.js --ci
 
+      # A lane whose testMatch collects nothing passes vacuously, which is how a
+      # suite ends up running in no gate at all. Both Core v2 lanes must collect
+      # a non-empty set, and the Auth.js companion lane must collect every
+      # `*.real.test.ts` present on disk — otherwise the build fails here rather
+      # than going green on tests nobody ran.
+      - name: Assert both Core v2 lanes actually collect their suites
+        run: |
+          set -euo pipefail
+          core=$(npx jest --config jest.core-v2.config.js --listTests 2>/dev/null | grep -c 'core-v2')
+          authjs=$(npx jest --config jest.core-v2-authjs.config.js --listTests 2>/dev/null | grep -c 'core-v2-authjs')
+          ondisk=$(find __tests__/core-v2-authjs -name '*.real.test.ts' | wc -l)
+          echo "core-v2 lane: $core suites; authjs lane: $authjs suites; authjs files on disk: $ondisk"
+          test "$core" -ge 80
+          test "$authjs" -ge 1
+          test "$authjs" -eq "$ondisk"
+
+      - name: Core v2 Auth.js lane (real handlers, ESM transform allowlist)
+        env:
+          DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
+        run: npx jest --config jest.core-v2-authjs.config.js --ci
+
   # ===========================================================================
   # JOB 6: E2E TESTS (with Playwright + E2E DB)
   # ===========================================================================
