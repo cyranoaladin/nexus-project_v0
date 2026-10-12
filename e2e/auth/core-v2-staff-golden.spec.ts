@@ -488,7 +488,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const audit = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectId=${parentUserId}`);
     expect(audit.status()).toBe(403);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('button', { name: 'Suspendre' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Suspendre l’accès Core v2' })).toHaveCount(0);
   });
 
   await test.step('ADMIN reads the audit trail and suspends the account', async () => {
@@ -504,8 +504,11 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     expect(invitationRows.data.items.some((r) => r.action === 'account.invited' && r.metadata?.userId === parentUserId)).toBe(true);
 
     await page.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Suspendre' }).first().click();
-    await expect(page.getByRole('status').filter({ hasText: /^Compte suspendu\b/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Suspendre l’accès Core v2' }).first().click();
+    // Le message doit nommer l'accès suspendu ET dire que V1 n'est pas modifié :
+    // c'est tout l'objet de la suspension séparée.
+    await expect(page.getByRole('status').filter({ hasText: /^Accès Core v2 suspendu\b/ })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: /accès V1 n’est pas modifié/ })).toBeVisible();
     const after = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await after.json()) as { data: { parents: Array<{ accountStatus: string }> } };
     expect(detail.data.parents[0]!.accountStatus).toBe('SUSPENDED');
