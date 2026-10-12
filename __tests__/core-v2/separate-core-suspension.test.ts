@@ -15,6 +15,8 @@
  * Ce test épingle le contrat au niveau des fonctions d'autorité, sans base :
  * il doit rester vrai quelle que soit l'évolution du câblage HTTP.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { resolveActor } from '@/lib/core-v2/http/actor';
 import { assertCapability, capabilitiesForRole } from '@/lib/core-v2/rbac';
 import { ForbiddenError } from '@/lib/core-v2/errors';
@@ -77,8 +79,7 @@ describe('la suspension Core ne touche aucune donnée V1', () => {
   test('transitionAccount n’écrit que sur le client Core v2', () => {
     // Garde structurelle : le service de cycle de vie ne doit jamais importer le
     // client V1. Une propagation Core -> V1 commencerait par cet import.
-    const source = require('node:fs').readFileSync(
-      require('node:path').join(process.cwd(), 'lib/core-v2/services/account.ts'), 'utf8') as string;
+    const source = readFileSync(join(process.cwd(), 'lib/core-v2/services/account.ts'), 'utf8');
     const lifecycle = source.slice(source.indexOf('async function transitionAccount'));
     const body = lifecycle.slice(0, lifecycle.indexOf('\n}\n') + 1);
     for (const forbidden of ['password', 'activatedAt', 'activationToken', 'disabledAt']) {
@@ -87,8 +88,7 @@ describe('la suspension Core ne touche aucune donnée V1', () => {
   });
 
   test('le service de cycle de vie n’importe pas le client V1', () => {
-    const source = require('node:fs').readFileSync(
-      require('node:path').join(process.cwd(), 'lib/core-v2/services/account.ts'), 'utf8') as string;
+    const source = readFileSync(join(process.cwd(), 'lib/core-v2/services/account.ts'), 'utf8');
     // `@/lib/prisma` est le client V1 : Core ne doit pas l'atteindre ici.
     expect(source).not.toContain("from '@/lib/prisma'");
   });

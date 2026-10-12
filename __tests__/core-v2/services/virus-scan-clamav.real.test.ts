@@ -62,7 +62,7 @@ jest.mock('@/lib/guards', () => ({
   isErrorResponse: (value: unknown) => value instanceof Response,
 }));
 // ESM-only package; only its unique-id generation is needed here.
-jest.mock('@paralleldrive/cuid2', () => ({ createId: () => `doc${require('node:crypto').randomUUID().replace(/-/g, '')}` }));
+jest.mock('@paralleldrive/cuid2', () => ({ createId: () => `doc${randomUUID().replace(/-/g, '')}` }));
 jest.mock('@/lib/csrf',() => ({ checkCsrf: () => null }));
 jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: async () => null }));
 jest.mock('@/lib/rbac/coach-student-access', () => ({ assertCoachCanAccessStudent: async () => undefined }));

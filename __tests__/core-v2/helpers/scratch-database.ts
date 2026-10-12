@@ -125,7 +125,35 @@ export function createScratchDatabaseRegistry(adminDsn: string | undefined): Scr
             if (marker.rows[0].comment !== ownershipMarker) {
               throw new Error('database is not marked as owned by this run; refusing to drop it');
             }
-            await admin.query(`DROP DATABASE "${name}" WITH (FORCE)`);
+            // CREATE/DROP DATABASE se serialisent : un DROP peut rester bloque
+            // des dizaines de secondes si un autre est en vol. Mesure : un DROP
+            // a pris 30 604 ms la ou les suivants prenaient 130 ms, ce qui
+            // faisait depasser le budget du hook afterAll et marquait la suite
+            // en echec sans qu'aucun test n'echoue.
+            //
+            // On BORNE l'attente au lieu d'allonger le timeout : un verrou qui
+            // ne vient pas en 5 s echoue vite, et on reessaie un nombre FINI de
+            // fois. Si cela persiste, l'erreur remonte — rien n'est masque.
+            await admin.query(`SET lock_timeout = '5s'`);
+            await admin.query(`SET statement_timeout = '15s'`);
+            let dropped = false;
+            let lastDropError: unknown = null;
+            for (let attempt = 1; attempt <= 3 && !dropped; attempt += 1) {
+              try {
+                // Terminaison limitee a CETTE base : jamais de balayage global.
+                await admin.query(
+                  `SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+                     WHERE datname = $1 AND pid <> pg_backend_pid()`,
+                  [name],
+                );
+                await admin.query(`DROP DATABASE "${name}" WITH (FORCE)`);
+                dropped = true;
+              } catch (error) {
+                lastDropError = error;
+                await new Promise((resolve) => { setTimeout(resolve, 250 * attempt); });
+              }
+            }
+            if (!dropped) throw lastDropError ?? new Error('DROP DATABASE failed without an error');
 
             const database = await admin.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [name]);
             const sessions = await admin.query(`SELECT 1 FROM pg_stat_activity WHERE datname = $1`, [name]);

@@ -56,7 +56,8 @@ function arg(name: string): string | undefined {
 
 /** L'empreinte couvre tout le manifeste SAUF elle-même. */
 function fingerprintOf(manifest: Manifest): string {
-  const { fingerprint: _ignored, ...rest } = manifest;
+  const rest: Record<string, unknown> = { ...manifest };
+  delete rest.fingerprint;
   const canonical = JSON.stringify(rest, Object.keys(rest).sort());
   return createHash('sha256').update(canonical).digest('hex');
 }
