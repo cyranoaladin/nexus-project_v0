@@ -17,6 +17,7 @@
  */
 import type { PrismaClient, User } from '@/core-v2/generated/client';
 import { InvalidStateError, NotFoundError, ValidationError } from '../errors';
+import { subjectHasRole } from '../rbac';
 import { inTransaction } from '../services/context';
 
 /** Verrou d'avis distinct de celui du bootstrap historique. */
@@ -53,7 +54,9 @@ export function assertEligibleV1Admin(snapshot: V1AdminSnapshot | null, expected
   if (snapshot.id !== expectedId) {
     throw new ValidationError('The resolved v1 account does not carry the expected identifier.');
   }
-  if (snapshot.role !== 'ADMIN') {
+  // Comparaison deleguee a rbac.ts : aucun fichier Core v2 ne decide d'un role
+  // en ligne (CORE_V2_NO_INLINE_RBAC).
+  if (!subjectHasRole({ role: snapshot.role as never }, 'ADMIN')) {
     throw new InvalidStateError('The v1 account is not an administrator.', { code: 'V1_NOT_ADMIN' });
   }
   if (snapshot.activatedAt === null) {
@@ -89,7 +92,7 @@ export async function bootstrapV1Admin(
 
     const already = await tx.user.findUnique({ where: { id: eligible.id } });
     if (already) {
-      if (already.role !== 'ADMIN' || already.accountStatus !== 'ACTIVE') {
+      if (!subjectHasRole(already, 'ADMIN') || already.accountStatus !== 'ACTIVE') {
         throw new InvalidStateError('A Core row already exists for this identity in another state.', {
           code: 'CORE_ROW_CONFLICT', accountStatus: already.accountStatus, role: already.role,
         });
@@ -147,6 +150,7 @@ export async function verifyBootstrap(
     client.user.findUnique({ where: { id: v1UserId } }),
     client.auditEvent.count({ where: { action: 'account.bootstrap_v1_admin', subjectId: v1UserId } }),
   ]);
-  const actorActive = actor?.role === 'ADMIN' && actor.accountStatus === 'ACTIVE' && actor.password === null;
+  const actorActive = actor !== null && subjectHasRole(actor, 'ADMIN')
+    && actor.accountStatus === 'ACTIVE' && actor.password === null;
   return { ok: admins === 1 && actorActive && receipts >= 1, admins, actorActive, receipts };
 }

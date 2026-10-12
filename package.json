@@ -57,7 +57,7 @@
     "enums:check": "tsx scripts/codegen/generate-client-enums.ts --check",
     "security:forbidden-artifacts": "node scripts/security/check-forbidden-artifacts.mjs",
     "security:forbidden-artifacts:artifact": "node scripts/security/check-forbidden-artifacts.mjs .next",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node --max-old-space-size=6144 node_modules/typescript/bin/tsc --noEmit",
     "typecheck:aria-scripts": "tsc --project tsconfig.aria-scripts.json",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",

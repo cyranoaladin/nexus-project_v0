@@ -237,7 +237,10 @@ jobs:
         id: tsc_raw
         run: |
           set +e
-          npx tsc --noEmit --pretty false --incremental false 2>&1 | tee typecheck.log
+          # `npm run typecheck` porte desormais la taille de tas necessaire :
+          # une seule autorite, heritee par tous les appelants (ce job comme
+          # pre-rentree:ci, qui OOMaient tous les deux pour la meme raison).
+          npm run typecheck 2>&1 | tee typecheck.log
           status=${PIPESTATUS[0]}
           echo "errors=$(grep -c 'error TS' typecheck.log)" >> "$GITHUB_OUTPUT"
           echo "--- first 50 diagnostics ---"
