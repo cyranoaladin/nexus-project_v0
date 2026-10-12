@@ -7,7 +7,7 @@ import { documentMetadataSchema } from '@/lib/diagnostics/candidat-libre/schemas
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
-import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
+import { assertDiagnosticAvConfigured } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
@@ -18,6 +18,16 @@ const CATEGORY_RULES = new Map(
     .filter((question) => question.type === 'upload' && question.uploadRule)
     .map((question) => [question.uploadRule!.category, question.uploadRule!] as const),
 );
+
+const PUBLIC_UPLOAD_ERRORS = new Map<string, number>([
+  ['INVALID_FILE_SIZE', 413],
+  ['UNSUPPORTED_FILE_TYPE', 400],
+  ['MIME_SIGNATURE_MISMATCH', 400],
+  ['MALWARE_DETECTED', 400],
+  ['AV_SCAN_FAILED', 503],
+  ['AV_NOT_CONFIGURED', 503],
+  ['DOCUMENT_ENCRYPTION_KEY_INVALID', 503],
+]);
 
 export async function GET(_request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
@@ -76,6 +86,13 @@ export async function POST(request: Request, { params }: Params) {
   if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
 
+  // Configuration antivirus explicite, verifiee AVANT de lire le moindre octet du depot.
+  try {
+    assertDiagnosticAvConfigured();
+  } catch {
+    return NextResponse.json({ error: 'AV_NOT_CONFIGURED' }, { status: 503 });
+  }
+
   const contentType = request.headers.get('content-type') ?? '';
   if (!contentType.includes('multipart/form-data')) return NextResponse.json({ error: 'Multipart form-data required' }, { status: 415 });
   const form = await request.formData();
@@ -103,8 +120,8 @@ export async function POST(request: Request, { params }: Params) {
 
   let stored: Awaited<ReturnType<typeof persistDiagnosticFile>> | null = null;
   try {
+    // Le scan antivirus a lieu a l'interieur, sur le clair, avant chiffrement et ecriture.
     stored = await persistDiagnosticFile({ diagnosticId, file, category: parsed.data.category });
-    await scanDiagnosticFile(stored.storageKey);
     const storedFile = stored;
     const document = await prisma.$transaction(async (tx) => {
       const created = await tx.candidateDiagnosticDocument.create({
@@ -150,8 +167,13 @@ export async function POST(request: Request, { params }: Params) {
     }, { status: 201 });
   } catch (error) {
     if (stored?.storageKey) await removePersistedDiagnosticFile(stored.storageKey);
-    const code = error instanceof Error ? error.message : 'UPLOAD_FAILED';
-    const status = code === 'INVALID_FILE_SIZE' ? 413 : code === 'AV_SCAN_FAILED' || code === 'AV_NOT_CONFIGURED' ? 503 : 400;
-    return NextResponse.json({ error: code }, { status });
+    // Liste blanche : jamais de message brut (Prisma, chemins, ...) vers le client.
+    const message = error instanceof Error ? error.message : '';
+    const status = PUBLIC_UPLOAD_ERRORS.get(message);
+    if (status === undefined) {
+      console.error('[candidat-libre] document upload failed', error instanceof Error ? error.name : 'unknown');
+      return NextResponse.json({ error: 'UPLOAD_FAILED' }, { status: 500 });
+    }
+    return NextResponse.json({ error: message }, { status });
   }
 }
