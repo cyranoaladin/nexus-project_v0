@@ -36,7 +36,14 @@ export class PrivateStoragePathExposedError extends Error {
  * internal schema.
  */
 export function assertNoPrivateStoragePath(payload: unknown, depth = 0): void {
-  if (depth > MAX_DEPTH || payload === null || typeof payload !== 'object') return;
+  // La borne REFUSE, elle ne laisse pas passer. Avec un simple `return`, un
+  // `storageKey` imbriqué plus profond que la limite sortait sans être vu : une
+  // garde de sortie qui échoue ouverte ne garde rien. Un corps de réponse
+  // légitime n'atteint jamais cette profondeur, donc le refus est sûr.
+  if (depth > MAX_DEPTH) {
+    throw new PrivateStoragePathExposedError(`__depth_exceeded__:${MAX_DEPTH}`);
+  }
+  if (payload === null || typeof payload !== 'object') return;
   if (payload instanceof Date) return;
   if (Array.isArray(payload)) {
     for (const item of payload) assertNoPrivateStoragePath(item, depth + 1);

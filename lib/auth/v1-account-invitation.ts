@@ -264,6 +264,14 @@ export async function inspectV1Account(
 ): Promise<V1AccountView> {
   const database = options.database ?? prisma;
   return database.$transaction(async (tx): Promise<V1AccountView> => {
+    // Même refus que sur le chemin d'émission, et pour la même raison. C'est le
+    // SECOND point d'entrée de la saga : le worker appelle `inspect` dans les
+    // états SENT, V1_ACTIVATED et PROVISIONING_RETRY, puis provisionne Core sur
+    // un ACTIVE. Garder le refus d'un seul côté laisserait un rôle non
+    // invitable atteindre ACTIVE par ce chemin si le rôle Core changeait en
+    // cours de saga. « Un administrateur n'est jamais rattaché par cette saga »
+    // doit valoir aux DEUX endroits qui peuvent produire un rattachement.
+    if (!isInvitableRole(target.role)) return { state: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' };
     const found = await classify(tx, target);
     if (found.kind === 'REFUSED') return { state: 'REFUSED', code: found.code };
     if (found.kind === 'ABSENT') return { state: 'REFUSED', code: 'V1_ACCOUNT_MISSING' };

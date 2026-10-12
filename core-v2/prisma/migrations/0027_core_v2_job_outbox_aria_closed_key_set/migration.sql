@@ -77,6 +77,19 @@ ALTER TABLE "core_v2_job_outbox"
         AND "payload"->>'generation' ~ '^[1-9][0-9]{0,8}$'
         AND "payload"->>'kind' IN ('ADVANCE', 'REVOKE')
       ELSE false
-    END, false));
+    END, false)) NOT VALID;
+
+-- Deux temps, comme 0025 et 0026, et pour une raison mesurable : valider EN
+-- LIGNE fait courir le balayage des lignes existantes a l'interieur du ALTER,
+-- donc sous ACCESS EXCLUSIVE. Sur un outbox volumineux ce balayage peut
+-- depasser le statement_timeout pose plus haut et faire echouer le deploiement.
+--
+-- La rigueur n'est pas relachee : ce n'est pas NOT VALID qui decide du sort des
+-- lignes fautives, c'est le controle prealable ci-dessus, qui refuse par un nom
+-- d'erreur explicite AVANT toute ecriture. A ce stade il est donc etabli
+-- qu'aucune ligne ne viole la contrainte, et VALIDATE ne fait que l'enregistrer,
+-- sous un verrou plus faible (SHARE UPDATE EXCLUSIVE) qui ne bloque ni les
+-- lectures ni les ecritures ordinaires.
+ALTER TABLE "core_v2_job_outbox" VALIDATE CONSTRAINT "core_v2_job_outbox_payload_check";
 
 COMMIT;

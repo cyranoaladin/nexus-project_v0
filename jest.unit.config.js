@@ -51,6 +51,12 @@ const customJestConfig = {
     // running these here too would either fail closed (no
     // CORE_V2_DATABASE_URL in this job) or duplicate coverage pointlessly.
     '<rootDir>/__tests__/core-v2/',
+    // Même raison pour la lane Auth.js. Le motif ci-dessus porte une barre
+    // oblique finale, donc il ne couvre PAS `__tests__/core-v2-authjs/` : seul
+    // le suffixe `.real.test.ts` tenait le fichier existant hors de cette lane,
+    // et un futur test sans ce suffixe y aurait été collecté — avec
+    // `@prisma/client` mocké, ce qui ne prouverait rien.
+    '<rootDir>/__tests__/core-v2-authjs/',
     // Voie lourde déterministe (un seul worker) : voir jest.heavy.config.js
     '<rootDir>/__tests__/architecture/npc-storage-contract\\.test\\.ts$',
   ],

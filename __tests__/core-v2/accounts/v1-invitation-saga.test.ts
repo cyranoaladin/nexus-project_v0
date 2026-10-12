@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { issueSessionToken } from '@/lib/auth/session-claims';
 import { revokeAllUserSessions, validateSessionToken } from '@/lib/auth/session-revocation';
-import { issueV1AccountInvitation } from '@/lib/auth/v1-account-invitation';
+import { inspectV1Account, issueV1AccountInvitation } from '@/lib/auth/v1-account-invitation';
 import { defaultV1Gateway, type V1Gateway } from '@/lib/core-v2/accounts/v1-provisioning-worker';
 import { InvalidStateError } from '@/lib/core-v2/errors';
 import { disableAccount, requestAccountInvitation, requestAccountInvitationResend } from '@/lib/core-v2/services';
@@ -422,5 +422,38 @@ describe('no secret leaks', () => {
     } finally {
       for (const spy of spies) spy.mockRestore();
     }
+  });
+});
+
+describe('le refus d’un rôle non invitable vaut aux DEUX points d’entrée', () => {
+  test('issue ET inspect refusent un ADMIN avec le même code', async () => {
+    // `issue` le refusait déjà, et c'était le correctif D1. Mais le worker
+    // appelle aussi `inspect`, puis provisionne Core sur un ACTIVE : un refus
+    // posé d'un seul côté laisserait ce second chemin produire un rattachement.
+    const core = await f.coreUser('ADMIN', 'not-invitable-both-gates');
+    const target = {
+      coreUserId: core.id, email: core.email, role: 'ADMIN' as Role,
+      firstName: null, lastName: null, phone: null, generation: 1,
+    };
+
+    const issued = await issueV1AccountInvitation(target as never);
+    expect(issued).toMatchObject({ outcome: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' });
+
+    const observed = await inspectV1Account(target as never);
+    expect(observed).toMatchObject({ state: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' });
+
+    // Et rien n'a été écrit d'aucun côté.
+    expect(await prisma.user.findUnique({ where: { id: core.id } })).toBeNull();
+  });
+
+  test('un rôle invitable n’est PAS refusé par inspect (contrôle positif)', async () => {
+    // Sans ce contrôle, un `inspect` qui refuserait TOUT passerait le test
+    // ci-dessus sans rien garantir.
+    const core = await f.coreUser('ASSISTANTE', 'invitable-passes-inspect');
+    const observed = await inspectV1Account({
+      coreUserId: core.id, email: core.email, role: 'ASSISTANTE' as Role,
+      firstName: null, lastName: null, phone: null, generation: 1,
+    } as never);
+    expect(observed).not.toMatchObject({ code: 'V1_ROLE_NOT_INVITABLE' });
   });
 });
