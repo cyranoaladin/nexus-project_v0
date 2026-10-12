@@ -102,7 +102,7 @@ describe('the staff API under V1_ONLY', () => {
     const again = await inviteRoute(post('/x'), { params: Promise.resolve({ id: core.id }) });
     expect(again.status).toBeGreaterThanOrEqual(400); // already in flight: use resend
 
-    const resent = await resendRoute(post('/x', undefined, { 'idempotency-key': '0b3d5a52-7a39-4a08-8f3e-7a3f2d9a4c11' }), { params: Promise.resolve({ id: core.id }) });
+    const resent = await resendRoute(post('/x', undefined, { 'idempotency-key': '00000000-0000-4000-8000-000000000001' }), { params: Promise.resolve({ id: core.id }) });
     expect(resent.status).toBe(201);
     expect((await f.saga(core.id)).generation).toBe(2);
   });
