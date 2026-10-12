@@ -81,10 +81,13 @@ export function assertEligibleV1Admin(snapshot: V1AdminSnapshot | null, expected
  */
 export async function bootstrapV1Admin(
   client: PrismaClient,
-  snapshot: V1AdminSnapshot,
-  options: { readonly nonce: string; readonly now?: () => Date },
+  snapshot: V1AdminSnapshot | null,
+  options: { readonly nonce: string; readonly expectedV1UserId: string; readonly now?: () => Date },
 ): Promise<BootstrapOutcome> {
-  const eligible = assertEligibleV1Admin(snapshot, snapshot.id);
+  // L'identifiant ATTENDU vient du manifeste, jamais de l'instantané lu : le
+  // comparer à lui-même rendrait la vérification tautologique, et le mode
+  // `--apply` n'aurait alors pas la même liaison que `--dry-run`.
+  const eligible = assertEligibleV1Admin(snapshot, options.expectedV1UserId);
   const at = (options.now ?? (() => new Date()))();
 
   return inTransaction(client, async (tx) => {

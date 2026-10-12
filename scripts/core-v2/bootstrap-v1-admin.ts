@@ -15,8 +15,18 @@
  * porteur. Rien d'autre n'est créé que l'acteur, son rôle ADMIN et un reçu.
  *
  * L'opération est autorisée par un manifeste en 0400 qui lie l'exécution à un
- * SHA, une base, une tête de migrations, une identité V1, un nonce et une
- * expiration. Son empreinte est recalculée : un manifeste modifié est refusé.
+ * SHA de release, une base, une tête de migrations, une identité V1 et son état
+ * attendu, un nonce et une expiration. Chacune de ces liaisons est RÉELLEMENT
+ * comparée à l'environnement ; l'empreinte est recalculée sur une sérialisation
+ * canonique à toute profondeur, donc un manifeste modifié est refusé.
+ *
+ * Ce n'est PAS le seul chemin vers un acteur Core ADMIN, et il ne faut pas le
+ * lire comme tel : `sync-staff-actors --execute` reflète dans Core tout
+ * ADMIN/ASSISTANTE/COACH de V1, et crée donc un ADMIN Core sans manifeste. Ce
+ * n'est pas une élévation — il faut déjà être ADMIN en V1 et avoir un accès
+ * shell — mais l'ordre compte : si la synchronisation passe d'abord, un acteur
+ * ADMIN existe et cet amorçage refuse avec `BOOTSTRAP_CLOSED`. Aucun mécanisme
+ * n'impose cet ordre ; il appartient à la procédure de go-live.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
@@ -24,6 +34,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireCoreV2Client, disconnectCoreV2Client } from '@/lib/core-v2/client';
 import { credentialAuthorityIsV1 } from '@/lib/core-v2/accounts/v1-authority';
+import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
 import {
   bootstrapV1Admin,
   verifyBootstrap,
@@ -54,12 +65,29 @@ function arg(name: string): string | undefined {
   return hit?.slice(name.length + 3);
 }
 
-/** L'empreinte couvre tout le manifeste SAUF elle-même. */
+/**
+ * Sérialisation canonique : clés triées à TOUTE profondeur.
+ *
+ * L'implémentation précédente passait `Object.keys(rest).sort()` comme replacer
+ * de `JSON.stringify`. Un replacer tableau est une liste blanche appliquée
+ * RÉCURSIVEMENT : les clés imbriquées d'`expectedV1State` n'y figuraient pas,
+ * donc cet objet se sérialisait en `{}` et un état V1 entièrement falsifié
+ * produisait la MÊME empreinte. Mesuré, pas supposé.
+ */
+function canonicalize(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null';
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(',')}]`;
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([, v]) => v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonicalize(v)}`).join(',')}}`;
+}
+
+/** L'empreinte couvre tout le manifeste SAUF elle-même, à toute profondeur. */
 function fingerprintOf(manifest: Manifest): string {
   const rest: Record<string, unknown> = { ...manifest };
   delete rest.fingerprint;
-  const canonical = JSON.stringify(rest, Object.keys(rest).sort());
-  return createHash('sha256').update(canonical).digest('hex');
+  return createHash('sha256').update(canonicalize(rest)).digest('hex');
 }
 
 function loadManifest(path: string, now: Date): Manifest {
@@ -86,12 +114,49 @@ async function readV1Admin(v1UserId: string): Promise<V1AdminSnapshot | null> {
   return row ? { ...row, role: String(row.role) } : null;
 }
 
-function assertManifestMatchesEnvironment(manifest: Manifest, identity: string, head: string): void {
+function assertManifestMatchesEnvironment(manifest: Manifest, identity: string, head: string, releaseSha: string | null): void {
   if (manifest.databaseIdentity !== identity) {
     throw new Error(`MANIFEST_DATABASE_MISMATCH — manifeste pour « ${manifest.databaseIdentity} », base « ${identity} ».`);
   }
   if (manifest.migrationHead !== head) {
     throw new Error(`MANIFEST_MIGRATION_HEAD_MISMATCH — manifeste pour « ${manifest.migrationHead} », base en « ${head} ».`);
+  }
+  // `finalSha` était parsé, empreinté et documenté comme liant — et comparé à
+  // rien. Un manifeste taillé pour une release pouvait donc être rejoué, intact
+  // et dans sa fenêtre, contre une AUTRE release sur la même base.
+  if (releaseSha === null) {
+    throw new Error('RELEASE_IDENTITY_UNAVAILABLE — l’amorçage n’a lieu que depuis une release vérifiée, '
+      + 'la seule situation où le SHA que le manifeste prétend lier peut être établi.');
+  }
+  if (manifest.finalSha !== releaseSha) {
+    throw new Error(`MANIFEST_RELEASE_MISMATCH — manifeste pour « ${manifest.finalSha} », release « ${releaseSha} ».`);
+  }
+}
+
+/**
+ * L'état V1 déclaré au manifeste doit correspondre à l'état LU. Sans cela, le
+ * manifeste décrit une intention que personne ne confronte au réel.
+ */
+function assertManifestMatchesV1State(manifest: Manifest, snapshot: V1AdminSnapshot | null): void {
+  if (!snapshot) throw new Error('V1_IDENTITY_NOT_FOUND — aucun compte V1 ne porte cet identifiant.');
+  const observed = {
+    role: String(snapshot.role),
+    activated: snapshot.activatedAt !== null,
+    disabled: snapshot.disabledAt !== null,
+    merged: snapshot.mergedIntoUserId !== null,
+  };
+  const expected = manifest.expectedV1State;
+  if (observed.role !== expected.role
+    || observed.activated !== expected.activated
+    || observed.disabled !== expected.disabled
+    || observed.merged !== expected.merged) {
+    // Aucune donnée d'identité dans le message : seuls les champs divergents.
+    const diverging = (Object.keys(expected) as Array<keyof typeof expected>)
+      .filter((key) => observed[key] !== expected[key]);
+    throw new Error(`MANIFEST_V1_STATE_MISMATCH — champs divergents : ${diverging.join(', ')}.`);
+  }
+  if (manifest.capability !== 'ADMIN' || observed.role !== 'ADMIN') {
+    throw new Error('MANIFEST_CAPABILITY_MISMATCH — cet amorçage ne crée qu’un ADMIN.');
   }
 }
 
@@ -118,9 +183,11 @@ async function main(): Promise<number> {
       SELECT migration_name FROM _prisma_migrations
       WHERE finished_at IS NOT NULL AND rolled_back_at IS NULL
       ORDER BY migration_name DESC LIMIT 1`;
-    assertManifestMatchesEnvironment(manifest, identityRow?.schemaIdentity ?? '', headRow?.migration_name ?? '');
+    const releaseSha = await readRunningReleaseSha();
+    assertManifestMatchesEnvironment(manifest, identityRow?.schemaIdentity ?? '', headRow?.migration_name ?? '', releaseSha);
 
     const snapshot = await readV1Admin(manifest.v1UserId);
+    assertManifestMatchesV1State(manifest, snapshot);
 
     if (process.argv.includes('--verify')) {
       const report = await verifyBootstrap(client, manifest.v1UserId);
@@ -156,11 +223,33 @@ async function main(): Promise<number> {
         console.error(JSON.stringify({ mode: 'rollback', refused: 'ACTOR_ALREADY_ACTED', otherAudit }));
         return 1;
       }
+      // Le reçu doit EXISTER et porter l'action d'amorçage. Un `deleteMany` sur
+      // un identifiant erroné supprimait 0 ligne, laissait le reçu en place, et
+      // la commande annonçait quand même « removed » — un rollback qui réussit
+      // en apparence tout en laissant une trace contradictoire.
+      const receipt = await client.auditEvent.findFirst({
+        where: { id: rollbackReceipt, subjectId: manifest.v1UserId, action: 'account.bootstrap_v1_admin' },
+      });
+      if (!receipt) {
+        console.error(JSON.stringify({ mode: 'rollback', refused: 'RECEIPT_NOT_FOUND' }));
+        return 1;
+      }
       await client.$transaction([
-        client.auditEvent.deleteMany({ where: { id: rollbackReceipt, subjectId: manifest.v1UserId } }),
+        client.auditEvent.delete({ where: { id: receipt.id } }),
         client.user.delete({ where: { id: manifest.v1UserId } }),
+        // Un rollback n'EFFACE pas l'histoire : il la compense. Sans cette
+        // écriture, la seule trace de l'amorçage serait celle qu'on supprime,
+        // et un `--apply` ultérieur paraîtrait être le premier.
+        client.auditEvent.create({
+          data: {
+            action: 'account.bootstrap_v1_admin.rolled_back',
+            subjectType: 'User',
+            subjectId: manifest.v1UserId,
+            metadata: { nonce: manifest.nonce, receiptId: receipt.id, migrationHead: manifest.migrationHead },
+          },
+        }),
       ]);
-      console.info(JSON.stringify({ mode: 'rollback', removed: manifest.v1UserId }));
+      console.info(JSON.stringify({ mode: 'rollback', removed: manifest.v1UserId, compensated: receipt.id }));
       return 0;
     }
 
@@ -169,8 +258,12 @@ async function main(): Promise<number> {
       return 2;
     }
 
-    const eligible = snapshot as V1AdminSnapshot;
-    const result = await bootstrapV1Admin(client, eligible, { nonce: manifest.nonce, now: () => now });
+    // L'identifiant attendu vient du MANIFESTE, pas de l'instantané : les deux
+    // modes appliquent ainsi la même liaison, et un identifiant introuvable
+    // produit le refus prévu au lieu d'un déréférencement de `null`.
+    const result = await bootstrapV1Admin(client, snapshot, {
+      nonce: manifest.nonce, expectedV1UserId: manifest.v1UserId, now: () => now,
+    });
     console.info(JSON.stringify({ mode: 'apply', ...result }));
     return 0;
   } finally {
