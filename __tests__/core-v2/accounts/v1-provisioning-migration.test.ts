@@ -15,6 +15,9 @@ const MIGRATIONS = join(process.cwd(), 'core-v2/prisma/migrations');
 const adminUrl = process.env.CORE_V2_IDENTITY_TEST_ADMIN_URL ?? '';
 let scratch: ScratchDatabase;
 let db: Client;
+// Declare explicitement : sans cela l'affectation creait une globale
+// implicite — invisible a l'execution, mais non typable.
+let registry: ScratchDatabaseRegistry | undefined;
 
 const migrationNames = () => readdirSync(MIGRATIONS).filter((name) => /^\d{4}_/.test(name)).sort();
 const sqlOf = (name: string) => readFileSync(join(MIGRATIONS, name, 'migration.sql'), 'utf8');
@@ -28,7 +31,8 @@ async function rowsDigest(): Promise<string> {
 
 beforeAll(async () => {
   if (!adminUrl) throw new Error('CORE_V2_IDENTITY_TEST_ADMIN_URL is required');
-  scratch = await (registry = createScratchDatabaseRegistry(adminUrl)).create('d2_migration');
+  registry = createScratchDatabaseRegistry(adminUrl);
+  scratch = await registry.create('d2_migration');
   db = new Client({ connectionString: scratch.url });
   await db.connect();
   for (const name of migrationNames().filter((candidate) => candidate < V1_PROVISIONING_MIGRATION)) {
