@@ -1,5 +1,5 @@
 {
- "policy_version": 6,
+ "policy_version": 7,
  "nature": "NORMATIF — ecrit depuis l intention metier et securite. Volontairement NON derive des guards d implementation : il doit pouvoir les contredire, sinon la preuve est circulaire.",
  "effective_access_contract": "V1 authentifie et actif ET adhesion Core ACTIVE ET capacite Core autorisee",
  "matrix_execution_precondition": "La matrice RBAC ne s execute qu APRES un gate de sante Core v2 concluant. Executee sur une base indisponible, elle ne prouve rien.",
@@ -229,7 +229,13 @@
    ],
    "refusal_status": 403,
    "justification": "L'autorisation precede la verification de disponibilite de la remise. Sous CORE_V2_AUTH_MODE=V1_ONLY la saga delegue a V1, seule autorite des credentials : Core ne recoit ni mot de passe, ni hash, ni jeton brut. Un compte V1 actif est lie sans aucune ecriture V1.",
-   "access_class": "ROLE_OR_CAPABILITY"
+   "access_class": "ROLE_OR_CAPABILITY",
+   "enforced_restrictions": [
+    "PLAFOND DE ROLE — impose et teste : un ADMIN n'est jamais invite ni rattache par cette saga. Le refus est pose aux DEUX points d'entree (emission et inspection), avant tout court-circuit d'etat."
+   ],
+   "declared_but_not_implemented": [
+    "PERIMETRE DE L'EMETTEUR — la politique l'exige, le code ne l'impose PAS. Un acteur portant ACCOUNT_INVITE peut inviter n'importe quel compte invitable, sans restriction a un foyer ou a un sous-ensemble. A ce jour la seule borne est le plafond de role."
+   ]
   },
   {
    "handler_id": "POST /api/v2/staff/accounts/[id]/reactivate",
@@ -248,7 +254,13 @@
    ],
    "refusal_status": 403,
    "justification": "L'autorisation precede la verification de disponibilite de la remise. Sous CORE_V2_AUTH_MODE=V1_ONLY la saga delegue a V1, seule autorite des credentials : Core ne recoit ni mot de passe, ni hash, ni jeton brut. Un compte V1 actif est lie sans aucune ecriture V1.",
-   "access_class": "ROLE_OR_CAPABILITY"
+   "access_class": "ROLE_OR_CAPABILITY",
+   "enforced_restrictions": [
+    "PLAFOND DE ROLE — impose et teste : un ADMIN n'est jamais invite ni rattache par cette saga. Le refus est pose aux DEUX points d'entree (emission et inspection), avant tout court-circuit d'etat."
+   ],
+   "declared_but_not_implemented": [
+    "PERIMETRE DE L'EMETTEUR — la politique l'exige, le code ne l'impose PAS. Un acteur portant ACCOUNT_INVITE peut inviter n'importe quel compte invitable, sans restriction a un foyer ou a un sous-ensemble. A ce jour la seule borne est le plafond de role."
+   ]
   },
   {
    "handler_id": "POST /api/v2/staff/accounts/[id]/suspend",
@@ -789,5 +801,6 @@
   "ROLE_OR_CAPABILITY": "Garde de role ou de capacite resolue dans les sources ; `roles_allowed` est l'ensemble attendu.",
   "PUBLIC_RATE_LIMITED": "Aucune garde de role, par conception ; exige meme origine et limitation de debit.",
   "CORE_V2_SESSION_ONLY": "Exige une session Core v2 ; sous V1_ONLY, aucun role ne passe (403 WRONG_AUTHORITY)."
- }
+ },
+ "unimplemented_requirements_note": "Une politique normative peut exiger plus que ce que le code impose — c'est meme son interet. Mais elle doit le DIRE : le champ `declared_but_not_implemented` nomme les exigences non tenues, de sorte qu'aucune lecture ne puisse prendre une intention pour un controle. Un controle annonce et absent est pire qu'un controle absent et assume."
 }

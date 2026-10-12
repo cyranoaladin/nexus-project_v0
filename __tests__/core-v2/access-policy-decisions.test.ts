@@ -33,6 +33,8 @@ const policy = JSON.parse(
     roles_allowed: Role[];
     refusal_status: number;
     access_class: 'ROLE_OR_CAPABILITY' | 'PUBLIC_RATE_LIMITED' | 'CORE_V2_SESSION_ONLY';
+    enforced_restrictions?: string[];
+    declared_but_not_implemented?: string[];
   }>;
 };
 
@@ -189,6 +191,30 @@ describe('la politique d’accès porte réellement sur 82 handlers', () => {
       .map((g) => g.value)
       .filter((c) => !(CAPABILITIES as readonly string[]).includes(c));
     expect([...new Set(phantom)].sort()).toEqual([]);
+  });
+
+  test('le plafond de rôle annoncé comme imposé l’est réellement', () => {
+    // Une restriction listee dans `enforced_restrictions` doit etre trouvable
+    // dans le code. L'inverse — annoncer un controle absent — est le defaut que
+    // ce test existe pour rendre impossible.
+    const entries = policy.policies.filter((e) => (e.enforced_restrictions ?? []).length > 0);
+    expect(entries.length).toBeGreaterThan(0);
+    const gateway = readFileSync(join(ROOT, 'lib/auth/v1-account-invitation.ts'), 'utf8');
+    const provisioning = readFileSync(join(ROOT, 'lib/core-v2/accounts/v1-provisioning.ts'), 'utf8');
+    // Le plafond est pose aux deux points d'entree, pas a un seul.
+    expect((gateway.match(/isInvitableRole\(/g) ?? []).length).toBeGreaterThanOrEqual(2);
+    expect(provisioning).toContain('isInvitableRole(');
+  });
+
+  test('toute exigence non tenue est nommée, jamais passee sous silence', () => {
+    // Le perimetre de l'emetteur est exige par la politique et absent du code.
+    // Il doit figurer en clair : une intention prise pour un controle est un
+    // faux sentiment de securite.
+    const unimplemented = policy.policies.flatMap((e) => e.declared_but_not_implemented ?? []);
+    expect(unimplemented.length).toBeGreaterThan(0);
+    // Et la mesure qui le motive : aucun controle de perimetre dans le chemin.
+    const account = readFileSync(join(ROOT, 'lib/core-v2/services/account.ts'), 'utf8');
+    expect(account).not.toMatch(/assertScope\(|withinScope\(|assertPerimeter\(/);
   });
 
   test('la mesure voit réellement des gardes de chaque famille', () => {
