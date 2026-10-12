@@ -34,10 +34,27 @@ import { inviteAccount, resendInvitation } from '@/lib/core-v2/services/account'
 import { bootstrapFirstAdmin } from '@/lib/core-v2/services/staff-account';
 import { getTrustedApplicationOrigin } from '@/lib/auth/parent-activation';
 import { assertAccountEmailHandoffRuntimeConfiguration } from '@/lib/core-v2/accounts/email-handoff-scheduler';
+import { credentialAuthorityIsV1 } from '@/lib/core-v2/accounts/v1-authority';
 
 function arg(name: string): string | undefined {
   const match = process.argv.find((a) => a.startsWith(`--${name}=`));
   return match ? match.slice(name.length + 3) : undefined;
+}
+
+/**
+ * Sous `CORE_V2_AUTH_MODE=V1_ONLY`, Core v1 detient les identifiants : ce
+ * bootstrap, qui passe par une invitation et une activation Core, ne peut pas
+ * aboutir. Il echoue donc ICI, explicitement, en nommant la commande a utiliser,
+ * plutot que plus loin sur une erreur de configuration difficile a interpreter.
+ */
+function assertNotV1OnlyDeployment(): void {
+  if (credentialAuthorityIsV1()) {
+    throw new Error(
+      'CORE_CREDENTIAL_WRITE_DISABLED_V1_ONLY: sous V1_ONLY le premier administrateur ' +
+      'est rattache a un ADMIN Core v1 existant. Utiliser : ' +
+      'tsx scripts/core-v2/bootstrap-v1-admin.ts --manifest=<chemin> --dry-run',
+    );
+  }
 }
 
 function assertAuthorizedToWrite(): void {
@@ -52,6 +69,7 @@ function assertAuthorizedToWrite(): void {
 }
 
 async function main(): Promise<number> {
+  assertNotV1OnlyDeployment();
   const email = arg('email');
   const firstName = arg('first-name');
   const lastName = arg('last-name');
