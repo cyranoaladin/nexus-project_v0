@@ -10,6 +10,8 @@ import { logger } from '@/lib/logger';
 import { CoreV2DatabaseIdentityError, CoreV2DatabaseUrlError } from '../client';
 import { CoreV2ConfigError } from '../config';
 import { CoreV2DomainError, type CoreV2ErrorCode } from '../errors';
+import { CoreV2CredentialAuthorityIsV1Error } from '../accounts/v1-authority';
+import { assertNoPrivateStoragePath } from './private-path-guard';
 
 export const CORRELATION_HEADER = 'x-correlation-id';
 
@@ -28,6 +30,10 @@ export interface ApiErrorBody {
 }
 
 export function ok<T>(data: T, correlationId: string, status = 200): NextResponse {
+  // Fail CLOSED on the way out: a private storage path must never reach a
+  // client, even if a new read path forgot its projection. Raising here turns
+  // the leak into a 500 rather than letting a minor's internal file path out.
+  assertNoPrivateStoragePath(data);
   return NextResponse.json({ ok: true, data }, { status, headers: { [CORRELATION_HEADER]: correlationId } });
 }
 
@@ -49,6 +55,12 @@ export function failFromError(error: unknown, correlationId: string): NextRespon
   }
   if (error instanceof CoreV2DatabaseUrlError || error instanceof CoreV2DatabaseIdentityError) {
     return fail(correlationId, 503, 'CORE_V2_UNAVAILABLE', 'Core v2 is not configured on this deployment.');
+  }
+  // AVANT le cas general : c'est une sous-classe de CoreV2ConfigError, mais une
+  // decision de conception et non une panne. Refus generique, identique a celui
+  // d'un lien expire ou forge, pour ne rien reveler.
+  if (error instanceof CoreV2CredentialAuthorityIsV1Error) {
+    return fail(correlationId, 404, 'NOT_FOUND', 'Not found or no longer valid.');
   }
   if (error instanceof CoreV2ConfigError) {
     return fail(correlationId, 503, 'CORE_V2_MISCONFIGURED', error.message);

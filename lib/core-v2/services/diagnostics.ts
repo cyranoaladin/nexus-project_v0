@@ -194,28 +194,9 @@ export const SUBMISSION_PUBLIC_FIELDS = {
   updatedAt: true,
 } as const;
 
-/** Champs du modele qui ne doivent jamais traverser la frontiere HTTP. */
-const PRIVATE_STORAGE_FIELDS = Object.freeze(['storageKey'] as const);
-
-/**
- * Garde de defense en profondeur : leve si une charge utile destinee au client
- * porte encore un chemin de stockage prive, a n'importe quelle profondeur.
- */
-export function assertNoPrivateStoragePath(payload: unknown, depth = 0): void {
-  if (depth > 12 || payload === null || typeof payload !== 'object') return;
-  if (Array.isArray(payload)) {
-    for (const item of payload) assertNoPrivateStoragePath(item, depth + 1);
-    return;
-  }
-  for (const field of PRIVATE_STORAGE_FIELDS) {
-    if (Object.prototype.hasOwnProperty.call(payload, field)) {
-      throw new Error(`PRIVATE_STORAGE_PATH_EXPOSED:${field}`);
-    }
-  }
-  for (const value of Object.values(payload as Record<string, unknown>)) {
-    assertNoPrivateStoragePath(value, depth + 1);
-  }
-}
+// La garde de frontiere vit desormais dans la couche HTTP et est appelee par
+// `ok()` : une garde que personne n'appelle ne protege rien.
+export { assertNoPrivateStoragePath } from '../http/private-path-guard';
 
 /** Copie telle qu'elle est exposee : sans le chemin de stockage prive. */
 export type PublicDiagnosticSubmission = Omit<DiagnosticSubmission, 'storageKey'>;
