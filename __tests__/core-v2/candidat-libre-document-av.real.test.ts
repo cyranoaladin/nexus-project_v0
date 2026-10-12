@@ -320,6 +320,41 @@ describe('POST /documents — end to end against the real engine', () => {
     expect(files[0]).toMatch(/\.enc$/);
   });
 
+  test('ni la création ni le renvoi idempotent ne laissent sortir le chemin privé', async () => {
+    // La reponse 201 : la ligne creee PORTE `storageKey` et `sha256` (le mock de
+    // `create` renvoie `{...data}`), donc leur absence du corps est une vraie
+    // mesure, pas une tautologie.
+    const created = await POST(uploadRequest(CLEAN_PDF), routeParams);
+    expect(created.status).toBe(201);
+    const createdBody = await created.json();
+    expect(Object.keys(createdBody.document).sort()).toEqual(
+      ['category', 'createdAt', 'id', 'mimeType', 'originalName', 'sizeBytes', 'status', 'title'],
+    );
+    expect(JSON.stringify(createdBody)).not.toContain('.enc');
+
+    // Le renvoi idempotent : c'est le chemin qui fuyait. Le double de la base
+    // renvoie ICI la ligne BRUTE, chemin disque compris — si la route se
+    // contentait de la relayer, l'assertion echouerait.
+    const leaked = { id: 'doc-1', category: 'WRITTEN_COPY', title: 'Copie', originalName: 'bulletin.pdf',
+      mimeType: 'application/pdf', sizeBytes: 11, status: 'PENDING', createdAt: new Date(),
+      storageKey: 'candidate-diagnostics/diag-1/WRITTEN_COPY/00000000-0000-4000-8000-000000000001.enc',
+      sha256: 'f'.repeat(64), clientMutationId: 'mutation-replay', uploadedById: 'user-1', description: null };
+    mockPrisma.candidateDiagnosticDocument.findUnique.mockResolvedValue(leaked);
+    const replay = await POST(uploadRequest(CLEAN_PDF), routeParams);
+    const replayBody = await replay.json();
+    expect(replayBody.idempotent).toBe(true);
+    expect(replayBody.document.storageKey).toBeUndefined();
+    expect(replayBody.document.sha256).toBeUndefined();
+    expect(JSON.stringify(replayBody)).not.toContain(leaked.storageKey);
+    expect(JSON.stringify(replayBody)).not.toContain('.enc');
+
+    // Et la requete elle-meme ne demande PAS le champ : la base ne le livre pas.
+    const where = mockPrisma.candidateDiagnosticDocument.findUnique.mock.calls.at(-1)?.[0];
+    expect(where.select).toBeDefined();
+    expect(where.select.storageKey).toBeUndefined();
+    expect(where.select.sha256).toBeUndefined();
+  });
+
   test('EICAR PDF: refused, no DB row, no file, no audit entry, verdict code is sanitised', async () => {
     const response = await POST(uploadRequest(EICAR_PDF), routeParams);
     expect(response.status).toBe(400);
