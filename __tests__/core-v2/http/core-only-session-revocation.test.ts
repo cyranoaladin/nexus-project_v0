@@ -347,8 +347,12 @@ describe('V1_ONLY (what production runs): a Core v2 cookie is never honoured', (
   });
 
   test('a cookie issued for a Core identity is refused on API, UI and the session endpoint', async () => {
-    const fixture = await setUp('v1-only');
+    // The fixture needs a Core credential to exist at all, and under V1_ONLY
+    // writing one is refused on purpose (assertCoreMayHoldCredentials). So the
+    // identity is built in a mode that allows Core credentials, and only THEN
+    // is production's mode applied to prove the cookie is no longer honoured.
     process.env.CORE_V2_AUTH_MODE = 'V2_ONLY';
+    const fixture = await setUp('v1-only');
     const cookie = await signIn(fixture.email, fixture.password);
     await expectAccepted(cookie, fixture);
 

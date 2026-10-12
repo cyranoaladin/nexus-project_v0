@@ -81,18 +81,22 @@ jest.mock('@/lib/core-v2/http/actor', () => ({
 let deliveryConfigured = false;
 
 jest.mock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({
-  assertAccountEmailHandoffRuntimeConfiguration: () => {
-    calls.push('assertDeliveryConfiguration');
-    if (deliveryConfigured) return;
-    // Comportement mesuré au SHA candidat sous V1_ONLY.
-    const { CoreV2ConfigError } = jest.requireActual('@/lib/core-v2/config');
-    throw new CoreV2ConfigError('ACCOUNT_EMAIL_CORE_AUTH_DISABLED');
-  },
   kickAccountEmailHandoffDrain: () => undefined,
 }));
 
+// Depuis D2, la disponibilité de la remise est vérifiée par un module dédié :
+// c'est LUI qu'il faut espionner, sinon l'ordre n'est plus observé du tout.
+jest.mock('@/lib/core-v2/accounts/invitation-runtime', () => ({
+  assertAccountInvitationRuntimeConfiguration: () => {
+    calls.push('assertDeliveryConfiguration');
+    if (deliveryConfigured) return;
+    const { CoreV2ConfigError } = jest.requireActual('@/lib/core-v2/config');
+    throw new CoreV2ConfigError('ACCOUNT_INVITATION_DELIVERY_UNAVAILABLE');
+  },
+}));
+
 jest.mock('@/lib/core-v2/services', () => ({
-  inviteAccount: async () => {
+  requestAccountInvitation: async () => {
     calls.push('inviteAccount');
     return {
       invitation: { id: 'inv-1', expiresAt: new Date('2026-12-31T00:00:00.000Z') },
@@ -101,7 +105,7 @@ jest.mock('@/lib/core-v2/services', () => ({
       handoffId: 'handoff-1',
     };
   },
-  resendInvitation: async () => {
+  requestAccountInvitationResend: async () => {
     calls.push('resendInvitation');
     return {
       invitation: { id: 'inv-2', expiresAt: new Date('2026-12-31T00:00:00.000Z') },
