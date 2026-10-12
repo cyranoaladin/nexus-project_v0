@@ -44,19 +44,26 @@ export function AccountActions({ user, can, onChanged }: { user: PublicUser; can
             </Button>
           </>
         )}
+        {/*
+          Ces actions ne portent QUE sur l'accès Core v2. Elles ne touchent ni le
+          mot de passe, ni l'activation, ni les sessions, ni l'accès V1 : dire
+          « compte suspendu » ou « compte désactivé » ferait croire à une
+          suspension globale, qui est une action V1 distincte et plus fortement
+          autorisée. Les libellés le disent explicitement.
+        */}
         {can('ACCOUNT_SUSPEND') && user.accountStatus === 'ACTIVE' && (
-          <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('suspend', () => post('suspend'), 'Compte suspendu ; sessions révoquées.')}>
-            Suspendre
+          <Button type="button" size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void action.run('suspend', () => post('suspend'), 'Accès Core v2 suspendu ; sessions Core révoquées. L’accès V1 n’est pas modifié.')}>
+            Suspendre l’accès Core v2
           </Button>
         )}
         {can('ACCOUNT_REACTIVATE') && user.accountStatus === 'SUSPENDED' && (
-          <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('reactivate', () => post('reactivate'), 'Compte réactivé.')}>
-            Réactiver
+          <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('reactivate', () => post('reactivate'), 'Accès Core v2 rétabli. Aucune réactivation V1 n’a lieu.')}>
+            Rétablir l’accès Core v2
           </Button>
         )}
         {can('ACCOUNT_SUSPEND') && user.accountStatus !== 'DISABLED' && (
-          <Button type="button" size="sm" variant="outline" className="border-red-500/40 text-red-200 hover:text-red-100" disabled={action.pending !== null} onClick={() => void action.run('disable', () => post('disable'), 'Compte désactivé définitivement.')}>
-            Désactiver
+          <Button type="button" size="sm" variant="outline" className="border-red-500/40 text-red-200 hover:text-red-100" disabled={action.pending !== null} onClick={() => void action.run('disable', () => post('disable'), 'Accès Core v2 retiré définitivement. Le compte V1 n’est ni suspendu ni supprimé.')}>
+            Retirer l’accès Core v2
           </Button>
         )}
       </div>
