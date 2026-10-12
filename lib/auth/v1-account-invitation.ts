@@ -68,6 +68,11 @@ export type V1AccountView =
 type Tx = Prisma.TransactionClient;
 type Database = Pick<typeof prisma, '$transaction' | 'user' | 'jobOutbox'>;
 
+/** A role with no activation purpose can never be invited NOR linked by the saga. */
+export function isInvitableRole(role: UserRole): boolean {
+  return PURPOSE_BY_ROLE[role] !== null;
+}
+
 const PURPOSE_BY_ROLE: Readonly<Record<UserRole, ActivationPurpose | null>> = {
   PARENT: 'parent',
   ELEVE: 'student',
@@ -193,8 +198,13 @@ export async function issueV1AccountInvitation(
     await lockUser(tx, target.coreUserId);
     const found = await classify(tx, target);
     if (found.kind === 'REFUSED') return { outcome: 'REFUSED', code: found.code };
-    if (found.kind === 'ACTIVE') return { outcome: 'ACTIVE_LINKED', v1UserId: found.row.id };
+    // A non-invitable role is refused BEFORE the ACTIVE short-circuit. The other
+    // order let an ACTIVE V1 ADMIN return ACTIVE_LINKED, so the saga brought a
+    // Core ADMIN actor to ACTIVE — reachable with ACCOUNT_INVITE, which
+    // ASSISTANTE holds. "An administrator is never invited" must hold for
+    // LINKING too, not only for creation.
     if (purpose === null) return { outcome: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' };
+    if (found.kind === 'ACTIVE') return { outcome: 'ACTIVE_LINKED', v1UserId: found.row.id };
 
     const issued = await highestIssuedGeneration(tx, target.coreUserId);
     if (issued > target.generation) return { outcome: 'REFUSED', code: 'V1_GENERATION_STALE' };

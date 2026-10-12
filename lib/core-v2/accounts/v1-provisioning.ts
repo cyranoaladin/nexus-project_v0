@@ -19,11 +19,12 @@
  * (request, resend, cancel). The worker that talks to Core v1 is
  * v1-provisioning-worker.ts.
  */
+import { isInvitableRole } from '@/lib/auth/v1-account-invitation';
 import { randomUUID } from 'node:crypto';
 import type { AccountProvisioningState, AccountV1Provisioning, User } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { CoreV2JobType } from '../client';
-import { ConflictError, InvalidStateError, NotFoundError } from '../errors';
+import { ConflictError, ForbiddenError, InvalidStateError, NotFoundError } from '../errors';
 import type { ServiceContext, Tx } from '../services/context';
 
 export const V1_PROVISIONING_SCHEMA_VERSION = 'account-v1-provisioning/v1' as const;
@@ -131,6 +132,15 @@ export async function requestV1Provisioning(
   if (user.accountStatus !== 'PENDING_ACTIVATION') {
     throw new InvalidStateError(`Only a PENDING_ACTIVATION account can be invited (is ${user.accountStatus}).`, {
       userId, accountStatus: user.accountStatus,
+    });
+  }
+  // Defence in depth on the ROLE, not only on the account status: an
+  // administrator is never invited and never linked by this saga. Refusing here
+  // means nothing is written and no job is enqueued, rather than relying on the
+  // V1 step to decline later.
+  if (!isInvitableRole(user.role)) {
+    throw new ForbiddenError('This role is never provisioned through an invitation.', {
+      code: 'ROLE_NOT_INVITABLE',
     });
   }
   if (!user.email) throw new InvalidStateError('The account has no email to deliver an invitation to.', { userId });
