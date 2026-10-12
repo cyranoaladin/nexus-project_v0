@@ -104,14 +104,14 @@ describe('HouseholdDetail', () => {
     mockApi([{ url: /\/staff\/me$/, body: ok({ actor: { userId: 'a', role: 'ASSISTANTE' }, capabilities: ASSISTANTE_CAPS }) }, ...routes]);
     const { unmount } = render(<HouseholdDetail householdId="h1" basePath="/x" />);
     await screen.findByRole('heading', { name: /Foyer/ });
-    expect(screen.queryByRole('button', { name: 'Suspendre' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Suspendre l’accès Core v2' })).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Inviter' }).length).toBeGreaterThan(0);
     unmount();
 
     mockApi([{ url: /\/staff\/me$/, body: ok({ actor: { userId: 'b', role: 'ADMIN' }, capabilities: ADMIN_CAPS }) }, ...routes]);
     render(<HouseholdDetail householdId="h1" basePath="/x" />);
     await screen.findByRole('heading', { name: /Foyer/ });
-    expect(screen.getByRole('button', { name: 'Suspendre' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Suspendre l’accès Core v2' })).toBeInTheDocument();
   });
 
   test('approving refreshes the fiche and announces success only after a 2xx; a stale 409 is announced as an alert', async () => {

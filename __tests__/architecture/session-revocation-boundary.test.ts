@@ -241,6 +241,10 @@ describe('exhaustive User security mutation inventory', () => {
       'scripts/create-stmg-students.ts:update#1',
       // Disposable-stack mirrors of the ARIA persona and staff/coach accounts into Core v2
       // (credentials copied, sessions revoked on re-seed).
+      // Rollback de l'amorcage : retire l'acteur amorce et son recu, et seulement
+      // si l'acteur n'a encore rien fait. Aucune session a versionner — la ligne
+      // disparait. Jamais appele hors de la commande hors ligne.
+      'scripts/core-v2/bootstrap-v1-admin.ts:delete#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
       'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
       // Production V1→Core v2 staff-actor sync: mirrors V1 ADMIN/ASSISTANTE/COACH identity,

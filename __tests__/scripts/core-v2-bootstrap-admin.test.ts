@@ -9,6 +9,7 @@ describe('first administrator CLI invitation delivery', () => {
   const resend = jest.fn();
   const deliver = jest.fn();
   const preflight = jest.fn();
+  const authorityIsV1 = jest.fn();
   const issued = {
     email: 'synthetic-admin@example.test', rawToken: 'synthetic-private-proof', handoffId: 'handoff-1',
     invitation: { id: 'invitation-1', tokenHash: 'synthetic-proof-digest', expiresAt: new Date('2027-01-01') },
@@ -21,6 +22,8 @@ describe('first administrator CLI invitation delivery', () => {
     invite.mockResolvedValue(issued);
     resend.mockResolvedValue(issued);
     preflight.mockReset();
+    // Par defaut, un deploiement ou Core peut encore detenir les credentials.
+    authorityIsV1.mockReturnValue(false);
     process.env.NEXUS_DISPOSABLE_POSTGRES = '1';
     process.argv = ['node', 'bootstrap-admin', '--email=synthetic-admin@example.test', '--first-name=Synthetic', '--last-name=Admin', '--execute'];
     jest.doMock('@/lib/core-v2/client', () => ({
@@ -32,6 +35,9 @@ describe('first administrator CLI invitation delivery', () => {
     jest.doMock('@/lib/auth/parent-activation', () => ({ getTrustedApplicationOrigin: () => new URL('https://example.test') }));
     jest.doMock('@/lib/email/core-v2-invitation', () => ({ deliverCoreV2Invitation: deliver }));
     jest.doMock('@/lib/core-v2/accounts/email-handoff-scheduler', () => ({ assertAccountEmailHandoffRuntimeConfiguration: preflight }));
+    // Le script refuse de s'executer sous V1_ONLY : cette dependance doit etre
+    // doublee comme les autres, sinon le vrai module se charge et l'import echoue.
+    jest.doMock('@/lib/core-v2/accounts/v1-authority', () => ({ credentialAuthorityIsV1: authorityIsV1 }));
   });
 
   afterEach(() => {
@@ -51,6 +57,21 @@ describe('first administrator CLI invitation delivery', () => {
     const code = await exited;
     return { code, output: JSON.stringify([...logs.mock.calls, ...errors.mock.calls]) };
   }
+
+  test('sous V1_ONLY, l’ancien amorçage refuse et nomme la commande à utiliser', async () => {
+    // Core v1 detient les identifiants : ce bootstrap, qui passe par une
+    // invitation et une activation Core, ne peut pas aboutir. Il doit echouer
+    // ICI, explicitement, et non plus loin sur une erreur de configuration.
+    authorityIsV1.mockReturnValue(true);
+    const result = await run();
+    expect(result.code).toBe(1);
+    expect(result.output).toContain('CORE_CREDENTIAL_WRITE_DISABLED_V1_ONLY');
+    expect(result.output).toContain('bootstrap-v1-admin');
+    // Rien n'a ete tente : ni invitation, ni creation, ni remise.
+    expect(invite).not.toHaveBeenCalled();
+    expect(bootstrap).not.toHaveBeenCalled();
+    expect(deliver).not.toHaveBeenCalled();
+  });
 
   test.each([false, true])('issuance uses only the durable handoff (resend=%s)', async (recovery) => {
     if (recovery) {
