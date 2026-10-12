@@ -1,6 +1,26 @@
 import { CoreV2ConfigError } from '@/lib/core-v2/config';
 
 /**
+ * Core v1 holds the credentials BY DESIGN, so a Core credential route is
+ * deliberately masked — it is not a dependency outage.
+ *
+ * It must therefore not surface as 503: a 503 says "come back later", invites
+ * retries, and (per the canonical HTTP contract) must never stand in for a
+ * decision. The canonical row for a deliberately masked resource is 404, and a
+ * generic one, so an already-mailed Core activation link cannot be told apart
+ * from an expired or forged one.
+ *
+ * It keeps the `CORE_CREDENTIAL_WRITE_DISABLED_V1_ONLY` code: callers and tests
+ * assert on that, and only the HTTP mapping was wrong.
+ */
+export class CoreV2CredentialAuthorityIsV1Error extends CoreV2ConfigError {
+  constructor() {
+    super('CORE_CREDENTIAL_WRITE_DISABLED_V1_ONLY');
+    this.name = 'CoreV2CredentialAuthorityIsV1Error';
+  }
+}
+
+/**
  * True only when the deployment EXPLICITLY declares Core v1 the sole
  * credential authority. Deliberately not `getAuthRolloutMode()`: that throws
  * on a missing mode, and the credential-writing guards below must stay inert
@@ -18,5 +38,5 @@ export function credentialAuthorityIsV1(env: Record<string, string | undefined> 
  * write) by every Core function that would persist one.
  */
 export function assertCoreMayHoldCredentials(): void {
-  if (credentialAuthorityIsV1()) throw new CoreV2ConfigError('CORE_CREDENTIAL_WRITE_DISABLED_V1_ONLY');
+  if (credentialAuthorityIsV1()) throw new CoreV2CredentialAuthorityIsV1Error();
 }

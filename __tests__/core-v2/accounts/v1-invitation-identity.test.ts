@@ -23,7 +23,7 @@ async function pair(role: Role, label: string, shape: Parameters<typeof f.v1User
 }
 
 describe('V1 account ACTIVE -> link only', () => {
-  test.each([...ROLES, 'ADMIN' as Role])('%s: nothing in v1 is written, no mail, Core becomes ACTIVE without a credential', async (role) => {
+  test.each(ROLES)('%s: nothing in v1 is written, no mail, Core becomes ACTIVE without a credential', async (role) => {
     const { v1, core } = await pair(role, `active-${role.toLowerCase()}`, 'ACTIVE');
     const before = await f.snapshotV1(v1.id);
     await requestAccountInvitation(h.client, h.ctx(), core.id);
@@ -39,6 +39,21 @@ describe('V1 account ACTIVE -> link only', () => {
     expect(row).toMatchObject({ accountStatus: 'ACTIVE', password: null, sessionVersion: 0 });
     // The credential v1 already had keeps working, untouched.
     expect((await f.loginChain(v1.email, v1.password as string)).ok).toBe(true);
+  });
+
+  // ADMIN est volontairement EXCLU du cas « liaison seule ». Le lier amenait
+  // l'acteur Core ADMIN a ACTIVE, et cela avec la seule capacite ACCOUNT_INVITE
+  // que detient ASSISTANTE : une escalade de privilege. Les futurs ADMIN sont
+  // promus par un ADMIN Core existant, jamais par une invitation privilegiee.
+  test('un ADMIN V1 ACTIF est refuse des la demande : rien n est ecrit, aucune saga', async () => {
+    const { v1, core } = await pair('ADMIN', 'active-admin', 'ACTIVE');
+    const before = await f.snapshotV1(v1.id);
+    await expect(requestAccountInvitation(h.client, h.ctx(), core.id)).rejects.toThrow();
+    expect(await f.snapshotV1(v1.id)).toEqual(before);
+    expect(await h.client.accountV1Provisioning.findUnique({ where: { userId: core.id } })).toBeNull();
+    expect(await f.v1InvitationMailCount()).toBe(0);
+    const row = await h.client.user.findUniqueOrThrow({ where: { id: core.id } });
+    expect(row.accountStatus).toBe('PENDING_ACTIVATION');
   });
 });
 
@@ -78,9 +93,9 @@ describe('V1 account ABSENT -> created pending by the canonical v1 path', () => 
 
   test('ADMIN is never created or invited through an e-mailed link', async () => {
     const core = await f.coreUser('ADMIN', 'absent-admin');
-    await requestAccountInvitation(h.client, h.ctx(), core.id);
-    await f.settle();
-    expect(await f.saga(core.id)).toMatchObject({ state: 'CANCELLED', lastErrorCode: 'V1_ROLE_NOT_INVITABLE' });
+    // Refus a la demande : aucune ecriture, aucun job enfile, donc aucune saga.
+    await expect(requestAccountInvitation(h.client, h.ctx(), core.id)).rejects.toThrow();
+    expect(await h.client.accountV1Provisioning.findUnique({ where: { userId: core.id } })).toBeNull();
     expect(await prisma.user.findUnique({ where: { id: core.id } })).toBeNull();
     expect(await f.v1InvitationMailCount()).toBe(0);
   });
@@ -88,9 +103,8 @@ describe('V1 account ABSENT -> created pending by the canonical v1 path', () => 
   test('a PENDING v1 ADMIN is not re-invited either: its token stays untouched', async () => {
     const { v1, core } = await pair('ADMIN', 'pending-admin', 'PENDING');
     const before = await f.snapshotV1(v1.id);
-    await requestAccountInvitation(h.client, h.ctx(), core.id);
-    await f.settle();
-    expect(await f.saga(core.id)).toMatchObject({ state: 'CANCELLED', lastErrorCode: 'V1_ROLE_NOT_INVITABLE' });
+    await expect(requestAccountInvitation(h.client, h.ctx(), core.id)).rejects.toThrow();
+    expect(await h.client.accountV1Provisioning.findUnique({ where: { userId: core.id } })).toBeNull();
     expect(await f.snapshotV1(v1.id)).toEqual(before);
   });
 });
