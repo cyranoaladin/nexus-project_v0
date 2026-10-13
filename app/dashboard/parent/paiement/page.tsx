@@ -340,7 +340,7 @@ function PaiementContent() {
                 >
                   Écrivez-nous sur WhatsApp
                 </a>{' '}
-                ou passez au centre à Mutuelleville : nous réglons cela avec vous.
+                ou passez au centre ({LEGAL.addresses.pedagogique.full}) : nous réglons cela avec vous.
               </p>
 
               {/* Bloc légal obligatoire (conformité ClicToPay) */}

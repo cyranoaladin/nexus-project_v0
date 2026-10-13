@@ -219,7 +219,7 @@ export function CorporateNavbar() {
       title: 'Contact',
       items: [
         { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
-        { label: 'Notre Centre', href: '/notre-centre', desc: 'Mutuelleville, Tunis', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', desc: `${LEGAL.addresses.pedagogique.neighborhood}, Tunis`, isPage: true },
       ]
     },
   ];
@@ -577,7 +577,7 @@ export function CorporateNavbar() {
                 <span>{LEGAL.contact.phone}</span>
               </div>
               <div>{LEGAL.contact.email}</div>
-              <div>Centre Urbain Nord, {LEGAL.addresses.siege.city}</div>
+              <div>{LEGAL.addresses.pedagogique.full}</div>
             </div>
 
           </div>

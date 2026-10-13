@@ -20,10 +20,10 @@ export default function NotreCentrePage() {
             Centre pédagogique
           </Badge>
           <h1 className="font-fraunces text-4xl font-light tracking-tight text-lux-ivory md:text-5xl">
-            Mutuelleville, le centre d’accompagnement pédagogique
+            {LEGAL.addresses.pedagogique.neighborhood}, le centre d’accompagnement pédagogique
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
-            Les rendez-vous pédagogiques et cours en présentiel se déroulent à Mutuelleville, sur confirmation.
+            Cours, stages et rendez-vous pédagogiques : {LEGAL.addresses.pedagogique.full}.
           </p>
         </div>
       </section>

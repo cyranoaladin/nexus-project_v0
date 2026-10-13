@@ -1,8 +1,9 @@
+import { LEGAL } from '@/lib/legal';
 import type { Metadata } from "next";
 import { buildPageMetadata } from "@/lib/seo";
 
-const title = 'Contact | Nexus Réussite';
-const description = 'Contactez Nexus Réussite via WhatsApp, téléphone ou formulaire. Le centre pédagogique est à Mutuelleville, le siège administratif au Centre Urbain Nord.';
+const title = 'Contact — centre pédagogique à Tunis | Nexus Réussite';
+const description = `Contactez Nexus Réussite à Tunis par WhatsApp, téléphone ou formulaire. Centre pédagogique : ${LEGAL.addresses.pedagogique.full}. Siège administratif : Centre Urbain Nord.`;
 
 export const metadata: Metadata = {
   title,
