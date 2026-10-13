@@ -1,7 +1,9 @@
 import 'server-only';
 
 import { fmtPrice } from '@/components/premium/format';
-import type { CandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+import { jourMois, jourMoisHeure, type CandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+
+export { jourMois, jourMoisHeure };
 import { LEGAL } from '@/lib/legal';
 
 /**
@@ -17,18 +19,6 @@ export const META = {
   description:
     'Préparer le bac français en candidat libre (candidat individuel) à Tunis, session 2027\u00a0: Première, Terminale ou Bac en 1 an, le soir et le week-end, groupes de 12 au plus, inscription Cyclades accompagnée. Prix publics en TND.',
 };
-
-/** « 2026-10-31 » → « 31/10 ». */
-export function jourMois(iso: string): string {
-  const [, mois, jour] = iso.slice(0, 10).split('-');
-  return `${jour}/${mois}`;
-}
-
-/** « 2026-11-12T18:00:00+01:00 » → « 12/11 à 18 h ». */
-export function jourMoisHeure(iso: string): string {
-  const heure = Number(iso.slice(11, 13));
-  return `${jourMois(iso)} à ${heure} h`;
-}
 
 export type QuestionReponse = { question: string; reponse: string };
 

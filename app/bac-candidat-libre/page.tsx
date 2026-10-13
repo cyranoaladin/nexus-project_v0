@@ -125,7 +125,8 @@ export default function BacCandidatLibrePage() {
   const ateliers = getAteliersCycladesAVenir(maintenant);
   const offres = data.parcours
     .map((p) => ({ parcours: p, offre: getFraisDossierOfferts(p.id, maintenant) }))
-    .filter((x) => x.offre !== null);
+    .filter((x) => x.offre !== null)
+    .sort((a, b) => a.offre!.jusqu_au.localeCompare(b.offre!.jusqu_au));
   const echeances = [
     { libelle: 'Inscription Terminale', cloture: terminale.cyclades.cloture, ouverture: terminale.cyclades.ouverture },
     { libelle: 'Inscription Première', cloture: premiere.cyclades.cloture, ouverture: premiere.cyclades.ouverture },

@@ -25,6 +25,8 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
+import type { ALaUneCandidatsLibres } from '@/lib/candidats-libres-2027';
+import { CandidatsLibresALaUne } from '@/components/marketing/CandidatsLibresALaUne';
 
 // ── Router par niveau (near hero) ──
 
@@ -33,7 +35,7 @@ const levelRoutes = [
   { label: 'Première', href: '/offres#section-annual', sublabel: 'EAF, contrôle continu, spécialités' },
   { label: 'Seconde', href: '/offres#section-annual', sublabel: 'Méthode, orientation, spécialités' },
   { label: 'Troisième', href: '/offres#section-annual', sublabel: 'Brevet, préparation lycée' },
-  { label: 'Candidat libre', href: '/offres#section-libre', sublabel: 'Cyclades, organisation, épreuves' },
+  { label: 'Candidat libre', href: '/bac-candidat-libre', sublabel: 'Session 2027, le soir et le week-end' },
 ];
 
 function LevelRouter() {
@@ -222,7 +224,13 @@ function getFaqItems(): FAQItem[] {
 
 // ── Main ──
 
-export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
+export function HomePageClient({
+  campaign,
+  aLaUne,
+}: {
+  campaign?: PreRentreeHomepageSpotlightDTO;
+  aLaUne?: ALaUneCandidatsLibres | null;
+}) {
   const faqItems = getFaqItems();
 
   return (
@@ -233,6 +241,9 @@ export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpot
 
       {/* 1. Hero (bg-lux-ink) — H1 SEO + slogan + CTA */}
       <HeroSection />
+
+      {/* 1 bis. À la une — campagne candidats libres de la session (coupée à la clôture des inscriptions) */}
+      {aLaUne && <CandidatsLibresALaUne aLaUne={aLaUne} />}
 
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />

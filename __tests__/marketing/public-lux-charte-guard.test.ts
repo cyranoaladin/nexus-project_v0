@@ -79,6 +79,8 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/layout/CorporateFooter.tsx',
   'components/stages/StageInscriptionForm.tsx',
   'components/marketing/LandingNiche.tsx',
+  'components/marketing/CandidatsLibresALaUne.tsx',
+  'components/marketing/CandidatsLibresParcours.tsx',
   'components/marketing/PreRentreeCampaignSpotlight.tsx',
   'components/stages/PublicStageCard.tsx',
   'components/pre-rentree-2026/CampaignFAQ.tsx',

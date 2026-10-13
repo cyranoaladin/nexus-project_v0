@@ -10,6 +10,7 @@ import {
   normalizePricingLevel,
 } from '@/lib/pricing';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { recommandationsCandidatsLibres } from '@/lib/candidats-libres-2027';
 
 function buildTestData(): RecommendationData {
   const rules = getRules();
@@ -38,6 +39,7 @@ function buildTestData(): RecommendationData {
       payment: { full_at_booking: o.payment.full_at_booking, deposit: o.payment.deposit, solde: o.payment.solde },
       normalizedPublic: normalizePricingLevel(o.public),
     })),
+    candidatsLibres: recommandationsCandidatsLibres(),
     carte: { title: carte.title, price_annual: carte.price_annual, includes: carte.includes },
     whatsappUrl: buildWhatsAppUrl(),
   };
@@ -84,45 +86,26 @@ describe('recommendation engine', () => {
     expect(outcome.cards.length).toBeGreaterThan(0);
   });
 
-  it('routes candidat individuel (libre) Première/Terminale to the personalized quote wizard instead of the static offer page', () => {
+  it('oriente les candidats libres vers les parcours session 2027 et la page /bac-candidat-libre', () => {
     const data = buildTestData();
-    for (const level of ['premiere', 'terminale'] as const) {
-      const outcome = buildRecommendationOutcome({ need: 'annual', track: 'libre', level }, data);
-      expect(outcome.cards.length).toBeGreaterThan(0);
-      for (const card of outcome.cards) {
-        expect(card.ctaHref).toBe('/devis-bac');
-      }
+    const premiere = buildRecommendationOutcome({ need: 'annual', track: 'libre', level: 'premiere' }, data);
+    expect(premiere.cards.map((card) => card.title)).toEqual(['Première — épreuves anticipées']);
+    const terminale = buildRecommendationOutcome({ need: 'annual', track: 'libre', level: 'terminale' }, data);
+    expect(terminale.cards.map((card) => card.title)).toEqual(['Terminale — toutes les épreuves', 'Bac en 1 an — non scolarisés']);
+    for (const card of [...premiere.cards, ...terminale.cards]) {
+      expect(card.ctaHref).toMatch(/^\/bac-candidat-libre#/);
+      expect(card.eyebrow).toMatch(/Candidat libre · session 2027/);
+      expect(card.groupMax).toBe(12);
+      expect(card.payment?.deposit).toBe(0);
     }
   });
 
-  it('preserves canonical price and annual-volume qualifiers on candidat individuel cards', () => {
-    const data = buildTestData();
-    const expectedTitles = {
-      premiere: [
-        'Nexus Libre — Pilotage',
-        'Nexus Libre — Sur mesure',
-        'Première Libre — Cap Anticipées',
-        'Première Libre — Renforcée',
-      ],
-      terminale: [
-        'Nexus Libre — Pilotage',
-        'Nexus Libre — Sur mesure',
-        'Terminale Libre — Focus Bac',
-        'Terminale Libre — Intégrale',
-      ],
-    } as const;
-
-    for (const level of ['premiere', 'terminale'] as const) {
-      const outcome = buildRecommendationOutcome({ need: 'annual', track: 'libre', level }, data);
-      expect(outcome.cards.map((card) => card.title)).toEqual(expectedTitles[level]);
-      expect(outcome.cards.find((card) => card.title === 'Nexus Libre — Sur mesure')?.priceQualifier).toBe('from');
-    }
-
-    const terminale = buildRecommendationOutcome({ need: 'annual', track: 'libre', level: 'terminale' }, data);
-    expect(terminale.cards.find((card) => card.title === 'Nexus Libre — Pilotage')).toEqual(
-      expect.objectContaining({ effectifType: 'none', eyebrow: 'Candidat individuel' }),
-    );
-    expect(terminale.cards.find((card) => card.title === 'Terminale Libre — Intégrale')?.totalHoursIsCeiling).toBe(true);
+  it('affiche le prix annuel et l’échéancier canoniques des parcours candidats libres', () => {
+    const terminale = buildRecommendationOutcome({ need: 'annual', track: 'libre', level: 'terminale' }, buildTestData());
+    const carte = terminale.cards[0];
+    expect(carte.price).toBe(7600);
+    expect(carte.payment?.installments).toEqual([850, 850, 850, 850, 850, 850, 850, 850, 800]);
+    expect(carte.totalHours).toBe(285);
   });
 
   it.each(['seconde', 'troisieme'])('does not route %s pupils to the Bac candidat-individuel wizard', (level) => {

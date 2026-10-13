@@ -21,6 +21,7 @@ const CorporateFooter = () => {
         { label: 'Accueil', href: '/', isPage: true },
         { label: 'Accompagnement Scolaire', href: '/accompagnement-scolaire', isPage: true },
         { label: 'Offres', href: '/offres', isPage: true },
+        { label: 'Bac en candidat libre', href: '/bac-candidat-libre', isPage: true },
         { label: 'Stages', href: '/stages', isPage: true },
         { label: 'Plateforme ARIA', href: '/plateforme-aria', isPage: true },
         { label: 'Ressources', href: '/ressources', isPage: true },

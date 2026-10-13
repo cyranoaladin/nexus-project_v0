@@ -193,6 +193,7 @@ export function CorporateNavbar() {
       title: 'Offres & tarifs',
       items: [
         { label: 'Offres & tarifs', href: '/offres', desc: 'Catalogue 2026/2027', isPage: true },
+        { label: 'Bac en candidat libre', href: '/bac-candidat-libre', desc: 'Session 2027 · Première, Terminale, Bac en 1 an', isPage: true },
         { label: 'Trouver ma formule', href: '/recommandation', desc: 'Diagnostic en 3 questions', isPage: true },
         { label: 'Bilan gratuit', href: '/bilan-gratuit', desc: 'Évaluation personnalisée', isPage: true },
       ]

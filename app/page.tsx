@@ -1,7 +1,12 @@
 import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import type { Metadata } from 'next';
 
+import { getALaUneCandidatsLibres } from '@/lib/candidats-libres-2027';
+
 import { HomePageClient } from './HomePageClient';
+
+/** Régénérée toutes les heures : le bloc « À la une » suit les échéances de la campagne. */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: 'Nexus Réussite | Accompagnement académique premium à Tunis',
@@ -28,5 +33,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomePageClient />;
+  return <HomePageClient aLaUne={getALaUneCandidatsLibres()} />;
 }

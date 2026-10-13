@@ -79,6 +79,8 @@ export interface RecommendationCarte {
 
 export interface RecommendationData {
   offers: RecommendationOffer[];
+  /** Parcours candidats libres de la session 2027 (bloc candidats_libres_2027). */
+  candidatsLibres: RecommendationOffer[];
   stageFormats: RecommendationStageFormat[];
   ponctuelOffers: RecommendationPonctuel[];
   carte: RecommendationCarte;
@@ -118,25 +120,14 @@ const LEVEL_LABELS: Record<string, string> = {
   troisieme: 'Troisième',
 };
 
-/**
- * Candidat individuel (libre) at Première/Terminale is exactly the
- * population the dedicated quote engine (lib/quotes/*, /devis-bac) now
- * serves with a personalized, priced estimation — point there instead of
- * the static offer page (CDC §7: converge instead of duplicating).
- */
-function isCandidatIndividuelBacGeneral(offer: RecommendationOffer): boolean {
-  return offer.track === 'libre' && (
-    offer.level === 'tous' || offer.normalizedLevel === 'premiere' || offer.normalizedLevel === 'terminale'
-  );
-}
-
 function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
   const price = offer.price_annual ?? 0;
-  const personalized = isCandidatIndividuelBacGeneral(offer);
+  // Candidats libres (session 2027) : le détail, les dates et l'inscription sont sur /bac-candidat-libre.
+  const candidatLibre = offer.track === 'libre';
   return {
-    eyebrow: offer.level === 'tous'
-      ? 'Candidat individuel'
-      : `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · ${offer.track === 'libre' ? 'Candidat individuel' : 'Parcours présentiel'}`,
+    eyebrow: candidatLibre
+      ? 'Candidat libre · session 2027'
+      : `${LEVEL_LABELS[offer.normalizedLevel ?? ''] ?? offer.level} · Parcours présentiel`,
     title: offer.title,
     subtitle: offer.subjects,
     price,
@@ -150,8 +141,8 @@ function buildOfferCard(offer: RecommendationOffer): ExamCardProps {
     groupMinOpen: offer.group_min_open ?? undefined,
     payment: offer.payment,
     features: offer.included,
-    ctaText: personalized ? 'Obtenir mon devis personnalisé' : 'Voir l\'offre',
-    ctaHref: personalized ? '/devis-bac' : '/offres',
+    ctaText: candidatLibre ? 'Voir le parcours' : 'Voir l\'offre',
+    ctaHref: candidatLibre ? `/bac-candidat-libre#${offer.id}` : '/offres',
   };
 }
 
@@ -214,9 +205,9 @@ export function buildRecommendationOutcome(
     }
     const offers = track === 'libre'
       ? level === 'premiere' || level === 'terminale'
-        ? data.offers.filter((o) => o.track === 'libre' && (o.level === 'tous' || o.normalizedLevel === level))
+        ? data.candidatsLibres.filter((o) => o.normalizedLevel === level)
         : []
-      : data.offers.filter((o) => o.normalizedLevel === level);
+      : data.offers.filter((o) => o.track !== 'libre' && o.normalizedLevel === level);
     const cards = (track === 'libre' ? offers : offers.slice(0, 3)).map(buildOfferCard);
     if (cards.length === 0) {
       return { cards: [], emptyState: { title: 'Aucune formule trouvée', message: 'Nous n\'avons pas de formule publiée correspondant exactement à ce niveau pour le moment. Un bilan gratuit permet de vous orienter vers la meilleure alternative.', actions } };
