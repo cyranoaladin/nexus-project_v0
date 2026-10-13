@@ -115,6 +115,16 @@ export function getFraisDossierOfferts(
   return { ...data.frais_dossier, jusqu_au: limite };
 }
 
+/** Offres de frais de dossier encore valables, de la plus proche échéance à la plus lointaine. */
+export function getFraisDossierOffertsActifs(
+  maintenant: Date = new Date(),
+): { parcours: ParcoursCandidatLibre; offre: { montant: number; libelle: string; jusqu_au: string } }[] {
+  return data.parcours
+    .map((parcours) => ({ parcours, offre: getFraisDossierOfferts(parcours.id, maintenant) }))
+    .filter((x): x is { parcours: ParcoursCandidatLibre; offre: NonNullable<typeof x.offre> } => x.offre !== null)
+    .sort((a, b) => a.offre.jusqu_au.localeCompare(b.offre.jusqu_au));
+}
+
 /** La Semaine Diagnostic tant que les inscriptions sont ouvertes, sinon `null`. */
 export function getSemaineDiagnostic(maintenant: Date = new Date()): SemaineDiagnostic | null {
   const semaine = data.semaine_diagnostic;
@@ -193,11 +203,7 @@ export function getALaUneCandidatsLibres(maintenant: Date = new Date()): ALaUneC
     }));
   if (echeances.length === 0) return null;
 
-  const offres = data.parcours
-    .map((p) => ({ p, offre: getFraisDossierOfferts(p.id, maintenant) }))
-    .filter((x) => x.offre !== null)
-    .sort((a, b) => a.offre!.jusqu_au.localeCompare(b.offre!.jusqu_au))
-    .map((x) => `${jourMois(x.offre!.jusqu_au)} en ${x.p.niveau}`);
+  const offres = getFraisDossierOffertsActifs(maintenant).map((x) => `${jourMois(x.offre.jusqu_au)} en ${x.parcours.niveau}`);
   const semaine = getSemaineDiagnostic(maintenant);
 
   return {

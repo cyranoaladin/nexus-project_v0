@@ -15,7 +15,7 @@ import {
 import {
   getAteliersCycladesAVenir,
   getCandidatsLibres2027,
-  getFraisDossierOfferts,
+  getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
@@ -123,10 +123,7 @@ export default function BacCandidatLibrePage() {
   const faq = construireFaq(data);
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
-  const offres = data.parcours
-    .map((p) => ({ parcours: p, offre: getFraisDossierOfferts(p.id, maintenant) }))
-    .filter((x) => x.offre !== null)
-    .sort((a, b) => a.offre!.jusqu_au.localeCompare(b.offre!.jusqu_au));
+  const offres = getFraisDossierOffertsActifs(maintenant);
   const echeances = [
     { libelle: 'Inscription Terminale', cloture: terminale.cyclades.cloture, ouverture: terminale.cyclades.ouverture },
     { libelle: 'Inscription Première', cloture: premiere.cyclades.cloture, ouverture: premiere.cyclades.ouverture },
@@ -250,7 +247,7 @@ export default function BacCandidatLibrePage() {
             {offres.map((x, i) => (
               <span key={x.parcours.id}>
                 {i > 0 ? ' et ' : ''}
-                jusqu’au {jourMois(x.offre!.jusqu_au)} en {x.parcours.niveau}
+                jusqu’au {jourMois(x.offre.jusqu_au)} en {x.parcours.niveau}
               </span>
             ))}
             .

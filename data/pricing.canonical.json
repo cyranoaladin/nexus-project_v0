@@ -1992,7 +1992,7 @@
     }
   ],
   "candidats_libres_2027": {
-    "_note": "Candidats libres — session 2027. Grille v12 du dossier GO-LIVE (13/10/2026) : groupes de 12 au plus, ouverture à 7 par niveau, 9 mensualités d'octobre à juin ou 8 de novembre à juin, comptant −5 %. Modèle économique distinct des offres annuelles scolarisées (groupes de 5) : ses invariants sont testés dans __tests__/lib/candidats-libres-2027.test.ts. Les offres datées (frais de dossier, Semaine Diagnostic) se coupent seules à leur échéance (heure de Tunis).",
+    "_note": "Candidats libres — session 2027. Grille v12 du dossier GO-LIVE (13/10/2026) : groupes de 12 au plus, ouverture à 7 par niveau, 9 mensualités d’octobre à juin ou 8 de novembre à juin, comptant −5 %. Modèle économique distinct des offres annuelles scolarisées (groupes de 5) : ses invariants sont testés dans __tests__/lib/candidats-libres-2027.test.ts. Les offres datées (frais de dossier, Semaine Diagnostic) se coupent seules à leur échéance (heure de Tunis).",
     "session": "2027",
     "groupe": {
       "max": 12,
@@ -2001,9 +2001,9 @@
     },
     "paiement": {
       "comptant_remise_pct": 5,
-      "echeancier_9": "9 mensualités d'octobre à juin (la dernière ajuste le total)",
+      "echeancier_9": "9 mensualités d’octobre à juin (la dernière ajuste le total)",
       "echeancier_8": "8 mensualités de novembre à juin",
-      "note": "Le prix annuel ne change pas selon le mode de paiement. Pas d'acompte. Si le groupe n'ouvre pas, remboursement intégral."
+      "note": "Le prix annuel ne change pas selon le mode de paiement. Pas d’acompte. Si le groupe n’ouvre pas, remboursement intégral."
     },
     "parcours": [
       {
@@ -2125,7 +2125,7 @@
         "niveau": "Bac en 1 an",
         "titre": "Bac en 1 an — non scolarisés",
         "accroche": "Épreuves anticipées et terminales la même année",
-        "public": "Candidats non scolarisés : 20 ans ou plus, titulaires du bac tunisien ou en reprise d'études. Éligibilité vérifiée avec vous avant toute inscription.",
+        "public": "Candidats non scolarisés : 20 ans ou plus, titulaires du bac tunisien ou en reprise d’études. Éligibilité vérifiée avec vous avant toute inscription.",
         "prix_annuel": 11600,
         "echeancier_9": {
           "mensualite": 1290,
@@ -2152,8 +2152,8 @@
       }
     ],
     "inclus_communs": [
-      "Inscription Cyclades accompagnée, étape par étape (sans se substituer à l'inscription officielle)",
-      "Bac blanc aux vacances d'octobre et un stage intensif à chaque vacances (hiver, février, printemps)",
+      "Inscription Cyclades accompagnée, étape par étape (sans se substituer à l’inscription officielle)",
+      "Bac blanc aux vacances d’octobre et un stage intensif à chaque vacances (hiver, février, printemps)",
       "Copies corrigées sur les grilles officielles et bilans avec la famille"
     ],
     "specialites": {
@@ -2171,10 +2171,10 @@
       "EPS",
       "langues vivantes A et B"
     ],
-    "frais_examen": "Frais d'examen payés par la famille à l'Institut français de Tunisie, en sus.",
+    "frais_examen": "Frais d’examen payés par la famille à l’Institut français de Tunisie, en sus.",
     "frais_dossier": {
       "montant": 250,
-      "libelle": "Frais de dossier et d'accompagnement Cyclades"
+      "libelle": "Frais de dossier et d’accompagnement Cyclades"
     },
     "semaine_diagnostic": {
       "du": "2026-10-26",
@@ -2251,13 +2251,13 @@
       "note": "Pour les candidats déjà inscrits ailleurs ou en autonomie, dans la limite des places restantes.",
       "stages": [
         {
-          "periode": "Vacances d'hiver",
+          "periode": "Vacances d’hiver",
           "niveau": "Terminale",
           "heures": 24,
           "prix": 520
         },
         {
-          "periode": "Vacances d'hiver",
+          "periode": "Vacances d’hiver",
           "niveau": "Première",
           "heures": 12,
           "prix": 270

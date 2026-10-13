@@ -48,6 +48,17 @@ describe('Accueil — à la une candidats libres 2027', () => {
     expect(une.offre).toBeNull();
   });
 
+  test('FAQ de l’accueil : données structurées FAQPage et réponse candidats libres à jour', () => {
+    const { container } = renderAu('2026-10-14T10:00:00+01:00');
+    const blocs = Array.from(container.querySelectorAll('script[type="application/ld+json"]')).map((b) => JSON.parse(b.textContent ?? '{}'));
+    const faq = blocs.find((b) => b['@type'] === 'FAQPage');
+    expect(faq.mainEntity).toHaveLength(5);
+    const reponse = faq.mainEntity.find((q: any) => /candidats individuels/.test(q.name)).acceptedAnswer.text;
+    expect(reponse).toMatch(/session 2027/);
+    expect(reponse).toMatch(/Cyclades/);
+    expect(reponse).not.toMatch(/ARIA|pilotage/);
+  });
+
   test('après le 20/11 à 18 h : plus de bloc à la une', () => {
     expect(getALaUneCandidatsLibres(new Date('2026-11-20T18:00:00+01:00'))).toBeNull();
     renderAu('2026-11-21T10:00:00+01:00');
