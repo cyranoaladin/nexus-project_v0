@@ -45,13 +45,15 @@ function Mensualite({ parcours }: { parcours: ParcoursCandidatLibre }) {
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
       </p>
       <p className="mt-1 text-sm text-lux-slate">
-        × {huit ? 8 : 9} mensualités ({huit ? 'novembre → juin' : 'octobre → juin'}) · {tnd(parcours.prix_annuel)} / an
+        × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-lux-ink">
+        {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
       </p>
       <p className="mt-1 text-xs text-lux-slate">
         {huit
           ? `ou 9 mensualités de ${tnd(parcours.echeancier_9.mensualite)} dès octobre`
           : `ou 8 mensualités de ${tnd(parcours.echeancier_8.mensualite)} dès novembre`}
-        {' · '}comptant {tnd(parcours.comptant)}
       </p>
     </div>
   );
@@ -299,7 +301,13 @@ export default function BacCandidatLibrePage() {
             Première, jamais plus de {data.emploi_du_temps.charge_max_hors_stage} hors stage. Bac blanc aux vacances d’octobre, puis un
             stage intensif à chaque vacances, aux dates officielles du calendrier scolaire tunisien.
           </p>
-          <div className="mt-8 overflow-x-auto rounded-2xl border border-lux-line">
+          {/* Zone défilante atteignable au clavier (tableau plus large que l’écran sur mobile). */}
+          <div
+            className="mt-8 overflow-x-auto rounded-2xl border border-lux-line lux-focus"
+            tabIndex={0}
+            role="region"
+            aria-label="Créneaux hebdomadaires, défilement horizontal sur petit écran"
+          >
             <table className="w-full min-w-[640px] text-left text-sm">
               <caption className="sr-only">Créneaux hebdomadaires par niveau</caption>
               <thead className="bg-lux-ink text-lux-ivory">
