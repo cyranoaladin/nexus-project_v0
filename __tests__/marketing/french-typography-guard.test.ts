@@ -7,6 +7,8 @@ const root = process.cwd();
 const luxuryFiles = [
   'app/HomePageClient.tsx',
   'app/offres/page.tsx',
+  'app/bac-candidat-libre/page.tsx',
+  'content/marketing/bac-candidat-libre.ts',
   'app/bilan-gratuit/BilanStrategiqueClient.tsx',
   'app/contact/page.tsx',
   'app/accompagnement-scolaire/page.tsx',

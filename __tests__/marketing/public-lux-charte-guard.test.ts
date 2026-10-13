@@ -63,6 +63,7 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/grand-oral/page.tsx',
   'app/reussir-eaf/page.tsx',
   'app/candidat-libre-bac-francais/page.tsx',
+  'app/bac-candidat-libre/page.tsx',
   'app/preparation-bac-francais-tunis/page.tsx',
   'app/programme/maths-1ere/page.tsx',
   'app/recommandation/page.tsx',
