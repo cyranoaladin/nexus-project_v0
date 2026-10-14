@@ -33,6 +33,11 @@ export function getReperes(): typeof PRICING_REPERES {
   return PRICING_REPERES;
 }
 
+/** Groupe des parcours candidats libres (session 2027) : distinct des offres scolarisées. */
+export function getGroupeCandidatsLibres(): { max: number; ouverture_min: number } {
+  return clientData.candidats_libres_groupe;
+}
+
 export function getAnnualOfferPricing(id: string): AnnualOfferPricingSummary | undefined {
   return PRICING_ANNUAL_OFFER_SUMMARIES.find((offer) => offer.id === id);
 }

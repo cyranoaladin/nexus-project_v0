@@ -23,6 +23,7 @@ const clientDataKeys = [
   'operational_aria_addons',
   'operational_special_packs',
   'operational_credit_costs',
+  'candidats_libres_2027',
 ];
 for (const key of clientDataKeys) {
   if (canonical[key] === undefined) {
@@ -45,6 +46,11 @@ const clientData = {
   operational_aria_addons: canonical.operational_aria_addons,
   operational_special_packs: canonical.operational_special_packs,
   operational_credit_costs: canonical.operational_credit_costs,
+  // Candidats libres session 2027 : seule la règle de groupe est utile côté client (accueil).
+  candidats_libres_groupe: {
+    max: canonical.candidats_libres_2027.groupe.max,
+    ouverture_min: canonical.candidats_libres_2027.groupe.ouverture_min,
+  },
 };
 const clientDataPath = path.join(__dirname, '..', 'data', 'pricing-client-data.generated.json');
 fs.writeFileSync(clientDataPath, JSON.stringify(clientData, null, 2) + '\n');
