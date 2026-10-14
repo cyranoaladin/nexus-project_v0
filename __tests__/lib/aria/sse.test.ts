@@ -736,3 +736,23 @@ describe('canonical ARIA SSE protocol', () => {
     }]);
   });
 });
+
+it('fences the authority before closing a stream whose execution ends still in progress', async () => {
+  const fenced: string[] = [];
+  const prepared = await prepareAriaSSEConversation({
+    executionInput: { context: { courseKey: 'eds-maths-premiere' } as never,
+      clientRequestId: '00000000-0000-4000-8000-000000000093', message: 'synthetic handoff' },
+    requestId: 'synthetic-in-progress-authority',
+    withAuthority: async <T>(operation: () => T | Promise<T>) => { fenced.push('fence'); return operation(); },
+    execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+      input.onStart?.({ turnId: 'turn-handoff', conversationId: 'conversation-handoff', messageId: 'message-handoff', status: 'RUNNING', disposition: 'EXECUTED' });
+      return { turnId: 'turn-handoff', conversationId: 'conversation-handoff', messageId: 'message-handoff', status: 'RUNNING',
+        disposition: 'IN_PROGRESS', fullText: '', citations: [], ragStatus: 'NOT_CONFIGURED' };
+    }) as never,
+  });
+  if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+  const wire = await new Response(prepared.stream).text();
+  expect(fenced.length).toBeGreaterThanOrEqual(1);
+  expect(wire).not.toContain('event: done');
+  expect(wire).not.toContain('event: error');
+});
