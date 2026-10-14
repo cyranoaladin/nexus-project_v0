@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import { prisma } from '@/lib/prisma';
 import { createActivationToken } from '@/lib/auth/activation-token';
+import { emailTrustSelect, hasTrustedAccountEmail, trustedAccountEmailWhere } from '@/lib/auth/email-trust';
 import {
   buildAccountActivationEmail,
   createParentActivationToken,
@@ -55,10 +56,13 @@ export async function POST(request: NextRequest) {
         where: { email },
         select: {
           id: true, email: true, firstName: true, activatedAt: true,
-          activationToken: true, activationExpiry: true, role: true,
+          activationToken: true, activationExpiry: true, role: true, ...emailTrustSelect,
         },
       });
       if (!user || user.activatedAt || (user.role !== 'PARENT' && user.role !== 'ELEVE')) return false;
+      // Un parent ne reçoit un lien que sur une adresse de confiance (vérifiée, ou compte sans
+      // activation téléphonique) : une adresse saisie par l'équipe ne devient jamais une preuve.
+      if (user.role === 'PARENT' && !hasTrustedAccountEmail(user)) return false;
       const { rawToken, tokenHash, expiresAt } = user.role === 'PARENT'
         ? createParentActivationToken()
         : createActivationToken('student');
@@ -67,7 +71,7 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           role: user.role,
-          ...(user.role === 'PARENT' ? { mergedIntoUserId: null } : {}),
+          ...(user.role === 'PARENT' ? { mergedIntoUserId: null, ...trustedAccountEmailWhere } : {}),
           activatedAt: null,
           activationToken: user.activationToken,
           activationExpiry: user.activationExpiry,
