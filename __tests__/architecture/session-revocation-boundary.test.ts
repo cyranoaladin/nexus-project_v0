@@ -239,18 +239,11 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 12 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
-      // Disposable-stack mirrors of the ARIA persona and staff/coach accounts into Core v2
-      // (credentials copied, sessions revoked on re-seed).
-      // Rollback de l'amorcage : retire l'acteur amorce et son recu, et seulement
-      // si l'acteur n'a encore rien fait. Aucune session a versionner — la ligne
-      // disparait. Jamais appele hors de la commande hors ligne.
-      'scripts/core-v2/bootstrap-v1-admin.ts:delete#1',
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
-      // Production V1→Core v2 staff-actor sync: mirrors V1 ADMIN/ASSISTANTE/COACH identity,
+      // Disposable Core fixtures now create memberships with NULL credentials only.
+      // Production V1→Core v2 staff-actor sync: mirrors V1 ASSISTANTE/COACH identity,
       // role and status onto the Core v2 actor row (never a password). Fires only on drift;
       // any drift is session-sensitive and revokes Core v2 sessions (see the versioned list).
-      'scripts/core-v2/sync-staff-actors.ts:update#1',
+      'scripts/core-v2/sync-staff-actors.ts:updateMany#1',
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
@@ -267,6 +260,7 @@ describe('exhaustive User security mutation inventory', () => {
 
     expect(descriptors.sort()).toEqual(approved)
     expect(descriptors.filter(descriptor => descriptor.startsWith('scripts/core-v2/migration/apply.ts:'))).toEqual([])
+    expect(descriptors.filter(descriptor => descriptor.startsWith('scripts/core-v2/seed-e2e-staff-actors.ts:'))).toEqual([])
 
     const pendingLifecycle = read('lib/auth/pending-account-lifecycle.ts')
     expect(pendingLifecycle).toContain("plan.action === 'INVALIDATE_EXPIRED_TOKEN'")
@@ -313,10 +307,8 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
       // Production staff-actor sync: a drift update revokes Core v2 sessions (sessionVersion increment).
-      'scripts/core-v2/sync-staff-actors.ts:update#1',
+      'scripts/core-v2/sync-staff-actors.ts:updateMany#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
     ]

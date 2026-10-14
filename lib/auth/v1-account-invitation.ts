@@ -21,14 +21,16 @@
  * A newer generation rotates the stored token hash, which invalidates every
  * earlier raw token of the account.
  */
+import { createHash } from 'node:crypto'
 import type { Prisma, UserRole } from '@prisma/client'
 
 import { createActivationToken, type ActivationPurpose } from '@/lib/auth/activation-token'
-import { buildTrustedActivationUrl, isAccountActivationRequired } from '@/lib/auth/parent-activation'
+import { buildTrustedActivationUrl } from '@/lib/auth/parent-activation'
 import { normalizeUserEmail } from '@/lib/contact/user-email'
 import { enqueueEmailIntentForIssuance, type EmailMessageType } from '@/lib/email/outbox'
 import { escapeHtml } from '@/lib/email/templates'
 import { prisma } from '@/lib/prisma'
+import { assertV1InvitationIdentity, V1InvitationScopeRefusal, v1CredentialStateIsConsistent } from '@/lib/auth/v1-invitation-authority'
 
 export const V1_INVITATION_AGGREGATE_TYPE = 'account-invitation' as const
 
@@ -39,7 +41,8 @@ export type V1RefusalCode =
   | 'V1_IDENTITY_AMBIGUOUS'
   | 'V1_ROLE_NOT_INVITABLE'
   | 'V1_GENERATION_STALE'
-  | 'V1_ACCOUNT_MISSING';
+  | 'V1_ACCOUNT_MISSING'
+  | 'V1_ISSUANCE_UNATTESTED';
 
 export interface V1InvitationTarget {
   /** The Core v2 user id; by contract it is also the v1 user id (one id space). */
@@ -51,6 +54,9 @@ export interface V1InvitationTarget {
   readonly lastName: string | null;
   readonly phone: string | null;
   readonly generation: number;
+  /** Immutable server binding, revalidated inside the V1 transaction. */
+  readonly authority?: { readonly issuerId: string; readonly issuerVersion: number; readonly bindingDigest: string;
+    readonly databaseIdentity: string; readonly operation: 'INVITE' | 'RESEND' };
 }
 
 export type V1IssueOutcome =
@@ -93,13 +99,6 @@ function invitationAggregateId(userId: string, generation: number): string {
   return `${userId}:g${generation}`;
 }
 
-function generationOf(aggregateId: string, userId: string): number | null {
-  const prefix = `${userId}:g`;
-  if (!aggregateId.startsWith(prefix)) return null;
-  const value = aggregateId.slice(prefix.length);
-  return /^[1-9][0-9]{0,8}$/.test(value) ? Number(value) : null;
-}
-
 type V1Row = Prisma.UserGetPayload<{
   select: {
     id: true; email: true; role: true; password: true; activatedAt: true;
@@ -137,7 +136,7 @@ async function classify(tx: Tx, target: V1InvitationTarget): Promise<Classificat
   if (row.password !== null) {
     // A credential exists. For parents and students it only counts once the
     // activation timestamp agrees; a half-activated row is ambiguous.
-    if (isAccountActivationRequired(row.role, row.activatedAt)) return { kind: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
+    if (!v1CredentialStateIsConsistent(row.role, true, row.activatedAt)) return { kind: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
     return { kind: 'ACTIVE', row };
   }
   if (row.activatedAt !== null) return { kind: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
@@ -170,13 +169,18 @@ async function lockUser(tx: Tx, userId: string): Promise<void> {
   await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${userId} FOR UPDATE`;
 }
 
-/** Highest generation already issued for this user, from the outbox rows only. */
-async function highestIssuedGeneration(tx: Pick<Tx, 'jobOutbox'>, userId: string): Promise<number> {
-  const rows = await tx.jobOutbox.findMany({
-    where: { jobType: 'SEND_EMAIL', aggregateType: V1_INVITATION_AGGREGATE_TYPE, aggregateId: { startsWith: `${userId}:g` } },
-    select: { aggregateId: true },
-  });
-  return rows.reduce((highest, row) => Math.max(highest, generationOf(row.aggregateId, userId) ?? 0), 0);
+async function lockIssuance(tx: Tx, userId: string): Promise<void> {
+  await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`core-invitation:${userId}`}::text, 1026))::text`;
+}
+function receiptAuthority(target: V1InvitationTarget) {
+  const authority = target.authority!;
+  return { userId: target.coreUserId, generation: target.generation, databaseIdentity: authority.databaseIdentity,
+    bindingDigest: authority.bindingDigest, issuerId: authority.issuerId, issuerVersion: authority.issuerVersion,
+    recipientDigest: createHash('sha256').update(normalizeUserEmail(target.email)).digest('hex'),
+    targetRole: target.role, operation: authority.operation };
+}
+function receiptMatches(receipt: Record<string, unknown>, target: V1InvitationTarget): boolean {
+  return Object.entries(receiptAuthority(target)).every(([key, value]) => receipt[key] === value);
 }
 
 /**
@@ -195,6 +199,17 @@ export async function issueV1AccountInvitation(
   const now = options.now ?? new Date();
   const purpose = PURPOSE_BY_ROLE[target.role];
   return database.$transaction(async (tx): Promise<V1IssueOutcome> => {
+    if (purpose === null) return { outcome: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' };
+    if (!target.authority) return { outcome: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
+    await lockIssuance(tx, target.coreUserId);
+    try {
+      await assertV1InvitationIdentity(tx, { issuerId: target.authority.issuerId,
+        expectedIssuerVersion: target.authority.issuerVersion, targetId: target.coreUserId,
+        recipient: target.email, targetRole: target.role });
+    } catch (error) {
+      if (error instanceof V1InvitationScopeRefusal) return { outcome: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
+      throw error;
+    }
     await lockUser(tx, target.coreUserId);
     const found = await classify(tx, target);
     if (found.kind === 'REFUSED') return { outcome: 'REFUSED', code: found.code };
@@ -204,16 +219,26 @@ export async function issueV1AccountInvitation(
     // ASSISTANTE holds. "An administrator is never invited" must hold for
     // LINKING too, not only for creation.
     if (purpose === null) return { outcome: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' };
-    if (found.kind === 'ACTIVE') return { outcome: 'ACTIVE_LINKED', v1UserId: found.row.id };
-
-    const issued = await highestIssuedGeneration(tx, target.coreUserId);
-    if (issued > target.generation) return { outcome: 'REFUSED', code: 'V1_GENERATION_STALE' };
-    if (issued === target.generation && found.kind === 'PENDING') {
-      // Replay of an issuance that already committed (e.g. a crash before Core acknowledged it).
+    const highest = await tx.v1AccountInvitationIssuance.findFirst({ where: { userId: target.coreUserId }, orderBy: { generation: 'desc' } });
+    if (highest && highest.generation > target.generation) return { outcome: 'REFUSED', code: 'V1_GENERATION_STALE' };
+    if (highest?.generation === target.generation) {
+      if (!receiptMatches(highest, target) || highest.revokedAt) return { outcome: 'REFUSED', code: 'V1_ISSUANCE_UNATTESTED' };
+      if (found.kind === 'ACTIVE') return { outcome: 'ACTIVE_LINKED', v1UserId: found.row.id };
+      if (found.kind !== 'PENDING' || highest.outcome !== 'INVITED' || highest.activationTokenHash !== found.row.activationToken
+        || highest.expiresAt?.getTime() !== found.row.activationExpiry?.getTime() || !highest.expiresAt || highest.expiresAt <= now)
+        return { outcome: 'REFUSED', code: 'V1_ISSUANCE_UNATTESTED' };
       return {
         outcome: 'INVITED', v1UserId: found.row.id, created: false, replayed: true,
-        expiresAt: found.row.activationExpiry ?? now,
+        expiresAt: highest.expiresAt,
       };
+    }
+    // Never adopt legacy mail without its immutable issuance proof.
+    if (await tx.jobOutbox.findFirst({ where: { aggregateType: V1_INVITATION_AGGREGATE_TYPE,
+      aggregateId: invitationAggregateId(target.coreUserId, target.generation) }, select: { id: true } }))
+      return { outcome: 'REFUSED', code: 'V1_ISSUANCE_UNATTESTED' };
+    if (found.kind === 'ACTIVE') {
+      await tx.v1AccountInvitationIssuance.create({ data: { ...receiptAuthority(target), outcome: 'ACTIVE_LINKED' } });
+      return { outcome: 'ACTIVE_LINKED', v1UserId: found.row.id };
     }
 
     const token = createActivationToken(purpose, now);
@@ -253,6 +278,10 @@ export async function issueV1AccountInvitation(
       subject: message.subject, html: message.html, text: message.text,
       now,
     });
+    const mail = await tx.jobOutbox.findFirstOrThrow({ where: { aggregateType: V1_INVITATION_AGGREGATE_TYPE,
+      aggregateId: invitationAggregateId(target.coreUserId, target.generation) }, select: { id: true } });
+    await tx.v1AccountInvitationIssuance.create({ data: { ...receiptAuthority(target), outcome: 'INVITED',
+      activationTokenHash: token.tokenHash, expiresAt: token.expiresAt, outboxId: mail.id } });
     return { outcome: 'INVITED', v1UserId, expiresAt: token.expiresAt, created, replayed: false };
   }, { maxWait: 5_000, timeout: 20_000 });
 }
@@ -272,10 +301,25 @@ export async function inspectV1Account(
     // cours de saga. « Un administrateur n'est jamais rattaché par cette saga »
     // doit valoir aux DEUX endroits qui peuvent produire un rattachement.
     if (!isInvitableRole(target.role)) return { state: 'REFUSED', code: 'V1_ROLE_NOT_INVITABLE' };
+    if (!target.authority) return { state: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
+    try {
+      await assertV1InvitationIdentity(tx, { issuerId: target.authority.issuerId,
+        expectedIssuerVersion: target.authority.issuerVersion, targetId: target.coreUserId,
+        recipient: target.email, targetRole: target.role });
+    } catch (error) {
+      if (error instanceof V1InvitationScopeRefusal) return { state: 'REFUSED', code: 'V1_IDENTITY_AMBIGUOUS' };
+      throw error;
+    }
     const found = await classify(tx, target);
     if (found.kind === 'REFUSED') return { state: 'REFUSED', code: found.code };
     if (found.kind === 'ABSENT') return { state: 'REFUSED', code: 'V1_ACCOUNT_MISSING' };
+    const receipt = await tx.v1AccountInvitationIssuance.findUnique({ where: { userId_generation:
+      { userId: target.coreUserId, generation: target.generation } } });
+    if (!receipt || !receiptMatches(receipt, target) || receipt.revokedAt)
+      return { state: 'REFUSED', code: 'V1_ISSUANCE_UNATTESTED' };
     if (found.kind === 'ACTIVE') return { state: 'ACTIVE', v1UserId: found.row.id, activatedAt: found.row.activatedAt };
+    if (receipt.activationTokenHash !== found.row.activationToken || receipt.expiresAt?.getTime() !== found.row.activationExpiry?.getTime())
+      return { state: 'REFUSED', code: 'V1_ISSUANCE_UNATTESTED' };
     const job = await tx.jobOutbox.findFirst({
       where: {
         jobType: 'SEND_EMAIL', aggregateType: V1_INVITATION_AGGREGATE_TYPE,
@@ -303,12 +347,20 @@ export async function revokeV1AccountInvitation(
 ): Promise<{ revoked: boolean }> {
   const database = options.database ?? prisma;
   return database.$transaction(async (tx) => {
+    await lockIssuance(tx, input.coreUserId);
     await lockUser(tx, input.coreUserId);
-    if ((await highestIssuedGeneration(tx, input.coreUserId)) !== input.generation) return { revoked: false };
+    const receipt = await tx.v1AccountInvitationIssuance.findUnique({ where: { userId_generation:
+      { userId: input.coreUserId, generation: input.generation } } });
+    if (!receipt || receipt.revokedAt) return { revoked: false };
+    await tx.v1AccountInvitationIssuance.update({ where: { id: receipt.id }, data: { revokedAt: new Date() } });
+    if (receipt.outboxId) await tx.jobOutbox.updateMany({ where: { id: receipt.outboxId,
+      status: { notIn: ['COMPLETED', 'CANCELLED'] } }, data: { status: 'CANCELLED', leaseOwner: null,
+        leaseExpiresAt: null, lastError: 'INVITATION_REVOKED' } });
+    if (!receipt.activationTokenHash) return { revoked: false };
     const cleared = await tx.user.updateMany({
       where: {
         id: input.coreUserId, password: null, activatedAt: null,
-        NOT: { activationToken: null },
+        activationToken: receipt.activationTokenHash,
       },
       data: { activationToken: null, activationExpiry: null },
     });

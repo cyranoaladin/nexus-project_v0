@@ -9,6 +9,8 @@ type SessionUserState = {
   role: string
   activatedAt: Date | null
   sessionVersion: number
+  disabledAt?: Date | null
+  mergedIntoUserId?: string | null
   /** Code personnel de l'espace pédagogique (présent = compte provisionné par un opérateur). */
   pinHash?: string | null
 }
@@ -17,7 +19,7 @@ export type SessionDatabase = {
   user: {
     findUnique(args: {
       where: { id: string }
-      select: { id: true; role: true; activatedAt: true; sessionVersion: true; pinHash: true }
+      select: { id: true; role: true; activatedAt: true; sessionVersion: true; pinHash: true; disabledAt: true; mergedIntoUserId: true }
     }): Promise<SessionUserState | null>
     update(args: {
       where: { id: string }
@@ -92,10 +94,10 @@ export async function validateSessionToken(
   try {
     const user = await database.user.findUnique({
       where: { id: userId },
-      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true },
+      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true, disabledAt: true, mergedIntoUserId: true },
     })
 
-    if (!user || user.role !== role || user.sessionVersion !== sessionVersion) return null
+    if (!user || user.role !== role || user.sessionVersion !== sessionVersion || user.disabledAt || user.mergedIntoUserId) return null
     // L'activation FAMILIALE (lien d'activation, mot de passe) reste requise pour les sessions du flux email.
     // Un compte qui n'a qu'un code personnel d'espace (pas de mot de passe) ne peut avoir obtenu sa session que
     // par ce code : son activation familiale en attente n'a pas à bloquer l'espace, et n'est surtout pas consommée.

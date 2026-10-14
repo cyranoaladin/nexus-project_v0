@@ -27,6 +27,8 @@
  */
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { Prisma } from '@prisma/client';
+import { mapAccountDeletionRestrictError } from '@/lib/security/account-deletion-guard';
 
 import manifest from '../../data/security/account-deletion-fk-manifest.json';
 
@@ -135,6 +137,18 @@ function parseSchemaRelations(schemaSource: string): SchemaRelation[] {
 describe('#273 account-deletion FK inventory — no silent drift', () => {
   const schemaSource = readFileSync(join(process.cwd(), 'prisma/schema.prisma'), 'utf8');
   const relations = parseSchemaRelations(schemaSource);
+
+  it.each(['issuerId', 'userId'])('preserves the invitation %s authority receipt and returns a bounded deletion conflict', column => {
+    const error = new Prisma.PrismaClientKnownRequestError('SYNTHETIC_INTERNAL_DATABASE_ERROR', {
+      code: 'P2003', clientVersion: 'synthetic',
+      meta: { constraint: `v1_account_invitation_issuances_${column}_fkey` },
+    });
+    const mapped = mapAccountDeletionRestrictError(error);
+    expect(mapped).not.toBeNull();
+    expect(mapped?.message).toContain('historique');
+    expect(mapped?.message).not.toContain('SYNTHETIC_INTERNAL_DATABASE_ERROR');
+    expect(mapped?.message).toContain('Désactivez le compte');
+  });
 
   it('finds exactly as many relations as the manifest classifies', () => {
     // An exact count, not a loose floor: tables that don't follow the

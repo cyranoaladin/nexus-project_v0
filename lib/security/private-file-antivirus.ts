@@ -1,8 +1,5 @@
-import { execFile } from 'node:child_process';
 import { connect } from 'node:net';
 import { readFile } from 'node:fs/promises';
-import { promisify } from 'node:util';
-const execFileAsync = promisify(execFile);
 const SCAN_TIMEOUT_MS = 45_000;
 const MAX_STDOUT_BYTES = 64 * 1024;
 const MAX_INSTREAM_CHUNK_BYTES = 64 * 1024;
@@ -13,6 +10,18 @@ export async function scanPrivateFile(absolutePath: string | (() => string)): Pr
 }
 
 async function scanFile(resolvePath: () => string): Promise<{ clean: true; engine: string }> {
+  const disabled = disabledScanVerdict();
+  if (disabled) return disabled;
+  const absolutePath = resolvePath();
+  const port = Number(process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT);
+  if (!process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST || !Number.isInteger(port) || port <= 0 || port > 65_535)
+    throw new Error('AV_NOT_CONFIGURED');
+  let bytes: Buffer;
+  try { bytes = await readFile(absolutePath); } catch { throw new Error('AV_SCAN_FAILED'); }
+  return scanPrivateBytes(bytes);
+}
+
+function disabledScanVerdict(): { clean: true; engine: string } | undefined {
   const mode = process.env.DIAGNOSTIC_AV_MODE ?? (process.env.NODE_ENV === 'production' ? 'required' : 'disabled');
   if (mode === 'disabled') {
     // `disabled` in a NODE_ENV=production context is refused UNLESS this
@@ -30,37 +39,26 @@ async function scanFile(resolvePath: () => string): Promise<{ clean: true; engin
     return { clean: true, engine: process.env.NODE_ENV === 'production' ? 'disabled-e2e-disposable' : 'disabled-development' };
   }
   if (mode !== 'clamdscan') throw new Error('AV_NOT_CONFIGURED');
+  return undefined;
+}
 
-  const absolutePath = resolvePath();
+/** Scan the clear in-memory bytes before any file exists. No scratch file or disk fallback. */
+export async function scanPrivateBytes(bytes: Buffer): Promise<{ clean: true; engine: string }> {
+  const disabled = disabledScanVerdict();
+  if (disabled) return disabled;
   const tcpHost = process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST;
   const tcpPort = process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT;
-
-  if (!tcpHost) {
-    try {
-      await execFileAsync('clamdscan', ['--no-summary', '--fdpass', absolutePath], {
-        timeout: SCAN_TIMEOUT_MS,
-        maxBuffer: MAX_STDOUT_BYTES,
-        windowsHide: true,
-      });
-      return { clean: true, engine: 'clamdscan-fdpass' };
-    } catch (error) {
-      const exitCode = typeof error === 'object' && error && 'code' in error ? Number((error as { code?: unknown }).code) : NaN;
-      if (exitCode === 1) throw new Error('MALWARE_DETECTED');
-      throw new Error('AV_SCAN_FAILED');
-    }
-  }
-
   const port = Number(tcpPort);
-  if (!Number.isInteger(port) || port <= 0 || port > 65_535) throw new Error('AV_NOT_CONFIGURED');
-
-  const bytes = await readFile(absolutePath);
-  const reply = await runClamdInstream(tcpHost, port, bytes);
+  if (!tcpHost || !Number.isInteger(port) || port <= 0 || port > 65_535) throw new Error('AV_NOT_CONFIGURED');
+  let reply: string;
+  try { reply = await runClamdInstream(tcpHost, port, bytes); }
+  catch (error) { throw new Error(error instanceof Error && error.message === 'AV_SCAN_TIMEOUT' ? 'AV_SCAN_TIMEOUT' : 'AV_SCAN_FAILED'); }
   const trimmed = reply.replace(/\0+$/, '').trim();
-  if (/FOUND$/.test(trimmed)) throw new Error(`MALWARE_DETECTED:${trimmed.slice(0, 200)}`);
+  if (/FOUND$/.test(trimmed)) throw new Error('MALWARE_DETECTED');
   // Exact clamd INSTREAM verdict only. A looser match (`\bOK$`) would accept
   // any invalid reply that merely ends in "OK" (e.g. "stream: NOT OK") as clean.
-  if (trimmed === 'stream: OK') return { clean: true, engine: `clamd-instream-tcp:${tcpHost}:${port}` };
-  throw new Error(`AV_SCAN_FAILED:${trimmed.slice(0, 200)}`);
+  if (trimmed === 'stream: OK') return { clean: true, engine: 'clamd-instream-tcp' };
+  throw new Error('AV_SCAN_FAILED');
 }
 
 /**
@@ -97,7 +95,9 @@ function runClamdInstream(host: string, port: number, bytes: Buffer): Promise<st
       socket.write(Buffer.alloc(4)); // zero-length chunk terminates the stream
     });
     socket.on('data', (chunk: Buffer) => {
-      if (reply.length < MAX_STDOUT_BYTES) reply += chunk.toString('utf8');
+      if (Buffer.byteLength(reply) + chunk.length > MAX_STDOUT_BYTES) {
+        finish(() => reject(new Error('AV_SCAN_FAILED')));
+      } else reply += chunk.toString('utf8');
     });
     socket.on('end', () => finish(() => resolvePromise(reply)));
     socket.on('close', () => finish(() => resolvePromise(reply)));

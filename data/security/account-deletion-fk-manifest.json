@@ -1066,5 +1066,35 @@
       "retentionRequirement": "Who performed the legacy linking (operator accountability).",
       "whyCascadeIsSafe": "n/a — RESTRICT."
     }
+  },
+  {
+    "conname": "v1_account_invitation_issuances_issuerId_fkey",
+    "childTable": "v1_account_invitation_issuances",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Retain the immutable issuance authority and delivery/revocation history; routine account deletion must not erase the issuer or target."
+    }
+  },
+  {
+    "conname": "v1_account_invitation_issuances_userId_fkey",
+    "childTable": "v1_account_invitation_issuances",
+    "parentTable": "users",
+    "onDelete": "RESTRICT",
+    "category": "AUDIT_RETAIN",
+    "justification": {
+      "isIdentityMembershipOnly": false,
+      "isDerivedRebuildable": false,
+      "isPedagogicalHistory": false,
+      "isAuditRelevant": true,
+      "isCommercialEvidence": false,
+      "retentionRequirement": "Retain the immutable issuance authority and delivery/revocation history; routine account deletion must not erase the issuer or target."
+    }
   }
 ]
