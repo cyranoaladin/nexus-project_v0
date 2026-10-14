@@ -9,11 +9,11 @@
  * = refused. The session's own role claim is deliberately ignored — there is
  * no "fall back to the v1 role" path.
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient, Prisma as CorePrisma } from '@/core-v2/generated/client';
 import { ForbiddenError } from '../errors';
 import type { Actor } from '../rbac';
 
-export async function resolveActor(client: PrismaClient, sessionUserId: string): Promise<Actor> {
+export async function resolveActor(client: PrismaClient | CorePrisma.TransactionClient, sessionUserId: string): Promise<Actor> {
   const user = await client.user.findUnique({
     where: { id: sessionUserId },
     select: { id: true, role: true, accountStatus: true },

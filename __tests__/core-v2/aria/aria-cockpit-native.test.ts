@@ -1,14 +1,9 @@
-/**
- * PR B — TDD for the Core v2-native ARIA surface (/api/v2/aria/**).
- * Reproduces the exact preview incident (a Core v2-only ELEVE, no legacy
- * User/Student row at all) and proves: 200, correct identity/curriculum,
- * persistent profile, real entitlement gating via AriaAccessGrant (never
- * "Student exists = authorized"), no cross-student leak, fail-closed on a
- * missing student. This module never imports the legacy database, so "no
- * V1 fallback" is structural, not just behavioral.
- */
+/** Core-native student data with V1-only credentials and a real encrypted cookie.
+ * No legacy Student is manufactured; Core is the sole academic authority. */
 import { NextRequest } from 'next/server';
-import { setupServiceHarness, seedAcademicYear } from '../helpers/service-harness';
+import { ariaHttpCookie } from '../helpers/aria-http-cookie';
+import { setupV1Fixture } from '../helpers/v1-provisioning-fixture';
+import { seedAcademicYear } from '../helpers/service-harness';
 import { NO_PARAMS } from '@/lib/core-v2/http/staff-route';
 import * as cockpitRoute from '@/app/api/v2/aria/cockpit/route';
 import * as curriculumRoute from '@/app/api/v2/aria/curriculum/route';
@@ -21,14 +16,14 @@ jest.mock('@/auth', () => ({ auth: jest.fn() }));
 import { auth } from '@/auth';
 const mockedAuth = auth as unknown as jest.Mock;
 
-const h = setupServiceHarness();
+const v1Fixture = setupV1Fixture(); const h = v1Fixture.h;
 
 function signInAs(user: { id: string; role: string } | null) {
   mockedAuth.mockResolvedValue(user ? { user: { id: user.id, role: user.role, email: 'x@synthetic.test' }, expires: '2099-01-01' } : null);
 }
 
 async function callGet(route: { GET: (req: NextRequest, ctx: typeof NO_PARAMS) => Promise<Response> }, path: string) {
-  const request = new NextRequest(`http://localhost:3000${path}`, { method: 'GET', headers: { origin: 'http://localhost:3000' } });
+  const request = new NextRequest(`http://localhost:3000${path}`, { method: 'GET', headers: { origin: 'http://localhost:3000', ...(await ariaHttpCookie((await mockedAuth())?.user.id)) } });
   const response = await route.GET(request, NO_PARAMS);
   return { status: response.status, body: await response.json() };
 }
@@ -36,7 +31,7 @@ async function callGet(route: { GET: (req: NextRequest, ctx: typeof NO_PARAMS) =
 async function callPut(route: { PUT: (req: NextRequest, ctx: typeof NO_PARAMS) => Promise<Response> }, path: string, payload: unknown) {
   const request = new NextRequest(`http://localhost:3000${path}`, {
     method: 'PUT',
-    headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' },
+    headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', ...(await ariaHttpCookie((await mockedAuth())?.user.id)) },
     body: JSON.stringify(payload),
   });
   const response = await route.PUT(request, NO_PARAMS);
@@ -53,8 +48,10 @@ async function seedCoreV2OnlyStudent(overrides: {
 } = {}) {
   const year = overrides.year ?? (await seedAcademicYear(h.client, 2026, 'CURRENT'));
   const gradeLevel = overrides.gradeLevel ?? 'TERMINALE';
+  const v1 = await v1Fixture.v1User('ELEVE', 'aria-cockpit', 'ACTIVE');
   const user = await h.client.user.create({
     data: {
+      id: v1.id,
       role: 'ELEVE',
       email: overrides.email ?? 'lea.corev2only@synthetic.test',
       firstName: overrides.firstName ?? 'Léa',
@@ -382,7 +379,8 @@ describe('GET /api/v2/aria/cockpit — Core v2-only identity', () => {
   });
 
   test('no Core v2 student -> 403 canonique sans fuite d\'existence, jamais 404/500', async () => {
-    const orphan = await h.client.user.create({ data: { role: 'ELEVE', email: 'orphan-cockpit-v2@synthetic.test', accountStatus: 'ACTIVE' } });
+    const v1 = await v1Fixture.v1User('ELEVE', 'aria-orphan', 'ACTIVE');
+    const orphan = await h.client.user.create({ data: { id: v1.id, role: 'ELEVE', email: 'orphan-cockpit-v2@synthetic.test', accountStatus: 'ACTIVE' } });
     signInAs({ id: orphan.id, role: 'ELEVE' });
     const r = await callGet(cockpitRoute, '/api/v2/aria/cockpit');
     // Contrat ARIA Core v2 : un compte non provisionné reçoit 403 FORBIDDEN,

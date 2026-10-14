@@ -14,7 +14,7 @@
  * — the catalogue and exam-session rules are identical for every identity;
  * only the persistence differs.
  */
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient, Prisma } from '@/core-v2/generated/client';
 import {
   ARIA_CURRICULUM_VERSION,
   ARIA_WEEKLY_GOAL_DEFAULT_MINUTES,
@@ -122,7 +122,7 @@ function toDTO(
 }
 
 export async function getCoreV2AriaCockpitProfile(
-  client: PrismaClient,
+  client: PrismaClient | Prisma.TransactionClient,
   studentId: string,
   academicContext: CoreV2AriaProfileAcademicContext,
 ): Promise<AriaCockpitProfileDTO> {
@@ -143,7 +143,7 @@ export async function getCoreV2AriaCockpitProfile(
 
 /** @throws {AriaProfileValidationError} if an input is inconsistent with the student's real schooling. */
 export async function upsertCoreV2AriaCockpitProfile(
-  client: PrismaClient,
+  client: PrismaClient | Prisma.TransactionClient,
   studentId: string,
   input: AriaProfileUpdateInput,
   academicContext: CoreV2AriaProfileAcademicContext,

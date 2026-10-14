@@ -15,13 +15,12 @@ export const POST = defineStaffRoute({
     // recevoir 403 (contrat HTTP canonique). Le service reverifie la capacite :
     // defense en profondeur, l'autorite reste le service.
     assertCapability(ctx.actor, 'ACCOUNT_INVITE');
-    assertAccountInvitationRuntimeConfiguration();
-    const issued = await requestAccountInvitation(client, ctx, params.id);
-    const user = await client.user.findUniqueOrThrow({ where: { id: params.id } });
+    const issued = await requestAccountInvitation(client, ctx, params.id, { onAuthorized: assertAccountInvitationRuntimeConfiguration });
+    const user = issued.user ?? publicUser(await client.user.findUniqueOrThrow({ where: { id: params.id } }));
     kickAccountEmailHandoffDrain();
     return {
       status: 201,
-      data: { user: publicUser(user), invitation: { id: issued.invitation.id, expiresAt: issued.invitation.expiresAt, deliveryStatus: 'QUEUED' } },
+      data: { user, invitation: { id: issued.invitation.id, expiresAt: issued.invitation.expiresAt, deliveryStatus: 'QUEUED' } },
     };
   },
 });

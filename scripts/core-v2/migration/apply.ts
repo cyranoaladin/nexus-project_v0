@@ -17,6 +17,9 @@ import { loadPlanningParticipants, materializeSeriesOccurrences } from '@/lib/co
 import { localDateFromDateColumn, compareLocalDates, zonedParts } from '@/lib/core-v2/time';
 import type { TargetPlan } from './transform';
 import { canonicalJson, objectHash, userIntegrityPayload } from './transform';
+import { credentialAuthorityIsV1 } from '@/lib/core-v2/accounts/v1-authority';
+import { assertBootstrapAttested, lockV1AdminBootstrap } from '@/lib/core-v2/accounts/bootstrap-v1-admin';
+import { isSyncStaffRole } from '@/lib/core-v2/rbac';
 import { MIGRATION_ENTITIES, OBJECT_RESULTS, TRANSFORM_VERSION, type MigrationEntity, type MigrationManifest, type ObjectManifestEntry, type ObjectResult, type Reconciliation } from './types';
 
 export interface ApplyOptions {
@@ -42,21 +45,30 @@ function decide(existingHash: string | null, plannedHash: string, execute: boole
  * migrating INTO a populated Core v2 (an e2e seed, another roster) would mix
  * authorities. A rerun over the same plan is fine (every existing id is ours).
  */
-async function assertTargetCompatible(client: PrismaClient, plan: TargetPlan, actorUserId: string): Promise<string> {
+async function assertTargetCompatible(client: Tx | PrismaClient, plan: TargetPlan, actorUserId: string): Promise<string> {
   // L'acteur de migration est une identite de plan de controle : il existe
   // dans Core v2 AVANT la migration et n'appartient pas au graphe des eleves.
   // C'est donc le seul utilisateur cible preexistant tolere — tout autre
   // (compte de demonstration, reliquat E2E, second administrateur, autre
   // roster) fait refuser la migration avant la moindre ecriture.
-  const actor = await client.user.findUnique({ where: { id: actorUserId }, select: { id: true, role: true } });
-  if (!actor) throw new Error(`MIGRATION_ACTOR_ABSENT_FROM_TARGET: ${actorUserId} does not exist in the Core v2 database.`);
-  if (actor.role !== 'ADMIN') throw new Error(`MIGRATION_ACTOR_NOT_ADMIN: ${actorUserId} has role ${actor.role}.`);
+  const actor = await client.user.findUnique({ where: { id: actorUserId }, select: { id: true, role: true, accountStatus: true } });
+  if (!actor) throw new Error('MIGRATION_ACTOR_ABSENT_FROM_TARGET');
+  if (actor.role !== 'ADMIN' || actor.accountStatus !== 'ACTIVE') throw new Error('MIGRATION_ACTOR_NOT_ACTIVE_ADMIN');
+  let bootstrapId: string | null = null;
+  if (credentialAuthorityIsV1()) bootstrapId = await assertBootstrapAttested(client as Tx);
 
   const plannedUserIds = new Set(plan.users.map((u) => u.id));
-  const users = await client.user.findMany({ select: { id: true } });
-  const foreign = users.filter((u) => !plannedUserIds.has(u.id) && u.id !== actorUserId).map((u) => u.id);
+  const users = await client.user.findMany({ select: { id: true, role: true, password: true } });
+  const staffReceipts = bootstrapId ? await client.auditEvent.findMany({ where: { action: 'staff.sync_user_created' } }) : [];
+  const attestedStaff = new Set(staffReceipts.filter(receipt => {
+    const metadata = receipt.metadata as Record<string, unknown> | null;
+    const user = users.find(u => u.id === receipt.subjectId);
+    return user && isSyncStaffRole(user.role) && user.password === null && receipt.subjectType === 'User'
+      && receipt.actorUserId === bootstrapId && metadata?.bootstrapAdminId === bootstrapId && metadata.role === user.role;
+  }).map(receipt => receipt.subjectId));
+  const foreign = users.filter(u => !plannedUserIds.has(u.id) && u.id !== actorUserId && !attestedStaff.has(u.id));
   if (foreign.length > 0) {
-    throw new Error(`TARGET_HAS_FOREIGN_ROWS: ${foreign.length} users in the Core v2 database are neither part of this plan nor the declared migration actor (first: ${foreign.slice(0, 3).join(', ')}).`);
+    throw new Error('TARGET_HAS_FOREIGN_ROWS');
   }
   const marker = await client.coreV2DatabaseIdentity.findUnique({ where: { id: 1 } });
   return `v2:${marker?.schemaIdentity ?? '?'}#${marker?.schemaGeneration ?? '?'};users=${users.length}`;
@@ -66,8 +78,15 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
   if (options.transformVersion !== TRANSFORM_VERSION || plan.entries.some(entry => entry.transformVersion !== TRANSFORM_VERSION)) {
     throw new Error('MIGRATION_PROOF_VERSION_UNSUPPORTED');
   }
+  if (credentialAuthorityIsV1() && plan.users.some(user => user.password !== null
+    || !['ELEVE', 'PARENT', 'COACH'].includes(user.role) || user.sessionVersion !== 0)) {
+    throw new Error('MIGRATION_V1_ONLY_PLAN_FORBIDDEN');
+  }
   const startedAt = new Date();
-  const targetFingerprint = await assertTargetCompatible(client, plan, options.actorUserId);
+  const targetFingerprint = await client.$transaction(async tx => {
+    await lockV1AdminBootstrap(tx);
+    return assertTargetCompatible(tx, plan, options.actorUserId);
+  });
   // Slow integrity derivations must never extend the roster transaction's locks.
   const plannedUserHashes = new Map(plan.users.map(user => [user.id, objectHash(userIntegrityPayload(user))]));
   const userProofSelect = {
@@ -77,6 +96,9 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
   const existingUsers = await client.user.findMany({
     where: { id: { in: plan.users.map(user => user.id) } }, select: userProofSelect,
   });
+  if (credentialAuthorityIsV1() && existingUsers.some(user => user.password !== null)) {
+    throw new Error('MIGRATION_CORE_CREDENTIAL_PRESENT');
+  }
   const existingUserProofs = new Map(existingUsers.map(user => [user.id, {
     snapshot: user, hash: objectHash(userIntegrityPayload(user)),
   }]));
@@ -85,6 +107,8 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
 
   const yearStartYear = plan.academicYear.startYear;
   const academicYearId = await client.$transaction(async (tx) => {
+    await lockV1AdminBootstrap(tx);
+    await assertTargetCompatible(tx, plan, options.actorUserId);
     // Academic year: by startYear (unique in Core v2); dates from the approval file.
     const existingYear = await tx.academicYear.findUnique({ where: { startYear: yearStartYear } });
     const yearPayload = { startYear: yearStartYear, startsAt: plan.academicYear.startsAt, endsAt: plan.academicYear.endsAt };
@@ -101,7 +125,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     }
 
     for (const u of plan.users) {
-      await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${u.id} FOR UPDATE`;
+      await tx.$queryRaw`SELECT "id" FROM public."users" WHERE "id" = ${u.id} FOR UPDATE`;
       const existing = await tx.user.findUnique({ where: { id: u.id }, select: userProofSelect });
       const prepared = existingUserProofs.get(u.id);
       if ((existing === null) !== (prepared === undefined)
@@ -131,11 +155,13 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
       if (existing && (existing.householdId !== hp.householdId || existing.userId !== hp.userId)) {
         throw new Error('HOUSEHOLD_MEMBERSHIP_REASSIGNMENT_REQUIRES_APPROVAL');
       }
-      // A roster is not authority to verify/reactivate a family or reset its
-      // primary contact. Preserve every existing administrative decision.
+      // The sealed approval attests the authoritative V1 parent relation on
+      // first import. It never overrides a later Core revocation/decision.
       const result = existing ? 'UNCHANGED' : decide(null, objectHash(hp), options.execute);
       record('HouseholdParent', hp.id, result);
-      if (options.execute && !existing) await tx.householdParent.create({ data: hp });
+      if (options.execute && !existing) await tx.householdParent.create({ data: { ...hp,
+        verificationStatus: 'VERIFIED', verifiedAt: options.migratedAt,
+        verifiedById: options.actorUserId, verificationEvidenceDigest: options.approvalDigest, revision: 1 } });
     }
     for (const s of plan.students) {
       const existing = await tx.student.findUnique({ where: { id: s.id } });
@@ -288,7 +314,7 @@ export async function applyPlan(client: PrismaClient, plan: TargetPlan, options:
     anomalies,
   };
 
-  if (options.execute) {
+  if (options.execute && objects.some(o => o.result === 'CREATED' || o.result === 'UPDATED')) {
     await client.$transaction((tx) =>
       appendAuditEvent(tx, {
         actorUserId: options.actorUserId,

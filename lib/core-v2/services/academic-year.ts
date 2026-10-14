@@ -11,6 +11,7 @@ import { assertCapability } from '../rbac';
 import { createAcademicYear as insertAcademicYear } from '../repositories/academic-year';
 import type { ServiceContext } from './context';
 import { inTransaction } from './context';
+import { withInvitationActor } from '../accounts/invitation-scope';
 import { idSchema, parseInput } from './validation';
 
 const createSchema = z.object({
@@ -66,10 +67,16 @@ export async function setCurrentAcademicYear(
   ctx: ServiceContext,
   rawYearId: string,
 ): Promise<AcademicYear> {
-  assertCapability(ctx.actor, 'ENROLLMENT_CREATE');
+  assertCapability(ctx.actor, 'ACADEMIC_YEAR_MANAGE');
   const yearId = parseInput(idSchema, rawYearId);
+  const expectedCurrent = await client.academicYear.findMany({ where: { status: 'CURRENT' },
+    select: { id: true, invitationScopeVersion: true }, orderBy: { id: 'asc' } });
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    const current = await tx.academicYear.findMany({ where: { status: 'CURRENT' },
+      select: { id: true, invitationScopeVersion: true }, orderBy: { id: 'asc' } });
+    if (JSON.stringify(current) !== JSON.stringify(expectedCurrent))
+      throw new ConflictError('Another academic year became CURRENT concurrently.', { yearId });
     const target = await tx.academicYear.findUnique({ where: { id: yearId } });
     if (!target) throw new NotFoundError('Academic year not found.', { yearId });
     if (target.status !== 'UPCOMING') {
@@ -118,10 +125,10 @@ export async function closeAcademicYear(
   ctx: ServiceContext,
   rawYearId: string,
 ): Promise<AcademicYear> {
-  assertCapability(ctx.actor, 'ENROLLMENT_CREATE');
+  assertCapability(ctx.actor, 'ACADEMIC_YEAR_MANAGE');
   const yearId = parseInput(idSchema, rawYearId);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
     const moved = await tx.academicYear.updateMany({
       where: { id: yearId, status: 'CURRENT' },
       data: { status: 'CLOSED' },

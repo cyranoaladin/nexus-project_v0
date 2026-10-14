@@ -57,10 +57,10 @@ async function main(): Promise<number> {
     transformVersion: TRANSFORM_VERSION,
     correlationId: `migration:${randomUUID()}`,
   });
-  writeFileSync(out, JSON.stringify(manifest, null, 2));
+  writeFileSync(out, JSON.stringify(manifest, null, 2), { mode: 0o600, flag: 'wx' });
   const rejected = manifest.objects.filter((o) => o.result === 'REJECTED').length;
   console.log(
-    `[migrate-to-core-v2] ${manifest.mode} approval=${digest.slice(0, 12)} source=${manifest.sourceFingerprint} target=${manifest.targetFingerprint} objects=${manifest.objects.length} rejected=${rejected} anomalies=${manifest.anomalies.join(',') || 'none'} → ${out}`,
+    `[migrate-to-core-v2] ${manifest.mode} approval=${digest.slice(0, 12)} objects=${manifest.objects.length} rejected=${rejected} anomalies=${manifest.anomalies.join(',') || 'none'}`,
   );
   return manifest.anomalies.length > 0 || rejected > 0 ? 2 : 0;
 }
@@ -72,7 +72,7 @@ main()
     process.exit(code);
   })
   .catch(async (error) => {
-    console.error('[migrate-to-core-v2] REFUSED', error instanceof Error ? error.message : error);
+    console.error('[migrate-to-core-v2] REFUSED', error instanceof Error && /^[A-Z][A-Z0-9_]+$/.test(error.message) ? error.message : 'MIGRATION_FAILED');
     await disconnectCoreV2Client().catch(() => undefined);
     await coreV1.$disconnect().catch(() => undefined);
     process.exit(1);

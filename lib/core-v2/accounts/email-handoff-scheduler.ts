@@ -106,6 +106,11 @@ export async function startAccountEmailHandoffScheduler(): Promise<void> {
   if (v1Authority) {
     const { assertAccountV1ProvisioningSchema } = await import('./v1-provisioning-schema');
     await assertAccountV1ProvisioningSchema(client);
+    const { assertV1InvitationAuthoritySchema } = await import('@/lib/auth/v1-invitation-schema');
+    await assertV1InvitationAuthoritySchema();
+    const { registerAccountInvitationAuthority } = await import('@/lib/email/account-invitation-authority');
+    const { accountInvitationDeliveryAuthority } = await import('./invitation-delivery-authority');
+    registerAccountInvitationAuthority(accountInvitationDeliveryAuthority(client));
   } else {
     await assertAccountEmailHandoffSchema(client);
   }

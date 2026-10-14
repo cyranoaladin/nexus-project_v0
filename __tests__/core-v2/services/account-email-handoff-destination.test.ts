@@ -8,6 +8,7 @@ import { transferAccountEmailHandoff } from '@/lib/core-v2/accounts/email-handof
 import { drainAccountEmailHandoffs } from '@/lib/core-v2/accounts/email-handoff-worker';
 import { createHousehold, inviteAccount } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 const previousOrigin = process.env.NEXTAUTH_URL;
@@ -29,6 +30,7 @@ test('real Core retry after a committed V1 intent preserves exactly one encrypte
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: {
     firstName: 'Synthetic', lastName: 'Destination', email: 'synthetic-destination@example.test',
   } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   aggregateIds.push(parent.id);
   const issued = await inviteAccount(h.client, h.ctx(), parent.id);
   const at = new Date(issued.invitation.createdAt.getTime() + 1000);

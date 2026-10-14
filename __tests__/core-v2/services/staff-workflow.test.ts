@@ -31,6 +31,7 @@ import {
 } from '@/lib/core-v2/services';
 import { academicYearDates } from '../helpers/fixtures';
 import { auditTrail, seedCoach, setupServiceHarness } from '../helpers/service-harness';
+import { setInvitationScopeGrant } from '@/lib/core-v2/accounts/invitation-scope';
 
 const h = setupServiceHarness();
 
@@ -46,11 +47,13 @@ describe('Golden staff workflow through canonical services', () => {
       ...h.ctx(h.assistante),
       now: () => new Date('2026-09-01T12:00:00.000Z'),
     };
+    const adminCtx = { ...ctx, actor: h.admin };
+    const bootstrapReceipt = await client.auditEvent.findMany({ where: { action: 'account.bootstrap_v1_admin' } });
 
     // Academic year lifecycle (configured dates, no hardcoded calendar).
     const year = await createAcademicYear(client, ctx, { startYear: 2026, ...academicYearDates(2026) });
     expect(year.status).toBe('UPCOMING');
-    const current = await setCurrentAcademicYear(client, ctx, year.id);
+    const current = await setCurrentAcademicYear(client, adminCtx, year.id);
     expect(current.status).toBe('CURRENT');
     expect(await auditTrail(client, year.id)).toEqual(['academic_year.created', 'academic_year.status_changed']);
 
@@ -62,6 +65,8 @@ describe('Golden staff workflow through canonical services', () => {
     expect(parent.phone).toBe('20000001');
     expect(parent.accountStatus).toBe('PENDING_ACTIVATION');
     expect(await auditTrail(client, household.id)).toEqual(['household.created']);
+    await setInvitationScopeGrant(client, adminCtx, { householdId: household.id, academicYearId: year.id,
+      staffUserId: h.assistante.userId, expectedRevision: 0, active: true });
 
     // Second parent, then attach an existing PARENT account, then switch primary contact.
     const { parent: parent2 } = await createParent(client, ctx, {
@@ -69,7 +74,8 @@ describe('Golden staff workflow through canonical services', () => {
       parent: { firstName: 'Karim', lastName: 'Synthetic', email: 'karim@example.com' },
     });
     const existing = await client.user.create({ data: { role: 'PARENT', email: 'grand@example.com' } });
-    await attachExistingParent(client, ctx, { householdId: household.id, parentUserId: existing.id });
+    await attachExistingParent(client, adminCtx, { householdId: household.id, parentUserId: existing.id });
+    await verifyHouseholdParent(client, ctx, { householdId: household.id, parentUserId: parent.id, expectedRevision: 0, evidenceDigest: 'b'.repeat(64) });
     await verifyHouseholdParent(client, ctx, { householdId: household.id, parentUserId: parent2.id, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
     await setPrimaryContact(client, ctx, { householdId: household.id, parentUserId: parent2.id });
     const members = await client.householdParent.findMany({ where: { householdId: household.id } });
@@ -163,11 +169,17 @@ describe('Golden staff workflow through canonical services', () => {
     const withdrawn = await withdrawEnrollment(client, ctx, enrollment.id);
     expect(withdrawn.status).toBe('WITHDRAWN');
     await expectDomainError(withdrawEnrollment(client, ctx, enrollment.id), 'INVALID_STATE');
-    expect((await closeAcademicYear(client, ctx, year.id)).status).toBe('CLOSED');
+    expect((await closeAcademicYear(client, adminCtx, year.id)).status).toBe('CLOSED');
 
     // Every sensitive mutation left an audit row with the actor and the correlation id.
-    const allAudit = await client.auditEvent.findMany();
-    expect(allAudit.every((row) => row.actorUserId === h.assistante.userId && row.correlationId === ctx.correlationId)).toBe(true);
+    expect(await client.auditEvent.findMany({ where: { action: 'account.bootstrap_v1_admin' } })).toEqual(bootstrapReceipt);
+    const allAudit = await client.auditEvent.findMany({ where: { action: { not: 'account.bootstrap_v1_admin' } } });
+    const adminActions = new Set(['academic_year.status_changed', 'account.invitation_scope_granted']);
+    for (const row of allAudit) expect({ action: row.action, actorUserId: row.actorUserId, correlationId: row.correlationId })
+      .toEqual({ action: row.action, actorUserId: (adminActions.has(row.action)
+        || (row.action === 'household.parent_attached' && (row.metadata as { parentUserId: string }).parentUserId === existing.id))
+        ? h.admin.userId : h.assistante.userId,
+        correlationId: ctx.correlationId });
     expect(new Set(allAudit.map((r) => r.action))).toEqual(
       new Set([
         'academic_year.created',
@@ -188,12 +200,43 @@ describe('Golden staff workflow through canonical services', () => {
         'planning.occurrences_materialized',
         'planning.series_changed',
         'account.invited',
+        'account.invitation_scope_granted',
         'parent.contact_corrected',
         'student.identity_corrected',
         'coach.assignment_ended',
         'enrollment.withdrawn',
       ]),
     );
+  });
+
+  test('planning accepts a student awaiting activation and refuses a suspended one without writing', async () => {
+    const { client } = h;
+    const ctx = { ...h.ctx(h.assistante), now: () => new Date('2026-09-01T12:00:00.000Z') };
+    const adminCtx = { ...ctx, actor: h.admin };
+    const year = await createAcademicYear(client, ctx, { startYear: 2026, ...academicYearDates(2026) });
+    await setCurrentAcademicYear(client, adminCtx, year.id);
+    const { household } = await createHousehold(client, ctx, { parent: { firstName: 'P', lastName: 'Plan', email: 'p.plan@example.com' } });
+    await setInvitationScopeGrant(client, adminCtx, { householdId: household.id, academicYearId: year.id,
+      staffUserId: h.assistante.userId, expectedRevision: 0, active: true });
+    const { student, user: studentUser } = await createStudent(client, ctx, {
+      householdId: household.id, student: { firstName: 'E', lastName: 'Plan', email: 'e.plan@example.com' } });
+    const enrollment = await createAnnualEnrollment(client, ctx, { studentId: student.id, academicYearId: year.id,
+      academicMap: { gradeLevel: 'PREMIERE', academicTrack: 'EDS_GENERALE' } });
+    await approveEnrollment(client, ctx, enrollment.id);
+    await setCourseEnrollments(client, ctx, { enrollmentId: enrollment.id, courses: [{ courseKey: 'maths-premiere', kind: 'SPECIALTY' }] });
+    const { coachId } = await seedCoach(client, 'coach.plan@synthetic.test');
+    await setCoachCapability(client, ctx, { coachId, courseKey: 'maths-premiere', granted: true });
+    const assignment = await assignCoach(client, ctx, { coachId, enrollmentId: enrollment.id, courseKey: 'maths-premiere' });
+    const serie = { assignmentId: assignment.id, startDate: new Date('2026-09-15'), localStartTime: '18:00',
+      localEndTime: '19:00', recurrenceRule: 'FREQ=WEEKLY;BYDAY=TU', modality: 'ONLINE' as const };
+
+    expect(studentUser.accountStatus).toBe('PENDING_ACTIVATION');
+    await expect(createPlanningSeries(client, ctx, serie)).resolves.toBeDefined();
+
+    await client.user.update({ where: { id: studentUser.id }, data: { accountStatus: 'SUSPENDED' } });
+    const avant = await client.planningSeries.count();
+    await expectDomainError(createPlanningSeries(client, ctx, { ...serie, recurrenceRule: 'FREQ=WEEKLY;BYDAY=TH' }), 'INVALID_STATE');
+    expect(await client.planningSeries.count()).toBe(avant);
   });
 
   test('schoolingStatus corrections preserve the explicit before/after map and audit context', async () => {
@@ -203,6 +246,8 @@ describe('Golden staff workflow through canonical services', () => {
     const { household } = await createHousehold(client, ctx, {
       parent: { firstName: 'Audit', lastName: 'Parent', email: 'audit-parent@synthetic.test' },
     });
+    await setInvitationScopeGrant(client, h.ctx(), { householdId: household.id, academicYearId: year.id,
+      staffUserId: h.assistante.userId, expectedRevision: 0, active: true });
     const { student } = await createStudent(client, ctx, {
       householdId: household.id,
       student: { firstName: 'Audit', lastName: 'Student', email: 'audit-student@synthetic.test' },
@@ -283,7 +328,7 @@ describe('Golden staff workflow through canonical services', () => {
     await expectDomainError(createHousehold(client, ctx, { parent: { firstName: '', lastName: 'X', email: 'not-an-email' } }), 'VALIDATION');
     await expectDomainError(createHousehold(client, ctx, { parent: { firstName: 'X', lastName: 'Y', email: 'x@y.io', phone: 'abc' } }), 'VALIDATION');
     expect(await client.household.count()).toBe(0);
-    expect(await client.auditEvent.count()).toBe(0);
+    expect(await client.auditEvent.count()).toBe(1);
   });
 });
 
@@ -301,6 +346,6 @@ describe('RBAC boundary (§Y) — ADMIN vs ASSISTANTE vs non-staff', () => {
     await expectDomainError(createHousehold(client, ctx, { parent: { firstName: 'A', lastName: 'B', email: 'p@example.com' } }), 'FORBIDDEN');
     await expectDomainError(createAcademicYear(client, ctx, { startYear: 2026, ...academicYearDates(2026) }), 'FORBIDDEN');
     expect(await client.household.count()).toBe(0);
-    expect(await client.auditEvent.count()).toBe(0);
+    expect(await client.auditEvent.count()).toBe(1);
   });
 });

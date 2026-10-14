@@ -110,12 +110,18 @@ describe('V1 account ABSENT -> created pending by the canonical v1 path', () => 
 });
 
 describe('fail closed: no mutation, no delivery', () => {
-  async function expectRefused(coreId: string, v1Id: string | null, code: string) {
+  async function expectRefused(coreId: string, v1Id: string | null, _legacyWorkerCode: string) {
     const before = v1Id ? await f.snapshotV1(v1Id) : null;
-    await requestAccountInvitation(h.client, h.ctx(), coreId);
+    const coreBefore = { users: await h.client.user.findMany({ orderBy: { id: 'asc' } }),
+      audit: await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } }),
+      jobs: await h.client.coreV2JobOutbox.findMany(), sagas: await h.client.accountV1Provisioning.findMany() };
+    await expect(requestAccountInvitation(h.client, h.ctx(), coreId)).rejects.toMatchObject({
+      code: 'FORBIDDEN', message: 'Invitation operation unavailable.' });
     await f.settle();
     await f.deliverMail();
-    expect(await f.saga(coreId)).toMatchObject({ state: 'CANCELLED', lastErrorCode: code });
+    expect({ users: await h.client.user.findMany({ orderBy: { id: 'asc' } }),
+      audit: await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } }),
+      jobs: await h.client.coreV2JobOutbox.findMany(), sagas: await h.client.accountV1Provisioning.findMany() }).toEqual(coreBefore);
     if (v1Id) expect(await f.snapshotV1(v1Id)).toEqual(before);
     expect(await f.v1InvitationMailCount()).toBe(0);
     expect(f.mailbox).toHaveLength(0);
@@ -194,7 +200,7 @@ describe('authorization and forgery', () => {
       expect(provisioned.role).toBe(coreRole);
       // And the saga itself recorded the Core role, not the forged one.
       const saga = await h.client.accountV1Provisioning.findUnique({ where: { userId: core.id } });
-      expect(JSON.stringify(saga)).not.toContain('ADMIN');
+      expect(saga?.invitationBinding).toMatchObject({ scope: { targetRole: coreRole, issuerRole: 'ADMIN' } });
     },
   );
 

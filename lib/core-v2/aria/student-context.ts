@@ -18,7 +18,7 @@
 import type { Subject } from '@prisma/client';
 import type { AcademicTrack, GradeLevel, Prisma, SchoolingStatus, StmgPathway } from '@/core-v2/generated/client';
 import type { ServiceContext } from '@/lib/core-v2/services/context';
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient, Prisma as CorePrisma } from '@/core-v2/generated/client';
 import { resolveLegacySubjectForCourse } from '@/lib/curriculum/legacy-migration-map';
 import { ForbiddenError } from '@/lib/core-v2/errors';
 import { assertSelfServiceRole } from '@/lib/core-v2/rbac';
@@ -91,7 +91,7 @@ export class CoreV2AriaMultipleActiveEnrollmentsError extends Error {
 }
 
 export async function loadCoreV2AriaStudentContext(
-  client: PrismaClient,
+  client: PrismaClient | CorePrisma.TransactionClient,
   ctx: ServiceContext,
 ): Promise<CoreV2AriaStudentContext> {
   assertSelfServiceRole(ctx.actor, 'ELEVE');

@@ -263,7 +263,7 @@ async function againstEngineAt<T>(port: number, fn: () => Promise<T>): Promise<T
 }
 
 /** Runs `run` against an engine that accepts the stream and never answers, then expires the scan deadline. */
-async function runUntilScanDeadline(run: () => Promise<unknown>): Promise<{ outcome: unknown; fake: FakeClamd }> {
+async function runUntilScanDeadline(run: () => Promise<unknown>, observe?: () => Promise<string[]>): Promise<{ outcome: unknown; fake: FakeClamd; filesDuring?: string[] }> {
   const fake = await startFakeClamd('silent');
   // Only the timer the scanner arms is virtualised; sockets, fs and promises stay real.
   jest.useFakeTimers({ doNotFake: ['Date', 'hrtime', 'nextTick', 'performance', 'queueMicrotask', 'requestAnimationFrame', 'cancelAnimationFrame', 'requestIdleCallback', 'cancelIdleCallback', 'setImmediate', 'clearImmediate', 'setInterval', 'clearInterval'] });
@@ -274,11 +274,12 @@ async function runUntilScanDeadline(run: () => Promise<unknown>): Promise<{ outc
       error => { settled = true; return { rejected: error }; },
     );
     await fake.connected;
+    const filesDuring = await observe?.();
     jest.advanceTimersByTime(SCAN_TIMEOUT_MS - 1);
     await new Promise(done => setImmediate(done));
     expect(settled).toBe(false); // still waiting: the bound is not shorter than the contract
     jest.advanceTimersByTime(1);
-    return { outcome: await outcomePromise, fake };
+    return { outcome: await outcomePromise, fake, filesDuring };
   } finally {
     jest.useRealTimers();
     await fake.close();
@@ -313,13 +314,13 @@ describe.each(['diagnostic', 'general'] as const)('%s private file — real Clam
     await writeDiagnosticStorageFile(path, Buffer.from('%PDF-1.0\nharmless synthetic content, no signature match expected\n%%EOF'));
     const result = await scan(path);
     expect(result.clean).toBe(true);
-    expect(result.engine).toMatch(/^clamd-instream-tcp:/);
+    expect(result.engine).toBe('clamd-instream-tcp');
   });
 
   test('the official EICAR test signature is genuinely detected by the real engine — not a fabricated verdict', async () => {
     const path = `real-av-eicar-${randomUUID()}.bin`;
     await writeDiagnosticStorageFile(path, Buffer.from(EICAR));
-    await expect(scan(path)).rejects.toThrow(/^MALWARE_DETECTED:/);
+    await expect(scan(path)).rejects.toThrow(/^MALWARE_DETECTED$/);
   });
 
   test('an unreachable/misconfigured engine fails closed (AV_SCAN_FAILED), never a false "clean"', async () => {
@@ -333,7 +334,7 @@ describe.each(['diagnostic', 'general'] as const)('%s private file — real Clam
       const failure = await scan(path).then(() => null, (error: Error) => error);
       expect(failure).not.toBeNull(); // rejected, never resolved
       expect(failure?.message).not.toMatch(/^MALWARE_DETECTED/);
-      expect(failure?.message).toMatch(/ECONNREFUSED/);
+      expect(failure?.message).toBe('AV_SCAN_FAILED');
     } finally {
       process.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST = previousHost;
       process.env.DIAGNOSTIC_AV_CLAMD_TCP_PORT = previousPort;
@@ -350,12 +351,12 @@ describe.each(['diagnostic', 'general'] as const)('%s private file — real Clam
   });
 
   test.each<[Fault, RegExp]>([
-    ['cut-mid-stream', /^(AV_SCAN_FAILED:|read ECONNRESET|write EPIPE|write ECONNRESET)/],
-    ['cut-after-stream', /^(AV_SCAN_FAILED:|read ECONNRESET)/],
-    ['garbage', /^AV_SCAN_FAILED:this is not clamd/],
-    ['not-ok', /^AV_SCAN_FAILED:stream: NOT OK/],
-    ['error', /^AV_SCAN_FAILED:stream: Some failure ERROR/],
-    ['size-limit', /^AV_SCAN_FAILED:INSTREAM size limit exceeded/],
+    ['cut-mid-stream', /^AV_SCAN_FAILED$/],
+    ['cut-after-stream', /^AV_SCAN_FAILED$/],
+    ['garbage', /^AV_SCAN_FAILED$/],
+    ['not-ok', /^AV_SCAN_FAILED$/],
+    ['error', /^AV_SCAN_FAILED$/],
+    ['size-limit', /^AV_SCAN_FAILED$/],
   ])('a %s engine fault is refused, never reported clean', async (fault, expected) => {
     const path = `real-av-fault-${fault}-${randomUUID()}.bin`;
     await writeDiagnosticStorageFile(path, CLEAN_PDF);
@@ -380,8 +381,8 @@ describe.each(['diagnostic', 'general'] as const)('%s private file — real Clam
 // avoid (a mocked "always clean" double masquerading as a real verdict).
 
 // ── 4. NPC upload path ──────────────────────────────────────────────────────
-// Exercise the actual atomic writer: scanner reads /proc/<parent-pid>/fd/<fd>
-// while the final pathname is still unpublished.
+// Exercise the actual atomic writer: the in-memory clear snapshot is scanned
+// before any staging file exists; inode verification protects publication.
 describe('NPC atomic writer with real ClamAV', () => {
   let root: string;
   const priorRoot = process.env.NPC_STORAGE_ROOT;
@@ -406,21 +407,22 @@ describe('NPC atomic writer with real ClamAV', () => {
   });
   test('real EICAR verdict removes only the quarantine file and publishes nothing', async () => {
     const bytes = Buffer.from(EICAR);
-    await expect(writeNpcStorageFileAtomic('student/rejected.pdf', bytes, bytes.length)).rejects.toThrow(/^MALWARE_DETECTED:/);
-    expect(await readdir(join(process.env.NPC_STORAGE_ROOT!, 'student'))).toEqual([]);
+    await expect(writeNpcStorageFileAtomic('student/rejected.pdf', bytes, bytes.length)).rejects.toThrow(/^MALWARE_DETECTED$/);
+    expect(await published()).toEqual([]);
   });
   test('an EICAR payload inside a PDF is refused and nothing is published', async () => {
-    await expect(writeNpcStorageFileAtomic('student/pdf.pdf', EICAR_PDF, EICAR_PDF.length)).rejects.toThrow(/^MALWARE_DETECTED:/);
+    await expect(writeNpcStorageFileAtomic('student/pdf.pdf', EICAR_PDF, EICAR_PDF.length)).rejects.toThrow(/^MALWARE_DETECTED$/);
     expect(await published()).toEqual([]);
   });
   test('an unreachable engine publishes nothing', async () => {
     await againstEngineAt(39999, async () => {
-      await expect(writeNpcStorageFileAtomic('student/down.pdf', CLEAN_PDF, CLEAN_PDF.length)).rejects.toThrow(/ECONNREFUSED/);
+      await expect(writeNpcStorageFileAtomic('student/down.pdf', CLEAN_PDF, CLEAN_PDF.length)).rejects.toThrow(/^AV_SCAN_FAILED$/);
     });
     expect(await published()).toEqual([]);
   });
   test('a scan that never completes publishes nothing', async () => {
-    const { outcome } = await runUntilScanDeadline(() => writeNpcStorageFileAtomic('student/slow.pdf', CLEAN_PDF, CLEAN_PDF.length));
+    const { outcome, filesDuring } = await runUntilScanDeadline(() => writeNpcStorageFileAtomic('student/slow.pdf', CLEAN_PDF, CLEAN_PDF.length), () => listFilesRecursively(root));
+    expect(filesDuring).toEqual([]);
     expect(outcome).toMatchObject({ rejected: expect.objectContaining({ message: 'AV_SCAN_TIMEOUT' }) });
     expect(await published()).toEqual([]);
   });
@@ -512,10 +514,11 @@ describe('Documents, Espace and NPC share one scanning authority — end to end 
 
     test('a scan that never completes: refused (503), no file left, no record', async () => {
       asAdmin();
-      const { outcome } = await runUntilScanDeadline(async () => {
+      const { outcome, filesDuring } = await runUntilScanDeadline(async () => {
         const response = await post(CLEAN_PDF);
         return { status: response.status, body: await response.json() };
-      });
+      }, () => listFilesRecursively(storageRoot));
+      expect(filesDuring).toEqual([]);
       expect(outcome).toEqual({ resolved: { status: 503, body: { error: 'DOCUMENT_SCAN_UNAVAILABLE' } } });
       expect(prisma.userDocument.create).not.toHaveBeenCalled();
       expect(await listFilesRecursively(storageRoot)).toEqual([]);
@@ -533,6 +536,14 @@ describe('Documents, Espace and NPC share one scanning authority — end to end 
       formRequest({ file: uploadFile(bytes, 'fiche.pdf', 'application/pdf'), title: 'Fiche', documentType: 'COURS' }),
       { params: Promise.resolve({ studentId: 'student-1' }) },
     );
+
+    test('no clear file exists while the scanner is still awaiting its verdict', async () => {
+      asCoach();
+      const { outcome, filesDuring } = await runUntilScanDeadline(() => post(CLEAN_PDF), () => listFilesRecursively(storageRoot));
+      expect(filesDuring).toEqual([]);
+      expect(outcome).toMatchObject({ resolved: expect.objectContaining({ status: 503 }) });
+      expect(prisma.userDocument.create).not.toHaveBeenCalled();
+    });
 
     test('a clean PDF is stored and its record created', async () => {
       asCoach();
@@ -588,7 +599,8 @@ describe('Documents, Espace and NPC share one scanning authority — end to end 
 
     test('a scan that never completes: refused (503), no file left, no record', async () => {
       arrange();
-      const { outcome } = await runUntilScanDeadline(() => save(CLEAN_PDF));
+      const { outcome, filesDuring } = await runUntilScanDeadline(() => save(CLEAN_PDF), () => listFilesRecursively(storageRoot));
+      expect(filesDuring).toEqual([]);
       expect(outcome).toMatchObject({ rejected: expect.objectContaining({ code: 'UPLOAD_SCAN_UNAVAILABLE', status: 503 }) });
       expect(prisma.$transaction).not.toHaveBeenCalled();
       expect(await listFilesRecursively(storageRoot)).toEqual([]);

@@ -25,6 +25,10 @@ import {
   type V1AccountView, type V1InvitationTarget, type V1IssueOutcome,
 } from '@/lib/auth/v1-account-invitation';
 import { appendAuditEvent } from '../audit';
+import { ForbiddenError } from '../errors';
+import type { Tx } from '../services/context';
+import { assertCurrentInvitationBinding, lockInvitationAuthority, type InvitationBinding } from './invitation-scope';
+import { acquireV1InvitationIdentity, V1InvitationScopeRefusal, V1InvitationAuthorityUnavailable, type V1IdentityLease } from '@/lib/auth/v1-invitation-authority';
 import { Prisma, CoreV2JobStatus, CoreV2JobType } from '../client';
 import {
   parseProvisioningJobPayload, TERMINAL_PROVISIONING_STATES, V1_PROVISIONING_AGGREGATE_TYPE,
@@ -83,16 +87,18 @@ function errorCode(error: unknown, fallback: string): string {
   return /^[A-Z0-9_]{1,64}$/.test(code) ? code : fallback;
 }
 
-function targetOf(user: User, generation: number): V1InvitationTarget | null {
+function targetOf(user: User, generation: number, binding: InvitationBinding): V1InvitationTarget | null {
   if (!user.email) return null;
   return {
     coreUserId: user.id, email: user.email, role: user.role,
     firstName: user.firstName, lastName: user.lastName, phone: user.phone, generation,
+    authority: { issuerId: binding.scope.issuerId, issuerVersion: binding.v1IssuerVersion!, bindingDigest: binding.fingerprint,
+      databaseIdentity: binding.scope.databaseIdentity, operation: binding.scope.operation },
   };
 }
 
 async function compareAndSet(
-  core: PrismaClient, saga: AccountV1Provisioning, from: readonly AccountProvisioningState[],
+  core: Tx, saga: AccountV1Provisioning, from: readonly AccountProvisioningState[],
   data: Prisma.AccountV1ProvisioningUncheckedUpdateManyInput,
 ): Promise<boolean> {
   const moved = await core.accountV1Provisioning.updateMany({
@@ -102,7 +108,7 @@ async function compareAndSet(
   return moved.count === 1;
 }
 
-async function cancel(core: PrismaClient, saga: AccountV1Provisioning, code: string): Promise<StepResult> {
+async function cancel(core: Tx, saga: AccountV1Provisioning, code: string): Promise<StepResult> {
   await compareAndSet(core, saga, ['REQUESTED', 'V1_ISSUE_PENDING', 'SENT', 'V1_ACTIVATED', 'PROVISIONING_RETRY'], {
     state: 'CANCELLED', lastErrorCode: code,
   });
@@ -115,8 +121,8 @@ async function cancel(core: PrismaClient, saga: AccountV1Provisioning, code: str
  * session bump: those are v1's), the saga reaches CORE_PROVISIONED, the audit
  * row is written. All or nothing.
  */
-async function provisionCore(core: PrismaClient, saga: AccountV1Provisioning, v1UserId: string, activatedAt: Date | null, at: Date): Promise<void> {
-  await core.$transaction(async (tx) => {
+async function provisionCore(core: Tx, saga: AccountV1Provisioning, v1UserId: string, activatedAt: Date | null, at: Date): Promise<void> {
+  const tx = core;
     await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${saga.userId} FOR UPDATE`;
     const user = await tx.user.findUnique({ where: { id: saga.userId } });
     if (!user) throw new CoreRowRefusal('CORE_ACCOUNT_NOT_FOUND');
@@ -135,12 +141,11 @@ async function provisionCore(core: PrismaClient, saga: AccountV1Provisioning, v1
       correlationId: `account-v1-provisioning:${saga.id}:${saga.generation}`,
       metadata: { via: 'V1', generation: saga.generation },
     });
-  }, { maxWait: 5_000, timeout: 20_000 });
 }
 
 async function advance(
-  core: PrismaClient, gateway: V1Gateway, payload: ProvisioningJobPayload,
-  options: { now: () => Date },
+  core: Tx, gateway: V1Gateway, payload: ProvisioningJobPayload,
+  options: { now: () => Date; holdIdentity(target: V1InvitationTarget): Promise<void> },
   tally: { issued: number },
 ): Promise<StepResult> {
   for (let step = 0; step < MAX_STEPS_PER_JOB; step += 1) {
@@ -149,12 +154,21 @@ async function advance(
     if (!saga || saga.generation !== payload.generation || TERMINAL_PROVISIONING_STATES.includes(saga.state)) {
       return { kind: 'DONE' };
     }
+    let binding: InvitationBinding;
+    try {
+      binding = await assertCurrentInvitationBinding(core, saga);
+      if (binding.v1IssuerVersion === null) throw new ForbiddenError('INVITATION_AUTHORITY_MISSING');
+    } catch (error) {
+      if (!(error instanceof ForbiddenError)) throw error;
+      await gateway.revoke({ coreUserId: saga.userId, generation: saga.generation });
+      return cancel(core, saga, 'INVITATION_AUTHORITY_CHANGED');
+    }
     const user = await core.user.findUnique({ where: { id: payload.userId } });
     if (!user) return cancel(core, saga, 'CORE_ACCOUNT_NOT_FOUND');
     if (user.accountStatus === 'DISABLED' || user.accountStatus === 'SUSPENDED') {
       return cancel(core, saga, 'CORE_ACCOUNT_NOT_ELIGIBLE');
     }
-    const target = targetOf(user, saga.generation);
+    const target = targetOf(user, saga.generation, binding);
     if (!target) return cancel(core, saga, 'CORE_ACCOUNT_NO_EMAIL');
     const at = options.now();
 
@@ -182,6 +196,7 @@ async function advance(
       }
 
       case 'SENT': {
+        await options.holdIdentity(target);
         const view = await gateway.inspect(target);
         if (view.state === 'ACTIVE') {
           await compareAndSet(core, saga, ['SENT'], { state: 'V1_ACTIVATED', v1UserId: view.v1UserId, lastErrorCode: null });
@@ -201,13 +216,16 @@ async function advance(
 
       case 'V1_ACTIVATED':
       case 'PROVISIONING_RETRY': {
+        await options.holdIdentity(target);
         const view = await gateway.inspect(target);
         if (view.state !== 'ACTIVE') {
           return cancel(core, saga, view.state === 'REFUSED' ? view.code : 'V1_ACCOUNT_NOT_ACTIVE');
         }
+        await core.$executeRaw`SAVEPOINT core_invitation_activation`;
         try {
           await provisionCore(core, saga, view.v1UserId, view.activatedAt, at);
         } catch (error) {
+          await core.$executeRaw`ROLLBACK TO SAVEPOINT core_invitation_activation`;
           if (error instanceof CoreRowRefusal) return cancel(core, saga, error.code);
           // A Core failure after v1 activation never cancels or alters the v1 account.
           await compareAndSet(core, saga, ['V1_ACTIVATED', 'PROVISIONING_RETRY'], {
@@ -244,7 +262,7 @@ export async function drainV1Provisioning(database: PrismaClient, options: V1Pro
 
   const claim = () => database.$transaction(async (tx) => {
     const selected = await tx.$queryRaw<CoreV2JobOutbox[]>(Prisma.sql`
-      SELECT * FROM core_v2_job_outbox
+      SELECT * FROM public.core_v2_job_outbox
       WHERE "jobType" = ${CoreV2JobType.ACCOUNT_V1_PROVISIONING}::"CoreV2JobType"
         AND "aggregateType" = ${V1_PROVISIONING_AGGREGATE_TYPE}
         AND "attemptCount" < ${MAX_ATTEMPTS}
@@ -253,53 +271,90 @@ export async function drainV1Provisioning(database: PrismaClient, options: V1Pro
       ORDER BY "availableAt", "createdAt", id
       FOR UPDATE SKIP LOCKED LIMIT 1
     `);
-    for (const job of selected) {
-      await tx.coreV2JobOutbox.update({ where: { id: job.id }, data: {
-        status: CoreV2JobStatus.LEASED, leaseOwner: owner, leaseExpiresAt: new Date(options.now().getTime() + LEASE_MS),
-      } });
-    }
-    return selected;
+    if (!selected[0]) return null;
+    // The process label is diagnostic only. Every claim gets a new fence.
+    return tx.coreV2JobOutbox.update({ where: { id: selected[0].id }, data: {
+      status: CoreV2JobStatus.LEASED, leaseOwner: randomUUID(),
+      leaseExpiresAt: new Date(options.now().getTime() + LEASE_MS), attemptCount: { increment: 1 },
+    } });
   });
 
   const tally = { issued: 0 };
   let claimed = 0; let completed = 0; let waiting = 0; let retried = 0; let leaseLost = 0; let failedFinal = exhausted.count;
   for (let index = 0; index < limit; index += 1) {
-    const jobs = await claim();
-    if (jobs.length === 0) break;
-    claimed += jobs.length;
-    const job = jobs[0];
-    const owned = { id: job.id, status: CoreV2JobStatus.LEASED, leaseOwner: owner, leaseExpiresAt: { gt: options.now() } };
+    const job = await claim();
+    if (!job) break;
+    claimed += 1;
+    let identity: V1IdentityLease | undefined;
+    const owned = () => ({ id: job.id, status: CoreV2JobStatus.LEASED,
+      leaseOwner: job.leaseOwner, leaseExpiresAt: { gt: options.now() } });
     try {
-      const payload = parseProvisioningJobPayload(job.payload, job.aggregateId);
-      const result: StepResult = payload.kind === 'REVOKE'
-        ? (await gateway.revoke({ coreUserId: payload.userId, generation: payload.generation }), { kind: 'DONE' })
-        : await advance(database, gateway, payload, { now: options.now }, tally);
-      const updated = await database.coreV2JobOutbox.updateMany({
-        where: owned,
-        data: result.kind === 'DONE'
-          ? { status: CoreV2JobStatus.COMPLETED, completedAt: options.now(), leaseOwner: null, leaseExpiresAt: null, lastError: null }
-          : { status: CoreV2JobStatus.RETRY_SCHEDULED, availableAt: new Date(options.now().getTime() + pollMs), leaseOwner: null, leaseExpiresAt: null, lastError: null },
-      });
-      if (!updated.count) leaseLost += 1;
-      else if (result.kind === 'DONE') completed += 1;
-      else waiting += 1;
-    } catch (error) {
-      const attempt = job.attemptCount + 1;
-      const terminal = attempt >= MAX_ATTEMPTS;
-      const result = await database.coreV2JobOutbox.updateMany({
-        where: owned,
-        data: {
-          status: terminal ? CoreV2JobStatus.FAILED_FINAL : CoreV2JobStatus.RETRY_SCHEDULED,
-          attemptCount: { increment: 1 },
-          availableAt: new Date(options.now().getTime() + Math.min(5_000 * 2 ** Math.min(attempt - 1, 6), 300_000)),
-          leaseOwner: null, leaseExpiresAt: null,
-          lastError: errorCode(error, 'ACCOUNT_V1_PROVISIONING_STEP_FAILED'),
-        },
-      });
-      if (!result.count) leaseLost += 1;
-      else if (terminal) failedFinal += 1;
+      const outcome = await database.$transaction(async tx => {
+        // Always authority lock FIRST; scope mutations acquire it before any row lock.
+        await lockInvitationAuthority(tx);
+        await tx.$queryRaw`SELECT id FROM public.core_v2_job_outbox WHERE id = ${job.id} FOR UPDATE`;
+        if (!(await tx.coreV2JobOutbox.findFirst({ where: owned(), select: { id: true } }))) return 'LOST';
+        const payload = parseProvisioningJobPayload(job.payload, job.aggregateId);
+        try {
+          const result: StepResult = payload.kind === 'REVOKE'
+            ? (await gateway.revoke({ coreUserId: payload.userId, generation: payload.generation }), { kind: 'DONE' })
+            : await advance(tx, gateway, payload, {
+              now: options.now,
+              async holdIdentity(target) {
+                if (identity) { await identity.verify(); return; }
+                identity = await acquireV1InvitationIdentity({ issuerId: target.authority!.issuerId,
+                  expectedIssuerVersion: target.authority!.issuerVersion, targetId: target.coreUserId,
+                  recipient: target.email, targetRole: target.role });
+              },
+            }, tally);
+          await identity?.verify();
+          const updated = await tx.coreV2JobOutbox.updateMany({ where: owned(), data: result.kind === 'DONE'
+            ? { status: CoreV2JobStatus.COMPLETED, completedAt: options.now(), leaseOwner: null, leaseExpiresAt: null, lastError: null }
+            : { status: CoreV2JobStatus.RETRY_SCHEDULED, availableAt: new Date(options.now().getTime() + pollMs),
+              attemptCount: 0, leaseOwner: null, leaseExpiresAt: null, lastError: null } });
+          if (!updated.count) throw new CoreRowRefusal('ACCOUNT_V1_PROVISIONING_LEASE_LOST');
+          return result.kind;
+        } catch (error) {
+          // Roll back every Core side effect on a lost authority connection.
+          // The outer, fenced failure handler schedules an infrastructure retry.
+          if (error instanceof V1InvitationAuthorityUnavailable) throw error;
+          if (error instanceof V1InvitationScopeRefusal) {
+            const saga = await tx.accountV1Provisioning.findUnique({ where: { userId: payload.userId } });
+            if (saga && saga.generation === payload.generation) await cancel(tx, saga, 'INVITATION_AUTHORITY_CHANGED');
+            const updated = await tx.coreV2JobOutbox.updateMany({ where: owned(), data: {
+              status: CoreV2JobStatus.COMPLETED, completedAt: options.now(), leaseOwner: null, leaseExpiresAt: null,
+              lastError: 'INVITATION_AUTHORITY_CHANGED' } });
+            if (!updated.count) throw new CoreRowRefusal('ACCOUNT_V1_PROVISIONING_LEASE_LOST');
+            return 'DONE';
+          }
+          const terminal = job.attemptCount >= MAX_ATTEMPTS;
+          const updated = await tx.coreV2JobOutbox.updateMany({ where: owned(), data: {
+            status: terminal ? CoreV2JobStatus.FAILED_FINAL : CoreV2JobStatus.RETRY_SCHEDULED,
+            availableAt: new Date(options.now().getTime() + Math.min(5_000 * 2 ** Math.min(job.attemptCount - 1, 6), 300_000)),
+            leaseOwner: null, leaseExpiresAt: null, lastError: errorCode(error, 'ACCOUNT_V1_PROVISIONING_STEP_FAILED'),
+          } });
+          if (!updated.count) throw new CoreRowRefusal('ACCOUNT_V1_PROVISIONING_LEASE_LOST');
+          return terminal ? 'FINAL' : 'RETRY';
+        }
+      }, { maxWait: 5_000, timeout: 20_000 });
+      if (outcome === 'LOST') leaseLost += 1;
+      else if (outcome === 'DONE') completed += 1;
+      else if (outcome === 'WAIT') waiting += 1;
+      else if (outcome === 'FINAL') failedFinal += 1;
       else retried += 1;
-    }
+    } catch (error) {
+      if (errorCode(error, '') === 'ACCOUNT_V1_PROVISIONING_LEASE_LOST') leaseLost += 1;
+      else {
+        const updated = await database.coreV2JobOutbox.updateMany({ where: owned(), data: {
+          status: job.attemptCount >= MAX_ATTEMPTS ? CoreV2JobStatus.FAILED_FINAL : CoreV2JobStatus.RETRY_SCHEDULED,
+          availableAt: new Date(options.now().getTime() + 5_000), leaseOwner: null, leaseExpiresAt: null,
+          lastError: errorCode(error, 'ACCOUNT_V1_PROVISIONING_TRANSACTION_FAILED'),
+        } });
+        if (!updated.count) leaseLost += 1;
+        else if (job.attemptCount >= MAX_ATTEMPTS) failedFinal += 1;
+        else retried += 1;
+      }
+    } finally { await identity?.release().catch(() => undefined); }
   }
   return Object.freeze({ claimed, completed, waiting, retried, leaseLost, failedFinal, issued: tally.issued });
 }

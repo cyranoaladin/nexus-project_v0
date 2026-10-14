@@ -12,8 +12,16 @@ import { CoreV2ConfigError } from '../config';
 import { CoreV2DomainError, type CoreV2ErrorCode } from '../errors';
 import { CoreV2CredentialAuthorityIsV1Error } from '../accounts/v1-authority';
 import { assertNoPrivateStoragePath } from './private-path-guard';
+import { AriaAuthorityRevokedError, AriaAuthorityUnavailableError } from '@/lib/aria/kernel/errors';
 
 export const CORRELATION_HEADER = 'x-correlation-id';
+
+/** Header-only wrapper: preserves the response body and status. */
+export function privateResponse(response: NextResponse): NextResponse {
+  response.headers.set('Cache-Control', 'private, no-store, max-age=0');
+  response.headers.set('Vary', 'Cookie');
+  return response;
+}
 
 const STATUS_BY_CODE: Readonly<Record<CoreV2ErrorCode, number>> = {
   VALIDATION: 400,
@@ -50,6 +58,8 @@ export function fail(
 
 /** Maps any thrown value to a response. Unknown errors are 500 with the correlation id and NO internal detail. */
 export function failFromError(error: unknown, correlationId: string): NextResponse {
+  if (error instanceof AriaAuthorityRevokedError) return privateResponse(fail(correlationId, 403, 'FORBIDDEN', 'Accès ARIA refusé.'));
+  if (error instanceof AriaAuthorityUnavailableError) return privateResponse(fail(correlationId, 503, 'CORE_V2_UNAVAILABLE', 'La vérification ARIA est momentanément indisponible.'));
   if (error instanceof CoreV2DomainError) {
     return fail(correlationId, STATUS_BY_CODE[error.code], error.code, error.message, error.details);
   }

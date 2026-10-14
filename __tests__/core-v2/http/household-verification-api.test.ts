@@ -26,18 +26,18 @@ test('ADMIN verifies and revokes through native API with revision conflicts and 
   expect((await revoke(request({ expectedRevision: 1 }), params)).status).toBe(200);
   const membership = await h.client.householdParent.findUniqueOrThrow({ where: { userId: h.parentActor.userId } });
   expect(membership).toMatchObject({ verificationStatus: 'REVOKED', revision: 2, isPrimaryContact: false });
-  expect(await h.client.auditEvent.count()).toBe(2);
+  expect(await h.client.auditEvent.count()).toBe(3);
 });
 test('a parent cannot gain staff authority by forging the session role', async () => {
   const { params } = await fixture();signIn(h.parentActor.userId);
   expect((await verify(request({ expectedRevision: 0, evidenceDigest: 'a'.repeat(64) }), params)).status).toBe(403);
   expect((await revoke(request({ expectedRevision: 0 }), params)).status).toBe(403);
-  expect(await h.client.auditEvent.count()).toBe(0);
+  expect(await h.client.auditEvent.count()).toBe(1);
 });
 test('invalid evidence or an unauthenticated request cannot mutate membership', async () => {
   const { params } = await fixture();signIn(h.admin.userId);
   expect((await verify(request({ expectedRevision: 0, evidenceDigest: 'not-a-proof' }), params)).status).toBe(400);
   mockAuth.mockResolvedValue(null);
   expect((await verify(request({ expectedRevision: 0, evidenceDigest: 'a'.repeat(64) }), params)).status).toBe(401);
-  expect(await h.client.auditEvent.count()).toBe(0);
+  expect(await h.client.auditEvent.count()).toBe(1);
 });

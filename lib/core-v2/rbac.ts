@@ -30,14 +30,17 @@ export const CAPABILITIES = [
   'ENROLLMENT_CREATE',
   'ENROLLMENT_APPROVE',
   'ENROLLMENT_WITHDRAW',
+  'ACADEMIC_YEAR_MANAGE',
   'COURSE_MANAGE',
   'COACH_CAPABILITY_MANAGE',
   'COACH_ASSIGN',
   'PLANNING_MANAGE',
   'ACCOUNT_INVITE',
+  'INVITATION_SCOPE_MANAGE',
   'ACCOUNT_SUSPEND',
   'ACCOUNT_REACTIVATE',
   'STAFF_ACCOUNT_CREATE',
+  'ADMIN_PROMOTE',
   'AUDIT_READ',
   'DIAGNOSTIC_CATALOG_READ',
   'DIAGNOSTIC_ASSIGN',
@@ -61,11 +64,14 @@ export interface Actor {
  * drifts the next time a capability is added.
  */
 export const ADMIN_ONLY_CAPABILITIES: readonly Capability[] = [
+  'ADMIN_PROMOTE',
+  'INVITATION_SCOPE_MANAGE',
+  'ACADEMIC_YEAR_MANAGE',
   'ACCOUNT_SUSPEND',
   'ACCOUNT_REACTIVATE',
   // Creating a colleague is a different act from inviting one: it decides who
-  // exists at all in the back office. An ASSISTANTE may invite an account
-  // someone else created; she may not bring a new staff member into being.
+  // exists at all in the back office. Staff invitations are ADMIN-only;
+  // ASSISTANTE invitations concern explicitly assigned families only.
   'STAFF_ACCOUNT_CREATE',
   'AUDIT_READ',
   // The deposited file is the candidate's academic answer content. ASSISTANTE
@@ -161,6 +167,14 @@ export function subjectHasRole(subject: { readonly role: UserRole }, expected: U
   return subject.role === expected;
 }
 
+export function subjectMatchesActorRole(subject: { readonly role: UserRole }, actor: Actor): boolean {
+  return subject.role === actor.role;
+}
+
+export function isAdminPromotionRoleProof(role: unknown, fromRole: unknown): boolean {
+  return role === 'ADMIN' && (fromRole === 'ASSISTANTE' || fromRole === 'COACH');
+}
+
 export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return CAPABILITIES.filter((c) => roleHasCapability(role, c));
 }
@@ -190,6 +204,11 @@ export function assertCapability(actor: Actor, capability: Capability): void {
  */
 export const STAFF_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
+export const SYNC_STAFF_ROLES = ['ASSISTANTE', 'COACH'] as const;
+export type SyncStaffRole = (typeof SYNC_STAFF_ROLES)[number];
+export function isSyncStaffRole(role: string): role is SyncStaffRole {
+  return (SYNC_STAFF_ROLES as readonly string[]).includes(role);
+}
 
 /**
  * Garde des points d'entree back-office. Le refus ne revele ni le role de

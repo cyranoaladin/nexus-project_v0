@@ -41,6 +41,7 @@ import * as accountSuspend from '@/app/api/v2/staff/accounts/[id]/suspend/route'
 import * as duplicates from '@/app/api/v2/staff/duplicates/route';
 import * as audit from '@/app/api/v2/staff/audit/route';
 import * as activate from '@/app/api/v2/auth/activate/route';
+import { verifyHouseholdParent } from '@/lib/core-v2/services/household-verification';
 
 // The public activation route is rate-limited; the Core v2 Jest project does
 // not load jest.setup.js, so provide the in-memory backend explicitly (TEST_FIXTURE).
@@ -239,6 +240,8 @@ describe('golden staff workflow through the HTTP surface', () => {
     expect(JSON.stringify(detail.body)).not.toMatch(/"password"/);
 
     // Invitation: durable encrypted intent, token absent from the API response.
+    await verifyHouseholdParent(h.client, h.ctx(), { householdId, parentUserId: parentId,
+      expectedRevision: 0, evidenceDigest: 'b'.repeat(64) });
     const invited = await json(await accountInvite.POST(req('POST', '/x'), params(parentId)));
     expect(invited.status).toBe(201);
     expect(JSON.stringify(invited.body)).not.toMatch(/rawToken|tokenHash/);

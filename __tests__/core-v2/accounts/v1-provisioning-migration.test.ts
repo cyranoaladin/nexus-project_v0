@@ -126,7 +126,7 @@ describe('after 0026', () => {
     expect((await db.query(`SELECT convalidated FROM pg_constraint WHERE conname = 'core_v2_job_outbox_payload_check'`)).rows[0].convalidated).toBe(true);
   });
 
-  test('the startup schema assertion refuses a database that lacks the migration record and accepts the proven one', async () => {
+  test('startup refuses 0026 alone and accepts only the complete authoritative migration protections', async () => {
     await db.query(`CREATE TABLE IF NOT EXISTS "_prisma_migrations" (migration_name text, checksum text, finished_at timestamptz, rolled_back_at timestamptz)`);
     const client = { $queryRaw: async (strings: TemplateStringsArray, ...values: unknown[]) => {
       const text = strings.reduce((acc, part, index) => `${acc}${part}${index < values.length ? `$${index + 1}` : ''}`, '');
@@ -135,7 +135,25 @@ describe('after 0026', () => {
     await expect(assertAccountV1ProvisioningSchema(client as never)).rejects.toThrow('ACCOUNT_V1_PROVISIONING_SCHEMA_UNAVAILABLE');
     const checksum = createHash('sha256').update(sqlOf(V1_PROVISIONING_MIGRATION)).digest('hex');
     await db.query(`INSERT INTO "_prisma_migrations" VALUES ($1, $2, now(), NULL)`, [V1_PROVISIONING_MIGRATION, checksum]);
-    await expect(assertAccountV1ProvisioningSchema(client as never)).resolves.toBeUndefined();
+    await expect(assertAccountV1ProvisioningSchema(client as never)).rejects.toThrow('ACCOUNT_V1_PROVISIONING_SCHEMA_UNAVAILABLE');
+    const complete = await registry!.create('d2_authority_startup');
+    const startupDb = new Client({ connectionString: complete.url });
+    await startupDb.connect();
+    try {
+      await startupDb.query(`CREATE TABLE "_prisma_migrations" (migration_name text, checksum text, finished_at timestamptz, rolled_back_at timestamptz)`);
+      for (const name of migrationNames()) {
+        const sql = sqlOf(name);
+        await startupDb.query(sql);
+        await startupDb.query(`INSERT INTO "_prisma_migrations" VALUES ($1, $2, now(), NULL)`, [name, createHash('sha256').update(sql).digest('hex')]);
+      }
+      const completeClient = { $queryRaw: async (strings: TemplateStringsArray, ...values: unknown[]) => {
+        const text = strings.reduce((acc, part, index) => `${acc}${part}${index < values.length ? `$${index + 1}` : ''}`, '');
+        return (await startupDb.query(text, values as string[])).rows;
+      } };
+      await expect(assertAccountV1ProvisioningSchema(completeClient as never)).resolves.toBeUndefined();
+      await startupDb.query(`UPDATE "_prisma_migrations" SET checksum = 'tampered' WHERE migration_name = $1`, [V1_PROVISIONING_MIGRATION]);
+      await expect(assertAccountV1ProvisioningSchema(completeClient as never)).rejects.toThrow('ACCOUNT_V1_PROVISIONING_SCHEMA_UNAVAILABLE');
+    } finally { await startupDb.end(); }
     await db.query(`UPDATE "_prisma_migrations" SET checksum = 'tampered'`);
     await expect(assertAccountV1ProvisioningSchema(client as never)).rejects.toThrow('ACCOUNT_V1_PROVISIONING_SCHEMA_UNAVAILABLE');
   });

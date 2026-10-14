@@ -8,6 +8,7 @@
  */
 import type { PrismaClient as V1Client } from '@prisma/client';
 import type { ApprovalFile } from './approval';
+import { credentialAuthorityIsV1 } from '@/lib/core-v2/accounts/v1-authority';
 
 export interface SourceUser {
   readonly id: string;
@@ -78,38 +79,38 @@ const byId = <T extends { id: string }>(a: T, b: T) => (a.id < b.id ? -1 : a.id 
 function toSourceUser(u: {
   id: string;
   email: string | null;
-  password: string | null;
+  password?: string | null;
   role: SourceUser['role'];
   firstName: string | null;
   lastName: string | null;
   phone: string | null;
   activatedAt: Date | null;
-  sessionVersion: number;
+  sessionVersion?: number;
   mergedIntoUserId: string | null;
 }): SourceUser {
   return {
     id: u.id,
     email: u.email,
-    password: u.password,
+    password: credentialAuthorityIsV1() ? null : u.password ?? null,
     role: u.role,
     firstName: u.firstName,
     lastName: u.lastName,
     phone: u.phone,
     activatedAt: u.activatedAt,
-    sessionVersion: u.sessionVersion,
+    sessionVersion: credentialAuthorityIsV1() ? 0 : u.sessionVersion ?? 0,
     mergedIntoUserId: u.mergedIntoUserId,
   };
 }
 
-const userSelect = {
-  id: true, email: true, password: true, role: true, firstName: true, lastName: true, phone: true, activatedAt: true, sessionVersion: true, mergedIntoUserId: true,
-} as const;
+function userSelect() { return {
+  id: true, email: true, password: !credentialAuthorityIsV1(), role: true, firstName: true, lastName: true, phone: true, activatedAt: true, sessionVersion: !credentialAuthorityIsV1(), mergedIntoUserId: true,
+} as const; }
 
 export async function readSourceSnapshot(v1: V1Client, approval: ApprovalFile): Promise<SourceSnapshot> {
   const approvedIds = [...approval.approvedStudentIds].sort();
   return v1.$transaction(async (tx) => {
     // The database enforces read-only for the whole snapshot.
-    await tx.$executeRawUnsafe('SET TRANSACTION READ ONLY');
+    await tx.$executeRawUnsafe('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY');
     await tx.$executeRawUnsafe("SET LOCAL statement_timeout = '120s'");
 
     const lastMigration = await tx.$queryRawUnsafe<Array<{ migration_name: string }>>(
@@ -120,8 +121,8 @@ export async function readSourceSnapshot(v1: V1Client, approval: ApprovalFile): 
       where: { id: { in: approvedIds } },
       orderBy: { id: 'asc' },
       include: {
-        user: { select: userSelect },
-        parent: { include: { user: { select: userSelect } } },
+        user: { select: userSelect() },
+        parent: { include: { user: { select: userSelect() } } },
         academicEnrollments: { orderBy: { id: 'asc' }, select: { id: true, courseKey: true, kind: true, source: true } },
       },
     });
@@ -131,7 +132,7 @@ export async function readSourceSnapshot(v1: V1Client, approval: ApprovalFile): 
     const assignments = await tx.coachStudentAssignment.findMany({
       where: { studentId: { in: studentIds }, status: 'ACTIVE' },
       orderBy: { id: 'asc' },
-      include: { coach: { include: { user: { select: userSelect } } } },
+      include: { coach: { include: { user: { select: userSelect() } } } },
     });
 
     const series = await tx.planningSeries.findMany({

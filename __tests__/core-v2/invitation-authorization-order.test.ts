@@ -96,8 +96,10 @@ jest.mock('@/lib/core-v2/accounts/invitation-runtime', () => ({
 }));
 
 jest.mock('@/lib/core-v2/services', () => ({
-  requestAccountInvitation: async () => {
+  requestAccountInvitation: async (_client: unknown, _ctx: unknown, _target: unknown, options: { onAuthorized: () => void }) => {
     calls.push('inviteAccount');
+    calls.push('assertInvitationScope');
+    await options.onAuthorized();
     return {
       invitation: { id: 'inv-1', expiresAt: new Date('2026-12-31T00:00:00.000Z') },
       rawToken: 'never-returned-to-the-client',
@@ -105,8 +107,10 @@ jest.mock('@/lib/core-v2/services', () => ({
       handoffId: 'handoff-1',
     };
   },
-  requestAccountInvitationResend: async () => {
+  requestAccountInvitationResend: async (_client: unknown, _ctx: unknown, _target: unknown, options: { onAuthorized: () => void }) => {
     calls.push('resendInvitation');
+    calls.push('assertInvitationScope');
+    await options.onAuthorized();
     return {
       invitation: { id: 'inv-2', expiresAt: new Date('2026-12-31T00:00:00.000Z') },
       rawToken: 'never-returned-to-the-client',
@@ -175,6 +179,7 @@ describe("contrat d'autorisation des routes d'invitation sous V1_ONLY", () => {
     const delivery = calls.indexOf('assertDeliveryConfiguration');
     expect(actor).toBeGreaterThanOrEqual(0);
     expect(delivery).toBeGreaterThan(actor);
+    expect(delivery).toBeGreaterThan(calls.indexOf('assertInvitationScope'));
   });
 
   test("un acteur inactif reçoit 403, pas 503", async () => {

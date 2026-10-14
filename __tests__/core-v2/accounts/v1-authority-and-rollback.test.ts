@@ -26,6 +26,7 @@ import { assertAccountInvitationRuntimeConfiguration } from '@/lib/core-v2/accou
 import { POST as inviteRoute } from '@/app/api/v2/staff/accounts/[id]/invite/route';
 import { POST as resendRoute } from '@/app/api/v2/staff/accounts/[id]/resend-invitation/route';
 import { POST as coreActivateRoute } from '@/app/api/v2/auth/activate/route';
+import { ariaHttpCookie } from '../helpers/aria-http-cookie';
 import { activationLink, newPassword, setupV1Fixture } from '../helpers/v1-provisioning-fixture';
 
 const f = setupV1Fixture();
@@ -91,7 +92,9 @@ describe('Core v2 never receives a credential under V1_ONLY', () => {
 describe('the staff API under V1_ONLY', () => {
   test('invite and resend queue the saga; no proof reaches the client', async () => {
     const core = await f.coreUser('COACH', 'api-invite');
-    const invited = await inviteRoute(post('/x'), { params: Promise.resolve({ id: core.id }) });
+    // L'invitation exige une vraie session V1 signée (readBoundPrivateV1Session), pas seulement auth() simulé.
+    const session = await ariaHttpCookie(h.admin.userId);
+    const invited = await inviteRoute(post('/x', undefined, session), { params: Promise.resolve({ id: core.id }) });
     expect(invited.status).toBe(201);
     const body = await invited.text();
     expect(body).not.toMatch(/token|password|hash/i);
@@ -99,10 +102,10 @@ describe('the staff API under V1_ONLY', () => {
     expect(kickAccountEmailHandoffDrain).toHaveBeenCalledTimes(1);
     expect(await h.client.invitation.count()).toBe(0);
 
-    const again = await inviteRoute(post('/x'), { params: Promise.resolve({ id: core.id }) });
+    const again = await inviteRoute(post('/x', undefined, session), { params: Promise.resolve({ id: core.id }) });
     expect(again.status).toBeGreaterThanOrEqual(400); // already in flight: use resend
 
-    const resent = await resendRoute(post('/x', undefined, { 'idempotency-key': '00000000-0000-4000-8000-000000000001' }), { params: Promise.resolve({ id: core.id }) });
+    const resent = await resendRoute(post('/x', undefined, { ...session, 'idempotency-key': '00000000-0000-4000-8000-000000000001' }), { params: Promise.resolve({ id: core.id }) });
     expect(resent.status).toBe(201);
     expect((await f.saga(core.id)).generation).toBe(2);
   });

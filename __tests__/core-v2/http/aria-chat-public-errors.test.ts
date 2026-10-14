@@ -12,6 +12,13 @@ jest.mock('@/lib/core-v2/aria/conversation-context', () => ({
 jest.mock('@/lib/aria/application/conversation/execute', () => ({
   makeCanonicalAriaConversationExecutor: jest.fn(),
 }));
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn(async () => ({ userId: 'student-user-1', role: 'ELEVE', sessionVersion: 0, expiresAt: Date.now() + 60_000 })) }));
+jest.mock('@/lib/core-v2/aria/conversation-authority', () => ({
+  authorizeCoreV2AriaConversation: async (client: unknown, _claims: unknown, ctx: unknown, input: unknown) => ({
+    context: await jest.requireMock('@/lib/core-v2/aria/conversation-context').buildCoreV2AriaConversationContext(client, ctx, input),
+    repository: { withAuthority: async (operation: () => unknown) => operation() },
+  }),
+}));
 
 import { auth } from '@/auth';
 import { POST } from '@/app/api/v2/aria/chat/route';

@@ -12,6 +12,7 @@ import { qualifyCoreV2AriaCurriculum } from '@/lib/core-v2/aria/course-support';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import { withCoreV2AriaResponse } from '@/lib/core-v2/http/aria-authority';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { loadCoreV2AriaStudentContext } from '@/lib/core-v2/aria/student-context';
 import {
@@ -47,93 +48,95 @@ function buildSetup(
 }
 
 export const GET = defineStaffRoute({
-  handler: async ({ client, ctx }) => {
-    const student = await loadCoreV2AriaStudentContext(client, ctx);
-    const academicContext = {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      specialties: student.specialties,
-      stmgPathway: student.stmgPathway,
-      academicEnrollments: student.academicEnrollments,
-    };
-    const [profile, entitlements, activeTurn, latestConversation] = await Promise.all([
-      getCoreV2AriaCockpitProfile(client, student.studentId, academicContext),
-      resolveCoreV2AriaEntitlements(client, student.studentId),
-      client.ariaConversationTurnCoreV2.findFirst({
-        where: { subjectStudentId: student.studentId, status: { in: ['PENDING', 'RUNNING'] } },
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-        select: { conversation: { select: { courseKey: true } } },
-      }),
-      client.ariaConversationCoreV2.findFirst({
-        where: { studentId: student.studentId },
-        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-        select: { courseKey: true },
-      }),
-    ]);
-
-    const curriculum = qualifyCoreV2AriaCurriculum(resolveAriaCurriculum({
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      specialties: student.specialties,
-      hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
-      stmgPathway: student.stmgPathway,
-      school: student.school,
-      pinnedCourseKeys: profile.pinnedCourseKeys,
-      enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext),
-      access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey },
-    }));
-
-    const setup = buildSetup(
-      profile.onboardingCompletedAt,
-      curriculum.academicProfile.incomplete,
-      curriculum.academicProfile.missingFields,
-      curriculum.pinnedCourseKeys.length,
-    );
-    const historyAvailable = entitlements.capabilities.chat && curriculum.courses.some((view) => (
-      view.access.academicallyRelevant
-      && view.access.commerciallyEntitled
-      && view.course.capabilities.chat
-    ));
-    const chatAvailable = isCoreV2AriaConversationEnabled() && historyAvailable;
-
-    const cockpit: AriaCockpitDTO = {
-      student: {
-        firstName: student.firstName,
-        lastName: student.lastName,
+  handler: async ({ client, ctx, request, session }) => {
+    return withCoreV2AriaResponse({ client, ctx, request, session }, async (client, ctx) => {
+      const student = await loadCoreV2AriaStudentContext(client, ctx);
+      const academicContext = {
         gradeLevel: student.gradeLevel,
         academicTrack: student.academicTrack,
-      },
-      setup,
-      profile,
-      curriculum,
-      // No Core v2 source yet for the roadmap/"today" feed (legacy trajectory-derived) — honest empty, not fabricated.
-      today: { items: [], weeklyGoalMinutes: profile.weeklyGoalMinutes, plannedMinutes: null },
-      trajectory: null,
-      resources: [],
-      assessments: [],
-      aria: { totalConversations: 0, messagesToday: 0, canUseAriaMaths: false, canUseAriaNsi: false },
-      nextSession: null,
-      examContext: buildAriaExamContext(profile.targetSession),
-      capabilities: {
-        chat: chatAvailable,
-        courseWorkspace: false,
-        trajectory: false,
-        assessments: false,
-        resources: false,
-        nextSession: false,
-        conversationHistory: historyAvailable,
-      },
-      skillGraphs: curriculum.courses
-        .filter((view) => view.course.hasSkillGraph)
-        .map((view) => getCockpitSkillGraph(view.course.key))
-        .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
-    };
+        specialties: student.specialties,
+        stmgPathway: student.stmgPathway,
+        academicEnrollments: student.academicEnrollments,
+      };
+      const [profile, entitlements, activeTurn, latestConversation] = await Promise.all([
+        getCoreV2AriaCockpitProfile(client, student.studentId, academicContext),
+        resolveCoreV2AriaEntitlements(client, student.studentId),
+        client.ariaConversationTurnCoreV2.findFirst({
+          where: { subjectStudentId: student.studentId, status: { in: ['PENDING', 'RUNNING'] } },
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+          select: { conversation: { select: { courseKey: true } } },
+        }),
+        client.ariaConversationCoreV2.findFirst({
+          where: { studentId: student.studentId },
+          orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+          select: { courseKey: true },
+        }),
+      ]);
 
-    return {
-      data: {
-        ...cockpit,
-        activeConversationCourseKey: activeTurn?.conversation.courseKey ?? latestConversation?.courseKey ?? null,
-      },
-    };
+      const curriculum = qualifyCoreV2AriaCurriculum(resolveAriaCurriculum({
+        gradeLevel: student.gradeLevel,
+        academicTrack: student.academicTrack,
+        specialties: student.specialties,
+        hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
+        stmgPathway: student.stmgPathway,
+        school: student.school,
+        pinnedCourseKeys: profile.pinnedCourseKeys,
+        enrollmentBackedCourseKeys: listCoreV2AcademicallyRelevantCourseKeys(academicContext),
+        access: { kind: 'CANONICAL_BY_FEATURE', contexts: entitlements.byFeatureKey },
+      }));
+
+      const setup = buildSetup(
+        profile.onboardingCompletedAt,
+        curriculum.academicProfile.incomplete,
+        curriculum.academicProfile.missingFields,
+        curriculum.pinnedCourseKeys.length,
+      );
+      const historyAvailable = entitlements.capabilities.chat && curriculum.courses.some((view) => (
+        view.access.academicallyRelevant
+        && view.access.commerciallyEntitled
+        && view.course.capabilities.chat
+      ));
+      const chatAvailable = isCoreV2AriaConversationEnabled() && historyAvailable;
+
+      const cockpit: AriaCockpitDTO = {
+        student: {
+          firstName: student.firstName,
+          lastName: student.lastName,
+          gradeLevel: student.gradeLevel,
+          academicTrack: student.academicTrack,
+        },
+        setup,
+        profile,
+        curriculum,
+        // No Core v2 source yet for the roadmap/"today" feed (legacy trajectory-derived) — honest empty, not fabricated.
+        today: { items: [], weeklyGoalMinutes: profile.weeklyGoalMinutes, plannedMinutes: null },
+        trajectory: null,
+        resources: [],
+        assessments: [],
+        aria: { totalConversations: 0, messagesToday: 0, canUseAriaMaths: false, canUseAriaNsi: false },
+        nextSession: null,
+        examContext: buildAriaExamContext(profile.targetSession),
+        capabilities: {
+          chat: chatAvailable,
+          courseWorkspace: false,
+          trajectory: false,
+          assessments: false,
+          resources: false,
+          nextSession: false,
+          conversationHistory: historyAvailable,
+        },
+        skillGraphs: curriculum.courses
+          .filter((view) => view.course.hasSkillGraph)
+          .map((view) => getCockpitSkillGraph(view.course.key))
+          .filter((graph): graph is NonNullable<typeof graph> => graph !== null),
+      };
+
+      return {
+        data: {
+          ...cockpit,
+          activeConversationCourseKey: activeTurn?.conversation.courseKey ?? latestConversation?.courseKey ?? null,
+        },
+      };
+    });
   },
 });

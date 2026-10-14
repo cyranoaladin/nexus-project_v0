@@ -30,7 +30,7 @@ describe('audit_events is append-only', () => {
 
     const after = await client.auditEvent.findUniqueOrThrow({ where: { id: row.id } });
     expect(after).toEqual(row);
-    expect(await client.auditEvent.count()).toBe(1);
+    expect(await client.auditEvent.count()).toBe(2);
   });
 
   test('the actor column is not a foreign key: an audit row outlives its actor account', async () => {

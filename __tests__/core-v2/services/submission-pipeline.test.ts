@@ -4,7 +4,8 @@
  * submission" — not merely that the write call used O_CREAT|O_EXCL.
  */
 import { createHash, randomUUID } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { CoreV2DomainError } from '@/lib/core-v2/errors';
@@ -14,7 +15,7 @@ import { holdOpenTransaction, race, setupServiceHarness, waitForLockWaiter } fro
 
 jest.mock('@/lib/core-v2/diagnostics/virus-scan', () => {
   const actual = jest.requireActual('@/lib/core-v2/diagnostics/virus-scan');
-  return { scanDiagnosticSubmissionFile: jest.fn(actual.scanDiagnosticSubmissionFile) };
+  return { ...actual, scanDiagnosticSubmissionBytes: jest.fn(actual.scanDiagnosticSubmissionBytes) };
 });
 jest.mock('@/lib/core-v2/diagnostics/storage', () => {
   const actual = jest.requireActual('@/lib/core-v2/diagnostics/storage');
@@ -29,25 +30,36 @@ import { attributeDiagnostic, createOwnDiagnosticSubmission } from '@/lib/core-v
 import { depositOwnDiagnosticSubmission } from '@/lib/core-v2/diagnostics/submission-pipeline';
 import {
   diagnosticsStorageRoot,
-  readDiagnosticStorageFile,
   verifyStagedFile,
   writeDiagnosticStorageFile,
 } from '@/lib/core-v2/diagnostics/storage';
-import { scanDiagnosticSubmissionFile } from '@/lib/core-v2/diagnostics/virus-scan';
+import { scanDiagnosticSubmissionBytes } from '@/lib/core-v2/diagnostics/virus-scan';
 import { createHousehold, createStudent } from '@/lib/core-v2/services';
 
 const h = setupServiceHarness();
 const mockedVerify = verifyStagedFile as jest.MockedFunction<typeof verifyStagedFile>;
-const mockedScan = scanDiagnosticSubmissionFile as jest.MockedFunction<typeof scanDiagnosticSubmissionFile>;
+const mockedScan = scanDiagnosticSubmissionBytes as jest.MockedFunction<typeof scanDiagnosticSubmissionBytes>;
 const mockedCreate = createOwnDiagnosticSubmission as jest.MockedFunction<typeof createOwnDiagnosticSubmission>;
 
-beforeEach(() => {
+const originalRoot = process.env.DOCUMENT_STORAGE_ROOT;
+let privateRoot: string;
+beforeEach(async () => {
+  privateRoot = await mkdtemp(resolve(tmpdir(), 'nexus-pipeline-'));
+  process.env.DOCUMENT_STORAGE_ROOT = privateRoot;
   process.env.DIAGNOSTIC_DEMO_MODE = '1';
   process.env.DIAGNOSTIC_DEMO_STUDENT_IDS = '';
   mockedVerify.mockClear();
   mockedScan.mockClear();
   mockedCreate.mockClear();
 });
+afterEach(async () => {
+  await rm(privateRoot, { recursive: true, force: true });
+  if (originalRoot === undefined) delete process.env.DOCUMENT_STORAGE_ROOT;
+  else process.env.DOCUMENT_STORAGE_ROOT = originalRoot;
+});
+async function persistedFiles() {
+  return (await readdir(privateRoot, { recursive: true, withFileTypes: true })).filter(entry => entry.isFile());
+}
 
 function allowDemoFixtureFor(...studentIds: string[]) {
   const existing = (process.env.DIAGNOSTIC_DEMO_STUDENT_IDS ?? '').split(',').filter(Boolean);
@@ -126,9 +138,10 @@ describe('verifyStagedFile', () => {
 });
 
 describe('depositOwnDiagnosticSubmission — write-verification failure', () => {
-  test('quarantines the file, records a REJECTED audit row, and never flips the assignment to SUBMITTED', async () => {
+  test('removes the failed encrypted write, creates no submission or audit, and never flips the assignment', async () => {
     const ctx = h.ctx();
     const { user, assignment } = await seedAssignment(h.client, ctx, 'VERIFYFAIL');
+    const auditBefore = await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } });
 
     mockedVerify.mockResolvedValueOnce({ ok: false, actualSizeBytes: 0, actualSha256: '' });
 
@@ -142,23 +155,21 @@ describe('depositOwnDiagnosticSubmission — write-verification failure', () => 
     ).rejects.toMatchObject({ code: 'INVALID_STATE' });
 
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
-    expect(rows).toHaveLength(1);
-    expect(rows[0].status).toBe('REJECTED');
-    expect(rows[0].storageKey).toMatch(/^_quarantine\//);
+    expect(rows).toHaveLength(0);
+    expect(await persistedFiles()).toEqual([]);
+    expect(await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } })).toEqual(auditBefore);
 
     const reread = await h.client.diagnosticAssignment.findUniqueOrThrow({ where: { id: assignment.id } });
     expect(reread.status).toBe('ASSIGNED');
 
-    // The evidence is preserved, not deleted.
-    const quarantined = await readDiagnosticStorageFile(rows[0].storageKey);
-    quarantined.handle.close();
   });
 });
 
 describe('depositOwnDiagnosticSubmission — antivirus rejection', () => {
-  test('malware detected: quarantines the file, records a REJECTED row, never marks the assignment SUBMITTED', async () => {
+  test('malware detected: no persistence, submission or audit, assignment unchanged', async () => {
     const ctx = h.ctx();
     const { user, assignment } = await seedAssignment(h.client, ctx, 'AVREJECT');
+    const auditBefore = await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } });
 
     mockedScan.mockRejectedValueOnce(new Error('MALWARE_DETECTED'));
 
@@ -172,9 +183,9 @@ describe('depositOwnDiagnosticSubmission — antivirus rejection', () => {
     ).rejects.toMatchObject({ code: 'INVALID_STATE' });
 
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
-    expect(rows).toHaveLength(1);
-    expect(rows[0].status).toBe('REJECTED');
-    expect(rows[0].reviewNote).toMatch(/MALWARE_DETECTED/);
+    expect(rows).toHaveLength(0);
+    expect(await persistedFiles()).toEqual([]);
+    expect(await h.client.auditEvent.findMany({ orderBy: { id: 'asc' } })).toEqual(auditBefore);
 
     const reread = await h.client.diagnosticAssignment.findUniqueOrThrow({ where: { id: assignment.id } });
     expect(reread.status).toBe('ASSIGNED');
@@ -196,13 +207,14 @@ describe('depositOwnDiagnosticSubmission — antivirus rejection', () => {
     ).rejects.toMatchObject({ code: 'INVALID_STATE' });
 
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
-    expect(rows).toHaveLength(1);
-    expect(rows[0].status).toBe('REJECTED');
+    expect(rows).toHaveLength(0);
+    expect(await persistedFiles()).toEqual([]);
+    expect((await h.client.diagnosticAssignment.findUniqueOrThrow({ where: { id: assignment.id } })).status).toBe('ASSIGNED');
   });
 });
 
 describe('depositOwnDiagnosticSubmission — DB failure after the file is already finalized', () => {
-  test('the finalized file is quarantined, never left as a dangling orphan and never deleted, when the DB row cannot be created', async () => {
+  test('the finalized encrypted file is removed when the database confirms that no row was committed', async () => {
     const ctx = h.ctx();
     const { user, assignment } = await seedAssignment(h.client, ctx, 'DBFAIL');
 
@@ -221,10 +233,7 @@ describe('depositOwnDiagnosticSubmission — DB failure after the file is alread
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
     expect(rows).toHaveLength(0);
 
-    // The file was moved to quarantine, not deleted — locate it there.
-    const fs = await import('node:fs/promises');
-    const entries = await fs.readdir(resolve(diagnosticsStorageRoot(), '_quarantine'));
-    expect(entries.length).toBeGreaterThan(0);
+    expect(await persistedFiles()).toEqual([]);
   });
 });
 
@@ -413,5 +422,6 @@ describe('depositOwnDiagnosticSubmission — two ordinary concurrent deposits', 
     const rows = await h.client.diagnosticSubmission.findMany({ where: { assignmentId: assignment.id } });
     expect(rows).toHaveLength(fulfilled.length);
     expect(rows.every((r) => r.status === 'RECEIVED')).toBe(true);
+    expect(await persistedFiles()).toHaveLength(fulfilled.length);
   });
 });

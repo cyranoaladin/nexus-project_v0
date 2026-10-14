@@ -8,7 +8,7 @@
  * Ce test couvre l'éligibilité et l'empreinte du manifeste sans base : ce sont
  * des décisions pures, et elles doivent rester vraies indépendamment du schéma.
  */
-import { createHash } from 'node:crypto';
+import { fingerprintOfBootstrapManifest, parseBootstrapManifest } from '@/lib/core-v2/accounts/bootstrap-manifest';
 import { assertEligibleV1Admin, type V1AdminSnapshot } from '@/lib/core-v2/accounts/bootstrap-v1-admin';
 import { InvalidStateError, NotFoundError, ValidationError } from '@/lib/core-v2/errors';
 
@@ -66,30 +66,35 @@ describe('éligibilité de l’identité V1', () => {
 });
 
 describe('empreinte du manifeste', () => {
-  /** Reproduit le calcul de la commande : tout le manifeste SAUF l'empreinte. */
-  function fingerprintOf(manifest: Record<string, unknown>): string {
-    const { fingerprint: _ignored, ...rest } = manifest;
-    return createHash('sha256').update(JSON.stringify(rest, Object.keys(rest).sort())).digest('hex');
-  }
-
   const base = {
     finalSha: 'a'.repeat(40),
-    databaseIdentity: 'nexus-core-v2',
+    databaseIdentity: '68f7f918-36ec-4261-a5e4-4c1f986164c7',
     migrationHead: '0027_core_v2_job_outbox_aria_closed_key_set',
     v1UserId: ID,
-    expectedV1State: { role: 'ADMIN', activated: true, disabled: false, merged: false },
-    capability: 'ADMIN',
+    expectedV1State: { role: 'ADMIN' as const, activated: true as const, disabled: false as const, merged: false as const },
+    capability: 'ADMIN' as const,
     nonce: 'n'.repeat(24),
     expiresAt: '2026-12-31T00:00:00.000Z',
+    reason: 'CORE_V2_GO_LIVE',
   };
 
   test('l’empreinte est stable pour un contenu identique', () => {
-    expect(fingerprintOf({ ...base, fingerprint: 'x' })).toBe(fingerprintOf({ ...base, fingerprint: 'y' }));
+    expect(fingerprintOfBootstrapManifest({ ...base, fingerprint: 'x' })).toBe(fingerprintOfBootstrapManifest({ ...base, fingerprint: 'y' }));
+  });
+
+  test('nested state is covered by the real parser, and corruption is rejected', () => {
+    const manifest = { ...base, fingerprint: fingerprintOfBootstrapManifest(base) };
+    expect(parseBootstrapManifest(manifest)).toEqual(manifest);
+    expect(() => parseBootstrapManifest({ ...manifest, expectedV1State: { ...base.expectedV1State, activated: false } })).toThrow('MANIFEST_INVALID');
+    expect(() => parseBootstrapManifest({ ...manifest, reason: 'CHANGED_REASON' })).toThrow('MANIFEST_FINGERPRINT_MISMATCH');
   });
 
   test('changer le moindre champ change l’empreinte', () => {
-    const reference = fingerprintOf({ ...base, fingerprint: '' });
+    const reference = fingerprintOfBootstrapManifest({ ...base, fingerprint: '' });
     for (const patch of [
+      { finalSha: 'b'.repeat(40) },
+      { reason: 'OTHER_REASON' },
+      { expectedV1State: { ...base.expectedV1State, disabled: true } },
       { v1UserId: 'ckv1admin0000000000000999' },
       { capability: 'ASSISTANTE' },
       { nonce: 'm'.repeat(24) },
@@ -97,7 +102,7 @@ describe('empreinte du manifeste', () => {
       { databaseIdentity: 'autre-base' },
       { migrationHead: '0026_core_v2_account_v1_provisioning' },
     ]) {
-      expect(fingerprintOf({ ...base, ...patch, fingerprint: '' })).not.toBe(reference);
+      expect(fingerprintOfBootstrapManifest({ ...base, ...patch, fingerprint: '' } as typeof base & { fingerprint: string })).not.toBe(reference);
     }
   });
 });

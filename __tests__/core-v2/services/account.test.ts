@@ -21,6 +21,7 @@ import {
   verifyCredentials,
 } from '@/lib/core-v2/services';
 import { auditTrail, setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 
@@ -36,6 +37,7 @@ const PW = {
 
 async function pendingParent(email = 'parent@example.com') {
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: { firstName: 'A', lastName: 'B', email } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   return parent;
 }
 

@@ -1,248 +1,157 @@
-/**
- * Les 410 décisions d'accès, EXÉCUTÉES.
- *
- * `docs/core-v2/access-policy.json` est normatif : il dit quels rôles doivent
- * franchir chaque handler, et il doit pouvoir contredire l'implémentation.
- * Jusqu'ici il n'était confronté à rien — un document, pas une garde.
- *
- * Cette suite résout, pour chacun des 82 handlers, la garde RÉELLEMENT posée
- * dans les sources (dans la route, ou dans le service qu'elle appelle, en
- * suivant les appels), calcule l'ensemble des rôles qui la franchissent d'après
- * `lib/core-v2/rbac.ts`, et le compare à `roles_allowed`. Soit 82 × 5 = 410
- * décisions, une assertion chacune.
- *
- * Elle attrape trois classes de défaut que rien ne voyait :
- *   — une garde qui laisse passer un rôle que la politique refuse ;
- *   — une garde qui refuse un rôle que la politique autorise ;
- *   — un handler SANS garde résoluble, c'est-à-dire sans décision d'accès.
- */
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+/** Static role ceilings and eight meta-invariants. These are NOT HTTP runs. */
+import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { CAPABILITIES, STAFF_ROLES, capabilitiesForRole, type Capability } from '@/lib/core-v2/rbac';
-
+import ts from 'typescript';
+import { createAccessInventory, type ObservedGate } from '@/scripts/core-v2/access-policy-inventory';
+import { CAPABILITIES, STAFF_ROLES, capabilitiesForRole, assertCapabilityClassificationIsExhaustive } from '@/lib/core-v2/rbac';
 const ROOT = process.cwd();
 const ROLES = ['ADMIN', 'ASSISTANTE', 'COACH', 'PARENT', 'ELEVE'] as const;
-type Role = (typeof ROLES)[number];
-
-const policy = JSON.parse(
-  readFileSync(join(ROOT, 'docs/core-v2/access-policy.json'), 'utf8'),
-) as {
-  handlers_covered: number;
-  policies: Array<{
-    handler_id: string;
-    roles_allowed: Role[];
-    refusal_status: number;
-    access_class: 'ROLE_OR_CAPABILITY' | 'PUBLIC_RATE_LIMITED' | 'CORE_V2_SESSION_ONLY';
-    enforced_restrictions?: string[];
-    declared_but_not_implemented?: string[];
-  }>;
-};
-
-type Gate =
-  | { kind: 'CAPABILITY'; value: Capability }
-  | { kind: 'ROLE_SELF_SERVICE'; value: Role }
-  | { kind: 'ROLE_STAFF' }
-  /** Sous V1_ONLY, Core v1 détient les identifiants : ces chemins sont clos. */
-  | { kind: 'CREDENTIAL_AUTHORITY_IS_V1' };
-
-function* walk(dir: string): Generator<string> {
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry === '.next') continue;
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) yield* walk(full);
-    else if (full.endsWith('.ts')) yield full;
-  }
-}
-
-/** Corps de toutes les fonctions de la couche service, exportées ou non. */
-function indexFunctionBodies(): Map<string, string[]> {
-  const bodies = new Map<string, string[]>();
-  const push = (name: string, body: string) => {
-    const list = bodies.get(name) ?? [];
-    list.push(body);
-    bodies.set(name, list);
-  };
-  for (const file of walk(join(ROOT, 'lib/core-v2'))) {
-    const source = readFileSync(file, 'utf8');
-    for (const m of source.matchAll(/(?:export\s+)?(?:async\s+)?function\s+(\w+)\s*\(/g)) {
-      push(m[1]!, source.slice(m.index! + m[0].length, m.index! + m[0].length + 3000));
-    }
-    for (const m of source.matchAll(/(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(/g)) {
-      push(m[1]!, source.slice(m.index! + m[0].length, m.index! + m[0].length + 3000));
-    }
-  }
-  return bodies;
-}
-
-function gateIn(text: string): Gate | null {
-  const cap = /assertCapability\(\s*[^,]+,\s*'([A-Z_]+)'/.exec(text);
-  if (cap) return { kind: 'CAPABILITY', value: cap[1] as Capability };
-  const self = /assertSelfServiceRole\(\s*[^,]+,\s*'([A-Z]+)'/.exec(text);
-  if (self) return { kind: 'ROLE_SELF_SERVICE', value: self[1] as Role };
-  if (/assertStaffRole\(/.test(text)) return { kind: 'ROLE_STAFF' };
-  if (/assertCoreMayHoldCredentials\(/.test(text)) return { kind: 'CREDENTIAL_AUTHORITY_IS_V1' };
-  return null;
-}
-
-const BODIES = indexFunctionBodies();
-
-/** Suit les appels jusqu'à trouver la garde, en profondeur bornée. */
-function resolveGate(text: string, depth: number, seen: Set<string>): Gate | null {
-  const here = gateIn(text);
-  if (here) return here;
-  if (depth >= 3) return null;
-  for (const m of text.matchAll(/\b([a-z][A-Za-z0-9]{3,})\s*\(/g)) {
-    const name = m[1]!;
-    if (seen.has(name)) continue;
-    seen.add(name);
-    for (const body of BODIES.get(name) ?? []) {
-      const found = resolveGate(body, depth + 1, seen);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-/** Les rôles qui franchissent réellement cette garde, d'après rbac.ts. */
-function rolesPassing(gate: Gate): Role[] {
+type Role = typeof ROLES[number];
+type Policy = { handler_id: string; roles_allowed: Role[]; access_class: string; refusal_status: number;
+  declared_but_not_implemented?: string[]; enforced_restrictions?: string[];
+  implementation?: { status: string; hooks: string[]; tests: string[] }; contextual_requirements?: string[] };
+const policy = JSON.parse(readFileSync(join(ROOT, 'docs/core-v2/access-policy.json'), 'utf8')) as
+  { handlers_covered: number; policies: Policy[] };
+const inventory = createAccessInventory(ROOT);
+const observed = new Map(inventory.handlers.map(handler => [handler.id, handler]));
+function passes(role: Role, gate: ObservedGate) {
   switch (gate.kind) {
-    case 'CAPABILITY':
-      return ROLES.filter((role) => (capabilitiesForRole(role) as readonly string[]).includes(gate.value));
-    case 'ROLE_SELF_SERVICE':
-      return ROLES.filter((role) => role === gate.value);
-    case 'ROLE_STAFF':
-      return ROLES.filter((role) => (STAFF_ROLES as readonly string[]).includes(role));
-    case 'CREDENTIAL_AUTHORITY_IS_V1':
-      // Aucun rôle n'y accède sous V1_ONLY : Core v1 est l'autorité.
-      return [];
+    case 'CAPABILITY': return (capabilitiesForRole(role) as readonly string[]).includes(gate.value);
+    case 'ROLE_SELF_SERVICE': return role === gate.value;
+    case 'ROLE_STAFF': return (STAFF_ROLES as readonly string[]).includes(role);
+    case 'CREDENTIAL_AUTHORITY_IS_V1': return false;
+    case 'BOUNDARY_AUTH':
+    case 'BOUNDARY_CORE': return true;
+    case 'BOUNDARY_SELF_METADATA': return true;
+    case 'BOUNDARY_HANDLER': return true;
+    case 'BOUNDARY_PRIVATE_V1':
+    case 'BOUNDARY_V1_LEASE':
+    case 'BOUNDARY_V1_RELEASE':
+    case 'BOUNDARY_FRESH_CORE': return true;
   }
 }
-
-const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const;
-
-/** Garde résolue par handler, mesurée une seule fois. */
-const observed = new Map<string, Gate | null>();
-for (const file of walk(join(ROOT, 'app/api/v2'))) {
-  if (!file.endsWith('route.ts')) continue;
-  const source = readFileSync(file, 'utf8');
-  const route = `/${file.slice(ROOT.length + 1).replace(/^app\//, '').replace(/\/route\.ts$/, '')}`;
-  const gate = resolveGate(source, 0, new Set());
-  for (const method of METHODS) {
-    if (new RegExp(`^export\\s+(?:const|async\\s+function|function)\\s+${method}\\b`, 'm').test(source)) {
-      observed.set(`${method} ${route}`, gate);
-    }
-  }
+function hasCall(id: string, source: string, name: string) {
+  return observed.get(id)?.calls.some(call => call.source === source && call.name === name);
 }
-
-describe('la politique d’accès porte réellement sur 82 handlers', () => {
-  test('le document couvre exactement les handlers présents dans les sources', () => {
+function literalStrings(id: string) {
+  const range = observed.get(id)?.bodyRange; if (!range) return [];
+  const source = readFileSync(join(ROOT, range.file), 'utf8').slice(range.start, range.end);
+  const ast = ts.createSourceFile('body.ts', source, ts.ScriptTarget.Latest, true);
+  const values: string[] = []; function visit(node: ts.Node) { if (ts.isStringLiteralLike(node)) values.push(node.text); ts.forEachChild(node, visit); }
+  visit(ast); return values;
+}
+describe('eight access-policy meta-invariants', () => {
+  test('META_1_EXACT_EXPORT_COVERAGE — every export has one normative decision', () => {
     expect(policy.policies).toHaveLength(policy.handlers_covered);
-    const declared = new Set(policy.policies.map((p) => p.handler_id));
-    const present = new Set(observed.keys());
-    // Un handler ajouté sans décision, ou une décision qui survit à la
-    // suppression de son handler, sont tous deux des défauts.
-    expect([...present].filter((h) => !declared.has(h)).sort()).toEqual([]);
-    expect([...declared].filter((h) => !present.has(h)).sort()).toEqual([]);
-    expect(present.size).toBe(82);
+    expect(new Set(policy.policies.map(entry => entry.handler_id)).size).toBe(policy.handlers_covered);
+    expect([...observed.keys()].sort()).toEqual(policy.policies.map(entry => entry.handler_id).sort());
   });
-
-  test('tout handler sans garde de rôle est déclaré PUBLIC, jamais par omission', () => {
-    // Un handler peut légitimement n’avoir aucune garde de rôle — une demande de
-    // réinitialisation est publique. Mais cela doit Être DIT dans la politique :
-    // une absence de garde silencieuse est indiscernable d’un oubli.
-    const declared = new Map(policy.policies.map((e) => [e.handler_id, e.access_class]));
-    const ungatedButNotDeclared = [...observed.entries()]
-      .filter(([h, g]) => g === null && declared.get(h) === 'ROLE_OR_CAPABILITY')
-      .map(([h]) => h).sort();
-    expect(ungatedButNotDeclared).toEqual([]);
-  });
-
-  test('un chemin déclaré PUBLIC exige même origine ET limitation de débit', () => {
-    // « Public » ne veut pas dire « sans protection » : sans ces deux gardes, un
-    // point d’entrée anonyme est un amplificateur.
-    const missing: string[] = [];
-    for (const entry of policy.policies.filter((e) => e.access_class === 'PUBLIC_RATE_LIMITED')) {
-      const route = entry.handler_id.replace(/^[A-Z]+ \/api\/v2/, 'app/api/v2') + '/route.ts';
-      const source = readFileSync(join(ROOT, route), 'utf8');
-      if (!/checkCsrf\(/.test(source)) missing.push(`${entry.handler_id}: checkCsrf`);
-      if (!/guardSensitiveRateLimit\(/.test(source)) missing.push(`${entry.handler_id}: rate-limit`);
+  test('META_2_PRIVATE_BOUNDARY — each private export resolves its own authentication and guards', () => {
+    for (const entry of policy.policies.filter(entry => entry.access_class === 'ROLE_OR_CAPABILITY')) {
+      const handler = observed.get(entry.handler_id)!;
+      expect({ id: entry.handler_id, unguarded: handler.unguardedPath, unresolved: handler.unresolved })
+        .toEqual({ id: entry.handler_id, unguarded: false, unresolved: [] });
+      expect(handler.boundaryPaths.length).toBeGreaterThan(0);
+      for(const path of handler.boundaryPaths) expect(path.some((gate,index)=>gate.kind==='BOUNDARY_AUTH'
+        && path.slice(index+1).some(next=>next.kind==='BOUNDARY_CORE'&&next.value===gate.value))).toBe(true);
     }
-    expect(missing).toEqual([]);
+    const ariaIds = [
+      'GET /api/v2/aria/cockpit', 'GET /api/v2/aria/cockpit/profile',
+      'GET /api/v2/aria/conversations', 'GET /api/v2/aria/conversations/[conversationId]/messages',
+      'GET /api/v2/aria/curriculum', 'POST /api/v2/aria/chat', 'POST /api/v2/aria/feedback',
+      'POST /api/v2/aria/turns/[turnId]/cancel', 'PUT /api/v2/aria/cockpit/profile',
+    ];
+    expect(inventory.handlers.filter(value => value.id.includes(' /api/v2/aria/'))
+      .map(value => value.id).sort()).toEqual(ariaIds);
+    expect(policy.policies.filter(value => ariaIds.includes(value.handler_id))
+      .every(value => value.access_class === 'ROLE_OR_CAPABILITY')).toBe(true);
+    for (const id of ariaIds) for (const path of observed.get(id)!.boundaryPaths) {
+      const freshIndices = path.flatMap((gate, index) => gate.kind === 'BOUNDARY_FRESH_CORE' ? [index] : []);
+      expect(freshIndices.length).toBeGreaterThan(0);
+      for (const freshIndex of freshIndices) {
+        const fresh = path[freshIndex], core = path[freshIndex - 1];
+        expect(core?.kind).toBe('BOUNDARY_CORE');
+        expect(core?.callSite).toEqual(fresh.callSite);
+        expect(fresh.declaration.file).toBe('lib/core-v2/http/actor.ts');
+        const priorLeaseEvents = path.slice(0, freshIndex).flatMap((gate, index) =>
+          gate.value === fresh.value && ['BOUNDARY_V1_LEASE', 'BOUNDARY_V1_RELEASE'].includes(gate.kind)
+            ? [{ gate, index }] : []);
+        const retained = priorLeaseEvents[priorLeaseEvents.length - 1];
+        expect({ id, lease: retained?.gate.kind }).toEqual({ id, lease: 'BOUNDARY_V1_LEASE' });
+        expect(retained?.gate.declaration.file).toBe('lib/auth/v1-session-authority.ts');
+        const privateCaptures = path.slice(0, retained!.index).flatMap((gate, index) =>
+          gate.kind === 'BOUNDARY_PRIVATE_V1' && gate.value === fresh.value ? [{ gate, index }] : []);
+        expect(privateCaptures.length).toBeGreaterThan(0);
+        const original = privateCaptures[privateCaptures.length - 1];
+        expect(original.gate.declaration.file).toBe('lib/auth/private-v1-session.ts');
+        expect(path.slice(0, original.index).some(gate =>
+          gate.kind === 'BOUNDARY_AUTH' && gate.value === core.value)).toBe(true);
+      }
+    }
+    const self = policy.policies.filter(entry => entry.access_class === 'SELF_MEMBERSHIP_METADATA');
+    expect(self.map(entry => entry.handler_id)).toEqual(['GET /api/v2/self/membership']);
+    const handler = observed.get(self[0].handler_id)!;
+    expect(handler.unresolved).toEqual([]);
+    expect(handler.unguardedPath).toBe(false);
+    expect(handler.boundaryPaths.length).toBeGreaterThan(0);
+    for (const path of handler.boundaryPaths) expect(path.some((gate, index) => gate.kind === 'BOUNDARY_AUTH'
+      && path.slice(index + 1).some(next => next.kind === 'BOUNDARY_SELF_METADATA' && next.value === gate.value))).toBe(true);
+    expect(handler.guards.some(gate => gate.kind === 'BOUNDARY_CORE' || gate.kind === 'CAPABILITY')).toBe(false);
   });
-
-  test('le chemin à session Core v2 refuse tout rôle sous V1_ONLY', () => {
-    for (const entry of policy.policies.filter((e) => e.access_class === 'CORE_V2_SESSION_ONLY')) {
-      const route = entry.handler_id.replace(/^[A-Z]+ \/api\/v2/, 'app/api/v2') + '/route.ts';
-      const source = readFileSync(join(ROOT, route), 'utf8');
-      // Mesuré dans la source : 401 sans session, 403 WRONG_AUTHORITY sous V1_ONLY.
-      expect(source).toContain("'UNAUTHENTICATED'");
-      expect(source).toContain("'WRONG_AUTHORITY'");
-      expect(source).toMatch(/getAuthRolloutMode\(\)\s*===\s*'V1_ONLY'/);
-      expect(entry.roles_allowed).toEqual([]);
-      expect(entry.refusal_status).toBe(403);
+  test('META_3_PUBLIC_METHOD_BOUNDARY — previews and mutations have their own protections', () => {
+    for (const entry of policy.policies.filter(entry => entry.access_class === 'PUBLIC_RATE_LIMITED')) {
+      expect(hasCall(entry.handler_id, 'lib/rate-limit/sensitive.ts', 'guardSensitiveRateLimit')).toBe(true);
+      if (entry.handler_id.startsWith('GET ')) {
+        expect(literalStrings(entry.handler_id)).toContain('private, no-store, max-age=0');
+        expect(observed.get(entry.handler_id)?.guards.some(gate => gate.kind === 'CAPABILITY')).toBe(false);
+      } else expect(hasCall(entry.handler_id, 'lib/csrf.ts', 'checkCsrf')).toBe(true);
     }
   });
-
-  test('aucune garde ne nomme une capacité absente de rbac.ts', () => {
-    // Ce contrôle manquait : la politique citait sept capacités inexistantes,
-    // sur 65 de ses 82 entrées. Un nom fantôme n’est confrontable à rien.
-    const phantom = [...observed.values()]
-      .filter((g): g is Extract<Gate, { kind: 'CAPABILITY' }> => g?.kind === 'CAPABILITY')
-      .map((g) => g.value)
-      .filter((c) => !(CAPABILITIES as readonly string[]).includes(c));
-    expect([...new Set(phantom)].sort()).toEqual([]);
+  test('META_4_V1_CREDENTIAL_AUTHORITY — legacy Core credential mutations are closed under V1_ONLY', () => {
+    for (const entry of policy.policies.filter(entry => entry.access_class === 'CORE_V2_SESSION_ONLY')) {
+      const literals = literalStrings(entry.handler_id);
+      expect(literals).toContain('UNAUTHENTICATED'); expect(literals).toContain('WRONG_AUTHORITY'); expect(literals).toContain('V1_ONLY');
+      expect(entry.roles_allowed).toEqual([]); expect(entry.refusal_status).toBe(403);
+    }
+    for (const id of ['POST /api/v2/auth/activate', 'POST /api/v2/auth/password-reset/confirm'])
+      expect(hasCall(id, 'lib/core-v2/accounts/v1-authority.ts', 'assertCoreMayHoldCredentials')).toBe(true);
   });
-
-  test('le plafond de rôle annoncé comme imposé l’est réellement', () => {
-    // Une restriction listee dans `enforced_restrictions` doit etre trouvable
-    // dans le code. L'inverse — annoncer un controle absent — est le defaut que
-    // ce test existe pour rendre impossible.
-    const entries = policy.policies.filter((e) => (e.enforced_restrictions ?? []).length > 0);
-    expect(entries.length).toBeGreaterThan(0);
-    const gateway = readFileSync(join(ROOT, 'lib/auth/v1-account-invitation.ts'), 'utf8');
-    const provisioning = readFileSync(join(ROOT, 'lib/core-v2/accounts/v1-provisioning.ts'), 'utf8');
-    // Le plafond est pose aux deux points d'entree, pas a un seul.
-    expect((gateway.match(/isInvitableRole\(/g) ?? []).length).toBeGreaterThanOrEqual(2);
-    expect(provisioning).toContain('isInvitableRole(');
+  test('META_5_KNOWN_CAPABILITIES — every resolved capability is classified exhaustively', () => {
+    expect(() => assertCapabilityClassificationIsExhaustive()).not.toThrow();
+    for (const handler of inventory.handlers) for (const gate of handler.guards)
+      if (gate.kind === 'CAPABILITY') expect(CAPABILITIES as readonly string[]).toContain(gate.value);
   });
-
-  test('toute exigence non tenue est nommée, jamais passee sous silence', () => {
-    // Le perimetre de l'emetteur est exige par la politique et absent du code.
-    // Il doit figurer en clair : une intention prise pour un controle est un
-    // faux sentiment de securite.
-    const unimplemented = policy.policies.flatMap((e) => e.declared_but_not_implemented ?? []);
-    expect(unimplemented.length).toBeGreaterThan(0);
-    // Et la mesure qui le motive : aucun controle de perimetre dans le chemin.
-    const account = readFileSync(join(ROOT, 'lib/core-v2/services/account.ts'), 'utf8');
-    expect(account).not.toMatch(/assertScope\(|withinScope\(|assertPerimeter\(/);
+  test('META_6_CONTEXTUAL_HOOKS — invitation scope has canonical hooks and named behavioral tests', () => {
+    const entries = policy.policies.filter(entry => /\/(invite|resend-invitation)$/.test(entry.handler_id));
+    expect(entries).toHaveLength(2);
+    for (const entry of entries) {
+      expect(hasCall(entry.handler_id, 'lib/core-v2/accounts/invitation-scope.ts', 'assertInvitationScope')).toBe(true);
+      expect(entry.contextual_requirements?.length).toBeGreaterThan(0);
+      expect(entry.implementation?.status).toBe('IMPLEMENTED');
+      for (const file of [...entry.implementation!.hooks.map(hook => hook.split('#')[0]), ...entry.implementation!.tests])
+        expect(existsSync(join(ROOT, file))).toBe(true);
+    }
   });
-
-  test('la mesure voit réellement des gardes de chaque famille', () => {
-    // Plancher : sans lui, un résolveur cassé rendrait tout `null` et les
-    // comparaisons ci-dessous deviendraient vides.
-    const kinds = new Set([...observed.values()].map((g) => g?.kind));
-    expect(kinds).toContain('CAPABILITY');
-    expect(kinds).toContain('ROLE_STAFF');
-    expect(kinds).toContain('ROLE_SELF_SERVICE');
+  test('META_7_OPEN_REQUIREMENTS — no known missing implementation is concealed by the policy', () => {
+    expect(policy.policies.flatMap(entry => entry.declared_but_not_implemented ?? [])).toEqual([]);
+    expect(policy.policies.find(entry => entry.handler_id.endsWith('/promote-admin'))?.roles_allowed).toEqual(['ADMIN']);
+    expect(hasCall('POST /api/v2/staff/accounts/[id]/promote-admin', 'lib/auth/private-v1-session.ts', 'readBoundPrivateV1Session')).toBe(true);
+  });
+  test('META_8_NON_VACUOUS_RESOLVER — independent exports and all guard families are actually measured', () => {
+    const kinds = new Set(inventory.handlers.flatMap(handler => handler.guards.map(gate => gate.kind)));
+    for (const kind of ['CAPABILITY', 'ROLE_STAFF', 'ROLE_SELF_SERVICE', 'CREDENTIAL_AUTHORITY_IS_V1']) expect(kinds).toContain(kind);
+    expect(inventory.handlers.length).toBe(policy.handlers_covered);
+    expect(hasCall('POST /api/v2/auth/activate', 'lib/csrf.ts', 'checkCsrf')).toBe(true);
+    expect(hasCall('GET /api/v2/auth/activate', 'lib/csrf.ts', 'checkCsrf')).toBe(false);
   });
 });
-
-describe('410 décisions : la garde réelle vaut exactement ce que la politique exige', () => {
-  for (const entry of policy.policies) {
-    for (const role of ROLES) {
-      const expectedAllowed = entry.roles_allowed.includes(role);
-      test(`${entry.handler_id} — ${role} ${expectedAllowed ? 'autorisé' : 'refusé'}`, () => {
-        const gate = observed.get(entry.handler_id);
-        if (entry.access_class !== 'ROLE_OR_CAPABILITY') {
-          // Classes publique et session-Core : aucun rôle ne franchit une garde
-          // de rôle, puisqu'il n'y en a pas. Leurs protections propres sont
-          // vérifiées par les deux tests dédiés ci-dessus.
-          expect(expectedAllowed).toBe(false);
-          return;
-        }
-        expect(gate).not.toBeNull();
-        expect(rolesPassing(gate!).includes(role)).toBe(expectedAllowed);
-      });
-    }
-  }
+describe('static normative role ceilings (not HTTP or contextual authorization)', () => {
+  for (const entry of policy.policies) for (const role of ROLES)
+    test(`${entry.handler_id} — ${role} ${entry.roles_allowed.includes(role) ? 'autorisé' : 'refusé'}`, () => {
+      if (!['ROLE_OR_CAPABILITY', 'SELF_MEMBERSHIP_METADATA'].includes(entry.access_class)) { expect(entry.roles_allowed.includes(role)).toBe(false); return; }
+      const handler = observed.get(entry.handler_id)!;
+      expect(handler.unguardedPath).toBe(false);
+      const actual = handler.gatePaths.some(path => path.length > 0 && path.every(gate => passes(role, gate)));
+      expect({ id: entry.handler_id, role, actual }).toEqual({ id: entry.handler_id, role, actual: entry.roles_allowed.includes(role) });
+    });
 });

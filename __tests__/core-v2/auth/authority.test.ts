@@ -13,12 +13,14 @@ import {
 } from '@/lib/core-v2/auth/authority';
 import { activateAccount, createHousehold, inspectInvitation, inviteAccount, suspendAccount } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 const PW = { first: 'change_me_authority_1', wrong: 'change_me_authority_x' } as const;
 
 async function activatedParent(email: string) {
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: { firstName: 'Auth', lastName: 'Synthetic', email } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   const issued = await inviteAccount(h.client, h.ctx(), parent.id);
   await activateAccount(h.client, { rawToken: issued.rawToken, password: PW.first });
   return parent;
@@ -87,6 +89,7 @@ describe('Core v2 authentication and session validity', () => {
 
   test('inspectInvitation previews an open invitation without consuming it, and null otherwise', async () => {
     const { parent } = await createHousehold(h.client, h.ctx(), { parent: { firstName: 'Look', lastName: 'Only', email: 'look@example.com' } });
+    await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
     const issued = await inviteAccount(h.client, h.ctx(), parent.id);
     expect(await inspectInvitation(h.client, issued.rawToken)).toEqual({ email: 'look@example.com', role: 'PARENT', firstName: 'Look' });
     expect(await inspectInvitation(h.client, issued.rawToken)).not.toBeNull(); // not consumed by the preview

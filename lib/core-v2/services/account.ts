@@ -27,6 +27,7 @@ import { newPasswordSchema as passwordSchema } from '@/lib/security/password-pol
 import { openAccountEmailHandoff, sealAccountEmailHandoff } from '@/lib/email/account-handoff-envelope';
 import { CoreV2JobType } from '../client';
 import { assertCoreMayHoldCredentials, credentialAuthorityIsV1 } from '../accounts/v1-authority';
+import { assertInvitationScope, lockInvitationAuthority } from '../accounts/invitation-scope';
 import { cancelV1Provisioning, requestV1Provisioning } from '../accounts/v1-provisioning';
 
 const BCRYPT_COST = 12;
@@ -103,11 +104,13 @@ async function issueInvitation(
 
 export type IssuedInvitation = { invitation: Invitation; rawToken: string; email: string; handoffId: string };
 
-export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<IssuedInvitation> {
+export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { onAuthorized?: () => void | Promise<void> } = {}): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   assertCoreMayHoldCredentials();
   const userId = parseInput(idSchema, rawUserId);
   return inTransaction(client, async (tx) => {
+    await assertInvitationScope(tx, ctx.actor, 'INVITE', { userId });
+    await options.onAuthorized?.();
     await lockAccountLifecycle(tx, userId);
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundError('Account not found.', { userId });
@@ -121,13 +124,15 @@ export async function inviteAccount(client: PrismaClient, ctx: ServiceContext, r
 }
 
 /** A new resend revokes the prior invitation; command-level retry identity is separate. */
-export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string } = {}): Promise<IssuedInvitation> {
+export async function resendInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string; onAuthorized?: () => void | Promise<void> } = {}): Promise<IssuedInvitation> {
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   assertCoreMayHoldCredentials();
   const userId = parseInput(idSchema, rawUserId);
   const commandId = options.commandId === undefined ? undefined : parseInput(z.string().uuid(), options.commandId);
   const commandKey = commandId === undefined ? undefined : `account-resend-command:v1:${ctx.actor.userId}:${commandId}`;
   return inTransaction(client, async (tx) => {
+    await assertInvitationScope(tx, ctx.actor, 'RESEND', { userId });
+    await options.onAuthorized?.();
     const openWhere = { userId, purpose: 'ACTIVATION' as const, consumedAt: null, revokedAt: null };
     const before = await tx.invitation.findFirst({ where: openWhere, select: { id: true } });
     await lockAccountLifecycle(tx, userId);
@@ -162,6 +167,7 @@ export async function resendInvitation(client: PrismaClient, ctx: ServiceContext
  * the durable handoff, and (when Core v1 is) never leaves Core v1.
  */
 export interface RequestedInvitation {
+  readonly user?: import('../http/respond').PublicUser;
   /** Core invitation id (Core authority) or the provisioning request id (V1 authority). */
   readonly invitation: { readonly id: string; readonly expiresAt: Date | null };
   readonly email: string;
@@ -184,24 +190,24 @@ function asRequested(issued: IssuedInvitation): RequestedInvitation {
  * decided here from the authenticated actor and the id alone: no role, e-mail
  * or status is ever taken from the request.
  */
-export async function requestAccountInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string): Promise<RequestedInvitation> {
-  if (!credentialAuthorityIsV1()) return asRequested(await inviteAccount(client, ctx, rawUserId));
+export async function requestAccountInvitation(client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { onAuthorized?: () => void | Promise<void> } = {}): Promise<RequestedInvitation> {
+  if (!credentialAuthorityIsV1()) return asRequested(await inviteAccount(client, ctx, rawUserId, options));
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
-  const request = await inTransaction(client, (tx) => requestV1Provisioning(tx, ctx, userId, { resend: false }));
-  return { invitation: { id: request.provisioningId, expiresAt: null }, email: request.email, handoffId: request.handoffId, authority: 'V1' };
+  const request = await requestV1Provisioning(client, ctx, userId, { resend: false, onAuthorized: options.onAuthorized });
+  return { user: request.user, invitation: { id: request.provisioningId, expiresAt: null }, email: request.email, handoffId: request.handoffId, authority: 'V1' };
 }
 
 export async function requestAccountInvitationResend(
-  client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string } = {},
+  client: PrismaClient, ctx: ServiceContext, rawUserId: string, options: { commandId?: string; onAuthorized?: () => void | Promise<void> } = {},
 ): Promise<RequestedInvitation> {
   if (!credentialAuthorityIsV1()) return asRequested(await resendInvitation(client, ctx, rawUserId, options));
   assertCapability(ctx.actor, 'ACCOUNT_INVITE');
   const userId = parseInput(idSchema, rawUserId);
   const commandId = options.commandId === undefined ? undefined : parseInput(z.string().uuid(), options.commandId);
   const commandKey = commandId === undefined ? undefined : `account-v1-resend-command:v1:${ctx.actor.userId}:${commandId}`;
-  const request = await inTransaction(client, (tx) => requestV1Provisioning(tx, ctx, userId, { resend: true, commandKey }));
-  return { invitation: { id: request.provisioningId, expiresAt: null }, email: request.email, handoffId: request.handoffId, authority: 'V1' };
+  const request = await requestV1Provisioning(client, ctx, userId, { resend: true, commandKey, onAuthorized: options.onAuthorized });
+  return { user: request.user, invitation: { id: request.provisioningId, expiresAt: null }, email: request.email, handoffId: request.handoffId, authority: 'V1' };
 }
 
 export interface InvitationPreview {
@@ -403,7 +409,8 @@ export async function changePassword(
 
 /** Account lifecycle writers lock User before Invitation, matching handoff recovery. */
 async function lockAccountLifecycle(tx: Tx, userId: string): Promise<void> {
-  await tx.$queryRaw`SELECT "id" FROM "users" WHERE "id" = ${userId} FOR UPDATE`;
+  await lockInvitationAuthority(tx);
+  await tx.$queryRaw`SELECT "id" FROM public."users" WHERE "id" = ${userId} FOR UPDATE`;
 }
 
 // ── Password reset (§AL/§AT) ─────────────────────────────────────────────────

@@ -8,7 +8,7 @@
  *
  * Two deliberate limits:
  *   - ADMIN is NOT creatable here. The first administrator comes from the
- *     one-time bootstrap (scripts/core-v2/bootstrap-admin.ts); afterwards an
+ *     attested V1 bootstrap (scripts/core-v2/bootstrap-v1-admin.ts); afterwards an
  *     administrator is an owner decision, not a back-office gesture.
  *   - No password is ever accepted or written. The account is born
  *     PENDING_ACTIVATION and becomes usable only through the ordinary
@@ -123,84 +123,13 @@ export async function createStaffAccount(
   });
 }
 
-/**
- * The bootstrap's mutual exclusion. Two independent connections both counting
- * ADMINs and both finding zero is not a hypothetical: under PostgreSQL's
- * default READ COMMITTED isolation it happens, and a plain in-transaction
- * re-check lets BOTH inserts commit (measured: two concurrent bootstraps
- * produced two ADMIN rows). A transaction-scoped advisory lock is what
- * actually serializes them — the second transaction blocks on the lock until
- * the first commits, then sees the ADMIN it created and refuses.
- *
- * An advisory lock, deliberately, rather than a unique index on `role`:
- * uniqueness must hold for the BOOTSTRAP OPERATION, not for the data. Nexus
- * may legitimately have several administrators later, created by an
- * authorized service; forbidding that in the schema would be a different and
- * much larger decision.
- *
- * The key pair is arbitrary but fixed and namespaced to this operation.
- */
-const BOOTSTRAP_ADMIN_LOCK: readonly [number, number] = [0x6e78_7532, 0x0001];
-
 export interface BootstrapAdminInput {
   readonly email: string;
   readonly firstName: string;
   readonly lastName: string;
 }
 
-const bootstrapAdminSchema = z.object({
-  email: z.string().min(1),
-  firstName: personNameSchema,
-  lastName: personNameSchema,
-});
-
-/**
- * Creates THE first administrator, once. Refuses — after taking the lock, so
- * the answer is authoritative — if any ADMIN already exists, whatever its
- * status. Accepts no password: the account is born PENDING_ACTIVATION and
- * takes its credential from the ordinary activation.
- *
- * This is account CREATION only. Inviting and activating stay separate acts,
- * performed by their own services.
- */
-export async function bootstrapFirstAdmin(client: PrismaClient, rawInput: BootstrapAdminInput): Promise<User> {
-  const input = parseInput(bootstrapAdminSchema, rawInput);
-  const email = normalizeEmail(input.email);
-
-  return inTransaction(client, async (tx) => {
-    await tx.$executeRaw`SELECT pg_advisory_xact_lock(${BOOTSTRAP_ADMIN_LOCK[0]}::int, ${BOOTSTRAP_ADMIN_LOCK[1]}::int)`;
-
-    const existing = await tx.user.count({ where: { role: 'ADMIN' } });
-    if (existing > 0) {
-      throw new InvalidStateError(
-        `The Core v2 administrator bootstrap is closed: ${existing} ADMIN account(s) already exist. ` +
-          'Create further staff through the staff-account service.',
-        { existingAdminCount: existing },
-      );
-    }
-
-    let admin: User;
-    try {
-      admin = await tx.user.create({ data: { role: 'ADMIN', email, firstName: input.firstName, lastName: input.lastName } });
-    } catch (error) {
-      if (isUniqueViolation(error)) {
-        throw new ConflictError('An account with this email already exists.', { field: 'email' });
-      }
-      throw error;
-    }
-
-    await appendAuditEvent(tx, {
-      // The bootstrap has no prior actor — that is its whole point — so the
-      // new administrator is its own subject with a null actor, rather than
-      // borrowing an identity that does not exist yet.
-      actorUserId: null,
-      action: 'staff.bootstrap_admin_created',
-      subjectType: 'User',
-      subjectId: admin.id,
-      correlationId: `bootstrap-admin:${admin.id}`,
-      metadata: { role: 'ADMIN' },
-    });
-
-    return admin;
-  });
+/** Retained compatibility entrypoint; only bootstrap-v1-admin may create the first ADMIN. */
+export async function bootstrapFirstAdmin(_client: PrismaClient, _rawInput: BootstrapAdminInput): Promise<User> {
+  throw new InvalidStateError('The legacy administrator bootstrap is closed; use bootstrap-v1-admin.');
 }

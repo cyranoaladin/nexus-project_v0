@@ -26,6 +26,7 @@ import {
   listUnassignedCourseEnrollments,
 } from '@/lib/core-v2/queries/staff';
 import { seedAcademicYear, seedCoach, setupServiceHarness } from '../helpers/service-harness';
+import { setInvitationScopeGrant } from '@/lib/core-v2/accounts/invitation-scope';
 
 const h = setupServiceHarness();
 
@@ -33,6 +34,10 @@ async function seedStudent(client: PrismaClient, ctx: ServiceContext, label: str
   const { household } = await createHousehold(client, ctx, {
     parent: { firstName: `P${label}`, lastName: 'Synthetic', email: `parent-${label}@synthetic.test` },
   });
+  for (const year of await client.academicYear.findMany({ where: { status: { in: ['CURRENT', 'UPCOMING'] } } })) {
+    await setInvitationScopeGrant(client, h.ctx(), { householdId: household.id, staffUserId: h.assistante.userId,
+      academicYearId: year.id, expectedRevision: 0, active: true });
+  }
   const { student } = await createStudent(client, ctx, {
     householdId: household.id,
     student: { firstName: `S${label}`, lastName: 'Synthetic' },

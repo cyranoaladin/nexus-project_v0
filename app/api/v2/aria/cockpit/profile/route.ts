@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 import { z } from 'zod';
+import { withCoreV2AriaResponse } from '@/lib/core-v2/http/aria-authority';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { loadCoreV2AriaStudentContext } from '@/lib/core-v2/aria/student-context';
 import { getCoreV2AriaCockpitProfile, upsertCoreV2AriaCockpitProfile } from '@/lib/core-v2/aria/cockpit-profile';
@@ -29,83 +30,87 @@ function deriveSetupState(
 }
 
 export const GET = defineStaffRoute({
-  handler: async ({ client, ctx }) => {
-    const student = await loadCoreV2AriaStudentContext(client, ctx);
-    const ariaProfile = await getCoreV2AriaCockpitProfile(client, student.studentId, {
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      specialties: student.specialties,
-      stmgPathway: student.stmgPathway,
-      academicEnrollments: student.academicEnrollments,
-    });
-    const academicProfile = buildAcademicProfile({
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      specialties: student.specialties,
-      hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
-      stmgPathway: student.stmgPathway,
-      school: student.school,
-    });
-
-    return {
-      data: {
-        academicProfile,
-        ariaProfile,
-        setupState: deriveSetupState(
-          academicProfile.incomplete,
-          ariaProfile.onboardingCompletedAt,
-          ariaProfile.pinnedCourseKeys.length,
-        ),
-        academicProfileReadOnly: true,
-      },
-    };
-  },
-});
-
-export const PUT = defineStaffRoute({
-  body: ariaProfileUpdateSchema as unknown as z.ZodTypeAny,
-  handler: async ({ client, ctx, body }) => {
-    const student = await loadCoreV2AriaStudentContext(client, ctx);
-    let ariaProfile;
-    try {
-      ariaProfile = await upsertCoreV2AriaCockpitProfile(client, student.studentId, body, {
+  handler: async ({ client, ctx, request, session }) => {
+    return withCoreV2AriaResponse({ client, ctx, request, session }, async (client, ctx) => {
+      const student = await loadCoreV2AriaStudentContext(client, ctx);
+      const ariaProfile = await getCoreV2AriaCockpitProfile(client, student.studentId, {
         gradeLevel: student.gradeLevel,
         academicTrack: student.academicTrack,
         specialties: student.specialties,
         stmgPathway: student.stmgPathway,
         academicEnrollments: student.academicEnrollments,
       });
-    } catch (caught) {
-      // Translated to a CoreV2DomainError so `defineStaffRoute`'s uniform
-      // error envelope maps it to 400 — a bare AriaProfileValidationError
-      // (shared with the legacy route) would otherwise fall through to a
-      // generic 500. Same fixed, generic message as the legacy route:
-      // never echo `caught.issues` to the client.
-      if (caught instanceof AriaProfileValidationError) {
-        throw new ValidationError('Préférences ARIA invalides (cours, objectif hebdomadaire ou parcours choisis).');
-      }
-      throw caught;
-    }
-    const academicProfile = buildAcademicProfile({
-      gradeLevel: student.gradeLevel,
-      academicTrack: student.academicTrack,
-      specialties: student.specialties,
-      hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
-      stmgPathway: student.stmgPathway,
-      school: student.school,
-    });
+      const academicProfile = buildAcademicProfile({
+        gradeLevel: student.gradeLevel,
+        academicTrack: student.academicTrack,
+        specialties: student.specialties,
+        hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
+        stmgPathway: student.stmgPathway,
+        school: student.school,
+      });
 
-    return {
-      data: {
-        academicProfile,
-        ariaProfile,
-        setupState: deriveSetupState(
-          academicProfile.incomplete,
-          ariaProfile.onboardingCompletedAt,
-          ariaProfile.pinnedCourseKeys.length,
-        ),
-        academicProfileReadOnly: true,
-      },
-    };
+      return {
+        data: {
+          academicProfile,
+          ariaProfile,
+          setupState: deriveSetupState(
+            academicProfile.incomplete,
+            ariaProfile.onboardingCompletedAt,
+            ariaProfile.pinnedCourseKeys.length,
+          ),
+          academicProfileReadOnly: true,
+        },
+      };
+    });
+  },
+});
+
+export const PUT = defineStaffRoute({
+  body: ariaProfileUpdateSchema as unknown as z.ZodTypeAny,
+  handler: async ({ client, ctx, body, request, session }) => {
+    return withCoreV2AriaResponse({ client, ctx, request, session }, async (client, ctx) => {
+      const student = await loadCoreV2AriaStudentContext(client, ctx);
+      let ariaProfile;
+      try {
+        ariaProfile = await upsertCoreV2AriaCockpitProfile(client, student.studentId, body, {
+          gradeLevel: student.gradeLevel,
+          academicTrack: student.academicTrack,
+          specialties: student.specialties,
+          stmgPathway: student.stmgPathway,
+          academicEnrollments: student.academicEnrollments,
+        });
+      } catch (caught) {
+        // Translated to a CoreV2DomainError so `defineStaffRoute`'s uniform
+        // error envelope maps it to 400 — a bare AriaProfileValidationError
+        // (shared with the legacy route) would otherwise fall through to a
+        // generic 500. Same fixed, generic message as the legacy route:
+        // never echo `caught.issues` to the client.
+        if (caught instanceof AriaProfileValidationError) {
+          throw new ValidationError('Préférences ARIA invalides (cours, objectif hebdomadaire ou parcours choisis).');
+        }
+        throw caught;
+      }
+      const academicProfile = buildAcademicProfile({
+        gradeLevel: student.gradeLevel,
+        academicTrack: student.academicTrack,
+        specialties: student.specialties,
+        hasAcademicSpecialtyEnrollment: student.hasAcademicSpecialtyEnrollment,
+        stmgPathway: student.stmgPathway,
+        school: student.school,
+      });
+
+      return {
+        data: {
+          academicProfile,
+          ariaProfile,
+          setupState: deriveSetupState(
+            academicProfile.incomplete,
+            ariaProfile.onboardingCompletedAt,
+            ariaProfile.pinnedCourseKeys.length,
+          ),
+          academicProfileReadOnly: true,
+        },
+      };
+    });
   },
 });

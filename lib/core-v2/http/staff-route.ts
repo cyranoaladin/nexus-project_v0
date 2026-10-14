@@ -10,13 +10,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { z } from 'zod';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { checkBodySize, checkCsrf } from '@/lib/csrf';
-import { isErrorResponse, requireAuth } from '@/lib/guards';
-import { logger } from '@/lib/logger';
+import { isErrorResponse, requireAuth, type AuthSession } from '@/lib/guards';
 import { requireCoreV2Client } from '../client';
 import { ValidationError } from '../errors';
 import { createServiceContext, type ServiceContext } from '../services/context';
 import { resolveActor } from './actor';
 import { CORRELATION_HEADER, fail, failFromError } from './respond';
+import { credentialAuthorityIsV1 } from '../accounts/v1-authority';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
 
 const CORRELATION_ID_PATTERN = /^[A-Za-z0-9._:-]{8,128}$/;
 
@@ -27,6 +28,7 @@ export interface RouteArgs<TBody, TQuery> {
   readonly query: TQuery;
   readonly params: Readonly<Record<string, string>>;
   readonly request: NextRequest;
+  readonly session: AuthSession;
 }
 
 export interface RouteResult {
@@ -91,7 +93,9 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
 
       const client = await requireCoreV2Client();
       const actor = await resolveActor(client, session.user.id);
-      const ctx = createServiceContext(actor, { correlationId });
+      const ctx = createServiceContext(actor, { correlationId,
+        v1RequestAuthority: credentialAuthorityIsV1() ? await readBoundPrivateV1Session(request, session) : undefined,
+      });
       routeBoundaryReady = true;
 
       const rawParams = await context.params;
@@ -105,6 +109,7 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
         query: query as never,
         params: rawParams,
         request,
+        session,
       });
       // Streaming routes pass through the same authentication, CSRF, actor and
       // validation boundary before returning their authenticated response.
@@ -118,12 +123,9 @@ export function defineStaffRoute<B extends z.ZodTypeAny | undefined = undefined,
       );
     } catch (error) {
       const mapped = routeBoundaryReady ? options.mapError?.(error, correlationId) : undefined;
-      if (mapped) return mapped;
-      const response = failFromError(error, correlationId);
-      if (response.status >= 500) {
-        logger.error({ correlationId, path: request.nextUrl.pathname, err: error instanceof Error ? error.message : String(error) }, '[core-v2] unhandled route error');
-      }
-      return response;
+      if (mapped && mapped.status >= 400) return mapped;
+      // The envelope mapper owns the single bounded, redacted error record.
+      return failFromError(error, correlationId);
     }
   };
 }

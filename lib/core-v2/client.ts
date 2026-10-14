@@ -200,3 +200,28 @@ export async function disconnectCoreV2Client(): Promise<void> {
     // close.
   }
 }
+
+let cachedAdminAuthorizer: Promise<CoreV2PrismaClient> | null = null;
+/** Separate server-only credential; runtime/sync/bootstrap cannot assume it. */
+export function requireCoreV2AdminAuthorizerClient(): Promise<CoreV2PrismaClient> {
+  if (!cachedAdminAuthorizer) {
+    const validation = (async () => {
+      const url = process.env.CORE_V2_ADMIN_AUTHORIZER_DATABASE_URL;
+      assertNoCoreV1V2TargetCollision(url, process.env.DATABASE_URL);
+      const client = new CoreV2PrismaClient({ datasourceUrl: url! });
+      await assertCoreV2DatabaseIdentity(client);
+      const [role] = await client.$queryRaw<Array<{ authorized: boolean }>>`
+        SELECT current_user = 'nexus_core_admin_authorizer' AND NOT rolsuper
+          AND NOT rolcreatedb AND NOT rolcreaterole AND NOT rolinherit AS authorized
+        FROM pg_catalog.pg_roles WHERE rolname = current_user`;
+      if (role?.authorized !== true) { await client.$disconnect(); throw new CoreV2DatabaseIdentityError('ADMIN_AUTHORIZER_UNAVAILABLE'); }
+      return client;
+    })().catch(error => { if (cachedAdminAuthorizer === validation) cachedAdminAuthorizer = null; throw error; });
+    cachedAdminAuthorizer = validation;
+  }
+  return cachedAdminAuthorizer;
+}
+export async function disconnectCoreV2AdminAuthorizer(): Promise<void> {
+  const pending = cachedAdminAuthorizer; cachedAdminAuthorizer = null;
+  if (pending) await pending.then(client => client.$disconnect()).catch(() => undefined);
+}

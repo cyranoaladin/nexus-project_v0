@@ -1,3 +1,4 @@
+import { withInvitationActor, assertInvitationAuthorityMutation } from '../accounts/invitation-scope';
 /**
  * Household = family authority. One parent user belongs to at most one
  * household (HouseholdParent.userId unique); at most one primary contact per
@@ -10,7 +11,6 @@ import { normalizeEmail, normalizePhone } from '../contact';
 import { ConflictError, InvalidStateError, NotFoundError, isUniqueViolation } from '../errors';
 import { assertCapability, assertSubjectRole } from '../rbac';
 import type { ServiceContext, Tx } from './context';
-import { inTransaction } from './context';
 import { idSchema, parseInput, personNameSchema } from './validation';
 
 const newParentSchema = z.object({
@@ -65,7 +65,7 @@ export async function createHousehold(
   assertCapability(ctx.actor, 'HOUSEHOLD_CREATE');
   const parentInput = parseInput(newParentSchema, rawInput.parent);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
     const parent = await insertParentUser(tx, parentInput);
     const household = await tx.household.create({ data: {} });
     const membership = await insertMembership(tx, household.id, parent.id, true);
@@ -98,7 +98,8 @@ export async function createParent(
   const householdId = parseInput(idSchema, rawInput.householdId);
   const parentInput = parseInput(newParentSchema, rawInput.parent);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'household', householdId });
     const household = await tx.household.findUnique({ where: { id: householdId } });
     if (!household) throw new NotFoundError('Household not found.', { householdId });
     const parent = await insertParentUser(tx, parentInput);
@@ -132,7 +133,8 @@ export async function attachExistingParent(
   const householdId = parseInput(idSchema, rawInput.householdId);
   const parentUserId = parseInput(idSchema, rawInput.parentUserId);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'household', householdId, adoptExistingParent: true });
     const household = await tx.household.findUnique({ where: { id: householdId } });
     if (!household) throw new NotFoundError('Household not found.', { householdId });
     const user = await tx.user.findUnique({ where: { id: parentUserId } });
@@ -161,7 +163,8 @@ export async function setPrimaryContact(
   const householdId = parseInput(idSchema, rawInput.householdId);
   const parentUserId = parseInput(idSchema, rawInput.parentUserId);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'parent', parentUserId });
     const membership = await tx.householdParent.findUnique({ where: { userId: parentUserId } });
     if (!membership || membership.householdId !== householdId) {
       throw new NotFoundError('This parent is not a member of this household.', { householdId, parentUserId });
@@ -220,7 +223,8 @@ export async function correctParentContact(
   const parentUserId = parseInput(idSchema, rawInput.parentUserId);
   const changes = parseInput(parentCorrectionSchema, rawInput.changes);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'parent', parentUserId });
     const user = await tx.user.findUnique({ where: { id: parentUserId } });
     if (!user) throw new NotFoundError('Parent account not found.', { parentUserId });
     assertSubjectRole(user, 'PARENT');

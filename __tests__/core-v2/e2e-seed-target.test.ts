@@ -1,4 +1,4 @@
-import { assertCoreV2E2eSeedTarget } from '@/scripts/core-v2/e2e-seed-target';
+import { assertCoreV2E2eSeedTarget, assertCoreV1E2eSeedTarget } from '@/scripts/core-v2/e2e-seed-target';
 
 describe('Core v2 E2E seed target guard', () => {
   test.each([
@@ -44,5 +44,30 @@ describe('Core v2 E2E seed target guard', () => {
       CORE_V2_DATABASE_URL: url,
       E2E_DISPOSABLE_STACK: marker,
     })).toThrow('CORE_V2_E2E_SEED_TARGET_REFUSED');
+  });
+});
+
+
+describe('V1 E2E target is independently guarded before credentials or connections', () => {
+  test.each([
+    'postgresql://fixture@localhost:5433/nexus_e2e',
+    'postgresql://fixture@127.0.0.1:5435/nexus_e2e?schema=public',
+    'postgresql://fixture@[::1]:5433/nexus_e2e',
+    'postgresql://fixture@postgres-e2e:5432/nexus_e2e?schema=public',
+  ])('accepts only the documented local disposable target: %s', url => {
+    expect(() => assertCoreV1E2eSeedTarget({ DATABASE_URL: url, E2E_DISPOSABLE_STACK: '1' })).not.toThrow();
+  });
+  test.each([
+    ['postgresql://fixture@localhost:5433/nexus_e2e', undefined],
+    ['postgresql://fixture@localhost:5432/nexus_e2e', '1'],
+    ['postgresql://fixture@production.internal:5433/nexus_e2e', '1'],
+    ['postgresql://fixture@localhost:5433/nexus_prod', '1'],
+    ['postgresql://fixture@localhost:5433/nexus_e2e?host=/tmp', '1'],
+    ['postgresql://fixture@localhost:5433/nexus_e2e?schema=public&schema=private', '1'],
+    ['postgresql://fixture@localhost:5433/nexus_e2e#override', '1'],
+    ['mysql://fixture@localhost:5433/nexus_e2e', '1'],
+    ['invalid', '1'],
+  ])('refuses an invalid V1 authority target with a constant diagnostic: %#', (url, marker) => {
+    expect(() => assertCoreV1E2eSeedTarget({ DATABASE_URL: url, E2E_DISPOSABLE_STACK: marker })).toThrow('V1_E2E_SEED_TARGET_REFUSED');
   });
 });

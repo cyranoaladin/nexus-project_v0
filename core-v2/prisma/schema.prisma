@@ -65,6 +65,7 @@ generator client {
 // NOT unique (several accounts of one household may share a phone).
 
 model User {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id        String   @id @default(cuid())
   email     String?  @unique
   password  String?
@@ -85,6 +86,9 @@ model User {
   coachProfile    CoachProfile?
   invitations     Invitation[]     @relation("InvitationUser")
   v1Provisioning  AccountV1Provisioning? @relation("AccountV1ProvisioningUser")
+  adminBootstrap  CoreAdminBootstrap?
+  invitationScopeGrants InvitationScopeGrant[] @relation("InvitationScopeStaff")
+  invitationScopeGrantsIssued InvitationScopeGrant[] @relation("InvitationScopeGrantIssuer")
 
   createdAt                        DateTime                        @default(now())
   updatedAt                        DateTime                        @updatedAt
@@ -165,6 +169,7 @@ model AuditEvent {
   correlationId String
   metadata      Json?
   createdAt     DateTime @default(now())
+  adminBootstrap CoreAdminBootstrap?
 
   @@index([subjectType, subjectId, createdAt])
   @@index([correlationId])
@@ -189,6 +194,7 @@ enum UserRole {
 // scripts/core-v2/architecture-guards.ts).
 
 model Household {
+  invitationScopeGrants InvitationScopeGrant[]
   id        String            @id @default(cuid())
   parents   HouseholdParent[]
   students  Student[]
@@ -213,6 +219,7 @@ enum HouseholdMembershipStatus {
 }
 
 model HouseholdParent {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id               String    @id @default(cuid())
   householdId      String
   household        Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
@@ -249,6 +256,7 @@ model HouseholdParent {
 // Household/User can be deleted. HouseholdParent (pure membership, no
 // academic content) keeps Cascade — see that model above.
 model Student {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id          String    @id @default(cuid())
   householdId String
   household   Household @relation(fields: [householdId], references: [id], onDelete: Restrict)
@@ -291,6 +299,8 @@ model Student {
 // academic_years_single_current_key (migration 0006). Lifecycle:
 // UPCOMING -> CURRENT -> CLOSED, transitions only through the service layer.
 model AcademicYear {
+  invitationScopeGrants InvitationScopeGrant[]
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id        String             @id @default(cuid())
   startYear Int                @unique // e.g. 2026 for "2026-2027" — the sole entered identity
   startsAt  DateTime
@@ -329,6 +339,7 @@ enum AcademicYearStatus {
 // enrollment history must not be silently erasable by deleting the Student
 // row. Explicit enrollment cleanup is required first (deletion-policy audit).
 model StudentAcademicYearEnrollment {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -389,6 +400,7 @@ enum StudentAcademicYearEnrollmentStatus {
 // enrollment is academic history in its own right and must not vanish as a
 // side effect of deleting the parent enrollment row (deletion-policy audit).
 model StudentCourseEnrollment {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id                       String                        @id @default(cuid())
   academicYearEnrollmentId String
   academicYearEnrollment   StudentAcademicYearEnrollment @relation(fields: [academicYearEnrollmentId], references: [id], onDelete: Restrict)
@@ -675,8 +687,25 @@ model CoreV2DatabaseIdentity {
   schemaIdentity   String
   schemaGeneration Int
   createdAt        DateTime @default(now())
+  instanceId       String   @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   @@map("core_v2_database_identity")
+}
+
+// Single-use, immutable bootstrap authority. Runtime cannot write this table.
+// All fields are non-secret; the immutable audit receipt stores the same manifest.
+model CoreAdminBootstrap {
+  id          Int        @id @default(1)
+  v1UserId    String     @unique
+  user        User       @relation(fields: [v1UserId], references: [id], onDelete: Restrict)
+  receiptId   String     @unique
+  receipt     AuditEvent @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+  nonce       String     @unique
+  fingerprint String
+  manifest    Json
+  createdAt   DateTime   @default(now())
+
+  @@map("core_admin_bootstrap")
 }
 
 // ── Shared academic enums ───────────────────────────────────────────────────
@@ -1247,6 +1276,7 @@ model AriaCockpitProfileCoreV2 {
 // normal ADMIN operation (lib/core-v2/aria/access-grants.ts), never
 // hardcoded for a specific account.
 model AriaAccessGrant {
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id        String  @id @default(cuid())
   studentId String
   student   Student @relation(fields: [studentId], references: [id], onDelete: Restrict)
@@ -1458,6 +1488,7 @@ model CoreV2JobOutbox {
 // `generation` is a monotonic request counter: a resend increments it, which
 // rotates the v1 token and makes every older job a no-op.
 model AccountV1Provisioning {
+  invitationBinding Json?
   id                  String                   @id @default(cuid())
   userId              String                   @unique
   user                User                     @relation("AccountV1ProvisioningUser", fields: [userId], references: [id], onDelete: Restrict)
@@ -1522,4 +1553,25 @@ enum CoreV2JobStatus {
   RETRY_SCHEDULED
   COMPLETED
   FAILED_FINAL
+}
+
+// Explicit administrative assignment, independent of academic response access.
+model InvitationScopeGrant {
+  id String @id @default(cuid())
+  staffUserId String
+  staff User @relation("InvitationScopeStaff", fields: [staffUserId], references: [id], onDelete: Restrict)
+  householdId String
+  household Household @relation(fields: [householdId], references: [id], onDelete: Restrict)
+  academicYearId String
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  grantedById String
+  grantedBy User @relation("InvitationScopeGrantIssuer", fields: [grantedById], references: [id], onDelete: Restrict)
+  revision Int @default(1)
+  invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // Nom tronqué à 63 caractères par PostgreSQL lors de la migration 0030 (checksum épinglé, migration inchangée).
+  @@unique([staffUserId, householdId, academicYearId], map: "invitation_scope_grants_staffUserId_householdId_academicYearId_")
+  @@map("invitation_scope_grants")
 }

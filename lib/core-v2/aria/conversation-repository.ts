@@ -90,7 +90,7 @@ const persistedFailureCodes = new Set<AriaErrorCode>([
 ]);
 
 export function findOwnedAssistantMessage(input: {
-  client: PrismaClient;
+  client: PrismaClient | Prisma.TransactionClient;
   messageId: string;
   studentId: string;
 }) {
@@ -113,7 +113,11 @@ function readFailureCode(metadata: unknown): AriaErrorCode | undefined {
 }
 
 export class CoreV2AriaConversationRepository implements AriaConversationRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
+
+  private transaction<T>(operation: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return '$transaction' in this.client ? this.client.$transaction(operation) : operation(this.client);
+  }
 
   private findExisting(client: Pick<Prisma.TransactionClient, 'ariaConversationTurnCoreV2'>, input: FindTurnReservationInput) {
     return client.ariaConversationTurnCoreV2.findFirst({
@@ -133,7 +137,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
   }
 
   async reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const scope = [input.actorUserId, input.subjectStudentId, 'CONVERSATION', input.clientRequestId].join(':');
       await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${scope}, 0))`);
       const existing = await this.findExisting(tx, input);
@@ -229,7 +233,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
   }
 
   async claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ id: string; conversationId: string; actorUserId: string; subjectStudentId: string; status: AriaTurnStatus; executionToken: string | null; leaseExpiresAt: Date | null }>>(Prisma.sql`
         SELECT id, "conversationId", "actorUserId", "subjectStudentId", status::text, "executionToken", "leaseExpiresAt"
         FROM aria_conversation_turns_core_v2
@@ -269,7 +273,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
 
   async checkpointRetrieval(input: CheckpointTurnRetrievalInput): Promise<void> {
     assertAriaCitationsMatchRetrievalEvidence([], input.retrievalEvidence);
-    await this.client.$transaction(async (tx) => {
+    await this.transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ status: AriaTurnStatus; executionToken: string | null; retrievalPolicy: unknown; retrievalEvidence: unknown; ragStatus: string | null; policyVersion: string | null }>>(Prisma.sql`
         SELECT status::text, "executionToken", "retrievalPolicy", "retrievalEvidence", "ragStatus", "policyVersion"
         FROM aria_conversation_turns_core_v2 WHERE id = ${input.turnId} AND "conversationId" = ${input.conversationId} FOR UPDATE
@@ -286,7 +290,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
 
   async finalizeTurn(input: FinalizeTurnInput): Promise<void> {
     const now = input.now ?? new Date();
-    await this.client.$transaction(async (tx) => {
+    await this.transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ status: AriaTurnStatus; executionToken: string | null; cancellationRequestedAt: Date | null; retrievalEvidence: unknown; ragStatus: string | null; courseKey: string }>>(Prisma.sql`
         SELECT t.status::text, t."executionToken", t."cancellationRequestedAt", t."retrievalEvidence", t."ragStatus", c."courseKey"
         FROM aria_conversation_turns_core_v2 t JOIN aria_conversations_core_v2 c ON c.id = t."conversationId"
@@ -333,7 +337,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
   }
 
   async requestCancellation(input: RequestTurnCancellationInput): Promise<TurnCancellationRecord> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ id: string; conversationId: string; actorUserId: string; clientRequestId: string; status: AriaTurnStatus; executionToken: string | null; cancellationRequestedAt: Date | null }>>(Prisma.sql`
         SELECT id, "conversationId", "actorUserId", "clientRequestId", status::text, "executionToken", "cancellationRequestedAt"
         FROM aria_conversation_turns_core_v2 WHERE id = ${input.turnId} FOR UPDATE
@@ -360,7 +364,7 @@ export class CoreV2AriaConversationRepository implements AriaConversationReposit
   }
 
   async heartbeatTurn(input: HeartbeatTurnInput): Promise<HeartbeatTurnRecord> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const rows = await tx.$queryRaw<Array<{ status: AriaTurnStatus; executionToken: string | null; cancellationRequestedAt: Date | null }>>(Prisma.sql`
         SELECT status::text, "executionToken", "cancellationRequestedAt"
         FROM aria_conversation_turns_core_v2

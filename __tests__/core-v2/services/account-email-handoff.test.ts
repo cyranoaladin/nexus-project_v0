@@ -6,6 +6,7 @@ import { randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { activateAccount, createHousehold, inviteAccount, resendInvitation, requestPasswordReset } from '@/lib/core-v2/services';
 import { setupServiceHarness, waitForLockWaiter, holdOpenTransaction } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 const previousKey = process.env.EMAIL_OUTBOX_ENCRYPTION_KEY;
@@ -19,6 +20,7 @@ async function pendingParent() {
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: {
     firstName: 'Synthetic', lastName: 'Parent', email: 'handoff-parent@example.test',
   } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   return parent;
 }
 
@@ -226,6 +228,7 @@ test('slow sequential destination commits receive fresh leases rather than exhau
   const first = await inviteAccount(h.client, h.ctx(), parent.id);
   for (let i = 0; i < 2; i += 1) {
     const user = await h.client.user.create({ data: { role: 'PARENT', email: `synthetic-slow-handoff-${i}@example.test`, accountStatus: 'PENDING_ACTIVATION' } });
+    await seedInvitationFamilyScope(h.client, h.admin.userId, user.id);
     await inviteAccount(h.client, h.ctx(), user.id);
   }
   let clock = first.invitation.createdAt.getTime() + 1000;
@@ -305,6 +308,7 @@ test('a resend command cannot be reused for a different account', async () => {
   const { parent: other } = await createHousehold(h.client, h.ctx(), { parent: {
     firstName: 'Other', lastName: 'Synthetic', email: 'other-handoff@example.test',
   } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, other.id);
   const command = 'ff19a4d6-2b9a-4a75-9c64-9de5bb907ecd';
   await resendInvitation(h.client, h.ctx(), parent.id, { commandId: command });
   let refused = false;

@@ -9,7 +9,10 @@ jest.mock('@/lib/aria/gateway', () => ({
 
 import { auth } from '@/auth';
 import { NO_PARAMS } from '@/lib/core-v2/http/staff-route';
-import { setupServiceHarness, seedAcademicYear } from '../helpers/service-harness';
+import { seedAcademicYear } from '../helpers/service-harness';
+import { setupV1Fixture } from '../helpers/v1-provisioning-fixture';
+import { prisma } from '@/lib/prisma';
+import { encode } from 'next-auth/jwt';
 import { CoreV2AriaConversationRepository } from '@/lib/core-v2/aria/conversation-repository';
 import { grantCoreV2AriaAccess } from '@/lib/core-v2/aria/access-grants';
 import { kickCoreV2AriaRecoveryDrain, startCoreV2AriaRecoveryScheduler, stopCoreV2AriaRecoveryScheduler } from '@/lib/core-v2/aria/recovery-scheduler';
@@ -21,7 +24,7 @@ import * as cancelRoute from '@/app/api/v2/aria/turns/[turnId]/cancel/route';
 import * as feedbackRoute from '@/app/api/v2/aria/feedback/route';
 import { AriaError } from '@/lib/aria/kernel/errors';
 
-const h = setupServiceHarness();
+const f = setupV1Fixture(); const h = f.h;
 const mockedAuth = auth as unknown as jest.Mock;
 const clientRequestId = '00000000-0000-4000-8000-000000000001';
 
@@ -29,10 +32,20 @@ function signInAs(user: { id: string; role: string } | null) {
   mockedAuth.mockResolvedValue(user ? { user: { id: user.id, role: user.role, email: 'synthetic@example.test' }, expires: '2099-01-01' } : null);
 }
 
+async function cookieHeaders(): Promise<Record<string, string>> {
+  const session = await mockedAuth();
+  if (!session) return {};
+  const row = await prisma.user.findUnique({ where: { id: session.user.id }, select: { role: true, sessionVersion: true } });
+  if (!row) return {};
+  const jwt = await encode({ token: { id: session.user.id, role: row.role, sessionVersion: row.sessionVersion, authority: 'V1' },
+    secret: process.env.AUTH_SECRET!, salt: 'authjs.session-token' });
+  return { cookie: `authjs.session-token=${jwt}` };
+}
+
 async function call(method: 'GET' | 'POST', path: string, body?: unknown, params: Record<string, string> = {}) {
   const request = new NextRequest(`http://localhost:3000${path}`, {
     method,
-    headers: { origin: 'http://localhost:3000', ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
+    headers: { origin: 'http://localhost:3000', ...(await cookieHeaders()), ...(body === undefined ? {} : { 'content-type': 'application/json' }) },
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const context = Object.keys(params).length ? { params: Promise.resolve(params) } : NO_PARAMS;
@@ -46,7 +59,8 @@ async function call(method: 'GET' | 'POST', path: string, body?: unknown, params
 async function seedStudent(email: string) {
   const year = await h.client.academicYear.findFirstOrThrow({ where: { status: 'CURRENT' } });
   const household = await h.client.household.create({ data: {} });
-  const user = await h.client.user.create({ data: { role: 'ELEVE', email, accountStatus: 'ACTIVE' } });
+  const v1 = await f.v1User('ELEVE', 'aria-http', 'ACTIVE');
+  const user = await h.client.user.create({ data: { id: v1.id, role: 'ELEVE', email, accountStatus: 'ACTIVE' } });
   const student = await h.client.student.create({ data: { userId: user.id, householdId: household.id } });
   await h.client.studentAcademicYearEnrollment.create({ data: { studentId: student.id, academicYearId: year.id, status: 'ACTIVE', gradeLevel: 'TERMINALE', academicTrack: 'EDS_GENERALE' } });
   return { user, student };
@@ -74,6 +88,86 @@ describe('Core v2 ARIA conversation route guards', () => {
   afterEach(() => {
     delete process.env.CORE_V2_ARIA_CONVERSATION_ENABLED;
     delete process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED;
+  });
+
+  test.each([
+    ['cockpit', 'GET', undefined], ['cockpit/profile', 'GET', undefined], ['curriculum', 'GET', undefined],
+    ['conversations', 'GET', undefined], ['conversations/absent/messages', 'GET', undefined],
+    ['cockpit/profile', 'PUT', { weeklyGoalMinutes: 60 }],
+    ['feedback', 'POST', { messageId: 'absent', useful: true }],
+    ['turns/absent/cancel', 'POST', { clientRequestId }],
+  ] as const)('a revoked encrypted V1 cookie refuses %s %s before owned data or mutation', async (path, method, body) => {
+    const owner = await seedStudent('owned-cookie@synthetic.test'); signInAs({ id: owner.user.id, role: 'ELEVE' });
+    const cookie = await cookieHeaders();
+    await prisma.user.update({ where: { id: owner.user.id }, data: { sessionVersion: { increment: 1 } } });
+    const request = new NextRequest(`http://localhost:3000/api/v2/aria/${path}`, { method,
+      headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', ...cookie },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    });
+    const route = path === 'cockpit' ? await import('@/app/api/v2/aria/cockpit/route')
+      : path === 'cockpit/profile' ? await import('@/app/api/v2/aria/cockpit/profile/route')
+        : path === 'curriculum' ? await import('@/app/api/v2/aria/curriculum/route')
+          : path === 'conversations' ? await import('@/app/api/v2/aria/conversations/route')
+            : path.startsWith('conversations/') ? messagesRoute
+              : path === 'feedback' ? await import('@/app/api/v2/aria/feedback/route') : cancelRoute;
+    const handler = (route as unknown as Record<string, (request: NextRequest, context: { params: Promise<Record<string, string>> }) => Promise<Response>>)[method]!;
+    const response = await handler(request, { params: Promise.resolve({ turnId: 'absent', conversationId: 'absent' }) });
+    expect(response.status).toBe(403); expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(await h.client.ariaCockpitProfileCoreV2.count()).toBe(0);
+    expect(await h.client.ariaFeedbackCoreV2.count()).toBe(0); expect(await h.client.coreV2JobOutbox.count()).toBe(0);
+  });
+
+  test('a genuinely encrypted but revoked V1 cookie cannot reserve after the canonical session check', async () => {
+    const owner = await seedStudent('revoked-cookie@synthetic.test');
+    await grantCoreV2AriaAccess(h.client, h.admin, { studentId: owner.student.id, featureKey: 'aria_maths', courseScopes: ['philosophie-terminale'] });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true'; process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED = 'true';
+    signInAs({ id: owner.user.id, role: 'ELEVE' }); const cookie = await cookieHeaders();
+    await prisma.user.update({ where: { id: owner.user.id }, data: { sessionVersion: { increment: 1 } } });
+    const request = new NextRequest('http://localhost:3000/api/v2/aria/chat', { method: 'POST',
+      headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', ...cookie },
+      body: JSON.stringify({ courseKey: 'philosophie-terminale', clientRequestId, content: 'synthetic question' }) });
+    const response = await chatRoute.POST(request, NO_PARAMS); expect(response.status).toBe(403);
+    expect(await h.client.ariaConversationTurnCoreV2.count()).toBe(0); expect(await h.client.ariaMessageCoreV2.count()).toBe(0);
+    expect(await h.client.coreV2JobOutbox.count()).toBe(0);
+  });
+
+  test.each(['connected', 'detached'] as const)('a silent provider stops on real global V1 suspension, including %s SSE', async connection => {
+    const owner = await seedStudent('silent-revocation@synthetic.test');
+    await grantCoreV2AriaAccess(h.client, h.admin, { studentId: owner.student.id, featureKey: 'aria_maths', courseScopes: ['philosophie-terminale'] });
+    process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'true'; process.env.CORE_V2_ARIA_RECOVERY_WORKER_ENABLED = 'true';
+    process.env.RATE_LIMIT_BACKEND = 'memory'; process.env.RATE_LIMIT_KEY_SECRET = randomBytes(32).toString('hex');
+    process.env.RATE_LIMIT_KEY_NAMESPACE = 'synthetic-silent-revocation';
+    signInAs({ id: owner.user.id, role: 'ELEVE' });
+    let started!: () => void; let stopProvider!: () => void; let stopped = false; let providerDidStop!: () => void;
+    const providerStopped = new Promise<void>(resolve => { providerDidStop = resolve; });
+    const providerStarted = new Promise<void>(resolve => { started = resolve; });
+    (ariaGateway.streamChatCompletion as jest.Mock).mockImplementationOnce(async function* (_messages, options: { signal: AbortSignal }) {
+      await new Promise<void>((_resolve, reject) => { stopProvider = () => { stopped = true; providerDidStop(); reject(new AriaError('INTERNAL_ERROR', 503, 'synthetic provider aborted')); };
+        options.signal.addEventListener('abort', stopProvider, { once: true }); started(); if (options.signal.aborted) stopProvider(); });
+      yield 'PRIVATE_SILENT_PROVIDER_SENTINEL';
+    });
+    const request = new NextRequest('http://localhost:3000/api/v2/aria/chat', { method: 'POST',
+      headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', accept: 'text/event-stream', ...(await cookieHeaders()) },
+      body: JSON.stringify({ courseKey: 'philosophie-terminale', clientRequestId, content: 'synthetic question' }) });
+    const response = await chatRoute.POST(request, NO_PARAMS); expect(response.status).toBe(200);
+    const reader = response.body!.getReader(); const wire = new TextDecoder().decode((await reader.read()).value);
+    const start = JSON.parse(wire.split('\n').find(line => line.startsWith('data: '))!.slice(6)); await providerStarted;
+    try {
+      if (connection === 'detached') await reader.cancel();
+      await prisma.user.update({ where: { id: owner.user.id }, data: { disabledAt: new Date() } });
+      let remaining = '';
+      if (connection === 'connected') { for (;;) { const chunk = await reader.read(); if (chunk.done) break; remaining += new TextDecoder().decode(chunk.value); }
+        expect(remaining).toContain('event: error'); expect(remaining).not.toContain('event: done'); expect(remaining).not.toContain('PRIVATE_SILENT_PROVIDER_SENTINEL'); }
+      // Wait for the actual heartbeat-driven abort, including a detached client.
+      await providerStopped;
+      const deadline = Date.now() + 5_000;
+      let stored = await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: start.turnId } });
+      while (stored.status !== 'ERROR' && Date.now() < deadline) { await new Promise(resolve => setTimeout(resolve, 20)); stored = await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: start.turnId } }); }
+      expect(stopped).toBe(true); expect(stored.status).toBe('ERROR'); expect(stored.leaseExpiresAt).toBeNull();
+      expect(stored.executionMetadata).toEqual({ failureCode: 'NOT_ENTITLED', reasonCode: 'ARIA_AUTHORITY_REVOKED' });
+      expect(await h.client.ariaMessageCoreV2.findUniqueOrThrow({ where: { id: start.messageId } })).toMatchObject({ content: '' });
+      expect(await h.client.coreV2JobOutbox.findFirstOrThrow({ where: { aggregateId: start.turnId } })).toMatchObject({ status: 'COMPLETED' });
+    } finally { stopProvider?.(); }
   });
 
   test('first streamed Core generation is cancellable before the provider produces a token', async () => {
@@ -110,7 +204,7 @@ describe('Core v2 ARIA conversation route guards', () => {
       yield 'UNREACHABLE';
     });
     const request = new NextRequest('http://localhost:3000/api/v2/aria/chat', {
-      method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json', accept: 'text/event-stream' },
+      method: 'POST', headers: { origin: 'http://localhost:3000', ...(await cookieHeaders()), 'content-type': 'application/json', accept: 'text/event-stream' },
       body: JSON.stringify({ courseKey: 'philosophie-terminale', clientRequestId, content: 'Question synthétique', pedagogicalMode: 'DISCOVERY' }),
     });
     try {
@@ -194,7 +288,7 @@ describe('Core v2 ARIA conversation route guards', () => {
     process.env.CORE_V2_ARIA_CONVERSATION_ENABLED = 'false';
     const historyPath = `/api/v2/aria/conversations/${turn.conversationId}/messages`;
     const context = { params: Promise.resolve({ conversationId: turn.conversationId }) };
-    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`, { headers: await cookieHeaders() }), context);
     expect(before.status).toBe(200);
     expect((await before.json()).data.conversation.activeTurn.turnId).toBe(turn.turnId);
 
@@ -202,7 +296,7 @@ describe('Core v2 ARIA conversation route guards', () => {
     expect(cancelled.status).toBe(200);
     expect(cancelled.body.data.status).toBe('CANCELLED');
 
-    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`, { headers: await cookieHeaders() }), context);
     expect(after.status).toBe(200);
     expect((await after.json()).data.messages).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: turn.assistantMessageId, status: 'CANCELLED' }),
@@ -226,7 +320,7 @@ describe('Core v2 ARIA conversation route guards', () => {
     const historyPath = `/api/v2/aria/conversations/${turn.conversationId}/messages`;
     const context = { params: Promise.resolve({ conversationId: turn.conversationId }) };
 
-    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    const before = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`, { headers: await cookieHeaders() }), context);
     expect(before.status).toBe(200);
     const runningHistory = (await before.json()).data;
     expect(runningHistory.conversation.activeTurn).toMatchObject({ turnId: turn.turnId, status: 'RUNNING', clientRequestId });
@@ -243,7 +337,7 @@ describe('Core v2 ARIA conversation route guards', () => {
     await stopCoreV2AriaRecoveryScheduler();
     expect((await h.client.ariaConversationTurnCoreV2.findUniqueOrThrow({ where: { id: turn.turnId } })).status).toBe('CANCELLED');
     expect((await h.client.coreV2JobOutbox.findUniqueOrThrow({ where: { idempotencyKey: `aria-turn-watchdog:${turn.turnId}` } })).status).toBe('COMPLETED');
-    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`), context);
+    const after = await messagesRoute.GET(new NextRequest(`http://localhost:3000${historyPath}`, { headers: await cookieHeaders() }), context);
     expect(after.status).toBe(200);
     const finalHistory = (await after.json()).data;
     expect(finalHistory.conversation.activeTurn).toBeNull();

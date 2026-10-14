@@ -14,6 +14,7 @@ import type {
   AriaAccessGrantStatus,
   CoreV2AriaTier,
   PrismaClient,
+  Prisma as CorePrisma,
 } from '@/core-v2/generated/client';
 import { assertCapability, type Actor } from '@/lib/core-v2/rbac';
 import { ARIA_FEATURE_KEYS, type AriaFeatureKey } from '@/lib/aria/cockpit/contracts';
@@ -106,7 +107,7 @@ export function buildCoreV2AriaEntitlements(
  * no status/date predicate: the canonical kernel is the sole validity engine.
  */
 export async function loadCoreV2AriaAccessGrants(
-  client: PrismaClient,
+  client: PrismaClient | CorePrisma.TransactionClient,
   studentId: string,
 ): Promise<CoreV2AriaAccessGrantRecord[]> {
   const rows = await client.ariaAccessGrant.findMany({
@@ -128,7 +129,7 @@ export async function loadCoreV2AriaAccessGrants(
 
 /** Resolve one student's grants exclusively through the shared canonical kernel. */
 export async function resolveCoreV2AriaEntitlements(
-  client: PrismaClient,
+  client: PrismaClient | CorePrisma.TransactionClient,
   studentId: string,
   now: Date = new Date(),
 ): Promise<CoreV2AriaEntitlements> {

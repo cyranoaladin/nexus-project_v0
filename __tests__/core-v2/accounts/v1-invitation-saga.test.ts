@@ -12,10 +12,20 @@ import { defaultV1Gateway, type V1Gateway } from '@/lib/core-v2/accounts/v1-prov
 import { InvalidStateError } from '@/lib/core-v2/errors';
 import { disableAccount, requestAccountInvitation, requestAccountInvitationResend } from '@/lib/core-v2/services';
 import { activationLink, newPassword, setupV1Fixture, type Role } from '../helpers/v1-provisioning-fixture';
+import { decryptEmailIntent } from '@/lib/email/outbox';
+import type { InvitationBinding } from '@/lib/core-v2/accounts/invitation-scope';
+import type { User } from '@/core-v2/generated/client';
 
 const f = setupV1Fixture();
 const { h } = f;
 const DAY = 86_400_000;
+async function authoritativeTarget(core: User) {
+  const saga = await h.client.accountV1Provisioning.findUniqueOrThrow({ where: { userId: core.id } });
+  const binding = saga.invitationBinding as unknown as InvitationBinding;
+  return { coreUserId: core.id, email: core.email!, role: core.role, firstName: null, lastName: null, phone: null,
+    generation: saga.generation, authority: { issuerId: binding.scope.issuerId, issuerVersion: binding.v1IssuerVersion!,
+      bindingDigest: binding.fingerprint, databaseIdentity: binding.scope.databaseIdentity, operation: binding.scope.operation } };
+}
 
 async function invitedAndDelivered(role: Role, label: string) {
   const core = await f.coreUser(role, label);
@@ -94,7 +104,8 @@ describe('double click and concurrency', () => {
 
   test('the same generation issued twice at once creates one account, one token, one mail', async () => {
     const core = await f.coreUser('PARENT', 'concurrent-issue');
-    const target = { coreUserId: core.id, email: core.email as string, role: core.role, firstName: null, lastName: null, phone: null, generation: 1 };
+    await requestAccountInvitation(h.client, h.ctx(), core.id);
+    const target = await authoritativeTarget(core);
     const outcomes = await Promise.allSettled([issueV1AccountInvitation(target), issueV1AccountInvitation(target)]);
     const fulfilled = outcomes.flatMap((o) => (o.status === 'fulfilled' ? [o.value] : []));
     expect(fulfilled.length).toBeGreaterThanOrEqual(1);
@@ -106,15 +117,14 @@ describe('double click and concurrency', () => {
   test('an older generation can never overwrite a newer token', async () => {
     const core = await f.coreUser('ASSISTANTE', 'stale-generation');
     await requestAccountInvitation(h.client, h.ctx(), core.id);
+    const oldTarget = await authoritativeTarget(core);
     await requestAccountInvitationResend(h.client, h.ctx(), core.id); // generation 2 before the worker ever ran
     await f.settle();
     await f.deliverMail();
     expect(f.mailbox).toHaveLength(1); // generation 1 was superseded before it issued anything
 
     const before = await f.snapshotV1(core.id);
-    const stale = await issueV1AccountInvitation({
-      coreUserId: core.id, email: core.email as string, role: core.role, firstName: null, lastName: null, phone: null, generation: 1,
-    });
+    const stale = await issueV1AccountInvitation(oldTarget);
     expect(stale).toEqual({ outcome: 'REFUSED', code: 'V1_GENERATION_STALE' });
     expect(await f.snapshotV1(core.id)).toEqual(before);
   });
@@ -250,8 +260,11 @@ describe('expiry, replay, resend', () => {
     await f.run({ gateway: skewed });
     // The same pass that queued the mail already sees the window is closed.
     expect(await f.saga(core.id)).toMatchObject({ state: 'EXPIRED', lastErrorCode: 'INVITATION_EXPIRED' });
+    const queued = await prisma.jobOutbox.findFirstOrThrow({ where: { aggregateId: `${core.id}:g1`, aggregateType: 'account-invitation' } });
+    const content = decryptEmailIntent(queued.payload).content;
+    const expired = activationLink({ text: content.text ?? '', html: content.html, to: 'synthetic@example.test', subject: 'Synthetic' });
     await f.deliverMail();
-    const expired = activationLink(f.mailbox[0]);
+    expect(f.mailbox).toHaveLength(0);
     expect((await f.verifyLink(expired)).body).toMatchObject({ valid: false });
     expect((await f.activate(expired, newPassword())).status).toBe(400);
     expect((await prisma.user.findUniqueOrThrow({ where: { id: core.id } })).password).toBeNull();
@@ -259,7 +272,8 @@ describe('expiry, replay, resend', () => {
     await requestAccountInvitationResend(h.client, h.ctx(), core.id);
     await f.settle();
     await f.deliverMail();
-    const fresh = activationLink(f.mailbox[1]);
+    expect(f.mailbox).toHaveLength(1);
+    const fresh = activationLink(f.mailbox[0]);
     expect((await f.activate(fresh, newPassword())).status).toBe(200);
     await f.settle();
     expect((await f.saga(core.id)).state).toBe('CORE_PROVISIONED');

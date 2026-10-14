@@ -11,6 +11,7 @@ import type { PrismaClient, User as CoreUser } from '@/core-v2/generated/client'
 import { prisma } from '@/lib/prisma';
 import { drainEmailOutbox, type EmailOutboxWorkerDependencies } from '@/lib/email/outbox-worker';
 import { drainV1Provisioning, defaultV1Gateway, type V1Gateway, type V1ProvisioningMetrics } from '@/lib/core-v2/accounts/v1-provisioning-worker';
+import { accountInvitationDeliveryAuthority } from '@/lib/core-v2/accounts/invitation-delivery-authority';
 import { assertDisposablePostgresUrl } from '../../helpers/disposable-postgres';
 import { setupServiceHarness, type Harness } from './service-harness';
 
@@ -101,6 +102,12 @@ export function setupV1Fixture(): V1Fixture {
   const previousMode = process.env.CORE_V2_AUTH_MODE;
 
   async function cleanV1() {
+    await prisma.$transaction(async tx => {
+      // Disposable superuser cleanup only: production receipts are immutable.
+      await tx.$executeRawUnsafe('ALTER TABLE public.v1_account_invitation_issuances DISABLE TRIGGER v1_invitation_receipt_immutable');
+      await tx.v1AccountInvitationIssuance.deleteMany({ where: { user: { email: { endsWith: TEST_DOMAIN } } } });
+      await tx.$executeRawUnsafe('ALTER TABLE public.v1_account_invitation_issuances ENABLE TRIGGER v1_invitation_receipt_immutable');
+    });
     await prisma.jobOutbox.deleteMany({ where: { aggregateType: 'account-invitation' } });
     await prisma.user.deleteMany({ where: { email: { endsWith: TEST_DOMAIN } } });
   }
@@ -112,6 +119,8 @@ export function setupV1Fixture(): V1Fixture {
     smtp.failures = 0;
     clock.reset();
     await cleanV1();
+    await fixture.v1User('ADMIN', 'issuer-admin', 'ACTIVE', { id: h.admin.userId });
+    await fixture.v1User('ASSISTANTE', 'issuer-assistante', 'ACTIVE', { id: h.assistante.userId });
   });
   afterEach(() => {
     if (previousMode === undefined) delete process.env.CORE_V2_AUTH_MODE; else process.env.CORE_V2_AUTH_MODE = previousMode;
@@ -135,6 +144,7 @@ export function setupV1Fixture(): V1Fixture {
     async deliverMail() {
       return drainEmailOutbox({ limit: 50 }, {
         now: clock.now,
+        accountInvitationAuthority: accountInvitationDeliveryAuthority(h.client),
         deliver: (async (options) => {
           if (smtp.failures > 0) {
             smtp.failures -= 1;
@@ -149,13 +159,28 @@ export function setupV1Fixture(): V1Fixture {
     },
     async coreUser(role, label, overrides = {}) {
       sequence += 1;
-      return h.client.user.create({
+      const user = await h.client.user.create({
         data: {
           ...(overrides.id ? { id: overrides.id } : {}),
           role, email: overrides.email ?? `${label}-${sequence}${TEST_DOMAIN}`,
           firstName: 'Synthetic', lastName: label, accountStatus: 'PENDING_ACTIVATION',
         },
       });
+      if (role === 'COACH') await h.client.coachProfile.create({ data: { userId: user.id } });
+      if (role === 'PARENT' || role === 'ELEVE') {
+        const household = await h.client.household.create({ data: {} });
+        const parent = role === 'PARENT' ? user : await h.client.user.create({ data: { role: 'PARENT', accountStatus: 'ACTIVE' } });
+        await h.client.householdParent.create({ data: { householdId: household.id, userId: parent.id,
+          verificationStatus: 'VERIFIED', verifiedAt: new Date(), verifiedById: h.admin.userId,
+          verificationEvidenceDigest: 'b'.repeat(64), revision: 1 } });
+        const child = role === 'ELEVE' ? user : await h.client.user.create({ data: { role: 'ELEVE', accountStatus: 'ACTIVE' } });
+        const student = await h.client.student.create({ data: { householdId: household.id, userId: child.id } });
+        const year = await h.client.academicYear.upsert({ where: { startYear: 2026 }, update: {},
+          create: { startYear: 2026, startsAt: new Date('2026-09-01'), endsAt: new Date('2027-08-01'), status: 'CURRENT' } });
+        await h.client.studentAcademicYearEnrollment.create({ data: { studentId: student.id, academicYearId: year.id,
+          gradeLevel: 'PREMIERE', status: 'ACTIVE', approvedAt: new Date(), approvedById: h.admin.userId } });
+      }
+      return user;
     },
     async v1User(role, label, shape, overrides = {}) {
       sequence += 1;

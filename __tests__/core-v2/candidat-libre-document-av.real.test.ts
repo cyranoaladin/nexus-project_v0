@@ -199,7 +199,7 @@ describe('premise: why scanning the stored (encrypted) file can never work', () 
     const ciphertextPath = join(mockStorageRoot.current, 'premise-cipher.enc');
     writeFileSync(plaintextPath, EICAR_PDF);
     writeFileSync(ciphertextPath, encryptDocument(EICAR_PDF, { documentId: 'premise' }));
-    await expect(scanPrivateFile(plaintextPath)).rejects.toThrow(/^MALWARE_DETECTED:/);
+    await expect(scanPrivateFile(plaintextPath)).rejects.toThrow(/^MALWARE_DETECTED$/);
     await expect(scanPrivateFile(ciphertextPath)).resolves.toMatchObject({ clean: true });
   });
 });

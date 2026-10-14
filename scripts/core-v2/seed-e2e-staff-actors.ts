@@ -1,78 +1,51 @@
-/**
- * Disposable-stack only: mirrors the seeded Core v1 STAFF and COACH accounts
- * into the Core v2 database with the SAME ids, so the session→actor mapping
- * (lib/core-v2/http/actor.ts) resolves them and the staff API / UI can be
- * exercised end to end. This is the explicit "migrated-actor authority
- * mapping" of §S/§V for the test stack — not the production migrator
- * (scripts/core-v2/extract-to-core-v2.ts stays fail-closed).
- *
- * Refuses to run outside a disposable stack, refuses a Core v2 target that
- * collides with DATABASE_URL (client guard), and never touches PARENT/ELEVE
- * rows, except for the explicitly named Core-v2-only ARIA foundation persona
- * below. That persona has a shared login User but deliberately no V1 Student.
- */
+/** Disposable fixtures use real V1 credentials and the exclusive attested ADMIN bootstrap. */
 import { prisma as coreV1 } from '@/lib/prisma';
 import { disconnectCoreV2Client, requireCoreV2Client } from '@/lib/core-v2/client';
 import { normalizeEmail } from '@/lib/core-v2/contact';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import bcrypt from 'bcryptjs';
-import { assertCoreV2E2eSeedTarget } from './e2e-seed-target';
-import {
-  CORE_V2_ARIA_FOUNDATION_EMAIL,
-  resetCoreV2AriaFoundationProfile,
-} from './aria-foundation-e2e-persona';
+import { readRuntimeCredentialsManifest } from '@/lib/security/seed-runtime';
+import { verifyBootstrap, lockV1AdminBootstrap, assertBootstrapAttested } from '@/lib/core-v2/accounts/bootstrap-v1-admin';
+import { acquireV1InvitationIdentity, type V1IdentityLease } from '@/lib/auth/v1-invitation-authority';
+import { inTransaction } from '@/lib/core-v2/services/context';
+import type { Tx } from '@/lib/core-v2/services/context';
+import { collectV1StaffActors, upsertStaffActors } from './sync-staff-actors';
+import { assertCoreV2E2eSeedTarget, assertCoreV1E2eSeedTarget, type CoreV2E2eSeedEnvironment } from './e2e-seed-target';
+import { CORE_V2_ARIA_FOUNDATION_EMAIL, resetCoreV2AriaFoundationProfile } from './aria-foundation-e2e-persona';
 
-const MIRRORED_ROLES = ['ADMIN', 'ASSISTANTE', 'COACH'] as const;
-
-async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof requireCoreV2Client>>) {
-  const legacyIdentity = await coreV1.user.findUnique({
-    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
-    select: { id: true },
-  });
-  if (legacyIdentity) throw new Error('CORE_V2_ARIA_E2E_LEGACY_USER_FORBIDDEN');
-
-  const manifest = JSON.parse(readFileSync(resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json'), 'utf8')) as Record<string, { email?: unknown; password?: unknown }>;
-  const credentials = manifest.coreV2AriaFoundation;
-  if (credentials?.email !== CORE_V2_ARIA_FOUNDATION_EMAIL
-    || typeof credentials.password !== 'string' || credentials.password.length < 32) {
-    throw new Error('CORE_V2_ARIA_E2E_CREDENTIALS_INVALID');
+type FixtureIdentity = { id: string; email: string | null; role: string; activatedAt: Date | null;
+  disabledAt: Date | null; mergedIntoUserId: string | null; student: { id: string } | null };
+function assertFoundationIdentity(identity: FixtureIdentity | null): asserts identity is FixtureIdentity {
+  if (!identity || identity.email !== CORE_V2_ARIA_FOUNDATION_EMAIL || identity.role !== 'ELEVE'
+    || !identity.activatedAt || identity.disabledAt || identity.mergedIntoUserId || identity.student) {
+    throw new Error('CORE_V2_ARIA_E2E_IDENTITY_INVALID');
   }
-  const passwordHash = await bcrypt.hash(credentials.password, 12);
-
-  await coreV2.user.upsert({
-    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
-    create: {
-      email: CORE_V2_ARIA_FOUNDATION_EMAIL,
-      password: passwordHash,
-      role: 'ELEVE',
-      firstName: 'Lina',
-      lastName: 'Fondation',
-      accountStatus: 'ACTIVE',
-      activatedAt: new Date(),
-    },
-    update: {
-      password: passwordHash,
-      // Re-seeding rewrites credentials: revoke any existing Core v2 session.
-      sessionVersion: { increment: 1 },
-      accountStatus: 'ACTIVE',
-    },
-  });
-  const identity = await coreV2.user.findUniqueOrThrow({
-    where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
-    select: { id: true },
-  });
-
+}
+async function assertExistingFoundation(coreV2: Pick<Tx, 'user'>, v1Identity: FixtureIdentity) {
+  const selection = { id: true, email: true, role: true, password: true, accountStatus: true } as const;
+  const existing = await coreV2.user.findUnique({ where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL }, select: selection });
+  const byId = await coreV2.user.findUnique({ where: { id: v1Identity.id }, select: selection });
+  if (byId && (byId.id !== existing?.id || byId.email !== CORE_V2_ARIA_FOUNDATION_EMAIL)) {
+    throw new Error('CORE_V2_ARIA_E2E_IDENTITY_INVALID');
+  }
+  if (existing && (existing.id !== v1Identity.id || existing.email !== v1Identity.email || existing.role !== 'ELEVE'
+    || existing.password !== null || existing.accountStatus !== 'ACTIVE')) {
+    throw new Error('CORE_V2_ARIA_E2E_IDENTITY_INVALID');
+  }
+  return existing;
+}
+async function seedCoreV2AriaFoundationPersona(coreV2: Tx, v1Identity: FixtureIdentity) {
+  const existing = await assertExistingFoundation(coreV2, v1Identity);
+  if (!existing) await coreV2.user.create({ data: { id: v1Identity.id, email: v1Identity.email, password: null,
+    role: 'ELEVE', firstName: 'Lina', lastName: 'Fondation', accountStatus: 'ACTIVE' } });
   const household = await coreV2.household.upsert({
     where: { id: 'e2e-core-v2-aria-household' },
     create: { id: 'e2e-core-v2-aria-household' },
     update: {},
   });
   const student = await coreV2.student.upsert({
-    where: { userId: identity.id },
+    where: { userId: v1Identity.id },
     create: {
       id: 'e2e-core-v2-aria-student',
-      userId: identity.id,
+      userId: v1Identity.id,
       householdId: household.id,
     },
     update: { householdId: household.id },
@@ -153,69 +126,61 @@ async function seedCoreV2AriaFoundationPersona(coreV2: Awaited<ReturnType<typeof
       endsAt: null,
     },
   });
-  await resetCoreV2AriaFoundationProfile(coreV2);
 }
 
-async function main(): Promise<void> {
-  // Must run before `requireCoreV2Client`: no connection or mutation is
-  // attempted until the actual parsed target, not only a marker, is proven.
-  assertCoreV2E2eSeedTarget(process.env);
+/** No bootstrap, promotion, password write or session copying is available through this seed. */
+export async function seedCoreV2E2eActors(env: CoreV2E2eSeedEnvironment = process.env): Promise<void> {
+  assertCoreV2E2eSeedTarget(env);
+  assertCoreV1E2eSeedTarget(env);
+  if (env.CORE_V2_AUTH_MODE !== 'V1_ONLY') throw new Error('E2E_SEED_REQUIRES_V1_ONLY');
+  const credentials = readRuntimeCredentialsManifest(env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json') as Record<string, { email?: unknown }>;
+  if (typeof credentials.admin?.email !== 'string' || credentials.coachV1?.email !== 'coach-v1@e2e.nexus.test'
+    || credentials.coreV2AriaFoundation?.email !== CORE_V2_ARIA_FOUNDATION_EMAIL) throw new Error('E2E_SEED_IDENTITIES_INVALID');
   const coreV2 = await requireCoreV2Client();
-  const credentials = JSON.parse(readFileSync(resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json'), 'utf8')) as Record<string, { email?: unknown }>;
-  const legacyCoachEmail = credentials.coachV1?.email;
-  if (legacyCoachEmail !== 'coach-v1@e2e.nexus.test') throw new Error('E2E_LEGACY_COACH_IDENTITY_INVALID');
-  if (await coreV2.user.findUnique({ where: { email: legacyCoachEmail }, select: { id: true } })) {
+  const admin = await coreV1.user.findUnique({ where: { email: credentials.admin.email },
+    select: { id: true, role: true, activatedAt: true, disabledAt: true, mergedIntoUserId: true } });
+  if (!admin || admin.role !== 'ADMIN' || !admin.activatedAt || admin.disabledAt || admin.mergedIntoUserId) {
+    throw new Error('E2E_SEED_ADMIN_IDENTITY_INVALID');
+  }
+  // This gate fails before any seed mutation. Only the real offline bootstrap can satisfy it.
+  await verifyBootstrap(coreV2, admin.id);
+  const legacyCoach = await coreV1.user.findUnique({ where: { email: credentials.coachV1.email },
+    select: { id: true, role: true, activatedAt: true, disabledAt: true, mergedIntoUserId: true } });
+  if (!legacyCoach || legacyCoach.role !== 'COACH' || !legacyCoach.activatedAt || legacyCoach.disabledAt || legacyCoach.mergedIntoUserId) {
+    throw new Error('E2E_LEGACY_COACH_IDENTITY_INVALID');
+  }
+  if (await coreV2.user.findUnique({ where: { email: credentials.coachV1.email }, select: { id: true } })
+    || await coreV2.user.findUnique({ where: { id: legacyCoach.id }, select: { id: true } })) {
     throw new Error('E2E_LEGACY_COACH_MUST_NOT_EXIST_IN_CORE');
   }
-  const staff = await coreV1.user.findMany({
-    where: { role: { in: [...MIRRORED_ROLES] }, email: { not: legacyCoachEmail } },
-    select: { id: true, email: true, role: true, firstName: true, lastName: true, phone: true, password: true, sessionVersion: true },
-  });
-
-  let mirrored = 0;
-  for (const user of staff) {
-    if (!user.email) continue;
-    await coreV2.user.upsert({
-      where: { id: user.id },
-      create: {
-        id: user.id,
-        email: normalizeEmail(user.email),
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        password: user.password,
-        sessionVersion: user.sessionVersion,
-        accountStatus: 'ACTIVE',
-        activatedAt: new Date(),
-      },
-      update: {
-        email: normalizeEmail(user.email),
-        role: user.role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        password: user.password,
-        // Re-seeding rewrites credentials: revoke any Core v2 session like every other credential write.
-        sessionVersion: { increment: 1 },
-        accountStatus: 'ACTIVE',
-      },
+  const foundation = await coreV1.user.findUnique({ where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
+    select: { id: true, email: true, role: true, activatedAt: true, disabledAt: true, mergedIntoUserId: true, student: { select: { id: true } } } });
+  assertFoundationIdentity(foundation);
+  await assertExistingFoundation(coreV2, foundation);
+  const records = (await collectV1StaffActors(coreV1)).filter(record => record.id !== legacyCoach.id);
+  const dryRun = await upsertStaffActors(coreV2, records, { execute: false });
+  if (dryRun.adminCreates !== 0 || dryRun.adminPromotions !== 0) throw new Error('E2E_SEED_ADMIN_WRITE_FORBIDDEN');
+  await upsertStaffActors(coreV2, records, { execute: true });
+  const secondPass = await upsertStaffActors(coreV2, records, { execute: true });
+  if (secondPass.adminCreates !== 0 || secondPass.adminPromotions !== 0 || secondPass.users.created !== 0
+    || secondPass.users.updated !== 0 || secondPass.coachProfiles.created !== 0) throw new Error('E2E_SEED_SYNC_NOT_IDEMPOTENT');
+  let lease: V1IdentityLease | undefined;
+  try {
+    await inTransaction(coreV2, async tx => {
+      await lockV1AdminBootstrap(tx);
+      if (await assertBootstrapAttested(tx) !== admin.id) throw new Error('UNATTESTED_ADMIN_STATE');
+      lease = await acquireV1InvitationIdentity({ issuerId: admin.id, expectedIssuerRole: 'ADMIN', targetId: foundation.id,
+        targetRole: 'ELEVE', recipient: CORE_V2_ARIA_FOUNDATION_EMAIL, requireActiveTargetById: true });
+      await seedCoreV2AriaFoundationPersona(tx, foundation);
+      await lease.verify();
     });
-    if (user.role === 'COACH') {
-      await coreV2.coachProfile.upsert({ where: { userId: user.id }, create: { userId: user.id }, update: {} });
-    }
-    mirrored += 1;
-  }
-  await seedCoreV2AriaFoundationPersona(coreV2);
-  console.log(`[seed-e2e-staff-actors] mirrored ${mirrored} staff/coach account(s) into Core v2 (same ids).`);
-  console.log('[seed-e2e-staff-actors] seeded the Core-v2-only ARIA foundation persona.');
-  await disconnectCoreV2Client();
-  await coreV1.$disconnect();
+  } finally { await lease?.release(); }
+  await resetCoreV2AriaFoundationProfile(coreV2);
+  await verifyBootstrap(coreV2, admin.id);
 }
 
-main().catch(async (error) => {
-  console.error('[seed-e2e-staff-actors] FAILED', error instanceof Error ? error.message : error);
-  await disconnectCoreV2Client().catch(() => undefined);
-  await coreV1.$disconnect().catch(() => undefined);
-  process.exit(1);
-});
+if (require.main === module) {
+  seedCoreV2E2eActors().then(() => console.info('E2E_CORE_V1_ONLY_FIXTURES_READY'))
+    .catch(() => { console.error('E2E_CORE_SEED_REFUSED'); process.exitCode = 1; })
+    .finally(async () => { await disconnectCoreV2Client(); await coreV1.$disconnect(); });
+}

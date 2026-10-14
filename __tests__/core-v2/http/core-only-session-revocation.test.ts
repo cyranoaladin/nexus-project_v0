@@ -39,6 +39,7 @@ import {
   verifyHouseholdParent,
 } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 import { assertDisposablePostgresUrl } from '../../helpers/disposable-postgres';
 
 jest.mock('next/headers', () => ({ headers: jest.fn(), cookies: jest.fn() }));
@@ -106,6 +107,7 @@ async function provision(label: string): Promise<Fixture> {
     expectedRevision: 0,
     evidenceDigest: 'a'.repeat(64),
   });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   const issued = await inviteAccount(h.client, h.ctx(), parent.id);
   await activateAccount(h.client, { rawToken: issued.rawToken, password });
 
