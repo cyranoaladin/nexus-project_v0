@@ -85,9 +85,21 @@ NEXUS_DISPOSABLE_POSTGRES=1 \
 
 echo 'Running requested NPC real-database tests...'
 container_database_url="postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@127.0.0.1:5432/${DATABASE_NAME}?schema=public"
+native_arguments=()
+native_mounts=()
+if [[ -n "${NEXUS_TEST_NATIVE_OUTPUT:-}" ]]; then
+  if [[ "$NEXUS_TEST_NATIVE_OUTPUT" != /* || -e "$NEXUS_TEST_NATIVE_OUTPUT" || -L "$NEXUS_TEST_NATIVE_OUTPUT" ]]; then
+    echo 'NPC_NATIVE_EVIDENCE_PATH_REFUSED' >&2
+    exit 64
+  fi
+  native_parent="$(dirname -- "$NEXUS_TEST_NATIVE_OUTPUT")"
+  native_arguments=('--json' "--outputFile=$NEXUS_TEST_NATIVE_OUTPUT")
+  native_mounts=('--volume' "$native_parent:$native_parent")
+fi
 docker run --rm \
   --network "container:${CONTAINER_NAME}" \
   --volume "$PWD:$PWD" \
+  "${native_mounts[@]}" \
   --workdir "$PWD" \
   --tmpfs /npc-test-runtime:rw,noexec,nosuid,mode=0700,size=128m \
   --env "DATABASE_URL=${container_database_url}" \
@@ -97,4 +109,4 @@ docker run --rm \
   --env 'NPC_LLM_MODE=off' \
   --env 'DOCUMENT_ENCRYPTION_KEY=synthetic-npc-real-test-document-encryption-key-2026-08-11' \
   node:20-bookworm \
-  npx jest --config jest.integration.config.js --runInBand "$@"
+  npx --no-install jest --config jest.integration.config.js --runInBand --testLocationInResults "$@" "${native_arguments[@]}"

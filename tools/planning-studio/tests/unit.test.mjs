@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -18,11 +19,6 @@ const defaultJson = JSON.parse(fs.readFileSync(path.join(root, 'data/planning.de
 const v1Json = JSON.parse(fs.readFileSync(path.join(root, 'data/legacy/planning.v1.original.json'), 'utf8'));
 const defaultJs = fs.readFileSync(path.join(root, 'data/default-data.js'), 'utf8');
 
-let passed = 0, failed = 0;
-function test(name, fn) {
-  try { fn(); passed += 1; console.log('PASS ' + name); }
-  catch (e) { failed += 1; console.log('FAIL ' + name + '\n     ' + (e && e.message)); }
-}
 const fresh = () => Nexus.normalize(structuredClone(defaultJson));
 const codes = (r) => r.issues.map((i) => i.code);
 
@@ -271,6 +267,3 @@ test('historique : undo / redo / limite', () => {
   const r = hist.redo(u.data); assert.equal(r.data.n, 5);
   assert.equal(hist.canRedo(), false);
 });
-
-console.log('\n' + passed + ' réussis, ' + failed + ' échoués');
-process.exit(failed ? 1 : 0);

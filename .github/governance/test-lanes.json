@@ -1,0 +1,924 @@
+{
+  "schemaVersion": 1,
+  "semantics": "Declaration is not execution; all lanes require same-source reports before final qualification. Supplemental executions do not inflate unique counts.",
+  "lanes": [
+    {
+      "id": "jest-unit",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.unit.config.js",
+        "--ci",
+        "--coverage",
+        "--maxWorkers=2",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-heavy",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.heavy.config.js",
+        "--ci",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-core-v2",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.core-v2.config.js",
+        "--ci",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-authjs",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.core-v2-authjs.config.js",
+        "--ci",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-governance",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.config.governance.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules"
+      }
+    },
+    {
+      "id": "jest-integration-general",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "--testPathIgnorePatterns=/__tests__/lib/bilan-runtime/",
+        "--testPathIgnorePatterns=session-revocation\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=pending-account-lifecycle\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=activation-domain-separation\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=core-v2-migrator\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=parent-registration-atomicity\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=parent-email-onboarding\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=npc-.*\\.real\\.test\\.ts",
+        "--testPathIgnorePatterns=espace-.*\\.real\\.test\\.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-session-revocation",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "--testPathPatterns=session-revocation\\.real\\.test\\.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-pending-account",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "--testPathPatterns=pending-account-lifecycle\\.real\\.test\\.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-parent-onboarding",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "--testPathPatterns=(activation-domain-separation|parent-registration-atomicity|parent-email-onboarding)\\.real\\.test\\.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-npc-real",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "__tests__/integration/npc-submission-lock.real.test.ts",
+        "__tests__/integration/npc-tombstone-command.real.test.ts",
+        "__tests__/integration/npc-worker-integrity.real.test.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/testing/run-npc-real-db-tests.sh",
+          "__tests__/integration/npc-submission-lock.real.test.ts",
+          "__tests__/integration/npc-tombstone-command.real.test.ts",
+          "__tests__/integration/npc-worker-integrity.real.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "jest-real-db-explicit",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "--runTestsByPath",
+        "__tests__/integration/core-v2-migrator.real.test.ts",
+        "__tests__/integration/activate-student.real.test.ts",
+        "__tests__/integration/predict-ownership.real.test.ts",
+        "__tests__/integration/parent-phone-identity.real.test.ts",
+        "__tests__/integration/parent-contact-identity.real.test.ts",
+        "__tests__/integration/parent-phone-privacy.real.test.ts",
+        "__tests__/integration/family-registration.real.test.ts",
+        "__tests__/integration/enrollment-integrity.real.test.ts",
+        "__tests__/integration/assignment-concurrency.real.test.ts",
+        "__tests__/integration/session-video-join-state-race.real.test.ts",
+        "__tests__/integration/espace-service.real.test.ts",
+        "__tests__/integration/espace-api.real.test.ts",
+        "__tests__/integration/espace-legacy-link.real.test.ts",
+        "__tests__/integration/espace-export.real.test.ts",
+        "__tests__/integration/espace-queries.real.test.ts",
+        "__tests__/integration/espace-credentials.real.test.ts",
+        "__tests__/integration/espace-bilan.real.test.ts",
+        "__tests__/integration/espace-bilan-lifecycle.real.test.ts",
+        "__tests__/integration/espace-recursivite.real.test.ts",
+        "__tests__/integration/espace-catalogue-audit.real.test.ts",
+        "__tests__/integration/espace-validation-scope.real.test.ts",
+        "__tests__/security/idor-real.test.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-db-core",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.db-core.config.js",
+        "--runInBand",
+        "--ci",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-bilan-schema",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.integration.config.js",
+        "--runInBand",
+        "--ci",
+        "__tests__/lib/bilan-runtime/bilan-schema.real.test.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-golden-cleanup",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.golden-family-real.config.js",
+        "--runInBand",
+        "--ci",
+        "--silent",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "NODE",
+        "argv": [
+          "node_modules/tsx/dist/cli.mjs",
+          "scripts/testing/run-golden-family-real-tests.ts"
+        ]
+      }
+    },
+    {
+      "id": "jest-aria-db",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.aria.db.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "db"
+        ]
+      }
+    },
+    {
+      "id": "jest-aria-concurrency",
+      "runner": "jest",
+      "kind": "PRIMARY",
+      "argv": [
+        "--config",
+        "jest.aria.concurrency.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "concurrency"
+        ]
+      }
+    },
+    {
+      "id": "jest-aria-unit",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.unit.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-api",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.api.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-integration",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.integration.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-sse",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.sse.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-architecture",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.architecture.config.js",
+        "--runInBand",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-migrations",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.db.config.js",
+        "--runInBand",
+        "--runTestsByPath",
+        "__tests__/database/aria-turn-migration.test.ts",
+        "__tests__/db/aria-contract-readiness.real.test.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "migrations"
+        ]
+      }
+    },
+    {
+      "id": "jest-aria-backfills",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.db.config.js",
+        "--runInBand",
+        "--runTestsByPath",
+        "__tests__/db/aria-legacy-backfills.real.test.ts",
+        "__tests__/db/aria-turn-backfill-concurrency.real.test.ts",
+        "__tests__/db/aria-course-backfill.real.test.ts",
+        "__tests__/db/aria-entitlement-backfill.real.test.ts",
+        "__tests__/db/aria-feedback-profile-backfill.real.test.ts",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "backfills"
+        ]
+      }
+    },
+    {
+      "id": "jest-planning-unit",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.unit.config.js",
+        "--runInBand",
+        "--testPathPatterns=planning-studio",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-planning-db",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.config.db.js",
+        "--runInBand",
+        "--testPathPatterns=planning-studio",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-documents-ts",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.unit.config.js",
+        "--runInBand",
+        "--testPathPatterns=pre-rentree-2026",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "pw-public-chromium",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.ci.config.ts",
+        "--project=chromium",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e"
+    },
+    {
+      "id": "pw-auth-chromium",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=chromium",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-auth-firefox-smoke",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=firefox-smoke",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-auth-webkit-smoke",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=webkit-smoke",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-auth-mobile-smoke",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=mobile-smoke",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-aria-aria-desktop",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.aria.config.ts",
+        "--project=aria-desktop",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-e2e-suite.sh",
+          "aria-desktop"
+        ],
+        "nativeRepositoryRoot": "/app"
+      },
+      "testRoot": "e2e/aria"
+    },
+    {
+      "id": "pw-aria-aria-mobile",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.aria.config.ts",
+        "--project=aria-mobile",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-e2e-suite.sh",
+          "aria-mobile"
+        ],
+        "nativeRepositoryRoot": "/app"
+      },
+      "testRoot": "e2e/aria"
+    },
+    {
+      "id": "pw-aria-aria-a11y",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.aria.config.ts",
+        "--project=aria-a11y",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-e2e-suite.sh",
+          "aria-a11y"
+        ],
+        "nativeRepositoryRoot": "/app"
+      },
+      "testRoot": "e2e/aria"
+    },
+    {
+      "id": "pw-aria-aria-smoke",
+      "runner": "playwright",
+      "kind": "PRIMARY",
+      "argv": [
+        "test",
+        "--config=playwright.aria.config.ts",
+        "--project=aria-smoke",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-e2e-suite.sh",
+          "aria-smoke"
+        ],
+        "nativeRepositoryRoot": "/app"
+      },
+      "testRoot": "e2e/aria"
+    },
+    {
+      "id": "pw-admin-dialog-repeat20",
+      "runner": "playwright",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=chromium",
+        "dialog-all-roles-proof.spec.ts",
+        "--grep=admin: users detail dialog$",
+        "--repeat-each=20",
+        "--workers=1",
+        "--retries=0",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-mobile-security-repeat20",
+      "runner": "playwright",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "test",
+        "--config=playwright.auth.config.ts",
+        "--project=mobile-smoke",
+        "password-change.spec.ts",
+        "password-change-v1.spec.ts",
+        "--grep=390px",
+        "--repeat-each=20",
+        "--workers=1",
+        "--retries=0",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "testRoot": "e2e/auth"
+    },
+    {
+      "id": "pw-aria-mobile-repeat20",
+      "runner": "playwright",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "test",
+        "--config=playwright.aria.config.ts",
+        "--project=aria-mobile",
+        "visual-a11y.spec.ts",
+        "--grep=E019 ARIA_VISUAL_VIEWPORT_MATRIX",
+        "--repeat-each=20",
+        "--workers=1",
+        "--retries=0",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ],
+      "env": {
+        "PLAYWRIGHT_PROJECT": "aria-mobile-repeat20"
+      },
+      "producedBy": "pw-aria-aria-mobile",
+      "testRoot": "e2e/aria"
+    },
+    {
+      "id": "pw-fallback",
+      "runner": "playwright",
+      "kind": "REHEARSAL",
+      "argv": [
+        "test",
+        "--config=playwright.fallback.config.ts",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/manual-rehearsals.yml"
+      ],
+      "testRoot": "e2e/fallback"
+    },
+    {
+      "id": "pw-bilan-validation",
+      "runner": "playwright",
+      "kind": "REHEARSAL",
+      "argv": [
+        "test",
+        "--config=playwright.bilan-validation.config.ts",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/manual-rehearsals.yml"
+      ],
+      "testRoot": "e2e/bilan-validation"
+    },
+    {
+      "id": "pw-prod",
+      "runner": "playwright",
+      "kind": "REHEARSAL",
+      "argv": [
+        "test",
+        "--config=playwright.prod-smoke.config.ts",
+        "--forbid-only"
+      ],
+      "references": [
+        ".github/workflows/manual-rehearsals.yml"
+      ],
+      "testRoot": "e2e/prod"
+    },
+    {
+      "id": "python-documents",
+      "runner": "python",
+      "kind": "PRIMARY",
+      "argv": [
+        "-m",
+        "pytest",
+        "scripts/pre-rentree/tests",
+        "-q"
+      ],
+      "references": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/pre-rentree-documents.yml"
+      ],
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    },
+    {
+      "id": "node-error-privacy",
+      "runner": "node",
+      "kind": "PRIMARY",
+      "argv": [
+        "scripts/testing/error-log-summary.test.mjs"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "node-npm-discovery",
+      "runner": "node",
+      "kind": "PRIMARY",
+      "argv": [
+        "scripts/testing/npm-runner-invocations.test.mjs"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "node-test-lane-contract",
+      "runner": "node",
+      "kind": "PRIMARY",
+      "argv": [
+        "scripts/testing/test-lane-contract.test.mjs",
+        "scripts/testing/private-test-archive.test.mjs",
+        "scripts/testing/ci-evidence-contract.test.mjs",
+        "scripts/testing/ci-private-evidence.test.mjs",
+        "scripts/testing/ci-native-workflow-contract.test.mjs"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "node-planning",
+      "runner": "node",
+      "kind": "PRIMARY",
+      "argv": [
+        "tools/planning-studio/tests/unit.test.mjs"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "node-npm-input-verification",
+      "runner": "node",
+      "kind": "PRIMARY",
+      "argv": [
+        "scripts/release/verify-npm-inputs.test.mjs"
+      ],
+      "references": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "jest-aria-coverage-application",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.coverage.config.js",
+        "--runInBand",
+        "--coverage",
+        "--coverageProvider",
+        "babel",
+        "--coverageDirectory",
+        ".artifacts/aria/coverage/application",
+        "--coverageReporters",
+        "json",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml",
+        "scripts/aria/generate-coverage.ts"
+      ]
+    },
+    {
+      "id": "jest-aria-coverage-db",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.db.config.js",
+        "--runInBand",
+        "--coverage",
+        "--coverageProvider",
+        "babel",
+        "--coverageDirectory",
+        ".artifacts/aria/coverage/database",
+        "--coverageReporters",
+        "json",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml",
+        "scripts/aria/generate-coverage.ts"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "db",
+          "--coverage",
+          "--coverageProvider",
+          "babel",
+          "--coverageDirectory",
+          ".artifacts/aria/coverage/database",
+          "--coverageReporters",
+          "json"
+        ]
+      }
+    },
+    {
+      "id": "jest-aria-coverage-concurrency",
+      "runner": "jest",
+      "kind": "SUPPLEMENTAL",
+      "argv": [
+        "--config",
+        "jest.aria.concurrency.config.js",
+        "--runInBand",
+        "--coverage",
+        "--coverageProvider",
+        "babel",
+        "--coverageDirectory",
+        ".artifacts/aria/coverage/concurrency",
+        "--coverageReporters",
+        "json",
+        "--testLocationInResults"
+      ],
+      "references": [
+        ".github/workflows/ci.yml",
+        "scripts/aria/generate-coverage.ts"
+      ],
+      "driver": {
+        "binary": "BASH",
+        "argv": [
+          "scripts/aria/run-disposable-db-suite.sh",
+          "concurrency",
+          "--coverage",
+          "--coverageProvider",
+          "babel",
+          "--coverageDirectory",
+          ".artifacts/aria/coverage/concurrency",
+          "--coverageReporters",
+          "json"
+        ]
+      }
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import { parseWorkflowFile } from './yaml-workflows.mjs';
+import { readFileSync } from 'node:fs';
+import { inspectNativeCiWorkflow } from '../../testing/ci-native-workflow-contract.mjs';
 
 const PR_HEAD_REF = '${{ github.event.pull_request.head.sha || github.sha }}';
 const RUN_ATTEMPT = '${{ github.run_attempt }}';
@@ -102,7 +104,25 @@ function inspectCommonJob(jobKey, job, findings) {
   return true;
 }
 
-function inspectArtifact(jobKey, job, expectedName, expectedPath, findings) {
+function inspectArtifact(jobKey, job, expectedName, expectedPath, findings, sealAction) {
+  if(jobKey!=='aria-static'){
+    const seals=(job?.steps??[]).filter(step=>step.uses==='./.github/actions/seal-native-test-evidence');
+    const raw=uploadSteps(job);
+    if(seals.length!==1||raw.length){findings.push(`ARIA_CI_ARTIFACT_STEP_COUNT:${jobKey}:${seals.length+raw.length}`);return;}
+    const seal=seals[0],derived=jobKey==='aria-evidence';
+    if(seal.if!=='always()')findings.push(`ARIA_CI_ARTIFACT_NOT_ALWAYS:${jobKey}`);
+    if(seal.with?.['producer-label']!==(derived?'aria-evidence':'${{ env.NEXUS_CI_EVIDENCE_LABEL }}'))findings.push(`ARIA_CI_ARTIFACT_NAME_UNSEALED:${jobKey}`);
+    const attachments=jobKey==='aria-browser'?'${{ github.workspace }}/.artifacts/aria':jobKey==='aria-coverage'?'${{ github.workspace }}/.artifacts/aria/coverage':derived?'${{ github.workspace }}/.artifacts/aria/qualification':undefined;
+    if(seal.with?.['attachment-root']!==attachments||seal.with?.['evidence-kind']!==(derived?'attachments':undefined))findings.push(`ARIA_CI_ARTIFACT_PATH_UNSCOPED:${jobKey}`);
+    const uploads=uploadSteps(sealAction?.runs),upload=uploads[0];
+    if(uploads.length!==1||upload?.with?.['if-no-files-found']!=='error')findings.push(`ARIA_CI_ARTIFACT_MISSING_NOT_FATAL:${jobKey}`);
+    if(upload?.with?.name!=='corev2-private-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.producer-label }}')findings.push(`ARIA_CI_ARTIFACT_NAME_UNSEALED:${jobKey}`);
+    if(upload?.with?.path!=='${{ runner.temp }}/nexus-sealed/payload.gpg\n${{ runner.temp }}/nexus-sealed/manifest.json\n')findings.push(`ARIA_CI_ARTIFACT_PATH_UNSCOPED:${jobKey}`);
+    const attestation=(sealAction?.runs?.steps??[]).filter(step=>step.uses==='actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8'
+      &&step.with?.['subject-name']==='payload.gpg'&&step.with?.['subject-digest']==='sha256:${{ steps.private-seal.outputs.cipher-sha256 }}');
+    if(attestation.length!==1)findings.push(`ARIA_CI_CIPHERTEXT_ATTESTATION_INVALID:${jobKey}`);
+    return;
+  }
   const allUploads = uploadSteps(job);
   // The unified Core+ARIA execution aggregate consumes a separate, exact-run
   // envelope. Keep the original ARIA artifact contract intact; permit only
@@ -127,7 +147,7 @@ function inspectArtifact(jobKey, job, expectedName, expectedPath, findings) {
   if (upload.with?.path !== expectedPath) findings.push(`ARIA_CI_ARTIFACT_PATH_UNSCOPED:${jobKey}`);
 }
 
-function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
+function inspectMatrixJob(jobKey, job, expectedLanes, findings, sealAction) {
   if (!inspectCommonJob(jobKey, job, findings)) return;
   if (job?.strategy?.['fail-fast'] !== false) findings.push(`ARIA_CI_MATRIX_FAIL_FAST:${jobKey}`);
   const matrix = job?.strategy?.matrix;
@@ -137,7 +157,8 @@ function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
   if (!include || JSON.stringify(include) !== JSON.stringify(expectedLanes)) {
     findings.push(`ARIA_CI_MATRIX_CONTRACT_MISMATCH:${jobKey}`);
   }
-  const protectedSteps = exactRunSteps(job, MATRIX_RUN);
+  const protectedCommand=jobKey==='aria-static'?MATRIX_RUN:jobKey==='aria-browser'?'node scripts/testing/run-test-lane.mjs pw-aria-aria-${{ matrix.lane }}':'node scripts/testing/run-test-lane.mjs jest-aria-${{ matrix.lane }}';
+  const protectedSteps = exactRunSteps(job, protectedCommand);
   if (protectedSteps.length !== 1) findings.push(`ARIA_CI_COMMAND_STEP_INVALID:${jobKey}`);
   if (protectedSteps.some((step) => Object.prototype.hasOwnProperty.call(step, 'if'))) {
     findings.push(`ARIA_CI_PROTECTED_STEP_CONDITIONAL:${jobKey}`);
@@ -154,6 +175,7 @@ function inspectMatrixJob(jobKey, job, expectedLanes, findings) {
     `aria-${jobKey.slice('aria-'.length)}-${'${{ matrix.lane }}'}-${PR_HEAD_REF}-${RUN_ATTEMPT}`,
     jobKey === 'aria-browser' ? '.artifacts/publish/aria-${{ matrix.lane }}/' : MATRIX_ARTIFACT_PATH,
     findings,
+    sealAction,
   );
 }
 
@@ -190,7 +212,7 @@ function inspectRagCompanionProvisioning(job, findings) {
   }
 }
 
-function inspectSpecialJob(jobKey, job, expected, findings) {
+function inspectSpecialJob(jobKey, job, expected, findings, sealAction) {
   if (!inspectCommonJob(jobKey, job, findings)) return;
   if (job?.strategy?.matrix !== undefined) findings.push(`ARIA_CI_UNEXPECTED_MATRIX:${jobKey}`);
   for (const command of expected.commands) {
@@ -200,14 +222,14 @@ function inspectSpecialJob(jobKey, job, expected, findings) {
       findings.push(`ARIA_CI_PROTECTED_STEP_CONDITIONAL:${jobKey}`);
     }
   }
-  inspectArtifact(jobKey, job, expected.artifactName, expected.artifactPath, findings);
+  inspectArtifact(jobKey, job, expected.artifactName, expected.artifactPath, findings, sealAction);
 }
 
 export function loadWorkflow(path) {
   return parseWorkflowFile(path);
 }
 
-export function inspectAriaCiWorkflow(document) {
+export function inspectAriaCiWorkflow(document,{sealAction=parseWorkflowFile(new URL('../../../.github/actions/seal-native-test-evidence/action.yml',import.meta.url))}={}) {
   const findings = [];
   const pullRequest = document?.on?.pull_request;
   if (!pullRequest || typeof pullRequest !== 'object') {
@@ -218,11 +240,11 @@ export function inspectAriaCiWorkflow(document) {
   }
 
   for (const [jobKey, expectedLanes] of Object.entries(ARIA_CI_MATRIX_JOBS)) {
-    inspectMatrixJob(jobKey, document?.jobs?.[jobKey], expectedLanes, findings);
+    inspectMatrixJob(jobKey, document?.jobs?.[jobKey], expectedLanes, findings, sealAction);
   }
   inspectRagCompanionProvisioning(document?.jobs?.['aria-static'], findings);
   for (const [jobKey, expected] of Object.entries(SPECIAL_JOBS)) {
-    inspectSpecialJob(jobKey, document?.jobs?.[jobKey], expected, findings);
+    inspectSpecialJob(jobKey, document?.jobs?.[jobKey], expected, findings, sealAction);
   }
 
   const evidenceNeeds = document?.jobs?.['aria-evidence']?.needs;
@@ -230,12 +252,12 @@ export function inspectAriaCiWorkflow(document) {
     || !['aria-jest', 'aria-postgres', 'aria-browser'].every((job) => evidenceNeeds.includes(job))) {
     findings.push('ARIA_CI_EVIDENCE_DEPENDENCIES_INVALID');
   }
-  const downloads = (document?.jobs?.['aria-evidence']?.steps ?? []).filter((step) =>
-    typeof step?.uses === 'string' && step.uses.startsWith('actions/download-artifact@'));
-  const validDownloads = downloads.length === 4 && ['desktop', 'mobile', 'a11y', 'smoke'].every((lane) =>
-    downloads.filter((step) => step?.with?.name === `aria-browser-${lane}-${PR_HEAD_REF}-${RUN_ATTEMPT}`
-      && step?.with?.path === `.artifacts/aria/playwright/aria-${lane}`
-      && step?.with?.pattern === undefined && step?.with?.['merge-multiple'] !== true).length === 1);
+  const evidenceSteps=document?.jobs?.['aria-evidence']?.steps??[];
+  const selection='aria-jest-unit,aria-jest-api,aria-jest-integration,aria-jest-sse,aria-jest-architecture,aria-postgres-db,aria-postgres-concurrency,aria-browser-aria-desktop,aria-browser-aria-mobile,aria-browser-aria-a11y,aria-browser-aria-smoke';
+  const validDownloads=evidenceSteps.filter(step=>step.run===`node scripts/testing/ci-private-evidence.mjs fetch-reports ${selection} "$RUNNER_TEMP/verified-native"`
+    &&step.env?.GH_TOKEN==='${{ github.token }}'&&step.env?.NEXUS_CI_EVIDENCE_PRIVATE_KEY==='${{ secrets.CORE_V2_PROOF_346_KEY }}'&&!step.if).length===1
+    &&!evidenceSteps.some(step=>step.uses?.startsWith('actions/download-artifact@'))
+    &&document.jobs['aria-evidence'].env?.NEXUS_TEST_ARIA_REPORTS_DIR==='${{ runner.temp }}/verified-native/reports';
   if (!validDownloads) findings.push('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
 
   const aggregate = document?.jobs?.['ci-success'];
@@ -247,6 +269,9 @@ export function inspectAriaCiWorkflow(document) {
     step?.run === 'node scripts/github/assert-ci-needs.mjs'
     && step?.env?.CI_NEEDS_JSON === '${{ toJSON(needs) }}');
   if (assertionSteps.length !== 1) findings.push('ARIA_CI_AGGREGATE_ASSERTION_INVALID');
+  const registry=JSON.parse(readFileSync(new URL('../../../.github/governance/test-lanes.json',import.meta.url),'utf8'));
+  const producers=JSON.parse(readFileSync(new URL('../../../.github/governance/ci-test-producers.json',import.meta.url),'utf8')).producers;
+  findings.push(...inspectNativeCiWorkflow(document,registry,producers).blockers);
 
   return Object.freeze({ ok: findings.length === 0, findings: Object.freeze(findings) });
 }

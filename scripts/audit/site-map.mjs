@@ -208,7 +208,10 @@ function loadBuildModes() {
 function routeRegex(route) {
   const escaped = route
     .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-    .replace(/\\\[\.{3}[^/]+\\\]/g, '.+')
+    // Après échappement, « ... » devient « \.\.\. » : les motifs portent sur la forme échappée.
+    // [[...param]] (catch-all optionnel) couvre aussi le chemin nu ; [...param] exige au moins un segment.
+    .replace(/\/\\\[\\\[(?:\\\.){3}[^/]+?\\\]\\\]/g, '(?:/.+)?')
+    .replace(/\\\[(?:\\\.){3}[^/]+?\\\]/g, '.+')
     .replace(/\\\[[^/]+\\\]/g, '[^/]+');
   return new RegExp(`^${escaped}$`);
 }

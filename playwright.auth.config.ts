@@ -14,7 +14,7 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   testIgnore: [],
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: true,
   retries: 0,
   workers: 1,
   // Machine-readable execution proof (PR #235 follow-up): 'line' alone gives

@@ -54,12 +54,21 @@ args=(test --config "$PLAYWRIGHT_CONFIG")
 if [ -n "$PLAYWRIGHT_PROJECT" ]; then
   args+=(--project "$PLAYWRIGHT_PROJECT")
 fi
+args+=(--forbid-only)
+if [ -n "${NEXUS_TEST_LAUNCH_CONTEXTS:-}" ]; then
+  export NEXUS_TEST_NATIVE_OUTPUT="/app/.artifacts/aria/playwright/${PLAYWRIGHT_PROJECT}/report.json"
+fi
 echo "[playwright] Running allowlisted config ${PLAYWRIGHT_CONFIG} project ${PLAYWRIGHT_PROJECT:-all}."
 if [ "$PLAYWRIGHT_CONFIG" = 'playwright.aria.config.ts' ] && [ "$PLAYWRIGHT_PROJECT" = 'aria-mobile' ]; then
   # Preserve the full E018–E021 campaign, then qualify E019 on the same stack.
   npx playwright "${args[@]}"
   export PLAYWRIGHT_PROJECT=aria-mobile-repeat20
+  if [ -n "${NEXUS_TEST_LAUNCH_CONTEXTS:-}" ]; then
+    : "${NEXUS_TEST_SECONDARY_LANE_ID:?secondary producer lane required}"
+    export NEXUS_TEST_LANE_ID="$NEXUS_TEST_SECONDARY_LANE_ID"
+    export NEXUS_TEST_NATIVE_OUTPUT='/app/.artifacts/aria/playwright/aria-mobile-repeat20/report.json'
+  fi
   exec npx playwright test --config playwright.aria.config.ts --project=aria-mobile \
-    visual-a11y.spec.ts --grep 'E019 ARIA_VISUAL_VIEWPORT_MATRIX' --repeat-each=20 --workers=1 --retries=0
+    visual-a11y.spec.ts --grep 'E019 ARIA_VISUAL_VIEWPORT_MATRIX' --repeat-each=20 --workers=1 --retries=0 --forbid-only
 fi
 exec npx playwright "${args[@]}"

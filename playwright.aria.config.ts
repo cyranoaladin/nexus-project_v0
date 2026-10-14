@@ -14,7 +14,8 @@ export default defineConfig({
   reporter: [
     ['line'],
     ['junit', { outputFile: `${artifactRoot}/junit.xml` }],
-    ['json', { outputFile: `${artifactRoot}/report.json` }],
+    [process.env.NEXUS_TEST_LAUNCH_CONTEXTS ? './scripts/testing/playwright-native-reporter.mjs' : 'json',
+      { outputFile: `${artifactRoot}/report.json` }],
     ['html', { outputFolder: `${artifactRoot}/html`, open: 'never' }],
   ],
   outputDir: `${artifactRoot}/results`,

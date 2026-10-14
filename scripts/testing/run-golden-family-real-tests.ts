@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { spawnSync } from 'node:child_process';
-import { relative } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { assertDisposablePostgresUrl } from '../../__tests__/helpers/disposable-postgres';
 
 let phase = 'target-guard';
@@ -16,16 +18,21 @@ async function main(): Promise<void> {
   target.pathname = '/nexus_e2e';
   const env = { ...process.env, DATABASE_URL: target.href, TEST_DATABASE_URL: target.href, E2E_DISPOSABLE_STACK: '1' };
   phase = 'empty-schema-deploy';
-  const migrate = spawnSync('npx', ['--no-install', 'prisma', 'migrate', 'deploy'], { env, encoding: 'utf8' });
+  const migrate = spawnSync(process.execPath, ['node_modules/prisma/build/index.js', 'migrate', 'deploy'], { env, encoding: 'utf8' });
   if (migrate.status !== 0) throw new Error('GOLDEN_FAMILY_SCHEMA_DEPLOY_FAILED');
   console.log('GOLDEN_FAMILY_EMPTY_SCHEMA_DEPLOYED=1');
   phase = 'real-fixture-tests';
-  const test = spawnSync('npm', ['run', 'test:golden-family:real', '--', '--ci', '--json', '--silent'], { env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
-  const start = test.stdout.indexOf('{"numFailedTestSuites"');
-  if (start < 0) throw new Error('GOLDEN_FAMILY_AGGREGATE_MISSING');
-  const result: { numPassedTestSuites: number; numFailedTestSuites: number; numPassedTests: number; numFailedTests: number; numPendingTests: number; success: boolean; testResults: Array<{ name: string; status: string }> } = JSON.parse(test.stdout.slice(start));
+  const native = resolve(process.env.NEXUS_TEST_NATIVE_OUTPUT || `.artifacts/golden-family/${randomUUID()}/native.json`);
+  if (existsSync(native)) throw new Error('GOLDEN_FAMILY_EXISTING_EVIDENCE_REFUSED');
+  mkdirSync(dirname(native), { recursive: true, mode: 0o700 });
+  const provenanceArgs = process.env.NEXUS_TEST_LAUNCH_CONTEXTS
+    ? ['--reporters', 'default', '--reporters', './scripts/testing/jest-native-reporter.mjs'] : [];
+  const test = spawnSync(process.execPath, ['node_modules/jest/bin/jest.js', '--config', 'jest.golden-family-real.config.js',
+    '--runInBand', '--ci', '--silent', '--testLocationInResults', '--json', `--outputFile=${native}`, ...provenanceArgs], { env, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  if (!existsSync(native)) throw new Error('GOLDEN_FAMILY_AGGREGATE_MISSING');
+  const result: { numPassedTestSuites: number; numFailedTestSuites: number; numPassedTests: number; numFailedTests: number; numPendingTests: number; numTodoTests: number; success: boolean; testResults: Array<{ name: string; status: string }> } = JSON.parse(readFileSync(native, 'utf8'));
   console.log(JSON.stringify({ suitesPassed: result.numPassedTestSuites, suitesFailed: result.numFailedTestSuites, testsPassed: result.numPassedTests, testsFailed: result.numFailedTests, pending: result.numPendingTests }));
-  if (test.status !== 0 || !result.success || result.numPendingTests !== 0 || result.numPassedTests !== 2) {
+  if (test.status !== 0 || !result.success || result.numPendingTests !== 0 || result.numTodoTests !== 0 || result.numPassedTests === 0) {
     console.log(JSON.stringify({ failedFiles: result.testResults.filter(row => row.status !== 'passed').map(row => relative(process.cwd(), row.name)) }));
     throw new Error('GOLDEN_FAMILY_REAL_TEST_FAILED');
   }

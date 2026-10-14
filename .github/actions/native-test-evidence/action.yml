@@ -1,0 +1,25 @@
+name: Verify external native test challenge
+description: Fetch one immutable exact-run plan after API and OIDC verification.
+runs:
+  using: composite
+  steps:
+    - name: Install verified GitHub attestation verifier
+      shell: bash
+      run: |
+        set -euo pipefail
+        umask 077
+        mkdir "$RUNNER_TEMP/nexus-gh-verifier"
+        curl --fail --silent --show-error --location --max-time 60 \
+          https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_linux_amd64.tar.gz \
+          --output "$RUNNER_TEMP/nexus-gh-verifier/gh.tar.gz"
+        printf '%s  %s\n' bb766f710eef8ede859c18578c72c327597cd4c8a85b06001b1f3843c6019386 "$RUNNER_TEMP/nexus-gh-verifier/gh.tar.gz" | sha256sum --check --status
+        tar --extract --gzip --file "$RUNNER_TEMP/nexus-gh-verifier/gh.tar.gz" \
+          --directory "$RUNNER_TEMP/nexus-gh-verifier" gh_2.102.0_linux_amd64/bin/gh
+        mv "$RUNNER_TEMP/nexus-gh-verifier/gh_2.102.0_linux_amd64/bin/gh" "$RUNNER_TEMP/nexus-gh-verifier/gh"
+        printf '%s  %s\n' 7469124f706944133d6a169691dd1c6c3511b12e85878d255e044e2948df4c9b "$RUNNER_TEMP/nexus-gh-verifier/gh" | sha256sum --check --status
+        printf '%s=%s\n' NEXUS_GH_BINARY "$RUNNER_TEMP/nexus-gh-verifier/gh" >> "$GITHUB_ENV"
+    - name: Verify exact-run external plan
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: node scripts/testing/ci-private-evidence.mjs fetch-plan "$NEXUS_TEST_LAUNCH_MANIFEST" "$NEXUS_TEST_PLAN_ARTIFACT_ID"

@@ -40,6 +40,7 @@ RUN npx prisma generate --schema=core-v2/prisma/schema.prisma
 COPY __tests__/bilans/fixtures ./__tests__/bilans/fixtures
 COPY e2e ./e2e
 COPY scripts/e2e ./scripts/e2e
+COPY scripts/testing ./scripts/testing
 COPY scripts/core-v2/aria-foundation-e2e-persona.ts scripts/core-v2/e2e-seed-target.ts ./scripts/core-v2/
 COPY playwright.config.e2e.ts ./playwright.config.e2e.ts
 COPY playwright.config.ts ./playwright.config.ts

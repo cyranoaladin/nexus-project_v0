@@ -36,18 +36,8 @@ function propertyChain(expression) {
   return { root: ts.isIdentifier(current) ? current.text : null, members };
 }
 
-function hasTrueProperty(object, property) {
-  return ts.isObjectLiteralExpression(object) && object.properties.some((candidate) => {
-    if (!ts.isPropertyAssignment(candidate)) return false;
-    const name = ts.isIdentifier(candidate.name) || ts.isStringLiteral(candidate.name)
-      ? candidate.name.text
-      : null;
-    return name === property && candidate.initializer.kind === ts.SyntaxKind.TrueKeyword;
-  });
-}
-
 function numericLiteralValue(node) {
-  if (ts.isNumericLiteral(node)) return Number(node.text);
+  if (node && ts.isNumericLiteral(node)) return Number(node.text);
   return null;
 }
 
@@ -57,13 +47,110 @@ export function inspectTestDebtSource(file, text) {
   const findings = [];
   const browserQualificationFile = /^e2e\/aria\//.test(file);
   const disabledAliases = new Set();
+  const testAliases = new Set(['test', 'it', 'describe', 'suite']);
+  const declarations = new Map();
+  const collectDeclarations=node=>{
+    if(ts.isFunctionDeclaration(node)&&node.name)testAliases.delete(node.name.text);
+    if(ts.isVariableDeclaration(node)&&ts.isIdentifier(node.name))
+      declarations.set(node.name.text,[...(declarations.get(node.name.text)??[]),node]);
+    ts.forEachChild(node,collectDeclarations);
+  };
+  collectDeclarations(sourceFile);
+  const mutatedOptions = new Set();
+  function optionAliases(name, seen = new Set()) {
+    if (seen.has(name)) return [name];
+    const next = new Set(seen).add(name);
+    return [name, ...(declarations.get(name) ?? []).flatMap(value =>
+      value.initializer && ts.isIdentifier(value.initializer) ? optionAliases(value.initializer.text, next) : [])];
+  }
+  const recordMutation = expression => {
+    const { root, members } = propertyChain(expression);
+    if (root && (members.some(member => FORBIDDEN_MEMBERS.has(member) || member === '__proto__')
+      || ts.isElementAccessExpression(expression))) optionAliases(root).forEach(name => mutatedOptions.add(name));
+  };
+  const collectMutations = node => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind >= ts.SyntaxKind.FirstAssignment
+      && node.operatorToken.kind <= ts.SyntaxKind.LastAssignment) recordMutation(node.left);
+    if (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) recordMutation(node.operand);
+    if (ts.isDeleteExpression(node)) recordMutation(node.expression);
+    if (ts.isCallExpression(node)) {
+      const chain = propertyChain(node.expression);
+      if (chain.root === 'Object' && chain.members.some(member =>
+        ['assign', 'defineProperty', 'defineProperties', 'setPrototypeOf'].includes(member))) {
+        const target = node.arguments[0];
+        if (target && ts.isIdentifier(target)) optionAliases(target.text).forEach(name => mutatedOptions.add(name));
+      }
+    }
+    ts.forEachChild(node, collectMutations);
+  };
+  collectMutations(sourceFile);
+  function optionState(object,property,seen=new Set()){
+    while(ts.isParenthesizedExpression(object)||ts.isAsExpression(object)||ts.isSatisfiesExpression(object))object=object.expression;
+    if(ts.isIdentifier(object)){
+      if (optionAliases(object.text).some(name => mutatedOptions.has(name))) return 'unknown';
+      if(seen.has(object.text))return 'unknown';
+      const values=declarations.get(object.text);if(!values)return 'absent';
+      const next=new Set(seen).add(object.text);
+      const states=values.map(value=>value.initializer?optionState(value.initializer,property,next):'unknown');
+      if(states.includes('disabled')||states.includes('unknown'))return 'disabled';
+      if(values.some(value=>!(value.parent.flags&ts.NodeFlags.Const))&&states.includes('safe'))return 'disabled';
+      return states.includes('safe')?'safe':'absent';
+    }
+    if(!ts.isObjectLiteralExpression(object))return 'absent';
+    for(const candidate of [...object.properties].reverse()){
+      if(ts.isSpreadAssignment(candidate)){
+        const state=optionState(candidate.expression,property,seen);
+        if(state!=='absent')return state;
+        // A nonliteral spread cannot establish that an exclusion is absent.
+        if(!ts.isObjectLiteralExpression(candidate.expression)
+          &&!(ts.isIdentifier(candidate.expression)&&declarations.has(candidate.expression.text)))return 'unknown';
+      }else if(ts.isPropertyAssignment(candidate)){
+        const name=ts.isIdentifier(candidate.name)||ts.isStringLiteral(candidate.name)?candidate.name.text
+          : ts.isComputedPropertyName(candidate.name)&&ts.isStringLiteral(candidate.name.expression)?candidate.name.expression.text:null;
+        if (name === null || name === '__proto__') return 'unknown';
+        if(name===property)return candidate.initializer.kind===ts.SyntaxKind.FalseKeyword?'safe':'disabled';
+      }else if(ts.isGetAccessorDeclaration(candidate)||ts.isSetAccessorDeclaration(candidate)||ts.isMethodDeclaration(candidate)){
+        const name=ts.isIdentifier(candidate.name)||ts.isStringLiteral(candidate.name)?candidate.name.text:null;
+        if(name===null||name===property)return 'unknown';
+      }else if(ts.isShorthandPropertyAssignment(candidate)&&candidate.name.text===property)return 'disabled';
+    }
+    return 'absent';
+  }
+  const hasDisabledOption=(object,property)=>['disabled','unknown'].includes(optionState(object,property));
+  const collectAliases = (node) => {
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)
+      && node.moduleSpecifier.text === 'node:test') {
+      if (node.importClause?.name) testAliases.add(node.importClause.name.text);
+      const bindings=node.importClause?.namedBindings;
+      if(bindings && ts.isNamedImports(bindings)) for(const element of bindings.elements)
+        if(['test','it','describe','suite'].includes((element.propertyName??element.name).text))testAliases.add(element.name.text);
+    }
+    if(ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer
+      && ts.isIdentifier(node.initializer) && testAliases.has(node.initializer.text))testAliases.add(node.name.text);
+    if(ts.isVariableDeclaration(node)&&node.initializer){
+      const chain=propertyChain(node.initializer);
+      if(ts.isIdentifier(node.name)&&(disabledAliases.has(chain.root??'')
+        ||testAliases.has(chain.root??'')&&chain.members.some(member=>FORBIDDEN_MEMBERS.has(member))))
+        disabledAliases.add(node.name.text);
+      if(ts.isObjectBindingPattern(node.name)&&ts.isIdentifier(node.initializer)&&testAliases.has(node.initializer.text))
+        for(const element of node.name.elements){
+          const imported=(element.propertyName??element.name);
+          const name=ts.isIdentifier(imported)||ts.isStringLiteral(imported)?imported.text:null;
+          if(FORBIDDEN_MEMBERS.has(name)&&ts.isIdentifier(element.name))disabledAliases.add(element.name.text);
+        }
+    }
+    ts.forEachChild(node,collectAliases);
+  };
+  let priorSize;
+  do{priorSize=testAliases.size+disabledAliases.size;collectAliases(sourceFile);}
+  while(priorSize!==testAliases.size+disabledAliases.size);
 
   const visit = (node) => {
     if (ts.isVariableDeclaration(node)
       && ts.isObjectBindingPattern(node.name)
       && node.initializer
       && ts.isIdentifier(node.initializer)
-      && ['test', 'it', 'describe'].includes(node.initializer.text)) {
+      && testAliases.has(node.initializer.text)) {
       for (const element of node.name.elements) {
         const importedName = element.propertyName && ts.isIdentifier(element.propertyName)
           ? element.propertyName.text
@@ -85,10 +172,13 @@ export function inspectTestDebtSource(file, text) {
         findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${node.expression.text}`);
       } else if (ts.isIdentifier(node.expression) && disabledAliases.has(node.expression.text)) {
         findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${node.expression.text}`);
-      } else if (['test', 'it'].includes(chain.root ?? '')
-        && node.arguments.some((argument) => hasTrueProperty(argument, 'skip'))) {
-        findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:skip-option`);
+      } else if (testAliases.has(chain.root ?? '')) {
+        for(const option of ['skip','todo','only']) if(node.arguments.some(argument=>hasDisabledOption(argument,option)))
+          findings.push(`${file}:${lineAndColumn(sourceFile, node)} focused-or-disabled-test:${option}-option`);
       }
+      if(chain.root==='jest' && chain.members.includes('retryTimes')
+        && numericLiteralValue(node.arguments[0])!==0)
+        findings.push(`${file}:${lineAndColumn(sourceFile,node)} retry-policy-must-be-zero`);
       if (browserQualificationFile
         && ts.isPropertyAccessExpression(node.expression)
         && ts.isIdentifier(node.expression.expression)
@@ -152,7 +242,7 @@ export function inspectTestDebtSource(file, text) {
     }
   }
   const emptyLaneCliOption = ['--', 'pass', 'With', 'No', 'Tests'].join('');
-  if (text.includes(emptyLaneCliOption)) {
+  if (['.sh','.json','.yml','.yaml'].includes(extname(file)) && text.includes(emptyLaneCliOption)) {
     findings.push(`${file}:1:1 empty-test-lane-option`);
   }
   return findings;

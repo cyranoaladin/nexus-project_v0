@@ -5,9 +5,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-function encryptArchive(input, recipient, output) {
+function encryptArchive(input, recipient, output, ...additionalRecipients) {
   if (!input || !recipient || !output) throw new Error('ENCRYPTION_ARGUMENTS_REQUIRED');
-  if (!fs.statSync(input).isFile() || !fs.statSync(recipient).isFile()) throw new Error('ENCRYPTION_INPUT_INVALID');
+  const recipients=[recipient,...additionalRecipients];
+  if (!fs.statSync(input).isFile() || recipients.some(file=>!file||!fs.statSync(file).isFile())) throw new Error('ENCRYPTION_INPUT_INVALID');
   if (fs.existsSync(output)) throw new Error('ENCRYPTION_OUTPUT_EXISTS');
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'nexus-public-encryption-'));
   fs.chmodSync(home, 0o700);
@@ -16,7 +17,7 @@ function encryptArchive(input, recipient, output) {
     const result = spawnSync('gpg', [
       '--no-options', '--homedir', home, '--batch', '--no-tty',
       '--trust-model', 'always', '--compress-algo', 'none', '--cipher-algo', 'AES256',
-      '--recipient-file', path.resolve(recipient), '--output', temporary,
+      ...recipients.flatMap(file=>['--recipient-file',path.resolve(file)]), '--output', temporary,
       '--encrypt', path.resolve(input),
     ], { stdio: 'ignore' });
     if (result.status !== 0 || !fs.existsSync(temporary) || fs.statSync(temporary).size === 0) {

@@ -1,0 +1,57 @@
+name: Seal confidential native reports
+description: Upload ciphertext and fixed provenance metadata, never raw reports.
+inputs:
+  producer-label:
+    description: Exact registered producer label.
+    required: true
+  attachment-root:
+    description: Optional single bounded directory of private supplementary evidence.
+    required: false
+    default: ''
+  evidence-kind:
+    description: Native producer reports or derived qualification attachments.
+    required: false
+    default: native
+runs:
+  using: composite
+  steps:
+    - name: Encrypt original native evidence for both recipients
+      id: private-seal
+      shell: bash
+      env:
+        PRODUCER_LABEL: ${{ inputs.producer-label }}
+        ATTACHMENT_ROOT: ${{ inputs.attachment-root }}
+        EVIDENCE_KIND: ${{ inputs.evidence-kind }}
+      run: |
+        set -euo pipefail
+        umask 077
+        args=(seal "$PRODUCER_LABEL" "$NEXUS_TEST_EVIDENCE_DIR" "$RUNNER_TEMP/nexus-sealed")
+        if [ "$EVIDENCE_KIND" = native ]; then
+          if [ -n "$ATTACHMENT_ROOT" ]; then args+=("$ATTACHMENT_ROOT"); fi
+        elif [ "$EVIDENCE_KIND" = attachments ]; then
+          args=(seal-attachments "$PRODUCER_LABEL" "$ATTACHMENT_ROOT" "$RUNNER_TEMP/nexus-sealed")
+        else
+          exit 1
+        fi
+        node scripts/testing/ci-private-evidence.mjs "${args[@]}" > "$RUNNER_TEMP/native-seal-result.json"
+        node --input-type=module <<'NODE'
+        import fs from 'node:fs';
+        const result=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+'/native-seal-result.json','utf8'));
+        if(!/^[a-f0-9]{64}$/.test(result.cipherSha256))throw new Error('CIPHER_DIGEST_REFUSED');
+        fs.appendFileSync(process.env.GITHUB_OUTPUT,`cipher-sha256=${result.cipherSha256}\n`);
+        NODE
+    - name: Attest exact ciphertext and OIDC run attempt
+      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
+      with:
+        subject-name: payload.gpg
+        subject-digest: sha256:${{ steps.private-seal.outputs.cipher-sha256 }}
+        show-summary: false
+    - name: Upload ciphertext and allowlisted metadata only
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: corev2-private-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.producer-label }}
+        path: |
+          ${{ runner.temp }}/nexus-sealed/payload.gpg
+          ${{ runner.temp }}/nexus-sealed/manifest.json
+        retention-days: 30
+        if-no-files-found: error

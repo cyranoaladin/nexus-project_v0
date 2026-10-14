@@ -26,7 +26,7 @@ case "$1" in
     if [[ "\${NPC_FAKE_DOCKER_RUN_EXIT:-}" != "" ]]; then
       exit "$NPC_FAKE_DOCKER_RUN_EXIT"
     fi
-    if [[ "$*" == *"npx jest"* ]]; then exit 23; fi
+    if [[ "$*" == *"npx --no-install jest"* ]]; then exit 23; fi
     printf 'fake-container-id\\n'
     ;;
   port) printf '127.0.0.1:49123\\n' ;;
@@ -67,6 +67,7 @@ exit 0
         PATH: `${fakeBin}:${process.env.PATH}`,
         NPC_HARNESS_COMMAND_LOG: commandLog,
         NPC_REAL_DB_HEALTH_ATTEMPTS: '2',
+        NEXUS_TEST_NATIVE_OUTPUT: join(temporaryDirectory, 'native.json'),
       },
     });
 
@@ -78,7 +79,8 @@ exit 0
     expect(containerName).toMatch(/^nexus-npc-real-[a-f0-9]+$/);
     expect(commands).toContain(`docker rm -f -v ${containerName}`);
     expect(commands).toContain('npx prisma migrate deploy');
-    expect(commands).toContain(`npx jest --config jest.integration.config.js --runInBand ${requestedTest}`);
+    expect(commands).toContain(`npx --no-install jest --config jest.integration.config.js --runInBand --testLocationInResults ${requestedTest}`);
+    expect(commands).toContain(`--json --outputFile=${join(temporaryDirectory, 'native.json')}`);
     expect(commands).toContain('--env NPC_LLM_MODE=off');
     expect(commands).not.toContain('__tests__/integration/session-revocation.real.test.ts');
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|npc_test_password/);

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "nexus-ci-test-producers/v1",
+  "producers": {
+    "lint": [
+      "jest-governance"
+    ],
+    "unit": [
+      "jest-unit",
+      "jest-heavy",
+      "jest-planning-unit",
+      "node-error-privacy",
+      "node-test-lane-contract",
+      "node-planning",
+      "node-npm-input-verification"
+    ],
+    "integration": [
+      "jest-golden-cleanup",
+      "jest-integration-general",
+      "jest-npc-real",
+      "jest-session-revocation",
+      "jest-pending-account",
+      "jest-parent-onboarding"
+    ],
+    "real-db-integration": [
+      "jest-real-db-explicit",
+      "jest-db-core",
+      "jest-planning-db",
+      "node-npm-discovery"
+    ],
+    "core-v2-foundation": [
+      "jest-core-v2",
+      "jest-authjs"
+    ],
+    "bilan-runtime-real-db": [
+      "jest-bilan-schema"
+    ],
+    "e2e": [
+      "pw-public-chromium"
+    ],
+    "e2e-auth-chromium": [
+      "pw-auth-chromium",
+      "pw-admin-dialog-repeat20"
+    ],
+    "e2e-auth-cross-browser": [
+      "pw-auth-firefox-smoke",
+      "pw-auth-webkit-smoke",
+      "pw-auth-mobile-smoke",
+      "pw-mobile-security-repeat20"
+    ],
+    "aria-coverage": [
+      "jest-aria-coverage-application",
+      "jest-aria-coverage-db",
+      "jest-aria-coverage-concurrency"
+    ],
+    "documents": [
+      "jest-documents-ts",
+      "python-documents"
+    ],
+    "aria-jest-unit": [
+      "jest-aria-unit"
+    ],
+    "aria-jest-api": [
+      "jest-aria-api"
+    ],
+    "aria-jest-integration": [
+      "jest-aria-integration"
+    ],
+    "aria-jest-sse": [
+      "jest-aria-sse"
+    ],
+    "aria-jest-architecture": [
+      "jest-aria-architecture"
+    ],
+    "aria-postgres-db": [
+      "jest-aria-db"
+    ],
+    "aria-postgres-concurrency": [
+      "jest-aria-concurrency"
+    ],
+    "aria-postgres-migrations": [
+      "jest-aria-migrations"
+    ],
+    "aria-postgres-backfills": [
+      "jest-aria-backfills"
+    ],
+    "aria-browser-aria-desktop": [
+      "pw-aria-aria-desktop"
+    ],
+    "aria-browser-aria-mobile": [
+      "pw-aria-aria-mobile",
+      "pw-aria-mobile-repeat20"
+    ],
+    "aria-browser-aria-a11y": [
+      "pw-aria-aria-a11y"
+    ],
+    "aria-browser-aria-smoke": [
+      "pw-aria-aria-smoke"
+    ]
+  }
+}
