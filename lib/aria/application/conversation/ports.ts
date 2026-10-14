@@ -144,6 +144,10 @@ export interface HeartbeatTurnRecord {
 }
 
 export interface AriaConversationRepository {
+  /** Native adapters can fence both their mutations and each transport emission. */
+  withAuthority?<T>(operation: () => Promise<T> | T): Promise<T>;
+  /** Internal, narrow CAS cleanup only; never a general authorization bypass. */
+  retireRevokedTurn?(input: { readonly turnId: string; readonly conversationId: string; readonly assistantMessageId: string; readonly executionToken: string | null }): Promise<boolean>;
   findTurnReservation(input: FindTurnReservationInput): Promise<ReservedTurnRecord | null>;
   reserveTurn(input: ReserveTurnRepositoryInput): Promise<ReservedTurnRecord>;
   claimTurn(input: ClaimTurnRepositoryInput): Promise<ClaimedTurnRecord>;

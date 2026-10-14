@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useAriaConversation } from '@/components/aria/useAriaConversation';
+jest.mock('@/hooks/use-aria-surface', () => ({ useAriaSurface: () => ({ surface: 'V1', identityId: 'synthetic-student' }) }));
 import {
   fetchAriaCurriculum,
   fetchAriaConversationHistory,

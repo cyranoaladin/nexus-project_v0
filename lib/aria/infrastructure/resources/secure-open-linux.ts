@@ -217,18 +217,20 @@ export async function openVerifiedAriaResourceFile(
       },
     });
   } catch (error) {
+    const failures: unknown[] = [error];
     if (fileHandle) {
       try {
         await fileHandle.close();
       } catch (closeError) {
-        throw new AggregateError([error, closeError], 'ARIA resource open and cleanup failed');
+        failures.push(closeError);
       }
     }
     try {
       await closeHandles(directoryHandles);
     } catch (closeError) {
-      throw new AggregateError([error, closeError], 'ARIA resource open and cleanup failed');
+      failures.push(closeError);
     }
+    if (failures.length > 1) throw new AggregateError(failures, 'ARIA resource open and cleanup failed');
     throw error;
   }
 }

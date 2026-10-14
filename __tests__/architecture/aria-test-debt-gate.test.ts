@@ -70,6 +70,53 @@ describe('ARIA zero test debt gate', () => {
       .toEqual([expect.stringContaining('expected-failure-test')]);
   });
 
+  it('refuses focused modifier aliases and destructuring from imported test aliases', () => {
+    for (const text of [
+      "import test from 'node:test';const focused=test.only;focused('case',()=>{});",
+      "const focused=it.only;const again=focused;again('case',()=>{});",
+      "import {test as probe} from 'node:test';const {only:focused}=probe;focused('case',()=>{});",
+      "import {suite as group} from 'node:test';const {skip:disabled}=group;disabled('case',()=>{});",
+    ]) expect(inspectTestDebtSource('probe.test.mjs',text).some(finding=>finding.includes('focused-or-disabled-test'))).toBe(true);
+  });
+
+  it('refuses excluded Node options passed through constant objects and spreads', () => {
+    for(const text of [
+      "import test from 'node:test';const opts={only:true};test('case',opts,()=>{});",
+      "import test from 'node:test';const base={todo:true};const opts={...base};test('case',opts,()=>{});",
+      "import {test as probe} from 'node:test';const opts={skip:condition};probe('case',opts,()=>{});",
+    ]) expect(inspectTestDebtSource('probe.test.mjs',text).some(finding=>finding.includes('focused-or-disabled-test'))).toBe(true);
+    expect(inspectTestDebtSource('probe.test.mjs',"import test from 'node:test';const base={only:false,skip:false,todo:false};test('case',{...base},()=>{});")).toEqual([]);
+  });
+
+  it('detects Node option exclusions through imported and assigned test aliases', () => {
+    for (const [option,value] of [['only','true'],['todo','true'],['todo',"'later'"],['skip','condition']]) {
+      for (const declaration of ["import {test as probe} from 'node:test';", "import test from 'node:test';const probe=test;"]) {
+        const text=`${declaration} probe('case', {${option}:${value}},()=>{});`;
+        expect(inspectTestDebtSource('probe.test.mjs',text))
+          .toEqual([expect.stringContaining(`focused-or-disabled-test:${option}-option`)]);
+      }
+    }
+  });
+  it.each([
+    "const opts={only:false};opts.only=true;test('case',opts,()=>{});",
+    "const opts={skip:false};const alias=opts;alias.skip=true;test('case',opts,()=>{});",
+    "test('case',{get only(){return true;}},()=>{});",
+    "test('case',{['todo']:true},()=>{});",
+    "test('case',{__proto__:{skip:true}},()=>{});",
+  ])('refuses mutation, accessors and inherited exclusions in Node options: %s', body => {
+    expect(inspectTestDebtSource('probe.test.mjs', `import test from 'node:test';${body}`)
+      .some(finding=>finding.includes('focused-or-disabled-test'))).toBe(true);
+  });
+
+  it('accepts fixture strings while rejecting nonzero and dynamic Jest retry counts', () => {
+    expect(inspectTestDebtSource('probe.test.ts',"const negativeFixture='--passWithNoTests';" )).toEqual([]);
+    expect(inspectTestDebtSource('probe.test.ts','jest.retryTimes(0);')).toEqual([]);
+    for(const argument of ['1','attempts','undefined']) {
+      expect(inspectTestDebtSource('probe.test.ts',`jest.retryTimes(${argument});`))
+        .toEqual([expect.stringContaining('retry-policy-must-be-zero')]);
+    }
+  });
+
   it('detects pytest decorator skips and expected failures', () => {
     for (const marker of ['skip', 'xfail']) {
       const source = ['@pytest.mark.', marker, '\ndef test_probe():\n    pass\n'].join('');

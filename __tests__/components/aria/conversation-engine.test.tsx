@@ -1,5 +1,8 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useAriaConversation } from '@/components/aria/useAriaConversation';
+let selectedSurface: 'V1' | 'CORE_V2' | null = 'V1';
+let selectedIdentity = 'synthetic-student';
+jest.mock('@/hooks/use-aria-surface', () => ({ useAriaSurface: () => ({ surface: selectedSurface, identityId: selectedIdentity }) }));
 import {
   AriaClientError,
   cancelAriaTurn,
@@ -34,6 +37,8 @@ const courses = [
 
 describe('useAriaConversation stream isolation', () => {
   beforeEach(() => {
+    selectedSurface = 'V1';
+    selectedIdentity = 'synthetic-student';
     jest.clearAllMocks();
     (fetchAriaCurriculum as jest.Mock).mockResolvedValue({
       courses,
@@ -55,6 +60,98 @@ describe('useAriaConversation stream isolation', () => {
     (submitAriaFeedback as jest.Mock).mockImplementation(async (_messageId: string, useful: boolean) => ({
       id: 'feedback-canonical', useful, reason: null, updatedAt: '2026-08-31T00:00:00.000Z',
     }));
+  });
+  it('an inactive Core surface performs no curriculum, history, stream or feedback request', async () => {
+    selectedSurface = null;
+    const { result } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('ERROR'));
+    await act(async () => { result.current.setInput('Synthetic question'); await result.current.send(); await result.current.submitFeedback('synthetic-message', true); });
+    expect(fetchAriaCurriculum).not.toHaveBeenCalled();
+    expect(fetchLatestAriaConversation).not.toHaveBeenCalled();
+    expect(streamAriaConversation).not.toHaveBeenCalled();
+    expect(submitAriaFeedback).not.toHaveBeenCalled();
+  });
+  it('losing Core membership aborts a genuinely live stream and ignores every late callback', async () => {
+    selectedSurface = 'CORE_V2';
+    let callbacks!: AriaConversationTransportCallbacks;
+    let signal!: AbortSignal;
+    (streamAriaConversation as jest.Mock).mockImplementation((_request, supplied, suppliedSignal) => {
+      callbacks = supplied; signal = suppliedSignal;
+      callbacks.onPending?.({ turnId: 'live-turn' } as never);
+      return new Promise<void>(resolve => signal.addEventListener('abort', () => resolve(), { once: true }));
+    });
+    const { result, rerender } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Synthetic question'));
+    let sending!: Promise<void>;
+    act(() => { sending = result.current.send(); });
+    await waitFor(() => expect(result.current.phase).toBe('PENDING'));
+    expect(signal.aborted).toBe(false);
+    selectedSurface = null; rerender();
+    await waitFor(() => expect(result.current.phase).toBe('ERROR'));
+    expect(signal.aborted).toBe(true);
+    await act(async () => { await sending; });
+    act(() => {
+      callbacks.onStart?.({ turnId: 'live-turn', conversationId: 'late-conversation', messageId: 'late-message', courseKey: 'eds-nsi-terminale' } as never);
+      callbacks.onDelta?.({ text: 'late-private-output' } as never);
+      callbacks.onPending?.({ turnId: 'live-turn' } as never);
+      callbacks.onDone?.({ turnId: 'live-turn', messageId: 'late-message', fullText: 'late-private-output', status: 'COMPLETED' } as never);
+    });
+    expect(result.current.phase).toBe('ERROR'); expect(result.current.messages).toEqual([]);
+    await act(async () => { await result.current.retry(); await result.current.stop(); });
+    expect(streamAriaConversation).toHaveBeenCalledTimes(1); expect(cancelAriaTurn).not.toHaveBeenCalled();
+  });
+
+  it.each(['V1', 'OTHER_IDENTITY'] as const)('never readopts a suspended Core request across a changed binding: %s', async change => {
+    selectedSurface = 'CORE_V2';
+    (streamAriaConversation as jest.Mock).mockRejectedValue(new Error('synthetic disconnect'));
+    const { result, rerender } = renderHook(({ open }) => useAriaConversation({ open }), { initialProps: { open: true } });
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    act(() => result.current.setInput('Synthetic old question'));
+    await act(async () => { await result.current.send(); });
+    expect(result.current.phase).toBe('RETRY_REQUIRED');
+    rerender({ open: false });
+    if (change === 'V1') selectedSurface = 'V1'; else selectedIdentity = 'different-student';
+    rerender({ open: false });
+    rerender({ open: true });
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    await act(async () => { await result.current.retry(); await result.current.stop(); });
+    expect(streamAriaConversation).toHaveBeenCalledTimes(1);
+    expect(result.current.messages).toEqual([]);
+  });
+
+  it('revocation while closed clears private state before any reopening', async () => {
+    selectedSurface = 'CORE_V2';
+    (fetchLatestAriaConversation as jest.Mock).mockResolvedValue('private-conversation');
+    (fetchAriaConversationHistory as jest.Mock).mockResolvedValue({ messages: [{ id: 'private-message', role: 'assistant', content: 'Private history', status: 'COMPLETED', citations: [], feedback: null }], activeTurn: null });
+    const { result, rerender } = renderHook(({ open }) => useAriaConversation({ open }), { initialProps: { open: true } });
+    await waitFor(() => expect(result.current.messages).toHaveLength(1));
+    rerender({ open: false }); selectedSurface = null; rerender({ open: false });
+    await waitFor(() => expect(result.current.messages).toEqual([]));
+    expect(result.current.courses).toEqual([]); expect(result.current.selectedCourseKey).toBeNull();
+  });
+
+  it.each(['success', 'failure'] as const)('fences delayed and queued feedback after a binding change: %s', async outcome => {
+    selectedSurface = 'CORE_V2';
+    let finish!: (value: unknown) => void; let fail!: (error: unknown) => void;
+    (submitAriaFeedback as jest.Mock).mockImplementationOnce(() => new Promise((resolve, reject) => { finish = resolve; fail = reject; }));
+    const { result, rerender } = renderHook(() => useAriaConversation({ open: true }));
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    let first!: Promise<void>; let queued!: Promise<void>;
+    act(() => { first = result.current.submitFeedback('old-message', true); queued = result.current.submitFeedback('old-message', false); });
+    expect(submitAriaFeedback).toHaveBeenCalledTimes(1);
+    selectedSurface = null; rerender();
+    await waitFor(() => expect(result.current.phase).toBe('ERROR'));
+    selectedSurface = 'V1'; rerender();
+    await waitFor(() => expect(result.current.phase).toBe('READY'));
+    const currentAnnouncement = result.current.announcement;
+    await act(async () => {
+      if (outcome === 'success') finish({ id: 'feedback-old', useful: true }); else fail(new Error('old feedback failure'));
+      await first; await queued;
+    });
+    expect(submitAriaFeedback).toHaveBeenCalledTimes(1);
+    expect(result.current.announcement).toBe(currentAnnouncement);
+    expect(result.current.errorCode).toBeNull(); expect(result.current.messages).toEqual([]);
   });
 
   it('does no network work while closed', () => {

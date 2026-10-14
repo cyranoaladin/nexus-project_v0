@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client';
+import type { PrismaClient, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import type {
   AriaFeedbackRecord,
@@ -7,7 +7,7 @@ import type {
 import { AriaError } from '../../errors';
 
 class PrismaAriaFeedbackRepository implements AriaFeedbackRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async upsertOwnedFeedback(input: Readonly<{
     actorUserId: string;
@@ -61,7 +61,7 @@ class PrismaAriaFeedbackRepository implements AriaFeedbackRepository {
 }
 
 export function makePrismaAriaFeedbackRepository(
-  client: PrismaClient,
+  client: PrismaClient | Prisma.TransactionClient,
 ): AriaFeedbackRepository {
   return new PrismaAriaFeedbackRepository(client);
 }

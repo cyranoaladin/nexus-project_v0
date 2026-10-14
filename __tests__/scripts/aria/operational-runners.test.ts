@@ -12,7 +12,6 @@ import {
   runAriaAcademicCoverage,
 } from '@/scripts/aria/generate-academic-coverage';
 import {
-  ARIA_QUALIFICATION_LANES,
   generateAriaTestEvidence,
 } from '@/scripts/aria/generate-test-evidence';
 
@@ -290,78 +289,25 @@ describe('ARIA academic representation/capability coverage generator', () => {
   });
 });
 
-describe('ARIA exact-head Jest evidence generator', () => {
-  const laneId: Record<string, string> = {
-    unit: 'U001',
-    api: 'A001',
-    integration: 'I001',
-    sse: 'U002',
-    architecture: 'H001',
-    database: 'D001',
-    concurrency: 'D002',
-  };
-
-  it('executes every authoritative lane and writes one immutable exact-head artifact', () => {
+describe('ARIA verified native evidence generator', () => {
+  it('refuses fabricated dependency evidence instead of launching any additional tests', () => {
     const root = fixtureRoot();
-    const output: string[] = [];
-    const execute = jest.fn((command: string, args: readonly string[]) => {
-      const outputArgument = args.find((argument) => argument.startsWith('--outputFile='));
-      if (!outputArgument) throw new Error('TEST_OUTPUT_PATH_REQUIRED');
-      const outputPath = outputArgument.slice('--outputFile='.length);
-      const lane = ARIA_QUALIFICATION_LANES.find((candidate) =>
-        candidate.command === command
-        && candidate.arguments.every((argument) => args.includes(argument)));
-      if (!lane) throw new Error('TEST_LANE_REQUIRED');
-      writeFileSync(outputPath, JSON.stringify({
-        testResults: [{
-          name: join(root, `${lane.name}.test.ts`),
-          assertionResults: [{ fullName: `${laneId[lane.name]} qualification`, status: 'passed' }],
-        }],
-      }));
-      return Buffer.alloc(0);
-    });
-    const git = jest.fn((...args: string[]) => {
-      if (args[0] === 'rev-parse') return 'a'.repeat(40);
-      return '';
-    });
-    const result = generateAriaTestEvidence(root, {
-      git,
-      execute: execute as never,
-      write: (value) => output.push(value),
-    });
-    expect(execute).toHaveBeenCalledTimes(7);
-    expect(result).toMatchObject({ headSha: 'a'.repeat(40) });
-    expect(result.cases.map(({ id }) => id).sort()).toEqual([
-      'A001', 'D001', 'D002', 'H001', 'I001', 'U001', 'U002',
-    ]);
-    expect(JSON.parse(readFileSync(
-      join(root, '.artifacts/aria/qualification/jest-evidence.json'),
-      'utf8',
-    ))).toMatchObject({ schemaVersion: 1, headSha: 'a'.repeat(40) });
-    expect(output.join('')).toContain('ARIA_JEST_EVIDENCE_CASES=7');
+    const execute = jest.fn();
+    const git = jest.fn(() => 'a'.repeat(40));
+    expect(() => generateAriaTestEvidence(root, { git, execute } as never))
+      .toThrow('ARIA_NATIVE_EVIDENCE_REFUSED');
+    expect(execute).not.toHaveBeenCalled();
+    expect(git).not.toHaveBeenCalled();
   });
 
-  it('refuses dirty worktrees both before execution and after lane completion', () => {
-    expect(() => generateAriaTestEvidence(fixtureRoot(), {
-      git: () => 'dirty',
-      execute: jest.fn() as never,
-    })).toThrow('ARIA_TEST_EVIDENCE_DIRTY_WORKTREE:BEFORE');
-
+  it('preserves a prior derived artifact when verified native evidence is unavailable', () => {
     const root = fixtureRoot();
-    let statusCalls = 0;
-    const git = (...args: string[]) => {
-      if (args[0] === 'rev-parse') return 'b'.repeat(40);
-      statusCalls += 1;
-      return statusCalls === 1 ? '' : 'dirty-after';
-    };
-    const execute = jest.fn((_command: string, args: readonly string[]) => {
-      const outputPath = args.find((argument) => argument.startsWith('--outputFile='))
-        ?.slice('--outputFile='.length);
-      if (!outputPath) throw new Error('TEST_OUTPUT_PATH_REQUIRED');
-      writeFileSync(outputPath, JSON.stringify({ testResults: [] }));
-      return Buffer.alloc(0);
-    });
-    expect(() => generateAriaTestEvidence(root, { git, execute: execute as never }))
-      .toThrow('ARIA_TEST_EVIDENCE_DIRTY_WORKTREE:AFTER');
+    const artifact = join(root, '.artifacts/aria/qualification/jest-evidence.json');
+    write(root, '.artifacts/aria/qualification/jest-evidence.json', 'immutable prior bytes');
+    const output = jest.fn();
+    expect(() => generateAriaTestEvidence(root, { write: output }))
+      .toThrow('ARIA_NATIVE_EVIDENCE_REFUSED');
+    expect(readFileSync(artifact, 'utf8')).toBe('immutable prior bytes');
+    expect(output).not.toHaveBeenCalled();
   });
 });

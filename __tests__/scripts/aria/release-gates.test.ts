@@ -263,6 +263,7 @@ describe('ARIA C16 release gates', () => {
     expect(inspectAriaPerformanceContract(process.cwd())).toEqual({
       contextDbOperations: 1,
       dbWritesPerToken: 0,
+      authorityFencesPerToken: 1,
       instrumentation: [
         'RAG_LATENCY',
         'TIME_TO_FIRST_TOKEN',
@@ -1364,6 +1365,7 @@ describe('ARIA C16 release gates', () => {
     const contract = {
       contextDbOperations: 1,
       dbWritesPerToken: 0,
+      authorityFencesPerToken: 1,
       instrumentation: [
         'RAG_LATENCY',
         'TIME_TO_FIRST_TOKEN',
@@ -1378,6 +1380,7 @@ describe('ARIA C16 release gates', () => {
     })).toBe([
       'ARIA_CONTEXT_DB_OPERATIONS_OBSERVED=1',
       'ARIA_DB_WRITES_PER_TOKEN=0',
+      'ARIA_AUTHORITY_FENCES_PER_TOKEN=1',
       'ARIA_HISTORY_100_TURNS_P95_MS=1.250',
       'ARIA_SSE_500_EVENTS_P95_MS=2.500',
       'ARIA_LATENCY_INSTRUMENTATION=RAG_LATENCY,TIME_TO_FIRST_TOKEN,GENERATION_DURATION,TERMINAL_PERSISTENCE_DURATION',

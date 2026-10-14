@@ -1,12 +1,22 @@
+
+import { ariaV1Claims } from '../helpers/aria-v1-route-authority';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn(async () => require('../helpers/aria-v1-route-authority').ariaV1Claims) }));
+jest.mock('@/lib/auth/v1-session-authority', () => ({ withV1SessionAuthority: jest.fn(require('../helpers/aria-v1-route-authority').syntheticV1Authority) }));
+jest.mock('@/lib/aria/infrastructure/prisma/actor-authority', () => ({ lockV1AriaSubject: jest.fn(async () => undefined) }));
+jest.mock('@/lib/aria/infrastructure/prisma/activity-repository', () => ({ makePrismaActivityRepository: jest.fn(() => require('../helpers/aria-v1-route-authority').ariaV1Repository) }));
+jest.mock('@/lib/aria/application/practice/authorize', () => ({ authorizePracticeCourseForActor: jest.fn(async () => ({ assertCurrent: jest.fn() })), authorizePracticeCorrectionForActor: jest.fn(async () => ({ assertCurrent: jest.fn() })) }));
 import { auth } from '@/auth';
 import { POST } from '@/app/api/aria/practice/attempts/[attemptId]/submit/route';
 import { submitAriaPracticeAttempt } from '@/lib/aria/application/practice/submit-attempt';
 import { AriaError } from '@/lib/aria/errors';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/lib/aria/application/practice/submit-attempt', () => ({
-  submitAriaPracticeAttempt: jest.fn(),
-}));
+jest.mock('@/lib/aria/application/practice/submit-attempt', () => {
+  const operation = jest.fn();
+  return { submitAriaPracticeAttempt: operation, makeSubmitAriaPracticeAttempt: jest.fn(() => operation) };
+});
 jest.mock('@/lib/middleware/logger', () => ({
   createLogger: () => ({ error: jest.fn(), warn: jest.fn(), info: jest.fn() }),
 }));
@@ -23,6 +33,15 @@ const params = { params: Promise.resolve({ attemptId: 'attempt-1' }) };
 
 describe('POST /api/aria/practice/attempts/:attemptId/submit', () => {
   beforeEach(() => jest.clearAllMocks());
+
+  it('refuses an absent original cookie before any authority transaction or application operation', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
+    jest.mocked(readBoundPrivateV1Session).mockResolvedValueOnce(null);
+    const response = await POST(request({ payload: { selectedOptionId: 'a' } }) as never, params);
+    expect(response.status).toBe(403);
+    expect(withV1SessionAuthority).not.toHaveBeenCalled();
+    expect(submitAriaPracticeAttempt).not.toHaveBeenCalled();
+  });
 
   it('returns 401 when unauthenticated', async () => {
     (auth as jest.Mock).mockResolvedValueOnce(null);
@@ -63,7 +82,7 @@ describe('POST /api/aria/practice/attempts/:attemptId/submit', () => {
     const response = await POST(request({ payload: { selectedOptionId: 'a' } }) as never, params);
     expect(response.status).toBe(200);
     expect(submitAriaPracticeAttempt).toHaveBeenCalledWith({
-      actor: { userId: 'user-1', role: 'ELEVE' },
+      actor: ariaV1Claims,
       attemptId: 'attempt-1',
       payload: { selectedOptionId: 'a' },
     });

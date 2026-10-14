@@ -1,3 +1,10 @@
+
+import { ariaV1Claims, ariaV1Transaction } from '../helpers/aria-v1-route-authority';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn(async () => require('../helpers/aria-v1-route-authority').ariaV1Claims) }));
+jest.mock('@/lib/auth/v1-session-authority', () => ({ withV1SessionAuthority: jest.fn(require('../helpers/aria-v1-route-authority').syntheticV1Authority) }));
+jest.mock('@/lib/aria/infrastructure/prisma/actor-authority', () => ({ lockV1AriaSubject: jest.fn(async () => undefined) }));
 import { auth } from '@/auth';
 import { GET } from '@/app/api/aria/resources/[resourceId]/versions/[resourceVersionId]/content/route';
 import { openAriaResourceContentForActor } from '@/lib/aria/application/resources/public';
@@ -8,6 +15,7 @@ import { PassThrough, Readable } from 'node:stream';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/aria/application/resources/public', () => ({
   openAriaResourceContentForActor: jest.fn(),
+  authorizeAriaResourceForActor: jest.fn(async () => ({ assertCurrent: jest.fn() })),
 }));
 
 const resourceId = '202269df-9b59-5c61-aa20-1f13a7558910';
@@ -22,8 +30,17 @@ const routeContext = {
 describe('GET versioned ARIA resource content', () => {
   beforeEach(() => jest.clearAllMocks());
 
+  it('refuses an absent original cookie before any authority transaction or application operation', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
+    jest.mocked(readBoundPrivateV1Session).mockResolvedValueOnce(null);
+    const response = await GET(request(), routeContext);
+    expect(response.status).toBe(403);
+    expect(withV1SessionAuthority).not.toHaveBeenCalled();
+    expect(openAriaResourceContentForActor).not.toHaveBeenCalled();
+  });
+
   it('passes actor plus exact Resource and ResourceVersion identities', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     const close = jest.fn().mockResolvedValue(undefined);
     (openAriaResourceContentForActor as jest.Mock).mockResolvedValue({
       filename: 'official.pdf',
@@ -39,10 +56,10 @@ describe('GET versioned ARIA resource content', () => {
     await expect(response.text()).resolves.toBe('official');
     expect(close).toHaveBeenCalledTimes(1);
     expect(openAriaResourceContentForActor).toHaveBeenCalledWith({
-      actor: { userId: 'student-user-1', role: 'ELEVE' },
+      actor: ariaV1Claims,
       resourceId,
       resourceVersionId,
-    });
+    }, ariaV1Transaction);
   });
 
   it.each([
@@ -58,7 +75,7 @@ describe('GET versioned ARIA resource content', () => {
   });
 
   it('surfaces descriptor close failure after the final content byte', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     const closeFailure = new Error('descriptor close failed');
     const close = jest.fn().mockRejectedValue(closeFailure);
     (openAriaResourceContentForActor as jest.Mock).mockResolvedValue({
@@ -76,7 +93,7 @@ describe('GET versioned ARIA resource content', () => {
   });
 
   it('closes the descriptor and preserves a stream failure', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     const streamFailure = new Error('stream failed');
     const close = jest.fn().mockResolvedValue(undefined);
     (openAriaResourceContentForActor as jest.Mock).mockResolvedValue({
@@ -96,7 +113,7 @@ describe('GET versioned ARIA resource content', () => {
   });
 
   it('retains both stream and descriptor failures', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     const streamFailure = new Error('stream failed');
     const closeFailure = new Error('descriptor close failed');
     const close = jest.fn().mockRejectedValue(closeFailure);
@@ -120,7 +137,7 @@ describe('GET versioned ARIA resource content', () => {
   });
 
   it('destroys the file stream and closes its descriptor when the client cancels', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     const fileStream = new PassThrough();
     const destroy = jest.spyOn(fileStream, 'destroy');
     const close = jest.fn().mockResolvedValue(undefined);
@@ -141,7 +158,7 @@ describe('GET versioned ARIA resource content', () => {
   });
 
   it('A009 fails closed when the exact version is retired or unauthorized', async () => {
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'student-user-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     (openAriaResourceContentForActor as jest.Mock).mockRejectedValue(
       new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.'),
     );

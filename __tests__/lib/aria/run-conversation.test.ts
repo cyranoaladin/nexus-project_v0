@@ -1,4 +1,5 @@
 import { AriaError } from '@/lib/aria/errors';
+import { AriaAuthorityRevokedError } from '@/lib/aria/kernel/errors';
 import {
   makeRunAriaConversation,
   type AriaConversationExecutionDependencies,
@@ -152,6 +153,49 @@ function makeDependencies(overrides: Partial<AriaConversationExecutionDependenci
   };
   return { dependencies, repository, order };
 }
+
+describe('captured authority across the conversation lifecycle', () => {
+  function fenced() {
+    const a = makeDependencies(); let allowed = true;
+    a.repository.withAuthority = async operation => {
+      if (!allowed) throw new AriaAuthorityRevokedError();
+      return operation();
+    };
+    const retirement = jest.fn(async () => true);
+    a.repository.retireRevokedTurn = retirement;
+    return { ...a, retirement, revoke: () => { allowed = false; } };
+  }
+  const request = { requestId: 'synthetic-authority-request', context,
+    clientRequestId: '00000000-0000-4000-8000-000000000091', message: 'synthetic question' };
+  it('retires its PENDING reservation if claim loses the authority', async () => {
+    const a = fenced(); a.repository.claimTurn.mockImplementation(async () => { a.revoke(); throw new AriaAuthorityRevokedError(); });
+    const start = jest.fn();
+    await expect(makeRunAriaConversation(a.dependencies)({ ...request, onStart: start })).rejects.toThrow('ARIA_AUTHORITY_REVOKED');
+    expect(a.retirement).toHaveBeenCalledWith({ turnId: 'turn-1', conversationId: 'conversation-1', assistantMessageId: 'assistant-message-1', executionToken: null });
+    expect(start).not.toHaveBeenCalled(); expect(a.dependencies.streamModel).not.toHaveBeenCalled();
+  });
+  it('retires RUNNING without a start event when authority changes after claim', async () => {
+    const a = fenced(); a.repository.claimTurn.mockImplementation(async () => { a.revoke(); return { turnId: 'turn-1', conversationId: 'conversation-1',
+      status: 'RUNNING', executionToken: 'execution-1', disposition: 'CLAIMED' }; });
+    const start = jest.fn();
+    await expect(makeRunAriaConversation(a.dependencies)({ ...request, onStart: start })).rejects.toThrow('ARIA_AUTHORITY_REVOKED');
+    expect(a.retirement).toHaveBeenCalledWith({ turnId: 'turn-1', conversationId: 'conversation-1', assistantMessageId: 'assistant-message-1', executionToken: 'execution-1' });
+    expect(start).not.toHaveBeenCalled(); expect(a.dependencies.streamModel).not.toHaveBeenCalled();
+  });
+  it('suppresses the next delta and every partial-result persistence after revocation', async () => {
+    const a = fenced(); const dependencies = { ...a.dependencies, streamModel: jest.fn(async function* () { yield 'authorized '; a.revoke(); yield 'private late text'; }) };
+    const delta = jest.fn(); const complete = jest.fn();
+    await expect(makeRunAriaConversation(dependencies)({ ...request, onDelta: delta, onComplete: complete })).rejects.toThrow('ARIA_AUTHORITY_REVOKED');
+    expect(delta.mock.calls).toEqual([['authorized ']]); expect(complete).not.toHaveBeenCalled();
+    expect(a.repository.finalizeTurn).not.toHaveBeenCalled(); expect(a.retirement).toHaveBeenCalledTimes(1);
+  });
+  it('cleans up a refusal from the final commit despite finalizationAttempted', async () => {
+    const a = fenced(); a.repository.finalizeTurn.mockImplementation(async () => { a.revoke(); throw new AriaAuthorityRevokedError(); });
+    const complete = jest.fn();
+    await expect(makeRunAriaConversation(a.dependencies)({ ...request, onComplete: complete })).rejects.toThrow('ARIA_AUTHORITY_REVOKED');
+    expect(a.retirement).toHaveBeenCalledTimes(1); expect(complete).not.toHaveBeenCalled();
+  });
+});
 
 describe('ARIA canonical conversation use case', () => {
   it('rejects a blank message before reserving any persistence state', async () => {

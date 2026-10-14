@@ -11,6 +11,11 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { open } from 'node:fs/promises';
+jest.mock('node:fs/promises', () => {
+  const real = jest.requireActual('node:fs/promises');
+  return { ...real, open: jest.fn(real.open) };
+});
 import { openVerifiedAriaResourceFile } from '@/lib/aria/infrastructure/resources/secure-open-linux';
 
 async function streamBytes(stream: NodeJS.ReadableStream): Promise<Buffer> {
@@ -67,6 +72,28 @@ describe('ARIA descriptor-secure resource opening', () => {
 
     await expect(streamBytes(opened.createReadStream())).resolves.toEqual(original);
     await opened.close();
+  });
+  it('attempts every directory close even when file cleanup fails after a digest refusal', async () => {
+    const directory = join(temporaryRoot, 'one', 'two'); mkdirSync(directory, { recursive: true });
+    const bytes = Buffer.from('%PDF-synthetic cleanup fixture'); writeFileSync(join(directory, 'official.pdf'), bytes);
+    const real = jest.requireActual<typeof import('node:fs/promises')>('node:fs/promises');
+    const directories: jest.Mock[] = []; const files: jest.Mock[] = [];
+    const failure = new Error('SYNTHETIC_FILE_CLOSE_FAILURE');
+    jest.mocked(open).mockImplementation(async (...args) => {
+      const handle = await real.open(...args); const close = handle.close.bind(handle);
+      const isDirectory = (await handle.stat()).isDirectory();
+      const observed = jest.fn(async () => { await close(); if (!isDirectory) throw failure; });
+      handle.close = observed; (isDirectory ? directories : files).push(observed);
+      return handle;
+    });
+    try {
+      await expect(openVerifiedAriaResourceFile({ rootDirectory: temporaryRoot, relativePath: 'one/two/official.pdf',
+        expectedSizeBytes: bytes.length, expectedSha256: 'a'.repeat(64), expectedMimeType: 'application/pdf' })).rejects.toMatchObject({
+        name: 'AggregateError', errors: expect.arrayContaining([failure]),
+      });
+      expect(directories).toHaveLength(3); expect(files).toHaveLength(1);
+      for (const close of [...directories, ...files]) expect(close).toHaveBeenCalledTimes(1);
+    } finally { jest.mocked(open).mockImplementation(real.open); }
   });
 
   it.each([

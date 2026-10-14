@@ -81,6 +81,8 @@ export async function prepareAriaSSEConversation(input: Readonly<{
   requestId: string;
   logger?: AriaPublicErrorLogger;
   execute?: typeof executeAriaConversation;
+  /** Recheck native request authority at the final transport boundary. */
+  withAuthority?: <T>(operation: () => T | Promise<T>) => Promise<T>;
 }>): Promise<PreparedAriaSSEConversation> {
   const execute = input.execute ?? executeAriaConversation;
   const encoder = new TextEncoder();
@@ -129,16 +131,18 @@ export async function prepareAriaSSEConversation(input: Readonly<{
     onDelta(text) { emit({ event: 'delta', data: { text } }); },
   });
 
-  void execution.then((result) => {
+  void execution.then(async (result) => {
     if (!started) {
       rejectStart(new Error('ARIA_EXECUTION_START_EVENT_MISSING'));
       close();
       return;
     }
     if (result.disposition === 'IN_PROGRESS') {
+      await input.withAuthority?.(() => undefined);
       close();
       return;
     }
+    const emitResult = () => {
     if (result.disposition === 'REPLAY' && result.fullText) {
       emit({ event: 'delta', data: { text: result.fullText } });
     }
@@ -170,6 +174,9 @@ export async function prepareAriaSSEConversation(input: Readonly<{
       });
     }
     close();
+    };
+    if (input.withAuthority) await input.withAuthority(emitResult);
+    else emitResult();
   }).catch((error: unknown) => {
     if (!started) {
       rejectStart(error);

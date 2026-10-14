@@ -17,7 +17,7 @@
  * the final, unconditional guarantee.
  */
 import { streamChatCompletion, type ChatMessage } from '../../gateway';
-import { AriaError } from '../../kernel/errors';
+import { AriaError, AriaAuthorityUnavailableError } from '../../kernel/errors';
 import { resolveInteractiveStudentActor } from '../../kernel/actor-subject';
 import { recordLearningEvidence } from '../evidence/record';
 import { authorizePracticeCorrectionForActor } from './authorize';
@@ -32,7 +32,67 @@ export interface AriaPracticeCorrectInput {
 }
 
 export interface CorrectModelDependency {
-  (messages: readonly ChatMessage[]): AsyncIterable<string>;
+  (messages: readonly ChatMessage[], options?: { readonly signal?: AbortSignal }): AsyncIterable<string>;
+}
+
+export interface CorrectionScope {
+  readonly repository: ActivityRepository;
+  readonly authorize: typeof authorizePracticeCorrectionForActor;
+  readonly recordEvidence: typeof recordLearningEvidence;
+}
+export type CorrectionAuthority = <T>(operation: (scope: CorrectionScope) => Promise<T>) => Promise<T>;
+type CorrectionResult = { readonly result: ActivityResultRecord; readonly alreadyCorrected: boolean };
+
+/** Poll only while the provider is pending. No authority transaction spans network I/O. */
+async function* authorityCheckedModel(
+  streamModel: CorrectModelDependency, messages: readonly ChatMessage[], check: () => Promise<void>,
+): AsyncIterable<string> {
+  await check();
+  const controller = new AbortController();
+  const iterator = streamModel(messages, { signal: controller.signal })[Symbol.asyncIterator]();
+  let stopped = false; let done = false; let lost: unknown;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let checking: Promise<void> | undefined;
+  let rejectLoss!: (error: unknown) => void;
+  const loss = new Promise<never>((_resolve, reject) => { rejectLoss = reject; });
+  void loss.catch(() => undefined);
+  const schedule = () => {
+    if (stopped || lost) return;
+    timer = setTimeout(() => {
+      checking = check().catch(error => {
+        lost = error; controller.abort(error); rejectLoss(error);
+      }).finally(schedule);
+    }, 500);
+  };
+  schedule();
+  let failure: unknown;
+  try {
+    while (!done) {
+      await check();
+      if (lost) throw lost;
+      const next = await Promise.race([iterator.next(), loss]);
+      await check();
+      if (lost) throw lost;
+      done = !!next.done;
+      if (!done) yield next.value;
+    }
+  } catch (error) { failure = lost ?? error; throw failure; }
+  finally {
+    stopped = true;
+    if (timer) clearTimeout(timer);
+    await checking;
+    controller.abort();
+    if (!done && iterator.return) {
+      let closeTimer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([iterator.return(), new Promise<never>((_resolve, reject) => {
+          closeTimer = setTimeout(() => reject(new AriaAuthorityUnavailableError()), 1000);
+        })]);
+      } catch (error) { if (!failure) throw error; }
+      finally { if (closeTimer) clearTimeout(closeTimer); }
+    }
+    if (lost && !failure) throw lost;
+  }
 }
 
 async function collectModelText(stream: AsyncIterable<string>): Promise<string> {
@@ -44,20 +104,26 @@ async function collectModelText(stream: AsyncIterable<string>): Promise<string> 
 }
 
 export function makeCorrectAriaPracticeAttempt(dependencies: {
-  readonly repository: ActivityRepository;
   readonly streamModel: CorrectModelDependency;
-}) {
+  /** Synchronous public projection in the same authority transaction as replay/commit. */
+  readonly present?: (value: CorrectionResult) => void;
+} & ({ readonly repository: ActivityRepository; readonly withAuthority?: undefined }
+  | { readonly withAuthority: CorrectionAuthority; readonly repository?: undefined })) {
   return async function correctAriaPracticeAttempt(
     input: AriaPracticeCorrectInput,
-  ): Promise<{ readonly result: ActivityResultRecord; readonly alreadyCorrected: boolean }> {
-    const { repository } = dependencies;
-    const actor = resolveInteractiveStudentActor(input.actor);
+  ): Promise<CorrectionResult> {
+    const actor = Object.freeze({ ...resolveInteractiveStudentActor(input.actor) });
+    const attemptId = input.attemptId;
+    const withAuthority: CorrectionAuthority = dependencies.withAuthority ?? (operation => operation({
+      repository: dependencies.repository!, authorize: authorizePracticeCorrectionForActor, recordEvidence: recordLearningEvidence,
+    }));
+    const prepared = await withAuthority(async ({ repository, authorize }) => {
     const studentId = await repository.resolveStudentIdByUserId(actor.userId);
     if (!studentId) {
       throw new AriaError('NOT_ENROLLED', 403, 'Profil élève introuvable.');
     }
 
-    const attempt = await repository.getAttemptById(input.attemptId);
+    const attempt = await repository.getAttemptById(attemptId);
     // Same shape whether the attempt doesn't exist or belongs to someone
     // else — never reveal which, to a requester who isn't the owner.
     if (!attempt || attempt.studentId !== studentId) {
@@ -67,14 +133,15 @@ export function makeCorrectAriaPracticeAttempt(dependencies: {
     // Dual gate re-checked at correction time (not just at attempt-start):
     // course access + the CURRENT `practiceCorrection` tier capability —
     // correction triggers a new, real model call, unlike submission.
-    await authorizePracticeCorrectionForActor({
-      actor: input.actor,
+    await authorize({
+      actor,
       courseKey: attempt.courseKey,
     });
 
-    const begin = await repository.beginCorrection(input.attemptId);
+    const begin = await repository.beginCorrection(attemptId);
     if (begin.alreadyCorrected) {
-      return { result: begin.result, alreadyCorrected: true };
+      dependencies.present?.({ result: begin.result, alreadyCorrected: true });
+      return { kind: 'REPLAY' as const, result: begin.result };
     }
 
     const activity = await repository.getActivityById(attempt.activityId);
@@ -92,7 +159,7 @@ export function makeCorrectAriaPracticeAttempt(dependencies: {
         reasonCode: 'ARIA_ATTEMPT_VERSION_MISSING',
       });
     }
-    const response = await repository.getResponseByAttemptId(input.attemptId);
+    const response = await repository.getResponseByAttemptId(attemptId);
     if (!response) {
       throw new AriaError('INTERNAL_ERROR', 500, 'Réponse de la tentative introuvable.', {
         reasonCode: 'ARIA_ATTEMPT_RESPONSE_MISSING',
@@ -105,10 +172,29 @@ export function makeCorrectAriaPracticeAttempt(dependencies: {
       correctionRubric: version.correctionRubric,
       responsePayload: response.payload,
     });
-    const feedback = await requestCorrectionFeedback(dependencies.streamModel, messages);
+    return { kind: 'MODEL' as const, studentId, attempt, activity, messages };
+    });
+    if (prepared.kind === 'REPLAY') return { result: prepared.result, alreadyCorrected: true };
 
-    const committed = await repository.commitCorrectionResult({
-      attemptId: input.attemptId,
+    const assertCurrent = async (scope: CorrectionScope) => {
+      const studentId = await scope.repository.resolveStudentIdByUserId(actor.userId);
+      const current = await scope.repository.getAttemptById(attemptId);
+      if (studentId !== prepared.studentId || !current || current.studentId !== studentId
+        || current.activityId !== prepared.attempt.activityId || current.activityVersionId !== prepared.attempt.activityVersionId
+        || current.courseKey !== prepared.attempt.courseKey) {
+        throw new AriaError('BAD_REQUEST', 404, 'Tentative introuvable.');
+      }
+      await scope.authorize({ actor, courseKey: current.courseKey });
+    };
+    const check = () => withAuthority(assertCurrent);
+    const feedback = await requestCorrectionFeedback(
+      messages => authorityCheckedModel(dependencies.streamModel, messages, check), prepared.messages,
+    );
+
+    return await withAuthority(async scope => {
+    await assertCurrent(scope);
+    const committed = await scope.repository.commitCorrectionResult({
+      attemptId,
       outcome: feedback.outcome,
       feedback,
     });
@@ -117,19 +203,23 @@ export function makeCorrectAriaPracticeAttempt(dependencies: {
     // concurrent request that lost the double-checked-locking race already
     // has its evidence recorded by the request that won.
     if (!committed.wasAlreadyCorrected) {
-      await recordLearningEvidence({
-        studentId,
-        courseKey: activity.courseKey,
-        skillId: activity.skillId,
-        curriculumVersion: activity.curriculumVersion,
+      await scope.recordEvidence({
+        studentId: prepared.studentId,
+        courseKey: prepared.activity.courseKey,
+        skillId: prepared.activity.skillId,
+        curriculumVersion: prepared.activity.curriculumVersion,
         source: 'PRACTICE_ATTEMPT',
-        sourceRefId: input.attemptId,
-        outcome: { outcome: feedback.outcome, activityAttemptId: input.attemptId },
+        sourceRefId: attemptId,
+        outcome: { outcome: feedback.outcome, activityAttemptId: attemptId },
         observedAt: new Date(),
       });
     }
 
-    return { result: committed.result, alreadyCorrected: false };
+    await assertCurrent(scope);
+    const result = { result: committed.result, alreadyCorrected: committed.wasAlreadyCorrected };
+    dependencies.present?.(result);
+    return result;
+    });
   };
 }
 
@@ -168,5 +258,5 @@ async function requestCorrectionFeedback(
 
 export const correctAriaPracticeAttempt = makeCorrectAriaPracticeAttempt({
   repository: prismaActivityRepository,
-  streamModel: (messages) => streamChatCompletion(messages),
+  streamModel: (messages, options) => streamChatCompletion(messages, options),
 });

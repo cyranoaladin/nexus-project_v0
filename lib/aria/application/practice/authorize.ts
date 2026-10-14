@@ -31,15 +31,17 @@ import {
   type AriaCapabilities,
 } from '../../kernel/entitlements';
 import { loadAriaAuthorizationStudent } from '../conversation/load-authorization-student';
+import { prisma } from '@/lib/prisma';
+import type { PrismaClient } from '@prisma/client';
 
 export interface AriaPracticeActorInput {
   readonly actor: { readonly userId: string; readonly role: string };
   readonly now?: Date;
 }
 
-async function loadAuthorizedActorContext(input: AriaPracticeActorInput) {
+async function loadAuthorizedActorContext(input: AriaPracticeActorInput, client: Pick<PrismaClient, 'student'>) {
   const actor = resolveInteractiveStudentActor(input.actor);
-  const student = await loadAriaAuthorizationStudent(actor);
+  const student = await loadAriaAuthorizationStudent(actor, undefined, client);
   resolveStudentSelfSubject(actor, student);
   const entitlements = buildCanonicalAriaEntitlementContext(
     student.user.entitlements,
@@ -71,6 +73,7 @@ export function decidePracticeCourseAuthorization(
 
 export async function authorizePracticeCourseForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string },
+  client: Pick<PrismaClient, 'student'> = prisma,
 ) {
   // The real cockpit UI passes its own product-catalog course key (e.g.
   // `maths-premiere-eds`, `lib/aria/curriculum/catalog.ts`), not the
@@ -87,14 +90,18 @@ export async function authorizePracticeCourseForActor(
   if (!isKnownCourseKey(courseKey) || !getCourse(courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
-  const context = await loadAuthorizedActorContext(input);
+  const context = await loadAuthorizedActorContext(input, client);
   const access = resolveAriaCourseAccess({
     courseKey,
     student: context.student,
     entitlements: context.entitlements,
   });
   decidePracticeCourseAuthorization(access, context.capabilities);
-  return { student: context.student, courseKey };
+  return { student: context.student, courseKey, assertCurrent() {
+    const current = buildCanonicalAriaEntitlementContext(context.student.user.entitlements, new Date());
+    decidePracticeCourseAuthorization(resolveAriaCourseAccess({ courseKey, student: context.student, entitlements: current }),
+      resolveAriaCapabilities(current.tier));
+  } };
 }
 
 /**
@@ -132,6 +139,7 @@ export function decidePracticeCorrectionAuthorization(
 
 export async function authorizePracticeCorrectionForActor(
   input: AriaPracticeActorInput & { readonly courseKey: string },
+  client: Pick<PrismaClient, 'student'> = prisma,
 ) {
   // Same cockpit-key/canonical-key bridge as authorizePracticeCourseForActor
   // — see its own comment. This function's own caller (`correct-attempt.ts`)
@@ -144,12 +152,16 @@ export async function authorizePracticeCorrectionForActor(
   if (!isKnownCourseKey(courseKey) || !getCourse(courseKey)) {
     throw new AriaError('COURSE_NOT_FOUND', 404, 'Cours ARIA introuvable.');
   }
-  const context = await loadAuthorizedActorContext(input);
+  const context = await loadAuthorizedActorContext(input, client);
   const access = resolveAriaCourseAccess({
     courseKey,
     student: context.student,
     entitlements: context.entitlements,
   });
   decidePracticeCorrectionAuthorization(access, context.capabilities);
-  return { student: context.student, courseKey };
+  return { student: context.student, courseKey, assertCurrent() {
+    const current = buildCanonicalAriaEntitlementContext(context.student.user.entitlements, new Date());
+    decidePracticeCorrectionAuthorization(resolveAriaCourseAccess({ courseKey, student: context.student, entitlements: current }),
+      resolveAriaCapabilities(current.tier));
+  } };
 }

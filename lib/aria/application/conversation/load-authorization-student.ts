@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import type { PrismaClient } from '@prisma/client';
 import type { AriaActor } from '../../kernel/actor-subject';
 import type { AriaEntitlementRecord } from '../../kernel/entitlements';
 import type { StudentWithEnrollments } from '../../access';
@@ -29,8 +30,9 @@ export interface AriaAuthorizationStudent extends StudentWithEnrollments {
 export async function loadAriaAuthorizationStudent(
   actor: AriaActor,
   conversationId?: string | null,
+  client: Pick<PrismaClient, 'student'> = prisma,
 ): Promise<AriaAuthorizationStudent> {
-  const student = await prisma.student.findUnique({
+  const student = await client.student.findUnique({
     where: { userId: actor.userId },
     select: {
       id: true,

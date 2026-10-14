@@ -1,6 +1,6 @@
 const { createAriaJestConfig } = require('./jest.aria.shared');
 
-module.exports = createAriaJestConfig({
+const resolveJestConfig = createAriaJestConfig({
   displayName: 'aria-db',
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
   setupFilesAfterEnv: [
@@ -15,4 +15,14 @@ module.exports = createAriaJestConfig({
   maxWorkers: 1,
   testTimeout: 30_000,
   passWithNoTests: false,
+});
+// The real encrypted cookie regressions load Auth.js and its ESM dependencies.
+// next/jest adds a blanket node_modules ignore; replace it after resolution.
+module.exports = async () => ({
+  ...(await resolveJestConfig()),
+  transformIgnorePatterns: [
+    '/node_modules/(?!.pnpm)(?!(next-auth|@auth|jose|oauth4webapi|preact|preact-render-to-string)/)',
+    '/node_modules/.pnpm/(?!(next-auth|@auth|jose|oauth4webapi|preact|preact-render-to-string)@)',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
 });

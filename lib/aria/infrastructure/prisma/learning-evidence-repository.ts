@@ -43,7 +43,7 @@ function toRecord(row: SelectedRow): LearningEvidenceRecord {
 }
 
 class PrismaLearningEvidenceRepository implements LearningEvidenceRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async resolveStudentIdByUserId(userId: string): Promise<string | null> {
     const student = await this.client.student.findUnique({
@@ -99,7 +99,7 @@ class PrismaLearningEvidenceRepository implements LearningEvidenceRepository {
 }
 
 export function makePrismaLearningEvidenceRepository(
-  client: PrismaClient,
+  client: PrismaClient | Prisma.TransactionClient,
 ): LearningEvidenceRepository {
   return new PrismaLearningEvidenceRepository(client);
 }

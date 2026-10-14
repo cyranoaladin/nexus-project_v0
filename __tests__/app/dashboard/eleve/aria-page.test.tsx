@@ -25,10 +25,13 @@ jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
 }));
 jest.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
+  useSearchParams: () => new URLSearchParams(),
 }));
 jest.mock('@/components/aria/AriaChatLauncher', () => ({
   AriaChatLauncher: (props: unknown) => mockAriaChatLauncher(props),
 }));
+
+jest.mock('@/hooks/use-core-membership', () => ({ useCoreMembership: () => ({ state: (mockSessionState.data as { user: { id: string } }).user.id === 'student-v2' ? 'ACTIVE' : 'NOT_MEMBER', role: 'ELEVE', retry: jest.fn() }) }));
 
 import AriaCockpitPage from '@/app/dashboard/eleve/aria/page';
 
@@ -63,9 +66,9 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
     mockSessionState.status = 'authenticated';
   });
 
-  it('CORE_V2 mounts no launcher or course workspace and calls no legacy ARIA route', async () => {
+  it('V1-authenticated Core student mounts no launcher or course workspace and calls no legacy ARIA route', async () => {
     mockSessionState.data = {
-      user: { id: 'student-v2', role: 'ELEVE', authority: 'CORE_V2' },
+      user: { id: 'student-v2', role: 'ELEVE', authority: 'V1' },
     };
     mockProtectedFetch.mockResolvedValue(response({ ok: true, data: cockpit(false) }));
 
@@ -127,7 +130,7 @@ describe('/dashboard/eleve/aria — chat deployment capability', () => {
 
   it('keeps a history/recovery launcher when Core v2 chat rollout is disabled', async () => {
     mockSessionState.data = {
-      user: { id: 'student-v2', role: 'ELEVE', authority: 'CORE_V2' },
+      user: { id: 'student-v2', role: 'ELEVE', authority: 'V1' },
     };
     mockProtectedFetch.mockResolvedValue(response({ ok: true, data: {
       ...cockpit(false, true),

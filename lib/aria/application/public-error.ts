@@ -1,4 +1,4 @@
-import { AriaError, type AriaErrorCode } from '../kernel/errors';
+import { AriaAuthorityUnavailableError, AriaError, type AriaErrorCode } from '../kernel/errors';
 
 export type AriaPublicErrorCode =
   | 'BAD_REQUEST'
@@ -100,7 +100,8 @@ export function serializeAriaPublicError(
   const code = context.phase === 'POST_START' && !POST_START_CODES.has(mappedCode)
     ? 'INTERNAL_ERROR'
     : mappedCode;
-  const definition = PUBLIC_ERRORS[code];
+  const definition = error instanceof AriaAuthorityUnavailableError
+    ? { status: 503, retryable: true } : PUBLIC_ERRORS[code];
 
   if (definition.status >= 500 && context.logger) {
     context.logger.error('ARIA request failed', undefined, {

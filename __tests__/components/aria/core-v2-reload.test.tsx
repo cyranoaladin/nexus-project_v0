@@ -8,8 +8,9 @@ import {
   cancelAriaTurn,
 } from '@/lib/aria/client';
 
-jest.mock('@/components/auth/SessionRecoveryProvider', () => ({
-  useCanonicalSession: () => ({ data: { user: { authority: 'CORE_V2' } } }),
+// Session V1, adhésion Core v2 active d'un élève : la surface métier ARIA est CORE_V2.
+jest.mock('@/hooks/use-aria-surface', () => ({
+  useAriaSurface: () => ({ surface: 'CORE_V2', identityId: 'student-user-1', membership: { state: 'ACTIVE', role: 'ELEVE' } }),
 }));
 jest.mock('@/lib/aria/client', () => ({
   ...jest.requireActual('@/lib/aria/client'),

@@ -1,8 +1,12 @@
 export const dynamic = 'force-dynamic';
 
 import { auth } from '@/auth';
+import { lockAriaV1Subject, ariaFeedbackRepository } from '@/lib/aria/application/v1-composition';
 import { unauthorizedAriaResponse } from '@/lib/aria/transport/session';
-import { recordAriaFeedbackForActor } from '@/lib/aria/application/feedback/public';
+import { makeRecordAriaFeedback } from '@/lib/aria/application/feedback/public';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+import { AriaAuthorityRevokedError } from '@/lib/aria/kernel/errors';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
 import { toAriaErrorResponse, AriaError } from '@/lib/aria/errors';
@@ -31,30 +35,30 @@ export async function POST(request: NextRequest) {
       return unauthorizedAriaResponse(logger);
     }
 
+    const claims = await readBoundPrivateV1Session(request, session);
+    if (!claims) throw new AriaAuthorityRevokedError();
     const body = await readBoundedAriaJson(request);
     const validatedData = ariaFeedbackSchema.parse(body);
 
-    const feedbackRecord = await recordAriaFeedbackForActor({
-      actor: { userId: session.user.id, role: session.user.role },
+    let badgeFailed = false;
+    const response = await withV1SessionAuthority(claims, async tx => {
+    await lockAriaV1Subject(tx, claims.userId, false);
+    const feedbackRecord = await makeRecordAriaFeedback(ariaFeedbackRepository(tx))({
+      actor: claims,
       messageId: validatedData.messageId,
       useful: validatedData.useful,
       reason: validatedData.reason,
     });
-
     let newBadges: Awaited<ReturnType<typeof checkAndAwardBadges>> = [];
+    await tx.$executeRawUnsafe('SAVEPOINT aria_feedback_badges');
     try {
-      newBadges = await checkAndAwardBadges(feedbackRecord.subjectStudentId, 'aria_feedback');
+      newBadges = await checkAndAwardBadges(feedbackRecord.subjectStudentId, 'aria_feedback', undefined, tx);
+      await tx.$executeRawUnsafe('RELEASE SAVEPOINT aria_feedback_badges');
     } catch {
-      logger.warn('ARIA secondary operation failed', {
-        requestId: logger.getRequestId(),
-        operation: 'award_feedback_badges',
-      });
+      await tx.$executeRawUnsafe('ROLLBACK TO SAVEPOINT aria_feedback_badges');
+      await tx.$executeRawUnsafe('RELEASE SAVEPOINT aria_feedback_badges');
+      badgeFailed = true;
     }
-
-    logger.info('ARIA feedback recorded', {
-      requestId: logger.getRequestId(),
-      operation: 'record_feedback',
-    });
 
     const publicResult = requireInternalAriaResponse(ariaFeedbackResponseSchema, {
       success: true,
@@ -70,7 +74,13 @@ export async function POST(request: NextRequest) {
         icon: b.badge.icon,
       })),
     });
-    return NextResponse.json(publicResult);
+    return NextResponse.json(publicResult, { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' } });
+    });
+    if (badgeFailed) logger.warn('ARIA secondary operation failed', {
+      requestId: logger.getRequestId(), operation: 'award_feedback_badges',
+    });
+    logger.info('ARIA feedback recorded', { requestId: logger.getRequestId(), operation: 'record_feedback' });
+    return response;
   } catch (error: unknown) {
     if (error instanceof z.ZodError || error instanceof SyntaxError) {
       return toAriaErrorResponse(

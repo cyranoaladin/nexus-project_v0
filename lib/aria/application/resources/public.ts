@@ -12,6 +12,8 @@ import {
   isAriaResourceAuthorized,
 } from '../../domain/resources/authorization';
 import { loadAriaAuthorizationStudent } from '../conversation/load-authorization-student';
+import { prisma } from '@/lib/prisma';
+import type { PrismaClient } from '@prisma/client';
 
 interface AriaResourceActorInput {
   readonly actor: { readonly userId: string; readonly role: string };
@@ -23,9 +25,9 @@ const RESOURCE_COURSE_REFUSAL_CODES = Object.freeze([
   'COURSE_NOT_FOUND', 'NOT_ENROLLED', 'UNSUPPORTED', 'NOT_ENTITLED',
 ] as const);
 
-async function loadAuthorizedActorContext(input: AriaResourceActorInput) {
+async function loadAuthorizedActorContext(input: AriaResourceActorInput, client: Pick<PrismaClient, 'student'> = prisma) {
   const actor = resolveInteractiveStudentActor(input.actor);
-  const student = await loadAriaAuthorizationStudent(actor);
+  const student = await loadAriaAuthorizationStudent(actor, undefined, client);
   resolveStudentSelfSubject(actor, student);
   const entitlements = buildCanonicalAriaEntitlementContext(
     student.user.entitlements,
@@ -111,6 +113,7 @@ export async function authorizeAriaResourceForActor(
     readonly resourceId: string;
     readonly resourceVersionId: string;
   },
+  client: Pick<PrismaClient, 'student'> = prisma,
 ) {
   const placements = getActiveResourcePlacements(input.resourceId);
   if (!placements) {
@@ -118,7 +121,7 @@ export async function authorizeAriaResourceForActor(
   }
   // Loaded ONCE for the whole request, never per placement: the actor/student
   // snapshot does not depend on which placement is being evaluated.
-  const context = await loadAuthorizedActorContext(input);
+  const context = await loadAuthorizedActorContext(input, client);
   let authorized: Readonly<{ courseKey: string; student: { id: string } }> | null = null;
   for (const courseKey of placements) {
     try {
@@ -143,7 +146,14 @@ export async function authorizeAriaResourceForActor(
     throw new AriaError('RESOURCE_MISMATCH', 404, 'Ressource ARIA introuvable.');
   }
   assertAriaResourceAuthorization(resource, authorized.student.id);
-  return Object.freeze({ resource });
+  return Object.freeze({ resource, assertCurrent() {
+    // Locked rows cannot be edited, but their validity windows keep advancing.
+    const current = { ...context, entitlements: buildCanonicalAriaEntitlementContext(
+      context.student.user.entitlements, new Date(),
+    ) };
+    authorizeCourseAccessForStudent(authorized!.courseKey, current);
+    assertAriaResourceAuthorization(resource, current.student.id);
+  } });
 }
 
 export async function openAriaResourceContentForActor(
@@ -151,8 +161,9 @@ export async function openAriaResourceContentForActor(
     readonly resourceId: string;
     readonly resourceVersionId: string;
   },
+  client: Pick<PrismaClient, 'student'> = prisma,
 ) {
-  const { resource } = await authorizeAriaResourceForActor(input);
+  const { resource } = await authorizeAriaResourceForActor(input, client);
   // Explicit on the storage discriminant, never inferred from `filename`
   // being absent: a RAG-governed ResourceVersion is not a Nexus local file
   // and must fail closed here, before any attempt to open one — never by

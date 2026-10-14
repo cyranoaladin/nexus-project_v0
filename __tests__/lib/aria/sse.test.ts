@@ -1,4 +1,5 @@
 import { AriaError } from '@/lib/aria/errors';
+import { AriaAuthorityRevokedError } from '@/lib/aria/kernel/errors';
 jest.mock('@/lib/aria/application/conversation/public', () => ({
   ...jest.requireActual('@/lib/aria/application/conversation/public'),
   executeAriaConversation: jest.fn(),
@@ -15,6 +16,25 @@ import { toAriaJsonResponse } from '@/lib/aria/transport/json';
 import { executeAriaConversation } from '@/lib/aria/application/conversation/public';
 
 const encoder = new TextEncoder();
+
+it('refuses replay text, metadata and done when authority disappears before transport completion', async () => {
+  const prepared = await prepareAriaSSEConversation({
+    executionInput: { context: { courseKey: 'eds-maths-premiere' } as never,
+      clientRequestId: '00000000-0000-4000-8000-000000000092', message: 'synthetic replay' },
+    requestId: 'synthetic-replay-authority',
+    withAuthority: async () => { throw new AriaAuthorityRevokedError(); },
+    execute: (async (input: { onStart?: (event: Record<string, unknown>) => void }) => {
+      input.onStart?.({ turnId: 'turn-private', conversationId: 'conversation-private', messageId: 'message-private', status: 'COMPLETED', disposition: 'REPLAY' });
+      return { turnId: 'turn-private', conversationId: 'conversation-private', messageId: 'message-private', status: 'COMPLETED',
+        disposition: 'REPLAY', fullText: 'PRIVATE_REPLAY_SENTINEL', citations: [], ragStatus: 'NOT_CONFIGURED' };
+    }) as never,
+  });
+  if (prepared.kind !== 'STREAM') throw new Error('ARIA_TEST_STREAM_REQUIRED');
+  const response = new Response(prepared.stream);
+  const wire = await response.text();
+  expect(wire).toContain('event: error'); expect(wire).not.toContain('PRIVATE_REPLAY_SENTINEL');
+  expect(wire).not.toContain('event: done'); expect(wire).not.toContain('event: metadata');
+});
 
 function streamBytes(chunks: readonly Uint8Array[]): ReadableStream<Uint8Array> {
   return new ReadableStream({
