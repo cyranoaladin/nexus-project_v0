@@ -11,7 +11,6 @@ import {
 } from '@/components/premium';
 import {
   getOffersByLevel,
-  getOffersByTrack,
   getStageFormats,
   getStageEditions,
   getPonctuelOffers,
@@ -43,13 +42,12 @@ export const revalidate = 3600;
 
 // ── Category filter ──
 
-type Category = 'all' | 'annual' | 'libre' | 'plateforme' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
+type Category = 'all' | 'annual' | 'libre' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
 
 const categories: { id: Category; label: string }[] = [
   { id: 'all', label: 'Tout voir' },
   { id: 'annual', label: 'Parcours annuels' },
   { id: 'libre', label: 'Candidat libre' },
-  { id: 'plateforme', label: 'Plateforme' },
   { id: 'intensifs', label: 'Les Intensifs' },
   { id: 'ponctuel', label: 'Prépa épreuves' },
   { id: 'coaching', label: 'Boussole' },
@@ -59,7 +57,7 @@ const categories: { id: Category; label: string }[] = [
 
 // ── Mega-parcours grouping ──
 
-const MEGA_ANNEE: Category[] = ['annual', 'libre', 'plateforme'];
+const MEGA_ANNEE: Category[] = ['annual', 'libre'];
 const MEGA_STAGES: Category[] = ['intensifs', 'ponctuel'];
 const MEGA_SURMESURE: Category[] = ['coaching', 'pass', 'carte'];
 
@@ -134,7 +132,6 @@ function NavyBand({
 
 export default function OffresPage() {
   const rules = getRules();
-  const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
   const ponctuelOffers = getPonctuelOffers();
@@ -178,14 +175,14 @@ export default function OffresPage() {
 
       {/* ════════════════════════════════════════════════════════════
          MÉGA-PARCOURS 1 — Accompagnement à l'année
-         (annuel scolarisé + candidat libre + plateforme ARIA)
+         (annuel scolarisé + candidat libre ; plateforme ARIA retirée du catalogue, décision D11)
          ════════════════════════════════════════════════════════════ */}
 
       <NavyBand
         testId="mega-annee"
         eyebrow="Parcours annuels"
         title="Accompagnement à l'année"
-        intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
+        intro="Élèves scolarisés ou candidats libres — un parcours adapté à chaque profil, sur toute l’année scolaire."
         dataCategories={MEGA_ANNEE.join(',')}
       />
 
@@ -272,47 +269,6 @@ export default function OffresPage() {
             </Link>
           </div>
           <CandidatsLibresParcours />
-        </div>
-      </section>
-
-      {/* Offres de plateforme — bg white */}
-      <section
-        id="section-plateforme"
-        data-testid="section-plateforme"
-        {...filterSectionAttrs('plateforme')}
-        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
-      >
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8">
-            <span className="lux-eyebrow">Plateforme</span>
-            <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
-            <p className="mt-3 text-sm text-lux-slate">
-              Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {platformOffers.map((o) => {
-              const price = o.price_annual ?? 0;
-              return (
-                <div key={o.id} id={o.id} className="scroll-mt-28">
-                  <ExamCard
-                    eyebrow="Plateforme"
-                    title={o.title}
-                    subtitle={o.subjects}
-                    price={price}
-                    pricingDisplay={o.pricing_display ?? undefined}
-                    features={o.included}
-                    effectifType={o.group_max ? 'groupe' : 'none'}
-                    groupMax={o.group_max ?? undefined}
-                    groupMinOpen={o.group_min_open ?? undefined}
-                    ctaText="Demander cette offre"
-                    ctaHref={buildWhatsAppUrl(o.title)}
-                  />
-                </div>
-              );
-            })}
-          </div>
         </div>
       </section>
 

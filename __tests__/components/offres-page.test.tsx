@@ -46,7 +46,6 @@ describe('OffresPage', () => {
     expect(screen.getByText(/capacité précisée par offre/i)).toBeInTheDocument();
     expect(screen.getByText(/accompagnement annuel — scolarisés/i)).toBeInTheDocument();
     expect(screen.getByText(/parcours candidats libres/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /stages intensifs — toutes les vacances/i })).toBeInTheDocument();
     expect(screen.queryByText(/garantie réussite|mention garantie|100 % réussite|100 % bac|bac garanti/i)).not.toBeInTheDocument();
     expect(container.textContent).not.toMatch(/undefined|NaN/);
@@ -85,6 +84,15 @@ describe('OffresPage', () => {
     }
     expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800/);
     expect(section.textContent).not.toMatch(/tout compris/i);
+  });
+
+  it('ne vend plus la plateforme ARIA seule (décision D11)', () => {
+    const { container } = render(<OffresPage />);
+    expect(screen.queryByTestId('section-plateforme')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /trois paliers numériques/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^plateforme$/i })).not.toBeInTheDocument();
+    expect(container.querySelector('#plateforme-autonomie, #plateforme-suivi, #plateforme-accomp')).toBeNull();
+    expect(container.textContent).not.toMatch(/100\s?% en ligne/);
   });
 
   it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {

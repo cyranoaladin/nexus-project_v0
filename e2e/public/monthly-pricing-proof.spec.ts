@@ -15,7 +15,6 @@ const VIEWPORTS = [
 const CARD_SCREENSHOTS = [
   { id: 'term-spe-simple', label: 'annual-scolarise' },
   { id: 'intensif-solo', label: 'one-shot-stage' },
-  { id: 'plateforme-autonomie', label: 'aria-annual' },
 ];
 
 function annualOffer(id: string) {
@@ -152,38 +151,13 @@ test('candidat libre (session 2027) shows installment-first, no acompte', async 
   await ctx.close();
 });
 
-// ── ARIA plateforme: annual display, NO /mois ──
-test('ARIA plateforme shows annual, no /mois', async ({ browser }) => {
+// ── ARIA : plus vendue seule sur /offres (décision D11) ──
+test('ARIA plateforme is no longer sold on /offres', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
-
-  // Test all 3 ARIA tiers — match full normalized price (strip whitespace → compare digits)
-  for (const { id, annualPrice } of [
-    { id: 'plateforme-autonomie', annualPrice: 590 },
-    { id: 'plateforme-suivi', annualPrice: 1490 },
-    { id: 'plateforme-accomp', annualPrice: 2900 },
-  ]) {
-    const card = page.locator(`#${id}`);
-    const pricingBlock = card.locator('[data-testid="pricing-block"]');
-    const pricingText = await pricingBlock.textContent();
-
-    // Shows /an (with any whitespace before "an")
-    expect(pricingText, `${id} shows /an`).toMatch(/\/\s*an/);
-    // Does NOT show /mois
-    expect(pricingText, `${id} no /mois`).not.toMatch(/\/\s*mois/);
-    // No secondary line
-    const secondary = card.locator('[data-testid="price-secondary"]');
-    await expect(secondary).toHaveCount(0);
-    // Full price match: strip all whitespace from primary, extract digits before TND
-    const primary = card.locator('[data-testid="price-primary"]');
-    const primaryText = await primary.textContent();
-    const digits = (primaryText ?? '').replace(/\s/g, '').match(/^(\d+)TND/);
-    expect(digits, `${id} primary matches "XTND" pattern`).not.toBeNull();
-    expect(Number(digits![1]), `${id} exact annual price`).toBe(annualPrice);
-  }
-
+  await expect(page.locator('[data-testid="section-plateforme"]')).toHaveCount(0);
+  await expect(page.locator('#plateforme-autonomie, #plateforme-suivi, #plateforme-accomp')).toHaveCount(0);
   await ctx.close();
 });
 
@@ -242,34 +216,3 @@ test('installment display on /offres matches home repères', async ({ browser })
   await ctx.close();
 });
 
-// ── Consistency: ARIA annual on /offres == home repère "590 TND / an" ──
-test('ARIA annual on /offres matches home repère', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
-
-  // Home repère for "Plateforme ARIA" — look for the repère card containing both label and price
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-  const homeText = await page.evaluate(() => {
-    // The repères section renders cards with rounded-xl containing both label and lux-price
-    const cards = document.querySelectorAll('[class*="rounded-xl"]');
-    for (const c of cards) {
-      const text = c.textContent || '';
-      if (text.includes('Plateforme ARIA') && text.includes('TND')) {
-        return text;
-      }
-    }
-    return '';
-  });
-
-  // /offres ARIA card
-  await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
-  const offresAria = await page.locator('#plateforme-autonomie').locator('[data-testid="price-primary"]').textContent();
-
-  // Both show 590
-  expect(homeText, 'home has 590').toContain('590');
-  expect(offresAria, 'offres ARIA has 590').toContain('590');
-
-  await ctx.close();
-});

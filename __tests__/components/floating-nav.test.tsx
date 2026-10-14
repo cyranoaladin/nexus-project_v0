@@ -62,7 +62,7 @@ describe('FloatingNav', () => {
     const ariaButton = screen.getByText('ARIA');
     fireEvent.click(ariaButton);
 
-    expect(navigateDocument).toHaveBeenCalledWith('/offres#section-plateforme');
+    expect(navigateDocument).toHaveBeenCalledWith('/plateforme-aria');
   });
 
   it('a les bonnes classes CSS', () => {

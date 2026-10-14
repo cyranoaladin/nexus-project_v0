@@ -12,7 +12,8 @@ const data = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
 
 // Les anciennes offres candidat libre (track « libre ») ne sont plus publiées : /offres affiche à leur
 // place les parcours de la session 2027 (bloc candidats_libres_2027), vérifiés dans le test suivant.
-const pricedOffers = data.offers.filter((o: any) => o.price_annual != null && o.track !== 'libre');
+// La plateforme ARIA n'est plus vendue seule sur /offres (décision D11).
+const pricedOffers = data.offers.filter((o: any) => o.price_annual != null && o.track !== 'libre' && o.track !== 'plateforme');
 const parcoursCandidatsLibres = data.candidats_libres_2027.parcours;
 // /stages renders stage_calendar entries, each with a format price from stage_formats
 // The calendar entries reference format_id; the rendered price comes from stage_formats
