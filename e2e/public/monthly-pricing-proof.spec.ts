@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { getAnnualOfferPricing } from '@/lib/pricing-client';
+import pricingCanonical from '../../data/pricing.canonical.json';
+
+const candidatsLibres2027 = (pricingCanonical as any).candidats_libres_2027;
 
 const VIEWPORTS = [
   { name: 'mobile', width: 375, height: 812 },
@@ -129,47 +132,22 @@ test('uniform annual scolarisé (9 × 300) says "mensualités identiques"', asyn
   await ctx.close();
 });
 
-// ── Candidat individuel: installment-first, NO acompte (10 mensualités identiques) ──
-test('candidat individuel shows installment-first, no acompte', async ({ browser }) => {
-  const offer = annualOffer('terminale-libre-focus-bac');
-  expect(offer.deposit, 'candidat individuel offers have deposit: 0 (no acompte)').toBe(0);
-  expect(offer.n_installments, 'candidat individuel offers have 10 installments').toBe(10);
+// ── Candidats libres 2026-2027 : mensualité en premier, sans acompte (bloc candidats_libres_2027) ──
+test('candidat libre (session 2027) shows installment-first, no acompte', async ({ browser }) => {
+  const terminale = candidatsLibres2027.parcours.find((p: { id: string }) => p.id === 'terminale');
 
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
 
-  const card = page.locator('#terminale-libre-focus-bac');
-
-  // Primary price: canonical installment amount, not legacy price_annual / 10.
-  const primary = card.locator('[data-testid="price-primary"]');
-  const primaryText = await primary.textContent();
-  expect(digitsText(primaryText), 'candidat individuel primary shows installment amount').toContain(
-    String(offer.installment_amount),
-  );
-  expect(primaryText, 'candidat individuel primary has TND').toContain('TND');
-
-  // Has /mois in pricing block, WITHOUT "hors acompte" (there is no acompte to be "hors" of).
-  const pricingBlock = card.locator('[data-testid="pricing-block"]');
-  const pricingText = await pricingBlock.textContent();
-  expect(pricingText, 'candidat individuel has /mois').toMatch(/\/\s*mois/);
-  expect(pricingText, 'candidat individuel never shows "hors acompte"').not.toMatch(/hors acompte/);
-
-  // Secondary present, states no acompte explicitly, shows the real annual total.
-  const secondary = card.locator('[data-testid="price-secondary"]');
-  await expect(secondary).toBeVisible();
-  const secondaryText = await secondary.textContent();
-  expect(secondaryText, 'candidat individuel secondary states no acompte').toMatch(/pas d.?acompte/i);
-  const secondaryDigits = digitsText(secondaryText);
-  expect(secondaryDigits, 'candidat individuel secondary shows annual total').toContain(
-    String(offer.price_annual),
-  );
-
-  // Échéancier shows NO acompte row at all — never a "30 %" badge, and no
-  // "Aucun" placeholder either (sans acompte means nothing to render).
-  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte"]');
-  await expect(echeancierAcompte).toHaveCount(0);
+  const card = page.getByTestId('section-libre').getByRole('article', { name: /Terminale/ });
+  await expect(card).toBeVisible();
+  const text = (await card.textContent()) ?? '';
+  expect(digitsText(text), 'mensualité affichée').toContain(String(terminale.echeancier_9.mensualite));
+  expect(digitsText(text), 'total annuel affiché').toContain(String(terminale.prix_annuel));
+  expect(text, 'mensualité par mois').toMatch(/\/\s*mois/);
+  expect(text, '9 mensualités').toMatch(/9 mensualités/);
+  expect(text, 'aucun acompte').not.toMatch(/acompte/i);
 
   await ctx.close();
 });
