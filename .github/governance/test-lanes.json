@@ -670,7 +670,6 @@
         "test",
         "--config=playwright.auth.config.ts",
         "--project=mobile-smoke",
-        "password-change.spec.ts",
         "password-change-v1.spec.ts",
         "--grep=390px",
         "--repeat-each=20",

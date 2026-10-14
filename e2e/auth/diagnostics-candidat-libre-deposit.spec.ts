@@ -24,13 +24,13 @@
  * actual demo student flow).
  */
 import { createHash } from 'node:crypto';
-import bcrypt from 'bcryptjs';
 import { expect, test, type Page } from '@playwright/test';
 import { PrismaClient } from '@/core-v2/generated/client';
 import { diagnosticInstrumentSubjectRelativePath, writeDiagnosticStorageFixture } from '@/lib/core-v2/diagnostics/storage';
 import { gotoSignInForm, logoutUser } from '../helpers/auth';
 import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
 import { sameOriginHeaders } from '../helpers/same-origin';
+import { createV1StudentIdentity, deleteV1StudentIdentity, disconnectV1StudentIdentityClient } from '../helpers/v1-student-identity';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -45,9 +45,14 @@ const prisma = new PrismaClient({ datasources: { db: { url: coreV2DatabaseUrl } 
 const nonce = Date.now();
 const E2E_KNOWN_SECRET = `E2eDeposit.${nonce}.Aa1`;
 const studentEmail = `e2e-deposit-student-${nonce}@example.test`;
+// One id for both stores: Core v1 authenticates (CORE_V2_AUTH_MODE=V1_ONLY),
+// Core v2 resolves the session's actor by that same id.
+const studentUserId = `e2e-deposit-student-user-${nonce}`;
 
 let instrumentId = '';
 let assignmentId = '';
+let studentId = '';
+let householdId = '';
 
 const SYNTHETIC_PDF = (marker: string) =>
   Buffer.from(`%PDF-1.0\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n${marker}-${nonce}`);
@@ -83,13 +88,22 @@ test.beforeAll(async () => {
       },
     },
   });
+  householdId = household.id;
+  await createV1StudentIdentity({
+    id: studentUserId,
+    email: studentEmail,
+    password: E2E_KNOWN_SECRET,
+    firstName: 'E2eDeposit',
+    lastName: 'Student',
+  });
   const studentUser = await prisma.user.create({
     data: {
+      id: studentUserId,
       email: studentEmail,
       role: 'ELEVE',
       firstName: 'E2eDeposit',
       lastName: 'Student',
-      password: await bcrypt.hash(E2E_KNOWN_SECRET, 4),
+      password: null,
       accountStatus: 'ACTIVE',
       activatedAt: new Date(),
     },
@@ -97,6 +111,7 @@ test.beforeAll(async () => {
   const student = await prisma.student.create({
     data: { userId: studentUser.id, householdId: household.id },
   });
+  studentId = student.id;
 
   const assignment = await prisma.diagnosticAssignment.create({
     data: {
@@ -118,7 +133,12 @@ test.afterAll(async () => {
   await prisma.diagnosticSubmission.deleteMany({ where: { assignmentId } }).catch(() => undefined);
   await prisma.diagnosticAssignment.deleteMany({ where: { id: assignmentId } }).catch(() => undefined);
   await prisma.diagnosticInstrumentRef.deleteMany({ where: { id: instrumentId } }).catch(() => undefined);
-  await prisma.$disconnect();
+  // FK order: Student → its Core v2 User and Household (household parents cascade).
+  await prisma.student.deleteMany({ where: { id: studentId } }).catch(() => undefined);
+  await prisma.user.deleteMany({ where: { id: studentUserId } }).catch(() => undefined);
+  await prisma.household.deleteMany({ where: { id: householdId } }).catch(() => undefined);
+  await deleteV1StudentIdentity(studentUserId).catch(() => undefined);
+  await Promise.all([prisma.$disconnect(), disconnectV1StudentIdentityClient()]);
 });
 
 async function loginAsStudent(page: Page): Promise<void> {

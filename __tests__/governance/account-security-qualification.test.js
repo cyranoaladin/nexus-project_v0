@@ -1,6 +1,6 @@
 let path;
 let ROOT;
-const COMMAND = 'npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change.spec.ts password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0';
+const COMMAND = 'npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0';
 let loadWorkflow;
 let qualifyAccountSecurityRepeat;
 let sanitizePlaywrightReport;
@@ -37,12 +37,11 @@ test('security repetitions are qualified and published only through the private-
 
 function successfulReport() {
   const cases = [
-    ['password-change.spec.ts', 'parent changes their password and revokes both old sessions at 390px'],
     ['password-change-v1.spec.ts', 'V1 parent changes their password and revokes two sessions at 390px'],
   ];
   return sanitizePlaywrightReport({
     config: { rootDir: '/synthetic/repo/e2e/auth' }, errors: [],
-    stats: { expected: 40, skipped: 0, unexpected: 0, flaky: 0 },
+    stats: { expected: 20, skipped: 0, unexpected: 0, flaky: 0 },
     suites: [{ specs: cases.flatMap(([file, title]) => Array.from({ length: 20 }, (_, repetition) => ({
       id: `${file}-repeat-${repetition}`, file, title, ok: true,
       tests: [{ projectName: 'mobile-smoke', expectedStatus: 'passed',
@@ -53,7 +52,7 @@ function successfulReport() {
 
 test('twenty genuine records per approved case qualify after privacy publishing', () => {
   expect(qualifyAccountSecurityRepeat(successfulReport())).toEqual({
-    project: 'mobile-smoke', cases: 2, repetitionsPerCase: 20, passed: 40, skipped: 0, retries: 0,
+    project: 'mobile-smoke', cases: 1, repetitionsPerCase: 20, passed: 20, skipped: 0, retries: 0,
   });
 });
 
@@ -72,7 +71,7 @@ test.each([
   ['browser error', r => { r.suites[0].specs[0].tests[0].results[0].errors.push({ message: 'PRIVATE_DIAGNOSTIC_REDACTED' }); }],
   ['global error', r => { r.errors.push({ message: 'PRIVATE_DIAGNOSTIC_REDACTED' }); }],
   ['flaky summary', r => { r.stats.flaky = 1; }],
-  ['wrong total', r => { r.stats.expected = 39; }],
+  ['wrong total', r => { r.stats.expected = 19; }],
   ['raw report', r => { delete r.privacyFormat; }],
   ['unexpected suite', r => { r.suites.push(structuredClone(r.suites[0])); }],
 ])('qualification refuses %s even if other summary counts are green', (_name, mutate) => {

@@ -42,7 +42,6 @@
  * never a wildcard, never derived from NODE_ENV.
  */
 import { createHash } from 'node:crypto';
-import bcrypt from 'bcryptjs';
 import { expect, test, type Page } from '@playwright/test';
 import { PrismaClient, Prisma } from '@/core-v2/generated/client';
 import { diagnosticInstrumentSubjectRelativePath, writeDiagnosticStorageFixture } from '@/lib/core-v2/diagnostics/storage';
@@ -51,6 +50,7 @@ import { DEMO_ANSWER_HTML, DEMO_SUBJECT_HTML } from '@/lib/core-v2/diagnostics/d
 import { gotoSignInForm, loginViaSigninForm, logoutUser } from '../helpers/auth';
 import { resetDisposableE2ERateLimits } from '../helpers/rate-limit';
 import { sameOriginHeaders } from '../helpers/same-origin';
+import { createV1StudentIdentity, deleteV1StudentIdentity, disconnectV1StudentIdentityClient } from '../helpers/v1-student-identity';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -67,6 +67,10 @@ const INTERNAL_NOTE_SENTINEL = `SENTINEL-INTERNAL-NOTE-${Date.now()}-do-not-leak
 // Fixed, well-known values (mirroring ci.yml's DIAGNOSTIC_DEMO_STUDENT_IDS) —
 // never a nonce, since the demo-mode allowlist is static per server process.
 const FIXED_STUDENT_ID = 'e2e-bilan-journey-fixed-student-001';
+// One fixed id for both stores: Core v1 authenticates (CORE_V2_AUTH_MODE=V1_ONLY),
+// Core v2 resolves the session's actor by that same id. Fixed (not a nonce) so a
+// crashed earlier run's V1 identity is always found and removed by the cleanup.
+const FIXED_STUDENT_USER_ID = 'e2e-bilan-journey-fixed-student-user-001';
 const nonce = Date.now();
 const E2E_KNOWN_SECRET = `E2eBilanJourney.${nonce}.Aa1`;
 const studentEmail = `e2e-bilan-journey-student-${nonce}@example.test`;
@@ -80,6 +84,12 @@ let processingId = '';
 let draftId = '';
 
 async function cleanupFixedStudent(): Promise<void> {
+  await cleanupFixedCoreV2Student();
+  await prisma.user.deleteMany({ where: { id: FIXED_STUDENT_USER_ID } });
+  await deleteV1StudentIdentity(FIXED_STUDENT_USER_ID);
+}
+
+async function cleanupFixedCoreV2Student(): Promise<void> {
   const existingStudent = await prisma.student.findUnique({ where: { id: FIXED_STUDENT_ID } });
   if (!existingStudent) return;
   const assignments = await prisma.diagnosticAssignment.findMany({ where: { studentId: FIXED_STUDENT_ID }, select: { id: true } });
@@ -139,13 +149,21 @@ test.beforeAll(async () => {
   });
   householdId = household.id;
 
+  await createV1StudentIdentity({
+    id: FIXED_STUDENT_USER_ID,
+    email: studentEmail,
+    password: E2E_KNOWN_SECRET,
+    firstName: 'E2eBilanJourney',
+    lastName: 'Student',
+  });
   const studentUser = await prisma.user.create({
     data: {
+      id: FIXED_STUDENT_USER_ID,
       email: studentEmail,
       role: 'ELEVE',
       firstName: 'E2eBilanJourney',
       lastName: 'Student',
-      password: await bcrypt.hash(E2E_KNOWN_SECRET, 4),
+      password: null,
       accountStatus: 'ACTIVE',
       activatedAt: new Date(),
     },
@@ -171,7 +189,7 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   await cleanupFixedStudent();
   await prisma.diagnosticInstrumentRef.deleteMany({ where: { id: instrumentId } }).catch(() => undefined);
-  await prisma.$disconnect();
+  await Promise.all([prisma.$disconnect(), disconnectV1StudentIdentityClient()]);
 });
 
 async function loginAsCandidate(page: Page): Promise<void> {
