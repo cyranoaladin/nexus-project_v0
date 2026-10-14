@@ -771,6 +771,30 @@ jobs:
       - name: Verify literal subprocess test-lane discovery
         run: node scripts/testing/npm-runner-invocations.test.mjs
 
+      # The Python lane (scripts/pre-rentree/tests) is collected by its own runner:
+      # same pinned environment as the pre-rentrée documents job.
+      - name: Restore apt archives (pre-rentree-lanes)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: pre-rentree-lanes
+
+      - name: Install the pre-rentrée Python test environment for lane collection
+        timeout-minutes: 10
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3-venv
+          python3 -m venv "$RUNNER_TEMP/pre-rentree-lanes"
+          "$RUNNER_TEMP/pre-rentree-lanes/bin/python" -m pip install \
+            -r scripts/pre-rentree/requirements.lock
+          echo "$RUNNER_TEMP/pre-rentree-lanes/bin" >> "$GITHUB_PATH"
+
+      - name: Save apt archives (pre-rentree-lanes)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: pre-rentree-lanes
+
       - name: Prove every test lane is reachable from a workflow
         run: npm run test:lanes:check
 
