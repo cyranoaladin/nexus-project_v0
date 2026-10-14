@@ -131,7 +131,7 @@ export default function UsersManagementPage() {
         email: "",
         firstName: "",
         lastName: "",
-        role: "ELEVE",
+        role: "ASSISTANTE",
         password: ""
       });
       setIsDialogOpen(false);
@@ -176,7 +176,7 @@ export default function UsersManagementPage() {
         email: "",
         firstName: "",
         lastName: "",
-        role: "ELEVE",
+        role: "ASSISTANTE",
         password: ""
       });
       setIsDialogOpen(false);
@@ -243,7 +243,7 @@ export default function UsersManagementPage() {
       email: "",
       firstName: "",
       lastName: "",
-      role: "ELEVE",
+      role: "ASSISTANTE",
       password: ""
     });
     setIsDialogOpen(true);
@@ -405,7 +405,8 @@ export default function UsersManagementPage() {
                       addChildToExistingFamily). L'API rejette désormais ces
                       rôles avec FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE.
                     */}
-                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
+                    {/* Le rôle d'un compte existant ne change pas ici (P1-9) : créer un compte avec le rôle voulu. */}
+                    <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })} disabled={Boolean(editingUser)}>
                       <SelectTrigger id="role">
                         <SelectValue />
                       </SelectTrigger>

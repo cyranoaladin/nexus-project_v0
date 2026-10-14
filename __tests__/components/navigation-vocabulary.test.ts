@@ -39,3 +39,10 @@ describe('ADMIN/ASSISTANTE navigation vocabulary', () => {
     expect(familles?.href).toBe('/dashboard/admin/familles');
   });
 });
+
+describe('ELEVE : accès à ses bilans publiés (P1-6)', () => {
+  it('le menu élève mène à « Mes bilans », page qui n’était liée nulle part', () => {
+    const items = navigationConfig[UserRole.ELEVE];
+    expect(items).toContainEqual(expect.objectContaining({ label: 'Mes bilans', href: '/dashboard/eleve/mes-bilans' }));
+  });
+});

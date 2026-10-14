@@ -187,7 +187,7 @@ export async function conversationMessages(page: Page, conversationId: string) {
 const expectedPrefetchPaths = new Set([
   '/dashboard/trajectoire', '/dashboard/eleve/aria', '/dashboard/eleve/nsi-pratique-2026',
   '/dashboard/eleve/npc', '/dashboard/eleve/documents', '/dashboard/eleve/diagnostics-libres',
-  '/bilan-gratuit/assessment', '/dashboard/account/security',
+  '/dashboard/eleve/mes-bilans', '/bilan-gratuit/assessment', '/dashboard/account/security',
 ]);
 
 export interface BrowserNetworkFailure {

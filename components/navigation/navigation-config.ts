@@ -60,6 +60,12 @@ export const navigationConfig: Record<UserRole, NavigationItem[]> = {
       match: 'prefix'
     },
     {
+      label: 'Mes bilans',
+      href: '/dashboard/eleve/mes-bilans',
+      icon: 'FileCheck2',
+      match: 'prefix'
+    },
+    {
       label: 'Mes Diagnostics',
       href: '/dashboard/eleve/npc',
       icon: 'ClipboardCheck',

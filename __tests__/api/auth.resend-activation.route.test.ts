@@ -132,6 +132,7 @@ describe('POST /api/auth/resend-activation', () => {
       activationToken: 'old-hash',
       activationExpiry: new Date('2026-08-04T12:00:00Z'),
       role: 'PARENT',
+      emailVerifiedAt: new Date('2026-09-01'), // adresse de confiance (P1-11)
     });
     prisma.user.updateMany
       .mockResolvedValueOnce({ count: 1 })
@@ -157,6 +158,7 @@ describe('POST /api/auth/resend-activation', () => {
       activationToken: null,
       activationExpiry: null,
       role: 'PARENT',
+      emailVerifiedAt: new Date('2026-09-01'), // adresse de confiance (P1-11)
     });
     prisma.user.updateMany.mockResolvedValue({ count: 1 });
     mockEnqueueEmailIntent
@@ -181,6 +183,7 @@ describe('POST /api/auth/resend-activation', () => {
       activationToken: null,
       activationExpiry: null,
       role: 'PARENT',
+      emailVerifiedAt: new Date('2026-09-01'), // adresse de confiance (P1-11)
     });
 
     const request = new NextRequest('http://attacker.example/api/auth/resend-activation', {
@@ -272,4 +275,33 @@ it('does not issue a parent link to a stale email when empty activation fields s
   expect(response.status).toBe(200);
   expect(await response.json()).toMatchObject({ success: true });
   expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
+});
+
+describe('P1-11 — un parent ne reçoit un lien que sur une adresse de confiance', () => {
+  const parent = (over: Record<string, unknown> = {}) => ({
+    id: 'parent-1', email: 'parent@example.com', firstName: 'Amel', activatedAt: null, role: 'PARENT',
+    activationToken: null, activationExpiry: null, emailVerifiedAt: null, parentPhoneState: 'NONE', parentPhoneChallenges: [],
+    ...over,
+  });
+
+  it.each([
+    ['activation téléphonique en cours', { parentPhoneState: 'PENDING' }],
+    ['défi téléphonique déjà émis', { parentPhoneChallenges: [{ id: 'challenge-1' }] }],
+  ])('%s : réponse identique, aucun lien ni courriel', async (_cas, over) => {
+    prisma.user.findUnique.mockResolvedValue(parent(over));
+    const res = await POST(makeRequest({ email: 'parent@example.com' }));
+    expect(res.status).toBe(200);
+    expect((await res.json()).success).toBe(true);
+    expect(prisma.user.updateMany).not.toHaveBeenCalled();
+    expect(mockEnqueueEmailIntent).not.toHaveBeenCalled();
+  });
+
+  it('adresse vérifiée : le lien est émis, et l’écriture finale revérifie la confiance', async () => {
+    prisma.user.findUnique.mockResolvedValue(parent({ emailVerifiedAt: new Date('2026-09-01'), parentPhoneState: 'ACTIVE' }));
+    await POST(makeRequest({ email: 'parent@example.com' }));
+    expect(mockEnqueueEmailIntent).toHaveBeenCalledTimes(1);
+    expect(prisma.user.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ OR: expect.arrayContaining([{ emailVerifiedAt: { not: null } }]) }),
+    }));
+  });
 });

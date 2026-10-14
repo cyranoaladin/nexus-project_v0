@@ -53,10 +53,6 @@ export default function MathsRevisionClient({ user }: MathsRevisionClientProps) 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        toast.info('Recherche globale bientôt disponible !');
-      }
       if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
         e.preventDefault();
         setFocusMode((prev) => !prev);

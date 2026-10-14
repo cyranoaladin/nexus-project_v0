@@ -963,6 +963,18 @@
       "MODULE_KIND": "NEXT_PAGE"
     },
     {
+      "PATH": "app/dashboard/eleve/npc/reports/[reportId]/page.tsx",
+      "ROLE": [
+        "ELEVE"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
       "PATH": "app/dashboard/eleve/nsi-pratique-2026/page.tsx",
       "ROLE": [
         "ELEVE"
@@ -1209,6 +1221,18 @@
     },
     {
       "PATH": "app/dashboard/parent/npc/page.tsx",
+      "ROLE": [
+        "PARENT"
+      ],
+      "BEFORE_CONVERGENCE": "SR",
+      "CURRENT_RAW_NULL_BEHAVIOR": "NONE_SHARED_CANONICAL_OBSERVATION",
+      "MUTATING_ACTIONS_PRESENT": false,
+      "DRAFT_STATE_PRESENT": false,
+      "CANONICAL_GUARD_MIGRATED": true,
+      "MODULE_KIND": "NEXT_PAGE"
+    },
+    {
+      "PATH": "app/dashboard/parent/npc/reports/[reportId]/page.tsx",
       "ROLE": [
         "PARENT"
       ],

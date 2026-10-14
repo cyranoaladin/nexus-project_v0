@@ -277,24 +277,6 @@ function PaiementContent() {
                 </div>
               )}
 
-              {/* Carte Bancaire — désactivée */}
-              <div className="p-4 rounded-lg bg-white/5 opacity-50 cursor-not-allowed">
-                <div className="flex items-center gap-3">
-                  <CreditCard className="w-5 h-5 text-neutral-400" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-neutral-400">Paiement par Carte Bancaire</span>
-                      <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full ml-2">
-                        Bientôt disponible
-                      </span>
-                    </div>
-                    <p className="text-sm text-neutral-500 mt-1">
-                      {CGV_POLICY.payment.provider} — {CGV_POLICY.payment.bank} (en cours de configuration)
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Virement Bancaire — actif (désactivé si PENDING existe) */}
               <button
                 type="button"
