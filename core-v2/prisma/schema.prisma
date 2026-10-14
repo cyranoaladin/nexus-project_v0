@@ -66,6 +66,7 @@ generator client {
 
 model User {
   invitationScopeVersion String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invitationAuthorityEpoch String @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   id        String   @id @default(cuid())
   email     String?  @unique
   password  String?

@@ -97,6 +97,42 @@ describe('invitation issuer scope from authoritative relationships', () => {
     await client.user.update({ where: { id: 'scope-parent' }, data: { accountStatus: 'PENDING_ACTIVATION', email: 'scope-parent@example.test' } });
     expect((await scope(ctx(assistantId, 'ASSISTANTE').actor, 'scope-parent')).scopes).toHaveLength(1);
   });
+  test('a family member activating their own account keeps the other members’ pending invitations valid', async () => {
+    await grant();
+    await client.user.update({ where: { id: 'scope-parent' }, data: { accountStatus: 'PENDING_ACTIVATION', email: 'scope-parent@example.test' } });
+    const assistant = ctx(assistantId, 'ASSISTANTE').actor;
+    // The child activates first: the parent's pending invitation is unchanged.
+    const parent = await scope(assistant, 'scope-parent');
+    await client.user.update({ where: { id: targetId }, data: { accountStatus: 'ACTIVE', activatedAt: new Date() } });
+    expect((await scope(assistant, 'scope-parent')).authorities).toEqual(parent.authorities);
+    // Then the parent activates: the child's invitation authority (re-sent) is unchanged.
+    const student = await scope(assistant, targetId, 'RESEND');
+    await client.user.update({ where: { id: 'scope-parent' }, data: { accountStatus: 'ACTIVE', activatedAt: new Date() } });
+    expect((await scope(assistant, targetId, 'RESEND')).authorities).toEqual(student.authorities);
+  });
+  test.each(['SUSPENDED', 'DISABLED'] as const)('a %s family member still changes the other members’ invitation authority', async status => {
+    await grant();
+    const assistant = ctx(assistantId, 'ASSISTANTE').actor;
+    await client.user.create({ data: { id: 'scope-co-parent', role: 'PARENT', accountStatus: 'ACTIVE' } });
+    await client.householdParent.create({ data: { householdId, userId: 'scope-co-parent', verificationStatus: 'VERIFIED',
+      verifiedAt: new Date(), verifiedById: adminId, verificationEvidenceDigest: 'c'.repeat(64), revision: 1 } });
+    const before = await scope(assistant);
+    await client.user.update({ where: { id: 'scope-co-parent' }, data: { accountStatus: status } });
+    expect((await scope(assistant)).authorities).not.toEqual(before.authorities);
+  });
+  test('the authority epoch survives activation, rotates on any other status change and cannot be chosen by a writer', async () => {
+    const epoch = async () => (await client.user.findUniqueOrThrow({ where: { id: targetId } })).invitationAuthorityEpoch;
+    const initial = await epoch();
+    await client.user.update({ where: { id: targetId }, data: { accountStatus: 'ACTIVE', activatedAt: new Date() } });
+    expect(await epoch()).toBe(initial);
+    await client.user.update({ where: { id: targetId }, data: { invitationAuthorityEpoch: '00000000-0000-4000-8000-000000000000' } });
+    expect(await epoch()).toBe(initial);
+    await client.user.update({ where: { id: targetId }, data: { accountStatus: 'SUSPENDED' } });
+    const suspended = await epoch();
+    expect(suspended).not.toBe(initial);
+    await client.user.update({ where: { id: targetId }, data: { accountStatus: 'ACTIVE' } });
+    expect([initial, suspended]).not.toContain(await epoch());
+  });
   test('a different academic year is not covered by an existing grant', async () => {
     await grant();
     const next = await client.academicYear.create({ data: { startYear: 2027, startsAt: new Date('2027-09-01'), endsAt: new Date('2028-08-01') } });

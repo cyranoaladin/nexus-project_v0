@@ -158,21 +158,26 @@ export async function assertInvitationScope(
   if (targetIsParent || targetIsStudent) {
     const [parent, student] = await Promise.all([
       tx.householdParent.findUnique({ where: { userId: target.id }, include: { user: { select: { role: true, accountStatus: true, invitationScopeVersion: true } } } }),
-      tx.student.findUnique({ where: { userId: target.id }, include: { user: { select: { invitationScopeVersion: true } } } }),
+      tx.student.findUnique({ where: { userId: target.id }, include: { user: { select: { invitationScopeVersion: true, invitationAuthorityEpoch: true } } } }),
     ]);
     if ((targetIsParent && (!parent || student)) || (targetIsStudent && (!student || parent))) unavailable();
     const householdId = targetIsParent ? parent!.householdId : student!.householdId;
     const parents = await tx.householdParent.findMany({ where: { householdId,
       verificationStatus: 'VERIFIED', revokedAt: null,
-      user: { accountStatus: { in: ['ACTIVE', 'PENDING_ACTIVATION'] }, role: 'PARENT' } }, include: { user: { select: { role: true, accountStatus: true, invitationScopeVersion: true } } } });
+      user: { accountStatus: { in: ['ACTIVE', 'PENDING_ACTIVATION'] }, role: 'PARENT' } }, include: { user: { select: { role: true, accountStatus: true, invitationScopeVersion: true, invitationAuthorityEpoch: true } } } });
     if (parents.length === 0 || (targetIsParent && !parents.some(row => row.userId === target.id))) unavailable();
+    // Another member's account counts by its authority epoch (migration 0034): it rotates on
+    // role, e-mail and status changes (suspend→reactivate included) but not on their own
+    // activation, which must not cancel this pending invitation.
+    const accountAuthority = (userId: string, user: { invitationScopeVersion: string; invitationAuthorityEpoch: string }) =>
+      userId === target.id ? user.invitationScopeVersion : user.invitationAuthorityEpoch;
     for (const row of parents) {
       if (!row.verifiedAt || !row.verifiedById || !row.verificationEvidenceDigest) unavailable();
-      authorities.push('parent:' + row.id + ':' + row.invitationScopeVersion + ':' + row.user.invitationScopeVersion);
+      authorities.push('parent:' + row.id + ':' + row.invitationScopeVersion + ':' + accountAuthority(row.userId, row.user));
     }
     const students = targetIsStudent ? [student!] : await tx.student.findMany({ where: { householdId,
       user: { role: 'ELEVE', accountStatus: { in: ['ACTIVE', 'PENDING_ACTIVATION'] } } },
-      include: { user: { select: { invitationScopeVersion: true } } } });
+      include: { user: { select: { invitationScopeVersion: true, invitationAuthorityEpoch: true } } } });
     const enrollments = await tx.studentAcademicYearEnrollment.findMany({ where: {
       studentId: { in: students.map(row => row.id) }, status: 'ACTIVE',
       academicYear: { status: { in: ['CURRENT', 'UPCOMING'] } },
@@ -181,7 +186,7 @@ export async function assertInvitationScope(
     for (const enrollment of enrollments) {
       const child = students.find(row => row.id === enrollment.studentId)!;
       if (!enrollment.approvedAt || !enrollment.approvedById) unavailable();
-      authorities.push('student:' + child.id + ':' + child.invitationScopeVersion + ':' + child.user.invitationScopeVersion);
+      authorities.push('student:' + child.id + ':' + child.invitationScopeVersion + ':' + accountAuthority(child.userId, child.user));
       authorities.push('enrollment:' + enrollment.id + ':' + enrollment.invitationScopeVersion);
       authorities.push('year:' + enrollment.academicYearId + ':' + enrollment.academicYear.invitationScopeVersion);
       scopes.set(householdId + ':' + enrollment.academicYearId, { householdId, academicYearId: enrollment.academicYearId });
