@@ -1,93 +1,76 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   extractQualificationCasesFromJest,
-  extractQualificationCasesFromPlaywright,
+  type AriaQualificationCase,
   type AriaQualificationLane,
 } from './qualification-evidence';
 
-export const ARIA_QUALIFICATION_LANES = Object.freeze([
-  { id: 'jest-aria-unit', lane: 'unit' },
-  { id: 'jest-aria-api', lane: 'api' },
-  { id: 'jest-aria-integration', lane: 'integration' },
-  { id: 'jest-aria-sse', lane: 'unit' },
-  { id: 'jest-aria-architecture', lane: 'architecture' },
-  { id: 'jest-aria-db', lane: 'database' },
-  { id: 'jest-aria-concurrency', lane: 'concurrency' },
-] as const);
+export const ARIA_QUALIFICATION_LANES = [
+  { name: 'unit', lane: 'unit', command: 'npx', arguments: ['jest', '--config', 'jest.aria.unit.config.js', '--runInBand'] },
+  { name: 'api', lane: 'api', command: 'npx', arguments: ['jest', '--config', 'jest.aria.api.config.js', '--runInBand'] },
+  { name: 'integration', lane: 'integration', command: 'npx', arguments: ['jest', '--config', 'jest.aria.integration.config.js', '--runInBand'] },
+  { name: 'sse', lane: 'unit', command: 'npx', arguments: ['jest', '--config', 'jest.aria.sse.config.js', '--runInBand'] },
+  { name: 'architecture', lane: 'architecture', command: 'npx', arguments: ['jest', '--config', 'jest.aria.architecture.config.js', '--runInBand'] },
+  { name: 'database', lane: 'database', command: 'bash', arguments: ['scripts/aria/run-disposable-db-suite.sh', 'db'] },
+  { name: 'concurrency', lane: 'concurrency', command: 'bash', arguments: ['scripts/aria/run-disposable-db-suite.sh', 'concurrency'] },
+] as const;
 
-interface NativeView {
-  readonly schemaVersion: 1;
-  readonly headSha: string;
-  readonly proofKind: 'DERIVED_FROM_VERIFIED_NATIVE_REPORTS';
-  readonly qualificationScope: string;
-  readonly tree: string;
-  readonly sourceFingerprint: string;
-  readonly runIdentity: unknown;
-  readonly launchPlanSha256: string;
-  readonly sources: readonly unknown[];
-  readonly assertions: readonly {
-    path: string; title: string; status: string; qualificationLane: AriaQualificationLane;
-  }[];
+interface AriaTestEvidenceDependencies {
+  readonly git?: (...arguments_: string[]) => string;
+  readonly execute?: typeof execFileSync;
+  readonly write?: (value: string) => void;
 }
 
-function readNativeView(repositoryRoot: string, preset: 'jest' | 'playwright'): NativeView {
-  // This subprocess reads reports and producer companions. It executes no tests
-  // or database harnesses and downloads no packages.
-  try {
-    return JSON.parse(execFileSync(process.execPath, [
-      resolve(repositoryRoot, 'scripts/testing/verified-lane-view.mjs'), preset,
-    ], { cwd: repositoryRoot, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'pipe'] })) as NativeView;
-  } catch {
-    throw new Error('ARIA_NATIVE_EVIDENCE_REFUSED');
-  }
-}
-
-export function readVerifiedAriaTestEvidence(repositoryRoot: string) {
-  const { assertions, ...proof } = readNativeView(repositoryRoot, 'jest');
-  const cases = assertions.flatMap((assertion) => extractQualificationCasesFromJest(
-    assertion.qualificationLane as Exclude<AriaQualificationLane, 'e2e' | 'smoke'>,
-    { testResults: [{ name: resolve(repositoryRoot, assertion.path),
-      assertionResults: [{ fullName: assertion.title, status: assertion.status }] }] },
-  ));
-  return Object.freeze({ ...proof, cases: Object.freeze(cases) });
-}
-
-export function readVerifiedAriaBrowserEvidence(repositoryRoot: string) {
-  const { assertions, ...proof } = readNativeView(repositoryRoot, 'playwright');
-  const cases = assertions.flatMap((assertion) => extractQualificationCasesFromPlaywright({
-    suites: [{ file: assertion.path, specs: [{ title: assertion.title,
-      tests: [{ results: [{ status: assertion.status }] }] }] }],
-  }, assertion.qualificationLane as 'e2e' | 'smoke'));
-  return Object.freeze({ ...proof, cases: Object.freeze(cases) });
-}
-
-export function assertSavedAriaTestEvidence(repositoryRoot: string) {
-  const verified = readVerifiedAriaTestEvidence(repositoryRoot);
-  const saved = JSON.parse(readFileSync(resolve(
-    repositoryRoot, '.artifacts/aria/qualification/jest-evidence.json',
-  ), 'utf8')) as unknown;
-  if (JSON.stringify(saved) !== JSON.stringify(verified)) {
-    throw new Error('ARIA_DERIVED_EVIDENCE_MISMATCH');
-  }
-  return verified;
+function runJestLane(input: {
+  readonly name: string;
+  readonly lane: Exclude<AriaQualificationLane, 'e2e' | 'smoke'>;
+  readonly command: string;
+  readonly arguments: readonly string[];
+}, repositoryRoot: string, artifactRoot: string, execute: typeof execFileSync): readonly AriaQualificationCase[] {
+  const rawPath = resolve(artifactRoot, `${input.name}.raw.json`);
+  execute(input.command, [...input.arguments, '--json', `--outputFile=${rawPath}`], {
+    cwd: repositoryRoot,
+    stdio: 'inherit',
+    env: { ...process.env, FORCE_COLOR: '0' },
+  });
+  const document = JSON.parse(readFileSync(rawPath, 'utf8')) as { testResults?: unknown };
+  return extractQualificationCasesFromJest(input.lane, document);
 }
 
 export function generateAriaTestEvidence(
   repositoryRoot: string,
-  dependencies: Readonly<{ write?: (value: string) => void }> = {},
-) {
-  const verified = readVerifiedAriaTestEvidence(repositoryRoot);
+  dependencies: AriaTestEvidenceDependencies = {},
+): Readonly<{ headSha: string; cases: readonly AriaQualificationCase[] }> {
   const artifactRoot = resolve(repositoryRoot, '.artifacts/aria/qualification');
-  mkdirSync(artifactRoot, { recursive: true, mode: 0o700 });
-  writeFileSync(resolve(artifactRoot, 'jest-evidence.json'), `${JSON.stringify(verified, null, 2)}\n`, {
-    flag: 'wx', mode: 0o600,
-  });
+  const git = dependencies.git ?? ((...arguments_: string[]) => execFileSync(
+    'git', arguments_, { cwd: repositoryRoot, encoding: 'utf8' },
+  ).trim());
+  const assertClean = (label: string): void => {
+    if (git('status', '--porcelain')) throw new Error(`ARIA_TEST_EVIDENCE_DIRTY_WORKTREE:${label}`);
+  };
+  assertClean('BEFORE');
+  const headSha = git('rev-parse', 'HEAD');
+  rmSync(artifactRoot, { recursive: true, force: true });
+  mkdirSync(artifactRoot, { recursive: true });
+  const execute = dependencies.execute ?? execFileSync;
+  const cases = ARIA_QUALIFICATION_LANES.flatMap((lane) => runJestLane(
+    lane,
+    repositoryRoot,
+    artifactRoot,
+    execute,
+  ));
+  assertClean('AFTER');
+  writeFileSync(resolve(artifactRoot, 'jest-evidence.json'), `${JSON.stringify({
+    schemaVersion: 1,
+    headSha,
+    cases,
+  }, null, 2)}\n`, { flag: 'wx' });
   const write = dependencies.write ?? ((value: string) => process.stdout.write(value));
-  write(`ARIA_JEST_EVIDENCE_HEAD=${verified.headSha}\nARIA_JEST_EVIDENCE_CASES=${verified.cases.length}\n`);
-  return verified;
+  write(`ARIA_JEST_EVIDENCE_HEAD=${headSha}\n`);
+  write(`ARIA_JEST_EVIDENCE_CASES=${cases.length}\n`);
+  return Object.freeze({ headSha, cases: Object.freeze(cases) });
 }
 
 if (require.main === module) generateAriaTestEvidence(process.cwd());

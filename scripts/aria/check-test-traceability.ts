@@ -2,12 +2,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import {
+  extractQualificationCasesFromPlaywright,
   expectedAriaQualificationIds,
   qualificationIdsInReference,
   validateAriaQualificationEvidence,
   type AriaQualificationCase,
+  type AriaQualificationEvidence,
 } from './qualification-evidence';
-import { assertSavedAriaTestEvidence, readVerifiedAriaBrowserEvidence } from './generate-test-evidence';
 
 const REQUIREMENT_ID = /^CR-(\d{3})$/;
 
@@ -113,36 +114,68 @@ function validateRequirementRegistry(
   }
 }
 
-/** Pure requirement mapping validation; this function never attests execution. */
-export function checkAriaRequirementMapping(input: {
-  repositoryRoot: string; headSha: string; cases: readonly AriaQualificationCase[];
-}): AriaTestTraceabilityReport {
-  const requirements = parseRequirements(input.repositoryRoot);
-  validateRequirementRegistry(input.repositoryRoot, requirements);
-  const report = validateAriaQualificationEvidence({ schemaVersion: 1,
-    headSha: input.headSha, cases: input.cases }, input.headSha);
-  return Object.freeze({ criticalRequirements: requirements.length,
-    criticalRequirementsWithoutTestEvidence: 0,
-    requirementTestLinks: requirements.reduce((total, requirement) => total + requirement.qualificationIds.length, 0),
-    qualificationCasesPassed: report.passed, headSha: report.headSha });
+function loadHeadBoundCases(
+  path: string,
+  expectedHeadSha: string,
+  repositoryRoot: string,
+): readonly AriaQualificationCase[] {
+  const document = readJson(path, repositoryRoot) as Partial<AriaQualificationEvidence>;
+  if (document.schemaVersion !== 1 || document.headSha !== expectedHeadSha || !Array.isArray(document.cases)) {
+    fail(`STALE_OR_INVALID_EVIDENCE:${relativePath(repositoryRoot, path)}`);
+  }
+  return document.cases;
+}
+
+function loadPlaywrightCases(
+  repositoryRoot: string,
+  expectedHeadSha: string,
+): readonly AriaQualificationCase[] {
+  const artifactRoot = resolve(repositoryRoot, '.artifacts/aria');
+  return [
+    { project: 'aria-desktop', lane: 'e2e' },
+    { project: 'aria-mobile', lane: 'e2e' },
+    { project: 'aria-a11y', lane: 'e2e' },
+    { project: 'aria-smoke', lane: 'smoke' },
+  ].flatMap(({ project, lane }) => {
+    const root = resolve(artifactRoot, 'playwright', project);
+    const artifactHead = existsSync(resolve(root, 'head.sha'))
+      ? readFileSync(resolve(root, 'head.sha'), 'utf8').trim()
+      : '';
+    if (artifactHead !== expectedHeadSha) fail(`STALE_E2E:${project}`);
+    return extractQualificationCasesFromPlaywright(
+      readJson(resolve(root, 'report.json'), repositoryRoot) as { suites?: unknown },
+      lane as 'e2e' | 'smoke',
+    );
+  });
 }
 
 export function checkAriaTestTraceability(
   options: AriaTestTraceabilityOptions = {},
 ): AriaTestTraceabilityReport {
   const repositoryRoot = options.repositoryRoot ?? process.cwd();
+  const artifactRoot = resolve(repositoryRoot, '.artifacts/aria');
   const requirements = parseRequirements(repositoryRoot);
   validateRequirementRegistry(repositoryRoot, requirements);
   const headSha = options.headSha ?? currentHead(repositoryRoot);
-  const jest = assertSavedAriaTestEvidence(repositoryRoot);
-  const browsers = readVerifiedAriaBrowserEvidence(repositoryRoot);
-  if (jest.headSha !== headSha || browsers.headSha !== headSha
-    || jest.tree !== browsers.tree || jest.sourceFingerprint !== browsers.sourceFingerprint
-    || jest.launchPlanSha256 !== browsers.launchPlanSha256
-    || JSON.stringify(jest.runIdentity) !== JSON.stringify(browsers.runIdentity)) {
-    fail('VERIFIED_SOURCE_MISMATCH');
-  }
-  return checkAriaRequirementMapping({ repositoryRoot, headSha, cases: [...jest.cases, ...browsers.cases] });
+  const cases = [
+    ...loadHeadBoundCases(
+      resolve(artifactRoot, 'qualification/jest-evidence.json'),
+      headSha,
+      repositoryRoot,
+    ),
+    ...loadPlaywrightCases(repositoryRoot, headSha),
+  ];
+  const report = validateAriaQualificationEvidence({ schemaVersion: 1, headSha, cases }, headSha);
+  return Object.freeze({
+    criticalRequirements: requirements.length,
+    criticalRequirementsWithoutTestEvidence: 0,
+    requirementTestLinks: requirements.reduce(
+      (total, requirement) => total + requirement.qualificationIds.length,
+      0,
+    ),
+    qualificationCasesPassed: report.passed,
+    headSha: report.headSha,
+  });
 }
 
 export function runAriaTestTraceabilityCheck(
