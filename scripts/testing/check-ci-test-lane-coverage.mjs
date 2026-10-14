@@ -23,14 +23,8 @@ const after=sourceIdentity();if(before.sourceSha!==after.sourceSha||before.sourc
 const union=[...new Set(lanes.flatMap(lane=>lane.collected))].sort();
 for(const file of before.paths)if(!union.includes(file))blockers.push(`ORPHAN_TEST_PATH:${file}`);
 for(const file of union)if(!before.paths.includes(file))blockers.push(`UNKNOWN_COLLECTED_TEST_PATH:${file}`);
-// The historical number is a reported observation, never a target to retain.
-const historicalSha='994b8f0b45f54942374686ceb6df5774fefe89a5';
-const historicalPaths=execFileSync('git',['ls-tree','-r','--name-only',historicalSha],{encoding:'utf8'})
-  .split('\n').filter(file=>/\.(?:test|spec)\.(?:ts|tsx|js|jsx|mjs|cjs)$/.test(file)).sort();
 const collection={schemaVersion:2,proofKind:'COLLECTION_ONLY',sourceSha:before.sourceSha,sourceFingerprint:before.sourceFingerprint,
   clean:before.clean,tree:before.tree,runIdentity,inputs:before.inputs,paths:before.paths,lanes,union,
-  historical:{sourceSha:historicalSha,reportedJsTsNodePaths:1866,observedJsTsNodePaths:historicalPaths.length,
-    paths:historicalPaths.map(file=>({path:file,lanes:lanes.filter(lane=>lane.collected.includes(file)).map(lane=>lane.id)}))},
   testDebt:debt,blockers:[...new Set(blockers)].sort()};
 secureWrite(path.join(output,'collection-manifest.json'),collection);
 if(requireExecution) {
