@@ -21,6 +21,12 @@ const routeExiste = (href: string) => {
 };
 
 describe('/ressources', () => {
+  test('la révision de maths, réservée aux élèves connectés, est signalée comme telle', () => {
+    render(<RessourcesPage />);
+    const tuile = screen.getByRole('link', { name: /Mathématiques de Première/ });
+    expect(tuile).toHaveTextContent(/réservé aux élèves accompagnés/i);
+  });
+
   test('n’est plus une page d’attente', () => {
     render(<RessourcesPage />);
     expect(document.body.textContent).not.toMatch(/arrivent|bientôt|prochainement/i);

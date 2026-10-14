@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   },
 };
 
-type Ressource = { href: string; titre: string; description: string; externe?: boolean };
+type Ressource = { href: string; titre: string; description: string; externe?: boolean; reserve?: string };
 
 const GUIDES: Ressource[] = [
   {
@@ -52,7 +52,9 @@ const REVISIONS: Ressource[] = [
   {
     href: '/programme/maths-1ere',
     titre: 'Mathématiques de Première — révisions interactives',
-    description: 'Le programme de spécialité chapitre par chapitre, avec exercices et suivi de progression.',
+    description: 'Le programme de spécialité chapitre par chapitre, avec exercices et suivi de progression, depuis l’espace élève.',
+    // Page protégée : un visiteur sans session est redirigé vers /offres.
+    reserve: 'Réservé aux élèves accompagnés',
   },
 ];
 
@@ -73,6 +75,11 @@ function CarteRessource({ ressource }: { ressource: Ressource }) {
         <ArrowRight className="h-4 w-4 flex-none text-lux-slate transition-transform group-hover:translate-x-1" aria-hidden="true" />
       </span>
       <span className="mt-2 block text-sm leading-6 text-lux-slate">{ressource.description}</span>
+      {ressource.reserve ? (
+        <span className="mt-3 inline-block rounded-full border border-lux-line px-3 py-1 text-xs font-semibold text-lux-gold-deep">
+          {ressource.reserve}
+        </span>
+      ) : null}
     </>
   );
   const classes = 'group block h-full rounded-2xl border border-lux-line bg-lux-white p-5 lux-shadow lux-focus';
