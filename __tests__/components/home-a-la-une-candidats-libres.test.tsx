@@ -67,6 +67,13 @@ describe('Accueil — à la une candidats libres 2027', () => {
     expect(reponse).not.toMatch(/ARIA|pilotage/);
   });
 
+  test('repères tarifaires : plus de repère ARIA (plateforme retirée du catalogue)', () => {
+    renderAu('2026-10-14T10:00:00+01:00');
+    const reperes = screen.getByRole('heading', { name: /des formules pour chaque besoin/i }).closest('section')!;
+    expect(reperes.textContent).not.toMatch(/ARIA/);
+    expect(reperes.textContent).toMatch(/Spécialité simple/);
+  });
+
   test('après le 20/11 à 18 h : plus de bloc à la une', () => {
     expect(getALaUneCandidatsLibres(new Date('2026-11-20T18:00:00+01:00'))).toBeNull();
     renderAu('2026-11-21T10:00:00+01:00');

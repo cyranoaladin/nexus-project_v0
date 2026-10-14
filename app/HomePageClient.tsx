@@ -85,11 +85,6 @@ function PricingReperesSection() {
       sublabel: 'Toutes vacances',
       value: reperes.stagesBase,
     },
-    {
-      label: 'Plateforme ARIA',
-      sublabel: 'Autonomie · en ligne',
-      value: reperes.plateformeAn,
-    },
   ];
 
   return (
@@ -107,7 +102,7 @@ function PricingReperesSection() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           {anchors.map((anchor) => (
             <div
               key={anchor.label}

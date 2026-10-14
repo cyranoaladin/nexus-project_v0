@@ -120,7 +120,6 @@ test.describe('Price render check — DOM vs canonical', () => {
       { label: 'Spécialité simple', value: rep.terminaleSimpleMois },
       { label: 'Double Sécurité', value: rep.premiereDuoMois },
       { label: 'Stage Intensif', value: rep.stagesBase },
-      { label: 'Plateforme ARIA', value: rep.plateformeAn },
     ];
 
     for (const { label, value } of pairs) {
