@@ -86,6 +86,7 @@ describe('/llms.txt et /llms-full.txt', () => {
     expect(texte).toContain('7 600 TND');
     expect(texte).toContain('11 600 TND');
     expect(texte).toContain(`${LEGAL.web.url}/bac-candidat-libre`);
+    expect(texte).toMatch(/frais de dossier et d’accompagnement Cyclades : 250 TND/i);
     expect(texte).not.toMatch(/Mutuelleville|Nexus Libre|garanti/);
   });
 

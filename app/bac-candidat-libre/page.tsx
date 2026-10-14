@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, CheckCircle2, Clock, MapPin, MessageCircle } 
 
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
+import { FraisDossier } from '@/components/marketing/CandidatsLibresParcours';
 import { fmtPrice } from '@/components/premium/format';
 import {
   META,
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 const NBSP = ' ';
 const tnd = (n: number) => `${fmtPrice(n)}${NBSP}TND`;
 
-function Mensualite({ parcours }: { parcours: ParcoursCandidatLibre }) {
+function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre; maintenant: Date }) {
   const huit = parcours.echeancier_affiche === 8;
   const echeancier = huit ? parcours.echeancier_8 : parcours.echeancier_9;
   return (
@@ -46,6 +47,7 @@ function Mensualite({ parcours }: { parcours: ParcoursCandidatLibre }) {
       </p>
       <p className="mt-1 text-sm text-lux-slate">
         × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
+        {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${tnd(echeancier.derniere)})` : ''}
       </p>
       <p className="mt-1 text-sm font-semibold text-lux-ink">
         {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
@@ -55,11 +57,12 @@ function Mensualite({ parcours }: { parcours: ParcoursCandidatLibre }) {
           ? `ou 9 mensualités de ${tnd(parcours.echeancier_9.mensualite)} dès octobre`
           : `ou 8 mensualités de ${tnd(parcours.echeancier_8.mensualite)} dès novembre`}
       </p>
+      <FraisDossier id={parcours.id} maintenant={maintenant} />
     </div>
   );
 }
 
-function CarteParcours({ parcours }: { parcours: ParcoursCandidatLibre }) {
+function CarteParcours({ parcours, maintenant }: { parcours: ParcoursCandidatLibre; maintenant: Date }) {
   const titreId = `parcours-${parcours.id}`;
   const b1a = parcours.id === 'bac-en-1-an';
   return (
@@ -72,7 +75,7 @@ function CarteParcours({ parcours }: { parcours: ParcoursCandidatLibre }) {
       <h3 id={titreId} className="mt-2 font-fraunces text-2xl text-lux-ink">
         {parcours.titre}
       </h3>
-      <Mensualite parcours={parcours} />
+      <Mensualite parcours={parcours} maintenant={maintenant} />
       <ul className="mt-5 space-y-2.5 text-sm leading-6 text-lux-slate">
         <li className="flex gap-2">
           <CheckCircle2 className="mt-1 h-4 w-4 flex-none text-lux-evergreen" aria-hidden="true" />
@@ -261,13 +264,13 @@ export default function BacCandidatLibrePage() {
         <div className="mx-auto max-w-6xl">
           <p className="lux-eyebrow">Session {data.session}</p>
           <h2 id="titre-parcours" className="mt-2 text-3xl font-fraunces text-lux-ink md:text-4xl">
-            Trois parcours, un prix par élève, tout compris
+            Trois parcours, un prix annuel par élève
           </h2>
           <div className="lux-filet-gold mt-3 w-16" />
           <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.paiement.note}</p>
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {data.parcours.map((p) => (
-              <CarteParcours key={p.id} parcours={p} />
+              <CarteParcours key={p.id} parcours={p} maintenant={maintenant} />
             ))}
           </div>
           <div className="mt-8 rounded-2xl border border-lux-line bg-lux-white p-5 text-sm leading-6 text-lux-slate">

@@ -77,6 +77,16 @@ describe('OffresPage', () => {
     expect(within(section).queryByRole('link', { name: /calculer mon accompagnement/i })).not.toBeInTheDocument();
   });
 
+  it('cartes candidats libres : frais de dossier et dernière mensualité ajustée', () => {
+    render(<OffresPage />);
+    const section = screen.getByTestId('section-libre');
+    for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
+      expect(within(section).getByRole('article', { name: new RegExp(niveau) })).toHaveTextContent(/frais de dossier/i);
+    }
+    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800/);
+    expect(section.textContent).not.toMatch(/tout compris/i);
+  });
+
   it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {
     const { container } = render(<OffresPage />);
 

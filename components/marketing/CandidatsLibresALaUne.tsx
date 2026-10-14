@@ -44,6 +44,7 @@ export function CandidatsLibresALaUne({ aLaUne }: { aLaUne: ALaUneCandidatsLibre
             ) : null}
           </ul>
           {aLaUne.offre ? <p className="mt-4 text-sm font-semibold text-lux-evergreen">{aLaUne.offre}.</p> : null}
+          <p className="mt-1 text-xs text-lux-slate">{aLaUne.fraisDossier}.</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link href="/bac-candidat-libre" className="lux-cta-primary inline-flex min-h-[44px] items-center justify-center rounded-lg px-6 py-3 text-sm font-semibold">
               Voir les parcours et les prix
@@ -69,6 +70,9 @@ export function CandidatsLibresALaUne({ aLaUne }: { aLaUne: ALaUneCandidatsLibre
                 <span className="font-fraunces text-lg text-lux-ink">{p.niveau}</span>
                 <span className="text-right text-sm text-lux-slate">
                   <span className="font-semibold tabular-nums text-lux-ink">{fmtPrice(p.mensualite)}{NBSP}TND</span> / mois × {p.nbMensualites}
+                  {p.derniere !== p.mensualite ? (
+                    <span className="block text-xs">dernière : {fmtPrice(p.derniere)}{NBSP}TND</span>
+                  ) : null}
                 </span>
               </Link>
             </li>

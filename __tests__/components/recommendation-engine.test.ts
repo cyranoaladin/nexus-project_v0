@@ -106,6 +106,7 @@ describe('recommendation engine', () => {
     expect(carte.price).toBe(7600);
     expect(carte.payment?.installments).toEqual([850, 850, 850, 850, 850, 850, 850, 850, 800]);
     expect(carte.totalHours).toBe(285);
+    expect(carte.features?.join(' ')).toMatch(/frais de dossier.*250/i);
   });
 
   it.each(['seconde', 'troisieme'])('does not route %s pupils to the Bac candidat-individuel wizard', (level) => {

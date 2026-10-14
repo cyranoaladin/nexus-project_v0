@@ -96,6 +96,21 @@ describe('/bac-candidat-libre', () => {
     expect(screen.queryByText(/frais de dossier/i, { selector: 'strong' })).not.toBeInTheDocument();
   });
 
+  test('frais de dossier affichés sur chaque carte, offerts ou dus ; pas de « tout compris »', () => {
+    renderAu('2026-11-10T10:00:00+01:00');
+    for (const niveau of [/Première/, /Terminale/, /Bac en 1 an/]) {
+      expect(screen.getByRole('article', { name: niveau })).toHaveTextContent(/frais de dossier.*250 TND/i);
+    }
+    expect(document.body.textContent).not.toMatch(/tout compris/i);
+    const faq = screen.getByRole('heading', { name: /Combien coûte/ }).nextElementSibling!;
+    expect(faq.textContent).toMatch(/frais de dossier/i);
+  });
+
+  test('la dernière mensualité ajustée est indiquée (Terminale : 8 × 850 puis 800)', () => {
+    renderAu('2026-10-14T10:00:00+01:00');
+    expect(screen.getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800 TND/);
+  });
+
   test('adresse du centre et contact WhatsApp', () => {
     renderAu('2026-10-14T10:00:00+01:00');
     expect(document.body).toHaveTextContent(LEGAL.addresses.pedagogique.full);

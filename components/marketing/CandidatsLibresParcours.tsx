@@ -4,9 +4,20 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { fmtPrice } from '@/components/premium/format';
-import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+import { getCandidatsLibres2027, getFraisDossier, jourMois } from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
+
+/** Frais de dossier du parcours : toujours annoncés, avec la date limite tant qu'ils sont offerts. */
+export function FraisDossier({ id, maintenant }: { id: Parameters<typeof getFraisDossier>[0]; maintenant: Date }) {
+  const frais = getFraisDossier(id, maintenant);
+  return (
+    <p className="mt-1 text-xs text-lux-slate">
+      + frais de dossier et d’accompagnement Cyclades{NBSP}: {fmtPrice(frais.montant)}{NBSP}TND
+      {frais.offertJusquAu ? `, offerts jusqu’au ${jourMois(frais.offertJusquAu)}` : ''}
+    </p>
+  );
+}
 
 /**
  * Les trois parcours candidats libres de la session 2027, en cartes compactes.
@@ -14,6 +25,7 @@ const NBSP = ' ';
  */
 export function CandidatsLibresParcours() {
   const data = getCandidatsLibres2027();
+  const maintenant = new Date();
   return (
     <>
       <div className="grid gap-6 md:grid-cols-3">
@@ -33,8 +45,11 @@ export function CandidatsLibresParcours() {
                 <span className="ml-1 font-body text-sm text-lux-slate">{NBSP}TND / mois</span>
               </p>
               <p className="mt-1 text-sm text-lux-slate">
-                × {p.echeancier_affiche} mensualités · {fmtPrice(p.prix_annuel)}{NBSP}TND / an · comptant {fmtPrice(p.comptant)}{NBSP}TND
+                × {p.echeancier_affiche} mensualités
+                {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${fmtPrice(echeancier.derniere)}${NBSP}TND)` : ''}
+                {' · '}{fmtPrice(p.prix_annuel)}{NBSP}TND / an · comptant {fmtPrice(p.comptant)}{NBSP}TND
               </p>
+              <FraisDossier id={p.id} maintenant={maintenant} />
               <p className="mt-4 text-sm leading-6 text-lux-slate">
                 {p.heures_cours}{NBSP}h de cours, {p.copies_corrigees} copies corrigées, {p.oraux.toLowerCase()}, {p.bilans} bilans avec la famille.
               </p>

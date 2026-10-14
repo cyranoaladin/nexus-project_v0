@@ -6,6 +6,7 @@
 import {
   getCandidatsLibres2027,
   getParcoursCandidatLibre,
+  getFraisDossier,
   getFraisDossierOfferts,
   getSemaineDiagnostic,
   getEcheancesCyclades,
@@ -13,6 +14,12 @@ import {
 } from '@/lib/candidats-libres-2027';
 
 const tunis = (iso: string) => new Date(iso);
+
+test('les données passent par le chargeur canonique lib/pricing.ts', () => {
+  const source = require('fs').readFileSync(require('path').join(__dirname, '../../lib/candidats-libres-2027.ts'), 'utf-8');
+  expect(source).not.toMatch(/import [^;]*pricing\.canonical\.json/);
+  expect(source).toMatch(/from '@\/lib\/pricing'/);
+});
 
 describe('Grille 2026-2027', () => {
   const parcours = getParcoursCandidatLibre();
@@ -94,6 +101,17 @@ describe('Frais de dossier offerts — coupure automatique', () => {
 
   test('aucune offre de frais pour le Bac en 1 an', () => {
     expect(getFraisDossierOfferts('bac-en-1-an', tunis('2026-10-14T10:00:00+01:00'))).toBeNull();
+  });
+});
+
+describe('Frais de dossier — toujours annoncés', () => {
+  test('Bac en 1 an : 250 TND dus, jamais offerts', () => {
+    expect(getFraisDossier('bac-en-1-an', tunis('2026-10-14T10:00:00+01:00'))).toEqual({ montant: 250, offertJusquAu: null });
+  });
+
+  test('Terminale : offerts jusqu’au 31/10, dus ensuite', () => {
+    expect(getFraisDossier('terminale', tunis('2026-10-20T10:00:00+01:00'))).toEqual({ montant: 250, offertJusquAu: '2026-10-31' });
+    expect(getFraisDossier('terminale', tunis('2026-11-02T10:00:00+01:00'))).toEqual({ montant: 250, offertJusquAu: null });
   });
 });
 

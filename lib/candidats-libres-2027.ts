@@ -7,7 +7,7 @@
  */
 import 'server-only';
 import type { RecommendationOffer } from '@/components/premium/recommendation-engine';
-import pricingData from '@/data/pricing.canonical.json';
+import { getCandidatsLibres2027Source } from '@/lib/pricing';
 
 export type ParcoursCandidatLibreId = 'premiere' | 'terminale' | 'bac-en-1-an';
 
@@ -75,7 +75,7 @@ export interface CandidatsLibres2027 {
   stages_a_la_carte: { note: string; stages: { periode: string; niveau: string; heures: number; prix: number }[] };
 }
 
-const data = (pricingData as unknown as { candidats_libres_2027: CandidatsLibres2027 }).candidats_libres_2027;
+const data = getCandidatsLibres2027Source() as CandidatsLibres2027;
 
 const JOUR_MS = 24 * 60 * 60 * 1000;
 
@@ -113,6 +113,17 @@ export function getFraisDossierOfferts(
   const limite = getParcoursCandidatLibre(id)?.frais_dossier_offerts_jusqu_au;
   if (!limite || maintenant >= finDeJourneeTunis(limite)) return null;
   return { ...data.frais_dossier, jusqu_au: limite };
+}
+
+/**
+ * Frais de dossier et d'accompagnement Cyclades d'un parcours, toujours annoncés :
+ * `offertJusquAu` porte la date limite tant que l'offre court, `null` quand ils sont dus.
+ */
+export function getFraisDossier(
+  id: ParcoursCandidatLibreId,
+  maintenant: Date = new Date(),
+): { montant: number; offertJusquAu: string | null } {
+  return { montant: data.frais_dossier.montant, offertJusquAu: getFraisDossierOfferts(id, maintenant)?.jusqu_au ?? null };
 }
 
 /** Offres de frais de dossier encore valables, de la plus proche échéance à la plus lointaine. */
@@ -169,6 +180,7 @@ export function recommandationsCandidatsLibres(): RecommendationOffer[] {
         p.oraux,
         `${p.bilans} bilans avec la famille`,
         'Inscription Cyclades accompagnée',
+        `Frais de dossier et d’accompagnement Cyclades\u00a0: ${data.frais_dossier.montant}\u00a0TND en sus (offerts pendant certaines périodes)`,
       ],
       pricing_display: 'monthly_first',
       payment: { deposit: 0, installments, lastInstallment: echeancier.derniere, depositPct: 0 },
@@ -181,10 +193,12 @@ export function recommandationsCandidatsLibres(): RecommendationOffer[] {
 export interface ALaUneCandidatsLibres {
   session: string;
   groupeMax: number;
-  parcours: { id: ParcoursCandidatLibreId; niveau: string; mensualite: number; nbMensualites: 8 | 9 }[];
+  parcours: { id: ParcoursCandidatLibreId; niveau: string; mensualite: number; derniere: number; nbMensualites: 8 | 9 }[];
   /** Inscriptions Cyclades encore ouvertes ou à venir, dans l'ordre chronologique de clôture. */
   echeances: { niveau: string; texte: string }[];
   offre: string | null;
+  /** Mention des frais de dossier, toujours présente (offerts ou dus). */
+  fraisDossier: string;
   semaineDiagnostic: string | null;
 }
 
@@ -211,10 +225,14 @@ export function getALaUneCandidatsLibres(maintenant: Date = new Date()): ALaUneC
     groupeMax: data.groupe.max,
     parcours: data.parcours.map((p) => {
       const huit = p.echeancier_affiche === 8;
-      return { id: p.id, niveau: p.niveau, mensualite: (huit ? p.echeancier_8 : p.echeancier_9).mensualite, nbMensualites: huit ? 8 : 9 };
+      const echeancier = huit ? p.echeancier_8 : p.echeancier_9;
+      return { id: p.id, niveau: p.niveau, mensualite: echeancier.mensualite, derniere: echeancier.derniere, nbMensualites: huit ? 8 : 9 };
     }),
     echeances,
     offre: offres.length > 0 ? `Frais de dossier offerts jusqu’au ${offres.join(' et au ')}` : null,
+    fraisDossier: offres.length > 0
+      ? `${data.frais_dossier.libelle}\u00a0: ${data.frais_dossier.montant}\u00a0TND, offerts selon les dates ci-dessus, dus en Bac en 1 an`
+      : `${data.frais_dossier.libelle}\u00a0: ${data.frais_dossier.montant}\u00a0TND par élève, en sus du prix annuel`,
     semaineDiagnostic: semaine
       ? `Semaine Diagnostic du ${jourMois(semaine.du)} au ${jourMois(semaine.au)} — inscriptions jusqu’au ${jourMois(semaine.inscriptions_jusqu_au)}`
       : null,

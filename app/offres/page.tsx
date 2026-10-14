@@ -38,6 +38,9 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import OffersFiltersClient from './_components/OffersFiltersClient';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
+/** Régénérée toutes les heures : les frais de dossier offerts des candidats libres ont une date limite. */
+export const revalidate = 3600;
+
 // ── Category filter ──
 
 type Category = 'all' | 'annual' | 'libre' | 'plateforme' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
@@ -259,7 +262,7 @@ export default function OffresPage() {
             <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
             <div className="lux-filet-gold mt-3 w-16" />
             <p className="mt-3 text-sm text-lux-slate">
-              Le bac français le soir et le week-end, sans quitter le lycée tunisien. Prix par élève, tout compris.
+              Le bac français le soir et le week-end, sans quitter le lycée tunisien. Prix annuel par élève, frais de dossier indiqués sur chaque parcours.
             </p>
             <Link
               href="/bac-candidat-libre"

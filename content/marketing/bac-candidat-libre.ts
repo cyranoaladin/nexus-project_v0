@@ -37,7 +37,7 @@ export function construireFaq(data: CandidatsLibres2027): QuestionReponse[] {
     },
     {
       question: 'Combien coûte la préparation du bac français en candidat libre à Tunis ?',
-      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Paiement en 9 mensualités d’octobre à juin (${tnd(premiere.echeancier_9.mensualite)}, ${tnd(terminale.echeancier_9.mensualite)} ou ${tnd(b1a.echeancier_9.mensualite)}), en 8 mensualités de novembre à juin, ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. Les frais d’examen de l’Institut français s’ajoutent.`,
+      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Paiement en 9 mensualités d’octobre à juin (${tnd(premiere.echeancier_9.mensualite)}, ${tnd(terminale.echeancier_9.mensualite)} ou ${tnd(b1a.echeancier_9.mensualite)}), en 8 mensualités de novembre à juin, ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. S’y ajoutent les frais de dossier et d’accompagnement Cyclades (${tnd(data.frais_dossier.montant)}, offerts pendant certaines périodes en Première et en Terminale) et les frais d’examen de l’Institut français.`,
     },
     {
       question: 'Que se passe-t-il si le groupe n’ouvre pas ?',

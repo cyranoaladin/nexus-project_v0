@@ -277,7 +277,8 @@ Doit afficher :
 
 - Catalogue 2026/2027.
 - Tarifs en TND.
-- Groupes de 5 maximum.
+- Groupes de 5 maximum pour les offres scolarisées.
+- Parcours candidats libres session 2027 : groupes de 12 maximum, ouverture à 7 (modèle économique distinct, grille v12, décisions D5 et D8 du dossier GO-LIVE ; source : bloc `candidats_libres_2027` de `data/pricing.canonical.json`, lu via `lib/pricing.ts`).
 - Seuil d’ouverture.
 - Acompte et échéancier si applicable.
 - CTA pour être conseillé.

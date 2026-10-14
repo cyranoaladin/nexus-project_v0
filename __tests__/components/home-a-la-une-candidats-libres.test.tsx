@@ -42,6 +42,14 @@ describe('Accueil — à la une candidats libres 2027', () => {
     expect(une.echeances.map((e) => e.niveau)).toEqual(['Terminale', 'Première']);
   });
 
+  test('frais de dossier toujours mentionnés, et dernière mensualité ajustée', () => {
+    const avant = getALaUneCandidatsLibres(new Date('2026-10-14T10:00:00+01:00'))!;
+    expect(avant.fraisDossier).toMatch(/250\sTND.*Bac en 1 an/);
+    const apres = getALaUneCandidatsLibres(new Date('2026-11-15T10:00:00+01:00'))!;
+    expect(apres.fraisDossier).toMatch(/Frais de dossier.*250\sTND/);
+    expect(avant.parcours.find((p) => p.id === 'terminale')!.derniere).toBe(800);
+  });
+
   test('le 15/11 : la Terminale est close, seule la Première est annoncée', () => {
     const une = getALaUneCandidatsLibres(new Date('2026-11-15T10:00:00+01:00'))!;
     expect(une.echeances.map((e) => e.niveau)).toEqual(['Première']);
