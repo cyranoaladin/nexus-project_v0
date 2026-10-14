@@ -52,9 +52,10 @@ describe('ARIA GitHub CI qualification contract', () => {
   test('ARIA_CI_REJECTS_UNSCOPED_OR_DUPLICATED_UNIFIED_EXECUTION_EXPORT', () => {
     const document = passingDocument();
     const steps = document.jobs['aria-browser'].steps;
-    const exportStep = steps.find(step => step.uses==='./.github/actions/seal-native-test-evidence');
-    steps.push({uses:'actions/upload-artifact@'+'1'.repeat(40),with:{path:'.'}});
+    const exportStep = steps.find(step => step.with?.name?.startsWith('e2e-execution-aria-'));
+    exportStep.with.path = '.';
     expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_STEP_COUNT:aria-browser:2');
+    exportStep.with.path = 'e2e-execution/';
     steps.push(structuredClone(exportStep));
     expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_STEP_COUNT:aria-browser:3');
   });
@@ -192,7 +193,7 @@ describe('ARIA GitHub CI qualification contract', () => {
   test('ARIA_CI_REJECTS_CONDITIONAL_PROTECTED_STEP', () => {
     const document = passingDocument();
     const command = document.jobs['aria-browser'].steps.find((step) =>
-      step.run === 'node scripts/testing/run-test-lane.mjs pw-aria-aria-${{ matrix.lane }}');
+      step.run === 'npm run ${{ matrix.script }}');
     command.if = "${{ matrix.lane != 'mobile' }}";
 
     expect(inspectAriaCiWorkflow(document).findings)
@@ -202,7 +203,7 @@ describe('ARIA GitHub CI qualification contract', () => {
   test('ARIA_CI_REJECTS_ARTIFACT_NOT_ALWAYS', () => {
     const document = passingDocument();
     const upload = document.jobs['aria-jest'].steps.find((step) =>
-      step.uses==='./.github/actions/seal-native-test-evidence');
+      String(step.uses ?? '').startsWith('actions/upload-artifact@'));
     delete upload.if;
 
     expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_NOT_ALWAYS:aria-jest');
@@ -210,11 +211,11 @@ describe('ARIA GitHub CI qualification contract', () => {
 
   test('ARIA_CI_REJECTS_ARTIFACT_IGNORE_MISSING', () => {
     const document = passingDocument();
-    const sealAction=loadWorkflow(path.join(REPOSITORY_ROOT,'.github/actions/seal-native-test-evidence/action.yml'));
-    const upload=sealAction.runs.steps.find(step=>String(step.uses??'').startsWith('actions/upload-artifact@'));
+    const upload = document.jobs['aria-postgres'].steps.find((step) =>
+      String(step.uses ?? '').startsWith('actions/upload-artifact@'));
     upload.with['if-no-files-found'] = 'ignore';
 
-    expect(inspectAriaCiWorkflow(document,{sealAction}).findings).toContain('ARIA_CI_ARTIFACT_MISSING_NOT_FATAL:aria-postgres');
+    expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_ARTIFACT_MISSING_NOT_FATAL:aria-postgres');
   });
 
   test('ARIA_CI_REJECTS_ARTIFACT_NAME_OR_PATH_SUBSTRING_BYPASS', () => {
@@ -239,23 +240,26 @@ describe('ARIA GitHub CI qualification contract', () => {
       .toContain('ARIA_CI_COMMAND_STEP_INVALID:aria-coverage:npm run test:aria:coverage');
   });
 
-  test('ARIA_CI_FETCHES_EVERY_NATIVE_BROWSER_AND_JEST_PRODUCER_BEFORE_RESTORING_VISUAL_EVIDENCE', () => {
+  test('ARIA_CI_RESTORES_EACH_PUBLIC_BROWSER_ARTIFACT_TO_ITS_CANONICAL_PROJECT_ROOT', () => {
     const document = passingDocument();
-    const downloads = document.jobs['aria-evidence'].steps.filter(step=>step.run?.startsWith('node scripts/testing/ci-private-evidence.mjs fetch-reports '));
-    expect(downloads).toHaveLength(1);
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
+    expect(downloads).toHaveLength(4);
     for (const lane of ['desktop', 'mobile', 'a11y', 'smoke']) {
-      expect(downloads[0].run).toContain(`aria-browser-aria-${lane}`);
+      const download = downloads.find((step) => step.with.name?.startsWith(`aria-browser-${lane}-`));
+      expect(download?.with.path).toBe(`.artifacts/aria/playwright/aria-${lane}`);
+      expect(download?.with.name).toContain('${{ github.event.pull_request.head.sha || github.sha }}-${{ github.run_attempt }}');
+      expect(download?.with['merge-multiple']).not.toBe(true);
     }
-    expect(downloads[0].env.NEXUS_CI_EVIDENCE_PRIVATE_KEY).toBe('${{ secrets.CORE_V2_PROOF_346_KEY }}');
-    expect(document.jobs['aria-evidence'].env.NEXUS_TEST_ARIA_REPORTS_DIR).toBe('${{ runner.temp }}/verified-native/reports');
   });
 
-  test.each(['missing lane', 'wrong producer', 'merged root', 'duplicate lane'])('ARIA_CI_REJECTS_BROWSER_DOWNLOAD_%s', (fault) => {
+  test.each(['missing lane', 'wrong head', 'merged root', 'duplicate lane'])('ARIA_CI_REJECTS_BROWSER_DOWNLOAD_%s', (fault) => {
     const document = passingDocument();
-    const downloads = document.jobs['aria-evidence'].steps.filter(step=>step.run?.startsWith('node scripts/testing/ci-private-evidence.mjs fetch-reports '));
+    const downloads = document.jobs['aria-evidence'].steps.filter((step) =>
+      String(step.uses ?? '').startsWith('actions/download-artifact@'));
     if (fault === 'missing lane') document.jobs['aria-evidence'].steps = document.jobs['aria-evidence'].steps.filter((step) => step !== downloads[0]);
-    if (fault === 'wrong producer') downloads[0].run=downloads[0].run.replace('aria-browser-aria-desktop','aria-browser-aria-desktop-stale');
-    if (fault === 'merged root') document.jobs['aria-evidence'].env.NEXUS_TEST_ARIA_REPORTS_DIR='.';
+    if (fault === 'wrong head') downloads[0].with.name = 'aria-browser-desktop-stale';
+    if (fault === 'merged root') downloads[0].with['merge-multiple'] = true;
     if (fault === 'duplicate lane') document.jobs['aria-evidence'].steps.push(structuredClone(downloads[0]));
     expect(inspectAriaCiWorkflow(document).findings).toContain('ARIA_CI_EVIDENCE_DOWNLOAD_INVALID');
   });
@@ -266,7 +270,7 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(job.env.DIAGNOSTIC_AV_CLAMD_TCP_HOST).toBe('127.0.0.1');
     expect(job.env.DOCUMENT_STORAGE_ROOT).toBeUndefined();
     const avStorage = job.steps.find(step => step.name === 'Create private synthetic AV storage');
-    const coreTests = job.steps.find(step => step.run==='node scripts/testing/run-test-lane.mjs jest-core-v2');
+    const coreTests = job.steps.find(step => String(step.run ?? '').includes('--config jest.core-v2.config.js'));
     expect(avStorage.env.DOCUMENT_STORAGE_ROOT).toBe('${{ runner.temp }}/nexus-core-synthetic-av-storage');
     expect(coreTests.env.DOCUMENT_STORAGE_ROOT).toBe(avStorage.env.DOCUMENT_STORAGE_ROOT);
     expect(job.services.clamav.image).toMatch(/^clamav\/clamav@sha256:/);
@@ -275,7 +279,7 @@ describe('ARIA GitHub CI qualification contract', () => {
     expect(job.services.postgres.image).toMatch(/^pgvector\/pgvector@sha256:/);
     const commands = job.steps.map(step => step.run).filter(Boolean);
     expect(commands).toContain('npx prisma migrate deploy --schema=prisma/schema.prisma');
-    expect(commands.indexOf('npx prisma migrate deploy --schema=prisma/schema.prisma')).toBeLessThan(commands.indexOf('node scripts/testing/run-test-lane.mjs jest-core-v2'));
+    expect(commands.indexOf('npx prisma migrate deploy --schema=prisma/schema.prisma')).toBeLessThan(commands.indexOf('npx jest --config jest.core-v2.config.js --ci'));
   });
 
   test('ARIA_CI_REQUALIFIES_THE_SEALED_VISUAL_MATRIX_BEFORE_TRACEABILITY', () => {
