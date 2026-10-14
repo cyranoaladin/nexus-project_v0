@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { fmtPrice } from '@/components/premium/format';
+import { fmtMontant } from '@/components/premium/format';
 import { jourMois, jourMoisHeure, type CandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 
 export { jourMois, jourMoisHeure };
@@ -24,7 +24,7 @@ export type QuestionReponse = { question: string; reponse: string };
 
 export function construireFaq(data: CandidatsLibres2027): QuestionReponse[] {
   const [premiere, terminale, b1a] = data.parcours;
-  const tnd = (n: number) => `${fmtPrice(n)} TND`;
+  const tnd = (n: number) => `${fmtMontant(n)} TND`;
   return [
     {
       question: 'Qu’est-ce qu’un candidat libre au bac français ?',

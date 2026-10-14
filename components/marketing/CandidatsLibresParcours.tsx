@@ -3,7 +3,7 @@ import 'server-only';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
-import { fmtPrice } from '@/components/premium/format';
+import { fmtMontant } from '@/components/premium/format';
 import { getCandidatsLibres2027, getFraisDossier, jourMois } from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
@@ -13,7 +13,7 @@ export function FraisDossier({ id, maintenant }: { id: Parameters<typeof getFrai
   const frais = getFraisDossier(id, maintenant);
   return (
     <p className="mt-1 text-xs text-lux-slate">
-      + frais de dossier et d’accompagnement Cyclades{NBSP}: {fmtPrice(frais.montant)}{NBSP}TND
+      + frais de dossier et d’accompagnement Cyclades{NBSP}: {fmtMontant(frais.montant)}{NBSP}TND
       {frais.offertJusquAu ? `, offerts jusqu’au ${jourMois(frais.offertJusquAu)}` : ''}
     </p>
   );
@@ -41,13 +41,13 @@ export function CandidatsLibresParcours() {
               <p className="lux-eyebrow">{p.accroche}</p>
               <h3 id={titreId} className="mt-2 font-fraunces text-xl text-lux-ink">{p.titre}</h3>
               <p className="mt-4 font-fraunces text-3xl font-light tabular-nums text-lux-ink">
-                {fmtPrice(echeancier.mensualite)}
+                {fmtMontant(echeancier.mensualite)}
                 <span className="ml-1 font-body text-sm text-lux-slate">{NBSP}TND / mois</span>
               </p>
               <p className="mt-1 text-sm text-lux-slate">
                 × {p.echeancier_affiche} mensualités
-                {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${fmtPrice(echeancier.derniere)}${NBSP}TND)` : ''}
-                {' · '}{fmtPrice(p.prix_annuel)}{NBSP}TND / an · comptant {fmtPrice(p.comptant)}{NBSP}TND
+                {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${fmtMontant(echeancier.derniere)}${NBSP}TND)` : ''}
+                {' · '}{fmtMontant(p.prix_annuel)}{NBSP}TND / an · comptant {fmtMontant(p.comptant)}{NBSP}TND
               </p>
               <FraisDossier id={p.id} maintenant={maintenant} />
               <p className="mt-4 text-sm leading-6 text-lux-slate">

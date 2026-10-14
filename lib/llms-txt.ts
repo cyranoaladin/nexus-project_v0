@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { fmtPrice } from '@/components/premium/format';
+import { fmtMontant } from '@/components/premium/format';
 import { construireFaq } from '@/content/marketing/bac-candidat-libre';
 import {
   getAteliersCycladesAVenir,
@@ -26,7 +26,7 @@ function dateLongue(iso: string): string {
   return `${jour} ${MOIS[mois - 1]} ${annee}`;
 }
 
-const tnd = (n: number) => `${fmtPrice(n)} TND`;
+const tnd = (n: number) => `${fmtMontant(n)} TND`;
 
 function ligneParcours(p: ParcoursCandidatLibre, maintenant: Date): string {
   const frais = getFraisDossier(p.id, maintenant);

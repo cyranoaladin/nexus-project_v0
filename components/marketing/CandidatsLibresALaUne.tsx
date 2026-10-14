@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, CalendarDays, Sparkles } from 'lucide-react';
 
-import { fmtPrice } from '@/components/premium/format';
+import { fmtMontant } from '@/components/premium/format';
 import type { ALaUneCandidatsLibres } from '@/lib/candidats-libres-2027';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
@@ -69,9 +69,9 @@ export function CandidatsLibresALaUne({ aLaUne }: { aLaUne: ALaUneCandidatsLibre
               >
                 <span className="font-fraunces text-lg text-lux-ink">{p.niveau}</span>
                 <span className="text-right text-sm text-lux-slate">
-                  <span className="font-semibold tabular-nums text-lux-ink">{fmtPrice(p.mensualite)}{NBSP}TND</span> / mois × {p.nbMensualites}
+                  <span className="font-semibold tabular-nums text-lux-ink">{fmtMontant(p.mensualite)}{NBSP}TND</span> / mois × {p.nbMensualites}
                   {p.derniere !== p.mensualite ? (
-                    <span className="block text-xs">dernière : {fmtPrice(p.derniere)}{NBSP}TND</span>
+                    <span className="block text-xs">dernière : {fmtMontant(p.derniere)}{NBSP}TND</span>
                   ) : null}
                 </span>
               </Link>

@@ -5,7 +5,7 @@ import { ArrowRight, CalendarDays, CheckCircle2, Clock, MapPin, MessageCircle } 
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { FraisDossier } from '@/components/marketing/CandidatsLibresParcours';
-import { fmtPrice } from '@/components/premium/format';
+import { fmtMontant } from '@/components/premium/format';
 import {
   META,
   PAGE_PATH,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 };
 
 const NBSP = ' ';
-const tnd = (n: number) => `${fmtPrice(n)}${NBSP}TND`;
+const tnd = (n: number) => `${fmtMontant(n)}${NBSP}TND`;
 
 function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre; maintenant: Date }) {
   const huit = parcours.echeancier_affiche === 8;
@@ -42,7 +42,7 @@ function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre;
   return (
     <div className="mt-5">
       <p className="font-fraunces text-4xl font-light tabular-nums text-lux-ink">
-        {fmtPrice(echeancier.mensualite)}
+        {fmtMontant(echeancier.mensualite)}
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
       </p>
       <p className="mt-1 text-sm text-lux-slate">
