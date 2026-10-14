@@ -250,7 +250,9 @@ test('2. execute: same ids in Core v2, ACTIVE enrollments, rebuilt assignment, m
   // Past occurrences stay in Core v1 history: the first materialized Tuesday is on/after the migration instant.
   const first = series.bookings.map((b) => b.startsAt.getTime()).sort()[0]!;
   expect(first).toBeGreaterThanOrEqual(Date.UTC(2026, 8, 15, 17, 0, 0)); // Tue 15 Sept 18:00 Africa/Tunis
-  expect(series.bookings.length).toBeGreaterThan(40); // weekly to mid-July 2027
+  // Weekly to mid-July 2027, materialized from the real clock: count the Tuesdays still ahead.
+  const weeksAhead = Math.floor((Date.UTC(2027, 6, 13) - Math.max(Date.now(), first)) / (7 * 86_400_000));
+  expect(series.bookings.length).toBeGreaterThanOrEqual(weeksAhead);
   expect(await v2.coachCourseCapability.count({ where: { coachId: ids.coachProfile } })).toBe(1);
   const audit = await v2.auditEvent.findFirst({ where: { action: 'migration.run_completed' } });
   expect(audit?.metadata).toMatchObject({ anomalies: [], approvalDigest: manifest.approvalDigest });
@@ -266,7 +268,7 @@ test('3. idempotent rerun: every object UNCHANGED, no new rows', async () => {
   expect(results(manifest, 'PlanningSeries')).toEqual(['UNCHANGED']);
   expect(await v2.user.count()).toBe(before.users);
   expect(await v2.sessionBooking.count()).toBe(before.bookings);
-  expect(await v2.auditEvent.count()).toBe(before.audit + 1); // the run itself is audited
+  expect(await v2.auditEvent.count()).toBe(before.audit); // a run that writes nothing is not audited
 });
 
 test('4. a source change is carried as exactly one UPDATED object', async () => {
@@ -301,7 +303,7 @@ test('6. a target that holds rows outside the plan is refused before any write',
   // Un acteur absent de la cible est refuse avant toute ecriture.
   await expect(runWithActor(true, `${prefix}-nobody`)).rejects.toThrow(/MIGRATION_ACTOR_ABSENT_FROM_TARGET/);
   // Un acteur present mais qui n'est pas ADMIN l'est aussi.
-  await expect(runWithActor(true, ids.parent)).rejects.toThrow(/MIGRATION_ACTOR_NOT_ADMIN/);
+  await expect(runWithActor(true, ids.parent)).rejects.toThrow(/MIGRATION_ACTOR_NOT_ACTIVE_ADMIN/);
 });
 
 
@@ -364,13 +366,13 @@ test('10. losing the Core authority configuration fails closed even with a valid
 test('11. rerunning an approved student roster cannot reactivate a revoked family or restore its primary contact', async () => {
   const membership = await v2.householdParent.findUniqueOrThrow({ where: { userId: ids.parent } });
   const ctx = createServiceContext({ userId: ids.admin, role: 'ADMIN' }, { now: () => migratedAt });
-  await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 0, evidenceDigest: 'a'.repeat(64) });
-  await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: 1 });
+  await verifyHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: membership.revision, evidenceDigest: 'a'.repeat(64) });
+  await revokeHouseholdParent(v2, ctx, { householdId: membership.householdId, parentUserId: ids.parent, expectedRevision: membership.revision + 1 });
   const before = await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } });
   const { manifest } = await run(true);
   expect(results(manifest, 'HouseholdParent')).toEqual(['UNCHANGED']);
   expect(await v2.householdParent.findUniqueOrThrow({ where: { id: membership.id } })).toEqual(before);
-  expect(before).toMatchObject({ verificationStatus: 'REVOKED', isPrimaryContact: false, revision: 2 });
+  expect(before).toMatchObject({ verificationStatus: 'REVOKED', isPrimaryContact: false, revision: membership.revision + 2 });
 });
 
 test('12. a roster rerun preserves a password changed in the canonical Core identity', async () => {
@@ -409,34 +411,32 @@ test('a credential rotation after proof capture refuses the roster transaction w
   const rotated = await bcrypt.hash(randomUUID().concat('!aA1'), 12);
   const auditCount = await v2.auditEvent.count();
   const userCount = await v2.user.count();
-  let signalLocked!: (pid: number) => void;
-  let release!: () => void;
-  const locked = new Promise<number>(resolve => { signalLocked = resolve; });
-  const resume = new Promise<void>(resolve => { release = resolve; });
-  const writer = v2.$transaction(async tx => {
-    const [{ pid }] = await tx.$queryRaw<Array<{ pid: number }>>(Prisma.sql`SELECT pg_backend_pid() AS pid`);
-    await tx.$queryRaw(Prisma.sql`SELECT "id" FROM "users" WHERE "id" = ${ids.parent} FOR UPDATE`);
-    signalLocked(pid);
-    await resume;
+  // The rotation commits right after the proof capture (the migrator's top-level user read),
+  // following the same lock order as every Core identity writer: global authority lock, then the row.
+  let rotatedOnce = false;
+  const rotate = () => v2.$transaction(async tx => {
+    await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(4242, 1026)`);
     await tx.user.update({ where: { id: ids.parent }, data: { password: rotated, sessionVersion: { increment: 1 } } });
   });
-  const writerPid = await locked;
-  const result = applyPlan(v2, plan, {
+  const proofObservingClient = new Proxy(v2, { get(target, property) {
+    const value = Reflect.get(target, property, target) as unknown;
+    if (property !== 'user') return typeof value === 'function' ? (value as Function).bind(target) : value;
+    return new Proxy(target.user, { get(users, method) {
+      const delegate = Reflect.get(users, method, users) as unknown;
+      if (method !== 'findMany') return typeof delegate === 'function' ? (delegate as Function).bind(users) : delegate;
+      return async (args: Parameters<typeof users.findMany>[0]) => {
+        const proof = await users.findMany(args);
+        if (!rotatedOnce) { rotatedOnce = true; await rotate(); }
+        return proof;
+      };
+    } });
+  } }) as typeof v2;
+  const result = await applyPlan(proofObservingClient, plan, {
     execute: true, actorUserId: ids.admin, migratedAt, approvalDigest: approvalDigest(approval()),
     sourceFingerprint: source.fingerprint, transformVersion: TRANSFORM_VERSION, correlationId: 'synthetic-proof-rotation',
   }).then(() => ({ refused: false, code: '' }), error => ({ refused: true, code: error instanceof Error ? error.message : 'UNKNOWN' }));
-  let blocked = false;
-  try {
-    // Database lock observation is the barrier, not an elapsed sleep.
-    for (let attempt = 0; attempt < 200 && !blocked; attempt++) {
-      const [row] = await v2.$queryRaw<Array<{ blocked: boolean }>>(Prisma.sql`
-        SELECT EXISTS (SELECT 1 FROM pg_stat_activity WHERE ${writerPid} = ANY(pg_blocking_pids(pid))) AS blocked`);
-      blocked = row.blocked;
-    }
-    expect(blocked).toBe(true);
-  } finally { release(); }
-  await writer;
-  expect(await result).toEqual({ refused: true, code: 'MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK' });
+  expect(rotatedOnce).toBe(true);
+  expect(result).toEqual({ refused: true, code: 'MIGRATION_IDENTITY_CHANGED_DURING_PROOF_CHECK' });
   expect((await v2.user.findUniqueOrThrow({ where: { id: ids.parent } })).password === rotated).toBe(true);
   expect(await v2.user.count()).toBe(userCount);
   expect(await v2.auditEvent.count()).toBe(auditCount);

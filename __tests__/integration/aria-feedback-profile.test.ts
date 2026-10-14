@@ -4,10 +4,8 @@ import { NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { checkAndAwardBadges } from '@/lib/badges';
 import { createLogger } from '@/lib/middleware/logger';
-import {
-  makeRecordAriaFeedback,
-  recordAriaFeedbackForActor,
-} from '@/lib/aria/application/feedback/public';
+import { makeRecordAriaFeedback } from '@/lib/aria/application/feedback/public';
+import { makePrismaAriaFeedbackRepository } from '@/lib/aria/infrastructure/prisma/feedback-repository';
 import {
   makeGetAriaLearningProfile,
   makeReplaceAriaLearningProfile,
@@ -17,10 +15,11 @@ import { POST } from '@/app/api/aria/feedback/route';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/badges', () => ({ checkAndAwardBadges: jest.fn() }));
 jest.mock('@/lib/middleware/logger', () => ({ createLogger: jest.fn() }));
-jest.mock('@/lib/aria/application/feedback/public', () => {
-  const actual = jest.requireActual('@/lib/aria/application/feedback/public');
-  return { ...actual, recordAriaFeedbackForActor: jest.fn() };
-});
+// Autorité V1 par requête (cookie privé lié + verrou) : transport synthétique, la vraie lane PostgreSQL la couvre.
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn(async () => require('../helpers/aria-v1-route-authority').ariaV1Claims) }));
+jest.mock('@/lib/auth/v1-session-authority', () => ({ withV1SessionAuthority: jest.fn(require('../helpers/aria-v1-route-authority').syntheticV1Authority) }));
+jest.mock('@/lib/aria/infrastructure/prisma/actor-authority', () => ({ lockV1AriaSubject: jest.fn(async () => undefined) }));
+jest.mock('@/lib/aria/infrastructure/prisma/feedback-repository', () => ({ makePrismaAriaFeedbackRepository: jest.fn() }));
 
 describe('ARIA feedback/profile persistence composition', () => {
   it('I020 keeps canonical writes visible and downgrades only the structured secondary badge failure', async () => {
@@ -59,9 +58,9 @@ describe('ARIA feedback/profile persistence composition', () => {
     expect(makeReplaceAriaLearningProfile).toEqual(expect.any(Function));
 
     const logger = { getRequestId: jest.fn(() => 'request-feedback-integration'), warn: jest.fn(), info: jest.fn(), error: jest.fn() };
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-integration-1', role: 'ELEVE' } });
+    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-1', role: 'ELEVE' } });
     (createLogger as jest.Mock).mockReturnValue(logger);
-    (recordAriaFeedbackForActor as jest.Mock).mockResolvedValue(feedback);
+    (makePrismaAriaFeedbackRepository as jest.Mock).mockReturnValue(feedbackRepository);
     (checkAndAwardBadges as jest.Mock).mockRejectedValue(new Error('secondary badge unavailable'));
 
     const response = await POST(new NextRequest('http://localhost/api/aria/feedback', {
