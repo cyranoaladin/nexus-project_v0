@@ -103,6 +103,7 @@ const mondayOf = (iso: string) => {
 };
 
 let householdId = '';
+let academicYearId = '';
 let parentUserId = '';
 let studentUserId = '';
 let enrollmentId = '';
@@ -243,6 +244,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
       const promoted = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years/${year.id}/current`, { headers: sameOriginHeaders() });
       expect(promoted.status(), await promoted.text()).toBe(200);
     }
+    academicYearId = year.id;
   });
 
   await test.step('creates the family through the duplicate-gated dialog', async () => {
@@ -258,6 +260,27 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: /Foyer Amel Corev2/ })).toBeVisible();
     await expect(page.getByText(parentEmail)).toBeVisible();
     await expectAccessible(page);
+  });
+
+  await test.step('ADMIN explicitly assigns this household to the assistante for the current year (§6.2 invitation scope)', async () => {
+    // Without this assignment the assistante can create the family but not act on it:
+    // the invitation authority never delegates a whole roster implicitly.
+    const assistanteId = (await sessionUser(page))?.id;
+    if (!assistanteId) throw new Error('E2E_ASSISTANTE_SESSION_REQUIRED');
+    const adminContext = await page.context().browser()!.newContext();
+    const admin = await adminContext.newPage();
+    try {
+      await loginAsUser(admin, 'admin', { navigate: false });
+      await admin.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
+      await expect(admin.getByRole('heading', { name: 'Affectations des assistantes' })).toBeVisible();
+      await admin.getByLabel('Assistante', { exact: true }).selectOption(assistanteId);
+      await admin.getByLabel('Année scolaire', { exact: true }).selectOption(academicYearId);
+      await admin.getByRole('button', { name: 'Affecter', exact: true }).click();
+      await expect(admin.getByRole('status').filter({ hasText: /^Affectation enregistrée\.$/ })).toBeVisible();
+    } finally {
+      await adminContext.close();
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
   });
 
   await test.step('creating the same e-mail again is blocked by the hard conflict', async () => {
