@@ -176,6 +176,8 @@ services:
       # the isolated Docker network.
       EMAIL_OUTBOX_WORKER_ENABLED: "true"
       EMAIL_OUTBOX_ENCRYPTION_KEY: e2e-compose-outbox-encryption-key-0123456789
+      # Per-run disposable key (scripts/aria/e2e-runtime-secrets.sh): deposited documents are encrypted at rest.
+      DOCUMENT_ENCRYPTION_KEY: "${DOCUMENT_ENCRYPTION_KEY:?Generate a disposable E2E document encryption key}"
       SMTP_HOST: mailpit-e2e
       SMTP_PORT: "1025"
       SMTP_FROM: e2e@example.test

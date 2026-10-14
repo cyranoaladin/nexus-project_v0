@@ -229,7 +229,7 @@ jobs:
           set -Eeuo pipefail
           source scripts/aria/e2e-runtime-secrets.sh
           prepare_aria_e2e_runtime_secrets
-          for name in CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+          for name in DOCUMENT_ENCRYPTION_KEY CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
             printf '::add-mask::%s\n' "${!name}"
             printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
           done
