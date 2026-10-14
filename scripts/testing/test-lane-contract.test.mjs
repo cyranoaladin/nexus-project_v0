@@ -571,7 +571,7 @@ test('the actual Python producer binds three phases and native bytes in a clean 
   }finally{rmSync(directory,{recursive:true,force:true});}
 });
 test('a self-consistent launch cannot substitute its CLI root or normalize a grep expression',()=>{
-  const directory=mkdtempSync(path.join(tmpdir(),'nexus-producer-invocation-'));
+  const directory=mkdtempSync(path.join(tmpdir(),'nexus-lane-producer-invocation-'));
   try{
     const lane={...collection.lanes[0],argv:['--config','unit.js','--grep=./name']},file=path.join(directory,'unit.native.json');
     const native=jestNative(),envelope=report('unit',[]);

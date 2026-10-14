@@ -221,7 +221,8 @@ export async function fetchLaunch(output,artifactId){
     finally{removeOwnedDirectory(temporaryOwner);}}
 }
 function importRecipient(home,key){
-  if(typeof key!=='string'||!key.startsWith('-----BEGIN PGP PRIVATE KEY BLOCK-----')||Buffer.byteLength(key)>128*1024)fail();
+  // Nature of the key is proven after import: exactly one secret primary with the pinned fingerprint.
+  if(typeof key!=='string'||key.length===0||Buffer.byteLength(key)>128*1024)fail();
   invoke('gpg',['--no-options','--homedir',home,'--batch','--no-tty','--import'],{input:key});
   const listing=invoke('gpg',['--no-options','--homedir',home,'--batch','--with-colons','--fingerprint','--list-secret-keys']);
   const lines=listing.split('\n'),primaries=[];for(let i=0;i<lines.length;i++)if(lines[i].startsWith('sec:')){
