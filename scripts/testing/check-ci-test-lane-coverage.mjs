@@ -16,7 +16,10 @@ if(debt.findings.length)blockers.push('QUALIFICATION_TEST_DEBT');
 if(requireExecution&&before.sourceSha!==process.env.NEXUS_EXPECTED_SOURCE_SHA)blockers.push('QUALIFICATION_SOURCE_SHA_MISMATCH');
 for(const lane of registered.lanes) {
   try{lanes.push(collectLane(lane,output));}
-  catch{blockers.push(`COLLECTION_FAILED:${lane.id}`);}
+  catch(error){blockers.push(`COLLECTION_FAILED:${lane.id}`);
+    // Bounded runner diagnostic (stderr tail): collection never sees credentials.
+    const detail=String(error?.stderr||error?.message||'').trim().split('\n').slice(-20).join('\n');
+    console.error(`COLLECTION_FAILED:${lane.id}\n${detail}`);}
 }
 const after=sourceIdentity();if(before.sourceSha!==after.sourceSha||before.sourceFingerprint!==after.sourceFingerprint
   ||before.tree!==after.tree||before.clean!==after.clean)blockers.push('SOURCE_CHANGED_DURING_COLLECTION');
