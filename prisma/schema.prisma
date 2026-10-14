@@ -235,6 +235,8 @@ model User {
   activationToken  String? // token hashé pour activation par email
   activationExpiry DateTime? // expiration du token d'activation
   sessionVersion   Int       @default(0)
+  accountInvitationIssuances V1AccountInvitationIssuance[] @relation("V1InvitationTarget")
+  issuedAccountInvitations V1AccountInvitationIssuance[] @relation("V1InvitationIssuer")
 
   // Tombstone append-only lorsqu'un foyer sans e-mail est rattaché à un
   // compte parent déjà existant. Les deux comptes restent auditables.
@@ -3162,6 +3164,32 @@ model TeacherBriefAnnotation {
 
   @@index([teacherBriefId, createdAt])
   @@map("canonical_teacher_brief_annotations")
+}
+
+// Durable issuance proof. Tokens and credentials remain exclusively in V1.
+model V1AccountInvitationIssuance {
+  id String @id @default(cuid())
+  userId String
+  user User @relation("V1InvitationTarget", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "v1_account_invitation_issuances_userId_fkey")
+  generation Int
+  databaseIdentity String @db.Uuid
+  bindingDigest String
+  issuerId String
+  issuer User @relation("V1InvitationIssuer", fields: [issuerId], references: [id], onDelete: Restrict, onUpdate: NoAction, map: "v1_account_invitation_issuances_issuerId_fkey")
+  issuerVersion Int
+  recipientDigest String
+  targetRole UserRole
+  operation String
+  outcome String
+  activationTokenHash String?
+  expiresAt DateTime?
+  // Historical reference; outbox retention must not erase the receipt.
+  outboxId String? @unique
+  revokedAt DateTime?
+  deliveredAt DateTime?
+  createdAt DateTime @default(now())
+  @@unique([userId, generation])
+  @@map("v1_account_invitation_issuances")
 }
 
 model JobOutbox {
