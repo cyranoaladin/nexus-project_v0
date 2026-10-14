@@ -7,10 +7,10 @@ export async function assertBootstrapSchema(client: Pick<Tx, '$queryRaw'>): Prom
   try {
     const [row] = await client.$queryRaw<Array<{ ready: boolean }>>`
       SELECT (SELECT count(*) FROM (VALUES
-        ('0028_core_v2_exclusive_admin_bootstrap', '8e71f9a765f9a3a3b987cc8d53bd704801358513654f17e292b27f3e4e71908f'),
-        ('0029_core_v2_attested_admin_promotions', '2b605c19c16e7172217039a05654da4fa0d60e5757aa9b3f27b658bcd510a86a'),
-        ('0031_core_v2_bootstrap_commit_expiry', 'c29250602470f493f68f13c1d4132b1766eb331ed18f60177c2a60a325b34221'),
-        ('0032_core_v2_session_authorized_admin_promotion', '4e07cd4fe87da06dd72c936dc1ae99a5af8f865e1d9bbba775877049fe36b692')
+        ('0028_core_v2_exclusive_admin_bootstrap', '8e71f9a765f9a3a3b987cc8d53bd704801358513654f17e292b27f3e4e71908f'), -- ggignore : somme SHA-256 publique de migration
+        ('0029_core_v2_attested_admin_promotions', '2b605c19c16e7172217039a05654da4fa0d60e5757aa9b3f27b658bcd510a86a'), -- ggignore : somme SHA-256 publique de migration
+        ('0031_core_v2_bootstrap_commit_expiry', 'c29250602470f493f68f13c1d4132b1766eb331ed18f60177c2a60a325b34221'), -- ggignore : somme SHA-256 publique de migration
+        ('0032_core_v2_session_authorized_admin_promotion', '4e07cd4fe87da06dd72c936dc1ae99a5af8f865e1d9bbba775877049fe36b692') -- ggignore : somme SHA-256 publique de migration
       ) AS expected(name, checksum) JOIN public._prisma_migrations m ON m.migration_name = expected.name
         AND m.checksum = expected.checksum AND m.finished_at IS NOT NULL AND m.rolled_back_at IS NULL) = 4
       AND EXISTS (SELECT 1 FROM pg_catalog.pg_trigger t JOIN pg_catalog.pg_proc p ON p.oid = t.tgfoid
