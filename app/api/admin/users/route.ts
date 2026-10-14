@@ -22,6 +22,12 @@ import { NextRequest,NextResponse } from 'next/server';
  * (`createFamily()` / `addChildToExistingFamily()`, `lib/families/create-family.ts`).
  * Amendement 6.
  */
+const STAFF_ROLE_TRANSITION_ERROR = {
+  error: 'STAFF_ROLE_TRANSITION_UNSUPPORTED',
+  message:
+    "Le changement de rôle n'est pas pris en charge par la gestion générique : il exigerait de créer ou de clore le profil associé (coach, affectations) de façon atomique. Créez un compte avec le rôle voulu.",
+} as const;
+
 const FAMILY_ROLE_TRANSITION_ERROR = {
   error: 'FAMILY_ROLE_REQUIRES_CANONICAL_SERVICE',
   message:
@@ -302,6 +308,13 @@ export async function PATCH(request: NextRequest) {
     // academic-track sync further below) are unaffected.
     if (validatedData.role !== undefined && (isFamilyRole(existingUser.role) || isFamilyRole(validatedData.role))) {
       return NextResponse.json(FAMILY_ROLE_TRANSITION_ERROR, { status: HttpStatus.UNPROCESSABLE_ENTITY });
+    }
+
+    // Un vrai changement de rôle entre ADMIN, ASSISTANTE et COACH impliquerait de créer ou de clore
+    // un profil coach et ses affectations, ce que cette route ne fait pas de façon atomique (P1-9).
+    // Renvoyer le même rôle (formulaire d'édition) reste accepté.
+    if (validatedData.role !== undefined && validatedData.role !== existingUser.role) {
+      return NextResponse.json(STAFF_ROLE_TRANSITION_ERROR, { status: HttpStatus.UNPROCESSABLE_ENTITY });
     }
 
     // If email is being updated, check for conflicts

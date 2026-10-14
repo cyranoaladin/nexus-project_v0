@@ -373,6 +373,29 @@ describe('PATCH /api/admin/users', () => {
     expect(data.error).toBe('NOT_FOUND');
   });
 
+  it.each([
+    ['ASSISTANTE', 'COACH'],
+    ['COACH', 'ADMIN'],
+    ['ADMIN', 'ASSISTANTE'],
+  ])('P1-9 : un changement de rôle %s → %s est refusé (422) sans écriture', async (avant, apres) => {
+    (prisma.user.findUnique as jest.Mock).mockReset().mockResolvedValue({ id: 'staff-1', email: 'staff@test.com', role: avant });
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'staff-1', role: apres }),
+    }));
+    expect(response.status).toBe(422);
+    expect((await response.json()).error).toBe('STAFF_ROLE_TRANSITION_UNSUPPORTED');
+    expect(prisma.user.update).not.toHaveBeenCalled();
+  });
+
+  it('P1-9 : renvoyer le même rôle (formulaire d’édition) reste accepté', async () => {
+    (prisma.user.findUnique as jest.Mock).mockReset().mockResolvedValueOnce({ id: 'staff-2', email: 'coach@test.com', role: 'COACH' });
+    (prisma.user.update as jest.Mock).mockResolvedValue({ id: 'staff-2', email: 'coach@test.com', firstName: 'Nouveau', lastName: 'Nom', role: 'COACH', phone: null, updatedAt: new Date() });
+    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'staff-2', role: 'COACH', firstName: 'Nouveau' }),
+    }));
+    expect(response.status).toBe(200);
+  });
+
   it('should update user successfully', async () => {
     (prisma.user.findUnique as jest.Mock)
       .mockResolvedValueOnce({
@@ -434,28 +457,6 @@ describe('PATCH /api/admin/users', () => {
         password: 'new-hash',
         sessionVersion: { increment: 1 },
       }),
-    }));
-  });
-
-  it('increments sessionVersion atomically when the role changes between two non-family roles', async () => {
-    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
-      id: 'user-123',
-      email: 'user@test.com',
-      role: 'COACH',
-    });
-    (prisma.user.update as jest.Mock).mockResolvedValue({
-      id: 'user-123', email: 'user@test.com', role: 'ASSISTANTE', updatedAt: new Date(),
-    });
-
-    const response = await PATCH(createMockRequest('http://localhost:3000/api/admin/users', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: 'user-123', role: 'ASSISTANTE' }),
-    }));
-
-    expect(response.status).toBe(200);
-    expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
-      data: expect.objectContaining({ sessionVersion: { increment: 1 } }),
     }));
   });
 
