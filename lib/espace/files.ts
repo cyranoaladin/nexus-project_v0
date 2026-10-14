@@ -13,7 +13,7 @@
  *    fichier régulier, taille bornée).
  */
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, unlink } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { Subject } from '@prisma/client';
@@ -21,7 +21,8 @@ import type { Subject } from '@prisma/client';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { SecureFileAccessError, openSecureDocument, type SecureDocument } from '@/lib/documents/secure-file-access';
 import { prisma } from '@/lib/prisma';
-import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { scanPrivateBytes } from '@/lib/security/private-file-antivirus';
+import { writePrivateFileExclusive } from '@/lib/security/private-file-write';
 
 import { loadWorkForActor } from './access';
 import { getActivityDef } from './catalog';
@@ -78,33 +79,35 @@ export async function saveAttachment(
   workId: string,
   file: { name: string; bytes: Uint8Array },
 ): Promise<AttachmentDto> {
+  const clear = Buffer.from(file.bytes);
   const { work } = await loadWorkForActor(actor, workId, 'student');
   if (work.activity.kind !== 'UPLOAD_EXERCISE') throw new EspaceError('UPLOAD_REJECTED', 'Cette activité n’accepte pas de fichier');
   if (!isStudentEditable(work.status)) throw new EspaceError('WORK_LOCKED', 'Ce travail est remis : lecture seule');
-  if (file.bytes.byteLength === 0 || file.bytes.byteLength > MAX_UPLOAD_BYTES) {
+  if (clear.byteLength === 0 || clear.byteLength > MAX_UPLOAD_BYTES) {
     throw new EspaceError('UPLOAD_REJECTED', 'Fichier vide ou trop volumineux (8 Mo maximum)');
   }
-  const kind = sniffUpload(file.bytes);
+  const kind = sniffUpload(clear);
   if (!kind) throw new EspaceError('UPLOAD_REJECTED', 'Format non accepté : PDF, JPEG ou PNG uniquement');
   if ((await prisma.espaceWorkAttachment.count({ where: { workId } })) >= MAX_ATTACHMENTS_PER_WORK) {
     throw new EspaceError('UPLOAD_REJECTED', 'Nombre maximal de fichiers atteint');
   }
 
-  const dir = uploadsDir(workId);
-  const filename = `${randomUUID()}.${kind.ext}`;
-  const absolute = path.join(dir, filename);
-  const storagePath = path.posix.join('espace', 'uploads', workId, filename);
-  await mkdir(dir, { recursive: true, mode: 0o700 });
-  await writeFile(absolute, file.bytes, { mode: 0o600, flag: 'wx' });
-
-  try {
-    try { await scanPrivateFile(absolute); }
+  try { await scanPrivateBytes(clear); }
     catch (error) {
       if (error instanceof Error && error.message.startsWith('MALWARE_DETECTED')) {
         throw new EspaceError('UPLOAD_REJECTED', 'Fichier refusé par le contrôle de sécurité.');
       }
       throw new EspaceError('UPLOAD_SCAN_UNAVAILABLE', 'Vérification du fichier indisponible. Réessayez ultérieurement.');
     }
+
+  const dir = uploadsDir(workId);
+  const filename = `${randomUUID()}.${kind.ext}`;
+  const absolute = path.join(dir, filename);
+  const storagePath = path.posix.join('espace', 'uploads', workId, filename);
+  await mkdir(dir, { recursive: true, mode: 0o700 });
+  await writePrivateFileExclusive(absolute, clear);
+
+  try {
     const now = new Date();
     const row = await prisma.$transaction(async (tx) => {
       const created = await tx.espaceWorkAttachment.create({
@@ -113,8 +116,8 @@ export async function saveAttachment(
           uploadedById: actor.id,
           storagePath,
           mimeType: kind.mime,
-          sizeBytes: file.bytes.byteLength,
-          sha256: createHash('sha256').update(file.bytes).digest('hex'),
+          sizeBytes: clear.byteLength,
+          sha256: createHash('sha256').update(clear).digest('hex'),
           originalName: sanitizeDisplayName(file.name),
         },
       });
@@ -128,7 +131,10 @@ export async function saveAttachment(
     });
     return { id: row.id, originalName: row.originalName, mimeType: row.mimeType, sizeBytes: row.sizeBytes, createdAt: row.createdAt.toISOString() };
   } catch (e) {
-    await unlink(absolute).catch(() => undefined); // pas d'orphelin si la base refuse
+    try {
+      const committed = await prisma.espaceWorkAttachment.findFirst({ where: { storagePath }, select: { id: true } });
+      if (!committed) await unlink(absolute);
+    } catch { console.error('[Espace Upload]', { code: 'DOCUMENT_STORAGE_RECONCILIATION_REQUIRED' }); }
     throw e;
   }
 }

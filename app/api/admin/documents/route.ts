@@ -4,8 +4,9 @@ import { UserRole } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
 import path from 'path';
-import { mkdir, writeFile, unlink } from 'fs/promises';
-import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { mkdir, unlink } from 'fs/promises';
+import { writePrivateFileExclusive } from '@/lib/security/private-file-write';
+import { scanPrivateBytes } from '@/lib/security/private-file-antivirus';
 import { getDocumentStorageRoot, toRelativeStoragePath } from '@/lib/documents/storage-root';
 import { z } from 'zod';
 import { checkCsrf } from '@/lib/csrf';
@@ -43,6 +44,7 @@ function sanitizeOriginalName(value: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  let writtenPath: string | null = null;
   try {
     // 1. RBAC Check (Admin or Assistant only)
     const sessionOrResponse = await requireAnyRole([UserRole.ADMIN, UserRole.ASSISTANTE]);
@@ -96,22 +98,15 @@ export async function POST(request: NextRequest) {
     const localPath = path.join(storageRoot, secureFilename);
     const originalName = sanitizeOriginalName(file.name);
 
-    // Ensure directory exists
-    await mkdir(storageRoot, { recursive: true });
-
-    // Write file to disk
     const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(localPath, buffer, { mode: 0o600, flag: 'wx' });
-
-    // No metadata or download is published until the private file is clean.
-    try {
-      await scanPrivateFile(localPath);
-    } catch (error) {
-      try { await unlink(localPath); }
-      catch { console.error('[Upload Error]', { code: 'DOCUMENT_QUARANTINE_CLEANUP_FAILED' }); }
-      const malware = error instanceof Error && error.message.startsWith('MALWARE_DETECTED');
+    try { await scanPrivateBytes(buffer); }
+    catch (error) {
+      const malware = error instanceof Error && error.message === 'MALWARE_DETECTED';
       return NextResponse.json({ error: malware ? 'DOCUMENT_REJECTED' : 'DOCUMENT_SCAN_UNAVAILABLE' }, { status: malware ? 422 : 503 });
     }
+    await mkdir(storageRoot, { recursive: true, mode: 0o700 });
+    await writePrivateFileExclusive(localPath, buffer);
+    writtenPath = localPath;
 
     // 5. Save Metadata to DB
     const document = await prisma.userDocument.create({
@@ -134,6 +129,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, document: safeDocument }, { status: 201 });
 
   } catch {
+    if (writtenPath) {
+      try {
+        const committed = await prisma.userDocument.findFirst({ where: { localPath: toRelativeStoragePath(writtenPath) }, select: { id: true } });
+        if (!committed) await unlink(writtenPath);
+      } catch { console.error('[Upload Error]', { code: 'DOCUMENT_STORAGE_RECONCILIATION_REQUIRED' }); }
+    }
     console.error('[Upload Error]', { code: 'DOCUMENT_UPLOAD_FAILED' });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

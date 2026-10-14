@@ -116,8 +116,10 @@ export async function readPersistedDiagnosticFile(storageKey: string): Promise<B
   const { readFile } = await import('fs/promises');
   const absolute = resolveDiagnosticStoragePath(storageKey);
   const stored = await readFile(absolute);
-  if (!isEncryptedDocument(stored)) return stored;
-  return decryptDocument(stored, { documentId: storageKey });
+  if (storageKey.endsWith('.enc') || isEncryptedDocument(stored))
+    return decryptDocument(stored, { documentId: storageKey });
+  if (/\.(pdf|png|jpe?g|webp|wav|webm|mp3|mp4|m4a)$/i.test(storageKey)) return stored;
+  throw new Error('DOCUMENT_ENVELOPE_INVALID');
 }
 
 export async function removePersistedDiagnosticFile(storageKey: string) {

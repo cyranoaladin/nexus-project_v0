@@ -1,4 +1,4 @@
-import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { scanPrivateBytes } from '@/lib/security/private-file-antivirus';
 import { randomBytes, createHash } from 'node:crypto';
 import {
   accessSync,
@@ -581,6 +581,9 @@ export async function writeNpcStorageFileAtomic(
   bytes: Buffer,
   expectedSizeBytes: number,
 ): Promise<NpcAtomicWriteResult> {
+  const snapshot = Buffer.from(bytes);
+  if (snapshot.length !== expectedSizeBytes) throw Object.assign(new Error('NPC storage size mismatch'), { code: 'NPC_STORAGE_SIZE_MISMATCH' });
+  await scanPrivateBytes(snapshot);
   return withTrustedParent(
     relativePath,
     { capability: 'read-write', createParents: true },
@@ -606,7 +609,7 @@ export async function writeNpcStorageFileAtomic(
           0o640,
         );
 
-        await temporaryHandle.writeFile(bytes);
+        await temporaryHandle.writeFile(snapshot);
         await temporaryHandle.sync();
         const stats = await temporaryHandle.stat();
         if (stats.size !== expectedSizeBytes) {
@@ -619,7 +622,8 @@ export async function writeNpcStorageFileAtomic(
           temporaryHandle,
           stats.size,
         );
-        if (persistedBytes.length !== expectedSizeBytes) {
+        if (persistedBytes.length !== expectedSizeBytes
+          || createHash('sha256').update(persistedBytes).digest('hex') !== createHash('sha256').update(snapshot).digest('hex')) {
           const error = new Error('NPC storage size mismatch after readback');
           Object.assign(error, { code: 'NPC_STORAGE_SIZE_MISMATCH' });
           throw error;
@@ -630,9 +634,6 @@ export async function writeNpcStorageFileAtomic(
           context.expectedDirectory,
           context.root,
         );
-        // Scan the open quarantine inode before publishing its final name.
-        // Parent PID also works for an external scanner with close-on-exec FDs.
-        await scanPrivateFile(`/proc/${process.pid}/fd/${temporaryHandle.fd}`);
         await verifyOpenedEntry(temporaryContext, temporaryHandle);
         await link(temporaryPath, finalPath);
         published = true;

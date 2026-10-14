@@ -80,7 +80,7 @@ export function decryptDocument(
   envelope: Buffer,
   context: DocumentEncryptionContext,
 ): Buffer {
-  if (!isEncryptedDocument(envelope)) {
+  if (!isEncryptedDocument(envelope) || !envelope.subarray(MAGIC.length, MAGIC.length + VERSION_LENGTH).equals(versionField())) {
     throw new Error('DOCUMENT_ENVELOPE_INVALID');
   }
 
