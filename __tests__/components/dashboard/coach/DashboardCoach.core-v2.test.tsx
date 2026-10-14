@@ -31,6 +31,7 @@ describe('DashboardCoach — Core v2 assignments panel (§AJ)', () => {
     sessionState.status = 'authenticated';
     render(<DashboardCoach />);
     expect(await screen.findByText('Mes affectations (Core v2)')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Espace coach' })).toBeInTheDocument();
     expect(screen.queryByText(/Coach — Helios/)).not.toBeInTheDocument();
     expect(screen.queryByText('Aucun cours aujourd’hui')).not.toBeInTheDocument();
     expect(global.fetch).not.toHaveBeenCalledWith('/api/coach/dashboard', expect.anything());

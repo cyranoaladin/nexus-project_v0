@@ -33,7 +33,21 @@ interface CoachDashboardData {
 }
 
 export default function DashboardCoach() {
-  return <Suspense fallback={<p role="status">Chargement…</p>}><CoreRoleHome role="COACH" legacy={<LegacyCoachDashboard />}><CoachAssignments /></CoreRoleHome></Suspense>;
+  return <Suspense fallback={<p role="status">Chargement…</p>}><CoreRoleHome role="COACH" legacy={<LegacyCoachDashboard />}><CoreCoachHome /></CoreRoleHome></Suspense>;
+}
+function CoreCoachHome() {
+  const signOut = useCanonicalSignOut();
+  return (
+    <div className="min-h-screen bg-surface-darker text-neutral-100">
+      <header className="bg-surface-card border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <h1 className="font-semibold text-white">Espace coach</h1>
+          <Button variant="ghost" onClick={() => signOut()}>Déconnexion</Button>
+        </div>
+      </header>
+      <section className="max-w-7xl mx-auto px-4 py-8"><CoachAssignments /></section>
+    </div>
+  );
 }
 function LegacyCoachDashboard() {
   const fetch = useProtectedFetch();
