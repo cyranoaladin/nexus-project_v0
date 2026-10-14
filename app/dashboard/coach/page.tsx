@@ -4,6 +4,8 @@ import { BookOpen,FileText,Loader2,Users,Zap } from "lucide-react";
 import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { useRouter } from "next/navigation";
 import { useCallback,useEffect,useState } from "react";
+import { Suspense } from 'react';
+import { CoreRoleHome } from '@/components/dashboard/core-v2/CoreRoleHome';
 
 import { Button } from "@/components/ui/button";
 import { Card,CardContent,CardHeader,CardTitle } from "@/components/ui/card";
@@ -31,6 +33,9 @@ interface CoachDashboardData {
 }
 
 export default function DashboardCoach() {
+  return <Suspense fallback={<p role="status">Chargement…</p>}><CoreRoleHome role="COACH" legacy={<LegacyCoachDashboard />}><CoachAssignments /></CoreRoleHome></Suspense>;
+}
+function LegacyCoachDashboard() {
   const fetch = useProtectedFetch();
   const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
@@ -72,28 +77,10 @@ export default function DashboardCoach() {
       router.push("/auth/signin")
       return
     }
-    if (session.user.authority === 'CORE_V2') {
-      setLoading(false)
-      return
-    }
     fetchDashboardData()
   }, [session, status, router, fetchDashboardData])
 
   if (loading) return <div className="min-h-screen bg-surface-darker flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-brand-accent" /></div>
-
-  if (session?.user.authority === 'CORE_V2') {
-    return (
-      <div className="min-h-screen bg-surface-darker text-neutral-100">
-        <header className="bg-surface-card border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <h1 className="font-semibold text-white">Espace coach</h1>
-            <Button variant="ghost" onClick={() => signOut()}>Déconnexion</Button>
-          </div>
-        </header>
-        <section className="max-w-7xl mx-auto px-4 py-8"><CoachAssignments /></section>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-surface-darker text-neutral-100">

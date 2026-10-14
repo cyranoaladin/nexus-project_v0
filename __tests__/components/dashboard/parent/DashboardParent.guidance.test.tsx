@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 
 jest.mock('next-auth/react', () => {
   const session = {
-    data: { user: { role: 'PARENT', firstName: 'Parent', lastName: 'Test' } },
+    data: { user: { id: 'parent-guidance-v1', role: 'PARENT', authority: 'V1', firstName: 'Parent', lastName: 'Test' } },
     status: 'authenticated',
   };
   return {
@@ -17,7 +17,7 @@ jest.mock('next-auth/react', () => {
 
 jest.mock('next/navigation', () => {
   const router = { push: jest.fn() };
-  return { useRouter: () => router };
+  return { useRouter: () => router, useSearchParams: () => new URLSearchParams('surface=v1') };
 });
 
 jest.mock('@/components/dashboard/BilanGratuitBanner', () => ({
@@ -35,19 +35,21 @@ jest.mock('@/app/dashboard/parent/add-child-dialog', () => ({
   ),
 }));
 
+jest.mock('@/hooks/use-core-membership', () => ({ useCoreMembership: () => ({ state: 'UNAVAILABLE', retry: jest.fn() }) }));
+
 import DashboardParent from '@/app/dashboard/parent/page';
 
 describe('DashboardParent — guidage après ajout', () => {
   it('cannot display a late previous-household response after recovery changes the session owner', async () => {
     let completePrevious!: (value: unknown) => void;
-    (useSession as jest.Mock).mockReturnValue({ data: { user: { id: 'parent-a', role: 'PARENT' } }, status: 'authenticated' });
+    (useSession as jest.Mock).mockReturnValue({ data: { user: { id: 'parent-a', role: 'PARENT', authority: 'V1' } }, status: 'authenticated' });
     global.fetch = jest.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ children: [{ id: 'child-a', firstName: 'Synthetic child A' }] }) })
       .mockImplementationOnce(() => new Promise(resolve => { completePrevious = resolve; }))
       .mockResolvedValue({ ok: true, json: async () => ({ children: [{ id: 'child-b', firstName: 'Synthetic child B' }] }) });
     const view = render(<DashboardParent />);
     await screen.findByText('Synthetic child A');
     await userEvent.click(screen.getByRole('button', { name: 'Simuler l’ajout réussi' }));
-    (useSession as jest.Mock).mockReturnValue({ data: { user: { id: 'parent-b', role: 'PARENT' } }, status: 'authenticated' });
+    (useSession as jest.Mock).mockReturnValue({ data: { user: { id: 'parent-b', role: 'PARENT', authority: 'V1' } }, status: 'authenticated' });
     view.rerender(<DashboardParent />);
     await screen.findByText('Synthetic child B');
     await act(async () => completePrevious({ ok: true, json: async () => ({ children: [{ id: 'child-a', firstName: 'Synthetic child A' }] }) }));

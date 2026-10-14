@@ -3,6 +3,7 @@ import { getNavigationItems } from './navigation-config';
 import { NavigationItem } from './NavigationItem';
 import UserProfile from './UserProfile';
 import { LogoutButton } from './LogoutButton';
+import { CoreNavigationEntry } from './CoreNavigationEntry';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Sidebar({ user }: { user: Session['user'] }) {
@@ -28,6 +29,7 @@ export async function Sidebar({ user }: { user: Session['user'] }) {
           <UserProfile user={user} />
 
           <nav className="flex-1 px-4" aria-label="Navigation principale">
+            <div className="mb-4"><CoreNavigationEntry /></div>
             <ul className="space-y-1">
               {navigationItems.map((item) => (
                 <li key={item.href}>

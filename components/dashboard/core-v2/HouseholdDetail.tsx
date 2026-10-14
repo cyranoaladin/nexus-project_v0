@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -87,8 +87,85 @@ export function HouseholdDetail({ householdId, basePath }: { householdId: string
 
       <ParentsSection household={household} can={can} refresh={refresh} />
       <StudentsSection household={household} years={years} coaches={coaches} can={can} refresh={refresh} />
+      {can('INVITATION_SCOPE_MANAGE') && <InvitationAssignments householdId={household.id} />}
     </div>
   );
+}
+
+type InvitationAssignmentsModel = {
+  householdId: string;
+  assistants: Array<{ id: string; firstName: string | null; lastName: string | null; accountStatus: string }>;
+  years: Array<{ id: string; startYear: number; status: string }>;
+  grants: Array<{ staffUserId: string; academicYearId: string; revision: number; revokedAt: string | null }>;
+};
+function isInvitationAssignments(value: unknown, householdId: string): value is InvitationAssignmentsModel {
+  if (!value || typeof value !== 'object') return false;
+  const data = value as Record<string, unknown>;
+  const record = (item: unknown): item is Record<string, unknown> => !!item && typeof item === 'object';
+  const id = (item: unknown) => typeof item === 'string' && item.length > 0;
+  const nullableString = (item: unknown) => item === null || typeof item === 'string';
+  return data.householdId === householdId
+    && Array.isArray(data.assistants) && data.assistants.every(a => record(a) && id(a.id)
+      && nullableString(a.firstName) && nullableString(a.lastName)
+      && ['ACTIVE', 'PENDING_ACTIVATION', 'SUSPENDED', 'DISABLED'].includes(String(a.accountStatus)))
+    && Array.isArray(data.years) && data.years.every(y => record(y) && id(y.id)
+      && Number.isSafeInteger(y.startYear) && ['CURRENT', 'UPCOMING', 'CLOSED'].includes(String(y.status)))
+    && Array.isArray(data.grants) && data.grants.every(g => record(g) && id(g.staffUserId)
+      && id(g.academicYearId) && typeof g.revision === 'number' && Number.isSafeInteger(g.revision)
+      && g.revision >= 0 && nullableString(g.revokedAt));
+}
+function InvitationAssignments({ householdId }: { householdId: string }) {
+  const [data, setData] = useState<InvitationAssignmentsModel | null>(null);
+  const [failure, setFailure] = useState<ApiFail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const requestVersion = useRef(0);
+  const [staffUserId, setStaffUserId] = useState('');
+  const [academicYearId, setAcademicYearId] = useState('');
+  const refresh = useCallback(async () => {
+    const version = ++requestVersion.current;
+    setLoading(true);
+    const result = await v2<unknown>(`/staff/households/${householdId}/invitation-scopes`);
+    if (version !== requestVersion.current) return;
+    if (result.ok && isInvitationAssignments(result.data, householdId)) {
+      setData(result.data); setFailure(null);
+    } else {
+      setData(null);
+      setFailure(result.ok ? { ok: false, status: 502, code: 'INVALID_RESPONSE', message: 'Réponse des affectations invalide.' } : result);
+    }
+    setLoading(false);
+  }, [householdId]);
+  useEffect(() => { void refresh(); return () => { requestVersion.current += 1; }; }, [refresh]);
+  const action = useAction(refresh, refresh);
+  const selected = data?.grants.find(g => g.staffUserId === staffUserId && g.academicYearId === academicYearId);
+  const change = (staffId: string, yearId: string, revision: number, active: boolean) => action.run(
+    `${staffId}:${yearId}`, () => v2(`/staff/households/${householdId}/invitation-scopes`, {
+      method: 'PUT', json: { staffUserId: staffId, academicYearId: yearId, expectedRevision: revision, active },
+    }), active ? 'Affectation enregistrée.' : 'Affectation retirée.');
+  return <Card className="border-white/10 bg-surface-dark">
+    <CardHeader><h2 className="text-base font-semibold text-white">Affectations des assistantes</h2>
+      <p className="text-sm text-neutral-400">Autorisez une assistante à préparer les inscriptions et inviter les familles de ce foyer pour une année précise. Le retrait annule aussi les invitations encore en attente de remise.</p></CardHeader>
+    <CardContent className="space-y-4">
+      {(failure || action.failure) && <StatusMessage kind="error">{describeFailure((failure || action.failure)!)}</StatusMessage>}
+      {action.success && <StatusMessage kind="success">{action.success}</StatusMessage>}
+      {loading ? <p role="status">Chargement des affectations…</p> : data && <>
+        <ul className="space-y-2">{data.grants.filter(g => !g.revokedAt).map(g => <li key={`${g.staffUserId}:${g.academicYearId}`} className="flex flex-wrap items-center justify-between gap-2">
+          <span>{displayName(data.assistants.find(a => a.id === g.staffUserId) || { firstName: null, lastName: null })} · {data.years.find(y => y.id === g.academicYearId)?.startYear}–{(data.years.find(y => y.id === g.academicYearId)?.startYear ?? 0) + 1}
+            {(data.years.find(y => y.id === g.academicYearId)?.status === 'CLOSED' || data.assistants.find(a => a.id === g.staffUserId)?.accountStatus !== 'ACTIVE') && <span className="ml-2 text-sm text-neutral-400">Affectation inactive</span>}</span>
+          <Button size="sm" variant="outline" disabled={action.pending !== null} onClick={() => void change(g.staffUserId, g.academicYearId, g.revision, false)}>Retirer l’affectation</Button>
+        </li>)}</ul>
+        <form className="flex flex-wrap items-end gap-3" onSubmit={e => { e.preventDefault(); void change(staffUserId, academicYearId, selected?.revision ?? 0, true); }}>
+          <div><Label htmlFor="invitation-assistant">Assistante</Label><select id="invitation-assistant" required value={staffUserId} onChange={e => setStaffUserId(e.target.value)} className="block rounded border border-white/20 bg-surface-dark p-2 text-white">
+            <option value="">Choisir une assistante</option>{data.assistants.filter(a => a.accountStatus === 'ACTIVE').map(a => <option key={a.id} value={a.id}>{displayName(a)}</option>)}
+          </select></div>
+          <div><Label htmlFor="invitation-year">Année scolaire</Label><select id="invitation-year" required value={academicYearId} onChange={e => setAcademicYearId(e.target.value)} className="block rounded border border-white/20 bg-surface-dark p-2 text-white">
+            <option value="">Choisir une année</option>{data.years.filter(y => y.status !== 'CLOSED').map(y => <option key={y.id} value={y.id}>{y.startYear}–{y.startYear + 1}</option>)}
+          </select></div>
+          <Button type="submit" disabled={!staffUserId || !academicYearId || action.pending !== null || !!selected && !selected.revokedAt}>Affecter</Button>
+        </form>
+      </>}
+      <Button variant="outline" size="sm" disabled={loading || action.pending !== null} onClick={() => void refresh()}>Actualiser les affectations</Button>
+    </CardContent>
+  </Card>;
 }
 
 function ParentsSection({ household, can, refresh }: { household: HouseholdDetailModel; can: (c: string) => boolean; refresh: () => Promise<void> }) {
@@ -187,7 +264,7 @@ function AddParentDialog({ householdId, can, onDone }: { householdId: string; ca
               Nouveau parent
             </Button>
           )}
-          {can('PARENT_ATTACH') && (
+          {can('PARENT_ATTACH') && can('STAFF_ACCOUNT_CREATE') && (
             <Button type="button" role="radio" aria-checked={mode === 'existing'} variant={mode === 'existing' ? 'default' : 'outline'} size="sm" onClick={() => setMode('existing')}>
               Parent existant
             </Button>

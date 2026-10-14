@@ -34,7 +34,8 @@ export function AccountActions({ user, can, onChanged }: { user: PublicUser; can
         {user.activatedAt && <span> · activé le {user.activatedAt.slice(0, 10)}</span>}
       </p>
       <div className="flex flex-wrap gap-2">
-        {can('ACCOUNT_INVITE') && user.accountStatus === 'PENDING_ACTIVATION' && (
+        {can('ACCOUNT_INVITE') && user.role !== 'ADMIN' && user.accountStatus === 'PENDING_ACTIVATION'
+          && (user.role === 'PARENT' || user.role === 'ELEVE' || can('STAFF_ACCOUNT_CREATE')) && (
           <>
             <Button type="button" size="sm" disabled={action.pending !== null} onClick={() => void action.run('invite', () => post('invite'), 'Invitation mise en file d’envoi.')}>
               Inviter
@@ -67,6 +68,10 @@ export function AccountActions({ user, can, onChanged }: { user: PublicUser; can
           </Button>
         )}
       </div>
+      {can('ACCOUNT_INVITE') && (user.role === 'PARENT' || user.role === 'ELEVE')
+        && user.accountStatus === 'PENDING_ACTIVATION' && (
+          <p className="text-xs text-neutral-400">L’invitation nécessite un foyer vérifié, une inscription annuelle active et, pour l’assistante, une affectation à ce foyer et à cette année scolaire.</p>
+        )}
       {action.failure && (
         <StatusMessage kind="error">
           {describeFailure(action.failure)}

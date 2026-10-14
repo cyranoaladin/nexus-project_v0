@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useVerifiedSession } from '@/hooks/use-verified-session';
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { useCallback,useEffect,useRef,useState } from "react";
+import { Suspense } from 'react';
+import { CoreRoleHome } from '@/components/dashboard/core-v2/CoreRoleHome';
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,7 +26,7 @@ interface ParentDashboardData {
 
 export default function DashboardParent() {
   const verifiedSession = useVerifiedSession('PARENT');
-  return <ParentDashboardContent verifiedSession={verifiedSession} />;
+  return <Suspense fallback={<p role="status">Chargement…</p>}><CoreRoleHome role="PARENT" legacy={<ParentDashboardContent verifiedSession={verifiedSession} />}><ParentHousehold /></CoreRoleHome></Suspense>;
 }
 
 function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnType<typeof useVerifiedSession> }) {
@@ -68,23 +70,8 @@ function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnTy
   useEffect(() => {
     if (status !== 'authenticated' || session?.user.role !== 'PARENT') return
 
-    // A Core v2 identity has no Core v1 parent profile: its household is read
-    // from Core v2 (§AH), never through the Core v1 dashboard API.
-    if (session.user.authority === 'CORE_V2') {
-      setLoading(false)
-      return
-    }
-
     void refreshDashboardData()
   }, [session, status, refreshDashboardData])
-
-  if (status !== "loading" && session?.user.authority === 'CORE_V2') {
-    return (
-      <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 lg:p-6">
-        <ParentHousehold />
-      </div>
-    )
-  }
 
   if (status !== 'authenticated' || session?.user.role !== 'PARENT' || loading) {
     return (
