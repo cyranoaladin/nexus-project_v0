@@ -175,6 +175,16 @@ export function isAdminPromotionRoleProof(role: unknown, fromRole: unknown): boo
   return role === 'ADMIN' && (fromRole === 'ASSISTANTE' || fromRole === 'COACH');
 }
 
+/** Core ADMIN presenting the pre-promotion V1 role; only a matching attested receipt may confirm it. */
+export function actorClaimsPromotedAdminV1Role(subject: { readonly role: UserRole }, actor: Actor): boolean {
+  return !subjectMatchesActorRole(subject, actor) && isAdminPromotionRoleProof(actor.role, subject.role);
+}
+
+/** A promoted ADMIN keeps its V1 role: the receipt's `fromRole` must be exactly that V1 role. */
+export function promotionProofMatchesV1Role(role: unknown, fromRole: unknown, v1Role: unknown): boolean {
+  return isAdminPromotionRoleProof(role, fromRole) && fromRole === v1Role;
+}
+
 export function capabilitiesForRole(role: UserRole): readonly Capability[] {
   return CAPABILITIES.filter((c) => roleHasCapability(role, c));
 }

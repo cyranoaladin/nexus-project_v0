@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { ForbiddenError, ConflictError } from '../errors';
-import { assertCapability, isAdminPromotionRoleProof, subjectHasRole, subjectMatchesActorRole, type Actor } from '../rbac';
+import { actorClaimsPromotedAdminV1Role, assertCapability, promotionProofMatchesV1Role, subjectHasRole, subjectMatchesActorRole, type Actor } from '../rbac';
 import { appendAuditEvent } from '../audit';
 import { type ServiceContext, type Tx } from '../services/context';
 import { canonicalBootstrapJson } from './bootstrap-manifest';
@@ -40,7 +40,7 @@ async function assertAttestedPromotion(tx: Tx, userId: string, v1Role: string): 
     select: { metadata: true }, take: 2 });
   const metadata = receipts[0]?.metadata as Record<string, unknown> | null | undefined;
   if (receipts.length !== 1 || metadata?.targetId !== userId || metadata.operation !== 'CORE_ADMIN_PROMOTION'
-    || !isAdminPromotionRoleProof(metadata.role, metadata.fromRole) || metadata.fromRole !== v1Role) unavailable();
+    || !promotionProofMatchesV1Role(metadata.role, metadata.fromRole, v1Role)) unavailable();
 }
 
 /** Do not replace the original HTTP cookie version with the current DB version. */
@@ -48,8 +48,7 @@ export async function invitationRequestAuthority(tx: Tx, ctx: ServiceContext): P
   'expectedIssuerVersion' | 'expectedIssuerRole' | 'expectedSessionExpiresAt'>> {
   const claims = ctx.v1RequestAuthority;
   if (claims === undefined) return {}; // trusted CLI/service invocation
-  const promotedAdmin = !!claims && !subjectMatchesActorRole(claims, ctx.actor)
-    && isAdminPromotionRoleProof(ctx.actor.role, claims.role);
+  const promotedAdmin = !!claims && actorClaimsPromotedAdminV1Role(claims, ctx.actor);
   if (!claims || claims.userId !== ctx.actor.userId || (!subjectMatchesActorRole(claims, ctx.actor) && !promotedAdmin)
     || !Number.isSafeInteger(claims.sessionVersion) || claims.sessionVersion < 0
     || !Number.isFinite(claims.expiresAt) || claims.expiresAt <= Date.now()) unavailable();
