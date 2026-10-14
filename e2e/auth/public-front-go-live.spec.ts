@@ -16,7 +16,7 @@ const PUBLIC_PAGES: PublicPageCase[] = [
   { url: '/plateforme-aria', h1: /aria/i, cta: /demander un bilan|voir les offres/i },
   { url: '/accompagnement-scolaire', h1: /accompagnement scolaire|progresser avec méthode|trouver un cadre adapté au besoin réel/i, cta: /demander un bilan gratuit|whatsapp|voir les offres/i },
   { url: '/contact', h1: /une question claire|contact/i, cta: /envoyer ma demande|demander un bilan|whatsapp/i },
-  { url: '/notre-centre', h1: /mutuelleville|centre d\'accompagnement/i, cta: /contacter l\'équipe|whatsapp/i },
+  { url: '/notre-centre', h1: /manar iii|centre d\'accompagnement/i, cta: /contacter l\'équipe|whatsapp/i },
 ];
 
 const VIEWPORTS = [
@@ -377,7 +377,8 @@ test.describe('Public front go-live smoke', () => {
     await page.goto('/contact', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('main').getByText(/siège social administratif/i).first()).toBeVisible();
     await expect(page.getByRole('main').getByText(/centre d\'accompagnement pédagogique/i).first()).toBeVisible();
-    await expect(page.getByRole('main').getByText(/mutuelleville, tunis/i).first()).toBeVisible();
+    // Le menu mobile replié reprend aussi l’adresse : on vise l’occurrence visible.
+    await expect(page.getByRole('main').getByText(/17 rue ali zlitni, manar iii, tunis/i).filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByRole('main').getByText(/immeuble venus.*centre urbain nord/i).first()).toBeVisible();
     await expect(page.getByRole('link', { name: /whatsapp/i }).first()).toHaveAttribute('href', /wa\.me\/21699192829/);
     await expect(page.getByRole('link', { name: /appeler/i }).first()).toHaveAttribute('href', 'tel:+21699192829');

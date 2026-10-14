@@ -6,7 +6,6 @@ type Category =
   | 'all'
   | 'annual'
   | 'libre'
-  | 'plateforme'
   | 'intensifs'
   | 'ponctuel'
   | 'coaching'

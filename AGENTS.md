@@ -45,11 +45,11 @@ Tu dois refuser implicitement les corrections superficielles qui masquent une de
 Ne jamais confondre :
 
 - **Siège social administratif** : Centre Urbain Nord, Tunis.
-- **Centre d’accompagnement pédagogique** : Mutuelleville, Tunis.
+- **Centre d’accompagnement pédagogique** : 17 rue Ali Zlitni, Manar III, Tunis (décision du 13/10/2026 ; l'ancienne mention « Mutuelleville » est retirée).
 
 Règle d’affichage :
 
-- Les pages commerciales et pédagogiques doivent mettre en avant **Mutuelleville** pour les cours, stages, rendez-vous pédagogiques et accompagnement en présentiel.
+- Les pages commerciales et pédagogiques doivent mettre en avant **le centre de Manar III** (via `LEGAL.addresses.pedagogique`) pour les cours, stages, rendez-vous pédagogiques et accompagnement en présentiel.
 - Les mentions légales, documents administratifs et factures peuvent mentionner le **Centre Urbain Nord** comme siège social.
 - La page contact doit afficher les deux blocs distinctement : “Siège social administratif” et “Centre d’accompagnement pédagogique”.
 
@@ -277,7 +277,8 @@ Doit afficher :
 
 - Catalogue 2026/2027.
 - Tarifs en TND.
-- Groupes de 5 maximum.
+- Groupes de 5 maximum pour les offres scolarisées.
+- Parcours candidats libres session 2027 : groupes de 12 maximum, ouverture à 7 (modèle économique distinct, grille v12, décisions D5 et D8 du dossier GO-LIVE ; source : bloc `candidats_libres_2027` de `data/pricing.canonical.json`, lu via `lib/pricing.ts`).
 - Seuil d’ouverture.
 - Acompte et échéancier si applicable.
 - CTA pour être conseillé.
@@ -351,7 +352,7 @@ Objectif : contact clair et exact.
 
 Règles :
 
-- Bloc “Centre d’accompagnement pédagogique” = Mutuelleville.
+- Bloc “Centre d’accompagnement pédagogique” = 17 rue Ali Zlitni, Manar III, Tunis.
 - Bloc “Siège social administratif” = Centre Urbain Nord.
 - Google Maps doit correspondre au bon bloc affiché.
 - Les rendez-vous pédagogiques doivent être présentés “sur confirmation”.

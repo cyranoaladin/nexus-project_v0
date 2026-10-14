@@ -11,7 +11,7 @@ interface FloatingNavProps {
 }
 
 const navItems = [
-  { href: '/offres#section-plateforme', icon: Brain, label: 'ARIA', color: 'from-blue-600 to-cyan-500' },
+  { href: '/plateforme-aria', icon: Brain, label: 'ARIA', color: 'from-blue-600 to-cyan-500' },
   { href: '/offres#section-intensifs', icon: Rocket, label: 'Stages', color: 'from-green-600 to-emerald-500' },
   { href: '/offres#section-annual', icon: Crown, label: 'Parcours', color: 'from-blue-700 to-slate-700' },
 ];

@@ -67,13 +67,16 @@ describe('Pré-rentrée 2026 campaign source', () => {
     expect(campaign.rooms).toEqual(['salle-1', 'salle-2', 'salle-3']);
   });
 
-  it('uses the canonical pedagogical address in the campaign source', () => {
+  it('conserve le lieu historique du stage de pré-rentrée (août 2026)', () => {
+    // Le stage s'est tenu à Mutuelleville, avant le déménagement du centre
+    // pédagogique au 17 rue Ali Zlitni, Manar III (13/10/2026). Campagne close :
+    // son registre reste tel quel, il ne suit pas LEGAL.addresses.pedagogique.
     const { venue } = getPreRentreeCampaign();
 
     expect(venue).toEqual({
-      name: `${LEGAL.entity.tradeName} — ${LEGAL.addresses.pedagogique.neighborhood}`,
-      neighborhood: LEGAL.addresses.pedagogique.neighborhood,
-      city: LEGAL.addresses.pedagogique.city,
+      name: `${LEGAL.entity.tradeName} — Mutuelleville`,
+      neighborhood: 'Mutuelleville',
+      city: 'Tunis',
     });
   });
 

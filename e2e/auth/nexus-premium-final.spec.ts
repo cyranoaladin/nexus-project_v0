@@ -7,7 +7,7 @@ test.describe('Nexus premium final — contenu et parcours publics', () => {
 
     for (const text of [
       'Trouver ma formule',
-      'Groupes de 5 max',
+      'Groupes de 5 (scolarisés) · 12 (candidats libres)',
       'Enseignants expérimentés',
       'Cellule Cyclades',
       'Repères tarifaires',

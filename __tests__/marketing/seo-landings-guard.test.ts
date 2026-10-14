@@ -11,6 +11,7 @@ import GrandOralPage from '@/app/grand-oral/page';
 import PreparationBacFrancaisTunisPage from '@/app/preparation-bac-francais-tunis/page';
 import ReussirEafPage from '@/app/reussir-eaf/page';
 import { getAllOffers, getAnnualOffer, getPack, getPonctuelOffer } from '@/lib/pricing';
+import { getParcoursCandidatLibre, type ParcoursCandidatLibreId } from '@/lib/candidats-libres-2027';
 
 const usePathnameMock = jest.fn();
 
@@ -97,8 +98,19 @@ function hrefs(container: HTMLElement): string[] {
 function resolvesOfferRef(ref: LandingContent['offerRefs'][number]): boolean {
   if (ref.type === 'annual') return Boolean(getAnnualOffer(ref.id));
   if (ref.type === 'ponctuel') return Boolean(getPonctuelOffer(ref.id));
+  if (ref.type === 'candidat-libre') return Boolean(getParcoursCandidatLibre(ref.id as ParcoursCandidatLibreId));
   return Boolean(getPack(ref.id));
 }
+
+/** Offres candidat individuel retirées du public (grille 2026-2027, décision D11). */
+const OFFRES_LIBRES_RETIREES = [
+  'libre-pilotage',
+  'libre-sur-mesure',
+  'premiere-libre-cap-anticipees',
+  'premiere-libre-renforcee',
+  'terminale-libre-focus-bac',
+  'terminale-libre-integrale',
+];
 
 describe('SEO landings T1.1 guard', () => {
   beforeEach(() => {
@@ -184,6 +196,18 @@ describe('SEO landings T1.1 guard', () => {
     for (const ref of landing.offerRefs) {
       expect({ path, ref, resolves: resolvesOfferRef(ref) }).toMatchObject({ resolves: true });
     }
+  });
+
+  test.each(LANDINGS)('$path ne met plus en avant les anciennes offres candidat libre', ({ path }) => {
+    const ids = seoLandings[path].offerRefs.map((ref) => ref.id);
+    expect(ids.filter((id) => OFFRES_LIBRES_RETIREES.includes(id))).toEqual([]);
+  });
+
+  test('le guide candidat libre renvoie ses cartes vers la page session 2027', () => {
+    const landing = seoLandings['/candidat-libre-bac-francais'];
+    expect(landing.offerRefs.map((ref) => ref.type)).toEqual(['candidat-libre', 'candidat-libre', 'candidat-libre']);
+    const { container } = render(React.createElement(LANDINGS.find((l) => l.path === '/candidat-libre-bac-francais')!.Page));
+    expect(hrefs(container)).toEqual(expect.arrayContaining(['/bac-candidat-libre#premiere', '/bac-candidat-libre#terminale', '/bac-candidat-libre#bac-en-1-an']));
   });
 
   test('landing service claims map to canonical included entries or pack services', () => {

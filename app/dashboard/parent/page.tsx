@@ -1,4 +1,5 @@
 "use client";
+import { LEGAL } from '@/lib/legal';
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle,CreditCard,Loader2,LogOut,MessageCircle,Users } from "lucide-react";
 import { useCanonicalSignOut } from '@/components/auth/SessionRecoveryProvider';
@@ -236,8 +237,8 @@ function ParentDashboardContent({ verifiedSession }: { verifiedSession: ReturnTy
                       <MessageCircle className="w-8 h-8 text-brand-accent mb-4" />
                       <h3 className="text-lg font-bold text-white mb-2">Une question sur le suivi ?</h3>
                       <p className="text-sm text-neutral-300 mb-4">
-                        Un conseiller vous répond directement, ou vous pouvez passer au centre à
-                        Mutuelleville.
+                        Un conseiller vous répond directement, ou vous pouvez passer au centre,
+                        {LEGAL.addresses.pedagogique.full}.
                       </p>
                       <Button asChild className="w-full bg-brand-accent text-surface-darker">
                         <a

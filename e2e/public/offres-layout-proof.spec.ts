@@ -88,18 +88,15 @@ test('sections alternate bg-lux-paper and bg-lux-white', async ({ browser }) => 
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(2500);
 
-  // Mega 1: annual=white, libre=paper, plateforme=white
+  // Mega 1: annual=white, libre=paper (plateforme ARIA retirée, décision D11)
   const annual = page.locator('[data-testid="section-annual"]');
   const libre = page.locator('[data-testid="section-libre"]');
-  const plateforme = page.locator('[data-testid="section-plateforme"]');
 
   const annualBg = await annual.evaluate((el) => getComputedStyle(el).backgroundColor);
   const libreBg = await libre.evaluate((el) => getComputedStyle(el).backgroundColor);
-  const platformeBg = await plateforme.evaluate((el) => getComputedStyle(el).backgroundColor);
 
   // They should alternate (not all the same)
   expect(annualBg, 'annual != libre bg').not.toBe(libreBg);
-  expect(libreBg, 'libre != plateforme bg').not.toBe(platformeBg);
 
   // Mega 2: intensifs=white, ponctuel=paper
   const intensifs = page.locator('[data-testid="section-intensifs"]');

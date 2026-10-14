@@ -1,4 +1,5 @@
 "use client";
+import { LEGAL } from '@/lib/legal';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +46,7 @@ export function AnnualParcoursCard({ childFirstName }: AnnualParcoursCardProps) 
             </span>
             <span>
               <strong className="text-white">On échange</strong> — sur WhatsApp ou au centre, à
-              Mutuelleville. Sans engagement.
+              {LEGAL.addresses.pedagogique.neighborhood}. Sans engagement.
             </span>
           </li>
           <li className="flex items-start gap-3">

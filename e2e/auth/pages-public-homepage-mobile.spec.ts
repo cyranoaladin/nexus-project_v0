@@ -67,7 +67,7 @@ test.describe('Homepage Mobile (390x844) - Landing redesign luxe', () => {
 
     await expect(heroSection.getByText('Cellule Cyclades')).toBeVisible();
     await expect(heroSection.getByText(/bacs blancs sur grilles officielles/i)).toBeVisible();
-    await expect(heroSection.getByText(/Groupes de 5 max/i)).toBeVisible();
+    await expect(heroSection.getByText(/Groupes de 5 \(scolarisés\) · 12 \(candidats libres\)/i)).toBeVisible();
   });
 
   test('sections principales de conversion sont presentes', async ({ page }) => {

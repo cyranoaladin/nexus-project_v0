@@ -388,6 +388,14 @@ export function getCampaign(): Campaign {
   return data.campaign;
 }
 
+/**
+ * Bloc `candidats_libres_2027` (session 2027, groupes de 12) : modèle distinct des offres
+ * annuelles scolarisées. Typé et exploité par lib/candidats-libres-2027.ts.
+ */
+export function getCandidatsLibres2027Source(): unknown {
+  return (data as unknown as { candidats_libres_2027: unknown }).candidats_libres_2027;
+}
+
 export function getRules(): Rules {
   return data.rules;
 }

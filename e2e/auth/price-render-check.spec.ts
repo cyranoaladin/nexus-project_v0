@@ -10,7 +10,11 @@ import * as path from 'path';
 const canonicalPath = path.join(__dirname, '../../data/pricing.canonical.json');
 const data = JSON.parse(fs.readFileSync(canonicalPath, 'utf8'));
 
-const pricedOffers = data.offers.filter((o: any) => o.price_annual != null);
+// Les anciennes offres candidat libre (track « libre ») ne sont plus publiées : /offres affiche à leur
+// place les parcours de la session 2027 (bloc candidats_libres_2027), vérifiés dans le test suivant.
+// La plateforme ARIA n'est plus vendue seule sur /offres (décision D11).
+const pricedOffers = data.offers.filter((o: any) => o.price_annual != null && o.track !== 'libre' && o.track !== 'plateforme');
+const parcoursCandidatsLibres = data.candidats_libres_2027.parcours;
 // /stages renders stage_calendar entries, each with a format price from stage_formats
 // The calendar entries reference format_id; the rendered price comes from stage_formats
 const calendarFormatIds: string[] = [...new Set(data.stage_calendar.map((c: any) => c.format_id))] as string[];
@@ -41,6 +45,15 @@ test.describe('Price render check — DOM vs canonical', () => {
       console.log('Missing prices on /offres:', missing);
     }
     expect(found).toBe(pricedOffers.length);
+  });
+
+  test('/offres renders the 2026-2027 candidat libre annual prices', async ({ page }) => {
+    await page.goto('/offres', { waitUntil: 'domcontentloaded' });
+    const section = await page.getByTestId('section-libre').innerText();
+    for (const p of parcoursCandidatsLibres) {
+      const prixFr = Number(p.prix_annuel).toLocaleString('fr-FR').replace(/\s/g, ' ');
+      expect(section.replace(/\s/g, ' '), `${p.id}: ${p.prix_annuel}`).toContain(prixFr);
+    }
   });
 
   test('/offres shows group <= 5 mention', async ({ page }) => {
@@ -107,7 +120,6 @@ test.describe('Price render check — DOM vs canonical', () => {
       { label: 'Spécialité simple', value: rep.terminaleSimpleMois },
       { label: 'Double Sécurité', value: rep.premiereDuoMois },
       { label: 'Stage Intensif', value: rep.stagesBase },
-      { label: 'Plateforme ARIA', value: rep.plateformeAn },
     ];
 
     for (const { label, value } of pairs) {

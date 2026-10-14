@@ -68,8 +68,10 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
   });
 
   test('conserve les neuf sections institutionnelles sans promotion expirée', async ({ page }) => {
+    // + 1 section « À la une » tant que la campagne candidats libres est ouverte (retirée le 20/11, 18 h).
+    const aLaUne = await page.locator('section[aria-labelledby="a-la-une-titre"]').count();
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(9);
+    await expect(sections).toHaveCount(9 + aLaUne);
     await expect(page.getByRole('region', { name: 'Campagne Pré-rentrée 2026' }))
       .toHaveCount(0);
   });
@@ -77,15 +79,17 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
   test('2 WA links at load, 3 visible after scroll (+ bubble), MobileStickyBar in DOM but hidden', async ({ page }) => {
     // At load (desktop): hero WA + final CTA WA = 2 in DOM
     // FloatingAdvisorBubble hidden (hero visible), MobileStickyBar returns null
+    // + 1 lien WhatsApp dans le bloc « À la une » tant que la campagne candidats libres est ouverte.
+    const aLaUne = await page.locator('section[aria-labelledby="a-la-une-titre"]').count();
     const waLinks = page.locator('a[href*="wa.me"]');
-    await expect(waLinks).toHaveCount(2);
+    await expect(waLinks).toHaveCount(2 + aLaUne);
 
     // Scroll past hero → bubble + MobileStickyBar render (4 DOM, 3 visible)
     await page.evaluate(() => window.scrollBy(0, 1200));
     await page.waitForTimeout(800);
 
     // 4 in DOM: hero + CTA + bubble + MobileStickyBar(md:hidden)
-    await expect(waLinks).toHaveCount(4);
+    await expect(waLinks).toHaveCount(4 + aLaUne);
 
     // Only 3 visible (MobileStickyBar hidden at desktop)
     const visibleCount = await waLinks.evaluateAll((els) =>
@@ -94,7 +98,7 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
         return el instanceof HTMLElement && cs.display !== 'none' && el.offsetWidth > 0;
       }).length
     );
-    expect(visibleCount).toBe(3);
+    expect(visibleCount).toBe(3 + aLaUne);
   });
 
   test('tous les liens footer internes ne retournent pas 404', async ({ page }) => {

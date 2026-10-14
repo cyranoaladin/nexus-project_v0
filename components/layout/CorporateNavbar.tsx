@@ -193,6 +193,7 @@ export function CorporateNavbar() {
       title: 'Offres & tarifs',
       items: [
         { label: 'Offres & tarifs', href: '/offres', desc: 'Catalogue 2026/2027', isPage: true },
+        { label: 'Bac en candidat libre', href: '/bac-candidat-libre', desc: 'Session 2027 · Première, Terminale, Bac en 1 an', isPage: true },
         { label: 'Trouver ma formule', href: '/recommandation', desc: 'Diagnostic en 3 questions', isPage: true },
         { label: 'Bilan gratuit', href: '/bilan-gratuit', desc: 'Évaluation personnalisée', isPage: true },
       ]
@@ -219,7 +220,7 @@ export function CorporateNavbar() {
       title: 'Contact',
       items: [
         { label: 'Contact', href: '/contact', desc: 'Nous joindre', isPage: true },
-        { label: 'Notre Centre', href: '/notre-centre', desc: 'Mutuelleville, Tunis', isPage: true },
+        { label: 'Notre Centre', href: '/notre-centre', desc: `${LEGAL.addresses.pedagogique.neighborhood}, Tunis`, isPage: true },
       ]
     },
   ];
@@ -577,7 +578,7 @@ export function CorporateNavbar() {
                 <span>{LEGAL.contact.phone}</span>
               </div>
               <div>{LEGAL.contact.email}</div>
-              <div>Centre Urbain Nord, {LEGAL.addresses.siege.city}</div>
+              <div>{LEGAL.addresses.pedagogique.full}</div>
             </div>
 
           </div>

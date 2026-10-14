@@ -1,9 +1,12 @@
 'use client';
 
 import { GraduationCap, Users, BookOpen, Shield } from 'lucide-react';
-import { getRules } from '@/lib/pricing-client';
+import { getGroupeCandidatsLibres, getRules } from '@/lib/pricing-client';
 
-function getPillars(rules: { group_max: number; group_min_open: Record<string, number> }) {
+function getPillars(
+  rules: { group_max: number; group_min_open: Record<string, number> },
+  libres: { max: number; ouverture_min: number },
+) {
   return [
   {
     icon: GraduationCap,
@@ -13,9 +16,9 @@ function getPillars(rules: { group_max: number; group_min_open: Record<string, n
   },
   {
     icon: Users,
-    title: `Groupes de ${rules.group_max} maximum`,
+    title: 'Groupes réduits',
     description:
-      `Attention individualisée renforcée. Groupe ouvert dès ${rules.group_min_open.lycee} inscrits au lycée et ${rules.group_min_open.college} au Brevet.`,
+      `Élèves scolarisés\u00a0: ${rules.group_max} au plus, groupe ouvert dès ${rules.group_min_open.lycee} inscrits au lycée et ${rules.group_min_open.college} au Brevet. Candidats libres\u00a0: ${libres.max} au plus, groupe ouvert à ${libres.ouverture_min} inscrits.`,
   },
   {
     icon: BookOpen,
@@ -33,7 +36,7 @@ function getPillars(rules: { group_max: number; group_min_open: Record<string, n
 }
 
 export function MethodSection() {
-  const pillars = getPillars(getRules());
+  const pillars = getPillars(getRules(), getGroupeCandidatsLibres());
 
   return (
     <section className="py-20 px-4 md:px-6 bg-lux-ink">
