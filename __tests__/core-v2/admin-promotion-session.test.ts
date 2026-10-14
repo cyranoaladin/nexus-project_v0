@@ -7,6 +7,8 @@ import { prisma } from '@/lib/prisma';
 import { promoteCoreAdministrator } from '@/lib/core-v2/services/admin-promotion';
 import { disconnectCoreV2AdminAuthorizer, requireCoreV2AdminAuthorizerClient } from '@/lib/core-v2/client';
 import { setupV1Fixture } from './helpers/v1-provisioning-fixture';
+import { getInvitationScopeGrants } from '@/lib/core-v2/accounts/invitation-scope';
+import { createServiceContext } from '@/lib/core-v2/services/context';
 import { installTestAdminPromotionRoles } from './helpers/admin-promotion';
 jest.mock('@/lib/deployment/release-identity', () => ({ readRunningReleaseSha: async () => 'a'.repeat(40) }));
 const f = setupV1Fixture();
@@ -125,4 +127,24 @@ test.each(['missing-identity', 'suspended-core', 'suspended-v1'] as const)('%s t
   if (fault === 'suspended-v1') await prisma.user.update({ where: { id: targetId }, data: { disabledAt: new Date() } });
   const before = await snapshot(); await expect(promote(randomUUID(), { targetId })).rejects.toThrow('Administrator promotion unavailable.');
   expect(await snapshot()).toEqual(before);
+});
+
+// P2-1 : un ADMIN promu garde son rôle V1 ; seule la preuve de promotion attestée réconcilie les deux rôles.
+async function promotedAdminView(claimedV1Role: 'ASSISTANTE' | 'COACH', userId = f.h.assistante.userId) {
+  const household = await f.h.client.household.create({ data: {} });
+  const v1 = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+  const ctx = createServiceContext({ userId, role: 'ADMIN' }, { v1RequestAuthority: {
+    userId, role: claimedV1Role, sessionVersion: v1.sessionVersion, expiresAt: Date.now() + 300_000 } });
+  return getInvitationScopeGrants(f.h.client, ctx, household.id);
+}
+test('a promoted ADMIN keeps its V1 role and still administers invitation scopes', async () => {
+  await promote();
+  await expect(promotedAdminView('ASSISTANTE')).resolves.toMatchObject({ grants: [] });
+});
+test('a V1 role other than the attested fromRole is refused', async () => {
+  await promote();
+  await expect(promotedAdminView('COACH')).rejects.toThrow('Invitation operation unavailable.');
+});
+test('an ADMIN without a promotion receipt cannot present a non-ADMIN V1 role', async () => {
+  await expect(promotedAdminView('ASSISTANTE', f.h.admin.userId)).rejects.toThrow('Invitation operation unavailable.');
 });

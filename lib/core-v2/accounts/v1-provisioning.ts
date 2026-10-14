@@ -134,7 +134,7 @@ export async function requestV1Provisioning(
       const scope = await assertInvitationScope(tx, ctx.actor, options.resend ? 'RESEND' : 'INVITE', { userId });
       const target = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
       lease = await acquireV1InvitationIdentity({ issuerId: scope.issuerId, targetId: userId,
-        recipient: target.email!, targetRole: scope.targetRole, ...invitationRequestAuthority(ctx) });
+        recipient: target.email!, targetRole: scope.targetRole, ...(await invitationRequestAuthority(tx, ctx)) });
       await options.onAuthorized?.();
       await lease.verify();
       const request = await recordProvisioning(tx, ctx, userId, options, scope, lease.issuerVersion);

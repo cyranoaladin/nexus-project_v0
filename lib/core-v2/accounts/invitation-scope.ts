@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { PrismaClient } from '@/core-v2/generated/client';
 import { ForbiddenError, ConflictError } from '../errors';
-import { assertCapability, subjectHasRole, subjectMatchesActorRole, type Actor } from '../rbac';
+import { assertCapability, isAdminPromotionRoleProof, subjectHasRole, subjectMatchesActorRole, type Actor } from '../rbac';
 import { appendAuditEvent } from '../audit';
 import { type ServiceContext, type Tx } from '../services/context';
 import { canonicalBootstrapJson } from './bootstrap-manifest';
@@ -31,14 +31,29 @@ export function invitationScopeFingerprint(scope: InvitationScope): string {
 }
 function unavailable(): never { throw new ForbiddenError(INVITATION_SCOPE_REFUSAL); }
 
+/**
+ * A promoted ADMIN keeps its V1 role (promotion never touches V1). The role gap is accepted only
+ * against the single attested receipt whose `fromRole` is exactly the V1 role presented.
+ */
+async function assertAttestedPromotion(tx: Tx, userId: string, v1Role: string): Promise<void> {
+  const receipts = await tx.auditEvent.findMany({ where: { action: 'account.admin_promoted', subjectType: 'User', subjectId: userId },
+    select: { metadata: true }, take: 2 });
+  const metadata = receipts[0]?.metadata as Record<string, unknown> | null | undefined;
+  if (receipts.length !== 1 || metadata?.targetId !== userId || metadata.operation !== 'CORE_ADMIN_PROMOTION'
+    || !isAdminPromotionRoleProof(metadata.role, metadata.fromRole) || metadata.fromRole !== v1Role) unavailable();
+}
+
 /** Do not replace the original HTTP cookie version with the current DB version. */
-export function invitationRequestAuthority(ctx: ServiceContext): Pick<V1InvitationIdentityContext,
-  'expectedIssuerVersion' | 'expectedIssuerRole' | 'expectedSessionExpiresAt'> {
+export async function invitationRequestAuthority(tx: Tx, ctx: ServiceContext): Promise<Pick<V1InvitationIdentityContext,
+  'expectedIssuerVersion' | 'expectedIssuerRole' | 'expectedSessionExpiresAt'>> {
   const claims = ctx.v1RequestAuthority;
   if (claims === undefined) return {}; // trusted CLI/service invocation
-  if (!claims || claims.userId !== ctx.actor.userId || !subjectMatchesActorRole(claims, ctx.actor)
+  const promotedAdmin = !!claims && !subjectMatchesActorRole(claims, ctx.actor)
+    && isAdminPromotionRoleProof(ctx.actor.role, claims.role);
+  if (!claims || claims.userId !== ctx.actor.userId || (!subjectMatchesActorRole(claims, ctx.actor) && !promotedAdmin)
     || !Number.isSafeInteger(claims.sessionVersion) || claims.sessionVersion < 0
     || !Number.isFinite(claims.expiresAt) || claims.expiresAt <= Date.now()) unavailable();
+  if (promotedAdmin) await assertAttestedPromotion(tx, claims.userId, claims.role);
   return { expectedIssuerVersion: claims.sessionVersion, expectedIssuerRole: claims.role,
     expectedSessionExpiresAt: claims.expiresAt };
 }
@@ -61,7 +76,7 @@ export async function withInvitationActor<T>(client: PrismaClient, ctx: ServiceC
     return await client.$transaction(async tx => {
       const issuer = await assertStoredInvitationActor(tx, ctx.actor);
       if (credentialAuthorityIsV1()) lease = await acquireV1InvitationIdentity({ issuerId: issuer.id,
-        ...invitationRequestAuthority(ctx) });
+        ...(await invitationRequestAuthority(tx, ctx)) });
       const result = await mutate(tx);
       await lease?.verify();
       return result;
