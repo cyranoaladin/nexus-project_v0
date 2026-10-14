@@ -13,6 +13,15 @@ export function fmtPrice(amount: number): string {
   return amount.toLocaleString('fr-FR');
 }
 
+/**
+ * Montant avec une espace insécable classique comme séparateur de milliers :
+ * l'espace fine (U+202F) de toLocaleString disparaît presque dans certaines
+ * polices (« 7600 » au lieu de « 7 600 »).
+ */
+export function fmtMontant(amount: number): string {
+  return fmtPrice(amount).replace(/\u202F/g, '\u00A0');
+}
+
 /** Format monthly display "X TND / mois" */
 export function fmtMonthly(amount: number): string {
   return `${fmtPrice(amount)}\u00A0TND\u00A0/\u00A0mois`;

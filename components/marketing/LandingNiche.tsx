@@ -5,6 +5,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
 import { ProcessSteps, ReassuranceChips } from '@/components/marketing/acadomia-inspired';
 import type { PreparationLink } from '@/content/marketing/preparation-links';
+import { getCandidatsLibres2027, getParcoursCandidatLibre, type ParcoursCandidatLibreId } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
 import {
   getAnnualOffer,
@@ -16,7 +17,8 @@ import {
 } from '@/lib/pricing';
 
 export type OfferRef = {
-  type: 'annual' | 'ponctuel' | 'pack';
+  /** `candidat-libre` : parcours de la session 2027 (bloc candidats_libres_2027), détaillés sur /bac-candidat-libre. */
+  type: 'annual' | 'ponctuel' | 'pack' | 'candidat-libre';
   id: string;
 };
 
@@ -37,6 +39,7 @@ type ResolvedOffer = {
   title: string;
   description: string;
   price: number | null;
+  href: string;
 };
 
 export type LandingNicheProps = {
@@ -50,6 +53,18 @@ export type LandingNicheProps = {
 };
 
 function resolveOffer(ref: OfferRef): ResolvedOffer | null {
+  if (ref.type === 'candidat-libre') {
+    const parcours = getParcoursCandidatLibre(ref.id as ParcoursCandidatLibreId);
+    if (!parcours) return null;
+    return {
+      id: parcours.id,
+      title: `Candidat libre — ${parcours.titre}`,
+      description: `${parcours.heures_cours}\u00a0h de cours en groupes de ${getCandidatsLibres2027().groupe.max} au plus · ${parcours.copies_corrigees} copies corrigées · ${parcours.bilans} bilans · session 2027`,
+      price: parcours.prix_annuel,
+      href: `/bac-candidat-libre#${parcours.id}`,
+    };
+  }
+
   if (ref.type === 'annual') {
     const offer: AnnualOffer | undefined = getAnnualOffer(ref.id);
     if (!offer) return null;
@@ -58,6 +73,7 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
       title: offer.title,
       description: offer.included.slice(0, 2).join(' · ') || offer.subjects,
       price: offer.price_annual,
+      href: `/offres#${offer.id}`,
     };
   }
 
@@ -69,6 +85,7 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
       title: offer.title,
       description: offer.description,
       price: offer.price_per_student,
+      href: `/offres#${offer.id}`,
     };
   }
 
@@ -79,6 +96,7 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
     title: pack.title,
     description: pack.public,
     price: pack.price,
+    href: `/offres#${pack.id}`,
   };
 }
 
@@ -111,7 +129,7 @@ export function LandingNiche({
       name: offer.title,
       price: offer.price ?? undefined,
       priceCurrency: 'TND',
-      url: `${LEGAL.web.url}/offres#${offer.id}`,
+      url: `${LEGAL.web.url}${offer.href}`,
     })),
   };
   const faqJsonLd = {
@@ -209,7 +227,7 @@ export function LandingNiche({
                   <p className="mt-4 font-mono text-sm font-semibold tabular-nums text-lux-ink">{fmtTND(offer.price)}</p>
                 ) : null}
                 <Link
-                  href={`/offres#${offer.id}`}
+                  href={offer.href}
                   className="mt-5 inline-flex min-h-[44px] items-center rounded-lg border border-lux-line px-4 py-2 text-sm font-semibold text-lux-ink"
                 >
                   Voir l’offre

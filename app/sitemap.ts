@@ -8,6 +8,13 @@ export const dynamic = 'force-dynamic';
 
 const BASE_URL = process.env.NEXTAUTH_URL || 'https://nexusreussite.academy';
 
+/**
+ * Date de dernière mise à jour éditoriale des pages statiques. À avancer lors
+ * d'une refonte de contenu : une date « maintenant » à chaque visite du robot
+ * ferait croire que tout change en permanence.
+ */
+const CONTENU_MIS_A_JOUR = new Date('2026-10-13T00:00:00+01:00');
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const preRentree = getPreRentreeReleaseGate().isPublicReady
@@ -18,121 +25,127 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const publicPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'weekly',
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/offres`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/bac-candidat-libre`,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/stages`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/bilan-gratuit`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/accompagnement-scolaire`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/famille`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/equipe`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${BASE_URL}/plateforme-aria`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${BASE_URL}/notre-centre`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/recommandation`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/grand-oral`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/reussir-eaf`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/candidat-libre-bac-francais`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/preparation-bac-francais-tunis`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${BASE_URL}/ressources`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'weekly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/programme/maths-1ere`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${BASE_URL}/mentions-legales`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/politique-confidentialite`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/conditions-generales`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
@@ -141,7 +154,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (preRentree?.publication.indexable) {
     publicPages.push({
       url: `${BASE_URL}${preRentree.canonicalPath}`,
-      lastModified: now,
+      lastModified: CONTENU_MIS_A_JOUR,
       changeFrequency: 'weekly',
       priority: 0.9,
     });

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
-import { getAllOffers, getEffectivePrice } from "@/lib/pricing";
+import { buildOrganisationJsonLd } from "@/lib/organisation-jsonld";
 import { OG_DEFAULT_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
@@ -88,31 +88,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const publicPrices = getAllOffers()
-    .map((offer) => getEffectivePrice(offer))
-    .filter((value): value is number => typeof value === 'number');
-
-  const lowPrice = publicPrices.length > 0 ? String(Math.min(...publicPrices)) : undefined;
-  const highPrice = publicPrices.length > 0 ? String(Math.max(...publicPrices)) : undefined;
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'EducationalOrganization',
-    name: 'Nexus Réussite',
-    alternateName: 'Nexus Digital Campus',
-    url: process.env.NEXTAUTH_URL || 'https://nexusreussite.academy',
-    description: 'Plateforme d’accompagnement éducatif combinant groupes réduits, méthode structurée, bilans individualisés et outils numériques complémentaires.',
-    areaServed: { '@type': 'Country', name: 'Tunisia' },
-    availableLanguage: ['fr'],
-    sameAs: [],
-    offers: lowPrice && highPrice ? {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'TND',
-      lowPrice,
-      highPrice,
-      offerCount: String(publicPrices.length),
-    } : undefined,
-  };
+  // Organisation, centre pédagogique et site (schema.org) : valeurs issues de LEGAL et de pricing.canonical.json.
+  const jsonLd = buildOrganisationJsonLd();
 
   return (
     <html lang="fr">

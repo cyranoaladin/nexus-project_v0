@@ -10,6 +10,7 @@ import {
   normalizePricingLevel,
 } from '@/lib/pricing';
 import type { RecommendationData } from '@/components/premium/recommendation-engine';
+import { recommandationsCandidatsLibres } from '@/lib/candidats-libres-2027';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { RecommandationClient } from './RecommandationClient';
 
@@ -60,6 +61,7 @@ function buildRecommendationData(): RecommendationData {
       payment: { full_at_booking: o.payment.full_at_booking, deposit: o.payment.deposit, solde: o.payment.solde },
       normalizedPublic: normalizePricingLevel(o.public),
     })),
+    candidatsLibres: recommandationsCandidatsLibres(),
     carte: { title: carte.title, price_annual: carte.price_annual, includes: carte.includes },
     whatsappUrl: buildWhatsAppUrl(),
   };

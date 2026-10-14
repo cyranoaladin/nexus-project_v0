@@ -176,6 +176,11 @@ const nextConfig = {
         permanent: false, // 307 — questionnaire is part of bilan-gratuit
       },
       {
+        source: '/devis-bac',
+        destination: '/bac-candidat-libre',
+        permanent: false, // 307 — constructeur de devis retiré du public (grille candidats libres 2026-2027)
+      },
+      {
         source: '/tarifs',
         destination: '/offres',
         permanent: false, // 307 — pricing page alias

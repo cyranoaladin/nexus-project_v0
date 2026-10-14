@@ -25,6 +25,8 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
+import type { ALaUneCandidatsLibres } from '@/lib/candidats-libres-2027';
+import { CandidatsLibresALaUne } from '@/components/marketing/CandidatsLibresALaUne';
 
 // ── Router par niveau (near hero) ──
 
@@ -33,7 +35,7 @@ const levelRoutes = [
   { label: 'Première', href: '/offres#section-annual', sublabel: 'EAF, contrôle continu, spécialités' },
   { label: 'Seconde', href: '/offres#section-annual', sublabel: 'Méthode, orientation, spécialités' },
   { label: 'Troisième', href: '/offres#section-annual', sublabel: 'Brevet, préparation lycée' },
-  { label: 'Candidat libre', href: '/offres#section-libre', sublabel: 'Cyclades, organisation, épreuves' },
+  { label: 'Candidat libre', href: '/bac-candidat-libre', sublabel: 'Session 2027, le soir et le week-end' },
 ];
 
 function LevelRouter() {
@@ -83,11 +85,6 @@ function PricingReperesSection() {
       sublabel: 'Toutes vacances',
       value: reperes.stagesBase,
     },
-    {
-      label: 'Plateforme ARIA',
-      sublabel: 'Autonomie · en ligne',
-      value: reperes.plateformeAn,
-    },
   ];
 
   return (
@@ -105,7 +102,7 @@ function PricingReperesSection() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           {anchors.map((anchor) => (
             <div
               key={anchor.label}
@@ -215,14 +212,20 @@ function getFaqItems(): FAQItem[] {
   {
     question: 'Proposez-vous un accompagnement pour les candidats individuels ?',
     answer:
-      'Oui. Nexus Réussite propose des parcours dédiés aux candidats individuels, couramment appelés candidats libres, construits selon leur niveau, leur carte d’épreuves et leur diagnostic. Selon la formule retenue, l’accompagnement peut associer le pilotage du parcours, le suivi des échéances, l’appui aux démarches Cyclades, des enseignements en petit groupe, la plateforme ARIA et des bilans réguliers. Nexus Réussite accompagne les démarches sans se substituer à l’inscription officielle auprès de l’autorité d’examen.',
+      'Oui. Pour la session 2027, Nexus Réussite propose trois parcours aux candidats individuels, couramment appelés candidats libres : Première (épreuves anticipées), Terminale, et Bac en 1 an pour les non-scolarisés. Les cours ont lieu le soir et le week-end au centre pédagogique, en petits groupes, avec des épreuves blanches corrigées, des bilans avec la famille et un appui aux démarches Cyclades. Nexus Réussite accompagne les démarches sans se substituer à l’inscription officielle auprès de l’autorité d’examen. Volumes, prix et dates : page « Bac en candidat libre ».',
   },
   ];
 }
 
 // ── Main ──
 
-export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpotlightDTO }) {
+export function HomePageClient({
+  campaign,
+  aLaUne,
+}: {
+  campaign?: PreRentreeHomepageSpotlightDTO;
+  aLaUne?: ALaUneCandidatsLibres | null;
+}) {
   const faqItems = getFaqItems();
 
   return (
@@ -231,8 +234,28 @@ export function HomePageClient({ campaign }: { campaign?: PreRentreeHomepageSpot
 
       {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
 
+      {/* Données structurées FAQ (mêmes questions que l’accordéon affiché plus bas) — JSON-LD statique construit par JSON.stringify sur des données du dépôt. */}
+      {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map((item) => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: { '@type': 'Answer', text: item.answer },
+            })),
+          }),
+        }}
+      />
+
       {/* 1. Hero (bg-lux-ink) — H1 SEO + slogan + CTA */}
       <HeroSection />
+
+      {/* 1 bis. À la une — campagne candidats libres de la session (coupée à la clôture des inscriptions) */}
+      {aLaUne && <CandidatsLibresALaUne aLaUne={aLaUne} />}
 
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />

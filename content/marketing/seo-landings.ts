@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { OfferRef, NicheSection, RelatedLink } from '@/components/marketing/LandingNiche';
 import { LEGAL } from '@/lib/legal';
+import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { getRules } from '@/lib/pricing';
 import { OG_DEFAULT_IMAGE } from '@/lib/seo';
 import { PREPARATION_LINKS, type PreparationLink } from './preparation-links';
@@ -42,6 +43,7 @@ function relatedLinksFor(path: PreparationLink['href']): RelatedLink[] {
 const pedagogicalAddress = LEGAL.addresses.pedagogique.full;
 const pedagogicalAddressNote = LEGAL.addresses.pedagogique.note;
 const groupMax = getRules().group_max;
+const candidatsLibres = getCandidatsLibres2027();
 
 export const seoLandings = {
   '/candidat-libre-bac-francais': {
@@ -98,19 +100,16 @@ export const seoLandings = {
       {
         heading: 'L’accompagnement Nexus Réussite',
         body: [
-          'L’objectif n’est pas de remplacer le travail personnel, mais de donner un cadre stable : diagnostic initial, choix de la modalité, priorisation des matières, planning, entraînements et bilans. Les parcours peuvent être en ligne, mixtes ou complétés par des stages selon le niveau, les spécialités, les contraintes familiales et le calendrier de l’élève.',
+          `Pour la session 2027, Nexus Réussite propose trois parcours en présentiel au centre pédagogique (${pedagogicalAddress})\u00a0: Première (épreuves anticipées), Terminale et Bac en 1 an pour les non-scolarisés. Les cours ont lieu le soir et le week-end, en groupes de ${candidatsLibres.groupe.max} au plus, avec un stage à chaque vacances\u00a0: un élève du lycée tunisien peut ainsi préparer le bac français sans quitter son lycée. Le détail des volumes, des prix et des dates figure sur la page du bac en candidat libre.`,
           'Les familles disposent d’un suivi parent clair, de corrections appuyées sur les attendus des épreuves, d’épreuves blanches selon la formule et d’un accès aux ressources numériques prévues au catalogue. Le bilan gratuit sert à vérifier le statut, la modalité, les spécialités et le format le plus cohérent avant toute inscription.',
         ],
       },
     ],
     relatedLinks: relatedLinksFor('/candidat-libre-bac-francais'),
     offerRefs: [
-      { type: 'annual', id: 'libre-pilotage' },
-      { type: 'annual', id: 'libre-sur-mesure' },
-      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
-      { type: 'annual', id: 'premiere-libre-renforcee' },
-      { type: 'annual', id: 'terminale-libre-focus-bac' },
-      { type: 'annual', id: 'terminale-libre-integrale' },
+      { type: 'candidat-libre', id: 'premiere' },
+      { type: 'candidat-libre', id: 'terminale' },
+      { type: 'candidat-libre', id: 'bac-en-1-an' },
     ],
     faq: [
       {
@@ -136,7 +135,7 @@ export const seoLandings = {
       {
         question: 'Peut-on préparer à distance depuis la Tunisie ?',
         answer:
-          'Oui, certaines formules sont en ligne ou mixtes. Le bilan gratuit permet de vérifier le format adapté à la situation familiale, au calendrier et aux spécialités choisies.',
+          `Les cours de la session 2027 ont lieu au centre, à ${LEGAL.addresses.pedagogique.neighborhood} (Tunis), le soir et le week-end. Les ateliers d’inscription Cyclades peuvent se suivre en ligne. Pour une famille éloignée, un échange sur WhatsApp permet de vérifier ce qui reste possible.`,
       },
     ],
   },
@@ -195,7 +194,7 @@ export const seoLandings = {
       { type: 'annual', id: '1re-double-secu' },
       { type: 'annual', id: 'term-duo' },
       { type: 'annual', id: 'term-excellence' },
-      { type: 'annual', id: 'terminale-libre-focus-bac' },
+      { type: 'candidat-libre', id: 'terminale' },
       { type: 'pack', id: 'pass-intensifs-term' },
     ],
     faq: [
@@ -283,7 +282,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'cap-eaf' },
       { type: 'annual', id: '1re-eaf' },
-      { type: 'annual', id: 'premiere-libre-cap-anticipees' },
+      { type: 'candidat-libre', id: 'premiere' },
       { type: 'pack', id: 'pass-cap-bac-1re' },
     ],
     faq: [
@@ -370,7 +369,7 @@ export const seoLandings = {
     offerRefs: [
       { type: 'ponctuel', id: 'studio-grand-oral' },
       { type: 'annual', id: 'term-duo' },
-      { type: 'annual', id: 'terminale-libre-focus-bac' },
+      { type: 'candidat-libre', id: 'terminale' },
       { type: 'pack', id: 'pass-go-sprint' },
     ],
     faq: [

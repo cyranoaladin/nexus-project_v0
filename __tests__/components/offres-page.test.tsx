@@ -46,7 +46,6 @@ describe('OffresPage', () => {
     expect(screen.getByText(/capacité précisée par offre/i)).toBeInTheDocument();
     expect(screen.getByText(/accompagnement annuel — scolarisés/i)).toBeInTheDocument();
     expect(screen.getByText(/parcours candidats libres/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /trois paliers numériques/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /stages intensifs — toutes les vacances/i })).toBeInTheDocument();
     expect(screen.queryByText(/garantie réussite|mention garantie|100 % réussite|100 % bac|bac garanti/i)).not.toBeInTheDocument();
     expect(container.textContent).not.toMatch(/undefined|NaN/);
@@ -59,23 +58,41 @@ describe('OffresPage', () => {
     expect(screen.getAllByRole('link', { name: /poser une question/i }).length).toBeGreaterThan(0);
   });
 
-  it('renders candidat individuel qualifiers and Grand Oral ceilings from the canonical catalogue', () => {
+  it('présente les trois parcours candidats libres 2026-2027 et renvoie vers /bac-candidat-libre', () => {
     render(<OffresPage />);
 
-    const surMesure = screen.getByRole('heading', { name: 'Nexus Libre — Sur mesure' }).closest('div.relative.flex');
-    expect(surMesure).not.toBeNull();
-    expect(within(surMesure as HTMLElement).getByTestId('price-primary')).toHaveTextContent(/à partir de\s*620/i);
-    expect(within(surMesure as HTMLElement).getByTestId('price-secondary')).toHaveTextContent(/total à partir de\s*6[\s\u00a0]*200/i);
+    const section = screen.getByTestId('section-libre');
+    const fmt = (n: number) => n.toLocaleString('fr-FR').replace(/\s/g, ' ');
+    for (const [niveau, annuel] of [['Première', 5200], ['Terminale', 7600], ['Bac en 1 an', 11600]] as const) {
+      const carte = within(section).getByRole('article', { name: new RegExp(niveau) });
+      expect(carte).toHaveTextContent(fmt(annuel));
+      expect(within(carte).getByRole('link', { name: /détail du parcours/i })).toHaveAttribute(
+        'href',
+        expect.stringMatching(/^\/bac-candidat-libre#/),
+      );
+    }
+    expect(within(section).getByText(/12 places au maximum/i)).toBeInTheDocument();
+    expect(within(section).queryByText(/Nexus Libre/)).not.toBeInTheDocument();
+    expect(within(section).queryByRole('link', { name: /calculer mon accompagnement/i })).not.toBeInTheDocument();
+  });
 
-    const focus = screen.getByRole('heading', { name: 'Terminale Libre — Focus Bac' }).closest('div.relative.flex');
-    expect(focus).not.toBeNull();
-    expect(within(focus as HTMLElement).getByText(/200 h régulières/i)).toBeInTheDocument();
-    expect(within(focus as HTMLElement).getByText(/grand oral.*8 h maximum/i)).toBeInTheDocument();
+  it('cartes candidats libres : frais de dossier et dernière mensualité ajustée', () => {
+    render(<OffresPage />);
+    const section = screen.getByTestId('section-libre');
+    for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
+      expect(within(section).getByRole('article', { name: new RegExp(niveau) })).toHaveTextContent(/frais de dossier/i);
+    }
+    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800/);
+    expect(section.textContent).not.toMatch(/tout compris/i);
+  });
 
-    const integrale = screen.getByRole('heading', { name: 'Terminale Libre — Intégrale' }).closest('div.relative.flex');
-    expect(integrale).not.toBeNull();
-    expect(within(integrale as HTMLElement).getByTestId('metric-total-value')).toHaveTextContent(/jusqu’à\s*300\s*h/i);
-    expect(within(integrale as HTMLElement).getByText(/grand oral.*comprises? dans le plafond/i)).toBeInTheDocument();
+  it('ne vend plus la plateforme ARIA seule (décision D11)', () => {
+    const { container } = render(<OffresPage />);
+    expect(screen.queryByTestId('section-plateforme')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /trois paliers numériques/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^plateforme$/i })).not.toBeInTheDocument();
+    expect(container.querySelector('#plateforme-autonomie, #plateforme-suivi, #plateforme-accomp')).toBeNull();
+    expect(container.textContent).not.toMatch(/100\s?% en ligne/);
   });
 
   it('surfaces fail-closed payment guidance without exposing ClicToPay or bank identifiers publicly', () => {

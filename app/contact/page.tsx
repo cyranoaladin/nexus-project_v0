@@ -132,7 +132,7 @@ export default function ContactPage() {
             Une question claire mérite une réponse claire
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-lux-on-dark-muted">
-            Les rendez-vous pédagogiques et cours en présentiel se déroulent à Mutuelleville, sur confirmation.
+            Cours, stages et rendez-vous pédagogiques : {LEGAL.addresses.pedagogique.full}.
           </p>
         </div>
       </section>
@@ -334,7 +334,7 @@ export default function ContactPage() {
             <CardContent className="p-6 md:p-8">
               <h2 className="text-2xl font-fraunces text-lux-ink">Venir au centre</h2>
               <p className="mt-2 text-sm text-lux-slate">
-                Les cours et rendez-vous pédagogiques sont confirmés à Mutuelleville.
+                Les cours, stages et rendez-vous pédagogiques ont lieu ici.
               </p>
               <p className="mt-2 text-sm text-lux-slate">{PEDA_ADDRESS}</p>
               <a href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center text-sm font-semibold text-lux-gold-deep hover:text-lux-ink transition-colors">
@@ -354,7 +354,7 @@ export default function ContactPage() {
                   <h2 className="text-2xl font-fraunces text-lux-ink">Plan d’accès</h2>
                 </div>
                 <p className="mt-4 text-sm text-lux-slate">
-                  Les rendez-vous pédagogiques et cours en présentiel sont confirmés à Mutuelleville.
+                  Cours en présentiel, stages et rendez-vous pédagogiques, à {LEGAL.addresses.pedagogique.neighborhood}.
                 </p>
                 <p className="mt-3 text-lg font-medium text-lux-ink">{PEDA_ADDRESS}</p>
                 <p className="mt-2 max-w-md text-sm leading-6 text-lux-slate">

@@ -415,5 +415,9 @@
     "COURS_ONLINE": 0,
     "COURS_PRESENTIEL": 0,
     "ATELIER_GROUPE": 0
+  },
+  "candidats_libres_groupe": {
+    "max": 12,
+    "ouverture_min": 7
   }
 }

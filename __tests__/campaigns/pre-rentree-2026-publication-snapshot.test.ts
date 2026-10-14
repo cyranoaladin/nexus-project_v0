@@ -1,3 +1,4 @@
+import { LEGAL } from '@/lib/legal';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -260,7 +261,7 @@ describe('Pré-rentrée 2026 canonical publication snapshot', () => {
     expect(snapshot.contact).toEqual(expect.objectContaining({
       phone: '+216 99 19 28 29',
       email: 'contact@nexusreussite.academy',
-      address: 'Mutuelleville, Tunis',
+      address: LEGAL.addresses.pedagogique.full,
       canonicalUrl: 'https://nexusreussite.academy/stages/pre-rentree-2026',
     }));
   });

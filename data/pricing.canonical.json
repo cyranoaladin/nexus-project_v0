@@ -1990,5 +1990,291 @@
       },
       "multi_subject_discount": false
     }
-  ]
+  ],
+  "candidats_libres_2027": {
+    "_note": "Candidats libres — session 2027. Grille v12 du dossier GO-LIVE (13/10/2026) : groupes de 12 au plus, ouverture à 7 par niveau, 9 mensualités d’octobre à juin ou 8 de novembre à juin, comptant −5 %. Modèle économique distinct des offres annuelles scolarisées (groupes de 5) : ses invariants sont testés dans __tests__/lib/candidats-libres-2027.test.ts. Les offres datées (frais de dossier, Semaine Diagnostic) se coupent seules à leur échéance (heure de Tunis).",
+    "session": "2027",
+    "groupe": {
+      "max": 12,
+      "ouverture_min": 7,
+      "confirmation_remboursement_jours": 7
+    },
+    "paiement": {
+      "comptant_remise_pct": 5,
+      "echeancier_9": "9 mensualités d’octobre à juin (la dernière ajuste le total)",
+      "echeancier_8": "8 mensualités de novembre à juin",
+      "note": "Le prix annuel ne change pas selon le mode de paiement. Pas d’acompte. Si le groupe n’ouvre pas, remboursement intégral."
+    },
+    "parcours": [
+      {
+        "id": "premiere",
+        "niveau": "Première",
+        "titre": "Première — épreuves anticipées",
+        "accroche": "Épreuves anticipées : français et maths",
+        "public": "Élèves de Première scolarisés au lycée tunisien ou ailleurs, candidats individuels à la session 2027 des épreuves anticipées.",
+        "prix_annuel": 5200,
+        "echeancier_9": {
+          "mensualite": 580,
+          "derniere": 560
+        },
+        "echeancier_8": {
+          "mensualite": 650,
+          "derniere": 650
+        },
+        "comptant": 4940,
+        "echeancier_affiche": 8,
+        "heures_cours": 189,
+        "repartition": [
+          {
+            "matiere": "Français",
+            "heures": 47
+          },
+          {
+            "matiere": "Maths anticipées",
+            "heures": 28
+          },
+          {
+            "matiere": "Spécialité Maths",
+            "heures": 32
+          },
+          {
+            "matiere": "Spécialité Physique-chimie",
+            "heures": 32
+          },
+          {
+            "matiere": "Spécialité NSI",
+            "heures": 32
+          },
+          {
+            "matiere": "Tronc commun",
+            "heures": 18
+          }
+        ],
+        "copies_corrigees": 9,
+        "oraux": "2 oraux blancs de français individuels",
+        "bilans": 3,
+        "creneaux": "Mardi et vendredi 18 h 30 · samedi 16 h 15 · dimanche 10 h 30",
+        "cyclades": {
+          "ouverture": "2026-11-02",
+          "cloture": "2026-11-20T18:00:00+01:00"
+        },
+        "confirmation_ouverture": "2026-11-16",
+        "frais_dossier_offerts_jusqu_au": "2026-11-08"
+      },
+      {
+        "id": "terminale",
+        "niveau": "Terminale",
+        "titre": "Terminale — toutes les épreuves",
+        "accroche": "Toutes les épreuves terminales",
+        "public": "Élèves de Terminale scolarisés au lycée tunisien ou ailleurs, candidats individuels à la session 2027.",
+        "prix_annuel": 7600,
+        "echeancier_9": {
+          "mensualite": 850,
+          "derniere": 800
+        },
+        "echeancier_8": {
+          "mensualite": 950,
+          "derniere": 950
+        },
+        "comptant": 7220,
+        "echeancier_affiche": 9,
+        "heures_cours": 285,
+        "repartition": [
+          {
+            "matiere": "Spécialité Maths",
+            "heures": 76
+          },
+          {
+            "matiere": "Spécialité Physique-chimie",
+            "heures": 76
+          },
+          {
+            "matiere": "Philosophie",
+            "heures": 54
+          },
+          {
+            "matiere": "Histoire-géographie",
+            "heures": 28
+          },
+          {
+            "matiere": "Enseignement scientifique",
+            "heures": 28
+          },
+          {
+            "matiere": "EMC",
+            "heures": 15
+          },
+          {
+            "matiere": "Grand oral",
+            "heures": 8
+          }
+        ],
+        "copies_corrigees": 14,
+        "oraux": "1 Grand oral blanc individuel",
+        "bilans": 3,
+        "creneaux": "Lundi, mercredi et jeudi 18 h 30 · samedi 14 h · dimanche 9 h",
+        "cyclades": {
+          "ouverture": "2026-10-16",
+          "cloture": "2026-11-12T18:00:00+01:00"
+        },
+        "confirmation_ouverture": "2026-11-06",
+        "frais_dossier_offerts_jusqu_au": "2026-10-31"
+      },
+      {
+        "id": "bac-en-1-an",
+        "niveau": "Bac en 1 an",
+        "titre": "Bac en 1 an — non scolarisés",
+        "accroche": "Épreuves anticipées et terminales la même année",
+        "public": "Candidats non scolarisés : 20 ans ou plus, titulaires du bac tunisien ou en reprise d’études. Éligibilité vérifiée avec vous avant toute inscription.",
+        "prix_annuel": 11600,
+        "echeancier_9": {
+          "mensualite": 1290,
+          "derniere": 1280
+        },
+        "echeancier_8": {
+          "mensualite": 1450,
+          "derniere": 1450
+        },
+        "comptant": 11020,
+        "echeancier_affiche": 9,
+        "heures_cours": 511,
+        "repartition": [],
+        "copies_corrigees": 18,
+        "oraux": "2 oraux blancs de français et 1 Grand oral blanc",
+        "bilans": 3,
+        "creneaux": "Cours de Première et de Terminale, plus des reprises dédiées en journée",
+        "cyclades": {
+          "ouverture": "2026-10-16",
+          "cloture": "2026-11-12T18:00:00+01:00"
+        },
+        "confirmation_ouverture": "2026-11-06",
+        "frais_dossier_offerts_jusqu_au": null
+      }
+    ],
+    "inclus_communs": [
+      "Inscription Cyclades accompagnée, étape par étape (sans se substituer à l’inscription officielle)",
+      "Bac blanc aux vacances d’octobre et un stage intensif à chaque vacances (hiver, février, printemps)",
+      "Copies corrigées sur les grilles officielles et bilans avec la famille"
+    ],
+    "specialites": {
+      "premiere": [
+        "Mathématiques",
+        "Physique-chimie",
+        "NSI"
+      ],
+      "terminale": [
+        "Mathématiques",
+        "Physique-chimie"
+      ]
+    },
+    "non_prepare": [
+      "EPS",
+      "langues vivantes A et B"
+    ],
+    "frais_examen": "Frais d’examen payés par la famille à l’Institut français de Tunisie, en sus.",
+    "frais_dossier": {
+      "montant": 250,
+      "libelle": "Frais de dossier et d’accompagnement Cyclades"
+    },
+    "semaine_diagnostic": {
+      "du": "2026-10-26",
+      "au": "2026-10-30",
+      "inscriptions_jusqu_au": "2026-10-23",
+      "deduit_si_inscription_avant": "2026-11-08",
+      "places_par_niveau": 12,
+      "niveaux": [
+        {
+          "id": "terminale",
+          "prix": 290,
+          "contenu": [
+            "Spécialité Maths (4 h) et Physique-chimie (3 h 30)",
+            "Philosophie (4 h), histoire-géographie (2 h), EMC (1 h)",
+            "Bilan individuel de 20 minutes avec la famille"
+          ]
+        },
+        {
+          "id": "premiere",
+          "prix": 190,
+          "contenu": [
+            "Français écrit (4 h)",
+            "Maths anticipées (2 h) et spécialité Maths (4 h)",
+            "Bilan individuel de 20 minutes avec la famille"
+          ]
+        }
+      ]
+    },
+    "ateliers_cyclades": {
+      "dates": [
+        "2026-10-17",
+        "2026-10-24",
+        "2026-11-07"
+      ],
+      "heure": "10 h",
+      "lieu": "au centre ou en ligne",
+      "prix": 0
+    },
+    "emploi_du_temps": {
+      "jours": [
+        "Lun",
+        "Mar",
+        "Mer",
+        "Jeu",
+        "Ven",
+        "Sam",
+        "Dim"
+      ],
+      "terminale": [
+        "18 h 30–20 h 30",
+        null,
+        "18 h 30–20 h 30",
+        "18 h 30–20 h 30",
+        null,
+        "14 h–16 h",
+        "9 h–10 h 30"
+      ],
+      "premiere": [
+        null,
+        "18 h 30–20 h 30",
+        null,
+        null,
+        "18 h 30–20 h 30",
+        "16 h 15–18 h",
+        "10 h 30–12 h"
+      ],
+      "charge_moyenne": {
+        "terminale": "9 h 30 par semaine",
+        "premiere": "7 h 15 par semaine"
+      },
+      "charge_max_hors_stage": "14 h par semaine"
+    },
+    "stages_a_la_carte": {
+      "note": "Pour les candidats déjà inscrits ailleurs ou en autonomie, dans la limite des places restantes.",
+      "stages": [
+        {
+          "periode": "Vacances d’hiver",
+          "niveau": "Terminale",
+          "heures": 24,
+          "prix": 520
+        },
+        {
+          "periode": "Vacances d’hiver",
+          "niveau": "Première",
+          "heures": 12,
+          "prix": 270
+        },
+        {
+          "periode": "Vacances de février",
+          "niveau": "Première ou Terminale",
+          "heures": 15,
+          "prix": 340
+        },
+        {
+          "periode": "Vacances de printemps (révisions)",
+          "niveau": "Première ou Terminale",
+          "heures": 18,
+          "prix": 400
+        }
+      ]
+    }
+  }
 }

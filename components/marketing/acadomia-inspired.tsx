@@ -14,7 +14,7 @@ import {
 
 import socialProof from '@/content/social-proof.json';
 import team from '@/content/team.json';
-import { getRules } from '@/lib/pricing-client';
+import { getGroupeCandidatsLibres, getRules } from '@/lib/pricing-client';
 import { LEGAL } from '@/lib/legal';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
@@ -43,7 +43,10 @@ export function ReassuranceChips({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function getProcessSteps(rules: { group_max: number; group_min_open: Record<string, number> }) {
+function getProcessSteps(
+  rules: { group_max: number; group_min_open: Record<string, number> },
+  libres: { max: number; ouverture_min: number },
+) {
   return [
   {
     title: 'Bilan stratégique gratuit',
@@ -55,7 +58,7 @@ function getProcessSteps(rules: { group_max: number; group_min_open: Record<stri
   },
   {
     title: 'Constitution du groupe & premier cours',
-    text: `Groupe de ${rules.group_max} maximum, ouvert dès ${rules.group_min_open.lycee} inscrits au lycée\u00A0; démarrage dès qu\u2019il est constitué.`,
+    text: `Élèves scolarisés\u00A0: ${rules.group_max} au plus, ouvert dès ${rules.group_min_open.lycee} inscrits au lycée. Candidats libres\u00A0: ${libres.max} au plus, ouvert à ${libres.ouverture_min} inscrits. Démarrage dès que le groupe est constitué.`,
   },
   {
     title: 'Bilans réguliers & suivi parent',
@@ -65,7 +68,7 @@ function getProcessSteps(rules: { group_max: number; group_min_open: Record<stri
 }
 
 export function ProcessSteps() {
-  const processSteps = getProcessSteps(getRules());
+  const processSteps = getProcessSteps(getRules(), getGroupeCandidatsLibres());
 
   return (
     <section className="bg-lux-white px-4 py-14 md:px-6">

@@ -35,7 +35,7 @@ const publicOrphanPolicy = {
   },
   '/notre-centre': {
     status: 'page centre volontaire',
-    reason: 'Presentation du centre pedagogique de Mutuelleville, reliee depuis la navigation/footer.',
+    reason: 'Presentation du centre pedagogique (17 rue Ali Zlitni, Manar III), reliee depuis la navigation/footer.',
   },
   '/ressources': {
     status: 'hub ressources volontaire',
@@ -60,6 +60,10 @@ const publicOrphanPolicy = {
   '/maths-1ere': {
     status: 'alias redirect',
     reason: 'Alias applicatif vers /programme/maths-1ere; aucun lien interne ne devrait viser l’alias.',
+  },
+  '/devis-bac': {
+    status: 'alias redirect',
+    reason: 'Ancien constructeur de devis candidat individuel, retire du public : redirection 307 vers /bac-candidat-libre (grille 2026-2027). Le moteur de devis reste en place pour les devis deja emis.',
   },
   '/pre-rentree': {
     status: 'alias redirect permanent',

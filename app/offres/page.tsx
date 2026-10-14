@@ -11,7 +11,6 @@ import {
 } from '@/components/premium';
 import {
   getOffersByLevel,
-  getOffersByTrack,
   getStageFormats,
   getStageEditions,
   getPonctuelOffers,
@@ -33,19 +32,22 @@ import {
 } from '@/components/marketing/acadomia-inspired';
 import { CanonicalOfferCatalogue } from '@/components/pre-rentree-2026/CanonicalOfferCatalogue';
 import { PaymentMethodsNote } from '@/components/marketing/PaymentMethodsNote';
+import { CandidatsLibresParcours } from '@/components/marketing/CandidatsLibresParcours';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import OffersFiltersClient from './_components/OffersFiltersClient';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 
+/** Régénérée toutes les heures : les frais de dossier offerts des candidats libres ont une date limite. */
+export const revalidate = 3600;
+
 // ── Category filter ──
 
-type Category = 'all' | 'annual' | 'libre' | 'plateforme' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
+type Category = 'all' | 'annual' | 'libre' | 'intensifs' | 'ponctuel' | 'coaching' | 'pass' | 'carte';
 
 const categories: { id: Category; label: string }[] = [
   { id: 'all', label: 'Tout voir' },
   { id: 'annual', label: 'Parcours annuels' },
   { id: 'libre', label: 'Candidat libre' },
-  { id: 'plateforme', label: 'Plateforme' },
   { id: 'intensifs', label: 'Les Intensifs' },
   { id: 'ponctuel', label: 'Prépa épreuves' },
   { id: 'coaching', label: 'Boussole' },
@@ -55,7 +57,7 @@ const categories: { id: Category; label: string }[] = [
 
 // ── Mega-parcours grouping ──
 
-const MEGA_ANNEE: Category[] = ['annual', 'libre', 'plateforme'];
+const MEGA_ANNEE: Category[] = ['annual', 'libre'];
 const MEGA_STAGES: Category[] = ['intensifs', 'ponctuel'];
 const MEGA_SURMESURE: Category[] = ['coaching', 'pass', 'carte'];
 
@@ -130,8 +132,6 @@ function NavyBand({
 
 export default function OffresPage() {
   const rules = getRules();
-  const libreOffers = getOffersByTrack('libre');
-  const platformOffers = getOffersByTrack('plateforme');
   const stageFormats = getStageFormats();
   const stageEditions = getStageEditions();
   const ponctuelOffers = getPonctuelOffers();
@@ -175,14 +175,14 @@ export default function OffresPage() {
 
       {/* ════════════════════════════════════════════════════════════
          MÉGA-PARCOURS 1 — Accompagnement à l'année
-         (annuel scolarisé + candidat libre + plateforme ARIA)
+         (annuel scolarisé + candidat libre ; plateforme ARIA retirée du catalogue, décision D11)
          ════════════════════════════════════════════════════════════ */}
 
       <NavyBand
         testId="mega-annee"
         eyebrow="Parcours annuels"
         title="Accompagnement à l'année"
-        intro="Scolarisés, candidats libres ou 100 % en ligne — un parcours adapté à chaque profil, de septembre à juin."
+        intro="Élèves scolarisés ou candidats libres — un parcours adapté à chaque profil, sur toute l’année scolaire."
         dataCategories={MEGA_ANNEE.join(',')}
       />
 
@@ -255,92 +255,20 @@ export default function OffresPage() {
       >
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <span className="lux-eyebrow">Candidat libre</span>
+            <span className="lux-eyebrow">Candidats libres · session 2027</span>
             <h2 className="mt-2 text-2xl md:text-3xl">Parcours candidats libres</h2>
             <div className="lux-filet-gold mt-3 w-16" />
-            <p className="mt-3 text-sm text-lux-slate">Les éléments inclus et les modalités sont détaillés sur chaque offre ci-dessous.</p>
+            <p className="mt-3 text-sm text-lux-slate">
+              Le bac français le soir et le week-end, sans quitter le lycée tunisien. Prix annuel par élève, frais de dossier indiqués sur chaque parcours.
+            </p>
             <Link
-              href="/devis-bac"
+              href="/bac-candidat-libre"
               className="mt-4 inline-flex min-h-[44px] items-center rounded-lg border-[1.5px] border-lux-ink px-5 py-2.5 text-sm font-semibold text-lux-ink transition-all hover:bg-lux-ink hover:text-lux-ivory lux-focus"
             >
-              Calculer mon accompagnement personnalisé
+              Tout savoir sur la session 2027
             </Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {libreOffers.map((o) => {
-              const price = getEffectivePrice(o);
-              if (price == null) return null;
-              const displayLevel = o.level === 'premiere' ? 'Première' : o.level === 'terminale' ? 'Terminale' : o.level;
-              const payment = getAnnualOfferPaymentSchedule(o);
-              // depositPct is computed per-offer, never assumed: the candidat
-              // individuel family has 0 % acompte (10 mensualités identiques),
-              // while other libre offers may still use the global annual rate.
-              const depositPct =
-                payment && price ? Math.round((payment.deposit / price) * 100) : rules.payment.deposit_pct_annual;
-              return (
-                <div key={o.id} id={o.id} className="scroll-mt-28">
-                  <ExamCard
-                    eyebrow={`${displayLevel} · Libre`}
-                    title={o.title}
-                    subtitle={o.subjects}
-                    price={price}
-                    pricingDisplay={o.pricing_display ?? undefined}
-                    priceQualifier={o.price_qualifier ?? undefined}
-                    totalHours={o.hours_per_year ?? undefined}
-                    totalHoursIsCeiling={o.hours_per_month_is_ceiling ?? false}
-                    groupMax={o.group_max ?? undefined}
-                    groupMinOpen={o.group_min_open ?? undefined}
-                    effectifType={o.group_max != null ? 'groupe' : 'none'}
-                    payment={payment ? { ...payment, depositPct } : undefined}
-                    features={o.included}
-                    ctaText="Demander cette offre"
-                    ctaHref={buildWhatsAppUrl(o.title)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Offres de plateforme — bg white */}
-      <section
-        id="section-plateforme"
-        data-testid="section-plateforme"
-        {...filterSectionAttrs('plateforme')}
-        className="bg-lux-white py-12 px-4 md:px-6 scroll-mt-28"
-      >
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8">
-            <span className="lux-eyebrow">Plateforme</span>
-            <h2 className="mt-2 text-2xl md:text-3xl">Trois paliers numériques</h2>
-            <div className="lux-filet-gold mt-3 w-16" />
-            <p className="mt-3 text-sm text-lux-slate">
-              Ressources, parcours, fiches, exercices — avec ou sans accompagnement live.
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {platformOffers.map((o) => {
-              const price = o.price_annual ?? 0;
-              return (
-                <div key={o.id} id={o.id} className="scroll-mt-28">
-                  <ExamCard
-                    eyebrow="Plateforme"
-                    title={o.title}
-                    subtitle={o.subjects}
-                    price={price}
-                    pricingDisplay={o.pricing_display ?? undefined}
-                    features={o.included}
-                    effectifType={o.group_max ? 'groupe' : 'none'}
-                    groupMax={o.group_max ?? undefined}
-                    groupMinOpen={o.group_min_open ?? undefined}
-                    ctaText="Demander cette offre"
-                    ctaHref={buildWhatsAppUrl(o.title)}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          <CandidatsLibresParcours />
         </div>
       </section>
 

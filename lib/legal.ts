@@ -26,10 +26,11 @@ export const LEGAL = {
     },
     pedagogique: {
       label: 'Centre pédagogique',
-      full: 'Mutuelleville, Tunis',
-      neighborhood: 'Mutuelleville',
+      full: '17 rue Ali Zlitni, Manar III, Tunis',
+      street: '17 rue Ali Zlitni',
+      neighborhood: 'Manar III',
       city: 'Tunis',
-      note: 'Les rendez-vous pédagogiques et cours en présentiel sont confirmés à Mutuelleville.',
+      note: 'Les cours, stages et rendez-vous pédagogiques ont lieu au 17 rue Ali Zlitni, Manar III, Tunis.',
     },
   },
 

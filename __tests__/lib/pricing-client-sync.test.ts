@@ -10,6 +10,7 @@ import {
   PRICING_REPERES,
   getAnnualOfferPricing,
   getNextStage,
+  getGroupeCandidatsLibres,
 } from '@/lib/pricing-client';
 import pricingData from '@/data/pricing.canonical.json';
 import clientDataGenerated from '@/data/pricing-client-data.generated.json';
@@ -56,6 +57,12 @@ describe('pricing-client sync — rules, repères, calendar', () => {
 });
 
 describe('pricing-client sync — operational catalog', () => {
+  it('le groupe candidats libres (session 2027) suit la source canonique', () => {
+    const { groupe } = (canonical as unknown as { candidats_libres_2027: { groupe: { max: number; ouverture_min: number } } })
+      .candidats_libres_2027;
+    expect(getGroupeCandidatsLibres()).toEqual({ max: groupe.max, ouverture_min: groupe.ouverture_min });
+  });
+
   it('operational_subscription_plans matches canonical', () => {
     expect(generated.operational_subscription_plans).toEqual(canonical.operational_subscription_plans);
   });

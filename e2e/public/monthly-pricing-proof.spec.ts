@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { getAnnualOfferPricing } from '@/lib/pricing-client';
+import pricingCanonical from '../../data/pricing.canonical.json';
+
+const candidatsLibres2027 = (pricingCanonical as any).candidats_libres_2027;
 
 const VIEWPORTS = [
   { name: 'mobile', width: 375, height: 812 },
@@ -12,7 +15,6 @@ const VIEWPORTS = [
 const CARD_SCREENSHOTS = [
   { id: 'term-spe-simple', label: 'annual-scolarise' },
   { id: 'intensif-solo', label: 'one-shot-stage' },
-  { id: 'plateforme-autonomie', label: 'aria-annual' },
 ];
 
 function annualOffer(id: string) {
@@ -129,83 +131,33 @@ test('uniform annual scolarisé (9 × 300) says "mensualités identiques"', asyn
   await ctx.close();
 });
 
-// ── Candidat individuel: installment-first, NO acompte (10 mensualités identiques) ──
-test('candidat individuel shows installment-first, no acompte', async ({ browser }) => {
-  const offer = annualOffer('terminale-libre-focus-bac');
-  expect(offer.deposit, 'candidat individuel offers have deposit: 0 (no acompte)').toBe(0);
-  expect(offer.n_installments, 'candidat individuel offers have 10 installments').toBe(10);
+// ── Candidats libres 2026-2027 : mensualité en premier, sans acompte (bloc candidats_libres_2027) ──
+test('candidat libre (session 2027) shows installment-first, no acompte', async ({ browser }) => {
+  const terminale = candidatsLibres2027.parcours.find((p: { id: string }) => p.id === 'terminale');
 
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
 
-  const card = page.locator('#terminale-libre-focus-bac');
-
-  // Primary price: canonical installment amount, not legacy price_annual / 10.
-  const primary = card.locator('[data-testid="price-primary"]');
-  const primaryText = await primary.textContent();
-  expect(digitsText(primaryText), 'candidat individuel primary shows installment amount').toContain(
-    String(offer.installment_amount),
-  );
-  expect(primaryText, 'candidat individuel primary has TND').toContain('TND');
-
-  // Has /mois in pricing block, WITHOUT "hors acompte" (there is no acompte to be "hors" of).
-  const pricingBlock = card.locator('[data-testid="pricing-block"]');
-  const pricingText = await pricingBlock.textContent();
-  expect(pricingText, 'candidat individuel has /mois').toMatch(/\/\s*mois/);
-  expect(pricingText, 'candidat individuel never shows "hors acompte"').not.toMatch(/hors acompte/);
-
-  // Secondary present, states no acompte explicitly, shows the real annual total.
-  const secondary = card.locator('[data-testid="price-secondary"]');
-  await expect(secondary).toBeVisible();
-  const secondaryText = await secondary.textContent();
-  expect(secondaryText, 'candidat individuel secondary states no acompte').toMatch(/pas d.?acompte/i);
-  const secondaryDigits = digitsText(secondaryText);
-  expect(secondaryDigits, 'candidat individuel secondary shows annual total').toContain(
-    String(offer.price_annual),
-  );
-
-  // Échéancier shows NO acompte row at all — never a "30 %" badge, and no
-  // "Aucun" placeholder either (sans acompte means nothing to render).
-  const echeancierAcompte = card.locator('[data-testid="echeancier-acompte"]');
-  await expect(echeancierAcompte).toHaveCount(0);
+  const card = page.getByTestId('section-libre').getByRole('article', { name: /Terminale/ });
+  await expect(card).toBeVisible();
+  const text = (await card.textContent()) ?? '';
+  expect(digitsText(text), 'mensualité affichée').toContain(String(terminale.echeancier_9.mensualite));
+  expect(digitsText(text), 'total annuel affiché').toContain(String(terminale.prix_annuel));
+  expect(text, 'mensualité par mois').toMatch(/\/\s*mois/);
+  expect(text, '9 mensualités').toMatch(/9 mensualités/);
+  expect(text, 'aucun acompte').not.toMatch(/acompte/i);
 
   await ctx.close();
 });
 
-// ── ARIA plateforme: annual display, NO /mois ──
-test('ARIA plateforme shows annual, no /mois', async ({ browser }) => {
+// ── ARIA : plus vendue seule sur /offres (décision D11) ──
+test('ARIA plateforme is no longer sold on /offres', async ({ browser }) => {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const page = await ctx.newPage();
   await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
-
-  // Test all 3 ARIA tiers — match full normalized price (strip whitespace → compare digits)
-  for (const { id, annualPrice } of [
-    { id: 'plateforme-autonomie', annualPrice: 590 },
-    { id: 'plateforme-suivi', annualPrice: 1490 },
-    { id: 'plateforme-accomp', annualPrice: 2900 },
-  ]) {
-    const card = page.locator(`#${id}`);
-    const pricingBlock = card.locator('[data-testid="pricing-block"]');
-    const pricingText = await pricingBlock.textContent();
-
-    // Shows /an (with any whitespace before "an")
-    expect(pricingText, `${id} shows /an`).toMatch(/\/\s*an/);
-    // Does NOT show /mois
-    expect(pricingText, `${id} no /mois`).not.toMatch(/\/\s*mois/);
-    // No secondary line
-    const secondary = card.locator('[data-testid="price-secondary"]');
-    await expect(secondary).toHaveCount(0);
-    // Full price match: strip all whitespace from primary, extract digits before TND
-    const primary = card.locator('[data-testid="price-primary"]');
-    const primaryText = await primary.textContent();
-    const digits = (primaryText ?? '').replace(/\s/g, '').match(/^(\d+)TND/);
-    expect(digits, `${id} primary matches "XTND" pattern`).not.toBeNull();
-    expect(Number(digits![1]), `${id} exact annual price`).toBe(annualPrice);
-  }
-
+  await expect(page.locator('[data-testid="section-plateforme"]')).toHaveCount(0);
+  await expect(page.locator('#plateforme-autonomie, #plateforme-suivi, #plateforme-accomp')).toHaveCount(0);
   await ctx.close();
 });
 
@@ -264,34 +216,3 @@ test('installment display on /offres matches home repères', async ({ browser })
   await ctx.close();
 });
 
-// ── Consistency: ARIA annual on /offres == home repère "590 TND / an" ──
-test('ARIA annual on /offres matches home repère', async ({ browser }) => {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-  const page = await ctx.newPage();
-
-  // Home repère for "Plateforme ARIA" — look for the repère card containing both label and price
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2000);
-  const homeText = await page.evaluate(() => {
-    // The repères section renders cards with rounded-xl containing both label and lux-price
-    const cards = document.querySelectorAll('[class*="rounded-xl"]');
-    for (const c of cards) {
-      const text = c.textContent || '';
-      if (text.includes('Plateforme ARIA') && text.includes('TND')) {
-        return text;
-      }
-    }
-    return '';
-  });
-
-  // /offres ARIA card
-  await page.goto('/offres', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(2500);
-  const offresAria = await page.locator('#plateforme-autonomie').locator('[data-testid="price-primary"]').textContent();
-
-  // Both show 590
-  expect(homeText, 'home has 590').toContain('590');
-  expect(offresAria, 'offres ARIA has 590').toContain('590');
-
-  await ctx.close();
-});

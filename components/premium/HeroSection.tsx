@@ -3,19 +3,20 @@ import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { WhatsAppLogo, WHATSAPP_BRAND_GREEN } from '@/components/ui/whatsapp-logo';
-import { getRules } from '@/lib/pricing-client';
+import { getGroupeCandidatsLibres, getRules } from '@/lib/pricing-client';
 
-function getReassuranceItems(groupMax: number): string[] {
+function getReassuranceItems(groupMax: number, groupMaxLibres: number): string[] {
   return [
   'Enseignants expérimentés',
-  `Groupes de ${groupMax} max`,
+  `Groupes de ${groupMax} (scolarisés) · ${groupMaxLibres} (candidats libres)`,
   'Cellule Cyclades',
   ];
 }
 
 export function HeroSection() {
   const { group_max: groupMax } = getRules();
-  const reassuranceItems = getReassuranceItems(groupMax);
+  const { max: groupMaxLibres } = getGroupeCandidatsLibres();
+  const reassuranceItems = getReassuranceItems(groupMax, groupMaxLibres);
 
   return (
     <section data-hero className="relative overflow-hidden bg-lux-ink">
@@ -37,7 +38,8 @@ export function HeroSection() {
             {/* Description */}
             <p className="max-w-lg text-base leading-relaxed text-lux-on-dark-muted font-dm-sans">
               Un cadre structurant pensé pour les familles&nbsp;: enseignants expérimentés, en exercice dans le système français,
-              groupes de {groupMax}, bacs blancs sur grilles officielles, et la plateforme ARIA.
+              groupes de {groupMax} pour les élèves scolarisés et de {groupMaxLibres} pour les candidats libres, bacs blancs sur
+              grilles officielles, et la plateforme ARIA.
             </p>
 
             {/* CTA row */}
