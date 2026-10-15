@@ -119,6 +119,14 @@ describe('maybeSendAssistantDigest — cadence et regroupement', () => {
     expect(intent.to).toBe('assistante@nexus.tn');
     expect(notifications).toHaveLength(1);
   });
+
+  it('n’écrit qu’aux assistantes en service : jamais un compte désactivé ou fusionné', async () => {
+    const { database } = harness(30, { pendingReview: 1 });
+    await maybeSendAssistantDigest({ prisma: database as never, now: () => NOW, origin: 'https://x' });
+    expect(database.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({ role: 'ASSISTANTE', email: { not: null }, disabledAt: null, mergedIntoUserId: null }),
+    }));
+  });
 });
 
 describe('configuration des seuils', () => {

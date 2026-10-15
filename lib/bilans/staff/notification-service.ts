@@ -208,7 +208,8 @@ export async function maybeSendAssistantDigest(
   if (email === null) return Object.freeze({ sent: false, reason: 'NOTHING_TO_REPORT' });
 
   const assistants = await database.user.findMany({
-    where: { role: 'ASSISTANTE', email: { not: null } },
+    // Seules les assistantes en service : un compte désactivé ou fusionné ne reçoit rien.
+    where: { role: 'ASSISTANTE', email: { not: null }, disabledAt: null, mergedIntoUserId: null },
     select: { id: true, email: true },
   });
   if (assistants.length === 0) return Object.freeze({ sent: false, reason: 'NO_ASSISTANT' });
