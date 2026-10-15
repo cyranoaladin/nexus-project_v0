@@ -7,7 +7,7 @@ const sessionState: { data: unknown; status: string } = { data: null, status: 'l
 jest.mock('next-auth/react', () => ({ signOut: jest.fn(), useSession: () => sessionState }));
 jest.mock('next/navigation', () => {
   const router = { push: jest.fn() };
-  return { useRouter: () => router };
+  return { useRouter: () => router, useSearchParams: () => new URLSearchParams() };
 });
 jest.mock('@/components/dashboard/core-v2/CoachAssignments', () => ({ CoachAssignments: () => <section>Mes affectations (Core v2)</section> }));
 jest.mock('@/components/ui/coach-availability', () => ({ __esModule: true, default: () => null }));
@@ -20,16 +20,18 @@ describe('DashboardCoach — Core v2 assignments panel (§AJ)', () => {
   beforeEach(() => {
     global.fetch = jest.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
+      if (url === '/api/v2/self/membership') return { ok: true, json: async () => ({ ok: true, data: { state: (sessionState.data as { user: { id: string } }).user.id === 'c-v2' ? 'ACTIVE' : 'NOT_MEMBER', ...((sessionState.data as { user: { id: string } }).user.id === 'c-v2' ? { role: 'COACH' } : {}) } }) } as unknown as Response;
       if (url === '/api/coach/dashboard') return { ok: true, status: 200, json: async () => v1Payload } as unknown as Response;
       return { ok: true, status: 200, json: async () => ({ data: [] }) } as unknown as Response;
     }) as unknown as typeof fetch;
   });
 
-  it('a CORE_V2 coach uses its own assignments without calling or displaying V1 data', async () => {
-    sessionState.data = { user: { id: 'c-v2', role: 'COACH', authority: 'CORE_V2', firstName: 'Synthetic', lastName: 'Coach' } };
+  it('a V1-authenticated Core coach uses its own assignments without calling or displaying V1 data', async () => {
+    sessionState.data = { user: { id: 'c-v2', role: 'COACH', authority: 'V1', firstName: 'Synthetic', lastName: 'Coach' } };
     sessionState.status = 'authenticated';
     render(<DashboardCoach />);
     expect(await screen.findByText('Mes affectations (Core v2)')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Espace coach' })).toBeInTheDocument();
     expect(screen.queryByText(/Coach — Helios/)).not.toBeInTheDocument();
     expect(screen.queryByText('Aucun cours aujourd’hui')).not.toBeInTheDocument();
     expect(global.fetch).not.toHaveBeenCalledWith('/api/coach/dashboard', expect.anything());

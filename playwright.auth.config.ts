@@ -14,7 +14,7 @@ export default defineConfig({
   testMatch: ['**/*.spec.ts'],
   testIgnore: [],
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: true,
   retries: 0,
   workers: 1,
   // Machine-readable execution proof (PR #235 follow-up): 'line' alone gives
@@ -61,7 +61,6 @@ export default defineConfig({
         'session-boundary-logout.spec.ts',
         'logout-session-resurrection.spec.ts',
         'session-video-join.spec.ts',
-        'password-change.spec.ts',
         'password-change-v1.spec.ts',
       ],
       use: { ...devices['Desktop Firefox'] },
@@ -76,7 +75,6 @@ export default defineConfig({
         'session-boundary-logout.spec.ts',
         'logout-session-resurrection.spec.ts',
         'session-video-join.spec.ts',
-        'password-change.spec.ts',
         'password-change-v1.spec.ts',
       ],
       use: { ...devices['Desktop Safari'] },
@@ -86,7 +84,7 @@ export default defineConfig({
     // complet (UA, taille, touch) plutôt qu'une resize ad hoc.
     {
       name: 'mobile-smoke',
-      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'session-boundary-logout.spec.ts', 'logout-session-resurrection.spec.ts', 'password-change.spec.ts', 'password-change-v1.spec.ts'],
+      testMatch: ['core-golden-family.spec.ts', 'auth-client-lifecycle.spec.ts', 'session-boundary-logout.spec.ts', 'logout-session-resurrection.spec.ts', 'password-change-v1.spec.ts'],
       use: { ...devices['Pixel 7'] },
     },
   ],

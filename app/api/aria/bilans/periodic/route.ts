@@ -17,6 +17,9 @@ import { parseJsonBody } from '@/lib/api/helpers';
 import { createLogger } from '@/lib/middleware/logger';
 import { AriaError, toAriaErrorResponse } from '@/lib/aria/errors';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+import { AriaAuthorityRevokedError } from '@/lib/aria/kernel/errors';
 
 const bodySchema = z
   .object({
@@ -33,6 +36,8 @@ export async function POST(request: NextRequest) {
   if (isErrorResponse(authResponse)) return authResponse;
 
   try {
+    const claims = await readBoundPrivateV1Session(request, authResponse);
+    if (!claims) throw new AriaAuthorityRevokedError();
     let rawBody: unknown;
     try {
       rawBody = await parseJsonBody(request);
@@ -45,18 +50,23 @@ export async function POST(request: NextRequest) {
     }
 
     const { studentId, courseKey, periodStart, periodEnd } = parsed.data;
+    let finalScope: (() => void) | undefined;
+    return await withV1SessionAuthority(claims, async tx => {
     const result = await generateAndPersistAriaPeriodicBilan({
+      actor: claims,
       studentId,
       courseKey,
       periodStart: new Date(periodStart),
       periodEnd: new Date(periodEnd),
-    });
+    }, tx);
+    finalScope = result.assertScopeNow;
 
     return NextResponse.json({
       bilanId: result.bilanId,
       totalAttemptsInPeriod: result.report.totalAttemptsInPeriod,
       globalScore: result.report.globalScore,
-    });
+    }, { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' } });
+    }, () => finalScope!());
   } catch (error) {
     return toAriaErrorResponse(error, logger);
   }

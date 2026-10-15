@@ -1,4 +1,5 @@
 import { serializeAriaPublicError } from '@/lib/aria/application/public-error';
+import { AriaAuthorityUnavailableError } from '@/lib/aria/kernel/errors';
 import { AriaError } from '@/lib/aria/errors';
 
 describe('ARIA stable public error serialization', () => {
@@ -131,4 +132,11 @@ describe('ARIA stable public error serialization', () => {
       reasonCode: undefined,
     });
   });
+});
+
+it.each(['PRE_STREAM', 'POST_START'] as const)('authority unavailability stays generic and retryable in %s', phase => {
+  const logger = { error: jest.fn() };
+  const result = serializeAriaPublicError(new AriaAuthorityUnavailableError(), { requestId: 'req_authority_loss', phase, logger });
+  expect(result).toEqual({ status: 503, body: { error: { code: 'INTERNAL_ERROR', requestId: 'req_authority_loss', retryable: true } } });
+  expect(JSON.stringify(logger.error.mock.calls)).not.toContain('Prisma');
 });

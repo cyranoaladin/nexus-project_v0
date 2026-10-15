@@ -19,7 +19,7 @@ import type { PlanningSeries, PrismaClient, SessionBooking } from '@/core-v2/gen
 import { appendAuditEvent } from '../audit';
 import { getOrganizationTimezone } from '../config';
 import { ConflictError, InvalidStateError, NotFoundError, ValidationError, isExclusionViolation } from '../errors';
-import { assertCapability } from '../rbac';
+import { assertCapability, subjectHasRole } from '../rbac';
 import { expandRecurrence, parseRecurrenceRule } from '../recurrence';
 import {
   compareLocalDates,
@@ -34,6 +34,7 @@ import {
 import type { ServiceContext, Tx } from './context';
 import { inTransaction } from './context';
 import { idSchema, parseInput } from './validation';
+import { lockCoachAssignment } from '../repositories/coach-authority';
 
 const localTimeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'HH:MM expected');
 // RFC 5545 RRULE subset actually used by the planning editor; anything else is refused rather than half-interpreted.
@@ -107,15 +108,27 @@ export interface Participants {
   readonly coachId: string;
   readonly studentId: string;
   readonly horizon: LocalDate;
+  readonly startsAt: Date;
+  readonly endsAt: Date;
 }
 
+const PLANNABLE_STUDENT_ACCOUNT_STATUSES: readonly string[] = ['ACTIVE', 'PENDING_ACTIVATION'];
+
 async function loadActiveAssignment(tx: Tx, assignmentId: string): Promise<Participants & { id: string }> {
+  await lockCoachAssignment(tx, assignmentId);
   const assignment = await tx.coachStudentCourseAssignment.findUnique({
     where: { id: assignmentId },
-    include: { academicYearEnrollment: { select: { studentId: true, academicYear: { select: { endsAt: true } } } } },
+    include: { academicYearEnrollment: { select: { studentId: true, status: true,
+      student: { select: { user: { select: { role: true, accountStatus: true } } } },
+      academicYear: { select: { startsAt: true, endsAt: true, status: true } } } } },
   });
   if (!assignment) throw new NotFoundError('Assignment not found.', { assignmentId });
-  if (assignment.status !== 'ACTIVE') {
+  if (assignment.status !== 'ACTIVE' || assignment.academicYearEnrollment.status !== 'ACTIVE'
+    || !['CURRENT', 'UPCOMING'].includes(assignment.academicYearEnrollment.academicYear.status)
+    || !subjectHasRole(assignment.academicYearEnrollment.student.user, 'ELEVE')
+    // Planifier avant l'invitation est le flux canonique : un compte en attente d'activation est
+    // accepté ; seuls les comptes suspendus ou fermés bloquent la planification.
+    || !PLANNABLE_STUDENT_ACCOUNT_STATUSES.includes(assignment.academicYearEnrollment.student.user.accountStatus)) {
     throw new InvalidStateError('Planning requires an ACTIVE assignment.', { assignmentId, status: assignment.status });
   }
   return {
@@ -124,7 +137,19 @@ async function loadActiveAssignment(tx: Tx, assignmentId: string): Promise<Parti
     studentId: assignment.academicYearEnrollment.studentId,
     // The academic year's end is the horizon no open-ended rule may cross (configuration, not a constant).
     horizon: localDateFromDateColumn(assignment.academicYearEnrollment.academicYear.endsAt),
+    startsAt: new Date(Math.max(assignment.startsAt.getTime(), assignment.academicYearEnrollment.academicYear.startsAt.getTime())),
+    endsAt: new Date(Math.min(assignment.endsAt?.getTime() ?? Infinity, assignment.academicYearEnrollment.academicYear.endsAt.getTime())),
   };
+}
+
+function withinAssignment(participants: Participants, occurrence: Pick<Occurrence, 'startsAt' | 'endsAt'>): boolean {
+  return occurrence.startsAt >= participants.startsAt && occurrence.endsAt <= participants.endsAt;
+}
+
+function assertFutureOccurrences(ctx: ServiceContext, participants: Participants, occurrences: readonly Pick<Occurrence, 'startsAt' | 'endsAt'>[]): void {
+  const now = ctx.now();
+  if (occurrences.some(occurrence => occurrence.startsAt <= now || !withinAssignment(participants, occurrence)))
+    throw new InvalidStateError('Planning requires complete future intervals within the active assignment and academic year.');
 }
 
 export interface SlotConflict {
@@ -192,9 +217,8 @@ async function guardingExclusion<T>(work: () => Promise<T>): Promise<T> {
 }
 
 /** Participants + horizon of an ACTIVE assignment — exported for the migrator, which writes series rows with preset ids. */
-export async function loadPlanningParticipants(tx: Tx, assignmentId: string): Promise<{ coachId: string; studentId: string; horizon: LocalDate }> {
-  const { coachId, studentId, horizon } = await loadActiveAssignment(tx, assignmentId);
-  return { coachId, studentId, horizon };
+export async function loadPlanningParticipants(tx: Tx, assignmentId: string): Promise<Participants> {
+  return loadActiveAssignment(tx, assignmentId);
 }
 
 /**
@@ -220,12 +244,16 @@ async function materialize(
   from?: LocalDate,
   futureOnly?: { notBefore: Date; preservedDates: ReadonlySet<string> },
 ): Promise<number> {
-  const occurrences = occurrencesOf(series, participants.horizon, from).filter((occurrence) =>
-    !futureOnly || (occurrence.startsAt >= futureOnly.notBefore &&
-      !futureOnly.preservedDates.has(occurrence.localDate)),
+  const now = ctx.now();
+  const horizon = todayIn(series.timezone, participants.endsAt);
+  const occurrences = occurrencesOf(series, horizon, from).filter((occurrence) =>
+    occurrence.startsAt > now && withinAssignment(participants, occurrence)
+      && (!futureOnly || (occurrence.startsAt >= futureOnly.notBefore &&
+      !futureOnly.preservedDates.has(occurrence.localDate))),
   );
   const conflicts = await findConflicts(tx, participants, occurrences);
   if (conflicts.length > 0) throw conflictError(conflicts);
+  assertFutureOccurrences(ctx, participants, occurrences);
   if (occurrences.length > 0) {
     await tx.sessionBooking.createMany({
       data: occurrences.map((o) => ({
@@ -247,8 +275,9 @@ async function materialize(
     subjectType: 'PlanningSeries',
     subjectId: series.id,
     correlationId: ctx.correlationId,
-    metadata: { count: occurrences.length, from: from ? formatLocalDate(from) : null, horizon: formatLocalDate(participants.horizon) },
+    metadata: { count: occurrences.length, from: from ? formatLocalDate(from) : null, horizon: formatLocalDate(horizon) },
   });
+  assertFutureOccurrences(ctx, participants, occurrences);
   return occurrences.length;
 }
 
@@ -326,7 +355,7 @@ async function cancelFutureOccurrences(tx: Tx, seriesId: string, from: Date, pre
   const changed = await tx.$queryRaw<{ id: string }[]>`
     UPDATE session_bookings_v2
     SET status = 'CANCELLED', "cancelledAt" = ${from}, "updatedAt" = ${from}
-    WHERE "planningSeriesId" = ${seriesId} AND "startsAt" >= ${from}
+    WHERE "planningSeriesId" = ${seriesId} AND "startsAt" > ${from}
       AND status::text = ANY(${[...LIVE_BOOKING_STATUSES]}::text[])
       AND (${!preserveOverrides} OR "overridesBookingId" IS NULL)
     RETURNING id
@@ -359,11 +388,14 @@ async function restorePausedOverrides(tx: Tx, ctx: ServiceContext, series: Plann
     where: { id: { in: ids.data.filter((id) => !cancelledIds.has(id)) }, planningSeriesId: series.id, status: 'CANCELLED', overridesBookingId: { not: null }, startsAt: { gte: now } },
   });
   const occurrences = overrides.map((booking) => ({ localDate: localDateKeyOf(booking.startsAt, series.timezone), startsAt: booking.startsAt, endsAt: booking.endsAt }));
+  assertFutureOccurrences(ctx, participants, occurrences);
   const conflicts = await findConflicts(tx, participants, occurrences);
   if (conflicts.length > 0) throw conflictError(conflicts);
+  assertFutureOccurrences(ctx, participants, occurrences);
   await tx.sessionBooking.updateMany({ where: { id: { in: overrides.map((booking) => booking.id) }, status: 'CANCELLED' }, data: { status: 'SCHEDULED', cancelledAt: null } });
   await appendAuditEvent(tx, { actorUserId: ctx.actor.userId, action: 'planning.overrides_restored', subjectType: 'PlanningSeries', subjectId: series.id,
     correlationId: ctx.correlationId, metadata: { restoredBookings: overrides.length } });
+  assertFutureOccurrences(ctx, participants, occurrences);
 }
 
 /**
@@ -386,6 +418,10 @@ export async function changePlanningSeries(
     inTransaction(client, async (tx) => {
       const before = await tx.planningSeries.findUnique({ where: { id: input.seriesId } });
       if (!before) throw new NotFoundError('Planning series not found.', { seriesId: input.seriesId });
+      await loadActiveAssignment(tx, before.assignmentId);
+      // Termination may have committed while this transaction waited.
+      const current = await tx.planningSeries.findUniqueOrThrow({ where: { id: input.seriesId } });
+      if (current.revision !== before.revision || current.status !== before.status) throw new ConflictError('The planning series changed concurrently.');
       if (before.status === 'ENDED' || before.status === 'CANCELLED') {
         throw new InvalidStateError(`A ${before.status} series cannot be changed.`, { seriesId: input.seriesId });
       }
@@ -436,9 +472,13 @@ export async function changePlanningSeries(
           const cancelledIds = new Set(cancellations.map((event) => event.subjectId));
           const preservedDates = new Set(history.filter((booking) =>
             booking.status === 'RESCHEDULED' || cancelledIds.has(booking.id) ||
-            (booking.startsAt < now && booking.status !== 'CANCELLED'),
+            (booking.startsAt <= now && booking.status !== 'CANCELLED'),
           ).map((booking) => formatLocalDate(todayIn(after.timezone, booking.startsAt))));
-          await materialize(tx, ctx, after, participants, today, { notBefore: now, preservedDates });
+          const count = await materialize(tx, ctx, after, participants, today, { notBefore: now, preservedDates });
+          const retained = await tx.sessionBooking.findMany({ where: { planningSeriesId: after.id,
+            status: { in: [...LIVE_BOOKING_STATUSES] }, startsAt: { gt: now } }, select: { startsAt: true, endsAt: true } });
+          assertFutureOccurrences(ctx, participants, retained);
+          if (count === 0 && retained.length === 0) throw new ValidationError('An active series must contain an authorized future occurrence.');
         } else if (statusChanged) {
           await appendAuditEvent(tx, {
             actorUserId: ctx.actor.userId,
@@ -476,9 +516,13 @@ export async function cancelOccurrence(client: PrismaClient, ctx: ServiceContext
   assertCapability(ctx.actor, 'PLANNING_MANAGE');
   const input = parseInput(cancelOccurrenceSchema, rawInput);
   return inTransaction(client, async (tx) => {
+    const initial = await tx.sessionBooking.findUnique({ where: { id: input.bookingId }, select: { assignmentId: true } });
+    if (!initial) throw new NotFoundError('Booking not found.', { bookingId: input.bookingId });
+    await loadActiveAssignment(tx, initial.assignmentId);
+    await tx.$queryRaw`SELECT id FROM public.session_bookings_v2 WHERE id = ${input.bookingId} FOR UPDATE`;
     const booking = await tx.sessionBooking.findUnique({ where: { id: input.bookingId } });
     if (!booking) throw new NotFoundError('Booking not found.', { bookingId: input.bookingId });
-    if (!(LIVE_BOOKING_STATUSES as readonly string[]).includes(booking.status)) {
+    if (!(LIVE_BOOKING_STATUSES as readonly string[]).includes(booking.status) || booking.startsAt <= ctx.now()) {
       throw new InvalidStateError(`A ${booking.status} booking cannot be cancelled.`, { bookingId: booking.id, status: booking.status });
     }
     const updated = await tx.sessionBooking.update({
@@ -493,6 +537,7 @@ export async function cancelOccurrence(client: PrismaClient, ctx: ServiceContext
       correlationId: ctx.correlationId,
       metadata: { planningSeriesId: booking.planningSeriesId, startsAt: booking.startsAt.toISOString(), reason: input.reason },
     });
+    if (booking.startsAt <= ctx.now()) throw new InvalidStateError('A started booking cannot be cancelled.');
     return updated;
   });
 }
@@ -521,9 +566,13 @@ export async function rescheduleOccurrence(client: PrismaClient, ctx: ServiceCon
 
   return guardingExclusion(() =>
     inTransaction(client, async (tx) => {
+      const initial = await tx.sessionBooking.findUnique({ where: { id: input.bookingId }, select: { assignmentId: true } });
+      if (!initial) throw new NotFoundError('Booking not found.', { bookingId: input.bookingId });
+      const participants = await loadActiveAssignment(tx, initial.assignmentId);
+      await tx.$queryRaw`SELECT id FROM public.session_bookings_v2 WHERE id = ${input.bookingId} FOR UPDATE`;
       const booking = await tx.sessionBooking.findUnique({ where: { id: input.bookingId }, include: { planningSeries: { select: { timezone: true } } } });
       if (!booking) throw new NotFoundError('Booking not found.', { bookingId: input.bookingId });
-      if (!(LIVE_BOOKING_STATUSES as readonly string[]).includes(booking.status)) {
+      if (!(LIVE_BOOKING_STATUSES as readonly string[]).includes(booking.status) || booking.startsAt <= ctx.now()) {
         throw new InvalidStateError(`A ${booking.status} booking cannot be rescheduled.`, { bookingId: booking.id, status: booking.status });
       }
       const timezone = booking.planningSeries?.timezone ?? getOrganizationTimezone();
@@ -537,8 +586,11 @@ export async function rescheduleOccurrence(client: PrismaClient, ctx: ServiceCon
       if (localDateKeyOf(occurrence.startsAt, timezone) !== input.localDate) {
         throw new ValidationError('Invalid local date.', { localDate: input.localDate });
       }
+      assertFutureOccurrences(ctx, participants, [occurrence]);
       const conflicts = await findConflicts(tx, { coachId: booking.coachId, studentId: booking.studentId }, [occurrence], [booking.id]);
       if (conflicts.length > 0) throw conflictError(conflicts);
+      assertFutureOccurrences(ctx, participants, [occurrence]);
+      if (booking.startsAt <= ctx.now()) throw new InvalidStateError('A started booking cannot be rescheduled.');
 
       await tx.sessionBooking.update({ where: { id: booking.id }, data: { status: 'RESCHEDULED' } });
       const replacement = await tx.sessionBooking.create({
@@ -567,6 +619,8 @@ export async function rescheduleOccurrence(client: PrismaClient, ctx: ServiceCon
           reason: input.reason,
         },
       });
+      assertFutureOccurrences(ctx, participants, [occurrence]);
+      if (booking.startsAt <= ctx.now()) throw new InvalidStateError('A started booking cannot be rescheduled.');
       return replacement;
     }),
   );

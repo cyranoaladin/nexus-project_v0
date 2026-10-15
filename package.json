@@ -57,7 +57,7 @@
     "enums:check": "tsx scripts/codegen/generate-client-enums.ts --check",
     "security:forbidden-artifacts": "node scripts/security/check-forbidden-artifacts.mjs",
     "security:forbidden-artifacts:artifact": "node scripts/security/check-forbidden-artifacts.mjs .next",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node --max-old-space-size=6144 node_modules/typescript/bin/tsc --noEmit",
     "typecheck:aria-scripts": "tsc --project tsconfig.aria-scripts.json",
     "test": "jest --config jest.unit.config.js",
     "test:all": "npm test && npm run test:integration",
@@ -181,7 +181,8 @@
     "docker:prod:domain:up": "bash scripts/start-prod-local-domain.sh",
     "docker:prod:domain:down": "docker compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml -f docker-compose.prod.local-domain.override.yml down",
     "test:golden-family:real": "jest --config jest.golden-family-real.config.js --runInBand",
-    "test:golden-family:disposable": "tsx scripts/testing/run-golden-family-real-tests.ts"
+    "test:golden-family:disposable": "tsx scripts/testing/run-golden-family-real-tests.ts",
+    "core-v2:bootstrap-v1-admin": "tsx scripts/core-v2/bootstrap-v1-admin.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "2.11.3",

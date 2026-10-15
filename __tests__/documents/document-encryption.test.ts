@@ -75,6 +75,12 @@ describe('encryptDocument / decryptDocument', () => {
     expect(() => decryptDocument(envelope.subarray(0, 8), AAD)).toThrow();
   });
 
+  it('refuse une version altérée, même si le ciphertext et le tag sont intacts', () => {
+    const envelope = encryptDocument(Buffer.from('contenu'), AAD);
+    envelope[7] = '2'.charCodeAt(0);
+    expect(() => decryptDocument(envelope, AAD)).toThrow('DOCUMENT_ENVELOPE_INVALID');
+  });
+
   it('échoue fermé si la clé est absente', () => {
     delete process.env.DOCUMENT_ENCRYPTION_KEY;
     expect(() => encryptDocument(Buffer.from('x'), AAD)).toThrow(/DOCUMENT_ENCRYPTION_KEY/);

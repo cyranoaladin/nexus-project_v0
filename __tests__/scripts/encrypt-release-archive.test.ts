@@ -10,6 +10,8 @@ const root = resolve(__dirname, '../..');
 let directory: string;
 let home: string;
 let publicKey: string;
+let secondHome: string;
+let secondPublicKey: string;
 function gpg(args: string[]) {
   return spawnSync('gpg', ['--no-options', '--homedir', home, '--batch', '--no-tty', ...args], { encoding: 'buffer' });
 }
@@ -21,9 +23,16 @@ beforeAll(() => {
   expect(generated.status).toBe(0);
   publicKey = join(directory, 'recipient.asc');
   writeFileSync(publicKey, gpg(['--armor', '--export']).stdout);
+  secondHome=join(directory,'second-gnupg');mkdirSync(secondHome,{mode:0o700});
+  const generatedSecond=spawnSync('gpg',['--no-options','--homedir',secondHome,'--batch','--no-tty',
+    '--pinentry-mode','loopback','--passphrase','','--quick-generate-key','Nexus second disposable test','rsa2048','encrypt','1d']);
+  expect(generatedSecond.status).toBe(0);
+  secondPublicKey=join(directory,'second-recipient.asc');
+  writeFileSync(secondPublicKey,spawnSync('gpg',['--no-options','--homedir',secondHome,'--batch','--armor','--export']).stdout);
 }, 30000);
 afterAll(() => {
   spawnSync('gpgconf', ['--homedir', home, '--kill', 'gpg-agent']);
+  spawnSync('gpgconf', ['--homedir', secondHome, '--kill', 'gpg-agent']);
   rmSync(directory, { recursive: true, force: true });
 });
 
@@ -41,6 +50,7 @@ it('restores every archive byte only with the private recipient key and never em
   expect(result.status).toBe(0);
   expect(result.stdout + result.stderr).not.toContain('synthetic framework');
   expect(readFileSync(output).includes(bytes)).toBe(false);
+  expect(statSync(output).mode & 0o777).toBe(0o600);
   const restored = gpg(['--decrypt', output]);
   expect(restored.status).toBe(0);
   expect(restored.stdout).toEqual(bytes);
@@ -48,7 +58,7 @@ it('restores every archive byte only with the private recipient key and never em
   writeFileSync(restoredFile, restored.stdout);
   const extracted = join(directory, 'restored');
   mkdirSync(extracted);
-  expect(spawnSync('tar', ['-xzf', restoredFile, '-C', extracted]).status).toBe(0);
+  expect(spawnSync('tar', ['--same-permissions', '-xzf', restoredFile, '-C', extracted]).status).toBe(0);
   expect(readFileSync(join(extracted, 'server-manifest'))).toEqual(sentinel);
   expect(statSync(join(extracted, 'server-manifest')).mode & 0o777).toBe(0o640);
   const stranger = join(directory, 'stranger');
@@ -75,6 +85,23 @@ it('fails closed for an invalid public recipient without a publishable output', 
   const result = spawnSync('node', [script, input, key, output], { encoding: 'utf8' });
   expect(result.status).not.toBe(0);
   expect(readdirSync(directory)).not.toContain('invalid.gpg');
+});
+
+it('encrypts the same exact private evidence independently to both declared recipients',()=>{
+  const input=join(directory,'dual-private-evidence.tar.gz'),output=join(directory,'dual-private-evidence.tar.gz.gpg');
+  const bytes=Buffer.from('synthetic native evidence bytes\0\xff');writeFileSync(input,bytes);
+  const encrypted=spawnSync('node',[script,input,publicKey,output,secondPublicKey],{encoding:'utf8'});
+  expect(encrypted.status).toBe(0);expect(encrypted.stdout+encrypted.stderr).not.toContain('synthetic native');
+  const first=gpg(['--decrypt',output]);expect(first.status).toBe(0);expect(first.stdout).toEqual(bytes);
+  const second=spawnSync('gpg',['--no-options','--homedir',secondHome,'--batch','--decrypt',output]);
+  expect(second.status).toBe(0);expect(second.stdout).toEqual(bytes);
+});
+
+it('refuses an invalid additional recipient instead of silently encrypting to only the first',()=>{
+  const input=join(directory,'dual-invalid-input.tar.gz'),invalid=join(directory,'dual-invalid-key.asc'),output=join(directory,'dual-invalid.gpg');
+  writeFileSync(input,'synthetic evidence');writeFileSync(invalid,'not a recipient');
+  expect(spawnSync('node',[script,input,publicKey,output,invalid]).status).not.toBe(0);
+  expect(readdirSync(directory)).not.toContain('dual-invalid.gpg');
 });
 
 it.each(['ci.yml', 'preview-artifact.yml'])('%s publishes only encrypted runtime archives and public sidecars', (file) => {

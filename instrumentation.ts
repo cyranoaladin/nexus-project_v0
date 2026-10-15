@@ -75,6 +75,15 @@ export async function register() {
       );
     }
 
+    // Install the invitation authority before any mail drain can start.
+    const { startAccountEmailHandoffScheduler } = await import('./lib/core-v2/accounts/email-handoff-scheduler');
+    try {
+      await startAccountEmailHandoffScheduler();
+    } catch {
+      console.error('ACCOUNT_EMAIL_HANDOFF_STARTUP_PREFLIGHT_FAILED');
+      process.exit(1);
+    }
+
     const { startEmailOutboxScheduler } = await import('./lib/email/outbox-scheduler');
     try {
       startEmailOutboxScheduler();
@@ -109,14 +118,6 @@ export async function register() {
     // startup, since this feature is not yet live anywhere.
     const { startDiagnosticProcessingScheduler } = await import('./lib/core-v2/diagnostics/processing-scheduler');
     startDiagnosticProcessingScheduler();
-
-    const { startAccountEmailHandoffScheduler } = await import('./lib/core-v2/accounts/email-handoff-scheduler');
-    try {
-      await startAccountEmailHandoffScheduler();
-    } catch {
-      console.error('ACCOUNT_EMAIL_HANDOFF_STARTUP_PREFLIGHT_FAILED');
-      process.exit(1);
-    }
 
     const { startCoreV2AriaRecoveryScheduler } = await import('./lib/core-v2/aria/recovery-scheduler');
     try {

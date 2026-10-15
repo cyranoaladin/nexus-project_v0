@@ -139,13 +139,17 @@ describe('complétion différée de l’e-mail parent', () => {
       studentId: 'student-1',
       now: NOW,
     });
+    // §4 : cette assertion exigeait auparavant `password: null` et
+    // `activatedAt: null` sur le compte fusionné — elle figeait le défaut.
+    // Le tombstone `mergedIntoUserId` suffit à refuser toute connexion
+    // (lib/auth/credentials-authorize.ts:88, lib/auth/espace-authorize.ts:68,
+    // lib/auth/parent-phone.ts), donc le hash n'est plus détruit. Le secret à
+    // usage unique, lui, est bien effacé.
     expect(transaction.user.update).toHaveBeenCalledWith({
       where: { id: 'source-parent' },
       data: {
         mergedIntoUserId: 'target-parent',
         mergedAt: NOW,
-        password: null,
-        activatedAt: null,
         activationToken: null,
         activationExpiry: null,
         sessionVersion: { increment: 1 },

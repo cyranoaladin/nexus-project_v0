@@ -12,6 +12,8 @@
  */
 
 import nodemailer from 'nodemailer9';
+import net from 'node:net';
+import tls from 'node:tls';
 import type Mail from 'nodemailer9/lib/mailer';
 import type SMTPTransport from 'nodemailer9/lib/smtp-transport';
 import { LEGAL } from '@/lib/legal';
@@ -93,9 +95,7 @@ let _transporter: Mail | null = null;
  * Get or create the nodemailer transporter (singleton).
  * The host must be configured explicitly in every environment that sends mail.
  */
-export function getTransporter(): Mail {
-  if (_transporter) return _transporter;
-
+function smtpTransportOptions(): SMTPTransport.Options {
   if (!process.env.SMTP_HOST) throw new Error('SMTP_HOST_REQUIRED');
 
   const smtpPassword = resolveSmtpPassword();
@@ -116,7 +116,12 @@ export function getTransporter(): Mail {
     };
   }
 
-  _transporter = nodemailer.createTransport(config);
+  return config;
+}
+
+export function getTransporter(): Mail {
+  if (_transporter) return _transporter;
+  _transporter = nodemailer.createTransport(smtpTransportOptions());
   return _transporter;
 }
 
@@ -137,17 +142,57 @@ export function resetTransporter(): void {
  *
  * @throws Error if sending fails in production.
  */
-export async function sendMail(options: SendMailOptions): Promise<SendMailResult> {
+export async function sendMail(options: SendMailOptions, control?: { deadlineAt: Date; signal?: AbortSignal }): Promise<SendMailResult> {
   if (isMailDisabled()) {
     return { ok: true, skipped: true };
   }
-
-  const transporter = getTransporter();
   const from = resolveFrom();
   const replyTo = options.replyTo || resolveReplyTo();
 
+  let socket: net.Socket | undefined;
+  let timer: NodeJS.Timeout | undefined;
+  let abort: (() => void) | undefined;
+  let stopped = false;
+  let interrupted: Promise<never> | undefined;
+  let transporter: Mail;
+  if (control) {
+    const budget = control.deadlineAt.getTime() - Date.now();
+    if (!Number.isFinite(budget) || budget <= 0 || control.signal?.aborted)
+      throw Object.assign(new Error('SMTP_DEADLINE_EXCEEDED'), { code: 'ETIMEDOUT' });
+    const config = smtpTransportOptions();
+    interrupted = new Promise<never>((_resolve, reject) => {
+      abort = () => {
+        stopped = true;
+        const failure = Object.assign(new Error('SMTP_DEADLINE_EXCEEDED'), { code: 'ETIMEDOUT' });
+        // This is the actual connected TCP socket, including the underlying STARTTLS socket.
+        reject(failure);
+        socket?.destroy();
+      };
+      timer = setTimeout(abort, budget);
+      control.signal?.addEventListener('abort', abort, { once: true });
+    });
+    config.connectionTimeout = Math.min(config.connectionTimeout ?? budget, budget);
+    config.greetingTimeout = Math.min(config.greetingTimeout ?? budget, budget);
+    config.socketTimeout = Math.min(config.socketTimeout ?? budget, budget);
+    config.getSocket = (_options, callback) => {
+      if (stopped) { callback(Object.assign(new Error('SMTP_DEADLINE_EXCEEDED'), { code: 'ETIMEDOUT' })); return; }
+      const host = config.host!;
+      socket = config.secure
+        ? tls.connect({ host, port: Number(config.port), servername: net.isIP(host) ? undefined : host })
+        : net.connect({ host, port: Number(config.port) });
+      let returned = false;
+      socket.on('error', error => { if (!returned) { returned = true; callback(error); } });
+      socket.once(config.secure ? 'secureConnect' : 'connect', () => {
+        if (returned || stopped) { socket?.destroy(); return; }
+        returned = true;
+        callback(null, { connection: socket });
+      });
+    };
+    transporter = nodemailer.createTransport(config);
+  } else transporter = getTransporter();
+
   try {
-    const info = await transporter.sendMail({
+    const pending = transporter.sendMail({
       from,
       replyTo,
       to: options.to,
@@ -156,6 +201,7 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
       text: options.text,
       messageId: options.messageId,
     });
+    const info = interrupted ? await Promise.race([pending, interrupted]) : await pending;
 
     const messageId = typeof info?.messageId === 'string' ? info.messageId : undefined;
     return { ok: true, messageId };
@@ -170,6 +216,10 @@ export async function sendMail(options: SendMailOptions): Promise<SendMailResult
     }
 
     throw error;
+  } finally {
+    if (timer) clearTimeout(timer);
+    if (abort) control?.signal?.removeEventListener('abort', abort);
+    if (control) { socket?.destroy(); transporter.close(); }
   }
 }
 

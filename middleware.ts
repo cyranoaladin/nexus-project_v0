@@ -1,4 +1,5 @@
 import { isAccountSecurityPath } from '@/lib/auth/account-security-path';
+import { isCoreWorkspacePath } from '@/lib/auth/core-workspace-path';
 import { getRoleDestination } from '@/lib/auth/role-destinations';
 import { isAdminSupervisionException } from '@/lib/auth/admin-supervision-exceptions';
 import NextAuth from 'next-auth';
@@ -81,6 +82,7 @@ const authenticatedMiddleware = auth((req) => {
     if (pathname.startsWith('/dashboard') &&
         pathname !== '/dashboard' &&
         !pathname.startsWith('/dashboard/trajectoire') &&
+        !isCoreWorkspacePath(pathname) &&
         !isAccountSecurityPath(pathname)) {
       const expectedPrefix = getRoleDestination(role);
       if (

@@ -4,6 +4,7 @@ import {
 } from '@/lib/core-v2/services';
 import { createServiceContext } from '@/lib/core-v2/services/context';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 const now = () => new Date('2026-10-03T08:00:00.000Z');
@@ -28,9 +29,11 @@ afterEach(() => {
 });
 
 async function parent(email = 'hmac-primary@example.test') {
-  return (await createHousehold(h.client, ctx(), {
+  const { parent } = await createHousehold(h.client, ctx(), {
     parent: { firstName: 'Synthetic', lastName: 'Hmac', email },
-  })).parent;
+  });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
+  return parent;
 }
 
 test('activation uses a dedicated versioned HMAC and preserves 256 bits of CSPRNG entropy', async () => {

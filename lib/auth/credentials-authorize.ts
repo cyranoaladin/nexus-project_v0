@@ -86,6 +86,13 @@ export async function authorizeCredentials(credentials: Partial<Record<'identifi
     ? (candidates.length === 1 ? candidates[0] : null)
     : await prisma.user.findUnique({ where: { email: identifier }, include: { parentProfile: true, coachProfile: true } })
   if (user?.mergedIntoUserId) return null
+  // `disabledAt` is the dedicated suspension status (prisma/schema.prisma:363,
+  // "non-null = compte désactivé (connexion refusée)"). It was enforced on the
+  // Espace path (lib/auth/espace-authorize.ts:68) but NOT here, so a disabled
+  // account could still sign in with its e-mail and password — and, with a Core
+  // v2 membership, reach Core through it. Suspension must hold on every
+  // credential path, not just one.
+  if (user?.disabledAt) return null
   if (isPhone && (!user || user.role !== 'PARENT' || user.parentPhoneState !== 'VERIFIED' || !user.phoneVerifiedAt)) return null
   if (!user) return null
 

@@ -10,3 +10,4 @@ if (!process.env[currentName] && !process.env[keysName]) {
 // Core issuance now persists an encrypted mail handoff. This isolated test
 // configuration supplies a synthetic key; it is never application startup.
 process.env.EMAIL_OUTBOX_ENCRYPTION_KEY ??= randomBytes(32).toString('hex');
+process.env.DOCUMENT_ENCRYPTION_KEY ??= randomBytes(32).toString('hex');

@@ -73,6 +73,8 @@ if [ -n "${CORE_V2_DATABASE_URL:-}" ]; then
   # Core v1 package.json seed from running against the Core v2 URL.
   echo "[e2e-entrypoint] Resetting the disposable Core v2 database and running its migrations from empty..."
   prisma migrate reset --force --skip-seed --skip-generate --schema=core-v2/prisma/schema.prisma
+  echo "[e2e-entrypoint] Attesting the first Core v2 ADMIN (disposable bootstrap)..."
+  tsx scripts/core-v2/bootstrap-e2e-admin.ts
   echo "[e2e-entrypoint] Mirroring seeded staff/coach accounts into Core v2..."
   tsx scripts/core-v2/seed-e2e-staff-actors.ts
 fi

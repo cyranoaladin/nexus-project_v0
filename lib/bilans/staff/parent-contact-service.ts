@@ -63,6 +63,46 @@ export type ParentContactCompletionResult = Readonly<{
   activationQueued: boolean;
 }>;
 
+/**
+ * Garde d'integrite des credentials (§4).
+ *
+ * Une mise a jour de CONTACT ne doit jamais porter un champ de credential. La
+ * neutralisation d'un compte passe par un statut dedie, jamais par effacement du
+ * hash, qui detruirait l'acces d'un parent authentifie par telephone et
+ * supprimerait une preuve.
+ *
+ * Ce qui refuse effectivement la connexion, verifie et non suppose :
+ *   - le tombstone de fusion `mergedIntoUserId` est refuse sur les TROIS chemins
+ *     (lib/auth/credentials-authorize.ts:88, lib/auth/espace-authorize.ts:68,
+ *     lib/auth/parent-phone.ts) ;
+ *   - `disabledAt` (prisma/schema.prisma:363) est refuse sur le chemin Espace et,
+ *     depuis le correctif de securite accompagnant ce fichier, sur le chemin
+ *     e-mail/mot de passe. Une revue independante a montre qu'il n'y etait PAS
+ *     impose : l'affirmation initiale de ce commentaire etait fausse.
+ *
+ * La liste blanche est appliquee a l'EXECUTION et pas seulement par le type :
+ * un champ ajoute plus tard par inadvertance leve immediatement.
+ */
+const CREDENTIAL_FIELDS = Object.freeze(['password', 'passwordHash', 'activatedAt'] as const);
+
+type ContactUpdateData = {
+  readonly email?: string;
+  readonly activationToken?: string | null;
+  readonly activationExpiry?: Date | null;
+  readonly mergedIntoUserId?: string;
+  readonly mergedAt?: Date;
+  readonly sessionVersion?: { readonly increment: number };
+};
+
+function contactUpdate(data: ContactUpdateData): ContactUpdateData {
+  for (const field of CREDENTIAL_FIELDS) {
+    if (Object.prototype.hasOwnProperty.call(data, field)) {
+      throw new ParentContactError('CONTACT_UPDATE_TOUCHED_CREDENTIAL');
+    }
+  }
+  return data;
+}
+
 export async function completePaperEntryParentEmail(
   action: ParentContactAction,
   overrides: Partial<ParentContactDependencies> = {},
@@ -139,19 +179,28 @@ export async function completePaperEntryParentEmail(
     let activation: ReturnType<typeof createParentActivationToken> | null = null;
 
     if (existing === null) {
-      activation = createParentActivationToken(now);
-      await transaction.user.update({
-        where: { id: sourceParent.id },
-        data: {
-          email,
-          activationToken: activation.tokenHash,
-          activationExpiry: activation.expiresAt,
-          password: null,
-          activatedAt: null,
-          sessionVersion: { increment: 1 },
-        },
-      });
-      activationQueued = true;
+      // Un parent SANS e-mail peut etre pleinement actif par authentification
+      // telephone (lib/auth/parent-phone.ts). Poser son e-mail ne doit ni
+      // effacer son hash ni le reinviter : il conserve son identifiant.
+      const alreadyActivated = sourceParent.activatedAt !== null && sourceParent.activatedAt !== undefined;
+      if (alreadyActivated) {
+        await transaction.user.update({
+          where: { id: sourceParent.id },
+          data: contactUpdate({ email, sessionVersion: { increment: 1 } }),
+        });
+      } else {
+        activation = createParentActivationToken(now);
+        await transaction.user.update({
+          where: { id: sourceParent.id },
+          data: contactUpdate({
+            email,
+            activationToken: activation.tokenHash,
+            activationExpiry: activation.expiresAt,
+            sessionVersion: { increment: 1 },
+          }),
+        });
+        activationQueued = true;
+      }
     } else {
       parentUserId = existing.id;
       attachedExisting = true;
@@ -171,25 +220,26 @@ export async function completePaperEntryParentEmail(
       }
       await transaction.user.update({
         where: { id: sourceParent.id },
-        data: {
+        // Le tombstone de fusion suffit a refuser toute connexion : on ne
+        // detruit donc pas le hash. Le secret a usage unique, lui, ne doit
+        // pas survivre a la fusion.
+        data: contactUpdate({
           mergedIntoUserId: existing.id,
           mergedAt: now,
-          password: null,
-          activatedAt: null,
           activationToken: null,
           activationExpiry: null,
           sessionVersion: { increment: 1 },
-        },
+        }),
       });
       if (existing.activatedAt === null) {
         activation = createParentActivationToken(now);
         await transaction.user.update({
           where: { id: existing.id },
-          data: {
+          data: contactUpdate({
             activationToken: activation.tokenHash,
             activationExpiry: activation.expiresAt,
             sessionVersion: { increment: 1 },
-          },
+          }),
         });
         activationQueued = true;
       }

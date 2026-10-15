@@ -12,7 +12,7 @@ import { isKnownAriaCourseKey } from '@/lib/aria/curriculum/catalog';
 import { AriaError } from '@/lib/aria/kernel/errors';
 import { listCoreV2AcademicallyRelevantCourseKeys } from './cockpit-profile';
 import type { CoreV2AriaStudentContext } from './student-context';
-import type { PrismaClient } from '@/core-v2/generated/client';
+import type { PrismaClient, Prisma as CorePrisma } from '@/core-v2/generated/client';
 import type { ServiceContext } from '@/lib/core-v2/services/context';
 import { assertSelfServiceRole, type Actor } from '@/lib/core-v2/rbac';
 import { loadCoreV2AriaStudentContext } from './student-context';
@@ -92,7 +92,7 @@ export function buildCoreV2AriaConversationAuthorization(input: {
  * student and entitlement records as the source of truth.
  */
 export async function buildCoreV2AriaConversationContext(
-  client: PrismaClient,
+  client: PrismaClient | CorePrisma.TransactionClient,
   ctx: ServiceContext,
   input: { readonly courseKey: string; readonly conversationId?: string; readonly skillId?: string },
 ): Promise<AriaConversationContext> {

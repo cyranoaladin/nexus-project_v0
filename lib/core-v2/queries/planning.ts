@@ -10,7 +10,10 @@ import { z } from 'zod';
 import type { PrismaClient, Prisma } from '@/core-v2/generated/client';
 import { assertCapability, assertSelfServiceRole } from '../rbac';
 import type { ServiceContext } from '../services/context';
+import type { Tx } from '../services/context';
 import { idSchema } from '../services/validation';
+import { currentCoachAssignmentWhere } from '../repositories/coach-authority';
+import { lockInvitationAuthority } from '../accounts/invitation-scope';
 
 export const planningRangeSchema = z
   .object({
@@ -33,7 +36,7 @@ export const selfRangeSchema = z
 const bookingInclude = {
   coach: { select: { id: true, user: { select: { id: true, firstName: true, lastName: true } } } },
   student: { select: { id: true, user: { select: { id: true, firstName: true, lastName: true } } } },
-  assignment: { select: { id: true, courseKey: true, status: true } },
+  assignment: { select: { id: true, courseKey: true, status: true, startsAt: true, endsAt: true } },
   planningSeries: { select: { id: true, timezone: true, recurrenceRule: true, revision: true, status: true } },
 } satisfies Prisma.SessionBookingInclude;
 
@@ -52,7 +55,7 @@ export function mapBooking(b: BookingRow) {
     cancelledAt: b.cancelledAt,
     completedAt: b.completedAt,
     courseKey: b.assignment.courseKey,
-    assignment: b.assignment,
+    assignment: { id: b.assignment.id, courseKey: b.assignment.courseKey, status: b.assignment.status },
     coach: b.coach,
     student: b.student,
     series: b.planningSeries,
@@ -61,7 +64,7 @@ export function mapBooking(b: BookingRow) {
 
 export type BookingView = ReturnType<typeof mapBooking>;
 
-async function loadRange(client: PrismaClient, where: Prisma.SessionBookingWhereInput, range: { from: Date; to: Date }): Promise<BookingView[]> {
+async function loadRange(client: PrismaClient | Tx, where: Prisma.SessionBookingWhereInput, range: { from: Date; to: Date }): Promise<BookingView[]> {
   const rows = await client.sessionBooking.findMany({
     where: { ...where, startsAt: { lt: range.to }, endsAt: { gt: range.from } },
     include: bookingInclude,
@@ -84,11 +87,33 @@ export async function listBookings(client: PrismaClient, ctx: ServiceContext, ra
   );
 }
 
-export async function listOwnCoachBookings(client: PrismaClient, ctx: ServiceContext, range: { from: Date; to: Date }): Promise<BookingView[]> {
+export type DeliveredCoachBooking = { readonly kind: 'DELIVERED'; readonly id: string; readonly status: 'COMPLETED';
+  readonly startsAt: Date; readonly endsAt: Date; readonly completedAt: Date | null };
+export type CoachBookingView = BookingView | DeliveredCoachBooking;
+
+export async function listOwnCoachBookings(client: PrismaClient, ctx: ServiceContext, range: { from: Date; to: Date }): Promise<CoachBookingView[]> {
   assertSelfServiceRole(ctx.actor, 'COACH');
-  const coach = await client.coachProfile.findUnique({ where: { userId: ctx.actor.userId }, select: { id: true } });
+  return client.$transaction(async tx => {
+  await lockInvitationAuthority(tx);
+  const coach = await tx.coachProfile.findUnique({ where: { userId: ctx.actor.userId, user: { role: 'COACH', accountStatus: 'ACTIVE' } }, select: { id: true } });
   if (!coach) return [];
-  return loadRange(client, { coachId: coach.id }, range);
+  const at = ctx.now();
+  const currentRows = await tx.sessionBooking.findMany({ where: { coachId: coach.id,
+    status: { in: ['SCHEDULED', 'CONFIRMED', 'IN_PROGRESS'] }, assignment: currentCoachAssignmentWhere(at),
+    startsAt: { lt: range.to }, endsAt: { gt: range.from } }, include: bookingInclude,
+    orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], take: 2000 });
+  // No student, enrollment, assignment or live series is read for history.
+  const delivered = await tx.sessionBooking.findMany({ where: { coachId: coach.id, status: 'COMPLETED',
+    completedAt: { not: null, lte: at }, startsAt: { lt: range.to }, endsAt: { gt: range.from, lte: at } },
+    select: { id: true, startsAt: true, endsAt: true, completedAt: true }, orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], take: 2000 });
+  const publishAt = ctx.now();
+  const current = currentRows.filter(row => row.assignment.startsAt <= publishAt
+    && (!row.assignment.endsAt || row.assignment.endsAt > publishAt)
+    && row.startsAt >= row.assignment.startsAt
+    && (!row.assignment.endsAt || row.endsAt <= row.assignment.endsAt)).map(mapBooking);
+  const history: DeliveredCoachBooking[] = delivered.map(row => ({ kind: 'DELIVERED', ...row, status: 'COMPLETED' }));
+  return [...current, ...history].sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime() || a.id.localeCompare(b.id));
+  });
 }
 
 export async function listOwnStudentBookings(client: PrismaClient, ctx: ServiceContext, range: { from: Date; to: Date }): Promise<BookingView[]> {

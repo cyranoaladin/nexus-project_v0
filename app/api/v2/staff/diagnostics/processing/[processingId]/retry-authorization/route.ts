@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic';
 import { z } from 'zod';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
 import { InvalidStateError } from '@/lib/core-v2/errors';
+import { assertCapability } from '@/lib/core-v2/rbac';
 import { readRunningReleaseSha } from '@/lib/core-v2/diagnostics/release-identity';
 import {
   authorizeDiagnosticProcessingRetry,
@@ -28,6 +29,12 @@ const bodySchema = z.object({
 export const POST = defineStaffRoute({
   body: bodySchema,
   handler: async ({ client, ctx, body, params }) => {
+    // L'AUTORISATION PRECEDE toute lecture d'etat d'infrastructure : sinon un
+    // manifeste de release absent rend 409 INVALID_STATE a un appelant qui
+    // doit recevoir 403. Meme classe de defaut que l'ordre corrige sur les
+    // routes d'invitation. Le service reverifie la capacite : defense en
+    // profondeur, l'autorite reste le service.
+    assertCapability(ctx.actor, 'DIAGNOSTIC_PROCESSING_RECOVERY_AUTHORIZE');
     const releaseSha = await readRunningReleaseSha();
     if (!releaseSha) throw new InvalidStateError('The immutable running release identity is unavailable.');
     const authorized = await authorizeDiagnosticProcessingRetry(client, ctx, {

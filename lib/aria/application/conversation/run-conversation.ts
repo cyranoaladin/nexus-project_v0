@@ -1,4 +1,4 @@
-import { AriaError, type AriaErrorCode } from '../../kernel/errors';
+import { AriaError, isAriaAuthorityLoss, type AriaErrorCode } from '../../kernel/errors';
 import { toCanonicalAriaCourseKey } from '@/lib/aria/curriculum/course-key-aliases';
 import type { AriaConversationContext } from './build-context';
 import type {
@@ -284,6 +284,11 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
     };
     emit('START', elapsed(applicationStartedAt), { finalState: reserved.status });
 
+    const withAuthority = async <T>(operation: () => T | Promise<T>): Promise<T> => dependencies.repository.withAuthority
+      ? dependencies.repository.withAuthority(operation) : operation();
+    let ownedExecutionToken: string | null = null;
+    let ownsTurn = reserved.disposition === 'RESERVED';
+    try {
     const replayPersistedTurn = async (): Promise<AriaConversationExecutionResult> => {
       const replay = await dependencies.repository.loadTurnResult({
         turnId: reserved.turnId,
@@ -306,10 +311,10 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         citations: replay.citations,
         failureCode: replay.failureCode,
       };
-      input.onStart?.({
+      await withAuthority(() => input.onStart?.({
         turnId: result.turnId, conversationId: result.conversationId,
         messageId: result.messageId, status: result.status, disposition: result.disposition,
-      });
+      }));
       emit(
         status === 'CANCELLED' ? 'CANCELLED' : status === 'ERROR' ? 'ERROR' : 'COMPLETED',
         elapsed(applicationStartedAt),
@@ -332,10 +337,10 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         fullText: '',
         citations: [],
       };
-      input.onStart?.({
+      await withAuthority(() => input.onStart?.({
         turnId: result.turnId, conversationId: result.conversationId,
         messageId: result.messageId, status: result.status, disposition: result.disposition,
-      });
+      }));
       return result;
     }
     if (reserved.disposition === 'REPLAY') {
@@ -368,20 +373,21 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         fullText: '',
         citations: [],
       };
-      input.onStart?.({
+      await withAuthority(() => input.onStart?.({
         turnId: result.turnId, conversationId: result.conversationId,
         messageId: result.messageId, status: result.status, disposition: result.disposition,
-      });
+      }));
       return result;
     }
 
-    input.onStart?.({
+    ownedExecutionToken = executionToken; ownsTurn = true;
+    await withAuthority(() => input.onStart?.({
       turnId: reserved.turnId,
       conversationId: reserved.conversationId,
       messageId: reserved.assistantMessageId,
       status: 'RUNNING',
       disposition: 'EXECUTED',
-    });
+    }));
 
     const cancellationSignal = registerAriaTurnCancellation(reserved.turnId, executionToken);
     const heartbeat = startAriaTurnHeartbeat({
@@ -531,8 +537,10 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           });
         }
         if (timeToFirstTokenMs === undefined) timeToFirstTokenMs = elapsed(modelStartedAt);
-        accumulated += token;
-        input.onDelta?.(token);
+        await withAuthority(() => {
+          accumulated += token;
+          input.onDelta?.(token);
+        });
       }
       if (cancellationSignal.aborted) {
         throw abortError(cancellationSignal);
@@ -586,9 +594,11 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         ragStatus,
         citations,
       };
-      await input.onComplete?.(result);
+      await withAuthority(() => input.onComplete?.(result));
       return result;
     } catch (error: unknown) {
+      if (isAriaAuthorityLoss(error)) throw error;
+      await withAuthority(() => undefined);
       if (finalizationAttempted) throw error;
       const cancelled = error instanceof AriaError && error.code === 'USER_CANCELLED';
       const failureCode: AriaErrorCode = error instanceof AriaError
@@ -640,7 +650,7 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
           ragStatus,
           citations,
         };
-        await input.onComplete?.(cancelledResult);
+        await withAuthority(() => input.onComplete?.(cancelledResult));
         return cancelledResult;
       }
       const failedResult: AriaConversationExecutionResult = {
@@ -654,11 +664,18 @@ export function makeRunAriaConversation(dependencies: AriaConversationExecutionD
         citations,
         failureCode,
       };
-      await input.onComplete?.(failedResult);
+      await withAuthority(() => input.onComplete?.(failedResult));
       return failedResult;
     } finally {
       await heartbeat.stop();
       unregisterAriaTurnCancellation(reserved.turnId, executionToken);
+    }
+    } catch (error) {
+      if (isAriaAuthorityLoss(error) && ownsTurn && dependencies.repository.retireRevokedTurn) {
+        await dependencies.repository.retireRevokedTurn({ turnId: reserved.turnId, conversationId: reserved.conversationId,
+          assistantMessageId: reserved.assistantMessageId, executionToken: ownedExecutionToken });
+      }
+      throw error;
     }
   };
 }

@@ -2,18 +2,22 @@ export const dynamic = 'force-dynamic';
 
 import { publicUser } from '@/lib/core-v2/http/respond';
 import { defineStaffRoute } from '@/lib/core-v2/http/staff-route';
-import { resendInvitation } from '@/lib/core-v2/services';
-import { assertAccountEmailHandoffRuntimeConfiguration, kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
+import { requestAccountInvitationResend } from '@/lib/core-v2/services';
+import { kickAccountEmailHandoffDrain } from '@/lib/core-v2/accounts/email-handoff-scheduler';
+import { assertAccountInvitationRuntimeConfiguration } from '@/lib/core-v2/accounts/invitation-runtime';
+import { assertCapability } from '@/lib/core-v2/rbac';
 
 export const POST = defineStaffRoute({
   handler: async ({ client, ctx, params, request }) => {
-    assertAccountEmailHandoffRuntimeConfiguration();
-    const issued = await resendInvitation(client, ctx, params.id, { commandId: request.headers.get('idempotency-key') ?? undefined });
-    const user = await client.user.findUniqueOrThrow({ where: { id: params.id } });
+    // Meme ordre que /invite : capacite d'abord, disponibilite de la remise
+    // ensuite, pour ne jamais rendre 503 a un appelant qui doit recevoir 403.
+    assertCapability(ctx.actor, 'ACCOUNT_INVITE');
+    const issued = await requestAccountInvitationResend(client, ctx, params.id, { commandId: request.headers.get('idempotency-key') ?? undefined, onAuthorized: assertAccountInvitationRuntimeConfiguration });
+    const user = issued.user ?? publicUser(await client.user.findUniqueOrThrow({ where: { id: params.id } }));
     kickAccountEmailHandoffDrain();
     return {
       status: 201,
-      data: { user: publicUser(user), invitation: { id: issued.invitation.id, expiresAt: issued.invitation.expiresAt, deliveryStatus: 'QUEUED' } },
+      data: { user, invitation: { id: issued.invitation.id, expiresAt: issued.invitation.expiresAt, deliveryStatus: 'QUEUED' } },
     };
   },
 });

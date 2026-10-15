@@ -80,6 +80,7 @@ prisma/**/node_modules/
 
 # Database backups
 *.sql
+!scripts/core-v2/provision-admin-authority.sql
 *.sql.gz
 backup_*.sql
 backup_*.sql.gz

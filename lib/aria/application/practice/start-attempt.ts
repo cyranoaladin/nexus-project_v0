@@ -3,12 +3,13 @@ import { getActivityById } from './shared';
 import { prismaActivityRepository } from '../../infrastructure/prisma/activity-repository';
 import type { ActivityAttemptRecord, ActivityRepository } from './ports';
 
-export function makeStartAriaPracticeAttempt(repository: ActivityRepository) {
+export function makeStartAriaPracticeAttempt(repository: ActivityRepository,
+  authorize: typeof authorizePracticeCourseForActor = authorizePracticeCourseForActor) {
   return async function startAriaPracticeAttempt(
     input: AriaPracticeActorInput & { readonly activityId: string },
   ): Promise<ActivityAttemptRecord> {
     const activity = await getActivityById(repository, input.activityId);
-    const { student } = await authorizePracticeCourseForActor({
+    const { student } = await authorize({
       actor: input.actor,
       now: input.now,
       courseKey: activity.courseKey,

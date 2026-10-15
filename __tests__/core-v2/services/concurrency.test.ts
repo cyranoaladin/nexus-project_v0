@@ -20,6 +20,8 @@ import {
   setPrimaryContact,
 } from '@/lib/core-v2/services';
 import { academicYearDates } from '../helpers/fixtures';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
+import { setInvitationScopeGrant } from '@/lib/core-v2/accounts/invitation-scope';
 import {
   holdOpenTransaction,
   race,
@@ -137,6 +139,8 @@ describe('§AB concurrency matrix', () => {
     const { household } = await createHousehold(client, ctx, { parent: { firstName: 'A', lastName: 'B', email: 'ab@example.com' } });
     const { student } = await createStudent(client, ctx, { householdId: household.id, student: { firstName: 'S', lastName: 'T' } });
     const enrollment = await createAnnualEnrollment(client, ctx, { studentId: student.id, academicYearId: year.id, academicMap: { gradeLevel: 'SECONDE' } });
+    await setInvitationScopeGrant(client, ctx, { householdId: household.id, staffUserId: h.assistante.userId,
+      academicYearId: year.id, expectedRevision: 0, active: true });
     const { fulfilled, rejected } = await race(
       () => approveEnrollment(client, h.ctx(), enrollment.id),
       () => approveEnrollment(client, h.ctx(h.assistante), enrollment.id),
@@ -179,6 +183,7 @@ describe('§AB concurrency matrix', () => {
     const { client } = h;
     const ctx = h.ctx();
     const { parent } = await createHousehold(client, ctx, { parent: { firstName: 'A', lastName: 'B', email: 'ab@example.com' } });
+    await seedInvitationFamilyScope(client, h.admin.userId, parent.id);
     const first = await resendInvitation(client, ctx, parent.id);
 
     // T1 = an in-flight resend (revoke prior + insert new) held open; T2's own
@@ -216,7 +221,7 @@ describe('§AB concurrency matrix', () => {
     const audits = await client.auditEvent.count();
     await expect(
       createParent(client, ctx, { householdId: 'nope', parent: { firstName: 'A', lastName: 'B', email: 'taken@example.com' } }),
-    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    ).rejects.toMatchObject({ code: 'FORBIDDEN' });
     const { household } = await createHousehold(client, ctx, { parent: { firstName: 'A', lastName: 'B', email: 'ok@example.com' } });
     await expect(
       createParent(client, ctx, { householdId: household.id, parent: { firstName: 'A', lastName: 'B', email: 'TAKEN@example.com' } }),

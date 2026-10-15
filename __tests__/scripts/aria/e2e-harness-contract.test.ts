@@ -58,6 +58,17 @@ describe('ARIA disposable browser qualification harness', () => {
     expect(app).toMatch(/E2E_DISPOSABLE_STACK:\s*"1"/);
   });
 
+  it('encrypts deposited documents with a per-run disposable key in every application lane', () => {
+    const compose = source('docker-compose.e2e.yml');
+    const app = compose.slice(compose.indexOf('  app-e2e:'), compose.indexOf('  playwright:'));
+    expect(app).toMatch(/DOCUMENT_ENCRYPTION_KEY:\s*"\$\{DOCUMENT_ENCRYPTION_KEY:\?/);
+    expect(source('scripts/aria/e2e-runtime-secrets.sh')).toMatch(/DOCUMENT_ENCRYPTION_KEY/);
+    const workflow = source('.github/workflows/ci.yml');
+    const exports = workflow.match(/for name in [^;\n]*; do/g) ?? [];
+    expect(exports.filter(line => line.includes('ARIA_E2E_FIXTURE_ADMIN_TOKEN')).every(line => line.includes('DOCUMENT_ENCRYPTION_KEY'))).toBe(true);
+    expect(exports.some(line => line.includes('DOCUMENT_ENCRYPTION_KEY'))).toBe(true);
+  });
+
   it('keeps the disposable PostgreSQL boundary private to its Docker network', () => {
     const compose = source('docker-compose.e2e.yml');
     const postgresBlock = compose.slice(

@@ -9,6 +9,8 @@ const ALLOWED_TARGETS: Readonly<Record<string, ReadonlySet<string>>> = Object.fr
 
 const REFUSAL = 'CORE_V2_E2E_SEED_TARGET_REFUSED';
 
+export { assertCoreV1E2eSeedTarget } from '../e2e/v1-seed-target';
+
 /**
  * Fail-closed guard for the destructive Core v2 E2E seeder.
  *

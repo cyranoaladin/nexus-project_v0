@@ -13,6 +13,7 @@ import { deliverCoreV2Invitation } from '@/lib/email/core-v2-invitation';
 import { deliverCoreV2PasswordReset } from '@/lib/email/core-v2-password-reset';
 import { createHousehold } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 import { POST as invite } from '@/app/api/v2/staff/accounts/[id]/invite/route';
 import { POST as reset } from '@/app/api/v2/auth/password-reset/route';
 
@@ -34,6 +35,7 @@ function request(path: string, body?: unknown) {
 
 test('staff invitation is durably queued without depending on a live V1 transaction', async () => {
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: { firstName: 'Synthetic', lastName: 'Route', email: 'synthetic-handoff-route@example.test' } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   const response = await invite(request('/api/v2/staff/accounts/synthetic/invite'), { params: Promise.resolve({ id: parent.id }) });
   expect(response.status).toBe(201);
   const text = await response.text();

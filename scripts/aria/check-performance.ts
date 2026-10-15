@@ -13,6 +13,8 @@ import { formatAriaSSEEvent } from '../../lib/aria/transport/sse-parser';
 export interface AriaPerformanceContractReport {
   readonly contextDbOperations: number;
   readonly dbWritesPerToken: number;
+  /** Read-only authority fence per streamed token (Core v2 V1_ONLY revocation). Never a write. */
+  readonly authorityFencesPerToken: number;
   readonly instrumentation: readonly [
     'RAG_LATENCY',
     'TIME_TO_FIRST_TOKEN',
@@ -115,6 +117,7 @@ function contextDependencyPaths(
 function collectPrismaRoots(
   ast: ts.SourceFile,
   roots: Set<string>,
+  includeDefaultedParameters = false,
 ): ReadonlySet<string> {
   const imports = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node)
@@ -133,6 +136,14 @@ function collectPrismaRoots(
   while (changed) {
     changed = false;
     const aliases = (node: ts.Node): void => {
+      // Context entrypoint whose client is injectable and defaults to the shared one: `client = prisma`.
+      if (includeDefaultedParameters && ts.isParameter(node) && node.initializer && ts.isIdentifier(node.name)) {
+        const origin = leftmostIdentifier(unwrapExpression(node.initializer));
+        if (origin && roots.has(origin) && !roots.has(node.name.text)) {
+          roots.add(node.name.text);
+          changed = true;
+        }
+      }
       if (ts.isVariableDeclaration(node) && node.initializer) {
         const initializer = unwrapExpression(node.initializer);
         const origin = leftmostIdentifier(initializer);
@@ -368,6 +379,7 @@ function calledFunctionName(
 function contextPrismaRoots(
   asts: readonly ts.SourceFile[],
   repositoryRoot: string,
+  entrypoints: ReadonlySet<string>,
 ): ReadonlyMap<ts.SourceFile, ReadonlySet<string>> {
   const roots = new Map(asts.map((ast) => [ast, new Set<string>(['prisma'])]));
   const functions = functionParameters(asts);
@@ -378,7 +390,7 @@ function contextPrismaRoots(
     for (const ast of asts) {
       const astRoots = roots.get(ast)!;
       const before = astRoots.size;
-      collectPrismaRoots(ast, astRoots);
+      collectPrismaRoots(ast, astRoots, entrypoints.has(ast.fileName));
       if (astRoots.size !== before) changed = true;
       const visit = (node: ts.Node): void => {
         if (ts.isCallExpression(node)) {
@@ -518,7 +530,7 @@ function repositoryCallsInsideModelLoop(
   asts: readonly ts.SourceFile[],
   ast: ts.SourceFile,
   repositoryRoot: string,
-): number {
+): Readonly<{ writes: number; authorityFences: number }> {
   const repositoryAliases = new Set<string>();
   const scopedIdentifier = (sourceFile: ts.SourceFile, name: string) =>
     `${sourceFile.fileName}:${name}`;
@@ -608,6 +620,8 @@ function repositoryCallsInsideModelLoop(
   const functions = localFunctionDefinitions(asts);
   const bindings = functionBindingResolution(asts, repositoryRoot, new Set(functions.keys()));
   let count = 0;
+  // Read-only emission fence (repository.withAuthority): counted apart, never as a write.
+  let authorityFences = 0;
   const visit = (node: ts.Node): void => {
     if (ts.isForOfStatement(node) && node.awaitModifier && isModelStream(node.expression)) {
         const activeFunctions = new Set<string>();
@@ -618,7 +632,11 @@ function repositoryCallsInsideModelLoop(
             const calleeRoot = leftmostIdentifier(candidate.expression);
             if (callee.startsWith('dependencies.repository.')
               || callee.startsWith('dependencies.repository[')
-              || (calleeRoot && hasRepositoryAlias(candidateAst, calleeRoot))) count += 1;
+              || (calleeRoot && hasRepositoryAlias(candidateAst, calleeRoot))) {
+              if (ts.isPropertyAccessExpression(candidate.expression)
+                && candidate.expression.name.text === 'withAuthority') authorityFences += 1;
+              else count += 1;
+            }
             const functionName = calledFunctionName(candidate.expression, candidateAst, bindings);
             if (functionName) {
               const definition = functions.get(functionName);
@@ -650,7 +668,7 @@ function repositoryCallsInsideModelLoop(
     node.forEachChild(visit);
   };
   visit(ast);
-  return count;
+  return Object.freeze({ writes: count, authorityFences });
 }
 
 function containsModelStreamOrigin(node: ts.Node, ast: ts.SourceFile): boolean {
@@ -904,13 +922,13 @@ export function inspectAriaPerformanceContract(repositoryRoot: string): AriaPerf
     return ts.createSourceFile(contextPath, contextSource, ts.ScriptTarget.Latest, true);
   });
   const callbacks = collectionCallbackNames(contextAsts);
-  const prismaRoots = contextPrismaRoots(contextAsts, repositoryRoot);
+  const prismaRoots = contextPrismaRoots(contextAsts, repositoryRoot, new Set(contextEntrypoints));
   const contextDbOperations = contextAsts.reduce((count, contextAst) => {
     const analysis = inspectPrismaCalls(contextAst, callbacks, prismaRoots.get(contextAst)!);
     if (analysis.insideCollectionLoop) contextQueryInsideLoop = true;
     return count + analysis.count;
   }, 0);
-  const dbWritesPerToken = repositoryCallsInsideModelLoop(
+  const { writes: dbWritesPerToken, authorityFences: authorityFencesPerToken } = repositoryCallsInsideModelLoop(
     executionAsts,
     executionAst,
     repositoryRoot,
@@ -940,9 +958,11 @@ export function inspectAriaPerformanceContract(repositoryRoot: string): AriaPerf
     throw new Error(`ARIA_CONTEXT_QUERY_BUDGET_EXCEEDED:${contextDbOperations}`);
   }
   if (dbWritesPerToken !== 0) throw new Error(`ARIA_DB_WRITES_PER_TOKEN:${dbWritesPerToken}`);
+  if (authorityFencesPerToken > 1) throw new Error(`ARIA_AUTHORITY_FENCES_PER_TOKEN:${authorityFencesPerToken}`);
   return Object.freeze({
     contextDbOperations,
     dbWritesPerToken,
+    authorityFencesPerToken,
     instrumentation: Object.freeze(requiredInstrumentation.map(([, label]) => label)) as
       AriaPerformanceContractReport['instrumentation'],
   });
@@ -1001,6 +1021,7 @@ export function formatAriaPerformanceQualification(input: Readonly<{
   return [
     `ARIA_CONTEXT_DB_OPERATIONS_OBSERVED=${input.contract.contextDbOperations}`,
     `ARIA_DB_WRITES_PER_TOKEN=${input.contract.dbWritesPerToken}`,
+    `ARIA_AUTHORITY_FENCES_PER_TOKEN=${input.contract.authorityFencesPerToken}`,
     `ARIA_HISTORY_100_TURNS_P95_MS=${input.measured.history100TurnsP95Ms.toFixed(3)}`,
     `ARIA_SSE_500_EVENTS_P95_MS=${input.measured.sse500EventsP95Ms.toFixed(3)}`,
     `ARIA_LATENCY_INSTRUMENTATION=${input.contract.instrumentation.join(',')}`,

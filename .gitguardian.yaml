@@ -1,0 +1,7 @@
+version: 2
+secret:
+  # Faux positifs revus, ignorés par empreinte exacte (jamais par motif) :
+  # chaque entrée ne couvre que la valeur publique désignée.
+  ignored_matches:
+    - name: somme SHA-256 publique de la migration Core v2 0032 (lib/core-v2/accounts/bootstrap-schema.ts)
+      match: 1ffd8bcc043781e179c2e2b659ae027918b476f936b81070522342708a30e8be

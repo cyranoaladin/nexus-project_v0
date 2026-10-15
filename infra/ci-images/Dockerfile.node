@@ -1,0 +1,29 @@
+# Inputs are acquired and verified before this build, then supplied offline.
+# This image contains the executable runtime, not Node's source/test fixtures
+# or the compiler image. The complete compiler and input provenance are retained.
+FROM ubuntu@sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55
+RUN apt-get update && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends ca-certificates libstdc++6 \
+ && rm -rf /var/lib/apt/lists/*
+COPY node22.23.3-openssl3.5.9-linux-x64.tar.gz nexus-npm-11.21.0-security.2.tgz /inputs/
+RUN cd /inputs \
+ && echo '86239b3139fbf01acd59db555ef100a2d5e15d7fc8262cb62cde0ed0b7ce7b05  node22.23.3-openssl3.5.9-linux-x64.tar.gz' | sha256sum -c - \
+ && echo 'eb22b5ad4d5939be75ca65d73c3e276e07eeae259ae57afdb7e17d1c1cb93189  nexus-npm-11.21.0-security.2.tgz' | sha256sum -c - \
+ && mkdir -p /opt/nexus-runtime/lib/node_modules/npm /app /home/nexus \
+ && tar -xzf node22.23.3-openssl3.5.9-linux-x64.tar.gz -C /opt/nexus-runtime \
+ && tar -xzf nexus-npm-11.21.0-security.2.tgz --strip-components=1 -C /opt/nexus-runtime/lib/node_modules/npm \
+ && ln -s ../lib/node_modules/npm/bin/npm-cli.js /opt/nexus-runtime/bin/npm \
+ && ln -s ../lib/node_modules/npm/bin/npx-cli.js /opt/nexus-runtime/bin/npx \
+ && echo 'e653d9d945e330691ef66a793ad0ceee9f49f7370a27bbe06c493e8510ec5856  /opt/nexus-runtime/bin/node' | sha256sum -c - \
+ && /opt/nexus-runtime/bin/node -e 'if(process.versions.node!=="22.23.3"||process.versions.openssl!=="3.5.9"||process.versions.sqlite!=="3.53.4")process.exit(1)' \
+ && test "$(/opt/nexus-runtime/bin/node /opt/nexus-runtime/lib/node_modules/npm/bin/npm-cli.js --version)" = 11.21.0 \
+ && chown -R root:root /opt/nexus-runtime \
+ && chmod -R go-w /opt/nexus-runtime \
+ && printf 'nexus:x:1000:1000:Nexus:/home/nexus:/bin/sh\n' >> /etc/passwd \
+ && printf 'nexus:x:1000:\n' >> /etc/group \
+ && chown 1000:1000 /app /home/nexus \
+ && rm -rf /inputs
+ENV PATH="/opt/nexus-runtime/bin:${PATH}"
+USER 1000:1000
+WORKDIR /app
+CMD ["node"]

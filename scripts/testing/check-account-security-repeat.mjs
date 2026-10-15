@@ -6,7 +6,6 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const expectedCases = new Map([
-  ['password-change.spec.ts', 'parent changes their password and revokes both old sessions at 390px'],
   ['password-change-v1.spec.ts', 'V1 parent changes their password and revokes two sessions at 390px'],
 ].map(([file, title]) => [file, `case:${createHash('sha256').update(title).digest('hex')}`]));
 const invalid = () => { throw new Error('ACCOUNT_SECURITY_REPEAT_EVIDENCE_INVALID'); };
@@ -14,7 +13,7 @@ const invalid = () => { throw new Error('ACCOUNT_SECURITY_REPEAT_EVIDENCE_INVALI
 export function qualifyAccountSecurityRepeat(report) {
   if (!report || report.privacyFormat !== 'playwright-allowlist/1'
     || report.config?.rootDir !== '/workspace/e2e/auth' || !Array.isArray(report.suites) || !Array.isArray(report.errors)
-    || report.errors.length !== 0 || report.stats?.expected !== 40
+    || report.errors.length !== 0 || report.stats?.expected !== 20
     || report.stats.skipped !== 0 || report.stats.unexpected !== 0 || report.stats.flaky !== 0) invalid();
   const specs = [];
   function walk(suites, depth = 0) {
@@ -26,7 +25,7 @@ export function qualifyAccountSecurityRepeat(report) {
     }
   }
   walk(report.suites);
-  if (specs.length !== 40) invalid();
+  if (specs.length !== 20) invalid();
   const seen = new Set();
   const counts = new Map([...expectedCases.keys()].map(file => [file, 0]));
   for (const spec of specs) {
@@ -48,7 +47,7 @@ export function qualifyAccountSecurityRepeat(report) {
     }
   }
   if ([...counts.values()].some(count => count !== 20)) invalid();
-  return { project: 'mobile-smoke', cases: 2, repetitionsPerCase: 20, passed: 40, skipped: 0, retries: 0 };
+  return { project: 'mobile-smoke', cases: 1, repetitionsPerCase: 20, passed: 20, skipped: 0, retries: 0 };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

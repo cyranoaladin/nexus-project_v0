@@ -2,6 +2,7 @@ import type { Session } from 'next-auth';
 import Link from 'next/link';
 import { getNavigationItems } from './navigation-config';
 import { MobileMenuWrapper } from './MobileMenuWrapper';
+import { CoreNavigationEntry } from './CoreNavigationEntry';
 import { filterNsiPratiqueNavigation } from '@/lib/nsi-pratique-2026/access';
 
 export async function Navbar({ user }: { user: Session['user'] }) {
@@ -26,6 +27,7 @@ export async function Navbar({ user }: { user: Session['user'] }) {
         </div>
 
         <nav className="flex items-center gap-4" aria-label="Actions utilisateur">
+          <CoreNavigationEntry />
           <Link href="/dashboard/account/security" prefetch={false} className="text-sm underline focus-visible:outline focus-visible:outline-2">Sécurité du compte</Link>
           <div className="hidden lg:block text-sm text-neutral-300">
             Utilisateur connecté

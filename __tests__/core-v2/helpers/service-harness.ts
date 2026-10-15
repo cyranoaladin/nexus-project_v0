@@ -12,6 +12,7 @@ import type { Actor } from '@/lib/core-v2/rbac';
 import { createServiceContext, type ServiceContext } from '@/lib/core-v2/services/context';
 import { academicYearDates, TEST_ORGANIZATION_TIMEZONE } from './fixtures';
 import { resetCoreV2Database } from './reset-db';
+import { bootstrapTestAdmin } from './bootstrap';
 
 process.env[ORGANIZATION_TIMEZONE_ENV] ??= TEST_ORGANIZATION_TIMEZONE;
 process.env[INVITATION_TTL_ENV] ??= '72';
@@ -40,9 +41,9 @@ export function setupServiceHarness(): Harness {
 
   beforeEach(async () => {
     await resetCoreV2Database(harness.client);
-    const adminUser = await harness.client.user.create({
-      data: { role: 'ADMIN', email: 'admin@synthetic.test', accountStatus: 'ACTIVE' },
-    });
+    const admin = await bootstrapTestAdmin(harness.client);
+    const adminUser = await harness.client.user.update({ where: { id: admin.v1UserId },
+      data: { email: 'admin@synthetic.test' } });
     const assistanteUser = await harness.client.user.create({
       data: { role: 'ASSISTANTE', email: 'assistante@synthetic.test', accountStatus: 'ACTIVE' },
     });

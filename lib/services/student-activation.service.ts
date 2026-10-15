@@ -107,6 +107,9 @@ async function findPendingUserActivation(
   hashedToken: string,
   purpose: ActivationPurpose,
 ): Promise<ActivationUserRecord | null> {
+  // `staff` activations live in lib/auth/staff-activation.ts. This lookup maps
+  // every non-parent purpose to ELEVE, so a staff token must never reach it.
+  if (purpose === 'staff') return null;
   const user = await prisma.user.findFirst({
     where: {
       activationToken: hashedToken,

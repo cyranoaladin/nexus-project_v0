@@ -40,6 +40,8 @@ export const AUDIT_ACTIONS = [
   'planning.occurrence_rescheduled',
   'account.email_handoff_transferred',
   'account.email_handoff_discarded',
+  'account.invitation_scope_granted',
+  'account.invitation_scope_revoked',
   'account.invited',
   'account.invitation_resent',
   'account.activated',
@@ -76,6 +78,7 @@ export type AuditSubjectType =
   | 'CoachStudentCourseAssignment'
   | 'PlanningSeries'
   | 'SessionBooking'
+  | 'InvitationScopeGrant'
   | 'Invitation'
   | 'MigrationRun'
   | 'DiagnosticAssignment'

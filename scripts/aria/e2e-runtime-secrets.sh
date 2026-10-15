@@ -9,7 +9,8 @@ prepare_aria_e2e_runtime_secrets() {
     ARIA_E2E_MODEL_API_KEY \
     RAG_BFF_SERVICE_TOKEN \
     RAG_ENGINE_API_KEY \
-    NEXUS_INTERNAL_TOKEN_SECRET
+    NEXUS_INTERNAL_TOKEN_SECRET \
+    DOCUMENT_ENCRYPTION_KEY
   do
     runtime_value="$(openssl rand -hex 32)"
     printf -v "$variable_name" '%s' "$runtime_value"

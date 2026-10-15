@@ -194,6 +194,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      'lib/bilans/staff/parent-contact-service.ts:update#4',
       // Explicit session revocation in Core v2, the mirror of the Core v2 read in
       // validateSessionToken. A CORE_V2 token is never re-checked against Core v1,
       // so revoking there alone left a migrated identity signed in while the API
@@ -212,6 +213,15 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
       'lib/services/student-activation.service.ts:updateMany#2',
+      // Activation staff dans Core v1 (premier mot de passe, incrément de version) — voir la liste versionnée.
+      'lib/auth/staff-activation.ts:updateMany#1',
+      // Invitation demandée par Core (V1_ONLY) : rotation ou retrait du jeton d'activation d'un compte
+      // PENDING. N'écrit ni credential ni version de session, et ne matche jamais un compte actif.
+      'lib/auth/v1-account-invitation.ts:updateMany#1',
+      'lib/auth/v1-account-invitation.ts:updateMany#2',
+      // Ligne Core v2 portée à ACTIVE une fois le credential détenu par Core v1 : pas de mot de passe,
+      // et aucune session n'existe encore.
+      'lib/core-v2/accounts/v1-provisioning-worker.ts:update#1',
       // Espace pédagogique (provisioning par un opérateur, lib/espace/provisioning.ts) :
       //  update#1 pose un identifiant sur un compte existant adopté et update#2 pose son PREMIER code
       //  personnel : aucun secret existant n'est remplacé, il n'y a donc aucune session à révoquer.
@@ -229,14 +239,11 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 12 }, (_, index) => `prisma/seed.ts:upsert#${index + 1}`),
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
-      // Disposable-stack mirrors of the ARIA persona and staff/coach accounts into Core v2
-      // (credentials copied, sessions revoked on re-seed).
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
-      // Production V1→Core v2 staff-actor sync: mirrors V1 ADMIN/ASSISTANTE/COACH identity,
+      // Disposable Core fixtures now create memberships with NULL credentials only.
+      // Production V1→Core v2 staff-actor sync: mirrors V1 ASSISTANTE/COACH identity,
       // role and status onto the Core v2 actor row (never a password). Fires only on drift;
       // any drift is session-sensitive and revokes Core v2 sessions (see the versioned list).
-      'scripts/core-v2/sync-staff-actors.ts:update#1',
+      'scripts/core-v2/sync-staff-actors.ts:updateMany#1',
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
       'scripts/mega-e2e-validation.ts:delete#1',
       'scripts/mega-e2e-validation.ts:delete#2',
@@ -253,6 +260,7 @@ describe('exhaustive User security mutation inventory', () => {
 
     expect(descriptors.sort()).toEqual(approved)
     expect(descriptors.filter(descriptor => descriptor.startsWith('scripts/core-v2/migration/apply.ts:'))).toEqual([])
+    expect(descriptors.filter(descriptor => descriptor.startsWith('scripts/core-v2/seed-e2e-staff-actors.ts:'))).toEqual([])
 
     const pendingLifecycle = read('lib/auth/pending-account-lifecycle.ts')
     expect(pendingLifecycle).toContain("plan.action === 'INVALIDATE_EXPIRED_TOKEN'")
@@ -276,6 +284,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/bilans/staff/parent-contact-service.ts:update#1',
       'lib/bilans/staff/parent-contact-service.ts:update#2',
       'lib/bilans/staff/parent-contact-service.ts:update#3',
+      'lib/bilans/staff/parent-contact-service.ts:update#4',
       'lib/core-v2/services/account.ts:updateMany#1',
       'lib/core-v2/services/account.ts:updateMany#2',
       'lib/core-v2/services/account.ts:updateMany#3',
@@ -286,6 +295,7 @@ describe('exhaustive User security mutation inventory', () => {
       'lib/services/student-activation.service.ts:update#2',
       'lib/services/student-activation.service.ts:updateMany#1',
       'lib/services/student-activation.service.ts:updateMany#2',
+      'lib/auth/staff-activation.ts:updateMany#1',
       // Réinitialisation d'un code personnel et désactivation d'un compte de l'espace pédagogique.
       'lib/espace/provisioning.ts:update#3',
       'lib/espace/provisioning.ts:update#4',
@@ -297,10 +307,8 @@ describe('exhaustive User security mutation inventory', () => {
       ...Array.from({ length: 8 }, (_, index) => `scripts/create-audit-profiles.ts:upsert#${index + 1}`),
       'scripts/create-stmg-students.ts:update#1',
       // Core v2 migration creates missing identities only; canonical rows are never mutated on rerun.
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#1',
-      'scripts/core-v2/seed-e2e-staff-actors.ts:upsert#2',
       // Production staff-actor sync: a drift update revokes Core v2 sessions (sessionVersion increment).
-      'scripts/core-v2/sync-staff-actors.ts:update#1',
+      'scripts/core-v2/sync-staff-actors.ts:updateMany#1',
       'scripts/seed-nsi-pratique-students.ts:upsert#1',
       ...Array.from({ length: 7 }, (_, index) => `scripts/seed-qa-profiles.ts:upsert#${index + 1}`),
     ]

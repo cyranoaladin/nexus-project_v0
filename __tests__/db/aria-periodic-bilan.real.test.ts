@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 import { prisma } from '@/lib/prisma';
 import { prismaLearningEvidenceRepository } from '@/lib/aria/infrastructure/prisma/learning-evidence-repository';
-import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
+import { generateAndPersistAriaPeriodicBilan as generateWithAuthority, type GenerateAndPersistAriaPeriodicBilanInput } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
 import { listAriaPeriodicBilansForParent } from '@/lib/aria/bilans/periodic/list-for-parent';
 import {
   resolvePeriodicBilanNotificationIntent,
@@ -52,6 +52,10 @@ const CURRICULUM_VERSION = '2026-v1';
 
 const PERIOD_START = new Date('2026-08-29T00:00:00.000Z');
 const PERIOD_END = new Date('2026-09-12T00:00:00.000Z');
+const trustedStaffId = randomUUID();
+function generateAndPersistAriaPeriodicBilan(input: Omit<GenerateAndPersistAriaPeriodicBilanInput, 'actor'>) {
+  return prisma.$transaction(tx => generateWithAuthority({ ...input, actor: { userId: trustedStaffId, role: 'ADMIN' } }, tx));
+}
 
 function daysAgo(n: number): Date {
   return new Date(PERIOD_END.getTime() - n * 24 * 60 * 60 * 1000);
@@ -98,12 +102,14 @@ describe('ARIA periodic bilans (P7b-1) on PostgreSQL', () => {
     if (!databaseUrl) throw new Error('ARIA_TEST_DATABASE_URL_REQUIRED');
     pool = new Pool({ connectionString: databaseUrl });
     child = await seedAriaRealDbFixture(pool, REAL_COURSE_KEY);
+    await prisma.user.create({ data: { id: trustedStaffId, role: 'ADMIN', activatedAt: new Date() } });
     await pool.query('UPDATE users SET "firstName" = $1 WHERE id = $2', ['Mehdi', child.studentUser]);
   });
 
   afterAll(async () => {
     await cleanupEvidenceAndBilans(pool, child.student);
     await cleanupAriaRealDbFixture(pool, child);
+    await prisma.user.delete({ where: { id: trustedStaffId } });
     await pool.end();
   });
 

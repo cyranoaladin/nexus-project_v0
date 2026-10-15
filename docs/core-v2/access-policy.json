@@ -1,0 +1,911 @@
+{
+  "policy_version": 10,
+  "nature": "NORMATIF — ecrit depuis l intention metier et securite. Volontairement NON derive des guards d implementation : il doit pouvoir les contredire, sinon la preuve est circulaire.",
+  "effective_access_contract": "V1 authentifie et actif ET adhesion Core ACTIVE ET capacite Core autorisee",
+  "matrix_execution_precondition": "La matrice RBAC ne s execute qu APRES un gate de sante Core v2 concluant. Executee sur une base indisponible, elle ne prouve rien.",
+  "principal_states": [
+    "ACTIVE",
+    "ABSENT_FROM_CORE_V2",
+    "SUSPENDED",
+    "REVOKED",
+    "NOT_PROVISIONED"
+  ],
+  "handlers_covered": 86,
+  "note": "Document NORMATIF : exigences métier établies indépendamment des guards. Les décisions de rôles indiquent le plafond de capacité ; un rôle autorisé reste soumis aux états actifs et relations autoritatives du périmètre. L'analyse statique des guards n'est pas une preuve d'exécution HTTP ni de conformité contextuelle. L'inventaire mécanique et les rapports des tests HTTP sont des preuves distinctes.",
+  "policies": [
+    {
+      "handler_id": "GET /api/v2/aria/cockpit",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/aria/cockpit/profile",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/aria/conversations",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/aria/conversations/[conversationId]/messages",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/aria/curriculum",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/auth/activate",
+      "roles_allowed": [],
+      "refusal_status": 404,
+      "justification": "Parcours public sans garde de rôle, réponses génériques et limiteur. GET : aperçu sans mutation et no-store. POST : contrôle CSRF, limiteur et écriture credentials Core fermée sous V1_ONLY.",
+      "access_class": "PUBLIC_RATE_LIMITED"
+    },
+    {
+      "handler_id": "GET /api/v2/auth/password-reset/confirm",
+      "roles_allowed": [],
+      "refusal_status": 404,
+      "justification": "Parcours public sans garde de rôle, réponses génériques et limiteur. GET : aperçu sans mutation et no-store. POST : contrôle CSRF, limiteur et écriture credentials Core fermée sous V1_ONLY.",
+      "access_class": "PUBLIC_RATE_LIMITED"
+    },
+    {
+      "handler_id": "GET /api/v2/coach/me",
+      "roles_allowed": [
+        "COACH"
+      ],
+      "refusal_status": 403,
+      "justification": "Espace personnel du coach.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/coach/planning",
+      "roles_allowed": [
+        "COACH"
+      ],
+      "refusal_status": 403,
+      "justification": "Espace personnel du coach.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/parent/household",
+      "roles_allowed": [
+        "PARENT"
+      ],
+      "refusal_status": 403,
+      "justification": "Un parent n'accede qu'a son foyer, et seulement apres verification du rattachement.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/parent/planning",
+      "roles_allowed": [
+        "PARENT"
+      ],
+      "refusal_status": 403,
+      "justification": "Un parent n'accede qu'a son foyer, et seulement apres verification du rattachement.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/self/membership",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH",
+        "PARENT",
+        "ELEVE"
+      ],
+      "refusal_status": 401,
+      "justification": "Une session V1 validée peut lire uniquement son propre état minimal d’adhésion. Les états inactifs ou absents ne donnent aucun accès métier. Le rôle retourné vient de Core et ne modifie jamais le rôle V1. Aucun identifiant ni périmètre client accepté. Panne configurée : 503, jamais absence implicite.",
+      "access_class": "SELF_MEMBERSHIP_METADATA",
+      "enforced_restrictions": [
+        "SESSION_IMMUTABLE_ID_ONLY",
+        "READ_ONLY_MINIMAL_METADATA",
+        "NO_RESOURCE_CAPABILITY",
+        "NO_V1_ROLE_MODIFICATION",
+        "PRIVATE_NO_STORE_ALL_RESPONSES"
+      ],
+      "implementation": {
+        "status": "IMPLEMENTED",
+        "hooks": [
+          "lib/core-v2/queries/self-membership.ts#readOwnCoreMembership"
+        ],
+        "tests": [
+          "__tests__/core-v2/http/self-membership-api.test.ts",
+          "__tests__/components/core-membership-view.test.tsx"
+        ]
+      },
+      "final_http_qualification": "PENDING_FINAL_SHA"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/academic-years",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/assignments/needed",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/audit",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Le journal d'audit contient des donnees de mineurs et des traces d'acteurs : ADMIN seul.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/coaches",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/diagnostics/catalog",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/diagnostics/processing/[processingId]/bilan",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "La validation pedagogique engage l'etablissement : revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/diagnostics/submissions",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/diagnostics/submissions/[submissionId]/processing",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/diagnostics/submissions/[submissionId]/processing/content",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Le contenu brut d'une copie d'eleve est une donnee personnelle sensible.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/duplicates",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/enrollments/pending",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/households",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/households/[id]",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/households/[id]/invitation-scopes",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Affectation nominative foyer/année : décision d'un ADMIN Core actif et identité V1 active, indépendamment des profils créés. Aucun périmètre implicite ni émetteur fourni par le client.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/me",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE",
+        "COACH"
+      ],
+      "refusal_status": 403,
+      "justification": "Point d'entree des interfaces back-office. PARENT et ELEVE n'ont aucun usage legitime et doivent recevoir 403. La reponse ne doit exposer aucune autre identite.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/parents",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/planning/bookings",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/students",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/staff/students/[id]/diagnostics",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/diagnostics/assignments",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/diagnostics/assignments/[assignmentId]/subject",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/diagnostics/processing/[processingId]/bilan",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service. Correction d'une regle de generation qui classait a tort cette route en revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/diagnostics/submissions/[submissionId]/bilan",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/me",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "GET /api/v2/student/planning",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PATCH /api/v2/staff/parents/[id]",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PATCH /api/v2/staff/planning/series/[id]",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PATCH /api/v2/staff/students/[id]",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/aria/chat",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/aria/feedback",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/aria/turns/[turnId]/cancel",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/auth/activate",
+      "roles_allowed": [],
+      "refusal_status": 404,
+      "justification": "Parcours public sans garde de rôle, réponses génériques et limiteur. GET : aperçu sans mutation et no-store. POST : contrôle CSRF, limiteur et écriture credentials Core fermée sous V1_ONLY.",
+      "access_class": "PUBLIC_RATE_LIMITED"
+    },
+    {
+      "handler_id": "POST /api/v2/auth/password-change",
+      "roles_allowed": [],
+      "refusal_status": 403,
+      "justification": "Chemin self-service authentifie : le compte cible vient EXCLUSIVEMENT de la session validee. Sans session, 401. Sous V1_ONLY, la session n'appartient pas a Core v2 et le refus est 403 WRONG_AUTHORITY. Aucun role ne franchit ce chemin dans ce mode, et ce n'est pas un chemin anonyme.",
+      "access_class": "CORE_V2_SESSION_ONLY"
+    },
+    {
+      "handler_id": "POST /api/v2/auth/password-reset",
+      "roles_allowed": [],
+      "refusal_status": 404,
+      "justification": "Parcours public sans garde de rôle, réponses génériques et limiteur. GET : aperçu sans mutation et no-store. POST : contrôle CSRF, limiteur et écriture credentials Core fermée sous V1_ONLY.",
+      "access_class": "PUBLIC_RATE_LIMITED"
+    },
+    {
+      "handler_id": "POST /api/v2/auth/password-reset/confirm",
+      "roles_allowed": [],
+      "refusal_status": 404,
+      "justification": "Parcours public sans garde de rôle, réponses génériques et limiteur. GET : aperçu sans mutation et no-store. POST : contrôle CSRF, limiteur et écriture credentials Core fermée sous V1_ONLY.",
+      "access_class": "PUBLIC_RATE_LIMITED"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/academic-years",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/academic-years/[id]/close",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Les transitions institutionnelles CURRENT/CLOSED concernent tous les foyers et sont exclusivement une décision ADMIN, avec identité V1 active.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/academic-years/[id]/current",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Les transitions institutionnelles CURRENT/CLOSED concernent tous les foyers et sont exclusivement une décision ADMIN, avec identité V1 active.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/disable",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Suspendre l'ACCES CORE v2, jamais « desactiver le compte » : aucune propagation automatique Core -> V1. Le mot de passe, l'activation et les sessions V1 restent inchanges. Inversement un utilisateur V1 suspendu ne doit jamais acceder a Core, meme avec une adhesion Core ACTIVE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/invite",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "L'autorisation precede la verification de disponibilite de la remise. Sous CORE_V2_AUTH_MODE=V1_ONLY la saga delegue a V1, seule autorite des credentials : Core ne recoit ni mot de passe, ni hash, ni jeton brut. Un compte V1 actif est lie sans aucune ecriture V1.",
+      "access_class": "ROLE_OR_CAPABILITY",
+      "enforced_restrictions": [
+        "PLAFOND DE ROLE — impose et teste : un ADMIN n'est jamais invite ni rattache par cette saga. Le refus est pose aux DEUX points d'entree (emission et inspection), avant tout court-circuit d'etat."
+      ],
+      "contextual_requirements": [
+        "Émetteur issu de la session, identité V1 et adhésion Core actives ; capacité contrôlée avant le périmètre.",
+        "Cibles familiales : relations VERIFIED non révoquées, inscriptions ACTIVE approuvées et années CURRENT/UPCOMING ; aucune identité ambiguë.",
+        "ASSISTANTE : affectations explicites couvrant tous les foyers/années concernés ; cibles staff ASSISTANTE/COACH réservées à ADMIN ; cible ADMIN toujours interdite.",
+        "Périmètre avant recherche révélatrice, token, outbox ou mutation ; refus uniforme sans oracle ni mutation.",
+        "Resend conserve le destinataire ; idempotence liée à émetteur, cible, opération, périmètre, versions et génération.",
+        "Worker et remise SMTP revalident les autorités actuelles sous leases/verrou : suspension ou réaffectation annule sans remise."
+      ],
+      "implementation": {
+        "status": "IMPLEMENTED",
+        "hooks": [
+          "lib/core-v2/accounts/invitation-scope.ts#assertInvitationScope",
+          "lib/core-v2/accounts/v1-provisioning.ts#requestV1Provisioning",
+          "lib/core-v2/accounts/v1-provisioning-worker.ts#advance",
+          "lib/core-v2/accounts/invitation-delivery-authority.ts"
+        ],
+        "tests": [
+          "__tests__/core-v2/invitation-scope.test.ts",
+          "__tests__/core-v2/invitation-scope-enqueue.test.ts",
+          "__tests__/core-v2/invitation-worker-authorization.test.ts",
+          "__tests__/core-v2/invitation-smtp-authority.test.ts"
+        ],
+        "final_http_qualification": "PENDING_FINAL_SHA"
+      }
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/promote-admin",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Promotion explicite par un ADMIN Core actif authentifié par V1. Cookie privé lié à la session canonique, version/rôle V1 vérifiés sous lease, rôle SQL séparé, reçu et promotion dans la même transaction. Le premier ADMIN reste exclusivement hors HTTP par bootstrap-v1-admin.",
+      "access_class": "ROLE_OR_CAPABILITY",
+      "contextual_requirements": [
+        "V1_ONLY, identité V1 active et session privée non expirée ; le rôle V1 ne change pas lors de la promotion Core.",
+        "Cible ASSISTANTE/COACH Core ACTIVE et V1 active, même instance attestée ; aucune autorité fournie par le client.",
+        "Reçu atomique, commande idempotente et SQL historique fermé ; aucun effet V1."
+      ]
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/reactivate",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Suspendre l'ACCES CORE v2, jamais « desactiver le compte » : aucune propagation automatique Core -> V1. Le mot de passe, l'activation et les sessions V1 restent inchanges. Inversement un utilisateur V1 suspendu ne doit jamais acceder a Core, meme avec une adhesion Core ACTIVE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/resend-invitation",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "L'autorisation precede la verification de disponibilite de la remise. Sous CORE_V2_AUTH_MODE=V1_ONLY la saga delegue a V1, seule autorite des credentials : Core ne recoit ni mot de passe, ni hash, ni jeton brut. Un compte V1 actif est lie sans aucune ecriture V1.",
+      "access_class": "ROLE_OR_CAPABILITY",
+      "enforced_restrictions": [
+        "PLAFOND DE ROLE — impose et teste : un ADMIN n'est jamais invite ni rattache par cette saga. Le refus est pose aux DEUX points d'entree (emission et inspection), avant tout court-circuit d'etat."
+      ],
+      "contextual_requirements": [
+        "Émetteur issu de la session, identité V1 et adhésion Core actives ; capacité contrôlée avant le périmètre.",
+        "Cibles familiales : relations VERIFIED non révoquées, inscriptions ACTIVE approuvées et années CURRENT/UPCOMING ; aucune identité ambiguë.",
+        "ASSISTANTE : affectations explicites couvrant tous les foyers/années concernés ; cibles staff ASSISTANTE/COACH réservées à ADMIN ; cible ADMIN toujours interdite.",
+        "Périmètre avant recherche révélatrice, token, outbox ou mutation ; refus uniforme sans oracle ni mutation.",
+        "Resend conserve le destinataire ; idempotence liée à émetteur, cible, opération, périmètre, versions et génération.",
+        "Worker et remise SMTP revalident les autorités actuelles sous leases/verrou : suspension ou réaffectation annule sans remise."
+      ],
+      "implementation": {
+        "status": "IMPLEMENTED",
+        "hooks": [
+          "lib/core-v2/accounts/invitation-scope.ts#assertInvitationScope",
+          "lib/core-v2/accounts/v1-provisioning.ts#requestV1Provisioning",
+          "lib/core-v2/accounts/v1-provisioning-worker.ts#advance",
+          "lib/core-v2/accounts/invitation-delivery-authority.ts"
+        ],
+        "tests": [
+          "__tests__/core-v2/invitation-scope.test.ts",
+          "__tests__/core-v2/invitation-scope-enqueue.test.ts",
+          "__tests__/core-v2/invitation-worker-authorization.test.ts",
+          "__tests__/core-v2/invitation-smtp-authority.test.ts"
+        ],
+        "final_http_qualification": "PENDING_FINAL_SHA"
+      }
+    },
+    {
+      "handler_id": "POST /api/v2/staff/accounts/[id]/suspend",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Suspendre l'ACCES CORE v2, jamais « desactiver le compte » : aucune propagation automatique Core -> V1. Le mot de passe, l'activation et les sessions V1 restent inchanges. Inversement un utilisateur V1 suspendu ne doit jamais acceder a Core, meme avec une adhesion Core ACTIVE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/assignments",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/assignments/[id]/end",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/assignments/[assignmentId]/revoke",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/processing/[processingId]/bilan",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "La validation pedagogique engage l'etablissement : revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/processing/[processingId]/bilan/correct",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "La validation pedagogique engage l'etablissement : revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/processing/[processingId]/bilan/publish",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "La validation pedagogique engage l'etablissement : revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/processing/[processingId]/bilan/validate",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "La validation pedagogique engage l'etablissement : revue ADMIN.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/processing/[processingId]/retry-authorization",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Autoriser une reprise de traitement peut rejouer un cout IA : ADMIN seul. L'autorisation doit preceder toute lecture d'etat de release.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/diagnostics/submissions/[submissionId]/processing",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/enrollments",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/enrollments/[id]/approve",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/enrollments/[id]/withdraw",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/households",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/households/[id]/parents",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/households/[id]/parents/[parentUserId]/revoke",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/households/[id]/parents/[parentUserId]/verify",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/planning/bookings/[id]/cancel",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/planning/bookings/[id]/reschedule",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/planning/series",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/planning/series/[id]/cancel",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/staff-accounts",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Creer un compte staff est une elevation de privilege : ADMIN seul, jamais de bootstrap permanent.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/students",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/staff/students/[id]/diagnostics",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "POST /api/v2/student/diagnostics/assignments/[assignmentId]/submissions",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "Donnees scolaires d'un mineur : seul l'eleve concerne y accede en self-service.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/aria/cockpit/profile",
+      "roles_allowed": [
+        "ELEVE"
+      ],
+      "refusal_status": 403,
+      "justification": "ARIA s'adresse a l'eleve. Un drapeau de fonctionnalite eteint est une indisponibilite de service (503), PAS un refus d'autorisation (403).",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/staff/coaches/[id]/capabilities",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/staff/enrollments/[id]/academic-map",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/staff/enrollments/[id]/courses",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/staff/households/[id]/invitation-scopes",
+      "roles_allowed": [
+        "ADMIN"
+      ],
+      "refusal_status": 403,
+      "justification": "Affectation nominative foyer/année : décision d'un ADMIN Core actif et identité V1 active, indépendamment des profils créés. Aucun périmètre implicite ni émetteur fourni par le client.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    },
+    {
+      "handler_id": "PUT /api/v2/staff/households/[id]/primary-contact",
+      "roles_allowed": [
+        "ADMIN",
+        "ASSISTANTE"
+      ],
+      "refusal_status": 403,
+      "justification": "Operations de back-office confiees a ADMIN et ASSISTANTE.",
+      "access_class": "ROLE_OR_CAPABILITY"
+    }
+  ],
+  "access_classes": {
+    "ROLE_OR_CAPABILITY": "Garde de role ou de capacite resolue dans les sources ; `roles_allowed` est l'ensemble attendu.",
+    "PUBLIC_RATE_LIMITED": "Aucune garde de rôle. GET : aperçu read-only, limiteur et no-store. POST : CSRF et limiteur.",
+    "CORE_V2_SESSION_ONLY": "Exige une session Core v2 ; sous V1_ONLY, aucun role ne passe (403 WRONG_AUTHORITY).",
+    "SELF_MEMBERSHIP_METADATA": "Exception unique GET self : lecture privée de sa propre adhésion à partir de la session V1 validée, sans capacité métier et sans exigence ACTIVE pour lire son refus."
+  },
+  "unimplemented_requirements_note": "Une politique normative peut exiger plus que ce que le code impose — c'est meme son interet. Mais elle doit le DIRE : le champ `declared_but_not_implemented` nomme les exigences non tenues, de sorte qu'aucune lecture ne puisse prendre une intention pour un controle. Un controle annonce et absent est pire qu'un controle absent et assume.",
+  "implementation_qualification_note": "Un hook présent et une collecte statique ne prouvent pas une requête HTTP réussie. Le gel final exige les rapports liés au SHA final ; les champs PENDING_FINAL_SHA doivent être réconciliés avec ces preuves."
+}

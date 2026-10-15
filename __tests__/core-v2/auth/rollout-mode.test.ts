@@ -21,12 +21,14 @@ import { disconnectCoreV2Client } from '@/lib/core-v2/client';
 import { CoreV2ConfigError } from '@/lib/core-v2/config';
 import { activateAccount, createHousehold, inviteAccount, suspendAccount } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const h = setupServiceHarness();
 const PW = 'change_me_rollout_1';
 
 async function activatedParent(email: string, phone?: string) {
   const { parent } = await createHousehold(h.client, h.ctx(), { parent: { firstName: 'Roll', lastName: 'Out', email, phone } });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
   const issued = await inviteAccount(h.client, h.ctx(), parent.id);
   await activateAccount(h.client, { rawToken: issued.rawToken, password: PW });
   return parent;

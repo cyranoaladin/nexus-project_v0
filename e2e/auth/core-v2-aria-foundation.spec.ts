@@ -87,18 +87,25 @@ test.describe('Core v2 ARIA foundation', () => {
     }
   });
 
-  test('has a Core v2 student, enrollment, and chat grant with no V1 User or Student', async () => {
+  test('has a Core v2 student, enrollment, and chat grant behind a same-id V1 identity with no V1 Student', async () => {
     assertDisposableE2eDatabase(process.env.DATABASE_URL ?? '');
     assertCoreV2E2eSeedTarget(process.env);
     const legacy = new LegacyPrismaClient();
     const core = new CoreV2PrismaClient({ datasources: { db: { url: process.env.CORE_V2_DATABASE_URL } } });
     try {
-      expect(await legacy.user.findUnique({ where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL } })).toBeNull();
+      // CORE_V2_AUTH_MODE=V1_ONLY: Core v1 holds the only credential; Core v2
+      // carries the same id with no password and resolves the actor by that id.
+      const v1Identity = await legacy.user.findUnique({ where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL } });
+      expect(v1Identity).toMatchObject({ role: 'ELEVE', mergedIntoUserId: null, disabledAt: null });
+      expect(v1Identity?.password).toEqual(expect.any(String));
+      expect(v1Identity?.activatedAt).not.toBeNull();
       expect(await legacy.student.findFirst({ where: { user: { email: CORE_V2_ARIA_FOUNDATION_EMAIL } } })).toBeNull();
       const identity = await core.user.findUnique({
         where: { email: CORE_V2_ARIA_FOUNDATION_EMAIL },
         include: { student: { include: { academicYearEnrollments: true, ariaAccessGrants: true } } },
       });
+      expect(identity?.id).toBe(v1Identity?.id);
+      expect(identity?.password).toBeNull();
       expect(identity?.role).toBe('ELEVE');
       expect(identity?.student?.academicYearEnrollments.some(({ status }) => status === 'ACTIVE')).toBe(true);
       expect(identity?.student?.ariaAccessGrants).toContainEqual(expect.objectContaining({
@@ -133,7 +140,7 @@ test.describe('Core v2 ARIA foundation', () => {
         const session = (await sessionResponse.json()) as {
           user?: { id?: string; role?: string; authority?: string };
         };
-        expect(session.user).toMatchObject({ role: 'ELEVE', authority: 'CORE_V2' });
+        expect(session.user).toMatchObject({ role: 'ELEVE', authority: 'V1' });
 
         await page.goto('/dashboard/eleve/aria', { waitUntil: 'domcontentloaded' });
         await expect(page.getByTestId('aria-setup-wizard')).toBeVisible();

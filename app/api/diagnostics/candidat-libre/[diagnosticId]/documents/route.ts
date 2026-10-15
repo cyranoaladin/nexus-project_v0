@@ -7,7 +7,7 @@ import { documentMetadataSchema } from '@/lib/diagnostics/candidat-libre/schemas
 import { getDiagnosticForActor, requireDiagnosticActor, actorRole, isDocumentVisibleToViewer } from '@/lib/diagnostics/candidat-libre/access.server';
 import { persistDiagnosticFile, removePersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { CANDIDATE_DIAGNOSTIC_MODULES } from '@/lib/diagnostics/candidat-libre/definition.public';
-import { scanDiagnosticFile } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
+import { assertDiagnosticAvConfigured } from '@/lib/diagnostics/candidat-libre/virus-scan.server';
 import { requireVerifiedParentalConsent } from '@/lib/diagnostics/candidat-libre/consent-gate.server';
 import { guardCandidateDiagnosticFeature, guardCandidateDiagnosticForStudent } from '@/lib/diagnostics/candidat-libre/feature-flag';
 
@@ -18,6 +18,43 @@ const CATEGORY_RULES = new Map(
     .filter((question) => question.type === 'upload' && question.uploadRule)
     .map((question) => [question.uploadRule!.category, question.uploadRule!] as const),
 );
+
+/**
+ * Les seuls champs d'un dépôt qui peuvent sortir vers le client.
+ *
+ * `storageKey` est le chemin disque privé du document d'un mineur, et `sha256`
+ * ne sert qu'à l'audit : ni l'un ni l'autre n'a de raison de traverser la
+ * frontière HTTP. La liste est UNIQUE, et les deux chemins de réponse — la
+ * création et le renvoi idempotent — en dérivent, de sorte qu'ils ne puissent
+ * plus diverger : c'était précisément la cause de la fuite.
+ */
+const PUBLIC_DOCUMENT_KEYS = [
+  'id', 'category', 'title', 'originalName', 'mimeType', 'sizeBytes', 'status', 'createdAt',
+] as const;
+
+type PublicDocumentKey = (typeof PUBLIC_DOCUMENT_KEYS)[number];
+
+/** Forme `select` de Prisma, dérivée de la même liste. */
+const PUBLIC_DOCUMENT_FIELDS = Object.fromEntries(
+  PUBLIC_DOCUMENT_KEYS.map((key) => [key, true]),
+) as Record<PublicDocumentKey, true>;
+
+/** Projette une ligne déjà lue, pour les chemins qui ont besoin du reste en interne. */
+function publicDocument<T extends Record<string, unknown>>(row: T): Pick<T, PublicDocumentKey> {
+  return Object.fromEntries(
+    PUBLIC_DOCUMENT_KEYS.map((key) => [key, row[key]]),
+  ) as Pick<T, PublicDocumentKey>;
+}
+
+const PUBLIC_UPLOAD_ERRORS = new Map<string, number>([
+  ['INVALID_FILE_SIZE', 413],
+  ['UNSUPPORTED_FILE_TYPE', 400],
+  ['MIME_SIGNATURE_MISMATCH', 400],
+  ['MALWARE_DETECTED', 400],
+  ['AV_SCAN_FAILED', 503],
+  ['AV_NOT_CONFIGURED', 503],
+  ['DOCUMENT_ENCRYPTION_KEY_INVALID', 503],
+]);
 
 export async function GET(_request: Request, { params }: Params) {
   const disabled = guardCandidateDiagnosticFeature();
@@ -76,6 +113,13 @@ export async function POST(request: Request, { params }: Params) {
   if (consentBlocked) return consentBlocked;
   if (diagnosticOrError.submittedAt) return NextResponse.json({ error: 'Diagnostic locked' }, { status: 423 });
 
+  // Configuration antivirus explicite, verifiee AVANT de lire le moindre octet du depot.
+  try {
+    assertDiagnosticAvConfigured();
+  } catch {
+    return NextResponse.json({ error: 'AV_NOT_CONFIGURED' }, { status: 503 });
+  }
+
   const contentType = request.headers.get('content-type') ?? '';
   if (!contentType.includes('multipart/form-data')) return NextResponse.json({ error: 'Multipart form-data required' }, { status: 415 });
   const form = await request.formData();
@@ -98,13 +142,20 @@ export async function POST(request: Request, { params }: Params) {
 
   const existing = await prisma.candidateDiagnosticDocument.findUnique({
     where: { diagnosticId_clientMutationId: { diagnosticId, clientMutationId: parsed.data.clientMutationId } },
+    // Projection positive : `storageKey` est le chemin disque privé du dépôt
+    // d'un mineur et ne doit jamais sortir. Un `select` vaut mieux qu'un
+    // `omit` — un champ privé ajouté plus tard n'y entre pas par défaut.
+    select: PUBLIC_DOCUMENT_FIELDS,
   });
-  if (existing) return NextResponse.json({ success: true, idempotent: true, document: existing });
+  // Ceinture ET bretelles : le `select` ci-dessus empêche la base de livrer le
+  // champ, et la projection empêche la réponse de le porter si quelqu'un
+  // retirait un jour ce `select`. Les deux protections sont indépendantes.
+  if (existing) return NextResponse.json({ success: true, idempotent: true, document: publicDocument(existing) });
 
   let stored: Awaited<ReturnType<typeof persistDiagnosticFile>> | null = null;
   try {
+    // Le scan antivirus a lieu a l'interieur, sur le clair, avant chiffrement et ecriture.
     stored = await persistDiagnosticFile({ diagnosticId, file, category: parsed.data.category });
-    await scanDiagnosticFile(stored.storageKey);
     const storedFile = stored;
     const document = await prisma.$transaction(async (tx) => {
       const created = await tx.candidateDiagnosticDocument.create({
@@ -135,23 +186,18 @@ export async function POST(request: Request, { params }: Params) {
       });
       return created;
     });
-    return NextResponse.json({
-      success: true,
-      document: {
-        id: document.id,
-        category: document.category,
-        title: document.title,
-        originalName: document.originalName,
-        mimeType: document.mimeType,
-        sizeBytes: document.sizeBytes,
-        status: document.status,
-        createdAt: document.createdAt,
-      },
-    }, { status: 201 });
+    // La ligne complète reste nécessaire en interne (l'audit consigne `sha256`),
+    // donc elle est projetée ICI, à la frontière, avec la même liste.
+    return NextResponse.json({ success: true, document: publicDocument(document) }, { status: 201 });
   } catch (error) {
     if (stored?.storageKey) await removePersistedDiagnosticFile(stored.storageKey);
-    const code = error instanceof Error ? error.message : 'UPLOAD_FAILED';
-    const status = code === 'INVALID_FILE_SIZE' ? 413 : code === 'AV_SCAN_FAILED' || code === 'AV_NOT_CONFIGURED' ? 503 : 400;
-    return NextResponse.json({ error: code }, { status });
+    // Liste blanche : jamais de message brut (Prisma, chemins, ...) vers le client.
+    const message = error instanceof Error ? error.message : '';
+    const status = PUBLIC_UPLOAD_ERRORS.get(message);
+    if (status === undefined) {
+      console.error('[candidat-libre] document upload failed', error instanceof Error ? error.name : 'unknown');
+      return NextResponse.json({ error: 'UPLOAD_FAILED' }, { status: 500 });
+    }
+    return NextResponse.json({ error: message }, { status });
   }
 }

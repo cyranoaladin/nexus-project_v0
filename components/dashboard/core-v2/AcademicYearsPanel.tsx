@@ -128,7 +128,7 @@ export function AcademicYearsPanel() {
                     </TableCell>
                     <TableCell>{STATUS_LABEL[year.status]}</TableCell>
                     <TableCell className="space-x-2">
-                      {can('ENROLLMENT_CREATE') && year.status === 'UPCOMING' && (
+                      {can('ACADEMIC_YEAR_MANAGE') && year.status === 'UPCOMING' && (
                         <Button
                           type="button"
                           size="sm"
@@ -138,7 +138,7 @@ export function AcademicYearsPanel() {
                           Passer en cours
                         </Button>
                       )}
-                      {can('ENROLLMENT_CREATE') && year.status === 'CURRENT' && (
+                      {can('ACADEMIC_YEAR_MANAGE') && year.status === 'CURRENT' && (
                         <Button
                           type="button"
                           size="sm"

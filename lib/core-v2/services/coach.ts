@@ -12,6 +12,8 @@ import { assertCapability } from '../rbac';
 import type { ServiceContext } from './context';
 import { inTransaction } from './context';
 import { courseKeySchema, idSchema, parseInput } from './validation';
+import { closeCoachAssignment } from '../repositories/coach-authority';
+import { lockInvitationAuthority } from '../accounts/invitation-scope';
 
 const capabilitySchema = z.object({ coachId: idSchema, courseKey: courseKeySchema, granted: z.boolean() });
 
@@ -27,6 +29,7 @@ export async function setCoachCapability(
   const input = parseInput(capabilitySchema, rawInput);
 
   return inTransaction(client, async (tx) => {
+    await lockInvitationAuthority(tx);
     const coach = await tx.coachProfile.findUnique({ where: { id: input.coachId } });
     if (!coach) throw new NotFoundError('Coach not found.', { coachId: input.coachId });
     const existing = await tx.coachCourseCapability.findUnique({
@@ -94,6 +97,7 @@ export async function assignCoach(
   const input = parseInput(assignSchema, rawInput);
 
   return inTransaction(client, async (tx) => {
+    await lockInvitationAuthority(tx);
     const enrollment = await tx.studentAcademicYearEnrollment.findUnique({ where: { id: input.enrollmentId } });
     if (!enrollment) throw new NotFoundError('Enrollment not found.', { enrollmentId: input.enrollmentId });
     if (enrollment.status !== 'ACTIVE') {
@@ -163,29 +167,5 @@ export async function endCoachAssignment(
   assertCapability(ctx.actor, 'COACH_ASSIGN');
   const assignmentId = parseInput(idSchema, rawAssignmentId);
 
-  return inTransaction(client, async (tx) => {
-    const endedAt = ctx.now();
-    const moved = await tx.coachStudentCourseAssignment.updateMany({
-      where: { id: assignmentId, status: 'ACTIVE' },
-      data: { status: 'ENDED', endsAt: endedAt },
-    });
-    if (moved.count !== 1) {
-      const current = await tx.coachStudentCourseAssignment.findUnique({ where: { id: assignmentId } });
-      if (!current) throw new NotFoundError('Assignment not found.', { assignmentId });
-      throw new InvalidStateError('Only an ACTIVE assignment can be ended.', { assignmentId, status: current.status });
-    }
-    const openSeries = await tx.planningSeries.updateMany({
-      where: { assignmentId, status: { in: ['ACTIVE', 'PAUSED'] } },
-      data: { status: 'ENDED', revision: { increment: 1 } },
-    });
-    await appendAuditEvent(tx, {
-      actorUserId: ctx.actor.userId,
-      action: 'coach.assignment_ended',
-      subjectType: 'CoachStudentCourseAssignment',
-      subjectId: assignmentId,
-      correlationId: ctx.correlationId,
-      metadata: { endedPlanningSeries: openSeries.count },
-    });
-    return tx.coachStudentCourseAssignment.findUniqueOrThrow({ where: { id: assignmentId } });
-  });
+  return inTransaction(client, tx => closeCoachAssignment(tx, ctx, assignmentId));
 }

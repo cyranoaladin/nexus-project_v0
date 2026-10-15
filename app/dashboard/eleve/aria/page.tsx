@@ -13,7 +13,9 @@
  */
 
 import { useProtectedFetch } from '@/components/auth/SessionRecoveryProvider';
-import { useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useAriaSurface } from '@/hooks/use-aria-surface';
+import { CoreMembershipNotice } from '@/components/dashboard/core-v2/CoreRoleHome';
 import { useRouter } from 'next/navigation';
 import { useCanonicalSession as useSession } from '@/components/auth/SessionRecoveryProvider';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -37,6 +39,15 @@ type AriaProfileUpdatePayload = {
 };
 
 export default function AriaCockpitPage() {
+  return <Suspense fallback={<p role="status">Chargement…</p>}><AriaSurfaceBoundary /></Suspense>;
+}
+function AriaSurfaceBoundary() {
+  const session = useSession();
+  const { surface, membership } = useAriaSurface();
+  if (!surface) return <CoreMembershipNotice membership={membership} />;
+  return <AriaCockpitContent key={`${session.data?.user.id}:${surface}`} surface={surface} />;
+}
+function AriaCockpitContent({ surface }: { surface: 'V1' | 'CORE_V2' }) {
   const fetch = useProtectedFetch();
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -49,7 +60,7 @@ export default function AriaCockpitPage() {
   const [chatCourseKey, setChatCourseKey] = useState<string | undefined>(undefined);
   const [chatOpen, setChatOpen] = useState(false);
 
-  const apiBase = resolveAriaApiBase(session?.user.authority);
+  const apiBase = resolveAriaApiBase(surface);
 
   const loadCockpit = useCallback(async () => {
     setLoading(true);
@@ -68,12 +79,12 @@ export default function AriaCockpitPage() {
 
   useEffect(() => {
     if (status === 'loading') return;
-    if (!session || session.user.role !== 'ELEVE') {
+    if (!session || (surface === 'V1' && session.user.role !== 'ELEVE')) {
       router.push('/auth/signin');
       return;
     }
     void loadCockpit();
-  }, [session, status, router, loadCockpit]);
+  }, [session, status, router, loadCockpit, surface]);
 
   const saveProfile = useCallback(
     async (payload: AriaProfileUpdatePayload) => {

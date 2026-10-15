@@ -11,15 +11,20 @@ import type { PublicUser } from '../http/respond';
 import { assertSelfServiceRole } from '../rbac';
 import type { ServiceContext } from '../services/context';
 import { planningSeriesSelect, publicUserSelect } from './staff';
+import { currentCoachAssignmentWhere } from '../repositories/coach-authority';
+import { lockInvitationAuthority } from '../accounts/invitation-scope';
 
 export async function getOwnCoach(client: PrismaClient, ctx: ServiceContext) {
   assertSelfServiceRole(ctx.actor, 'COACH');
-  const coach = await client.coachProfile.findUnique({
-    where: { userId: ctx.actor.userId },
+  return client.$transaction(async tx => {
+  await lockInvitationAuthority(tx);
+  const coach = await tx.coachProfile.findUnique({
+    where: { userId: ctx.actor.userId, user: { role: 'COACH', accountStatus: 'ACTIVE' } },
     include: {
       user: { select: publicUserSelect },
       capabilities: { orderBy: { courseKey: 'asc' } },
       assignments: {
+        where: currentCoachAssignmentWhere(ctx.now()),
         include: {
           academicYearEnrollment: {
             select: {
@@ -38,11 +43,12 @@ export async function getOwnCoach(client: PrismaClient, ctx: ServiceContext) {
     },
   });
   if (!coach) return null;
+  const publishAt = ctx.now();
   return {
     id: coach.id,
     user: coach.user as PublicUser,
     capabilities: coach.capabilities.map((c) => c.courseKey),
-    assignments: coach.assignments.map((a) => ({
+    assignments: coach.assignments.filter(a => a.startsAt <= publishAt && (!a.endsAt || a.endsAt > publishAt)).map((a) => ({
       id: a.id,
       courseKey: a.courseKey,
       status: a.status,
@@ -59,6 +65,7 @@ export async function getOwnCoach(client: PrismaClient, ctx: ServiceContext) {
       planningSeries: a.planningSeries,
     })),
   };
+  });
 }
 
 export type OwnCoach = NonNullable<Awaited<ReturnType<typeof getOwnCoach>>>;

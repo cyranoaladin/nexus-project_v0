@@ -1,11 +1,12 @@
 import 'server-only';
 
 import { createHash, randomUUID } from 'crypto';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, unlink, writeFile } from 'fs/promises';
 import path from 'path';
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 
 import { decryptDocument, encryptDocument, isEncryptedDocument } from '@/lib/documents/encryption';
+import { scanDiagnosticPlaintext } from './virus-scan.server';
 
 export const MAX_DOCUMENT_BYTES = 12 * 1024 * 1024;
 export const MAX_AUDIO_BYTES = 30 * 1024 * 1024;
@@ -46,6 +47,18 @@ export function sanitizeOriginalName(value: string) {
   return value.replace(/[\u0000-\u001f\\/:*?"<>|]/g, '_').slice(0, 180) || 'document';
 }
 
+/**
+ * Valide, scanne puis dépose un fichier, chiffré au repos.
+ *
+ * L'antivirus est appelé ICI, sur les octets en clair, avant tout chiffrement
+ * et toute écriture : un chiffré ne peut jamais correspondre à une signature,
+ * donc analyser le fichier stocké ne détecterait rien. Aucun appelant ne peut
+ * persister sans passer par le scan, et un refus (logiciel malveillant, moteur
+ * absent, délai dépassé, verdict inconnu) ne laisse aucun fichier derrière lui.
+ *
+ * Erreurs : INVALID_FILE_SIZE, UNSUPPORTED_FILE_TYPE, MIME_SIGNATURE_MISMATCH,
+ * MALWARE_DETECTED, AV_NOT_CONFIGURED, AV_SCAN_FAILED.
+ */
 export async function persistDiagnosticFile(input: {
   diagnosticId: string;
   file: File;
@@ -61,6 +74,10 @@ export async function persistDiagnosticFile(input: {
   // Empreinte du contenu **en clair** : elle sert l'intégrité et la déduplication,
   // et doit rester stable indépendamment du chiffrement (IV aléatoire).
   const sha256 = createHash('sha256').update(buffer).digest('hex');
+
+  // Verdict antivirus sur le clair, avant chiffrement et avant écriture.
+  await scanDiagnosticPlaintext(buffer);
+
   const safeName = sanitizeOriginalName(input.file.name);
 
   // Le nom d'origine n'entre pas dans le chemin : un « bulletin_Dupont.pdf »
@@ -74,10 +91,17 @@ export async function persistDiagnosticFile(input: {
   );
   const absolute = resolveDiagnosticStoragePath(storageKey);
   await mkdir(path.dirname(absolute), { recursive: true });
-  await writeFile(absolute, encryptDocument(buffer, { documentId: storageKey }), {
-    flag: 'wx',
-    mode: 0o600,
-  });
+  try {
+    await writeFile(absolute, encryptDocument(buffer, { documentId: storageKey }), {
+      flag: 'wx',
+      mode: 0o600,
+    });
+  } catch (error) {
+    // Une écriture interrompue (disque plein...) peut laisser un fichier tronqué :
+    // l'appelant n'a pas encore de clé de stockage, il ne pourrait pas le retirer.
+    await unlink(absolute).catch(() => undefined);
+    throw error;
+  }
   return { storageKey, sha256, safeName, sizeBytes: buffer.byteLength, mimeType: input.file.type };
 }
 
@@ -92,8 +116,10 @@ export async function readPersistedDiagnosticFile(storageKey: string): Promise<B
   const { readFile } = await import('fs/promises');
   const absolute = resolveDiagnosticStoragePath(storageKey);
   const stored = await readFile(absolute);
-  if (!isEncryptedDocument(stored)) return stored;
-  return decryptDocument(stored, { documentId: storageKey });
+  if (storageKey.endsWith('.enc') || isEncryptedDocument(stored))
+    return decryptDocument(stored, { documentId: storageKey });
+  if (/\.(pdf|png|jpe?g|webp|wav|webm|mp3|mp4|m4a)$/i.test(storageKey)) return stored;
+  throw new Error('DOCUMENT_ENVELOPE_INVALID');
 }
 
 export async function removePersistedDiagnosticFile(storageKey: string) {

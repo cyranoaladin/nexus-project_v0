@@ -9,17 +9,25 @@
  *   → ADMIN-only operations DENIED for the assistante → ADMIN reads the audit
  *   trail and suspends the account.
  *
- * Then the auth cutover (§U/§V) and the self-service dashboards: the parent
- * (§AH) and the student (§AI) activate through the mailed link, sign in on
- * Core v2 credentials and see their own household / enrollments; the
- * mirrored coach (§AJ) sees the assignment made to them.
+ * Contrat de production : CORE_V2_AUTH_MODE=V1_ONLY. Core v1 est la SEULE
+ * autorité de crédentiels : l'invitation Core v2 d'un PARENT / ELEVE est
+ * provisionnée dans Core v1 (lib/core-v2/accounts/v1-provisioning.ts →
+ * lib/auth/v1-account-invitation.ts), qui envoie le lien d'activation V1
+ * (`/auth/activate?token=…&purpose=parent|student`). Activation, rejeu,
+ * connexion (session d'autorité 'V1', même id que la ligne Core — un seul
+ * espace d'identifiants) et réinitialisation passent par les routes V1.
+ * Le compte Core devient ACTIVE quand la saga observe l'activation V1
+ * (v1-provisioning-worker.ts, CORE_PROVISIONED) : les tableaux de bord Core
+ * (§AH parent, §AI élève, §AJ coach miroir) sont choisis par l'adhésion Core
+ * (/api/v2/self/membership). La suspension Core v2 ne coupe que l'accès Core :
+ * la session et la connexion V1 restent valides.
  */
 import { expect, test, type Cookie } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { gotoSignInForm, loginAsUser, resetBrowserSession } from '../helpers/auth';
 import { getCred } from '../helpers/credentials';
 import { sameOriginHeaders } from '../helpers/same-origin';
-import { extractCoreAccountMailToken, type CoreAccountLinkPath } from '../helpers/core-v2-mail-link';
+import { extractV1ActivationToken, extractV1ResetToken, v1ResetTokenSubject, type V1ActivationPurpose } from '../helpers/v1-account-mail-link';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -95,6 +103,7 @@ const mondayOf = (iso: string) => {
 };
 
 let householdId = '';
+let academicYearId = '';
 let parentUserId = '';
 let studentUserId = '';
 let enrollmentId = '';
@@ -102,24 +111,46 @@ let rawToken = '';
 let studentToken = '';
 
 /**
- * Parse exact paths and decoded query parameters, including versioned HMAC
- * tokens and HTML ampersands. No dynamic regex and no raw token in errors.
+ * Lit dans Mailpit le courriel Core v1 du destinataire et en extrait le jeton
+ * (analyse d'URL exacte : e2e/helpers/v1-account-mail-link.ts). Aucun jeton
+ * brut dans les erreurs.
  */
-async function findCoreV2Token(recipient: string, linkPath: CoreAccountLinkPath): Promise<string> {
+async function findV1MailToken(recipient: string, kind: string, extract: (content: string) => string | null): Promise<string> {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${MAILPIT_API_URL}/api/v1/search?query=${encodeURIComponent(`to:${recipient}`)}`);
     const { messages = [] } = (await search.json()) as { messages?: Array<{ ID: string }> };
     for (const message of messages) {
       const detail = await fetch(`${MAILPIT_API_URL}/api/v1/message/${message.ID}`);
       const body = (await detail.json()) as { Text?: string; HTML?: string };
-      const token = extractCoreAccountMailToken(`${body.Text ?? ''}\n${body.HTML ?? ''}`, linkPath);
+      const token = extract(`${body.Text ?? ''}\n${body.HTML ?? ''}`);
       if (token) return token;
     }
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
-  throw new Error(`CORE_V2_MAIL_NOT_RECEIVED:${linkPath}`);
+  throw new Error(`V1_MAIL_NOT_RECEIVED:${kind}`);
 }
-const findActivationToken = (recipient: string) => findCoreV2Token(recipient, '/auth/activate');
+/** Lien d'activation V1 émis par lib/auth/v1-account-invitation.ts (sujet « Activation de votre compte Nexus Réussite »). */
+const findActivationToken = (recipient: string, purpose: V1ActivationPurpose) =>
+  findV1MailToken(recipient, `activation:${purpose}`, (content) => extractV1ActivationToken(content, purpose));
+/** Lien de réinitialisation V1 émis par app/api/auth/reset-password/route.ts (sans `purpose`). */
+const findResetToken = (recipient: string) => findV1MailToken(recipient, 'reset', extractV1ResetToken);
+
+type MembershipState = 'ACTIVE' | 'INACTIVE' | 'NOT_MEMBER' | 'NOT_ENABLED';
+/** L'adhésion Core de la session V1 courante (app/api/v2/self/membership/route.ts), ou le statut HTTP en cas de refus. */
+async function coreMembership(page: import('@playwright/test').Page): Promise<{ state?: MembershipState; role?: string } | number> {
+  const response = await page.request.get(`${BASE_URL}/api/v2/self/membership`);
+  if (!response.ok()) return response.status();
+  return ((await response.json()) as { data: { state?: MembershipState; role?: string } }).data;
+}
+/**
+ * Le compte Core passe ACTIVE quand la saga de provisionnement observe
+ * l'activation V1 : le job SENT se replanifie toutes les 30 s (pollMs par
+ * défaut de drainV1Provisioning) et l'ordonnanceur passe toutes les 5 s. On
+ * attend donc l'état observable, borné, jamais un délai fixe.
+ */
+async function waitForCoreMembership(page: import('@playwright/test').Page, expected: { state: MembershipState; role?: string }): Promise<void> {
+  await expect.poll(() => coreMembership(page), { timeout: 60_000, intervals: [1_000, 2_000, 5_000] }).toEqual(expected);
+}
 
 /** §AU accessibility: no axe violation on a Core v2 screen (optionally scoped to the Core v2 region of a mixed page). */
 async function expectAccessible(page: import('@playwright/test').Page, include?: string): Promise<void> {
@@ -142,20 +173,42 @@ async function sessionUser(page: import('@playwright/test').Page): Promise<{ id?
   return body?.user ?? null;
 }
 
-/** Activates a Core v2 invitation through the public page, then signs in on the form with the new password. */
-async function activateAndSignIn(page: import('@playwright/test').Page, token: string, email: string, password: string, heading: string) {
+/**
+ * Active le compte V1 par la page publique (app/auth/activate/page.tsx →
+ * /api/auth/activate), dans une identité de navigateur neuve. La page
+ * redirige vers /auth/signin?activated=true (…&callbackUrl=… pour un élève,
+ * lib/services/student-activation.service.ts completeStudentActivation).
+ */
+async function activateV1(page: import('@playwright/test').Page, token: string, purpose: V1ActivationPurpose, email: string, password: string, heading: string) {
   await resetBrowserSession(page);
-  await page.goto(`/auth/activate?purpose=core-v2&token=${token}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`/auth/activate?token=${token}&purpose=${purpose}`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('heading', { name: heading })).toBeVisible();
   await expect(page.getByLabel('Identifiant de connexion')).toHaveValue(email);
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByLabel('Confirmer le mot de passe').fill(password);
   await page.getByRole('button', { name: 'Activer mon compte' }).click();
   await page.waitForURL(/\/auth\/signin\?activated=true/, { timeout: 15_000 });
+}
+
+/** Connexion par le formulaire (lib/auth/credentials-authorize.ts : V1_ONLY → Core v1 seul). */
+async function signInOnForm(page: import('@playwright/test').Page, email: string, password: string) {
   await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(email);
   await page.getByLabel(/^mot de passe$/i).fill(password);
   await page.getByRole('button', { name: /accéder à mon espace/i }).click();
   await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
+}
+
+/** Le jeton consommé est refusé par l'API V1 (POST 400) et ne se prévisualise plus (GET valid:false). */
+async function expectActivationTokenSpent(page: import('@playwright/test').Page, token: string, purpose: V1ActivationPurpose, password: string) {
+  const replay = await page.request.post(`${BASE_URL}/api/auth/activate`, {
+    headers: sameOriginHeaders(),
+    data: { token, password: `${password}_2`, purpose },
+  });
+  expect(replay.status()).toBe(400);
+  expect(await replay.text()).not.toContain(token);
+  const preview = await page.request.get(`${BASE_URL}/api/auth/activate?purpose=${purpose}&token=${token}`);
+  expect(preview.status()).toBe(200);
+  expect(((await preview.json()) as { valid: boolean }).valid).toBe(false);
 }
 
 test('golden staff workflow on Core v2: family → enrollment → coach → planning → invitation → activation → RBAC', async ({ page }) => {
@@ -163,8 +216,11 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   // wall times measured on the shared runner: Firefox 34–39 s, WebKit 56.9 s
   // (passed) then 61.5 s (timed out on its last step, still progressing) against
   // the 60 s default. The budget is sized to the journey, not to hide a hang:
-  // every step keeps its own explicit assertion timeout.
-  test.setTimeout(120_000);
+  // every step keeps its own explicit assertion timeout. Under V1_ONLY two
+  // steps also wait (≤ 60 s each, typically ≤ 35 s) for the provisioning saga
+  // to bring the Core account ACTIVE after the V1 activation: budget raised
+  // accordingly.
+  test.setTimeout(240_000);
   useProjectSlot(test.info().project.name);
   await test.step('assistante opens Familles', async () => {
     await loginAsUser(page, 'assistante', { navigate: false });
@@ -188,6 +244,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
       const promoted = await page.request.post(`${BASE_URL}/api/v2/staff/academic-years/${year.id}/current`, { headers: sameOriginHeaders() });
       expect(promoted.status(), await promoted.text()).toBe(200);
     }
+    academicYearId = year.id;
   });
 
   await test.step('creates the family through the duplicate-gated dialog', async () => {
@@ -203,6 +260,27 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(page.getByRole('heading', { name: /Foyer Amel Corev2/ })).toBeVisible();
     await expect(page.getByText(parentEmail)).toBeVisible();
     await expectAccessible(page);
+  });
+
+  await test.step('ADMIN explicitly assigns this household to the assistante for the current year (§6.2 invitation scope)', async () => {
+    // Without this assignment the assistante can create the family but not act on it:
+    // the invitation authority never delegates a whole roster implicitly.
+    const assistanteId = (await sessionUser(page))?.id;
+    if (!assistanteId) throw new Error('E2E_ASSISTANTE_SESSION_REQUIRED');
+    const adminContext = await page.context().browser()!.newContext();
+    const admin = await adminContext.newPage();
+    try {
+      await loginAsUser(admin, 'admin', { navigate: false });
+      await admin.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
+      await expect(admin.getByRole('heading', { name: 'Affectations des assistantes' })).toBeVisible();
+      await admin.getByLabel('Assistante', { exact: true }).selectOption(assistanteId);
+      await admin.getByLabel('Année scolaire', { exact: true }).selectOption(academicYearId);
+      await admin.getByRole('button', { name: 'Affecter', exact: true }).click();
+      await expect(admin.getByRole('status').filter({ hasText: /^Affectation enregistrée\.$/ })).toBeVisible();
+    } finally {
+      await adminContext.close();
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
   });
 
   await test.step('creating the same e-mail again is blocked by the hard conflict', async () => {
@@ -326,49 +404,31 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
   let parentLiveSession: Cookie[] = [];
   const studentPassword = `change_me_e2e_student_${nonce}`;
 
-  await test.step('invites the student (staff API); the activation e-mail reaches Mailpit', async () => {
+  await test.step('invites the student (staff API): provisioned to Core v1, the V1 activation e-mail reaches Mailpit', async () => {
     const invited = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${studentUserId}/invite`, { headers: sameOriginHeaders() });
     expect(invited.status(), await invited.text()).toBe(201);
-    expect(await invited.text()).not.toMatch(/rawToken|tokenHash/);
-    studentToken = await findActivationToken(studentEmail);
+    expect(await invited.text()).not.toMatch(/rawToken|tokenHash|activationToken/);
+    // Le jeton ne vit que dans Core v1 : courriel V1, purpose=student, préfixe sact_.
+    studentToken = await findActivationToken(studentEmail, 'student');
   });
 
-  await test.step('invites the parent; the e-mail reaches Mailpit; the Core v2 activation page activates once', async () => {
+  await test.step('invites the parent: provisioned to Core v1; the V1 activation page activates once; replay refused', async () => {
     const parents = page.getByRole('heading', { name: 'Parents' }).locator('..').locator('..');
     await parents.getByRole('button', { name: 'Inviter' }).first().click();
     await expect(parents.getByRole('status').filter({ hasText: /^Invitation mise en file d’envoi\.$/ })).toBeVisible();
 
-    rawToken = await findActivationToken(parentEmail);
-    // The invitee opens the mailed link in a fresh browser identity (§W: activation through the UI).
-    await resetBrowserSession(page);
-    await page.goto(`/auth/activate?purpose=core-v2&token=${rawToken}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: 'Activer votre espace parent' })).toBeVisible();
-    await expect(page.getByLabel('Identifiant de connexion')).toHaveValue(parentEmail);
-    await page.getByLabel('Mot de passe', { exact: true }).fill(parentPassword);
-    await page.getByLabel('Confirmer le mot de passe').fill(parentPassword);
-    await page.getByRole('button', { name: 'Activer mon compte' }).click();
-    await page.waitForURL(/\/auth\/signin\?activated=true/, { timeout: 15_000 });
-
-    // Single use: the same token is refused by the API and no longer previews.
-    const replay = await page.request.post(`${BASE_URL}/api/v2/auth/activate`, {
-      headers: sameOriginHeaders(),
-      data: { token: rawToken, password: `${parentPassword}_2` },
-    });
-    expect(replay.status()).toBe(409);
-    const preview = await page.request.get(`${BASE_URL}/api/v2/auth/activate?token=${rawToken}`);
-    expect(((await preview.json()) as { data: { valid: boolean } }).data.valid).toBe(false);
+    rawToken = await findActivationToken(parentEmail, 'parent');
+    // The invitee opens the mailed V1 link in a fresh browser identity (§W: activation through the UI).
+    await activateV1(page, rawToken, 'parent', parentEmail, parentPassword, 'Activer votre espace parent');
+    // Single use: the same token is refused by the V1 API and no longer previews.
+    await expectActivationTokenSpent(page, rawToken, 'parent', parentPassword);
   });
 
-  await test.step('the parent signs in with Core v2 credentials (no Core v1 account exists for them)', async () => {
-    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
-    await page.getByLabel(/^mot de passe$/i).fill(parentPassword);
-    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
-    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
-    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
-    const claims = (await session.json()) as { user?: { id?: string; role?: string; authority?: string } };
-    expect(claims.user?.id).toBe(parentUserId);
-    expect(claims.user?.role).toBe('PARENT');
-    expect(claims.user?.authority).toBe('CORE_V2');
+  await test.step('the parent signs in on Core v1 credentials (authority V1, same id as the Core row); Core provisions the account', async () => {
+    await signInOnForm(page, parentEmail, parentPassword);
+    expect(await sessionUser(page)).toMatchObject({ id: parentUserId, role: 'PARENT', authority: 'V1' });
+    // Core v2 ne détient aucun crédentiel : son compte passe ACTIVE quand la saga observe l'activation V1.
+    await waitForCoreMembership(page, { state: 'ACTIVE', role: 'PARENT' });
   });
 
   await test.step('the parent dashboard shows their own household from Core v2 (§AH): child, active enrollment, coach, weekly slot', async () => {
@@ -381,7 +441,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const upcoming = page.getByRole('region', { name: 'Prochaines séances' });
     await expect(upcoming.getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
     await expect(upcoming.getByText(`${longDay(seriesStart)} · ${slotLabel}`)).toHaveCount(0);
-    // The Core v1 family dashboard is not rendered for a Core v2 identity.
+    // An ACTIVE Core membership selects the Core surface: the Core v1 family dashboard is not rendered.
     await expect(page.getByText('Espace Famille')).toHaveCount(0);
     await expectAccessible(page);
     // The staff API stays closed to the parent even though they are a Core v2 actor.
@@ -389,29 +449,29 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     expect(staff.status()).toBe(403);
   });
 
-  await test.step('the parent resets their password (§AT): public form → Core v2 mail → new password; every old session is revoked; replay refused; old password denied', async () => {
+  await test.step('the parent resets their password (§AT): public form → V1 mail → new password; every old session is revoked; replay refused; old password denied', async () => {
     const staleSession = await page.context().cookies();
     await page.goto('/auth/mot-de-passe-oublie', { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Téléphone WhatsApp ou email').fill(parentEmail);
     // The page footer carries a newsletter form too: submit the form that owns the identifier field.
     await page.locator('form').filter({ has: page.getByLabel('Téléphone WhatsApp ou email') }).getByRole('button').click();
-    const resetToken = await findCoreV2Token(parentEmail, '/auth/reset-password');
-    const preview = await page.request.get(`${BASE_URL}/api/v2/auth/password-reset/confirm?token=${resetToken}`);
-    expect(((await preview.json()) as { data: { valid: boolean } }).data.valid).toBe(true);
+    // V1_ONLY : requestPasswordResetByAuthority répond 'V1', le lien V1 (sans purpose) porte l'id partagé.
+    const resetToken = await findResetToken(parentEmail);
+    expect(v1ResetTokenSubject(resetToken)).toMatchObject({ userId: parentUserId, email: parentEmail });
 
-    await page.goto(`/auth/reset-password?purpose=core-v2&token=${resetToken}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/auth/reset-password?token=${resetToken}`, { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Nouveau mot de passe', { exact: true }).fill(parentPasswordAfterReset);
     await page.getByLabel('Confirmer le mot de passe').fill(parentPasswordAfterReset);
     await page.locator('form').filter({ has: page.getByLabel('Nouveau mot de passe', { exact: true }) }).locator('button[type="submit"]').click();
     await expect(page.getByRole('heading', { name: 'Mot de passe réinitialisé !' })).toBeVisible();
 
-    // The session that existed before the reset is dead on the server, not just signed out in this tab.
+    // The session that existed before the reset is dead on the server (V1 sessionVersion bump), not just signed out in this tab.
     await resetBrowserSession(page);
     await page.context().addCookies(staleSession);
     expect(await sessionUser(page)).toBeNull();
-    // Single use.
-    const replay = await page.request.post(`${BASE_URL}/api/v2/auth/password-reset/confirm`, { headers: sameOriginHeaders(), data: { token: resetToken, newPassword: `${parentPasswordAfterReset}_2` } });
-    expect(replay.status()).toBe(409);
+    // Single use: the HMAC is keyed on the previous password hash.
+    const replay = await page.request.post(`${BASE_URL}/api/auth/reset-password`, { headers: sameOriginHeaders(), data: { token: resetToken, newPassword: `${parentPasswordAfterReset}_2` } });
+    expect(replay.status()).toBe(400);
 
     // Old password refused, new password accepted.
     await gotoSignInForm(page);
@@ -424,15 +484,16 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
     await page.getByRole('button', { name: /accéder à mon espace/i }).click();
     await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
-    expect((await sessionUser(page))?.id).toBe(parentUserId);
+    expect(await sessionUser(page)).toMatchObject({ id: parentUserId, authority: 'V1' });
     parentLiveSession = await page.context().cookies();
   });
 
-  await test.step('the student activates, signs in on Core v2 credentials and sees their own enrollment (§AI)', async () => {
-    await activateAndSignIn(page, studentToken, studentEmail, studentPassword, 'Activer votre espace élève');
-    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
-    const claims = (await session.json()) as { user?: { id?: string; role?: string; authority?: string } };
-    expect(claims.user).toMatchObject({ id: studentUserId, role: 'ELEVE', authority: 'CORE_V2' });
+  await test.step('the student activates through the V1 link, signs in on Core v1 credentials and sees their own enrollment (§AI)', async () => {
+    await activateV1(page, studentToken, 'student', studentEmail, studentPassword, 'Activer votre espace élève');
+    await expectActivationTokenSpent(page, studentToken, 'student', studentPassword);
+    await signInOnForm(page, studentEmail, studentPassword);
+    expect(await sessionUser(page)).toMatchObject({ id: studentUserId, role: 'ELEVE', authority: 'V1' });
+    await waitForCoreMembership(page, { state: 'ACTIVE', role: 'ELEVE' });
 
     await page.goto('/dashboard/eleve', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Mon parcours' })).toBeVisible();
@@ -447,16 +508,17 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     expect((await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`)).status()).toBe(403);
   });
 
-  await test.step('the mirrored coach signs in (Core v2 authority) and sees the assignment made to them (§AJ)', async () => {
+  await test.step('the mirrored coach signs in (V1 authority, ACTIVE Core membership) and sees the assignment made to them (§AJ)', async () => {
     await loginAsUser(page, 'coach', { navigate: false });
-    const session = await page.request.get(`${BASE_URL}/api/auth/session`);
-    const claims = (await session.json()) as { user?: { role?: string; authority?: string } };
-    expect(claims.user).toMatchObject({ role: 'COACH', authority: 'CORE_V2' });
-    // A mirrored identity grants no legacy coach ownership. Native Core panels remain usable.
+    expect(await sessionUser(page)).toMatchObject({ role: 'COACH', authority: 'V1' });
+    expect(await coreMembership(page)).toEqual({ state: 'ACTIVE', role: 'COACH' });
+    // V1_ONLY : la session est d'autorité V1, la porte « compte coach V1 » des
+    // routes historiques (403 « Ce parcours nécessite un compte coach V1. »,
+    // app/api/coach/dashboard/route.ts) ne s'applique donc plus à elle.
     for (const route of ['/api/coach/dashboard', '/api/coach/students', '/api/coaches/availability']) {
-      const denied = await page.request.get(`${BASE_URL}${route}`);
-      expect(denied.status()).toBe(403);
-      expect(denied.headers()['cache-control']).toContain('no-store');
+      const legacy = await page.request.get(`${BASE_URL}${route}`);
+      expect(legacy.status(), route).not.toBe(403);
+      expect(legacy.status(), route).toBeLessThan(500);
     }
 
     await page.goto('/dashboard/coach', { waitUntil: 'domcontentloaded' });
@@ -473,7 +535,7 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     await expect(row.getByText(`${startYear}-${startYear + 1} · PREMIERE · Inscription active`)).toBeVisible();
     await expect(row.getByText(`chaque mardi ${slotFrom}–${slotTo}`)).toBeVisible();
     await expect(page.getByRole('region', { name: 'Prochaines séances' }).getByText(`${longDay(seriesSecond)} · ${slotLabel}`)).toBeVisible();
-    // Core coach panels remain accessible while unqualified V1 capabilities stay closed.
+    // Core coach panels remain accessible.
     await expectAccessible(page, '[aria-labelledby="core-v2-coach-assignments"]');
     await expectAccessible(page, '[aria-labelledby="core-v2-upcoming-sessions"]');
     // A coach is not staff: the back-office surface stays closed.
@@ -488,52 +550,64 @@ test('golden staff workflow on Core v2: family → enrollment → coach → plan
     const audit = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectId=${parentUserId}`);
     expect(audit.status()).toBe(403);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('button', { name: 'Suspendre' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Suspendre l’accès Core v2' })).toHaveCount(0);
   });
 
   await test.step('ADMIN reads the audit trail and suspends the account', async () => {
     await loginAsUser(page, 'admin', { navigate: false });
     const audit = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectId=${parentUserId}&limit=50`);
     expect(audit.status(), await audit.text()).toBe(200);
-    const rows = (await audit.json()) as { data: { items: Array<{ action: string; actorUserId: string | null }> } };
+    const rows = (await audit.json()) as { data: { items: Array<{ action: string; actorUserId: string | null; metadata: { via?: string } | null }> } };
     const actions = rows.data.items.map((r) => r.action);
     expect(actions).toEqual(expect.arrayContaining(['parent.created', 'account.activated']));
-    // The invitation is audited on its own subject (Invitation), pointing at the user in metadata.
-    const invitations = await page.request.get(`${BASE_URL}/api/v2/staff/audit?subjectType=Invitation&limit=50`);
-    const invitationRows = (await invitations.json()) as { data: { items: Array<{ action: string; metadata: { userId?: string } | null }> } };
-    expect(invitationRows.data.items.some((r) => r.action === 'account.invited' && r.metadata?.userId === parentUserId)).toBe(true);
+    // V1_ONLY : aucune Invitation Core n'existe ; la demande de provisionnement
+    // est auditée sur l'utilisateur lui-même, marquée `via: 'V1'`
+    // (lib/core-v2/accounts/v1-provisioning.ts auditRequest), comme son
+    // activation (v1-provisioning-worker.ts provisionCore).
+    const viaV1 = (action: string) => rows.data.items.some((r) => r.action === action && r.metadata?.via === 'V1');
+    expect(viaV1('account.invited')).toBe(true);
+    expect(viaV1('account.activated')).toBe(true);
 
     await page.goto(`/dashboard/admin/familles/${householdId}`, { waitUntil: 'domcontentloaded' });
-    await page.getByRole('button', { name: 'Suspendre' }).first().click();
-    await expect(page.getByRole('status').filter({ hasText: /^Compte suspendu\b/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Suspendre l’accès Core v2' }).first().click();
+    // Le message doit nommer l'accès suspendu ET dire que V1 n'est pas modifié :
+    // c'est tout l'objet de la suspension séparée.
+    await expect(page.getByRole('status').filter({ hasText: /^Accès Core v2 suspendu\b/ })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: /accès V1 n’est pas modifié/ })).toBeVisible();
     const after = await page.request.get(`${BASE_URL}/api/v2/staff/households/${householdId}`);
     const detail = (await after.json()) as { data: { parents: Array<{ accountStatus: string }> } };
     expect(detail.data.parents[0]!.accountStatus).toBe('SUSPENDED');
   });
 
-  await test.step('suspension revokes the live session and refuses login; reactivation lets the parent back in (§AT)', async () => {
-    // The parent's session from before the suspension is dead.
+  await test.step('Core v2 suspension closes the Core surfaces only: the V1 session and V1 login stay valid; reactivation reopens Core (§AT)', async () => {
+    // The parent's V1 session from before the suspension is untouched (Core v1 owns sessions).
     await resetBrowserSession(page);
     await page.context().addCookies(parentLiveSession);
-    expect(await sessionUser(page)).toBeNull();
-    // And a fresh login with the right password is refused while SUSPENDED.
+    expect(await sessionUser(page)).toMatchObject({ id: parentUserId, role: 'PARENT', authority: 'V1' });
+    // Core refuses the suspended account: membership INACTIVE, actor refused by the Core API.
+    expect(await coreMembership(page)).toEqual({ state: 'INACTIVE' });
+    const household = await page.request.get(`${BASE_URL}/api/v2/parent/household`);
+    expect(household.status()).toBe(403);
+    expect(((await household.json()) as { error?: unknown }).error).toMatchObject({ code: 'FORBIDDEN', details: { code: 'ACTOR_NOT_ACTIVE' } });
+    // The dashboard shows the suspension notice instead of the Core household (CoreRoleHome → CoreMembershipNotice).
+    await page.goto('/dashboard/parent', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('status').filter({ hasText: /Votre accès à cet espace académique est suspendu\./ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Mon foyer' })).toHaveCount(0);
+    // A fresh V1 login with the right password still succeeds: only Core access was suspended.
+    await resetBrowserSession(page);
     await gotoSignInForm(page);
-    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
-    await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
-    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
-    await expect(page.getByRole('button', { name: /accéder à mon espace/i })).toBeEnabled();
-    await expect(page).toHaveURL(/\/auth\/signin/);
-    expect(await sessionUser(page)).toBeNull();
+    await signInOnForm(page, parentEmail, parentPasswordAfterReset);
+    expect(await sessionUser(page)).toMatchObject({ id: parentUserId, authority: 'V1' });
+    expect(await coreMembership(page)).toEqual({ state: 'INACTIVE' });
 
     await loginAsUser(page, 'admin', { navigate: false });
     const reactivated = await page.request.post(`${BASE_URL}/api/v2/staff/accounts/${parentUserId}/reactivate`, { headers: sameOriginHeaders() });
     expect(reactivated.status(), await reactivated.text()).toBe(200);
 
     await gotoSignInForm(page);
-    await page.getByRole('textbox', { name: 'Téléphone WhatsApp ou email', exact: true }).fill(parentEmail);
-    await page.getByLabel(/^mot de passe$/i).fill(parentPasswordAfterReset);
-    await page.getByRole('button', { name: /accéder à mon espace/i }).click();
-    await page.waitForURL((url) => url.pathname !== '/auth/signin', { timeout: 15_000 });
-    expect((await sessionUser(page))?.id).toBe(parentUserId);
+    await signInOnForm(page, parentEmail, parentPasswordAfterReset);
+    expect(await sessionUser(page)).toMatchObject({ id: parentUserId, authority: 'V1' });
+    expect(await coreMembership(page)).toEqual({ state: 'ACTIVE', role: 'PARENT' });
+    expect((await page.request.get(`${BASE_URL}/api/v2/parent/household`)).status()).toBe(200);
   });
 });

@@ -22,8 +22,8 @@ function run(project: string, failFirst = false) {
 }
 test('runs the complete mobile matrix before twenty serial E019 executions with no retries', () => {
   expect(run('aria-mobile')).toEqual({ status: 0, commands: [
-    'aria-mobile|playwright test --config playwright.aria.config.ts --project aria-mobile',
-    'aria-mobile-repeat20|playwright test --config playwright.aria.config.ts --project=aria-mobile visual-a11y.spec.ts --grep E019 ARIA_VISUAL_VIEWPORT_MATRIX --repeat-each=20 --workers=1 --retries=0',
+    'aria-mobile|playwright test --config playwright.aria.config.ts --project aria-mobile --forbid-only',
+    'aria-mobile-repeat20|playwright test --config playwright.aria.config.ts --project=aria-mobile visual-a11y.spec.ts --grep E019 ARIA_VISUAL_VIEWPORT_MATRIX --repeat-each=20 --workers=1 --retries=0 --forbid-only',
   ] });
 });
 test('does not mask a failed complete campaign by running the repetition', () => {
@@ -32,7 +32,7 @@ test('does not mask a failed complete campaign by running the repetition', () =>
   expect(result.commands).toHaveLength(1);
 });
 test('keeps the desktop lane unchanged', () => {
-  expect(run('aria-desktop')).toEqual({ status: 0, commands: ['aria-desktop|playwright test --config playwright.aria.config.ts --project aria-desktop'] });
+  expect(run('aria-desktop')).toEqual({ status: 0, commands: ['aria-desktop|playwright test --config playwright.aria.config.ts --project aria-desktop --forbid-only'] });
 });
 
 test('the actual Playwright collector selects twenty E019 cases, not zero cases or a filename as a project', () => {

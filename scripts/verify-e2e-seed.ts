@@ -1,9 +1,9 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readRuntimeCredentialsManifest } from '../lib/security/seed-runtime';
 import { PrismaClient, UserRole } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { serializeError } from '../lib/utils/serialize-error';
-import { isAllowedSeedTarget } from '../lib/e2e/seed-guard';
+import { assertCoreV1E2eSeedTarget } from './e2e/v1-seed-target';
+import { ARIA_E2E_PERSONAS } from './e2e/aria-personas';
+import { CORE_V2_ARIA_FOUNDATION_EMAIL } from './e2e/aria-foundation-identity';
 
 type Credential = { email?: unknown; password?: unknown };
 
@@ -25,57 +25,49 @@ const expectedRoles = {
   ariaStmgNoChat: UserRole.ELEVE,
   ariaIncompleteProfile: UserRole.ELEVE,
   ariaNotEntitled: UserRole.ELEVE,
+  coreV2AriaFoundation: UserRole.ELEVE,
+  ariaPersonasParent: UserRole.PARENT,
 } as const;
 
-async function main() {
-  const target = isAllowedSeedTarget(process.env.DATABASE_URL ?? '');
-  if (!target.ok) {
-    throw new Error('Refusing to verify a non-ephemeral E2E database');
+/** Read-only validation of every credential identity and its authoritative fixture relations. */
+export async function verifyE2eSeed(prisma: PrismaClient, credentials: Record<string, Credential>) {
+  const refuse = () => { throw new Error('E2E_SEED_VERIFICATION_FAILED'); };
+  if (Object.keys(credentials).sort().join('\0') !== Object.keys(expectedRoles).sort().join('\0')
+    || await prisma.user.count() === 0) refuse();
+  const select = { id: true, email: true, role: true, password: true, activatedAt: true, disabledAt: true, mergedIntoUserId: true,
+    parentProfile: { select: { id: true, userId: true } }, student: { select: { id: true, userId: true, parentId: true } } } as const;
+  type Identity = NonNullable<Awaited<ReturnType<typeof lookup>>>;
+  const lookup = (email: string) => prisma.user.findUnique({ where: { email }, select });
+  const identities = new Map<string, Identity>();
+  const ids = new Set<string>();
+  for (const [fixtureName, expectedRole] of Object.entries(expectedRoles)) {
+    const credential = credentials[fixtureName];
+    if (typeof credential?.email !== 'string' || typeof credential.password !== 'string' || credential.password.length < 32) refuse();
+    const user = await lookup(credential.email as string);
+    if (!user || user.role !== expectedRole || !user.activatedAt || user.disabledAt || user.mergedIntoUserId
+      || !user.password || !await bcrypt.compare(credential.password as string, user.password) || ids.has(user.id)) refuse();
+    identities.set(fixtureName, user!); ids.add(user!.id);
   }
-
-  const credentialsPath = resolve(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json');
-  const credentials = JSON.parse(readFileSync(credentialsPath, 'utf8')) as Record<string, Credential>;
-  const prisma = new PrismaClient();
-
-  try {
-    const totalUsers = await prisma.user.count();
-    if (totalUsers === 0) {
-      throw new Error('E2E seed verification failed: database contains zero users');
-    }
-
-    for (const [fixtureName, expectedRole] of Object.entries(expectedRoles)) {
-      const credential = credentials[fixtureName];
-      if (typeof credential?.email !== 'string' || typeof credential.password !== 'string') {
-        throw new Error(`E2E seed verification failed: fixture ${fixtureName} is incomplete`);
-      }
-
-      const user = await prisma.user.findUnique({
-        where: { email: credential.email },
-        select: { id: true, role: true, password: true },
-      });
-      if (user?.role !== expectedRole) {
-        throw new Error(`E2E seed verification failed: fixture ${fixtureName} has the wrong role`);
-      }
-      if (!user.password || !await bcrypt.compare(credential.password, user.password)) {
-        throw new Error(`E2E seed verification failed: fixture ${fixtureName} password is out of sync`);
-      }
-    }
-
-    const coreV2Credential = credentials.coreV2AriaFoundation;
-    if (typeof coreV2Credential?.email !== 'string' || typeof coreV2Credential.password !== 'string') {
-      throw new Error('E2E seed verification failed: Core v2 ARIA fixture is incomplete');
-    }
-    if (await prisma.user.findUnique({ where: { email: coreV2Credential.email }, select: { id: true } })) {
-      throw new Error('E2E seed verification failed: Core v2 ARIA identity has a legacy User row');
-    }
-
-    console.log(`E2E seed verified: ${Object.keys(expectedRoles).length} identities across required roles`);
-  } finally {
-    await prisma.$disconnect();
+  const ariaParent = identities.get('ariaPersonasParent')!;
+  if (!ariaParent.parentProfile || ariaParent.parentProfile.userId !== ariaParent.id
+    || ariaParent.id === identities.get('parent')!.id) refuse();
+  const students = new Set<string>();
+  for (const persona of ARIA_E2E_PERSONAS) {
+    const user = identities.get(persona.key)!;
+    if (user.email !== persona.email || !user.student || user.student.userId !== user.id
+      || user.student.parentId !== ariaParent.parentProfile!.id || students.has(user.student.id)) refuse();
+    students.add(user.student!.id);
   }
+  const foundation = identities.get('coreV2AriaFoundation')!;
+  if (foundation.email !== CORE_V2_ARIA_FOUNDATION_EMAIL || foundation.student || foundation.parentProfile) refuse();
+  return { identities: identities.size, ariaPersonas: students.size };
 }
 
-main().catch((error) => {
-  console.error('E2E seed verification failed', serializeError(error));
-  process.exit(1);
-});
+async function main() {
+  assertCoreV1E2eSeedTarget(process.env);
+  const credentials = readRuntimeCredentialsManifest(process.env.E2E_CREDENTIALS_PATH ?? 'e2e/.credentials.json') as Record<string, Credential>;
+  const prisma = new PrismaClient();
+  try { console.info(JSON.stringify(await verifyE2eSeed(prisma, credentials))); }
+  finally { await prisma.$disconnect(); }
+}
+if (require.main === module) main().catch(() => { console.error('E2E_SEED_VERIFICATION_FAILED'); process.exitCode = 1; });

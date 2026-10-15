@@ -352,14 +352,17 @@ export async function logoutUser(page: Page) {
 export { ROLE_PATHS };
 
 
-/** Wait for the dashboard owned by the verified authority, not a loading shell. */
+/** Wait for the dashboard selected by the Core membership, not a loading shell. */
 export async function expectCoachDashboardReady(page: Page): Promise<void> {
     const response = await page.request.get('/api/auth/session');
     expect(response.status()).toBe(200);
     const session = await response.json();
     expect(session.user?.role).toBe('COACH');
-    expect(['CORE_V2', 'V1']).toContain(session.user?.authority);
-    if (session.user.authority === 'CORE_V2') {
+    expect(session.user?.authority).toBe('V1');
+    // The surface follows the Core membership (CoreRoleHome), never the credential authority.
+    const membershipResponse = await page.request.get('/api/v2/self/membership');
+    const membership = membershipResponse.ok() ? await membershipResponse.json() : null;
+    if (membership?.data?.state === 'ACTIVE' && membership.data.role === 'COACH') {
         await expect(page.getByRole('heading', { level: 1, name: 'Espace coach', exact: true })).toBeVisible();
         await expect(page.getByRole('heading', { name: 'Mes affectations', exact: true })).toBeVisible();
         await expect(page.getByText('Chargement de vos affectations…', { exact: true })).toHaveCount(0);

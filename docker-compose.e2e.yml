@@ -137,8 +137,7 @@ services:
       CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS: ${CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS:?Generate dedicated E2E account-token keys}
       CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
       CORE_V2_INVITATION_TTL_HOURS: "72"
-      CORE_V2_PASSWORD_RESET_TTL_MINUTES: "60"
-      CORE_V2_AUTH_MODE: HYBRID
+      CORE_V2_AUTH_MODE: V1_ONLY
       NEXTAUTH_SECRET: e2e-test-secret-do-not-use-in-prod
       NEXTAUTH_URL: http://app-e2e:3000
       NEXTAUTH_TRUST_HOST: "true"
@@ -177,6 +176,8 @@ services:
       # the isolated Docker network.
       EMAIL_OUTBOX_WORKER_ENABLED: "true"
       EMAIL_OUTBOX_ENCRYPTION_KEY: e2e-compose-outbox-encryption-key-0123456789
+      # Per-run disposable key (scripts/aria/e2e-runtime-secrets.sh): deposited documents are encrypted at rest.
+      DOCUMENT_ENCRYPTION_KEY: "${DOCUMENT_ENCRYPTION_KEY:?Generate a disposable E2E document encryption key}"
       SMTP_HOST: mailpit-e2e
       SMTP_PORT: "1025"
       SMTP_FROM: e2e@example.test
@@ -259,6 +260,9 @@ services:
       CI: "true"
       PLAYWRIGHT_CONFIG: "${PLAYWRIGHT_CONFIG:-playwright.config.e2e.ts}"
       PLAYWRIGHT_PROJECT: "${PLAYWRIGHT_PROJECT:-}"
+      NEXUS_TEST_LAUNCH_CONTEXTS: "${NEXUS_TEST_LAUNCH_CONTEXTS:-}"
+      NEXUS_TEST_LANE_ID: "${NEXUS_TEST_LANE_ID:-}"
+      NEXUS_TEST_SECONDARY_LANE_ID: "${NEXUS_TEST_SECONDARY_LANE_ID:-}"
       E2E_CREDENTIALS_PATH: /app/e2e-shared/.credentials.json
       DATABASE_URL: postgresql://postgres:postgres@postgres-e2e:5432/nexus_e2e?schema=public
       CORE_V2_DATABASE_URL: postgresql://postgres@postgres-core-v2-e2e:5432/core_v2_e2e

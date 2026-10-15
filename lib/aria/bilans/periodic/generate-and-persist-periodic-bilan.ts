@@ -12,12 +12,16 @@
  * function never makes an ARIA bilan visible to the student or parent by
  * itself.
  */
-import { prisma } from '@/lib/prisma';
+import type { Prisma } from '@prisma/client';
 import { getCourse, isKnownCourseKey } from '@/lib/curriculum/catalog';
 import { requireUserEmail } from '@/lib/contact/user-email';
 import { getSkillGraph } from '../../curriculum/skill-graph';
 import { AriaError } from '../../kernel/errors';
-import { prismaLearningEvidenceRepository } from '../../infrastructure/prisma/learning-evidence-repository';
+import { makePrismaLearningEvidenceRepository } from '../../infrastructure/prisma/learning-evidence-repository';
+import { listStudentAcademicCourseKeys } from '../../access';
+import { lockV1AriaSubject } from '../../infrastructure/prisma/actor-authority';
+import { coachCapableCourseKeys } from '@/lib/assignments/allowed-courses';
+import { parseSubjects } from '@/lib/utils/subjects';
 import {
   generateAriaPeriodicBilanReport,
   type AriaPeriodicBilanReport,
@@ -32,6 +36,7 @@ import {
 const PERIODIC_BILAN_EVIDENCE_LIMIT = 500;
 
 export interface GenerateAndPersistAriaPeriodicBilanInput {
+  readonly actor: { readonly userId: string; readonly role: string };
   readonly studentId: string;
   readonly courseKey: string;
   readonly periodStart: Date;
@@ -41,11 +46,41 @@ export interface GenerateAndPersistAriaPeriodicBilanInput {
 export interface PersistedAriaPeriodicBilan {
   readonly bilanId: string;
   readonly report: AriaPeriodicBilanReport;
+  /** Internal final transaction guard; never part of the public projection. */
+  readonly assertScopeNow: () => void;
 }
 
 export async function generateAndPersistAriaPeriodicBilan(
   input: GenerateAndPersistAriaPeriodicBilanInput,
+  db: Prisma.TransactionClient,
 ): Promise<PersistedAriaPeriodicBilan> {
+  const refuse = (): never => { throw new AriaError('NOT_ENTITLED', 403, 'Opération indisponible.'); };
+  if (!input.actor || !['ADMIN', 'ASSISTANTE', 'COACH'].includes(input.actor.role)) refuse();
+  // Identity is already locked by the HTTP session authority. Trusted command
+  // callers must still provide the immutable issuer and its actual V1 role.
+  const issuer = await db.user.findUnique({ where: { id: input.actor.userId },
+    select: { role: true, disabledAt: true, mergedIntoUserId: true } });
+  if (!issuer || issuer.role !== input.actor.role || issuer.disabledAt || issuer.mergedIntoUserId) refuse();
+  let scope: { startsAt: Date; endsAt: Date | null } | undefined;
+  if (input.actor.role === 'COACH') {
+    const coaches = await db.$queryRaw<Array<{ id: string; subjects: unknown }>>`
+      SELECT id, subjects FROM public.coach_profiles WHERE "userId" = ${input.actor.userId} FOR SHARE`;
+    const coach = coaches[0];
+    if (!coach || !coachCapableCourseKeys(parseSubjects(coach.subjects)).has(input.courseKey)) refuse();
+    const assignments = await db.$queryRaw<Array<{ startsAt: Date; endsAt: Date | null }>>`
+      SELECT "startsAt", "endsAt" FROM public.coach_student_assignments
+      WHERE "coachId" = ${coach!.id} AND "studentId" = ${input.studentId} AND status::text = 'ACTIVE'
+        AND "courseScopeState"::text IN ('STAFF_VERIFIED', 'BACKFILL_AUTO')
+        AND ${input.courseKey} = ANY("academicCourseKeys") ORDER BY id FOR SHARE`;
+    // Compare wall time after any lock wait; transaction-start time is stale.
+    const now = Date.now();
+    scope = assignments.find(row => row.startsAt.getTime() <= now && (!row.endsAt || row.endsAt.getTime() > now));
+    if (!scope) refuse();
+  }
+  const assertScopeNow = () => {
+    const now = Date.now();
+    if (scope && (scope.startsAt.getTime() > now || (scope.endsAt && scope.endsAt.getTime() <= now))) refuse();
+  };
   if (!(input.periodStart < input.periodEnd)) {
     throw new AriaError('BAD_REQUEST', 400, 'La période demandée est invalide.');
   }
@@ -61,18 +96,24 @@ export async function generateAndPersistAriaPeriodicBilan(
     throw new AriaError('BAD_REQUEST', 400, 'Ce cours ne dispose pas encore de graphe de compétences.');
   }
 
-  const student = await prisma.student.findUnique({
+  const locator = await db.student.findUnique({ where: { id: input.studentId }, select: { userId: true } });
+  if (!locator) refuse();
+  await lockV1AriaSubject(db, locator!.userId, false);
+  const student = await db.student.findUnique({
     where: { id: input.studentId },
     select: {
       id: true,
+      gradeLevel: true, academicTrack: true, stmgPathway: true,
+      academicEnrollments: { select: { courseKey: true, kind: true, source: true } },
       user: { select: { email: true, firstName: true, lastName: true } },
     },
   });
   if (!student) {
-    throw new AriaError('BAD_REQUEST', 400, 'Élève introuvable.');
+    refuse();
   }
+  if (!listStudentAcademicCourseKeys(student!).includes(input.courseKey)) refuse();
 
-  const evidenceRows = await prismaLearningEvidenceRepository.listForStudent(input.studentId, {
+  const evidenceRows = await makePrismaLearningEvidenceRepository(db).listForStudent(input.studentId, {
     courseKey: input.courseKey,
     source: 'PRACTICE_ATTEMPT',
     until: input.periodEnd,
@@ -95,7 +136,7 @@ export async function generateAndPersistAriaPeriodicBilan(
   const report = generateAriaPeriodicBilanReport({
     courseLabel: course.label,
     skillGraph,
-    studentFirstName: student.user.firstName ?? 'l’élève',
+    studentFirstName: student!.user.firstName ?? 'l’élève',
     periodStart: input.periodStart,
     periodEnd: input.periodEnd,
     evidenceUpToPeriodEnd: evidence,
@@ -105,14 +146,15 @@ export async function generateAndPersistAriaPeriodicBilan(
     throw new AriaError('BAD_REQUEST', 400, 'Aucune activité ARIA pour cet élève sur cette période.');
   }
 
-  const studentEmail = requireUserEmail(student.user.email);
-  const studentName = [student.user.firstName, student.user.lastName].filter(Boolean).join(' ') || studentEmail;
+  const studentEmail = requireUserEmail(student!.user.email);
+  const studentName = [student!.user.firstName, student!.user.lastName].filter(Boolean).join(' ') || studentEmail;
+  assertScopeNow();
 
-  const bilan = await prisma.bilan.create({
+  const bilan = await db.bilan.create({
     data: {
       type: 'ARIA_PERIODIC',
       subject: course.legacySubject,
-      studentId: student.id,
+      studentId: student!.id,
       studentEmail,
       studentName,
       status: 'COMPLETED',
@@ -134,5 +176,7 @@ export async function generateAndPersistAriaPeriodicBilan(
     select: { id: true },
   });
 
-  return { bilanId: bilan.id, report };
+  assertScopeNow();
+
+  return { bilanId: bilan.id, report, assertScopeNow };
 }

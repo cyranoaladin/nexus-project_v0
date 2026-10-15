@@ -38,7 +38,7 @@ describe('versioned JWT session validation', () => {
     await expect(validateSessionToken(current, db)).resolves.toBe(current)
     expect(db.user.findUnique).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true },
+      select: { id: true, role: true, activatedAt: true, sessionVersion: true, pinHash: true, disabledAt: true, mergedIntoUserId: true },
     })
   })
 

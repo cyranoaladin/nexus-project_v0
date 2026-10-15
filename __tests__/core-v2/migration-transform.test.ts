@@ -264,3 +264,29 @@ test('policy: never auto-migrates ambiguous/unresolved scopes, never copies cour
   expect(doesNot).toMatch(/stay in Core v1/);
   expect(MigrationPolicy.migrates.join(' ')).toMatch(/REBUILT/);
 });
+
+
+describe('V1_ONLY roster credential and role boundary', () => {
+  let prior: string | undefined;
+  beforeEach(() => { prior = process.env.CORE_V2_AUTH_MODE; process.env.CORE_V2_AUTH_MODE = 'V1_ONLY'; });
+  afterEach(() => { if (prior === undefined) delete process.env.CORE_V2_AUTH_MODE; else process.env.CORE_V2_AUTH_MODE = prior; });
+
+  test('never reads, copies or derives a source credential', () => {
+    const source = snapshot();
+    for (const account of [...source.students.flatMap(s => [s.user, s.parentUser]), ...source.assignments.map(a => a.coachUser)]) {
+      Object.defineProperty(account, 'password', { get() { throw new Error('SOURCE_CREDENTIAL_WAS_READ'); } });
+    }
+    const plan = buildTargetPlan(source, approval, migratedAt);
+    expect(plan.users.every(u => u.password === null && u.sessionVersion === 0)).toBe(true);
+    expect(plan.users.find(u => u.id === 'par-1')?.accountStatus).toBe('ACTIVE');
+    expect(plan.users.find(u => u.id === 'stu-a-u')?.accountStatus).toBe('PENDING_ACTIVATION');
+    expect(JSON.stringify(plan.entries)).not.toContain('scrypt-v1');
+  });
+
+  test.each(['student', 'parent', 'coach'])('rejects an ADMIN injected in the %s relation', relation => {
+    const source = snapshot();
+    const identity = relation === 'student' ? source.students[0].user : relation === 'parent' ? source.students[0].parentUser : source.assignments[0].coachUser;
+    Object.defineProperty(identity, 'role', { value: 'ADMIN' });
+    expect(() => buildTargetPlan(source, approval, migratedAt)).toThrow('MIGRATION_RELATION_ROLE_MISMATCH');
+  });
+});

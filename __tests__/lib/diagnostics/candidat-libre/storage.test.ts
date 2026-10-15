@@ -4,12 +4,12 @@ jest.mock('@/lib/documents/storage-root', () => ({
   getDocumentStorageRoot: () => mockStorageRoot,
 }));
 
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 const mockStorageRoot = mkdtempSync(join(tmpdir(), 'nexus-candidate-storage-'));
 
-import { persistDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
+import { persistDiagnosticFile, readPersistedDiagnosticFile } from '@/lib/diagnostics/candidat-libre/storage.server';
 import { isEncryptedDocument } from '@/lib/documents/encryption';
 
 // Les dépôts sont désormais chiffrés au repos : sans clé, `persistDiagnosticFile`
@@ -82,6 +82,13 @@ describe('persistDiagnosticFile — audio signature validation', () => {
 });
 
 describe('persistDiagnosticFile — chiffrement au repos', () => {
+  it('ne renvoie jamais un .enc corrompu comme document legacy en clair', async () => {
+    const result = await persistDiagnosticFile({ diagnosticId: 'diag-crypto', category: 'IDENTITY',
+      file: fakeFile([0x25, 0x50, 0x44, 0x46, 0x2d], 'application/pdf', 'identity.pdf') });
+    const path = join(mockStorageRoot, result.storageKey);
+    const corrupted = readFileSync(path); corrupted[0] ^= 1; writeFileSync(path, corrupted);
+    await expect(readPersistedDiagnosticFile(result.storageKey)).rejects.toThrow('DOCUMENT_ENVELOPE_INVALID');
+  });
   // Read the actual encrypted bytes from this suite's isolated temporary root.
   it('écrit une enveloppe chiffrée, jamais le contenu en clair', async () => {
     const marker = [0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37];

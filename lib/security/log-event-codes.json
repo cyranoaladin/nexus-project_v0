@@ -20,6 +20,7 @@
     "CORE_V2_ROUTE_UNEXPECTED_ERROR",
     "EMAIL_OUTBOX_COMPLETED",
     "EMAIL_OUTBOX_DELIVERY_FAILED",
+    "EMAIL_OUTBOX_INVITATION_CANCELLED",
     "PASSWORD_RESET_PROCESSING_FAILED",
     "account.password_change_failed",
     "legacy_parent_pdf_failed",

@@ -104,6 +104,7 @@ exit 0
           PATH: `${fakeBin}:${process.env.PATH}`,
           ARIA_HARNESS_COMMAND_LOG: commandLog,
           ARIA_REAL_DB_HEALTH_ATTEMPTS: '2',
+          NEXUS_TEST_NATIVE_OUTPUT: join(temporaryDirectory, 'native.json'),
         },
       },
     );
@@ -117,8 +118,9 @@ exit 0
     expect(commands).toContain(`docker rm -f -v ${containerName}`);
     expect(commands).toContain('npx prisma migrate deploy');
     expect(commands).toContain(
-      `npx jest --config jest.aria.db.config.js --runInBand --runTestsByPath ${requestedTest}`,
+      `npx --no-install jest --config jest.aria.db.config.js --runInBand --runTestsByPath ${requestedTest}`,
     );
+    expect(commands).toContain(`--json --outputFile=${join(temporaryDirectory, 'native.json')}`);
     expect(`${result.stdout}${result.stderr}`).not.toMatch(/postgresql:\/\/|nexus_aria_test/);
   });
 

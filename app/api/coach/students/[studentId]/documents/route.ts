@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mkdir, writeFile, unlink } from 'fs/promises';
+import { mkdir, unlink } from 'fs/promises';
+import { writePrivateFileExclusive } from '@/lib/security/private-file-write';
 import { randomUUID } from 'node:crypto';
-import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { scanPrivateBytes } from '@/lib/security/private-file-antivirus';
 import { checkCsrf } from '@/lib/csrf';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 import path from 'path';
@@ -186,6 +187,7 @@ export async function GET(request: Request, { params }: RouteParams) {
  * Only scanned FormData uploads can create new documents.
  */
 export async function POST(request: Request, { params }: RouteParams) {
+  let writtenPath: string | null = null;
   try {
     const parsedParams = routeParamsSchema.parse(await params);
     const { studentId } = parsedParams;
@@ -275,18 +277,15 @@ export async function POST(request: Request, { params }: RouteParams) {
       const storageRoot = getDocumentStorageRoot();
       const uploadDir = path.join(storageRoot, student.userId);
       const absolutePath = path.join(uploadDir, filename);
-      await mkdir(uploadDir, { recursive: true });
-
       const buffer = Buffer.from(await file.arrayBuffer());
-      await writeFile(absolutePath, buffer, { mode: 0o600, flag: 'wx' });
-      try {
-        await scanPrivateFile(absolutePath);
-      } catch (error) {
-        try { await unlink(absolutePath); }
-        catch { console.error('[Coach Upload]', { code: 'DOCUMENT_QUARANTINE_CLEANUP_FAILED' }); }
-        const malware = error instanceof Error && error.message.startsWith('MALWARE_DETECTED');
+      try { await scanPrivateBytes(buffer); }
+      catch (error) {
+        const malware = error instanceof Error && error.message === 'MALWARE_DETECTED';
         return NextResponse.json({ error: malware ? 'DOCUMENT_REJECTED' : 'DOCUMENT_SCAN_UNAVAILABLE' }, { status: malware ? 422 : 503 });
       }
+      await mkdir(uploadDir, { recursive: true, mode: 0o700 });
+      await writePrivateFileExclusive(absolutePath, buffer);
+      writtenPath = absolutePath;
 
       documentData = {
         title: validatedMeta.title,
@@ -329,6 +328,12 @@ export async function POST(request: Request, { params }: RouteParams) {
       document: sanitizeDocument(document),
     }, { status: 201 });
   } catch (error) {
+    if (writtenPath) {
+      try {
+        const committed = await prisma.userDocument.findFirst({ where: { localPath: toRelativeStoragePath(writtenPath) }, select: { id: true } });
+        if (!committed) await unlink(writtenPath);
+      } catch { console.error('[Coach Upload]', { code: 'DOCUMENT_STORAGE_RECONCILIATION_REQUIRED' }); }
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation Error', message: error.errors },

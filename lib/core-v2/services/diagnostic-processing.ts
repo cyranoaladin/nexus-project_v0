@@ -29,7 +29,7 @@ import type {
 import { Prisma } from '../client';
 import { appendAuditEvent } from '../audit';
 import { checkPdfTextExtractionRuntime, extractSubmissionTextBounded, invalidatePdfTextExtractionRuntimeCheck } from '../diagnostics/text-extraction';
-import { readDiagnosticStorageFile } from '../diagnostics/storage';
+import { readDiagnosticSubmissionBytes } from '../diagnostics/storage';
 import { ConflictError, InvalidStateError, NotFoundError } from '../errors';
 import { assertCapability } from '../rbac';
 import type { ServiceContext, Tx } from './context';
@@ -226,7 +226,8 @@ export async function runOneDiagnosticProcessingJob(
   const submission = await client.diagnosticSubmission.findUniqueOrThrow({ where: { id: processing.submissionId } });
 
   const startedAt = Date.now();
-  let result: Awaited<ReturnType<typeof extractSubmissionTextBounded>> | { status: 'FAILED'; errorMessage: string };
+  let result: Awaited<ReturnType<typeof extractSubmissionTextBounded>> | { status: 'FAILED'; errorMessage: string }
+    = { status: 'FAILED', errorMessage: 'SUBMISSION_READ_OR_DECRYPT_FAILED' };
   if (submission.status === 'REJECTED') {
     // Re-checked here (mission §5): a submission could only have become
     // REJECTED before this job was ever claimable in the first place
@@ -235,21 +236,22 @@ export async function runOneDiagnosticProcessingJob(
     // this consequential — re-read the live row.
     result = { status: 'FAILED', errorMessage: 'SUBMISSION_REJECTED_SINCE_ENQUEUE' };
   } else {
+    let bytes: Buffer | undefined;
     try {
-      const document = await readDiagnosticStorageFile(submission.storageKey);
-      let bytes: Buffer;
-      try {
-        bytes = await document.handle.readFile();
-      } finally {
-        await document.handle.close();
+      bytes = await readDiagnosticSubmissionBytes(submission.storageKey);
+    } catch {
+      result = { status: 'FAILED', errorMessage: 'SUBMISSION_READ_OR_DECRYPT_FAILED' };
+    }
+    if (bytes) {
+      if (createHash('sha256').update(bytes).digest('hex') !== processing.submissionSha256Snapshot)
+        result = { status: 'FAILED', errorMessage: 'SUBMISSION_INTEGRITY_MISMATCH' };
+      else {
+        try { result = await extractSubmissionTextBounded(bytes); }
+        catch (error) {
+          result = { status: 'FAILED', errorMessage: error instanceof Error && error.message === 'BILAN_PDF_TEXT_EXTRACTION_TIMEOUT'
+            ? 'BILAN_PDF_TEXT_EXTRACTION_TIMEOUT' : 'SUBMISSION_TEXT_EXTRACTION_FAILED' };
+        }
       }
-      const actualSha256 = createHash('sha256').update(bytes).digest('hex');
-      result =
-        actualSha256 !== processing.submissionSha256Snapshot
-          ? { status: 'FAILED', errorMessage: 'SUBMISSION_INTEGRITY_MISMATCH' }
-          : await extractSubmissionTextBounded(bytes);
-    } catch (error) {
-      result = { status: 'FAILED', errorMessage: error instanceof Error ? error.message.slice(0, 300) : 'UNKNOWN_ERROR' };
     }
   }
   const durationMs = Date.now() - startedAt;

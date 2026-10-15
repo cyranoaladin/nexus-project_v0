@@ -24,7 +24,7 @@ export default defineConfig({
   // prod/ et fallback/ ont leur propre configuration (playwright.prod-smoke.config.ts, playwright.fallback.config.ts).
   testIgnore: ['**/auth/**', '**/real/**', '**/npc/**', '**/aria/**', '**/prod/**', '**/fallback/**', '**/bilan/**', '**/bilan-validation/**'],
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: true,
   retries: 0,
   workers: 1,
   reporter: 'html',

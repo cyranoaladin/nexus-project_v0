@@ -13,6 +13,14 @@ case "$project" in
     exit 2
     ;;
 esac
+for native_destination in "${NEXUS_TEST_NATIVE_OUTPUT:-}" "${NEXUS_TEST_NATIVE_SECONDARY_OUTPUT:-}"; do
+  if [ -n "$native_destination" ]; then
+    case "$native_destination" in /*) ;; *) echo ARIA_E2E_NATIVE_PATH_INVALID >&2; exit 2 ;; esac
+    if [ -e "$native_destination" ] || [ -L "$native_destination" ]; then
+      echo ARIA_E2E_EXISTING_NATIVE_EVIDENCE_REFUSED >&2; exit 2
+    fi
+  fi
+done
 
 run_head="$(git rev-parse HEAD)"
 compose_project="nexus-aria-${project}-${run_head:0:12}-$$"
@@ -82,6 +90,12 @@ if [ "$teardown_status" -ne 0 ]; then
 fi
 if [ "$source_status" -ne 0 ]; then
   exit "$source_status"
+fi
+if [ -n "${NEXUS_TEST_NATIVE_OUTPUT:-}" ]; then
+  node scripts/testing/export-native-report.mjs "$private_artifact_dir/report.json" "$NEXUS_TEST_NATIVE_OUTPUT" "$NEXUS_TEST_LANE_ID"
+fi
+if [ "$project" = "aria-mobile" ] && [ "$repeat_artifact_status" -eq 0 ] && [ -n "${NEXUS_TEST_NATIVE_SECONDARY_OUTPUT:-}" ]; then
+  node scripts/testing/export-native-report.mjs "$private_artifact_dir/repeat20/report.json" "$NEXUS_TEST_NATIVE_SECONDARY_OUTPUT" "$NEXUS_TEST_SECONDARY_LANE_ID"
 fi
 node scripts/testing/safe-playwright-report.mjs \
   "$private_artifact_dir/report.json" "$artifact_dir/report.json" "$run_head"

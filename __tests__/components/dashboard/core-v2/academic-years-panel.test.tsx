@@ -30,7 +30,7 @@ describe('AcademicYearsPanel', () => {
   test('lists years with their status; promotes an UPCOMING year and closes the CURRENT one, refreshing after each 2xx', async () => {
     let state = [year('y1', 2025, 'CURRENT'), year('y2', 2026, 'UPCOMING')];
     const calls = mockApi([
-      { url: /\/staff\/me$/, body: ok({ actor: { userId: 'a', role: 'ADMIN' }, capabilities: ['HOUSEHOLD_READ', 'ENROLLMENT_CREATE'] }) },
+      { url: /\/staff\/me$/, body: ok({ actor: { userId: 'a', role: 'ADMIN' }, capabilities: ['HOUSEHOLD_READ', 'ENROLLMENT_CREATE', 'ACADEMIC_YEAR_MANAGE'] }) },
       { url: /\/staff\/academic-years$/, body: () => ok(state) },
       { method: 'POST', url: /\/academic-years\/y2\/current$/, body: () => { state = [year('y1', 2025, 'CLOSED'), year('y2', 2026, 'CURRENT')]; return ok(state[1]); } },
       { method: 'POST', url: /\/academic-years\/y2\/close$/, body: () => { state = [year('y1', 2025, 'CLOSED'), year('y2', 2026, 'CLOSED')]; return ok(state[1]); } },

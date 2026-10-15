@@ -3,10 +3,12 @@ import { POST } from '@/app/api/admin/documents/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir, unlink } from 'fs/promises';
-import { scanPrivateFile } from '@/lib/security/private-file-antivirus';
+import { scanPrivateBytes } from '@/lib/security/private-file-antivirus';
 import { guardSensitiveRateLimit } from '@/lib/rate-limit/sensitive';
 
-jest.mock('@/lib/security/private-file-antivirus', () => ({ scanPrivateFile: jest.fn() }));
+jest.mock('@/lib/security/private-file-antivirus', () => ({ scanPrivateBytes: jest.fn() }));
+jest.mock('@/lib/security/private-file-write', () => ({ writePrivateFileExclusive: jest.fn((path, bytes) =>
+  require('fs/promises').writeFile(path, bytes, { mode: 0o600, flag: 'wx' })) }));
 jest.mock('@/lib/rate-limit/sensitive', () => ({ guardSensitiveRateLimit: jest.fn() }));
 
 jest.mock('@/lib/guards', () => ({
@@ -56,7 +58,7 @@ function uploadRequest(file: File, userId = 'user-1') {
 describe('POST /api/admin/documents', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (scanPrivateFile as jest.Mock).mockReset().mockResolvedValue({ clean: true, engine: 'synthetic-test-double' });
+    (scanPrivateBytes as jest.Mock).mockReset().mockResolvedValue({ clean: true, engine: 'synthetic-test-double' });
     (guardSensitiveRateLimit as jest.Mock).mockReset().mockResolvedValue(null);
     (requireAnyRole as jest.Mock).mockResolvedValue({
       user: { id: 'admin-1', role: 'ADMIN' },
@@ -83,7 +85,7 @@ describe('POST /api/admin/documents', () => {
     expect((await POST(request)).status).toBe(403);
     expect(request.formData).not.toHaveBeenCalled();
     expect(writeFile).not.toHaveBeenCalled();
-    expect(scanPrivateFile).not.toHaveBeenCalled();
+    expect(scanPrivateBytes).not.toHaveBeenCalled();
     expect(prisma.userDocument.create).not.toHaveBeenCalled();
   });
 
@@ -108,14 +110,15 @@ describe('POST /api/admin/documents', () => {
     expect((await POST(request)).status).toBe(kind === 'csrf' ? 403 : 429);
     expect(request.formData).not.toHaveBeenCalled();
     expect(writeFile).not.toHaveBeenCalled();
-    expect(scanPrivateFile).not.toHaveBeenCalled();
+    expect(scanPrivateBytes).not.toHaveBeenCalled();
     } finally { Object.defineProperty(process.env, 'NODE_ENV', { configurable: true, value: previous }); }
   });
 
-  it('does not scan or delete a pre-existing file if exclusive creation fails', async () => {
+  it('scans before exclusive creation and never deletes a pre-existing file on collision', async () => {
     (writeFile as jest.Mock).mockRejectedValueOnce(new Error('EEXIST'));
     expect((await POST(uploadRequest(mockFile('bulletin.pdf', 'application/pdf')))).status).toBe(500);
-    expect(scanPrivateFile).not.toHaveBeenCalled();
+    expect(scanPrivateBytes).toHaveBeenCalledTimes(1);
+    expect(prisma.userDocument.create).not.toHaveBeenCalled();
     expect(unlink).not.toHaveBeenCalled();
   });
 
@@ -129,8 +132,10 @@ describe('POST /api/admin/documents', () => {
   });
 
   it('stores an allowed file and returns a projection without localPath', async () => {
-    (scanPrivateFile as jest.Mock).mockImplementation(async (filePath: string) => {
-      expect(writeFile).toHaveBeenCalledWith(filePath, expect.any(Buffer), { mode: 0o600, flag: 'wx' });
+    (scanPrivateBytes as jest.Mock).mockImplementation(async (clear: Buffer) => {
+      expect(clear).toEqual(Buffer.from('%PDF-1.4'));
+      expect(mkdir).not.toHaveBeenCalled();
+      expect(writeFile).not.toHaveBeenCalled();
       expect(prisma.userDocument.create).not.toHaveBeenCalled();
       return { clean: true, engine: 'synthetic-test-double' };
     });
@@ -140,7 +145,7 @@ describe('POST /api/admin/documents', () => {
     expect(response.status).toBe(201);
     expect(mkdir).toHaveBeenCalled();
     expect(writeFile).toHaveBeenCalled();
-    expect(scanPrivateFile).toHaveBeenCalledTimes(1);
+    expect(scanPrivateBytes).toHaveBeenCalledTimes(1);
     expect(body.document).toEqual(expect.objectContaining({
       id: 'doc-secure-id',
       originalName: 'bulletin.pdf',
@@ -151,15 +156,16 @@ describe('POST /api/admin/documents', () => {
   });
 
   it.each([
-    ['MALWARE_DETECTED:synthetic-signature', 422, 'DOCUMENT_REJECTED'],
+    ['MALWARE_DETECTED', 422, 'DOCUMENT_REJECTED'],
     ['AV_NOT_CONFIGURED', 503, 'DOCUMENT_SCAN_UNAVAILABLE'],
     ['AV_SCAN_TIMEOUT', 503, 'DOCUMENT_SCAN_UNAVAILABLE'],
   ])('refuses publication and removes only the new quarantine file when scanning fails: %s', async (reason, status, code) => {
-    (scanPrivateFile as jest.Mock).mockRejectedValue(new Error(reason));
+    (scanPrivateBytes as jest.Mock).mockRejectedValue(new Error(reason));
     const response = await POST(uploadRequest(mockFile('bulletin.pdf', 'application/pdf')));
     expect(response.status).toBe(status);
     expect(await response.json()).toEqual({ error: code });
     expect(prisma.userDocument.create).not.toHaveBeenCalled();
-    expect(unlink).toHaveBeenCalledWith((writeFile as jest.Mock).mock.calls[0][0]);
+    expect(writeFile).not.toHaveBeenCalled();
+    expect(unlink).not.toHaveBeenCalled();
   });
 });

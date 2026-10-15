@@ -1,4 +1,5 @@
 import { prisma } from './prisma'
+import type { PrismaClient } from '@prisma/client'
 
 // Définition des badges selon la documentation
 const BADGE_DEFINITIONS = [
@@ -126,15 +127,15 @@ export async function initializeBadges() {
 }
 
 // Attribution d'un badge à un élève
-export async function awardBadge(studentId: string, badgeName: string) {
-  const badge = await prisma.badge.findUnique({
+export async function awardBadge(studentId: string, badgeName: string, db: Pick<PrismaClient, 'badge' | 'studentBadge'> = prisma) {
+  const badge = await db.badge.findUnique({
     where: { name: badgeName }
   })
   
   if (!badge) return null
   
   // Vérifier si l'élève a déjà ce badge
-  const existingBadge = await prisma.studentBadge.findUnique({
+  const existingBadge = await db.studentBadge.findUnique({
     where: {
       studentId_badgeId: {
         studentId,
@@ -146,7 +147,7 @@ export async function awardBadge(studentId: string, badgeName: string) {
   if (existingBadge) return null
   
   // Attribuer le badge
-  return await prisma.studentBadge.create({
+  return await db.studentBadge.create({
     data: {
       studentId,
       badgeId: badge.id
@@ -158,34 +159,35 @@ export async function awardBadge(studentId: string, badgeName: string) {
 }
 
 // Vérification et attribution automatique des badges
-export async function checkAndAwardBadges(studentId: string, event: string, metadata?: Record<string, unknown>) {
+export async function checkAndAwardBadges(studentId: string, event: string, metadata?: Record<string, unknown>,
+  db: Pick<PrismaClient, 'badge' | 'studentBadge' | 'ariaFeedback' | 'ariaMessage'> = prisma) {
   const newBadges = []
   
   switch (event) {
     case 'first_login':
-      const firstBadge = await awardBadge(studentId, 'Premiers Pas')
+      const firstBadge = await awardBadge(studentId, 'Premiers Pas', db)
       if (firstBadge) newBadges.push(firstBadge)
       break
       
     case 'first_aria_question':
-      const ariaBadge = await awardBadge(studentId, 'Dialogue avec le Futur')
+      const ariaBadge = await awardBadge(studentId, 'Dialogue avec le Futur', db)
       if (ariaBadge) newBadges.push(ariaBadge)
       break
       
     case 'aria_feedback':
       // Compter les feedbacks donnés
-      const feedbackCount = await prisma.ariaFeedback.count({
+      const feedbackCount = await db.ariaFeedback.count({
         where: { studentId }
       })
       
       if (feedbackCount >= 10) {
-        const feedbackBadge = await awardBadge(studentId, 'Architecte du Feedback')
+        const feedbackBadge = await awardBadge(studentId, 'Architecte du Feedback', db)
         if (feedbackBadge) newBadges.push(feedbackBadge)
       }
       break
       
     case 'aria_question_count':
-      const questionCount = await prisma.ariaMessage.count({
+      const questionCount = await db.ariaMessage.count({
         where: {
           conversation: {
             studentId
@@ -195,7 +197,7 @@ export async function checkAndAwardBadges(studentId: string, event: string, meta
       })
       
       if (questionCount >= 25) {
-        const vifBadge = await awardBadge(studentId, 'Esprit Vif')
+        const vifBadge = await awardBadge(studentId, 'Esprit Vif', db)
         if (vifBadge) newBadges.push(vifBadge)
       }
       break

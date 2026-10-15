@@ -1,3 +1,11 @@
+
+import { ariaV1Claims } from '../helpers/aria-v1-route-authority';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn(async () => require('../helpers/aria-v1-route-authority').ariaV1Claims) }));
+jest.mock('@/lib/auth/v1-session-authority', () => ({ withV1SessionAuthority: jest.fn(require('../helpers/aria-v1-route-authority').syntheticV1Authority) }));
+jest.mock('@/lib/aria/infrastructure/prisma/actor-authority', () => ({ lockV1AriaSubject: jest.fn(async () => undefined) }));
+jest.mock('@/lib/aria/infrastructure/prisma/profile-repository', () => ({ makePrismaAriaProfileRepository: jest.fn(() => require('../helpers/aria-v1-route-authority').ariaV1Repository) }));
 import { auth } from '@/auth';
 import { GET, PUT } from '@/app/api/aria/profile/route';
 import {
@@ -9,10 +17,11 @@ import { createLogger } from '@/lib/middleware/logger';
 import { NextRequest } from 'next/server';
 
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/lib/aria/application/profile/public', () => ({
-  getAriaLearningProfileForActor: jest.fn(),
-  replaceAriaLearningProfileForActor: jest.fn(),
-}));
+jest.mock('@/lib/aria/application/profile/public', () => {
+  const get = jest.fn(); const replace = jest.fn();
+  return { getAriaLearningProfileForActor: get, replaceAriaLearningProfileForActor: replace,
+    makeGetAriaLearningProfile: jest.fn(() => get), makeReplaceAriaLearningProfile: jest.fn(() => replace) };
+});
 jest.mock('@/lib/middleware/logger', () => ({ createLogger: jest.fn() }));
 
 describe('/api/aria/profile strict V1 preferences', () => {
@@ -24,6 +33,15 @@ describe('/api/aria/profile strict V1 preferences', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (createLogger as jest.Mock).mockReturnValue(logger);
+  });
+
+  it('refuses an absent original cookie before any authority transaction or application operation', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'ELEVE', id: 'user-1' } });
+    jest.mocked(readBoundPrivateV1Session).mockResolvedValueOnce(null);
+    const response = await GET(new NextRequest('http://localhost/api/aria/profile'));
+    expect(response.status).toBe(403);
+    expect(withV1SessionAuthority).not.toHaveBeenCalled();
+    expect(getAriaLearningProfileForActor).not.toHaveBeenCalled();
   });
 
   it('returns 401 for unauthenticated reads', async () => {
@@ -49,7 +67,7 @@ describe('/api/aria/profile strict V1 preferences', () => {
       profile: { preferences: { version: 1, pinnedCourseKeys: [] } },
     });
     expect(getAriaLearningProfileForActor).toHaveBeenCalledWith({
-      actor: { userId: 'user-1', role: 'ELEVE' },
+      actor: ariaV1Claims,
     });
   });
 
@@ -96,7 +114,7 @@ describe('/api/aria/profile strict V1 preferences', () => {
     }));
     expect(response.status).toBe(200);
     expect(replaceAriaLearningProfileForActor).toHaveBeenCalledWith({
-      actor: { userId: 'user-1', role: 'ELEVE' }, preferences,
+      actor: ariaV1Claims, preferences,
     });
   });
 

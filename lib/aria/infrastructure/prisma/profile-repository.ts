@@ -20,7 +20,7 @@ const profileSelect = {
 } satisfies Prisma.AriaLearningProfileSelect;
 
 class PrismaAriaProfileRepository implements AriaProfileRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
 
   async loadByActorUserId(actorUserId: string) {
     const student = await this.client.student.findUnique({
@@ -90,7 +90,7 @@ class PrismaAriaProfileRepository implements AriaProfileRepository {
 }
 
 export function makePrismaAriaProfileRepository(
-  client: PrismaClient,
+  client: PrismaClient | Prisma.TransactionClient,
 ): AriaProfileRepository {
   return new PrismaAriaProfileRepository(client);
 }

@@ -4,6 +4,8 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 import { getDocumentStorageRoot } from '@/lib/documents/storage-root';
 import { openSecureDocument, type SecureDocument } from '@/lib/documents/secure-file-access';
+import { decryptDocument } from '@/lib/documents/encryption';
+import { writePrivateFileExclusive } from '@/lib/security/private-file-write';
 
 /**
  * Candidate-diagnostics document storage: a dedicated subtree of the
@@ -11,20 +13,10 @@ import { openSecureDocument, type SecureDocument } from '@/lib/documents/secure-
  * lib/documents/storage-root.ts's own contract: the storage root is kept
  * outside any directory a release swap or rebuild could sweep).
  *
- * Deposits flow through three zones under this root:
- *   _incoming/   — staged, unverified bytes (mission §4: a copy that isn't
- *                  yet fully written, checked and scanned is never exposed
- *                  as an available submission).
- *   <assignmentId>/ — a promoted, AV-clean, verified deposit — the only
- *                  zone a DiagnosticSubmission row may ever reference.
- *   _quarantine/ — AV-rejected or orphaned (DB write failed after the file
- *                  was finalized) files. Never deleted — evidence is kept,
- *                  never silently erased.
- *
- * `writeDiagnosticStorageFile` itself is O_CREAT|O_EXCL (never overwrites),
- * but that alone is not the completeness proof — `verifyStagedFile` below
- * is the actual "written completely and matches what the caller computed
- * before writing" check the mission requires.
+ * Uploaded answers are scanned in memory and stored only as authenticated
+ * ciphertext. `_incoming/` holds encrypted staging files, and `<assignmentId>/`
+ * holds verified encrypted submissions. Failed deposits remove only the file
+ * owned by that attempt; no rejected upload is persisted.
  */
 const SUBTREE = 'candidat-libre-diagnostics';
 const INCOMING_DIR = '_incoming';
@@ -77,15 +69,7 @@ export async function writeDiagnosticStorageFile(relativePath: string, bytes: Bu
   assertContained(root, destination);
 
   await mkdir(dirname(destination), { recursive: true, mode: 0o750 });
-  const handle = await open(destination, 'wx', 0o640);
-  try {
-    await handle.writeFile(bytes);
-  } catch (error) {
-    await handle.close().catch(() => undefined);
-    await unlink(destination).catch(() => undefined);
-    throw error;
-  }
-  await handle.close();
+  await writePrivateFileExclusive(destination, bytes);
 }
 
 /**
@@ -93,8 +77,8 @@ export async function writeDiagnosticStorageFile(relativePath: string, bytes: Bu
  * computed before writing" proof: re-stats and re-reads the file from disk
  * (never trusts the in-memory buffer that was already written) and
  * compares size and sha256 against what the caller expected. A mismatch
- * means the write did not complete as intended — the caller must quarantine
- * the file and refuse to ever reference it from a DB row.
+ * means the write did not complete as intended — the caller must clean up
+ * its own file and refuse to reference it from a DB row.
  */
 export async function verifyStagedFile(
   relativePath: string,
@@ -126,7 +110,10 @@ export async function deleteDiagnosticStagingFile(relativePath: string): Promise
   const root = diagnosticsStorageRoot();
   const absolutePath = resolve(root, relativePath);
   assertContained(root, absolutePath);
-  await unlink(absolutePath).catch(() => undefined);
+  try { await unlink(absolutePath); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw new Error('DIAGNOSTIC_STORAGE_CLEANUP_FAILED');
+  }
 }
 
 /** Idempotent variant for catalog-fixture seeding only: replaces an existing file at the same path. */
@@ -146,4 +133,18 @@ export async function writeDiagnosticStorageFixture(relativePath: string, bytes:
 
 export async function readDiagnosticStorageFile(relativePath: string, maxSizeBytes?: number): Promise<SecureDocument> {
   return openSecureDocument(diagnosticsStorageRoot(), relativePath, { maxSizeBytes });
+}
+
+/** Staging is encrypted with its final path; reads require that exact context. */
+export function diagnosticSubmissionEncryptionContext(finalPath: string) {
+  return { documentId: `core-v2/diagnostic-submission:${finalPath}` };
+}
+
+/** Submissions are encrypted; catalog instrument PDFs continue using the raw reader. */
+export async function readDiagnosticSubmissionBytes(relativePath: string): Promise<Buffer> {
+  if (!relativePath.endsWith('.enc')) throw new Error('DOCUMENT_ENVELOPE_INVALID');
+  const document = await readDiagnosticStorageFile(relativePath);
+  try {
+    return decryptDocument(await document.handle.readFile(), diagnosticSubmissionEncryptionContext(relativePath));
+  } finally { await document.handle.close(); }
 }

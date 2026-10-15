@@ -4,15 +4,18 @@ import {
   inviteAccount, requestPasswordReset,
 } from '@/lib/core-v2/services';
 import { setupServiceHarness } from '../helpers/service-harness';
+import { seedInvitationFamilyScope } from '../helpers/invitation-family';
 
 const crypto = jest.requireActual<typeof import('node:crypto')>('node:crypto');
 const h = setupServiceHarness();
 const password = 'change_me_token_contract';
 
 async function parent() {
-  return (await createHousehold(h.client, h.ctx(), {
+  const { parent } = await createHousehold(h.client, h.ctx(), {
     parent: { firstName: 'Synthetic', lastName: 'Parent', email: 'token-contract@example.test' },
-  })).parent;
+  });
+  await seedInvitationFamilyScope(h.client, h.admin.userId, parent.id);
+  return parent;
 }
 
 test.each(['ACTIVATION', 'PASSWORD_RESET'] as const)(

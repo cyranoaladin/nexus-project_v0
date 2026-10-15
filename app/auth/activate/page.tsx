@@ -7,6 +7,8 @@ import { signIn } from 'next-auth/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 
+const ACCOUNT_LABEL = { PARENT: 'parent', ELEVE: 'élève', STAFF: 'équipe' } as const;
+
 function ActivateForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -15,14 +17,14 @@ function ActivateForm() {
   // Core v2 invitations (go-live) activate through /api/v2/auth/activate; every
   // other purpose keeps the Core v1 activation controller.
   const isCoreV2 = purposeParam === 'core-v2';
-  const purpose = purposeParam === 'parent' ? 'parent' : 'student';
+  const purpose = purposeParam === 'parent' || purposeParam === 'staff' ? purposeParam : 'student';
   const source = searchParams?.get('source') ?? null;
   const isStageSource = source === 'stage';
 
   const [status, setStatus] = useState<'loading' | 'valid' | 'invalid' | 'submitting' | 'success' | 'error'>('loading');
   const [studentName, setStudentName] = useState('');
   const [email, setEmail] = useState('');
-  const [accountRole, setAccountRole] = useState<'PARENT' | 'ELEVE'>('ELEVE');
+  const [accountRole, setAccountRole] = useState<'PARENT' | 'ELEVE' | 'STAFF'>('ELEVE');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -48,7 +50,7 @@ function ActivateForm() {
         setStatus('valid');
         setStudentName(data.studentName || '');
         setEmail(data.email || '');
-        setAccountRole(data.accountRole === 'PARENT' ? 'PARENT' : 'ELEVE');
+        setAccountRole(data.accountRole === 'PARENT' ? 'PARENT' : purpose === 'staff' ? 'STAFF' : 'ELEVE');
       } else {
         setStatus('invalid');
         setError(data.error || 'Lien d\'activation invalide ou expiré.');
@@ -167,7 +169,7 @@ function ActivateForm() {
             <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
             <h2 className="font-fraunces text-xl font-light text-lux-ivory mb-2">Compte activé !</h2>
             <p className="text-lux-on-dark-subtle mb-2">
-              Bienvenue {studentName} ! Votre compte {accountRole === 'PARENT' ? 'parent' : 'élève'} est maintenant actif.
+              Bienvenue {studentName} ! Votre compte {ACCOUNT_LABEL[accountRole]} est maintenant actif.
             </p>
             <p className="text-lux-on-dark-subtle text-sm">
               {isStageSource ? 'Connexion en cours vers votre espace stages...' : 'Redirection vers la connexion...'}
@@ -188,12 +190,12 @@ function ActivateForm() {
               ? 'Activez votre compte — Stage Nexus Réussite'
               : accountRole === 'PARENT'
                 ? 'Activer votre espace parent'
-                : 'Activer votre espace élève'}
+                : `Activer votre espace ${ACCOUNT_LABEL[accountRole]}`}
           </CardTitle>
           <p className="text-lux-on-dark-subtle text-sm mt-1">
             {isStageSource
               ? 'Votre inscription au stage est confirmée. Choisissez votre mot de passe pour accéder à votre emploi du temps et vos ressources.'
-              : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace ${accountRole === 'PARENT' ? 'parent' : 'élève'}.`}
+              : `Bienvenue ${studentName} ! Choisissez votre mot de passe pour accéder à votre espace ${ACCOUNT_LABEL[accountRole]}.`}
           </p>
         </CardHeader>
         <CardContent>

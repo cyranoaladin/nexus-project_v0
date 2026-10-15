@@ -228,6 +228,34 @@ jobs:
           npx prisma generate
           npx prisma generate --schema=core-v2/prisma/schema.prisma
 
+      # The threshold wrapper only prints a COUNT, so a failure gave no way to
+      # know which error it was. The raw compiler output is captured first and
+      # published as an artifact even on failure, so the diagnostic is never
+      # lost again. tsc's real exit code is preserved via PIPESTATUS — no
+      # tolerance, no continue-on-error, no exclusion.
+      - name: Run tsc and capture the raw diagnostic
+        id: tsc_raw
+        run: |
+          set +e
+          # `npm run typecheck` porte desormais la taille de tas necessaire :
+          # une seule autorite, heritee par tous les appelants (ce job comme
+          # pre-rentree:ci, qui OOMaient tous les deux pour la meme raison).
+          npm run typecheck 2>&1 | tee typecheck.log
+          status=${PIPESTATUS[0]}
+          echo "errors=$(grep -c 'error TS' typecheck.log)" >> "$GITHUB_OUTPUT"
+          echo "--- first 50 diagnostics ---"
+          grep 'error TS' typecheck.log | head -50
+          exit "$status"
+
+      - name: Publish the TypeScript diagnostic
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: typecheck-log
+          path: typecheck.log
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Check TypeScript errors with threshold
         run: node .github/scripts/check-typescript-errors.js 0
 
@@ -652,6 +680,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The pre-rentrée snapshot reads pinned historical commits (lane collection).
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -743,6 +774,30 @@ jobs:
       - name: Verify literal subprocess test-lane discovery
         run: node scripts/testing/npm-runner-invocations.test.mjs
 
+      # The Python lane (scripts/pre-rentree/tests) is collected by its own runner:
+      # same pinned environment as the pre-rentrée documents job.
+      - name: Restore apt archives (pre-rentree-lanes)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: restore
+          id: pre-rentree-lanes
+
+      - name: Install the pre-rentrée Python test environment for lane collection
+        timeout-minutes: 10
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes python3-venv
+          python3 -m venv "$RUNNER_TEMP/pre-rentree-lanes"
+          "$RUNNER_TEMP/pre-rentree-lanes/bin/python" -m pip install \
+            -r scripts/pre-rentree/requirements.lock
+          echo "$RUNNER_TEMP/pre-rentree-lanes/bin" >> "$GITHUB_PATH"
+
+      - name: Save apt archives (pre-rentree-lanes)
+        uses: ./.github/actions/apt-archive-cache
+        with:
+          mode: save
+          id: pre-rentree-lanes
+
       - name: Prove every test lane is reachable from a workflow
         run: npm run test:lanes:check
 
@@ -795,6 +850,13 @@ jobs:
       # The collision guard remains active; no production target is used.
       DATABASE_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/nexus_disposable_core_legacy_test
       NEXUS_DISPOSABLE_POSTGRES: '1'
+      # Maintenance DSN used ONLY by the disposable-database registry
+      # (__tests__/core-v2/helpers/scratch-database.ts): it needs CREATE/DROP
+      # DATABASE, a privilege the least-privilege application role must never
+      # hold. The registry refuses any non-local host, any database other than
+      # `postgres`, and any name outside `nexus_disposable_*_test`, and it only
+      # ever drops a database carrying its own ownership marker.
+      CORE_V2_IDENTITY_TEST_ADMIN_URL: postgresql://postgres:${{ github.run_id }}@localhost:5432/postgres
       DIAGNOSTIC_AV_CLAMD_TCP_HOST: '127.0.0.1'
       DIAGNOSTIC_AV_CLAMD_TCP_PORT: '3310'
       # Organization configuration consumed by the Core v2 service layer
@@ -895,6 +957,27 @@ jobs:
         env:
           DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
         run: npx jest --config jest.core-v2.config.js --ci
+
+      # A lane whose testMatch collects nothing passes vacuously, which is how a
+      # suite ends up running in no gate at all. Both Core v2 lanes must collect
+      # a non-empty set, and the Auth.js companion lane must collect every
+      # `*.real.test.ts` present on disk — otherwise the build fails here rather
+      # than going green on tests nobody ran.
+      - name: Assert both Core v2 lanes actually collect their suites
+        run: |
+          set -euo pipefail
+          core=$(npx jest --config jest.core-v2.config.js --listTests 2>/dev/null | grep -c 'core-v2')
+          authjs=$(npx jest --config jest.core-v2-authjs.config.js --listTests 2>/dev/null | grep -c 'core-v2-authjs')
+          ondisk=$(find __tests__/core-v2-authjs -name '*.real.test.ts' | wc -l)
+          echo "core-v2 lane: $core suites; authjs lane: $authjs suites; authjs files on disk: $ondisk"
+          test "$core" -ge 80
+          test "$authjs" -ge 1
+          test "$authjs" -eq "$ondisk"
+
+      - name: Core v2 Auth.js lane (real handlers, ESM transform allowlist)
+        env:
+          DOCUMENT_STORAGE_ROOT: ${{ runner.temp }}/nexus-core-synthetic-av-storage
+        run: npx jest --config jest.core-v2-authjs.config.js --ci
 
   # ===========================================================================
   # JOB 6: E2E TESTS (with Playwright + E2E DB)
@@ -1353,12 +1436,15 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
-      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+      - name: Migrate Core v2 from empty, attest the first ADMIN and mirror the seeded staff actors
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          # Production contract: Core v1 is the only credential authority.
+          CORE_V2_AUTH_MODE: V1_ONLY
         run: |
           npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/bootstrap-e2e-admin.ts
           npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
 
       - name: Configure disposable ARIA fixture for auth E2E
@@ -1367,7 +1453,7 @@ jobs:
           set -Eeuo pipefail
           source scripts/aria/e2e-runtime-secrets.sh
           prepare_aria_e2e_runtime_secrets
-          for name in ARIA_E2E_FIXTURE_ADMIN_TOKEN ARIA_E2E_MODEL_API_KEY RAG_BFF_SERVICE_TOKEN RAG_ENGINE_API_KEY NEXUS_INTERNAL_TOKEN_SECRET CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+          for name in ARIA_E2E_FIXTURE_ADMIN_TOKEN ARIA_E2E_MODEL_API_KEY RAG_BFF_SERVICE_TOKEN RAG_ENGINE_API_KEY NEXUS_INTERNAL_TOKEN_SECRET DOCUMENT_ENCRYPTION_KEY CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
             printf '::add-mask::%s\n' "${!name}"
             printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
           done
@@ -1440,8 +1526,7 @@ jobs:
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
           CORE_V2_INVITATION_TTL_HOURS: '72'
-          CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
-          CORE_V2_AUTH_MODE: HYBRID
+          CORE_V2_AUTH_MODE: V1_ONLY
           # Real-browser bilan journey proof tier only
           # (e2e/auth/diagnostics-candidat-libre-bilan-journey.spec.ts): a
           # single, fixed, well-known Student.id this one spec always tears
@@ -1767,7 +1852,7 @@ jobs:
           set -Eeuo pipefail
           source scripts/aria/e2e-runtime-secrets.sh
           prepare_aria_e2e_runtime_secrets
-          for name in CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
+          for name in DOCUMENT_ENCRYPTION_KEY CORE_V2_ACCOUNT_TOKEN_HMAC_CURRENT_KEY_ID CORE_V2_ACCOUNT_TOKEN_HMAC_KEYS; do
             printf '::add-mask::%s\n' "${!name}"
             printf '%s=%s\n' "$name" "${!name}" >> "$GITHUB_ENV"
           done
@@ -1784,12 +1869,15 @@ jobs:
           npx prisma migrate deploy
           npx tsx scripts/seed-e2e-db.ts
 
-      - name: Migrate Core v2 from empty and mirror the seeded staff actors
+      - name: Migrate Core v2 from empty, attest the first ADMIN and mirror the seeded staff actors
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
+          # Production contract: Core v1 is the only credential authority.
+          CORE_V2_AUTH_MODE: V1_ONLY
         run: |
           npx prisma migrate deploy --schema=core-v2/prisma/schema.prisma
+          npx tsx scripts/core-v2/bootstrap-e2e-admin.ts
           npx tsx scripts/core-v2/seed-e2e-staff-actors.ts
 
       - name: Restore apt archives (playwright-all-browsers)
@@ -1827,12 +1915,7 @@ jobs:
         env:
           # This job provisions postgres-core-v2-e2e, so it exercises the same
           # rollout mode as the Chromium lane rather than a weaker one.
-          CORE_V2_AUTH_MODE: HYBRID
-          # Fail-closed with no default (lib/core-v2/config.ts): without it the
-          # reset request throws, the route still answers 202 so accounts cannot
-          # be enumerated, and no mail is ever sent — the golden spec then fails
-          # on CORE_V2_MAIL_NOT_RECEIVED. The Chromium lane already carries it.
-          CORE_V2_PASSWORD_RESET_TTL_MINUTES: '60'
+          CORE_V2_AUTH_MODE: V1_ONLY
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           CORE_V2_ORGANIZATION_TIMEZONE: Africa/Tunis
@@ -1930,7 +2013,7 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5433/nexus_e2e
           CORE_V2_DATABASE_URL: postgresql://postgres@localhost:5435/core_v2_e2e
           E2E_DISPOSABLE_REDIS_URL: redis://redis-e2e:6380/0
-        run: npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change.spec.ts password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0
+        run: npx playwright test --config=playwright.auth.config.ts --project=mobile-smoke password-change-v1.spec.ts --grep=390px --repeat-each=20 --workers=1 --retries=0
 
       - name: Qualify mobile account security repetition evidence
         if: always()

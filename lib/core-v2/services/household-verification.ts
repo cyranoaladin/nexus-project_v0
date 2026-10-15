@@ -1,9 +1,10 @@
+import { withInvitationActor, assertInvitationAuthorityMutation } from '../accounts/invitation-scope';
 import { z } from 'zod';
 import type { HouseholdParent, PrismaClient } from '@/core-v2/generated/client';
 import { appendAuditEvent } from '../audit';
 import { ConflictError, NotFoundError } from '../errors';
 import { assertCapability, assertSubjectRole } from '../rbac';
-import { inTransaction, type ServiceContext } from './context';
+import { type ServiceContext } from './context';
 import { idSchema, parseInput } from './validation';
 
 const transitionSchema = z.object({
@@ -20,7 +21,8 @@ export async function verifyHouseholdParent(
 ): Promise<HouseholdParent> {
   assertCapability(ctx.actor, 'HOUSEHOLD_EDIT');
   const input = parseInput(verifySchema, rawInput);
-  return inTransaction(client, async tx => {
+  return withInvitationActor(client, ctx, async tx => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'parent', parentUserId: input.parentUserId });
     const membership = await tx.householdParent.findUnique({ where: { userId: input.parentUserId }, include: { user: true } });
     if (!membership || membership.householdId !== input.householdId) throw new NotFoundError('Household membership not found.');
     assertSubjectRole(membership.user, 'PARENT');
@@ -42,7 +44,8 @@ export async function revokeHouseholdParent(
 ): Promise<HouseholdParent> {
   assertCapability(ctx.actor, 'HOUSEHOLD_EDIT');
   const input = parseInput(transitionSchema, rawInput);
-  return inTransaction(client, async tx => {
+  return withInvitationActor(client, ctx, async tx => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'parent', parentUserId: input.parentUserId });
     const membership = await tx.householdParent.findUnique({ where: { userId: input.parentUserId } });
     if (!membership || membership.householdId !== input.householdId) throw new NotFoundError('Household membership not found.');
     const changed = await tx.householdParent.updateMany({

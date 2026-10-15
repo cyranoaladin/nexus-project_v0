@@ -227,6 +227,15 @@ if [[ "$lane" == 'backfills' ]]; then
 fi
 
 echo "Running ARIA ${lane} tests against disposable PostgreSQL..."
+native_arguments=()
+if [[ -n "${NEXUS_TEST_NATIVE_OUTPUT:-}" ]]; then
+  if [[ "$NEXUS_TEST_NATIVE_OUTPUT" != /* || -e "$NEXUS_TEST_NATIVE_OUTPUT" || -L "$NEXUS_TEST_NATIVE_OUTPUT" ]]; then
+    echo 'ARIA_NATIVE_EVIDENCE_PATH_REFUSED' >&2
+    exit 64
+  fi
+  native_arguments=('--json' "--outputFile=$NEXUS_TEST_NATIVE_OUTPUT" '--reporters' 'default'
+    '--reporters' './scripts/testing/jest-native-reporter.mjs')
+fi
 DATABASE_URL="$database_url" \
 TEST_DATABASE_URL="$database_url" \
 NEXUS_DISPOSABLE_POSTGRES=1 \
@@ -236,4 +245,4 @@ ARIA_E2E_RAG_CANDIDAT=scolarise \
 ARIA_E2E_RAG_AUDIENCE=aefe \
 ARIA_E2E_RAG_ZONE=aefe \
 ARIA_E2E_RAG_STATUS_DETAIL=aefe \
-  npx jest --config "$jest_config" --runInBand "${jest_arguments[@]}"
+  npx --no-install jest --config "$jest_config" --runInBand "${jest_arguments[@]}" --testLocationInResults "${native_arguments[@]}"

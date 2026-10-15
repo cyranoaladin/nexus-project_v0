@@ -1,3 +1,4 @@
+import { withInvitationActor, assertInvitationAuthorityMutation } from '../accounts/invitation-scope';
 /**
  * Student = persistent identity only (no grade, no specialties — those are
  * per-year facts on StudentAcademicYearEnrollment). A student is always
@@ -10,7 +11,6 @@ import { normalizeEmail } from '../contact';
 import { ConflictError, NotFoundError, isUniqueViolation } from '../errors';
 import { assertCapability } from '../rbac';
 import type { ServiceContext } from './context';
-import { inTransaction } from './context';
 import { idSchema, parseInput, personNameSchema } from './validation';
 
 const newStudentSchema = z.object({
@@ -31,7 +31,8 @@ export async function createStudent(
   const householdId = parseInput(idSchema, rawInput.householdId);
   const input = parseInput(newStudentSchema, rawInput.student);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'household', householdId });
     const household = await tx.household.findUnique({ where: { id: householdId } });
     if (!household) throw new NotFoundError('Household not found.', { householdId });
     let user: User;
@@ -83,7 +84,8 @@ export async function correctStudentIdentity(
   const studentId = parseInput(idSchema, rawInput.studentId);
   const changes = parseInput(identityCorrectionSchema, rawInput.changes);
 
-  return inTransaction(client, async (tx) => {
+  return withInvitationActor(client, ctx, async (tx) => {
+    await assertInvitationAuthorityMutation(tx, ctx.actor, { kind: 'student', studentId });
     const student = await tx.student.findUnique({ where: { id: studentId } });
     if (!student) throw new NotFoundError('Student not found.', { studentId });
     let user: User;

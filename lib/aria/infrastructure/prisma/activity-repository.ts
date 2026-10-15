@@ -118,7 +118,11 @@ function toAttemptRecord(row: SelectedAttemptRow): ActivityAttemptRecord {
 }
 
 class PrismaActivityRepository implements ActivityRepository {
-  constructor(private readonly client: PrismaClient) {}
+  constructor(private readonly client: PrismaClient | Prisma.TransactionClient) {}
+
+  private transaction<T>(operation: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
+    return '$transaction' in this.client ? this.client.$transaction(operation) : operation(this.client);
+  }
 
   async resolveStudentIdByUserId(userId: string): Promise<string | null> {
     const student = await this.client.student.findUnique({
@@ -180,7 +184,7 @@ class PrismaActivityRepository implements ActivityRepository {
     readonly activityVersionId: string;
     readonly courseKey: string;
   }): Promise<ActivityAttemptRecord> {
-    const row = await this.client.$transaction(async (tx) => {
+    const row = await this.transaction(async (tx) => {
       // Advisory transaction lock, same pattern as conversation turn
       // reservation (`conversation-repository.ts`): serializes concurrent
       // "start" calls for this exact (student, version) pair so the
@@ -227,7 +231,7 @@ class PrismaActivityRepository implements ActivityRepository {
     readonly attemptId: string;
     readonly payload: unknown;
   }): Promise<{ readonly attempt: ActivityAttemptRecord; readonly response: ActivityResponseRecord }> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const attempt = await tx.activityAttempt.findUnique({
         where: { id: input.attemptId },
         select: attemptSelect,
@@ -275,7 +279,7 @@ class PrismaActivityRepository implements ActivityRepository {
     | { readonly alreadyCorrected: true; readonly result: ActivityResultRecord }
     | { readonly alreadyCorrected: false }
   > {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       const lockScope = `activity-attempt-correction:${attemptId}`;
       await tx.$executeRaw(
         Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockScope}, 0))`,
@@ -321,7 +325,7 @@ class PrismaActivityRepository implements ActivityRepository {
     readonly outcome: 'CORRECT' | 'PARTIALLY_CORRECT' | 'INCORRECT';
     readonly feedback: unknown;
   }): Promise<{ readonly result: ActivityResultRecord; readonly wasAlreadyCorrected: boolean }> {
-    return this.client.$transaction(async (tx) => {
+    return this.transaction(async (tx) => {
       // Same lock scope as `beginCorrection` — double-checked locking:
       // guards the race between two concurrent corrections of the same
       // attempt that both passed `beginCorrection` before either committed.
@@ -355,7 +359,7 @@ class PrismaActivityRepository implements ActivityRepository {
   }
 }
 
-export function makePrismaActivityRepository(client: PrismaClient): ActivityRepository {
+export function makePrismaActivityRepository(client: PrismaClient | Prisma.TransactionClient): ActivityRepository {
   return new PrismaActivityRepository(client);
 }
 

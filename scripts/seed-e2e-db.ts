@@ -154,9 +154,9 @@ async function main() {
       email: 'helios@nexus-reussite.com',
       password: hashedPassword,
       role: UserRole.COACH,
+      activatedAt: new Date(),
       firstName: 'Helios',
       lastName: 'Nexus',
-      activatedAt: new Date(),
       coachProfile: {
         create: {
           pseudonym: 'Coach Helios',
@@ -204,9 +204,11 @@ async function main() {
   });
   console.log(`  ✓ PW Student2 (STMG): ${pwStudent2.email}\n`);
 
-  // The Core-v2-only ARIA persona exists solely in the Core v2 database.
-  // HYBRID auth resolves its email there without a V1 User or Student row.
-  // The Core v2 seed reads the disposable credentials manifest below.
+  // V1 is the only credential authority; this persona has no legacy Student.
+  await prisma.user.create({ data: {
+    email: CORE_V2_ARIA_FOUNDATION_EMAIL, password: hashedPassword, role: UserRole.ELEVE,
+    firstName: 'Lina', lastName: 'Fondation', activatedAt: new Date(),
+  } });
 
   const ariaCredentials = await createAriaE2EPersonas({
     prisma,
@@ -373,6 +375,7 @@ const student = await prisma.user.create({
       email: coachEmail, // helios@test.com for E2E tests
       password: hashedPassword,
       role: UserRole.COACH,
+      activatedAt: new Date(),
       firstName: 'Alexandre',
       lastName: 'Martin',
       coachProfile: {
@@ -503,6 +506,7 @@ const student = await prisma.user.create({
       email: `coach2.${timestamp}@test.com`,
       password: hashedPassword,
       role: UserRole.COACH,
+      activatedAt: new Date(),
       firstName: 'Sophie',
       lastName: 'Bernard',
       coachProfile: {
@@ -527,6 +531,7 @@ const student = await prisma.user.create({
       email: 'zenon@test.com',
       password: hashedPassword,
       role: UserRole.COACH,
+      activatedAt: new Date(),
       firstName: 'Zenon',
       lastName: 'Expert',
       coachProfile: {

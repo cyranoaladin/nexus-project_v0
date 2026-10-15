@@ -5,6 +5,7 @@
  * dropped silently). No clock, no randomness, no database.
  */
 import { createHash, scryptSync } from 'node:crypto';
+import { credentialAuthorityIsV1 } from '@/lib/core-v2/accounts/v1-authority';
 import type { ApprovalFile } from './approval';
 import type { SourceSnapshot, SourceUser } from './source';
 import { TRANSFORM_VERSION, type MigrationEntity, type ObjectManifestEntry } from './types';
@@ -148,6 +149,8 @@ function normalizeEmail(email: string | null): string | null {
  */
 export function deriveAccount(user: SourceUser): { accountStatus: AccountStatus; password: string | null; activatedAt: Date | null; warnings: string[] } {
   const warnings: string[] = [];
+  if (credentialAuthorityIsV1()) return { accountStatus: user.activatedAt ? 'ACTIVE' : 'PENDING_ACTIVATION',
+    password: null, activatedAt: user.activatedAt, warnings };
   const familyRole = user.role === 'PARENT' || user.role === 'ELEVE';
   if (user.password && (user.activatedAt || !familyRole)) {
     // Preserve only the existing, supported slow-hash representation. Never
@@ -168,6 +171,12 @@ export function deriveAccount(user: SourceUser): { accountStatus: AccountStatus;
 }
 
 export function buildTargetPlan(snapshot: SourceSnapshot, approval: ApprovalFile, migratedAt: Date): TargetPlan {
+  for (const student of snapshot.students) {
+    if (student.user.role !== 'ELEVE' || student.parentUser.role !== 'PARENT') throw new Error('MIGRATION_RELATION_ROLE_MISMATCH');
+  }
+  for (const assignment of snapshot.assignments) {
+    if (assignment.coachUser.role !== 'COACH') throw new Error('MIGRATION_RELATION_ROLE_MISMATCH');
+  }
   const entries: ObjectManifestEntry[] = [];
   const entry = (e: Omit<ObjectManifestEntry, 'transformVersion' | 'warnings'> & { warnings?: string[] }) =>
     entries.push({ ...e, transformVersion: TRANSFORM_VERSION, warnings: e.warnings ?? [] });
@@ -217,7 +226,7 @@ export function buildTargetPlan(snapshot: SourceSnapshot, approval: ApprovalFile
       phone: u.phone,
       accountStatus: account.accountStatus,
       activatedAt: account.activatedAt,
-      sessionVersion: u.sessionVersion,
+      sessionVersion: credentialAuthorityIsV1() ? 0 : u.sessionVersion,
     };
     users.push(target);
     entry({ entity: 'User', sourceId: u.id, targetId: u.id, hash: objectHash(userIntegrityPayload(target)), result: 'PLANNED', warnings });

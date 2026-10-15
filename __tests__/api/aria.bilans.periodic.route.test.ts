@@ -3,6 +3,11 @@ import { POST } from '@/app/api/aria/bilans/periodic/route';
 import { requireAnyRole, isErrorResponse } from '@/lib/guards';
 import { generateAndPersistAriaPeriodicBilan } from '@/lib/aria/bilans/periodic/generate-and-persist-periodic-bilan';
 import { AriaError } from '@/lib/aria/errors';
+import { readBoundPrivateV1Session } from '@/lib/auth/private-v1-session';
+import { withV1SessionAuthority } from '@/lib/auth/v1-session-authority';
+
+jest.mock('@/lib/auth/private-v1-session', () => ({ readBoundPrivateV1Session: jest.fn() }));
+jest.mock('@/lib/auth/v1-session-authority', () => ({ withV1SessionAuthority: jest.fn(async (_claims, operation, publish) => { const result = await operation({ syntheticTx: true }); publish?.(result); return result; }) }));
 
 jest.mock('@/lib/guards', () => ({
   requireAnyRole: jest.fn(),
@@ -38,11 +43,12 @@ describe('POST /api/aria/bilans/periodic', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsErrorResponse.mockReturnValue(false);
+    jest.mocked(readBoundPrivateV1Session).mockResolvedValue({ userId: 'coach-1', role: 'COACH', sessionVersion: 7, expiresAt: 4_070_908_800_000 });
   });
 
   it('requires ADMIN, ASSISTANTE, or COACH', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    mockGenerate.mockResolvedValueOnce({ bilanId: 'bilan-1', report: { totalAttemptsInPeriod: 3, globalScore: 66.7 } });
+    mockGenerate.mockResolvedValueOnce({ assertScopeNow: jest.fn(), bilanId: 'bilan-1', report: { totalAttemptsInPeriod: 3, globalScore: 66.7 } });
     await POST(makeRequest(VALID_BODY));
     expect(mockRequireAnyRole).toHaveBeenCalledWith(['ADMIN', 'ASSISTANTE', 'COACH']);
   });
@@ -76,23 +82,31 @@ describe('POST /api/aria/bilans/periodic', () => {
     expect(mockGenerate).not.toHaveBeenCalled();
   });
 
-  it('creates the bilan and returns its id and computed scores on success', async () => {
+  it('delegates the original issuer and authoritative transaction before returning the computed scores', async () => {
     mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
-    mockGenerate.mockResolvedValueOnce({ bilanId: 'bilan-1', report: { totalAttemptsInPeriod: 3, globalScore: 66.7 } });
+    mockGenerate.mockResolvedValueOnce({ assertScopeNow: jest.fn(), bilanId: 'bilan-1', report: { totalAttemptsInPeriod: 3, globalScore: 66.7 } });
 
     const response = await POST(makeRequest(VALID_BODY));
     expect(response.status).toBe(200);
     expect(mockGenerate).toHaveBeenCalledWith({
+      actor: { userId: 'coach-1', role: 'COACH', sessionVersion: 7, expiresAt: 4_070_908_800_000 },
       studentId: 'student-1',
       courseKey: 'eds-maths-premiere',
       periodStart: new Date(VALID_BODY.periodStart),
       periodEnd: new Date(VALID_BODY.periodEnd),
-    });
+    }, { syntheticTx: true });
     await expect(response.json()).resolves.toEqual({
       bilanId: 'bilan-1',
       totalAttemptsInPeriod: 3,
       globalScore: 66.7,
     });
+  });
+
+  it('refuses an absent private cookie without calling the generator or transaction', async () => {
+    mockRequireAnyRole.mockResolvedValue({ user: { id: 'coach-1', role: 'COACH' } });
+    jest.mocked(readBoundPrivateV1Session).mockResolvedValueOnce(null);
+    expect((await POST(makeRequest(VALID_BODY))).status).toBe(403);
+    expect(mockGenerate).not.toHaveBeenCalled(); expect(withV1SessionAuthority).not.toHaveBeenCalled();
   });
 
   it('maps a domain rejection (e.g. no activity in the period) to its stable public error, without leaking internal detail', async () => {

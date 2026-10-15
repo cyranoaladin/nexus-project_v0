@@ -35,3 +35,21 @@ export class AriaError extends Error {
     this.internalDetails = internalDetails;
   }
 }
+
+/** A captured authority was lost. Never persist or return generated content. */
+export class AriaAuthorityRevokedError extends AriaError {
+  constructor() {
+    super('NOT_ENTITLED', 403, 'ARIA n’est plus disponible pour cette session.', { reasonCode: 'ARIA_AUTHORITY_REVOKED' });
+    this.message = 'ARIA_AUTHORITY_REVOKED';
+  }
+}
+
+export class AriaAuthorityUnavailableError extends AriaError {
+  constructor() {
+    super('INTERNAL_ERROR', 503, 'La vérification ARIA est momentanément indisponible.', { reasonCode: 'ARIA_AUTHORITY_UNAVAILABLE' });
+    this.message = 'ARIA_AUTHORITY_UNAVAILABLE';
+  }
+}
+export function isAriaAuthorityLoss(error: unknown): error is AriaAuthorityRevokedError | AriaAuthorityUnavailableError {
+  return error instanceof AriaAuthorityRevokedError || error instanceof AriaAuthorityUnavailableError;
+}

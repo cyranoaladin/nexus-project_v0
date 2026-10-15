@@ -11,7 +11,7 @@ jest.mock('next-auth/react', () => ({
 
 jest.mock('next/navigation', () => {
   const router = { push: jest.fn() };
-  return { useRouter: () => router };
+  return { useRouter: () => router, useSearchParams: () => new URLSearchParams() };
 });
 
 jest.mock('@/components/dashboard/BilanGratuitBanner', () => ({ BilanGratuitBanner: () => <div>Bannière bilan</div> }));
@@ -22,16 +22,16 @@ import DashboardParent from '@/app/dashboard/parent/page';
 
 describe('DashboardParent — authority routing (§AH)', () => {
   beforeEach(() => {
-    global.fetch = jest.fn(async () => ({ ok: true, json: async () => ({ children: [] }) }) as unknown as Response) as unknown as typeof fetch;
+    global.fetch = jest.fn(async (input) => ({ ok: true, json: async () => String(input) === '/api/v2/self/membership' ? { ok: true, data: { state: (sessionState.data as { user: { id: string } }).user.id === 'p-v2' ? 'ACTIVE' : 'NOT_MEMBER', ...((sessionState.data as { user: { id: string } }).user.id === 'p-v2' ? { role: 'PARENT' } : {}) } } : { children: [] } }) as unknown as Response) as unknown as typeof fetch;
   });
 
-  it('a CORE_V2 parent gets the Core v2 household view and the Core v1 dashboard API is never called', async () => {
-    sessionState.data = { user: { id: 'p-v2', role: 'PARENT', authority: 'CORE_V2', firstName: 'Amel', lastName: 'Synthetic' } };
+  it('a V1-authenticated Core parent gets the Core v2 household view and the Core v1 dashboard API is never called', async () => {
+    sessionState.data = { user: { id: 'p-v2', role: 'PARENT', authority: 'V1', firstName: 'Amel', lastName: 'Synthetic' } };
     sessionState.status = 'authenticated';
     render(<DashboardParent />);
     expect(await screen.findByRole('heading', { name: 'Mon foyer (Core v2)' })).toBeInTheDocument();
     expect(screen.queryByText('Espace Famille')).not.toBeInTheDocument();
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(jest.mocked(global.fetch).mock.calls.map(([url]) => String(url))).toEqual(['/api/v2/self/membership']);
   });
 
   it('a V1 parent keeps the Core v1 dashboard', async () => {

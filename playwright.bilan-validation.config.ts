@@ -4,6 +4,7 @@ const origin = process.env.BILAN_VALIDATION_BASE_URL ?? 'http://127.0.0.1:3017';
 // Le garde harnais local vit dans globalSetup : `--list` (garde de couverture des
 // lanes) doit pouvoir charger cette config sans harnais, comme pour prod-smoke.
 export default defineConfig({
+  forbidOnly: true,
   globalSetup: './e2e/bilan-validation/global-setup.ts',
   testDir: './e2e/bilan-validation', fullyParallel: false, workers: 1, retries: 0,
   timeout: 120_000, expect: { timeout: 20_000 }, reporter: [['list']],

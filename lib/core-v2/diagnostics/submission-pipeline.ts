@@ -1,12 +1,4 @@
-/**
- * Full deposit pipeline (mission §4): reception, complete-write
- * verification, mandatory antivirus scan, fingerprinting, and only THEN a
- * DB row — in that order. The guarantee is not "the write call used
- * O_CREAT|O_EXCL" but "no incomplete, unscanned, or rejected copy is ever
- * exposed as an available submission." A failure at any stage quarantines
- * the file (never deletes it, never silently overwrites an earlier
- * submission) and never creates a DB row implying success.
- */
+/** Clear bytes are scanned in memory before encryption, filesystem writes or database mutations. */
 import { createHash, randomUUID } from 'node:crypto';
 import type { DiagnosticSubmission, PrismaClient } from '@/core-v2/generated/client';
 import { InvalidStateError } from '../errors';
@@ -15,14 +7,15 @@ import type { ServiceContext } from '../services/context';
 import { CURRENT_DIAGNOSTIC_SUBMISSION_STATUSES } from '@/lib/diagnostics/current-submission';
 import {
   deleteDiagnosticStagingFile,
-  diagnosticQuarantineRelativePath,
   diagnosticStagingRelativePath,
   diagnosticSubmissionRelativePath,
   moveDiagnosticStorageFile,
   verifyStagedFile,
   writeDiagnosticStorageFile,
 } from './storage';
-import { scanDiagnosticSubmissionFile } from './virus-scan';
+import { scanDiagnosticSubmissionBytes } from './virus-scan';
+import { encryptDocument, decryptDocument } from '@/lib/documents/encryption';
+import { diagnosticSubmissionEncryptionContext, readDiagnosticStorageFile } from './storage';
 
 export interface DepositInput {
   readonly assignmentId: string;
@@ -42,12 +35,15 @@ export async function depositOwnDiagnosticSubmission(
   ctx: ServiceContext,
   input: DepositInput,
 ): Promise<DepositResult> {
+  const clear = Buffer.from(input.bytes);
   // Ownership + not-revoked, re-checked here regardless of any earlier
   // check by a caller — access control applies at every access, not once
   // per page load.
   const assignment = await getOwnDiagnosticAssignmentForSubjectAccess(client, ctx, input.assignmentId);
 
-  const sha256 = createHash('sha256').update(input.bytes).digest('hex');
+  const sha256 = createHash('sha256').update(clear).digest('hex');
+  try { await scanDiagnosticSubmissionBytes(clear); }
+  catch { throw new InvalidStateError('The deposit was refused by the required security scan.'); }
 
   // Repeat of the same request (e.g. a network retry) vs. a distinct new
   // deposit: identical bytes as the current, non-rejected latest version
@@ -61,74 +57,46 @@ export async function depositOwnDiagnosticSubmission(
   }
 
   const token = randomUUID();
-  const extension = 'pdf';
-  const stagingPath = diagnosticStagingRelativePath(token, extension);
-  await writeDiagnosticStorageFile(stagingPath, input.bytes);
-
-  const verification = await verifyStagedFile(stagingPath, { sizeBytes: input.bytes.length, sha256 });
-  if (!verification.ok) {
-    const quarantinePath = diagnosticQuarantineRelativePath(token, extension);
-    await moveDiagnosticStorageFile(stagingPath, quarantinePath).catch(() => deleteDiagnosticStagingFile(stagingPath));
-    await createOwnDiagnosticSubmission(client, ctx, {
-      assignmentId: assignment.id,
-      originalFilename: input.originalFilename,
-      mimeType: input.mimeType,
-      sizeBytes: input.bytes.length,
-      sha256,
-      storageKey: quarantinePath,
-      status: 'REJECTED',
-      reviewNote: 'Write-verification failed: the file on disk did not match what was expected.',
-    }).catch(() => undefined); // audit row is best-effort; the refusal itself does not depend on it
-    throw new InvalidStateError(
-      'The deposit could not be verified as fully and correctly written on disk; it was not recorded as received.',
-      { assignmentId: assignment.id },
-    );
-  }
-
-  let avRejectionReason: string | null = null;
-  try {
-    await scanDiagnosticSubmissionFile(stagingPath);
-  } catch (error) {
-    avRejectionReason = error instanceof Error ? error.message : 'AV_REJECTED';
-  }
-
-  if (avRejectionReason) {
-    const quarantinePath = diagnosticQuarantineRelativePath(token, extension);
-    await moveDiagnosticStorageFile(stagingPath, quarantinePath);
-    await createOwnDiagnosticSubmission(client, ctx, {
-      assignmentId: assignment.id,
-      originalFilename: input.originalFilename,
-      mimeType: input.mimeType,
-      sizeBytes: input.bytes.length,
-      sha256,
-      storageKey: quarantinePath,
-      status: 'REJECTED',
-      reviewNote: `Rejected by the required security scan: ${avRejectionReason}`,
-    }).catch(() => undefined);
-    throw new InvalidStateError(
-      'The deposit was rejected by the required security scan and was not recorded as available.',
-      { assignmentId: assignment.id, reason: avRejectionReason },
-    );
-  }
-
+  const extension = 'enc';
   const finalPath = diagnosticSubmissionRelativePath(assignment.id, token, extension);
-  await moveDiagnosticStorageFile(stagingPath, finalPath);
-
+  const stagingPath = diagnosticStagingRelativePath(token, extension);
+  const encryptionContext = diagnosticSubmissionEncryptionContext(finalPath);
+  const encrypted = encryptDocument(clear, encryptionContext);
+  const ciphertextDigest = createHash('sha256').update(encrypted).digest('hex');
+  let persistedPath = stagingPath;
+  let ownsPersistedFile = false;
   try {
+    await writeDiagnosticStorageFile(stagingPath, encrypted);
+    ownsPersistedFile = true;
+    const verification = await verifyStagedFile(stagingPath, { sizeBytes: encrypted.length, sha256: ciphertextDigest });
+    if (!verification.ok) throw new InvalidStateError('The encrypted deposit could not be verified.');
+    const document = await readDiagnosticStorageFile(stagingPath);
+    try {
+      const reread = decryptDocument(await document.handle.readFile(), encryptionContext);
+      if (reread.length !== clear.length || createHash('sha256').update(reread).digest('hex') !== sha256)
+        throw new InvalidStateError('The encrypted deposit could not be verified.');
+    } finally { await document.handle.close(); }
+    await moveDiagnosticStorageFile(stagingPath, finalPath);
+    persistedPath = finalPath;
     const submission = await createOwnDiagnosticSubmission(client, ctx, {
-      assignmentId: assignment.id,
-      originalFilename: input.originalFilename,
-      mimeType: input.mimeType,
-      sizeBytes: input.bytes.length,
-      sha256,
-      storageKey: finalPath,
+      assignmentId: assignment.id, originalFilename: input.originalFilename, mimeType: input.mimeType,
+      sizeBytes: clear.length, sha256, storageKey: finalPath,
     });
     return { submission, idempotentReplay: false };
   } catch (error) {
-    // No DB row means no available submission — the now-orphaned finalized
-    // file is quarantined (evidence kept), never left dangling and never
-    // silently deleted.
-    await moveDiagnosticStorageFile(finalPath, diagnosticQuarantineRelativePath(token, extension)).catch(() => undefined);
+    if (ownsPersistedFile && persistedPath === finalPath) {
+      // A transport error can arrive after COMMIT. Never delete a document
+      // referenced by a committed row, or guess when the database is unavailable.
+      let committed: DiagnosticSubmission | null;
+      try { committed = await client.diagnosticSubmission.findFirst({ where: { storageKey: finalPath } }); }
+      catch { throw new InvalidStateError('The deposit requires storage reconciliation.'); }
+      if (committed) {
+        if (committed.assignmentId !== assignment.id || committed.sha256 !== sha256 || committed.sizeBytes !== clear.length)
+          throw new InvalidStateError('The deposit requires storage reconciliation.');
+        return { submission: committed, idempotentReplay: false };
+      }
+    }
+    if (ownsPersistedFile) await deleteDiagnosticStagingFile(persistedPath);
     throw error;
   }
 }

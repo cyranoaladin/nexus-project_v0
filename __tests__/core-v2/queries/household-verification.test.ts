@@ -50,7 +50,7 @@ test('parents cannot verify themselves and wrong household ids cannot redirect a
   const other = await h.client.household.create({ data: {} });
   await expect(verifyHouseholdParent(h.client, h.ctx(), { ...input, householdId: other.id })).rejects.toMatchObject({ code: 'NOT_FOUND' });
   expect(await getOwnHousehold(h.client, h.ctx(h.parentActor))).toBeNull();
-  expect(await h.client.auditEvent.count()).toBe(0);
+  expect(await h.client.auditEvent.count()).toBe(1);
 });
 
 test('stale retries cannot reverify a revoked membership or create a duplicate audit event', async () => {
@@ -61,7 +61,7 @@ test('stale retries cannot reverify a revoked membership or create a duplicate a
   await revokeHouseholdParent(h.client, h.ctx(), { householdId: household.id, parentUserId: h.parentActor.userId, expectedRevision: 1 });
   await expect(verifyHouseholdParent(h.client, h.ctx(), input)).rejects.toMatchObject({ code: 'CONFLICT' });
   expect(await getOwnHousehold(h.client, h.ctx(h.parentActor))).toBeNull();
-  expect(await h.client.auditEvent.count()).toBe(2);
+  expect(await h.client.auditEvent.count()).toBe(3);
 });
 
 test('two competing verification/revocation decisions on the same revision have exactly one winner', async () => {
@@ -75,7 +75,7 @@ test('two competing verification/revocation decisions on the same revision have 
   expect(outcomes.filter(result => result.status === 'fulfilled')).toHaveLength(1);
   const failure = outcomes.find(result => result.status === 'rejected');
   expect(failure).toMatchObject({ status: 'rejected', reason: { code: 'CONFLICT' } });
-  expect(await h.client.auditEvent.count()).toBe(1);
+  expect(await h.client.auditEvent.count()).toBe(2);
   expect((await h.client.householdParent.findUniqueOrThrow({ where: { userId: h.parentActor.userId } })).revision).toBe(1);
 });
 
@@ -104,7 +104,7 @@ test('a decision blocked by a concurrent revision change cannot grant access', a
   try { await waitForLockWaiter(h.client); } finally { await held.release(); }
   expect(await outcome).toMatchObject({ error: { code: 'CONFLICT' } });
   expect(await getOwnHousehold(h.client, h.ctx(h.parentActor))).toBeNull();
-  expect(await h.client.auditEvent.count()).toBe(0);
+  expect(await h.client.auditEvent.count()).toBe(1);
 });
 
 test('failure to append the audit event rolls back verification and revocation', async () => {
@@ -127,7 +127,7 @@ test('failure to append the audit event rolls back verification and revocation',
     })).rejects.toThrow(/SYNTHETIC_MEMBERSHIP_AUDIT_FAILURE/);
     expect(await h.client.householdParent.findUniqueOrThrow({ where: { userId: h.parentActor.userId } }))
       .toMatchObject({ verificationStatus: 'PENDING', revision: 0, isPrimaryContact: true, verifiedAt: null, revokedAt: null });
-    expect(await h.client.auditEvent.count()).toBe(0);
+    expect(await h.client.auditEvent.count()).toBe(1);
   } finally {
     await h.client.$executeRaw`DROP TRIGGER IF EXISTS recovery_test_membership_audit_failure ON audit_events`;
     await h.client.$executeRaw`DROP FUNCTION IF EXISTS recovery_test_membership_audit_failure()`;

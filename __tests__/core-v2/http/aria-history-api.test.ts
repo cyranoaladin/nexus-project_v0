@@ -3,11 +3,13 @@ import { NextRequest } from 'next/server';
 jest.mock('@/auth', () => ({ auth: jest.fn() }));
 
 import { auth } from '@/auth';
-import { seedAcademicYear, setupServiceHarness } from '../helpers/service-harness';
+import { ariaHttpCookie } from '../helpers/aria-http-cookie';
+import { setupV1Fixture } from '../helpers/v1-provisioning-fixture';
+import { seedAcademicYear } from '../helpers/service-harness';
 import * as messagesRoute from '@/app/api/v2/aria/conversations/[conversationId]/messages/route';
 import * as curriculumRoute from '@/app/api/v2/aria/curriculum/route';
 
-const h = setupServiceHarness();
+const f = setupV1Fixture(); const h = f.h;
 const mockedAuth = auth as unknown as jest.Mock;
 const createdAt = new Date('2026-09-24T10:00:00.000Z');
 
@@ -18,7 +20,8 @@ function signIn(userId: string | null) {
 }
 
 async function seedStudent(suffix: string, yearId: string) {
-  const user = await h.client.user.create({ data: { role: 'ELEVE', email: `history-${suffix}@synthetic.test`, accountStatus: 'ACTIVE' } });
+  const v1 = await f.v1User('ELEVE', 'aria-history-'+suffix, 'ACTIVE');
+  const user = await h.client.user.create({ data: { id: v1.id, role: 'ELEVE', email: `history-${suffix}@synthetic.test`, accountStatus: 'ACTIVE' } });
   const household = await h.client.household.create({ data: {} });
   const student = await h.client.student.create({ data: { userId: user.id, householdId: household.id } });
   await h.client.studentAcademicYearEnrollment.create({ data: {
@@ -27,11 +30,11 @@ async function seedStudent(suffix: string, yearId: string) {
   return { user, student };
 }
 
-function historyRequest(conversationId: string, cursor?: string) {
+async function historyRequest(conversationId: string, cursor?: string) {
   const url = new URL(`http://localhost:3000/api/v2/aria/conversations/${conversationId}/messages`);
   url.searchParams.set('limit', '50');
   if (cursor) url.searchParams.set('cursor', cursor);
-  return messagesRoute.GET(new NextRequest(url), { params: Promise.resolve({ conversationId }) });
+  return messagesRoute.GET(new NextRequest(url, { headers: await ariaHttpCookie((await mockedAuth())?.user.id) }), { params: Promise.resolve({ conversationId }) });
 }
 
 describe('Core v2 ARIA history HTTP projection', () => {
@@ -62,7 +65,7 @@ describe('Core v2 ARIA history HTTP projection', () => {
     } });
     signIn(owner.user.id);
 
-    const response = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum'), { params: Promise.resolve({}) });
+    const response = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum', { headers: await ariaHttpCookie((await mockedAuth())?.user.id) }), { params: Promise.resolve({}) });
     expect(response.status).toBe(200);
     expect((await response.json()).data.profile.focusedCourseKey).toBe('maths-terminale-eds');
 
@@ -70,11 +73,11 @@ describe('Core v2 ARIA history HTTP projection', () => {
       where: { conversationId: conversation.id },
       data: { status: 'COMPLETED', completedAt: createdAt },
     });
-    const completed = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum'), { params: Promise.resolve({}) });
+    const completed = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum', { headers: await ariaHttpCookie((await mockedAuth())?.user.id) }), { params: Promise.resolve({}) });
     expect((await completed.json()).data.profile.focusedCourseKey).toBe('maths-terminale-eds');
 
     await h.client.ariaAccessGrant.updateMany({ where: { studentId: owner.student.id }, data: { status: 'REVOKED' } });
-    const revoked = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum'), { params: Promise.resolve({}) });
+    const revoked = await curriculumRoute.GET(new NextRequest('http://localhost:3000/api/v2/aria/curriculum', { headers: await ariaHttpCookie((await mockedAuth())?.user.id) }), { params: Promise.resolve({}) });
     expect(revoked.status).toBe(200);
     expect((await revoked.json()).data.profile.focusedCourseKey).toBeNull();
   });

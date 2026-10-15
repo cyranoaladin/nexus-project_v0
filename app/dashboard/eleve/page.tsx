@@ -36,10 +36,15 @@ import { useCanonicalSignOut, useCanonicalSession as useSession } from '@/compon
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect,useState } from "react";
+import { Suspense } from 'react';
+import { CoreRoleHome } from '@/components/dashboard/core-v2/CoreRoleHome';
 
 import { resolveDashboardRubrique, type DashboardRubrique } from "@/components/dashboard/eleve/dashboard-view-model";
 
 export default function DashboardEleve() {
+  return <Suspense fallback={<p role="status">Chargement…</p>}><CoreRoleHome role="ELEVE" legacy={<LegacyEleveDashboard />}><StudentEnrollments /></CoreRoleHome></Suspense>;
+}
+function LegacyEleveDashboard() {
   const fetch = useProtectedFetch();
   const signOut = useCanonicalSignOut();
   const { data: session, status } = useSession();
@@ -68,13 +73,6 @@ export default function DashboardEleve() {
 
     if (!session || session.user.role !== 'ELEVE') {
       router.push("/auth/signin");
-      return;
-    }
-
-    // A Core v2 identity has no Core v1 student profile: its enrollments are
-    // read from Core v2 (§AI), never through the Core v1 dashboard API.
-    if (session.user.authority === 'CORE_V2') {
-      setLoading(false);
       return;
     }
 
@@ -122,14 +120,6 @@ export default function DashboardEleve() {
     window.addEventListener('hashchange', scrollToHash);
     return () => window.removeEventListener('hashchange', scrollToHash);
   }, [dashboardData]);
-
-  if (status !== "loading" && session?.user.authority === 'CORE_V2') {
-    return (
-      <div className="min-h-screen bg-surface-darker text-neutral-100 p-4 lg:p-6">
-        <StudentEnrollments />
-      </div>
-    );
-  }
 
   if (status === "loading" || loading) {
     return (
