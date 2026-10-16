@@ -183,6 +183,24 @@ export function echeanciersParMoisEntree(
   });
 }
 
+/** « 219,5 » ; « 329 ». Virgule décimale, et pas de zéro décimal inutile. */
+export function fmtHeures(heures: number): string {
+  return Number.isInteger(heures) ? String(heures) : heures.toFixed(1).replace('.', ',');
+}
+
+/**
+ * Le total encadré, dans la formulation approuvée du dossier parents et des
+ * plaquettes imprimées. Sa seconde moitié n'est pas décorative : sans elle,
+ * « total encadré » est du jargon, et un parent qui lit deux nombres sans
+ * savoir ce qui les sépare se demande lequel est le vrai.
+ *
+ * Même source que le `courseWorkload` du JSON-LD : une donnée structurée qui
+ * annonce un total que la page ne montre pas décrit une page qui n'existe pas.
+ */
+export function texteTotalEncadre(p: ParcoursCandidatLibre): string {
+  return `Total encadré\u00a0: ${fmtHeures(p.heures_encadrees_total)}\u00a0h par élève, avec cours, blancs, oraux et bilans.`;
+}
+
 /**
  * Durée ISO 8601 pour schema.org : 219,5 → « PT219H30M », 329 → « PT329H ».
  * Le nombre vient du module de données, jamais d'une constante d'annotation.

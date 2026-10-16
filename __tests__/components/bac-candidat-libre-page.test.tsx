@@ -3,7 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 
 import BacCandidatLibrePage, { metadata, revalidate } from '@/app/bac-candidat-libre/page';
 import { fmtPrice as fmtBrut } from '@/components/premium/format';
-import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+import { fmtHeures, getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
 
 jest.mock('next/link', () => {
@@ -200,6 +200,37 @@ describe('/bac-candidat-libre', () => {
     expect(document.body.textContent).not.toMatch(/offerts pendant certaines périodes/i);
     // Les frais restent annoncés : ils sont dus, pas effacés.
     expect(document.body.textContent).toMatch(/frais de dossier/i);
+  });
+
+  /**
+   * Une donnée structurée qui annonce le total encadré quand la page ne montre
+   * que les heures de cours décrit une page qui n'existe pas. Les deux chiffres
+   * sont affichés, chacun avec sa définition — c'est la même règle que pour les
+   * deux échéanciers.
+   *
+   * Et surtout : le nombre affiché et celui de courseWorkload sont comparés ici.
+   * S'ils peuvent diverger, ils divergeront.
+   */
+  test('total encadré : la phrase approuvée, et le même nombre que courseWorkload', () => {
+    const { container } = renderAu('2026-10-14T10:00:00+01:00');
+    const cours = jsonLd(container).find((b) => b['@type'] === 'Course');
+    const data = getCandidatsLibres2027();
+
+    /** « PT219H30M » → 219.5 : on remonte à la valeur, pas à la chaîne. */
+    const heuresDepuisIso = (iso: string) => {
+      const m = /^PT(\d+)H(?:(\d+)M)?$/.exec(iso)!;
+      return Number(m[1]) + Number(m[2] ?? 0) / 60;
+    };
+
+    for (const [i, p] of data.parcours.entries()) {
+      const article = screen.getByRole('article', { name: new RegExp(p.niveau) });
+      expect(article).toHaveTextContent(
+        `Total encadré : ${fmtHeures(p.heures_encadrees_total)} h par élève, avec cours, blancs, oraux et bilans.`,
+      );
+      expect(heuresDepuisIso(cours.hasCourseInstance[i].courseWorkload)).toBe(p.heures_encadrees_total);
+      // Les heures de cours restent affichées, nommées : deux chiffres définis.
+      expect(article).toHaveTextContent(new RegExp(`${p.heures_cours} h de cours`));
+    }
   });
 
   test('aucune promesse de résultat', () => {

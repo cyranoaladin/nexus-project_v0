@@ -4,8 +4,11 @@
  * des offres datées (frais de dossier offerts, Semaine Diagnostic).
  */
 import {
+  dureeIso,
   echeanciersParMoisEntree,
   entreeEnCours,
+  fmtHeures,
+  texteTotalEncadre,
   getCandidatsLibres2027,
   getParcoursCandidatLibre,
   getFraisDossier,
@@ -216,6 +219,23 @@ describe('Garde-fous de cohérence — ce qui a déjà produit une faute', () =>
     for (const parcours of getParcoursCandidatLibre()) {
       expect(parcours.heures_encadrees_total).toBeGreaterThan(parcours.heures_cours);
     }
+  });
+
+  test('les heures s’écrivent à la française, sans zéro décimal inutile', () => {
+    expect(getParcoursCandidatLibre().map((p) => fmtHeures(p.heures_encadrees_total)))
+      .toEqual(['219,5', '329', '568']);
+  });
+
+  test('la durée ISO 8601 porte les minutes seulement quand il y en a', () => {
+    expect(getParcoursCandidatLibre().map((p) => dureeIso(p.heures_encadrees_total)))
+      .toEqual(['PT219H30M', 'PT329H', 'PT568H']);
+  });
+
+  test('la phrase du total encadré est celle du dossier parents, mot pour mot', () => {
+    // Sans sa seconde moitié, « total encadré » est du jargon : un parent qui
+    // lit deux nombres sans savoir ce qui les sépare se demande lequel est vrai.
+    expect(texteTotalEncadre(getParcoursCandidatLibre('premiere')!))
+      .toBe('Total encadré\u00a0: 219,5\u00a0h par élève, avec cours, blancs, oraux et bilans.');
   });
 
   test('la Terminale porte sa condition d’éligibilité', () => {

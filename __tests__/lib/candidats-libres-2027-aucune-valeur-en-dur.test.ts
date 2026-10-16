@@ -13,7 +13,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+import { fmtHeures, getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 
 /** Surfaces qui vendent le parcours candidats libres : prose, cartes, FAQ, llms.txt. */
 const SURFACES = [
@@ -97,6 +97,13 @@ describe('Candidats libres 2027 — aucune valeur en dur hors du module', () => 
         expect(texte).not.toContain(`${p.heures_cours} h`);
         expect(texte).not.toContain(`${p.heures_cours} h`);
         expect(texte).not.toContain(`${p.copies_corrigees} copies`);
+        // Le total encadré est affiché ET déclaré en JSON-LD : recopié dans une
+        // surface, il cesserait de suivre heures_encadrees_total, et les deux
+        // chiffres divergeraient sans que rien ne le signale.
+        for (const ecriture of [String(p.heures_encadrees_total), fmtHeures(p.heures_encadrees_total)]) {
+          expect(texte).not.toContain(`${ecriture} h`);
+          expect(texte).not.toContain(`${ecriture} h`);
+        }
       }
     }
   });

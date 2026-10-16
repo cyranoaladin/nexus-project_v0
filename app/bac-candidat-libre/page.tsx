@@ -16,6 +16,7 @@ import {
 import {
   dureeIso,
   echeanciersParMoisEntree,
+  texteTotalEncadre,
   getAteliersCycladesAVenir,
   getCandidatsLibres2027,
   getFraisDossierOffertsActifs,
@@ -106,7 +107,11 @@ function CarteParcours({ parcours, maintenant }: { parcours: ParcoursCandidatLib
           <span>{parcours.creneaux}</span>
         </li>
       </ul>
-      <p className="mt-4 text-xs leading-5 text-lux-slate">{parcours.public}</p>
+      {/* Le total encadré, affiché parce qu'il est déclaré : le JSON-LD le
+          porte en courseWorkload, et une donnée structurée absente de la page
+          décrit une page qui n'existe pas. Les deux lisent le même champ. */}
+      <p className="mt-4 text-sm font-medium leading-6 text-lux-ink">{texteTotalEncadre(parcours)}</p>
+      <p className="mt-2 text-xs leading-5 text-lux-slate">{parcours.public}</p>
       <a
         href={buildWhatsAppUrl(
           b1a
