@@ -43,6 +43,7 @@ const ENV_CONTRACT: EnvVar[] = [
   // comme avant ; seul l'envoi WhatsApp est écarté. Rien n'est perdu.
   // Les identifiants Meta et le secret de la file sont ceux des invitations
   // parents : rien de nouveau à configurer si ce transport est déjà en place.
+  { name: 'WHATSAPP_ORDER_SEND_ENABLED', level: 'OPTIONAL', description: 'Active l\'envoi WhatsApp des seules réservations de manuels, sans basculer les invitations parents en envoi automatique (défaut : suit WHATSAPP_SEND_ENABLED)' },
   { name: 'WHATSAPP_ORDER_RECIPIENT', level: 'OPTIONAL', description: 'Téléphone qui reçoit les réservations de manuels (défaut : le numéro public de la maison ; ne peut pas être le numéro expéditeur)' },
   { name: 'WHATSAPP_TEMPLATE_ORDER', level: 'OPTIONAL', description: 'Nom du modèle de message approuvé pour les réservations (défaut : commande_manuels)' },
   // ─── REQUIRED (fail-fast in production) ────────────────────────────
