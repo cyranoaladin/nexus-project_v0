@@ -11,7 +11,6 @@ import {
   PAGE_PATH,
   construireFaq,
   jourMois,
-  texteEcheancier,
   jourMoisHeure,
 } from '@/content/marketing/bac-candidat-libre';
 import {
@@ -19,6 +18,7 @@ import {
   getCandidatsLibres2027,
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
+  texteEcheancier,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
