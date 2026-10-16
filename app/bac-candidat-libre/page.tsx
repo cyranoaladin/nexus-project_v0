@@ -11,6 +11,7 @@ import {
   PAGE_PATH,
   construireFaq,
   jourMois,
+  texteEcheancier,
   jourMoisHeure,
 } from '@/content/marketing/bac-candidat-libre';
 import {
@@ -46,16 +47,15 @@ function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre;
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
       </p>
       <p className="mt-1 text-sm text-lux-slate">
-        × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
-        {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${tnd(echeancier.derniere)})` : ''}
+        {texteEcheancier(echeancier, huit ? 8 : 9)}
       </p>
       <p className="mt-1 text-sm font-semibold text-lux-ink">
         {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
       </p>
       <p className="mt-1 text-xs text-lux-slate">
         {huit
-          ? `ou 9 mensualités de ${tnd(parcours.echeancier_9.mensualite)} dès octobre`
-          : `ou 8 mensualités de ${tnd(parcours.echeancier_8.mensualite)} dès novembre`}
+          ? `ou ${texteEcheancier(parcours.echeancier_9, 9)}`
+          : `ou ${texteEcheancier(parcours.echeancier_8, 8)}`}
       </p>
       <FraisDossier id={parcours.id} maintenant={maintenant} />
     </div>
@@ -276,8 +276,16 @@ export default function BacCandidatLibrePage() {
           <div className="mt-8 rounded-2xl border border-lux-line bg-lux-white p-5 text-sm leading-6 text-lux-slate">
             <p>
               <strong className="font-semibold text-lux-ink">{data.groupe.max} places au maximum par groupe.</strong>{' '}
-              Un groupe ouvre à {data.groupe.ouverture_min} inscrits{NBSP}; s’il n’ouvre pas, vous êtes intégralement remboursé
-              sous {data.groupe.confirmation_remboursement_jours}{NBSP}jours.
+              Un groupe ouvre à {data.groupe.ouverture_min} inscrits payants{NBSP}; s’il n’ouvre pas, vous êtes
+              intégralement remboursé, frais de dossier compris, sous {data.groupe.remboursement_jours_ouvres}{NBSP}jours
+              ouvrés. La décision d’ouverture est prise au plus tard le {jourMois(data.calendrier.decision_ouverture)},
+              avant les premiers cours du {jourMois(data.calendrier.premiers_cours)}.
+            </p>
+            <p className="mt-2">
+              Le remboursement est intégral si le groupe n’ouvre pas, si vous renoncez avant le premier cours
+              {NBSP}— hors frais de dossier lorsqu’ils sont dus{NBSP}— ou si votre enfant s’avère inéligible au parcours
+              souscrit. Après le début des cours, le prix annuel reste dû, sauf motif grave documenté ou interruption
+              de notre fait. Les conditions complètes sont remises avant toute signature.
             </p>
             <p className="mt-2">
               Spécialités préparées — Première{NBSP}: {data.specialites.premiere.join(', ')} · Terminale{NBSP}:{' '}
@@ -406,13 +414,14 @@ export default function BacCandidatLibrePage() {
 
       <section aria-labelledby="titre-stages" className="px-4 py-16 md:px-6">
         <div className="mx-auto max-w-5xl">
-          <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les stages à la carte</h2>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.stages_a_la_carte.note}</p>
+          <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les produits courts</h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.produits_courts.note}</p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {data.stages_a_la_carte.stages.map((s) => (
-              <li key={`${s.periode}-${s.niveau}`} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
-                <span className="font-semibold text-lux-ink">{s.periode}</span> · {s.niveau} · {s.heures}{NBSP}h ·{' '}
-                <span className="tabular-nums text-lux-ink">{tnd(s.prix)}</span>
+            {data.produits_courts.produits.map((produit) => (
+              <li key={produit.id} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
+                <span className="font-semibold text-lux-ink">{produit.libelle}</span> ·{' '}
+                <span className="tabular-nums text-lux-ink">{tnd(produit.prix)}</span>
+                <span className="mt-1 block">{produit.contenu} · {produit.paiement}</span>
               </li>
             ))}
           </ul>

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { fmtMontant } from '@/components/premium/format';
-import { jourMois, jourMoisHeure, type CandidatsLibres2027 } from '@/lib/candidats-libres-2027';
+import { jourMois, jourMoisHeure, texteEcheancier, type CandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 
 export { jourMois, jourMoisHeure };
 import { LEGAL } from '@/lib/legal';
@@ -37,11 +37,11 @@ export function construireFaq(data: CandidatsLibres2027): QuestionReponse[] {
     },
     {
       question: 'Combien coûte la préparation du bac français en candidat libre à Tunis ?',
-      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Paiement en 9 mensualités d’octobre à juin (${tnd(premiere.echeancier_9.mensualite)}, ${tnd(terminale.echeancier_9.mensualite)} ou ${tnd(b1a.echeancier_9.mensualite)}), en 8 mensualités de novembre à juin, ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. S’y ajoutent les frais de dossier et d’accompagnement Cyclades (${tnd(data.frais_dossier.montant)}, offerts pendant certaines périodes en Première et en Terminale) et les frais d’examen de l’Institut français.`,
+      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Paiement en 9 versements d’octobre à juin (${texteEcheancier(premiere.echeancier_9, 9)}, ${texteEcheancier(terminale.echeancier_9, 9)} ou ${texteEcheancier(b1a.echeancier_9, 9)}), en 8 versements de novembre à juin, ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. S’y ajoutent les frais de dossier et d’accompagnement Cyclades (${tnd(data.frais_dossier.montant)}, offerts pendant certaines périodes en Première et en Terminale) et les frais d’examen de l’Institut français.`,
     },
     {
       question: 'Que se passe-t-il si le groupe n’ouvre pas ?',
-      reponse: `Un groupe ouvre à ${data.groupe.ouverture_min} inscrits. Nous confirmons l’ouverture le ${jourMois(terminale.confirmation_ouverture)} en Terminale et le ${jourMois(premiere.confirmation_ouverture)} en Première. Si le groupe n’ouvre pas, vous êtes intégralement remboursé sous ${data.groupe.confirmation_remboursement_jours} jours.`,
+      reponse: `Un groupe ouvre à ${data.groupe.ouverture_min} inscrits payants. La décision d’ouverture est prise au plus tard le ${jourMois(data.calendrier.decision_ouverture)}, avant les premiers cours du ${jourMois(data.calendrier.premiers_cours)}. Si le groupe n’ouvre pas, vous êtes intégralement remboursé, frais de dossier compris, sous ${data.groupe.remboursement_jours_ouvres} jours ouvrés.`,
     },
     {
       question: `Pourquoi des groupes de ${data.groupe.max} ?`,
@@ -65,7 +65,7 @@ export function construireFaq(data: CandidatsLibres2027): QuestionReponse[] {
     },
     {
       question: 'Mon enfant est déjà inscrit ailleurs : peut-il suivre un stage seul ?',
-      reponse: `Oui, dans la limite des places restantes. Stages d’hiver, de février et de printemps, à partir de ${tnd(Math.min(...data.stages_a_la_carte.stages.map((s) => s.prix)))}. Il est aussi possible de rejoindre un parcours en cours d’année, aux mensualités restantes.`,
+      reponse: `Oui, dans la limite des places restantes : mono-spécialité, stage intensif ou pack d’épreuves blanches, à partir de ${tnd(Math.min(...data.produits_courts.produits.map((produit) => produit.prix)))}. Il est aussi possible de rejoindre un parcours en cours d’année, aux échéances restantes.`,
     },
   ];
 }

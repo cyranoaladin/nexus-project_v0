@@ -436,7 +436,7 @@ export default function OffresPage() {
                   }
                   features={
                     c.campaign_free
-                      ? ['Offert en campagne', c.deductible ? 'Déductible du parcours annuel' : ''].filter(Boolean)
+                      ? ['Offert en campagne', c.deductible ? 'Déductible du parcours annuel scolarisés' : ''].filter(Boolean)
                       : undefined
                   }
                   ctaText="Demander cette offre"

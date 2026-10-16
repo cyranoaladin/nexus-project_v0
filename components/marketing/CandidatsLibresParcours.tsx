@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { fmtMontant } from '@/components/premium/format';
-import { getCandidatsLibres2027, getFraisDossier, jourMois } from '@/lib/candidats-libres-2027';
+import { getCandidatsLibres2027, getFraisDossier, jourMois, texteEcheancier } from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
 
@@ -38,18 +38,27 @@ export function CandidatsLibresParcours() {
               aria-labelledby={titreId}
               className="flex flex-col rounded-2xl border border-lux-line bg-lux-white p-6 lux-shadow"
             >
-              <p className="lux-eyebrow">{p.accroche}</p>
+              {/* Le public est nommé sur chaque bloc : deux catalogues cohabitent
+                  sur le site, et une famille peut opposer la règle de l'autre. */}
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-lux-gold-deep">
+                Candidats individuels
+              </p>
+              <p className="lux-eyebrow mt-1">{p.accroche}</p>
               <h3 id={titreId} className="mt-2 font-fraunces text-xl text-lux-ink">{p.titre}</h3>
               <p className="mt-4 font-fraunces text-3xl font-light tabular-nums text-lux-ink">
                 {fmtMontant(echeancier.mensualite)}
                 <span className="ml-1 font-body text-sm text-lux-slate">{NBSP}TND / mois</span>
               </p>
               <p className="mt-1 text-sm text-lux-slate">
-                × {p.echeancier_affiche} mensualités
-                {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${fmtMontant(echeancier.derniere)}${NBSP}TND)` : ''}
+                {texteEcheancier(echeancier, p.echeancier_affiche)}
                 {' · '}{fmtMontant(p.prix_annuel)}{NBSP}TND / an · comptant {fmtMontant(p.comptant)}{NBSP}TND
               </p>
               <FraisDossier id={p.id} maintenant={maintenant} />
+              {p.id === 'terminale' ? (
+                <p className="mt-3 rounded-lg bg-lux-paper px-3 py-2 text-xs leading-5 text-lux-slate">
+                  {data.eligibilite.terminale}
+                </p>
+              ) : null}
               <p className="mt-4 text-sm leading-6 text-lux-slate">
                 {p.heures_cours}{NBSP}h de cours, {p.copies_corrigees} copies corrigées, {p.oraux.toLowerCase()}, {p.bilans} bilans avec la famille.
               </p>

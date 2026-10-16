@@ -8,6 +8,8 @@ import {
   getFraisDossier,
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
+  jourMois,
+  texteEcheancier,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -32,7 +34,7 @@ function ligneParcours(p: ParcoursCandidatLibre, maintenant: Date): string {
   const frais = getFraisDossier(p.id, maintenant);
   return (
     `- **${p.titre}** : ${tnd(p.prix_annuel)} par an — ` +
-    `9 mensualités de ${tnd(p.echeancier_9.mensualite)} d’octobre à juin, ou 8 mensualités de ${tnd(p.echeancier_8.mensualite)} de novembre à juin, ` +
+    `${texteEcheancier(p.echeancier_9, 9)}, ou ${texteEcheancier(p.echeancier_8, 8)}, ` +
     `ou ${tnd(p.comptant)} comptant. ${p.heures_cours} h de cours, ${p.copies_corrigees} copies d’épreuves blanches corrigées, ` +
     `${p.oraux.toLowerCase()}, ${p.bilans} bilans avec la famille. En sus, frais de dossier et d’accompagnement Cyclades : ${tnd(frais.montant)}` +
     `${frais.offertJusquAu ? ` (offerts pour une inscription conclue jusqu’au ${dateLongue(frais.offertJusquAu)})` : ''}. Public : ${p.public}`
@@ -51,7 +53,7 @@ function blocCandidatsLibres(maintenant: Date): string[] {
     `## Candidats libres (candidats individuels) — session ${data.session}`,
     '',
     ...data.parcours.map((p) => ligneParcours(p, maintenant)),
-    `- Groupes de ${data.groupe.max} places au maximum ; un groupe ouvre à ${data.groupe.ouverture_min} inscrits ; remboursement intégral sous ${data.groupe.confirmation_remboursement_jours} jours si le groupe n’ouvre pas. Sans acompte.`,
+    `- Groupes de ${data.groupe.max} places au maximum ; un groupe ouvre à ${data.groupe.ouverture_min} inscrits payants ; décision d’ouverture au plus tard le ${jourMois(data.calendrier.decision_ouverture)}, avant les premiers cours du ${jourMois(data.calendrier.premiers_cours)} ; remboursement intégral, frais de dossier compris, sous ${data.groupe.remboursement_jours_ouvres} jours ouvrés si le groupe n’ouvre pas. Sans acompte.`,
     `- Cours le soir et le week-end, compatibles avec une scolarité au lycée tunisien (en moyenne ${data.emploi_du_temps.charge_moyenne.terminale} en Terminale, ${data.emploi_du_temps.charge_moyenne.premiere} en Première), bac blanc aux vacances d’octobre et un stage intensif à chaque vacances.`,
     `- Spécialités préparées : Première ${data.specialites.premiere.join(', ')} ; Terminale ${data.specialites.terminale.join(' et ')}.`,
     `- Non préparé par Nexus Réussite : ${data.non_prepare.join(', ')}. ${data.frais_examen}`,
@@ -157,8 +159,8 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
     '',
     '## Stages à la carte',
     '',
-    `${data.stages_a_la_carte.note}`,
-    ...data.stages_a_la_carte.stages.map((s) => `- ${s.periode}, ${s.niveau} : ${s.heures} h, ${tnd(s.prix)}.`),
+    `${data.produits_courts.note}`,
+    ...data.produits_courts.produits.map((p) => `- ${p.libelle} : ${tnd(p.prix)}, ${p.contenu}, ${p.paiement}.`),
     '',
     '## Questions fréquentes sur le bac français en candidat libre',
     '',
