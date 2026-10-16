@@ -67,11 +67,15 @@ test.describe('Homepage (/) - Landing Nexus Reussite', () => {
     await expect(adviser).toHaveAttribute('href', '/bilan-gratuit?parcours=conseiller#rappel-conseiller');
   });
 
-  test('conserve les neuf sections institutionnelles sans promotion expirée', async ({ page }) => {
+  test('conserve les dix sections institutionnelles sans promotion expirée', async ({ page }) => {
     // + 1 section « À la une » tant que la campagne candidats libres est ouverte (retirée le 20/11, 18 h).
     const aLaUne = await page.locator('section[aria-labelledby="a-la-une-titre"]').count();
+    // La dixième est l'appel vers la boutique de manuels : une entrée produit
+    // permanente, pas une promotion datée. Elle est vérifiée nommément
+    // ci-dessous pour que le compte reste ancré sur une section identifiée.
+    await expect(page.getByTestId('manuels-banner')).toHaveCount(1);
     const sections = page.locator('main > section');
-    await expect(sections).toHaveCount(9 + aLaUne);
+    await expect(sections).toHaveCount(10 + aLaUne);
     await expect(page.getByRole('region', { name: 'Campagne Pré-rentrée 2026' }))
       .toHaveCount(0);
   });
