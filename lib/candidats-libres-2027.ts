@@ -7,6 +7,7 @@
  */
 import 'server-only';
 import type { RecommendationOffer } from '@/components/premium/recommendation-engine';
+import { fmtMontant } from '@/components/premium/format';
 import { getCandidatsLibres2027Source } from '@/lib/pricing';
 
 export type ParcoursCandidatLibreId = 'premiere' | 'terminale' | 'bac-en-1-an';
@@ -34,7 +35,8 @@ export interface ParcoursCandidatLibre {
   bilans: number;
   creneaux: string;
   cyclades: { ouverture: string; cloture: string };
-  confirmation_ouverture: string;
+  /** Total encadré : cours, copies, oraux et bilans réunis. */
+  heures_encadrees_total: number;
   frais_dossier_offerts_jusqu_au: string | null;
 }
 
@@ -55,7 +57,17 @@ export interface SemaineDiagnostic {
 
 export interface CandidatsLibres2027 {
   session: string;
-  groupe: { max: number; ouverture_min: number; confirmation_remboursement_jours: number };
+  groupe: { max: number; ouverture_min: number; remboursement_jours_ouvres: number };
+  /** Décision d'ouverture et premiers cours : une seule date pour tous les parcours. */
+  calendrier: { decision_ouverture: string; premiers_cours: string };
+  eligibilite: { terminale: string };
+  oraux_format: { eaf_blanc: string; grand_oral_blanc: string };
+  avantages: {
+    comptant_remise_pct: number;
+    fratrie_remise_pct: number;
+    parrainage_tnd: number;
+    note: string;
+  };
   paiement: { comptant_remise_pct: number; echeancier_9: string; echeancier_8: string; note: string };
   parcours: ParcoursCandidatLibre[];
   inclus_communs: string[];
@@ -72,7 +84,11 @@ export interface CandidatsLibres2027 {
     charge_moyenne: { terminale: string; premiere: string };
     charge_max_hors_stage: string;
   };
-  stages_a_la_carte: { note: string; stages: { periode: string; niveau: string; heures: number; prix: number }[] };
+  produits_courts: {
+    note: string;
+    adoptee_le: string;
+    produits: { id: string; libelle: string; prix: number; contenu: string; paiement: string }[];
+  };
 }
 
 const data = getCandidatsLibres2027Source() as CandidatsLibres2027;
@@ -82,6 +98,19 @@ const JOUR_MS = 24 * 60 * 60 * 1000;
 /** Fin (exclue) de la journée JJ, heure de Tunis : `2026-10-31` → 01/11/2026 00 h 00 à Tunis. */
 export function finDeJourneeTunis(date: string): Date {
   return new Date(new Date(`${date}T00:00:00+01:00`).getTime() + JOUR_MS);
+}
+
+/**
+ * Écrit un échéancier sans jamais annoncer un multiple uniforme :
+ * « 8 × 580 puis 560 TND, d'octobre à juin ». Un « 9 × 580 » dépasserait le
+ * prix annuel de 20 TND — c'est la faute que ce formateur unique empêche.
+ */
+export function texteEcheancier(e: Echeancier, versements: 8 | 9): string {
+  const mois = versements === 9 ? 'd’octobre à juin' : 'de novembre à juin';
+  const tete = `${versements - 1} × ${fmtMontant(e.mensualite)}`;
+  return e.derniere === e.mensualite
+    ? `${versements} × ${fmtMontant(e.mensualite)} TND, ${mois}`
+    : `${tete} puis ${fmtMontant(e.derniere)} TND, ${mois}`;
 }
 
 /** « 2026-10-31 » → « 31/10 ». */

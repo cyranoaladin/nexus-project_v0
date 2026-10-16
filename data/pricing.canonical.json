@@ -1992,12 +1992,12 @@
     }
   ],
   "candidats_libres_2027": {
-    "_note": "Candidats libres — session 2027. Grille v12 du dossier GO-LIVE (13/10/2026) : groupes de 12 au plus, ouverture à 7 par niveau, 9 mensualités d’octobre à juin ou 8 de novembre à juin, comptant −5 %. Modèle économique distinct des offres annuelles scolarisées (groupes de 5) : ses invariants sont testés dans __tests__/lib/candidats-libres-2027.test.ts. Les offres datées (frais de dossier, Semaine Diagnostic) se coupent seules à leur échéance (heure de Tunis).",
+    "_note": "Candidats libres — session 2027. Grille arrêtée au 16/10/2026 : groupes de 12 au plus, ouverture à 6 inscrits payants par groupe réel, décision d’ouverture au plus tard le 25/10 avant les premiers cours du 26/10, 9 versements d’octobre à juin (la dernière échéance ajuste le total) ou 8 de novembre à juin, comptant −5 %. Modèle économique distinct des offres annuelles scolarisées (groupes de 5) : ses invariants sont testés dans __tests__/lib/candidats-libres-2027.test.ts. Les offres datées (frais de dossier, Semaine Diagnostic) se coupent seules à leur échéance (heure de Tunis).",
     "session": "2027",
     "groupe": {
       "max": 12,
-      "ouverture_min": 7,
-      "confirmation_remboursement_jours": 7
+      "ouverture_min": 6,
+      "remboursement_jours_ouvres": 7
     },
     "paiement": {
       "comptant_remise_pct": 5,
@@ -2022,7 +2022,7 @@
           "derniere": 650
         },
         "comptant": 4940,
-        "echeancier_affiche": 8,
+        "echeancier_affiche": 9,
         "heures_cours": 189,
         "repartition": [
           {
@@ -2058,8 +2058,8 @@
           "ouverture": "2026-11-02",
           "cloture": "2026-11-20T18:00:00+01:00"
         },
-        "confirmation_ouverture": "2026-11-16",
-        "frais_dossier_offerts_jusqu_au": "2026-11-08"
+        "frais_dossier_offerts_jusqu_au": "2026-11-08",
+        "heures_encadrees_total": 219.5
       },
       {
         "id": "terminale",
@@ -2117,8 +2117,8 @@
           "ouverture": "2026-10-16",
           "cloture": "2026-11-12T18:00:00+01:00"
         },
-        "confirmation_ouverture": "2026-11-06",
-        "frais_dossier_offerts_jusqu_au": "2026-10-31"
+        "frais_dossier_offerts_jusqu_au": "2026-10-31",
+        "heures_encadrees_total": 329.0
       },
       {
         "id": "bac-en-1-an",
@@ -2147,8 +2147,8 @@
           "ouverture": "2026-10-16",
           "cloture": "2026-11-12T18:00:00+01:00"
         },
-        "confirmation_ouverture": "2026-11-06",
-        "frais_dossier_offerts_jusqu_au": null
+        "frais_dossier_offerts_jusqu_au": null,
+        "heures_encadrees_total": 568.0
       }
     ],
     "inclus_communs": [
@@ -2247,34 +2247,63 @@
       },
       "charge_max_hors_stage": "14 h par semaine"
     },
-    "stages_a_la_carte": {
-      "note": "Pour les candidats déjà inscrits ailleurs ou en autonomie, dans la limite des places restantes.",
-      "stages": [
+    "calendrier": {
+      "decision_ouverture": "2026-10-25",
+      "premiers_cours": "2026-10-26"
+    },
+    "produits_courts": {
+      "note": "Pour les candidats déjà inscrits ailleurs ou en autonomie, dans la limite des places restantes. Les remises, le parrainage, les frais de dossier et le crédit Semaine Diagnostic des parcours annuels ne s’étendent pas à ces produits.",
+      "adoptee_le": "2026-10-16",
+      "produits": [
         {
-          "periode": "Vacances d’hiver",
-          "niveau": "Terminale",
-          "heures": 24,
-          "prix": 520
+          "id": "mono-eds-premiere",
+          "libelle": "Mono-EDS Première",
+          "prix": 2090,
+          "contenu": "Une spécialité, 32 h de cours, 40 h encadrées, 2 copies corrigées",
+          "paiement": "2 × 1 045 TND"
         },
         {
-          "periode": "Vacances d’hiver",
-          "niveau": "Première",
-          "heures": 12,
-          "prix": 270
+          "id": "mono-eds-terminale",
+          "libelle": "Mono-EDS Terminale",
+          "prix": 4070,
+          "contenu": "Une spécialité, 76 h de cours, 88 h encadrées, 3 copies corrigées",
+          "paiement": "4 × 1 017,5 TND"
         },
         {
-          "periode": "Vacances de février",
-          "niveau": "Première ou Terminale",
-          "heures": 15,
-          "prix": 340
+          "id": "stage-intensif",
+          "libelle": "Stage intensif",
+          "prix": 530,
+          "contenu": "12 h en 4 × 3 h, évaluation et débrief compris",
+          "paiement": "un paiement"
         },
         {
-          "periode": "Vacances de printemps (révisions)",
-          "niveau": "Première ou Terminale",
-          "heures": 18,
-          "prix": 400
+          "id": "pack-blancs-premiere",
+          "libelle": "Pack de blancs Première",
+          "prix": 450,
+          "contenu": "7 h encadrées, 2 copies corrigées, oral blanc d’EAF",
+          "paiement": "un paiement"
+        },
+        {
+          "id": "pack-blancs-terminale",
+          "libelle": "Pack de blancs Terminale",
+          "prix": 620,
+          "contenu": "11 h 30 encadrées, 3 copies corrigées",
+          "paiement": "un paiement"
         }
       ]
+    },
+    "oraux_format": {
+      "eaf_blanc": "20 minutes d’interrogation après 30 minutes de préparation surveillée",
+      "grand_oral_blanc": "30 minutes, dont 20 d’interrogation et 10 de retour — les 20 minutes de préparation de l’épreuve officielle n’y sont pas comprises"
+    },
+    "eligibilite": {
+      "terminale": "Parcours réservé aux candidats ayant déjà passé les épreuves anticipées françaises ; les autres relèvent du parcours Première ou du Bac en 1 an, sous conditions."
+    },
+    "avantages": {
+      "comptant_remise_pct": 5,
+      "fratrie_remise_pct": 10,
+      "parrainage_tnd": 300,
+      "note": "Fratrie : −10 % sur le second enfant. Parrainage : 300 TND déduits de la dernière échéance du parrain, après deux échéances réglées par le filleul. Ces avantages ne sont pas cumulables sur un même parcours."
     }
   },
   "manuels": {
