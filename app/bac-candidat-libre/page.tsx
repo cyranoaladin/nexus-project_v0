@@ -14,12 +14,12 @@ import {
   jourMoisHeure,
 } from '@/content/marketing/bac-candidat-libre';
 import {
+  echeanciersParMoisEntree,
   getAteliersCycladesAVenir,
   getCandidatsLibres2027,
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
-  suffixeDerniereEcheance,
-  texteEcheancierProse,
+  produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -39,26 +39,26 @@ const NBSP = ' ';
 const tnd = (n: number) => `${fmtMontant(n)}${NBSP}TND`;
 
 function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre; maintenant: Date }) {
-  const huit = parcours.echeancier_affiche === 8;
-  const echeancier = huit ? parcours.echeancier_8 : parcours.echeancier_9;
+  const entrees = echeanciersParMoisEntree(parcours, maintenant);
+  const enAvant = entrees.find((e) => e.enAvant) ?? entrees[0];
   return (
     <div className="mt-5">
       <p className="font-fraunces text-4xl font-light tabular-nums text-lux-ink">
-        {fmtMontant(echeancier.mensualite)}
+        {fmtMontant(enAvant.echeancier.mensualite)}
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
-      </p>
-      <p className="mt-1 text-sm text-lux-slate">
-        × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
-        {suffixeDerniereEcheance(echeancier)}
       </p>
       <p className="mt-1 text-sm font-semibold text-lux-ink">
         {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
       </p>
-      <p className="mt-1 text-xs text-lux-slate">
-        {huit
-          ? `ou ${texteEcheancierProse(parcours.echeancier_9, 9)}`
-          : `ou ${texteEcheancierProse(parcours.echeancier_8, 8)}`}
-      </p>
+      {/* Les deux entrées sont à égalité : le nombre de versements n'est pas un
+          choix de la famille, il découle du mois de son inscription. */}
+      <ul className="mt-2 space-y-1 text-sm">
+        {entrees.map((e) => (
+          <li key={e.versements} className={e.enAvant ? 'text-lux-ink' : 'text-lux-slate'}>
+            {e.cadence} · {e.montants} · {e.entree}
+          </li>
+        ))}
+      </ul>
       <FraisDossier id={parcours.id} maintenant={maintenant} />
     </div>
   );
@@ -127,7 +127,8 @@ export default function BacCandidatLibrePage() {
   const maintenant = new Date();
   const data = getCandidatsLibres2027();
   const [premiere, terminale] = data.parcours;
-  const faq = construireFaq(data);
+  const produitsCourts = produitsCourtsPublies();
+  const faq = construireFaq(data, { produitsCourts });
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
   const offres = getFraisDossierOffertsActifs(maintenant);
@@ -414,21 +415,26 @@ export default function BacCandidatLibrePage() {
         </div>
       </section>
 
-      <section aria-labelledby="titre-stages" className="px-4 py-16 md:px-6">
-        <div className="mx-auto max-w-5xl">
-          <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les produits courts</h2>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.produits_courts.note}</p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {data.produits_courts.produits.map((produit) => (
-              <li key={produit.id} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
-                <span className="font-semibold text-lux-ink">{produit.libelle}</span> ·{' '}
-                <span className="tabular-nums text-lux-ink">{tnd(produit.prix)}</span>
-                <span className="mt-1 block">{produit.contenu} · {produit.paiement}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {/* Grille adoptée par la direction le 16/10/2026, mais régime fiscal non
+          attesté par le comptable : le dossier bloque toute offre commerciale
+          ferme sur ce point. Rien n'est publié sans PRODUITS_COURTS_PUBLIES. */}
+      {produitsCourts ? (
+        <section aria-labelledby="titre-stages" className="px-4 py-16 md:px-6">
+          <div className="mx-auto max-w-5xl">
+            <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les produits courts</h2>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.produits_courts.note}</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {data.produits_courts.produits.map((produit) => (
+                <li key={produit.id} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
+                  <span className="font-semibold text-lux-ink">{produit.libelle}</span> ·{' '}
+                  <span className="tabular-nums text-lux-ink">{tnd(produit.prix)}</span>
+                  <span className="mt-1 block">{produit.contenu} · {produit.paiement}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="titre-faq" className="bg-lux-white px-4 py-16 md:px-6">
         <div className="mx-auto max-w-4xl">

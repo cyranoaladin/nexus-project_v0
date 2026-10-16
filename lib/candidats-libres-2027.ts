@@ -27,7 +27,6 @@ export interface ParcoursCandidatLibre {
   echeancier_9: Echeancier;
   echeancier_8: Echeancier;
   comptant: number;
-  echeancier_affiche: 8 | 9;
   heures_cours: number;
   repartition: { matiere: string; heures: number }[];
   copies_corrigees: number;
@@ -101,26 +100,98 @@ export function finDeJourneeTunis(date: string): Date {
 }
 
 /**
- * Suffixe qui énonce la dernière échéance quand elle ajuste le total, et rien
- * sinon : « (dernière : 560 TND) ». Les cartes gardent leur copie approuvée
- * (« × 9 mensualités, d'octobre à juin ») et n'écrivent aucun montant
- * elles-mêmes, de sorte qu'un « 9 × 580 » n'y est plus formulable.
+ * Les deux entrées de la session. Le nombre de versements n'est pas un choix
+ * de la famille : il découle du mois où elle s'inscrit.
  */
-export function suffixeDerniereEcheance(e: Echeancier): string {
-  return e.derniere === e.mensualite ? '' : ` (dernière\u00a0: ${fmtMontant(e.derniere)}\u00a0TND)`;
+const ENTREES = {
+  9: { mois: 'octobre', moisNum: 10, periode: 'd’octobre à juin' },
+  8: { mois: 'novembre', moisNum: 11, periode: 'de novembre à juin' },
+} as const;
+
+/** « 8 × 580 puis 560 TND », ou « 8 × 650 TND » quand aucune échéance n'ajuste le total. */
+function montantsEcheancier(e: Echeancier, versements: 8 | 9): string {
+  return e.derniere === e.mensualite
+    ? `${versements} × ${fmtMontant(e.mensualite)}\u00a0TND`
+    : `${versements - 1} × ${fmtMontant(e.mensualite)} puis ${fmtMontant(e.derniere)}\u00a0TND`;
 }
 
 /**
- * Échéancier en prose, forme de l'annexe : « 8 × 580 puis 560 TND, d'octobre
- * à juin ». Réservé aux phrases suivies (FAQ, llms.txt), où l'ancienne
- * rédaction annonçait « 9 mensualités de 580 » — soit 20 TND de plus que le
- * prix annuel affiché sur la même ligne.
+ * Échéancier en prose, forme de la plaquette imprimée : « 8 × 580 puis
+ * 560 TND, d'octobre à juin ». Réservé aux phrases suivies (FAQ, llms.txt),
+ * où l'ancienne rédaction annonçait « 9 mensualités de 580 » — soit 20 TND de
+ * plus que le prix annuel affiché sur la même ligne.
  */
 export function texteEcheancierProse(e: Echeancier, versements: 8 | 9): string {
-  const mois = versements === 9 ? 'd’octobre à juin' : 'de novembre à juin';
-  return e.derniere === e.mensualite
-    ? `${versements} × ${fmtMontant(e.mensualite)}\u00a0TND, ${mois}`
-    : `${versements - 1} × ${fmtMontant(e.mensualite)} puis ${fmtMontant(e.derniere)}\u00a0TND, ${mois}`;
+  return `${montantsEcheancier(e, versements)}, ${ENTREES[versements].periode}`;
+}
+
+/**
+ * L'entrée qui court à la date du jour. Elle n'est pas déclarée dans la
+ * source : une inscription « en octobre » est une inscription conclue pendant
+ * le mois d'octobre, et l'année est celle des premiers cours. Un champ figé —
+ * il y en a eu un — finit par contredire le calendrier qu'il suit.
+ */
+export function entreeEnCours(maintenant: Date = new Date()): 8 | 9 {
+  const annee = Number(data.calendrier.premiers_cours.slice(0, 4));
+  const finEntreeOctobre = new Date(`${annee}-${String(ENTREES[8].moisNum).padStart(2, '0')}-01T00:00:00+01:00`);
+  return maintenant < finEntreeOctobre ? 9 : 8;
+}
+
+export interface EcheancierEtiquete {
+  versements: 8 | 9;
+  echeancier: Echeancier;
+  /** « 9 mensualités, d'octobre à juin » */
+  cadence: string;
+  /** « 8 × 580 puis 560 TND » */
+  montants: string;
+  /** « pour une inscription en octobre » */
+  entree: string;
+  /** « octobre » */
+  moisEntree: string;
+  /** Entrée mise en avant à la date du jour ; l'autre reste affichée à côté. */
+  enAvant: boolean;
+}
+
+/**
+ * Les DEUX échéanciers d'un parcours, chacun étiqueté par son mois
+ * d'inscription, l'entrée du jour en tête (décision du 16/10/2026).
+ *
+ * Ce ne sont ni deux offres ni deux prix : c'est le même prix annuel réparti
+ * depuis le mois où la famille s'inscrit réellement. Afficher la seule entrée
+ * d'octobre trompe une famille de novembre ; afficher la seule entrée de
+ * novembre montre à une famille d'octobre un mensuel plus élevé que le sien.
+ * Les cours commencent le 26/10 en Terminale et le 27/10 en Première : une
+ * famille qui s'inscrit à l'ouverture relève de l'entrée d'octobre.
+ */
+export function echeanciersParMoisEntree(
+  p: ParcoursCandidatLibre,
+  maintenant: Date = new Date(),
+): EcheancierEtiquete[] {
+  const courante = entreeEnCours(maintenant);
+  return ([9, 8] as const).map((versements) => {
+    const echeancier = versements === 9 ? p.echeancier_9 : p.echeancier_8;
+    const { mois, periode } = ENTREES[versements];
+    return {
+      versements,
+      echeancier,
+      cadence: `${versements} mensualités, ${periode}`,
+      montants: montantsEcheancier(echeancier, versements),
+      entree: `pour une inscription en ${mois}`,
+      moisEntree: mois,
+      enAvant: versements === courante,
+    };
+  });
+}
+
+/**
+ * Les prix des produits courts ne sont pas publiés tant que leur régime
+ * fiscal n'est pas attesté par le comptable : le dossier de la direction
+ * bloque « toute offre commerciale ferme » sur ce point. La grille reste dans
+ * la source canonique — elle est adoptée — et aucune surface publique ne la
+ * sert sans ce drapeau.
+ */
+export function produitsCourtsPublies(env: Record<string, string | undefined> = process.env): boolean {
+  return env.PRODUITS_COURTS_PUBLIES === 'true';
 }
 
 /** « 2026-10-31 » → « 31/10 ». */
@@ -197,11 +268,10 @@ export function getAteliersCycladesAVenir(maintenant: Date = new Date()): string
  * Parcours candidats libres au format attendu par l'assistant « Trouver ma formule »
  * (components/premium/recommendation-engine.ts), sans acompte et avec l'échéancier affiché.
  */
-export function recommandationsCandidatsLibres(): RecommendationOffer[] {
+export function recommandationsCandidatsLibres(maintenant: Date = new Date()): RecommendationOffer[] {
+  const n = entreeEnCours(maintenant);
   return data.parcours.map((p) => {
-    const huit = p.echeancier_affiche === 8;
-    const echeancier = huit ? p.echeancier_8 : p.echeancier_9;
-    const n = huit ? 8 : 9;
+    const echeancier = n === 8 ? p.echeancier_8 : p.echeancier_9;
     const installments = [...Array(n - 1).fill(echeancier.mensualite), echeancier.derniere];
     return {
       id: p.id,
@@ -232,7 +302,12 @@ export function recommandationsCandidatsLibres(): RecommendationOffer[] {
 export interface ALaUneCandidatsLibres {
   session: string;
   groupeMax: number;
-  parcours: { id: ParcoursCandidatLibreId; niveau: string; mensualite: number; derniere: number; nbMensualites: 8 | 9 }[];
+  parcours: {
+    id: ParcoursCandidatLibreId;
+    niveau: string;
+    /** Les deux entrées, celle du jour d'abord : l'accueil n'en montre jamais une seule. */
+    entrees: { nbMensualites: 8 | 9; mensualite: number; derniere: number; moisEntree: string; enAvant: boolean }[];
+  }[];
   /** Inscriptions Cyclades encore ouvertes ou à venir, dans l'ordre chronologique de clôture. */
   echeances: { niveau: string; texte: string }[];
   offre: string | null;
@@ -262,11 +337,17 @@ export function getALaUneCandidatsLibres(maintenant: Date = new Date()): ALaUneC
   return {
     session: data.session,
     groupeMax: data.groupe.max,
-    parcours: data.parcours.map((p) => {
-      const huit = p.echeancier_affiche === 8;
-      const echeancier = huit ? p.echeancier_8 : p.echeancier_9;
-      return { id: p.id, niveau: p.niveau, mensualite: echeancier.mensualite, derniere: echeancier.derniere, nbMensualites: huit ? 8 : 9 };
-    }),
+    parcours: data.parcours.map((p) => ({
+      id: p.id,
+      niveau: p.niveau,
+      entrees: echeanciersParMoisEntree(p, maintenant).map((e) => ({
+        nbMensualites: e.versements,
+        mensualite: e.echeancier.mensualite,
+        derniere: e.echeancier.derniere,
+        moisEntree: e.moisEntree,
+        enAvant: e.enAvant,
+      })),
+    })),
     echeances,
     offre: offres.length > 0 ? `Frais de dossier offerts jusqu’au ${offres.join(' et au ')}` : null,
     fraisDossier: offres.length > 0

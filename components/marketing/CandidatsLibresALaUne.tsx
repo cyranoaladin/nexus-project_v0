@@ -68,11 +68,20 @@ export function CandidatsLibresALaUne({ aLaUne }: { aLaUne: ALaUneCandidatsLibre
                 className="flex items-baseline justify-between gap-3 rounded-xl border border-lux-line bg-lux-white px-5 py-4 lux-shadow lux-focus"
               >
                 <span className="font-fraunces text-lg text-lux-ink">{p.niveau}</span>
+                {/* Les deux entrées, jamais une seule : même prix annuel,
+                    réparti depuis le mois d'inscription de la famille. */}
                 <span className="text-right text-sm text-lux-slate">
-                  <span className="font-semibold tabular-nums text-lux-ink">{fmtMontant(p.mensualite)}{NBSP}TND</span> / mois × {p.nbMensualites}
-                  {p.derniere !== p.mensualite ? (
-                    <span className="block text-xs">dernière : {fmtMontant(p.derniere)}{NBSP}TND</span>
-                  ) : null}
+                  {p.entrees.map((e) => (
+                    <span key={e.nbMensualites} className="block">
+                      <span className={`tabular-nums ${e.enAvant ? 'font-semibold text-lux-ink' : ''}`}>
+                        {fmtMontant(e.mensualite)}{NBSP}TND
+                      </span>{' '}
+                      / mois × {e.nbMensualites} · dès {e.moisEntree}
+                      {e.derniere !== e.mensualite ? (
+                        <span className="block text-xs">dernière : {fmtMontant(e.derniere)}{NBSP}TND</span>
+                      ) : null}
+                    </span>
+                  ))}
                 </span>
               </Link>
             </li>

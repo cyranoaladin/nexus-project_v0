@@ -4,12 +4,15 @@
  * des offres datées (frais de dossier offerts, Semaine Diagnostic).
  */
 import {
+  echeanciersParMoisEntree,
+  entreeEnCours,
   getCandidatsLibres2027,
   getParcoursCandidatLibre,
   getFraisDossier,
   getFraisDossierOfferts,
   getSemaineDiagnostic,
   getEcheancesCyclades,
+  produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 
@@ -67,9 +70,48 @@ describe('Grille 2026-2027', () => {
     expect(parcours.every((p) => p.bilans === 3)).toBe(true);
   });
 
-  test('la Première affiche l’échéancier en 8 mensualités (décision du 13/10)', () => {
-    expect(getParcoursCandidatLibre('premiere')!.echeancier_affiche).toBe(8);
-    expect(getParcoursCandidatLibre('terminale')!.echeancier_affiche).toBe(9);
+  /**
+   * Les DEUX échéanciers sont exposés, chacun étiqueté par son mois
+   * d'inscription (décision du 16/10/2026). Ce ne sont ni deux offres ni deux
+   * prix : c'est le même prix annuel réparti depuis le mois où la famille
+   * s'inscrit réellement.
+   *
+   * Ce garde exigeait auparavant que la Première n'affiche QUE les huit
+   * mensualités, au nom d'une « décision du 13/10 ». Cette décision existe,
+   * mais son périmètre est plus étroit : c'est le brief de la créative vidéo
+   * Première, diffusée du 01/11 au 20/11. Y montrer 650 est juste — la
+   * créative ne tourne qu'en novembre. Ce n'était pas une décision sur
+   * l'affichage permanent de la page, et l'appliquer à la page montrait à une
+   * famille d'octobre un mensuel plus élevé que le sien.
+   */
+  test('les deux échéanciers sont exposés, étiquetés par leur mois d’inscription', () => {
+    for (const p of parcours) {
+      const [octobre, novembre] = echeanciersParMoisEntree(p, tunis('2026-10-14T10:00:00+01:00'));
+      expect(octobre.versements).toBe(9);
+      expect(octobre.cadence).toBe('9 mensualités, d’octobre à juin');
+      expect(octobre.entree).toBe('pour une inscription en octobre');
+      expect(novembre.versements).toBe(8);
+      expect(novembre.cadence).toBe('8 mensualités, de novembre à juin');
+      expect(novembre.entree).toBe('pour une inscription en novembre');
+    }
+  });
+
+  test('les montants de chaque entrée viennent de son propre échéancier', () => {
+    const premiere = getParcoursCandidatLibre('premiere')!;
+    const [octobre, novembre] = echeanciersParMoisEntree(premiere);
+    expect(octobre.montants).toBe('8 × 580 puis 560\u00a0TND');
+    expect(novembre.montants).toBe('8 × 650\u00a0TND');
+  });
+
+  test('l’entrée mise en avant suit la date du jour, jamais un champ figé', () => {
+    // Un « echeancier_affiche » écrit dans la source a déjà contredit le
+    // calendrier qu'il était censé suivre : il est calculé, plus déclaré.
+    expect(entreeEnCours(tunis('2026-10-14T10:00:00+01:00'))).toBe(9);
+    expect(entreeEnCours(tunis('2026-10-31T23:30:00+01:00'))).toBe(9);
+    expect(entreeEnCours(tunis('2026-11-01T00:00:00+01:00'))).toBe(8);
+    const source = require('fs').readFileSync(
+      require('path').join(__dirname, '../../data/pricing.canonical.json'), 'utf-8');
+    expect(source).not.toContain('echeancier_affiche');
   });
 
   test('groupes de 12 au maximum, ouverture à 6 inscrits payants', () => {
@@ -186,5 +228,18 @@ describe('Garde-fous de cohérence — ce qui a déjà produit une faute', () =>
     expect(produits_courts.adoptee_le).toBe('2026-10-16');
     expect(produits_courts.produits.map((p) => p.prix).sort((a, b) => a - b))
       .toEqual([450, 530, 620, 2090, 4070]);
+  });
+
+  /**
+   * La grille des produits courts est adoptée par la direction, mais son
+   * régime fiscal n'est pas attesté par le comptable et le dossier bloque
+   * « toute offre commerciale ferme » sur ce point. Elle reste donc dans la
+   * source canonique et hors de toute surface publique, sauf drapeau explicite.
+   */
+  test('les prix des produits courts ne sont pas publiés sans drapeau', () => {
+    expect(produitsCourtsPublies({})).toBe(false);
+    expect(produitsCourtsPublies({ PRODUITS_COURTS_PUBLIES: 'false' })).toBe(false);
+    expect(produitsCourtsPublies({ PRODUITS_COURTS_PUBLIES: '1' })).toBe(false);
+    expect(produitsCourtsPublies({ PRODUITS_COURTS_PUBLIES: 'true' })).toBe(true);
   });
 });

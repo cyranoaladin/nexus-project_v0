@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { fmtMontant } from '@/components/premium/format';
-import { getCandidatsLibres2027, getFraisDossier, jourMois, suffixeDerniereEcheance } from '@/lib/candidats-libres-2027';
+import { echeanciersParMoisEntree, getCandidatsLibres2027, getFraisDossier, jourMois } from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
 
@@ -31,7 +31,8 @@ export function CandidatsLibresParcours() {
       <div className="grid gap-6 md:grid-cols-3">
         {data.parcours.map((p) => {
           const titreId = `offre-cl-${p.id}`;
-          const echeancier = p.echeancier_affiche === 8 ? p.echeancier_8 : p.echeancier_9;
+          const entrees = echeanciersParMoisEntree(p, maintenant);
+          const enAvant = entrees.find((e) => e.enAvant) ?? entrees[0];
           return (
             <article
               key={p.id}
@@ -46,13 +47,20 @@ export function CandidatsLibresParcours() {
               <p className="lux-eyebrow mt-1">{p.accroche}</p>
               <h3 id={titreId} className="mt-2 font-fraunces text-xl text-lux-ink">{p.titre}</h3>
               <p className="mt-4 font-fraunces text-3xl font-light tabular-nums text-lux-ink">
-                {fmtMontant(echeancier.mensualite)}
+                {fmtMontant(enAvant.echeancier.mensualite)}
                 <span className="ml-1 font-body text-sm text-lux-slate">{NBSP}TND / mois</span>
               </p>
+              {/* Les deux entrées, jamais une seule : c'est le même prix annuel
+                  réparti depuis le mois où la famille s'inscrit réellement. */}
+              <ul className="mt-1 space-y-0.5 text-sm text-lux-slate">
+                {entrees.map((e) => (
+                  <li key={e.versements} className={e.enAvant ? 'text-lux-ink' : ''}>
+                    {e.cadence} · {e.montants} · {e.entree}
+                  </li>
+                ))}
+              </ul>
               <p className="mt-1 text-sm text-lux-slate">
-                × {p.echeancier_affiche} mensualités
-                {suffixeDerniereEcheance(echeancier)}
-                {' · '}{fmtMontant(p.prix_annuel)}{NBSP}TND / an · comptant {fmtMontant(p.comptant)}{NBSP}TND
+                {fmtMontant(p.prix_annuel)}{NBSP}TND / an · comptant {fmtMontant(p.comptant)}{NBSP}TND
               </p>
               <FraisDossier id={p.id} maintenant={maintenant} />
               {p.id === 'terminale' ? (

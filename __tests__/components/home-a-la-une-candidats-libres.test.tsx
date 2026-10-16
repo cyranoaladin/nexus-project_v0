@@ -27,9 +27,15 @@ describe('Accueil — à la une candidats libres 2027', () => {
     const bloc = screen.getByRole('region', { name: /candidat libre/i });
     const texte = espaces(bloc.textContent ?? '');
     expect(texte).toMatch(/À la une/);
+    // Les deux entrées de chaque parcours, jamais une seule : au 14/10 celle
+    // d'octobre est en avant, celle de novembre reste lisible à côté.
+    expect(texte).toContain('580 TND');
     expect(texte).toContain('650 TND');
     expect(texte).toContain('850 TND');
+    expect(texte).toContain('950 TND');
     expect(texte).toContain('1 290 TND');
+    expect(texte).toMatch(/dès octobre/);
+    expect(texte).toMatch(/dès novembre/);
     expect(texte).toMatch(/Terminale.*12\/11 à 18 h/);
     expect(texte).toMatch(/Frais de dossier offerts jusqu’au 31\/10/);
     expect(within(bloc).getByRole('link', { name: /parcours et les prix/i })).toHaveAttribute('href', '/bac-candidat-libre');
@@ -47,7 +53,9 @@ describe('Accueil — à la une candidats libres 2027', () => {
     expect(avant.fraisDossier).toMatch(/250\sTND.*Bac en 1 an/);
     const apres = getALaUneCandidatsLibres(new Date('2026-11-15T10:00:00+01:00'))!;
     expect(apres.fraisDossier).toMatch(/Frais de dossier.*250\sTND/);
-    expect(avant.parcours.find((p) => p.id === 'terminale')!.derniere).toBe(800);
+    const terminale = avant.parcours.find((p) => p.id === 'terminale')!;
+    expect(terminale.entrees.map((e) => [e.nbMensualites, e.mensualite, e.derniere, e.enAvant]))
+      .toEqual([[9, 850, 800, true], [8, 950, 950, false]]);
   });
 
   test('le 15/11 : la Terminale est close, seule la Première est annoncée', () => {

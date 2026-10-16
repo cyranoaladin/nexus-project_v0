@@ -82,8 +82,33 @@ describe('OffresPage', () => {
     for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
       expect(within(section).getByRole('article', { name: new RegExp(niveau) })).toHaveTextContent(/frais de dossier/i);
     }
-    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800/);
+    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/8 × 850 puis 800 TND/);
     expect(section.textContent).not.toMatch(/tout compris/i);
+  });
+
+  /**
+   * Les deux entrées, jamais une seule : c'est le même prix annuel réparti
+   * depuis le mois où la famille s'inscrit, pas deux offres concurrentes.
+   */
+  it('cartes candidats libres : les DEUX échéanciers, chacun étiqueté par son mois', () => {
+    render(<OffresPage />);
+    const section = screen.getByTestId('section-libre');
+    const premiere = within(section).getByRole('article', { name: /Première/ });
+    expect(premiere).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 580 puis 560 TND.*pour une inscription en octobre/);
+    expect(premiere).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 650 TND.*pour une inscription en novembre/);
+  });
+
+  /**
+   * Le Diagnostic du bloc Boussole appartient au catalogue scolarisés : son
+   * prix n'est pas touché. Sans la mention du périmètre, une famille candidat
+   * libre — qui a déjà un Diagnostic à 190/290, déduit une seule fois — croit
+   * à une seconde déduction.
+   */
+  it('Diagnostic Stratégique : la déduction est bornée au parcours annuel scolarisés', () => {
+    const { container } = render(<OffresPage />);
+    const carte = container.querySelector('#diagnostic')!;
+    expect(carte).toHaveTextContent('Diagnostic Stratégique');
+    expect(carte).toHaveTextContent('Déductible du parcours annuel scolarisés');
   });
 
   it('ne vend plus la plateforme ARIA seule (décision D11)', () => {

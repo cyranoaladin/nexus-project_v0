@@ -9,7 +9,8 @@ import {
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
   jourMois,
-  texteEcheancierProse,
+  echeanciersParMoisEntree,
+  produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -34,7 +35,7 @@ function ligneParcours(p: ParcoursCandidatLibre, maintenant: Date): string {
   const frais = getFraisDossier(p.id, maintenant);
   return (
     `- **${p.titre}** : ${tnd(p.prix_annuel)} par an — ` +
-    `${texteEcheancierProse(p.echeancier_9, 9)}, ou ${texteEcheancierProse(p.echeancier_8, 8)}, ` +
+    `${echeanciersParMoisEntree(p, maintenant).map((e) => `${e.cadence} — ${e.montants}, ${e.entree}`).join(' ; ')} ; ` +
     `ou ${tnd(p.comptant)} comptant. ${p.heures_cours} h de cours, ${p.copies_corrigees} copies d’épreuves blanches corrigées, ` +
     `${p.oraux.toLowerCase()}, ${p.bilans} bilans avec la famille. En sus, frais de dossier et d’accompagnement Cyclades : ${tnd(frais.montant)}` +
     `${frais.offertJusquAu ? ` (offerts pour une inscription conclue jusqu’au ${dateLongue(frais.offertJusquAu)})` : ''}. Public : ${p.public}`
@@ -144,7 +145,7 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
     ...data.parcours.flatMap((p) => [
       `### ${p.titre}`,
       '',
-      `- Prix : ${tnd(p.prix_annuel)} par an ; 9 × ${tnd(p.echeancier_9.mensualite)} (dernière mensualité ${tnd(p.echeancier_9.derniere)}), 8 × ${tnd(p.echeancier_8.mensualite)}, ou ${tnd(p.comptant)} comptant.`,
+      `- Prix : ${tnd(p.prix_annuel)} par an, réparti depuis le mois de l’inscription ; ${echeanciersParMoisEntree(p, maintenant).map((e) => `${e.cadence} — ${e.montants}, ${e.entree}`).join(' ; ')} ; ou ${tnd(p.comptant)} comptant.`,
       `- Volume : ${p.heures_cours} h de cours${p.repartition.length > 0 ? ` (${p.repartition.map((r) => `${r.matiere} ${r.heures} h`).join(', ')})` : ''}.`,
       `- Inclus : ${p.copies_corrigees} copies d’épreuves blanches corrigées, ${p.oraux.toLowerCase()}, ${p.bilans} bilans avec la famille.`,
       `- Créneaux : ${p.creneaux}.`,
@@ -157,14 +158,20 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
     `- Première : ${creneaux('premiere')}.`,
     `- Charge maximale hors stage : ${edt.charge_max_hors_stage}.`,
     '',
-    '## Stages à la carte',
-    '',
-    `${data.produits_courts.note}`,
-    ...data.produits_courts.produits.map((p) => `- ${p.libelle} : ${tnd(p.prix)}, ${p.contenu}, ${p.paiement}.`),
-    '',
+    // Grille adoptée le 16/10/2026, régime fiscal non attesté par le
+    // comptable : aucune offre commerciale ferme publiée sans le drapeau.
+    ...(produitsCourtsPublies()
+      ? [
+          '## Stages à la carte',
+          '',
+          `${data.produits_courts.note}`,
+          ...data.produits_courts.produits.map((p) => `- ${p.libelle} : ${tnd(p.prix)}, ${p.contenu}, ${p.paiement}.`),
+          '',
+        ]
+      : []),
     '## Questions fréquentes sur le bac français en candidat libre',
     '',
-    ...construireFaq(data).flatMap((q) => [`### ${q.question}`, '', q.reponse, '']),
+    ...construireFaq(data, { produitsCourts: produitsCourtsPublies() }).flatMap((q) => [`### ${q.question}`, '', q.reponse, '']),
     ...pagesCles(),
     ...engagements(),
   ].join('\n');

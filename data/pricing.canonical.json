@@ -2022,7 +2022,6 @@
           "derniere": 650
         },
         "comptant": 4940,
-        "echeancier_affiche": 8,
         "heures_cours": 189,
         "repartition": [
           {
@@ -2077,7 +2076,6 @@
           "derniere": 950
         },
         "comptant": 7220,
-        "echeancier_affiche": 9,
         "heures_cours": 285,
         "repartition": [
           {
@@ -2136,7 +2134,6 @@
           "derniere": 1450
         },
         "comptant": 11020,
-        "echeancier_affiche": 9,
         "heures_cours": 511,
         "repartition": [],
         "copies_corrigees": 18,

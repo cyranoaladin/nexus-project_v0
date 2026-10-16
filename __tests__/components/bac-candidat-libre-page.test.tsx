@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 
 import BacCandidatLibrePage, { metadata, revalidate } from '@/app/bac-candidat-libre/page';
 import { fmtPrice as fmtBrut } from '@/components/premium/format';
+import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
 
 jest.mock('next/link', () => {
@@ -53,20 +54,39 @@ describe('/bac-candidat-libre', () => {
     expect(h1[0]).toHaveTextContent(/bac français/i);
   });
 
-  test('les trois parcours avec leur prix annuel et leur mensualité affichée', () => {
+  /**
+   * Les DEUX entrées sont rendues sur chaque carte, chacune avec son mois
+   * d'inscription. Afficher la seule entrée d'octobre trompe une famille de
+   * novembre ; afficher la seule entrée de novembre montre à une famille
+   * d'octobre un mensuel plus élevé que le sien.
+   *
+   * Le brief du 13/10 qui fixait la Première à huit mensualités porte sur la
+   * créative vidéo diffusée du 01/11 au 20/11, pas sur cette page.
+   */
+  test('les trois parcours : prix annuel et les DEUX échéanciers étiquetés par leur mois', () => {
     renderAu('2026-10-14T10:00:00+01:00');
     const premiere = screen.getByRole('article', { name: /Première/ });
-    expect(premiere).toHaveTextContent(fmtPrice(650));
-    expect(premiere).toHaveTextContent(/8 mensualités/);
     expect(premiere).toHaveTextContent(fmtPrice(5200));
+    expect(premiere).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 580 puis 560 TND.*pour une inscription en octobre/);
+    expect(premiere).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 650 TND.*pour une inscription en novembre/);
     const terminale = screen.getByRole('article', { name: /Terminale/ });
-    expect(terminale).toHaveTextContent(fmtPrice(850));
-    expect(terminale).toHaveTextContent(/9 mensualités/);
     expect(terminale).toHaveTextContent(fmtPrice(7600));
+    expect(terminale).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 850 puis 800 TND.*pour une inscription en octobre/);
+    expect(terminale).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 950 TND.*pour une inscription en novembre/);
     const b1a = screen.getByRole('article', { name: /Bac en 1 an/ });
-    expect(b1a).toHaveTextContent(fmtPrice(1290));
     expect(b1a).toHaveTextContent(fmtPrice(11600));
+    expect(b1a).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 1 290 puis 1 280 TND.*pour une inscription en octobre/);
+    expect(b1a).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 1 450 TND.*pour une inscription en novembre/);
     expect(b1a).toHaveTextContent(/éligibilité/i);
+  });
+
+  test('l’entrée mise en avant est celle de la date du jour', () => {
+    renderAu('2026-10-14T10:00:00+01:00');
+    expect(screen.getByRole('article', { name: /Première/ }))
+      .toHaveTextContent(`${fmtPrice(580)} TND / mois`);
+    renderAu('2026-11-05T10:00:00+01:00');
+    expect(screen.getAllByRole('article', { name: /Première/ }).at(-1))
+      .toHaveTextContent(`${fmtPrice(650)} TND / mois`);
   });
 
   test('groupes de 12 au plus, et ce qui n’est pas préparé', () => {
@@ -108,7 +128,34 @@ describe('/bac-candidat-libre', () => {
 
   test('la dernière mensualité ajustée est indiquée (Terminale : 8 × 850 puis 800)', () => {
     renderAu('2026-10-14T10:00:00+01:00');
-    expect(screen.getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800 TND/);
+    expect(screen.getByRole('article', { name: /Terminale/ })).toHaveTextContent(/8 × 850 puis 800 TND/);
+  });
+
+  /**
+   * Les prix des produits courts sont adoptés par la direction mais leur
+   * régime fiscal n'est pas attesté par le comptable : le dossier bloque
+   * « toute offre commerciale ferme » sur ce point. Rien n'en sort tant que le
+   * drapeau n'est pas levé.
+   */
+  describe('produits courts — non publiés tant que le régime fiscal n’est pas attesté', () => {
+    const produits = getCandidatsLibres2027().produits_courts.produits;
+    afterEach(() => { delete process.env.PRODUITS_COURTS_PUBLIES; });
+
+    test('sans drapeau : ni la section, ni les libellés, ni la question de FAQ', () => {
+      renderAu('2026-10-14T10:00:00+01:00');
+      expect(screen.queryByRole('heading', { name: /produits courts/i })).not.toBeInTheDocument();
+      for (const produit of produits) {
+        expect(document.body.textContent).not.toContain(produit.libelle);
+      }
+      expect(document.body.textContent).not.toMatch(/suivre un stage seul/i);
+    });
+
+    test('drapeau levé : la section et les prix reviennent sans autre changement', () => {
+      process.env.PRODUITS_COURTS_PUBLIES = 'true';
+      renderAu('2026-10-14T10:00:00+01:00');
+      expect(screen.getByRole('heading', { name: /produits courts/i })).toBeInTheDocument();
+      expect(document.body.textContent).toContain(produits[0].libelle);
+    });
   });
 
   test('adresse du centre et contact WhatsApp', () => {
