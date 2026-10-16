@@ -176,7 +176,8 @@ function buildNotes(
 
 /**
  * Téléphone qui reçoit les réservations. À défaut de réglage, c'est le numéro
- * WhatsApp de la maison (99 19 28 29) : la notification part, sans dépendre
+ * WhatsApp de la maison, repris de sa source unique `lib/whatsapp.ts` — le
+ * numéro n'est pas écrit ici : la notification part sans dépendre
  * d'une variable d'environnement oubliée.
  */
 function orderRecipient(): string {
