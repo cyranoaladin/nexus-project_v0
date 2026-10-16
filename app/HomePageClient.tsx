@@ -235,8 +235,6 @@ export function HomePageClient({
 
       {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
 
-      <ManuelsBanner asHeader={Boolean(!campaign)} />
-
       {/* Données structurées FAQ (mêmes questions que l’accordéon affiché plus bas) — JSON-LD statique construit par JSON.stringify sur des données du dépôt. */}
       {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}
       <script
@@ -259,6 +257,13 @@ export function HomePageClient({
 
       {/* 1 bis. À la une — campagne candidats libres de la session (coupée à la clôture des inscriptions) */}
       {aLaUne && <CandidatsLibresALaUne aLaUne={aLaUne} />}
+
+      {/* 1 ter. Manuels des candidats individuels — sous le héros, et non
+          au-dessus : l'emplacement d'en-tête est déjà pris par le spotlight,
+          et deux blocs promotionnels avant le héros repoussent le CTA
+          principal hors du premier écran sur un téléphone de 390 px
+          (e2e/auth/pages-public-homepage-mobile.spec.ts). */}
+      <ManuelsBanner asHeader={false} />
 
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />
