@@ -22,6 +22,7 @@ import {
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { ManuelsBanner } from '@/components/marketing/ManuelsBanner';
 import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
@@ -233,6 +234,8 @@ export function HomePageClient({
       <CorporateNavbar />
 
       {campaign && <PreRentreeCampaignSpotlight campaign={campaign} />}
+
+      <ManuelsBanner asHeader={Boolean(!campaign)} />
 
       {/* Données structurées FAQ (mêmes questions que l’accordéon affiché plus bas) — JSON-LD statique construit par JSON.stringify sur des données du dépôt. */}
       {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}

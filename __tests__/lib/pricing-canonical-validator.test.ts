@@ -327,6 +327,9 @@ describe('T12 — French labels keep required accents', () => {
       'floor_type',
       'type',
       'track',
+      // Discriminant technique du catalogue des manuels, jamais affiché :
+      // ses valeurs sont des identifiants kebab-case ('epreuve-anticipee-maths').
+      'family',
       'level',
       'public',
       'effectif',

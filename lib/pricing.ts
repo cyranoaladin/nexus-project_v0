@@ -9,6 +9,12 @@
  */
 import 'server-only';
 import pricingData from '@/data/pricing.canonical.json';
+import type {
+  ManuelDiscipline,
+  ManuelsBareme,
+  ManuelsCatalogue,
+  ManuelVolume,
+} from './manuels/types';
 
 // ── Types ──
 
@@ -326,6 +332,25 @@ export interface OperationalSpecialPack {
   features: string[];
 }
 
+// ── Manuels pour candidats individuels ──
+//
+// Bloc `manuels` ENGENDRÉ : voir son `_note`. Les paginations viennent des
+// MANIFEST.json de la zone de publication, le barème v2 a été adopté le
+// 2026-10-15. Les types vivent dans lib/manuels/types.ts, hors de ce module
+// `server-only`, pour que la page publique puisse les lire côté navigateur.
+// Le calcul vit dans lib/manuels/pricing.ts, qui lit ces données sans en
+// redéfinir aucune.
+
+export type {
+  ManuelDiscipline,
+  ManuelFamily,
+  ManuelsBareme,
+  ManuelsBaremeTier,
+  ManuelsCatalogue,
+  ManuelsPaperBareme,
+  ManuelVolume,
+} from './manuels/types';
+
 export interface PricingData {
   version: string;
   _note?: string;
@@ -351,6 +376,7 @@ export interface PricingData {
   operational_special_packs: Record<string, OperationalSpecialPack>;
   operational_credit_costs: Record<string, number>;
   carte_nexus: CarteNexus;
+  manuels: ManuelsCatalogue;
   urgence: Record<string, { title: string; display: string; hourly?: number; amount?: number }>;
   reperes_tarifaires: {
     brevetMois: string;
@@ -727,6 +753,24 @@ export function getSubscriptionTiers(): SubscriptionTier[] {
 
 export function getSubscriptionTier(id: string): SubscriptionTier | undefined {
   return data.subscription_tiers.find((t) => t.id === id);
+}
+
+// ── Manuels pour candidats individuels ──
+
+export function getManuels(): ManuelsCatalogue {
+  return data.manuels;
+}
+
+export function getManuelsBareme(): ManuelsBareme {
+  return data.manuels.bareme;
+}
+
+export function getManuelVolume(id: string): ManuelVolume | undefined {
+  return data.manuels.volumes.find((v) => v.id === id);
+}
+
+export function getManuelDisciplines(): ManuelDiscipline[] {
+  return data.manuels.disciplines;
 }
 
 // ── Full data export (for tests) ──

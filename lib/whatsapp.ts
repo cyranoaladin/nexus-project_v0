@@ -9,6 +9,13 @@ const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '21699192829';
 
 /**
+ * Numéro WhatsApp de la maison, au format international sans « + ».
+ * Exporté pour les envois serveur (réservations de manuels), qui ont besoin
+ * du numéro lui-même et non d'un lien de discussion.
+ */
+export const WHATSAPP_CONTACT_NUMBER = WHATSAPP_NUMBER;
+
+/**
  * Build a WhatsApp click-to-chat URL with a contextual pre-filled message.
  *
  * @param context – free-form context used to personalise the greeting.
