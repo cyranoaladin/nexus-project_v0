@@ -272,8 +272,12 @@ describe('Public lux-* charte guard', () => {
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {
+    // `/espace` rejoint les groupes privés déjà écartés : son layout déclare
+    // `robots: { index: false, follow: false }`, le middleware le protège
+    // derrière `/espace/connexion`, et le plan du site l'ignore. La charte
+    // lux-* vise les surfaces publiques indexées ; celles-ci n'en sont pas.
     const allPages = execSync(
-      "find app -name 'page.tsx' -not -path '*/dashboard/*' -not -path '*/api/*' -not -path '*/auth/*' -not -path '*/session/*'",
+      "find app -name 'page.tsx' -not -path '*/dashboard/*' -not -path '*/api/*' -not -path '*/auth/*' -not -path '*/session/*' -not -path '*/espace/*'",
       { encoding: 'utf-8', cwd: root },
     )
       .trim()
