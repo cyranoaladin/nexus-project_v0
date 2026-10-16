@@ -1,0 +1,1366 @@
+<title>Inscription Bac Général 2027</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap">
+
+<style>
+/* Dossier administratif : bandeau d'échéance collant, colonne de lecture étroite,
+   filets or entre les sections, encadrés de danger en rouge Réussite. */
+:root{
+  --bleu:#0257A7; --rouge:#E0121C; --navy:#07112A; --or:#C49526;
+  --bg:#F7F8FB; --surface:#FFFFFF; --fg:#131A28; --fg-doux:#515D73;
+  --trait:#D8DEE9; --trait-fin:#E9EDF4;
+  --alerte-bg:#FDF1F1; --alerte-bord:#E8B4B4;
+  --ok-bg:#EEF4FB; --ok-bord:#B9CFE8;
+  --or-bg:#FBF6EA; --or-bord:#E5D2A4;
+  --ombre:0 1px 2px rgba(7,17,42,.06), 0 8px 24px -16px rgba(7,17,42,.26);
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --corps:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --gouttiere:max(16px,env(safe-area-inset-left,0px));
+  --gouttiere-d:max(16px,env(safe-area-inset-right,0px));
+  --sur-sombre:#FFFFFF; --sur-sombre-1:#C8D6EC; --sur-sombre-2:#B9C6DC;
+  --sur-sombre-3:#9FB4D4; --sur-sombre-4:#8FA2C0; --lien-sombre:#9CC4EE;
+  --alerte-sur-sombre:#FFB4AE;
+  --rouge-texte:#D0111A; --or-texte:#85651A;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bleu:#6FA8E4; --rouge:#FF7A72; --navy:#030812; --or:#D8B458;
+  --bg:#0A1020; --surface:#111A2C; --fg:#E8EDF6; --fg-doux:#9AA8BF;
+  --trait:#263349; --trait-fin:#1B2537;
+  --alerte-bg:#2A1518; --alerte-bord:#5E2A2C;
+  --ok-bg:#101F33; --ok-bord:#27405C;
+  --or-bg:#241E10; --or-bord:#4A3C1C;
+  --ombre:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  --rouge-texte:#FF7A72; --or-texte:#D8B458;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bleu:#6FA8E4; --rouge:#FF7A72; --navy:#030812; --or:#D8B458;
+  --bg:#0A1020; --surface:#111A2C; --fg:#E8EDF6; --fg-doux:#9AA8BF;
+  --trait:#263349; --trait-fin:#1B2537;
+  --alerte-bg:#2A1518; --alerte-bord:#5E2A2C;
+  --ok-bg:#101F33; --ok-bord:#27405C;
+  --or-bg:#241E10; --or-bord:#4A3C1C;
+  --ombre:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  --rouge-texte:#FF7A72; --or-texte:#D8B458;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--corps);font-size:16.5px;line-height:1.62;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--navy)}
+
+.enveloppe{max-width:1180px;margin:0 auto;padding-left:var(--gouttiere);padding-right:var(--gouttiere-d)}
+
+/* ---------- Bandeau d'échéance ---------- */
+.echeance{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--navy);color:var(--sur-sombre);border-bottom:2px solid var(--or)}
+.echeance .enveloppe{display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding-block:9px}
+.echeance-titre{font-size:.72rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--sur-sombre-1);margin:0}
+.compte{display:flex;gap:8px;margin-left:auto}
+.compte div{min-width:46px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:5px;padding:3px 7px}
+.compte b{display:block;font-size:1.02rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.compte span{display:block;font-size:.58rem;letter-spacing:.09em;text-transform:uppercase;color:var(--sur-sombre-3)}
+.compte.fini{font-size:.82rem;font-weight:600;color:var(--alerte-sur-sombre);align-self:center}
+
+/* ---------- Tête ---------- */
+.tete{background:var(--surface);border-bottom:1px solid var(--trait)}
+.tete .enveloppe{padding-block:44px 38px}
+.marque{display:flex;align-items:center;gap:10px;font-size:.74rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--bleu);margin-bottom:22px}
+.marque::after{content:"";flex:1;height:1px;background:var(--or);opacity:.55}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2.1rem,6vw,3.5rem);line-height:1.08;letter-spacing:-.015em;margin:0 0 14px;text-wrap:balance;max-width:17ch}
+.sous{font-size:clamp(1rem,2.4vw,1.16rem);color:var(--fg-doux);max-width:56ch;margin:0 0 26px;font-weight:300}
+.sous strong{color:var(--fg);font-weight:600}
+
+.ouverture{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--trait);border:1px solid var(--trait);border-radius:9px;overflow:hidden;margin-top:30px}
+.ouverture div{background:var(--surface);padding:15px 17px}
+.ouverture dt{font-size:.67rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-doux);margin:0 0 5px}
+.ouverture dd{margin:0;font-size:1.03rem;font-weight:600;font-variant-numeric:tabular-nums}
+.ouverture .pic dd{color:var(--rouge)}
+
+/* ---------- Sommaire ---------- */
+.plan{background:var(--surface);border-bottom:1px solid var(--trait)}
+.plan .enveloppe{padding-block:18px}
+.plan ol{list-style:none;display:flex;flex-wrap:wrap;gap:7px;margin:0;padding:0;counter-reset:p}
+.plan a{counter-increment:p;display:block;font-size:.8rem;font-weight:500;color:var(--fg-doux);text-decoration:none;border:1px solid var(--trait);border-radius:999px;padding:5px 13px;transition:all .15s}
+.plan a::before{content:counter(p) " ";color:var(--or-texte);font-weight:700}
+.plan a:hover,.plan a:focus-visible{color:var(--bleu);border-color:var(--bleu);background:var(--ok-bg)}
+
+/* ---------- Corps ---------- */
+main .enveloppe{padding-block:0 60px}
+section{padding-block:40px;border-top:1px solid var(--trait-fin)}
+section:first-of-type{border-top:0}
+.num{font-family:var(--corps);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--or-texte);display:block;margin-bottom:8px}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(1.6rem,4vw,2.35rem);line-height:1.14;letter-spacing:-.01em;margin:0 0 8px;text-wrap:balance;max-width:24ch}
+h3{font-size:1.08rem;font-weight:600;margin:30px 0 9px;letter-spacing:-.005em}
+h4{font-size:.93rem;font-weight:600;margin:20px 0 7px}
+p,li{max-width:68ch}
+p{margin:0 0 13px}
+a{color:var(--bleu);text-underline-offset:2px}
+strong{font-weight:600}
+.chapo{font-size:1.05rem;color:var(--fg-doux);max-width:62ch;margin-bottom:22px;font-weight:300}
+ul,ol{padding-left:1.15em;margin:0 0 14px}
+li{margin-bottom:6px}
+
+/* ---------- Encadrés ---------- */
+.bloc{border-radius:9px;padding:16px 18px;margin:20px 0;border:1px solid var(--trait);background:var(--surface);box-shadow:var(--ombre)}
+.bloc > :last-child{margin-bottom:0}
+.bloc p,.bloc li{max-width:62ch}
+.bloc-titre{display:flex;align-items:baseline;gap:9px;font-size:.69rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;margin:0 0 9px}
+.danger{background:var(--alerte-bg);border-color:var(--alerte-bord)}
+.danger .bloc-titre{color:var(--rouge-texte)}
+.info{background:var(--ok-bg);border-color:var(--ok-bord)}
+.info .bloc-titre{color:var(--bleu)}
+.nexus{background:var(--or-bg);border-color:var(--or-bord)}
+.nexus .bloc-titre{color:var(--or-texte)}
+blockquote{margin:16px 0;padding:2px 0 2px 16px;border-left:3px solid var(--or);color:var(--fg-doux);font-style:italic;max-width:64ch}
+blockquote p:last-child{margin-bottom:0}
+
+/* ---------- Tableaux ---------- */
+.table-boite{overflow-x:auto;margin:18px 0;border:1px solid var(--trait);border-radius:9px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:min(100%,460px)}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--trait-fin);vertical-align:top}
+thead th{background:var(--ok-bg);font-size:.68rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--fg-doux);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tfoot td{font-weight:700;background:var(--or-bg);border-top:2px solid var(--or-bord)}
+.pastille{display:inline-block;font-size:.72rem;font-weight:600;padding:1px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pastille.oui{color:var(--bleu)}
+.pastille.non{color:var(--rouge-texte)}
+
+/* ---------- Jalons ---------- */
+.jalons{list-style:none;padding:0;margin:22px 0;position:relative}
+.jalons::before{content:"";position:absolute;left:7px;top:9px;bottom:9px;width:2px;background:var(--trait)}
+.jalons li{position:relative;padding-left:30px;margin-bottom:17px;max-width:62ch}
+.jalons li::before{content:"";position:absolute;left:1px;top:7px;width:14px;height:14px;border-radius:50%;background:var(--surface);border:3px solid var(--trait)}
+.jalons li.cle::before{border-color:var(--rouge)}
+.jalons li.fait::before{border-color:var(--bleu);background:var(--bleu)}
+.jalons dfn{display:block;font-style:normal;font-weight:700;font-size:.96rem;font-variant-numeric:tabular-nums}
+.jalons span{display:block;color:var(--fg-doux);font-size:.92rem}
+
+/* ---------- Check-list ---------- */
+.liste{list-style:none;padding:0;margin:14px 0}
+.liste li{margin:0;border-bottom:1px solid var(--trait-fin)}
+.liste li:last-child{border-bottom:0}
+.liste label{display:flex;gap:11px;align-items:flex-start;padding:11px 2px;cursor:pointer;max-width:66ch}
+.liste input{margin:4px 0 0;width:17px;height:17px;accent-color:var(--bleu);flex:none;cursor:pointer}
+.liste label span{min-width:0}
+.liste input:checked + span{color:var(--fg-doux);text-decoration:line-through;text-decoration-color:var(--or)}
+.avancement{display:flex;align-items:center;gap:11px;font-size:.82rem;color:var(--fg-doux);margin-top:12px}
+.avancement .barre{flex:1;height:5px;border-radius:999px;background:var(--trait);overflow:hidden;min-width:0}
+.avancement .barre i{display:block;height:100%;background:var(--bleu);width:0;transition:width .25s}
+.reinit{font:inherit;font-size:.78rem;background:none;border:1px solid var(--trait);color:var(--fg-doux);border-radius:999px;padding:3px 11px;cursor:pointer}
+.reinit:hover{border-color:var(--bleu);color:var(--bleu)}
+
+/* ---------- Situations ---------- */
+details{border:1px solid var(--trait);border-radius:9px;background:var(--surface);margin-bottom:9px;overflow:hidden}
+details[open]{box-shadow:var(--ombre)}
+summary{cursor:pointer;padding:13px 16px;font-weight:600;font-size:.98rem;list-style:none;display:flex;align-items:center;gap:11px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";margin-left:auto;font-size:1.25rem;font-weight:400;color:var(--or-texte);line-height:1}
+details[open] summary::after{content:"–"}
+summary:hover{background:var(--ok-bg)}
+.details-corps{padding:2px 16px 16px;border-top:1px solid var(--trait-fin)}
+.details-corps > :first-child{margin-top:13px}
+.details-corps > :last-child{margin-bottom:0}
+
+/* ---------- Pièges ---------- */
+.pieges{list-style:none;padding:0;margin:20px 0;counter-reset:g;display:grid;gap:9px}
+.pieges li{counter-increment:g;position:relative;padding:13px 16px 13px 50px;background:var(--surface);border:1px solid var(--trait);border-radius:9px;margin:0;max-width:none}
+.pieges li::before{content:counter(g);position:absolute;left:15px;top:13px;font-size:.84rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--rouge-texte);width:22px}
+.pieges b{font-weight:600}
+
+/* ---------- Contact ---------- */
+.contacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:20px 0}
+.carte{background:var(--surface);border:1px solid var(--trait);border-radius:9px;padding:17px 19px;box-shadow:var(--ombre)}
+.carte h3{margin-top:0}
+.carte p{font-size:.93rem}
+.copiable{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:9px 0}
+.copiable code{font-family:var(--corps);font-size:.88rem;font-weight:500;background:var(--ok-bg);border:1px solid var(--ok-bord);border-radius:5px;padding:3px 9px;word-break:break-all;min-width:0}
+.copier{font:inherit;font-size:.74rem;font-weight:600;background:var(--bleu);color:var(--sur-sombre);border:0;border-radius:999px;padding:4px 12px;cursor:pointer;flex:none}
+.copier:hover{filter:brightness(1.1)}
+.copier[data-ok="1"]{background:var(--or)}
+
+/* ---------- Pied ---------- */
+footer{background:var(--navy);color:var(--sur-sombre-2);margin-top:16px}
+footer .enveloppe{padding-block:36px 46px}
+.sur-sombre{color:var(--sur-sombre)}
+footer h2{color:var(--sur-sombre);font-size:1.3rem;margin-bottom:12px}
+footer p,footer li{font-size:.88rem;max-width:72ch;color:var(--sur-sombre-2)}
+footer a{color:var(--lien-sombre)}
+footer .table-boite{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.14)}
+footer table{font-size:.82rem}
+footer th,footer td{border-bottom-color:rgba(255,255,255,.1);color:var(--sur-sombre-2)}
+footer thead th{background:rgba(255,255,255,.05);color:var(--sur-sombre-4)}
+.mention{border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:15px 17px;margin:20px 0;background:rgba(224,18,28,.07)}
+.mention strong{color:var(--sur-sombre)}
+
+:focus-visible{outline:2px solid var(--or);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:560px){
+  .echeance .enveloppe{padding-block:7px}
+  .compte div{min-width:40px;padding:2px 5px}
+  .compte b{font-size:.9rem}
+  .tete .enveloppe{padding-block:30px 28px}
+  section{padding-block:30px}
+}
+</style>
+
+<div class="echeance">
+  <div class="enveloppe">
+    <p class="echeance-titre">Clôture · jeudi 12 novembre 2026, 18 h</p>
+    <div class="compte" id="compte" aria-live="polite"></div>
+  </div>
+</div>
+
+<header class="tete">
+  <div class="enveloppe">
+    <p class="marque">Nexus Réussite · Tunis</p>
+    <h1>S’inscrire au baccalauréat général, session 2027</h1>
+    <p class="sous">Le mode d’emploi complet de la campagne Cyclades, pour les <strong>candidats
+      individuels en Tunisie</strong> et pour leurs parents. Tout ce qui suit vient de la note
+      d’inscription du Bureau des examens de Tunis, publiée le 15 octobre 2026.</p>
+    <dl class="ouverture">
+      <div><dt>Ouverture</dt><dd>16 oct. 2026, 8 h</dd></div>
+      <div class="pic"><dt>Clôture</dt><dd>12 nov. 2026, 18 h</dd></div>
+      <div><dt>Frais d’examen</dt><dd>1 000 TND</dd></div>
+      <div><dt>Paiement</dt><dd>En ligne, janvier 2027</dd></div>
+    </dl>
+  </div>
+</header>
+
+<nav class="plan" aria-label="Sommaire">
+  <div class="enveloppe">
+    <ol>
+      <li><a href="#essentiel">L’essentiel</a></li>
+      <li><a href="#avant">Avant de cliquer</a></li>
+      <li><a href="#dates">Le calendrier</a></li>
+      <li><a href="#changements">Ce qui change en 2027</a></li>
+      <li><a href="#cyclades">Cyclades, écran par écran</a></li>
+      <li><a href="#choix">Vos choix</a></li>
+      <li><a href="#pieces">Les pièces à fournir</a></li>
+      <li><a href="#situations">Votre situation</a></li>
+      <li><a href="#notes">Le calcul de la note</a></li>
+      <li><a href="#pieges">Les dix pièges</a></li>
+      <li><a href="#apres">Après le 12 novembre</a></li>
+      <li><a href="#parents">Questions des parents</a></li>
+      <li><a href="#contact">Qui contacter</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main>
+<div class="enveloppe">
+
+<section id="essentiel">
+  <span class="num">À retenir</span>
+  <h2>L’essentiel en une minute</h2>
+  <p class="chapo">Si vous ne lisez qu’un encadré, lisez celui-ci. Le reste de cette page est une
+    référence : consultez-la section par section, au moment où la question se pose.</p>
+  <div class="table-boite">
+    <table>
+      <tbody>
+        <tr><td><strong>Quand</strong></td><td>Du 16 octobre 2026 à 8 h au <strong>12 novembre 2026 à 18 h</strong>. Aucune prolongation.</td></tr>
+        <tr><td><strong>Où</strong></td><td>Sur <strong>Cyclades</strong>, depuis un <strong>ordinateur</strong> — le téléphone est exclu par la notice.</td></tr>
+        <tr><td><strong>Combien</strong></td><td><strong>1 000 TND</strong>, payés <strong>en ligne en janvier 2027</strong>. Sans ce paiement, l’inscription est annulée.</td></tr>
+        <tr><td><strong>Quoi déposer</strong></td><td>Confirmation signée, pièce d’identité et pièces selon votre situation, <strong>avant le 12 novembre 18 h</strong>. Une seule pièce manquante annule l’inscription.</td></tr>
+        <tr><td><strong>Ce qui devient définitif</strong></td><td>Spécialités, langues, EPS, options, forme de passage, conservation de notes. Plus aucune modification après la clôture.</td></tr>
+        <tr><td><strong>À savoir maintenant</strong></td><td>Le Bureau des examens est <strong>fermé jusqu’au 30 octobre</strong>, et le calendrier des épreuves en Tunisie <strong>n’est pas encore publié</strong>.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="avant">
+  <span class="num">Préliminaire</span>
+  <h2>Avant de cliquer, trois choses</h2>
+
+  <h3>1. Sur un ordinateur, jamais sur un téléphone</h3>
+  <p>La notice est formelle : « Les inscriptions sont réalisées uniquement par internet
+    <strong>sur un ordinateur et non sur un smartphone</strong> ». Ce n’est pas un conseil de
+    confort — le formulaire Cyclades ne se comporte pas correctement sur mobile, et une saisie
+    tronquée est une inscription perdue.</p>
+
+  <h3>2. C’est le candidat qui s’inscrit, pas le parent</h3>
+  <p>« L’inscription à un examen est un acte personnel. » Les parents peuvent, et devraient,
+    être assis à côté, relire, vérifier. Mais c’est le candidat qui saisit : c’est son état civil,
+    ce sont ses choix de spécialités, et ce sont ses conséquences.</p>
+
+  <h3>3. Prévoyez une vraie séance de 90 minutes</h3>
+  <p>Pas un quart d’heure volé entre deux cours. Il faut créer le compte, remplir cinq onglets,
+    scanner les pièces, relire le récapitulatif, signer, téléverser. Faites-le
+    <strong>tôt dans la fenêtre</strong>, pas le 12 novembre à 17 h : un scanner en panne ce
+    jour-là coûte une année.</p>
+
+  <div class="bloc info">
+    <p class="bloc-titre">Les deux seules adresses utiles</p>
+    <p><strong>Pour s’inscrire</strong> —
+      <a href="https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login">Cyclades, espace candidat</a></p>
+    <p><strong>Pour suivre la session</strong> —
+      <a href="https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/">Institut français de Tunisie, Examens &amp; concours</a></p>
+  </div>
+</section>
+
+<section id="dates">
+  <span class="num">Repères</span>
+  <h2>Le calendrier de votre année</h2>
+  <ol class="jalons">
+    <li class="fait"><dfn>16 octobre 2026, 8 h</dfn><span>Ouverture des inscriptions sur Cyclades.</span></li>
+    <li class="cle"><dfn>12 novembre 2026, 18 h</dfn><span><strong>Clôture.</strong> Inscription validée <em>et</em> pièces justificatives téléversées. Aucune modification ensuite.</span></li>
+    <li><dfn>4 décembre 2026, 18 h</dfn><span>Échéance propre aux candidats CNED en classe complète réglementée, qui sont inscrits par le CNED et n’ont que les pièces à déposer.</span></li>
+    <li class="cle"><dfn>Janvier 2027</dfn><span>Paiement des frais : <strong>1 000 TND, en ligne uniquement</strong>. Modalités et délais publiés sur la page de l’IFT.</span></li>
+    <li><dfn>À partir d’avril 2027</dfn><span>Mise à disposition des convocations dans Cyclades, rubrique « Mes documents ».</span></li>
+    <li><dfn>Avril 2027</dfn><span>Épreuves d’EPS.</span></li>
+    <li><dfn>Juin 2027</dfn><span>Épreuves écrites terminales. Le calendrier détaillé n’est pas encore publié.</span></li>
+    <li><dfn>1<sup>er</sup> trimestre 2028</dfn><span>Envoi du diplôme par la poste, à l’adresse saisie dans Cyclades.</span></li>
+  </ol>
+    <div class="bloc danger">
+    <p class="bloc-titre">Le Bureau des examens est fermé jusqu’au 30 octobre inclus</p>
+    <p>La page de l’Institut français affiche : « Le Bureau des examens et concours sera
+      <strong>fermé du 14 au 30 octobre inclus</strong> ». Cela tombe sur les deux premières
+      semaines de la fenêtre d’inscription.</p>
+    <p><strong>Conséquence concrète :</strong> si vous butez sur une question qui exige une
+      réponse du Bureau, n’attendez pas d’être bloqué le 10 novembre. Envoyez votre courriel
+      maintenant, il sera traité à la réouverture, et gardez-vous une marge de dix jours avant
+      la clôture.</p>
+  </div>
+  <div class="bloc">
+    <p>Le calendrier des épreuves en Tunisie n’est pas encore publié. Il paraîtra sur la page
+      web de l’IFT. Il n’est communiqué ni par courriel, ni par téléphone : inutile d’appeler.</p>
+  </div>
+
+  <h3>Ce qui est déjà publié, et ce qui ne l’est pas</h3>
+  <p>Le <strong>calendrier national</strong> de la session 2027 est paru (note de service du
+    24 août 2026, BO spécial n° 2 du 25 août 2026). <strong>Il ne vous est pas applicable tel
+    quel.</strong> Les centres ouverts à l’étranger relèvent d’une note de service distincte,
+    qui fixe des dates propres — en 2026, le groupe dont relève la Tunisie composait
+    <strong>une semaine avant la métropole</strong>. Cette note n’est pas parue pour 2027.</p>
+  <p><strong>N’extrapolez donc jamais les dates métropolitaines.</strong> Une seule exception,
+    écrite noir sur blanc dans la note nationale :</p>
+  <blockquote><p>« Les candidats des centres étrangers composent <strong>aux mêmes dates que la
+    métropole</strong> pour toutes les <strong>épreuves de remplacement</strong>. »</p></blockquote>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Épreuves de remplacement 2027 — applicables en Tunisie</th><th>Dates</th></tr></thead>
+      <tbody>
+        <tr><td>Écrits du baccalauréat général et technologique</td><td>du <strong>lundi 6 au jeudi 9 septembre 2027</strong></td></tr>
+        <tr><td>Français, épreuve anticipée</td><td><strong>jeudi 9 septembre 2027</strong></td></tr>
+        <tr><td>Mathématiques, épreuve anticipée</td><td><strong>vendredi 10 septembre 2027</strong>, le matin</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>C’est la seule date 2027 que l’on puisse aujourd’hui vous donner avec certitude.</p>
+</section></section>
+
+<section id="changements">
+  <span class="num">Session 2026 → 2027</span>
+  <h2>Ce qui change cette année</h2>
+  <p class="chapo">À lire même si vous connaissez déjà la procédure. Cinq choses ont changé,
+    et deux d’entre elles peuvent faire annuler une candidature.</p>
+
+  <h3>Tout est dématérialisé, y compris le paiement</h3>
+  <p>C’est la nouveauté annoncée en tête de la notice.</p>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th></th><th>Session 2026</th><th>Session 2027</th></tr></thead>
+      <tbody>
+        <tr><td>Montant</td><td>680 TND</td><td><strong>1 000 TND</strong></td></tr>
+        <tr><td>Moyen</td><td>Chèque certifié à l’ordre de l’Agent comptable de l’ERT</td><td><strong>Paiement en ligne, exclusivement</strong></td></tr>
+        <tr><td>Acheminement</td><td>Envoi postal à l’IFT, 20-22 av. de Paris</td><td><strong>Aucun envoi postal</strong></td></tr>
+        <tr><td>Quand</td><td>En même temps que l’inscription</td><td><strong>En janvier 2027</strong>, après la clôture</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Ni chèque, ni espèces ne seront acceptés.</p>
+  <div class="bloc danger">
+    <p class="bloc-titre">Le piège de janvier</p>
+    <p>Votre inscription n’est <strong>définitive qu’après le paiement</strong>. Vous pouvez donc
+      avoir un dossier parfait au 12 novembre et perdre votre place en janvier en ratant la fenêtre
+      de paiement. Mettez dès maintenant un rappel au 1<sup>er</sup> janvier 2027, et surveillez la
+      page de l’IFT. En cas d’annulation vous recevrez un courriel — <strong>vérifiez vos
+      spams</strong>. Aucun remboursement n’est possible.</p>
+  </div>
+
+  <h3>Les pièces justificatives conditionnent l’inscription elle-même</h3>
+  <p>En 2026, l’inscription était annulée en l’absence de pièces <em>ou</em> de règlement. En 2027,
+    la notice durcit la formule : « En l’absence de pièces justificatives, <strong>ou d’une pièce
+    manquante</strong>, l’inscription sera annulée. » Une seule pièce oubliée suffit. Deux
+    obligations nouvelles apparaissent&nbsp;:</p>
+  <ul>
+    <li>Les candidats <strong>de nationalité autre que française ou tunisienne</strong> téléversent
+      <strong>en un seul fichier</strong> la copie certifiée conforme de la carte de séjour en
+      Tunisie <strong>en cours de validité</strong> <em>avec</em> le passeport. « À défaut, leur
+      candidature sera annulée. »</li>
+    <li>La pièce d’identité acceptée est précisée : carte nationale d’identité <strong>française ou
+      en caractères latins</strong>, ou passeport. Sans l’une de ces cartes, <strong>le passeport
+      est obligatoire pour être autorisé à passer les épreuves</strong>.</li>
+  </ul>
+
+  <h3>Redoublants et triplants dispensés de l’épreuve anticipée de mathématiques</h3>
+  <p>Phrase nouvelle dans l’onglet <em>Qualification présentée</em> : « Les candidats redoublants et
+    triplants sont dispensés de l’épreuve anticipée de mathématiques. » C’est la grande nouveauté
+    nationale de la session 2027 ; ceux qui ont déjà présenté le bac n’ont pas à la subir.</p>
+
+  <h3>Une procédure de dispense formalisée pour les titulaires d’un bac</h3>
+  <p>La notice ajoute une <strong>Fiche n° 2</strong> (demande de dispenses d’épreuves) et une
+    <strong>Fiche 3.3</strong> (tableau des dispenses possibles). En 2026, ces cas se traitaient au
+    coup par coup.</p>
+
+  <h3>Supprimer sa pré-inscription est désormais irréversible</h3>
+  <div class="bloc danger">
+    <p class="bloc-titre">Ne supprimez jamais la vignette</p>
+    <p>« Attention à ne pas supprimer votre pré-inscription. La suppression est
+      <strong>irréversible</strong>. Vous ne pourrez plus compléter votre inscription et donc vous
+      inscrire à l’examen. »</p>
+    <p>Si vous étiez inscrit aux épreuves anticipées 2026 ou au bac 2026 dans l’académie
+      Aix-Marseille-Tunisie, Cyclades affiche une vignette
+      <strong>« PRE-INSCRIPTION 2027 À COMPLÉTER »</strong>. Cliquez dessus. Même si elle contient
+      une erreur : les erreurs se corrigent, une suppression ne se répare pas.</p>
+  </div>
+
+  <h4>Et aussi, en plus discret</h4>
+  <ul>
+    <li>L’adresse de la page examens de l’IFT a changé : c’est désormais
+      <code>institutfrancais-tunisie.com/examens-concours-reseau/#/</code>. Mettez à jour vos favoris.</li>
+    <li>Avant d’écrire au Bureau des examens, la notice demande de consulter d’abord
+      <strong>l’aide en ligne</strong> du compte Cyclades.</li>
+    <li>Le diplôme sera expédié au <strong>1<sup>er</sup> trimestre 2028</strong>, et non 2027.</li>
+  </ul>
+</section>
+
+<section id="cyclades">
+  <span class="num">Procédure</span>
+  <h2>Cyclades, écran par écran</h2>
+
+  <h3>Étape 1 — Le compte candidat</h3>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Votre cas</th><th>Ce que vous faites</th></tr></thead>
+      <tbody>
+        <tr><td>J’ai déjà un compte Cyclades</td><td>Je me connecte directement.</td></tr>
+        <tr><td>J’ai un compte mais j’ai oublié le mot de passe</td><td>Mon identifiant est <strong>l’adresse mail utilisée à la création du compte</strong> (candidat individuel ou CNED scolaire). Je clique sur « mot de passe oublié ».</td></tr>
+        <tr><td>Je n’ai jamais eu de compte</td><td>Je clique sur « Je n’ai pas de compte ». Une aide est disponible en haut à droite de la page d’accueil.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="bloc info">
+    <p class="bloc-titre">L’adresse mail est le point névralgique de la session</p>
+    <p>C’est par elle que Cyclades annoncera le récapitulatif, les convocations, les relevés de
+      notes. Choisissez une adresse que le candidat consulte vraiment, et vérifiez les spams toute
+      l’année : la notice le répète trois fois.</p>
+  </div>
+
+  <h3>Étape 2 — Créer la candidature</h3>
+  <ul>
+    <li><strong>Vous aviez une pré-inscription ?</strong> Cliquez sur la vignette « PRE-INSCRIPTION
+      2027 À COMPLÉTER ». Vos notes d’épreuves anticipées sont déjà reportées.</li>
+    <li><strong>Sinon</strong>, cliquez sur « Ajouter une candidature », puis choisissez :
+      <strong>Baccalauréat général</strong> · session <strong>2027</strong> · académie
+      <strong>AIX-MARSEILLE-TUNISIE</strong>.</li>
+  </ul>
+
+  <h3>Étape 3 — Onglet <em>Identification</em></h3>
+  <p>Cet onglet produit votre diplôme. Chaque caractère saisi sera imprimé dessus.</p>
+  <ul>
+    <li>L’état civil doit être <strong>rigoureusement conforme</strong> à votre passeport, pièce
+      d’identité en français ou extrait de naissance en français.</li>
+    <li><strong>Une majuscule à la première lettre</strong> des noms propres : ils figureront
+      exactement comme vous les tapez.</li>
+    <li><strong>Nom d’usage</strong> : à renseigner uniquement s’il figure sur votre pièce
+      d’identité. Sinon, laissez la case <strong>vide</strong>.</li>
+    <li><strong>Candidats nés en Tunisie</strong> : ne renseignez pas le département de naissance.</li>
+    <li><strong>Adresse postale</strong> : le diplôme y sera envoyé au 1<sup>er</sup> trimestre 2028,
+      en un seul exemplaire. Demandez-vous où vous habiterez dans quinze mois.</li>
+  </ul>
+
+  <h3>Étape 4 — Onglet <em>Informations candidature</em></h3>
+  <p>La « situation à l’inscription » <strong>détermine la nature de votre évaluation</strong>.
+    C’est le champ le plus lourd de conséquences de tout le formulaire. En cas de doute, écrivez au
+    Bureau des examens <em>avant</em> de valider. Les situations sont détaillées plus bas.</p>
+  <ul>
+    <li><strong>Catégorie du candidat</strong> : « individuel ».</li>
+    <li><strong>Établissement</strong> : dans le menu déroulant, « individuel résident Tunisie ».</li>
+    <li><strong>Diffusion des résultats</strong> : vous autorisez, ou non, le recteur à communiquer
+      votre résultat d’admission aux organismes privés et collectivités territoriales. Choix libre,
+      sans incidence sur l’examen.</li>
+  </ul>
+
+  <h3>Étape 5 — Onglet <em>Qualification présentée</em></h3>
+  <p>C’est ici que se jouent vos spécialités, vos langues, votre EPS et vos options :
+    <a href="#choix">voir la section suivante</a>.</p>
+
+  <h3>Étape 6 — Onglet <em>Récapitulatif</em></h3>
+  <p>Relisez tout, ligne à ligne, à voix haute si possible, et faites relire par un parent.</p>
+  <blockquote><p>« Les choix effectués lors de l’inscription sont définitifs, aucune rectification
+    ne sera acceptée après la clôture des inscriptions. »</p></blockquote>
+  <p>Puis <strong>Enregistrer</strong>. Vous obtenez votre <strong>numéro d’inscription</strong> et
+    pouvez éditer votre confirmation via « Visualiser/Imprimer ». Elle reste disponible dans
+    « Mes documents ».</p>
+
+  <h3>Étape 7 — Signer et téléverser</h3>
+  <ol>
+    <li>Imprimez la confirmation d’inscription et <strong>signez-la</strong> (et faites-la signer par
+      le représentant légal si le candidat est mineur).</li>
+    <li>Scannez-la, ainsi que toutes vos pièces.</li>
+    <li>Dans Cyclades : menu → <strong>« Mes justificatifs »</strong> → téléversez.</li>
+    <li><strong>Validez en ligne votre candidature.</strong></li>
+  </ol>
+  <p>Tant que le service d’inscription est ouvert, vous pouvez corriger vos erreurs en ligne.
+    Après le 12 novembre 18 h, plus rien.</p>
+
+  <h3>Étape 8 — Payer, en janvier 2027</h3>
+  <p>1 000 TND, en ligne uniquement. Modalités à paraître sur la page de l’IFT. Sans ce paiement
+    dans le délai imparti, la candidature est annulée.</p>
+</section>
+
+<section id="choix">
+  <span class="num">Arbitrages</span>
+  <h2>Vos choix, et ce qu’ils engagent</h2>
+
+  <h3>Les deux enseignements de spécialité</h3>
+  <p>Vous en choisissez <strong>deux</strong>, parmi celles proposées en Tunisie :</p>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Spécialités ouvertes en Tunisie — session 2027</th></tr></thead>
+      <tbody>
+        <tr><td>Histoire-géographie, géopolitique et sciences politiques</td></tr>
+        <tr><td>Humanités, littérature et philosophie</td></tr>
+        <tr><td>Langues, littératures et cultures étrangères et régionales — <strong>Anglais</strong></td></tr>
+        <tr><td>Langues, littératures et cultures étrangères et régionales — <strong>Anglais monde contemporain</strong></td></tr>
+        <tr><td>Mathématiques</td></tr>
+        <tr><td>Numérique et sciences informatiques</td></tr>
+        <tr><td>Physique-chimie</td></tr>
+        <tr><td>Sciences de la vie et de la Terre</td></tr>
+        <tr><td>Sciences de l’ingénieur</td></tr>
+        <tr><td>Sciences économiques et sociales</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="bloc">
+    <p>Si vous choisissez une spécialité <strong>LLCER</strong>, vous devez impérativement suivre
+      l’anglais en LVA, LVB ou LVC.</p>
+  </div>
+  <p><strong>Si vous étiez candidat aux épreuves anticipées en 2026</strong>, vous conservez
+    obligatoirement les enseignements choisis à ce moment-là — langues vivantes et spécialité suivie
+    uniquement en première — ainsi que la forme de passage. <strong>Aucun changement n’est
+    possible.</strong> Seules les spécialités de terminale peuvent être modifiées, à condition de ne
+    pas les remplacer par la spécialité suivie uniquement en première.</p>
+
+    <div class="bloc info">
+    <p class="bloc-titre">Quatre spécialités comportent une partie pratique dont vous êtes dispensé</p>
+    <p>En <strong>NSI</strong>, <strong>physique-chimie</strong>, <strong>SVT</strong> et
+      <strong>sciences de l’ingénieur</strong>, l’épreuve terminale comporte une partie pratique.
+      Les candidats individuels en sont <strong>dispensés</strong>, et la note est recalculée :</p>
+    <div class="table-boite">
+      <table>
+        <thead><tr><th>Spécialité</th><th>Sans la partie pratique, la note est…</th></tr></thead>
+        <tbody>
+          <tr><td>Numérique et sciences informatiques</td><td>celle de l’écrit (3 h 30) rapportée à 20 points</td></tr>
+          <tr><td>Physique-chimie</td><td>celle de l’écrit (3 h 30) rapportée à 20 points</td></tr>
+          <tr><td>Sciences de la vie et de la Terre</td><td>celle de l’écrit (3 h 30) rapportée à 20 points</td></tr>
+          <tr><td>Sciences de l’ingénieur</td><td>0,75 × sciences de l’ingénieur + 0,25 × sciences physiques</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>C’est une bonne nouvelle si vous n’avez pas accès à un laboratoire : vous n’êtes pas
+      pénalisé. <em>Attention : les candidats inscrits au CNED ne sont pas dispensés en NSI.</em></p>
+  </div>
+
+  <h3>La « forme de passage » : le choix le plus structurant de l’inscription</h3>
+  <p>La notice y fait allusion sans l’expliquer. C’est pourtant une décision <strong>prise à
+    l’inscription et définitive</strong>. Texte officiel :</p>
+  <blockquote><p>« Un choix entre deux modalités de passation est proposé aux candidats
+    individuels lors de leur inscription à l’examen […] Le choix est <strong>définitif à la
+    clôture de l’inscription</strong> et s’applique de façon globale, aux enseignements
+    obligatoires <strong>et aux enseignements optionnels</strong>. »</p></blockquote>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th></th><th>Formule A — deux séries</th><th>Formule B — une série unique</th></tr></thead>
+      <tbody>
+        <tr><td>Quand</td><td>Une série en fin de première, une en fin de terminale</td><td>Une seule série, l’année du diplôme</td></tr>
+        <tr><td>Sur quoi</td><td>Programme de chaque année</td><td>Programme des <strong>deux</strong> années</td></tr>
+        <tr><td>Histoire-géo, LVA, LVB, ens. scientifique</td><td>coefficient 3 + 3</td><td>coefficient 6</td></tr>
+        <tr><td>EMC</td><td>coefficient 1 + 1</td><td>coefficient 2</td></tr>
+        <tr><td>Options sur le cycle</td><td>coefficient 2 + 2</td><td>coefficient 4</td></tr>
+        <tr><td>Spécialité de première</td><td colspan="2">coefficient 8, programme de première dans les deux cas</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Le total est le même (40) dans les deux cas. Ce qui change, c’est <strong>la charge et le
+    calendrier</strong> : la formule B concentre tout sur l’année du bac, sur un programme deux
+    fois plus large.</p>
+  <div class="bloc">
+    <p><strong>Si vous étiez inscrit aux épreuves anticipées en 2026</strong>, vous conservez la
+      forme de passage choisie alors : « AUCUN CHANGEMENT N’EST POSSIBLE ». Ce choix ne se
+      présente donc qu’aux candidats qui s’inscrivent pour la première fois.</p>
+  </div>
+
+  <h3>Les langues vivantes</h3>
+  <p>Vous renseignez vos choix de <strong>LVA</strong> et de <strong>LVB</strong>. Niveaux visés :
+    <strong>B2 en LVA, B1 en LVB</strong>.</p>
+  <p><strong>Ce qui vous attend</strong> (note de service du 3 juillet 2026, applicable à compter
+    de 2027) :</p>
+  <ul>
+    <li><strong>Écrit : 1 h 30</strong>, compréhension et expression, notées à parts égales. La
+      compréhension de l’oral s’appuie sur un document audio ou vidéo d’<strong>1 minute 30
+      maximum</strong>, écouté <strong>trois fois</strong>, les écoutes espacées d’une minute.</li>
+    <li><strong>Oral : 10 minutes, avec 10 minutes de préparation.</strong> Vous choisissez entre
+      <strong>deux axes culturels</strong> proposés par l’examinateur, puis expliquez pendant
+      <strong>5 minutes maximum</strong> quel document ou quelle citation illustre le mieux cet
+      axe, et pourquoi. Suit un entretien.</li>
+    <li>Une évaluation portant sur la seule année de première est <strong>écrite uniquement</strong>.</li>
+  </ul>
+  <div class="bloc nexus">
+    <p class="bloc-titre">Disposition propre à la session 2027</p>
+    <p>Si vous êtes évalué <strong>sur le cycle terminal</strong> (formule B), la partie orale
+      porte normalement sur les axes du programme de <strong>première</strong>. Mais à titre
+      <strong>transitoire pour la seule session 2027</strong>, elle est limitée à cinq axes en
+      voie générale :</p>
+    <p><strong>identités et échanges (1) · art et pouvoir (3) · innovations scientifiques et
+      responsabilité (6) · diversité et inclusion (7) · territoire et mémoire (8)</strong></p>
+    <p>C’est une information de préparation précieuse : vous savez exactement quoi travailler.</p>
+  </div>
+  <p>Les résultats de LVA et LVB donnent lieu à la délivrance d’une <strong>attestation de langues
+    vivantes</strong> adossée au CECRL.</p>
+  <div class="bloc">
+    <p>La liste des langues effectivement organisées en Tunisie pour 2027 n’est pas donnée par la
+      notice. En 2026, cinq langues étaient proposées : allemand, anglais, arabe, espagnol,
+      italien. Ne la considérez pas comme acquise : vérifiez le menu déroulant de Cyclades au
+      moment de la saisie.</p>
+  </div>
+
+  <h3>L’EPS — deux activités à choisir parmi trois</h3>
+  <p>L’EPS est <strong>obligatoire</strong> et pèse <strong>6 coefficients</strong>, autant que
+    l’histoire-géographie.</p>
+  <p>Attention au vocabulaire : pour un candidat individuel, l’EPS n’est pas une « évaluation
+    ponctuelle » comme les autres. C’est un <strong>examen ponctuel terminal</strong>, régi par
+    l’arrêté du 21 décembre 2011, avec son propre référentiel et ses propres règles.</p>
+  <blockquote><p>« Les candidats inscrits au baccalauréat sous statut individuel et les candidats
+    scolarisés au Cned sont évalués lors d’un <strong>examen ponctuel terminal</strong>. »</p></blockquote>
+  <p>Vous choisissez <strong>deux activités</strong> parmi les trois de la liste ouverte en Tunisie :</p>
+  <div class="table-boite">
+    <table><thead><tr><th>Danse</th><th>Demi-fond 800 m</th><th>Tennis de table</th></tr></thead></table>
+  </div>
+  <div class="bloc info">
+    <p class="bloc-titre">La règle nationale que la notice ne rappelle pas</p>
+    <blockquote><p>« Les candidats qui relèvent de l’examen ponctuel choisissent deux épreuves
+      relevant de <strong>deux champs d’apprentissage différents</strong>. »</p></blockquote>
+    <p>Vos deux activités ne peuvent donc pas relever du même champ d’apprentissage.
+      <strong>Vérifiez le champ de chaque activité dans le référentiel publié sur la page de
+      l’IFT avant de valider.</strong></p>
+  </div>
+  <p><strong>Consultez le référentiel national avant de choisir</strong> : l’IFT le met en ligne
+    sur sa page examens. C’est l’annexe 2 du Bulletin officiel n° 30 du 25 juillet 2024,
+    référentiel permanent de l’examen ponctuel terminal — ne vous étonnez pas qu’il ne porte pas
+    la mention « 2027 ». Les attendus de notation y sont décrits précisément, et ils ne
+    récompensent pas le même profil selon l’activité.</p>
+  <p><strong>Si vous êtes médicalement inapte :</strong> demandez à votre médecin traitant un
+    certificat d’inaptitude à l’EPS, sélectionnez « Contrôle ponctuel — Inapte » et téléversez
+    le certificat dans « Mes justificatifs ».</p>
+  <div class="bloc danger">
+    <p class="bloc-titre">L’EPS n’a pas d’épreuve de remplacement</p>
+    <blockquote><p>« En cas d’absence justifiée, à chacune des deux épreuves, validée par
+      l’autorité académique, le coefficient de l’épreuve est <strong>neutralisé</strong> pour le
+      candidat, <strong>l’examen ponctuel d’EPS ne faisant pas l’objet d’une épreuve de
+      remplacement</strong>. »</p></blockquote>
+    <ul>
+      <li><strong>Absence justifiée</strong> → le coefficient est neutralisé. Vous ne repasserez
+        pas l’épreuve.</li>
+      <li><strong>Absence non justifiée</strong> → « l’attribution de la note 0 (zéro),
+        <strong>non éliminatoire</strong> ».</li>
+    </ul>
+    <p>Si vous manquez l’EPS en avril, c’est perdu pour la session. Organisez votre déplacement
+      à l’avance.</p>
+  </div>
+  <p>Les épreuves d’EPS se déroulent <strong>en avril</strong>. Consultez votre compte Cyclades
+    dans le courant du mois d’avril pour éditer la convocation.</p>
+
+  <h3>Les enseignements optionnels — lisez bien avant de cocher</h3>
+  <p>Vous pouvez renseigner <strong>1 ou 2 choix</strong> d’enseignements optionnels (2 au maximum
+    en terminale), et ces coefficients <strong>s’ajoutent</strong> au total de 100 des
+    enseignements obligatoires.</p>
+  <p><strong>Le coefficient n’est pas toujours 2.</strong> La notice annonce « coefficient 2 »
+    parce qu’elle vise les évaluations portant sur le programme de terminale. Le texte national
+    est plus large :</p>
+  <blockquote><p>« Le résultat obtenu par le candidat individuel à chacune de ces évaluations
+    ponctuelles est affecté d’un <strong>coefficient 2 lorsque l’évaluation ponctuelle porte sur
+    le programme d’une année</strong> (première ou terminale), et d’un <strong>coefficient 4
+    lorsque l’évaluation ponctuelle porte sur le programme des deux années du cycle
+    terminal</strong>. Ces coefficients s’ajoutent au total des coefficients (100) prévus pour
+    les enseignements obligatoires. »</p></blockquote>
+  <p>Une option suivie sur tout le cycle terminal pèse donc <strong>4 points de coefficient</strong>
+    au total — que vous la passiez en deux fois (2 + 2) ou en une seule évaluation de cycle (4).
+    Les options qui n’existent qu’en terminale ne peuvent valoir que 2.</p>
+  <div class="bloc info">
+    <p><strong>Le latin et le grec sont hors quota.</strong> « Les enseignements optionnels de
+      langues et cultures de l’Antiquité (LCA) latin et grec peuvent être choisis
+      <strong>en plus</strong> des enseignements optionnels suivis par ailleurs. » Ils ne
+      consomment donc pas vos deux choix.</p>
+  </div>
+  <div class="bloc danger">
+    <p class="bloc-titre">Le piège le plus coûteux du formulaire</p>
+    <p>La notice écrit : « Toute absence à une évaluation ponctuelle à laquelle le candidat est
+      inscrit est sanctionnée par la note 0, affectée du coefficient prévu. »</p>
+    <p><strong>Le texte national ajoute un mot décisif que la notice omet : « non
+      justifiée ».</strong></p>
+    <blockquote><p>« Toute absence <strong>non justifiée</strong> d’un candidat à une évaluation
+      ponctuelle à laquelle il était inscrit est sanctionnée par la note zéro, affectée du
+      coefficient prévu. En cas d’absence pour cause de force majeure, le candidat est
+      <strong>convoqué à une évaluation ponctuelle de remplacement</strong>. »</p></blockquote>
+    <p>Et la procédure est encadrée : « Le justificatif doit être adressé à l’académie dans
+      laquelle le candidat individuel est inscrit, au plus tard <strong>trois jours
+      ouvrables</strong> après le déroulement de l’évaluation. » L’évaluation de remplacement
+      « peut être organisée jusqu’au début de l’année scolaire suivante ».</p>
+    <p><strong>À retenir :</strong> tomber malade le jour d’une évaluation ponctuelle ne vous
+      coûte pas un zéro — à condition d’envoyer le justificatif <strong>sous trois jours
+      ouvrables</strong>. En revanche, une option cochée par curiosité puis simplement
+      abandonnée, c’est bien un <strong>0 affecté du coefficient</strong>. Cette souplesse ne
+      vaut pas pour l’EPS, qui n’a pas d’épreuve de remplacement.</p>
+  </div>
+  <div class="bloc nexus">
+    <p class="bloc-titre">Recommandation Nexus Réussite</p>
+    <p>Ce n’est pas une règle officielle. Ne cochez une option que si vous répondez « oui » aux
+      trois questions :</p>
+    <ol>
+      <li>Ai-je lu la définition officielle de l’épreuve et ses attendus ?</li>
+      <li>Ai-je, dans mon planning, le temps de la préparer réellement ?</li>
+      <li>Suis-je prêt à me déplacer le jour de l’évaluation, quelle que soit la date ?</li>
+    </ol>
+    <p>Dans le doute, ne cochez pas. Une option bien choisie fait gagner des points ; une option
+      subie en fait perdre.</p>
+  </div>
+  <div class="bloc">
+    <p>La liste des enseignements optionnels effectivement organisés en Tunisie pour 2027 n’est pas
+      donnée par la notice. Vérifiez-la dans Cyclades.</p>
+  </div>
+</section>
+
+<section id="pieces">
+  <span class="num">Dossier</span>
+  <h2>Les pièces à fournir</h2>
+  <p class="chapo">Tout se téléverse dans Cyclades, menu « Mes justificatifs », avant le
+    <strong>12 novembre 2026 à 18 h</strong>. La liste exacte qui vous concerne apparaît dans
+    « Mes documents », avec votre confirmation. Cochez au fur et à mesure — votre progression reste
+    enregistrée dans ce navigateur.</p>
+
+  <h3>Pour tout le monde</h3>
+  <ul class="liste" data-liste>
+    <li><label><input type="checkbox" id="p1"><span><strong>Confirmation d’inscription signée</strong> — et signée par le représentant légal si le candidat est mineur.</span></label></li>
+    <li><label><input type="checkbox" id="p2"><span><strong>Photocopie de la pièce d’identité</strong> — carte nationale d’identité française ou en caractères latins, ou passeport. Si vous ne possédez pas encore de passeport : extrait de naissance en français.</span></label></li>
+  </ul>
+  <div class="bloc danger">
+    <p>Sans carte d’identité française ou en caractères latins, <strong>le passeport est obligatoire
+      pour être autorisé à passer les épreuves</strong>. Si vous n’en avez pas, lancez la démarche
+      aujourd’hui, pas en mai.</p>
+  </div>
+
+  <h3>Si vous êtes de nationalité française, ou binational</h3>
+  <ul class="liste" data-liste>
+    <li><label><input type="checkbox" id="p3"><span><strong>Attestation de recensement</strong> — obligatoire pour s’inscrire <strong>avant 18 ans</strong>.</span></label></li>
+    <li><label><input type="checkbox" id="p4"><span><strong>Certificat individuel de participation à la JDC</strong>, ou attestation individuelle d’exemption — obligatoire pour s’inscrire <strong>à partir de 18 ans</strong>.</span></label></li>
+  </ul>
+
+  <h3>Si vous n’êtes ni français ni tunisien</h3>
+  <ul class="liste" data-liste>
+    <li><label><input type="checkbox" id="p5"><span><strong>Un seul fichier</strong> contenant la copie certifiée conforme de la <strong>carte de séjour en Tunisie en cours de validité</strong> <em>et</em> le <strong>passeport</strong>. « À défaut, leur candidature sera annulée. »</span></label></li>
+  </ul>
+
+  <h3>Selon votre situation</h3>
+  <ul class="liste" data-liste>
+    <li><label><input type="checkbox" id="p6"><span><strong>Certificat médical d’inaptitude à l’EPS</strong>, si vous êtes inapte.</span></label></li>
+    <li><label><input type="checkbox" id="p7"><span><strong>Relevé de notes des épreuves anticipées</strong>, si vous avez créé une nouvelle candidature ou si vous étiez en première hors de Tunisie.</span></label></li>
+    <li><label><input type="checkbox" id="p8"><span><strong>Fiche n° 1</strong> (bénéfice / conservation de notes) <em>et</em> copie du dernier relevé de notes du bac — <strong>en un seul fichier PDF</strong>, si vous redoublez ou triplez.</span></label></li>
+    <li><label><input type="checkbox" id="p9"><span><strong>Fiche n° 2</strong> (demande de dispenses) <em>et</em> copie du diplôme du bac dont vous êtes titulaire — <strong>en un seul fichier PDF</strong>.</span></label></li>
+    <li><label><input type="checkbox" id="p10"><span><strong>Dernier relevé de notes</strong>, si vous étiez précédemment inscrit hors de Tunisie.</span></label></li>
+    <li><label><input type="checkbox" id="p11"><span>Tout autre document demandé selon votre situation.</span></label></li>
+  </ul>
+
+  <div class="avancement">
+    <span id="avancement-txt">0 sur 11</span>
+    <span class="barre"><i id="avancement-barre"></i></span>
+    <button class="reinit" type="button" id="reinit">Tout décocher</button>
+  </div>
+
+  <div class="bloc nexus">
+    <p class="bloc-titre">Conseil pratique</p>
+    <p>Scannez en PDF, pas en photo de téléphone. Nommez chaque fichier clairement
+      (<code>NOM_Prenom_confirmation_signee.pdf</code>). Quand un document doit être « en un seul
+      fichier », fusionnez-le vraiment : deux fichiers séparés comptent comme une pièce manquante.</p>
+  </div>
+</section>
+
+<section id="situations">
+  <span class="num">Cas par cas</span>
+  <h2>Trouvez votre situation</h2>
+  <p class="chapo">Dépliez celle qui vous correspond. Si aucune ne convient, choisissez « Vous êtes
+    dans une autre situation » dans Cyclades : vous serez automatiquement inscrit à toutes les
+    épreuves.</p>
+
+  <details>
+    <summary>J’étais scolarisé en première l’année dernière</summary>
+    <div class="details-corps">
+      <ul>
+        <li><strong>Vous vous inscrivez depuis la pré-inscription ?</strong> Vos notes d’épreuves
+          anticipées sont reportées automatiquement pour être conservées. Rien à faire.</li>
+        <li><strong>Vous avez créé une nouvelle candidature, ou vous étiez en première hors de
+          Tunisie ?</strong> Téléversez la copie de votre relevé de notes des épreuves anticipées,
+          téléchargeable depuis « Mes documents » de votre inscription aux épreuves anticipées.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>J’ai échoué au bac et je me réinscris</summary>
+    <div class="details-corps">
+      <p>La notice tranche la question redoublant / triplant :</p>
+      <div class="table-boite">
+        <table>
+          <tbody>
+            <tr><td><strong>Redoublant</strong></td><td>1<sup>re</sup> présentation du bac en <strong>2026</strong>, ou en <strong>2025</strong> avec interruption de scolarité en 2026 pour force majeure ou mobilité internationale <strong>justifiée</strong></td></tr>
+            <tr><td><strong>Triplant</strong></td><td>1<sup>re</sup> présentation du bac en <strong>2022, 2023, 2024 ou 2025</strong>, sans interruption de scolarité justifiée en 2026</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h4>Ce que vous pouvez conserver — notes du 1<sup>er</sup> groupe uniquement</h4>
+      <div class="table-boite">
+        <table>
+          <thead><tr><th>Épreuve</th><th>Redoublant</th><th>Triplant</th></tr></thead>
+          <tbody>
+            <tr><td>Français écrit</td><td><strong>quelle que soit la note</strong> (2025)</td><td>sessions 2024 et antérieures</td></tr>
+            <tr><td>Français oral</td><td><strong>quelle que soit la note</strong> (2025)</td><td>sessions 2024 et antérieures</td></tr>
+            <tr><td>Philosophie</td><td>note ≥ 10/20 (2026)</td><td>note ≥ 10/20</td></tr>
+            <tr><td>Grand oral</td><td>note ≥ 10/20 (2026)</td><td>note ≥ 10/20</td></tr>
+            <tr><td>Spécialité 1</td><td>note ≥ 10/20 (2026)</td><td>note ≥ 10/20</td></tr>
+            <tr><td>Spécialité 2</td><td>note ≥ 10/20 (2026)</td><td>note ≥ 10/20</td></tr>
+          </tbody>
+        </table>
+      </div>
+            <div class="bloc danger">
+        <p class="bloc-titre">Triplants : le français obéit à une règle plus stricte</p>
+        <p>Ne vous fiez pas à la ligne « quelle que soit la note » : elle ne vaut que pour les
+          redoublants. Pour un triplant, la notice pose <strong>deux conditions
+          cumulatives</strong> :</p>
+        <blockquote><p>« Si le candidat a obtenu des notes <strong>≥ 10</strong>, il peut les
+          conserver dans le cadre des dispositions de notes <strong>pendant 5 ans</strong> à la
+          condition de <strong>les avoir déjà conservées l’année du redoublement, soit à la
+          session 2026</strong>. »</p></blockquote>
+        <p>Autrement dit : une note de français inférieure à 10 n’est pas conservable, et une
+          note même excellente que vous n’aviez pas demandé à conserver en 2026 est
+          définitivement perdue.</p>
+      </div>
+      <p><strong>Deux règles supplémentaires pour les triplants :</strong> seules les notes
+        figurant sur le relevé de la <strong>dernière session présentée</strong> peuvent être
+        conservées, et « une note obtenue en 2025 ne peut être conservée que si elle l’a déjà
+        été lors de la session 2026 ».</p>
+      <div class="bloc danger"><div class="bloc danger">
+        <p class="bloc-titre">Conserver des notes interdit la mention</p>
+        <blockquote><p>« Faire valoir un bénéfice de notes interdira l’obtention d’une mention,
+          même si le résultat final est supérieur à 12/20. »</p></blockquote>
+        <p>La demande est <strong>définitive</strong> : aucune modification ultérieure, et les notes
+          non conservées ne pourront pas être reprises à une session ultérieure. C’est un vrai
+          arbitrage, à faire à froid. Conserver sécurise le diplôme ; tout repasser ouvre la mention
+          mais remet tout en jeu. Posez le calcul avant de cocher, pas après.</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Je suis déjà titulaire d’un baccalauréat</summary>
+    <div class="details-corps">
+      <p>Vous pouvez demander à être <strong>dispensé</strong> de certaines épreuves, en application
+        du code de l’éducation (D 334-7 et D 336-7) et de l’arrêté du 14 mai 2020. Complétez la
+        <strong>Fiche n° 2</strong> et téléversez-la avec la copie de votre diplôme, en un seul
+        fichier PDF, avant le 12 novembre 2026 à 18 h.</p>
+      <div class="table-boite">
+        <table>
+          <thead><tr><th>Votre diplôme actuel</th><th>Dispenses possibles</th><th>Épreuves que vous présentez</th></tr></thead>
+          <tbody>
+            <tr><td>Bac <strong>général</strong> antérieur à 2021 (ES, L, S, autres séries générales)</td><td>Français, Philosophie</td><td>2 spécialités + Grand oral</td></tr>
+            <tr><td>Bac <strong>technologique</strong> antérieur à 2021 (STMG, STI2D, STL, ST2S, STHR, STD2A, STAV, TMD, autres)</td><td>Français</td><td>2 spécialités + Grand oral + Philosophie</td></tr>
+            <tr><td>Bac <strong>général</strong> postérieur à 2021</td><td>Français, Philosophie, Grand oral</td><td>2 spécialités, <strong>dont au moins une différente</strong> du bac déjà obtenu</td></tr>
+            <tr><td>Bac <strong>technologique</strong> postérieur à 2021</td><td>Français, Grand oral</td><td>2 spécialités + Philosophie</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Dans tous les cas, l’arrêté du 14 mai 2020 vous dispense aussi du contrôle continu :
+        histoire-géographie, LVA, LVB, enseignement scientifique, spécialité suivie uniquement en
+        première, EPS.</p>
+      <div class="bloc danger">
+        <p>Comme pour la conservation de notes, <strong>ces dispenses empêchent l’obtention d’une
+          mention</strong>. Le choix est définitif et ne pourra pas être modifié après la clôture.</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Je reprends après une interruption de scolarité</summary>
+    <div class="details-corps">
+      <p>Si votre interruption dépasse une année scolaire et que vous vous présentez sous statut
+        individuel, vous êtes <strong>convoqué à l’ensemble des enseignements obligatoires ne faisant
+        pas l’objet d’épreuves terminales</strong> — y compris la spécialité suivie uniquement en
+        première.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>J’ai 20 ans ou plus au 31 décembre 2027</summary>
+    <div class="details-corps">
+      <p>Vous êtes autorisé par dérogation à passer les épreuves anticipées à la même session que les
+        épreuves terminales.</p>
+      <div class="bloc danger">
+        <p><strong>Ne vous inscrivez pas sur le niveau « 1<sup>re</sup> (Épreuves anticipées) ».</strong>
+          L’inscription aux épreuves anticipées est <strong>comprise</strong> dans l’inscription aux
+          épreuves terminales. Une double inscription crée un conflit administratif.</p>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>Je présente aussi le baccalauréat tunisien en 2027</summary>
+    <div class="details-corps">
+      <blockquote><p>« Il est <strong>déconseillé</strong> aux candidats présentant le baccalauréat
+        tunisien en 2027 de s’inscrire aux épreuves du baccalauréat français. Si ces épreuves ont lieu
+        en même temps, les dates ne pourront pas être modifiées. »</p></blockquote>
+      <p>Ce n’est pas une interdiction, c’est un avertissement sur un risque réel de collision de
+        calendriers que personne ne pourra résoudre pour vous. Si vous visez les deux, parlez-en avec
+        votre référent pédagogique avant de valider.</p>
+    </div>
+  </details>
+</section>
+
+<section id="notes">
+  <span class="num">Évaluation</span>
+  <h2>Comment votre note sera calculée</h2>
+  <p class="chapo">Le baccalauréat général repose sur <strong>100 coefficients obligatoires</strong>,
+    répartis en deux blocs.</p>
+
+  <h3>Bloc A — Les épreuves terminales : 60 coefficients</h3>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Épreuve</th><th class="n">Coefficient</th></tr></thead>
+      <tbody>
+        <tr><td>Français écrit <em>(anticipée)</em></td><td class="n">5</td></tr>
+        <tr><td>Français oral <em>(anticipée)</em></td><td class="n">5</td></tr>
+        <tr><td><strong>Mathématiques</strong> <em>(anticipée — nouveauté 2027)</em></td><td class="n"><strong>2</strong></td></tr>
+        <tr><td>Spécialité de terminale n° 1</td><td class="n">16</td></tr>
+        <tr><td>Spécialité de terminale n° 2</td><td class="n">16</td></tr>
+        <tr><td>Philosophie</td><td class="n">8</td></tr>
+        <tr><td>Grand oral <em>(10 jusqu’en 2026)</em></td><td class="n"><strong>8</strong></td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="n">60</td></tr></tfoot>
+    </table>
+  </div>
+
+  <h3>Bloc B — Vos évaluations ponctuelles : 40 coefficients</h3>
+  <p>Le candidat scolaire est noté sur ses moyennes de première et de terminale. Le candidat
+    individuel n’en a pas : il passe des <strong>évaluations ponctuelles</strong> organisées par
+    l’autorité académique, qui remplacent le contrôle continu.</p>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Enseignement</th><th class="n">Coefficient</th></tr></thead>
+      <tbody>
+        <tr><td>Histoire-géographie</td><td class="n">6</td></tr>
+        <tr><td>Langue vivante A</td><td class="n">6</td></tr>
+        <tr><td>Langue vivante B</td><td class="n">6</td></tr>
+        <tr><td>Enseignement scientifique</td><td class="n">6</td></tr>
+        <tr><td>EPS <em>(examen ponctuel terminal)</em></td><td class="n">6</td></tr>
+        <tr><td>Enseignement moral et civique</td><td class="n">2</td></tr>
+        <tr><td>Spécialité suivie uniquement en première</td><td class="n">8</td></tr>
+      </tbody>
+      <tfoot><tr><td>Total</td><td class="n">40</td></tr></tfoot>
+    </table>
+  </div>
+    <p>Selon la forme de passage choisie, chaque ligne à 6 se décompose en 3 + 3, et l’EMC en
+    1 + 1. Le total reste 40 dans les deux cas.</p>
+  <p><strong>Plus les options :</strong> 2 par évaluation portant sur une année, 4 pour une
+    évaluation de cycle, <em>en sus</em> des 100.</p>
+  <p><strong>Comment se déroulent ces évaluations.</strong> Elles sont « organisées à la fin de
+    l’année scolaire par le recteur d’académie ». Vous recevez une <strong>convocation
+    nominative</strong>, et « les évaluations ponctuelles écrites sont <strong>corrigées sous
+    couvert de l’anonymat</strong> du candidat ». Les notes passent ensuite devant une
+    <strong>commission d’harmonisation</strong> académique.</p>
+  <div class="bloc info">
+    <p><strong>Aménagements d’épreuves.</strong> Si vous êtes en situation de handicap, les
+      candidats individuels « relèvent de la procédure complète » de la circulaire du 8 décembre
+      2020 : il faut constituer et transmettre un dossier de demande à l’académie d’inscription.
+      Ne tardez pas — cette démarche est indépendante de l’inscription elle-même.</p>
+  </div>
+
+<h3>La nouveauté 2027 : l’épreuve anticipée de mathématiques</h3>
+  <p>Créée par l’arrêté du 10 juin 2025, elle concerne <strong>tous</strong> les candidats de la
+    session 2027, quel que soit leur parcours mathématique.</p>
+  <ul>
+    <li>Écrite · <strong>2 heures</strong> · <strong>coefficient 2</strong> · notée sur 20 ·
+      <strong>calculatrice interdite</strong></li>
+    <li><strong>Trois sujets différents</strong> : vous composez sur celui qui correspond au
+      programme que vous avez préparé — spécialité mathématiques, ou mathématiques spécifiques
+      intégrées à l’enseignement scientifique.</li>
+    <li>Structure : une première partie de QCM d’automatismes (6 points), puis deux ou trois
+      exercices indépendants (14 points).</li>
+    <li>Un <strong>oral de contrôle</strong> existe au second groupe : 20 minutes de préparation,
+      20 minutes d’entretien, au moins deux exercices sur des parties différentes du programme,
+      calculatrice interdite.</li>
+  </ul>
+    <div class="bloc info">
+    <p>Son coefficient 2 a été gagé sur le Grand oral, qui passe de 10 à 8 en
+      voie générale. Le total reste à <strong>100</strong>, et non 102.</p>
+  </div>
+    <p><strong>Au rattrapage, une restriction à connaître.</strong> L’épreuve anticipée de
+    mathématiques étant une épreuve écrite obligatoire, elle devient un choix possible au second
+    groupe. Mais l’arrêté du 10 juin 2025 pose une limite : « Il ne peut pas choisir
+    <strong>concomitamment</strong> l’épreuve anticipée de mathématiques et l’épreuve de
+    spécialité mathématiques. »</p>
+  <p><strong>Qui en est dispensé.</strong> La notice résume : « Les candidats redoublants et
+    triplants sont dispensés de l’épreuve anticipée de mathématiques. » Le texte national est
+    plus précis :</p>
+  <blockquote><p>« Les candidats à l’examen du baccalauréat général ou technologique
+    <strong>ayant échoué à la session 2026</strong> sont dispensés de l’épreuve anticipée de
+    mathématiques pour la session 2027. »</p></blockquote>
+  <p>Le même article prévoit un cas qui concerne directement la Tunisie : les candidats
+    « <strong>résidant temporairement à l’étranger pour une ou deux années</strong>, après avoir
+    présenté les épreuves anticipées lors de l’année scolaire 2024-2025, sont dispensés de
+    l’épreuve anticipée de mathématiques pour l’une des deux sessions qui suivent et, en cas
+    d’échec à cette session, pour la session suivante ». D’autres dispenses visent les candidats
+    empêchés par force majeure et ceux dont la scolarité a été aménagée par le recteur.</p>
+  <div class="bloc danger">
+    <p>Les <strong>titulaires d’un baccalauréat</strong> qui se réinscrivent bénéficient eux aussi
+      d’une dispense d’épreuve anticipée de mathématiques, introduite par le même arrêté — alors
+      que la Fiche n° 2 de la notice ne la mentionne pas. <strong>Si vous relevez de l’un de ces
+      cas et que Cyclades vous inscrit malgré tout à cette épreuve, signalez-le au Bureau des
+      examens avant la clôture.</strong></p>
+  </div>
+<p><strong>Si vous n’avez pas pris la spécialité mathématiques</strong>, vous n’y échappez pas :
+    vous préparez les mathématiques spécifiques intégrées à l’enseignement scientifique, et vous
+    passez le sujet correspondant.</p>
+</section>
+
+<section id="pieges">
+  <span class="num">Vigilance</span>
+  <h2>Les dix pièges à éviter</h2>
+  <ol class="pieges">
+    <li><b>S’inscrire depuis un téléphone.</b> Interdit par la notice, et techniquement risqué.</li>
+    <li><b>Supprimer sa pré-inscription.</b> Irréversible : vous ne pourrez plus vous inscrire du tout.</li>
+    <li><b>Saisir un nom d’usage qui ne figure pas sur la pièce d’identité.</b> Il sera imprimé sur le diplôme.</li>
+    <li><b>Mal orthographier son état civil.</b> Le diplôme reproduit votre saisie, caractère par caractère.</li>
+    <li><b>Saisir une adresse postale provisoire.</b> Le diplôme y sera envoyé au 1<sup>er</sup> trimestre 2028, en un seul exemplaire.</li>
+        <li><b>Cocher des options « au cas où ».</b> Une absence <b>non justifiée</b> vaut 0, affecté
+      du coefficient. Une absence justifiée sous trois jours ouvrables donne droit à une
+      évaluation de remplacement — sauf en EPS, qui n’en a pas.</li>
+    <li><b>Oublier une pièce justificative.</b> Une seule pièce manquante annule l’inscription.</li>
+    <li><b>Téléverser en plusieurs fichiers ce qui doit en faire un seul.</b> Carte de séjour + passeport, Fiche 1 + relevé, Fiche 2 + diplôme.</li>
+    <li><b>Attendre janvier pour penser au paiement.</b> Sans paiement dans le délai : candidature annulée, sans remboursement.</li>
+    <li><b>Ne pas surveiller ses spams.</b> Récapitulatif, convocations, avis d’annulation : tout passe par mail.</li>
+  </ol>
+</section>
+
+<section id="apres">
+  <span class="num">Suite</span>
+  <h2>Et après le 12 novembre ?</h2>
+  <p>Votre compte Cyclades devient votre guichet unique. Visitez-le régulièrement : c’est là que vous
+    récupérerez le récapitulatif d’inscription, les convocations, puis vos copies et vos relevés de
+    notes. Vous serez averti par mail de chaque mise à disposition.</p>
+  <div class="table-boite">
+    <table>
+      <thead><tr><th>Document</th><th>Quand</th><th>Où</th></tr></thead>
+      <tbody>
+        <tr><td>Convocations</td><td>à partir d’avril 2027</td><td>Cyclades, « Mes documents »</td></tr>
+        <tr><td>Relevé de notes</td><td>dès la publication des résultats</td><td>Cyclades</td></tr>
+        <tr><td>Copies corrigées</td><td>à la fin de la session</td><td>Cyclades, « Mes documents »</td></tr>
+        <tr><td>Attestation de langues vivantes</td><td>avec les résultats</td><td>niveau CECRL déterminé par vos notes de LVA et LVB</td></tr>
+        <tr><td>Diplôme</td><td>1<sup>er</sup> trimestre 2028</td><td>par la poste, à l’adresse saisie</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="bloc info">
+    <p><strong>Téléchargez et conservez précieusement votre relevé de notes</strong> : il vous sera
+      demandé pour votre inscription dans le supérieur et pour toute démarche d’orientation.</p>
+  </div>
+
+  <h3>Le dossier à préparer pendant l’année</h3>
+  <p>Certaines épreuves exigent de remettre un dossier <em>avant</em> l’épreuve. Pour le bac général,
+    c’est <strong>l’épreuve orale de français</strong>. Les dates et modalités de transmission sont
+    publiées sur la page de l’IFT, <strong>onglet EAB</strong>.</p>
+    <p>Le candidat individuel <strong>construit lui-même son récapitulatif de textes</strong>, en
+    conformité avec le programme des épreuves anticipées de français publié sur Éduscol :</p>
+  <blockquote><p>« Les candidats individuels […] présentent l’épreuve orale obligatoire et le cas
+    échéant, l’épreuve orale de contrôle dans les mêmes conditions que les candidats scolaires.
+    Le récapitulatif des activités est alors <strong>constitué par le candidat lui-même</strong>,
+    en conformité avec les programmes. »</p></blockquote>
+  <p><strong>Combien de textes ?</strong> La définition d’épreuve fixe un plancher : chaque objet
+    d’étude doit comporter <strong>au moins quatre textes</strong> susceptibles de donner
+    lieu à explication. Le programme de première comporte <strong>quatre objets d’étude</strong> —
+    la poésie, la littérature d’idées, le roman et le récit, le théâtre. Comptez donc
+    <strong>seize textes au minimum</strong>, plus l’indication de l’œuvre choisie pour la
+    seconde partie.</p>
+  <p>Le jour de l’épreuve, vous apportez un exemplaire <strong>papier</strong> du récapitulatif,
+    <strong>identique</strong> à la version numérique adressée au Bureau des examens, et un
+    exemplaire de <strong>l’œuvre choisie</strong> pour la seconde partie de l’épreuve orale.</p>
+  <div class="bloc danger">
+    <p class="bloc-titre">Candidats dérogataires de 20 ans et plus : faites confirmer le programme d’œuvres</p>
+    <p>Vous passez le français <strong>en juin 2027</strong>, en même temps que vos épreuves
+      terminales. Or le Bulletin officiel désigne ses programmes d’œuvres par la session, pas par
+      l’année de passation : la liste publiée pour l’année scolaire 2026-2027 y est rattachée aux
+      « épreuves anticipées de la <strong>session 2028</strong> ». De nombreux sites non officiels
+      étiquettent pourtant cette même liste « bac de français 2027 ».</p>
+    <p><strong>Préparer la mauvaise liste d’œuvres, c’est perdre une année de travail.</strong>
+      Écrivez au Bureau des examens pour faire confirmer par écrit la liste applicable à votre
+      épreuve de juin 2027, et conservez la réponse. Nous ne tranchons pas ce point à votre
+      place : aucun texte officiel lu à ce jour ne règle explicitement le cas du candidat
+      dérogataire.</p>
+  </div>
+  <div class="bloc nexus">
+    <p class="bloc-titre">Recommandation Nexus Réussite</p>
+    <p>Commencez ce récapitulatif maintenant, pas en avril. C’est le document qui structure toute
+      votre préparation de français, et c’est le seul que personne ne peut construire à votre place.</p>
+  </div>
+</section>
+
+<section id="parents">
+  <span class="num">Pour les familles</span>
+  <h2>Les questions que posent les parents</h2>
+
+  <details>
+    <summary>Puis-je m’inscrire à la place de mon enfant ?</summary>
+    <div class="details-corps">
+      <p>Techniquement oui, mais la notice le déconseille explicitement : « L’inscription à un examen
+        est un acte personnel, il est recommandé aux candidats de s’inscrire eux-mêmes afin d’éviter
+        toute erreur ou omission. » Le bon rôle du parent : s’asseoir à côté, relire le récapitulatif,
+        vérifier l’état civil, signer si l’enfant est mineur.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Que signe le représentant légal ?</summary>
+    <div class="details-corps">
+      <p>La confirmation d’inscription, si le candidat est mineur. Ainsi que les Fiches n° 1 et n° 2,
+        le cas échéant.</p>
+    </div>
+  </details>
+  <details>
+    <summary>1 000 TND, est-ce bien le montant total ?</summary>
+    <div class="details-corps">
+      <p>C’est le montant des frais d’examen pour l’inscription au baccalauréat, tel qu’indiqué par la
+        notice. Il ne couvre évidemment ni la préparation, ni les manuels, ni les déplacements. Aucun
+        remboursement n’est possible, quelle que soit la raison.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Mon enfant peut-il changer de spécialité après l’inscription ?</summary>
+    <div class="details-corps">
+      <p>Non. « Les choix effectués lors de l’inscription sont définitifs. » Et s’il était inscrit aux
+        épreuves anticipées 2026, ses langues vivantes et sa spécialité de première sont déjà figées.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Quand saurons-nous les dates des épreuves ?</summary>
+    <div class="details-corps">
+      <p>Le calendrier global paraîtra sur la page web de l’IFT. Les dates personnelles — oral de
+        français, évaluations ponctuelles, EPS, Grand oral, centre d’examen — figureront sur la
+        <strong>convocation individuelle</strong>, disponible dans Cyclades à partir d’avril 2027.
+        Elles ne sont communiquées ni par courriel, ni par téléphone.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Faut-il se déplacer au Bureau des examens ?</summary>
+    <div class="details-corps">
+      <p>Non. La notice est explicite : « Il est inutile de vous déplacer au bureau des examens ou de
+        prendre contact par téléphone à ce sujet. » Consultez d’abord l’aide en ligne de Cyclades,
+        puis écrivez.</p>
+    </div>
+  </details>
+</section>
+
+<section id="contact">
+  <span class="num">Contacts</span>
+  <h2>Qui contacter</h2>
+  <div class="contacts">
+    <div class="carte">
+      <h3>Bureau des examens — Institut français de Tunisie</h3>
+      <p>Pour toute difficulté d’inscription, après avoir consulté l’aide en ligne de Cyclades.</p>
+      <div class="copiable">
+        <code id="mail-ift">bureau.examens@institutfrancais-tunisie.com</code>
+        <button class="copier" type="button" data-copie="mail-ift">Copier</button>
+      </div>
+      <p>Précisez impérativement <strong>votre NOM, votre Prénom et « BAC 2027 »</strong>, ainsi que
+        le problème rencontré. C’est aussi à cette adresse qu’il faut écrire pour demander une
+        modification de vos données après la clôture.</p>
+      <p><a href="https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/">Page de
+        référence pendant toute la session</a></p>
+    </div>
+    <div class="carte">
+      <h3>Nexus Réussite</h3>
+      <p>Centre pédagogique Mutuelleville, Tunis.</p>
+      <div class="copiable">
+        <code id="tel-nexus">+216 99 19 28 29</code>
+        <button class="copier" type="button" data-copie="tel-nexus">Copier</button>
+      </div>
+      <div class="copiable">
+        <code id="mail-nexus">contact@nexusreussite.academy</code>
+        <button class="copier" type="button" data-copie="mail-nexus">Copier</button>
+      </div>
+      <p>Nous accompagnons les candidats individuels sur toute la chaîne : arbitrage des spécialités,
+        construction du récapitulatif de français, préparation du Grand oral, et relecture du dossier
+        d’inscription avant validation.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="enveloppe">
+    <h2>Ce que ce document est, et n’est pas</h2>
+    <div class="mention">
+      <p>Ce mémo est une <strong>synthèse éditoriale privée de Nexus Réussite</strong>. Ce n’est
+        <strong>ni un texte officiel, ni un document ministériel, ni un document de l’Institut
+        français de Tunisie</strong>.</p>
+      <p>En cas de contradiction avec un texte réglementaire, avec la notice officielle ou avec votre
+        convocation individuelle, <strong>le document officiel prévaut — toujours</strong>. Les
+        passages signalés « Recommandation Nexus Réussite » sont des conseils pédagogiques, jamais
+        des obligations réglementaires.</p>
+    </div>
+
+    <h3 class="sur-sombre">Sources</h3>
+    <div class="table-boite">
+      <table>
+        <thead><tr><th>Source</th><th>Nature</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Note d’inscription BAC 2027</strong>, Bureau des examens de Tunis, 14 p., publiée le 15 octobre 2026</td><td>Source principale pour la procédure, les dates, les frais, les pièces et les choix ouverts en Tunisie</td></tr>
+          <tr><td>Notice d’inscription BAC 2026, Bureau des examens de Tunis</td><td>Référence pour la comparaison 2026 / 2027</td></tr>
+          <tr><td>Arrêté du 10 juin 2025 (JORFTEXT000051714285)</td><td>Création de l’épreuve anticipée de mathématiques ; ajustement des coefficients à compter de 2027</td></tr>
+          <tr><td>Note de service du 10 juin 2025 (MENE2515469N, BO n° 24 du 12 juin 2025)</td><td>Définition de l’épreuve anticipée de mathématiques et de l’oral de contrôle</td></tr>
+                    <tr><td><strong>Note de service MENE2523743N du 25 août 2025</strong> (BO n° 32 du 28 août 2025)</td><td>Modalités d’évaluation des candidats individuels : les deux formes de passage, l’organisation des évaluations ponctuelles, le régime des absences, l’EPS en examen ponctuel terminal</td></tr>
+          <tr><td>Arrêté du 16 juillet 2018 modifié (modalités du contrôle continu)</td><td>Coefficients du bloc des 40</td></tr>
+          <tr><td>Note de service MENE2618195N du 3 juillet 2026 (BO n° 30 du 23 juillet 2026)</td><td>Évaluations ponctuelles de LVA et LVB à compter de la session 2027, dont la disposition transitoire propre à 2027</td></tr>
+          <tr><td>Note de service MENE2121399N du 25 octobre 2021, modifiée le 23 mars 2022</td><td>Enseignements optionnels : coefficients 2 et 4, plafonds, LCA hors quota</td></tr>
+          <tr><td>Note de service MENE2531948N du 20 février 2026 (BO n° 9 du 26 février 2026)</td><td>Examen ponctuel terminal d’EPS : deux champs d’apprentissage, absence, neutralisation du coefficient</td></tr>
+          <tr><td>Note de service MENE2622686N du 24 août 2026 (BO spécial n° 2 du 25 août 2026)</td><td>Calendrier national 2027 et dates des épreuves de remplacement, applicables aux centres étrangers</td></tr>
+          <tr><td>Définition consolidée des épreuves anticipées de français</td><td>Récapitulatif constitué par le candidat, minimum de textes par objet d’étude, structure de l’oral</td></tr>
+          <tr><td>Arrêté du 14 mai 2020 ; code de l’éducation, art. D 334-7, D 334-13, D 336-7, D 336-13</td><td>Dispenses d’épreuves et conservation de notes</td></tr>
+          <tr><td><a href="https://eduscol.education.fr/750/baccalaureat-general">Éduscol — baccalauréat général</a></td><td>Attendus, contenus des épreuves et programmes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+        <h3 class="sur-sombre">Ce qui n’est pas encore publié au 16 octobre 2026</h3>
+    <p>Vérifié ce jour, numéro par numéro, sur les 39 Bulletins officiels parus en 2026 et sur la
+      page de l’Institut français :</p>
+    <div class="table-boite">
+      <table>
+        <thead><tr><th>Donnée attendue</th><th>Où elle paraîtra</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Note de service « centres ouverts à l’étranger », session 2027</strong></td><td>Bulletin officiel. La note 2026 était parue au BO n° 40 du 23 octobre 2025</td></tr>
+          
+          <tr><td>Groupe d’examen et académie de rattachement de la Tunisie pour 2027</td><td>Annexe I de cette note</td></tr>
+          <tr><td>Calendrier des épreuves écrites en Tunisie</td><td>Annexe II de cette note, puis page de l’IFT</td></tr>
+          <tr><td>Liste des langues vivantes organisées en Tunisie</td><td>Fixée chaque année par le recteur de l’académie de rattachement</td></tr>
+          <tr><td>Liste des enseignements optionnels effectivement ouverts</td><td>Cyclades et page de l’IFT</td></tr>
+          <tr><td>Modalités et délais exacts du paiement en ligne</td><td>Page de l’IFT, en janvier 2027</td></tr>
+          <tr><td><strong>Dates de transmission des dossiers</strong></td><td>Page de l’IFT, onglet EAB. Elle affiche encore les dates de la session 2026</td></tr>
+          <tr><td>Modalités de l’évaluation ponctuelle d’EMC présentée au cours de l’année 2026-2027</td><td>Bulletin officiel</td></tr>
+          <tr><td>Date de publication des résultats et calendrier du second groupe</td><td>Page de l’IFT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Aucune de ces données n’a été estimée ni déduite du calendrier métropolitain. Une donnée
+      non publiée reste signalée comme telle.</p>
+    <div class="mention">
+      <p><strong>Attention en consultant la page de l’IFT aujourd’hui :</strong> à l’exception de
+        la notice d’inscription 2027, la plupart de ses contenus sont encore ceux de la session
+        2026 — calendrier, dates de dépôt des dossiers, notices EAB et DNB. Ne prenez une date
+        sur cette page que si elle porte explicitement la mention 2027.</p>
+    </div>
+    <p style="margin-top:22px;opacity:.75">Document établi le 16 octobre 2026, jour de l’ouverture
+      des inscriptions. Pour le guide complet de 211 pages — règles d’évaluation, programmes,
+      stratégies de parcours, fiches de préparation — demandez le <em>Guide du candidat individuel au
+      baccalauréat général, Nexus Réussite, édition 2026-2027</em>.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---- Compte à rebours jusqu'à la clôture : 12 nov. 2026, 18 h, heure de Tunis (UTC+1)
+  var cible = Date.parse("2026-11-12T18:00:00+01:00");
+  var hote = document.getElementById("compte");
+  function pad(n){ return n < 10 ? "0" + n : "" + n; }
+  function tic(){
+    var reste = cible - Date.now();
+    if (reste <= 0){
+      hote.className = "compte fini";
+      hote.textContent = "Les inscriptions sont closes.";
+      return false;
+    }
+    var s = Math.floor(reste / 1000);
+    var j = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600),
+        m = Math.floor(s % 3600 / 60), sec = s % 60;
+    hote.innerHTML =
+      '<div><b>' + j + '</b><span>jours</span></div>' +
+      '<div><b>' + pad(h) + '</b><span>h</span></div>' +
+      '<div><b>' + pad(m) + '</b><span>min</span></div>' +
+      '<div><b>' + pad(sec) + '</b><span>s</span></div>';
+    return true;
+  }
+  if (tic()) setInterval(tic, 1000);
+
+  // ---- Check-list des pièces, mémorisée dans ce navigateur
+  var CLE = "nexus-bac-general-2027-pieces";
+  var cases = Array.prototype.slice.call(document.querySelectorAll("[data-liste] input[type=checkbox]"));
+  var txt = document.getElementById("avancement-txt");
+  var barre = document.getElementById("avancement-barre");
+
+  function lire(){
+    try { return JSON.parse(localStorage.getItem(CLE) || "{}") || {}; }
+    catch (e) { return {}; }
+  }
+  function ecrire(etat){
+    try { localStorage.setItem(CLE, JSON.stringify(etat)); } catch (e) {}
+  }
+  function majAvancement(){
+    var n = cases.filter(function(c){ return c.checked; }).length;
+    txt.textContent = n + " sur " + cases.length;
+    barre.style.width = (cases.length ? n / cases.length * 100 : 0) + "%";
+  }
+
+  var etat = lire();
+  cases.forEach(function(c){
+    if (etat[c.id]) c.checked = true;
+    c.addEventListener("change", function(){
+      var e = lire();
+      if (c.checked) e[c.id] = 1; else delete e[c.id];
+      ecrire(e);
+      majAvancement();
+    });
+  });
+  majAvancement();
+
+  document.getElementById("reinit").addEventListener("click", function(){
+    cases.forEach(function(c){ c.checked = false; });
+    ecrire({});
+    majAvancement();
+  });
+
+  // ---- Boutons copier
+  document.querySelectorAll(".copier").forEach(function(b){
+    b.addEventListener("click", function(){
+      var el = document.getElementById(b.dataset.copie);
+      var fini = function(){
+        var av = b.textContent;
+        b.textContent = "Copié";
+        b.dataset.ok = "1";
+        setTimeout(function(){ b.textContent = av; delete b.dataset.ok; }, 1600);
+      };
+      var secours = function(){
+        var r = document.createRange();
+        r.selectNodeContents(el);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(el.textContent).then(fini, secours);
+      } else {
+        secours();
+      }
+    });
+  });
+})();
+</script>

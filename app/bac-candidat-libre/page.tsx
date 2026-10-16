@@ -423,6 +423,13 @@ export default function BacCandidatLibrePage() {
               </div>
             ))}
           </div>
+          <p className="mt-6 text-sm leading-6 text-lux-on-dark-muted">
+            Le mode d’emploi complet de la campagne, écran par écran{NBSP}:{' '}
+            <Link href="/inscription-bac-2027" className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory">
+              nos dossiers d’inscription 2027
+            </Link>
+            {' '}(bac général et bac STMG).
+          </p>
         </div>
       </section>
 

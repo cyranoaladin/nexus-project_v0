@@ -134,7 +134,15 @@ const nextConfig = {
   // cette réécriture, /planning ne résout pas vers le fichier index.html.
   // L'accès est contrôlé par le middleware (rôles ADMIN, ASSISTANTE, COACH).
   async rewrites() {
-    return [{ source: '/planning', destination: '/planning/index.html' }];
+    return [
+      { source: '/planning', destination: '/planning/index.html' },
+      // Dossiers « Inscription 2027 » : documents audités servis tels quels.
+      // Leur compte à rebours, leur check-list mémorisée et leurs boutons de
+      // copie vivent dans un <script> inline, qu'un portage en composant
+      // n'exécuterait pas. Même idiome que /planning ci-dessus.
+      { source: '/inscription-bac-2027/general', destination: '/inscription-bac-2027/general.html' },
+      { source: '/inscription-bac-2027/stmg', destination: '/inscription-bac-2027/stmg.html' },
+    ];
   },
 
   // Redirections pour restructuration navigation

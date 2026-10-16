@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
+import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const preRentree = getPreRentreeReleaseGate().isPublicReady
     ? getPreRentreePublicSurfaceDTO()
     : null;
+
+  // Dossiers « Inscription 2027 » : campagne d'actualité, priorité haute tant
+  // que les inscriptions Cyclades sont ouvertes, redescendue à la clôture.
+  const inscription2027: MetadataRoute.Sitemap = getPagesInscription2027().map((page) => ({
+    url: `${BASE_URL}${page.chemin}`,
+    lastModified: CONTENU_MIS_A_JOUR,
+    changeFrequency: 'weekly' as const,
+    priority: campagneOuverte(page, now) ? 0.9 : 0.5,
+  }));
 
   // Public pages with their priorities and change frequencies
   const publicPages: MetadataRoute.Sitemap = [
@@ -199,5 +209,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fallback silencieux si DB indisponible (prerender ou CI)
   }
 
-  return [...publicPages, ...stageEntries];
+  return [...publicPages, ...inscription2027, ...stageEntries];
 }
