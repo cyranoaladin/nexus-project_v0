@@ -9,7 +9,7 @@ import {
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
   jourMois,
-  texteEcheancier,
+  texteEcheancierProse,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -34,7 +34,7 @@ function ligneParcours(p: ParcoursCandidatLibre, maintenant: Date): string {
   const frais = getFraisDossier(p.id, maintenant);
   return (
     `- **${p.titre}** : ${tnd(p.prix_annuel)} par an — ` +
-    `${texteEcheancier(p.echeancier_9, 9)}, ou ${texteEcheancier(p.echeancier_8, 8)}, ` +
+    `${texteEcheancierProse(p.echeancier_9, 9)}, ou ${texteEcheancierProse(p.echeancier_8, 8)}, ` +
     `ou ${tnd(p.comptant)} comptant. ${p.heures_cours} h de cours, ${p.copies_corrigees} copies d’épreuves blanches corrigées, ` +
     `${p.oraux.toLowerCase()}, ${p.bilans} bilans avec la famille. En sus, frais de dossier et d’accompagnement Cyclades : ${tnd(frais.montant)}` +
     `${frais.offertJusquAu ? ` (offerts pour une inscription conclue jusqu’au ${dateLongue(frais.offertJusquAu)})` : ''}. Public : ${p.public}`

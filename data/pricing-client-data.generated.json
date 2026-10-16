@@ -418,6 +418,6 @@
   },
   "candidats_libres_groupe": {
     "max": 12,
-    "ouverture_min": 7
+    "ouverture_min": 6
   }
 }

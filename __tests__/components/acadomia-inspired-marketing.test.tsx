@@ -37,7 +37,10 @@ describe('Acadomia-inspired marketing components', () => {
   it('renders the transparency banner with exact approved copy', () => {
     render(<TransparencyBanner />);
 
-    expect(screen.getByText('Des tarifs publics, nets, en dinars.')).toBeInTheDocument();
+    // « nets » retiré : le régime fiscal n'est pas attesté, et « net », « TTC »
+    // ou « HT » ne doivent apparaître nulle part.
+    expect(screen.getByText('Des tarifs publics, en dinars.')).toBeInTheDocument();
+    expect(screen.queryByText(/nets?,/)).not.toBeInTheDocument();
     expect(
       screen.getByText(/Échéanciers visibles, acompte clair, aucun coût caché/)
     ).toBeInTheDocument();

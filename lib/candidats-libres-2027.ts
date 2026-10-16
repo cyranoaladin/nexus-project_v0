@@ -101,16 +101,26 @@ export function finDeJourneeTunis(date: string): Date {
 }
 
 /**
- * Écrit un échéancier sans jamais annoncer un multiple uniforme :
- * « 8 × 580 puis 560 TND, d'octobre à juin ». Un « 9 × 580 » dépasserait le
- * prix annuel de 20 TND — c'est la faute que ce formateur unique empêche.
+ * Suffixe qui énonce la dernière échéance quand elle ajuste le total, et rien
+ * sinon : « (dernière : 560 TND) ». Les cartes gardent leur copie approuvée
+ * (« × 9 mensualités, d'octobre à juin ») et n'écrivent aucun montant
+ * elles-mêmes, de sorte qu'un « 9 × 580 » n'y est plus formulable.
  */
-export function texteEcheancier(e: Echeancier, versements: 8 | 9): string {
+export function suffixeDerniereEcheance(e: Echeancier): string {
+  return e.derniere === e.mensualite ? '' : ` (dernière\u00a0: ${fmtMontant(e.derniere)}\u00a0TND)`;
+}
+
+/**
+ * Échéancier en prose, forme de l'annexe : « 8 × 580 puis 560 TND, d'octobre
+ * à juin ». Réservé aux phrases suivies (FAQ, llms.txt), où l'ancienne
+ * rédaction annonçait « 9 mensualités de 580 » — soit 20 TND de plus que le
+ * prix annuel affiché sur la même ligne.
+ */
+export function texteEcheancierProse(e: Echeancier, versements: 8 | 9): string {
   const mois = versements === 9 ? 'd’octobre à juin' : 'de novembre à juin';
-  const tete = `${versements - 1} × ${fmtMontant(e.mensualite)}`;
   return e.derniere === e.mensualite
-    ? `${versements} × ${fmtMontant(e.mensualite)} TND, ${mois}`
-    : `${tete} puis ${fmtMontant(e.derniere)} TND, ${mois}`;
+    ? `${versements} × ${fmtMontant(e.mensualite)}\u00a0TND, ${mois}`
+    : `${versements - 1} × ${fmtMontant(e.mensualite)} puis ${fmtMontant(e.derniere)}\u00a0TND, ${mois}`;
 }
 
 /** « 2026-10-31 » → « 31/10 ». */

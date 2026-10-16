@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { fmtMontant } from '@/components/premium/format';
-import { getCandidatsLibres2027, getFraisDossier, jourMois, texteEcheancier } from '@/lib/candidats-libres-2027';
+import { getCandidatsLibres2027, getFraisDossier, jourMois, suffixeDerniereEcheance } from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
 
@@ -50,7 +50,8 @@ export function CandidatsLibresParcours() {
                 <span className="ml-1 font-body text-sm text-lux-slate">{NBSP}TND / mois</span>
               </p>
               <p className="mt-1 text-sm text-lux-slate">
-                {texteEcheancier(echeancier, p.echeancier_affiche)}
+                × {p.echeancier_affiche} mensualités
+                {suffixeDerniereEcheance(echeancier)}
                 {' · '}{fmtMontant(p.prix_annuel)}{NBSP}TND / an · comptant {fmtMontant(p.comptant)}{NBSP}TND
               </p>
               <FraisDossier id={p.id} maintenant={maintenant} />

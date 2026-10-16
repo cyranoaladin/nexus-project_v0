@@ -18,7 +18,8 @@ import {
   getCandidatsLibres2027,
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
-  texteEcheancier,
+  suffixeDerniereEcheance,
+  texteEcheancierProse,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -47,15 +48,16 @@ function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre;
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
       </p>
       <p className="mt-1 text-sm text-lux-slate">
-        {texteEcheancier(echeancier, huit ? 8 : 9)}
+        × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
+        {suffixeDerniereEcheance(echeancier)}
       </p>
       <p className="mt-1 text-sm font-semibold text-lux-ink">
         {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
       </p>
       <p className="mt-1 text-xs text-lux-slate">
         {huit
-          ? `ou ${texteEcheancier(parcours.echeancier_9, 9)}`
-          : `ou ${texteEcheancier(parcours.echeancier_8, 8)}`}
+          ? `ou ${texteEcheancierProse(parcours.echeancier_9, 9)}`
+          : `ou ${texteEcheancierProse(parcours.echeancier_8, 8)}`}
       </p>
       <FraisDossier id={parcours.id} maintenant={maintenant} />
     </div>
