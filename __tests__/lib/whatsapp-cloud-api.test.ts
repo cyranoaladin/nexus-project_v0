@@ -45,6 +45,25 @@ function reponse(status: number, body: unknown) {
 }
 
 describe('configuration', () => {
+  it('un interrupteur propre aux commandes découple les deux usages', () => {
+    const sansGlobal = { ...ENV, WHATSAPP_SEND_ENABLED: 'false' };
+    // Sans réglage propre, le canal suit l'interrupteur maison.
+    expect(isWhatsAppCloudConfigured(sansGlobal)).toBe(false);
+    // Activé explicitement pour les commandes : il part, sans basculer les
+    // invitations parents en envoi automatique.
+    expect(
+      isWhatsAppCloudConfigured({ ...sansGlobal, WHATSAPP_ORDER_SEND_ENABLED: 'true' }),
+    ).toBe(true);
+    // Et il peut être coupé pour les seules commandes, maison allumée.
+    expect(
+      isWhatsAppCloudConfigured({ ...ENV, WHATSAPP_ORDER_SEND_ENABLED: 'false' }),
+    ).toBe(false);
+  });
+
+  it('l’interrupteur propre ne dispense pas des identifiants', () => {
+    expect(isWhatsAppCloudConfigured({ WHATSAPP_ORDER_SEND_ENABLED: 'true' })).toBe(false);
+  });
+
   it('sans identifiants, le canal est simplement absent', () => {
     expect(isWhatsAppCloudConfigured({})).toBe(false);
     expect(isWhatsAppCloudConfigured({ WHATSAPP_META_PHONE_NUMBER_ID: '1' })).toBe(false);

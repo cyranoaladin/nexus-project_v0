@@ -13,6 +13,7 @@
  *    n'a pas encore ses identifiants ne doit pas voir ses journaux rougir.
  *
  * Configuration, par variables d'environnement, jamais dans le code :
+ *   WHATSAPP_ORDER_SEND_ENABLED      interrupteur propre aux réservations
  *   WHATSAPP_SEND_ENABLED            interrupteur maître du transport
  *   WHATSAPP_META_PHONE_NUMBER_ID    identifiant du numéro expéditeur
  *   WHATSAPP_META_ACCESS_TOKEN       jeton permanent
@@ -42,8 +43,26 @@ type Env = Record<string, string | undefined>;
 const DEFAULT_API_VERSION = 'v21.0';
 const PARAMETER_MAX = 300;
 
+/**
+ * Les réservations ont leur propre interrupteur, pour une raison concrète :
+ * `WHATSAPP_SEND_ENABLED` commande AUSSI les invitations parents, qui partent
+ * aujourd'hui en envoi assisté — une assistante vérifie le destinataire et
+ * clique. L'allumer pour les commandes basculerait ce geste humain en envoi
+ * automatique, ce que personne n'a demandé.
+ *
+ * Règle : `WHATSAPP_ORDER_SEND_ENABLED` l'emporte quand il est renseigné,
+ * dans un sens comme dans l'autre ; à défaut, les commandes suivent
+ * l'interrupteur maison. Les identifiants Meta, eux, restent exigés dans
+ * tous les cas — un interrupteur n'invente pas un compte.
+ */
+export function isOrderTransportEnabled(env: Env = process.env): boolean {
+  const propre = env.WHATSAPP_ORDER_SEND_ENABLED?.trim();
+  if (propre) return propre === 'true';
+  return env.WHATSAPP_SEND_ENABLED === 'true';
+}
+
 export function isWhatsAppCloudConfigured(env: Env = process.env): boolean {
-  if (env.WHATSAPP_SEND_ENABLED !== 'true') return false;
+  if (!isOrderTransportEnabled(env)) return false;
   return Boolean(
     env.WHATSAPP_META_PHONE_NUMBER_ID?.trim() && env.WHATSAPP_META_ACCESS_TOKEN?.trim(),
   );

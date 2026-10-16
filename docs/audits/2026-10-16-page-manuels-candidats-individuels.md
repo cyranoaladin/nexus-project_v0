@@ -403,16 +403,22 @@ e-mail, et la réponse l'annonce (`whatsapp: "disabled"`).
    Remise : {{7}}
    ```
 
-2. **Vérifier la configuration Meta déjà en place** — `WHATSAPP_SEND_ENABLED`,
+2. **Activer le canal des réservations** avec `WHATSAPP_ORDER_SEND_ENABLED=true`,
+   et non `WHATSAPP_SEND_ENABLED` : ce dernier commande aussi les invitations
+   parents, qui partent aujourd'hui en envoi assisté par l'assistante. Les
+   allumer ensemble changerait un geste humain en envoi automatique jamais
+   éprouvé en production.
+
+3. **Vérifier la configuration Meta déjà en place** — `WHATSAPP_SEND_ENABLED`,
    `WHATSAPP_META_PHONE_NUMBER_ID`, `WHATSAPP_META_ACCESS_TOKEN`,
    `WHATSAPP_OUTBOX_ENCRYPTION_KEY`. Si les invitations parents fonctionnent
    déjà par ce transport, **il n'y a rien à ajouter**.
 
-3. Deux variables propres aux réservations, toutes deux facultatives :
+4. Deux variables propres aux réservations, toutes deux facultatives :
    `WHATSAPP_TEMPLATE_ORDER` (défaut `commande_manuels`) et
    `WHATSAPP_ORDER_RECIPIENT` (défaut : le numéro public de la maison).
 
-4. **Vérifier que le destinataire n'est pas l'expéditeur.** Le propriétaire a
+5. **Vérifier que le destinataire n'est pas l'expéditeur.** Le propriétaire a
    retenu le 99 19 28 29, qui est aussi le numéro public. Si c'est le numéro du
    compte Business, Meta refusera — un numéro ne peut pas s'écrire à lui-même.
    Le refus est traduit en clair dans le journal et dans `lastError` du travail.
