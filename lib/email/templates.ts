@@ -215,3 +215,117 @@ export function contactLeadNotification(data: ContactLeadNotificationData): Emai
 
   return { subject, html, text };
 }
+
+// ─── Template: pré-commande de manuels ──────────────────────────────────────
+
+export interface ManuelsOrderLine {
+  title: string;
+  disciplineLabel: string;
+  pages: number;
+}
+
+export interface ManuelsOrderData {
+  reference: string;
+  name: string;
+  email: string;
+  phone: string;
+  formatLabel: string;
+  deliveryLabel: string;
+  address?: string;
+  lines: ManuelsOrderLine[];
+  volumes: number;
+  pages: number;
+  total: number;
+  message?: string;
+  createdAt: Date | string;
+}
+
+function manuelsOrderRows(lines: ManuelsOrderLine[]): string {
+  return lines
+    .map(
+      (l) =>
+        `<tr><td style="padding:6px 0;border-bottom:1px solid #eee;font-size:14px;">${escapeHtml(
+          l.disciplineLabel,
+        )} — ${escapeHtml(l.title)}</td><td style="padding:6px 0;border-bottom:1px solid #eee;font-size:14px;text-align:right;white-space:nowrap;">${l.pages} p.</td></tr>`,
+    )
+    .join('');
+}
+
+/** Notification interne : le détail complet de la demande. */
+export function manuelsOrderNotification(data: ManuelsOrderData): EmailTemplate {
+  const createdAt = new Date(data.createdAt).toLocaleString('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  const livraison = data.address
+    ? `${data.deliveryLabel} — ${data.address}`
+    : data.deliveryLabel;
+  const subject = `[Nexus] Pré-commande manuels — ${data.name} — ${data.total} DT`;
+
+  const html = wrapLayout(
+    'Pré-commande de manuels',
+    '#111827',
+    `
+<div style="background:#f8f9fa;padding:20px;border-radius:8px;margin:0 0 20px;">
+  <ul style="list-style:none;padding:0;margin:0;font-size:14px;line-height:2;">
+    <li><strong>Référence :</strong> ${escapeHtml(data.reference)}</li>
+    <li><strong>Nom :</strong> ${escapeHtml(data.name)}</li>
+    <li><strong>Email :</strong> ${escapeHtml(data.email)}</li>
+    <li><strong>Téléphone :</strong> ${escapeHtml(data.phone)}</li>
+    <li><strong>Format :</strong> ${escapeHtml(data.formatLabel)}</li>
+    <li><strong>Remise :</strong> ${escapeHtml(livraison)}</li>
+    <li><strong>Reçue le :</strong> ${escapeHtml(createdAt)}</li>
+  </ul>
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${manuelsOrderRows(data.lines)}</table>
+<p style="margin:20px 0 0;font-size:15px;"><strong>${data.volumes} volume(s), ${data.pages} pages — ${data.total} DT</strong></p>
+${data.message ? `<p style="margin:16px 0 0;font-size:14px;color:#333;">Message : ${escapeHtml(data.message)}</p>` : ''}
+<p style="margin:20px 0 0;font-size:13px;color:#666;">Répondre à cet e-mail écrit directement au demandeur.</p>`,
+  );
+
+  const text = [
+    `Pré-commande manuels — ${data.reference}`,
+    `${data.name} · ${data.email} · ${data.phone}`,
+    `${data.formatLabel} · ${livraison}`,
+    '',
+    ...data.lines.map((l) => `- ${l.disciplineLabel} — ${l.title} (${l.pages} p.)`),
+    '',
+    `${data.volumes} volume(s), ${data.pages} pages — ${data.total} DT`,
+    data.message ? `Message : ${data.message}` : '',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  return { subject, html, text };
+}
+
+/** Accusé de réception envoyé au demandeur. */
+export function manuelsOrderAcknowledgement(data: ManuelsOrderData): EmailTemplate {
+  const subject = `Votre demande de manuels — Nexus Réussite (${data.reference})`;
+  const html = wrapLayout(
+    'Demande bien reçue',
+    '#1d4ed8',
+    `
+<p style="color:#333;line-height:1.6;">Bonjour ${escapeHtml(data.name)},</p>
+<p style="color:#333;line-height:1.6;">Nous avons bien reçu votre demande de manuels. Elle n'est pas encore
+une commande ferme : nous revenons vers vous pour confirmer la disponibilité des volumes,
+le délai de fabrication et le règlement.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${manuelsOrderRows(data.lines)}</table>
+<p style="margin:20px 0 0;font-size:15px;"><strong>${data.volumes} volume(s), ${data.pages} pages — ${data.total} DT</strong></p>
+<p style="margin:8px 0 0;font-size:14px;color:#555;">${escapeHtml(data.formatLabel)} · ${escapeHtml(data.deliveryLabel)}</p>
+<p style="margin:20px 0 0;font-size:13px;color:#666;">Référence à rappeler : ${escapeHtml(data.reference)}</p>`,
+  );
+  const text = [
+    `Bonjour ${data.name},`,
+    '',
+    "Nous avons bien reçu votre demande de manuels. Elle n'est pas encore une commande ferme :",
+    'nous revenons vers vous pour confirmer la disponibilité, le délai et le règlement.',
+    '',
+    ...data.lines.map((l) => `- ${l.disciplineLabel} — ${l.title} (${l.pages} p.)`),
+    '',
+    `${data.volumes} volume(s), ${data.pages} pages — ${data.total} DT`,
+    `${data.formatLabel} · ${data.deliveryLabel}`,
+    `Référence : ${data.reference}`,
+  ].join('\n');
+  return { subject, html, text };
+}

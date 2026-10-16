@@ -68,5 +68,16 @@ const miniCalendar = canonical.stage_calendar.map((e) => ({
 const calendarPath = path.join(__dirname, '..', 'data', 'stage-calendar-client.json');
 fs.writeFileSync(calendarPath, JSON.stringify(miniCalendar, null, 2) + '\n');
 
+// 3. Catalogue des manuels pour candidats individuels
+// Fichier séparé : il n'est chargé que par la page des manuels, qui calcule
+// les devis dans le navigateur. L'agréger à pricing-client-data.generated.json
+// l'imposerait à toutes les pages qui lisent seulement les règles tarifaires.
+if (canonical.manuels === undefined) {
+  throw new Error('Missing expected key "manuels" in pricing.canonical.json');
+}
+const manuelsPath = path.join(__dirname, '..', 'data', 'manuels-client.generated.json');
+fs.writeFileSync(manuelsPath, JSON.stringify(canonical.manuels, null, 2) + '\n');
+
 console.log('✓ pricing-client-data.generated.json (%d bytes)', fs.statSync(clientDataPath).size);
 console.log('✓ stage-calendar-client.json (%d bytes)', fs.statSync(calendarPath).size);
+console.log('✓ manuels-client.generated.json (%d bytes)', fs.statSync(manuelsPath).size);

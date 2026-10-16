@@ -2760,6 +2760,7 @@ enum CanonicalJobType {
   SEND_EMAIL
   RECOVER_ARIA_TURN
   WHATSAPP_SEND
+  SEND_WHATSAPP_ORDER
 }
 
 enum CanonicalNotificationEventType {

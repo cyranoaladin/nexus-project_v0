@@ -59,6 +59,7 @@ const MIGRATED_PUBLIC_PAGES = [
   // Sitemap pages using shared lux components (LandingNiche, Stages2026Page)
   'app/stages/page.tsx',
   'app/stages/Stages2026Page.tsx',
+  'app/manuels/page.tsx',
   'app/stages/pre-rentree-2026/page.tsx',
   'app/grand-oral/page.tsx',
   'app/reussir-eaf/page.tsx',
@@ -87,6 +88,8 @@ const MIGRATED_PUBLIC_COMPONENTS = [
   'components/pre-rentree-2026/CampaignPageTracker.tsx',
   'components/pre-rentree-2026/ProgramsSection.tsx',
   'components/pre-rentree-2026/ScheduleSection.tsx',
+  'components/marketing/ManuelsBanner.tsx',
+  'app/manuels/_components/ManuelsShop.tsx',
 ];
 
 // Pages publiques PAS encore migrées — allowlist décroissante
@@ -266,49 +269,15 @@ describe('Public lux-* charte guard', () => {
     'app/assessments/[id]/processing/page.tsx',
     'app/assessments/[id]/result/page.tsx',
     'app/bilan-gratuit/assessment/[id]/report/page.tsx',
-    // démonstrateur salon UTICA 2026 (noindex, kill switch désactivé par
-    // défaut — voir lib/demo/utica-2026/flag.ts) : rejoue l'expérience
-    // dashboard interne (Parent/Élève/ARIA), donc réutilise volontairement
-    // les tokens brand-*/surface-* du dashboard, pas la charte lux-*
-    // marketing publique — hors périmètre de ce garde par conception.
-    'app/demo/utica-2026/page.tsx',
-    'app/demo/utica-2026/parent/page.tsx',
-    'app/demo/utica-2026/eleve/page.tsx',
-    'app/demo/utica-2026/aria/page.tsx',
-    'app/demo/utica-2026/360/page.tsx',
-    'app/demo/utica-2026/ressources/[slug]/page.tsx',
-    // Espace pédagogique Terminale (élèves + enseignant) : espace de travail authentifié, noindex,
-    // qui réutilise les tokens brand-*/surface-* du dashboard — pas une page marketing lux-*.
-    'app/espace/bilan/[level]/page.tsx',
-    'app/espace/enseignant/bilans/page.tsx',
-    'app/espace/enseignant/bilans/[workId]/page.tsx',
-    'app/espace/connexion/page.tsx',
-    'app/espace/eleve/compte/page.tsx',
-    'app/espace/eleve/matieres/page.tsx',
-    'app/espace/eleve/page.tsx',
-    'app/espace/eleve/travaux/page.tsx',
-    'app/espace/enseignant/a-corriger/page.tsx',
-    'app/espace/enseignant/archives-poo/page.tsx',
-    'app/espace/enseignant/corriger/[workId]/page.tsx',
-    'app/espace/enseignant/eleves/[id]/page.tsx',
-    'app/espace/enseignant/eleves/page.tsx',
-    'app/espace/enseignant/compte/page.tsx',
-    'app/espace/enseignant/page.tsx',
-    'app/espace/enseignant/ressources/page.tsx',
-    'app/espace/enseignant/seances/page.tsx',
-    'app/espace/maths/fonctions-limites/page.tsx',
-    'app/espace/maths/second-degre/page.tsx',
-    'app/espace/maths/suites/page.tsx',
-    'app/espace/nsi/poo/page.tsx',
-    'app/espace/nsi/structures-lineaires/page.tsx',
-    'app/espace/nsi/recursivite/page.tsx',
-    'app/espace/nsi/entrainement-evaluation/page.tsx',
-    'app/espace/page.tsx',
   ];
 
   test('filesystem exhaustivity: every public page.tsx is covered', () => {
+    // `/espace` rejoint les groupes privés déjà écartés : son layout déclare
+    // `robots: { index: false, follow: false }`, le middleware le protège
+    // derrière `/espace/connexion`, et le plan du site l'ignore. La charte
+    // lux-* vise les surfaces publiques indexées ; celles-ci n'en sont pas.
     const allPages = execSync(
-      "find app -name 'page.tsx' -not -path '*/dashboard/*' -not -path '*/api/*' -not -path '*/auth/*' -not -path '*/session/*'",
+      "find app -name 'page.tsx' -not -path '*/dashboard/*' -not -path '*/api/*' -not -path '*/auth/*' -not -path '*/session/*' -not -path '*/espace/*'",
       { encoding: 'utf-8', cwd: root },
     )
       .trim()

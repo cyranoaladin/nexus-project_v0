@@ -22,6 +22,7 @@ import {
   TransparencyBanner,
 } from '@/components/marketing/acadomia-inspired';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { ManuelsBanner } from '@/components/marketing/ManuelsBanner';
 import { PreRentreeCampaignSpotlight } from '@/components/marketing/PreRentreeCampaignSpotlight';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
@@ -256,6 +257,13 @@ export function HomePageClient({
 
       {/* 1 bis. À la une — campagne candidats libres de la session (coupée à la clôture des inscriptions) */}
       {aLaUne && <CandidatsLibresALaUne aLaUne={aLaUne} />}
+
+      {/* 1 ter. Manuels des candidats individuels — sous le héros, et non
+          au-dessus : l'emplacement d'en-tête est déjà pris par le spotlight,
+          et deux blocs promotionnels avant le héros repoussent le CTA
+          principal hors du premier écran sur un téléphone de 390 px
+          (e2e/auth/pages-public-homepage-mobile.spec.ts). */}
+      <ManuelsBanner asHeader={false} />
 
       {/* 2. Router par niveau (bg-lux-white) — navigation immédiate */}
       <LevelRouter />

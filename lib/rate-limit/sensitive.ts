@@ -79,6 +79,10 @@ export const SENSITIVE_RATE_LIMIT_POLICIES = {
   // workspace (components/dashboard/assistante/DevisWorkspace.tsx) — read
   // traffic from an authenticated internal user, same tier as the other
   // staff read endpoints (admin-stats, student-credits).
+  // Pré-commande publique de manuels (app/api/manuels/commande) : écriture
+  // non authentifiée qui crée une fiche et deux intentions d'e-mail, même
+  // palier que les autres formulaires publics.
+  'manuels-order': { ipPreset: 'writeIp', identityPreset: 'emailIdentity' },
   'quotes-lead-search': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   'quotes-history-read': { ipPreset: 'readIp', identityPreset: 'readIdentity' },
   // Profil candidat individuel (Track A) — staff-only (ADMIN/ASSISTANTE)

@@ -1,0 +1,335 @@
+{
+  "_note": "ENGENDRÉ — voir scripts/manuels/build-covers.mjs.",
+  "couvertures": {
+    "emc-p": {
+      "lqip": "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAABQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JaAAD5UIHX40VuwlKVrIphiAAAP7WE/iC8LIZW+DZRG3RKkNk/nsFo3drrGAf74JLe5GJg8AuBgrPoK2Q6ey+GFB0IDs1f5Qh685nJDfIqYjBW3Vu+Pu3YXq6oenxlvcuh3rcmlcOai74dS13RpUZkDKn6qckrGD195cOwDbu4Prf70b/t4xIg3B++DnBLLtbGsbfzreD/4x79EZqUN9bV/AAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/emc-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/emc-p-recto-220.webp 220w, /manuels/couvertures/emc-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/emc-p-recto-560.webp",
+        "verso": "/manuels/couvertures/emc-p-verso-560.webp"
+      }
+    },
+    "emc-t": {
+      "lqip": "data:image/webp;base64,UklGRtwAAABXRUJQVlA4INAAAACwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACxJUAKilcHtcu8W5hOsqtA5rSAAP7h4RkoQFYSRccy1XcDGeq3qLvy1zvbRMZiLn1OGAjpsSUX7WU5A2eACndDpAaTi/flqnoKdKOFAGfvgutw1sQJamdBvHQCcuRiWu8pw14y6iLxz/Tnc0tBZ1Wcr3CrIcQda3D+7xevsda3Pbr1pHAnfagyHjZ5Dou6b+xb86eoaUfTnQZDFOtfpnLCejgWR7YjvKOEeoEVST9vdZNJgAAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/emc-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/emc-t-recto-220.webp 220w, /manuels/couvertures/emc-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/emc-t-recto-560.webp",
+        "verso": "/manuels/couvertures/emc-t-verso-560.webp"
+      }
+    },
+    "es-p": {
+      "lqip": "data:image/webp;base64,UklGRp4AAABXRUJQVlA4IJIAAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JagCdACG8v3+BuQlWmcjwQAD+1hPvijDq9g/LBmPnpDXdUHpREWCJVHx4h+CuacKk36ngSsIO0PrDLRw60cWrXp/G3lCd38nEkWxD7G2VLpNwr2lERuJ+fTcG4PEFHmQts+F+qcpHG2ULyZYGpNOKoxlTVnhhEgAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/es-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/es-p-recto-220.webp 220w, /manuels/couvertures/es-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/es-p-recto-560.webp",
+        "verso": "/manuels/couvertures/es-p-verso-560.webp"
+      }
+    },
+    "es-t": {
+      "lqip": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAACwAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JbACsACG7wmXWOThl4AD+14h1k6af1bzq8u4pPgwK4b5aLDMurXl1QNfWxA52m8xe/ZMWl/D9nQ4iJ+DjxEUhzhLcAJicBBY0GAIevfOh8dmV1ujTxS91nbGRN6roB5cV4KjhSgImlA5oeeuSLQ0fwHJEYAAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/es-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/es-t-recto-220.webp 220w, /manuels/couvertures/es-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/es-t-recto-560.webp",
+        "verso": "/manuels/couvertures/es-t-verso-560.webp"
+      }
+    },
+    "hg-p": {
+      "lqip": "data:image/webp;base64,UklGRq4AAABXRUJQVlA4IKIAAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbAC06Yyy3nDNs5zLjARj/84IQAD+1hPt9rXmbEDknXOOFnlhW36D/2ISi3F2aLgm4KRNwXE34Qd2iSGYN3uu25QC53174nToLy8Hj2fmn83NVO/pSNL3irrE38yt66JvYCLxQst7qNDwErwO9GzkTabB7bKWIGWIaH6n0VPmpP9E4NfPOyMAAAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hg-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hg-p-recto-220.webp 220w, /manuels/couvertures/hg-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hg-p-recto-560.webp",
+        "verso": "/manuels/couvertures/hg-p-verso-560.webp"
+      }
+    },
+    "hg-t": {
+      "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbAC7MoMYJn/AeJb4hOgr+P5e8+3AAAD+14WUM2Vh8Oy5pDZjkr/2htBBC6Ul20DjZGjb2fd2tlk0EMOvh/nXR2ej7BYIxDBr+HlQRTEjsrl1riuTAAw2thV8SgPKjMqxhW8WPfpP8NapK8YdshXdDcJqg8PM22WxSaKYsTfY73E7fpWAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hg-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hg-t-recto-220.webp 220w, /manuels/couvertures/hg-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hg-t-recto-560.webp",
+        "verso": "/manuels/couvertures/hg-t-verso-560.webp"
+      }
+    },
+    "hggsp-v01": {
+      "lqip": "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JYgCdMoAC7u8MIUp2xJdUAAD+400+GatzGPZmGUDyCxuNTBDmsqE1l364EtTRIWIQsRrJaQAglw9UYsFRZgleivtLVJETGbtLgsAlCk0fbbOmIhiaoZx0zoDCyAAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hggsp-v01-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hggsp-v01-recto-220.webp 220w, /manuels/couvertures/hggsp-v01-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hggsp-v01-recto-560.webp",
+        "verso": "/manuels/couvertures/hggsp-v01-verso-560.webp"
+      }
+    },
+    "hggsp-v02": {
+      "lqip": "data:image/webp;base64,UklGRpQAAABXRUJQVlA4IIgAAADwAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JQBlABDtRdcEWLuLvYqWAAP7n7ivHudvX0GEXjqT511s0xmriHS2NtlY4fji/vJwBtrv1F6QAFvtsDNQxoqYhx2bOoQ/FIHzqsMuc/wi1qYpLqcJs0sEWgK4X0xsxZwt2nypLkNfRxY4KJms/fwAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hggsp-v02-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hggsp-v02-recto-220.webp 220w, /manuels/couvertures/hggsp-v02-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hggsp-v02-recto-560.webp",
+        "verso": "/manuels/couvertures/hggsp-v02-verso-560.webp"
+      }
+    },
+    "hggsp-v03": {
+      "lqip": "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JZQCsAB4l40F2Ul5/Z+EUAAD+4Ki2CyZBEEMVobvi+dYiQ76a0OyswGHQyr9zzoMyjgObX13M5XY3WuDcrT31N8sdwKeLPMAmNglYubJD0EWaSgDmESGC0BarQMAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hggsp-v03-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hggsp-v03-recto-220.webp 220w, /manuels/couvertures/hggsp-v03-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hggsp-v03-recto-560.webp",
+        "verso": "/manuels/couvertures/hggsp-v03-verso-560.webp"
+      }
+    },
+    "hggsp-v04": {
+      "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAADQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACdMoMYA0lljCEnYZ34ZfBcUfWaAAD+401FumPU0YRNDK//TMxkqbHFhs2+Y8blF+y5KkGKhuDg4tf6weJmd1HS6onpkXbuABknaSqkv+mXyq+f1FjCYgt3X+U8lbiGHlO//VfgXvSa/xzgz53YWFJq4XpFWe/h5zrxPEbTyAccRbgAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hggsp-v04-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hggsp-v04-recto-220.webp 220w, /manuels/couvertures/hggsp-v04-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hggsp-v04-recto-560.webp",
+        "verso": "/manuels/couvertures/hggsp-v04-verso-560.webp"
+      }
+    },
+    "hggsp-v05": {
+      "lqip": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAACwAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JQAALg17K8To7pZxssAD+5+4rx7nb19CRCyr+5J/A3Ww1AQAgLzdy0AergIAEvRdUieH6HuzLnyd5t94h7tQ+DPMKHCK7nXmfCEzygQ+e9m+zMmgAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hggsp-v05-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hggsp-v05-recto-220.webp 220w, /manuels/couvertures/hggsp-v05-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hggsp-v05-recto-560.webp",
+        "verso": "/manuels/couvertures/hggsp-v05-verso-560.webp"
+      }
+    },
+    "hlp-v01": {
+      "lqip": "data:image/webp;base64,UklGRtIAAABXRUJQVlA4IMYAAACQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JQBgbsXwckoeuxb7/8IBZ5oLsoAAA/uHCG14bm8fP+42O6/NlsyVuGP96KnPQju9CpUa7VEL4RexVlpLOQJGUN1LgCgoT6ssSq6gDbScXz4ZHB/QBZgIkWsgyPAxp0ahRTKn/Zl8ugApgaANfL2HKtBp7XndqET8724YSaPywO96G/HP1kMSPWheHFNmsKRKeJReLPoAYeeT/LkuK7jtE5B/IA/5gury9XqfhgAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hlp-v01-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hlp-v01-recto-220.webp 220w, /manuels/couvertures/hlp-v01-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hlp-v01-recto-560.webp",
+        "verso": "/manuels/couvertures/hlp-v01-verso-560.webp"
+      }
+    },
+    "hlp-v02": {
+      "lqip": "data:image/webp;base64,UklGRrwAAABXRUJQVlA4ILAAAADQAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JYwAD49oLsOqa4xdCFAAA/uHCF9yG2zW5zupnajGYQ5k7taBOBYC0xMGXPcbHVd87URS0Do2nh/1ZnqkFm8QSAVJvm5aPUVHdIuhQDStZ/QuoU8ziTQACn3XpERARpcl02am+6P08Pr9YJXoui6s+XPtxeflG/Lg2h+hdrTr8ZpJQq5rbuCKdnllSCh/4fyQ0Jjw2xcZgAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hlp-v02-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hlp-v02-recto-220.webp 220w, /manuels/couvertures/hlp-v02-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hlp-v02-recto-560.webp",
+        "verso": "/manuels/couvertures/hlp-v02-verso-560.webp"
+      }
+    },
+    "hlp-v03": {
+      "lqip": "data:image/webp;base64,UklGRtQAAABXRUJQVlA4IMgAAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JQBfJZYJyEYFvBjlo5MEzU/VQAAD+4cITMhCL1/9gAJPngLJgO1Ivjrc9Hvjn+xXpIHHDeO4KEEccnQHTpfgT7+U7Af44XY1dcGeq02fyU8S70BBQAMB32L8yaOIsr16/dF7V8m6vVazFc3N4AiepJU/Xn5ATeXMlCavHazvzmzd2zbGW/bYV0Ww+/aZ5RqlnU4FkGfZlQWAAUMsKLOKg/v2/9wI2p8EL/5/5UDAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hlp-v03-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hlp-v03-recto-220.webp 220w, /manuels/couvertures/hlp-v03-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hlp-v03-recto-560.webp",
+        "verso": "/manuels/couvertures/hlp-v03-verso-560.webp"
+      }
+    },
+    "hlp-v04": {
+      "lqip": "data:image/webp;base64,UklGRtQAAABXRUJQVlA4IMgAAABQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JQBjesWWb7Y6cnpRdt9kyFEoAAP7hwhEwcIjXHgvw2kd88fxk15ORB1eWgYpTLUA8nY/6EbMH5aBQWZpBYLKQPU1tOXHMCY5tKKHDA5CzRYl9wMFdsmABWNu1zYbKo8rmlLXIuTl3rD3LgPVFukg4D84AtohAa9155kWfJI79XfMAaORLXebRWM8nvRkggE3sHfgdCwe4s8RKTgDzXLhZn6hP/MFyIHpjfK/uT1AAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hlp-v04-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hlp-v04-recto-220.webp 220w, /manuels/couvertures/hlp-v04-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hlp-v04-recto-560.webp",
+        "verso": "/manuels/couvertures/hlp-v04-verso-560.webp"
+      }
+    },
+    "hlp-v05": {
+      "lqip": "data:image/webp;base64,UklGRsAAAABXRUJQVlA4ILQAAACQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JYwATwBQWDAkX9NhmMrXR9yrGbQAA/uHCF9lz7oclNcohCb9gUMW4N46iYZ08wjvPtwc+Ovw7QMqDASCTXBrn21hja+6laj/oK23F3ZlaASUkMhJ1uL4MSCRsmRhhneaZnMPOfVU6EYa+k7zWOgno7FZ2X4APb/FJe622TcYL/hYsgwvt5yp3EI1fQCDgFL+QB/zBtLh+r1PvsAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/hlp-v05-recto-440.webp",
+      "srcSet": "/manuels/couvertures/hlp-v05-recto-220.webp 220w, /manuels/couvertures/hlp-v05-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/hlp-v05-recto-560.webp",
+        "verso": "/manuels/couvertures/hlp-v05-verso-560.webp"
+      }
+    },
+    "maths-spec-eleve": {
+      "lqip": "data:image/webp;base64,UklGRqIAAABXRUJQVlA4IJYAAAAwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACdACHf4fE4Dh6/yNsevoAA/uf/KPX2/76sotpxQK/lA7jsyIIGyPP2LjztExK5+zRHGH1iHm5grNFeUOd0yCACb4AQiACdKMIxpxsminLe/8yfyJN4o0CYhzagV7qnmgpSmywHRLaRy86/HNA0qVdj6fRi8GybkrvAAAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/maths-spec-eleve-recto-440.webp",
+      "srcSet": "/manuels/couvertures/maths-spec-eleve-recto-220.webp 220w, /manuels/couvertures/maths-spec-eleve-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/maths-spec-eleve-recto-560.webp",
+        "verso": "/manuels/couvertures/maths-spec-eleve-verso-560.webp"
+      }
+    },
+    "maths-spec-guide": {
+      "lqip": "data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAABQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACdEf/gPI60BtK6B1aqr/nMAP7n/yj19v+1/Zj7+3jo8L0p9OluxwyqgvNcS+QiN6qupozfg1kzyedaYAsMYQSNoJ0M+VJONZSBcyB533cBatMp1VF7Lki6VxzQtR94MeWk0DSojvMgX/bkucuCah5GAAAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/maths-spec-guide-recto-440.webp",
+      "srcSet": "/manuels/couvertures/maths-spec-guide-recto-220.webp 220w, /manuels/couvertures/maths-spec-guide-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/maths-spec-guide-recto-560.webp",
+        "verso": "/manuels/couvertures/maths-spec-guide-verso-560.webp"
+      }
+    },
+    "nsi-ci-p": {
+      "lqip": "data:image/webp;base64,UklGRqoAAABXRUJQVlA4IJ4AAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JaACdACILUwN0n3yOnPyHAAD+yXaTNHnCWNtYeakfEuc4klSvy7cVrjRAYqGr2CLNThGOhbmP16SC87SmuekRuafr2HSTKTWiuENcjumKqErtwRqGaXbN+423FDD37B+gFPaD15L3jyIzv0boGXwN2osRFh3E5NIK6sjAtHENuCRMLAAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/nsi-ci-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/nsi-ci-p-recto-220.webp 220w, /manuels/couvertures/nsi-ci-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/nsi-ci-p-recto-560.webp",
+        "verso": "/manuels/couvertures/nsi-ci-p-verso-560.webp"
+      }
+    },
+    "nsi-ci-t": {
+      "lqip": "data:image/webp;base64,UklGRq4AAABXRUJQVlA4IKIAAADwAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JaACdACE6k5RxLAH7aT0oAP7JdpN0hRh1jbWKBiXSLKBh+5WIbFwwXktQ/KuCQeQtSCgEv4+8JpF9lO56DlT1wWpT3eevRQ2GsTMNcjwgtc4JM4UgB4dke+o/FyymlwGVv8gv7p/umPzv/OkGr2+WbId34NMgpde4D3ubckE99O771LeuwwtjKAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/nsi-ci-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/nsi-ci-t-recto-220.webp 220w, /manuels/couvertures/nsi-ci-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/nsi-ci-t-recto-560.webp",
+        "verso": "/manuels/couvertures/nsi-ci-t-verso-560.webp"
+      }
+    },
+    "pc-p": {
+      "lqip": "data:image/webp;base64,UklGRqQAAABXRUJQVlA4IJgAAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbAC06CG7KiPDPOtHqfaYsAD+14h1k6aDh4YMvwt+psV0rQ8o/iviyJtPLRw3r+08UOtnFFp47BQfNHaPcCXEocMU+TqEL8l0GO5laD7pdpAu0ZVlxQjgeLEcnD3aHu414E439eusIIA3PBsPDG1KNJi4Fp6hbjL3Q0cZqFEAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/pc-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/pc-p-recto-220.webp 220w, /manuels/couvertures/pc-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/pc-p-recto-560.webp",
+        "verso": "/manuels/couvertures/pc-p-verso-560.webp"
+      }
+    },
+    "pc-t": {
+      "lqip": "data:image/webp;base64,UklGRqwAAABXRUJQVlA4IKAAAAAQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACsACEkBfZix1vPrQ1yAAD+14O4jzhLG2SIjcm1c1O72RDs/Ub/4wdjWmflAKjkujdv7ky5NzVz0N3f4bkc58xKgNZ3+Z2hwxJ5eKmqUxG9dm1l1UBvMcWhIWZmooP48XO02bupJy23jYPRLuf0R9hz8YpMdfKqFxGbENFRVrnioi7wn+AA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/pc-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/pc-t-recto-220.webp 220w, /manuels/couvertures/pc-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/pc-t-recto-560.webp",
+        "verso": "/manuels/couvertures/pc-t-verso-560.webp"
+      }
+    },
+    "philosophie-t": {
+      "lqip": "data:image/webp;base64,UklGRqgAAABXRUJQVlA4IJwAAADwAwCdASoQABcAPu1iqU2ppaOiMAgBMB2JYgDE2BbRCv4Xv3T56YL2AP7n4uM+Upm7mCd+5Te7k58qW4F4E0sNSADzI/8okX4k9X49LcNhp1ft9A9lwSUfe/O4kWglLY1Iu7pZ56wpAP9R5iwx0QKxMcIYUZGNQG00tEfGkn2d4kewn+DzQ6fXN0RKly2WbjOyuOU7PGwAINGAAAA=",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/philosophie-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/philosophie-t-recto-220.webp 220w, /manuels/couvertures/philosophie-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/philosophie-t-recto-560.webp",
+        "verso": "/manuels/couvertures/philosophie-t-verso-560.webp"
+      }
+    },
+    "ses-v01": {
+      "lqip": "data:image/webp;base64,UklGRrwAAABXRUJQVlA4ILAAAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JYwAFEALdFjofHwXq9GogIoMyAAD+6x4uTQcS9kCffVLtFzCWS3Q1/Or6oengSfbxr2n7Oq6r4mCM7OEM0FJhsfiHYFl1bHhNromB8U+mNHH6J1Zo4SLk4l4bpPQvbiWc+yIfeqNaFVK0ZKE/wGiMz40wbKv2FcrYeNPmyqwPquhKZ179vccyvUCZ6VVz5sZ2pqIOJsAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/ses-v01-recto-440.webp",
+      "srcSet": "/manuels/couvertures/ses-v01-recto-220.webp 220w, /manuels/couvertures/ses-v01-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/ses-v01-recto-560.webp",
+        "verso": "/manuels/couvertures/ses-v01-verso-560.webp"
+      }
+    },
+    "ses-v02": {
+      "lqip": "data:image/webp;base64,UklGRrwAAABXRUJQVlA4ILAAAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JQBfnMYsWsNdd1yGnGcIRvc8IGAD+6x4vu04vtcHyQ7mIVxbYGWHWtkIGnhtHdQV69wDzmxAS3cBAFBq/5Kg/TOneCzPO44xfXjrmj3rllpgkoJMW+jn8IWdP3PqY9hvkLJEMbUCc7S5d/oehsLNL6//y+anMajcA9n+Pg8cgoqW1fbxEYwbflf7Xj1CIIsFD5Tz8uVAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/ses-v02-recto-440.webp",
+      "srcSet": "/manuels/couvertures/ses-v02-recto-220.webp 220w, /manuels/couvertures/ses-v02-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/ses-v02-recto-560.webp",
+        "verso": "/manuels/couvertures/ses-v02-verso-560.webp"
+      }
+    },
+    "ses-v03": {
+      "lqip": "data:image/webp;base64,UklGRrYAAABXRUJQVlA4IKoAAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JZACsAYyKtr0J4PAacMcNgvHejAD+5+4v2rbaDMN1w+7tq3JVGC57Phkiz9yu9x7wSmINYsnYccF+lFVjQJzPKaXVVhRcwnY/IdiiG0CRRrxE5b+tUvhRzyRdydd8YRxA/rfSLrT1tpi0PfPb83HPLO0JT4EzxguJClF8zdRav6edQoqWIj434AAyv1L4VgAAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/ses-v03-recto-440.webp",
+      "srcSet": "/manuels/couvertures/ses-v03-recto-220.webp 220w, /manuels/couvertures/ses-v03-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/ses-v03-recto-560.webp",
+        "verso": "/manuels/couvertures/ses-v03-verso-560.webp"
+      }
+    },
+    "ses-v04": {
+      "lqip": "data:image/webp;base64,UklGRtoAAABXRUJQVlA4IM4AAABwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JQBdkGQ8ALRFWvt962yh+2Bp7AAD+5+4v2lku6GKiV64L+7SyABT7CoHVSH9t54Z9MCbsXJtULyFTIHmlbp3T67ld3cMpcp0Jh+qyuZkyGXuR7lQeZ5gkCqbST9UXa7/ttPUXMFv448a8/wTH3+jSckiCm372qCpn9qYZucQGAf9eO7X9JE0+/L7ywOdSvCPaD7lokWN4xnUDOb5Ke9r2mXb85haCCColCArltAEMIlDI1YkAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/ses-v04-recto-440.webp",
+      "srcSet": "/manuels/couvertures/ses-v04-recto-220.webp 220w, /manuels/couvertures/ses-v04-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/ses-v04-recto-560.webp",
+        "verso": "/manuels/couvertures/ses-v04-verso-560.webp"
+      }
+    },
+    "ses-v05": {
+      "lqip": "data:image/webp;base64,UklGRr4AAABXRUJQVlA4ILIAAABQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JYgC7ACIjcNh0Rn5Q79F1XM44AP7rHi+7++O8vWACg5ICBWNEdQsKigmT1eaqf/U7B5juLZoJEuJAboeIT9ANH9XEgDjrMJRMyRm7Br18Ps+YjymQUxuUI7J5eH6jFZ/FT05wtXzqwBvFBcFF70vs3fP+rwzt0D09MtZ0CKRmRPiu40mIpLODQyGjlG5E8GGTVpTUa/Qa+2AA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/ses-v05-recto-440.webp",
+      "srcSet": "/manuels/couvertures/ses-v05-recto-220.webp 220w, /manuels/couvertures/ses-v05-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/ses-v05-recto-560.webp",
+        "verso": "/manuels/couvertures/ses-v05-verso-560.webp"
+      }
+    },
+    "svt-p": {
+      "lqip": "data:image/webp;base64,UklGRsIAAABXRUJQVlA4ILYAAACwBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACdAYvW3K7+UGCu0SblWZDW6eIAAP7Xb59MxUzPuIL452bWe8fJiy7hqOYUmthb0ZXj+dhf2nNQrSCdjsUbqZ6p3gaAY4gbqfakd5VbeBKtt4Nyzc4Q/BaNW04NnS6OZHPHH23SbuABqPkGVL7oj+Z7LForIZfW3W1Rp+mk0A5KyHX+L3HtO760sf7ehNH3LzKNt/kaR35MJvyAAA==",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/svt-p-recto-440.webp",
+      "srcSet": "/manuels/couvertures/svt-p-recto-220.webp 220w, /manuels/couvertures/svt-p-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/svt-p-recto-560.webp",
+        "verso": "/manuels/couvertures/svt-p-verso-560.webp"
+      }
+    },
+    "svt-t": {
+      "lqip": "data:image/webp;base64,UklGRrgAAABXRUJQVlA4IKwAAADQBACdASoQABcAPu1iqU2ppaOiMAgBMB2JbACsEfql2CLxE4lcmm7B8SDsnt77gAD+124MW6Q5jTM4K0+a7D+JO5p+E7CP+oMyf1qXqOd+8nykQ+btFf5qmfA0xQOaHevm4GTvjacXWU148cbNSWbJ48ehfuuvX5IHhvf5HAWUDDhYOEvVp2DSC2neiO64Ked1e4nbKzYYTW3TDy9Td4esu/UlSPsgC8P5AAAA",
+      "width": 440,
+      "height": 622,
+      "src": "/manuels/couvertures/svt-t-recto-440.webp",
+      "srcSet": "/manuels/couvertures/svt-t-recto-220.webp 220w, /manuels/couvertures/svt-t-recto-440.webp 440w",
+      "zoom": {
+        "recto": "/manuels/couvertures/svt-t-recto-560.webp",
+        "verso": "/manuels/couvertures/svt-t-verso-560.webp"
+      }
+    }
+  }
+}

@@ -63,6 +63,7 @@ describe('S3 final distributed rate-limit contract', () => {
       'bilan-share-consent',
       'candidate-document-upload',
       'quotes-recommend', 'quotes-create', 'quotes-public-read', 'quotes-send', 'quotes-accept',
+      'manuels-order',
       'quotes-lead-search', 'quotes-history-read',
       'candidate-profile-create', 'candidate-profile-read', 'candidate-profile-update',
     ]

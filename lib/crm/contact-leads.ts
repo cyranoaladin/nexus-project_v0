@@ -44,7 +44,7 @@ export type ContactLeadInput = z.input<typeof contactLeadPayloadSchema>;
 
 type ContactLeadTransaction = Pick<Prisma.TransactionClient, 'contactLead' | 'jobOutbox'>;
 
-function getLeadNotificationRecipient(): string {
+export function getLeadNotificationRecipient(): string {
   return (
     process.env.CRM_LEAD_NOTIFICATION_EMAIL ||
     process.env.INTERNAL_NOTIFICATION_EMAIL ||

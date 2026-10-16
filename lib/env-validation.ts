@@ -38,6 +38,13 @@ interface EnvVar {
  *   LLM_MODE, OLLAMA_MODEL, OLLAMA_TIMEOUT, SENTRY_DSN
  */
 const ENV_CONTRACT: EnvVar[] = [
+  // ─── WhatsApp Business — réception des réservations de manuels ──────
+  // Sans ces variables, la réservation est enregistrée et notifiée par e-mail
+  // comme avant ; seul l'envoi WhatsApp est écarté. Rien n'est perdu.
+  // Les identifiants Meta et le secret de la file sont ceux des invitations
+  // parents : rien de nouveau à configurer si ce transport est déjà en place.
+  { name: 'WHATSAPP_ORDER_RECIPIENT', level: 'OPTIONAL', description: 'Téléphone qui reçoit les réservations de manuels (défaut : le numéro public de la maison ; ne peut pas être le numéro expéditeur)' },
+  { name: 'WHATSAPP_TEMPLATE_ORDER', level: 'OPTIONAL', description: 'Nom du modèle de message approuvé pour les réservations (défaut : commande_manuels)' },
   // ─── REQUIRED (fail-fast in production) ────────────────────────────
   { name: 'DATABASE_URL', level: 'REQUIRED', description: 'PostgreSQL connection string', prodOnly: false },
   { name: 'NEXTAUTH_SECRET', level: 'REQUIRED', description: 'NextAuth.js signing secret (≥32 chars recommended)', prodOnly: true },
