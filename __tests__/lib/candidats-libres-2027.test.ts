@@ -72,10 +72,23 @@ describe('Grille 2026-2027', () => {
     expect(getParcoursCandidatLibre('terminale')!.echeancier_affiche).toBe(9);
   });
 
-  test('groupes de 12 au maximum, ouverture à 7', () => {
+  test('groupes de 12 au maximum, ouverture à 6 inscrits payants', () => {
     const { groupe } = getCandidatsLibres2027();
     expect(groupe.max).toBe(12);
-    expect(groupe.ouverture_min).toBe(7);
+    // Un seuil publié plus haut que le seuil contractuel engagerait Nexus
+    // sur le plus exigeant des deux.
+    expect(groupe.ouverture_min).toBe(6);
+    expect(groupe.remboursement_jours_ouvres).toBe(7);
+  });
+
+  test('la décision d’ouverture précède les premiers cours', () => {
+    const { calendrier } = getCandidatsLibres2027();
+    expect(calendrier.decision_ouverture).toBe('2026-10-25');
+    expect(calendrier.premiers_cours).toBe('2026-10-26');
+    // Annoncer une confirmation APRÈS le premier cours est la faute que ce
+    // garde empêche de revenir.
+    expect(new Date(calendrier.decision_ouverture).getTime())
+      .toBeLessThan(new Date(calendrier.premiers_cours).getTime());
   });
 
   test('EPS et langues vivantes déclarées non préparées ; frais d’examen en sus', () => {
@@ -134,5 +147,44 @@ describe('Échéances Cyclades', () => {
     const e = getEcheancesCyclades();
     expect(e.terminale).toEqual({ ouverture: '2026-10-16', cloture: '2026-11-12T18:00:00+01:00' });
     expect(e.premiere).toEqual({ ouverture: '2026-11-02', cloture: '2026-11-20T18:00:00+01:00' });
+  });
+});
+
+describe('Garde-fous de cohérence — ce qui a déjà produit une faute', () => {
+  test('chaque échéancier retombe exactement sur le prix annuel', () => {
+    // La faute « 9 × 580 = 5 220 » pour un parcours à 5 200 TND vient d'un
+    // échéancier écrit à la main. Ici il est recalculé.
+    for (const parcours of getParcoursCandidatLibre()) {
+      const neuf = parcours.echeancier_9.mensualite * 8 + parcours.echeancier_9.derniere;
+      const huit = parcours.echeancier_8.mensualite * 7 + parcours.echeancier_8.derniere;
+      expect(neuf).toBe(parcours.prix_annuel);
+      expect(huit).toBe(parcours.prix_annuel);
+    }
+  });
+
+  test('le comptant applique exactement la remise annoncée', () => {
+    const { avantages } = getCandidatsLibres2027();
+    for (const parcours of getParcoursCandidatLibre()) {
+      const attendu = Math.round(parcours.prix_annuel * (1 - avantages.comptant_remise_pct / 100));
+      expect(parcours.comptant).toBe(attendu);
+    }
+  });
+
+  test('le total encadré dépasse toujours les heures de cours', () => {
+    for (const parcours of getParcoursCandidatLibre()) {
+      expect(parcours.heures_encadrees_total).toBeGreaterThan(parcours.heures_cours);
+    }
+  });
+
+  test('la Terminale porte sa condition d’éligibilité', () => {
+    const { eligibilite } = getCandidatsLibres2027();
+    expect(eligibilite.terminale).toMatch(/épreuves anticipées/i);
+  });
+
+  test('les produits courts suivent la grille adoptée, et elle seule', () => {
+    const { produits_courts } = getCandidatsLibres2027();
+    expect(produits_courts.adoptee_le).toBe('2026-10-16');
+    expect(produits_courts.produits.map((p) => p.prix).sort((a, b) => a - b))
+      .toEqual([450, 530, 620, 2090, 4070]);
   });
 });
