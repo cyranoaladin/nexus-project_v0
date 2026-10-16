@@ -32,6 +32,11 @@ const GUIDES: Ressource[] = [
     description: 'Inscription Cyclades étape par étape, calendrier, parcours Première, Terminale et Bac en 1 an.',
   },
   {
+    href: '/inscription-bac-2027',
+    titre: 'S’inscrire au bac 2027 en candidat individuel',
+    description: 'La campagne Cyclades écran par écran : calendrier, pièces à fournir, choix d’épreuves et pièges à éviter, en bac général et en bac STMG.',
+  },
+  {
     href: '/reussir-eaf',
     titre: 'Réussir l’EAF',
     description: 'Écrit et oral de français : commentaire, dissertation, explication linéaire, grammaire et descriptif.',
