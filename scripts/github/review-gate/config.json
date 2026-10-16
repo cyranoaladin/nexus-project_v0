@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "humanApprovers": ["abenrhouma", "adammeg"],
+  "maxPatchBytes": 120000
+}

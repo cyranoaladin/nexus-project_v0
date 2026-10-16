@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["review_complete", "blocking_findings", "warnings"],
+  "properties": {
+    "review_complete": { "type": "boolean" },
+    "blocking_findings": { "type": "array", "maxItems": 20, "items": { "$ref": "#/$defs/finding" } },
+    "warnings": { "type": "array", "maxItems": 20, "items": { "$ref": "#/$defs/finding" } }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file", "reason", "confidence"],
+      "properties": {
+        "file": { "type": "string" },
+        "reason": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

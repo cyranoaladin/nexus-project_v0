@@ -9,6 +9,7 @@ const PAIRS = [
   ['main-ruleset.schema.json', 'main-ruleset.json'],
   ['review-policy.schema.json', 'review-policy.json'],
   ['checks-registry.schema.json', 'checks-registry.json'],
+  ['review-gate-target.schema.json', 'review-gate-target.json'],
 ];
 
 describe('governance schema validation', () => {

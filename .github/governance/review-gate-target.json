@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "repository": "cyranoaladin/nexus-project_v0",
+  "rulesetId": 12801316,
+  "activation": "PENDING_QUALIFICATION",
+  "notes": "This is not the live desired state and apply-governance.mjs must not apply it automatically. The current one-human-approval ruleset remains effective until every prerequisite is independently proven.",
+  "prerequisites": [
+    "DETERMINISTIC_GATE_PASS",
+    "SEMANTIC_REVIEWER_QUALIFIED",
+    "CANARY_EXACT_HEAD_PASS",
+    "HUMAN_EXCEPTION_PATH_PASS",
+    "APP_SOURCE_BINDING_PASS",
+    "LIVE_PRESTATE_SNAPSHOT_AND_OPERATOR_APPROVAL"
+  ],
+  "desired": {
+    "pullRequest": {
+      "requiredApprovingReviewCount": 0,
+      "requireLastPushApproval": false,
+      "dismissStaleReviewsOnPush": true,
+      "requiredReviewThreadResolution": true,
+      "requireCodeOwnerReview": false,
+      "allowedMergeMethods": ["merge"]
+    },
+    "bypassActors": [],
+    "requiredStatusChecks": [
+      { "context": "Lint", "integrationId": 15368 },
+      { "context": "TypeScript Type Check", "integrationId": 15368 },
+      { "context": "Unit Tests", "integrationId": 15368 },
+      { "context": "Production Build", "integrationId": 15368 },
+      { "context": "Real DB Integration", "integrationId": 15368 },
+      { "context": "E2E Tests", "integrationId": 15368 },
+      { "context": "Documents", "integrationId": 15368 },
+      { "context": "Dependency Integrity", "integrationId": 15368 },
+      { "context": "Security Scan", "integrationId": 15368 },
+      { "context": "CI Success", "integrationId": 15368 },
+      { "context": "GitGuardian Security Checks", "integrationId": 46505 },
+      { "context": "Nexus Review Gate", "integrationId": 5166727 }
+    ]
+  }
+}
