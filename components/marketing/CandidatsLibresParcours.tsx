@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 import { fmtMontant } from '@/components/premium/format';
-import { echeanciersParMoisEntree, getCandidatsLibres2027, getFraisDossier, jourMois } from '@/lib/candidats-libres-2027';
+import {
+  echeanciersParMoisEntree,
+  getCandidatsLibres2027,
+  getFraisDossier,
+  jourMois,
+  texteTotalEncadre,
+} from '@/lib/candidats-libres-2027';
 
 const NBSP = ' ';
 
@@ -71,6 +77,9 @@ export function CandidatsLibresParcours() {
               <p className="mt-4 text-sm leading-6 text-lux-slate">
                 {p.heures_cours}{NBSP}h de cours, {p.copies_corrigees} copies corrigées, {p.oraux.toLowerCase()}, {p.bilans} bilans avec la famille.
               </p>
+              {/* Même phrase et même champ que sur /bac-candidat-libre, où le
+                  JSON-LD le déclare en courseWorkload. */}
+              <p className="mt-2 text-sm font-medium leading-6 text-lux-ink">{texteTotalEncadre(p)}</p>
               <Link
                 href={`/bac-candidat-libre#${p.id}`}
                 className="mt-auto inline-flex min-h-[44px] items-center pt-5 text-sm font-semibold text-lux-gold-deep hover:text-lux-ink lux-focus"
