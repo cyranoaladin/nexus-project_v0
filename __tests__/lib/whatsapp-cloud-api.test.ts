@@ -22,9 +22,10 @@ import {
 const FAUX_JETON = ['jeton', 'factice', 'de', 'test'].join('-');
 
 const ENV = {
-  WHATSAPP_CLOUD_PHONE_NUMBER_ID: '123456789',
-  WHATSAPP_CLOUD_ACCESS_TOKEN: `${FAUX_JETON}`,
-  WHATSAPP_CLOUD_API_VERSION: 'v21.0',
+  WHATSAPP_SEND_ENABLED: 'true',
+  WHATSAPP_META_PHONE_NUMBER_ID: '123456789',
+  WHATSAPP_META_ACCESS_TOKEN: `${FAUX_JETON}`,
+  WHATSAPP_META_API_VERSION: 'v21.0',
 };
 
 const MESSAGE = {
@@ -46,8 +47,10 @@ function reponse(status: number, body: unknown) {
 describe('configuration', () => {
   it('sans identifiants, le canal est simplement absent', () => {
     expect(isWhatsAppCloudConfigured({})).toBe(false);
-    expect(isWhatsAppCloudConfigured({ WHATSAPP_CLOUD_PHONE_NUMBER_ID: '1' })).toBe(false);
+    expect(isWhatsAppCloudConfigured({ WHATSAPP_META_PHONE_NUMBER_ID: '1' })).toBe(false);
     expect(isWhatsAppCloudConfigured(ENV)).toBe(true);
+    // l'interrupteur maître de la maison prime sur les identifiants
+    expect(isWhatsAppCloudConfigured({ ...ENV, WHATSAPP_SEND_ENABLED: 'false' })).toBe(false);
   });
 
   it('un envoi non configuré est écarté, jamais tenté', async () => {

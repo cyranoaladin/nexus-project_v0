@@ -23,10 +23,8 @@ import {
 } from '@/lib/email/templates';
 import { prisma } from '@/lib/prisma';
 import { WHATSAPP_CONTACT_NUMBER } from '@/lib/whatsapp';
-import {
-  sendWhatsAppTemplate,
-  type WhatsAppSendResult,
-} from '@/lib/whatsapp/cloud-api';
+import { enqueueWhatsAppIntent, isOrderWhatsAppReady } from '@/lib/whatsapp/outbox';
+import { kickWhatsAppOutboxDrain } from '@/lib/whatsapp/outbox-scheduler';
 
 import type { ManuelVolume } from './types';
 
@@ -62,10 +60,15 @@ export const MANUEL_FORMAT_LABELS: Record<ManuelFormat, string> = {
  *   Total : {{6}}
  *   Remise : {{7}}
  *
- * Réglages, par variables d'environnement :
+ * Réglages, par variables d'environnement — les mêmes que les invitations
+ * parents pour tout ce qui touche Meta, afin que la maison ne configure son
+ * compte qu'une fois :
+ *   WHATSAPP_SEND_ENABLED          interrupteur maître du transport
+ *   WHATSAPP_META_*                identifiants Meta, partagés
+ *   WHATSAPP_OUTBOX_ENCRYPTION_KEY secret de la file, partagé
  *   WHATSAPP_ORDER_RECIPIENT       téléphone qui reçoit les commandes
- *   WHATSAPP_ORDER_TEMPLATE        nom du modèle, défaut commande_manuels
- *   WHATSAPP_ORDER_TEMPLATE_LANG   langue du modèle, défaut fr
+ *   WHATSAPP_TEMPLATE_ORDER        nom du modèle, défaut commande_manuels
+ *   WHATSAPP_TEMPLATE_LANGUAGE     langue du modèle, défaut fr
  */
 const WHATSAPP_TEMPLATE_DEFAULT = 'commande_manuels';
 const WHATSAPP_LANGUAGE_DEFAULT = 'fr';
@@ -180,30 +183,17 @@ function orderRecipient(): string {
   return process.env.WHATSAPP_ORDER_RECIPIENT?.trim() || WHATSAPP_CONTACT_NUMBER;
 }
 
-/**
- * Prévient la maison sur WhatsApp. Ne lève jamais : une réservation est déjà
- * enregistrée et notifiée par e-mail quand on arrive ici, et aucune panne de
- * messagerie ne doit la faire perdre.
- */
-async function notifyOrderOnWhatsApp(courrier: ManuelsOrderData): Promise<WhatsAppSendResult> {
-  try {
-    return await sendWhatsAppTemplate({
-      to: orderRecipient(),
-      template: process.env.WHATSAPP_ORDER_TEMPLATE?.trim() || WHATSAPP_TEMPLATE_DEFAULT,
-      language: process.env.WHATSAPP_ORDER_TEMPLATE_LANG?.trim() || WHATSAPP_LANGUAGE_DEFAULT,
-      parameters: [
-        courrier.reference,
-        courrier.name,
-        courrier.phone,
-        courrier.formatLabel,
-        `${courrier.volumes} volume${courrier.volumes > 1 ? 's' : ''}, ${courrier.pages} pages`,
-        `${courrier.total} DT`,
-        courrier.address ? `${courrier.deliveryLabel} — ${courrier.address}` : courrier.deliveryLabel,
-      ],
-    });
-  } catch {
-    return { status: 'failed', reason: 'Le canal WhatsApp a échoué.', retryable: true };
-  }
+/** Les sept paramètres du modèle, dans l'ordre que Meta attend. */
+function whatsAppParameters(courrier: ManuelsOrderData): string[] {
+  return [
+    courrier.reference,
+    courrier.name,
+    courrier.phone,
+    courrier.formatLabel,
+    `${courrier.volumes} volume${courrier.volumes > 1 ? 's' : ''}, ${courrier.pages} pages`,
+    `${courrier.total} DT`,
+    courrier.address ? `${courrier.deliveryLabel} — ${courrier.address}` : courrier.deliveryLabel,
+  ];
 }
 
 export async function captureManuelOrder(payload: unknown) {
@@ -280,31 +270,36 @@ export async function captureManuelOrder(payload: unknown) {
       text: accuse.text,
     });
 
+    // La notification WhatsApp entre dans la MÊME transaction que la
+    // réservation : si la commande n'est pas écrite, la notification n'existe
+    // pas, et si elle l'est, la notification partira — Meta fût-il muet.
+    //
+    // Tant que le canal n'est pas configuré, on n'inscrit rien : exiger le
+    // secret de chiffrement ici ferait échouer la TRANSACTION, donc perdre la
+    // commande. Une réservation ne se perd jamais pour un canal absent.
+    if (!isOrderWhatsAppReady()) return created;
+
+    await enqueueWhatsAppIntent(transaction, {
+      aggregateId: created.id,
+      dedupeKey: created.id,
+      to: orderRecipient(),
+      template: process.env.WHATSAPP_TEMPLATE_ORDER?.trim() || WHATSAPP_TEMPLATE_DEFAULT,
+      language: process.env.WHATSAPP_TEMPLATE_LANGUAGE?.trim() || WHATSAPP_LANGUAGE_DEFAULT,
+      parameters: whatsAppParameters(courrier),
+    });
+
     return created;
   });
 
   kickEmailOutboxDrain();
+  // La remise est sollicitée tout de suite, pour que la maison soit prévenue
+  // dans la seconde plutôt qu'au prochain battement. Qu'elle échoue ne change
+  // rien : le travail est en file, et la file reprend toute seule.
+  kickWhatsAppOutboxDrain();
 
-  const whatsapp = await notifyOrderOnWhatsApp({
+  return {
     reference: lead.id,
-    name: data.contact.name,
-    email: data.contact.email,
-    phone: data.contact.phone,
-    formatLabel: MANUEL_FORMAT_LABELS[data.format],
-    deliveryLabel,
-    address,
-    lines: [],
-    volumes: devis.volumes,
-    pages: devis.pages,
-    total: devis.total,
-    createdAt: lead.createdAt ?? new Date(),
-  });
-
-  if (whatsapp.status === 'failed') {
-    // Aucune donnée nominative au journal : la référence suffit à retrouver la
-    // réservation, qui est enregistrée et déjà partie par e-mail.
-    console.error(`[manuels/whatsapp] ${lead.id} non remis — ${whatsapp.reason}`);
-  }
-
-  return { reference: lead.id, quote: devis, whatsapp: whatsapp.status };
+    quote: devis,
+    whatsapp: isOrderWhatsAppReady() ? ('queued' as const) : ('disabled' as const),
+  };
 }

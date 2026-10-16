@@ -13,9 +13,15 @@
  *    n'a pas encore ses identifiants ne doit pas voir ses journaux rougir.
  *
  * Configuration, par variables d'environnement, jamais dans le code :
- *   WHATSAPP_CLOUD_PHONE_NUMBER_ID   identifiant du numéro expéditeur
- *   WHATSAPP_CLOUD_ACCESS_TOKEN      jeton permanent
- *   WHATSAPP_CLOUD_API_VERSION       défaut v21.0
+ *   WHATSAPP_SEND_ENABLED            interrupteur maître du transport
+ *   WHATSAPP_META_PHONE_NUMBER_ID    identifiant du numéro expéditeur
+ *   WHATSAPP_META_ACCESS_TOKEN       jeton permanent
+ *   WHATSAPP_META_API_VERSION        défaut v21.0
+ *
+ * Ce sont les MÊMES variables que les invitations parents : la maison ne
+ * configure Meta qu'une fois. Ce module ne réemploie pas leur fournisseur,
+ * qui est taillé pour un modèle à bouton d'URL et un « purpose »
+ * d'activation ; il en suit en revanche la configuration et l'interrupteur.
  */
 
 export interface WhatsAppTemplateMessage {
@@ -37,8 +43,9 @@ const DEFAULT_API_VERSION = 'v21.0';
 const PARAMETER_MAX = 300;
 
 export function isWhatsAppCloudConfigured(env: Env = process.env): boolean {
+  if (env.WHATSAPP_SEND_ENABLED !== 'true') return false;
   return Boolean(
-    env.WHATSAPP_CLOUD_PHONE_NUMBER_ID?.trim() && env.WHATSAPP_CLOUD_ACCESS_TOKEN?.trim(),
+    env.WHATSAPP_META_PHONE_NUMBER_ID?.trim() && env.WHATSAPP_META_ACCESS_TOKEN?.trim(),
   );
 }
 
@@ -120,8 +127,8 @@ export async function sendWhatsAppTemplate(
   const attempts = Math.max(1, options.attempts ?? 3);
   const backoffMs = options.backoffMs ?? 400;
   const timeoutMs = options.timeoutMs ?? 8000;
-  const version = env.WHATSAPP_CLOUD_API_VERSION?.trim() || DEFAULT_API_VERSION;
-  const url = `https://graph.facebook.com/${version}/${env.WHATSAPP_CLOUD_PHONE_NUMBER_ID}/messages`;
+  const version = env.WHATSAPP_META_API_VERSION?.trim() || DEFAULT_API_VERSION;
+  const url = `https://graph.facebook.com/${version}/${env.WHATSAPP_META_PHONE_NUMBER_ID}/messages`;
   const corps = JSON.stringify(buildTemplatePayload({ ...message, to: destinataire }));
 
   let dernier: WhatsAppSendResult = {
@@ -136,7 +143,7 @@ export async function sendWhatsAppTemplate(
       const reponse = await appeler(url, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${env.WHATSAPP_CLOUD_ACCESS_TOKEN}`,
+          Authorization: `Bearer ${env.WHATSAPP_META_ACCESS_TOKEN}`,
           'Content-Type': 'application/json',
         },
         body: corps,

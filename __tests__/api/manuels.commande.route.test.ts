@@ -11,7 +11,7 @@
 import { POST } from '@/app/api/manuels/commande/route';
 import { prisma } from '@/lib/prisma';
 import { enqueueEmailIntent } from '@/lib/email/outbox';
-import { sendWhatsAppTemplate } from '@/lib/whatsapp/cloud-api';
+import { enqueueWhatsAppIntent, isOrderWhatsAppReady } from '@/lib/whatsapp/outbox';
 
 jest.mock('@/lib/rate-limit/sensitive', () => ({
   guardRateLimitAsync: jest.fn().mockResolvedValue(null),
@@ -26,14 +26,19 @@ jest.mock('@/lib/email/outbox-scheduler', () => ({
   kickEmailOutboxDrain: jest.fn(),
 }));
 
-jest.mock('@/lib/whatsapp/cloud-api', () => ({
-  ...jest.requireActual('@/lib/whatsapp/cloud-api'),
-  sendWhatsAppTemplate: jest.fn().mockResolvedValue({ status: 'sent', messageId: 'wamid.T' }),
+jest.mock('@/lib/whatsapp/outbox', () => ({
+  enqueueWhatsAppIntent: jest.fn().mockResolvedValue({ id: 'job-wa-1' }),
+  isOrderWhatsAppReady: jest.fn().mockReturnValue(true),
+}));
+
+jest.mock('@/lib/whatsapp/outbox-scheduler', () => ({
+  kickWhatsAppOutboxDrain: jest.fn(),
 }));
 
 const mockCreate = prisma.contactLead.create as jest.Mock;
 const mockEnqueue = enqueueEmailIntent as jest.Mock;
-const mockWhatsApp = sendWhatsAppTemplate as jest.Mock;
+const mockWhatsApp = enqueueWhatsAppIntent as jest.Mock;
+const mockPret = isOrderWhatsAppReady as jest.Mock;
 
 function commande(body: unknown) {
   return new Request('http://localhost:3000/api/manuels/commande', {
@@ -62,7 +67,8 @@ describe('POST /api/manuels/commande', () => {
       createdAt: new Date('2026-10-16T09:00:00.000Z'),
     });
     mockEnqueue.mockResolvedValue({ id: 'job-1' });
-    mockWhatsApp.mockResolvedValue({ status: 'sent', messageId: 'wamid.T' });
+    mockWhatsApp.mockResolvedValue({ id: 'job-wa-1' });
+    mockPret.mockReturnValue(true);
   });
 
   describe('refus', () => {
@@ -195,7 +201,7 @@ describe('POST /api/manuels/commande', () => {
   });
 });
 
-describe('la réservation part sur le WhatsApp de la maison', () => {
+describe('la réservation est mise en file pour le WhatsApp de la maison', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCreate.mockResolvedValue({
@@ -206,19 +212,19 @@ describe('la réservation part sur le WhatsApp de la maison', () => {
       createdAt: new Date('2026-10-16T09:00:00.000Z'),
     });
     mockEnqueue.mockResolvedValue({ id: 'job-1' });
-    mockWhatsApp.mockResolvedValue({ status: 'sent', messageId: 'wamid.T' });
+    mockWhatsApp.mockResolvedValue({ id: 'job-wa-1' });
+    mockPret.mockReturnValue(true);
   });
 
-  it('un message à modèle est envoyé, avec la commande dedans', async () => {
+  it('la notification est inscrite avec la commande dedans', async () => {
     const res = await POST(commande(VALIDE));
     expect(res.status).toBe(200);
     expect(mockWhatsApp).toHaveBeenCalledTimes(1);
 
-    const envoi = mockWhatsApp.mock.calls[0][0];
-    expect(envoi.template.length).toBeGreaterThan(0);
-    expect(envoi.language).toBeTruthy();
-    // la référence, le client, son téléphone, le format, le panier et le total
-    const tout = envoi.parameters.join(' | ');
+    const intention = mockWhatsApp.mock.calls[0][1];
+    expect(intention.template.length).toBeGreaterThan(0);
+    expect(intention.language).toBeTruthy();
+    const tout = intention.parameters.join(' | ');
     expect(tout).toContain('lead_manuels_1');
     expect(tout).toContain('Nour B.');
     expect(tout).toContain('+21620000000');
@@ -228,48 +234,42 @@ describe('la réservation part sur le WhatsApp de la maison', () => {
     expect(tout).toMatch(/retrait/i);
   });
 
-  it('la livraison et son adresse figurent dans le message', async () => {
+  it('elle est inscrite DANS la transaction de la commande', async () => {
+    await POST(commande(VALIDE));
+    // premier argument : le client transactionnel, pas le client global
+    expect(mockWhatsApp.mock.calls[0][0]).toBeDefined();
+    expect(mockWhatsApp.mock.calls[0][1].aggregateId).toBe('lead_manuels_1');
+  });
+
+  it('la livraison et son adresse figurent dans la notification', async () => {
     await POST(
       commande({
         ...VALIDE,
         delivery: { mode: 'livraison', address: '12 avenue de la République', city: 'Tunis' },
       }),
     );
-    const tout = mockWhatsApp.mock.calls[0][0].parameters.join(' | ');
+    const tout = mockWhatsApp.mock.calls[0][1].parameters.join(' | ');
     expect(tout).toContain('12 avenue de la R');
     expect(tout).toContain('Tunis');
   });
 
-  it('le résultat de l’envoi est rendu à l’appelant', async () => {
+  it('l’état de la file est rendu à l’appelant', async () => {
     const res = await POST(commande(VALIDE));
-    expect((await res.json()).whatsapp).toBe('sent');
+    expect((await res.json()).whatsapp).toBe('queued');
   });
 
-  it('un WhatsApp en échec ne fait PAS perdre la commande', async () => {
-    mockWhatsApp.mockResolvedValue({ status: 'failed', reason: 'Meta a refusé', retryable: false });
+  it('canal non configuré : la commande passe quand même, rien n’est inscrit', async () => {
+    mockPret.mockReturnValue(false);
     const res = await POST(commande(VALIDE));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.ok).toBe(true);
     expect(json.reference).toBe('lead_manuels_1');
-    expect(json.whatsapp).toBe('failed');
+    expect(json.whatsapp).toBe('disabled');
+    expect(mockWhatsApp).not.toHaveBeenCalled();
     // la commande reste enregistrée et notifiée par e-mail
     expect(mockCreate).toHaveBeenCalledTimes(1);
     expect(mockEnqueue).toHaveBeenCalledTimes(2);
-  });
-
-  it('un WhatsApp qui lève ne fait pas tomber la route', async () => {
-    mockWhatsApp.mockRejectedValue(new Error('réseau'));
-    const res = await POST(commande(VALIDE));
-    expect(res.status).toBe(200);
-    expect((await res.json()).whatsapp).toBe('failed');
-  });
-
-  it('sans identifiants, le canal est écarté sans bruit', async () => {
-    mockWhatsApp.mockResolvedValue({ status: 'skipped', reason: 'not_configured' });
-    const res = await POST(commande(VALIDE));
-    expect(res.status).toBe(200);
-    expect((await res.json()).whatsapp).toBe('skipped');
   });
 });
 
@@ -287,7 +287,8 @@ describe('le destinataire par défaut est le WhatsApp de la maison', () => {
       createdAt: new Date('2026-10-16T09:00:00.000Z'),
     });
     mockEnqueue.mockResolvedValue({ id: 'job-1' });
-    mockWhatsApp.mockResolvedValue({ status: 'sent', messageId: 'wamid.T' });
+    mockWhatsApp.mockResolvedValue({ id: 'job-wa-1' });
+    mockPret.mockReturnValue(true);
   });
 
   afterAll(() => {
@@ -295,14 +296,14 @@ describe('le destinataire par défaut est le WhatsApp de la maison', () => {
     else process.env.WHATSAPP_ORDER_RECIPIENT = regle;
   });
 
-  it('sans réglage, la notification part sur le 99 19 28 29', async () => {
+  it('sans réglage, la notification vise le 99 19 28 29', async () => {
     await POST(commande(VALIDE));
-    expect(mockWhatsApp.mock.calls[0][0].to).toBe('21699192829');
+    expect(mockWhatsApp.mock.calls[0][1].to).toBe('21699192829');
   });
 
   it('un réglage explicite a la priorité', async () => {
     process.env.WHATSAPP_ORDER_RECIPIENT = '21655000111';
     await POST(commande(VALIDE));
-    expect(mockWhatsApp.mock.calls[0][0].to).toBe('21655000111');
+    expect(mockWhatsApp.mock.calls[0][1].to).toBe('21655000111');
   });
 });

@@ -1,0 +1,13 @@
+-- Notification WhatsApp durable des réservations de manuels.
+--
+-- Migration STRICTEMENT ADDITIVE : une valeur d'énumération est ajoutée, rien
+-- n'est renommé, supprimé ni contraint. Aucune ligne existante n'est touchée,
+-- et un retour arrière ne nécessite que de cesser d'utiliser la valeur.
+--
+-- La file `canonical_job_outbox` accueille ainsi les notifications WhatsApp au
+-- même titre que les e-mails : une réservation prévient la maison même si Meta
+-- est indisponible au moment de la commande.
+-- Nom volontairement distinct de WHATSAPP_SEND, qui porte les invitations
+-- parents : leur ouvrier réclame TOUS les travaux de ce type sans filtrer
+-- l'agrégat, et prendrait les nôtres pour des invitations malformées.
+ALTER TYPE "CanonicalJobType" ADD VALUE IF NOT EXISTS 'SEND_WHATSAPP_ORDER';

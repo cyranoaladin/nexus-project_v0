@@ -112,6 +112,12 @@ export async function register() {
     const { startBilanWorkerScheduler } = await import('./lib/bilans/worker/scheduler');
     startBilanWorkerScheduler();
 
+    // File des notifications WhatsApp : tourne à vide tant que les
+    // identifiants Meta ne sont pas posés, et délivre les réservations en
+    // attente le jour où ils arrivent.
+    const { startWhatsAppOutboxScheduler } = await import('./lib/whatsapp/outbox-scheduler');
+    startWhatsAppOutboxScheduler();
+
     // Candidat-libre diagnostics C2 (mission §5): the real consumer of
     // DiagnosticSubmissionProcessing — opt-in via DIAGNOSTIC_PROCESSING_WORKER_ENABLED,
     // no-op otherwise. Same shape as the bilan worker above: never fail-closes

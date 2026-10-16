@@ -343,38 +343,50 @@ que le catalogue est en pré-commande.
 
 ---
 
-## Mise à jour — réservation envoyée sur WhatsApp, et passage à l'index
+## Mise à jour — réservation notifiée sur WhatsApp, et passage à l'index
 
-### Pourquoi une API, et pas un lien
+### Correction de parcours, à consigner
 
-Le dépôt ne connaissait que la discussion par lien (`wa.me`), qui attend un
-clic humain. Pour qu'une réservation parte **sans geste**, il faut l'API Cloud
-de Meta — et donc un **message à modèle** : Meta n'autorise pas le texte libre
-à l'initiative de l'entreprise hors de la fenêtre de 24 heures ouverte par le
-client.
+Ce lot a d'abord été écrit sur l'ancienne lignée du dépôt, qui ne possédait
+aucune intégration WhatsApp. En le reportant sur `origin/main`, il est apparu
+que **la production en possède une complète** : fournisseur Meta
+(`lib/whatsapp/meta-provider.ts`), file durable chiffrée, ouvrier, webhook,
+anonymisation RGPD des téléphones, et jusqu'au motif `enqueue(tx)` puis
+`kick()` après COMMIT — que j'avais reproduit sans le savoir. La première
+version introduisait donc un **second jeu d'identifiants Meta**. Elle a été
+corrigée : la maison ne configure son compte qu'une fois.
 
-`lib/whatsapp/cloud-api.ts` tient trois règles :
+### Ce qui est réutilisé, et ce qui ne l'est pas
 
-- **le jeton d'accès ne sort jamais**, pas même dans un message d'erreur — un
-  test envoie une réponse de Meta contenant le jeton et vérifie qu'il
-  n'apparaît nulle part dans le résultat ;
-- **un refus de validation n'est pas retenté**, une panne passagère ou un
-  429 si, avec attente croissante ;
-- **un canal non configuré est « écarté », pas « en échec »** : tant que la
-  maison n'a pas ses identifiants, rien ne rougit.
+Réutilisé : les variables `WHATSAPP_SEND_ENABLED`, `WHATSAPP_META_*`, le
+secret `WHATSAPP_OUTBOX_ENCRYPTION_KEY`, le schéma de chiffrement
+AES-256-GCM avec la même dérivation de clé, la table `canonical_job_outbox`,
+et la convention de nommage des modèles `WHATSAPP_TEMPLATE_*`.
 
-Les refus courants de Meta sont traduits en clair, dont le plus probable ici :
-*le destinataire est le même numéro que l'expéditeur*.
+Non réutilisé, et pourquoi : le fournisseur existant est taillé pour un modèle
+à bouton d'URL avec un « purpose » d'activation, là où une réservation demande
+un modèle à paramètres de corps. Et surtout, **l'ouvrier des invitations
+réclame tous les travaux `WHATSAPP_SEND` sans filtrer le type d'agrégat**,
+puis rejette ceux qui n'en sont pas : y verser des réservations les ferait
+échouer. D'où un type de tâche distinct, `SEND_WHATSAPP_ORDER`, et un ouvrier
+propre, volontairement plus simple — la sémantique d'incertitude du SMTP et la
+quarantaine des invitations n'ont pas d'objet ici.
 
 ### Ce qui ne peut jamais arriver
 
-Une réservation **perdue**. L'ordre est strict : la fiche de contact et les
-deux intentions d'e-mail sont écrites dans une transaction, qui est validée ;
-le WhatsApp part **après**. Qu'il échoue, qu'il lève, ou qu'il ne soit pas
-configuré, la réponse reste `200`, la référence est rendue au client, et la
-maison a déjà la commande par e-mail. L'état de l'envoi (`sent`, `skipped`,
-`failed`) est rendu à l'appelant et journalisé sans donnée nominative — la
-référence suffit à retrouver la réservation.
+Une réservation **perdue**, ni une réservation **dont la maison n'est pas
+prévenue**. La fiche de contact, les deux intentions d'e-mail et la
+notification WhatsApp sont écrites dans **une seule transaction** : ou tout
+existe, ou rien. La remise WhatsApp est ensuite sollicitée immédiatement, puis
+reprise par un battement périodique avec attente croissante bornée à une heure,
+jusqu'à huit tentatives. Un refus de validation de Meta — modèle inconnu,
+paramètres qui ne concordent pas — est classé tout de suite : il ne se répare
+pas tout seul.
+
+Si le canal n'est pas configuré, **rien n'est inscrit en file** : exiger le
+secret de chiffrement à l'intérieur de la transaction ferait échouer la
+commande elle-même. La réservation est alors enregistrée et notifiée par
+e-mail, et la réponse l'annonce (`whatsapp: "disabled"`).
 
 ### À faire avant la mise en service
 
@@ -391,35 +403,30 @@ référence suffit à retrouver la réservation.
    Remise : {{7}}
    ```
 
-   Sept paramètres, dans cet ordre. Un modèle à nombre de paramètres différent
-   fera échouer l'envoi avec le diagnostic « le modèle et les paramètres ne
-   concordent pas ».
+2. **Vérifier la configuration Meta déjà en place** — `WHATSAPP_SEND_ENABLED`,
+   `WHATSAPP_META_PHONE_NUMBER_ID`, `WHATSAPP_META_ACCESS_TOKEN`,
+   `WHATSAPP_OUTBOX_ENCRYPTION_KEY`. Si les invitations parents fonctionnent
+   déjà par ce transport, **il n'y a rien à ajouter**.
 
-2. **Renseigner les variables d'environnement** de production :
+3. Deux variables propres aux réservations, toutes deux facultatives :
+   `WHATSAPP_TEMPLATE_ORDER` (défaut `commande_manuels`) et
+   `WHATSAPP_ORDER_RECIPIENT` (défaut : le numéro public de la maison).
 
-   | variable | rôle |
-   |---|---|
-   | `WHATSAPP_CLOUD_PHONE_NUMBER_ID` | identifiant du numéro expéditeur |
-   | `WHATSAPP_CLOUD_ACCESS_TOKEN` | jeton permanent |
-   | `WHATSAPP_ORDER_RECIPIENT` | téléphone qui reçoit les réservations |
-   | `WHATSAPP_ORDER_TEMPLATE` | facultatif, défaut `commande_manuels` |
-   | `WHATSAPP_ORDER_TEMPLATE_LANG` | facultatif, défaut `fr` |
+4. **Vérifier que le destinataire n'est pas l'expéditeur.** Le propriétaire a
+   retenu le 99 19 28 29, qui est aussi le numéro public. Si c'est le numéro du
+   compte Business, Meta refusera — un numéro ne peut pas s'écrire à lui-même.
+   Le refus est traduit en clair dans le journal et dans `lastError` du travail.
 
-   Elles sont déclarées au contrat d'environnement (`lib/env-validation.ts`)
-   en niveau *recommandé* : leur absence est signalée au démarrage, sans
-   empêcher le service.
+### Migration
 
-3. **Vérifier que le destinataire n'est pas l'expéditeur.** Le propriétaire a
-   retenu le 99 192 829, qui est aussi le numéro public du site. Si ce numéro
-   est celui du compte WhatsApp Business expéditeur, **Meta refusera** : un
-   numéro ne peut pas s'écrire à lui-même. Le cas échéant, renseigner
-   `WHATSAPP_ORDER_RECIPIENT` avec le téléphone de la permanence. Le refus est
-   explicite dans les journaux, il ne passera pas inaperçu.
+`prisma/migrations/20261016120000_send_whatsapp_job_type` ajoute la valeur
+`SEND_WHATSAPP_ORDER` à l'énumération `CanonicalJobType`. Strictement
+additive : rien n'est renommé, supprimé ni contraint, aucune ligne existante
+n'est touchée.
 
 ### Passage à l'index
 
 Sur décision du propriétaire, la page quitte le `noindex` : `robots` passe à
 `index: true, follow: true`, et `/manuels` entre au sitemap avec une priorité
-de 0,9, au même rang que `/offres`. Elle reste honnête sur son statut : la page
-annonce elle-même la pré-commande et la confirmation préalable de
-disponibilité, de délai et de règlement.
+de 0,9, au même rang que `/offres`, en reprenant la date de contenu fixe du
+plan de site — et non l'heure de la visite, qu'un garde-fou du dépôt interdit.

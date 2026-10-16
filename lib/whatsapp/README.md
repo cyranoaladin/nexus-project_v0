@@ -127,3 +127,42 @@ connexion, le dossier multi-enfants et le refus du rejeu. Vérifier qu’une
 nouvelle préparation invalide l’ancien lien. L’envoi et la réception dans
 l’application WhatsApp restent à constater avec un numéro de test contrôlé ;
 un clic sur le lien ne doit jamais être enregistré comme une livraison.
+
+---
+
+# Réservations de manuels
+
+Second usage du transport WhatsApp, indépendant des invitations parents.
+
+Chaque réservation déposée sur `/manuels` inscrit une notification dans
+`canonical_job_outbox`, **dans la même transaction que la commande** : ou les
+deux existent, ou aucun des deux. `kickWhatsAppOutboxDrain()` est appelé après
+COMMIT seulement ; un battement périodique reprend ensuite, avec une attente
+croissante bornée à une heure et huit tentatives.
+
+Type de tâche : `SEND_WHATSAPP_ORDER`, volontairement **distinct de
+`WHATSAPP_SEND`**. L'ouvrier des invitations réclame tous les travaux de ce
+dernier type sans filtrer l'agrégat, puis rejette ceux qui ne sont pas des
+invitations : y verser des réservations les ferait échouer.
+
+La charge est chiffrée avec le **même secret et le même schéma** que les
+invitations (`WHATSAPP_OUTBOX_ENCRYPTION_KEY`, AES-256-GCM, dérivation par
+HMAC). Les identifiants Meta sont également partagés : `WHATSAPP_SEND_ENABLED`,
+`WHATSAPP_META_PHONE_NUMBER_ID`, `WHATSAPP_META_ACCESS_TOKEN`,
+`WHATSAPP_META_API_VERSION`. **Rien à configurer en plus** si les invitations
+fonctionnent déjà par ce transport.
+
+Propre aux réservations, facultatif :
+
+- `WHATSAPP_TEMPLATE_ORDER` — modèle approuvé, défaut `commande_manuels`,
+  sept paramètres de corps (référence, client, téléphone, format, panier,
+  total, remise) ;
+- `WHATSAPP_ORDER_RECIPIENT` — téléphone destinataire, défaut : le numéro
+  public de la maison. Meta refuse qu'un numéro s'écrive à lui-même ; si le
+  numéro expéditeur est aussi le destinataire, renseigner ici un autre
+  téléphone.
+
+Si le transport ou le chiffrement ne sont pas configurés, **rien n'est inscrit
+en file** : exiger le secret à l'intérieur de la transaction ferait échouer la
+commande. La réservation est alors enregistrée et notifiée par e-mail, et la
+réponse de l'API l'annonce (`whatsapp: "disabled"`).
