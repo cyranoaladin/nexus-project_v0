@@ -111,6 +111,23 @@ describe('OffresPage', () => {
     expect(carte).toHaveTextContent('Déductible du parcours annuel scolarisés');
   });
 
+  /**
+   * Au 10/11 les deux offres de frais de dossier sont échues : les cartes
+   * annoncent les frais comme dus, sans date. Une date passée présentée comme
+   * une offre courante est la faute que ce garde empêche.
+   */
+  it('cartes candidats libres : plus de date d’offre une fois l’échéance passée', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-11-10T10:00:00+01:00'));
+    render(<OffresPage />);
+    jest.useRealTimers();
+    const section = screen.getByTestId('section-libre');
+    expect(section.textContent).not.toMatch(/offerts jusqu’au/);
+    for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
+      expect(within(section).getByRole('article', { name: new RegExp(niveau) }))
+        .toHaveTextContent(/frais de dossier et d’accompagnement Cyclades\s*: 250 TND/);
+    }
+  });
+
   it('ne vend plus la plateforme ARIA seule (décision D11)', () => {
     const { container } = render(<OffresPage />);
     expect(screen.queryByTestId('section-plateforme')).not.toBeInTheDocument();

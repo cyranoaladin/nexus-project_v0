@@ -30,8 +30,12 @@ export type QuestionReponse = { question: string; reponse: string };
  */
 export function construireFaq(
   data: CandidatsLibres2027,
-  { produitsCourts }: { produitsCourts: boolean },
+  { produitsCourts, fraisOfferts }: { produitsCourts: boolean; fraisOfferts: boolean },
 ): QuestionReponse[] {
+  // Une fois les deux échéances passées, la parenthèse annoncerait au présent
+  // une période d'offre qui ne court plus. Les frais restent annoncés : ils
+  // sont dus, pas effacés.
+  const periodeOfferte = fraisOfferts ? ', offerts pendant certaines périodes en Première et en Terminale' : '';
   const [premiere, terminale, b1a] = data.parcours;
   const tnd = (n: number) => `${fmtMontant(n)} TND`;
   return [
@@ -46,7 +50,7 @@ export function construireFaq(
     },
     {
       question: 'Combien coûte la préparation du bac français en candidat libre à Tunis ?',
-      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Le prix annuel ne change pas avec l’entrée : il est réparti depuis le mois de l’inscription. Pour une inscription en octobre, 9 versements d’octobre à juin (${texteEcheancierProse(premiere.echeancier_9, 9)}, ${texteEcheancierProse(terminale.echeancier_9, 9)} ou ${texteEcheancierProse(b1a.echeancier_9, 9)}) ; pour une inscription en novembre, 8 versements de novembre à juin (${texteEcheancierProse(premiere.echeancier_8, 8)}, ${texteEcheancierProse(terminale.echeancier_8, 8)} ou ${texteEcheancierProse(b1a.echeancier_8, 8)}) ; ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. S’y ajoutent les frais de dossier et d’accompagnement Cyclades (${tnd(data.frais_dossier.montant)}, offerts pendant certaines périodes en Première et en Terminale) et les frais d’examen de l’Institut français.`,
+      reponse: `Pour la session 2027, chez Nexus Réussite : Première ${tnd(premiere.prix_annuel)} par an, Terminale ${tnd(terminale.prix_annuel)}, Bac en 1 an ${tnd(b1a.prix_annuel)}. Le prix annuel ne change pas avec l’entrée : il est réparti depuis le mois de l’inscription. Pour une inscription en octobre, 9 versements d’octobre à juin (${texteEcheancierProse(premiere.echeancier_9, 9)}, ${texteEcheancierProse(terminale.echeancier_9, 9)} ou ${texteEcheancierProse(b1a.echeancier_9, 9)}) ; pour une inscription en novembre, 8 versements de novembre à juin (${texteEcheancierProse(premiere.echeancier_8, 8)}, ${texteEcheancierProse(terminale.echeancier_8, 8)} ou ${texteEcheancierProse(b1a.echeancier_8, 8)}) ; ou comptant avec ${data.paiement.comptant_remise_pct} % de remise. Sans acompte. S’y ajoutent les frais de dossier et d’accompagnement Cyclades (${tnd(data.frais_dossier.montant)}${periodeOfferte}) et les frais d’examen de l’Institut français.`,
     },
     {
       question: 'Que se passe-t-il si le groupe n’ouvre pas ?',

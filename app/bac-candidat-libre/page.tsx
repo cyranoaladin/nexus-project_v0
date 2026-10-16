@@ -14,6 +14,7 @@ import {
   jourMoisHeure,
 } from '@/content/marketing/bac-candidat-libre';
 import {
+  dureeIso,
   echeanciersParMoisEntree,
   getAteliersCycladesAVenir,
   getCandidatsLibres2027,
@@ -128,10 +129,10 @@ export default function BacCandidatLibrePage() {
   const data = getCandidatsLibres2027();
   const [premiere, terminale] = data.parcours;
   const produitsCourts = produitsCourtsPublies();
-  const faq = construireFaq(data, { produitsCourts });
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
   const offres = getFraisDossierOffertsActifs(maintenant);
+  const faq = construireFaq(data, { produitsCourts, fraisOfferts: offres.length > 0 });
   const echeances = [
     { libelle: 'Inscription Terminale', cloture: terminale.cyclades.cloture, ouverture: terminale.cyclades.ouverture },
     { libelle: 'Inscription Première', cloture: premiere.cyclades.cloture, ouverture: premiere.cyclades.ouverture },
@@ -163,7 +164,12 @@ export default function BacCandidatLibrePage() {
         name: p.titre,
         courseMode: 'onsite',
         location: adresse.full,
-        courseWorkload: `PT${p.heures_cours}H`,
+        // Le contrat vend les heures de cours ET le total encadré ; c'est le
+        // second qui est le total de ce que la famille reçoit — cours, épreuves
+        // blanches, oraux, bilans — et c'est cette donnée qu'une machine cite.
+        // Déclarer les seules heures de cours annoncerait moins que le contrat.
+        // Le texte lisible, lui, garde les heures de cours, là où elles sont nommées.
+        courseWorkload: dureeIso(p.heures_encadrees_total),
       })),
       offers: data.parcours.map((p) => ({
         '@type': 'Offer',

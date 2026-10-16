@@ -125,6 +125,7 @@ export function buildLlmsTxt(maintenant: Date = new Date()): string {
 
 export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
   const data = getCandidatsLibres2027();
+  const fraisOfferts = getFraisDossierOffertsActifs(maintenant).length > 0;
   const edt = data.emploi_du_temps;
   const creneaux = (niveau: 'terminale' | 'premiere') =>
     edt.jours.map((jour, i) => (edt[niveau][i] ? `${jour} ${edt[niveau][i]}` : null)).filter(Boolean).join(', ');
@@ -171,7 +172,7 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
       : []),
     '## Questions fréquentes sur le bac français en candidat libre',
     '',
-    ...construireFaq(data, { produitsCourts: produitsCourtsPublies() }).flatMap((q) => [`### ${q.question}`, '', q.reponse, '']),
+    ...construireFaq(data, { produitsCourts: produitsCourtsPublies(), fraisOfferts }).flatMap((q) => [`### ${q.question}`, '', q.reponse, '']),
     ...pagesCles(),
     ...engagements(),
   ].join('\n');

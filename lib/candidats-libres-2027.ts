@@ -184,6 +184,16 @@ export function echeanciersParMoisEntree(
 }
 
 /**
+ * Durée ISO 8601 pour schema.org : 219,5 → « PT219H30M », 329 → « PT329H ».
+ * Le nombre vient du module de données, jamais d'une constante d'annotation.
+ */
+export function dureeIso(heures: number): string {
+  const h = Math.floor(heures);
+  const minutes = Math.round((heures - h) * 60);
+  return minutes === 0 ? `PT${h}H` : `PT${h}H${minutes}M`;
+}
+
+/**
  * Les prix des produits courts ne sont pas publiés tant que leur régime
  * fiscal n'est pas attesté par le comptable : le dossier de la direction
  * bloque « toute offre commerciale ferme » sur ce point. La grille reste dans

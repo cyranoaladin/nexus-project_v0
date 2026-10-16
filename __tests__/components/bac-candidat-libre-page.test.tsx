@@ -177,12 +177,29 @@ describe('/bac-candidat-libre', () => {
     const blocs = jsonLd(container);
     const cours = blocs.find((b) => b['@type'] === 'Course');
     expect(cours.offers).toHaveLength(3);
+    // Le contrat vend « 189 h de cours, 219,5 h encadrées ». C'est le second
+    // chiffre qui est le total de ce que la famille reçoit, et c'est la donnée
+    // structurée qu'une machine cite : déclarer 189 h annoncerait moins que le
+    // contrat. Le texte lisible garde 189 h, là où il est nommé « heures de cours ».
+    expect(cours.hasCourseInstance.map((i: any) => i.courseWorkload))
+      .toEqual(['PT219H30M', 'PT329H', 'PT568H']);
+    const data = getCandidatsLibres2027();
+    for (const [i, instance] of cours.hasCourseInstance.entries()) {
+      expect(instance.courseWorkload).not.toBe(`PT${data.parcours[i].heures_cours}H`);
+    }
     expect(cours.offers.map((o: any) => o.price)).toEqual([5200, 7600, 11600]);
     expect(cours.offers.every((o: any) => o.priceCurrency === 'TND')).toBe(true);
     expect(cours.provider.address.streetAddress).toBe(LEGAL.addresses.pedagogique.street);
     const faq = blocs.find((b) => b['@type'] === 'FAQPage');
     expect(faq.mainEntity.length).toBeGreaterThanOrEqual(6);
     expect(blocs.find((b) => b['@type'] === 'BreadcrumbList')).toBeDefined();
+  });
+
+  test('le 10/11, la FAQ n’annonce plus de période d’offre sur les frais de dossier', () => {
+    renderAu('2026-11-10T10:00:00+01:00');
+    expect(document.body.textContent).not.toMatch(/offerts pendant certaines périodes/i);
+    // Les frais restent annoncés : ils sont dus, pas effacés.
+    expect(document.body.textContent).toMatch(/frais de dossier/i);
   });
 
   test('aucune promesse de résultat', () => {
