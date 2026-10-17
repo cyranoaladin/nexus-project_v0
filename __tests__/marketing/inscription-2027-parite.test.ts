@@ -16,20 +16,19 @@ const racine = process.cwd();
 const lire = (chemin: string) => readFileSync(join(racine, chemin), 'utf8');
 
 /**
- * Texte visible du corps, espaces normalisés. On coupe après le dernier
- * `</style>`, commun aux deux documents : la tête diffère légitimement — le
- * `<title>` servi est rédigé pour le référencement, celui de la source est un
- * nom de travail.
+ * Texte visible du corps, espaces normalisés.
+ *
+ * Le découpage se fait par analyse du document, pas par expression régulière :
+ * reconnaître des balises au motif se trompe sur les écritures légales que le
+ * navigateur accepte pourtant (`<SCRIPT>`, `</script\n foo>`). On lit donc le
+ * corps tel qu'un navigateur le construit, scripts et styles retirés. La tête
+ * est écartée de fait : elle diffère légitimement — le `<title>` servi est
+ * rédigé pour le référencement, celui de la source est un nom de travail.
  */
 function texte(html: string): string {
-  const apres = html.lastIndexOf('</style>');
-  return html
-    .slice(apres === -1 ? 0 : apres + '</style>'.length)
-    // Drapeau i : <SCRIPT> majuscule est une balise comme une autre pour le navigateur.
-    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  const document = new DOMParser().parseFromString(html, 'text/html');
+  document.querySelectorAll('script, style, template').forEach((noeud) => noeud.remove());
+  return (document.body.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
 describe.each(PAGES.map((page: { slug: string }) => page.slug))('Inscription 2027 — %s', (slug) => {
