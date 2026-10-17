@@ -4,6 +4,7 @@ import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
 import { getActiveStageEndDateFilter } from '@/lib/stages/lifecycle';
 import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
+import { ateliersOuverts } from '@/lib/ateliers';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'weekly' as const,
     priority: campagneOuverte(page, now) ? 0.9 : 0.5,
   }));
+
+  // Ateliers gratuits au centre : présents tant qu'un atelier reste à venir.
+  const ateliers: MetadataRoute.Sitemap = ateliersOuverts(now).length > 0
+    ? [{ url: `${BASE_URL}/ateliers`, lastModified: new Date('2026-10-17T00:00:00+01:00'), changeFrequency: 'daily' as const, priority: 0.9 }]
+    : [];
 
   // Public pages with their priorities and change frequencies
   const publicPages: MetadataRoute.Sitemap = [
@@ -209,5 +215,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fallback silencieux si DB indisponible (prerender ou CI)
   }
 
-  return [...publicPages, ...inscription2027, ...stageEntries];
+  return [...publicPages, ...inscription2027, ...ateliers, ...stageEntries];
 }

@@ -24,6 +24,7 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
+import { ateliersOuverts } from '@/lib/ateliers';
 import { lienCycladesOfficiel, lienInstitutFrancaisOfficiel } from '@/lib/liens-officiels';
 import { LEGAL } from '@/lib/legal';
 import { buildPageMetadata, serialiserJsonLd } from '@/lib/seo';
@@ -425,6 +426,15 @@ export default function BacCandidatLibrePage() {
             {ateliers.length > 0
               ? ` Atelier gratuit les samedis ${ateliers.map(jourMois).join(', ')} à ${data.ateliers_cyclades.heure}, ${data.ateliers_cyclades.lieu}.`
               : ''}
+            {ateliersOuverts(new Date()).length > 0 && (
+              <>
+                {' '}
+                <Link href="/ateliers" className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory">
+                  Ateliers gratuits d’information au centre : dates et réservation
+                </Link>
+                .
+              </>
+            )}
           </p>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {[terminale, premiere].map((p) => (

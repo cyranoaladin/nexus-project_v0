@@ -34,6 +34,8 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/HomePageClient.tsx',
   'app/offres/page.tsx',
   'app/inscription-bac-2027/page.tsx', // index des dossiers d'inscription 2027
+  'app/ateliers/page.tsx', // ateliers gratuits au centre (17/10/2026)
+  'components/ateliers/AtelierInscriptionForm.tsx',
   'app/offres/_components/OffersFiltersClient.tsx',
   'app/notre-centre/page.tsx',
   'app/accompagnement-scolaire/page.tsx',
