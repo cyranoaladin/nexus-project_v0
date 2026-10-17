@@ -25,7 +25,8 @@ function texte(html: string): string {
   const apres = html.lastIndexOf('</style>');
   return html
     .slice(apres === -1 ? 0 : apres + '</style>'.length)
-    .replace(/<script[\s\S]*?<\/script>/g, ' ')
+    // Drapeau i : <SCRIPT> majuscule est une balise comme une autre pour le navigateur.
+    .replace(/<script\b[\s\S]*?<\/script\s*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();

@@ -48,13 +48,25 @@ function decouper(source) {
   return { tete: source.slice(0, fin + '</style>'.length), corps: source.slice(fin + '</style>'.length) };
 }
 
+/**
+ * Un repère est du texte simple. On ne le nettoie pas, on refuse ce qui n'en
+ * est pas : la valeur finit dans un attribut `content="…"`, et un balisage
+ * rogné par une expression régulière se recolle (« <scr<script>ipt> »). Du
+ * balisage apparu dans la source devient donc une erreur de fabrication,
+ * visible, jamais un contenu amputé en silence puis réinjecté.
+ */
+function texteSimple(valeur) {
+  if (/[<>&"]/.test(valeur)) throw new Error(`REPERE_NON_TEXTUEL: ${valeur}`);
+  return valeur.trim();
+}
+
 /** Les repères datés du document : « Ouverture → 16 oct. 2026, 8 h », etc. */
 export function reperes(source) {
   const bloc = /<dl class="ouverture">([\s\S]*?)<\/dl>/.exec(source);
   if (!bloc) throw new Error('BLOC_OUVERTURE_INTROUVABLE');
-  const paires = [...bloc[1].matchAll(/<dt>(.*?)<\/dt><dd>(.*?)<\/dd>/g)];
+  const paires = [...bloc[1].matchAll(/<dt>([^<>]*)<\/dt><dd>([^<>]*)<\/dd>/g)];
   if (paires.length === 0) throw new Error('REPERES_INTROUVABLES');
-  return paires.map(([, cle, valeur]) => [cle.trim(), valeur.replace(/<[^>]+>/g, '').trim()]);
+  return paires.map(([, cle, valeur]) => [texteSimple(cle), texteSimple(valeur)]);
 }
 
 /** La clôture, lue sur la seule écriture lisible par machine du document. */
