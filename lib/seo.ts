@@ -39,3 +39,28 @@ export function buildPageMetadata({
     },
   };
 }
+
+/**
+ * Sérialise un bloc de données structurées pour un `<script type="…ld+json">`.
+ *
+ * Le chevron est échappé en `\u003c` : sans cela, un « </script> » présent
+ * dans une réponse de FAQ fermerait la balise et casserait la page, bien
+ * avant que le JSON soit jugé valide ou non. L'échappement est transparent
+ * pour les analyseurs : `JSON.parse` rend exactement la chaîne d'origine.
+ */
+export function serialiserJsonLd(donnees: unknown): string {
+  return JSON.stringify(donnees).replace(/</g, '\\u003c');
+}
+
+/** Fil d'Ariane : l'accueil, puis la page. Affiché par les moteurs sous le titre. */
+export function filArianeJsonLd(chemin: string, nom: string) {
+  const base = 'https://nexusreussite.academy';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${base}/` },
+      { '@type': 'ListItem', position: 2, name: nom, item: `${base}${chemin}` },
+    ],
+  };
+}

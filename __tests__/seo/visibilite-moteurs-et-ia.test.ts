@@ -9,6 +9,7 @@ import { GET as llmsTxt } from '@/app/llms.txt/route';
 import { GET as llmsFullTxt } from '@/app/llms-full.txt/route';
 import { buildOrganisationJsonLd } from '@/lib/organisation-jsonld';
 import { LEGAL } from '@/lib/legal';
+import { getPagesInscription2027 } from '@/lib/inscription-2027';
 
 const ROBOTS_IA = [
   'GPTBot',
@@ -68,6 +69,32 @@ describe('Données structurées de l’organisation', () => {
     expect(Number(offre.highPrice)).toBe(11600);
   });
 
+  test('profils officiels déclarés : l’entité est reconnaissable hors du site', () => {
+    expect(organisation.sameAs).toEqual(LEGAL.web.profils);
+    for (const profil of organisation.sameAs) expect(profil).toMatch(/^https:\/\//);
+  });
+
+  test('le centre est localisé : coordonnées de la fiche Maps et lien vers elle', () => {
+    expect(centre.geo).toEqual({
+      '@type': 'GeoCoordinates',
+      latitude: LEGAL.addresses.pedagogique.geo.latitude,
+      longitude: LEGAL.addresses.pedagogique.geo.longitude,
+    });
+    // Les coordonnées viennent de la fiche Maps de Nexus Réussite, pas d'une
+    // estimation : une épingle fausse coûte plus cher qu'une épingle absente.
+    expect(centre.geo.latitude).toBeGreaterThan(36.8);
+    expect(centre.geo.latitude).toBeLessThan(36.9);
+    expect(centre.geo.longitude).toBeGreaterThan(10.1);
+    expect(centre.geo.longitude).toBeLessThan(10.2);
+    expect(centre.hasMap).toBe(LEGAL.addresses.pedagogique.maps);
+    expect(centre.hasMap).toMatch(/^https:\/\/maps\.google\.com\/\?cid=\d+$/);
+    expect(centre.sameAs).toContain(LEGAL.addresses.pedagogique.maps);
+  });
+
+  test('la fourchette de prix est lisible, pas une devise seule', () => {
+    expect(centre.priceRange).toMatch(/^\d[\d\s\u00a0]*\u2013[\d\s\u00a0]*\d\u00a0TND$/);
+  });
+
   test('site web déclaré', () => {
     expect(graphe.find((n) => n['@type'] === 'WebSite')?.url).toBe(LEGAL.web.url);
   });
@@ -88,6 +115,25 @@ describe('/llms.txt et /llms-full.txt', () => {
     expect(texte).toContain(`${LEGAL.web.url}/bac-candidat-libre`);
     expect(texte).toMatch(/frais de dossier et d’accompagnement Cyclades : 250 TND/i);
     expect(texte).not.toMatch(/Mutuelleville|Nexus Libre|garanti/);
+  });
+
+  test('/llms.txt : les deux dossiers d’inscription sont cités, campagne ouverte', async () => {
+    const texte = sansEspaces(await (await llmsTxt()).text());
+    for (const page of getPagesInscription2027()) {
+      expect(texte).toContain(`${LEGAL.web.url}${page.chemin}`);
+    }
+    // L'adresse du portail est la seule que connaisse le site : celle des dossiers.
+    expect(texte).toContain(getPagesInscription2027()[0].cyclades);
+  });
+
+  test('/llms-full.txt : les questions des parents des deux dossiers y figurent', async () => {
+    const texte = sansEspaces(await (await llmsFullTxt()).text());
+    for (const page of getPagesInscription2027()) {
+      expect(page.questions.length).toBeGreaterThanOrEqual(5);
+      for (const { question } of page.questions) {
+        expect(texte).toContain(sansEspaces(question));
+      }
+    }
   });
 
   test('/llms-full.txt : fiche détaillée avec la FAQ candidats libres', async () => {

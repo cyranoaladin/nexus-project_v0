@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { OfferRef, NicheSection, RelatedLink } from '@/components/marketing/LandingNiche';
+import { lienCycladesOfficiel } from '@/lib/liens-officiels';
 import { LEGAL } from '@/lib/legal';
 import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { getRules } from '@/lib/pricing';
@@ -111,6 +112,12 @@ export const seoLandings = {
         href: '/inscription-bac-2027',
         label: 'S’inscrire au bac 2027',
         description: 'La campagne Cyclades écran par écran, pièces à fournir et choix d’épreuves, en bac général et en bac STMG.',
+      },
+      {
+        href: lienCycladesOfficiel(),
+        externe: true as const,
+        label: 'Cyclades, espace candidat',
+        description: 'Le portail officiel où l’inscription se fait. Elle est personnelle : Nexus Réussite accompagne la démarche sans s’y substituer.',
       },
     ],
     offerRefs: [

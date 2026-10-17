@@ -2,6 +2,7 @@ import 'server-only';
 
 import { getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
+import { fmtMontant } from '@/components/premium/format';
 import { getAllOffers, getEffectivePrice } from '@/lib/pricing';
 
 /**
@@ -66,6 +67,7 @@ export function buildOrganisationJsonLd() {
           'Enseignement de spécialité mathématiques, physique-chimie et NSI',
         ],
         availableLanguage: ['fr'],
+        sameAs: LEGAL.web.profils,
         offers:
           prix.length > 0
             ? {
@@ -84,13 +86,24 @@ export function buildOrganisationJsonLd() {
         url: `${url}/notre-centre`,
         telephone: LEGAL.contact.phone,
         email: LEGAL.contact.email,
-        priceRange: 'TND',
+        // Une fourchette lisible plutôt que la seule devise : c'est ce que
+        // les moteurs affichent, et « TND » seul n'apprend rien à personne.
+        priceRange: prix.length > 0
+          ? `${fmtMontant(Math.min(...prix))}\u2013${fmtMontant(Math.max(...prix))}\u00a0TND`
+          : undefined,
         address: {
           '@type': 'PostalAddress',
           streetAddress: centre.street,
           addressLocality: `${centre.neighborhood}, ${centre.city}`,
           addressCountry: 'TN',
         },
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: centre.geo.latitude,
+          longitude: centre.geo.longitude,
+        },
+        hasMap: centre.maps,
+        sameAs: [centre.maps],
         parentOrganization: { '@id': organisationId },
       },
       {

@@ -13,6 +13,7 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
+import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
 import { LEGAL } from '@/lib/legal';
 
 /**
@@ -82,12 +83,37 @@ function entete(): string[] {
   ];
 }
 
-function pagesCles(): string[] {
+/** Les dossiers d'inscription, tant que la campagne Cyclades court. */
+function dossiersInscription(maintenant: Date) {
+  return getPagesInscription2027().filter((page) => campagneOuverte(page, maintenant));
+}
+
+/**
+ * Les deux adresses officielles, lues sur les dossiers audités. Un assistant
+ * qui cite Nexus Réussite doit pouvoir donner la bonne adresse du portail,
+ * pas une adresse de mémoire.
+ */
+function adressesOfficielles(maintenant: Date): string[] {
+  const dossiers = dossiersInscription(maintenant);
+  if (dossiers.length === 0) return [];
+  return [
+    '## Adresses officielles (Nexus Réussite n’est pas l’autorité d’examen)',
+    '',
+    `- Inscription à l’examen : ${dossiers[0].cyclades}`,
+    `- Suivi de la session : ${dossiers[0].institut_francais}`,
+    '',
+  ];
+}
+
+function pagesCles(maintenant: Date): string[] {
   const url = LEGAL.web.url;
   return [
     '## Pages clés',
     '',
     `- [Bac français en candidat libre — session 2027](${url}/bac-candidat-libre) : parcours, prix, dates Cyclades, FAQ`,
+    ...dossiersInscription(maintenant).map(
+      (page) => `- [${page.titre}](${url}${page.chemin}) : ${page.description}`,
+    ),
     `- [Offres et tarifs 2026-2027](${url}/offres) : élèves scolarisés (accompagnement annuel, stages, plateforme ARIA) et candidats libres`,
     `- [Stages intensifs](${url}/stages) : stages pendant les vacances scolaires`,
     `- [Candidat libre : statut, modalités et coefficients](${url}/candidat-libre-bac-francais)`,
@@ -114,7 +140,8 @@ export function buildLlmsTxt(maintenant: Date = new Date()): string {
     ...entete(),
     ...blocCandidatsLibres(maintenant),
     '',
-    ...pagesCles(),
+    ...pagesCles(maintenant),
+    ...adressesOfficielles(maintenant),
     ...engagements(),
     '## Optional',
     '',
@@ -173,7 +200,15 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
     '## Questions fréquentes sur le bac français en candidat libre',
     '',
     ...construireFaq(data, { produitsCourts: produitsCourtsPublies(), fraisOfferts }).flatMap((q) => [`### ${q.question}`, '', q.reponse, '']),
-    ...pagesCles(),
+    ...dossiersInscription(maintenant).flatMap((page) => [
+      `## ${page.titre}`,
+      '',
+      `${page.description} Dossier complet : ${LEGAL.web.url}${page.chemin}`,
+      '',
+      ...page.questions.flatMap(({ question, reponse }) => [`### ${question}`, '', reponse, '']),
+    ]),
+    ...adressesOfficielles(maintenant),
+    ...pagesCles(maintenant),
     ...engagements(),
   ].join('\n');
 }

@@ -31,6 +31,14 @@ export const LEGAL = {
       neighborhood: 'Manar III',
       city: 'Tunis',
       note: 'Les cours, stages et rendez-vous pédagogiques ont lieu au 17 rue Ali Zlitni, Manar III, Tunis.',
+      /**
+       * Coordonnées et lien de la fiche Google Maps de Nexus Réussite, relevés
+       * sur la fiche elle-même (identifiant de lieu 0x995daf69d139108a). Ne
+       * jamais les estimer : une épingle fausse envoie une famille ailleurs.
+       * Le code postal reste absent tant qu'il n'est pas attesté.
+       */
+      geo: { latitude: 36.8414471, longitude: 10.1656767 },
+      maps: 'https://maps.google.com/?cid=11051181929653670026',
     },
   },
 
@@ -54,6 +62,16 @@ export const LEGAL = {
   web: {
     domain: 'nexusreussite.academy',
     url: 'https://nexusreussite.academy',
+    /**
+     * Profils officiels, publiés en `sameAs` : ils permettent aux moteurs et
+     * aux assistants de reconnaître une seule et même entité d'un site à
+     * l'autre. N'y mettre qu'un compte tenu par Nexus Réussite, jamais un
+     * lien de publication ni une page tierce qui parle de nous.
+     */
+    profils: [
+      'https://www.instagram.com/nexusacademy2026/',
+      'https://www.facebook.com/groups/989509755402969/',
+    ] as string[],
   },
 
   copyright: {

@@ -18,6 +18,8 @@ import { useCallback,useRef,useState,type FormEvent,type KeyboardEvent } from 'r
 import { toast } from 'sonner';
 const ADMIN_ADDRESS = LEGAL.addresses.siege.full;
 const PEDA_ADDRESS = LEGAL.addresses.pedagogique.full;
+/** La fiche du centre, pas une recherche d'adresse : une recherche peut tomber à côté. */
+const PEDA_MAPS = LEGAL.addresses.pedagogique.maps;
 
 type FormState = {
   profile: string;
@@ -337,8 +339,8 @@ export default function ContactPage() {
                 Les cours, stages et rendez-vous pédagogiques ont lieu ici.
               </p>
               <p className="mt-2 text-sm text-lux-slate">{PEDA_ADDRESS}</p>
-              <a href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center text-sm font-semibold text-lux-gold-deep hover:text-lux-ink transition-colors">
-                Ouvrir l’itinéraire
+              <a href={PEDA_MAPS} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center text-sm font-semibold text-lux-gold-deep hover:text-lux-ink transition-colors">
+                Ouvrir l’itinéraire<span className="sr-only"> (nouvel onglet)</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </CardContent>
@@ -374,12 +376,12 @@ export default function ContactPage() {
               </div>
 
               <a
-                href={`https://www.google.com/maps?q=${encodeURIComponent(PEDA_ADDRESS)}`}
+                href={PEDA_MAPS}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-flex items-center text-sm font-semibold text-lux-gold-deep transition-colors hover:text-lux-ink"
               >
-                Ouvrir sur Google Maps
+                Ouvrir sur Google Maps<span className="sr-only"> (nouvel onglet)</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </CardContent>

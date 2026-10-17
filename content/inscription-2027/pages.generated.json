@@ -4,13 +4,69 @@
     "chemin": "/inscription-bac-2027/general",
     "titre": "Inscription au bac général 2027 en candidat individuel — Tunisie",
     "description": "Bac général 2027 en candidat individuel depuis la Tunisie : la campagne Cyclades close le 12 nov. 2026, 18 h, écran par écran — pièces à fournir, choix d’épreuves, pièges à éviter.",
-    "cloture": "2026-11-12T18:00:00+01:00"
+    "cloture": "2026-11-12T18:00:00+01:00",
+    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login",
+    "institut_francais": "https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/",
+    "questions": [
+      {
+        "question": "Puis-je m’inscrire à la place de mon enfant ?",
+        "reponse": "Techniquement oui, mais la notice le déconseille explicitement : « L’inscription à un examen est un acte personnel, il est recommandé aux candidats de s’inscrire eux-mêmes afin d’éviter toute erreur ou omission. » Le bon rôle du parent : s’asseoir à côté, relire le récapitulatif, vérifier l’état civil, signer si l’enfant est mineur."
+      },
+      {
+        "question": "Que signe le représentant légal ?",
+        "reponse": "La confirmation d’inscription, si le candidat est mineur. Ainsi que les Fiches n° 1 et n° 2, le cas échéant."
+      },
+      {
+        "question": "1 000 TND, est-ce bien le montant total ?",
+        "reponse": "C’est le montant des frais d’examen pour l’inscription au baccalauréat, tel qu’indiqué par la notice. Il ne couvre évidemment ni la préparation, ni les manuels, ni les déplacements. Aucun remboursement n’est possible, quelle que soit la raison."
+      },
+      {
+        "question": "Mon enfant peut-il changer de spécialité après l’inscription ?",
+        "reponse": "Non. « Les choix effectués lors de l’inscription sont définitifs. » Et s’il était inscrit aux épreuves anticipées 2026, ses langues vivantes et sa spécialité de première sont déjà figées."
+      },
+      {
+        "question": "Quand saurons-nous les dates des épreuves ?",
+        "reponse": "Le calendrier global paraîtra sur la page web de l’IFT. Les dates personnelles — oral de français, évaluations ponctuelles, EPS, Grand oral, centre d’examen — figureront sur la convocation individuelle, disponible dans Cyclades à partir d’avril 2027. Elles ne sont communiquées ni par courriel, ni par téléphone."
+      },
+      {
+        "question": "Faut-il se déplacer au Bureau des examens ?",
+        "reponse": "Non. La notice est explicite : « Il est inutile de vous déplacer au bureau des examens ou de prendre contact par téléphone à ce sujet. » Consultez d’abord l’aide en ligne de Cyclades, puis écrivez."
+      }
+    ]
   },
   {
     "slug": "stmg",
     "chemin": "/inscription-bac-2027/stmg",
     "titre": "Inscription au bac STMG 2027 en candidat individuel — Tunisie",
     "description": "Bac STMG 2027 en candidat individuel depuis la Tunisie : la campagne Cyclades close le 12 nov. 2026, 18 h, écran par écran — pièces à fournir, choix d’épreuves, pièges à éviter.",
-    "cloture": "2026-11-12T18:00:00+01:00"
+    "cloture": "2026-11-12T18:00:00+01:00",
+    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login",
+    "institut_francais": "https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/",
+    "questions": [
+      {
+        "question": "Puis-je m’inscrire à la place de mon enfant ?",
+        "reponse": "Techniquement oui, mais la notice le déconseille explicitement : « L’inscription à un examen est un acte personnel, il est recommandé aux candidats de s’inscrire eux-mêmes afin d’éviter toute erreur ou omission. » Le bon rôle du parent : s’asseoir à côté, relire le récapitulatif, vérifier l’état civil, signer si l’enfant est mineur."
+      },
+      {
+        "question": "Quel enseignement spécifique choisir ?",
+        "reponse": "C’est le seul vrai choix de parcours en STMG, et il engage le Grand oral. Gestion et finance mène vers la comptabilité et la finance ; mercatique vers le commerce et la communication commerciale ; ressources humaines et communication vers les métiers RH et le management des équipes. Le choix doit être cohérent avec le projet d’orientation post-bac — BTS, BUT, école de commerce, université — plus qu’avec la réputation de difficulté de l’un ou l’autre."
+      },
+      {
+        "question": "Que signe le représentant légal ?",
+        "reponse": "La confirmation d’inscription, si le candidat est mineur. Ainsi que les Fiches n° 1 et n° 2, le cas échéant."
+      },
+      {
+        "question": "1 000 TND, est-ce bien le montant total ?",
+        "reponse": "C’est le montant des frais d’examen pour l’inscription au baccalauréat, tel qu’indiqué par la notice. Il ne couvre évidemment ni la préparation, ni les manuels, ni les déplacements. Aucun remboursement n’est possible, quelle que soit la raison."
+      },
+      {
+        "question": "Quand saurons-nous les dates des épreuves ?",
+        "reponse": "Le calendrier global paraîtra sur la page web de l’IFT. Les dates personnelles — oral de français, oral de SGN, évaluations ponctuelles, EPS, Grand oral, centre d’examen — figureront sur la convocation individuelle, disponible dans Cyclades à partir d’avril 2027. Elles ne sont communiquées ni par courriel, ni par téléphone."
+      },
+      {
+        "question": "Faut-il se déplacer au Bureau des examens ?",
+        "reponse": "Non. La notice est explicite : « Il est inutile de vous déplacer au bureau des examens ou de prendre contact par téléphone à ce sujet. » Consultez d’abord l’aide en ligne de Cyclades, puis écrivez."
+      }
+    ]
   }
 ]

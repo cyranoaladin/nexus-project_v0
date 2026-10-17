@@ -76,6 +76,145 @@ export function cloture(source) {
   return trouve[1];
 }
 
+/**
+ * Les deux adresses officielles, lues sur le document audité — bloc « Les deux
+ * seules adresses utiles ». Elles ne sont écrites nulle part ailleurs : le jour
+ * où un portail déménage, corriger le dossier suffit, et le site suit.
+ *
+ * L'hôte attendu fait partie du contrat : un lien qui pointerait ailleurs ne
+ * serait pas le portail officiel, et vaut mieux une fabrication arrêtée qu'une
+ * famille envoyée sur un site qui n'est pas celui de l'examen.
+ */
+const LIENS = /<a href="(https:\/\/[^"]+)"/g;
+
+function hoteDe(url) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return null;
+  }
+}
+
+function lienVers(source, hote, erreur) {
+  // L'hote est compare apres analyse de l'adresse, jamais au motif : un
+  // « https://candidat.examens-concours.gouv.fr.autre-site.tn/ » satisfait une
+  // expression reguliere naive et n'est pas le portail de l'examen.
+  const trouvees = new Set(
+    [...source.matchAll(LIENS)].map(([, url]) => url).filter((url) => hoteDe(url) === hote),
+  );
+  if (trouvees.size === 0) throw new Error(erreur);
+  // Le document cite l'adresse plus d'une fois. Toutes doivent s'accorder :
+  // deux adresses differentes dans un meme dossier, c'est une relecture a
+  // refaire, pas un choix a trancher par l'ordre d'apparition.
+  if (trouvees.size > 1) throw new Error(`${erreur.replace('_INTROUVABLE', '')}_DIVERGENT_DANS_LE_DOCUMENT`);
+  return [...trouvees][0];
+}
+
+/** Le portail d'inscription : « Pour s'inscrire — Cyclades, espace candidat ». */
+export function lienCyclades(source) {
+  return lienVers(source, 'candidat.examens-concours.gouv.fr', 'LIEN_CYCLADES_INTROUVABLE');
+}
+
+/** Le suivi de session : « Institut français de Tunisie, Examens & concours ». */
+export function lienInstitutFrancais(source) {
+  return lienVers(source, 'www.institutfrancais-tunisie.com', 'LIEN_IFT_INTROUVABLE');
+}
+
+/**
+ * Texte d'un fragment du document : le balisage est retiré jusqu'à point fixe,
+ * puis le résultat est **vérifié**. Un nettoyage peut être incomplet ; une
+ * vérification, non. Ce qui sort d'ici n'a plus ni chevron ni entité inconnue,
+ * et peut donc entrer dans un JSON-LD sans refermer la balise qui le porte.
+ */
+const ENTITES = new Map([['&amp;', '&'], ['&nbsp;', '\u00a0'], ['&lt;', '<'], ['&gt;', '>'], ['&quot;', '"'], ['&#39;', "'"]]);
+
+function texteDuFragment(fragment) {
+  let texte = fragment;
+  let precedent;
+  do {
+    precedent = texte;
+    texte = texte.replace(/<[^<>]*>/g, '');
+  } while (texte !== precedent);
+  if (texte.includes('<') || texte.includes('>')) throw new Error('FRAGMENT_NON_TEXTUEL');
+  const inconnue = texte.replace(/&(?:amp|nbsp|lt|gt|quot|#39);/g, '').match(/&[a-zA-Z#0-9]+;/);
+  if (inconnue) throw new Error(`ENTITE_INCONNUE: ${inconnue[0]}`);
+  for (const [entite, caractere] of ENTITES) texte = texte.split(entite).join(caractere);
+  if (texte.includes('<') || texte.includes('>')) throw new Error('FRAGMENT_NON_TEXTUEL');
+  return texte.replace(/\s+/g, ' ').trim();
+}
+
+/** Le titre du document, tel qu'il est lu par l'humain. */
+export function titreDuDocument(source) {
+  const trouve = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(source);
+  if (!trouve) throw new Error('TITRE_DU_DOCUMENT_INTROUVABLE');
+  return texteDuFragment(trouve[1]);
+}
+
+/**
+ * Les questions que posent les parents, telles que le document les expose en
+ * « details / summary ». Elles sont visibles sur la page : c'est la condition
+ * que Google pose à une FAQ déclarée, et la seule honnête.
+ */
+export function questionsDesParents(source) {
+  const bloc = /<section[^>]*id="parents"[^>]*>([\s\S]*?)<\/section>/.exec(source);
+  if (!bloc) throw new Error('QUESTIONS_DES_PARENTS_INTROUVABLES');
+  const paires = [...bloc[1].matchAll(/<details[^>]*>([\s\S]*?)<summary[^>]*>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/g)];
+  if (paires.length === 0) throw new Error('QUESTIONS_DES_PARENTS_INTROUVABLES');
+  return paires.map(([, , question, reponse]) => ({
+    question: texteDuFragment(question),
+    reponse: texteDuFragment(reponse),
+  }));
+}
+
+/**
+ * Le JSON-LD de la page. Tout vient du document : le titre, les questions,
+ * la description. Aucune date n'est déclarée — une date de mise à jour qui
+ * n'est pas écrite dans le document serait une date inventée.
+ */
+export function donneesStructurees(source, page) {
+  const url = `${SITE}${page.chemin}`;
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        '@id': `${url}#article`,
+        headline: titreDuDocument(source),
+        description: description(source, page.sujet),
+        inLanguage: 'fr',
+        mainEntityOfPage: url,
+        isPartOf: { '@id': `${SITE}/#site` },
+        publisher: { '@id': `${SITE}/#organisation` },
+        about: [page.sujet, 'Baccalauréat français', 'Candidat individuel', 'Inscription Cyclades'],
+        audience: { '@type': 'EducationalAudience', educationalRole: 'student' },
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${url}#questions`,
+        mainEntity: questionsDesParents(source).map(({ question, reponse }) => ({
+          '@type': 'Question',
+          name: question,
+          acceptedAnswer: { '@type': 'Answer', text: reponse },
+        })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${url}#fil`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE}/` },
+          { '@type': 'ListItem', position: 2, name: 'Inscription au bac 2027', item: `${SITE}/inscription-bac-2027` },
+          { '@type': 'ListItem', position: 3, name: page.sujet, item: url },
+        ],
+      },
+    ],
+  };
+}
+
+/** Le chevron est échappé : une réponse ne peut pas refermer la balise script. */
+function scriptJsonLd(donnees) {
+  return `<script type="application/ld+json">${JSON.stringify(donnees).replace(/</g, '\\u003c')}</script>`;
+}
+
 /** Description dérivée du document, jamais saisie à la main : aucune date inventée. */
 export function description(source, sujet) {
   const table = new Map(reperes(source));
@@ -161,6 +300,7 @@ function construire(page) {
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/inscription-bac-2027/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/inscription-bac-2027/apple-touch-icon-180.png">
+${scriptJsonLd(donneesStructurees(source, page))}
 ${SOCLE}
 ${teteNettoyee}
 ${STYLES_LOGO}
@@ -185,6 +325,9 @@ export function manifeste() {
       titre: page.titre,
       description: description(source, page.sujet),
       cloture: cloture(source),
+      cyclades: lienCyclades(source),
+      institut_francais: lienInstitutFrancais(source),
+      questions: questionsDesParents(source),
     };
   });
 }

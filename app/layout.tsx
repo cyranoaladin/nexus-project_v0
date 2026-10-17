@@ -3,7 +3,7 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import { Providers } from "@/components/providers";
 import { buildOrganisationJsonLd } from "@/lib/organisation-jsonld";
-import { OG_DEFAULT_IMAGE } from "@/lib/seo";
+import { OG_DEFAULT_IMAGE, serialiserJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-3XPB54QL5N";
@@ -112,7 +112,7 @@ export default function RootLayout({
         ) : null}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
         />
       </head>
       <body className={`${inter.variable} ${spaceGrotesk.variable} ${ibmPlexMono.variable} ${fraunces.variable} ${dmSans.variable} antialiased bg-lux-ink text-neutral-100 font-sans selection:bg-lux-gold/30 selection:text-white`}>

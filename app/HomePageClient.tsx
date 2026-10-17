@@ -28,6 +28,7 @@ import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagn
 import type { PreRentreeHomepageSpotlightDTO } from '@/lib/campaigns/pre-rentree-2026/homepage-spotlight';
 import type { ALaUneCandidatsLibres } from '@/lib/candidats-libres-2027';
 import { CandidatsLibresALaUne } from '@/components/marketing/CandidatsLibresALaUne';
+import { serialiserJsonLd } from '@/lib/seo';
 
 // ── Router par niveau (near hero) ──
 
@@ -240,7 +241,7 @@ export function HomePageClient({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serialiserJsonLd({
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
             mainEntity: faqItems.map((item) => ({

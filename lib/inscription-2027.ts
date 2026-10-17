@@ -17,6 +17,12 @@ export interface PageInscription2027 {
   description: string;
   /** Clôture de la campagne Cyclades, lue sur le compte à rebours du document. */
   cloture: string;
+  /** Portail d'inscription officiel, lu sur le document audité. */
+  cyclades: string;
+  /** Institut français de Tunisie, lu sur le document audité. */
+  institut_francais: string;
+  /** Les questions que le document pose et traite, visibles sur la page. */
+  questions: { question: string; reponse: string }[];
 }
 
 export function getPagesInscription2027(): PageInscription2027[] {

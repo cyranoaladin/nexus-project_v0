@@ -24,8 +24,9 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
+import { lienCycladesOfficiel, lienInstitutFrancaisOfficiel } from '@/lib/liens-officiels';
 import { LEGAL } from '@/lib/legal';
-import { buildPageMetadata } from '@/lib/seo';
+import { buildPageMetadata, serialiserJsonLd } from '@/lib/seo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 /** Régénérée toutes les heures : les offres datées disparaissent d'elles-mêmes à leur échéance. */
@@ -136,6 +137,8 @@ export default function BacCandidatLibrePage() {
   const produitsCourts = produitsCourtsPublies();
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
+  const lienCyclades = lienCycladesOfficiel();
+  const lienIft = lienInstitutFrancaisOfficiel();
   const offres = getFraisDossierOffertsActifs(maintenant);
   const faq = construireFaq(data, { produitsCourts, fraisOfferts: offres.length > 0 });
   const echeances = [
@@ -154,6 +157,10 @@ export default function BacCandidatLibrePage() {
       educationalCredentialAwarded: 'Baccalauréat français (candidat individuel)',
       provider: {
         '@type': 'EducationalOrganization',
+        // Même identifiant que le graphe global : moteurs et assistants
+        // rattachent ce cours à l'organisation déjà décrite, au lieu d'en
+        // déduire une seconde entité du même nom.
+        '@id': `${LEGAL.web.url}/#organisation`,
         name: LEGAL.entity.tradeName,
         url: LEGAL.web.url,
         telephone: LEGAL.contact.phone,
@@ -205,7 +212,7 @@ export default function BacCandidatLibrePage() {
       {jsonLd.map((bloc) => (
         // JSON-LD statique construit par JSON.stringify sur des données du dépôt (aucune entrée utilisateur) — même motif que app/layout.tsx.
         // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
-        <script key={bloc['@type']} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bloc) }} />
+        <script key={bloc['@type']} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(bloc) }} />
       ))}
       <CorporateNavbar />
 
@@ -405,8 +412,16 @@ export default function BacCandidatLibrePage() {
             L’inscription au bac sur Cyclades, avec vous
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-lux-on-dark-muted">
-            L’inscription est personnelle et se fait sur Cyclades. Nous vous accompagnons étape par étape, mais nous ne la
-            faisons jamais à votre place.
+            L’inscription est personnelle et se fait sur{' '}
+            <a
+              href={lienCyclades}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory"
+            >
+              Cyclades, espace candidat<span className="sr-only"> (nouvel onglet)</span>
+            </a>
+            . Nous vous accompagnons étape par étape, mais nous ne la faisons jamais à votre place.
             {ateliers.length > 0
               ? ` Atelier gratuit les samedis ${ateliers.map(jourMois).join(', ')} à ${data.ateliers_cyclades.heure}, ${data.ateliers_cyclades.lieu}.`
               : ''}
@@ -429,6 +444,18 @@ export default function BacCandidatLibrePage() {
               nos dossiers d’inscription 2027
             </Link>
             {' '}(bac général et bac STMG).
+          </p>
+          <p className="mt-3 text-sm leading-6 text-lux-on-dark-muted">
+            Pour suivre la session — calendrier, convocations, frais d’examen{NBSP}:{' '}
+            <a
+              href={lienIft}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory"
+            >
+              Institut français de Tunisie, Examens &amp; concours<span className="sr-only"> (nouvel onglet)</span>
+            </a>
+            .
           </p>
         </div>
       </section>
