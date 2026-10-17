@@ -31,14 +31,28 @@ export const LEGAL = {
       neighborhood: 'Manar III',
       city: 'Tunis',
       note: 'Les cours, stages et rendez-vous pédagogiques ont lieu au 17 rue Ali Zlitni, Manar III, Tunis.',
+      postalCode: '2091',
       /**
        * Coordonnées et lien de la fiche Google Maps de Nexus Réussite, relevés
        * sur la fiche elle-même (identifiant de lieu 0x995daf69d139108a). Ne
        * jamais les estimer : une épingle fausse envoie une famille ailleurs.
-       * Le code postal reste absent tant qu'il n'est pas attesté.
        */
       geo: { latitude: 36.8414471, longitude: 10.1656767 },
       maps: 'https://maps.google.com/?cid=11051181929653670026',
+      /**
+       * Horaires d'ouverture du centre, attestés par le propriétaire le
+       * 17 octobre 2026. Source unique : le JSON-LD et le texte affiché en
+       * dérivent tous les deux. Un horaire faux sur une fiche locale envoie
+       * une famille devant une porte close — ne jamais les deviner, et les
+       * corriger ici seulement, jamais dans une page.
+       */
+      horaires: {
+        jours: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        creneaux: [
+          { opens: '09:00', closes: '13:00' },
+          { opens: '14:00', closes: '19:00' },
+        ],
+      },
     },
   },
 
@@ -89,6 +103,21 @@ export const LEGAL = {
 export type LegalEntity = typeof LEGAL.entity;
 export type LegalContact = typeof LEGAL.contact;
 export type LegalBilling = typeof LEGAL.billing;
+
+/**
+ * Libellé français des horaires du centre, dérivé de LEGAL : « Tous les jours,
+ * 9 h–13 h et 14 h–19 h ». Refuse de produire un libellé si les jours cessent
+ * d'être les sept de la semaine : mieux vaut une erreur de construction qu'une
+ * page qui annonce « tous les jours » un jour de fermeture.
+ */
+export function horairesLisibles(): string {
+  const { jours, creneaux } = LEGAL.addresses.pedagogique.horaires;
+  if (jours.length !== 7) throw new Error('HORAIRES_LIBELLE_A_ADAPTER');
+  const heure = (valeur: string) =>
+    valeur.replace(/^0/, '').replace(':00', '\u00a0h').replace(':', '\u00a0h\u00a0');
+  const plages = creneaux.map((c) => `${heure(c.opens)}\u2013${heure(c.closes)}`).join(' et ');
+  return `Tous les jours, ${plages}`;
+}
 
 export function compactBankIdentifier(value: string): string {
   return value.replace(/\s+/g, '');
