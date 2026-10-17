@@ -74,6 +74,27 @@ describe('Données structurées de l’organisation', () => {
     for (const profil of organisation.sameAs) expect(profil).toMatch(/^https:\/\//);
   });
 
+  test('le centre est localisé : coordonnées de la fiche Maps et lien vers elle', () => {
+    expect(centre.geo).toEqual({
+      '@type': 'GeoCoordinates',
+      latitude: LEGAL.addresses.pedagogique.geo.latitude,
+      longitude: LEGAL.addresses.pedagogique.geo.longitude,
+    });
+    // Les coordonnées viennent de la fiche Maps de Nexus Réussite, pas d'une
+    // estimation : une épingle fausse coûte plus cher qu'une épingle absente.
+    expect(centre.geo.latitude).toBeGreaterThan(36.8);
+    expect(centre.geo.latitude).toBeLessThan(36.9);
+    expect(centre.geo.longitude).toBeGreaterThan(10.1);
+    expect(centre.geo.longitude).toBeLessThan(10.2);
+    expect(centre.hasMap).toBe(LEGAL.addresses.pedagogique.maps);
+    expect(centre.hasMap).toMatch(/^https:\/\/maps\.google\.com\/\?cid=\d+$/);
+    expect(centre.sameAs).toContain(LEGAL.addresses.pedagogique.maps);
+  });
+
+  test('la fourchette de prix est lisible, pas une devise seule', () => {
+    expect(centre.priceRange).toMatch(/^\d[\d\s\u00a0]*\u2013[\d\s\u00a0]*\d\u00a0TND$/);
+  });
+
   test('site web déclaré', () => {
     expect(graphe.find((n) => n['@type'] === 'WebSite')?.url).toBe(LEGAL.web.url);
   });

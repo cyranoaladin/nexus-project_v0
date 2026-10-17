@@ -39,6 +39,14 @@ export default function NotreCentrePage() {
                   <div>
                     <p className="font-semibold text-lux-ink">Centre d’accompagnement pédagogique</p>
                     <p className="mt-1">{LEGAL.addresses.pedagogique.full}</p>
+                    <a
+                      href={LEGAL.addresses.pedagogique.maps}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex min-h-[44px] items-center text-sm font-semibold text-lux-gold-deep transition-colors hover:text-lux-ink"
+                    >
+                      Ouvrir l’itinéraire<span className="sr-only"> (nouvel onglet)</span>
+                    </a>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

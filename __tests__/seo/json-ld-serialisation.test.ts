@@ -85,3 +85,18 @@ describe('couverture des requêtes visées', () => {
     expect(h1).toContain('Cyclades');
   });
 });
+
+describe('lien vers la fiche du centre', () => {
+  const lireFichier = (chemin: string) => readFileSync(join(racine, chemin), 'utf8');
+
+  test.each(['app/contact/page.tsx', 'app/notre-centre/page.tsx'])(
+    '%s mène à la fiche elle-même, pas à une recherche d’adresse',
+    (chemin) => {
+      const page = lireFichier(chemin);
+      // Une recherche « maps?q=<adresse> » peut tomber à côté ; la fiche, non.
+      expect(page).not.toContain('maps?q=');
+      expect(page).toContain('LEGAL.addresses.pedagogique.maps');
+      expect(page).toContain('(nouvel onglet)');
+    },
+  );
+});
