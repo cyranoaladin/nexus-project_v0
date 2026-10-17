@@ -19,6 +19,8 @@ export interface PageInscription2027 {
   cloture: string;
   /** Portail d'inscription officiel, lu sur le document audité. */
   cyclades: string;
+  /** Institut français de Tunisie, lu sur le document audité. */
+  institut_francais: string;
 }
 
 export function getPagesInscription2027(): PageInscription2027[] {
@@ -32,16 +34,4 @@ export function getPagesInscription2027(): PageInscription2027[] {
  */
 export function campagneOuverte(page: PageInscription2027, maintenant: Date = new Date()): boolean {
   return maintenant < new Date(page.cloture);
-}
-
-/**
- * L'adresse du portail Cyclades, pour les surfaces qui l'affichent hors des
- * dossiers eux-mêmes. Elle vient des documents audités, jamais d'une saisie :
- * si les deux dossiers cessaient de s'accorder, on s'arrête plutôt que de
- * publier l'un des deux au hasard.
- */
-export function lienCycladesOfficiel(): string {
-  const adresses = new Set(getPagesInscription2027().map((page) => page.cyclades));
-  if (adresses.size !== 1) throw new Error('LIEN_CYCLADES_DIVERGENT');
-  return [...adresses][0];
 }

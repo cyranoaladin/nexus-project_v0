@@ -24,7 +24,7 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
-import { lienCycladesOfficiel } from '@/lib/inscription-2027';
+import { lienCycladesOfficiel, lienInstitutFrancaisOfficiel } from '@/lib/liens-officiels';
 import { LEGAL } from '@/lib/legal';
 import { buildPageMetadata } from '@/lib/seo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
@@ -138,6 +138,7 @@ export default function BacCandidatLibrePage() {
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
   const lienCyclades = lienCycladesOfficiel();
+  const lienIft = lienInstitutFrancaisOfficiel();
   const offres = getFraisDossierOffertsActifs(maintenant);
   const faq = construireFaq(data, { produitsCourts, fraisOfferts: offres.length > 0 });
   const echeances = [
@@ -414,7 +415,7 @@ export default function BacCandidatLibrePage() {
               rel="noopener noreferrer"
               className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory"
             >
-              Cyclades, espace candidat
+              Cyclades, espace candidat<span className="sr-only"> (nouvel onglet)</span>
             </a>
             . Nous vous accompagnons étape par étape, mais nous ne la faisons jamais à votre place.
             {ateliers.length > 0
@@ -439,6 +440,18 @@ export default function BacCandidatLibrePage() {
               nos dossiers d’inscription 2027
             </Link>
             {' '}(bac général et bac STMG).
+          </p>
+          <p className="mt-3 text-sm leading-6 text-lux-on-dark-muted">
+            Pour suivre la session — calendrier, convocations, frais d’examen{NBSP}:{' '}
+            <a
+              href={lienIft}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory"
+            >
+              Institut français de Tunisie, Examens &amp; concours<span className="sr-only"> (nouvel onglet)</span>
+            </a>
+            .
           </p>
         </div>
       </section>

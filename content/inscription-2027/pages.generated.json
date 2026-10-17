@@ -5,7 +5,8 @@
     "titre": "Inscription au bac général 2027 en candidat individuel — Tunisie",
     "description": "Bac général 2027 en candidat individuel depuis la Tunisie : la campagne Cyclades close le 12 nov. 2026, 18 h, écran par écran — pièces à fournir, choix d’épreuves, pièges à éviter.",
     "cloture": "2026-11-12T18:00:00+01:00",
-    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login"
+    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login",
+    "institut_francais": "https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/"
   },
   {
     "slug": "stmg",
@@ -13,6 +14,7 @@
     "titre": "Inscription au bac STMG 2027 en candidat individuel — Tunisie",
     "description": "Bac STMG 2027 en candidat individuel depuis la Tunisie : la campagne Cyclades close le 12 nov. 2026, 18 h, écran par écran — pièces à fournir, choix d’épreuves, pièges à éviter.",
     "cloture": "2026-11-12T18:00:00+01:00",
-    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login"
+    "cyclades": "https://candidat.examens-concours.gouv.fr/cyccandidat/portal/login",
+    "institut_francais": "https://www.institutfrancais-tunisie.com/examens-concours-reseau/#/"
   }
 ]

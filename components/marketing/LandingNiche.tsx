@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { fmtTND } from '@/components/premium/format';
@@ -29,11 +29,24 @@ export type NicheSection = {
 };
 
 export type RelatedLink = {
-  /** Les quatre pages de préparation, plus les dossiers d'inscription datés. */
-  href: PreparationLink['href'] | '/inscription-bac-2027';
   label: string;
   description?: string;
-};
+} & (
+  | {
+    /** Les quatre pages de préparation, plus les dossiers d'inscription datés. */
+    href: PreparationLink['href'] | '/inscription-bac-2027';
+    externe?: false;
+  }
+  | {
+    /**
+     * Une adresse officielle hors du site — portail d'examen, autorité. Elle
+     * vient du manifeste des dossiers audités, jamais d'une saisie, et sort
+     * en nouvel onglet annoncé.
+     */
+    href: string;
+    externe: true;
+  }
+);
 
 type ResolvedOffer = {
   id: string;
@@ -250,24 +263,44 @@ export function LandingNiche({
               <h2 className="mt-2 text-2xl font-fraunces text-lux-ink md:text-3xl">Préparations dédiées</h2>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-              {relatedLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="group rounded-2xl border border-lux-line bg-lux-white p-5 lux-shadow"
-                >
-                  <h3 className="flex items-center justify-between gap-4 font-fraunces text-xl text-lux-ink">
-                    {link.label}
-                    <ArrowRight
-                      className="h-4 w-4 flex-none text-lux-slate transition-transform group-hover:translate-x-1"
-                      aria-hidden="true"
-                    />
-                  </h3>
-                  {link.description ? (
-                    <p className="mt-3 text-sm leading-6 text-lux-slate">{link.description}</p>
-                  ) : null}
-                </Link>
-              ))}
+              {relatedLinks.map((link) => {
+                const contenu = (
+                  <>
+                    <h3 className="flex items-center justify-between gap-4 font-fraunces text-xl text-lux-ink">
+                      <span>
+                        {link.label}
+                        {link.externe ? <span className="sr-only"> (nouvel onglet)</span> : null}
+                      </span>
+                      {link.externe ? (
+                        <ArrowUpRight
+                          className="h-4 w-4 flex-none text-lux-slate transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <ArrowRight
+                          className="h-4 w-4 flex-none text-lux-slate transition-transform group-hover:translate-x-1"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </h3>
+                    {link.description ? (
+                      <p className="mt-3 text-sm leading-6 text-lux-slate">{link.description}</p>
+                    ) : null}
+                  </>
+                );
+                const classe = 'group rounded-2xl border border-lux-line bg-lux-white p-5 lux-shadow';
+                // Une sortie du site n'est pas une navigation interne : pas de
+                // préchargement, une cible annoncée, et la flèche change de sens.
+                return link.externe ? (
+                  <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={classe}>
+                    {contenu}
+                  </a>
+                ) : (
+                  <Link key={link.href} href={link.href} className={classe}>
+                    {contenu}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

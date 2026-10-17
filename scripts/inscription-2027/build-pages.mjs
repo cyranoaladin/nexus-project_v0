@@ -77,14 +77,33 @@ export function cloture(source) {
 }
 
 /**
- * L'adresse du portail d'inscription, lue sur le document audité — bloc
- * « Les deux seules adresses utiles ». Elle n'est écrite nulle part ailleurs :
- * le jour où le portail déménage, corriger le dossier suffit, et le site suit.
+ * Les deux adresses officielles, lues sur le document audité — bloc « Les deux
+ * seules adresses utiles ». Elles ne sont écrites nulle part ailleurs : le jour
+ * où un portail déménage, corriger le dossier suffit, et le site suit.
+ *
+ * L'hôte attendu fait partie du contrat : un lien qui pointerait ailleurs ne
+ * serait pas le portail officiel, et vaut mieux une fabrication arrêtée qu'une
+ * famille envoyée sur un site qui n'est pas celui de l'examen.
  */
+function lienVers(source, hote, erreur) {
+  const motif = new RegExp(`<a href="(https://${hote.replace(/\./g, '\\.')}[^"]*)"`, 'g');
+  // Le document cite l'adresse plus d'une fois. Toutes doivent s'accorder :
+  // deux adresses differentes dans un meme dossier, c'est une relecture a
+  // refaire, pas un choix a trancher par l'ordre d'apparition.
+  const trouvees = new Set([...source.matchAll(motif)].map(([, url]) => url));
+  if (trouvees.size === 0) throw new Error(erreur);
+  if (trouvees.size > 1) throw new Error(`${erreur.replace('_INTROUVABLE', '')}_DIVERGENT_DANS_LE_DOCUMENT`);
+  return [...trouvees][0];
+}
+
+/** Le portail d'inscription : « Pour s'inscrire — Cyclades, espace candidat ». */
 export function lienCyclades(source) {
-  const trouve = /<a href="(https:\/\/candidat\.examens-concours\.gouv\.fr[^"]*)"/.exec(source);
-  if (!trouve) throw new Error('LIEN_CYCLADES_INTROUVABLE');
-  return trouve[1];
+  return lienVers(source, 'candidat.examens-concours.gouv.fr', 'LIEN_CYCLADES_INTROUVABLE');
+}
+
+/** Le suivi de session : « Institut français de Tunisie, Examens & concours ». */
+export function lienInstitutFrancais(source) {
+  return lienVers(source, 'www.institutfrancais-tunisie.com', 'LIEN_IFT_INTROUVABLE');
 }
 
 /** Description dérivée du document, jamais saisie à la main : aucune date inventée. */
@@ -197,6 +216,7 @@ export function manifeste() {
       description: description(source, page.sujet),
       cloture: cloture(source),
       cyclades: lienCyclades(source),
+      institut_francais: lienInstitutFrancais(source),
     };
   });
 }
