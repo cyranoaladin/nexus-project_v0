@@ -9,6 +9,7 @@ import { CampaignExperienceProvider } from '@/components/pre-rentree-2026/Campai
 import { ProgramsSection } from '@/components/pre-rentree-2026/ProgramsSection';
 import { ScheduleSection } from '@/components/pre-rentree-2026/ScheduleSection';
 import { PreRentreeDiagnosticCtas } from '@/components/marketing/PreRentreeDiagnosticCtas';
+import { serialiserJsonLd } from '@/lib/seo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 import { getPreRentreePublicSurfaceDTO } from '@/lib/campaigns/pre-rentree-2026/public-surface';
 import { getPreRentreeReleaseGate } from '@/lib/campaigns/pre-rentree-2026/release-gate';
@@ -94,7 +95,7 @@ export default function PreRentree2026Page() {
     <main id="main-content" className="min-h-screen overflow-x-clip bg-lux-paper">
       <CorporateNavbar />
       <CampaignPageTracker />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(structuredData) }} />
 
       <section className="bg-lux-ink px-4 pb-16 pt-28 md:px-6 md:pb-24 md:pt-32" aria-labelledby="pre-rentree-heading">
         <div className="mx-auto max-w-6xl">

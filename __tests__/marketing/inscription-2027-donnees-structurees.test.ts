@@ -16,7 +16,12 @@ const lire = (chemin: string) => readFileSync(join(racine, chemin), 'utf8');
 const source = (slug: string) => lire(`content/inscription-2027/source/${slug}.html`);
 const SITE = 'https://nexusreussite.academy';
 
-function grapheServi(slug: string): any[] {
+/** Un nœud de graphe : son type est garanti, le reste est libre par nature. */
+type Noeud = { '@type': string } & Record<string, unknown>;
+type Maillon = { '@type': 'ListItem'; position: number; name: string; item: string };
+type Entree = { '@type': 'Question'; name: string; acceptedAnswer: { '@type': 'Answer'; text: string } };
+
+function grapheServi(slug: string): Noeud[] {
   const servi = lire(`public/inscription-bac-2027/${slug}.html`);
   const blocs = [...servi.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   expect(blocs).toHaveLength(1);
@@ -25,7 +30,11 @@ function grapheServi(slug: string): any[] {
 
 describe.each(PAGES.map((p: { slug: string }) => p.slug))('données structurées — %s', (slug) => {
   const graphe = () => grapheServi(slug);
-  const typeDu = (type: string) => graphe().find((n) => n['@type'] === type);
+  const typeDu = (type: string): Noeud => {
+    const noeud = graphe().find((n) => n['@type'] === type);
+    if (!noeud) throw new Error(`NOEUD_ABSENT: ${type}`);
+    return noeud;
+  };
 
   test('un seul bloc, analysable, sans échappement cassé', () => {
     const graphe2 = graphe();
@@ -40,7 +49,7 @@ describe.each(PAGES.map((p: { slug: string }) => p.slug))('données structurées
     const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(source(slug))![1].replace(/<[^>]+>/g, '').trim();
     expect(article.headline).toBe(h1);
     expect(article.inLanguage).toBe('fr');
-    expect(article.publisher['@id']).toBe(`${SITE}/#organisation`);
+    expect((article.publisher as { '@id': string })['@id']).toBe(`${SITE}/#organisation`);
     expect(article.mainEntityOfPage).toBe(`${SITE}/inscription-bac-2027/${slug}`);
   });
 
@@ -50,7 +59,7 @@ describe.each(PAGES.map((p: { slug: string }) => p.slug))('données structurées
     expect(attendues.length).toBeGreaterThanOrEqual(5);
     expect(faq.mainEntity).toHaveLength(attendues.length);
     const servi = lire(`public/inscription-bac-2027/${slug}.html`);
-    faq.mainEntity.forEach((entree: any, i: number) => {
+    (faq.mainEntity as Entree[]).forEach((entree, i) => {
       expect(entree['@type']).toBe('Question');
       expect(entree.name).toBe(attendues[i].question);
       expect(entree.acceptedAnswer.text).toBe(attendues[i].reponse);
@@ -61,12 +70,12 @@ describe.each(PAGES.map((p: { slug: string }) => p.slug))('données structurées
 
   test('le fil d’Ariane mène de l’accueil au dossier', () => {
     const fil = typeDu('BreadcrumbList');
-    expect(fil.itemListElement.map((e: any) => e.item)).toEqual([
+    expect((fil.itemListElement as Maillon[]).map((e) => e.item)).toEqual([
       `${SITE}/`,
       `${SITE}/inscription-bac-2027`,
       `${SITE}/inscription-bac-2027/${slug}`,
     ]);
-    expect(fil.itemListElement.map((e: any) => e.position)).toEqual([1, 2, 3]);
+    expect((fil.itemListElement as Maillon[]).map((e) => e.position)).toEqual([1, 2, 3]);
   });
 
   test('la page servie est toujours exactement ce que le générateur produit', () => {

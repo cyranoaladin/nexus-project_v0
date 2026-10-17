@@ -6,15 +6,16 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
 import { LEGAL } from '@/lib/legal';
-import { buildPageMetadata } from '@/lib/seo';
+import { buildPageMetadata, serialiserJsonLd } from '@/lib/seo';
 
 /** Régénérée toutes les heures : la campagne se referme d'elle-même à la clôture. */
 export const revalidate = 3600;
 
-const TITRE = 'Inscription au bac 2027 en candidat individuel — Tunisie';
+const TITRE = 'Inscription Cyclades au bac français 2027 en Tunisie — candidat libre';
 const DESCRIPTION =
   'Les deux dossiers d’inscription à la session 2027 du baccalauréat français en Tunisie, '
-  + 'pour les candidats individuels : bac général et bac STMG.';
+  + 'pour les candidats libres — candidats individuels dans les textes : la campagne '
+  + 'Cyclades écran par écran, en bac général et en bac STMG.';
 
 export const metadata: Metadata = {
   title: TITRE,
@@ -68,13 +69,13 @@ export default function InscriptionBac2027Page() {
       <CorporateNavbar />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }}
       />
       <section className="px-4 py-16 md:px-6">
         <div className="mx-auto max-w-4xl">
-          <p className="lux-eyebrow">Candidats individuels · session 2027</p>
+          <p className="lux-eyebrow">Candidats libres · candidats individuels · session 2027</p>
           <h1 className="mt-2 font-fraunces text-3xl text-lux-ink md:text-4xl">
-            S’inscrire au baccalauréat français en Tunisie
+            S’inscrire sur Cyclades au baccalauréat français, en Tunisie
           </h1>
           <div className="lux-filet-gold mt-3 w-16" />
           <p className="mt-4 max-w-2xl text-base leading-7 text-lux-slate">

@@ -9,6 +9,7 @@ export const metadata: Metadata = landing.metadata;
 export default function ReussirEafPage() {
   return (
     <LandingNiche
+      path={landing.path}
       title={landing.title}
       intro={landing.intro}
       jsonLdName={landing.jsonLdName}

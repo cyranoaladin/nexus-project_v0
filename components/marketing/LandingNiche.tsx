@@ -15,6 +15,7 @@ import {
   type Pack,
   type PonctuelOffer,
 } from '@/lib/pricing';
+import { filArianeJsonLd, serialiserJsonLd } from '@/lib/seo';
 
 export type OfferRef = {
   /** `candidat-libre` : parcours de la session 2027 (bloc candidats_libres_2027), détaillés sur /bac-candidat-libre. */
@@ -57,6 +58,8 @@ type ResolvedOffer = {
 };
 
 export type LandingNicheProps = {
+  /** Chemin public de la page : sert au fil d'Ariane, jamais réécrit à la main. */
+  path: string;
   title: string;
   intro: string;
   offerRefs: OfferRef[];
@@ -115,6 +118,7 @@ function resolveOffer(ref: OfferRef): ResolvedOffer | null {
 }
 
 export function LandingNiche({
+  path,
   title,
   intro,
   offerRefs,
@@ -163,10 +167,12 @@ export function LandingNiche({
     <main className="luxury min-h-screen bg-lux-paper" id="main-content">
       {/* JSON-LD statique construit par JSON.stringify sur des données du dépôt (aucune entrée utilisateur) — même motif que app/layout.tsx. */}
       {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(jsonLd) }} />
+      {/* nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml — même justification : fil d'Ariane statique. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(filArianeJsonLd(path, title)) }} />
       {faq.length > 0 ? (
         // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml — même justification : JSON-LD FAQ statique.
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(faqJsonLd) }} />
       ) : null}
       <CorporateNavbar />
 

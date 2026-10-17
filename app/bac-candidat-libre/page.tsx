@@ -26,7 +26,7 @@ import {
 } from '@/lib/candidats-libres-2027';
 import { lienCycladesOfficiel, lienInstitutFrancaisOfficiel } from '@/lib/liens-officiels';
 import { LEGAL } from '@/lib/legal';
-import { buildPageMetadata } from '@/lib/seo';
+import { buildPageMetadata, serialiserJsonLd } from '@/lib/seo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
 
 /** Régénérée toutes les heures : les offres datées disparaissent d'elles-mêmes à leur échéance. */
@@ -212,7 +212,7 @@ export default function BacCandidatLibrePage() {
       {jsonLd.map((bloc) => (
         // JSON-LD statique construit par JSON.stringify sur des données du dépôt (aucune entrée utilisateur) — même motif que app/layout.tsx.
         // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
-        <script key={bloc['@type']} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bloc) }} />
+        <script key={bloc['@type']} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serialiserJsonLd(bloc) }} />
       ))}
       <CorporateNavbar />
 
