@@ -54,6 +54,16 @@ export const LEGAL = {
   web: {
     domain: 'nexusreussite.academy',
     url: 'https://nexusreussite.academy',
+    /**
+     * Profils officiels, publiés en `sameAs` : ils permettent aux moteurs et
+     * aux assistants de reconnaître une seule et même entité d'un site à
+     * l'autre. N'y mettre qu'un compte tenu par Nexus Réussite, jamais un
+     * lien de publication ni une page tierce qui parle de nous.
+     */
+    profils: [
+      'https://www.instagram.com/nexusacademy2026/',
+      'https://www.facebook.com/groups/989509755402969/',
+    ] as string[],
   },
 
   copyright: {

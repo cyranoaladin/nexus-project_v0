@@ -21,6 +21,8 @@ export interface PageInscription2027 {
   cyclades: string;
   /** Institut français de Tunisie, lu sur le document audité. */
   institut_francais: string;
+  /** Les questions que le document pose et traite, visibles sur la page. */
+  questions: { question: string; reponse: string }[];
 }
 
 export function getPagesInscription2027(): PageInscription2027[] {

@@ -5,6 +5,7 @@ import { ArrowRight, CalendarClock } from 'lucide-react';
 import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { CorporateNavbar } from '@/components/layout/CorporateNavbar';
 import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
+import { LEGAL } from '@/lib/legal';
 import { buildPageMetadata } from '@/lib/seo';
 
 /** Régénérée toutes les heures : la campagne se referme d'elle-même à la clôture. */
@@ -27,9 +28,48 @@ export default function InscriptionBac2027Page() {
   const maintenant = new Date();
   const pages = getPagesInscription2027();
 
+  /**
+   * Donnees structurees : la collection des deux dossiers et le fil d'Ariane.
+   * Les dossiers eux-memes portent leur propre Article et leur FAQ, deposes
+   * par le generateur. Ici, rien n'est saisi : tout vient du manifeste.
+   */
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${LEGAL.web.url}/inscription-bac-2027#page`,
+        name: TITRE,
+        description: DESCRIPTION,
+        inLanguage: 'fr',
+        isPartOf: { '@id': `${LEGAL.web.url}/#site` },
+        publisher: { '@id': `${LEGAL.web.url}/#organisation` },
+        hasPart: pages.map((page) => ({
+          '@type': 'Article',
+          '@id': `${LEGAL.web.url}${page.chemin}#article`,
+          headline: page.titre,
+          description: page.description,
+          url: `${LEGAL.web.url}${page.chemin}`,
+        })),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${LEGAL.web.url}/inscription-bac-2027#fil`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${LEGAL.web.url}/` },
+          { '@type': 'ListItem', position: 2, name: 'Inscription au bac 2027', item: `${LEGAL.web.url}/inscription-bac-2027` },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="luxury min-h-screen bg-lux-paper" id="main-content">
       <CorporateNavbar />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       <section className="px-4 py-16 md:px-6">
         <div className="mx-auto max-w-4xl">
           <p className="lux-eyebrow">Candidats individuels · session 2027</p>

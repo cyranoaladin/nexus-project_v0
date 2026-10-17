@@ -66,6 +66,7 @@ export function buildOrganisationJsonLd() {
           'Enseignement de spécialité mathématiques, physique-chimie et NSI',
         ],
         availableLanguage: ['fr'],
+        sameAs: LEGAL.web.profils,
         offers:
           prix.length > 0
             ? {

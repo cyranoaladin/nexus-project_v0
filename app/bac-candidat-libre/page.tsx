@@ -157,6 +157,10 @@ export default function BacCandidatLibrePage() {
       educationalCredentialAwarded: 'Baccalauréat français (candidat individuel)',
       provider: {
         '@type': 'EducationalOrganization',
+        // Même identifiant que le graphe global : moteurs et assistants
+        // rattachent ce cours à l'organisation déjà décrite, au lieu d'en
+        // déduire une seconde entité du même nom.
+        '@id': `${LEGAL.web.url}/#organisation`,
         name: LEGAL.entity.tradeName,
         url: LEGAL.web.url,
         telephone: LEGAL.contact.phone,
