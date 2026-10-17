@@ -10,9 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { WHATSAPP_BRAND_GREEN,WhatsAppLogo } from '@/components/ui/whatsapp-logo';
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, horairesLisibles } from '@/lib/legal';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
-import { ArrowRight,Mail,MapPin,MessageCircle,Phone } from 'lucide-react';
+import { ArrowRight,Clock,Mail,MapPin,MessageCircle,Phone } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback,useRef,useState,type FormEvent,type KeyboardEvent } from 'react';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ const ADMIN_ADDRESS = LEGAL.addresses.siege.full;
 const PEDA_ADDRESS = LEGAL.addresses.pedagogique.full;
 /** La fiche du centre, pas une recherche d'adresse : une recherche peut tomber à côté. */
 const PEDA_MAPS = LEGAL.addresses.pedagogique.maps;
+const HORAIRES = horairesLisibles();
 
 type FormState = {
   profile: string;
@@ -299,6 +300,10 @@ export default function ContactPage() {
                   <div className="rounded-xl border border-lux-line/60 bg-lux-paper/60 p-4">
                     <p className="font-semibold text-lux-ink">Centre d’accompagnement pédagogique</p>
                     <p className="mt-1">{PEDA_ADDRESS}</p>
+                    <p className="mt-2 flex items-start gap-2">
+                      <Clock className="mt-0.5 h-4 w-4 shrink-0 text-lux-gold" aria-hidden="true" />
+                      <span>{HORAIRES}</span>
+                    </p>
                   </div>
                 </div>
               </CardContent>

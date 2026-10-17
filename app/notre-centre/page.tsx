@@ -7,7 +7,7 @@ import { CorporateFooter } from '@/components/layout/CorporateFooter';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, horairesLisibles } from '@/lib/legal';
 
 export default function NotreCentrePage() {
   return (
@@ -49,9 +49,13 @@ export default function NotreCentrePage() {
                     </a>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-lux-gold" />
-                  <span>Sur confirmation, selon le créneau recommandé</span>
+                <div className="flex items-start gap-3">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-lux-gold" aria-hidden="true" />
+                  <div>
+                    <p className="font-semibold text-lux-ink">Horaires d’ouverture</p>
+                    <p className="mt-1">{horairesLisibles()}</p>
+                    <p className="mt-1">Sur confirmation, selon le créneau recommandé</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-lux-gold" />

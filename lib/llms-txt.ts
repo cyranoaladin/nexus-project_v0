@@ -14,7 +14,7 @@ import {
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, horairesLisibles } from '@/lib/legal';
 
 /**
  * /llms.txt et /llms-full.txt (format proposé sur llmstxt.org) : fiche factuelle
@@ -163,7 +163,8 @@ export function buildLlmsFullTxt(maintenant: Date = new Date()): string {
     '',
     `- Raison sociale : ${LEGAL.entity.name}, marque ${LEGAL.entity.tradeName}.`,
     `- Siège social administratif : ${LEGAL.addresses.siege.full}.`,
-    `- Centre pédagogique (cours, stages, rendez-vous) : ${LEGAL.addresses.pedagogique.full}.`,
+    `- Centre pédagogique (cours, stages, rendez-vous) : ${LEGAL.addresses.pedagogique.full} ${LEGAL.addresses.pedagogique.postalCode}.`,
+    `- Horaires d’ouverture du centre : ${horairesLisibles()}.`,
     `- Site : ${LEGAL.web.url}`,
     '',
     ...blocCandidatsLibres(maintenant),

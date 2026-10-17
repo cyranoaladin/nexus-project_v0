@@ -7,6 +7,8 @@
  * interdit qu'un nouveau bloc revienne à `JSON.stringify` nu.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
+
+import { horairesLisibles } from '@/lib/legal';
 import { extname, join } from 'node:path';
 
 import React from 'react';
@@ -99,4 +101,28 @@ describe('lien vers la fiche du centre', () => {
       expect(page).toContain('(nouvel onglet)');
     },
   );
+});
+
+describe('horaires du centre, visibles et dérivés', () => {
+  const lireFichier = (chemin: string) => readFileSync(join(racine, chemin), 'utf8');
+
+  test.each(['app/contact/page.tsx', 'app/notre-centre/page.tsx'])(
+    '%s affiche les horaires, lus dans LEGAL et jamais recopiés',
+    (chemin) => {
+      const page = lireFichier(chemin);
+      expect(page).toContain('horairesLisibles');
+      // Un horaire écrit en dur dans une page se désynchronise du JSON-LD au
+      // premier changement : les moteurs et le visiteur liraient deux choses.
+      expect(page).not.toMatch(/\b9\s*h\s*(?:\u2013|-|à)\s*13\s*h\b/);
+      expect(page).not.toMatch(/\b14\s*h\s*(?:\u2013|-|à)\s*19\s*h\b/);
+    },
+  );
+
+  test('un horaire déclaré aux moteurs est un horaire montré au visiteur', () => {
+    const libelle = horairesLisibles();
+    for (const chemin of ['app/contact/page.tsx', 'app/notre-centre/page.tsx']) {
+      expect(lireFichier(chemin)).toContain('horairesLisibles()');
+    }
+    expect(libelle).toMatch(/^Tous les jours, /);
+  });
 });

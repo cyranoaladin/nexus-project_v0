@@ -8,7 +8,7 @@ import robots from '@/app/robots';
 import { GET as llmsTxt } from '@/app/llms.txt/route';
 import { GET as llmsFullTxt } from '@/app/llms-full.txt/route';
 import { buildOrganisationJsonLd } from '@/lib/organisation-jsonld';
-import { LEGAL } from '@/lib/legal';
+import { LEGAL, horairesLisibles } from '@/lib/legal';
 import { getPagesInscription2027 } from '@/lib/inscription-2027';
 
 const ROBOTS_IA = [
@@ -91,6 +91,40 @@ describe('Données structurées de l’organisation', () => {
     expect(centre.sameAs).toContain(LEGAL.addresses.pedagogique.maps);
   });
 
+  test('le centre porte son code postal : une adresse incomplète se fait distancer en local', () => {
+    expect(centre.address.postalCode).toBe(LEGAL.addresses.pedagogique.postalCode);
+    expect(centre.address.postalCode).toMatch(/^\d{4}$/);
+  });
+
+  test('les horaires d’ouverture sont déclarés : sept jours, deux créneaux', () => {
+    const creneaux = centre.openingHoursSpecification as Record<string, any>[];
+    expect(Array.isArray(creneaux)).toBe(true);
+    expect(creneaux).toHaveLength(2);
+    const jours = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    for (const creneau of creneaux) {
+      expect(creneau['@type']).toBe('OpeningHoursSpecification');
+      expect(creneau.dayOfWeek).toEqual(jours);
+      // Une heure mal formée est ignorée en silence par les moteurs : on la refuse ici.
+      expect(creneau.opens).toMatch(/^\d{2}:\d{2}$/);
+      expect(creneau.closes).toMatch(/^\d{2}:\d{2}$/);
+      expect(creneau.opens < creneau.closes).toBe(true);
+    }
+    expect(creneaux.map((c) => [c.opens, c.closes])).toEqual([
+      ['09:00', '13:00'],
+      ['14:00', '19:00'],
+    ]);
+  });
+
+  test('le libellé lisible dérive des mêmes données, il n’est pas recopié', () => {
+    const libelle = horairesLisibles();
+    for (const creneau of LEGAL.addresses.pedagogique.horaires.creneaux) {
+      for (const heure of [creneau.opens, creneau.closes]) {
+        expect(libelle).toContain(heure.replace(/^0/, '').replace(':00', '\u00a0h'));
+      }
+    }
+    expect(libelle).toContain('Tous les jours');
+  });
+
   test('la fourchette de prix est lisible, pas une devise seule', () => {
     expect(centre.priceRange).toMatch(/^\d[\d\s\u00a0]*\u2013[\d\s\u00a0]*\d\u00a0TND$/);
   });
@@ -124,6 +158,11 @@ describe('/llms.txt et /llms-full.txt', () => {
     }
     // L'adresse du portail est la seule que connaisse le site : celle des dossiers.
     expect(texte).toContain(getPagesInscription2027()[0].cyclades);
+  });
+
+  test('les horaires du centre sont lisibles par un assistant', async () => {
+    const texte = sansEspaces(await (await llmsFullTxt()).text());
+    expect(texte).toContain(sansEspaces(horairesLisibles()));
   });
 
   test('/llms-full.txt : les questions des parents des deux dossiers y figurent', async () => {

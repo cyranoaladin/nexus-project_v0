@@ -94,9 +94,19 @@ export function buildOrganisationJsonLd() {
         address: {
           '@type': 'PostalAddress',
           streetAddress: centre.street,
+          postalCode: centre.postalCode,
           addressLocality: `${centre.neighborhood}, ${centre.city}`,
           addressCountry: 'TN',
         },
+        // Les horaires affichés sur /notre-centre et /contact dérivent des
+        // mêmes données : le moteur ne doit jamais lire autre chose que le
+        // visiteur.
+        openingHoursSpecification: centre.horaires.creneaux.map((creneau) => ({
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: [...centre.horaires.jours],
+          opens: creneau.opens,
+          closes: creneau.closes,
+        })),
         geo: {
           '@type': 'GeoCoordinates',
           latitude: centre.geo.latitude,
