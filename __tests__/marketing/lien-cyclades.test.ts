@@ -46,10 +46,19 @@ describe.each(ADRESSES)('adresse officielle — $nom', ({ lecteur, champ, hote, 
 
   test('un document sans l’adresse arrête la fabrication, il ne la devine pas', () => {
     const document = source('general');
-    const motif = new RegExp(`<a href="https://${hote.replace(/\./g, '\\.')}[^"]*">`, 'g');
-    const ampute = document.replace(motif, '<a href="#">');
+    // Les liens vers cet hôte deviennent des ancres internes : plus aucune
+    // adresse à lire. Un découpage littéral, pas un motif construit.
+    const ampute = document.split(`<a href="https://${hote}`).join('<a href="#');
     expect(ampute).not.toBe(document);
     expect(() => lecteur(ampute)).toThrow(erreur);
+  });
+
+  test('un hôte qui ressemble au bon n’est pas le bon', () => {
+    // Un sous-domaine suffixe : « …gouv.fr.autre-site.tn » satisfait une
+    // expression régulière naïve et n'est pas le portail de l'examen.
+    const sosie = `<a href="https://${hote}.autre-site.tn/piege">${hote}</a>`;
+    expect(() => lecteur(sosie)).toThrow(erreur);
+    expect(lecteur(`${source('general')}${sosie}`)).toBe(lecteur(source('general')));
   });
 
   test('deux adresses qui divergent dans un même document arrêtent la fabrication', () => {

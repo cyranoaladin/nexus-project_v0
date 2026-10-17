@@ -85,13 +85,27 @@ export function cloture(source) {
  * serait pas le portail officiel, et vaut mieux une fabrication arrêtée qu'une
  * famille envoyée sur un site qui n'est pas celui de l'examen.
  */
+const LIENS = /<a href="(https:\/\/[^"]+)"/g;
+
+function hoteDe(url) {
+  try {
+    return new URL(url).host;
+  } catch {
+    return null;
+  }
+}
+
 function lienVers(source, hote, erreur) {
-  const motif = new RegExp(`<a href="(https://${hote.replace(/\./g, '\\.')}[^"]*)"`, 'g');
+  // L'hote est compare apres analyse de l'adresse, jamais au motif : un
+  // « https://candidat.examens-concours.gouv.fr.autre-site.tn/ » satisfait une
+  // expression reguliere naive et n'est pas le portail de l'examen.
+  const trouvees = new Set(
+    [...source.matchAll(LIENS)].map(([, url]) => url).filter((url) => hoteDe(url) === hote),
+  );
+  if (trouvees.size === 0) throw new Error(erreur);
   // Le document cite l'adresse plus d'une fois. Toutes doivent s'accorder :
   // deux adresses differentes dans un meme dossier, c'est une relecture a
   // refaire, pas un choix a trancher par l'ordre d'apparition.
-  const trouvees = new Set([...source.matchAll(motif)].map(([, url]) => url));
-  if (trouvees.size === 0) throw new Error(erreur);
   if (trouvees.size > 1) throw new Error(`${erreur.replace('_INTROUVABLE', '')}_DIVERGENT_DANS_LE_DOCUMENT`);
   return [...trouvees][0];
 }
