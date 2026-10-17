@@ -1284,7 +1284,12 @@ jobs:
     # worker bilan en process (BILAN_WORKER_ENABLED) et Mailpit pour les
     # e-mails d'activation. Requis via l'agrégat CI Success.
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 45 et non 30 : mesuré le 17/10/2026 sur trois tours consécutifs, ce job
+    # dure 1751 s quand il passe et a été annulé à 1810 s, plafond atteint,
+    # alors que ses 596 épreuves étaient toutes vertes. Une voie qui réussit à
+    # 49 secondes de sa limite vire au rouge au hasard, et un rouge qui ne
+    # désigne aucun défaut apprend aux relecteurs à ignorer le rouge.
+    timeout-minutes: 45
     env:
       E2E_DISPOSABLE_STACK: '1'
 
