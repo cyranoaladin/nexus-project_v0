@@ -152,7 +152,18 @@ HMAC). Les identifiants Meta sont également partagés : `WHATSAPP_SEND_ENABLED`
 `WHATSAPP_META_API_VERSION`. **Rien à configurer en plus** si les invitations
 fonctionnent déjà par ce transport.
 
+**Interrupteur propre aux réservations.** `WHATSAPP_ORDER_SEND_ENABLED`
+l'emporte sur `WHATSAPP_SEND_ENABLED` quand il est renseigné, dans un sens
+comme dans l'autre ; à défaut, les réservations suivent l'interrupteur maison.
+Il existe pour une raison concrète : l'interrupteur maison commande aussi les
+invitations parents, qui partent aujourd'hui en **envoi assisté**. L'allumer
+pour les commandes basculerait ce geste humain en envoi automatique, ce que
+personne n'a demandé. Les identifiants Meta restent exigés dans tous les cas.
+
 Propre aux réservations, facultatif :
+
+- `WHATSAPP_ORDER_SEND_ENABLED` — `true` active les réservations seules,
+  `false` les coupe seules, absent : suit `WHATSAPP_SEND_ENABLED` ;
 
 - `WHATSAPP_TEMPLATE_ORDER` — modèle approuvé, défaut `commande_manuels`,
   sept paramètres de corps (référence, client, téléphone, format, panier,

@@ -369,3 +369,45 @@ describe('quand le serveur refuse', () => {
     expect(screen.getByLabelText(/nom complet/i)).toHaveValue('');
   });
 });
+
+describe('la démarche est expliquée avant le premier choix', () => {
+  it('un préambule nommé décrit les trois étapes', () => {
+    render(<ManuelsShop />);
+    const preambule = screen.getByRole('region', { name: /composer votre commande/i });
+    expect(preambule).toBeInTheDocument();
+    const texte = preambule.textContent ?? '';
+    expect(texte).toMatch(/choisissez le format/i);
+    expect(texte).toMatch(/cochez vos volumes/i);
+    expect(texte).toMatch(/laissez vos coordonnées/i);
+    // et ce qui rassure : rien n'est engagé avant l'envoi
+    expect(texte).toMatch(/rien n’est engagé/i);
+  });
+
+  it('il précède le premier choix de format', () => {
+    render(<ManuelsShop />);
+    const preambule = screen.getByRole('region', { name: /composer votre commande/i });
+    const format = screen.getByRole('radio', { name: /PDF seul/i });
+    expect(preambule.compareDocumentPosition(format) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
+describe('chaque manuel porte une bulle à cocher visible', () => {
+  it('elle annonce « Choisir », puis « Choisi » une fois le volume retenu', async () => {
+    render(<ManuelsShop />);
+    const carte = screen.getByRole('checkbox', { name: /Physique-chimie — Terminale/i }).closest('label')!;
+    expect(carte.textContent).toMatch(/Choisir/);
+    expect(carte.textContent).not.toMatch(/Choisi\b/);
+
+    await cocher(/Physique-chimie — Terminale/i);
+    const apres = screen.getByRole('checkbox', { name: /Physique-chimie — Terminale/i }).closest('label')!;
+    expect(apres.textContent).toMatch(/Choisi\b/);
+  });
+
+  it('l’état coché reste porté par une vraie case, pilotable au clavier', async () => {
+    render(<ManuelsShop />);
+    const casePC = screen.getByRole('checkbox', { name: /Physique-chimie — Terminale/i });
+    expect(casePC).not.toBeChecked();
+    await cocher(/Physique-chimie — Terminale/i);
+    expect(casePC).toBeChecked();
+  });
+});

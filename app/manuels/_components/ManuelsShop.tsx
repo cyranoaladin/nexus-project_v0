@@ -230,6 +230,47 @@ export default function ManuelsShop() {
         className="mx-auto grid max-w-6xl gap-5 pb-[11rem] lg:grid-cols-[1.35fr_0.65fr] lg:gap-6 lg:pb-0"
       >
         <div className="space-y-5">
+          {/* ── la démarche, avant tout choix ── */}
+          <section
+            aria-label="Comment composer votre commande"
+            className="rounded-2xl border border-lux-line bg-lux-white p-4 sm:p-6 lux-shadow"
+          >
+            <h2 className="font-fraunces text-lg text-lux-ink sm:text-xl">Comment ça marche</h2>
+            <p className="mt-2 text-sm leading-6 text-lux-slate">
+              Vous composez votre commande vous-même. Le prix se met à jour à chaque geste, et rien
+              n’est engagé tant que vous n’avez pas envoyé votre demande.
+            </p>
+            <ol className="mt-4 space-y-3">
+              {[
+                [
+                  'Choisissez le format',
+                  'Le PDF seul, ou le PDF accompagné du papier en noir et blanc ou en couleur. Le fichier est toujours compris : vous n’achetez jamais le contenu deux fois.',
+                ],
+                [
+                  'Cochez vos volumes',
+                  'Discipline par discipline, à l’unité ou par lot entier. Plus la sélection grandit, plus la page revient bas : la remise se calcule seule, sans code ni condition.',
+                ],
+                [
+                  'Laissez vos coordonnées',
+                  'Retrait au centre Nexus ou livraison offerte. Nous confirmons avec vous la disponibilité, le délai et le règlement avant toute fabrication.',
+                ],
+              ].map(([titre, texte], index) => (
+                <li key={titre} className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-lux-ink text-sm font-semibold text-lux-ivory">
+                    {index + 1}
+                  </span>
+                  <span className="text-sm leading-6 text-lux-slate">
+                    <span className="font-semibold text-lux-ink">{titre}.</span> {texte}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-4 rounded-xl bg-lux-paper px-3 py-2 text-xs leading-5 text-lux-slate">
+              Votre devis reste affiché en bas de l’écran pendant que vous choisissez : le total et
+              l’économie du lot se recalculent à chaque volume ajouté ou retiré.
+            </p>
+          </section>
+
           {/* ── 1 · le format ── */}
           <fieldset className="rounded-2xl border border-lux-line bg-lux-white p-4 sm:p-6 lux-shadow">
             <legend className="px-1 font-fraunces text-lg text-lux-ink sm:text-xl">1 · Le format</legend>
@@ -324,7 +365,7 @@ export default function ManuelsShop() {
                               <button
                                 type="button"
                                 onClick={() => prendreTout(volumes.map((v) => v.id), pris < volumes.length)}
-                                className="min-h-[36px] rounded-full border border-lux-line bg-lux-white px-3 text-xs font-semibold text-lux-ink"
+                                className="min-h-[44px] rounded-full border border-lux-line bg-lux-white px-4 text-xs font-semibold text-lux-ink"
                               >
                                 {pris < volumes.length ? 'Tout prendre' : 'Tout retirer'}
                               </button>
@@ -395,6 +436,27 @@ export default function ManuelsShop() {
                                         <span className="mt-auto pt-1 text-sm font-semibold text-lux-ink">
                                           {prix === 0 ? 'offert en PDF' : `${prix} DT en PDF`}
                                         </span>
+                                        {/* Bulle à cocher visible : l'état « choisi » ne doit
+                                            pas se deviner à la seule bordure dorée. */}
+                                        <span
+                                          className={`mt-2 flex min-h-[44px] items-center gap-2 rounded-lg border px-3 text-sm font-semibold transition ${
+                                            retenu
+                                              ? 'border-lux-gold bg-lux-gold/15 text-lux-ink'
+                                              : 'border-lux-line bg-lux-paper text-lux-slate'
+                                          }`}
+                                        >
+                                          <span
+                                            aria-hidden
+                                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                                              retenu
+                                                ? 'border-lux-gold bg-lux-gold text-lux-ink'
+                                                : 'border-lux-slate/50 bg-lux-white'
+                                            }`}
+                                          >
+                                            {retenu && <Check className="h-3 w-3" />}
+                                          </span>
+                                          {retenu ? 'Choisi' : 'Choisir'}
+                                        </span>
                                       </span>
                                     </label>
                                     {couverture && (
@@ -402,7 +464,7 @@ export default function ManuelsShop() {
                                         type="button"
                                         onClick={() => setZoom(v.id)}
                                         aria-label={`Agrandir la couverture : ${v.title}`}
-                                        className="absolute left-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-lux-ink/70 text-lux-ivory backdrop-blur"
+                                        className="absolute left-2 top-2 flex h-11 w-11 items-center justify-center rounded-full bg-lux-ink/70 text-lux-ivory backdrop-blur"
                                       >
                                         <Expand className="h-4 w-4" aria-hidden />
                                       </button>
@@ -621,7 +683,7 @@ export default function ManuelsShop() {
                     type="button"
                     onClick={() => retirer(v.id)}
                     aria-label={`Retirer ${v.title}`}
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-lux-slate hover:bg-lux-paper hover:text-lux-ink"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lux-slate hover:bg-lux-paper hover:text-lux-ink"
                   >
                     <X className="h-3.5 w-3.5" aria-hidden />
                   </button>
@@ -700,7 +762,7 @@ export default function ManuelsShop() {
               <button
                 type="button"
                 onClick={repartir}
-                className="mt-2 min-h-[36px] text-sm font-semibold text-lux-ink underline underline-offset-4"
+                className="mt-2 inline-flex min-h-[44px] items-center text-sm font-semibold text-lux-ink underline underline-offset-4"
               >
                 Faire une autre demande
               </button>
