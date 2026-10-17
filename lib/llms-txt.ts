@@ -13,6 +13,7 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
+import { ateliersOuverts } from '@/lib/ateliers';
 import { campagneOuverte, getPagesInscription2027 } from '@/lib/inscription-2027';
 import { LEGAL, horairesLisibles } from '@/lib/legal';
 
@@ -61,6 +62,7 @@ function blocCandidatsLibres(maintenant: Date): string[] {
     `- Non préparé par Nexus Réussite : ${data.non_prepare.join(', ')}. ${data.frais_examen}`,
     `- Inscription à l’examen sur Cyclades, faite par la famille : Terminale du ${dateLongue(terminale.cyclades.ouverture)} au ${dateLongue(terminale.cyclades.cloture)} à 18 h (heure de Paris), Première du ${dateLongue(premiere.cyclades.ouverture)} au ${dateLongue(premiere.cyclades.cloture)} à 18 h. Nexus Réussite accompagne la démarche sans s’y substituer.`,
     ...(ateliers.length > 0 ? [`- Ateliers Cyclades gratuits : ${ateliers.map(dateLongue).join(', ')} à ${data.ateliers_cyclades.heure}, ${data.ateliers_cyclades.lieu}.`] : []),
+    ...(ateliersOuverts(maintenant).length > 0 ? [`- Ateliers gratuits d’information au centre (1 h, 2ème à 4ème année secondaire) : ${ateliersOuverts(maintenant).map((a) => `${a.jour} à ${a.heure}`).join(', ')} ; réservation sur ${LEGAL.web.url}/ateliers.`] : []),
     ...(semaine
       ? [`- Semaine Diagnostic du ${dateLongue(semaine.du)} au ${dateLongue(semaine.au)} : ${semaine.niveaux.map((n) => `${n.id === 'terminale' ? 'Terminale' : 'Première'} ${tnd(n.prix)}`).join(', ')}, déduite du prix annuel en cas d’inscription avant le ${dateLongue(semaine.deduit_si_inscription_avant)} ; inscriptions jusqu’au ${dateLongue(semaine.inscriptions_jusqu_au)}.`]
       : []),
